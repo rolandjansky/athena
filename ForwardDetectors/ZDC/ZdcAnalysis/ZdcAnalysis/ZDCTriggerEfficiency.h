@@ -2,15 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ZDCTriggerEfficiency_
-#define _ZDCTriggerEfficiency_
+#ifndef ZDCANALYSIS_ZDCTRIGGEREFFICIENCY_H
+#define ZDCANALYSIS_ZDCTRIGGEREFFICIENCY_H
 
 #include <TSpline.h>
 #include <iostream>
 #include <vector>
 #include <array>
 #include <algorithm>
-using namespace std;
 class ZDCTriggerEfficiency{
   public:
 	bool _haveParams;

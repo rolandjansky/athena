@@ -18,53 +18,53 @@ public:
   typedef std::array<std::array<bool, 4>, 2> ZDCModuleBoolArray;
 
 private:
-  size_t _nSample;
-  float _deltaTSample;
-  size_t _preSampleIdx;
-  std::string _fitFunction;
-  bool _forceLG;
+  size_t m_nSample;
+  float m_deltaTSample;
+  size_t m_preSampleIdx;
+  std::string m_fitFunction;
+  bool m_forceLG;
 
-  ZDCModuleBoolArray _moduleDisabled;
-  std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> _moduleAnalyzers;
+  ZDCModuleBoolArray m_moduleDisabled;
+  std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers;
 
-  int _debugLevel;
-  int _eventCount;
+  int m_debugLevel;
+  int m_eventCount;
 
-  ZDCModuleFloatArray _HGGains;
-  ZDCModuleFloatArray _pedestals;
+  ZDCModuleFloatArray m_HGGains;
+  ZDCModuleFloatArray m_pedestals;
 
-  bool _haveECalib;
-  std::array<std::array<TSpline*, 4>, 2> _LBDepEcalibSplines;
+  bool m_haveECalib;
+  std::array<std::array<TSpline*, 4>, 2> m_LBDepEcalibSplines;
 
-  bool _haveT0Calib;
-  std::array<std::array<TSpline*, 4>, 2> _T0HGOffsetSplines;
-  std::array<std::array<TSpline*, 4>, 2> _T0LGOffsetSplines;
+  bool m_haveT0Calib;
+  std::array<std::array<TSpline*, 4>, 2> m_T0HGOffsetSplines;
+  std::array<std::array<TSpline*, 4>, 2> m_T0LGOffsetSplines;
 
   // Transient data that is updated each LB or each event
   //
-  int _currentLB;
-  ZDCModuleFloatArray _currentECalibCoeff;
-  ZDCModuleFloatArray _currentT0OffsetsHG;
-  ZDCModuleFloatArray _currentT0OffsetsLG;
+  int m_currentLB;
+  ZDCModuleFloatArray m_currentECalibCoeff;
+  ZDCModuleFloatArray m_currentT0OffsetsHG;
+  ZDCModuleFloatArray m_currentT0OffsetsLG;
 
-  std::array<std::array<bool, 4>, 2> _dataLoaded;
+  std::array<std::array<bool, 4>, 2> m_dataLoaded;
   // std::array<std::array<bool, 4>, 2> _moduleFail;
 
-  unsigned int _moduleMask;
+  unsigned int m_moduleMask;
 
-  std::array<std::array<unsigned int, 4>, 2> _moduleStatus;
-  std::array<std::array<float, 4>, 2> _calibAmplitude;
-  std::array<std::array<float, 4>, 2> _calibTime;
+  std::array<std::array<unsigned int, 4>, 2> m_moduleStatus;
+  std::array<std::array<float, 4>, 2> m_calibAmplitude;
+  std::array<std::array<float, 4>, 2> m_calibTime;
 
-  std::array<float, 2> _moduleSum;
-  std::array<float, 2> _moduleSumErrSq;
-  std::array<float, 2> _moduleSumPreSample;
+  std::array<float, 2> m_moduleSum;
+  std::array<float, 2> m_moduleSumErrSq;
+  std::array<float, 2> m_moduleSumPreSample;
 
-  std::array<float, 2> _calibModuleSum;
-  std::array<float, 2> _calibModuleSumErrSq;
+  std::array<float, 2> m_calibModuleSum;
+  std::array<float, 2> m_calibModuleSumErrSq;
 
-  std::array<float, 2> _averageTime;
-  std::array<bool, 2> _fail;
+  std::array<float, 2> m_averageTime;
+  std::array<bool, 2> m_fail;
 
 public:
 
@@ -77,35 +77,35 @@ public:
   ~ZDCDataAnalyzer();
 
   void SetDebugLevel(int level = 0) {
-    _debugLevel = level;
+    m_debugLevel = level;
     if (level < 2) ZDCPulseAnalyzer::SetQuietFits(true);
     else ZDCPulseAnalyzer::SetQuietFits(false);
   }
 
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
-  unsigned int GetModuleMask() const {return _moduleMask;}
+  unsigned int GetModuleMask() const {return m_moduleMask;}
 
-  float GetModuleSum(size_t side) const {return _moduleSum.at(side);}
-  float GetModuleSumErr(size_t side) const {return std::sqrt(_moduleSumErrSq.at(side));}
+  float GetModuleSum(size_t side) const {return m_moduleSum.at(side);}
+  float GetModuleSumErr(size_t side) const {return std::sqrt(m_moduleSumErrSq.at(side));}
 
-  float GetCalibModuleSum(size_t side) const {return _calibModuleSum.at(side);}
-  float GetCalibModuleSumErr(size_t side) const {return std::sqrt(_calibModuleSumErrSq.at(side));}
+  float GetCalibModuleSum(size_t side) const {return m_calibModuleSum.at(side);}
+  float GetCalibModuleSumErr(size_t side) const {return std::sqrt(m_calibModuleSumErrSq.at(side));}
   
-  float GetModuleSumPreSample(size_t side) const {return _moduleSumPreSample.at(side);}
+  float GetModuleSumPreSample(size_t side) const {return m_moduleSumPreSample.at(side);}
 
-  float GetAverageTime(size_t side) const {return _averageTime.at(side);}
-  bool SideFailed(size_t side) const {return _fail.at(side);}
+  float GetAverageTime(size_t side) const {return m_averageTime.at(side);}
+  bool SideFailed(size_t side) const {return m_fail.at(side);}
 
-  float GetModuleAmplitude(size_t side, size_t module) const {return _moduleAnalyzers.at(side).at(module)->GetAmplitude();}
-  float GetModuleTime(size_t side, size_t module) const {return _moduleAnalyzers.at(side).at(module)->GetT0Corr();}
-  float GetModuleChisq(size_t side, size_t module) const {return _moduleAnalyzers.at(side).at(module)->GetChisq();}
+  float GetModuleAmplitude(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module)->GetAmplitude();}
+  float GetModuleTime(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module)->GetT0Corr();}
+  float GetModuleChisq(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module)->GetChisq();}
 
-  float GetModuleCalibAmplitude(size_t side, size_t module) const {return _calibAmplitude.at(side).at(module);}
-  float GetModuleCalibTime(size_t side, size_t module) const {return _calibTime.at(side).at(module);}
-  float GetModuleStatus(size_t side, size_t module) const {return _moduleStatus.at(side).at(module);}
+  float GetModuleCalibAmplitude(size_t side, size_t module) const {return m_calibAmplitude.at(side).at(module);}
+  float GetModuleCalibTime(size_t side, size_t module) const {return m_calibTime.at(side).at(module);}
+  float GetModuleStatus(size_t side, size_t module) const {return m_moduleStatus.at(side).at(module);}
 
-  const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return _moduleAnalyzers.at(side).at(module);}
+  const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module);}
 
   bool DisableModule(size_t side, size_t module);
 
@@ -130,24 +130,24 @@ public:
 
   void LoadEnergyCalibrations(const std::array<std::array<TSpline*, 4>, 2>& calibSplines) 
   {
-    if (_debugLevel > 0) {
+    if (m_debugLevel > 0) {
       std::cout << "Loading energy calibrations" << std::endl;
     }
 
-    _LBDepEcalibSplines = calibSplines;
-    _haveECalib = true;
+    m_LBDepEcalibSplines = calibSplines;
+    m_haveECalib = true;
   }
 
   void LoadT0Calibrations(const std::array<std::array<TSpline*, 4>, 2>& T0HGOffsetSplines, 
 			   const std::array<std::array<TSpline*, 4>, 2>& T0LGOffsetSplines) 
   {
-    if (_debugLevel > 0) {
+    if (m_debugLevel > 0) {
       std::cout << "Loading timing calibrations" << std::endl;
     }
-    _T0HGOffsetSplines = T0HGOffsetSplines;
-    _T0LGOffsetSplines = T0LGOffsetSplines;
+    m_T0HGOffsetSplines = T0HGOffsetSplines;
+    m_T0LGOffsetSplines = T0LGOffsetSplines;
 
-    _haveT0Calib = true;
+    m_haveT0Calib = true;
   }
 
   void StartEvent(int lumiBlock);
