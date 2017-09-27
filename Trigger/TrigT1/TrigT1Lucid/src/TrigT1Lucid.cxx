@@ -18,7 +18,6 @@ namespace LVL1 {
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
     m_LUCID_LVL1T1ContainerName("Lucid_Digits"),
     m_digitContainer(0),
-    m_lucidLVL1TubeID(0),
     m_threshold_a (-1),
     m_threshold_c (-1),
     m_cablestart_a(-1),
