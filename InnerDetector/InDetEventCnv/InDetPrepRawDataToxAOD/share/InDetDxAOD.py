@@ -356,7 +356,6 @@ if dumpTrtInfo:
     topSequence += InDetPRD_Association
     print InDetPRD_Association
 
->>>>>>> 6627d0e4f2... Merge branch '21.0-TRTxAODUpdates' into '21.0'
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
     xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
