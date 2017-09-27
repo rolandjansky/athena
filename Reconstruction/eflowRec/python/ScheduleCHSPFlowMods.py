@@ -8,6 +8,7 @@
 
 
 from JetRec.JetRecStandard import jtm
+from JetRec.JetRecConf import JetToolRunner
 jtm += JetToolRunner("jetconstitCHSPFlow",
                      EventShapeTools=[],
                      Tools=[jtm.JetConstitSeq_PFlowCHS],
@@ -18,4 +19,4 @@ job = AlgSequence()
 
 from JetRec.JetRecConf import JetAlgorithm
 job += JetAlgorithm("jetalgCHSPFlow",
-                    Tools=jtm.jetconstitCHSPFlow)
+                    Tools=[jtm.jetconstitCHSPFlow])
