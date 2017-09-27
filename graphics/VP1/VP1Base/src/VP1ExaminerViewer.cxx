@@ -1385,8 +1385,8 @@ void VP1ExaminerViewer::removeDecorationMenuOption()
 //____________________________________________________________________
 SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 {
-    VP1Msg::messageDebug("VP1ExaminerViewer::processSoEvent()");
-    std::cout << "event type: " << evt->getClassTypeId().getName() << " - " << evt->getTypeId().getName() << std::endl;
+//    VP1Msg::messageDebug("VP1ExaminerViewer::processSoEvent()");
+//    std::cout << "event type: " << evt->getClassTypeId().getName() << " - " << evt->getTypeId().getName() << std::endl;
 
 	if (evt->getTypeId().isDerivedFrom(SoKeyboardEvent::getClassTypeId())) {
 		//We want to add a few shortcuts:
