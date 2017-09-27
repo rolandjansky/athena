@@ -41,6 +41,7 @@ CLASS_DEF( SCT_DCSFloatCondData , 234553277 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<SCT_DCSFloatCondData> , 257878639 , 1 )
+REGISTER_CC( SCT_DCSFloatCondData );
 
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<SCT_DCSFloatCondData>, CondContBase );
