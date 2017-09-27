@@ -89,6 +89,12 @@ if( NOT XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       GaudiKernel AsgTools xAODTau TauAnalysisToolsLib )
+else()
+atlas_add_test( ut_TauCorrections_test
+   SOURCES test/ut_TauCorrections_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCore
+   xAODTau AsgTools TauAnalysisToolsLib )
 endif()
 
 # Install files from the package:
