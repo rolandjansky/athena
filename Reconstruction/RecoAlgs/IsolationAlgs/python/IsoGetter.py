@@ -26,14 +26,9 @@ if recAlgs.doEFlow() :
   doPFlow = True
 
   # tool to collect pflow objects in cone
-  from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-  pfoTool = RetrievePFOTool();
-  ToolSvc += pfoTool
-
   from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
   PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
-                                       name = "PFlowObjectsInConeTool",
-                                       RetrievePFOTool = pfoTool)
+                                       name = "PFlowObjectsInConeTool")
 
   from AthenaCommon.BeamFlags import jobproperties
   useVertices = True
