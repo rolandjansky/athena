@@ -56,8 +56,6 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_cluster(0), 
     m_cellContainer(0),
-    m_egammaqweta1c("egammaqweta1c/egammaqweta1c", this),
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples", this),
     m_calo_dd(0),
     m_sizearrayeta(0),
     m_deta(0), 
@@ -76,35 +74,6 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
 
   // declare Interface
   declareInterface<IegammaStripsShape>(this);
-
-  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
-
-  declareProperty("egammaqweta1cTool",m_egammaqweta1c);
-  //
-  // calculate quantities base on information in the strips in a region
-  // around the cluster. 
-  //
-  // Use 2 strips in phi and cover a region of +-1.1875
-  // 5 cells in eta based on second sampling granularity ~0.025 in eta.
-  //Corresponds to ~19 strips in em barrel)
-  //  
-  declareProperty("Neta",m_neta=5,
-		  "Number of eta cell in each sampling in which to calculated shower shapes");
-
-  declareProperty("Nphi",m_nphi=2.,
-		  "Number of phi cell in each sampling in which to calculated shower shapes");
-  
-  // boolean for which algo to apply
-  declareProperty("ExecAllVariables",m_ExecAllVariables=true,
-		  "flag used by trigger");  
-
-  // Calculate some less important variables
-  declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
-		  "Calculate some less important variables");  
-
-  // Use cluster  cells or all cells 
-  declareProperty("UseCellsFromCluster" ,m_UseCellsFromCluster=true,
-		"Use Cells from the cluster");  
 
   InitVariables();
   // initialize the arrays  
