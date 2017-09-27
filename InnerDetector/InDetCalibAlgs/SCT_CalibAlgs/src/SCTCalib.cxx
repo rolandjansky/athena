@@ -721,18 +721,21 @@ StatusCode SCTCalib::getNoisyStrip() {
             ++numNoisyWafers;
             if (not m_noisyWaferWrite) break;
             if (m_noisyWaferAllStrips) { //write out all strips
-               if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() or  addStripsToList( waferId, stripIdLists[NEW], false, true ).isFailure() ) {
+               //if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() or  addStripsToList( waferId, stripIdLists[NEW], false, true ).isFailure() ) {
+               if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() ) {
                   return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
                }
                break;
             } else {
                //only noisy strips in noisy wafer
-               if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+               //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+               if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
                   return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
                }
             }
          } else { // not in noisy wafer
-            if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+            //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+            if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
                return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
             }
          }
