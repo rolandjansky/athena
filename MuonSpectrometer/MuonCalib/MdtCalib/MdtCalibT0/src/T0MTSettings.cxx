@@ -18,7 +18,6 @@ namespace MuonCalib {
     m_add_fitfun(false),
     m_verbose_level(0),
     m_fit_time(true),
-    m_fit_adc(false),
     m_min_entries_time(10000),
     m_min_entries_adc(1000),
     m_t0_settings(),

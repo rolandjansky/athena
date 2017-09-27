@@ -63,7 +63,7 @@ private:
   VP12DExaminerViewer( const VP12DExaminerViewer & );
   VP12DExaminerViewer & operator= ( const VP12DExaminerViewer & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

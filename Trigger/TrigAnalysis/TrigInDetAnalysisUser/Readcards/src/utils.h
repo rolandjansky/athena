@@ -51,6 +51,9 @@ std::string choplast(std::string& s1, const std::string& s2="abcdefghijklmnopqrs
 // chops from both ends all of s2 
 std::string chopends(std::string& s1, const std::string& s2=" \t");
 
+// functions for manipulating filenames
+std::string basename( std::string name );
+std::string dirname( std::string name );
 
 // removes colons
 void depunctuate(std::string& ); 

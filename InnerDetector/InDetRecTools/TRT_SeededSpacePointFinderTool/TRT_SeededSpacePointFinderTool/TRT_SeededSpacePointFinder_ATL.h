@@ -168,12 +168,9 @@ namespace InDet{
       /** Space points containers                                      */
       ///////////////////////////////////////////////////////////////////
 
-      std::string                        m_spacepointsPixname        ;      
-      std::string                        m_spacepointsSCTname        ;
-      std::string                        m_spacepointsOverlapname    ; 
-      const SpacePointContainer*         m_spacepointsPix            ;
-      const SpacePointContainer*         m_spacepointsSCT            ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap        ;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixname {this,"SpacePointsPixelName","PixelSpacePoints","RHK to retrieve Pixel SpacePointContainer"}            ;  
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}           ;         
+      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsOverlapName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ; 
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */

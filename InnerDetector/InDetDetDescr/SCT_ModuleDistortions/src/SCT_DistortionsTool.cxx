@@ -23,7 +23,6 @@
 SCT_DistortionsTool::SCT_DistortionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_sctID(nullptr),
-  m_doCorrections(true),
   m_dataJap1_S0(nullptr),
   m_dataJap2_S0(nullptr),
   m_dataUK_S0(nullptr),

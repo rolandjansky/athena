@@ -110,7 +110,7 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
         bool   m_exclude_layer;  //exclude layer and refit for eff determination    
 
         // calibration region//
-	const NtupleStationId	* m_cal_region;	
+	//const NtupleStationId	* m_cal_region;	
 	
         // line reconstruction //
         QuasianalyticLineReconstruction *m_qfitter;    
@@ -137,7 +137,6 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
         std::vector< std::vector<TH1F*> > m_h_tube_entries_fakerate;
 
         TH1F *m_h_layer_efficiency;
-        TH1F *m_h_layer_fakerate;
 
         TH1F *m_h_chamber_efficiency;
 

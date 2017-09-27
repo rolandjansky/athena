@@ -103,9 +103,6 @@ namespace SG {
     virtual IDataProviderSvc* dataSvc() const override;
     //@}
 
-    /// Retrieve TransientAddress
-    TransientAddress* transientAddress() const;
-
     ///< Get the primary (hashed) SG key.
     sgkey_t sgkey() const;
 

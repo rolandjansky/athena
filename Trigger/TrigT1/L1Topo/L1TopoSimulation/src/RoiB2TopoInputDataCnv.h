@@ -44,7 +44,7 @@ namespace LVL1 {
       // Default constructor: 
       RoiB2TopoInputDataCnv();
 
-      L1TopoDataMaker * datamaker { nullptr };
+      L1TopoDataMaker * m_datamaker { nullptr };
 
       SG::ReadHandleKey<ROIB::RoIBResult>             m_roibLocation;
       SG::WriteHandleKey<DataVector<CPCMXTopoData>>   m_emTauLocation;

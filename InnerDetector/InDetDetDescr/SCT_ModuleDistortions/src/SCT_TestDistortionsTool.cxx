@@ -34,8 +34,6 @@
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_SCTDistoTool("SCT_DistortionsTool", this),
-  m_detManager(0),
-  m_storeGate(0),
   ZvsX(0),ZvsY(0),XYZ(0),
   outerXedge(0), outerYedge(0),
   outerX(0),outerY(0){

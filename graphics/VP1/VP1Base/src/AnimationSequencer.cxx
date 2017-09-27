@@ -40,70 +40,70 @@ public:
 
 void AnimationSequencer::setMovie(bool b)
 {
-  c->movieEnabled = b;
+  m_c->movieEnabled = b;
 }
 
 void AnimationSequencer::setMovieParameters(QString outdir, QString frameFileNamePrefix, int fps, int width, int height)
 {
-  c->movieFPS = fps;
-  c->movieWidth = width;
-  c->movieHeight = height;
-  c->movieOutdir = outdir;
-  c->frameFileNamePrefix = frameFileNamePrefix;
+  m_c->movieFPS = fps;
+  m_c->movieWidth = width;
+  m_c->movieHeight = height;
+  m_c->movieOutdir = outdir;
+  m_c->frameFileNamePrefix = frameFileNamePrefix;
 }
 
 AnimationSequencer::AnimationSequencer(VP1ExaminerViewer *viewer) :
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->animationFrameNumber=0;
-  c->viewer=viewer;
-  c->sphere=NULL;
-  c->movieEnabled=false;
-  c->movieFPS=24;
-  c->movieWidth=100;
-  c->movieHeight=100;
-  c->movieOutdir="/tmp/vp1frames";
-  c->frameFileNamePrefix="vp1_frame";
+  m_c->animationFrameNumber=0;
+  m_c->viewer=viewer;
+  m_c->sphere=NULL;
+  m_c->movieEnabled=false;
+  m_c->movieFPS=24;
+  m_c->movieWidth=100;
+  m_c->movieHeight=100;
+  m_c->movieOutdir="/tmp/vp1frames";
+  m_c->frameFileNamePrefix="vp1_frame";
 }
 
 AnimationSequencer::~AnimationSequencer()
 {
-  if (c->sphere) c->sphere->unref();
-  delete c;
+  if (m_c->sphere) m_c->sphere->unref();
+  delete m_c;
 }
 
 AnimationSequence & AnimationSequencer::sequence() {
-  return c->animationSequence;
+  return m_c->animationSequence;
 }
 
 const AnimationSequence & AnimationSequencer::sequence() const {
-  return c->animationSequence;
+  return m_c->animationSequence;
 }
 
 void AnimationSequencer::startAnimating(bool skipFirstFrame) {
 
-  c->animationFrameNumber=(skipFirstFrame?1:0);
-  c->last_clipVolPercent = 100;
+  m_c->animationFrameNumber=(skipFirstFrame?1:0);
+  m_c->last_clipVolPercent = 100;
   nextAnimationFrame();
 }
 
 void AnimationSequencer::abortAnimation() {
   //Make sure we halt:
   VP1Msg::messageVerbose("AnimationSequencer::abortAnimation.");
-  c->animationFrameNumber = c->animationFrameNumber>=sequence().getNumFrames() + 1;
+  m_c->animationFrameNumber = m_c->animationFrameNumber>=sequence().getNumFrames() + 1;
 }
 
 void AnimationSequencer::nextAnimationFrame()
 {
   VP1Msg::messageVerbose("AnimationSequencer::nextAnimationFrame.");
 
-  if (c->animationFrameNumber>=sequence().getNumFrames()) {
+  if (m_c->animationFrameNumber>=sequence().getNumFrames()) {
     emit animationFinishedSuccessfully();
     VP1Msg::messageVerbose("animation succeeded!");
     return;
   }
 
-  SoNode * rootnode = c->viewer->getSceneGraph();
+  SoNode * rootnode = m_c->viewer->getSceneGraph();
   if (!rootnode) {
     VP1Msg::messageDebug("AnimationSequencer::nextAnimationFrame WARNING: No scenegraph set. Ignoring.");
     return;
@@ -113,13 +113,13 @@ void AnimationSequencer::nextAnimationFrame()
     return;
   }
 
-//   if (c->viewer->getCameraType() == SoPerspectiveCamera::getClassTypeId() ) {
+//   if (m_c->viewer->getCameraType() == SoPerspectiveCamera::getClassTypeId() ) {
 //     //Fix for bad camera:
-//     c->viewer->toggleCameraType();
-//     c->viewer->toggleCameraType();
+//     m_c->viewer->toggleCameraType();
+//     m_c->viewer->toggleCameraType();
 //   }
 
-  SoCamera * camera = c->viewer->getCamera();
+  SoCamera * camera = m_c->viewer->getCamera();
   if (!camera) {
     VP1Msg::messageDebug("AnimationSequencer::nextAnimationFrame WARNING: Could not get camera. Ignoring.");
     return;
@@ -128,7 +128,7 @@ void AnimationSequencer::nextAnimationFrame()
   rootnode->ref();
   SoGroup * root = static_cast<SoGroup*>(rootnode);
 
-  unsigned int i = c->animationFrameNumber;
+  unsigned int i = m_c->animationFrameNumber;
   
 
   //Get region:
@@ -147,14 +147,14 @@ void AnimationSequencer::nextAnimationFrame()
       // std::cout<<"camState empty"<<std::endl;
       camera->ref();
       bool notifyenabled = root->enableNotify(false);
-      SoSphere * regionsphere = c->getRegionSphere(AnimationSequence::REGION(f.reg),
+      SoSphere * regionsphere = m_c->getRegionSphere(AnimationSequence::REGION(f.reg),
 						   camera->getTypeId().isDerivedFrom(SoPerspectiveCamera::getClassTypeId()));
       camera->unrefNoDelete();
       //Get direction:
       SbVec3f lookat=f.dir, upvec = f.upvec;
       root->insertChild(regionsphere,0);
       VP1Msg::messageVerbose("nextAnimationFrame Initiating zoom to region sphere.");
-      helper = VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,f.time,f.clipVolPercent, c->last_clipVolPercent,0.1,lookat,upvec,f.variableSpeed,f.forceCircular);
+      helper = VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,f.time,f.clipVolPercent, m_c->last_clipVolPercent,0.1,lookat,upvec,f.variableSpeed,f.forceCircular);
 
       root->removeChild(regionsphere);
 
@@ -165,11 +165,11 @@ void AnimationSequencer::nextAnimationFrame()
 
     } else {
       // std::cout<<"camState not empty"<<std::endl;
-      helper = VP1CameraHelper::animatedZoomToCameraState( camera,root,f.camState,f.time,f.clipVolPercent,  c->last_clipVolPercent, f.variableSpeed,f.forceCircular );
+      helper = VP1CameraHelper::animatedZoomToCameraState( camera,root,f.camState,f.time,f.clipVolPercent,  m_c->last_clipVolPercent, f.variableSpeed,f.forceCircular );
     }
 
-    if (c->movieEnabled)
-      helper->setOutputImagesMode(c->viewer, c->movieOutdir, c->movieWidth,c->movieHeight, c->movieFPS, c->frameFileNamePrefix);
+    if (m_c->movieEnabled)
+      helper->setOutputImagesMode(m_c->viewer, m_c->movieOutdir, m_c->movieWidth,m_c->movieHeight, m_c->movieFPS, m_c->frameFileNamePrefix);
 
     connect(helper,SIGNAL(animationFinished()), this, SLOT(nextAnimationFrame()));
     connect(helper,SIGNAL(animationFinishedAbnormally()), this, SLOT(abortAnimation()));
@@ -177,11 +177,11 @@ void AnimationSequencer::nextAnimationFrame()
 
   }
   // std::cout<<" Setting last_clipVolPercent to "<<f.clipVolPercent<<std::endl;
-  c->last_clipVolPercent = f.clipVolPercent;
+  m_c->last_clipVolPercent = f.clipVolPercent;
   
 
   rootnode->unrefNoDelete();
-  c->animationFrameNumber++;
+  m_c->animationFrameNumber++;
 
 }
 

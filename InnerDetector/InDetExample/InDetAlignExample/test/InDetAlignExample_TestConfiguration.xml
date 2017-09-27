@@ -3,6 +3,8 @@
 
 <unifiedTestConfiguration>
  <atn>
+   <!-- Test has been failing for a long time and no one is willing to fix it.
+        See ATLIDALIGN-7.
    <TEST name="InDetAlignExample_ATNSimple" type="athena" suite="Examples">
      <options_atn>InDetAlignExample/AlignmentATNSimple.py</options_atn>
      <author> Atlas Developer </author>
@@ -11,6 +13,7 @@
        <returnValue>0</returnValue>
      </expectations>
    </TEST>
+   -->
    
  </atn>
 

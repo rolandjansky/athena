@@ -53,22 +53,22 @@ namespace xAOD {
       /// @{
 
       /// Copy the managed vector
-      virtual SG::IAuxTypeVector* clone() const;
+      virtual SG::IAuxTypeVector* clone() const override;
 
       /// Return a pointer to the start of the vector's data
-      virtual void* toPtr();
+      virtual void* toPtr() override;
       /// Return a pointer to the STL vector itself
-      virtual void* toVector();
+      virtual void* toVector() override;
 
       /// Return the size of the vector
-      virtual size_t size() const;
+      virtual size_t size() const override;
 
       /// Change the size of the vector
-      virtual bool resize( size_t sz );
+      virtual bool resize( size_t sz ) override;
       /// Change the capacity of the vector
-      virtual void reserve( size_t sz );
+      virtual void reserve( size_t sz ) override;
       /// Shift the elements of the vector
-      virtual void shift( size_t pos, ptrdiff_t offs );
+      virtual void shift( size_t pos, ptrdiff_t offs ) override;
       /// Insert a range of elements via move.
       virtual bool insertMove (size_t pos, void* beg, void* end) override;
 

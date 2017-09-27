@@ -100,7 +100,7 @@ private:
   VP1StdCollection( const VP1StdCollection & );
   VP1StdCollection & operator= ( const VP1StdCollection & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

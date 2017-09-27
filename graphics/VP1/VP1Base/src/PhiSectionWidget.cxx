@@ -94,43 +94,43 @@ public:
 PhiSectionWidget::PhiSectionWidget(QWidget * parent,IVP1System * sys)
   : QGraphicsView(parent),
     VP1HelperClassBase(sys,"PhiSectionWidget"),
-    d(new Imp)
+    m_d(new Imp)
 {
   messageVerbose("PhiSectionWidget constr");
 
-  d->theclass = this;
-  d->popup_menu = 0;
-  d->popup_enableAllAction = 0;
-  d->popup_disableAllAction = 0;
-  d->popup_invertAction = 0;
-  d->popup_copyAction = 0;
-  d->popup_pasteAction = 0;
-  d->popup_setNPhiSubMenu = 0;
+  m_d->theclass = this;
+  m_d->popup_menu = 0;
+  m_d->popup_enableAllAction = 0;
+  m_d->popup_disableAllAction = 0;
+  m_d->popup_invertAction = 0;
+  m_d->popup_copyAction = 0;
+  m_d->popup_pasteAction = 0;
+  m_d->popup_setNPhiSubMenu = 0;
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing,true);
 
-  d->pen_on.setWidth(0);
-  d->pen_on.setBrush(Qt::red);
-  d->pen_off.setWidth(0);
-  d->pen_off.setBrush(Qt::gray);
-  d->brush_on.setColor(Qt::red);
-  d->brush_on.setStyle(Qt::SolidPattern);
-  d->brush_off.setColor(Qt::gray);
-  d->brush_off.setStyle(Qt::SolidPattern);
+  m_d->pen_on.setWidth(0);
+  m_d->pen_on.setBrush(Qt::red);
+  m_d->pen_off.setWidth(0);
+  m_d->pen_off.setBrush(Qt::gray);
+  m_d->brush_on.setColor(Qt::red);
+  m_d->brush_on.setStyle(Qt::SolidPattern);
+  m_d->brush_off.setColor(Qt::gray);
+  m_d->brush_off.setStyle(Qt::SolidPattern);
 
-  d->cacheValid = false;
+  m_d->cacheValid = false;
 
   setFocusPolicy(Qt::NoFocus);
   setAcceptDrops(true);
 
   //The following is the way to init N sectors:
-  d->allowCustomNSectors = true;
+  m_d->allowCustomNSectors = true;
   QList<int> defaultAllowedNSectors;
   defaultAllowedNSectors <<  4 <<  5 <<  6 <<  8 << 9 << 10
 			 << 12 << 16 << 24 << 32 << 36 << 48 << 64;
-  d->allowedNSectors << 12;
+  m_d->allowedNSectors << 12;
   setNumberOfSectors(12,true);
   setAllowedNumberOfSectors(defaultAllowedNSectors,true);
 }
@@ -143,7 +143,7 @@ PhiSectionWidget::~PhiSectionWidget()
     setScene(0);
     delete oldscene;
   }
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -157,37 +157,37 @@ void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
     return;
   }
 
-  if (!d->allowedNSectors.contains(nsectors) && !d->allowCustomNSectors) {
+  if (!m_d->allowedNSectors.contains(nsectors) && !m_d->allowCustomNSectors) {
     //Oups! Let us try first to pick something among the allowed
     //values which would allow us to preserve the ranges exactly;
     int n(-1);
     for(int i = 2; i < 100; ++i) {
-      if (d->allowedNSectors.contains(i*nsectors)) {
+      if (m_d->allowedNSectors.contains(i*nsectors)) {
 	n = i*nsectors;
 	break;
       }
     }
-    nsectors = n>0 ? n : d->allowedNSectors.back();
-  } else if (!d->sectorstatus.isEmpty() && nsectors==static_cast<int>(d->sectorstatus.count())) {
+    nsectors = n>0 ? n : m_d->allowedNSectors.back();
+  } else if (!m_d->sectorstatus.isEmpty() && nsectors==static_cast<int>(m_d->sectorstatus.count())) {
 	  messageDebug("!sectorstatus.isEmpty() && nsectors==sectorstatus.count(). Returning...");
     return;
   }
 
-  if ( d->sectorstatus.isEmpty() ) {
-	  messageDebug("d->sectorstatus is Empty.");
+  if ( m_d->sectorstatus.isEmpty() ) {
+	  messageDebug("m_d->sectorstatus is Empty.");
   }
 
   // check if sectors have already been defined
   QList<VP1Interval> oldEnabledRanges;
-  if ( !d->sectorstatus.isEmpty() ) {
+  if ( !m_d->sectorstatus.isEmpty() ) {
 	  oldEnabledRanges = enabledPhiRanges();
   }
 
   //Update new graphics objects with the new settings
 
   // first clear everything...
-  d->item2sector.clear();
-  d->sectorstatus.clear();
+  m_d->item2sector.clear();
+  m_d->sectorstatus.clear();
   QGraphicsScene * oldscene = scene();
   setScene(new QGraphicsScene);
   delete oldscene;
@@ -200,19 +200,19 @@ void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
     double phi = (isector+0.5)*(2*M_PI)/nsectors;
     double x(R*cos(phi)), y(-R*sin(phi));
     QGraphicsEllipseItem * ellipse = scene()->addEllipse(x,y,r,r);
-    d->item2sector[ellipse]=isector;
+    m_d->item2sector[ellipse]=isector;
   }
 
-  d->sectorstatus.fill(forceAllEnabled,d->item2sector.size());
+  m_d->sectorstatus.fill(forceAllEnabled,m_d->item2sector.size());
 
   if (!forceAllEnabled)
-    d->approximateSectorStatusFromRanges(oldEnabledRanges,d->sectorstatus);
-  d->updateColors();
+    m_d->approximateSectorStatusFromRanges(oldEnabledRanges,m_d->sectorstatus);
+  m_d->updateColors();
   fitInView(scene()->sceneRect());
-  d->checkForChanges();
+  m_d->checkForChanges();
 
-  if ( d->sectorstatus.isEmpty() ) {
-	  messageDebug("WARNING. d->sectorstatus is still Empty...");
+  if ( m_d->sectorstatus.isEmpty() ) {
+	  messageDebug("WARNING. m_d->sectorstatus is still Empty...");
   }
 }
 
@@ -220,7 +220,7 @@ void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
 //____________________________________________________________________
 int PhiSectionWidget::numberOfSectors() const
 {
-  return d->sectorstatus.count();
+  return m_d->sectorstatus.count();
 }
 
 //____________________________________________________________________
@@ -241,13 +241,13 @@ void PhiSectionWidget::Imp::updateColors()
 //____________________________________________________________________
 void PhiSectionWidget::setSectorStatus(int isector, bool status)
 {
-  if (isector<0||isector>=static_cast<int>(d->sectorstatus.count()))
+  if (isector<0||isector>=static_cast<int>(m_d->sectorstatus.count()))
     return;
-  if (d->sectorstatus.at(isector)==status)
+  if (m_d->sectorstatus.at(isector)==status)
     return;
-  d->sectorstatus[isector]=status;
-  d->cacheValid=false;
-  d->checkForChanges();
+  m_d->sectorstatus[isector]=status;
+  m_d->cacheValid=false;
+  m_d->checkForChanges();
 }
 
 //____________________________________________________________________
@@ -293,67 +293,67 @@ void PhiSectionWidget::Imp::addMenuEntriesForSetNPhi()
 void PhiSectionWidget::launchContextMenu(QPoint p)
 {
   //Prepare:
-  d->ensureMenuInit();
-  d->popup_enableAllAction->setEnabled(!allSectorsOn());
-  d->popup_disableAllAction->setEnabled(!allSectorsOff());
+  m_d->ensureMenuInit();
+  m_d->popup_enableAllAction->setEnabled(!allSectorsOn());
+  m_d->popup_disableAllAction->setEnabled(!allSectorsOff());
 
   QClipboard * clipboard = QApplication::clipboard();
-  d->popup_pasteAction->setEnabled(clipboard
+  m_d->popup_pasteAction->setEnabled(clipboard
 	       &&clipboard->mimeData()->hasFormat("vp1/enabledphisectors"));
 
-  foreach(QAction * setNPhiAct, d->popuplist_setNPhi) {
+  foreach(QAction * setNPhiAct, m_d->popuplist_setNPhi) {
     bool ok;
     int nSectors = setNPhiAct->data().toInt(&ok);
-    setNPhiAct->setEnabled(ok&&nSectors!=d->sectorstatus.count());
+    setNPhiAct->setEnabled(ok&&nSectors!=m_d->sectorstatus.count());
   }
 
   //Launch
-  QAction * selAct = d->popup_menu->exec(p);
+  QAction * selAct = m_d->popup_menu->exec(p);
 
   //React
-  if (selAct==d->popup_copyAction) {
+  if (selAct==m_d->popup_copyAction) {
     QMimeData *mimeData = new QMimeData;
     mimeData->setData("vp1/enabledphisectors", state());
     mimeData->setText(enabledRangesToString());
     clipboard->setMimeData(mimeData);
     return;
   }
-  if (selAct==d->popup_pasteAction) {
+  if (selAct==m_d->popup_pasteAction) {
     QByteArray data = clipboard->mimeData()->data("vp1/enabledphisectors");
     setState(data);
     return;
   }
-  if (selAct==d->popup_enableAllAction) {
-    for (int i = 0; i < d->sectorstatus.count(); ++i)
-      d->sectorstatus[i] = true;
-    d->cacheValid = false;
-    d->checkForChanges();
+  if (selAct==m_d->popup_enableAllAction) {
+    for (int i = 0; i < m_d->sectorstatus.count(); ++i)
+      m_d->sectorstatus[i] = true;
+    m_d->cacheValid = false;
+    m_d->checkForChanges();
     return;
   }
-  if (selAct==d->popup_disableAllAction) {
-    for (int i = 0; i < d->sectorstatus.count(); ++i)
-      d->sectorstatus[i] = false;
-    d->cacheValid = false;
-    d->checkForChanges();
+  if (selAct==m_d->popup_disableAllAction) {
+    for (int i = 0; i < m_d->sectorstatus.count(); ++i)
+      m_d->sectorstatus[i] = false;
+    m_d->cacheValid = false;
+    m_d->checkForChanges();
     return;
   }
-  if (selAct==d->popup_invertAction) {
-    for (int i = 0; i < d->sectorstatus.count(); ++i)
-      d->sectorstatus[i] = !d->sectorstatus[i];
-    d->cacheValid = false;
-    d->checkForChanges();
+  if (selAct==m_d->popup_invertAction) {
+    for (int i = 0; i < m_d->sectorstatus.count(); ++i)
+      m_d->sectorstatus[i] = !m_d->sectorstatus[i];
+    m_d->cacheValid = false;
+    m_d->checkForChanges();
     return;
   }
-  if (selAct==d->popup_setCustomNPhi) {
+  if (selAct==m_d->popup_setCustomNPhi) {
     bool ok;
     // int nCustomSectors = QInputDialog::getInteger(this, "Set number of phi sectors",
     int nCustomSectors = QInputDialog::getInt(this, "Set number of phi sectors",
-						  "Set number of phi sectors", d->sectorstatus.count(),4,99,1,&ok);
+						  "Set number of phi sectors", m_d->sectorstatus.count(),4,99,1,&ok);
     if (ok && nCustomSectors >= 4 && nCustomSectors <= 99 )
       setNumberOfSectors(nCustomSectors);
     return;
   }
-  if (d->popuplist_setNPhi.contains(selAct)) {
+  if (m_d->popuplist_setNPhi.contains(selAct)) {
     bool ok;
     int nSectors = selAct->data().toInt(&ok);
     if (ok)
@@ -371,7 +371,7 @@ void PhiSectionWidget::mousePressEvent(QMouseEvent *event)
   }
 
   if (event->button() == Qt::LeftButton)
-    d->dragStartPosition = event->pos();
+    m_d->dragStartPosition = event->pos();
 
   if (event->buttons()!=Qt::LeftButton) {
     QGraphicsView::mousePressEvent(event);
@@ -379,18 +379,18 @@ void PhiSectionWidget::mousePressEvent(QMouseEvent *event)
   }
   QGraphicsItem *item_ = itemAt(event->pos());
   QGraphicsEllipseItem * item = static_cast<QGraphicsEllipseItem*>(item_);
-  if (!item||d->item2sector.find(item)==d->item2sector.end()) {
+  if (!item||m_d->item2sector.find(item)==m_d->item2sector.end()) {
     QGraphicsView::mousePressEvent(event);
     return;
   }
-  int isector = d->item2sector[item];
-  if (isector<0||isector>=static_cast<int>(d->sectorstatus.count())) {
+  int isector = m_d->item2sector[item];
+  if (isector<0||isector>=static_cast<int>(m_d->sectorstatus.count())) {
     QGraphicsView::mousePressEvent(event);
     return;
   }
-  d->sectorstatus[isector]=!(d->sectorstatus.at(isector));
-  d->cacheValid=false;
-  d->checkForChanges();
+  m_d->sectorstatus[isector]=!(m_d->sectorstatus.at(isector));
+  m_d->cacheValid=false;
+  m_d->checkForChanges();
 }
 
 //____________________________________________________________________
@@ -398,7 +398,7 @@ void PhiSectionWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (!(event->buttons() & Qt::LeftButton))
     return;
-  if ((event->pos() - d->dragStartPosition).manhattanLength()
+  if ((event->pos() - m_d->dragStartPosition).manhattanLength()
       < QApplication::startDragDistance())
     return;
 
@@ -448,18 +448,18 @@ void PhiSectionWidget::resizeEvent(QResizeEvent *)
 //____________________________________________________________________
 bool PhiSectionWidget::allSectorsOn() const
 {
-  if (!d->cacheValid)
-    d->checkForChanges();
-  return d->cachedAllOn;
+  if (!m_d->cacheValid)
+    m_d->checkForChanges();
+  return m_d->cachedAllOn;
 }
 
 
 //____________________________________________________________________
 bool PhiSectionWidget::allSectorsOff() const
 {
-  if (!d->cacheValid)
-    d->checkForChanges();
-  return d->cachedAllOff;
+  if (!m_d->cacheValid)
+    m_d->checkForChanges();
+  return m_d->cachedAllOff;
 }
 
 //____________________________________________________________________
@@ -521,11 +521,11 @@ QList<VP1Interval> PhiSectionWidget::enabledPhiRanges() const
 {
 	messageDebug("enabledPhiRanges()");
 
-  if (!d->cacheValid) {
+  if (!m_d->cacheValid) {
 	  messageDebug("Cache not valid. Checking for changes...");
-      d->checkForChanges();
+      m_d->checkForChanges();
   }
-  return d->cachedRanges;
+  return m_d->cachedRanges;
 }
 
 //____________________________________________________________________
@@ -592,11 +592,11 @@ QList<VP1Interval> PhiSectionWidget::enabledPhiRanges(double phi_min,double phi_
 //____________________________________________________________________
 QString PhiSectionWidget::enabledRangesToString() const
 {
-  if (!d->cacheValid)
-    d->checkForChanges();
+  if (!m_d->cacheValid)
+    m_d->checkForChanges();
   QString s;
-  for(int i=0;i<d->cachedRanges.count();++i)
-    s+= d->cachedRanges.at(i).toString()+(i==d->cachedRanges.count()-1?"":", ");
+  for(int i=0;i<m_d->cachedRanges.count();++i)
+    s+= m_d->cachedRanges.at(i).toString()+(i==m_d->cachedRanges.count()-1?"":", ");
   return s;
 }
 
@@ -632,11 +632,11 @@ bool PhiSectionWidget::virtualSectorEnabled(int iSector,int nSectors) const
 
   if (iSector<0||iSector>=nSectors||nSectors<1)
     return false;
-  if (!d->cacheValid)
-    d->checkForChanges();
-  if (d->cachedAllOn)
+  if (!m_d->cacheValid)
+    m_d->checkForChanges();
+  if (m_d->cachedAllOn)
     return true;
-  if (d->cachedAllOff)
+  if (m_d->cachedAllOff)
     return false;
 
   //Phi-range of virtual sector:
@@ -645,7 +645,7 @@ bool PhiSectionWidget::virtualSectorEnabled(int iSector,int nSectors) const
   VP1Interval phirange(dphi*iSector+epsilon,dphi*(iSector+1)-epsilon);
 
   //Compare with enabled ranges:
-  foreach(VP1Interval enabledrange,d->cachedRanges) {
+  foreach(VP1Interval enabledrange,m_d->cachedRanges) {
     if (phirange.hasOverlap(enabledrange,2*M_PI))
       return true;
   }
@@ -685,7 +685,7 @@ QByteArray PhiSectionWidget::state() const
   buffer.open(QIODevice::WriteOnly);
   QDataStream out(&buffer);
   out << qint32(0);//version
-  out << d->sectorstatus;//This is all the data we output,
+  out << m_d->sectorstatus;//This is all the data we output,
 			 //allowing for applicability of the data
 			 //between different widgets, even if they are
 			 //being used differently.
@@ -714,27 +714,27 @@ void PhiSectionWidget::setState(QByteArray ba)
   buffer.close();
 
   bool save = blockSignals(true);
-  if (restored_sectorstatus.count()!=d->sectorstatus.count())
+  if (restored_sectorstatus.count()!=m_d->sectorstatus.count())
     setNumberOfSectors(restored_sectorstatus.count(),true);
-  if (restored_sectorstatus.count()==d->sectorstatus.count()) {
-    d->sectorstatus = restored_sectorstatus;
+  if (restored_sectorstatus.count()==m_d->sectorstatus.count()) {
+    m_d->sectorstatus = restored_sectorstatus;
   } else {
     bool allon, alloff;
-    QList<VP1Interval> r = d->enabledPhiRangesNoCache(restored_sectorstatus,allon, alloff);
+    QList<VP1Interval> r = m_d->enabledPhiRangesNoCache(restored_sectorstatus,allon, alloff);
     if (allon) {
-      d->sectorstatus.fill(true);
+      m_d->sectorstatus.fill(true);
     }
     else if (alloff) {
-      d->sectorstatus.fill(true);
+      m_d->sectorstatus.fill(true);
     }
     else {
-      d->approximateSectorStatusFromRanges(r,d->sectorstatus);
+      m_d->approximateSectorStatusFromRanges(r,m_d->sectorstatus);
     }
   }
   if (!save)
     blockSignals(false);
-  d->cacheValid=false;
-  d->checkForChanges();
+  m_d->cacheValid=false;
+  m_d->checkForChanges();
 }
 
 //____________________________________________________________________
@@ -794,27 +794,27 @@ void PhiSectionWidget::setAllowedNumberOfSectors(QList<int> allowedNSectors, boo
     }
   }
 
-  if (allowCustom&&!allowedNSectors.contains(d->sectorstatus.count())) {
-    allowedNSectors << d->sectorstatus.count();
+  if (allowCustom&&!allowedNSectors.contains(m_d->sectorstatus.count())) {
+    allowedNSectors << m_d->sectorstatus.count();
   }
 
-  d->allowCustomNSectors = allowCustom;
+  m_d->allowCustomNSectors = allowCustom;
 
   qSort(allowedNSectors);
-  if (d->allowedNSectors==allowedNSectors) {
+  if (m_d->allowedNSectors==allowedNSectors) {
     return;
   }
-  d->allowedNSectors=allowedNSectors;
-  if (d->popup_menu) {
-    d->addMenuEntriesForSetNPhi();
+  m_d->allowedNSectors=allowedNSectors;
+  if (m_d->popup_menu) {
+    m_d->addMenuEntriesForSetNPhi();
   }
 
-  if (!d->allowedNSectors.contains(d->sectorstatus.count())) {
-    setNumberOfSectors(d->sectorstatus.count());
+  if (!m_d->allowedNSectors.contains(m_d->sectorstatus.count())) {
+    setNumberOfSectors(m_d->sectorstatus.count());
   }
 
-  int checkA = d->sectorstatus.isEmpty();
-  int checkB = d->sectorstatus.count();
+  int checkA = m_d->sectorstatus.isEmpty();
+  int checkB = m_d->sectorstatus.count();
   messageDebug("check - sectorstatus.isEmpty? " + str(checkA + checkB) );
 
 }

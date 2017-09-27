@@ -83,7 +83,6 @@ private:
 
 	void end_of_data(const IRtRelation * rt_rel);
 /* resolution curves */
-	const IRtResolution *m_initial_resolution; // initial resolution curve
 	IRtResolution *m_final_resolution; // final resolution curve
 
 /* segments */

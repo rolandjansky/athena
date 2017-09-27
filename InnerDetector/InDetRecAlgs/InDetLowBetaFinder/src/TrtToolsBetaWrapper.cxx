@@ -111,7 +111,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	    // Loop over the changes
 	    for (CondAttrListCollection::const_iterator iter = collection->begin(); iter != collection->end(); ++iter)
 	    {
-	      channel = abs(iter->first);
+	      channel = iter->first;
 	      
 	      // channel will be in one of two forms
 	      // if channel >= 100000:

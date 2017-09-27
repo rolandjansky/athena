@@ -424,8 +424,6 @@ namespace InDet
   
   //step 1: preselection 
   std::vector<const xAOD::TrackParticle*> preselectedTracks(0);
-  std::vector<const xAOD::TrackParticle*>::const_iterator tr = tracks.begin();
-  std::vector<const xAOD::TrackParticle*>::const_iterator tre = tracks.end(); 
   
 //selecting with respect to the beam spot
 
