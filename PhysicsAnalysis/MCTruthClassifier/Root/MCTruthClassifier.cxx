@@ -2782,11 +2782,9 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle){
     if (theEle->prodVtx()->id()==1014){ // from gamma conversion
       part.first = BkgElectron;
       part.second = PhotonConv;
-    } else if (theEle->prodVtx()->id()<=1024){
-      part.first = BkgElectron;
-      part.second = ElMagProc;
+      return part;
     }
-    return part;
+    // Other uses would go here
   }
 
   const xAOD::TruthParticleContainer  * xTruthParticleContainer;
