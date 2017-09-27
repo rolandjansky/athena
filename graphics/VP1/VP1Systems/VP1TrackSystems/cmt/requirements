@@ -23,7 +23,7 @@ use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasCoinInventor          AtlasCoinInventor-*             External
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
 use  AtlasHepMC                 AtlasHepMC-*                    External
-use  DataModel                  DataModel-*                     Control
+use  AthContainers              AthContainers-*                 Control
 use  EventPrimitives            EventPrimitives-*               Event
 use  ForwardRegion_SimEv        ForwardRegion_SimEv-*           ForwardDetectors/ForwardSimulation
 use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
