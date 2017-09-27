@@ -754,8 +754,8 @@ def getTauTrackClassifier():
         InputWeightsPath=input_file_name,
         Threshold=threshold,
         ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
-        SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, 
-        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation)
+        SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
+        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedCharged)
     ToolSvc += _ftf_tracks_mva_bdt
 
     classifier = TauTrackClassifier(
