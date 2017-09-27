@@ -2440,7 +2440,7 @@ void VP1ExaminerViewer::showPopupMenu()
 		return;
 	}
 	if ( selAct == m_d->popup_antiAliasAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(d->popup_antiAliasAction->isChecked()));
+		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(m_d->popup_antiAliasAction->isChecked()));
         setAntiAlias(m_d->popup_antiAliasAction->isChecked());
         m_d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
         VP1Msg::messageVerbose("Anti-aliasing, done.");
