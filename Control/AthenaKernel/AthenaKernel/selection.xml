@@ -4,6 +4,7 @@
    <class name="IProxyDict" />
    <class name="IStringPool" />
    <class name="IEventSeek"/>
+   <class name="IEvtSelectorSeek"/>
    <class name="IEventShare"/>
    <class name="ICollectionSize"/>
    <class name="IAthenaSummarySvc"/>

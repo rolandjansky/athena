@@ -439,8 +439,8 @@ RootNtupleEventSelector::queryInterface( const InterfaceID& riid,
 {
   if ( IEvtSelector::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IEvtSelector*>(this);
-  } else if ( IEventSeek::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IEventSeek*>(this);
+  } else if ( IEvtSelectorSeek::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
   } else if ( IIoComponent::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IIoComponent*>(this);
   } else {
@@ -592,7 +592,7 @@ StatusCode RootNtupleEventSelector::next( Context& ctx, int jump ) const
 {
   ATH_MSG_DEBUG ("next(" << jump << ") : iEvt " << m_curEvt);
 
-  if (self()->seek(m_curEvt + jump).isSuccess()) {
+  if (self()->seek(ctx, m_curEvt + jump).isSuccess()) {
     return StatusCode::FAILURE;
   }
   return next(ctx);
@@ -619,9 +619,9 @@ RootNtupleEventSelector::last( Context& /*ctxt*/ ) const
 
 
 StatusCode 
-RootNtupleEventSelector::rewind( Context& /*ctxt*/ ) const 
+RootNtupleEventSelector::rewind( Context& ctxt ) const 
 {
-  return self()->seek(0);
+  return self()->seek(ctxt, 0);
 }
 
 StatusCode
@@ -668,7 +668,7 @@ RootNtupleEventSelector::resetCriteria( const std::string&, Context& ) const
  * @param evtnum  The event number to which to seek.
  */
 StatusCode
-RootNtupleEventSelector::seek (int evtnum)
+RootNtupleEventSelector::seek (Context& /*refCtxt*/, int evtnum) const
 {
   // std::cout << "::seek - evtnum=" << evtnum 
   //           << " curevt=" << m_curEvt 
@@ -706,7 +706,7 @@ RootNtupleEventSelector::seek (int evtnum)
  * @return The current event number.
  */
 int 
-RootNtupleEventSelector::curEvent() const
+RootNtupleEventSelector::curEvent (const Context& /*refCtxt*/) const
 {
   return m_curEvt;
 }
@@ -1224,7 +1224,7 @@ RootNtupleEventSelector::do_init_io()
 /// for a given event index `evtidx`.
 /// returns -1 if not found.
 int 
-RootNtupleEventSelector::find_coll_idx(int evtidx)
+RootNtupleEventSelector::find_coll_idx(int evtidx) const
 {
   // std::cout << "--find_coll_idx(" << evtidx << ")..." << std::endl
   //           << "--collsize: " << m_collEvts.size() << std::endl;
@@ -1258,7 +1258,7 @@ RootNtupleEventSelector::find_coll_idx(int evtidx)
 }
 
 ///return total number of events in all TTree
-int RootNtupleEventSelector::size() {
+int RootNtupleEventSelector::size (Context& /*refCtxt*/) const {
   //use find_coll_idx to trigger a population of the m_collEvts 
   find_coll_idx(-1);
   return m_collEvts.back().max_entries;
