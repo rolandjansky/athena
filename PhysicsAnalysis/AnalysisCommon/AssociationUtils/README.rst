@@ -199,7 +199,7 @@ that you will apply to label bjets:
 *Heavy flavor and boosted object working point* - just combine the above
 settings and set both the bJetLabel and the boostedLeptons flag.
 
-*HSG2 overlap removal prescription* - HSG2 uses a modified overlap removal
+*Lepton favored working point* - HSG2 uses a modified overlap removal
 prescription including electron-electron cluster matching and the disabling
 of the electron and muon rejections by jets. To configure this setup,
 do the following:
