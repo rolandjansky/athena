@@ -254,6 +254,12 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
     trigIdx = std::distance(tau_trig_support.begin(), itpos);
   }
 
+  // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!
+  // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst
+  if (!IsTrigMatched({&tau},trigExpr)){
+    ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
+    return eff;
+  }
 
   CP::CorrectionCode ret = CP::CorrectionCode::Ok;
   switch(trigIdx){
