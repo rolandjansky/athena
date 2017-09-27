@@ -27,8 +27,6 @@ defaultInputKey = {
    'PFlowObj'  :'CHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
-   'LCOCClusColl':'LCOriginTopoClusters',
-   'EMOCClusColl':'EMOriginTopoClusters',
    }
 
 prefix = 'METAssocConfig:   '
@@ -76,9 +74,9 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
-        if doOriginCorrClus:
-            tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
-            tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
+        if doModClus:
+            tool.LCModClusterKey = modLCClus
+            tool.EMModClusterKey = modEMClus
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
@@ -86,17 +84,17 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.PFlow = True
         tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
-        tool.UseModifiedClus = doOriginCorrClus
+        tool.UseModifiedClus = doModClus
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        if doOriginCorrClus:
-            tool.ClusColl = defaultInputKey['LCOCClusColl']
-            if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
-        tool.TrkColl = defaultInputKey['TrkColl']
     else:
         tool.InputCollection = config.inputKey
+    if doModClus:
+        tool.ClusColl = modLCClus
+        if 'EMTopo' in suffix: tool.ClusColl = modEMClus
+    tool.TrkColl = defaultInputKey['Tracks']
 
     from METReconstruction.METRecoFlags import metFlags
     tool.UseTracks = metFlags.UseTracks()
@@ -159,7 +157,6 @@ class METAssocConfig:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
                                                            'EMOriginCorrClusters':'EMOriginTopoClusters'}
-
         if doTruth:
             print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
         else:
@@ -187,7 +184,8 @@ class METAssocConfig:
             ToolSvc += self.trkisotool
 
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
-                                                          saveOnlyRequestedCorrections=True)
+                                                          saveOnlyRequestedCorrections=True,
+                                                          addCaloExtensionDecoration=False)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 
