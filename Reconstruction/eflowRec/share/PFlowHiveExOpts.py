@@ -13,7 +13,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
-DetFlags.detdescr.Muon_setOn()
+DetFlags.detdescr.ID_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
@@ -339,7 +339,7 @@ from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightT
 PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
 PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
 
-topSequence += [PFOChargedCreatorAlgorithm]
+topSequence += PFOChargedCreatorAlgorithm
 
 from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
 PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
