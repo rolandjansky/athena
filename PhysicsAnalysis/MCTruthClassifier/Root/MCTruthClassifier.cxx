@@ -2780,8 +2780,8 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle){
       theEle->prodVtx()->id()>1000){ // And in a version where we stored the info we need
     // Process IDs from http://www-geant4.kek.jp/lxr/source//processes/electromagnetic/utils/include/G4EmProcessSubType.hh
     if (theEle->prodVtx()->id()==1014){ // from gamma conversion
-      part.first = BkgElectron;
-      part.second = PhotonConv;
+      // We want the classification of the photon in this case
+      part=particleTruthClassifier( theEle->prodVtx()->incomingParticle(0) );
       return part;
     }
     // Other uses would go here
