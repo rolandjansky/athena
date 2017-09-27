@@ -109,8 +109,6 @@ namespace Analysis {
         bool m_oppChOnly;
         bool m_sameChOnly;
         bool m_allChCombs;
-        int m_nGoodPairs;
-        std::vector<std::vector<const xAOD::TrackParticle*> > m_goodPairs;
         std::string m_muonCollectionKey;
         std::string m_TrkParticleCollection;
         std::vector<std::string> m_MuonTrackKeys;
