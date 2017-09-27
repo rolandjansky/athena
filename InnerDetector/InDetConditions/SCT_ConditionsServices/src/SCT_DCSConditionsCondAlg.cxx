@@ -14,10 +14,6 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   , m_readKeyHV{"/SCT/DCS/HV"}
   , m_writeKeyHV{"SCT_DCSHVCondData", "SCT_DCSHVCondData"}
   , m_rangeHV{}
-  , m_readKeyTemperature{"/SCT/DCS/MODTEMP"}
-  , m_writeKeyTemperature0{"SCT_DCSTemperature0CondData", "SCT_DCSTemperature0CondData"}
-  , m_writeKeyTemperature1{"SCT_DCSTemperature1CondData", "SCT_DCSTemperature1CondData"}
-  , m_rangeTemperature{}
   , m_readKeyStatus{"/SCT/DCS/CHANSTAT"}
   , m_writeKeyStatus{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
   , m_writeCdoStatus{nullptr}
@@ -46,9 +42,6 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
   declareProperty("WriteKeyHV", m_writeKeyHV, "Key of output (derived) HV conditions folder");
-  declareProperty("ReadKeyTemperature", m_readKeyTemperature, "Key of input (raw) temperature conditions folder");
-  declareProperty("WriteKeyTemperature0", m_writeKeyTemperature0, "Key of output (derived) temperature (side 0) conditions folder");
-  declareProperty("WriteKeyTemperature1", m_writeKeyTemperature1, "Key of output (derived) temperature (side 1) conditions folder");
   declareProperty("ReadKeyStatus", m_readKeyStatus, "Key of input (raw) Status conditions folder");
   declareProperty("WriteKeyStatus", m_writeKeyStatus, "Key of output (derived) Status conditions folder");
 }
@@ -73,22 +66,6 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
     // Register write handle
     if(m_condSvc->regHandle(this, m_writeKeyHV, m_writeKeyHV.dbKey()).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyHV.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-
-    // Temperature
-    // Read Cond Handle
-    ATH_CHECK(m_readKeyTemperature.initialize());
-    // Write Cond Handle
-    ATH_CHECK(m_writeKeyTemperature0.initialize());
-    ATH_CHECK(m_writeKeyTemperature1.initialize());
-    // Register write handle
-    if (m_condSvc->regHandle(this, m_writeKeyTemperature0, m_writeKeyTemperature0.dbKey()).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyTemperature0.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-    if (m_condSvc->regHandle(this, m_writeKeyTemperature1, m_writeKeyTemperature1.dbKey()).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyTemperature1.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
   }
@@ -128,8 +105,6 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
 
   if (m_returnHVTemp) {
     ATH_CHECK(executeFloat(HV));
-    ATH_CHECK(executeFloat(TEMPERATURE0));
-    ATH_CHECK(executeFloat(TEMPERATURE1));
   }
 
   if (doStatus) {
@@ -246,16 +221,6 @@ StatusCode SCT_DCSConditionsCondAlg::executeFloat(FloatKey key) {
     writeKey = &m_writeKeyHV;
     rangeW = &m_rangeHV;
     param = "HVCHVOLT_RECV";
-  } else if (key==TEMPERATURE0) {
-    readKey = &m_readKeyTemperature;
-    writeKey = &m_writeKeyTemperature0;
-    rangeW = &m_rangeTemperature;
-    param = "MOCH_TM0_RECV";
-  } else if (key==TEMPERATURE1) {
-    readKey = &m_readKeyTemperature;
-    writeKey = &m_writeKeyTemperature1;
-    rangeW = &m_rangeTemperature;
-    param = "MOCH_TM1_RECV";
   }
 
   // Write Cond Handle

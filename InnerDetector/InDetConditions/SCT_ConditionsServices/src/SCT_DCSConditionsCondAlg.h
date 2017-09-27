@@ -42,10 +42,6 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyHV;
   EventIDRange m_rangeHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyTemperature;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyTemperature0;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyTemperature1;
-  EventIDRange m_rangeTemperature;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus;
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyStatus;
   SCT_DCSStatCondData* m_writeCdoStatus;
