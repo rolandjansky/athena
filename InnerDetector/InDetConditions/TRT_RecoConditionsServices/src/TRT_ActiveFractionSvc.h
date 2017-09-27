@@ -13,7 +13,7 @@
  *///-------------------------------------------------------
 
 // Header Includes
-#include "TRT_ConditionsServices/ITRT_ActiveFractionSvc.h"
+#include "InDetRecToolInterfaces/ITRT_ActiveFractionSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
