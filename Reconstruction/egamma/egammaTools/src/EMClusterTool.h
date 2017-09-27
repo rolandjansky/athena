@@ -110,7 +110,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey;
 
   /** Handle to the MVA calibration Tool **/
-  ToolHandle<IegammaMVATool> m_MVACalibTool {this,
+  PublicToolHandle<IegammaMVATool> m_MVACalibTool {this,
       "MVACalibTool", "egammaMVATool", "calibration tool"};
 
   /** @brief Name of the input electron container **/

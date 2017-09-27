@@ -142,7 +142,7 @@ private:
       "Whether to run cluster calibrations"};
 
   /** @brief Handle to the MVA calibration Tool **/
-  ToolHandle<IegammaMVATool>  m_MVACalibTool {this,
+  PublicToolHandle<IegammaMVATool>  m_MVACalibTool {this,
       "MVACalibTool", "egammaMVATool", "calibration tool"};
   
   /** @brief Tool to handle cluster corrections */
