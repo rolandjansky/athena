@@ -16,6 +16,10 @@
 // @(#)root/pyroot:$Id$
 // Author: Wim Lavrijsen, Jan 2005
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "Python.h"
 #include "Converters.h"
 #include "Utility.h"

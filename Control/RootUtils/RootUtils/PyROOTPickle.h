@@ -31,6 +31,10 @@
 #define ROOTUTILS_PYROOTPICKLE_H
 
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
 #ifdef _POSIX_C_SOURCE
 # undef _POSIX_C_SOURCE
 #endif
