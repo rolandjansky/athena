@@ -14,18 +14,18 @@
 #include <TClass.h>
 namespace CP {
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
-                m_sf(0),
-                m_eff(0),
-                m_mc_eff(0),
-                m_sf_sys(0),
-                m_eff_sys(0),
-                m_mc_eff_sys(0),
-                m_sf_KineDepsys(0),
-                m_eff_KineDepsys(0),
+                m_toolname(),
+                m_sf(nullptr),
+                m_eff(nullptr),
+                m_mc_eff(nullptr),
+                m_sf_sys(nullptr),
+                m_eff_sys(nullptr),
+                m_mc_eff_sys(nullptr),
+                m_sf_KineDepsys(nullptr),
+                m_eff_KineDepsys(nullptr),
                 m_sf_replicas(),
                 m_eff_replicas(),
                 m_mc_eff_replicas(),
-                m_etaphi(),
                 m_sysType(),
                 m_is_lowpt(false),
                 m_respond_to_kineDepSyst(false),
@@ -35,9 +35,12 @@ namespace CP {
                 m_NominalFallBack(nullptr),
                 m_SystematicBin(-1) {
     }
-
-    EfficiencyScaleFactor::EfficiencyScaleFactor(const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool isLowPt, bool hasPtDepSys) :
+    std::string EfficiencyScaleFactor::toolname() const {
+        return m_toolname;
+    }
+    EfficiencyScaleFactor::EfficiencyScaleFactor(const std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool isLowPt, bool hasPtDepSys) :
                 EfficiencyScaleFactor() {
+        m_toolname = toolname;
         m_sysType = sysType;
         m_Type = effType;
         m_is_lowpt = isLowPt;
@@ -51,8 +54,8 @@ namespace CP {
             m_default_eff_ttva = 1. - 1.e-9;
         }
     }
-    EfficiencyScaleFactor::EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt, bool hasPtDepSys) :
-                EfficiencyScaleFactor::EfficiencyScaleFactor(file, time_unit, sysType, effType, is_lowpt, hasPtDepSys) {
+    EfficiencyScaleFactor::EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt, bool hasPtDepSys) :
+                EfficiencyScaleFactor::EfficiencyScaleFactor(toolname, file, time_unit, sysType, effType, is_lowpt, hasPtDepSys) {
         m_NominalFallBack = Nominal;
 
     }
@@ -69,6 +72,7 @@ namespace CP {
     }
     void EfficiencyScaleFactor::CopyContent(const EfficiencyScaleFactor &other) {
         Clear();
+        m_toolname = std::string("CopyOf") + other.toolname();
         m_sysType = other.m_sysType;
         m_is_lowpt = other.m_is_lowpt;
         m_respond_to_kineDepSyst = other.m_respond_to_kineDepSyst;
@@ -95,7 +99,7 @@ namespace CP {
         m_NominalFallBack = other.m_NominalFallBack;
         m_SystematicBin = other.m_SystematicBin;
     }
-    void EfficiencyScaleFactor::CopyHistHandler(HistHandler* &own, const HistHandler* other) {
+    void EfficiencyScaleFactor::CopyHistHandler(HistHandler_Ptr &own, const HistHandler_Ptr other) {
         if (!other) {
             own = 0;
             return;
@@ -105,40 +109,38 @@ namespace CP {
     }
     void EfficiencyScaleFactor::CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other) {
         for (ciSFvec h = other.begin(); h != other.end(); ++h) {
-            HistHandler* copy = 0;
+            HistHandler_Ptr copy = 0;
             CopyHistHandler(copy, *h);
             if (copy) own.push_back(copy);
         }
     }
-    bool EfficiencyScaleFactor::ReadFromFile(std::string file, std::string time_unit) {
+    bool EfficiencyScaleFactor::ReadFromFile(const std::string& file, const std::string& time_unit) {
         // open the file
-        TDirectory* dir = gDirectory;
         TFile* f = TFile::Open(file.c_str(), "READ");
         if (!f) {
             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
             return false;
         }
-        dir->cd();
-        // now we can read our four Histos
+        // now we can read our six Histos
         m_eff = ReadHistFromFile("Eff", f, time_unit);
         m_eff_sys = ReadHistFromFile("Eff_sys", f, time_unit);
-
-        m_sf = ReadHistFromFile("SF", f, time_unit);
-        m_sf_sys = ReadHistFromFile("SF_sys", f, time_unit);
 
         m_mc_eff = ReadHistFromFile("MC_Eff", f, time_unit);
         m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f, time_unit);
 
+        m_sf = ReadHistFromFile("SF", f, time_unit);
+        m_sf_sys = ReadHistFromFile("SF_sys", f, time_unit);
+
         // for high pt eff, we also load the pt dependent part
         if (m_respond_to_kineDepSyst) {
             if (m_Type != CP::MuonEfficiencyType::BadMuonVeto) {
-                m_sf_KineDepsys = new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit));
-                m_eff_KineDepsys = new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit));
+                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit)));
+                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit)));
             } else {
                 TDirectory* SystDir = nullptr;
                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
-                m_sf_KineDepsys = new BadMuonVetoSystHandler(SystDir);
-                m_eff_KineDepsys = new BadMuonVetoSystHandler(SystDir);
+                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new BadMuonVetoSystHandler(SystDir));
+                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new BadMuonVetoSystHandler(SystDir));
             }
 
         }
@@ -161,34 +163,36 @@ namespace CP {
         }
         return m_sf_sys != nullptr && m_sf != nullptr;
     }
-    HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f, std::string time_unit) {
+    HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
         TH1* histHolder = 0;
         f->GetObject((name + std::string("_") + time_unit).c_str(), histHolder);
         if (!histHolder) {
             // if no period weighting, the histo may also not have a time period in the name at all
             if (time_unit == "All") {
                 f->GetObject(name.c_str(), histHolder);
+            } else {
+                return HistHandler_Ptr();
             }
-            return 0;
         }
         // replace the histos by clones so that we can close the files again
-        HistHandler* out = package_histo((TH1*) (histHolder->Clone(Form("%s_%s_%s%s", name.c_str(), f->GetName(), time_unit.c_str(), sysname().c_str()))));
+        std::string CloneName = Form("%s_%s_%s_%s%s", name.c_str(), toolname().c_str(), EfficiencyTypeName(m_Type).c_str(), time_unit.c_str(), sysname().c_str());
+        HistHandler_Ptr out = package_histo(dynamic_cast<TH1*>(histHolder->Clone(CloneName.c_str())));
         if (histHolder) delete histHolder;
         return out;
     }
-    HistHandler *EfficiencyScaleFactor::package_histo(TH1* h) {
+    HistHandler_Ptr EfficiencyScaleFactor::package_histo(TH1* h) {
         // make sure that the correct type of histo is used
-        if (dynamic_cast<TH1F*>(h)) {
-            return new HistHandler_TH1(dynamic_cast<TH1F*>(h));
-        } else if (dynamic_cast<TH2F*>(h)) {
-            return new HistHandler_TH2(dynamic_cast<TH2F*>(h));
-        } else if (dynamic_cast<TH3F*>(h)) {
-            return new HistHandler_TH3(dynamic_cast<TH3F*>(h));
-        } else if (dynamic_cast<TH2Poly*>(h)) {
-            return new HistHandler_TH2Poly(dynamic_cast<TH2Poly*>(h));
+        if (dynamic_cast<TH2Poly*>(h)) {
+            return HistHandler_Ptr(new HistHandler_TH2Poly(dynamic_cast<TH2Poly*>(h)));
+        } else if (dynamic_cast<TH2*>(h)) {
+            return HistHandler_Ptr(new HistHandler_TH2(dynamic_cast<TH2*>(h)));
+        } else if (dynamic_cast<TH3*>(h)) {
+            return HistHandler_Ptr(new HistHandler_TH3(dynamic_cast<TH3*>(h)));
+        } else if (dynamic_cast<TH1*>(h)) {
+            return HistHandler_Ptr(new HistHandler_TH1(dynamic_cast<TH1*>(h)));
         } else {
             Error("EfficiencyScaleFactor", "Unable to package histo %s (%s) in a known HistHandler", h->GetName(), h->IsA()->GetName());
-            return 0;
+            return HistHandler_Ptr();
         }
     }
     int EfficiencyScaleFactor::nBinsSF() const {
@@ -251,12 +255,12 @@ namespace CP {
                 return m_NominalFallBack->MCEfficiency(mu, Eff);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_mc_eff, nullptr, mu, Eff, false);
+        CorrectionCode cc = GetContentFromHist(m_mc_eff, IKinematicSystHandler_Ptr(), mu, Eff, false);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the Monte Carlo efficiency");
         return cc;
     }
 
-    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler* Hist, IKinematicSystHandler* PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
+    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
         Eff = m_default_eff;
         if (!Hist) {
             Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
@@ -313,37 +317,41 @@ namespace CP {
     }
     void EfficiencyScaleFactor::DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec) {
         for (auto &old : Vec) {
-            if (old) delete old;
-            old = nullptr;
+            old.reset();
         }
         if (ClearVec) Vec.clear();
     }
     void EfficiencyScaleFactor::Clear() {
+
         DeleteOldReplicas(m_sf_replicas, true);
         DeleteOldReplicas(m_eff_replicas, true);
         DeleteOldReplicas(m_mc_eff_replicas, true);
-        if (m_sf) delete m_sf;
-        if (m_eff) delete m_eff;
-        if (m_mc_eff) delete m_mc_eff;
-        if (m_mc_eff_sys) delete m_mc_eff_sys;
-        if (m_sf_sys) delete m_sf_sys;
-        if (m_eff_sys) delete m_eff_sys;
-        if (m_sf_KineDepsys) delete m_sf_KineDepsys;
-        if (m_eff_KineDepsys) delete m_eff_KineDepsys;
+
+        m_mc_eff.reset();
+        m_mc_eff_sys.reset();
+
+        m_sf.reset();
+        m_sf_sys.reset();
+
+        m_eff.reset();
+        m_eff_sys.reset();
+
+        m_sf_KineDepsys.reset();
+        m_eff_KineDepsys.reset();
     }
     void EfficiencyScaleFactor::GenerateReplicas(int nrep, int seed) {
         GenerateReplicasFromHist(m_eff, nrep, seed, m_eff_replicas);
         GenerateReplicasFromHist(m_sf, nrep, seed, m_sf_replicas);
         GenerateReplicasFromHist(m_mc_eff, nrep, seed, m_mc_eff_replicas);
     }
-    void EfficiencyScaleFactor::GenerateReplicasFromHist(HistHandler* h, int nrep, int seed, EfficiencyScaleFactor::SFvec &replicas) {
+    void EfficiencyScaleFactor::GenerateReplicasFromHist(HistHandler_Ptr h, int nrep, int seed, EfficiencyScaleFactor::SFvec &replicas) {
         if (!h) return;
         DeleteOldReplicas(replicas);
         TRandom3 Rndm(seed);
         replicas.resize(nrep);
         int nbins = h->NBins();
         for (int t = 0; t < nrep; t++) {
-            HistHandler* replica = package_histo((TH1*) h->GetHist()->Clone(Form("rep%d_%s", t, h->GetHist()->GetName())));
+            HistHandler_Ptr replica = package_histo((TH1*) h->GetHist()->Clone(Form("rep%d_%s", t, h->GetHist()->GetName())));
             for (int bin = 0; bin < nbins; bin++) {
                 replica->SetBinContent(bin, Rndm.Gaus(h->GetBinContent(bin), h->GetBinError(bin)));
             }
@@ -384,13 +392,13 @@ namespace CP {
         AddSysErrors_vector(m_mc_eff_replicas, m_sf_sys, weight);
 
     }
-    void EfficiencyScaleFactor::AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, HistHandler* hsys, float weight) {
+    void EfficiencyScaleFactor::AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, HistHandler_Ptr hsys, float weight) {
         for (auto Histo : Vec) {
             AddSysErrors_histo(Histo, hsys, weight);
         }
     }
 
-    void EfficiencyScaleFactor::AddSysErrors_histo(HistHandler* h, HistHandler *hsys, float weight) {
+    void EfficiencyScaleFactor::AddSysErrors_histo(HistHandler_Ptr h, HistHandler_Ptr hsys, float weight) {
         if (!h || !hsys) return;
         for (int t = 0; h && t < h->NBins(); ++t) {
             double binc = h->GetBinContent(t);
@@ -398,7 +406,7 @@ namespace CP {
             h->SetBinContent(t, binc);
         }
     }
-    void EfficiencyScaleFactor::AddStatErrors_histo(HistHandler* h, float weight) {
+    void EfficiencyScaleFactor::AddStatErrors_histo(HistHandler_Ptr h, float weight) {
         if (!h) return;
         for (int t = 0; t < h->NBins(); t++) {
             double binc = h->GetBinContent(t);

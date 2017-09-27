@@ -138,12 +138,12 @@ int main(int argc, char* argv[]) {
     }
 
     // instance for TTVA scale factors
-    CP::MuonEfficiencyScaleFactors m_ttva_corr("TTVASFTestClass");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "UncorrelateSystematics", doUncorrelateSystematics));
+    asg::AnaToolHandle < CP::IMuonEfficiencyScaleFactors >  m_ttva_corr("CP::MuonEfficiencyScaleFactors/TTVASFTestClass");
+    ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("WorkingPoint", "TTVA"));
+    ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("UncorrelateSystematics", doUncorrelateSystematics));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("CustomInputFolder", DefaultCalibRelease));
     ASG_CHECK_SA(APP_NAME, m_ttva_corr.initialize());
 
     // for people not using the SystematicStore, they need to know the systematic names by heart -> not recommended!
@@ -280,35 +280,35 @@ int main(int argc, char* argv[]) {
 
             }
 
-            CHECK_CPCorr(m_ttva_corr.getDataEfficiency(**mu_itr, eff));
+            CHECK_CPCorr(m_ttva_corr->getDataEfficiency(**mu_itr, eff));
             Info(APP_NAME, "        TTVA efficiency = %g", eff);
 
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(CP::SystematicSet()));
 
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
+            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "       TTVA Central scaleFactor = %g", sf);
             if (!IsHighEta) {
-                CHECK_CPCorr(m_ttva_corr.applyDataEfficiency(**mu_itr));
-                CHECK_CPCorr(m_ttva_corr.applyMCEfficiency(**mu_itr));
+                CHECK_CPCorr(m_ttva_corr->applyDataEfficiency(**mu_itr));
+                CHECK_CPCorr(m_ttva_corr->applyMCEfficiency(**mu_itr));
                 // now we can retrieve the info from the muon directly:
                 Info(APP_NAME, "       data efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("TTVAEfficiency"));
                 Info(APP_NAME, "       MC efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("TTVAmcEfficiency"));
             } // if in audit mode, this should return a true
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(TTVAstatup));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAstatup));
             // and this a false (since we are looking at a different systematic)
             //         }
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
+            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           TTVA Stat Up scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(TTVAstatdown));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAstatdown));
+            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           TTVA Stat Down scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(TTVAsysup));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAsysup));
+            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           TTVA Sys Up scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(TTVAsysdown));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAsysdown));
+            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
             Info(APP_NAME, "           TTVA Sys Down scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
+            CHECK_CPSys(m_ttva_corr->applySystematicVariation(CP::SystematicSet()));
 
             // do the isolation part similar as reco efficinecy
             float isoeff = 0.0, isosf = 0.0;
@@ -339,7 +339,6 @@ int main(int argc, char* argv[]) {
     double t_run = tsw.CpuTime() / entries;
     Info(APP_NAME, " MCP init took %gs", t_init);
     Info(APP_NAME, " time per event: %gs", t_run);
-
     //get smart slimming list
     xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 

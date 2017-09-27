@@ -91,17 +91,18 @@ namespace CP {
             }
 
             CP::SystematicCode registerSystematics();
-
+            
+            //Loads the trigger SFs for each year separately
             StatusCode LoadTriggerMap(unsigned int year);
 
-            //This function is needed during initialization
+            //This function is needed during initialization to parse the histograms to the cache 
             unsigned int encodeHistoName(const std::string &period, const std::string& Trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
-            //This function  is the equivalent during run time
+            //This function is the equivalent during run time to retrieve the histograms from the cache
             unsigned int encodeHistoName(const std::string& Trigger, const TrigMuonEff::Configuration& configuration, const std::string& Systematic, bool isBarrel = true) const;
-
-            std::shared_ptr<TH1> getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
-            std::shared_ptr<TH1> getEfficiencyHistogram(const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
-
+        protected:
+            virtual std::shared_ptr<TH1> getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
+            virtual std::shared_ptr<TH1> getEfficiencyHistogram(const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
+        private:
             typedef std::pair<unsigned int, std::string> YearPeriod;
             typedef std::pair<YearPeriod, unsigned int> EffiHistoIdent;
             typedef std::map<EffiHistoIdent, TH1_Ptr> EfficiencyMap;
@@ -110,13 +111,15 @@ namespace CP {
 
             std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const;
 
-            //Do not know may be these are useful at some point
+        protected:      
+            //Retrieve the runNumber and dataPeriod
             unsigned int getRunNumber() const;
-            unsigned int getYear(unsigned int run) const;
             std::string getDataPeriod() const;
+     
+            unsigned int getYear(unsigned int run) const;
             std::string getDataPeriod(unsigned int run) const;
             std::string getDataPeriod(unsigned int runNumber, unsigned int year) const;
-
+       private:
             TDirectory* getTemporaryDirectory(void) const;
 
             //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution

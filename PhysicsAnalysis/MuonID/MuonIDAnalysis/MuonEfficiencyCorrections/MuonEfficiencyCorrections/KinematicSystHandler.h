@@ -61,10 +61,10 @@ namespace CP {
             virtual void SetSystematicWeight(float SystWeight);
 
             virtual bool initialize();
-            PtDependentSystHandler(HistHandler* HistHandler);
+            PtDependentSystHandler(HistHandler_Ptr HistHandler);
             virtual ~PtDependentSystHandler();
-            protected:
-            HistHandler* m_Handler;
+        protected:
+            HistHandler_Ptr m_Handler;
             float m_SystWeight;
     };
     class BadMuonVetoSystHandler: public IKinematicSystHandler {
@@ -81,7 +81,7 @@ namespace CP {
             std::string GetNextProperty(std::string &sstr);
 
             typedef std::pair<float, float> Ranges;
-            std::map<Ranges, TF1*> m_SystPolynomials;
+            std::map<Ranges, std::unique_ptr<TF1>> m_SystPolynomials;
 
             KinVariable m_FirstVar;
             KinVariable m_SecondVar;
