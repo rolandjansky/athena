@@ -63,7 +63,7 @@ class NtupleChisqResolutionTool : public AthAlgTool, virtual public NtupleCalibr
 		//! some root stuff
 		TMinuit *m_minuit;
 		TH1F *m_prob_dist;
-      		TH2F *m_prob_debg;
+      		//TH2F *m_prob_debg;
 		int m_minuitoutputlevel;
 		TFile * m_resolfile;
 	//! Calibration input service
