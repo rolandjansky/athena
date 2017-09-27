@@ -41,21 +41,10 @@ if recAlgs.doEFlow() :
     useVertices = False
   
   from JetRec.JetRecStandard import jtm
-  from JetRec.JetRecConf import PseudoJetGetter
-  from JetRec.JetRecConf import JetToolRunner
-  #from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
-  jtm += JetToolRunner("jetconstitCHSPFlow",
-                       EventShapeTools=[],
-                       Tools=[jtm.JetConstitSeq_PFlowCHS],
-                       )
-  from AthenaCommon.AlgSequence import AlgSequence
-  job = AlgSequence()
+  #from JetRec.JetRecConf import PseudoJetGetter
+  from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 
-  from JetRec.JetRecConf import JetAlgorithm
-  job += JetAlgorithm("jetalgCHSPFlow",
-                      Tools=[jtm.jetconstitCHSPFlow])
-
-  jtm += PseudoJetGetter(
+  jtm += PFlowPseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
     InputContainer = "CHSNeutralParticleFlowObjects",
