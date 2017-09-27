@@ -13,10 +13,8 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 
-PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifierBase(name) {
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
+PuppiWeightTool::PuppiWeightTool(const std::string& name) :
+  JetConstituentModifierBase(name) {
 
   declareProperty("R0", m_R0 = 0.3);
   declareProperty("Rmin", m_Rmin = 0.001);
@@ -40,23 +38,39 @@ StatusCode PuppiWeightTool::initialize() {
   
   ATH_CHECK(m_vertexContainer_key.initialize());
 
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  } else {
+    ATH_MSG_ERROR("Incompatible configuration: PUPPI canot be used for inputs of type " << m_inputType);
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
 //------------------------------------------------------------------------------
 
-StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
-  else{
-    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
-    return StatusCode::FAILURE;
-  }
+StatusCode PuppiWeightTool::finalize() {
+  ATH_MSG_INFO("Finializing tool " << name() << "...");
+
+  delete m_puppi;
+
+  return StatusCode::SUCCESS;
 }
 
 //------------------------------------------------------------------------------
 
-StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
+StatusCode PuppiWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
+  xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
+  return applyPuppiWeights(pfoCont);
+}
+
+//------------------------------------------------------------------------------
+
+StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::PFOContainer* cont) const{
 
   const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
