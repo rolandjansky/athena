@@ -32,6 +32,7 @@ def writeConfig(myConfig):
 # SUSYTools configuration file
 ##################################################
 EleBaseline.Pt: 10000.
+EleBaseline.Eta: 2.47
 EleBaseline.Id: ${ELE_ID_Base}
 EleBaseline.CrackVeto: false
 #
@@ -46,6 +47,7 @@ Ele.z0: 0.5
 Ele.CFT: None
 #
 MuonBaseline.Pt: 10000.
+MuonBaseline.Eta: 2.7
 MuonBaseline.Id: ${MU_ID_Base} # Medium
 #
 Muon.Pt: 25000.
@@ -72,6 +74,7 @@ Photon.Iso: ${PH_ISO}
 Tau.Pt: 20000.
 Tau.Eta: 2.5
 Tau.Id: Medium
+Tau.IDRedecorate: False
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
@@ -89,6 +92,8 @@ Jet.LargeRuncConfig: None
 # 80% efficiency working points 
 Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+# JMS Calibration (None, Extrap, Frozen)
+Jet.JMSCalib: None
 #
 BadJet.Cut: LooseBad
 #
@@ -100,7 +105,7 @@ Btag.WP: ${BTAG_WP}
 Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
 #
 # set the -999. to positive number to override default
-OR.DoBoostedElectron: false
+OR.DoBoostedElectron: true
 OR.BoostedElectronC1: -999.
 OR.BoostedElectronC2: -999.
 OR.BoostedElectronMaxConeSize: -999.
@@ -114,10 +119,11 @@ OR.DoPhoton: false
 OR.Bjet: true
 OR.ElBjet: true
 OR.MuBjet: true
+OR.TauBjet: false
+OR.MuJetApplyRelPt: false
 OR.MuJetPtRatio: -999.
 OR.MuJetTrkPtRatio: -999.
 OR.RemoveCaloMuons: true
-OR.ApplyJVT: true
 OR.MuJetInnerDR: -999.
 OR.BtagWP: FixedCutBEff_85
 #
@@ -141,7 +147,6 @@ MET.DoMuonJetOR: 1
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
-PRW.DefaultChannel: -1
 PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
