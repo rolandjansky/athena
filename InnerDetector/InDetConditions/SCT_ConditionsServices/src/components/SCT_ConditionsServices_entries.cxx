@@ -5,8 +5,11 @@
 
 #include "../SCT_ModuleVetoTestAlg.h"
 #include "../SCT_ConditionsSummaryTestAlg.h"
+
 #include "../SCT_DCSConditionsSvc.h"
+#include "../SCT_DCSConditionsCondAlg.h"
 #include "../SCT_DCSConditionsTestAlg.h"
+
 #include "../SCT_ByteStreamErrorsSvc.h"
 #include "../SCT_ConfigurationConditionsSvc.h"
 #include "../SCT_ConfigurationConditionsTestAlg.h"
@@ -63,6 +66,7 @@ DECLARE_SERVICE_FACTORY(SCT_RODVetoSvc)
 DECLARE_ALGORITHM_FACTORY(SCT_ModuleVetoTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsSummaryTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_CachedSummaryTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsTestAlg)
@@ -130,6 +134,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsSummaryTestAlg )
   DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
 
+  DECLARE_ALGORITHM( SCT_DCSConditionsCondAlg )
   DECLARE_ALGORITHM( SCT_DCSConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_MonitorConditionsCondAlg )
   DECLARE_ALGORITHM( SCT_MonitorConditionsTestAlg )
