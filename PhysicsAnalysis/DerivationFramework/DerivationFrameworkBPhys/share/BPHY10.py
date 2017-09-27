@@ -230,6 +230,7 @@ BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4500.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
+    CascadeVertexCollections= ["JpsiKshortCascade", "JpsiKshortCascadeSupport" ] ,
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiKshort
@@ -249,6 +250,7 @@ BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4000.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
+    CascadeVertexCollections= ["JpsiLambdaCascade", "JpsiLambdaCascadeSupport" ], 
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambda
@@ -268,10 +270,17 @@ BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4000.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
+    CascadeVertexCollections= ["JpsiLambdabarCascade", "JpsiLambdabarCascadeSupport" ], 
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambdabar
 print BPHY10JpsiLambdabar
+
+CascadeCollections = []
+CascadeCollections += BPHY10JpsiKshort.CascadeVertexCollections
+CascadeCollections += BPHY10JpsiLambda.CascadeVertexCollections
+CascadeCollections += BPHY10JpsiLambdabar.CascadeVertexCollections
+
 
 
 if not isSimulation: #Only Skim Data
@@ -406,6 +415,7 @@ AllVariables += ["ExtrapolatedMuonTrackParticles"]
 ## muon container
 AllVariables += ["Muons"] 
 
+
 ## Jpsi candidates 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY10JpsiSelectAndWrite.OutputVtxContainerName]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
@@ -422,6 +432,10 @@ StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambd
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdaContainerName']
 StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdabarContainerName']
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdabarContainerName']
+
+for cascades in CascadeCollections:
+   StaticContent += ["xAOD::VertexContainer#%s"   %     cascades]
+   StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % cascades]
 
 # Tagging information (in addition to that already requested by usual algorithms)
 #AllVariables += ["Electrons"] 

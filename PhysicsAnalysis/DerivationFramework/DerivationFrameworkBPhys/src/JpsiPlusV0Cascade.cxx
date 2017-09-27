@@ -7,11 +7,47 @@
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DerivationFrameworkBPhys/CascadeTools.h"
-
+#include "xAODTracking/VertexAuxContainer.h"
 namespace DerivationFramework {
-
-
+    typedef ElementLink<xAOD::VertexContainer> VertexLink;
+    typedef std::vector<VertexLink> VertexLinkVector;
     typedef std::vector<const xAOD::TrackParticle*> TrackBag;
+
+    double JpsiPlusV0Cascade::getParticleMass(int pdgcode) const{
+       auto ptr = m_particleDataTable->particle( pdgcode );
+       return ptr ? ptr->mass() : 0.;
+    }
+
+    bool LinkVertices(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
+                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert){
+         // create tmp vector of preceding vertex links
+     VertexLinkVector precedingVertexLinks;
+
+       // loop over input precedingVertices  
+     std::vector<xAOD::Vertex*>::const_iterator precedingVerticesItr = vertices.begin();
+     for(; precedingVerticesItr!=vertices.end(); ++precedingVerticesItr) {
+          // sanity check 1: protect against null pointers
+          if( !(*precedingVerticesItr) )
+            return false;
+    
+       // create element link
+       VertexLink vertexLink;
+       vertexLink.setElement(*precedingVerticesItr);
+       vertexLink.setStorableObject(*vertexContainer);
+    
+       // sanity check 2: is the link valid?
+       if( !vertexLink.isValid() )
+          return false;
+    
+       // link is OK, store it in the tmp vector
+       precedingVertexLinks.push_back( vertexLink );
+    
+     } // end of loop over preceding vertices
+  
+       // all OK: store preceding vertex links in the aux store
+      decor(*vert) = precedingVertexLinks;
+      return true;
+    }
 
     StatusCode JpsiPlusV0Cascade::initialize() {
 
@@ -25,6 +61,8 @@ namespace DerivationFramework {
         
         if(!m_vertexContainerKey.key().empty()) ATH_CHECK(m_vertexContainerKey.initialize());
         if(!m_vertexV0ContainerKey.key().empty()) ATH_CHECK(m_vertexV0ContainerKey.initialize());
+        ATH_CHECK(m_cascadeOutputsKeys.initialize());
+        ATH_CHECK(m_VxPrimaryCandidateName.initialize());
 
         // retrieving the V0 tools
         if ( m_V0Tools.retrieve().isFailure() ) {
@@ -51,16 +89,14 @@ namespace DerivationFramework {
         m_particleDataTable = partPropSvc->PDT();
 
         // retrieve particle masses
-        const HepPDT::ParticleData* particleData = NULL;
-
-        if( (particleData = m_particleDataTable->particle( PDG::mu_minus ) ) !=NULL ) m_mass_muon    = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::pi_plus )  ) !=NULL ) m_mass_pion    = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::p_plus )   ) !=NULL ) m_mass_proton  = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::Lambda0 )  ) !=NULL ) m_mass_lambda  = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::K_S0 )     ) !=NULL ) m_mass_ks      = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::J_psi )    ) !=NULL ) m_mass_jpsi    = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::B0 )       ) !=NULL ) m_mass_b0      = particleData->mass();
-        if( (particleData = m_particleDataTable->particle( PDG::Lambda_b0 )) !=NULL ) m_mass_lambdaB = particleData->mass();
+        m_mass_muon     = getParticleMass(PDG::mu_minus);
+        m_mass_pion     = getParticleMass(PDG::pi_plus);
+        m_mass_proton   = getParticleMass(PDG::p_plus);
+        m_mass_lambda   = getParticleMass(PDG::Lambda0);
+        m_mass_ks       = getParticleMass(PDG::K_S0);
+        m_mass_jpsi     = getParticleMass(PDG::J_psi);
+        m_mass_b0       = getParticleMass(PDG::B0);
+        m_mass_lambdaB  = getParticleMass(PDG::Lambda_b0);
 
         return StatusCode::SUCCESS;
     }
@@ -71,42 +107,65 @@ namespace DerivationFramework {
 
     StatusCode JpsiPlusV0Cascade::addBranches() const
     {
-      std::vector<Trk::VxCascadeInfo*> *cascadeinfoContainer = new std::vector<Trk::VxCascadeInfo*>;
+      std::vector<Trk::VxCascadeInfo*> cascadeinfoContainer;
+
+      auto Vtxwritehandles = m_cascadeOutputsKeys.makeHandles();
+      if(Vtxwritehandles.size() !=2)  { ATH_MSG_FATAL("Incorrect number of VtxContainers"); return StatusCode::FAILURE; }
+      
+      ATH_CHECK( Vtxwritehandles[0].record (std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()) );
+      ATH_CHECK( Vtxwritehandles[1].record (std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()) );
+
+
+      
 
       // get PV container
       const xAOD::Vertex * primaryVertex(0);
-      const xAOD::VertexContainer * importedVxContainer(0);
-      CHECK( evtStore()->retrieve(importedVxContainer, m_VxPrimaryCandidateName) );
-      if (importedVxContainer==nullptr) {
+      SG::ReadHandle<xAOD::VertexContainer> importedVxContainer(m_VxPrimaryCandidateName);
+      if (!importedVxContainer.isValid()) {
         ATH_MSG_WARNING("No VxPrimaryCandidate found in StoreGate");
         return StatusCode::RECOVERABLE;
       } else {
-        ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
-      }
-      if (importedVxContainer!=0) {
-        if (importedVxContainer->size()==0){
-          ATH_MSG_WARNING("You have no primary vertices: " << importedVxContainer->size());
-        } else {
-          xAOD::VertexContainer::const_iterator pvItr = importedVxContainer->begin();
-          primaryVertex = *pvItr;
-        }
+        ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName.key() << " in StoreGate!");
       }
 
-      ATH_CHECK(performSearch(cascadeinfoContainer));
-      ATH_MSG_INFO("cascadeinfoContainer size " << cascadeinfoContainer->size());
-      for (auto x : *cascadeinfoContainer) {
-        const std::vector< std::vector<TLorentzVector> > moms = x->getParticleMoms();
-        const std::vector<xAOD::Vertex*> cascadeVertices = x->vertices();
+      if (importedVxContainer->size()==0){
+        ATH_MSG_WARNING("You have no primary vertices: " << importedVxContainer->size());
+        return StatusCode::RECOVERABLE;
+      } else {
+        xAOD::VertexContainer::const_iterator pvItr = importedVxContainer->begin();
+        primaryVertex = *pvItr;
+      }
+
+      ATH_CHECK(performSearch(&cascadeinfoContainer));
+
+      SG::AuxElement::Decorator<VertexLinkVector> CascadeLinksDecor("CascadeVertexLinks"); 
+
+      ATH_MSG_INFO("cascadeinfoContainer size " << cascadeinfoContainer.size());
+      for (Trk::VxCascadeInfo* x : cascadeinfoContainer) {
+        if(x==nullptr) ATH_MSG_ERROR("x is null");
+
+        const std::vector<xAOD::Vertex*> &cascadeVertices = x->vertices();
+        if(cascadeVertices.size()!=2)
+          ATH_MSG_ERROR("Incorrect number of vertices");
+        if(cascadeVertices[0] == nullptr || cascadeVertices[1] == nullptr) ATH_MSG_ERROR("Error null vertex");
+        //Keep vertices
+        Vtxwritehandles[0]->push_back(cascadeVertices[0]);
+        Vtxwritehandles[1]->push_back(cascadeVertices[1]);
+        x->getSVOwnership(false);//Prevent Container from deleting vertices
+
+
+        std::vector<xAOD::Vertex*> verticestoLink;
+        verticestoLink.push_back(cascadeVertices[1]);
+        if(Vtxwritehandles[1].ptr() == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1].ptr() is null");
+        if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[1].ptr(), cascadeVertices[0])) 
+            ATH_MSG_ERROR("Error decorating vertices");
+
 
         double mass_v0 = m_mass_ks; 
         double mass_b = m_mass_b0;
-        std::vector<double> massesJpsi;
+        std::vector<double> massesJpsi(2, m_mass_muon);
         std::vector<double> massesV0;
-        std::vector<double> Masses;
-        massesJpsi.push_back(m_mass_muon);
-        massesJpsi.push_back(m_mass_muon);
-        Masses.push_back(m_mass_muon);
-        Masses.push_back(m_mass_muon);
+        std::vector<double> Masses(2, m_mass_muon);
         if (m_v0_pid == 310) {
            massesV0.push_back(m_mass_pion);
            massesV0.push_back(m_mass_pion);
@@ -131,14 +190,18 @@ namespace DerivationFramework {
         int ndf = x->nDoF();
         double chi2_1 = m_V0Tools->chisq(cascadeVertices[0]);
         double chi2_2 = m_V0Tools->chisq(cascadeVertices[1]);
+        const std::vector< std::vector<TLorentzVector> > &moms = x->getParticleMoms();
         double vprob = m_CascadeTools->vertexProbability(ndf,chi2);
+
         ATH_MSG_INFO("chi2 " << chi2 << " ndf " << ndf << " chi2_1 " << chi2_1 << " chi2_2 " << chi2_2 << " vprob " << vprob);
         double m1 = m_V0Tools->invariantMass(cascadeVertices[0],massesV0);
         double m2 = m_V0Tools->invariantMass(cascadeVertices[1],massesJpsi);
         double m1err = m_V0Tools->invariantMassError(cascadeVertices[0],massesV0);
         double m2err = m_V0Tools->invariantMassError(cascadeVertices[1],massesJpsi);
+
         ATH_MSG_INFO("V0Tools mass_v0 " << m1 << " error " << m1err << " mass_J " << m2 << " error " << m2err);
         // masses and errors, using track masses assigned in the fit
+
         double Mass_B = m_CascadeTools->invariantMass(moms[1]);
         double Mass_V0 = m_CascadeTools->invariantMass(moms[0]);
         double Mass_B_err = m_CascadeTools->invariantMassError(moms[1],x->getCovariance()[1]);
@@ -149,6 +212,7 @@ namespace DerivationFramework {
         double mprob_V0 = m_CascadeTools->massProbability(mass_v0,Mass_V0,Mass_V0_err);
         ATH_MSG_INFO("mprob_B " << mprob_B << " mprob_V0 " << mprob_V0);
         // masses and errors, assigning user defined track masses
+
         double Mass_b = m_CascadeTools->invariantMass(moms[1],Masses);
         double Mass_v0 = m_CascadeTools->invariantMass(moms[0],massesV0);
         double Mass_b_err = m_CascadeTools->invariantMassError(moms[1],x->getCovariance()[1],Masses);
@@ -231,8 +295,11 @@ namespace DerivationFramework {
         ATH_MSG_INFO("Rxy1 " << Rxy1 << " RxyErr1 " << RxyErr1);
         ATH_MSG_INFO("mass_V0 " << Mass_V0 << " chi2 " << chi2 << " ndf " << ndf << " chi2_1 " << chi2_1 << " chi2_2 " << chi2_2);
       }
-      //for(auto x : *cascadeinfoContainer) delete x;
-      //delete cascadeinfoContainer;
+
+      //Deleting cascadeinfo since this won't be stored.
+      //Vertices have been kept in m_cascadeOutputs and should be owned by their container
+      for(auto x : cascadeinfoContainer) delete x;
+
 
       return StatusCode::SUCCESS;
     }
@@ -241,6 +308,7 @@ namespace DerivationFramework {
     JpsiPlusV0Cascade::JpsiPlusV0Cascade(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
     m_vertexContainerKey(""),
     m_vertexV0ContainerKey(""),
+    m_cascadeOutputsKeys{ "JpsiPlusV0CascadeVtx1", "JpsiPlusV0CascadeVtx2" },
     m_VxPrimaryCandidateName("PrimaryVertices"),
     m_jpsiMassLower(0.0),
     m_jpsiMassUpper(10000.0),
@@ -277,10 +345,10 @@ namespace DerivationFramework {
        declareProperty("V0Hypothesis",              m_v0_pid);
        declareProperty("ApplyV0MassConstraint",     m_constrV0);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
-       //declareProperty("ApplyPvPointingConstraint", m_pvConstraint);
        declareProperty("TrkVertexFitterTool",       m_iVertexFitter);
        declareProperty("V0Tools",                   m_V0Tools);
        declareProperty("CascadeTools",              m_CascadeTools);
+       declareProperty("CascadeVertexCollections",              m_cascadeOutputsKeys);
     }
 
     JpsiPlusV0Cascade::~JpsiPlusV0Cascade(){ }
@@ -307,13 +375,9 @@ namespace DerivationFramework {
         double mass_v0 = m_mass_ks; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;
         std::vector<const xAOD::TrackParticle*> tracksV0;
-        std::vector<double> massesJpsi;
+        std::vector<double> massesJpsi(2, m_mass_muon);
         std::vector<double> massesV0;
-        std::vector<double> Masses;
-        massesJpsi.push_back(m_mass_muon);
-        massesJpsi.push_back(m_mass_muon);
-        Masses.push_back(m_mass_muon);
-        Masses.push_back(m_mass_muon);
+        std::vector<double> Masses(2, m_mass_muon);
         if (m_v0_pid == 310) {
            massesV0.push_back(m_mass_pion);
            massesV0.push_back(m_mass_pion);
@@ -335,10 +399,9 @@ namespace DerivationFramework {
            size_t jpsiTrkNum = jpsi->nTrackParticles();
            tracksJpsi.clear();
            for( unsigned int it=0; it<jpsiTrkNum; it++) tracksJpsi.push_back(jpsi->trackParticle(it));
+
            if (tracksJpsi.size() != 2 || massesJpsi.size() != 2 ) {
              ATH_MSG_INFO("problems with Jpsi input");
-             //ATH_MSG_FATAL("problems with Jpsi input");
-             //return StatusCode::FAILURE;
            }
            double mass_Jpsi = m_V0Tools->invariantMass(jpsi,massesJpsi);
            ATH_MSG_INFO("Jpsi mass " << mass_Jpsi);
@@ -382,7 +445,6 @@ namespace DerivationFramework {
               // Build up the topology
               // Vertex list
               std::vector<Trk::VertexID> vrtList;
-              vrtList.clear();
               // V0 vertex
               Trk::VertexID vID;
               if (m_constrV0) {
@@ -402,35 +464,20 @@ namespace DerivationFramework {
                 }
               }
               // Do the work
-              Trk::VxCascadeInfo * result = NULL;
-              //if (!m_pvConstraint) {
-                // unconstrained fit
-                result = m_iVertexFitter->fitCascade();
-              //} else {
-              //  // PV constrained fit
-              //  const Trk::RecVertex PV = pv->recVertex();
-              //  result = m_iVertexFitter->fitCascade(&PV);
-              //}
-              if (result==NULL) {
-                ATH_MSG_DEBUG("Fit didn't succeed");
-                //return StatusCode::FAILURE;
-              }
+              std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
 
               if (result != NULL) {
-                //const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
-                //if (cascadeVertices.size() != 2) {
-                //  return StatusCode::FAILURE;
-                //}
+                //necessary to prevent memory leak
+                result->getSVOwnership(true);
                 const std::vector< std::vector<TLorentzVector> > moms = result->getParticleMoms();
                 double mass = m_CascadeTools->invariantMass(moms[1]);
                 if (mass >= m_MassLower && mass <= m_MassUpper) {
-                  cascadeinfoContainer->push_back(result);
+                  cascadeinfoContainer->push_back(result.release());
                 } else {
+
                   ATH_MSG_DEBUG("Candidate rejected by the mass cut: mass = "
                                 << mass << " != (" << m_MassLower << ", " << m_MassUpper << ")" );
                 }
-              //} else {
-              //  return StatusCode::FAILURE;
               }
 
            } //Iterate over V0 vertices

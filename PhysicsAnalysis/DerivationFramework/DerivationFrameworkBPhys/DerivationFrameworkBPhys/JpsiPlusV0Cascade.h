@@ -36,7 +36,9 @@ namespace DerivationFramework {
 
         SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
         SG::ReadHandleKey<xAOD::VertexContainer> m_vertexV0ContainerKey;
-        std::string   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
+        SG::WriteHandleKeyArray<xAOD::VertexContainer> m_cascadeOutputsKeys;
+
+        SG::ReadHandleKey<xAOD::VertexContainer>   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
 
         double m_jpsiMassLower;
         double m_jpsiMassUpper;
@@ -62,7 +64,7 @@ namespace DerivationFramework {
         ToolHandle < Trk::TrkVKalVrtFitter > m_iVertexFitter;
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < DerivationFramework::CascadeTools > m_CascadeTools;
-
+        double getParticleMass(int particlecode) const;
     public:
         static const InterfaceID& interfaceID() { return IID_JpsiPlusV0Cascade;}
         JpsiPlusV0Cascade(const std::string& t, const std::string& n, const IInterface*  p);
