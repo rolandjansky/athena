@@ -2774,6 +2774,21 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle){
 
   if(theEle==0) return part;
 
+  // Short-circuit the do-while in case we have G4 information that we can directly use
+  if (theEle->barcode()>m_barcodeG4Shift && // Made in G4
+      theEle->hasProdVtx() && theEle->prodVtx()->barcode()<-200000 && // For sure made in G4
+      theEle->prodVtx()->id()>1000){ // And in a version where we stored the info we need
+    // Process IDs from http://www-geant4.kek.jp/lxr/source//processes/electromagnetic/utils/include/G4EmProcessSubType.hh
+    if (theEle->prodVtx()->id()==1014){ // from gamma conversion
+      part.first = BkgElectron;
+      part.second = PhotonConv;
+    } else if (theEle->prodVtx()->id()<=1024){
+      part.first = BkgElectron;
+      part.second = ElMagProc;
+    }
+    return part;
+  }
+
   const xAOD::TruthParticleContainer  * xTruthParticleContainer;
   StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
   if (sc.isFailure()||!xTruthParticleContainer){
@@ -2781,7 +2796,6 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle){
     return part;
   }
   ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
-
 
   part=particleTruthClassifier(theEle);
 
