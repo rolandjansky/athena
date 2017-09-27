@@ -749,7 +749,7 @@ def getTauTrackClassifier():
     _ftf_tracks_mva_bdt = TrackMVABDT(
         name = _name + "_0",
         # calibFolder='data/TrigTauRec',
-        calibFolder='dev/TrigTauRec/',
+        calibFolder='TrigTauRec/00-11-01/',
         inTrigger=True,
         InputWeightsPath=input_file_name,
         Threshold=threshold,
