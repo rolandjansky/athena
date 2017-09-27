@@ -521,8 +521,8 @@ namespace InDet
 	      bool Valid = true;
 	      float eta = trk_eta;
 	      //float sinth =  1./cosh(eta);
-	      float costh = tanh(eta);
-	      if (costh ==0) costh = 0.0001;
+	      //float costh = tanh(eta);
+	      //if (costh ==0) costh = 0.0001;
 	      if((bec!=1 && bec!=-1)&&fabs(eta)<0.7) Valid = false; //0.7
 	      if((bec==1 || bec ==-1)&&fabs(eta)>1.1) Valid = false;  //0.7
 	      

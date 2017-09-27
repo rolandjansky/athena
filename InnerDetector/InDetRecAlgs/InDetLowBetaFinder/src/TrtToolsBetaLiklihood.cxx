@@ -90,7 +90,7 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
 
     //std::cout << "waypoint 2" << std::endl;
     // index of barrel/endcap 0= barrel, 1 = ec (from -2,2)
-    hit.becIdx = fabs(TRT_bec.at(ihit))-1;
+    hit.becIdx = std::abs(TRT_bec.at(ihit))-1;
 
     // is this a tube hit?
     hit.isTube = TRT_isTube.at(ihit);
@@ -517,7 +517,7 @@ void TrtToolBetaLiklihood::TRT_FillPriors(std::vector<int> TRT_bitpattern, std::
     hit.fitR = TRT_R_track.at(ihit);
 
     // index of barrel/endcap 0= barrel, 1 = ec (from -2,2):
-    hit.becIdx = fabs(TRT_bec.at(ihit))-1;
+    hit.becIdx = std::abs(TRT_bec.at(ihit))-1;
 
     // Path length to hit
     radius = sqrt(pow(TrackX.at(ihit),2) + pow(TrackY.at(ihit),2))/10.;
