@@ -19,6 +19,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -58,7 +59,7 @@ void test_ctor()
 }
 
 
-void test_addToStore()
+void test_addToStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addToStore\n";
 
@@ -90,7 +91,7 @@ void test_addToStore()
 }
 
 
-void test_addAlias()
+void test_addAlias ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addAlias\n";
 
@@ -152,7 +153,7 @@ void test_addSymLink()
 }
 
 
-void test_proxy_exact()
+void test_proxy_exact ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_proxy_exact\n";
 
@@ -365,7 +366,7 @@ void test_keys()
 }
 
 
-void test_removeProxy()
+void test_removeProxy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_removeProxy\n";
 
@@ -406,7 +407,7 @@ void test_removeProxy()
 }
 
 
-void test_clearStore()
+void test_clearStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_clearStore\n";
 
@@ -482,7 +483,7 @@ void test_t2p()
 }
 
 
-void test_dummy()
+void test_dummy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_dummy\n";
 
@@ -514,7 +515,7 @@ void test_dummy()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   test_ctor();

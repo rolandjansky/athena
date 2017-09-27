@@ -11,6 +11,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "SGAudCore/ISGAudSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
 using SG::DataStore;
@@ -335,11 +336,15 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
       }
     }
     else {
-      p = const_cast<DataStore*>(this)->findDummy (id, key);
+      // Ok since access to DataStore is serialized by StoreGate.
+      DataStore* nc_store ATLAS_THREAD_SAFE = const_cast<DataStore*> (this);
+      p = nc_store->findDummy (id, key);
     }
   }
   else {
-    p = const_cast<DataStore*>(this)->findDummy (id, key);
+    // Ok since access to DataStore is serialized by StoreGate.
+    DataStore* nc_store ATLAS_THREAD_SAFE = const_cast<DataStore*> (this);
+    p = nc_store->findDummy (id, key);
   }
 
   if (p && m_pSGAudSvc) 
