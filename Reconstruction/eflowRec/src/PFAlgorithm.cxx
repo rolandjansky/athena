@@ -34,18 +34,20 @@ StatusCode PFAlgorithm::execute(){
 
   ATH_CHECK(m_caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),std::make_unique<xAOD::CaloClusterAuxContainer>()));
   ATH_MSG_DEBUG("CaloClusterWriteHandle has container of size" << m_caloClustersWriteHandle->size());
+
+  eflowRecTrackContainer localEFlowRecTrackContainer(*m_eflowRecTracksReadHandle.ptr());
+  eflowRecClusterContainer localEFlowRecClusterContainer(*m_eflowRecClustersReadHandle.ptr());
   
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
-    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
+    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&localEFlowRecClusterContainer,*(m_caloClustersWriteHandle.ptr()));
   }
 
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
     thisIPFBaseTool->execute(theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
   }
-  
-  
+    
   return StatusCode::SUCCESS;
 }
 

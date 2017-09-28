@@ -32,8 +32,8 @@ StatusCode PFONeutralCreatorAlgorithm::execute(){
 
   ATH_MSG_DEBUG("Executing");
   
-  m_neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>());
-  if (m_LCMode) m_neutralPFOContainerWriteHandle_nonModified.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>());
+  ATH_CHECK(m_neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
+  if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandle_nonModified.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Neutral PFOs from all eflowCaloObjects */
   unsigned int nEFCaloObs =  m_eflowCaloObjectContainerReadHandle->size();

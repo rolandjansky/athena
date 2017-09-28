@@ -48,7 +48,7 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(){
 
   ATH_MSG_DEBUG("Processing eflowCaloObjectContainer");
 
-  m_chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>());
+  ATH_CHECK(m_chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Charged PFOs from all eflowCaloObjects */
   unsigned int nEFCaloObs = m_eflowCaloObjectContainerReadHandle->size();
