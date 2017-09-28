@@ -27,22 +27,12 @@ class SCT_DCSConditionsTempCondAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyState;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
+  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey[2];
 
   ServiceHandle<ICondSvc> m_condSvc;
 
-  BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;
-  bool m_doState;
-  std::string m_chanstatCut;
-  float m_hvLowLimit;
-  float m_hvUpLimit;
-  bool m_useHV;
-  float m_useHVLowLimit;
-  float  m_useHVUpLimit;
-  std::string m_useHVChanCut;
 };
 
 #endif // SCT_DCSCONDITIONSTEMPCONDALG
