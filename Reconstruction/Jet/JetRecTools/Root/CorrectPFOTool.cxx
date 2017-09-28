@@ -38,6 +38,8 @@ StatusCode CorrectPFOTool::initialize() {
   if(m_useChargedWeights) {
     ATH_CHECK( m_weightPFOTool.retrieve() );
   }
+  ATH_CHECK( m_vertexContainer_key.initialize() );
+  ATH_CHECK( m_trkVtxAssoc_key.initialize() );
   return StatusCode::SUCCESS;
 }
 

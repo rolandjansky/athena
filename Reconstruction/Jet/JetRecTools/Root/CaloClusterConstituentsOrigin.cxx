@@ -10,7 +10,7 @@
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string & name): JetConstituentModifierBase(name) {
-  declareProperty("VertexContainer",m_readVertexContainer_key);  
+  declareProperty("VertexContainer",m_readVertexContainer_key="PrimaryVertices");
 }
 
 StatusCode CaloClusterConstituentsOrigin::initialize() {
@@ -19,6 +19,7 @@ StatusCode CaloClusterConstituentsOrigin::initialize() {
 		  << m_inputType);
     return StatusCode::FAILURE;
   }
+  ATH_CHECK( m_readVertexContainer_key.initialize() );
   return StatusCode::SUCCESS;
 }
 
