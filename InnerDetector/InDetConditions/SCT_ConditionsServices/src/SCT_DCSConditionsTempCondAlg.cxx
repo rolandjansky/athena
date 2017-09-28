@@ -58,7 +58,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute() {
   // Write Cond Handle
   SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle[2]{m_writeKey[0], m_writeKey[1]};
   // Do we have a valid Write Cond Handle for current time?
-  for (unsigned int side{2}; side<2; side++) {
+  for (unsigned int side{0}; side<2; side++) {
     if (writeHandle[side].isValid()) {
       // in theory this should never be called in MT
       writeHandle[side].updateStore();
@@ -99,7 +99,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute() {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{attrList->first};
     CondAttrListCollection::AttributeList payload{attrList->second};
-    for (unsigned int side{2}; side<2; side++) {
+    for (unsigned int side{0}; side<2; side++) {
       if (payload.exists(param[side])) {
         float val{payload[param[side]].data<float>()};
         writeCdo[side]->setValue(channelNumber, val);
@@ -110,7 +110,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute() {
   }
 
   // Record the output cond object
-  for(unsigned int side{2}; side<2; side++) {
+  for(unsigned int side{0}; side<2; side++) {
     if (writeHandle[side].record(rangeW, writeCdo[side]).isFailure()) {
       ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle[side].key() 
                     << " with EventRange " << rangeW
