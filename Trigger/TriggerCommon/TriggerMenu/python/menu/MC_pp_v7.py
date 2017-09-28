@@ -1984,7 +1984,6 @@ def setupMenu():
         ['mu4_j15_dr05', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j15'] ]],
         ['mu4_j35_dr05', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j35'] ]],
  
-        ['mu4_j55_dr05',  'L1_MU4_J12', ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j55'] ]], 
         ['mu6_j85_dr05',  'L1_MU6_J20', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j85'] ]], 
         ['mu6_j110_dr05', 'L1_MU6_J20', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j110'] ]],
         ['mu6_j150_dr05', 'L1_MU6_J40', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j150'] ]],
@@ -2214,7 +2213,6 @@ def setupMenu():
         ['mu4_j125_xe90_mht',  'L1_MU4_J50_XE40', ['L1_MU4','L1_J50', 'L1_XE40'], [PhysicsStream], ['RATE:MuonJetMET', 'BW:Muon', 'BW:Jet'], -1, ['serial',-1,["mu4","j125","xe90_mht"] ]],
         ['j50_xe80_pufit_2dphi10_L1XE60',  'L1_XE60', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,["j50","xe80_pufit_L1XE60"] ]],
         ['j70_xe100_pufit_2dphi10_L1XE60',  'L1_XE60', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,["j70","xe100_pufit_L1XE60"] ]],
-        ['mu4_j55_boffperf_split_dr05_dz02',  'L1_MU4_J12', ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j55_boffperf_split'] ]],
 
         # Wgg triggers
 
