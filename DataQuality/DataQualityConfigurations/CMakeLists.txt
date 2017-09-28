@@ -33,24 +33,41 @@ foreach (hanfile IN LISTS han_config_files)
     # Merge
     COMMAND ${CMAKE_COMMAND} -E env GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
       ${CMAKE_CURRENT_SOURCE_DIR}/scripts/MergeConfigs.py ${hanfile}.config
-      ${CMAKE_CURRENT_SOURCE_DIR}/config
-      ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
-    # Build binary config
-    COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
-      ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
-    # Deploy binary config
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.hcfg
-      ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
-    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config
-  )
-  set( hcfgfiles ${hcfgfiles} 
-       ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg )
-  install( FILES ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
-           DESTINATION ${CMAKE_INSTALL_DATADIR}/DataQualityConfigurations OPTIONAL )
-endforeach(hanfile)
+      ${CMAKE_CURRENT_SOURCE_DIR}/config ${configOutputFile}
+      # Build binary config
+      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
+      ${configOutputFile}
+      # Deploy binary config
+      COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${hanfile}.hcfg
+      ${outputFile}
+      # Dependencies for the command:
+      DEPENDS scripts/MergeConfigs.py ${configInputFiles} )
 
-add_custom_target( DataQualityConfigurations_han_configs ALL SOURCES ${hcfgfiles} )
-add_dependencies( DataQualityConfigurations_han_configs han-config-gen )
+   # Remember the generated file's name:
+   list( APPEND hcfgfiles ${outputFile} )
 
-add_dependencies( Package_DataQualityConfigurations DataQualityConfigurations_han_configs )
+   # Install the generated file:
+   install( FILES ${outputFile}
+      DESTINATION ${CMAKE_INSTALL_DATADIR}/DataQualityConfigurations OPTIONAL )
+
+   # Clean up:
+   unset( outputFile )
+   unset( configInputFiles )
+   unset( configOutputFile )
+
+endforeach()
+
+# Set up the custom target generating the configurations:
+add_custom_target( DataQualityConfigurations_han_configs
+   ALL SOURCES ${hcfgfiles} )
+add_dependencies( DataQualityConfigurations_han_configs
+   han-config-gen )
+add_dependencies( Package_DataQualityConfigurations
+   DataQualityConfigurations_han_configs )
+set_target_properties( DataQualityConfigurations_han_configs PROPERTIES
+   LABELS DataQualityConfigurations
+   FOLDER DataQuality/DataQualityConfigurations )
+
+# Clean up:
+unset( hcfgfiles )
