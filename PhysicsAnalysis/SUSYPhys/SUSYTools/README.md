@@ -42,11 +42,11 @@ git checkout 21.2.5
 git atlas addpkg SUSYTools
 ```
 
-or the trunk version::
+or the trunk version (which lives in the 21.2 branch)::
 
 ```bash
 cd athena
-git checkout master
+git checkout 21.2
 git atlas addpkg SUSYTools
 ```
 
