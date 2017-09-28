@@ -535,11 +535,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
-  el_id_support.push_back("VeryLooseLLH");
-  el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH"); 
-  el_id_support.push_back("MediumLLH"); 
-  el_id_support.push_back("TightLLH");
+  el_id_support.push_back("VeryLooseLLH_rel20p7");
+  el_id_support.push_back("LooseLLH_Rel20p7");
+  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("TightLLH_Rel20p7");
   
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
