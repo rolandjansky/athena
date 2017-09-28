@@ -57,6 +57,7 @@ namespace xAOD {
       Tower,
       Truth,
       TruthWZ,
+      TruthDressedWZ,
       Track,
       PFlow,      
       LCPFlow,      // LC PFlow
