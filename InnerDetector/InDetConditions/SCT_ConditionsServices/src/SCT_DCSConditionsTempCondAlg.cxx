@@ -18,7 +18,7 @@ SCT_DCSConditionsTempCondAlg::SCT_DCSConditionsTempCondAlg(const std::string& na
 {
   declareProperty("ReturnHVTemp", m_returnHVTemp);
   
-  declareProperty("ReadKeyHV", m_readKey, "Key of input (raw) temperature conditions folder");
+  declareProperty("ReadKey", m_readKey, "Key of input (raw) temperature conditions folder");
   declareProperty("WriteKey0", m_writeKey[0], "Key of output (derived) temperature conditions folder");
   declareProperty("WriteKey1", m_writeKey[1], "Key of output (derived) temperature conditions folder");
 }

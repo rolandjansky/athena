@@ -291,6 +291,7 @@ if DetFlags.haveRIO.SCT_on():
         condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
                                                      ReadKeyHV = sctDCSHVFolder,
                                                      ReadKeyState = sctDCSStateFolder)
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
         condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
                                                      ReadKey = sctDCSTempFolder)
         
