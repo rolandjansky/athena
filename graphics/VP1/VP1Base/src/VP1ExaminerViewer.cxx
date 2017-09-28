@@ -11,7 +11,9 @@
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: March 2008                               //
 //                                                            //
-//  Update: Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch //
+//  Updates:                                                  //
+//  Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
+//  Sep 2017, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
@@ -1383,6 +1385,9 @@ void VP1ExaminerViewer::removeDecorationMenuOption()
 //____________________________________________________________________
 SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 {
+    VP1Msg::messageDebug("VP1ExaminerViewer::processSoEvent()");
+    std::cout << "event type: " << evt->getClassTypeId().getName() << " - " << evt->getTypeId().getName() << std::endl;
+
 	if (evt->getTypeId().isDerivedFrom(SoKeyboardEvent::getClassTypeId())) {
 		//We want to add a few shortcuts:
 		// "A": View all
@@ -1977,12 +1982,10 @@ bool VP1ExaminerViewer::Imp::ensureMenuInit()
 
 	//Stereo view sub menu:
 	QMenu * stereoviewmenu_main = advancedmenu->addMenu("&Stereographic view");
-
 	stereo_launcheditor = stereoviewmenu_main->addAction("Launch &editor");
 
 	// focal length submenu
 	popup_focal_value_action = advancedmenu->addAction("dummy"); // dummy text replaced here below
-	// an action to change the let the user change the stereo offset by entering a double
 	SoCamera *camera = theclass->getCamera();
 	float default_focal_camera = camera->focalDistance.getValue();
 	popup_focal_value_action->setData(default_focal_camera);

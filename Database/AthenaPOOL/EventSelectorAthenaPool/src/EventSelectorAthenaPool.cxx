@@ -24,6 +24,7 @@
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/ICollectionSize.h"
 
 // Framework
 #include "GaudiKernel/ClassID.h"
@@ -538,10 +539,8 @@ StatusCode EventSelectorAthenaPool::queryInterface(const InterfaceID& riid, void
       *ppvInterface = dynamic_cast<IIoComponent*>(this);
    } else if (riid == IProperty::interfaceID()) {
       *ppvInterface = dynamic_cast<IProperty*>(this);
-   } else if (riid == IEventSeek::interfaceID()) {
-      *ppvInterface = dynamic_cast<IEventSeek*>(this);
-   } else if (riid == ICollectionSize::interfaceID()) {
-      *ppvInterface = dynamic_cast<ICollectionSize*>(this);
+   } else if (riid == IEvtSelectorSeek::interfaceID()) {
+      *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
    } else if (riid == IEventShare::interfaceID()) {
       *ppvInterface = dynamic_cast<IEventShare*>(this);
    } else {
@@ -855,7 +854,7 @@ StatusCode EventSelectorAthenaPool::resetCriteria(const std::string& /*criteria*
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode EventSelectorAthenaPool::seek(int evtNum) {
+StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
    long newColl = findEvent(evtNum);
    if (newColl == -1 && evtNum >= m_firstEvt[m_curCollection] && evtNum < m_evtCount - 1) {
       newColl = m_curCollection;
@@ -918,7 +917,7 @@ StatusCode EventSelectorAthenaPool::seek(int evtNum) {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-int EventSelectorAthenaPool::curEvent() const {
+int EventSelectorAthenaPool::curEvent (const Context& /*ctxt*/) const {
   return(m_evtCount);
 }
 //__________________________________________________________________________
@@ -926,7 +925,7 @@ int EventSelectorAthenaPool::curEvent() const {
 // Return the index of the collection containing it, or -1 if not found.
 // Note: passing -1 for evtNum will always yield failure,
 // but this can be used to force filling in the entire m_numEvt array.
-int EventSelectorAthenaPool::findEvent(int evtNum) {
+int EventSelectorAthenaPool::findEvent(int evtNum) const {
    for (std::size_t i = 0, imax = m_numEvt.size(); i < imax; i++) {
       if (m_numEvt[i] == -1) {
          PoolCollectionConverter pcc(msgSvc(),
@@ -1062,7 +1061,7 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
 }
 
 //__________________________________________________________________________
-int EventSelectorAthenaPool::size() {
+int EventSelectorAthenaPool::size (Context& /*ctxt*/) const {
    // Fetch sizes of all collections.
    findEvent(-1);
    int sz = 0;

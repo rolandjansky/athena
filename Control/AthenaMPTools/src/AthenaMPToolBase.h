@@ -80,6 +80,8 @@ class AthenaMPToolBase : public AthAlgTool
 
   void waitForSignal();
 
+  IEvtSelector* evtSelector() { return m_evtSelector; }
+
   int         m_nprocs;           // Number of workers spawned by the master process
   std::string m_subprocTopDir;    // Top run directory for subprocesses
   std::string m_subprocDirPrefix; // For ex. "worker__"

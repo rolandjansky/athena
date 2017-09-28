@@ -13,6 +13,7 @@
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
@@ -913,20 +914,24 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
 //=========================================================================
 StatusCode AthenaHiveEventLoopMgr::seek (int evt)
 {
-  IEventSeek* is = dynamic_cast<IEventSeek*> (m_evtSelector);
+  IEvtSelectorSeek* is = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (is == 0) {
     m_msg << MSG::ERROR << "Seek failed; unsupported by event selector"
 	  <<endmsg;
     return StatusCode::FAILURE;
   }
-  StatusCode sc = is->seek(evt);
-  if (sc.isSuccess()) {
-    m_nevt = evt;
+
+  if (!m_evtContext) {
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       m_msg  << MSG::FATAL << "Can not create the event selector Context."
              << endmsg;
       return StatusCode::FAILURE;
     }
+  }
+
+  StatusCode sc = is->seek (*m_evtContext, evt);
+  if (sc.isSuccess()) {
+    m_nevt = evt;
   }
   else {
     m_msg << MSG::ERROR << "Seek failed." << endmsg;
@@ -948,13 +953,22 @@ int AthenaHiveEventLoopMgr::curEvent() const
 //=========================================================================
 int AthenaHiveEventLoopMgr::size()
 {
-  ICollectionSize* cs = dynamic_cast<ICollectionSize*> (m_evtSelector);
+  IEvtSelectorSeek* cs = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (cs == 0) {
     m_msg << MSG::ERROR << "Collection size unsupported by event selector"
 	  <<endmsg;
     return -1;
   }
-  return cs->size();
+
+  if (!m_evtContext) {
+    if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+      m_msg  << MSG::FATAL << "Can not create the event selector Context."
+             << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  return cs->size (*m_evtContext);
 }
 
 //=========================================================================
