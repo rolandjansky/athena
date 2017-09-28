@@ -51,8 +51,7 @@ namespace iFatras
       @author Sharka Todorova Sarka.Todorova -at- cern.ch
   */  
   
-  class PhysicsValidationTool : virtual public IPhysicsValidationTool,
-                        public AthAlgTool
+  class PhysicsValidationTool : public extends<AthAlgTool, IPhysicsValidationTool>
   {
   public:
     /** Constructor */

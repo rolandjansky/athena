@@ -73,8 +73,7 @@ namespace iFatras
                Andreas Salzburger <Andreas.Salzburger@cern.ch>
   */  
 
-  class SimHitCreatorMS : virtual public ISimHitCreator, 
-                            public AthAlgTool, virtual public IIncidentListener
+  class SimHitCreatorMS : public extends<AthAlgTool, ISimHitCreator, IIncidentListener>
     {
     public:
       SimHitCreatorMS(const std::string&,const std::string&,const IInterface*);

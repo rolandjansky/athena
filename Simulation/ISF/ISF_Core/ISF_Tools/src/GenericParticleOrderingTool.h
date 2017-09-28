@@ -27,8 +27,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenericParticleOrderingTool : public AthAlgTool,
-                                      public IParticleOrderingTool {
+  class GenericParticleOrderingTool : public extends<AthAlgTool, IParticleOrderingTool> {
 
     public: 
       /** Constructor with parameters */

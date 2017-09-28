@@ -24,8 +24,6 @@ namespace ISF {
 
   class ISFParticle;
 
-  static const InterfaceID IID_ISimulationSelector("ISimulationSelector", 1, 0);
-   
   /**
    @class ISimulationSelector
        
@@ -43,8 +41,8 @@ namespace ISF {
       /** virtual destructor */
       virtual ~ISimulationSelector();
 
-      /** AlgTool interface methods */
-      static const InterfaceID& interfaceID() { return IID_ISimulationSelector; };
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(ISimulationSelector, 1, 0);
 
       /** return a handle on the simulator */
       inline ServiceHandle<ISimulationSvc>* simulator();

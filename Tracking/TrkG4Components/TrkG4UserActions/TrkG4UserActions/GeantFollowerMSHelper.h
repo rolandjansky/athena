@@ -32,7 +32,7 @@ namespace Trk {
   class MaterialEffectsOnTrack;
   class TrackStateOnSurface;
   
-  class GeantFollowerMSHelper : public AthAlgTool, virtual public IGeantFollowerMSHelper {
+  class GeantFollowerMSHelper : public extends<AthAlgTool, IGeantFollowerMSHelper> {
 
     public:
       // constructor, destructor

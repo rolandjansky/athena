@@ -19,9 +19,6 @@
 // Simulation includes
 #include "ISF_Event/ISFParticleContainer.h"
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_IInputConverter("IInputConverter", 1, 0);
-
 // forward declarations
 class McEventCollection;
 class G4Event;
@@ -48,8 +45,8 @@ namespace ISF {
     /** Virtual destructor */
     virtual ~IInputConverter(){}
 
-    /** Gaudi InterfaceID */
-    static const InterfaceID& interfaceID() { return IID_IInputConverter; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(IInputConverter, 1, 0);
 
     /** Convert selected particles from the given McEventCollection into ISFParticles
         and push them into the given ISFParticleContainer */

@@ -25,12 +25,8 @@ namespace G4UA
     /// @brief Initialize all the user actions for the current thread.
     virtual StatusCode initializeActions() = 0;
 
-    /// Interface declaration
-    static const InterfaceID& interfaceID()
-    {
-      static const InterfaceID iid_IUASvc("G4UA::IUserActionSvc", 1, 0);
-      return iid_IUASvc;
-    }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(G4UA::IUserActionSvc, 1, 0);
 
   }; // class IUserActionSvc
 

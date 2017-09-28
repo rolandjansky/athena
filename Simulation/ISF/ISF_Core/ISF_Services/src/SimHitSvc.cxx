@@ -20,7 +20,7 @@
 
 /** Constructor **/
 ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_validationOutput(false),
   m_thistSvc("THistSvc",name),
   m_validationStream("ISFSimHit"),
@@ -368,19 +368,6 @@ void ISF::SimHitSvc::addHepMcParticleLinkInfoToTree(HepMcParticleLink &HMPL)
     m_phi = -10.;
   }
   return;
-}
-
-/** Query the interfaces. */
-StatusCode ISF::SimHitSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
-
-  if ( IID_ISimHitSvc == riid )
-    *ppvInterface = (ISimHitSvc*)this;
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
 
 void ISF::SimHitSvc::insert(const SiHit& )

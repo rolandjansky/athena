@@ -35,7 +35,7 @@
 iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n),
     m_randomEngine(0),
     m_randomEngineName("FatrasRnd"),
@@ -47,7 +47,6 @@ iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
     m_validationMode(false),
     m_validationTool("")
 {
-  declareInterface<IProcessSamplingTool>(this);
   // service handles
   declareProperty( "RandomNumberService"                , m_rndGenSvc                );
   // hadronic interactions

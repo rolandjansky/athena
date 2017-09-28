@@ -16,14 +16,13 @@
 ISF::MemoryMonitoringTool::MemoryMonitoringTool( const std::string& t,
                                                  const std::string& n,
                                                  const IInterface* p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_numCalls(0),
   m_prevCallMemUsage(0),
   m_accumulatedCallMemory(0.),
   m_accumulatedIncrMemory(0.),
   m_table()
 {
-  declareInterface<ISF::IMonitoringTool>(this);
 }
 
 /** Destructor */

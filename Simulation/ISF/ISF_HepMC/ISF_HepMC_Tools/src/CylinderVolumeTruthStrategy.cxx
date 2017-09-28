@@ -17,12 +17,10 @@
 
 /** Constructor **/
 ISF::CylinderVolumeTruthStrategy::CylinderVolumeTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_ri(0.),
   m_ro(1148.)
 {
-    declareInterface<ISF::ITruthStrategy>(this);
-
     // cylinder dimensions
     declareProperty("InnerRadius"        , m_ri=0.        );
     declareProperty("OuterRadius"        , m_ro=1148.     );

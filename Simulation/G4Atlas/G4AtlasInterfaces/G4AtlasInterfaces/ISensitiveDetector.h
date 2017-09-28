@@ -21,10 +21,8 @@ class ISensitiveDetector : virtual public IAlgTool {
  public:
   ISensitiveDetector() {}
   virtual ~ISensitiveDetector() {}
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_ISensitiveDetector( "ISensitiveDetector" , 1 , 0 ) ;
-    return IID_ISensitiveDetector;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISensitiveDetector, 1, 0);
 
   /** Method to initialize the SD itself - this is our hook for initialization in G4,
    since in a multi-threaded setup the SDs are local and they might need to be

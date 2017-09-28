@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   15-05-2015
  */
-class CharginosPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
+class CharginosPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
 public:
   /// Standard constructor
   CharginosPhysicsTool( const std::string& type , const std::string& name,

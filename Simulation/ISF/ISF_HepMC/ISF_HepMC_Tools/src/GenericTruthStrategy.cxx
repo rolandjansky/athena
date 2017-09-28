@@ -15,7 +15,7 @@
 
 /** Constructor **/
 ISF::GenericTruthStrategy::GenericTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_useParentPt(true),
   m_parentPt2(-1.),
   m_parentEkin(-1.),
@@ -32,8 +32,6 @@ ISF::GenericTruthStrategy::GenericTruthStrategy(const std::string& t, const std:
   m_parentPdgCodesVector(0),
   m_parentPdgCodes()
 {
-    declareInterface<ISF::ITruthStrategy>(this);
-
     // provide either a pT or Ekin cut for the parent and child particles respectively.
     // if none are given for either type, it will not use pT or Ekin cuts
     // (the Pt2 variables get squared in the initialize() method)
