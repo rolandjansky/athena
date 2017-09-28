@@ -197,43 +197,32 @@ def addStandardTruthContents(kernel=None,
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel)
 
-#def addTausAndDownstreamParticles(outputStreamName):
-#    # Want to run a MenuTruthThinning here and copy particles and vertices to a new object
-#    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-#    TausAndDecaysTruthThinning = DerivationFramework__MenuTruthThinning(name               = "TausAndDecaysTruthThinning",
-#                                                                ThinningService            = "TausAndDecaysThinningSvc",
-#                                                                WritePartons               = False,
-#                                                                WriteHadrons               = False,
-#                                                                WriteBHadrons              = False,
-#                                                                WriteCHadrons              = False,
-#                                                                WritettHFHadrons           = False,
-#                                                                WriteGeant                 = False,
-#                                                                GeantPhotonPtThresh        = -1.0,
-#                                                                WriteTauHad                = False,
-#                                                                PartonPtThresh             = -1.0,
-#                                                                WriteBSM                   = False,
-#                                                                WriteBosons                = False,
-#                                                                WriteBSMProducts           = False,
-#                                                                WriteBosonProducts         = False,
-#                                                                WriteTopAndDecays          = False,
-#                                                                WriteEverything            = False,
-#                                                                WriteAllLeptons            = False,
-#                                                                WriteStatus3               = False,
-#                                                                PreserveDescendants        = True, 
-#                                                                PreserveGeneratorDescendants = True,
-#                                                                PreserveAncestors          = False,
-#                                                                WriteFirstN                = -1,
-#                                                                PDGIDsToKeep               = [15])
-#    ToolSvc += TausAndDecaysTruthThinning
-#
-#DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name      = "DFCommonTausWithDecays",
-#                                                         NewCollectionName       = "TruthTausWithDecays",
-#                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
-#ToolSvc += DFCommonTruthPhotonToolSim
-#
-#    from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#    augStream = MSMgr.GetStream( streamName )
-#    evtStream = augStream.GetEventStream()
-#    svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[outputStreamName] )
-#
-#
+# Add taus and their downstream particles (immediate and further decay products) in a special collection
+def addTausAndDownstreamParticles(kernel):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    # Set up a tool to keep the taus and all downstream particles
+    DFCommonTausAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonTausAndDecaysTool",
+                                                                   NewCollectionName="TauWithDecay",
+                                                                   PDGIDsToKeep = [15])
+    ToolSvc += DFCommonTausAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTausAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonTausAndDecaysTool] )
+
+# Add electrons, photons, and their downstream particles in a special collection
+def addEgammaAndDownstreamParticles(kernel):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    # Set up a tool to keep the e/gammas and all downstream particles
+    DFCommonEgammasAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonEgammasAndDecaysTool",
+                                                                   NewCollectionName="EgammaWithDecay",
+                                                                   PDGIDsToKeep = [11,22])
+    ToolSvc += DFCommonEgammasAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonEgammasAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonEgammasAndDecaysTool] )
