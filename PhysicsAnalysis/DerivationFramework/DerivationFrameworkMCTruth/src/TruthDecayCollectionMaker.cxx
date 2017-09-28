@@ -25,12 +25,10 @@ DerivationFramework::TruthDecayCollectionMaker::TruthDecayCollectionMaker(const 
                                                                           const IInterface* p)
   : AthAlgTool(t,n,p)
   , m_particlesKey("TruthParticles")
-  , m_verticesKey("TruthVertices")
   , m_collectionName("")
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ParticlesKey", m_particlesKey);
-    declareProperty("VerticesKey", m_verticesKey);
     declareProperty("NewCollectionName", m_collectionName);
     declareProperty("PDGIDsToKeep", m_pdgIdsToKeep={}, "PDG IDs of particles to build the collection from");
 }
@@ -44,7 +42,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
 
-    if (m_particlesKey=="" || m_verticesKey=="") {
+    if (m_particlesKey=="") {
         ATH_MSG_FATAL("No truth particle collection provided to use as a basis for new collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_particlesKey << " as the source collections for new truth collections");}
@@ -70,11 +68,6 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     const xAOD::TruthParticleContainer* importedTruthParticles;
     if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
         ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
-    const xAOD::TruthVertexContainer* importedTruthVertices;
-    if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
-        ATH_MSG_ERROR("No TruthVertex collection with name " << m_verticesKey << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
 
