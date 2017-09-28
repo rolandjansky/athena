@@ -53,7 +53,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute() {
   }
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle[2]{m_writeKey[0], m_writeKey[1]};
+  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     // in theory this should never be called in MT
@@ -82,7 +82,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_DCSFloatCondData* writeCdo[2]{new SCT_DCSFloatCondData(), new SCT_DCSFloatCondData()};
+  SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
 
   // Read temperature info
   std::string param{"HVCHVOLT_RECV"};
