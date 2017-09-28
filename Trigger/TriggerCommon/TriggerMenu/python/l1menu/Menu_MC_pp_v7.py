@@ -470,7 +470,7 @@ def defineMenu():
         #'L1_EM18VH_3J20',
 
         # combined mu - jet
-        'L1_MU4_J12',  'L1_MU4_J50_XE40', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
+        'L1_MU4_J50_XE40', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
 #ATR-13743        'L1_MU4_J30',
         #'L1_MU4_J50',
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
@@ -1025,7 +1025,6 @@ def defineMenu():
         'L1_TAU20_2TAU12_XE35' : 84,
         'L1_TAU40_2TAU12IM_XE40' : 429,
 #        'L1_EM15VH_JJ15.23ETA49' : 86,
-        'L1_MU4_J12' : 87,
         'L1_MU4_J50_XE40' : 330,
         'L1_MU6_J20' : 88,
         'L1_MU6_J40' : 89,

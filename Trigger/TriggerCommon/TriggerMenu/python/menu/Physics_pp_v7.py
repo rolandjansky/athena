@@ -3832,7 +3832,6 @@ def setupMenu():
 
         #ATR-10976
         ['noalg_L1MU6_J20',    'L1_MU6_J20',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:BJet"], -1 ],
-        ['noalg_L1MU4_J12',    'L1_MU4_J12',   [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:BJet'], -1],
 
       
         ['noalg_L1CALREQ2',   'L1_CALREQ2', [], ['Tile'], ["RATE:Calibration", "RATE:Cosmic_TileCalibration", "BW:Detector"], -1],
@@ -3913,7 +3912,6 @@ def setupMenu():
         ['noalg_l1topo_L1XE55',   'L1_XE55',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1topo_L1XE60',   'L1_XE60',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1topo_L1XE70',   'L1_XE70',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
-        ['noalg_l1topo_L1MU4_J12', 'L1_MU4_J12', [], ['L1Topo'], ["RATE:SeededStreamers", "BW:Other"], -1],
 
 
 	#L1Topo streamer (ATR-14714)
