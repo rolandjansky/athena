@@ -27,7 +27,7 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  //  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState;
 

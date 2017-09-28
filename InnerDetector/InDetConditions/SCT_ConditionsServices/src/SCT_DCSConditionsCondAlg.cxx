@@ -4,16 +4,40 @@
 
 #include "SCT_DCSConditionsCondAlg.h"
 
+#include "Identifier/IdentifierHash.h"
+#include "SCT_Cabling/SCT_OnlineId.h"
+
 #include "GaudiKernel/EventIDRange.h"
 
 SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
+  , m_readKeyHV{"/SCT/DCS/HV"}
   , m_readKeyState{"/SCT/DCS/CHANSTAT"}
   , m_writeKeyState{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
+  , m_readAllDBFolders{true}
+  , m_returnHVTemp{true}
+  , m_chanstatCut{"NORM"}
+  , m_hvLowLimit{0.0}
+  , m_hvUpLimit{1000000.0}
+  , m_useHV{false}
+  , m_useHVLowLimit{19.}
+  , m_useHVUpLimit{1000000.0}
+  , m_useHVChanCut{"LOOSE"}
 {
-  declareProperty("ReadKeyState", m_readKeyState);
-  declareProperty("WriteKeyState", m_writeKeyState);
+  declareProperty("ReadAllDBFolders", m_readAllDBFolders);
+  declareProperty("ReturnHVTemp", m_returnHVTemp);
+  declareProperty("HVCutLow", m_hvLowLimit);
+  declareProperty("HVCutUp", m_hvUpLimit);
+  declareProperty("StateCut", m_chanstatCut);
+  declareProperty("UseDefaultHV", m_useHV);
+  declareProperty("useHVLow", m_useHVLowLimit);
+  declareProperty("useHVUp", m_useHVUpLimit);
+  declareProperty("useHVChan", m_useHVChanCut);
+  
+  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
+  declareProperty("ReadKeyState", m_readKeyState, "Key of input (raw) State conditions folder");
+  declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
 SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg()
