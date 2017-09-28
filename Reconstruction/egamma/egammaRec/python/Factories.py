@@ -146,7 +146,7 @@ class Factory:
     
     # Call FcnWrapper or ToolFactory parameters 
     # (or if they are inside a list, for ToolHandleArray)
-    classes = (FcnWrapper, ToolFactory)
+    classes = (FcnWrapper, ToolFactory, PublicToolFactory)
     for paramName, value in params.items():
       if isinstance(value, classes) or \
         (isinstance(value, list) and any(isinstance(v, classes) for v in value) ):
