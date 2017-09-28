@@ -2782,6 +2782,7 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle){
     if (theEle->prodVtx()->id()==1014){ // from gamma conversion
       // We want the classification of the photon in this case
       part=particleTruthClassifier( theEle->prodVtx()->incomingParticle(0) );
+      m_BkgElecMother = theEle->prodVtx()->incomingParticle(0);
       return part;
     }
     // Other uses would go here
