@@ -38,8 +38,7 @@ typedef std::vector<int>      PDGCodes;
  * This GenParticle filter provides a general way of selecting/filtering out particles
  * during GenEvent read-in.
  */
-class GenParticleGenericFilter : public AthAlgTool,
-                                 virtual public IGenParticleFilter {
+  class GenParticleGenericFilter : public extends<AthAlgTool, IGenParticleFilter> {
 
   public:
     /// Constructor with framework parameters

@@ -17,13 +17,12 @@
 
 //================ Constructor ====================================================
 iParSim::TrackParticleSmearer::TrackParticleSmearer(const std::string& t, const std::string& n, const IInterface*  p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_incidentSvc("IncidentSvc", n),
   m_tpContainerName("SmearedTrackParticles"),
   m_extrapolationEngine(""),
   m_ISPtoPerigeeTool("")
 {
-    declareInterface<ISF::IParticleProcessor>(this);
     // The collection to be written out
     declareProperty("TrackParticleCollection"  ,      m_tpContainerName);
     // The Tools for the smearers
