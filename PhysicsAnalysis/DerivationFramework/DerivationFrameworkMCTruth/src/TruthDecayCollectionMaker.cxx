@@ -101,16 +101,13 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     return StatusCode::SUCCESS;
 }
 
-ElementLink<xAOD::TruthParticleContainer>
-DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont, 
-                                                                  xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
+int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont, 
+                                                                      xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
     // See if we've seen it - note, could also do this with a unary function on the container itself
     if (std::find(seen_particles.begin(),seen_particles.end(),old_part.barcode())!=seen_particles.end()){
       for (size_t p=0;p<part_cont->size();++p){
-        if ((*part_cont)[p]->barcode()==old_part.barcode()){
-          ElementLink<xAOD::TruthParticleContainer> eltp(*part_cont,p);
-          return eltp;
-        } // Yeah, that's the one
+        // Was it a hit?
+        if ((*part_cont)[p]->barcode()==old_part.barcode()) return p;
       } // Look through the old container
     } // Found it in the old container
     // Now we have seen it
@@ -125,12 +122,14 @@ DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD::Tr
     xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
     part_cont->push_back( xTruthParticle );
     // Make a link to this particle
-    ElementLink<xAOD::TruthParticleContainer> eltp(*part_cont, part_cont->size()-1);
+    int my_index = part_cont->size()-1;
+    ElementLink<xAOD::TruthParticleContainer> eltp(*part_cont, my_index);
     // Decay vertex information
     if (old_part.hasDecayVtx()) {
-        ElementLink<xAOD::TruthVertexContainer> eltv( addTruthVertex( *old_part.decayVtx(), part_cont, vert_cont, seen_particles) );
+        int vert_index = addTruthVertex( *old_part.decayVtx(), part_cont, vert_cont, seen_particles);
+        ElementLink<xAOD::TruthVertexContainer> eltv( *vert_cont, vert_index );
         xTruthParticle->setDecayVtxLink( eltv );
-        eltv->getDataNonConstPtr()->addIncomingParticleLink( eltp );
+        (*vert_cont)[vert_index]->addIncomingParticleLink( eltp );
     }
     // Fill with numerical content
     xTruthParticle->setPdgId(old_part.pdgId());
@@ -157,17 +156,17 @@ DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD::Tr
         outcomeDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "classifierParticleOutCome" );
     } else {outcomeDecorator(*xTruthParticle) = 0;}
     // Return a link to this particle
-    return eltp;
+    return my_index;
 }
 
-ElementLink<xAOD::TruthVertexContainer>
-DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont, 
-                                                                xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
+int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont, 
+                                                                    xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
     // Make a new vertex and add it to the container
     xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
     vert_cont->push_back( xTruthVertex );
     // Get a link to this vertex -- will be used to set production vertices on all the next particles
-    ElementLink<xAOD::TruthVertexContainer> eltv(*vert_cont, vert_cont->size()-1);
+    int my_index = vert_cont->size()-1;
+    ElementLink<xAOD::TruthVertexContainer> eltv(*vert_cont, my_index);
     // Set properties
     xTruthVertex->setId(old_vert.id());
     xTruthVertex->setBarcode(old_vert.barcode());
@@ -177,10 +176,11 @@ DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::Trut
     xTruthVertex->setT(old_vert.t());
     // Add all the outgoing particles
     for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
-        ElementLink<xAOD::TruthParticleContainer> eltp( addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles ) );
+        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles );
+        ElementLink<xAOD::TruthParticleContainer> eltp( *part_cont, part_index);
         xTruthVertex->addOutgoingParticleLink( eltp );
-        eltp->getDataNonConstPtr()->setProdVtxLink( eltv );
+        (*part_cont)[part_index]->setProdVtxLink( eltv );
     }
     // Return a link to this vertex
-    return eltv;
+    return my_index;
 }

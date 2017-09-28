@@ -33,10 +33,10 @@ namespace DerivationFramework {
       std::string m_particlesKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
       // Helper functions for building up the decay product collections
-      ElementLink<xAOD::TruthParticleContainer> addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
-                                                                  xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
-      ElementLink<xAOD::TruthVertexContainer> addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
-                                                              xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
+      int addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
+                                  xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
+      int addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
+                                xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
   }; 
 }
 
