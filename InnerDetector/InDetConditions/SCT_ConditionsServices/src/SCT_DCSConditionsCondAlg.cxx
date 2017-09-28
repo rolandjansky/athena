@@ -17,6 +17,7 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   , m_condSvc{"CondSvc", name}
   , m_readAllDBFolders{true}
   , m_returnHVTemp{true}
+  , m_doState{true}
   , m_chanstatCut{"NORM"}
   , m_hvLowLimit{0.0}
   , m_hvUpLimit{1000000.0}
@@ -46,6 +47,8 @@ SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg() {
 StatusCode SCT_DCSConditionsCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
+  m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
+
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -54,7 +57,7 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
     ATH_CHECK(m_readKeyHV.initialize());
   }
 
-  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+  if (m_doState) {
     // Read Cond Handle (state)
     ATH_CHECK(m_readKeyState.initialize());
     // Write Cond Handle
@@ -78,10 +81,9 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
 }
 
 StatusCode SCT_DCSConditionsCondAlg::execute() {
-  ATH_MSG_INFO("execute " << name());
+  ATH_MSG_DEBUG("execute " << name());
 
-  bool doState{(m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)};
-  if (not doState) {
+  if (not m_doState) {
     return StatusCode::SUCCESS;
   }
 
@@ -149,14 +151,14 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
     const CondAttrListCollection* readCdoHV{*readHandleHV};
     if (readCdoHV==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object (HV)");
-      // delete writeCdoState;
+      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     // Get the validitiy range (HV)
     EventIDRange rangeHV;
     if (not readHandleHV.range(rangeHV)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-      // delete writeCdoState;
+      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleHV.fullKey() << " readCdo->size()= " << readCdoHV->size());
@@ -166,7 +168,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
     EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
     if(rangeIntersection.start()>rangeIntersection.stop()) {
       ATH_MSG_FATAL("Invalid intersection range: " << rangeIntersection);
-      // delete writeCdoState;
+      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     rangeState = rangeIntersection;
@@ -197,7 +199,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
     ATH_MSG_FATAL("Could not record SCT_DCSStatCondData " << writeHandle.key() 
 		  << " with EventRange " << rangeState
 		  << " into Conditions Store");
-    // delete writeCdoState;
+    delete writeCdoState;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeState << " into Conditions Store");

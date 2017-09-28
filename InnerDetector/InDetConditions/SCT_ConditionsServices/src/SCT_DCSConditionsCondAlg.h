@@ -35,6 +35,7 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
 
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;
+  bool m_doState;
   std::string m_chanstatCut;
   float m_hvLowLimit;
   float m_hvUpLimit;
