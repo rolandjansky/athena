@@ -11,11 +11,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 #include "GaudiKernel/Property.h"
 
@@ -34,7 +32,6 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState;
 
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
 
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;

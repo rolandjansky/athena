@@ -15,7 +15,6 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   , m_readKeyState{"/SCT/DCS/CHANSTAT"}
   , m_writeKeyState{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
-  , m_cablingSvc{"SCT_CablingSvc", name}
   , m_readAllDBFolders{true}
   , m_returnHVTemp{true}
   , m_chanstatCut{"NORM"}
@@ -49,18 +48,14 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
-  // SCT cabling service
-  ATH_CHECK(m_cablingSvc.retrieve());
 
   if (m_returnHVTemp) {
-    // HV
-    // Read Cond Handle
+    // Read Cond Handle (HV)
     ATH_CHECK(m_readKeyHV.initialize());
   }
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
-    // State
-    // Read Cond Handle
+    // Read Cond Handle (state)
     ATH_CHECK(m_readKeyState.initialize());
     // Write Cond Handle
     ATH_CHECK(m_writeKeyState.initialize());
@@ -83,10 +78,12 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
 }
 
 StatusCode SCT_DCSConditionsCondAlg::execute() {
-  ATH_MSG_DEBUG("execute " << name());
+  ATH_MSG_INFO("execute " << name());
 
   bool doState{(m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)};
-  if (not doState) return StatusCode::SUCCESS;
+  if (not doState) {
+    return StatusCode::SUCCESS;
+  }
 
   // Write Cond Handle (state)
   SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState};
@@ -115,6 +112,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleState.fullKey() << " readCdo->size()= " << readCdoState->size());
+  ATH_MSG_INFO("Range of state input is " << rangeState);
   
   // Construct the output Cond Object and fill it in
   SCT_DCSStatCondData* writeCdoState{new SCT_DCSStatCondData()};
@@ -154,7 +152,6 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
       // delete writeCdoState;
       return StatusCode::FAILURE;
     }
-
     // Get the validitiy range (HV)
     EventIDRange rangeHV;
     if (not readHandleHV.range(rangeHV)) {
@@ -163,6 +160,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleHV.fullKey() << " readCdo->size()= " << readCdoHV->size());
+    ATH_MSG_INFO("Range of HV input is " << rangeHV);
 
     // Combined the validity ranges of state and range
     EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
