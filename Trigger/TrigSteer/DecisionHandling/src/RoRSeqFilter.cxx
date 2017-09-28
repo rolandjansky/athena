@@ -28,6 +28,8 @@ StatusCode RoRSeqFilter::initialize()
     CHECK( m_inputKeys.size() == m_outputKeys.size() );
   }
 
+  for ( auto key: m_inputKeys ) 
+    renounce( key );
   CHECK( m_inputKeys.initialize() );
   CHECK( m_outputKeys.initialize() );
 

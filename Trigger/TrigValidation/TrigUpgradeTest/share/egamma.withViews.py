@@ -324,8 +324,16 @@ else:
 
 
 # CF construction
+
 step0 = parOR("step0", [ egammaCaloStep ] )
 step1 = parOR("step1", [ egammaIDStep ] )
-steps = seqAND("HLTSteps", [ step0, step1 ]  )
+
+from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+summary = TriggerSummaryAlg("TriggerSummaryAlg")
+summary.L1Decision = "HLTChains"
+summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
+summary.OutputLevel = DEBUG
+
+steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
 topSequence += steps
   
