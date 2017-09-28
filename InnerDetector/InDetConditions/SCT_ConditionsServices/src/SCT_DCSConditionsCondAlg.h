@@ -30,8 +30,8 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus;
-  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyStatus;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
+  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState;
 
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
