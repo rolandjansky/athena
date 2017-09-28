@@ -1675,37 +1675,11 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     }
     else {
 		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
-<<<<<<< HEAD
-	VP1Msg::message(" AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems. Mac users: if the display goes blank, please try resizing the main VP1 window.");
-	//FIXME - remove above messages at some point? EJWM.
-
-	QGLWidget* qglw = (QGLWidget*)getGLWidget();
-	QGLFormat fmt = qglw->format();
-	fmt.setSampleBuffers(smoothing);
-	fmt.setSamples(numPasses);
-	qglw->setFormat(fmt);    // note: this is supposedly deprecated..
-	qglw->makeCurrent();
-	if(smoothing && numPasses > 1)
-		glEnable(GL_MULTISAMPLE);
-	else
-		glDisable(GL_MULTISAMPLE);
-	m_d->isantialias=smoothing;
-=======
         getGLRenderAction()->setSmoothing(smoothing);
         setSampleBuffers(0);
     }
 
-
-
-
-    d->isantialias=smoothing;
-
-
-
-
-
-
->>>>>>> 471f186... fixing ATLASVPONE-361 : Antialiasing make 3D window freeze
+    m_d->isantialias=smoothing;
 }
 
 //____________________________________________________________________
