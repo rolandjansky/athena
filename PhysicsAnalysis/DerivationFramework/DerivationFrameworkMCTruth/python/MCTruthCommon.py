@@ -153,6 +153,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
+                              DFCommonTruthTauDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
                               DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
@@ -182,9 +183,57 @@ def schedulePostJetMCTruthAugmentations(kernel=None):
     import DerivationFrameworkTau.TauTruthCommon
 
 # This adds the entirety of TRUTH3
-def addStandardTruthContents(kernel=None, decorationDressing='dressedPhoton'):
+def addStandardTruthContents(kernel=None,
+                             decorationDressing='dressedPhoton',
+                             includeTausInDressingPhotonRemoval=False):
+    # Tools that must come before jets
     schedulePreJetMCTruthAugmentations(kernel, decorationDressing)
+    # Should photons that are dressed onto taus also be removed from truth jets?
+    if includeTausInDressingPhotonRemoval:
+        ToolSvc.DFCommonTruthTauDressingTool.decorationName=decorationDressing
+    # Jets and MET
     addTruthJets(kernel, decorationDressing)
     addTruthMET(kernel)
+    # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel)
 
+#def addTausAndDownstreamParticles(outputStreamName):
+#    # Want to run a MenuTruthThinning here and copy particles and vertices to a new object
+#    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+#    TausAndDecaysTruthThinning = DerivationFramework__MenuTruthThinning(name               = "TausAndDecaysTruthThinning",
+#                                                                ThinningService            = "TausAndDecaysThinningSvc",
+#                                                                WritePartons               = False,
+#                                                                WriteHadrons               = False,
+#                                                                WriteBHadrons              = False,
+#                                                                WriteCHadrons              = False,
+#                                                                WritettHFHadrons           = False,
+#                                                                WriteGeant                 = False,
+#                                                                GeantPhotonPtThresh        = -1.0,
+#                                                                WriteTauHad                = False,
+#                                                                PartonPtThresh             = -1.0,
+#                                                                WriteBSM                   = False,
+#                                                                WriteBosons                = False,
+#                                                                WriteBSMProducts           = False,
+#                                                                WriteBosonProducts         = False,
+#                                                                WriteTopAndDecays          = False,
+#                                                                WriteEverything            = False,
+#                                                                WriteAllLeptons            = False,
+#                                                                WriteStatus3               = False,
+#                                                                PreserveDescendants        = True, 
+#                                                                PreserveGeneratorDescendants = True,
+#                                                                PreserveAncestors          = False,
+#                                                                WriteFirstN                = -1,
+#                                                                PDGIDsToKeep               = [15])
+#    ToolSvc += TausAndDecaysTruthThinning
+#
+#DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name      = "DFCommonTausWithDecays",
+#                                                         NewCollectionName       = "TruthTausWithDecays",
+#                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
+#ToolSvc += DFCommonTruthPhotonToolSim
+#
+#    from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+#    augStream = MSMgr.GetStream( streamName )
+#    evtStream = augStream.GetEventStream()
+#    svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[outputStreamName] )
+#
+#

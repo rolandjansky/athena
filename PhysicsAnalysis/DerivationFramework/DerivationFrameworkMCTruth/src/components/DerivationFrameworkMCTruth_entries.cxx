@@ -5,6 +5,7 @@
 #include "DerivationFrameworkMCTruth/GenericTruthThinning.h"
 #include "DerivationFrameworkMCTruth/TruthCollectionMaker.h"
 #include "DerivationFrameworkMCTruth/TruthCollectionMakerTau.h"
+#include "DerivationFrameworkMCTruth/TruthDecayCollectionMaker.h"
 #include "DerivationFrameworkMCTruth/TruthMetaDataWriter.h"
 #include "DerivationFrameworkMCTruth/TruthClassificationDecorator.h"
 #include "DerivationFrameworkMCTruth/CompactHardTruth.h"
@@ -22,6 +23,7 @@ DECLARE_TOOL_FACTORY( MenuTruthThinning )
 DECLARE_TOOL_FACTORY( GenericTruthThinning )
 DECLARE_TOOL_FACTORY( TruthCollectionMaker )
 DECLARE_TOOL_FACTORY( TruthCollectionMakerTau )
+DECLARE_TOOL_FACTORY( TruthDecayCollectionMaker )
 DECLARE_TOOL_FACTORY( TruthMetaDataWriter )
 DECLARE_TOOL_FACTORY( TruthClassificationDecorator )
 DECLARE_ALGORITHM_FACTORY( CompactHardTruth )
@@ -38,6 +40,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( GenericTruthThinning )
    DECLARE_TOOL( TruthCollectionMaker )
    DECLARE_TOOL( TruthCollectionMakerTau )
+   DECLARE_TOOL( TruthDecayCollectionMaker )
    DECLARE_TOOL( TruthMetaDataWriter )
    DECLARE_TOOL( TruthClassificationDecorator )
    DECLARE_ALGORITHM( CompactHardTruth )
