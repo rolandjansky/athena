@@ -86,6 +86,13 @@ DFCommonTruthMuonDressingTool = DerivationFramework__TruthDressingTool(name = "D
                                                                   particleIDsToDress = [13]
                                                                   )
 ToolSvc += DFCommonTruthMuonDressingTool
+DFCommonTruthTauDressingTool = DerivationFramework__TruthDressingTool(name = "DFCommonTruthTauDressingTool",
+                                                                  dressParticlesKey = "TruthTaus",
+                                                                  usePhotonsFromHadrons = False,
+                                                                  dressingConeSize = 0.2, # Tau special
+                                                                  particleIDsToDress = [15]
+                                                                  )
+ToolSvc += DFCommonTruthTauDressingTool
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthIsolationTool
 DFCommonTruthElectronIsolationTool1 = DerivationFramework__TruthIsolationTool(name = "DFCommonTruthElectronIsolationTool1",

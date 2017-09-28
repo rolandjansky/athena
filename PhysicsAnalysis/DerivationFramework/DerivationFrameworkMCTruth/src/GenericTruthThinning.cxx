@@ -74,19 +74,19 @@ StatusCode DerivationFramework::GenericTruthThinning::initialize()
     } else {ATH_MSG_INFO("Truth thinning selection strings: " << m_partString /*<< " " << m_vtxString*/);}
    
     if (m_preserveDescendants && m_preserveGeneratorDescendants) {
-	ATH_MSG_FATAL("You are asking to keep both all descendants, and only those from the event generator. Please check your job options.");
+        ATH_MSG_FATAL("You are asking to keep both all descendants, and only those from the event generator. Please check your job options.");
         return StatusCode::FAILURE;
     }
     // Set up the text-parsing machinery for thinning the truth directly according to user cuts
     if (/*m_vtxString!="" ||*/ m_partString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    if (m_partString!="") {
-		m_partParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    	m_partParser->loadExpression(m_partString);
-	    }	
-	    /*if (m_vtxString!="") {
+            ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+            proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+            proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+            if (m_partString!="") {
+                m_partParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+                    m_partParser->loadExpression(m_partString);
+            }
+            /*if (m_vtxString!="") {
                 m_vertParser = new ExpressionParsing::ExpressionParser(proxyLoaders);
                 m_vertParser->loadExpression(m_vtxString);
             }*/
@@ -156,16 +156,16 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
  
     // Execute the text parsers and update the mask
     if (m_partString!="") {
-    	std::vector<int> entries =  m_partParser->evaluateAsVector();
-    	unsigned int nEntries = entries.size();
-    	// check the sizes are compatible
-    	if (nParticles != nEntries ) {
-    	    ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used TruthParticles?");
+            std::vector<int> entries =  m_partParser->evaluateAsVector();
+            unsigned int nEntries = entries.size();
+            // check the sizes are compatible
+            if (nParticles != nEntries ) {
+                ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used TruthParticles?");
             return StatusCode::FAILURE;
-    	} else {
+            } else {
             // set mask
             for (unsigned int i=0; i<nParticles; ++i) if (entries[i]==1) partMask[i]=true;
-    	}
+            }
     }
     /*if (m_vertParser) {
         std::vector<int> entries =  m_vertParser->evaluateAsVector();
@@ -219,9 +219,9 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
             if (m_preserveDescendants) decayHelper.descendants(particle,partMask,vertMask,encounteredBarcodes,true);
             encounteredBarcodes.clear();
             if (m_preserveGeneratorDescendants) decayHelper.descendants(particle,partMask,vertMask,encounteredBarcodes,false);
-            encounteredBarcodes.clear();			
-	    if (m_preserveAncestors) decayHelper.ancestors(particle,partMask,vertMask,encounteredBarcodes);
-	    encounteredBarcodes.clear();	
+            encounteredBarcodes.clear();
+            if (m_preserveAncestors) decayHelper.ancestors(particle,partMask,vertMask,encounteredBarcodes);
+            encounteredBarcodes.clear();
         }
     }
     //for (unsigned int i=0; i<nVertices; ++i) {
@@ -241,11 +241,11 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
     
     // Execute the thinning service based on the mask. Finish.
     if (m_thinningSvc->filter(*importedTruthParticles, partMask, IThinningSvc::Operator::Or).isFailure()) {
-       	ATH_MSG_FATAL("Application of thinning service failed! ");
-       	return StatusCode::FAILURE;
+               ATH_MSG_FATAL("Application of thinning service failed! ");
+               return StatusCode::FAILURE;
     }
     if (m_thinningSvc->filter(*importedTruthVertices, vertMask, IThinningSvc::Operator::Or).isFailure()) {
-    	ATH_MSG_FATAL("Application of thinning service failed! ");
+            ATH_MSG_FATAL("Application of thinning service failed! ");
         return StatusCode::FAILURE;
     }
     
