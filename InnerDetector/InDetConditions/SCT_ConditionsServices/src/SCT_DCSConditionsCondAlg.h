@@ -31,11 +31,8 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyHV;
-  EventIDRange m_rangeHV;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus;
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyStatus;
-  SCT_DCSStatCondData* m_writeCdoStatus;
-  EventIDRange m_rangeStatus;
 
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
