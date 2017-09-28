@@ -184,9 +184,14 @@ bool TrigEgammaNavTPBaseTool::MinimalTriggerRequirement(){
     
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList.at(ilist);
-        if ( tdt()->isPassed(tag) )
+	ATH_MSG_DEBUG("Checking if "<<tag<< " trigger is passed:");
+
+        if ( tdt()->isPassed(tag) ){
+	    ATH_MSG_DEBUG(tag<< " is passed!");
             return true;
+	}
     }
+    ATH_MSG_DEBUG("Trigger selection failed!");
     return false; // nothing passed
 }
 
@@ -335,19 +340,31 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     // The statement below is more general
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-      std::string tag = m_tagTrigList.at(ilist);
-      if(tdt()->isPassed(tag)){ 
+      std::string tag; // Here I'll put the tag electron chain after interpreting TnP chain
+      std::string TnP = m_tagTrigList.at(ilist);
+      if(tdt()->isPassed(TnP)){ 
         if(m_tp){
+	  ATH_MSG_DEBUG("Interpretting  "<< TnP << " as a Tag and probe trigger...");
           std::string p1trigger;
           std::string p2trigger;
-          if(splitTriggerName(tag,p1trigger,p2trigger)){
+          if(splitTriggerName(TnP,p1trigger,p2trigger)){
+	    ATH_MSG_DEBUG("Split trigger name for "<< TnP << " in " << p1trigger << " and "  << p2trigger);
             if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
             if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
-          }
-          if( match()->match(el,tag) )
+          } else{
+	      ATH_MSG_DEBUG("Failed to split trigger " << tag);
+	  }
+	  ATH_MSG_DEBUG("Trying to match tag to  "<< tag );
+          if( match()->match(el,tag) ){
+	    ATH_MSG_DEBUG("Succeeded to match to   "<< tag );
             tagPassed=true;
+	  } else {
+	    ATH_MSG_DEBUG("Failed to match to   "<< tag );
+	  }
+	  
         }
         else{
+	  ATH_MSG_DEBUG("m_tp flag set to False... using tagPassed=true");
           tagPassed=true; 
         }
       }
@@ -356,6 +373,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;
     }
+    ATH_MSG_DEBUG("tag trigger passed "); 
     hist1(m_anatype+"_TagCutCounter")->Fill("PassTrigger",1);
     ATH_MSG_DEBUG("Matching Tag Electron FC");
     bool tagMatched=false;

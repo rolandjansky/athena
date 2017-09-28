@@ -50,6 +50,7 @@ monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e28_lhtight_nod0_ivarloose']
 
 monitoring_jpsitags = [
+    'HLT_e5_lhtight_nod0',
     'HLT_e5_lhtight_nod0_e4_etcut',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee',
@@ -87,7 +88,11 @@ monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
                           ]
 # monitoringTP_electron += commissionTP_electron
 
-monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
+monitoringTP_Jpsiee = [
+        'HLT_e5_lhtight_nod0',
+        'HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
+        'HLT_e9_lhtight_nod0'
+        ]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
                       'HLT_g200_loose',
                       ]
