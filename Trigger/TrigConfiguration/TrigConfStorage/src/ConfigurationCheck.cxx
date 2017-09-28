@@ -1783,7 +1783,7 @@ private:
 class PEBCalibCheck : public TrigConfTest {
 public:
   PEBCalibCheck()
-    : TrigConfTest("PEBCalibrationStream", "Check if all streams that use PEB are of type calibration", WARNING),
+    : TrigConfTest("PEBCalibrationStream", "All streams with PEB must be of type calibration or monitoring", WARNING),
       m_nonCalibPEB("")
   {}
 
@@ -1821,7 +1821,7 @@ public:
 	    for(const HLTStreamTag *s : ch->streams()) {
 
 	      //	      m_nonCalibPEB += ch->chain_name() + " stream type: " + s->type() + ", ";
-	      if ( s->type() != "calibration")  m_nonCalibPEB += ch->chain_name() + ", stream: " + s->stream() + ", stream type: " + s->type() + ", ";
+	      if ( s->type() != "calibration" && s->type() != "monitoring" )  m_nonCalibPEB += ch->chain_name() + ", stream: " + s->stream() + ", stream type: " + s->type() + ", ";
 	    }
 	  }
 
