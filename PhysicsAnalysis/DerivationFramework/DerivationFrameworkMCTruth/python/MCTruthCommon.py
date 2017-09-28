@@ -144,6 +144,9 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         DFCommonTruthElectronDressingTool.decorationName = decorationDressing
         DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
+    # Tau collections are built separately
+    import DerivationFrameworkTau.TauTruthCommon
+
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
     augmentationToolsList = [ DFCommonTruthClassificationTool,
                               DFCommonTruthMuonTool,DFCommonTruthElectronTool,
@@ -179,8 +182,6 @@ def schedulePostJetMCTruthAugmentations(kernel=None):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
                                                              )
-    # Tau collections are built separately
-    import DerivationFrameworkTau.TauTruthCommon
 
 # This adds the entirety of TRUTH3
 def addStandardTruthContents(kernel=None,
