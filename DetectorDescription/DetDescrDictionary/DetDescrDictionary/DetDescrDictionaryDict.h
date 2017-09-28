@@ -11,16 +11,16 @@
 
 namespace DetDescrDictionaryDict 
 {
-    DataVector<Identifier>                    m_idvec;
-    std::vector<Identifier>                   m_idvec1;
-    std::vector<HWIdentifier>                 m_idvec2;
-    std::vector<HWIdentifier>::iterator       m_it1;
-    std::vector<HWIdentifier>::const_iterator m_cit1;
-    std::map<Identifier,int>                  m_idmapInt;
-    std::map<HWIdentifier,float>              m_idmapFloat;
-    std::pair<Identifier,int>                 m_idpairInt;
-    std::pair<HWIdentifier,float>             m_idpairFloat;
-    std::pair < IdentifierHash, int >         m_idhpairInt;
-    DataVector<std::pair<IdentifierHash, int> >    m_dvidhpairInt;
-    std::vector<std::pair<IdentifierHash, int>* >  m_vidhpairInt;
+    DataVector<Identifier>                    idvec;
+    std::vector<Identifier>                   idvec1;
+    std::vector<HWIdentifier>                 idvec2;
+    std::vector<HWIdentifier>::iterator       it1;
+    std::vector<HWIdentifier>::const_iterator cit1;
+    std::map<Identifier,int>                  idmapInt;
+    std::map<HWIdentifier,float>              idmapFloat;
+    std::pair<Identifier,int>                 idpairInt;
+    std::pair<HWIdentifier,float>             idpairFloat;
+    std::pair < IdentifierHash, int >         idhpairInt;
+    DataVector<std::pair<IdentifierHash, int> >    dvidhpairInt;
+    std::vector<std::pair<IdentifierHash, int>* >  vidhpairInt;
 }
