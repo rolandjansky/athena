@@ -58,7 +58,7 @@ AODFlags.egammaTrackSlimmer = True
 
 # Need to be activated because of the use of the
 # "RecExPers/RecoOutputAODList_jobOptions.py" file
-rec.doWriteAOD.set_Value_and_Lock(True)
+# rec.doWriteAOD.set_Value_and_Lock(True)
 
 include ("RecExCond/RecExCommon_flags.py")
 include ("RecExCommon/RecExCommon_topOptions.py")
@@ -93,7 +93,7 @@ MSMgr.Print()
 ## Define the DAOD RPVLL output stream
 ##====================================================================
 if primDPD.isVirtual() == False:
-    DAOD_RPVLLStream_Augmented=MSMgr.NewPoolStream( streamName, fileName,asAlg = True )
+    DAOD_RPVLLStream_Augmented=MSMgr.NewPoolRootStream( streamName, fileName,asAlg = True )
 if primDPD.isVirtual() == True:
     DAOD_RPVLLStream_Augmented=MSMgr.NewVirtualStream( streamName, fileName )
 
