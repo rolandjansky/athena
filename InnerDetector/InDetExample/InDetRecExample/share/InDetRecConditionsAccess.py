@@ -276,12 +276,23 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
-        if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-        if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-        if not conddb.folderRequested('/SCT/DCS/HV'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
+        sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
+        sctDCSTempFolder = '/SCT/DCS/MODTEMP'
+        sctDCSHVFolder = '/SCT/DCS/HV'
+        if not conddb.folderRequested(sctDCSStateFolder):
+            conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSTempFolder):
+            conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSHVFolder):
+            conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsCondAlg
+        condSequence += SCT_DCSConditionsCondAlg(name = "SCT_DCSConditionsCondAlg",
+                                                 ReadKeyHV = sctDCSHVFolder,
+                                                 ReadKeyState = sctDCSStateFolder
+                                                 # , ReturnHVTemp = False, ReadAllDBFolders = False
+                                                 )
                
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
