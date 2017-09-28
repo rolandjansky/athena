@@ -195,6 +195,16 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            float  kineticEnergy      = sqrt(mom2+mass*mass)-mass;
            float  energyDepositInKeV = 0.; // only used for TRT hits directly created by photons
 
+           //HepMcParticleLink from ISFParticle
+           HepMcParticleLink *partLink = nullptr;
+           if (isp.getParticleLink()) {
+             partLink = new HepMcParticleLink(*isp.getParticleLink());
+           }
+           else {
+             ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle to associate to TRT hit, creating one from barcode " << trackID);
+             partLink = new HepMcParticleLink(trackID);
+           }
+
            int barrel_endcap = 0;
            int ispos = 0;
            switch ( m_trtIdHelper->barrel_ec(hitId) ) {
@@ -215,7 +225,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            int hitID = hitid_helper->buildHitId( barrel_endcap, ispos, ringwheel, phisector,layer,istraw);
            
            TRTUncompressedHit
-             uncompressedHit( hitID, trackID, pdgCode,
+             uncompressedHit( hitID, *partLink, pdgCode,
                               (float) kineticEnergy, (float) energyDepositInKeV,
                               (float) sol1raw.x(), (float) sol1raw.y(), sol1raw.z(),
                               (float) sol2raw.x(), (float) sol2raw.y(), sol2raw.z(),
