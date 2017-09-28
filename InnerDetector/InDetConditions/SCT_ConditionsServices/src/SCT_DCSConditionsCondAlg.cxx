@@ -12,7 +12,6 @@
 SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_readKeyHV{"/SCT/DCS/HV"}
-  , m_writeKeyHV{"SCT_DCSHVCondData", "SCT_DCSHVCondData"}
   , m_readKeyStatus{"/SCT/DCS/CHANSTAT"}
   , m_writeKeyStatus{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
@@ -38,7 +37,6 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   declareProperty("useHVChan", m_useHVChanCut);
   
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
-  declareProperty("WriteKeyHV", m_writeKeyHV, "Key of output (derived) HV conditions folder");
   declareProperty("ReadKeyStatus", m_readKeyStatus, "Key of input (raw) Status conditions folder");
   declareProperty("WriteKeyStatus", m_writeKeyStatus, "Key of output (derived) Status conditions folder");
 }
@@ -58,13 +56,6 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
     // HV
     // Read Cond Handle
     ATH_CHECK(m_readKeyHV.initialize());
-    // Write Cond Handle
-    ATH_CHECK(m_writeKeyHV.initialize());
-    // Register write handle
-    if(m_condSvc->regHandle(this, m_writeKeyHV, m_writeKeyHV.dbKey()).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyHV.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
   }
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
@@ -172,25 +163,6 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
 
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
   
-    // Write Cond Handle
-    SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKeyHV};
-    
-    // Do we have a valid Write Cond Handle for current time?
-    if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-      writeHandle.updateStore();
-      ATH_MSG_INFO("CondHandle " << writeHandle.fullKey() << " is already valid."
-                   << ". In theory this should not be called, but may happen"
-                   << " if multiple concurrent events are being processed out of order."
-                   << " Forcing update of Store contents");
-      return StatusCode::SUCCESS; 
-    }
-    
-    // Construct the output Cond Object and fill it in
-    SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
-    // clear structures before filling
-    writeCdo->clear();
-
     std::string param = "HVCHVOLT_RECV";
     CondAttrListCollection::const_iterator attrList{readCdo->begin()};
     CondAttrListCollection::const_iterator end{readCdo->end()};
@@ -200,21 +172,11 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
       CondAttrListCollection::ChanNum channelNumber{attrList->first};
       CondAttrListCollection::AttributeList payload{attrList->second};
       if (payload.exists(param)) {
-        float val{payload[param].data<float>()};
-        writeCdo->setValue(channelNumber, val);
+        // float val{payload[param].data<float>()};
       } else {
         ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
       }
     }
-
-    if (writeHandle.record(rangeHV, writeCdo).isFailure()) {
-      ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-                    << " with EventRange " << rangeHV
-                    << " into Conditions Store");
-      delete writeCdo;
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeHV << " into Conditions Store");
   }
 
   // Record the output cond object

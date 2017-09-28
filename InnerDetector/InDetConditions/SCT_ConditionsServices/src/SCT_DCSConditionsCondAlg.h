@@ -30,7 +30,6 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyHV;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus;
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyStatus;
 
