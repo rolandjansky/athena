@@ -287,6 +287,9 @@ if DetFlags.haveRIO.SCT_on():
             conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
         from AthenaCommon.AlgSequence import AthSequencer
         condSequence = AthSequencer("AthCondSeq")
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+        condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                   ReadKey = sctDCSHVFolder)
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
         condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
                                                      ReadKeyHV = sctDCSHVFolder,

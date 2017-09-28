@@ -7,6 +7,7 @@
 #include "../SCT_ConditionsSummaryTestAlg.h"
 
 #include "../SCT_DCSConditionsSvc.h"
+#include "../SCT_DCSConditionsHVCondAlg.h"
 #include "../SCT_DCSConditionsStatCondAlg.h"
 #include "../SCT_DCSConditionsTempCondAlg.h"
 #include "../SCT_DCSConditionsTestAlg.h"
@@ -67,6 +68,7 @@ DECLARE_SERVICE_FACTORY(SCT_RODVetoSvc)
 DECLARE_ALGORITHM_FACTORY(SCT_ModuleVetoTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsSummaryTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_CachedSummaryTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsHVCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsStatCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTempCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTestAlg)
@@ -136,6 +138,7 @@ DECLARE_FACTORY_ENTRIES(SCT_ConditionsServices) {
   DECLARE_ALGORITHM( SCT_ConditionsSummaryTestAlg )
   DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
 
+  DECLARE_ALGORITHM( SCT_DCSConditionsHVCondAlg )
   DECLARE_ALGORITHM( SCT_DCSConditionsStatCondAlg )
   DECLARE_ALGORITHM( SCT_DCSConditionsTempCondAlg )
   DECLARE_ALGORITHM( SCT_DCSConditionsTestAlg )
