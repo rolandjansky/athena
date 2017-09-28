@@ -77,60 +77,130 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsCondAlg::execute()
-{
-  ATH_MSG_DEBUG("execute " << name());
+StatusCode SCT_DCSConditionsCondAlg::execute() {
+  ATH_MSG_INFO("execute " << name());
 
-  // Write Cond Handle
+  bool doState{(m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)};
+  if (not doState) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Write Cond Handle (state)
   SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState};
-
   // Do we have a valid Write Cond Handle for current time?
-  if(writeHandle.isValid()) {
+  if (writeHandle.isValid()) {
     // in theory this should never be called in MT
     writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order."
                   << " Forcing update of Store contents");
-    return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS; 
   }
 
+  // Read Cond Handle (state)
+  SG::ReadCondHandle<CondAttrListCollection> readHandleState{m_readKeyState};
+  const CondAttrListCollection* readCdoState{*readHandleState}; 
+  if (readCdoState==nullptr) {
+    ATH_MSG_FATAL("Null pointer to the read conditions object (state)");
+    return StatusCode::FAILURE;
+  }
+  // Get the validitiy range (state)
+  EventIDRange rangeState;
+  if (not readHandleState.range(rangeState)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleState.fullKey() << " readCdo->size()= " << readCdoState->size());
+  ATH_MSG_INFO("Range of state input is " << rangeState);
+  
   // Construct the output Cond Object and fill it in
-  SCT_DCSStatCondData* writeCdo{new SCT_DCSStatCondData()};
+  SCT_DCSStatCondData* writeCdoState{new SCT_DCSStatCondData()};
 
-  // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKeyState};
-  const CondAttrListCollection* readCdo{*readHandle};
-  if(readCdo==nullptr) {
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
+  // Read state info
+  std::string paramState{"STATE"};
+  CondAttrListCollection::const_iterator attrListState{readCdoState->begin()};
+  CondAttrListCollection::const_iterator endState{readCdoState->end()};
+  // CondAttrListCollection doesn't support C++11 type loops, no generic 'begin'
+  for (; attrListState!=endState; ++attrListState) {
+    // A CondAttrListCollection is a map of ChanNum and AttributeList
+    CondAttrListCollection::ChanNum channelNumber{attrListState->first};
+    CondAttrListCollection::AttributeList payload{attrListState->second};
+    if (payload.exists(paramState)) {
+      unsigned int val{payload[paramState].data<unsigned int>()};
+      unsigned int hvstate{val bitand 240};
+      unsigned int lvstate{val bitand 15};
+      if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3))                             )
+          or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
+          or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )
+	 ) {
+        writeCdoState->fill(channelNumber, paramState);
+      } else {
+        writeCdoState->remove(channelNumber, paramState);
+      }
+    } else {
+      ATH_MSG_WARNING(paramState << " does not exist for ChanNum " << channelNumber);
+    }
+  }
+
+  if (m_returnHVTemp) {
+    // Read Cond Handle 
+    SG::ReadCondHandle<CondAttrListCollection> readHandleHV{m_readKeyHV};
+    const CondAttrListCollection* readCdoHV{*readHandleHV};
+    if (readCdoHV==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object (HV)");
+      // delete writeCdoState;
+      return StatusCode::FAILURE;
+    }
+    // Get the validitiy range (HV)
+    EventIDRange rangeHV;
+    if (not readHandleHV.range(rangeHV)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
+      // delete writeCdoState;
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleHV.fullKey() << " readCdo->size()= " << readCdoHV->size());
+    ATH_MSG_INFO("Range of HV input is " << rangeHV);
+
+    // Combined the validity ranges of state and range
+    EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
+    if(rangeIntersection.start()>rangeIntersection.stop()) {
+      ATH_MSG_FATAL("Invalid intersection range: " << rangeIntersection);
+      // delete writeCdoState;
+      return StatusCode::FAILURE;
+    }
+    rangeState = rangeIntersection;
+  
+    std::string paramHV{"HVCHVOLT_RECV"};
+    CondAttrListCollection::const_iterator attrListHV{readCdoHV->begin()};
+    CondAttrListCollection::const_iterator endHV{readCdoHV->end()};
+    // CondAttrListCollection doesn't support C++11 type loops, no generic 'begin'
+    for (; attrListHV!=endHV; ++attrListHV) {
+      // A CondAttrListCollection is a map of ChanNum and AttributeList
+      CondAttrListCollection::ChanNum channelNumber{attrListHV->first};
+      CondAttrListCollection::AttributeList payload{attrListHV->second};
+      if (payload.exists(paramHV)) {
+        float hvval{payload[paramHV].data<float>()};
+        if ((hvval<m_hvLowLimit) or (hvval>m_hvUpLimit)) {
+          writeCdoState->fill(channelNumber, paramHV);
+        } else {
+          writeCdoState->remove(channelNumber, paramHV);
+        }
+      } else {
+        ATH_MSG_WARNING(paramHV << " does not exist for ChanNum " << channelNumber);
+      }
+    }
+  }
+
+  // Record the output cond object
+  if (writeHandle.record(rangeState, writeCdoState).isFailure()) {
+    ATH_MSG_FATAL("Could not record SCT_DCSStatCondData " << writeHandle.key() 
+		  << " with EventRange " << rangeState
+		  << " into Conditions Store");
+    // delete writeCdoState;
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
-
-  // Fill Write Cond Handle
-  static const unsigned int defectListIndex{7};
-  CondAttrListCollection::const_iterator iter{readCdo->begin()};
-  CondAttrListCollection::const_iterator last{readCdo->end()};
-  for(; iter!=last; ++iter) {
-    // const AthenaAttributeList& list{iter->second};
-    // if(list.size()>defectListIndex) {
-    //   writeCdo->insert(iter->first, list[defectListIndex].data<std::string>());
-    // }
-  }
-
-  // Define validity of the output cond obbject and record it
-  EventIDRange rangeW;
-  if(not readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
-    ATH_MSG_ERROR("Could not record SCT_DCSStatCondData " << writeHandle.key()
-                  << " with EventRange " << rangeW
-                  << " into Conditions Store");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeState << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
