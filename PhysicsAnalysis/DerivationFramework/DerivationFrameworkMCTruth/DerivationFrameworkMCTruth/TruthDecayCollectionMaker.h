@@ -29,10 +29,9 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      std::vector<int> m_pdgIdsToKeep;
-      std::string m_particlesKey;
-      std::string m_verticesKey;
-      std::string m_collectionName; 
+      std::vector<int> m_pdgIdsToKeep; //!< List of PDG IDs to build this collection from
+      std::string m_particlesKey; //!< Input particle collection (navigates to the vertices)
+      std::string m_collectionName; //!< Output collection name stem
       // Helper functions for building up the decay product collections
       ElementLink<xAOD::TruthParticleContainer> addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
                                                                   xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
