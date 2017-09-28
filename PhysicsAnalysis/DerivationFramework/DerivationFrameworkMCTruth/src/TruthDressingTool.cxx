@@ -89,7 +89,16 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
     const static SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
 
     // One for the photons as well
-    const static SG::AuxElement::Decorator< char > dressDec (m_decorationName.empty()?m_decorationName:"unusedPhotonDecoration");
+    std::string decorationName = m_decorationName.empty()?m_decorationName:"unusedPhotonDecoration";
+    const static SG::AuxElement::Decorator< char > dressDec (decorationName);
+    // If we want to decorate, then we need to decorate everything with false to begin with
+    if (!m_decorationName.empty()){
+      for (const auto * particle : *importedTruthParticles){
+        if (!particle->isAvailable<char>(decorationName)) {
+          dressDec(*particle);
+        }
+      } // Loop over particles
+    } // We are using the decoration
 
     //get struct of helper functions
     DerivationFramework::DecayGraphHelper decayHelper;
