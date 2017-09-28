@@ -29,16 +29,6 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  enum FloatKey {
-    HV,
-    TEMPERATURE0,
-    TEMPERATURE1
-  };
-
-  StatusCode executeStatus();
-  StatusCode recordStatus();
-  StatusCode executeFloat(FloatKey key);
-
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKeyHV;
   EventIDRange m_rangeHV;

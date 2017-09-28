@@ -98,23 +98,8 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
   bool doStatus{(m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)};
+  if (not doStatus) return StatusCode::SUCCESS;
 
-  if (doStatus) {
-    ATH_CHECK(executeStatus());
-  }
-
-  if (m_returnHVTemp) {
-    ATH_CHECK(executeFloat(HV));
-  }
-
-  if (doStatus) {
-    ATH_CHECK(recordStatus());
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SCT_DCSConditionsCondAlg::executeStatus() {
   // Write Cond Handle
   SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyStatus};
 
@@ -129,21 +114,23 @@ StatusCode SCT_DCSConditionsCondAlg::executeStatus() {
     return StatusCode::SUCCESS; 
   }
 
-  // Construct the output Cond Object and fill it in
-  m_writeCdoStatus = new SCT_DCSStatCondData();
-
   // Read Cond Handle 
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKeyStatus};
   const CondAttrListCollection* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
-    delete m_writeCdoStatus;
-    m_writeCdoStatus = nullptr;
     return StatusCode::FAILURE;
   }
-
+  // Define validity of the output cond object
+  if (not readHandle.range(m_rangeStatus)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
   
+  // Construct the output Cond Object and fill it in
+  m_writeCdoStatus = new SCT_DCSStatCondData();
+
   std::string param{"STATE"};
   CondAttrListCollection::const_iterator attrList{readCdo->begin()};
   CondAttrListCollection::const_iterator end{readCdo->end()};
@@ -169,32 +156,76 @@ StatusCode SCT_DCSConditionsCondAlg::executeStatus() {
     }
   }
 
-  // Define validity of the output cond object
-  if (not readHandle.range(m_rangeStatus)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    delete m_writeCdoStatus;
-    m_writeCdoStatus = nullptr;
-    return StatusCode::FAILURE;
-  }
+  if (m_returnHVTemp) {
+    const SG::ReadCondHandleKey<CondAttrListCollection>* readKey{nullptr};
+    const SG::WriteCondHandleKey<SCT_DCSFloatCondData>* writeKey{nullptr};
+    EventIDRange* rangeW{nullptr};
+    std::string param;
+    readKey = &m_readKeyHV;
+    writeKey = &m_writeKeyHV;
+    rangeW = &m_rangeHV;
+    param = "HVCHVOLT_RECV";
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SCT_DCSConditionsCondAlg::recordStatus() {
-  // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyStatus};
-
-  // Do we have a valid Write Cond Handle for current time?
-  if (writeHandle.isValid()) {
+    // Write Cond Handle
+    SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{*writeKey};
+    
+    // Do we have a valid Write Cond Handle for current time?
+    if (writeHandle.isValid()) {
     // in theory this should never be called in MT
-    writeHandle.updateStore();
-    ATH_MSG_INFO("CondHandle " << writeHandle.fullKey() << " is already valid."
-                  << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
-    //    delete m_writeCdoStatus;
-    m_writeCdoStatus = nullptr;
-    return StatusCode::SUCCESS; 
+      writeHandle.updateStore();
+      ATH_MSG_INFO("CondHandle " << writeHandle.fullKey() << " is already valid."
+                   << ". In theory this should not be called, but may happen"
+                   << " if multiple concurrent events are being processed out of order."
+                   << " Forcing update of Store contents");
+      return StatusCode::SUCCESS; 
+    }
+    
+    // Construct the output Cond Object and fill it in
+    SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
+    // clear structures before filling
+    writeCdo->clear();
+
+    // Read Cond Handle 
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{*readKey};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if (readCdo==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object");
+      delete writeCdo;
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+  
+    CondAttrListCollection::const_iterator attrList{readCdo->begin()};
+    CondAttrListCollection::const_iterator end{readCdo->end()};
+    // CondAttrListCollection doesn't support C++11 type loops, no generic 'begin'
+    for (; attrList!=end; ++attrList) {
+      // A CondAttrListCollection is a map of ChanNum and AttributeList
+      CondAttrListCollection::ChanNum channelNumber{attrList->first};
+      CondAttrListCollection::AttributeList payload{attrList->second};
+      if (payload.exists(param)) {
+        float val{payload[param].data<float>()};
+        writeCdo->setValue(channelNumber, val);
+      } else {
+        ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
+      }
+    }
+
+    // Define validity of the output cond obbject and record it
+    if (not readHandle.range(*rangeW)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
+      delete writeCdo;
+      return StatusCode::FAILURE;
+    }
+
+    if (writeHandle.record(*rangeW, writeCdo).isFailure()) {
+      ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
+                    << " with EventRange " << *rangeW
+                    << " into Conditions Store");
+      delete writeCdo;
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << *rangeW << " into Conditions Store");
   }
 
   // Record the output cond object
@@ -207,82 +238,6 @@ StatusCode SCT_DCSConditionsCondAlg::recordStatus() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << m_rangeStatus << " into Conditions Store");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SCT_DCSConditionsCondAlg::executeFloat(FloatKey key) {
-  const SG::ReadCondHandleKey<CondAttrListCollection>* readKey{nullptr};
-  const SG::WriteCondHandleKey<SCT_DCSFloatCondData>* writeKey{nullptr};
-  EventIDRange* rangeW{nullptr};
-  std::string param;
-  if (key==HV) {
-    readKey = &m_readKeyHV;
-    writeKey = &m_writeKeyHV;
-    rangeW = &m_rangeHV;
-    param = "HVCHVOLT_RECV";
-  }
-
-  // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{*writeKey};
-
-  // Do we have a valid Write Cond Handle for current time?
-  if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
-    ATH_MSG_INFO("CondHandle " << writeHandle.fullKey() << " is already valid."
-                  << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
-    return StatusCode::SUCCESS; 
-  }
-
-  // Construct the output Cond Object and fill it in
-  SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
-  // clear structures before filling
-  writeCdo->clear();
-
-  // Read Cond Handle 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{*readKey};
-  const CondAttrListCollection* readCdo{*readHandle}; 
-  if (readCdo==nullptr) {
-    ATH_MSG_FATAL("Null pointer to the read conditions object");
-    delete writeCdo;
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  
-  CondAttrListCollection::const_iterator attrList{readCdo->begin()};
-  CondAttrListCollection::const_iterator end{readCdo->end()};
-  // CondAttrListCollection doesn't support C++11 type loops, no generic 'begin'
-  for (; attrList!=end; ++attrList) {
-    // A CondAttrListCollection is a map of ChanNum and AttributeList
-    CondAttrListCollection::ChanNum channelNumber{attrList->first};
-    CondAttrListCollection::AttributeList payload{attrList->second};
-    if (payload.exists(param)) {
-      float val{payload[param].data<float>()};
-      writeCdo->setValue(channelNumber, val);
-    } else {
-      ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-    }
-  }
-
-  // Define validity of the output cond obbject and record it
-  if (not readHandle.range(*rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    delete writeCdo;
-    return StatusCode::FAILURE;
-  }
-
-  if (writeHandle.record(*rangeW, writeCdo).isFailure()) {
-    ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-		  << " with EventRange " << *rangeW
-		  << " into Conditions Store");
-    delete writeCdo;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << *rangeW << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
