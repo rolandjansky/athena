@@ -335,7 +335,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     const HepMC::GenParticle *current = link.cptr();
     
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink(current->barcode(), eventIndex, link.getEventCollection());
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
@@ -397,7 +397,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex(),s->first.getEventCollection()));
     }
 
     // Count PRDs on the TruthTrajectory
