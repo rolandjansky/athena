@@ -130,13 +130,13 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
     m_ntotpart += nParticles;
     
     // Set up decorators
-    SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > linkDecorator("originalTruthParticle");
-    SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
-    SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
-    SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
-    SG::AuxElement::Decorator< int > motherIDDecorator("motherID");
-    SG::AuxElement::Decorator< int > daughterIDDecorator("daughterID");
-    SG::AuxElement::Decorator< int > HadronOriginDecorator("TopHadronOriginFlag");
+    const static SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > linkDecorator("originalTruthParticle");
+    const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
+    const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
+    const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
+    const static SG::AuxElement::Decorator< int > motherIDDecorator("motherID");
+    const static SG::AuxElement::Decorator< int > daughterIDDecorator("daughterID");
+    const static SG::AuxElement::Decorator< int > HadronOriginDecorator("TopHadronOriginFlag");
     
     // Execute the text parsers and update the mask
     if (m_partString!="") {
