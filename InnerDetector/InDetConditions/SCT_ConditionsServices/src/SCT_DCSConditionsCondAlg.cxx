@@ -40,8 +40,7 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
-SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg()
-{
+SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg() {
 }
 
 StatusCode SCT_DCSConditionsCondAlg::initialize()
@@ -51,15 +50,30 @@ StatusCode SCT_DCSConditionsCondAlg::initialize()
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  // Read Cond Handle
-  ATH_CHECK(m_readKeyState.initialize());
+  if (m_returnHVTemp) {
+    // Read Cond Handle (HV)
+    //    ATH_CHECK(m_readKeyHV.initialize());
+  }
 
-  // Write Cond Handle
-  ATH_CHECK(m_writeKeyState.initialize());
-  // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKeyState, m_writeKeyState.dbKey()).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
+  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+    // Read Cond Handle (state)
+    ATH_CHECK(m_readKeyState.initialize());
+    // Write Cond Handle
+    ATH_CHECK(m_writeKeyState.initialize());
+    // Register write handle
+    if(m_condSvc->regHandle(this, m_writeKeyState, m_writeKeyState.dbKey()).isFailure()) {
+      ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  if (m_useHV) {
+    m_hvLowLimit = m_useHVLowLimit;
+    m_hvUpLimit = m_useHVUpLimit;
+    m_chanstatCut = m_useHVChanCut;
+    ATH_MSG_INFO("Using HV and Chanstat"<< m_chanstatCut << " for marking modules bad. >=Hvlow: "
+                 << m_hvLowLimit<< " and <=Hv Up: " <<  m_hvUpLimit <<
+		 ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!");
   }
 
   return StatusCode::SUCCESS;
