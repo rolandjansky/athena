@@ -8,13 +8,12 @@
 
 SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DCS/CHANSTAT"}
-//  , m_writeKey{"SCT_MonitorConditionsCondData", "SCT_MonitorConditionsCondData"}
-  , m_writeKey{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
+  , m_readKeyState{"/SCT/DCS/CHANSTAT"}
+  , m_writeKeyState{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey);
-  declareProperty("WriteKey", m_writeKey);
+  declareProperty("ReadKeyState", m_readKeyState);
+  declareProperty("WriteKeyState", m_writeKeyState);
 }
 
 SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg()
@@ -29,13 +28,13 @@ StatusCode SCT_DCSConditionsCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
 
   // Read Cond Handle
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKeyState.initialize());
 
   // Write Cond Handle
-  ATH_CHECK(m_writeKey.initialize());
+  ATH_CHECK(m_writeKeyState.initialize());
   // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKey, m_writeKey.dbKey()).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+  if(m_condSvc->regHandle(this, m_writeKeyState, m_writeKeyState.dbKey()).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
@@ -47,7 +46,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute()
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState};
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
@@ -64,7 +63,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute()
   SCT_DCSStatCondData* writeCdo{new SCT_DCSStatCondData()};
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKeyState};
   const CondAttrListCollection* readCdo{*readHandle};
   if(readCdo==nullptr) {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
