@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */ 
 
-#ifndef SCT_DCSCONDITIONSCONDALG
-#define SCT_DCSCONDITIONSCONDALG
+#ifndef SCT_DCSCONDITIONSSTATCONDALG
+#define SCT_DCSCONDITIONSSTATCONDALG
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -17,11 +17,11 @@
 
 #include "GaudiKernel/Property.h"
 
-class SCT_DCSConditionsCondAlg : public AthAlgorithm 
+class SCT_DCSConditionsStatCondAlg : public AthAlgorithm 
 {  
  public:
-  SCT_DCSConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SCT_DCSConditionsCondAlg();
+  SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  ~SCT_DCSConditionsStatCondAlg();
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
@@ -45,4 +45,4 @@ class SCT_DCSConditionsCondAlg : public AthAlgorithm
   std::string m_useHVChanCut;
 };
 
-#endif // SCT_DCSCONDITIONSCONDALG
+#endif // SCT_DCSCONDITIONSSTATCONDALG

@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_DCSConditionsCondAlg.h"
+#include "SCT_DCSConditionsStatCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
-SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
+SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_readKeyHV{"/SCT/DCS/HV"}
   , m_readKeyState{"/SCT/DCS/CHANSTAT"}
@@ -41,10 +41,10 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
   declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
-SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg() {
+SCT_DCSConditionsStatCondAlg::~SCT_DCSConditionsStatCondAlg() {
 }
 
-StatusCode SCT_DCSConditionsCondAlg::initialize() {
+StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
   m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
@@ -80,7 +80,7 @@ StatusCode SCT_DCSConditionsCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsCondAlg::execute() {
+StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
   if (not m_doState) {
@@ -207,7 +207,7 @@ StatusCode SCT_DCSConditionsCondAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsCondAlg::finalize()
+StatusCode SCT_DCSConditionsStatCondAlg::finalize()
 {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
