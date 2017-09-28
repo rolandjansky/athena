@@ -47,16 +47,20 @@ void VP1ColorSelectButton::updateButton()
 
 //____________________________________________________________________
 void VP1ColorSelectButton::setColButtonProperties(QPushButton* pb,const QColor& col,int dim) {
-  if (VP1Msg::verbose())
-    VP1Msg::messageVerbose("setColButtonProperties: button="+VP1Msg::str(pb)+", color="+VP1Msg::str(col));
+
+//  if (VP1Msg::verbose())
+//    VP1Msg::messageVerbose("setColButtonProperties: button="+VP1Msg::str(pb)+", color="+VP1Msg::str(col));
+
   if (pb->objectName().isEmpty()) {
     VP1Msg::messageDebug("VP1ColorSelectButton::setColButtonProperties() WARNING: Empty objectName()!!");
     pb->setObjectName("VP1ColorSelectButton_setColButtonProperties");
   }
+
   if (!pb->text().isEmpty()) {
     VP1Msg::messageDebug("VP1ColorSelectButton::setColButtonProperties() WARNING: Noticed non-empty text field. Clearing!");
     pb->QPushButton::setText("");
   }
+
   pb->setStyleSheet("QPushButton#"+pb->objectName()+" { background-color: "
 		+col.name()+"; border-color: "+col.name()+"; }");
   pb->setFocusPolicy(Qt::NoFocus);
