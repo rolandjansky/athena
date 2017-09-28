@@ -240,6 +240,7 @@ namespace TrigCostRootAnalysis {
     kNBunchGroups,
     kDoEBWeighting,
     kDoCPS,
+    kIgnorePSGreaterThanOne,
     kIgnoreNonPhysBunchGroups,
     kIgnoreGRL,
     kNoLBRescaling,

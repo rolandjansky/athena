@@ -102,6 +102,7 @@ namespace TrigFTK {
       double        m_max2DZ0;
 
       std::vector<TrigTimer*> m_timer;
+
       enum FtkHltEfficiencyTimers
       {
         AlgoTime            =  0,
@@ -113,7 +114,34 @@ namespace TrigFTK {
         nTimers /// Leave this entry at the end
       };
       int eventCounter;
-  };
+      
+      unsigned int m_nFTKRawTracks;
+
+      unsigned int m_nFTKTracks;
+      unsigned int m_nFTKTrackParticles;
+      unsigned int m_nTrackErrors;
+      unsigned int m_nTrackParticleErrors;
+
+      double m_fMissPix0;
+      double m_fMissPix1;
+      double m_fMissPix2;
+      double m_fMissPix3;
+
+      int m_nFailPix;
+
+      double m_fMissSCT0;
+      double m_fMissSCT1;
+      double m_fMissSCT2;
+      double m_fMissSCT3;
+      double m_fMissSCT4;
+      double m_fMissSCT5;
+      double m_fMissSCT6;
+      double m_fMissSCT7;
+
+
+      int m_nFailSCT;
+
+};
 
 } // end namespace
 #endif
