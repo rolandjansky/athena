@@ -165,6 +165,8 @@ if( XAOD_STANDALONE )
       SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
    atlas_add_test( ut_SUSYToolsTester_data
       SOURCES test/ut_SUSYToolsTester_data.cxx )
+   # Needs just a little extra time to be sure we get 100% success
+   set_tests_properties( SUSYTools_ut_SUSYToolsTester_data_ctest PROPERTIES TIMEOUT 180)
    atlas_add_test( ut_SUSYToolsTester_mc
       SOURCES test/ut_SUSYToolsTester_mc.cxx )
    atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi

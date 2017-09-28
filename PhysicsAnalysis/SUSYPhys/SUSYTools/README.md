@@ -78,11 +78,19 @@ Convenience script for getting packages we recommend -- at the moment, this is n
 Testing
 --------------
 
-To run unit tests, simply go to your build area and type::
+Unit tests now use [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest).  To run unit tests, simply go to your build area and type::
 
 ```bash
 gmake test
 ```
+
+More complex testing is best done directly with the `ctest` command.  To see what tests are available::
+
+```bash
+ctest -N
+```
+
+To run specific tests (or tests for specific packages), use the `-R` option to restrict running to tests with a string in the name (e.g. `-R SUSYTools`) or `-E` to exclude certain tests (e.g. `-E SUSYToolsTester`).  To get logs / verbose output, use `-V`.
 
 To test locally in an AnalysisBase release, get your favourite benchmark sample (e.g. `mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.DAOD_SUSY1.e3698_s2608_s2183_r7725_r7676_p2596/`), and run::
 
@@ -100,10 +108,6 @@ athena.py SUSYTools/minimalExampleJobOptions_mc.py
 ```
 
 which is the athena-friendly equivalent of the `SUSYToolsTester` code above for running on MC.  You can also change "mc" to "data" or "atlfast" to run on data or fast simulation if you would prefer.
-
-## Still to add ##
-
-Unit tests for specific packages
 
 --------------------------------
 Retrieving Cross sections
