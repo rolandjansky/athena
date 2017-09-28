@@ -23,6 +23,7 @@
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Service.h"
@@ -151,12 +152,14 @@ public:
   EventInfo m_ei;
   SG::DataBucket<EventInfo> m_object;
   std::unique_ptr<TestAddress> m_addr;
+  unsigned int m_event_num;
 };
 
 
 TestContext::TestContext()
   : m_object(&m_ei),
-    m_addr (CxxUtils::make_unique<TestAddress> (&m_object))
+    m_addr (CxxUtils::make_unique<TestAddress> (&m_object)),
+    m_event_num (0)
 {
   m_object.addRef();
 }
@@ -190,14 +193,11 @@ public:
   virtual StatusCode releaseContext(Context*& c) const override;
   virtual StatusCode resetCriteria(const std::string& /*cr*/,Context& /*c*/)const override
   { std::cout << "resetCriteria\n"; std::abort(); }
-
-  mutable unsigned int m_event_num;
 };
 
 
 TestEvtSelector::TestEvtSelector (const std::string& nam, ISvcLocator* svcLoc)
-  : base_class (nam, svcLoc),
-    m_event_num(0)
+  : base_class (nam, svcLoc)
 {
 }
 
@@ -225,7 +225,7 @@ StatusCode TestEvtSelector::next(Context& c) const
 {
   TestContext& ctx = dynamic_cast<TestContext&>(c);
   EventID::number_type run = ctx.m_ei.event_ID()->run_number();
-  *ctx.m_ei.event_ID() = EventID (run, ++m_event_num);
+  *ctx.m_ei.event_ID() = EventID (run, ++ctx.m_event_num);
   
   std::cout << "TestEvtSelector::next(Context&)\n";
   return StatusCode::SUCCESS;
@@ -245,16 +245,22 @@ TestEvtSelector::createAddress(const Context& c,IOpaqueAddress*& iop) const
 
 
 class TestEvtSelector2
-  : public extends<TestEvtSelector, IEventSeek>,
-    public ICollectionSize
+  : public extends<TestEvtSelector, IEvtSelectorSeek>
 {
 public:
   TestEvtSelector2 (const std::string& nam, ISvcLocator* svcLoc)
     : base_class (nam, svcLoc) {}
-  virtual int size () override { return 123; }
-  virtual StatusCode seek (int evtnum) override
-  { m_event_num = evtnum; return StatusCode::SUCCESS; }
-  virtual int curEvent () const override { return m_event_num; }
+  virtual int size (Context&) const override { return 123; }
+  virtual StatusCode seek (Context& c, int evtnum) const override
+  {
+    TestContext& ctx = dynamic_cast<TestContext&>(c);
+    ctx.m_event_num = evtnum; return StatusCode::SUCCESS;
+  }
+  virtual int curEvent (const Context& c) const override
+  {
+    const TestContext& ctx = dynamic_cast<const TestContext&>(c);
+    return ctx.m_event_num;
+  }
 };
 
 
