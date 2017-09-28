@@ -167,12 +167,13 @@ namespace xAOD {
        m_locked = true;
    }
 
-   void ByteStreamAuxContainer_v1::clearDecorations()
+   bool ByteStreamAuxContainer_v1::clearDecorations()
    {
      guard_t guard (m_mutex);
 
      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
+     bool anycleared = false;
      size_t sz = m_isDecoration.size();
      for (auxid_t auxid = 0; auxid < sz; auxid++) {
        if (m_isDecoration[auxid]) {
@@ -180,7 +181,7 @@ namespace xAOD {
            delete m_dynamicVecs[auxid];
            m_dynamicVecs[auxid] = 0;
            m_auxids.erase( auxid );
-           ++m_tick;
+           anycleared = true;
 
            const std::string name = r.getName( auxid );
            const std::type_info* ti = r.getType( auxid );
@@ -196,6 +197,11 @@ namespace xAOD {
        }
      }
      m_isDecoration.clear();
+
+     if (anycleared) {
+       ++m_tick;
+     }
+     return anycleared;
    }
 
 
