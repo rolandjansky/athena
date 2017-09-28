@@ -43,8 +43,7 @@ SCT_DCSConditionsCondAlg::SCT_DCSConditionsCondAlg(const std::string& name, ISvc
 SCT_DCSConditionsCondAlg::~SCT_DCSConditionsCondAlg() {
 }
 
-StatusCode SCT_DCSConditionsCondAlg::initialize()
-{
+StatusCode SCT_DCSConditionsCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
   // CondSvc
@@ -52,7 +51,7 @@ StatusCode SCT_DCSConditionsCondAlg::initialize()
 
   if (m_returnHVTemp) {
     // Read Cond Handle (HV)
-    //    ATH_CHECK(m_readKeyHV.initialize());
+    ATH_CHECK(m_readKeyHV.initialize());
   }
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
@@ -60,9 +59,8 @@ StatusCode SCT_DCSConditionsCondAlg::initialize()
     ATH_CHECK(m_readKeyState.initialize());
     // Write Cond Handle
     ATH_CHECK(m_writeKeyState.initialize());
-    // Register write handle
     if(m_condSvc->regHandle(this, m_writeKeyState, m_writeKeyState.dbKey()).isFailure()) {
-      ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
+      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
   }
