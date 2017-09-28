@@ -6,8 +6,6 @@ from RecExConfig.ObjKeyStore import objKeyStore
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 from DerivationFrameworkMCTruth.TruthDerivationTools import *
 
-augmentationToolsList = []
-
 dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
 # Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
 # Input file is EVNT
@@ -22,7 +20,10 @@ elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
 if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
     # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
     ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
-    augmentationToolsList.append(ToolSvc.DFCommonTruthMetaDataWriter)
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
+                                                             AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
+                                                             )
 # Add in some jets - global config if we are running on EVNT
 if dfInputIsEVNT:
     from JetRec.JetRecFlags import jetFlags
@@ -49,10 +50,12 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "Truth", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
-        # WZ Truth Jets
+        # WZ Truth Jets - handle dressed and non-dressed cases
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        # ZLM @TODO Something here for decorationDressing
-        addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        if decorationDressing is None:
+            addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        else:
+            addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
@@ -67,7 +70,10 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
     # In this case, we simply use the helpers from ExtendedJetCommon
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
     addAntiKt4TruthJets(kernel,"TRUTH") # Ignore the output list
-    addAntiKt4TruthWZJets(kernel,"TRUTH")
+    if decorationDressing is None:
+        addAntiKt4TruthWZJets(kernel,"TRUTH")
+    else:
+        addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
     addAntiKt10TruthJets(kernel,"TRUTH")
 
 # Helper for adding truth jet collections
@@ -83,6 +89,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
             barCodeFromMetadata=0
         from JetRec.JetRecStandardToolManager import jtm
+        from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
         jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
                                      MCTruthClassifier=jtm.JetMCTruthClassifier,
                                      IncludePromptLeptons=False,IncludePromptPhotons=False,
@@ -90,11 +97,12 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                      FSRPhotonCone=-1., DressingDecorationName=decorationDressing
                                     )
         # Add a jet tool runner for this thing
-        jtm += JetToolRunner("jetdressedrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
+        from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
+        jtm += JetToolRunner("jetdressedwzrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
         # And an algorithm to run in
-        kernel += JetAlgorithm("jetalg")
-        jetalg = kernel.jetalg
-        jetalg.Tools = [ jtm.jetdressedrun ]
+        kernel += JetAlgorithm("jetdressedwzalg")
+        jetdressedwzalg = kernel.jetdressedwzalg
+        jetdressedwzalg.Tools = [ jtm.jetdressedwzrun ]
         jtm += PseudoJetGetter(
           "truthdressedwzget",
           Label = "TruthDressedWZ",
@@ -103,6 +111,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
           GhostScale = 0.0,
           SkipNegativeEnergy = True
         )
+        jtm.gettersMap['truthdressedwz'] = [jtm.truthdressedwzget]
     # Propagate that downward
     if dfInputIsEVNT:
         addTruthJetsEVNT(kernel,decorationDressing)
@@ -136,17 +145,17 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    augmentationToolsList += [ DFCommonTruthClassificationTool,
-                               DFCommonTruthMuonTool,DFCommonTruthElectronTool,
-                               DFCommonTruthPhotonToolSim,
-                               DFCommonTruthNeutrinoTool,
-                               DFCommonTruthTopTool,
-                               DFCommonTruthBosonTool,
-                               DFCommonTruthBSMTool,
-                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
-                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                               DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+    augmentationToolsList = [ DFCommonTruthClassificationTool,
+                              DFCommonTruthMuonTool,DFCommonTruthElectronTool,
+                              DFCommonTruthPhotonToolSim,
+                              DFCommonTruthNeutrinoTool,
+                              DFCommonTruthTopTool,
+                              DFCommonTruthBosonTool,
+                              DFCommonTruthBSMTool,
+                              DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
+                              DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
+                              DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
+                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -160,11 +169,11 @@ def schedulePostJetMCTruthAugmentations(kernel=None):
         kernel = DerivationFrameworkJob
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-    import DerivationFrameworkMCTruth.GenFilterToolSetup
+    from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    augmentationToolsList += [ DFCommonTruthGenFilter,
-                               DFCommonTruthQGLabelTool]
+    augmentationToolsList = [ DFCommonTruthGenFilter,
+                              DFCommonTruthQGLabelTool]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
