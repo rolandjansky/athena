@@ -288,12 +288,12 @@ if DetFlags.haveRIO.SCT_on():
         from AthenaCommon.AlgSequence import AthSequencer
         condSequence = AthSequencer("AthCondSeq")
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsCondAlg
-        condSequence += SCT_DCSConditionsCondAlg(name = "SCT_DCSConditionsCondAlg"#,
-                                                 # ReadKeyHV = sctDCSHVFolder,
-                                                 # ReadKeyState = sctDCSStateFolder
+        condSequence += SCT_DCSConditionsCondAlg(name = "SCT_DCSConditionsCondAlg",
+                                                 ReadKeyHV = sctDCSHVFolder,
+                                                 ReadKeyState = sctDCSStateFolder
                                                  # , ReturnHVTemp = False, ReadAllDBFolders = False
                                                  )
-               
+        
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
         if InDetFlags.useHVForSctDCS(): InDetSCT_DCSConditionsSvc.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
