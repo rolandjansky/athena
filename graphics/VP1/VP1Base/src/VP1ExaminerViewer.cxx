@@ -1713,6 +1713,7 @@ void VP1ExaminerViewer::setAntiAlias(bool b)
 {
 	m_d->isantialias=b;
 	b ? setAntialiasing(true,4) : setAntialiasing(false,1);
+    std::cout << "antiAliasing set." << std::endl;
 }
 
 //____________________________________________________________________
@@ -2441,20 +2442,19 @@ void VP1ExaminerViewer::showPopupMenu()
 		setDecoration(! m_d->popup_hidedecorationsaction->isChecked());
 		return;
 	}
-	if ( selAct == m_d->popup_antiAliasAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(m_d->popup_antiAliasAction->isChecked()));
+    if ( selAct == m_d->popup_antiAliasAction ) {
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(m_d->popup_antiAliasAction->isChecked()));
         setAntiAlias(m_d->popup_antiAliasAction->isChecked());
         m_d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
         VP1Msg::messageVerbose("Anti-aliasing, done.");
         return;
 	}
-	if ( selAct == m_d->popup_dumpSceneAction ) {
+    if ( selAct == m_d->popup_dumpSceneAction ) {
         VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to an *.iv (OpenInventor) file");
 		dumpSceneToFile();
 		return;
 	}
-	
-	if ( selAct == m_d->popup_dumpSceneVRMLAction ) {
+    if ( selAct == m_d->popup_dumpSceneVRMLAction ) {
         VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to a *.wrl (VRML) file");
 		dumpSceneToVRMLFile();
 		return;
