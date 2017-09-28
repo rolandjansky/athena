@@ -7,9 +7,6 @@
 #include <iostream>
 #include <algorithm>
 
-Identifier m_invalid_id;
-HWIdentifier m_invalid_hwid;
-
 // initialization of singleton instance pointer
 
 ZdcCablingService * ZdcCablingService::s_zdcCablingService = 0 ;
