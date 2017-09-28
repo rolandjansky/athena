@@ -235,13 +235,16 @@ void test2()
   assert (idset.size() == 3);
   assert (s.getAuxIDs() == idset);
 
-  s.clearDecorations();
+  assert (s.clearDecorations() == true);
   idset.erase (ityp3);
   assert (idset.size() == 2);
   assert (s.getAuxIDs() == idset);
   assert (s.getData(ityp3) == 0);
   assert (s.getData(ityp1) == i1);
   assert (s.getData(ityp2) == i2);
+
+  assert (s.clearDecorations() == false);
+  assert (s.getAuxIDs() == idset);
 
   i3 = reinterpret_cast<int*> (s.getDecoration(ityp3, 10, 20));
   assert (i3 != 0);

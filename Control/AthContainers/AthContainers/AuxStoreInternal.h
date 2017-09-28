@@ -280,8 +280,11 @@ public:
    * Erase all decorations from the store, restoring the state to when
    * @c lock was called.  Be sure to clear the cache of the referencing
    * container!
+   *
+   * Returns true if there were any decorations that were cleared,
+   * false if the store did not contain any decorations.
    */
-  virtual void clearDecorations() override;
+  virtual bool clearDecorations() override;
 
 
   /**
