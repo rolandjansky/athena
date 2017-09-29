@@ -801,20 +801,6 @@ print tileInfoConfigurator
 #=== configure TileCondToolOfcCool
 #============================================================
 OfcFromCoolOF1 = doTileOF1 and OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2') # there are OFCs for OF1 only in CONDBR2
-if not ReadPool or OfcFromCOOL or doTileMF:
-    if TileLasPulse:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'LAS')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'LAS', 'OF1', 'TileCondToolOfcCoolOF1')
-    elif TileCisPulse:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'CIS')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'CIS','OF1', 'TileCondToolOfcCoolOF1')
-    else:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'PHY')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'PHY', 'OF1', 'TileCondToolOfcCoolOF1')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tileCondToolOfcCool
-    if OfcFromCoolOF1: ToolSvc += tileCondToolOfcCoolOF1
 
 #============================================================
 #=== configure TileCondToolOfc
@@ -879,15 +865,6 @@ if doTileFit:
 
 if doTileFitCool:
     ToolSvc.TileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
-    if TileLasPulse:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','LAS','TileCondToolPulseShape')
-    elif TileCisPulse:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolLeak100Shape = getTileCondToolPulseShape('COOL','CISLEAK100','TileCondToolLeak100Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolLeak5p2Shape = getTileCondToolPulseShape('COOL','CISLEAK5P2','TileCondToolLeak5p2Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulse5p2Shape = getTileCondToolPulseShape('COOL','CISPULSE5P2','TileCondToolPulse5p2Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','CISPULSE100','TileCondToolPulseShape')
-    else:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHYS','TileCondToolPulseShape')
     ToolSvc.TileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
     
     print ToolSvc.TileRawChannelBuilderFitFilterCool
@@ -931,8 +908,6 @@ if doTileMF:
 if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
 
-    if OfcFromCoolOF1:
-        ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfcCoolOF1
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
