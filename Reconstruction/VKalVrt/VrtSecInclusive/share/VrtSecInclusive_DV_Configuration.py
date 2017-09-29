@@ -32,7 +32,7 @@ topSequence.VrtSecInclusive.doAssociateNonSelectedTracks           = True
 topSequence.VrtSecInclusive.doFinalImproveChi2                     = True
 topSequence.VrtSecInclusive.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
 topSequence.VrtSecInclusive.FillHist                               = True
-topSequence.VrtSecInclusive.FillIntermediateVertices               = True
+topSequence.VrtSecInclusive.FillIntermediateVertices               = False
 topSequence.VrtSecInclusive.CutPixelHits                           = 0
 topSequence.VrtSecInclusive.CutSctHits                             = 2
 topSequence.VrtSecInclusive.TrkA0ErrCut                            = 200000
