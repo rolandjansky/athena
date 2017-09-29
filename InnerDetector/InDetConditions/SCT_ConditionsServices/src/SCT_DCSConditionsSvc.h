@@ -69,7 +69,7 @@ public:
   virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   //Does the same for hashIds
   virtual float sensorTemperature(const IdentifierHash& hashId);
-  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& /*keys*/) { return StatusCode::FAILURE; };
+  virtual StatusCode fillData(int& i, std::list<std::string>& keys);
   ///Manually get the data in the structure before proceding
   virtual StatusCode fillData() { return StatusCode::FAILURE; }
   virtual bool filled() const;
@@ -90,8 +90,8 @@ private:
   const DataHandle<CondAttrListCollection> m_DCSData_MT;
   const DataHandle<CondAttrListCollection> m_DCSData_CS;
   //Key for DataHandle
-  //  BooleanProperty m_readAllDBFolders;
-  //  BooleanProperty m_returnHVTemp;
+  BooleanProperty m_readAllDBFolders;
+  BooleanProperty m_returnHVTemp;
   //  BooleanProperty m_dropFolder; 
   float m_barrel_correction;
   float m_ecInner_correction;
@@ -109,7 +109,7 @@ private:
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
-  //  std::string m_folderPrefix;
+  std::string m_folderPrefix;
   //  std::string m_chanstatCut;
   //  bool m_useHV;
   //  float m_useHVLowLimit;

@@ -19,11 +19,11 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
                                            ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   m_detStore{"DetectorStore", name},
-//  m_IOVDbSvc{"IOVDbSvc", name},
+  //  m_IOVDbSvc{"IOVDbSvc", name},
   m_dataFilled{false},
   //  m_status{0},
-  //  m_readAllDBFolders{true},
-  //  m_returnHVTemp{true},
+  m_readAllDBFolders{true},
+  m_returnHVTemp{true},
   //  m_dropFolder{true},
   m_barrel_correction{-3.7},
   m_ecInner_correction{-13.1},
@@ -38,8 +38,9 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
   m_condKeyHV{"SCT_DCSHVCondData"},
   m_condKeyTemp0{"SCT_DCSTemp0CondData"},
   m_condKeyTemp1{"SCT_DCSTemp1CondData"},
-  m_pHelper{nullptr}
-  //  m_folderPrefix{"/SCT/DCS"},
+  m_pHelper{nullptr},
+  m_folderPrefix{"/SCT/DCS"}
+
   //  m_chanstatCut{"NORM"},
   //  m_useHV{false},
   //  m_useHVLowLimit{19.},
@@ -57,7 +58,7 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
     //    declareProperty("HVCutLow", m_hvLowLimit);
     //    declareProperty("HVCutUp", m_hvUpLimit);
     declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
-    //    declareProperty("FolderLocation", m_folderPrefix);
+    declareProperty("FolderLocation", m_folderPrefix);
     //    declareProperty("StateCut", m_chanstatCut);
     //    declareProperty("UseDefaultHV", m_useHV);
     //    declareProperty("useHVLow", m_useHVLowLimit);
@@ -71,29 +72,29 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
     ATH_MSG_ERROR(" Cannot retrieve detector store ");
     return StatusCode::FAILURE;
   }
-  // if (m_readAllDBFolders and m_returnHVTemp) {
-  //   std::vector<std::string> names{3};
-  //   names[0] = m_folderPrefix+std::string("/HV");
-  //   names[1] = m_folderPrefix+std::string("/MODTEMP");
-  //   names[2] = m_folderPrefix+std::string("/CHANSTAT");
-  //   m_par_atrcollist.setValue(names);
-  // } else if (m_returnHVTemp) {
-  //   std::vector<std::string> names{2};
-  //   names[0] = m_folderPrefix+std::string("/HV");
-  //   names[1] = m_folderPrefix+std::string("/MODTEMP");
-  //   m_par_atrcollist.setValue(names);
-  // } else if (not m_readAllDBFolders and not m_returnHVTemp) {
-  //   std::vector<std::string> names{1};
-  //   names[0] = m_folderPrefix+std::string("/CHANSTAT");
-  //   m_par_atrcollist.setValue(names);
-  // } else {
-  //   ATH_MSG_INFO("Please check jobOptions, SCT_DCSConditionsSvs does nothing as set up.");
-  // }
-  // ATH_MSG_INFO("Test: How many folders in Coll: " << m_par_atrcollist.value().size());
   if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT helper failed to retrieve ");
     return StatusCode::FAILURE;
   }
+  if (m_readAllDBFolders and m_returnHVTemp) {
+    std::vector<std::string> names{3};
+    names[0] = m_folderPrefix+std::string("/HV");
+    names[1] = m_folderPrefix+std::string("/MODTEMP");
+    names[2] = m_folderPrefix+std::string("/CHANSTAT");
+    m_par_atrcollist.setValue(names);
+  } else if (m_returnHVTemp) {
+    std::vector<std::string> names{2};
+    names[0] = m_folderPrefix+std::string("/HV");
+    names[1] = m_folderPrefix+std::string("/MODTEMP");
+    m_par_atrcollist.setValue(names);
+  } else if (not m_readAllDBFolders and not m_returnHVTemp) {
+    std::vector<std::string> names{1};
+    names[0] = m_folderPrefix+std::string("/CHANSTAT");
+    m_par_atrcollist.setValue(names);
+  } else {
+    ATH_MSG_INFO("Please check jobOptions, SCT_DCSConditionsSvs does nothing as set up.");
+  }
+  ATH_MSG_INFO("Test: How many folders in Coll: " << m_par_atrcollist.value().size());
   
   // if (m_useHV) {
   //   m_hvLowLimit = m_useHVLowLimit;
@@ -104,34 +105,35 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   //       	 ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!");
   // }
 
-  // //Register callbacks for folders in CondAttrListCollection using vector of keys (not hard-coded)
-  // std::vector<std::string>::const_iterator itr{m_par_atrcollist.value().begin()};
-  // std::vector<std::string>::const_iterator end{m_par_atrcollist.value().end()};
-  // for (; itr!=end; ++itr) {
-  //   std::string key{*itr};
-  //   ATH_MSG_INFO(key);
-  //   if (key==m_folderPrefix+std::string("/HV")) {
-  //     if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_HV, key)) {
-  //       ATH_MSG_INFO("Registered callback for key: " << *itr);
-  //     } else {
-  //       ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
-  //     }
-  //   } else if (key==m_folderPrefix+std::string("/MODTEMP")) {
-  //     if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_MT, key)) {
-  //       ATH_MSG_INFO("Registered callback for key: " << *itr);
-  //     } else {
-  //       ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
-  //     }
-  //   } else if (key==m_folderPrefix+std::string("/CHANSTAT")) {
-  //     if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_CS, key)) {
-  //       ATH_MSG_INFO("Registered callback for key: " << *itr);
-  //     } else {
-  //       ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
-  //     }
-  //   } else { 
-  //     ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
-  //   }
-  // }
+  // These callbacks are still needed for SiLonrentzAngleSvc
+  //Register callbacks for folders in CondAttrListCollection using vector of keys (not hard-coded)
+  std::vector<std::string>::const_iterator itr{m_par_atrcollist.value().begin()};
+  std::vector<std::string>::const_iterator end{m_par_atrcollist.value().end()};
+  for (; itr!=end; ++itr) {
+    std::string key{*itr};
+    ATH_MSG_INFO(key);
+    if (key==m_folderPrefix+std::string("/HV")) {
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_HV, key)) {
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
+      } else {
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+      }
+    } else if (key==m_folderPrefix+std::string("/MODTEMP")) {
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_MT, key)) {
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
+      } else {
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+      }
+    } else if (key==m_folderPrefix+std::string("/CHANSTAT")) {
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_CS, key)) {
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
+      } else {
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+      }
+    } else { 
+      ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
+    }
+  }
 
   // Read Cond Handle Keys
   ATH_CHECK(m_condKeyState.initialize());
@@ -289,8 +291,8 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 
 ///////////////////////////////////
 
-// //The actual function which puts a error code in a map for each DCS parameter/folder
-// StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& keys) {
+//The actual function which puts a error code in a map for each DCS parameter/folder
+StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& /*keys*/) {
  
 //   m_dataFilled=false;
 //   if (!m_pBadModules) {
@@ -380,12 +382,12 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 //     for (; itr2_key!=end2_key; ++itr2_key) {
 //       const std::string& aFolder{*itr2_key};
 //       // loop over collection
-//       m_IOVDbSvc->dropObject(aFolder, false); //"false" here keeps the data in the cache, so SG doesn't have to go back to the DB each time  
+// m_IOVDbSvc->dropObject(aFolder, false); //"false" here keeps the data in the cache, so SG doesn't have to go back to the DB each time  
 //     }
 //   }
 
-//   return StatusCode::SUCCESS;
-// }
+   return StatusCode::SUCCESS;
+}
 
 bool
 SCT_DCSConditionsSvc::getCondDataState() const {

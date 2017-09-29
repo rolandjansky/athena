@@ -300,7 +300,8 @@ if DetFlags.haveRIO.SCT_on():
         
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
-        if InDetFlags.useHVForSctDCS(): InDetSCT_DCSConditionsSvc.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
+        if InDetFlags.useHVForSctDCS():
+            SCT_DCSConditionsStatCondAlg.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         ServiceMgr += InDetSCT_DCSConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_DCSConditionsSvc
