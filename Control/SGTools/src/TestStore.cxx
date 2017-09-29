@@ -247,7 +247,7 @@ void TestStore::alias (SG::DataProxy* proxy,
 }
 
 
-void initTestStore()
+void initTestStore ATLAS_NOT_THREAD_SAFE ()
 {
   SG::CurrentEventStore::setStore (&store);
 }

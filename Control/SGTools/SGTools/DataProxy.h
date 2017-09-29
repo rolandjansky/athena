@@ -14,12 +14,14 @@
 #include <typeinfo>
 #include <memory>
 #include <mutex>
+#include <atomic>
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/getMessageSvc.h" /*Athena::IMessageSvcHolder*/
 #include "SGTools/TransientAddress.h"
 #include "SGTools/IRegisterTransient.h"
 #include "SGTools/exceptions.h"
+#include "CxxUtils/checker_macros.h"
 
 
 // forward declarations:
@@ -91,7 +93,7 @@ namespace SG {
     virtual const id_type& identifier() const override;
 
     /// Retrieve DataObject
-    virtual DataObject* object() const override;
+    virtual DataObject* object ATLAS_NOT_CONST_THREAD_SAFE () const override;
 
     /// set an IOpaqueAddress
     virtual void setAddress(IOpaqueAddress* ioa) override;
@@ -221,7 +223,10 @@ namespace SG {
     void setStore (IProxyDict* store);
 
     /// Return the store of which we're a part.
-    IProxyDict* store() const;
+    IProxyDict* store();
+
+    /// Return the store of which we're a part.
+    const IProxyDict* store() const;
 
     /// reset the bound DataHandles
     /// If HARD is true, then the bound objects should also
@@ -229,7 +234,7 @@ namespace SG {
     /// of the current event store.  (See IResetable.h.)
     void resetBoundHandles (bool hard);
 
-    IConverter* loader() const;
+    IConverter* loader();
 
   private:
     DataProxy(const DataProxy&) = delete;
@@ -239,7 +244,7 @@ namespace SG {
 
     unsigned long m_refCount;
 
-    DataObject* m_dObject;
+    std::atomic<DataObject*> m_dObject;
     IConverter* m_dataLoader;
 
     /// Is the proxy currently const?
@@ -272,6 +277,11 @@ namespace SG {
     typedef std::lock_guard<mutex_t> lock_t;
     mutable mutex_t m_mutex;
 
+    // For m_dObject.
+    typedef std::recursive_mutex objMutex_t;
+    typedef std::lock_guard<objMutex_t> objLock_t;
+    mutable objMutex_t m_objMutex; // For m_dObject.
+
     
     bool isValidAddress (lock_t&) const;
 
@@ -281,7 +291,7 @@ namespace SG {
      *
      * Should be called with the mutex held.
      */
-    void lock (lock_t&);
+    void lock (objLock_t&);
 
 
     /**
@@ -295,21 +305,17 @@ namespace SG {
      * This will fail if the proxy does not refer to an object read from an
      * input file.
      */
-    std::unique_ptr<DataObject> readData (lock_t&, ErrNo* errNo) const;
+    std::unique_ptr<DataObject> readData (objLock_t& objLock, ErrNo* errNo) const;
 
 
     /// set DataObject
-    void setObject (lock_t&, DataObject* obj);
+    void setObject (objLock_t& objLock, DataObject* obj);
   };
 
   ///cast the proxy into the concrete data object it proxies
   //@{
   template<typename DATA>
   DATA* DataProxy_cast(DataProxy* proxy);
-
-  ///const pointer version of the cast
-  template<typename DATA>
-  const DATA* DataProxy_cast(const DataProxy* proxy);
 
   ///const ref version of the cast. @throws SG::ExcBadDataProxyCast.
   template<typename DATA>

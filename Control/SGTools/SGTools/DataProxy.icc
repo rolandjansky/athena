@@ -45,9 +45,8 @@ const SG::DataProxy::id_type& SG::DataProxy::identifier() const
 
 /// Retrieve DataObject
 inline
-DataObject* SG::DataProxy::object() const
+DataObject* SG::DataProxy::object ATLAS_NOT_CONST_THREAD_SAFE () const
 {
-  lock_t lock (m_mutex);
   return m_dObject;
 }
 
@@ -252,7 +251,16 @@ void SG::DataProxy::setStore (IProxyDict* store)
 
 /// Return the store of which we're a part.
 inline
-IProxyDict* SG::DataProxy::store() const
+IProxyDict* SG::DataProxy::store()
+{
+  lock_t lock (m_mutex);
+  return m_store;
+}
+
+
+/// Return the store of which we're a part.
+inline
+const IProxyDict* SG::DataProxy::store() const
 {
   lock_t lock (m_mutex);
   return m_store;
@@ -260,7 +268,7 @@ IProxyDict* SG::DataProxy::store() const
 
 
 inline
-IConverter* SG::DataProxy::loader() const
+IConverter* SG::DataProxy::loader()
 {
   lock_t lock (m_mutex);
   return m_dataLoader;
@@ -336,14 +344,6 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
 #endif
   }
   return result;
-}
-
-
-///const pointer version of the cast
-template<typename DATA>
-const DATA* SG::DataProxy_cast(const SG::DataProxy* proxy)
-{
-  return SG::DataProxy_cast<DATA>(const_cast<SG::DataProxy*>(proxy));
 }
 
 
