@@ -30,8 +30,6 @@ namespace CP {
             return CorrectionCode::Error;
         }
 
-        std::cout << "getOrignalIsolation 1 ";
-
         if (!m_BackupIso) {
             const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*particle);
             if (originalParticle && getIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;
