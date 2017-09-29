@@ -80,24 +80,24 @@ public:
 private:
   //Declare Storegate container
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IIOVDbSvc> m_IOVDbSvc; //!< Handle on the IOVDb service
+  //  ServiceHandle<IIOVDbSvc> m_IOVDbSvc; //!< Handle on the IOVDb service
   // list folders to be read as CondAttrListCollection*
   StringArrayProperty m_par_atrcollist;
   bool m_dataFilled;
-  int m_status;
+  //  int m_status;
   //DataHandle for callback
   const DataHandle<CondAttrListCollection> m_DCSData_HV;
   const DataHandle<CondAttrListCollection> m_DCSData_MT;
   const DataHandle<CondAttrListCollection> m_DCSData_CS;
   //Key for DataHandle
-  BooleanProperty m_readAllDBFolders;
-  BooleanProperty m_returnHVTemp;
-  BooleanProperty m_dropFolder; 
+  //  BooleanProperty m_readAllDBFolders;
+  //  BooleanProperty m_returnHVTemp;
+  //  BooleanProperty m_dropFolder; 
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  float m_hvLowLimit;
-  float m_hvUpLimit;
+  //  float m_hvLowLimit;
+  //  float m_hvUpLimit;
   mutable const SCT_DCSStatCondData* m_pBadModules;
   mutable const SCT_DCSFloatCondData* m_pModulesHV;
   mutable const SCT_DCSFloatCondData* m_pModulesTemp0;
@@ -109,12 +109,12 @@ private:
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
-  std::string m_folderPrefix;
-  std::string m_chanstatCut;
-  bool m_useHV;
-  float m_useHVLowLimit;
-  float  m_useHVUpLimit;
-  std::string m_useHVChanCut;
+  //  std::string m_folderPrefix;
+  //  std::string m_chanstatCut;
+  //  bool m_useHV;
+  //  float m_useHVLowLimit;
+  //  float  m_useHVUpLimit;
+  //  std::string m_useHVChanCut;
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;

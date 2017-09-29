@@ -19,17 +19,17 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
                                            ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   m_detStore{"DetectorStore", name},
-  m_IOVDbSvc{"IOVDbSvc", name},
+//  m_IOVDbSvc{"IOVDbSvc", name},
   m_dataFilled{false},
-  m_status{0},
-  m_readAllDBFolders{true},
-  m_returnHVTemp{true},
-  m_dropFolder{true},
+  //  m_status{0},
+  //  m_readAllDBFolders{true},
+  //  m_returnHVTemp{true},
+  //  m_dropFolder{true},
   m_barrel_correction{-3.7},
   m_ecInner_correction{-13.1},
   m_ecOuter_correction{-15.5},
-  m_hvLowLimit{0.0},
-  m_hvUpLimit{1000000.0},
+  //  m_hvLowLimit{0.0},
+  //  m_hvUpLimit{1000000.0},
   m_pBadModules{nullptr},
   m_pModulesHV{nullptr},
   m_pModulesTemp0{nullptr},
@@ -38,30 +38,31 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
   m_condKeyHV{"SCT_DCSHVCondData"},
   m_condKeyTemp0{"SCT_DCSTemp0CondData"},
   m_condKeyTemp1{"SCT_DCSTemp1CondData"},
-  m_pHelper{nullptr}, 
-  m_folderPrefix{"/SCT/DCS"},
-  m_chanstatCut{"NORM"},
-  m_useHV{false},
-  m_useHVLowLimit{19.},
-  m_useHVUpLimit{1000000.0},
-  m_useHVChanCut{"LOOSE"} { 
+  m_pHelper{nullptr}
+  //  m_folderPrefix{"/SCT/DCS"},
+  //  m_chanstatCut{"NORM"},
+  //  m_useHV{false},
+  //  m_useHVLowLimit{19.},
+  //  m_useHVUpLimit{1000000.0},
+//  m_useHVChanCut{"LOOSE"} 
+{ 
     //declare variables which will be filled by jobOptions
     declareProperty("DetectorStore", m_detStore);
     declareProperty("AttrListCollFolders", m_par_atrcollist);
-    declareProperty("ReadAllDBFolders", m_readAllDBFolders);
-    declareProperty("ReturnHVTemp", m_returnHVTemp);
-    declareProperty("DropDCSFolders", m_dropFolder);
+    //    declareProperty("ReadAllDBFolders", m_readAllDBFolders);
+    //    declareProperty("ReturnHVTemp", m_returnHVTemp);
+    //    declareProperty("DropDCSFolders", m_dropFolder);
     declareProperty("TempBarrelCorrection", m_barrel_correction);
     declareProperty("TempEcInnerCorrection", m_ecInner_correction);
-    declareProperty("HVCutLow", m_hvLowLimit);
-    declareProperty("HVCutUp", m_hvUpLimit);
+    //    declareProperty("HVCutLow", m_hvLowLimit);
+    //    declareProperty("HVCutUp", m_hvUpLimit);
     declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
-    declareProperty("FolderLocation", m_folderPrefix);
-    declareProperty("StateCut", m_chanstatCut);
-    declareProperty("UseDefaultHV", m_useHV);
-    declareProperty("useHVLow", m_useHVLowLimit);
-    declareProperty("useHVUp", m_useHVUpLimit);
-    declareProperty("useHVChan", m_useHVChanCut);
+    //    declareProperty("FolderLocation", m_folderPrefix);
+    //    declareProperty("StateCut", m_chanstatCut);
+    //    declareProperty("UseDefaultHV", m_useHV);
+    //    declareProperty("useHVLow", m_useHVLowLimit);
+    //    declareProperty("useHVUp", m_useHVUpLimit);
+    //    declareProperty("useHVChan", m_useHVChanCut);
   }
 
 StatusCode SCT_DCSConditionsSvc::initialize() {
@@ -198,6 +199,7 @@ Identifier SCT_DCSConditionsSvc::getModuleID(const Identifier& elementId, InDetC
 bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId=getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return true; // not canreportabout
+  else if (not getCondDataState()) return false; // no cond data
   else if (m_pBadModules->output(castId(m_moduleId))==0) return true; //No params are listed as bad
   else return false;
 }
@@ -216,6 +218,8 @@ bool SCT_DCSConditionsSvc::isGood(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
+
+  if (not getCondDataHV()) return s_defaultHV; // no cond data
 
   float hvval{s_defaultHV};
   if (m_pModulesHV->getValue(castId(m_moduleId), hvval) and isGood(elementId, h)) {
@@ -236,6 +240,8 @@ float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDet
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
+  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
+
   float temperature{s_defaultTemperature};
   if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
     return temperature;
@@ -254,6 +260,8 @@ float SCT_DCSConditionsSvc::hybridTemperature(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
+
+  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
   if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
@@ -407,7 +415,7 @@ SCT_DCSConditionsSvc::getCondDataHV() const {
 
 bool
 SCT_DCSConditionsSvc::getCondDataTemp0() const {
-  if (!m_pModulesTemp1) {
+  if (!m_pModulesTemp0) {
     SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
     if ((not condData.isValid()) or !(*condData)) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
