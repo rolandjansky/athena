@@ -1,8 +1,0 @@
-#! /usr/bin/env bash
-
-## Any arguments are considered overrides, and will be added at the end
-export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=13000 --runNumber=361235 --maxEvents=10 \
-    --jobConfig=$JODIR15/share/DSID361xxx/MC15.361235.QGSJet_minbias_inelastic.py  \
-    --outputEVNTFile=test_qgsjet_minbias_inelastic.EVNT.pool.root \
-    $@
