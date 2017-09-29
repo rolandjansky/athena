@@ -31,8 +31,11 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   //      "Chain names maping to counters. In the form of: name counter" };
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1decisionKey{ this, "L1Decision", "", 
       "Partial decisions from the last stage of chains processing, they nay be missing from event to event"};
+
+  
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisions", {}, 
       "Object ontaining all the HLT input and outpu decision sets"};
+
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey { this, "HLTSummary", "HLTSummary", "Output summary" };
   //  SG::WriteHandleKey m_hltResultKey{ this, "HLTResult", "", "Output HLT Result" };
 
