@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL1TopoROBMonitor.h"
+#include "AcceptL1TopoMonitor.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 #include "L1TopoRDO/Helpers.h"
 #include "L1TopoRDO/Header.h"
@@ -71,7 +71,7 @@ namespace L1Topo{
 }
 
 
-TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
+AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
   m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
@@ -128,7 +128,7 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
 }
 
-StatusCode TrigL1TopoROBMonitor::initialize(){
+StatusCode AcceptL1TopoMonitor::initialize(){
   ATH_MSG_INFO ("initialize");
   CHECK( m_robDataProviderSvc.retrieve() );
   ATH_MSG_DEBUG ("Properties:" );
@@ -151,7 +151,7 @@ StatusCode TrigL1TopoROBMonitor::initialize(){
    ROBs) and via converters, if they are enabled by properties of this
    algorithm.
  */
-StatusCode TrigL1TopoROBMonitor::execute() {
+StatusCode AcceptL1TopoMonitor::execute() {
 
   ATH_MSG_DEBUG ("execute");
 
@@ -225,19 +225,19 @@ StatusCode TrigL1TopoROBMonitor::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::finalize() {
+StatusCode AcceptL1TopoMonitor::finalize() {
   ATH_MSG_INFO ("finalize");
   delete m_scaler;
   m_scaler=0;
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle){
+StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle){
   auto p = prop.value();
   return bookAndRegisterHist(rootHistSvc, hist, p.title()+extraName, p.title()+extraTitle, p.bins(), p.lowEdge(), p.highEdge());
 }
 
-StatusCode TrigL1TopoROBMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge){
+StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge){
 
   // *-- booking path
   std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
@@ -256,7 +256,7 @@ StatusCode TrigL1TopoROBMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& r
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::beginRun() {
+StatusCode AcceptL1TopoMonitor::beginRun() {
 
   ATH_MSG_INFO ("beginRun");
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
@@ -395,14 +395,14 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::endRun() {
+StatusCode AcceptL1TopoMonitor::endRun() {
 
   ATH_MSG_INFO ("endRun");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::doRawMon(bool prescalForDAQROBAccess) {
+StatusCode AcceptL1TopoMonitor::doRawMon(bool prescalForDAQROBAccess) {
   ATH_MSG_DEBUG( "doRawMon" );
   
   CHECK( monitorROBs(m_vROIROBIDs.value(),true) ); //isROIROB=true
@@ -413,7 +413,7 @@ StatusCode TrigL1TopoROBMonitor::doRawMon(bool prescalForDAQROBAccess) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL1TopoROBMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs, bool isROIROB){
+StatusCode AcceptL1TopoMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs, bool isROIROB){
 
   // Iterate over the ROB fragments and histogram their source IDs
   ATH_MSG_VERBOSE( "ROB IDs of type " << (isROIROB?"ROI":"DAQ") << " requested: " << L1Topo::formatVecHex8(vROBIDs));
@@ -463,7 +463,7 @@ StatusCode TrigL1TopoROBMonitor::monitorROBs(const std::vector<uint32_t>& vROBID
   return StatusCode::SUCCESS;
 }
   
-StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
+StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess) {
 
   ATH_MSG_DEBUG( "doCnvMon" );
   
@@ -705,7 +705,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
 
 }
 
-  StatusCode TrigL1TopoROBMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& /* vFibreSizes */, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& /* daqTobs */) {
+  StatusCode AcceptL1TopoMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& /* vFibreSizes */, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& /* daqTobs */) {
   ATH_MSG_DEBUG( "monitorBlock" );
   ATH_MSG_DEBUG( header );
   if (header.payload_crc()!=0){
@@ -728,7 +728,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
 }
 
 
-StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
+StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess){
   ATH_MSG_DEBUG( "doSimMon" );
   // Retrieve L1Topo CTP simulated decision if present
   if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
@@ -853,7 +853,7 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
 
 }
 //----------------------------------------------------------
-StatusCode TrigL1TopoROBMonitor::doSimDaq(bool prescalForDAQROBAccess){
+StatusCode AcceptL1TopoMonitor::doSimDaq(bool prescalForDAQROBAccess){
     ATH_MSG_DEBUG( "doSimDaq" );
     if(prescalForDAQROBAccess and m_setTopoSimResult and m_overflowBitsDaqRob.none()){
         for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
@@ -874,7 +874,7 @@ StatusCode TrigL1TopoROBMonitor::doSimDaq(bool prescalForDAQROBAccess){
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-StatusCode TrigL1TopoROBMonitor::doWriteValData(){
+StatusCode AcceptL1TopoMonitor::doWriteValData(){
   ATH_MSG_DEBUG( "doWriteValData" );
 
   // Retrieve HLTResuly
@@ -913,7 +913,7 @@ StatusCode TrigL1TopoROBMonitor::doWriteValData(){
 
 // compare two bitsets and histogram the differences
 // return true if the same, otherwise false
-void TrigL1TopoROBMonitor::compBitSets(std::string leftLabel, std::string rightLabel,
+void AcceptL1TopoMonitor::compBitSets(std::string leftLabel, std::string rightLabel,
                                        const std::bitset<m_nTopoCTPOutputs>& left, 
                                        const std::bitset<m_nTopoCTPOutputs>& right, 
                                        TH1F*& hist){
@@ -937,7 +937,7 @@ void TrigL1TopoROBMonitor::compBitSets(std::string leftLabel, std::string rightL
   return;
 }
 
-StatusCode TrigL1TopoROBMonitor::doOverflowSimMon()
+StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
 {
     ATH_MSG_DEBUG( "doOverflowSimMon" );
     if(evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value())){

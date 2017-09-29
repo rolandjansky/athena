@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGONLINEMONITOR_TRIGL1TOPOROBMONITOR_H
-#define TRIGONLINEMONITOR_TRIGL1TOPOROBMONITOR_H 1
+
+#ifndef TRIGGENERICALGS_ACCEPTL1TOPOMONITOR_H
+#define TRIGGENERICALGS_ACCEPTL1TOPOMONITOR_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/HistoProperty.h"
@@ -30,9 +31,9 @@ namespace TrigConf {
   class IL1TopoConfigSvc;
 }
 
-class TrigL1TopoROBMonitor:public AthAlgorithm {
+class AcceptL1TopoMonitor:public AthAlgorithm {
  public:
-  TrigL1TopoROBMonitor(const std::string& name, ISvcLocator* pSvcLocator);
+  AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
@@ -143,4 +144,4 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   }; //! bin labels for problem histograms
 };
 
-#endif // TRIGONLINEMONITOR
+#endif // TRIGGENERICALGS
