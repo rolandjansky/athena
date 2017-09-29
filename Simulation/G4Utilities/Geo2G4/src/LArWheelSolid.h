@@ -10,7 +10,7 @@
 
 // set this to allow debug output in LArWheelSolid methods
 // disabled by default to avoid any performance degradation
-//#define DEBUG_LARWHEELSOLID
+#define DEBUG_LARWHEELSOLID
 
 // set this to use native G4 FanBound's methods for DisToIn
 // instead of local calculations

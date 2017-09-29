@@ -89,7 +89,7 @@ bool LArWheelSolid::fs_cross_lower(
                      - 2.*m_fs->ABmin*p.z() - m_fs->Bmin2;
 	G4double t1(0.0);
 	const G4double out_dist = m_fs->Amin*p.z() + m_fs->Bmin - p.perp();
-	LWSDBG(8, std::cout << "fcl out_dist(p)=" << out_dist << " Tolerance=" << Tolerance << std::endl);
+	LWSDBG(8, std::cout << "fcl out_dist(p)=" << out_dist << " Tolerance=" << s_Tolerance << std::endl);
 	const G4bool out = out_dist >= 0.0;
 	if(check_D(t1, A, B, C, out)){
 		const G4double zz1 = p.z() + v.z() * t1;
@@ -204,7 +204,7 @@ LArWheelSolid::FanBoundExit_t LArWheelSolid::find_exit_point(
 	q = p + v * d;
 	LWSDBG(7, std::cout << "fep side " << d << " " << result << " q" << MSG_VECTOR(q) << std::endl);
 	const G4double out_distlower = m_fs->Amin*q.z() + m_fs->Bmin - q.perp(); // > 0 - below lower cone
-	LWSDBG(7, std::cout << "fep out_distlower(q)=" << out_distlower << " Tolerance=" << Tolerance << std::endl);
+	LWSDBG(7, std::cout << "fep out_distlower(q)=" << out_distlower << " Tolerance=" << s_Tolerance << std::endl);
 	if (out_distlower >= 0.0) {
 		// side intersection point is below lower cone
 		// initial point p was at exit boundary
