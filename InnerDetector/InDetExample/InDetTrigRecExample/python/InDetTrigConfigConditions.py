@@ -400,6 +400,7 @@ class SCT_ConditionsServicesSetup:
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
       if (not self.isMC):
+        dcsSvc.FolderLocation="/SCT/HLT/DCS"
         dcsSvc.ReadAllDBFolders=False
         dcsSvc.ReturnHVTemp=True
 
