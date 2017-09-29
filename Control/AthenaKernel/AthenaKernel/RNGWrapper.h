@@ -49,13 +49,11 @@ namespace ATHRNG{
 
     /// Set the random seed using a string (e.g. algorithm name) and the
     /// current EventContext. Does nothing if the contex is invalid.
-    /// @todo FIXME doesn't currently make sense to return bool.
-    bool setSeed(const std::string& algName, const EventContext& ctx);
+    void setSeed(const std::string& algName, const EventContext& ctx);
 
     /// Set the random seed using a string (e.g. algorithm name) and the
     /// current slot, event, and run numbers.
-    /// @todo FIXME doesn't currently make sense to return bool.
-    bool setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run);
+    void setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run);
 
     /// Cast-to-engine pointer operator.
     /// Retrieves the current event context and returns the engine

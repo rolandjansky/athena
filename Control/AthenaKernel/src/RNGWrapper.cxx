@@ -22,17 +22,14 @@ ATHRNG::RNGWrapper::~RNGWrapper()
   }
 }
 
-bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, const EventContext& ctx)
+void ATHRNG::RNGWrapper::setSeed(const std::string& algName, const EventContext& ctx)
 {
-  if(!ctx.valid()){
-    return false;
-  }
-  return setSeed( algName, ctx.slot(),
-                  ctx.eventID().event_number(),
-                  ctx.eventID().run_number() );
+  setSeed( algName, ctx.slot(),
+           ctx.eventID().event_number(),
+           ctx.eventID().run_number() );
 }
 
-bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
+void ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
                                  uint64_t ev, uint64_t run)
 {
   auto algHash = std::hash<std::string>{}(algName);
@@ -41,5 +38,4 @@ bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
   auto hsh = evHash ^ (runHash + (evHash << 6) + (evHash >> 2));
   hsh = hsh ^ (algHash + (hsh << 6) + (hsh >> 2));
   m_engines[slot]->setSeed(hsh, 0);
-  return true;
 }
