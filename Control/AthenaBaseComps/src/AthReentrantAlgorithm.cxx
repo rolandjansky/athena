@@ -166,14 +166,8 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 {
   ATH_CHECK( ReEntAlgorithm::sysInitialize() );
 
-  //for (SG::VarHandleKeyArray* a : m_vhka) {
-  for ( VHKAWithState a: m_vhka ) {
-    if ( not a.renounced ) { 
-      for (SG::VarHandleKey* k : a->keys()) {
-	this->declare (*k);
-	k->setOwner(this);
-      }
-    }
+  for ( VarHandleKeyArrayWithState& a: m_vhka ) {
+    a.declare( this );
   }
   m_varHandleArraysDeclared = true;
 
@@ -181,18 +175,16 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 }
 
 void AthReentrantAlgorithm::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
-
+  
   auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
   if ( vhkaIter == m_vhka.end() ) {
     ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
     return;
   } else {
     ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
-    vhkaIter->renounced = true;
+    vhkaIter->renounce();
   }
 }
-
-
 
 /**
  * @brief Return this algorithm's input handles.
@@ -206,14 +198,8 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    // for (SG::VarHandleKeyArray* a : m_vhka) {
-    for ( VHKAWithState a: m_vhka ) {
-      if ( not a.renounced ) {
-	for (SG::VarHandleKey* k : a->keys()) {
-	  if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-	  v.push_back (k);
-	}
-      }
+    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
+      a.appendIfInput( v );
     }
   }
   
@@ -233,14 +219,8 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
 
   if (!m_varHandleArraysDeclared) {    
-    //for (SG::VarHandleKeyArray* a : m_vhka) {
-    for ( VHKAWithState a: m_vhka ) {
-      if ( not a.renounced ) {
-	for (SG::VarHandleKey* k : a->keys()) {
-	  if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-	  v.push_back (k);
-	}
-      }
+    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
+      a.appendIfOutput( v );      
     }
   }
 

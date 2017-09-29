@@ -44,6 +44,7 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "AthenaKernel/IUserDataSvc.h"
+#include "AthenaBaseComps/VarHandleKeyArrayWithState.h"
 
 class AthAlgTool : 
   public ::AlgTool,
@@ -89,7 +90,7 @@ public:
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
-  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+  mutable std::vector<VarHandleKeyArrayWithState> m_vhka;
 
 public:
   /////////////////////////////////////////////////////////////////
@@ -323,7 +324,8 @@ protected:
   /// callback to add storeName to ExtraInputs/Outputs data deps
   void extraDeps_update_handler(Property&);
 
-
+  /// remove all handles from I/O resolution
+  void renounceArray( const SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

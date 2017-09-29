@@ -19,6 +19,7 @@
 // Need to do this very early so parser for VarHandleKey picked up
 #include <string>
 #include "GaudiKernel/StatusCode.h"
+#include "AthenaBaseComps/VarHandleKeyArrayWithState.h"
 namespace SG {
   class VarHandleKey;
   class VarHandleKeyArray;
@@ -177,18 +178,8 @@ class AthReentrantAlgorithm
 
 private:  
   // to keep track of VarHandleKeyArrays for data dep registration
-  struct VHKAWithState {
-    VHKAWithState(SG::VarHandleKeyArray* a) 
-      : vhka(a) {}
-    
-    SG::VarHandleKeyArray* operator ->() { return vhka; }
-    const SG::VarHandleKeyArray* operator ->() const{ return vhka; }
-    bool operator==( const SG::VarHandleKeyArray* a) const { return vhka == a; }
 
-    SG::VarHandleKeyArray* vhka;
-    bool renounced{ false };
-  };
-  mutable std::vector<VHKAWithState> m_vhka;
+  mutable std::vector<VarHandleKeyArrayWithState> m_vhka;
 
 public:
   /////////////////////////////////////////////////////////////////
@@ -440,6 +431,7 @@ public:
   void extraDeps_update_handler(Property&);
 
 
+  /// remove all handles from I/O resolution
   void renounceArray( const SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 

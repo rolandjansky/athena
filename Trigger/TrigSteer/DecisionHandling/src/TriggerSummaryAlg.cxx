@@ -18,17 +18,13 @@ StatusCode TriggerSummaryAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
   // processing of the chains mapping
-  
 
   CHECK( m_l1decisionKey.initialize() );
 
-  //for ( auto key: m_finalDecisionKeys ) 
-  //    renounce( key );  
   renounceArray( m_finalDecisionKeys );
   CHECK( m_finalDecisionKeys.initialize() );
 
   CHECK( m_summaryKey.initialize() );
-  //  if ( ! m_hltResultKey.empty() ) CHECK( m_hltResultKey );
 
   return StatusCode::SUCCESS;
 }

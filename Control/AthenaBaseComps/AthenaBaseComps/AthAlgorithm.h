@@ -45,7 +45,7 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/VarHandleKeyArray.h"
 #include "AthenaKernel/IUserDataSvc.h"
-
+#include "AthenaBaseComps/VarHandleKeyArrayWithState.h"
 // Forward declaration
 
 /** @class AthAlgorithm AthAlgorithm.h AthenaBaseComps/AthAlgorithm.h
@@ -119,7 +119,7 @@ class AthAlgorithm
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
-  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+  mutable std::vector<VarHandleKeyArrayWithState> m_vhka;
 
 
 public:
@@ -383,6 +383,8 @@ public:
   /// callback to add storeName to ExtraInputs/Outputs data deps
   void extraDeps_update_handler(Property&);
 
+  /// remove all handles from I/O resolution
+  void renounceArray( const SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

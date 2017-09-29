@@ -83,12 +83,10 @@ StatusCode AthAlgTool::sysInitialize()
 {
   ATH_CHECK( AlgTool::sysInitialize() );
 
-  for (SG::VarHandleKeyArray* a : m_vhka) {
-    for (SG::VarHandleKey* k : a->keys()) {
-      this->declare (*k);
-      k->setOwner(this);
-    }
+  for ( VarHandleKeyArrayWithState& a: m_vhka ) {
+    a.declare( this );
   }
+
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
@@ -107,15 +105,25 @@ std::vector<Gaudi::DataHandle*> AthAlgTool::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = AlgTool::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-        v.push_back (k);
-      }
+    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
+      a.appendIfInput( v );
     }
   }
 
   return v;
+}
+
+
+void AthAlgTool::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
+  
+  auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
+  if ( vhkaIter == m_vhka.end() ) {
+    ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
+    return;
+  } else {
+    ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
+    vhkaIter->renounce();
+  }
 }
 
 
@@ -130,12 +138,9 @@ std::vector<Gaudi::DataHandle*> AthAlgTool::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = AlgTool::outputHandles();
 
-  if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-        v.push_back (k);
-      }
+  if (!m_varHandleArraysDeclared) {    
+    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
+      a.appendIfOutput( v );      
     }
   }
 
