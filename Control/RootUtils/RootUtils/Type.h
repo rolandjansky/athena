@@ -17,6 +17,9 @@
 #define ROOTUTILS_TYPE_H
 
 
+#include "CxxUtils/checker_macros.h"
+
+
 #include "RootUtils/TSMethodCall.h"
 #include "TClass.h"
 #include "TDataType.h"
@@ -152,7 +155,7 @@ public:
    *
    * Returns 0 if this is for a fundamental type.
    */
-  TClass* getClass() const;
+  const TClass* getClass() const;
 
   
   /**
@@ -329,11 +332,11 @@ private:
   size_t m_size;
 
   // Method call for assignment.
-  mutable TSMethodCall m_assign;
+  mutable TSMethodCall m_assign ATLAS_THREAD_SAFE;
 
   /// Pointer to a default-constructed instance of the payload object.
   /// Null if the payload does not have class type.
-  mutable void* m_defElt;
+  void* m_defElt;
 };
 
 
