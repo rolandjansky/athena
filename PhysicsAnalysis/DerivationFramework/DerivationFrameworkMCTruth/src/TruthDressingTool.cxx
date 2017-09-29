@@ -89,7 +89,7 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
     const static SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
 
     // One for the photons as well
-    std::string decorationName = m_decorationName.empty()?m_decorationName:"unusedPhotonDecoration";
+    std::string decorationName = m_decorationName.empty()?"unusedPhotonDecoration":m_decorationName;
     const static SG::AuxElement::Decorator< char > dressDec (decorationName);
     // If we want to decorate, then we need to decorate everything with false to begin with
     if (!m_decorationName.empty()){
