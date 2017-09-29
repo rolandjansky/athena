@@ -69,7 +69,7 @@ public:
   virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   //Does the same for hashIds
   virtual float sensorTemperature(const IdentifierHash& hashId);
-  virtual StatusCode fillData(int& i, std::list<std::string>& keys);
+  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& /*keys*/) { return StatusCode::FAILURE; };
   ///Manually get the data in the structure before proceding
   virtual StatusCode fillData() { return StatusCode::FAILURE; }
   virtual bool filled() const;
@@ -98,10 +98,14 @@ private:
   float m_ecOuter_correction;
   float m_hvLowLimit;
   float m_hvUpLimit;
-  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
+  mutable const SCT_DCSStatCondData* m_pBadModules;
+  mutable const SCT_DCSFloatCondData* m_pModulesHV;
+  mutable const SCT_DCSFloatCondData* m_pModulesTemp0;
+  mutable const SCT_DCSFloatCondData* m_pModulesTemp1;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp1;
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
@@ -114,6 +118,10 @@ private:
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;
+  bool getCondDataState() const;
+  bool getCondDataHV() const;
+  bool getCondDataTemp0() const;
+  bool getCondDataTemp1() const;
 };
 
 #endif // SCT_DCSConditionsSvc_h 

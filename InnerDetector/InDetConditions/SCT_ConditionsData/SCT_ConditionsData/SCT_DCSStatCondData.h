@@ -31,9 +31,9 @@ public:
   /// remove a defect
   void remove(const CondAttrListCollection::ChanNum& chanNum, const std::string param);
   /// copy all defects to a users vector, the return value is the size
-  int output(const CondAttrListCollection::ChanNum& chanNum, std::vector<std::string>& usersVector);
+  int output(const CondAttrListCollection::ChanNum& chanNum, std::vector<std::string>& usersVector) const;
   ///
-  int output(const CondAttrListCollection::ChanNum & chanNum);
+  int output(const CondAttrListCollection::ChanNum & chanNum) const;
   //@}
   
 private:

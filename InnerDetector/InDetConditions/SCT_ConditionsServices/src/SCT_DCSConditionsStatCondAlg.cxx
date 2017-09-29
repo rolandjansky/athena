@@ -13,7 +13,7 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   : ::AthAlgorithm(name, pSvcLocator)
   , m_readKeyHV{"/SCT/DCS/HV"}
   , m_readKeyState{"/SCT/DCS/CHANSTAT"}
-  , m_writeKeyState{"SCT_DCSStatCondData", "SCT_DCSStatCondData"}
+  , m_writeKeyState{"SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
   , m_readAllDBFolders{true}
   , m_returnHVTemp{true}
