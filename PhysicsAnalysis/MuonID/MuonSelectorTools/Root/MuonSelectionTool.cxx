@@ -100,7 +100,7 @@ namespace CP {
     if ( m_PixCutOff ) ATH_MSG_WARNING( "!! SWITCHING PIXEL REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SiHolesCutOff ) ATH_MSG_WARNING( "!! SWITCHING SILICON HOLES REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
-    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable; lowPt working point will always return false");
+    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable as currently missing in many derivations; LowPtEfficiency working point will always return false, but this is expected at the moment. Have a look here: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionToolR21#New_LowPtEfficiency_working_poin");
 
     // Set up the TAccept object:
     m_accept.addCut( "Eta",
