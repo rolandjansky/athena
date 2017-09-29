@@ -13,6 +13,8 @@
 #include <MuonEfficiencyCorrections/MuonTriggerScaleFactors.h>
 
 #include <AsgTools/ToolHandle.h>
+#include <AsgTools/AnaToolHandle.h>
+
 #include <AsgTools/IAsgTool.h>
 #include <AsgTools/AsgTool.h>
 
@@ -72,6 +74,7 @@ namespace TestMuonSF {
     class TriggerSFBranches: public SFBranches {
         public:
             TriggerSFBranches(TTree* tree,const  ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger);
+            virtual ~TriggerSFBranches();
             CP::CorrectionCode fill(const xAOD::MuonContainer* Muons);
             virtual bool init();
             virtual std::string name() const;
@@ -86,20 +89,34 @@ namespace TestMuonSF {
             double m_sys_down_SF;
     };
     typedef std::unique_ptr<TriggerSFBranches> TriggerSFBranch_Ptr;
-    //#################################################
-    //      Helper class to write ntuples to test the
-    //      MuonReconstruction/ Isolation/ TTVA scalefactors
-    //#################################################
+    
+    //###################################################
+    //      General interface for the Reconstruction    #
+    //      Isolation / TTVA scalefactors               #
+    //###################################################
     class MuonEffiBranches: public SFBranches{
         public:
-            MuonEffiBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle);
-            CP::CorrectionCode fill (const xAOD::Muon* muon);
-            CP::CorrectionCode fill (const xAOD::Muon& muon);
+            MuonEffiBranches(TTree* tree);
+            virtual CP::CorrectionCode fill (const xAOD::Muon& muon)=0;
+            virtual ~MuonEffiBranches();
+            
+    };
+    typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
+    //###################################################################
+    //      Helper class to write the scale-factor ntuples to test the  #
+    //      MuonReconstruction/ Isolation/ TTVA scalefactors            #
+    //###################################################################
+    class MuonSFBranches: public MuonEffiBranches{
+        public:
+            MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name = "");
+            virtual CP::CorrectionCode fill (const xAOD::Muon& muon);
             
             virtual bool init();
             virtual std::string name() const;
         private:
             ToolHandle<CP::IMuonEfficiencyScaleFactors> m_handle;
+            std::string m_release;
+           
             //SF's
             struct SFSet{
                 SFSet(){
@@ -110,52 +127,58 @@ namespace TestMuonSF {
                 float mc_eff;
                 float data_eff;
             };
+            bool AddToTree(const CP::SystematicSet& syst, MuonSFBranches::SFSet& ScaleFactor);
+           
             std::map<CP::SystematicSet, SFSet> m_SFs;
             
     };
-    typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
-    
+    //###################################################
+    //      Helper class to write                       #
+    //      The muon properties for the efficiency sfs  #
+    //###################################################
+    class MuonInfoBranches: public MuonEffiBranches{
+        public:
+            MuonInfoBranches(TTree* tree);
+            virtual ~MuonInfoBranches();
+            virtual bool init();
+            virtual std::string name() const;
+            virtual CP::CorrectionCode fill (const xAOD::Muon& muon);
+           
+        private:
+            float m_pt;
+            float m_eta;
+            float m_phi;
+            unsigned int m_quality;
+            unsigned int m_author;
+            unsigned int m_type;
+    };
     
     class MuonSFTestHelper {
         public:
-            MuonSFTestHelper(const std::string& Name);
-            StatusCode initialize();
-            template<typename T> StatusCode setProperty(const std::string &Name, T Value) {
-                return m_Tool.setProperty(Name, Value);
-            }
-            CP::CorrectionCode TestSF(const xAOD::Muon& mu);
-            bool WriteHistosToFile(TFile* file);
-            void PrintSFs(bool B);
-            void FillHistos(bool B);
+            //Standard Constructor
+            MuonSFTestHelper(TTree* tree, const std::string& name="", bool write_muons = true);
+            MuonSFTestHelper(const std::string& name = "", bool write_muons = true);
             ~MuonSFTestHelper();
+            //############################
+            //      Initialize the tool
+            //############################
+            bool init();
+            void addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle)
+            void addTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle);
 
-            CP::SystematicCode GetMCEfficiency(float &eff, const CP::SystematicSet &Set) const;
-            CP::SystematicCode GetEfficiency(float &eff, const CP::SystematicSet &Set) const;
-            CP::SystematicCode GetScaleFactor(float &eff, const CP::SystematicSet &Set) const;
 
-            const CP::MuonEfficiencyScaleFactors& GetTool() const;
+            CP::CorrectionCode fill(const xAOD::MuonContainer* muons);
+            CP::CorrectionCode fill(const xAOD::Muon* mu);
+            CP::CorrectionCode fill(const xAOD::Muon& mu);
+            
+            
+            
+        private:
+            std::string m_name;
+            std::shared_ptr<TTree> m_tree_ptr;
+            TTree* m_tree;
+            std::vector<EffiBranch_Ptr> m_Branches;
 
-        protected:
-            void CreateHistogram(CP::SystematicSet& Set);
-
-            CP::MuonEfficiencyScaleFactors m_Tool;
-            CP::SystematicSet m_Nominal;
-            std::vector<CP::SystematicSet*> m_Syst;
-            struct TestScaleFactors {
-                    TH1* SF;
-                    TH1* eff;
-                    TH1* mceff;
-                    TH1* relSystSF;
-                    TH1* relSystEff;
-                    TH1* relSystmcEff;
-                    float sf_Value;
-                    float efficiency_Value;
-                    float mcefficiency_Value;
-            };
-            std::map<CP::SystematicSet*, TestScaleFactors> m_Histos;
-            bool m_init;
-            bool m_Print;
-            bool m_FillHistos;
     };
     class MuonSFReleaseComparer {
         public:

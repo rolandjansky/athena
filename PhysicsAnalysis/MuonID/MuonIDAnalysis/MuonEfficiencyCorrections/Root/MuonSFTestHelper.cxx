@@ -41,8 +41,10 @@ namespace TestMuonSF {
                     m_stat_up_SF(1.),
                     m_stat_down_SF(1.),
                     m_sys_up_SF(1.),
-                    m_sys_down_SF(1.){}
-
+                    m_sys_down_SF(1.){
+    }
+    TriggerSFBranches::~TriggerSFBranches(){
+    }
     CP::CorrectionCode TriggerSFBranches::fill(const xAOD::MuonContainer* muons){
         if (getSF(muons, m_nominal_SF, CP::SystematicVariation("",0)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
         if (getSF(muons, m_stat_up_SF, CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", +1)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
@@ -73,19 +75,24 @@ namespace TestMuonSF {
         }
         return m_handle->getTriggerScaleFactor(*muons, Var, name());
     }
-   
    //############################################################
    //                   MuonEffiBranches
    //############################################################
-   MuonEffiBranches::MuonEffiBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle):
-            SFBranches(tree),
+   MuonEffiBranches::MuonEffiBranches(TTree* tree):
+            SFBranches(tree){
+    }
+    MuonEffiBranches::~MuonEffiBranches(){
+    }
+   //############################################################
+   //                   MuonSFBranches
+   //############################################################
+   MuonSFBranches::MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name):
+            MuonEffiBranches(tree),
             m_handle(handle),
+            m_release(rel_name),
             m_SFs(){
    }
-   CP::CorrectionCode MuonEffiBranches::fill(const xAOD::Muon* muon){
-        return fill(*muon);
-    }
-    CP::CorrectionCode MuonEffiBranches::fill (const xAOD::Muon& muon){
+   CP::CorrectionCode MuonSFBranches::fill (const xAOD::Muon& muon){
         for (auto& Syst_SF : m_SFs){
             if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
                 return CP::CorrectionCode::Error;
@@ -104,16 +111,107 @@ namespace TestMuonSF {
         } 
         return CP::CorrectionCode::Ok;
     }
-    std::string MuonEffiBranches::name() const{
-        return getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+    std::string MuonSFBranches::name() const{
+        return m_release + (m_release.empty()? "" :"-") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
-    bool MuonEffiBranches::init(){
-//         for (const auto& set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
+    bool MuonSFBranches::init(){
+        for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())){
+            std::map<CP::SystematicSet, SFSet>::iterator Itr = m_SFs.find(set);
+            if ( Itr == m_SFs.end() ){
+                m_SFs.insert(std::pair<CP::SystematicSet, SFSet>(set,SFSet()));
+                Itr = m_SFs.find(set);
+                if (!AddToTree(set, Itr->second)) return false;                
+            }
+        }
+        return true;
+    }
+    bool MuonSFBranches::AddToTree(const CP::SystematicSet& syst, MuonSFBranches::SFSet& ScaleFactor){
+        std::string SystName = (syst.name().empty() ? std::string("") : std::string("__") ) + syst.name();
+        if (!initBranch(ScaleFactor.scale_factor,  std::string("SF") + SystName) ) return false;
+        if (!initBranch(ScaleFactor.data_eff,  std::string("DataEff") + SystName) ) return false;
+        if (!initBranch(ScaleFactor.mc_eff,  std::string("MCEff") + SystName) ) return false;
         return true;
     }
     //###########################################################
+    //                  MuonInfoBranches
+    //###########################################################
+    MuonInfoBranches::MuonInfoBranches(TTree* tree):
+            MuonEffiBranches(tree),
+            m_pt(FLT_MAX),
+            m_eta(FLT_MAX),
+            m_phi(FLT_MAX),
+            m_quality(-1),
+            m_author(-1),
+            m_type(-1) {
+    }
+    MuonInfoBranches::~MuonInfoBranches(){
+    }
+    bool MuonInfoBranches::init(){
+        if (!initBranch(m_pt,"pt") ) return false;
+        if (!initBranch(m_eta,"eta") ) return false;
+        if (!initBranch(m_phi,"phi") ) return false;
+        if (!initBranch(m_quality,"quality") ) return false;
+        if (!initBranch(m_author,"author") ) return false;
+        return true;
+    }
+    std::string MuonInfoBranches::name() const{
+        return "Muon";
+    }
+    CP::CorrectionCode MuonInfoBranches::fill (const xAOD::Muon& muon){
+        m_pt = muon.pt();
+        m_eta = muon.eta();
+        m_phi = muon.phi();
+        m_author = muon.author();
+        m_type = muon.type();
+        m_quality = muon.quality();
+        return CP::CorrectionCode::Ok;
+    }
+    
+    //###########################################################
     //                  MuonSFTestHelper
     //###########################################################
+    MuonSFTestHelper::MuonSFTestHelper(TTree* tree, const std::string& release_name, bool write_muons):
+                m_name(release_name),
+                m_tree(tree),
+                m_Branches(){
+        if (write_muons) m_Branches.push_back(EffiBranch_Ptr(new MuonInfoBranches(tree)));
+    }
+    MuonSFTestHelper::~MuonSFTestHelper(){
+    }
+    void MuonSFTestHelper::addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle){
+        addTool(handle.getHandle());
+    }
+    void MuonSFTestHelper::addTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle){
+        m_Branches.push_back(new MuonSFBranches(m_tree,handle,m_name));
+    }
+    bool MuonSFTestHelper::init(){
+        if(m_Branches.empty()){
+            Error("init()", "No scale-factors have been defined thus far");
+            return false;
+        }
+        for (auto& BR: m_Branches){
+            if (!Br->init()) return false;
+        }
+        return true;
+    }    
+    CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::Muon* mu){
+        return fill(*mu);
+    }
+    CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::Muon& mu){
+        for (auto& br : m_Branches){
+            if(br->fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        }
+        return CP::CorrectionCode::Ok;
+    } 
+    CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::MuonContainer* muons){
+        for (const auto& mu : muons){
+            if (fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            m_tree->Fill();
+        }
+        return CP::CorrectionCode::Ok;
+    }
+            
+
     MuonSFTestHelper::MuonSFTestHelper(const std::string& Name) :
                     m_Tool(Name),
                     m_Nominal(),
