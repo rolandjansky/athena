@@ -6,7 +6,6 @@
  FinderTolerances: centralised definition of all cuts and tolerances
                    applied from iPatTrackFinder 
  -------------------------------------------------------------------
- Copyright (C) 1999 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>

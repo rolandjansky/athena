@@ -5,7 +5,6 @@
 // ***************************************************************************
 // LArCalorimeter/LArDetDescr/LArRecoSimpleGeomTool.cxx
 // -------------------------------------------------------------
-// Copyright (C) 2005 by ATLAS Collaboration
 //****************************************************************************
 
 #include "LArDetDescr/LArRecoSimpleGeomTool.h"
