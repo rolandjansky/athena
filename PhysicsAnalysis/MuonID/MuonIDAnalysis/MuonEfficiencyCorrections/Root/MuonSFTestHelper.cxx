@@ -70,7 +70,6 @@ namespace TestMuonSF {
         syst_set.insert(syst);
         if (m_handle->applySystematicVariation(syst_set) != CP::SystematicCode::Ok) {
             return CP::CorrectionCode::Error;
-            
         }
         return m_handle->getTriggerScaleFactor(*muons, Var, name());
     }
@@ -87,13 +86,29 @@ namespace TestMuonSF {
         return fill(*muon);
     }
     CP::CorrectionCode MuonEffiBranches::fill (const xAOD::Muon& muon){
-//         for (auto& Syst_SF 
+        for (auto& Syst_SF : m_SFs){
+            if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+                return CP::CorrectionCode::Error;
+            }
+            CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
+            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+//             else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.scale_factor = FLT_MAX;
+
+            cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
+            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+//             else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.data_eff = FLT_MAX;
+
+            cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
+            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+//             else if (cc != CP::CorrectionCode::Ok) Syst_SF.second.mc_eff = FLT_MAX;            
+        } 
         return CP::CorrectionCode::Ok;
     }
     std::string MuonEffiBranches::name() const{
         return getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonEffiBranches::init(){
+//         for (const auto& set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
         return true;
     }
     //###########################################################

@@ -49,7 +49,7 @@ namespace TestMuonSF {
             virtual std::string name() const =0;
             virtual bool init()=0;
         protected:
-            template <typename T> bool initBranch(T& var, const std::string& syst){
+            template <typename T> bool initBranch(T& Var, const std::string& Syst){
                std::string bName = name()+ (Syst.empty() ? std::string("") : Syst) ;
                 if (m_tree->FindBranch(bName.c_str())) {
                     Error("SFBranches::initBranch()", "The branch %s already exists in TTree %s", bName.c_str(), m_tree->GetName());
@@ -110,7 +110,7 @@ namespace TestMuonSF {
                 float mc_eff;
                 float data_eff;
             };
-            std::map<CP::SystematicSet, float> m_SFs;
+            std::map<CP::SystematicSet, SFSet> m_SFs;
             
     };
     typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
