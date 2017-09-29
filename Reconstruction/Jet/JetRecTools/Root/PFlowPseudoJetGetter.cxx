@@ -26,7 +26,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
   for(const auto& pfo : *pfos) {
     // Technically this also skips 0 energy, which has no effect other than
     // on memory size, but is used in some workflows for pileup rejection
-    bool reject = (m_skipNegativeEnergy && pfo->e()<-1*FLT_MIN);
+    bool reject = (m_skipNegativeEnergy && pfo->e()<FLT_MIN);
     // Although it may seem pointless, we need to keep charged PFOs with energy==0
     // because for MET TST with PFlow, there may be high pt charged PFOs that receive
     // a weight of 0 due to being in dense showers, but need to be present for
