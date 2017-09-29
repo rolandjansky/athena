@@ -7,7 +7,7 @@ atlas_subdir( JetRecTools )
 
 set( extra_deps )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+   set( extra_deps GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
