@@ -37,7 +37,6 @@ private:
   VP1ParticleData(){}
   ~VP1ParticleData(){}
   class Imp;
-  Imp * d;
 };
 
 #endif

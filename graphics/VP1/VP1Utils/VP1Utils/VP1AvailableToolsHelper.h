@@ -69,7 +69,7 @@ protected:
   void timerEvent ( QTimerEvent * event );
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   VP1AvailableToolsHelper( const VP1AvailableToolsHelper & );
   VP1AvailableToolsHelper & operator= ( const VP1AvailableToolsHelper & );
 
