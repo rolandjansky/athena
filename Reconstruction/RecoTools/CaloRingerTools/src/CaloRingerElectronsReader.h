@@ -78,7 +78,8 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     /** 
      * @brief Electron selectors.
      **/
-    ToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors;
+    PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
+	"ElectronSelectors", {}, "The ASG Electron Selectors."};
     /// @}
 
     /// Tool CaloRingerElectronsReader props (non configurables):
@@ -91,7 +92,8 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     BuildCaloRingsFctor<xAOD::Electron> *m_clRingsBuilderElectronFctor;
 
     /// Whether selectors are available
-    bool m_selectorsAvailable;
+    Gaudi::Property<bool> m_selectorsAvailable {this, 
+	"selectorsAvailable", false, "Whether Selector Tool is available."};
     /// @}
 
 };

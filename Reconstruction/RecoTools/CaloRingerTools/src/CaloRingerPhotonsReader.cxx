@@ -23,13 +23,6 @@ CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
   // declare interface
   declareInterface<ICaloRingerPhotonsReader>(this);
 
-  // @brief Electron selectors.
-  declareProperty("PhotonSelectors", m_ringerSelectors,
-      "The ASG Photon Selectors.");
-
-  // Result names for each asg selector
-  declareProperty("ResultNames", m_ringerSelectorResultNames, 
-      "The ASG Selectors result names.");
 }
 
 // =============================================================================

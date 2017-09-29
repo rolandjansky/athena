@@ -69,7 +69,8 @@ class CaloRingerInputReader : public ::AthAlgTool,
     /** 
      * @brief Tool to build CaloRings.
      **/
-    ToolHandle<ICaloRingsBuilder> m_crBuilder;
+    PublicToolHandle<ICaloRingsBuilder> m_crBuilder {this,
+	"crBuilder", "", "CaloRingsBuilder Tool"};
     /** 
      * @brief the input key to retrieve at StoreGate.
      **/
@@ -79,7 +80,8 @@ class CaloRingerInputReader : public ::AthAlgTool,
     /// Tool CaloRingerInputReader props (non configurables):
     /// @{
     /// If CaloRings builder is available
-    bool m_builderAvailable;
+    Gaudi::Property<bool> m_builderAvailable {this, 
+	"builderAvailable", false, "Whether Builder Tool is available."};
     ///  @}
 
 };

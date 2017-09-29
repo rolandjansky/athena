@@ -27,13 +27,6 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
   // declare interface
   declareInterface<ICaloRingerElectronsReader>(this);
 
-  // @brief Electron selectors.
-  declareProperty("ElectronSelectors", m_ringerSelectors,
-      "The ASG Electron Selectors.");
-
-  // Whether selectors available
-  declareProperty("selectorsAvailable", m_selectorsAvailable, 
-      "Whether Selector Tool is available.");
 }
 
 // =============================================================================
@@ -92,7 +85,7 @@ StatusCode CaloRingerElectronsReader::finalize()
 StatusCode CaloRingerElectronsReader::execute()
 {
 
-  ATH_MSG_DEBUG("Entering " << name() << " execute.");
+  ATH_MSG_DEBUG("Entering " << name() << " execute, m_builderAvailable = " << m_builderAvailable);
 
   xAOD::ElectronAuxContainer* crAux{nullptr};
 

@@ -75,12 +75,14 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
      * @brief Electron selectors.
      * TODO Change it to Photon Selector
      **/
-    ToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors;
+    PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
+	"PhotonSelectors", {}, "The ASG Photon Selectors."};
 
     /** 
      * @brief Hold selectors result names.
      **/
-    std::vector<std::string> m_ringerSelectorResultNames;
+    Gaudi::Property<std::vector<std::string> > m_ringerSelectorResultNames {this,
+	"ResultNames", {}, "The ASG Selectors result names."};
     /// @}
 
 
