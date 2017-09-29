@@ -386,16 +386,19 @@ class SCT_ConditionsServicesSetup:
     else:        
       from AthenaCommon.AlgSequence import AthSequencer
       condSequence = AthSequencer("AthCondSeq")
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-      condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                 ReadKey = sctDCSHVFolder)
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-      condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                   ReadKeyHV = sctDCSHVFolder,
-                                                   ReadKeyState = sctDCSStateFolder)
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-      condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                   ReadKey = sctDCSTempFolder)
+      if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+        condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                   ReadKey = sctDCSHVFolder)
+      if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+        condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                     ReadKeyHV = sctDCSHVFolder,
+                                                     ReadKeyState = sctDCSStateFolder)
+      if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+        condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                     ReadKey = sctDCSTempFolder)
 
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
