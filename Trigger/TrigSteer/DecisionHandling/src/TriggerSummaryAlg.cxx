@@ -22,8 +22,9 @@ StatusCode TriggerSummaryAlg::initialize()
 
   CHECK( m_l1decisionKey.initialize() );
 
-  for ( auto key: m_finalDecisionKeys ) 
-    renounce( key );  
+  //for ( auto key: m_finalDecisionKeys ) 
+  //    renounce( key );  
+  renounceArray( m_finalDecisionKeys );
   CHECK( m_finalDecisionKeys.initialize() );
 
   CHECK( m_summaryKey.initialize() );

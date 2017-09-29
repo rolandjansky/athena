@@ -341,8 +341,9 @@ steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
 mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
 mon.L1Decision = "HLTChains"
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
+mon.HLTSummary = "MonitoringSummary"
 mon.OutputLevel = DEBUG
 
-hltTop = seqOR( "hltTop", [ steps ] )
+hltTop = seqOR( "hltTop", [ steps, mon] )
 topSequence += hltTop
   

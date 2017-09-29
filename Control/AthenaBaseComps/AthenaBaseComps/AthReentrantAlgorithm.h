@@ -175,9 +175,20 @@ class AthReentrantAlgorithm
 #endif
 
 
-private:
+private:  
   // to keep track of VarHandleKeyArrays for data dep registration
-  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+  struct VHKAWithState {
+    VHKAWithState(SG::VarHandleKeyArray* a) 
+      : vhka(a) {}
+    
+    SG::VarHandleKeyArray* operator ->() { return vhka; }
+    const SG::VarHandleKeyArray* operator ->() const{ return vhka; }
+    bool operator==( const SG::VarHandleKeyArray* a) const { return vhka == a; }
+
+    SG::VarHandleKeyArray* vhka;
+    bool renounced{ false };
+  };
+  mutable std::vector<VHKAWithState> m_vhka;
 
 public:
   /////////////////////////////////////////////////////////////////
@@ -427,6 +438,9 @@ public:
   void msg_update_handler(Property& outputLevel);
   /// callback to add storeName to ExtraInputs/Outputs data deps
   void extraDeps_update_handler(Property&);
+
+
+  void renounceArray( const SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

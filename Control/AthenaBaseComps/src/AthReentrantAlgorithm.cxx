@@ -166,16 +166,32 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 {
   ATH_CHECK( ReEntAlgorithm::sysInitialize() );
 
-  for (SG::VarHandleKeyArray* a : m_vhka) {
-    for (SG::VarHandleKey* k : a->keys()) {
-      this->declare (*k);
-      k->setOwner(this);
+  //for (SG::VarHandleKeyArray* a : m_vhka) {
+  for ( VHKAWithState a: m_vhka ) {
+    if ( not a.renounced ) { 
+      for (SG::VarHandleKey* k : a->keys()) {
+	this->declare (*k);
+	k->setOwner(this);
+      }
     }
   }
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
 }
+
+void AthReentrantAlgorithm::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
+
+  auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
+  if ( vhkaIter == m_vhka.end() ) {
+    ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
+    return;
+  } else {
+    ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
+    vhkaIter->renounced = true;
+  }
+}
+
 
 
 /**
@@ -190,14 +206,17 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-        v.push_back (k);
+    // for (SG::VarHandleKeyArray* a : m_vhka) {
+    for ( VHKAWithState a: m_vhka ) {
+      if ( not a.renounced ) {
+	for (SG::VarHandleKey* k : a->keys()) {
+	  if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
+	  v.push_back (k);
+	}
       }
     }
   }
-
+  
   return v;
 }
 
@@ -213,11 +232,14 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
 
-  if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-        v.push_back (k);
+  if (!m_varHandleArraysDeclared) {    
+    //for (SG::VarHandleKeyArray* a : m_vhka) {
+    for ( VHKAWithState a: m_vhka ) {
+      if ( not a.renounced ) {
+	for (SG::VarHandleKey* k : a->keys()) {
+	  if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
+	  v.push_back (k);
+	}
       }
     }
   }
