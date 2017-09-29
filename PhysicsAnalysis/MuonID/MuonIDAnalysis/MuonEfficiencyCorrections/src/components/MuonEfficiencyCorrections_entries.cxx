@@ -8,6 +8,9 @@
 #include "../MuonEfficiencyCorrections_TestAlg.h"
 #include "../MuonEfficiencyCorrectionsProvider.h"
 #include "../TestTrigSF.h"
+#include "../TestTrigSF.h"
+#include "../MuonTriggerSF_TestAlg.h"
+
 
 DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonEfficiencyScaleFactors )
 

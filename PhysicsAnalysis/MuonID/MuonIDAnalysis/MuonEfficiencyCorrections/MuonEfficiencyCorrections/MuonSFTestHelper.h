@@ -7,13 +7,68 @@
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
-#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+#include <TTree.h>
+#include <TH1.h>
 
 //Helper class to test the Muon efficiency SFs plus their systematics
-
+namespace CP{
+    class IMuonTriggerScaleFactors;
+    class IMuonEfficiencyScaleFactors;
+}
 namespace TestMuonSF {
+    
     void WriteHistogram(TFile* File, TH1* &Histo);
-
+    
+    
+    //####################################################
+    //      Helper class to write ntuples to test the 
+    //      MuonTriggerScaleFactors
+    //###################################################
+    class TriggerSFBranches {
+        public:
+            TriggerSFBranches(TTree* tree,const  ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger);
+            CP::CorrectionCode fill(const xAOD::MuonContainer* Muons);
+            bool init();
+            std::string name() const;
+        private:
+            bool initBranch(double& Var, const std::string &Syst);
+            CP::CorrectionCode getSF(const xAOD::MuonContainer* muons, double &Var, const CP::SystematicVariation &syst);
+            
+            TTree* m_tree;
+            const ToolHandle<CP::IMuonTriggerScaleFactors>& m_handle;
+            std::string m_trigger;
+            
+            double m_nominal_SF;
+            double m_stat_up_SF;
+            double m_stat_down_SF;
+            double m_sys_up_SF;
+            double m_sys_down_SF;
+    };
+    typedef std::unique_ptr<TriggerSFBranches> TriggerSFBranch_Ptr;
+    //#################################################
+    //      Helper class to write ntuples to test the
+    //      MuonReconstruction/ Isolation/ TTVA scalefactors
+    //#################################################
+    class MuonEffiBranches{
+        public:
+            MuonEffiBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle);
+            CP::CorrectionCode fill (const xAOD::Muon* muon);
+            CP::CorrectionCode fill (const xAOD::Muon& muon);
+            
+            bool init();
+            std::string name() const;
+        private:
+            bool initBranch(float& Var, const std::string &Syst);
+            
+            TTree* m_tree;
+            const ToolHandle<CP::IMuonEfficiencyScaleFactors>& m_handle;
+            
+            float m_nominal_SF;
+            std::map<CP::SystematicSet, float> m_systematics;
+    };
+    typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
+    
+    
     class MuonSFTestHelper {
         public:
             MuonSFTestHelper(const std::string& Name);
