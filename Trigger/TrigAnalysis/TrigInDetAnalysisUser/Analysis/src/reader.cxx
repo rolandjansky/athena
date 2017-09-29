@@ -67,12 +67,13 @@ int main(int argc, char** argv) {
   for ( unsigned i=0 ; i<files.size() ; i++ ) {
     
     TFile* _finput = TFile::Open( files[i].c_str() );
-    TFile&  finput = *_finput;
 
-    if (!finput.IsOpen()) {
+    if ( _finput==0 || !_finput->IsOpen() || _finput->IsZombie() ) {
       std::cerr << "Error: could not open output file" << std::endl;
       exit(-1);
     }
+
+    TFile&  finput = *_finput;
   
     if ( show_release || quit_after_release ) { 
       TTree*  dataTree = (TTree*)finput.Get("dataTree");

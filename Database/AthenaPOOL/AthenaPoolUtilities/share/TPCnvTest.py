@@ -30,21 +30,23 @@ import os
 if os.path.exists ('PoolFileCatalog.xml'):
     os.remove ('PoolFileCatalog.xml')
 
+if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
+    os.environ.has_key ('ATLAS_REFERENCE_TAG')):
+    ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
+
 testdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
 if infile.startswith ('rtt:'):
     testdata = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV'
     infile = infile[4:]
-
-import os
-testdata = os.environ.get ('D3PDTESTDATA', testdata)
+testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
 
 svcMgr.EventSelector.InputCollections        = [ os.path.join (testdata,
                                                                infile) ]
 
 from AthenaCommon.DetFlags      import DetFlags
-if not globals().get('noMuon',False):
+if not globals().get ('noMuon',False):
     DetFlags.detdescr.Muon_setOn()
-if not globals().get('noID',False):
+if not globals().get ('noID',False):
     DetFlags.detdescr.ID_setOn()
 
 from AthenaCommon.JobProperties import jobproperties
@@ -53,7 +55,7 @@ if jobproperties.Global.DetDescrVersion.isDefault():
 import imp
 have_atlas_geo = True
 try:
-    imp.find_module('AtlasGeoModel')
+    imp.find_module ('AtlasGeoModel')
 except ImportError:
     have_atlas_geo = False
 if have_atlas_geo:
@@ -61,7 +63,8 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
-from PyDumper.Dumpers import get_dumper_fct
+if not globals().has_key ('get_dumper_fct'):
+    from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 class Dumper (PyAthena.Alg):
     def __init__ (self, name):
@@ -69,11 +72,23 @@ class Dumper (PyAthena.Alg):
         return
 
     def initialize (self):
-        self.sg = PyAthena.py_svc('StoreGateSvc')
+        self.sg = PyAthena.py_svc ('StoreGateSvc')
         self.ofile_name = os.path.basename (infile) + '.dump'
-        self.reffile_name = '../share/' + os.path.basename (infile) + '.ref'
+        refbase = os.path.basename (infile) + '.ref'
+        self.reffile_name = '../share/' + refbase
         if not os.path.exists (self.reffile_name):
             self.reffile_name = '../' + self.reffile_name
+
+        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+            from AthenaCommon.Utils.unixtools import find_datafile
+            r = find_datafile (ATLAS_REFERENCE_TAG)
+            if r:
+                self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
+                                                  refbase)
+
+        if not os.path.exists (self.reffile_name):
+            self.reffile_name = os.path.join (testdata, ATLAS_REFERENCE_TAG,
+                                              refbase)
 
         self.ofile = open (self.ofile_name, 'w')
         self.icount = 0
@@ -89,28 +104,28 @@ class Dumper (PyAthena.Alg):
         self.icount += 1
         for k in keys:
             nmax = None
-            apos = k.find('@')
+            apos = k.find ('@')
             if apos >= 0:
-                nmax = int(k[apos+1:])
+                nmax = int (k[apos+1:])
                 k = k[:apos]
             print >> self.ofile, '-->', k
 
             store = self.sg
-            spos = k.find('/')
+            spos = k.find ('/')
             if spos >= 0:
-                store = PyAthena.py_svc(k[:spos])
+                store = PyAthena.py_svc (k[:spos])
                 k = k[spos+1:]
             
-            spos = k.find('#')
+            spos = k.find ('#')
             if spos >= 0:
-                (typ, k) = k.split('#')
-                o = store.retrieve(typ, k)
+                (typ, k) = k.split ('#')
+                o = store.retrieve (typ, k)
             else:
                 o = store[k]
-            dumper = get_dumper_fct (type(o), self.ofile, nmax = nmax)
+            dumper = get_dumper_fct (type (o), self.ofile, nmax = nmax)
             dumper (o)
         print >> self.ofile, '\n'
         return 1
 
-dumper = Dumper('dumper')
+dumper = Dumper ('dumper')
 topSequence += [dumper]

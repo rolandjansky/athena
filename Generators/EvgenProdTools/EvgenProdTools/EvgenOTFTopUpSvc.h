@@ -8,7 +8,7 @@
 #define EVGENPRODTOOLS_EVGENOTFTOPUPSVC_H
 
 #include "AthenaBaseComps/AthService.h"
-#include "GenInterfaces/IEvgenOTFTopUpSvc.h"
+#include "EvgenProdTools/IEvgenOTFTopUpSvc.h"
 #include <string>
 
 /// @brief Service to hold some information for topping up
