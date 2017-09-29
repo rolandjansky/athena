@@ -22,7 +22,67 @@ namespace TestMuonSF {
         delete Histo;
         Histo = nullptr;
     }
+   
+   //############################################################
+   //                   TriggerSFBranches
+   //############################################################
+   TriggerSFBranches::TriggerSFBranches(TTree* tree,const  ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger):
+                    m_tree(tree),
+                    m_handle(Handle),
+                    m_trigger(Trigger),
+                    m_nominal_SF(1.),
+                    m_stat_up_SF(1.),
+                    m_stat_down_SF(1.),
+                    m_sys_up_SF(1.),
+                    m_sys_down_SF(1.){}
 
+    CP::CorrectionCode TriggerSFBranches::fill(const xAOD::MuonContainer* muons){
+        if (getSF(muons, m_nominal_SF, CP::SystematicVariation("",0)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        if (getSF(muons, m_stat_up_SF, CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", +1)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        if (getSF(muons, m_stat_down_SF, CP::SystematicVariation("MUON_EFF_TrigStatUncertainty",-1)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        if (getSF(muons, m_sys_up_SF, CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", +1)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        if (getSF(muons, m_sys_down_SF, CP::SystematicVariation("MUON_EFF_TrigSystUncertainty",-1)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+        return CP::CorrectionCode::Ok;
+    }
+    bool TriggerSFBranches::init(){
+        if (!initBranch(m_nominal_SF,"")) return false;
+        if (!initBranch(m_stat_up_SF, "STAT_UP")) return false;
+        if (!initBranch(m_stat_down_SF, "STAT_DOWN")) return false;
+        if (!initBranch(m_sys_up_SF, "SYS_UP")) return false;
+        if (!initBranch(m_sys_down_SF, "SYS_DOWN")) return false;
+        return true;
+    }
+    std::string TriggerSFBranches::name() const{
+        return m_trigger;
+    }
+    bool TriggerSFBranches::initBranch(double& Var, const std::string &Syst){
+        std::string bName = name()+ (Syst.empty() ? std::string("") : Syst) ;
+        if (m_tree->FindBranch(bName.c_str())) {
+            Error("TriggerSFBranches::initBranch()", "The branch %s already exists in TTree %s", bName.c_str(), m_tree->GetName());
+            return false;
+        }
+        if (m_tree->Branch(bName.c_str(), &Var) == nullptr) {
+            Error("TriggerSFBranches::initBranch()", "Could not create the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
+            return false;
+        } else Info ("TriggerSFBranches::initBranch()", "Created the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
+        return true;
+    }
+    CP::CorrectionCode TriggerSFBranches::getSF(const xAOD::MuonContainer* muons, double &Var, const CP::SystematicVariation &syst){
+        if (muons->empty()){
+            return CP::CorrectionCode::Ok;
+        }
+        CP::SystematicSet syst_set;
+        syst_set.insert(syst);
+        if (m_handle->applySystematicVariation(syst_set) != CP::SystematicCode::Ok) {
+            return CP::CorrectionCode::Error;
+            
+        }
+        return m_handle->getTriggerScaleFactor(*muons, Var, name());
+    }
+
+    //###########################################################
+    //                  MuonSFTestHelper
+    //###########################################################
     MuonSFTestHelper::MuonSFTestHelper(const std::string& Name) :
                     m_Tool(Name),
                     m_Nominal(),
