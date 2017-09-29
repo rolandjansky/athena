@@ -671,6 +671,12 @@ namespace top {
 		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
 		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
 		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
 		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
 		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
 		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
@@ -1630,6 +1636,12 @@ namespace top {
 	      m_jet_DL1rnn.resize(event.m_jets.size());
 	      m_jet_MV2cl100.resize(event.m_jets.size());
 	      m_jet_MV2c100.resize(event.m_jets.size());
+	      m_jet_DL1_pu.resize(event.m_jets.size());
+	      m_jet_DL1_pc.resize(event.m_jets.size());
+	      m_jet_DL1_pb.resize(event.m_jets.size());
+	      m_jet_DL1mu_pu.resize(event.m_jets.size());
+	      m_jet_DL1mu_pc.resize(event.m_jets.size());
+	      m_jet_DL1mu_pb.resize(event.m_jets.size());
 	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
 	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
 	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
@@ -1714,6 +1726,12 @@ namespace top {
 		  m_jet_DL1rnn[i] = -999;
 		  m_jet_MV2cl100[i] = -999;
 		  m_jet_MV2c100[i] = -999;
+		  m_jet_DL1_pu[i] = -999;
+		  m_jet_DL1_pc[i] = -999;
+		  m_jet_DL1_pb[i] = -999;
+		  m_jet_DL1mu_pu[i] = -999;
+		  m_jet_DL1mu_pc[i] = -999;
+		  m_jet_DL1mu_pb[i] = -999;
 		  m_jet_DL1rnn_pu[i] = -999;
                   m_jet_DL1rnn_pc[i] = -999;
 		  m_jet_DL1rnn_pb[i] = -999;
@@ -1749,6 +1767,21 @@ namespace top {
 		    m_jet_DL1rnn_pu[i] = _pu;
                     m_jet_DL1rnn_pc[i] = _pc;
                     m_jet_DL1rnn_pb[i] = _pb;		    
+		    
+		    btag->pu("DL1mu",_pu);
+                    btag->pb("DL1mu",_pb);
+                    btag->pc("DL1mu",_pc);
+		    m_jet_DL1mu_pu[i] = _pu;
+		    m_jet_DL1mu_pc[i] = _pc;
+		    m_jet_DL1mu_pb[i] = _pb;
+
+		    btag->pu("DL1",_pu);
+                    btag->pb("DL1",_pb);
+                    btag->pc("DL1",_pc);
+		    m_jet_DL1_pu[i] = _pu;
+		    m_jet_DL1_pc[i] = _pc;
+		    m_jet_DL1_pb[i] = _pb;
+		    
 		  }
 		} // getReleaseSeries == 25
                 #endif // ROOTCORE_RELEASE_SERIES

@@ -508,6 +508,12 @@ private:
     std::vector<float> m_jet_DL1rnn;
     std::vector<float> m_jet_MV2cl100;
     std::vector<float> m_jet_MV2c100;
+    std::vector<float> m_jet_DL1_pu;
+    std::vector<float> m_jet_DL1_pc;
+    std::vector<float> m_jet_DL1_pb;
+    std::vector<float> m_jet_DL1mu_pu;
+    std::vector<float> m_jet_DL1mu_pc;
+    std::vector<float> m_jet_DL1mu_pb;
     std::vector<float> m_jet_DL1rnn_pu;
     std::vector<float> m_jet_DL1rnn_pc;
     std::vector<float> m_jet_DL1rnn_pb;
