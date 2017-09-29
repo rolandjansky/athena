@@ -19,11 +19,9 @@
 
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "fastjet/ClusterSequenceArea.hh"
-#include "fastjet/PseudoJet.hh"
+#include "JetEDM/TrackVertexAssociation.h"
+#include "xAODTracking/VertexContainer.h" 
 #include "xAODPFlow/PFOContainer.h"
-#include "PFlowUtils/IRetrievePFOTool.h"
-#include "AsgTools/ToolHandle.h"
 
 class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(ChargedHadronSubtractionTool, IJetConstituentModifier)
@@ -38,8 +36,14 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   private:
   // Implement the correction
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
-  StatusCode removePileupChargedHadrons(xAOD::PFOContainer& cont) const;
+  // Type-specific operation
+  StatusCode matchToPrimaryVertex(xAOD::PFOContainer& cont) const;
+
+  const xAOD::Vertex* getPrimaryVertex() const;
+  bool m_useTrackToVertexTool;
 	
+  std::string m_vertexContainer_key;
+  std::string m_trkVtxAssoc_key;
 };
 
 #endif

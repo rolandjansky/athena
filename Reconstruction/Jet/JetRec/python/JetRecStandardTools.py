@@ -358,8 +358,6 @@ ctm.add( CorrectPFOTool("correctPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        UseVertices = True,
-                        UseTrackToVertexTool = False,
                         InputType = xAOD.Type.ParticleFlow
                         ),
          alias = 'correctPFO' )
