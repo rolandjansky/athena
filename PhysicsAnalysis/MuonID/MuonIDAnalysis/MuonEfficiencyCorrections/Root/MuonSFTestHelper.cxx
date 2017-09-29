@@ -22,12 +22,19 @@ namespace TestMuonSF {
         delete Histo;
         Histo = nullptr;
     }
-   
+   //###########################################################
+   //                       SFBranches
+   //###########################################################
+   SFBranches::SFBranches(TTree* tree):
+        m_tree(tree){
+    }
+    SFBranches::~SFBranches(){
+    }
    //############################################################
    //                   TriggerSFBranches
    //############################################################
    TriggerSFBranches::TriggerSFBranches(TTree* tree,const  ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger):
-                    m_tree(tree),
+                    SFBranches(tree),
                     m_handle(Handle),
                     m_trigger(Trigger),
                     m_nominal_SF(1.),
@@ -55,18 +62,6 @@ namespace TestMuonSF {
     std::string TriggerSFBranches::name() const{
         return m_trigger;
     }
-    bool TriggerSFBranches::initBranch(double& Var, const std::string &Syst){
-        std::string bName = name()+ (Syst.empty() ? std::string("") : Syst) ;
-        if (m_tree->FindBranch(bName.c_str())) {
-            Error("TriggerSFBranches::initBranch()", "The branch %s already exists in TTree %s", bName.c_str(), m_tree->GetName());
-            return false;
-        }
-        if (m_tree->Branch(bName.c_str(), &Var) == nullptr) {
-            Error("TriggerSFBranches::initBranch()", "Could not create the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
-            return false;
-        } else Info ("TriggerSFBranches::initBranch()", "Created the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
-        return true;
-    }
     CP::CorrectionCode TriggerSFBranches::getSF(const xAOD::MuonContainer* muons, double &Var, const CP::SystematicVariation &syst){
         if (muons->empty()){
             return CP::CorrectionCode::Ok;
@@ -79,7 +74,28 @@ namespace TestMuonSF {
         }
         return m_handle->getTriggerScaleFactor(*muons, Var, name());
     }
-
+   
+   //############################################################
+   //                   MuonEffiBranches
+   //############################################################
+   MuonEffiBranches::MuonEffiBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle):
+            SFBranches(tree),
+            m_handle(handle),
+            m_SFs(){
+   }
+   CP::CorrectionCode MuonEffiBranches::fill(const xAOD::Muon* muon){
+        return fill(*muon);
+    }
+    CP::CorrectionCode MuonEffiBranches::fill (const xAOD::Muon& muon){
+//         for (auto& Syst_SF 
+        return CP::CorrectionCode::Ok;
+    }
+    std::string MuonEffiBranches::name() const{
+        return getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+    }
+    bool MuonEffiBranches::init(){
+        return true;
+    }
     //###########################################################
     //                  MuonSFTestHelper
     //###########################################################

@@ -7,37 +7,78 @@
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
+
+// Tool Includes
+#include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
+#include <MuonEfficiencyCorrections/MuonTriggerScaleFactors.h>
+
+#include <AsgTools/ToolHandle.h>
+#include <AsgTools/IAsgTool.h>
+#include <AsgTools/AsgTool.h>
+
+//General includes
+#include <memory>
+#include <map>
 #include <TTree.h>
 #include <TH1.h>
 
+
 //Helper class to test the Muon efficiency SFs plus their systematics
-namespace CP{
-    class IMuonTriggerScaleFactors;
-    class IMuonEfficiencyScaleFactors;
-}
 namespace TestMuonSF {
-    
+    //#########################
+    //      HelperFunctions
+    //#########################
     void WriteHistogram(TFile* File, TH1* &Histo);
     
-    
+    template <typename T> T getProperty(const asg::IAsgTool* interface_tool, const std::string& prop_name){
+        const asg::AsgTool* asg_tool = dynamic_cast<const asg::AsgTool*>(interface_tool);
+        T prop;
+        const T* HandlePtr = asg_tool->getProperty <T> (prop_name);
+        if (!HandlePtr) Error("getProperty()", "Failed to retrieve property %s ", prop_name.c_str());
+        else prop = (*HandlePtr);                
+        return prop;
+    }
+    //########################################
+    //      Template class to connect the
+    //      Variables with the TTree
+    //########################################
+    class SFBranches{
+          public:
+            SFBranches(TTree* tree);
+            virtual ~SFBranches();
+            virtual std::string name() const =0;
+            virtual bool init()=0;
+        protected:
+            template <typename T> bool initBranch(T& var, const std::string& syst){
+               std::string bName = name()+ (Syst.empty() ? std::string("") : Syst) ;
+                if (m_tree->FindBranch(bName.c_str())) {
+                    Error("SFBranches::initBranch()", "The branch %s already exists in TTree %s", bName.c_str(), m_tree->GetName());
+                    return false;
+                }
+                if (m_tree->Branch(bName.c_str(), &Var) == nullptr) {
+                    Error("SFBranches::initBranch()", "Could not create the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
+                    return false;
+                } else Info ("SFBranches::initBranch()", "Created the branch %s in TTree %s", bName.c_str(), m_tree->GetName());
+                return true;                
+            }
+        private:
+            TTree* m_tree;
+            
+    };
     //####################################################
     //      Helper class to write ntuples to test the 
     //      MuonTriggerScaleFactors
     //###################################################
-    class TriggerSFBranches {
+    class TriggerSFBranches: public SFBranches {
         public:
             TriggerSFBranches(TTree* tree,const  ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger);
             CP::CorrectionCode fill(const xAOD::MuonContainer* Muons);
-            bool init();
-            std::string name() const;
+            virtual bool init();
+            virtual std::string name() const;
         private:
-            bool initBranch(double& Var, const std::string &Syst);
             CP::CorrectionCode getSF(const xAOD::MuonContainer* muons, double &Var, const CP::SystematicVariation &syst);
-            
-            TTree* m_tree;
-            const ToolHandle<CP::IMuonTriggerScaleFactors>& m_handle;
+            ToolHandle<CP::IMuonTriggerScaleFactors> m_handle;
             std::string m_trigger;
-            
             double m_nominal_SF;
             double m_stat_up_SF;
             double m_stat_down_SF;
@@ -49,22 +90,28 @@ namespace TestMuonSF {
     //      Helper class to write ntuples to test the
     //      MuonReconstruction/ Isolation/ TTVA scalefactors
     //#################################################
-    class MuonEffiBranches{
+    class MuonEffiBranches: public SFBranches{
         public:
             MuonEffiBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle);
             CP::CorrectionCode fill (const xAOD::Muon* muon);
             CP::CorrectionCode fill (const xAOD::Muon& muon);
             
-            bool init();
-            std::string name() const;
+            virtual bool init();
+            virtual std::string name() const;
         private:
-            bool initBranch(float& Var, const std::string &Syst);
+            ToolHandle<CP::IMuonEfficiencyScaleFactors> m_handle;
+            //SF's
+            struct SFSet{
+                SFSet(){
+                    scale_factor = mc_eff = data_eff= 1.;
+                }
+                
+                float scale_factor;
+                float mc_eff;
+                float data_eff;
+            };
+            std::map<CP::SystematicSet, float> m_SFs;
             
-            TTree* m_tree;
-            const ToolHandle<CP::IMuonEfficiencyScaleFactors>& m_handle;
-            
-            float m_nominal_SF;
-            std::map<CP::SystematicSet, float> m_systematics;
     };
     typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
     
