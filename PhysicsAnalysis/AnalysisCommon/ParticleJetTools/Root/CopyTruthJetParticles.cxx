@@ -256,7 +256,7 @@ int CopyTruthJetParticles::execute() const {
   /// we recopy the CopyTruthParticles::execute() below
 
   // Retrieve the xAOD truth objects
-  const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+  const xAOD::TruthEventContainer* xTruthEventContainer(nullptr);
   ASG_CHECK( evtStore()->retrieve( xTruthEventContainer, "TruthEvents"));
 
   // Make a new TruthParticleContainer and link it to StoreGate
