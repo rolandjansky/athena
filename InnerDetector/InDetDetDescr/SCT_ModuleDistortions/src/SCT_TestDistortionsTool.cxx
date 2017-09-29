@@ -33,34 +33,18 @@
 
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_SCTDistoTool("SCT_DistortionsTool", this),
-  ZvsX(0),ZvsY(0),XYZ(0),
-  outerXedge(0), outerYedge(0),
-  outerX(0),outerY(0){
+  m_SCTDistoTool("SCT_DistortionsTool", this)
+{
   //nop
 }
 
 SCT_TestDistortionsTool::~SCT_TestDistortionsTool(){
-  if (ZvsX) delete ZvsX;
-  ZvsX=0;
-  if (ZvsY) delete ZvsY;
-  ZvsY=0;
-  if (XYZ) delete XYZ;
-  XYZ=0;
-  if (outerXedge) delete outerXedge;
-  outerXedge=0;
-  if (outerYedge) delete outerYedge;
-  outerYedge=0;
-  if (outerX) delete outerX;
-  outerX=0;
-  if (outerY) delete outerY;
-  outerY=0;
 }
 
 StatusCode
 SCT_TestDistortionsTool::initialize(){
-  ITHistSvc * m_tHistSvc;
-  StatusCode sc = Gaudi::svcLocator()->service("THistSvc", m_tHistSvc);
+  ITHistSvc * tHistSvc;
+  StatusCode sc = Gaudi::svcLocator()->service("THistSvc", tHistSvc);
   if (sc.isFailure())
     {
       ATH_MSG_FATAL ("THistSvc not found!");
@@ -70,13 +54,13 @@ SCT_TestDistortionsTool::initialize(){
   if(m_SCTDistoTool.retrieve().isFailure() ) msg(MSG::INFO)<<"Unable to get DistortionsTool"<< endmsg;
   msg(MSG::INFO)<<"Test algorithm for SCT_DistortionsTool"<< endmsg;
 
-  ZvsX = new TH2F("delZvsX","delZvsX",128,-64,64,100,-0.05,0.15);
-  ZvsY = new TH2F("delZvsY","delZvsY",66,-33,33,100,-0.05,0.15);
-  XYZ = new TH3F("3Dplot","3Dplot",128,-64,64,66,-33,33,100,-0.05,0.15);
-  outerXedge = new TH2F("outerXedge","outerXedge",128,-64,64,100,-0.05,0.15);
-  outerYedge = new TH2F("outerYedge","outerYedge",66,-33,33,100,-0.05,0.15);
-  outerX = new TH2F("outerXedge2D","outerXedge2D",128,-64,64,100,-0.05,0.15);
-  outerY = new TH2F("outerYedge2D","outerYedge2D",66,-33,33,100,-0.05,0.15);
+  m_ZvsX = std::make_unique<TH2F>("delZvsX","delZvsX",128,-64,64,100,-0.05,0.15);
+  m_ZvsY = std::make_unique<TH2F>("delZvsY","delZvsY",66,-33,33,100,-0.05,0.15);
+  m_XYZ = std::make_unique<TH3F>("3Dplot","3Dplot",128,-64,64,66,-33,33,100,-0.05,0.15);
+  m_outerXedge = std::make_unique<TH2F>("outerXedge","outerXedge",128,-64,64,100,-0.05,0.15);
+  m_outerYedge = std::make_unique<TH2F>("outerYedge","outerYedge",66,-33,33,100,-0.05,0.15);
+  m_outerX = std::make_unique<TH2F>("outerXedge2D","outerXedge2D",128,-64,64,100,-0.05,0.15);
+  m_outerY = std::make_unique<TH2F>("outerYedge2D","outerYedge2D",66,-33,33,100,-0.05,0.15);
 
   return StatusCode::SUCCESS;
 }
@@ -121,14 +105,14 @@ SCT_TestDistortionsTool::execute(){
     double x1 = xGrid[i];
     double z1 = m_SCTDistoTool->zShift(x1, y1, ZVec);
     msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endmsg;
-    outerXedge->Fill(x1,z1);
+    m_outerXedge->Fill(x1,z1);
   }
   for(int i = 0; i<5; i++){
     double y1 = yGrid[i];
     double x1 = -61.9;
     double z1 = m_SCTDistoTool->zShift(x1, y1, ZVec);
     msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endmsg;
-    outerYedge->Fill(y1,z1);
+    m_outerYedge->Fill(y1,z1);
   }
 
   for(double x = -630; x < 630; x++){
@@ -137,12 +121,12 @@ SCT_TestDistortionsTool::execute(){
    
       double z =  m_SCTDistoTool->zShift(x/10, y/10, ZVec);
       //msg(MSG::INFO)<<" x = "<<x/10<<" y = "<<y/10 << " z = "<< z <<endmsg;
-      ZvsX->Fill(x/10,z);
-      ZvsY->Fill(y/10,z);
-      XYZ->Fill(x/10,y/10,z);
+      m_ZvsX->Fill(x/10,z);
+      m_ZvsY->Fill(y/10,z);
+      m_XYZ->Fill(x/10,y/10,z);
 
-      if( x/10 < -62.8 || x/10 > 62.6  )outerY->Fill(y/10,z);
-      if( y/10 < -31.4 || y/10 > 31.4  )outerX->Fill(x/10,z);
+      if( x/10 < -62.8 || x/10 > 62.6  )m_outerY->Fill(y/10,z);
+      if( y/10 < -31.4 || y/10 > 31.4  )m_outerX->Fill(x/10,z);
     
     }
 
