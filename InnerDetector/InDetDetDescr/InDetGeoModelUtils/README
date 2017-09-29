@@ -1,9 +1,0 @@
-This package holds code common to PixelGeoModel, SCT_GeoModel, TRT_GeoModel
-and InDetServMatGeoModel
-
-Package:      offline/InnerDetector/InDetDetDescr/InDetGeoModelUtils 
-
-Responsible:  Grant Gorfine <Grant.Gorfine@cern.ch>
-
-
-
