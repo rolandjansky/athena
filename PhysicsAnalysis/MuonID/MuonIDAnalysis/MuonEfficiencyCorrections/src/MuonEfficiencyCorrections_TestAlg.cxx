@@ -25,6 +25,8 @@ namespace CP {
         declareProperty("SGKey", m_sgKey = "Muons");
         // prepare the handle
         declareProperty("PileupReweightingTool", m_prw_Tool);
+        declareProperty("EfficiencyTools", m_effi_SF_tools);
+        
         // force strict checking of return codes
         CP::SystematicCode::enableFailure();
         CP::CorrectionCode::enableFailure();
@@ -47,6 +49,9 @@ namespace CP {
             ATH_MSG_FATAL("Failed to initialize");
             return StatusCode::FAILURE;
         }
+        std::cout<<"Katze"<<std::endl;
+        ATH_CHECK(m_histSvc->regTree(std::string("MUONEFFTESTER/")+m_test_helper->tree()->GetName(), m_test_helper->tree().get() ));
+     std::cout<<"Kouh"<<std::endl;
         return StatusCode::SUCCESS;
     }
 
@@ -55,14 +60,13 @@ namespace CP {
         // Retrieve the muons:
         const xAOD::MuonContainer* muons = 0;
         ATH_CHECK(evtStore()->retrieve(muons, m_sgKey));
-        ATH_MSG_INFO("Number of muons: " << muons->size());
-
         // Retrieve the EventInfo:
         const xAOD::EventInfo* ei = 0;
         ATH_CHECK(evtStore()->retrieve(ei, "EventInfo"));
         //Apply the prwTool first before calling the efficiency correction methods
         ATH_CHECK(m_prw_Tool->apply(*ei));
 
+        if (m_test_helper->fill(muons) != CP::CorrectionCode::Ok) return StatusCode::FAILURE;
         
         // Return gracefully:
         return StatusCode::SUCCESS;
