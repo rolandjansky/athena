@@ -9,11 +9,16 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/ToolHandleArray.h"
+
+#include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
-#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+
+
 
 namespace CP {
 
@@ -33,16 +38,17 @@ namespace CP {
         private:
             /// muon container
             std::string m_sgKey;
-
+            ServiceHandle<ITHistSvc> m_histSvc;
+       
+            ToolHandleArray<IMuonEfficiencyScaleFactors> m_effi_SF_tools;
             /// Scale factor tool
-            ToolHandle<IMuonEfficiencyScaleFactors> m_sf_Tool;
-            ToolHandle<IMuonEfficiencyScaleFactors> m_isosf_Tool;
-            ToolHandle<IMuonEfficiencyScaleFactors> m_ttvasf_Tool;
-            ToolHandle<IMuonTriggerScaleFactors> m_trigsf_Tool;
             ToolHandle<IPileupReweightingTool> m_prw_Tool;
-
+            
+            std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_test_helper;
+            
+    
+        
     };
-// class MuonEfficiencyCorrections_TestAlg
 
 }// namespace CP
 

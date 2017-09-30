@@ -1,10 +1,20 @@
 /*
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
-#include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
+
+
+// Gaudi/Athena include(s):
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/ToolHandleArray.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include <MuonEfficiencyCorrections/MuonSFTestHelper.h>
+#include <MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h>
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+
 namespace Trig{
     class MuonTriggerSF_TestAlg: virtual public AthAlgorithm {
         public:
@@ -21,7 +31,7 @@ namespace Trig{
             std::string m_outputStream;
             std::string m_inputContainerName;
             std::vector<std::string> m_triggers;
-            std::vector<TriggerSFBranch_Ptr> m_branches;
+            std::vector<TestMuonSF::TriggerSFBranch_Ptr> m_branches;
 
             // Tools and services:
             ServiceHandle<ITHistSvc> m_histSvc;

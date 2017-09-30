@@ -4,7 +4,9 @@
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
-#include <MuonTriggerSF_TestAlg.h>
+#include "MuonTriggerSF_TestAlg.h"
+
+
 namespace Trig{
     //=============================================================================
     MuonTriggerSF_TestAlg::MuonTriggerSF_TestAlg(const std::string& name,
@@ -41,7 +43,7 @@ namespace Trig{
         
         
         for (const auto& trig: m_triggers){
-            m_branches.push_back(TriggerSFBranch_Ptr( new  TriggerSFBranches(m_tree, m_trigEff, trig) ));
+            m_branches.push_back(TestMuonSF::TriggerSFBranch_Ptr( new TestMuonSF::TriggerSFBranches(m_tree, m_trigEff, trig) ));
         }
         m_triggers.clear();
         for (const auto& branch : m_branches){

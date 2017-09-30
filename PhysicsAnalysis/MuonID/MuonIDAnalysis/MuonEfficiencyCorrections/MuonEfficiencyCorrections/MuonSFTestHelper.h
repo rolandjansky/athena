@@ -155,17 +155,20 @@ namespace TestMuonSF {
     
     class MuonSFTestHelper {
         public:
-            //Standard Constructor
-            MuonSFTestHelper(TTree* tree, const std::string& name="", bool write_muons = true);
-            MuonSFTestHelper(const std::string& name = "", bool write_muons = true);
+            
+            //Standalone constructor if only one SF release is asked for
+            MuonSFTestHelper(const std::string& release_name = "");
+            // Constructor for the comparisons between two releases
+            MuonSFTestHelper(std::shared_ptr<TTree> Tree, const std::string& release_name="", bool write_muons = true);
+            
             ~MuonSFTestHelper();
-            //############################
-            //      Initialize the tool
-            //############################
+           
+            
+            //Initialize the tool
             bool init();
-            void addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle)
+            void addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle);
             void addTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle);
-
+            std::shared_ptr<TTree> tree() const;
 
             CP::CorrectionCode fill(const xAOD::MuonContainer* muons);
             CP::CorrectionCode fill(const xAOD::Muon* mu);
@@ -175,31 +178,30 @@ namespace TestMuonSF {
             
         private:
             std::string m_name;
-            std::shared_ptr<TTree> m_tree_ptr;
-            TTree* m_tree;
+            std::shared_ptr<TTree> m_tree;
             std::vector<EffiBranch_Ptr> m_Branches;
 
     };
-    class MuonSFReleaseComparer {
-        public:
-            MuonSFReleaseComparer(MuonSFTestHelper& Rel1, MuonSFTestHelper& Rel2);
-            StatusCode initialize();
-            CP::CorrectionCode TestSF(const xAOD::Muon& mu);
-            bool WriteHistosToFile(TFile* file);
-            ~MuonSFReleaseComparer();
-            protected:
-            void CreateHistogram(const CP::SystematicSet &Set);
-
-            MuonSFTestHelper& m_Rel1;
-            MuonSFTestHelper& m_Rel2;
-
-            struct ComparingHistos {
-                    TH1* SF;
-                    TH1* eff;
-            };
-            std::map<CP::SystematicSet, ComparingHistos> m_Histos;
-
-    };
+//     class MuonSFReleaseComparer {
+//         public:
+//             MuonSFReleaseComparer(MuonSFTestHelper& Rel1, MuonSFTestHelper& Rel2);
+//             StatusCode initialize();
+//             CP::CorrectionCode TestSF(const xAOD::Muon& mu);
+//             bool WriteHistosToFile(TFile* file);
+//             ~MuonSFReleaseComparer();
+//             protected:
+//             void CreateHistogram(const CP::SystematicSet &Set);
+// 
+//             MuonSFTestHelper& m_Rel1;
+//             MuonSFTestHelper& m_Rel2;
+// 
+//             struct ComparingHistos {
+//                     TH1* SF;
+//                     TH1* eff;
+//             };
+//             std::map<CP::SystematicSet, ComparingHistos> m_Histos;
+// 
+//     };
 
 }
 
