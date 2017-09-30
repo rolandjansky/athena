@@ -37,5 +37,10 @@ void ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
   auto runHash = std::hash<uint64_t>{}(run);
   auto hsh = evHash ^ (runHash + (evHash << 6) + (evHash >> 2));
   hsh = hsh ^ (algHash + (hsh << 6) + (hsh >> 2));
-  m_engines[slot]->setSeed(hsh, 0);
+  setSeed(slot, hsh);
+}
+
+void ATHRNG::RNGWrapper::setSeed(size_t slot, size_t seed)
+{
+  m_engines[slot]->setSeed(seed, 0);
 }

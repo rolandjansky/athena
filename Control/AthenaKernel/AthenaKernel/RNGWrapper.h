@@ -55,6 +55,9 @@ namespace ATHRNG{
     /// current slot, event, and run numbers.
     void setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run);
 
+    /// Set the seed value directly for a specified slot
+    void setSeed(size_t slot, size_t seed);
+
     /// Cast-to-engine pointer operator.
     /// Retrieves the current event context and returns the engine
     /// corresponding to the current event slot.
