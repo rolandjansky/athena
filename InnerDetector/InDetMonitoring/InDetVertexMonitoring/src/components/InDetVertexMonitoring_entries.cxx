@@ -1,4 +1,4 @@
-#include "InDetVertexMonitoring/InDetVertexMonitoring.h"
+#include "../InDetVertexMonitoring.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_TOOL_FACTORY( InDetVertexMonitoring )
