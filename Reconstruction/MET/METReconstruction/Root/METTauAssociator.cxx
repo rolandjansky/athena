@@ -158,7 +158,8 @@ namespace met {
 	    ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
 	    // We set a small -ve pt for cPFOs that were rejected
 	    // by the ChargedHadronSubtractionTool
-            if(pfo->e()>-1*FLT_MIN && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
+	    if(PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
           }
         }
       }
