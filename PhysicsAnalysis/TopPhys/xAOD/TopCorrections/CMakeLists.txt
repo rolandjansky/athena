@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           JetJvtEfficiency
                           PhotonEfficiencyCorrection
                           PMGTools
-			  PATInterfaces )
+			  PATInterfaces 
+			  FTagAnalysisInterfaces )
 
 # This package uses LHAPDF:
 find_package( Lhapdf )
@@ -43,6 +44,7 @@ atlas_add_library( TopCorrections Root/*.cxx Root/*.h Root/*.icc
                                   PhotonEfficiencyCorrectionLib
                                   PMGToolsLib
 				  PATInterfaces
+				  FTagAnalysisInterfacesLib
 				  ${LHAPDF_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
