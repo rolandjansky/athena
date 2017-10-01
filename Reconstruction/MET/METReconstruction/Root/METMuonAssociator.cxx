@@ -170,7 +170,8 @@ namespace met {
 	// get charged PFOs by matching the muon ID track
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool
-	if(idtrack && pfo->track(0) == idtrack && pfo->e()>-1*FLT_MIN &&
+	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	if(idtrack && pfo->track(0) == idtrack && PVMatchedAcc(*pfo) &&
 	   ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
 	   ) {
 	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
