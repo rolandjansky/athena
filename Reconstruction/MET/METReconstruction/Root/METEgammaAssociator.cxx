@@ -166,8 +166,9 @@ namespace met {
       if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool
+	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
 	if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
-	    ( fabs(pfo->charge())>FLT_MIN && pfo->e()>-1*FLT_MIN
+	    ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)
 	      && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
 	    ) {
 	  nearbyPFO.push_back(pfo);
