@@ -18,7 +18,6 @@ SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::st
 }
 
 SCT_ElectricFieldTool::~SCT_ElectricFieldTool(){
-  delete m_model;
 }
 
 StatusCode 
@@ -93,7 +92,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
     ATH_MSG_INFO( "Using for E-field simple toy model corresponding to 10^15 fluence, full depletion end for holes." );
     
     if (!m_model) {
-      m_model = new TF1("pol6","pol6",0,0.03);
+      m_model = std::make_unique<TF1>("pol6","pol6",0,0.03);
       m_model->SetParameters(1.04176,
              2095.14,
              -606483.,

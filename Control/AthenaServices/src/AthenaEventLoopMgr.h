@@ -41,6 +41,7 @@
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 
 #ifndef EVENTINFO_EVENTID_H
 # include "EventInfo/EventID.h"  /* number_type */
@@ -216,6 +217,9 @@ private:
   AthenaEventLoopMgr(); ///< no implementation
   AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
   AthenaEventLoopMgr& operator= (const AthenaEventLoopMgr&); ///< no implementation
+
+  StatusCode installEventContext (const EventInfo* pEvent,
+                                  unsigned int conditionsRun);
 
   int m_nevt;
   /// @property histogram write/update interval

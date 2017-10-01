@@ -41,7 +41,7 @@ StatusCode IAlgToolCalo::initialize()
 
         // Initialize timing service in order to perform some measures
         // of performance
-        if( (m_timersvc.retrieve()).isFailure() ) {
+        if( !m_timersvc.empty() && m_timersvc.retrieve().isFailure() ) {
           ATH_MSG_WARNING( name() <<
                            ": Unable to locate TrigTimer Service" );
 	  // Does not need to fail the Algorithm if no timing service is found
@@ -80,8 +80,8 @@ StatusCode IAlgToolCalo::initialize()
 	if ( m_limit.size() != 0 ){
 		m_calib->initialize(m_limit,m_dimension,m_correction);
 	}
-        lardecoded=true;
-        tiledecoded=true;
+        m_lardecoded=true;
+        m_tiledecoded=true;
 
 	return StatusCode::SUCCESS;
 } // End of initialize
@@ -392,14 +392,14 @@ void IAlgToolCalo::storeCells( void ) {
              }
         } // End of if retrieve
         // Now I have a LAr container
-        if ( lardecoded )
+        if ( m_lardecoded )
         for ( m_it = m_iBegin; m_it != m_iEnd; ++m_it) {
                 CaloCell* larcell = (CaloCell*)(*m_it)->clone();
                 ContainerLAr->push_back(larcell);
         }
         ATH_MSG_DEBUG( "LAr Container size : " << ContainerLAr->size() );
         // Now I have a Tile container
-        if ( tiledecoded )
+        if ( m_tiledecoded )
 	  for ( m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) {
 	    CaloCell* tilecell = (CaloCell*)(*m_itt)->clone();
 	    ContainerTile->push_back(tilecell);

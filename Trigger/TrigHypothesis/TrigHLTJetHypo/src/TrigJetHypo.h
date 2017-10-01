@@ -23,8 +23,6 @@
  * @brief 
  **/
 
-using namespace TrigCompositeUtils;
-
 
 class TrigJetHypo
   : public ::AthReentrantAlgorithm
@@ -51,7 +49,7 @@ class TrigJetHypo
       "jet container name in store" // doc
       };
 
-  SG::WriteHandleKey<DecisionContainer> m_decisionsKey{
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
     this,
       "JetHypoDecisions", // name of python instance attribute
       "JetHypoDecisions", // default store key name 

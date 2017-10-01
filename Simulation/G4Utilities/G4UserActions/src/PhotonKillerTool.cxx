@@ -13,14 +13,14 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBase<PhotonKiller>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IPreTrackingActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
   std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction()
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Making a PhotonKiller action");
     return std::make_unique<PhotonKiller>();
   }
 

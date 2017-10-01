@@ -330,7 +330,8 @@ svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1confi
 
 if globalflags.InputFormat.is_bytestream():
     from TrigUpgradeTest.TestUtils import L1DecoderTest
-    topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
+    #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
+    topSequence += L1DecoderTest(OutputLevel = DEBUG)
 else:
     from TrigUpgradeTest.TestUtils import L1EmulationTest
     topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
@@ -343,15 +344,13 @@ if opt.enableViews:
     # Make a separate alg pool for the view algs
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool('ViewAlgPool')
+    #Create IdentifiableCaches
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                        Pixel_ClusterKey = "PixelTrigClustersCache",
+                                        SCT_ClusterKey   = "SCT_ClustersCache", OutputLevel=INFO)
+    topSequence += InDetCacheCreatorTrigViews    
     
-    # view maker
-    viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
-    viewMaker.ViewBaseName = "testView"
-    viewMaker.AlgPoolName = svcMgr.ViewAlgPool.name()
-    viewMaker.InputRoICollection = "EMRoIs"
-    viewMaker.OutputRoICollection = "EMViewRoIs"
-    topSequence += viewMaker
-
     # Set of view algs
     allViewAlgs = AthSequencer( "allViewAlgorithms" )
     allViewAlgs.ModeOR = False
@@ -364,9 +363,9 @@ if opt.enableViews:
     allViewAlgs.alwaysFail.PercentPass = 0.0
 
     # dummy alg that just says you're running in a view
-    allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
-    svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
-    viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
+    # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
+    # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
+    # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
 
 # ---------------------------------------------------------------
 # Monitoring

@@ -23,6 +23,8 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 class MsgStream;
 class TRT_ID;
 class AtlasDetectorID;
@@ -102,9 +104,10 @@ namespace InDet {
       bool                             m_searchNeighbour; // Also search neighbouring detector elements?
       bool                             m_boundarycheck  ; // Do a boundary check in the extrapolation?
       std::string                      m_trtmanager     ; // Name of TRT det. manager 
-      std::string                      m_trtname        ; // Name container with TRT clusters
+      //std::string                      m_trtname        ; // Name container with TRT clusters
 
-      const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
+      SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"};
+
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 
       AtlasDetectorID*                       m_idHelper; //<! Detector ID helper

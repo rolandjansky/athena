@@ -5,10 +5,9 @@
 #ifndef G4USERACTIONS_G4UA__FLUXRECORDERTOOL_H
 #define G4USERACTIONS_G4UA__FLUXRECORDERTOOL_H
 
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndRunActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/FluxRecorder.h"
 
@@ -24,29 +23,29 @@ namespace G4UA
   /// @author Andrea Di Simone
   ///
   class FluxRecorderTool : public ActionToolBase<FluxRecorder>,
-                           public IBeginRunActionTool, public IEndRunActionTool,
-                           public IEndEventActionTool, public ISteppingActionTool
+                           public IG4RunActionTool, public IG4EventActionTool,
+                           public IG4SteppingActionTool
   {
 
     public:
+
       /// standard tool ctor
       FluxRecorderTool(const std::string& type, const std::string& name,const IInterface* parent);
-      /// retrieves the BoR action
-      virtual IBeginRunAction* getBeginRunAction() override final
-      { return static_cast<IBeginRunAction*>( getAction() ); }
-      /// retrieves the EoR action
-      virtual IEndRunAction* getEndRunAction() override final
-      { return static_cast<IEndRunAction*>( getAction() ); }
-      /// retrieves the EoE action
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      /// retrieves the run action
+      virtual G4UserRunAction* getRunAction() override final
+      { return static_cast<G4UserRunAction*>( getAction() ); }
+      /// retrieves the event action
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
       /// retrieves the stepping action
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
+
     protected:
+
       /// create action for this thread
       virtual std::unique_ptr<FluxRecorder> makeAction() override final;
-    private:
+
   }; // class FluxRecorderTool
 
 } // namespace G4UA

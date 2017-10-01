@@ -2,17 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef G4USERACTIONS_G4UA_G4SIMTIMER_H
 #define G4USERACTIONS_G4UA_G4SIMTIMER_H
 
 // Infrastructure includes
 #include "AthenaKernel/MsgStreamMember.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
 
 // Geant4 includes
 #include "G4Timer.hh"
+#include "G4UserEventAction.hh"
 
 // Forward declarations
 class G4Event;
@@ -24,7 +22,7 @@ namespace G4UA
   /// @class G4SimTimer
   /// @brief A user action for monitoring G4 runtime at event and run level.
   ///
-  /// This class implements the BeginEvent and EndEvent, and BeginRun actions.
+  /// This class implements the event and run action interfaces.
   /// The implementation was mostly taken from the previous G4SimTimer design.
   /// Results across worker threads are merged in finalize method of the
   /// G4SimTimerTool.
@@ -40,7 +38,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell>
   /// @author ???
   ///
-  class G4SimTimer : public IBeginEventAction, public IEndEventAction
+  class G4SimTimer : public G4UserEventAction
   {
 
     public:
@@ -61,9 +59,9 @@ namespace G4UA
         std::pair<double, double> meanAndSigma();
 
 	void merge(const Report& rep){
-	  nEvent+=rep.nEvent;
-	  eventTime+=rep.eventTime;
-	  eventTimeSquared+=rep.eventTimeSquared;
+	  nEvent += rep.nEvent;
+	  eventTime += rep.eventTime;
+	  eventTimeSquared += rep.eventTimeSquared;
 	}
       };
 
@@ -71,10 +69,10 @@ namespace G4UA
       G4SimTimer();
 
       /// Start timing this Geant4 event.
-      virtual void beginOfEvent(const G4Event* event) override;
+      virtual void BeginOfEventAction(const G4Event* event) override final;
 
       /// Finish timing this Geant4 event.
-      virtual void endOfEvent(const G4Event* event) override;
+      virtual void EndOfEventAction(const G4Event* event) override final;
 
       /// Retrieve my timing results
       const Report& getReport() const

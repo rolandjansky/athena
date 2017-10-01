@@ -88,11 +88,11 @@ public:
 
 //____________________________________________________________________
 HitsSoNodeManager::HitsSoNodeManager(IVP1System * sys)
- : VP1HelperClassBase(sys,"HitsSoNodeManager"), d(new Imp)
+ : VP1HelperClassBase(sys,"HitsSoNodeManager"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->cachedshape_point = 0;
-  d->cached_unittransform = 0;
+  m_d->theclass = this;
+  m_d->cachedshape_point = 0;
+  m_d->cached_unittransform = 0;
 }
 
 
@@ -112,37 +112,37 @@ HitsSoNodeManager::~HitsSoNodeManager()
   messageVerbose("destructor begin");
 
   //Make sure we know if we didn't have efficient shared instancing:
-  d->summarise(d->cachedshapes_drifttubes.size(),"drift tube");
-  d->summarise(d->cachedshapes_driftdiscs.size(),"drift disc");
-  d->summarise(d->cachedshapes_projdrifttubes.size(),"projected drift tube");
-  d->summarise(d->cachedshapes_strips.size(),"strip");
-  d->summarise(d->cachedshapes_cross.size(),"cross");
+  m_d->summarise(m_d->cachedshapes_drifttubes.size(),"drift tube");
+  m_d->summarise(m_d->cachedshapes_driftdiscs.size(),"drift disc");
+  m_d->summarise(m_d->cachedshapes_projdrifttubes.size(),"projected drift tube");
+  m_d->summarise(m_d->cachedshapes_strips.size(),"strip");
+  m_d->summarise(m_d->cachedshapes_cross.size(),"cross");
 
   //unref kept nodes:
-  Imp::unrefValues(d->cachedshapes_drifttubes);
-  Imp::unrefValues(d->cachedshapes_driftdiscs);
-  Imp::unrefValues(d->cachedshapes_projdrifttubes);
-  Imp::unrefValues(d->cachedshapes_strips);
-  Imp::unrefValues(d->cachedshapes_cross);
-  if (d->cachedshape_point)
-    d->cachedshape_point->unref();
-  if (d->cached_unittransform)
-    d->cached_unittransform->unref();
+  Imp::unrefValues(m_d->cachedshapes_drifttubes);
+  Imp::unrefValues(m_d->cachedshapes_driftdiscs);
+  Imp::unrefValues(m_d->cachedshapes_projdrifttubes);
+  Imp::unrefValues(m_d->cachedshapes_strips);
+  Imp::unrefValues(m_d->cachedshapes_cross);
+  if (m_d->cachedshape_point)
+    m_d->cachedshape_point->unref();
+  if (m_d->cached_unittransform)
+    m_d->cached_unittransform->unref();
 
-  delete d;
+  delete m_d;
   messageVerbose("destructor end");
 }
 
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_DriftTube( double halfLength, double radius )
 {
-  d->sanitiseParameterValue(halfLength);
-  d->sanitiseParameterValueAllowZero(radius);
+  m_d->sanitiseParameterValue(halfLength);
+  m_d->sanitiseParameterValueAllowZero(radius);
   //Fixme: discretize by radius!!
 
   double id(halfLength-999999999.9*radius);
-  std::map<double,SoNode*>::const_iterator it = d->cachedshapes_drifttubes.find(id);
-  if (it!=d->cachedshapes_drifttubes.end())
+  std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_drifttubes.find(id);
+  if (it!=m_d->cachedshapes_drifttubes.end())
     return it->second;
 
   if (radius>0) {
@@ -155,7 +155,7 @@ SoNode* HitsSoNodeManager::getShapeNode_DriftTube( double halfLength, double rad
     cyl->radius.setValue(radius);
     cyl->height.setValue(2.0f*halfLength);
     sep->addChild(cyl);
-    d->cachedshapes_drifttubes[id] = sep;
+    m_d->cachedshapes_drifttubes[id] = sep;
     sep->ref();
     return sep;
   } else {
@@ -165,7 +165,7 @@ SoNode* HitsSoNodeManager::getShapeNode_DriftTube( double halfLength, double rad
     SoLineSet * line = new SoLineSet();
     line->numVertices = 2;
     line->vertexProperty = scatVtxProperty;
-    d->cachedshapes_drifttubes[id] = line;
+    m_d->cachedshapes_drifttubes[id] = line;
     line->ref();
     return line;
   }
@@ -175,12 +175,12 @@ SoNode* HitsSoNodeManager::getShapeNode_DriftTube( double halfLength, double rad
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_DriftDisc( double radius )
 {
-  d->sanitiseParameterValueAllowZero(radius);
+  m_d->sanitiseParameterValueAllowZero(radius);
   if (radius==0.0)
     return getShapeNode_Point();
 
-  std::map<double,SoNode*>::const_iterator it = d->cachedshapes_driftdiscs.find(radius);
-  if (it!=d->cachedshapes_driftdiscs.end())
+  std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_driftdiscs.find(radius);
+  if (it!=m_d->cachedshapes_driftdiscs.end())
     return it->second;
 
   SoSeparator*sep = new SoSeparator;//fixme: check if sogroup improves performance.
@@ -190,10 +190,10 @@ SoNode* HitsSoNodeManager::getShapeNode_DriftDisc( double radius )
   sep->addChild(rot);
   SoCylinder * cyl = new SoCylinder;
   cyl->radius.setValue(radius);
-  cyl->height.setValue(d->driftdischeight);
+  cyl->height.setValue(m_d->driftdischeight);
   sep->addChild(cyl);
 
-  d->cachedshapes_driftdiscs[radius] = sep;
+  m_d->cachedshapes_driftdiscs[radius] = sep;
   sep->ref();
   return sep;
 }
@@ -202,26 +202,26 @@ SoNode* HitsSoNodeManager::getShapeNode_DriftDisc( double radius )
 SoNode* HitsSoNodeManager::getShapeNode_ProjectedDriftTube( double halfLength, double radius,
 							   bool inner, bool outer )
 {
-  d->sanitiseParameterValue(halfLength);
-  d->sanitiseParameterValueAllowZero(radius);
+  m_d->sanitiseParameterValue(halfLength);
+  m_d->sanitiseParameterValueAllowZero(radius);
   //Fixme: discretize by radius!!
 
   double id(halfLength-9999.9*radius-(inner?0.0:-9999799.99)-(outer?0.0:-9999997979.99));//something unique
-  std::map<double,SoNode*>::const_iterator it = d->cachedshapes_projdrifttubes.find(id);
-  if (it!=d->cachedshapes_projdrifttubes.end())
+  std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_projdrifttubes.find(id);
+  if (it!=m_d->cachedshapes_projdrifttubes.end())
     return it->second;
 
   if (!inner&&!outer) {
     //Should probably never be called. But whatever:
     SoInfo * info = new SoInfo;//something harmless and lightweight.
     info->ref();
-    d->cachedshapes_projdrifttubes[id] = info;
+    m_d->cachedshapes_projdrifttubes[id] = info;
     return info;
   }
 
   //Fix for inner projections to put the hits from short barrel straws onto same z as the long barrel straws:
   double halfLengthInner = halfLength<160.0 ? 2*349.3150-halfLength : halfLength;
-  d->sanitiseParameterValue(halfLengthInner);
+  m_d->sanitiseParameterValue(halfLengthInner);
 
   if (radius>0) {
     SoSeparator*sep = new SoSeparator;//fixme: check if sogroup improves performance.
@@ -231,7 +231,7 @@ SoNode* HitsSoNodeManager::getShapeNode_ProjectedDriftTube( double halfLength, d
     sep->addChild(rot);
     SoCylinder * cyl = new SoCylinder;
     cyl->radius.setValue(radius);
-    cyl->height.setValue(d->driftdischeight);
+    cyl->height.setValue(m_d->driftdischeight);
     if (inner) {
       SoTranslation * trans = new SoTranslation;
       trans->translation.setValue(0.0f,halfLengthInner,0.0f);
@@ -244,7 +244,7 @@ SoNode* HitsSoNodeManager::getShapeNode_ProjectedDriftTube( double halfLength, d
       sep->addChild(trans);
       sep->addChild(cyl);
     }
-    d->cachedshapes_projdrifttubes[id] = sep;
+    m_d->cachedshapes_projdrifttubes[id] = sep;
     sep->ref();
     return sep;
   } else {
@@ -257,7 +257,7 @@ SoNode* HitsSoNodeManager::getShapeNode_ProjectedDriftTube( double halfLength, d
       scatVtxProperty->vertex.set1Value(i++,0.0f,0.0f,-halfLength);
     scatPointSet->numPoints=i;
     scatPointSet->vertexProperty.setValue(scatVtxProperty);
-    d->cachedshapes_projdrifttubes[id] = scatPointSet;
+    m_d->cachedshapes_projdrifttubes[id] = scatPointSet;
     scatPointSet->ref();
     return scatPointSet;
   }
@@ -269,13 +269,13 @@ SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, doub
 {
   //std::cout << "HitsSoNodeManager::getShapeNode_Strip()" << std::endl;
 
-  d->sanitiseParameterValueAllowZero(length);
-  d->sanitiseParameterValueAllowZero(width);
-  d->sanitiseParameterValueAllowZero(depth);
+  m_d->sanitiseParameterValueAllowZero(length);
+  m_d->sanitiseParameterValueAllowZero(width);
+  m_d->sanitiseParameterValueAllowZero(depth);
 
   double id(length-width*9999.99-depth*999999799.0);//something unique
-  std::map<double,SoNode*>::const_iterator it = d->cachedshapes_strips.find(id);
-  if (it!=d->cachedshapes_strips.end())
+  std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_strips.find(id);
+  if (it!=m_d->cachedshapes_strips.end())
     return it->second;
 
   if (width==0.0&&depth==0) {
@@ -290,18 +290,18 @@ SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, doub
     SoLineSet * line = new SoLineSet();
     line->numVertices = 2;
     line->vertexProperty = scatVtxProperty;
-    d->cachedshapes_strips[id] = line;
+    m_d->cachedshapes_strips[id] = line;
     line->ref();
     return line;
   } else {
     //Return a box.
     SoGenericBox::initClass();
     SoGenericBox* cube = new SoGenericBox;
-    d->sanitiseParameterValue(length);
-    d->sanitiseParameterValue(width);
-    d->sanitiseParameterValue(depth);
+    m_d->sanitiseParameterValue(length);
+    m_d->sanitiseParameterValue(width);
+    m_d->sanitiseParameterValue(depth);
     cube->setParametersForBox(0.5*width,0.5*length,0.5*depth);
-    d->cachedshapes_strips[id] = cube;
+    m_d->cachedshapes_strips[id] = cube;
     cube->drawEdgeLines = true;
     cube->ref();
     return cube;
@@ -318,14 +318,14 @@ SoNode* HitsSoNodeManager::getShapeNode_Wire( double length, double minWidth, do
 
   //std::cout << "HitsSoNodeManager::getShapeNode_Wire()" << std::endl;
 
-  d->sanitiseParameterValueAllowZero(length);
-  d->sanitiseParameterValueAllowZero(minWidth);
-  d->sanitiseParameterValueAllowZero(maxWidth);
-  d->sanitiseParameterValueAllowZero(depth);
+  m_d->sanitiseParameterValueAllowZero(length);
+  m_d->sanitiseParameterValueAllowZero(minWidth);
+  m_d->sanitiseParameterValueAllowZero(maxWidth);
+  m_d->sanitiseParameterValueAllowZero(depth);
 
   //double id(length-minWidth*9999.99-depth*999999799.0);//something unique
-  //std::map<double,SoNode*>::const_iterator it = d->cachedshapes_strips.find(id);
-  //if (it!=d->cachedshapes_strips.end())
+  //std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_strips.find(id);
+  //if (it!=m_d->cachedshapes_strips.end())
   //  return it->second;
 
   if (maxWidth==0.0&&depth==0) {
@@ -340,19 +340,19 @@ SoNode* HitsSoNodeManager::getShapeNode_Wire( double length, double minWidth, do
     SoLineSet * line = new SoLineSet();
     line->numVertices = 2;
     line->vertexProperty = scatVtxProperty;
-    //d->cachedshapes_strips[id] = line;
+    //m_d->cachedshapes_strips[id] = line;
     line->ref();
     return line;
   } else {
     //Return a box.
     SoGenericBox::initClass();
     SoGenericBox* trd = new SoGenericBox;
-    d->sanitiseParameterValue(length);
-    d->sanitiseParameterValue(minWidth);
-    d->sanitiseParameterValue(maxWidth);
-    d->sanitiseParameterValue(depth);
+    m_d->sanitiseParameterValue(length);
+    m_d->sanitiseParameterValue(minWidth);
+    m_d->sanitiseParameterValue(maxWidth);
+    m_d->sanitiseParameterValue(depth);
     trd->setParametersForTrd(0.5*minWidth,0.5*maxWidth,0.5*length,0.5*length,0.5*depth);
-    //d->cachedshapes_strips[id] = trd;
+    //m_d->cachedshapes_strips[id] = trd;
     trd->drawEdgeLines = true;
     trd->ref();
     return trd;
@@ -364,14 +364,14 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
 
   //std::cout << "HitsSoNodeManager::getShapeNode_Pad()" << std::endl;
 
-  d->sanitiseParameterValueAllowZero(length);
-  d->sanitiseParameterValueAllowZero(minWidth);
-  d->sanitiseParameterValueAllowZero(maxWidth);
-  d->sanitiseParameterValueAllowZero(depth);
+  m_d->sanitiseParameterValueAllowZero(length);
+  m_d->sanitiseParameterValueAllowZero(minWidth);
+  m_d->sanitiseParameterValueAllowZero(maxWidth);
+  m_d->sanitiseParameterValueAllowZero(depth);
 
   //double id(length-minWidth*9999.99-depth*999999799.0);//something unique
-  //std::map<double,SoNode*>::const_iterator it = d->cachedshapes_strips.find(id);
-  //if (it!=d->cachedshapes_strips.end())
+  //std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_strips.find(id);
+  //if (it!=m_d->cachedshapes_strips.end())
   //  return it->second;
 
   if (maxWidth==0.0 && depth==0) {
@@ -387,7 +387,7 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
     SoLineSet * line = new SoLineSet();
     line->numVertices = 2;
     line->vertexProperty = scatVtxProperty;
-    //d->cachedshapes_strips[id] = line;
+    //m_d->cachedshapes_strips[id] = line;
     line->ref();
     return line;
   } else {
@@ -395,12 +395,12 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
     //Return a box.
     SoGenericBox::initClass();
     SoGenericBox* trd = new SoGenericBox;
-    d->sanitiseParameterValue(length);
-    d->sanitiseParameterValue(minWidth);
-    d->sanitiseParameterValue(maxWidth);
-    d->sanitiseParameterValue(depth);
+    m_d->sanitiseParameterValue(length);
+    m_d->sanitiseParameterValue(minWidth);
+    m_d->sanitiseParameterValue(maxWidth);
+    m_d->sanitiseParameterValue(depth);
     trd->setParametersForTrd(0.5*minWidth,0.5*maxWidth,0.5*length,0.5*length,0.5*depth);
-    //d->cachedshapes_strips[id] = trd;
+    //m_d->cachedshapes_strips[id] = trd;
     trd->drawEdgeLines = true;
     trd->ref();
     return trd;
@@ -410,23 +410,23 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_Point()
 {
-  if (!d->cachedshape_point) {
+  if (!m_d->cachedshape_point) {
     SoPointSet       * scatPointSet    = new SoPointSet;
     SoVertexProperty * scatVtxProperty = new SoVertexProperty;
     scatVtxProperty->vertex.set1Value(0,0.0f,0.0f,0.0f);
     scatPointSet->numPoints=1;
     scatPointSet->vertexProperty.setValue(scatVtxProperty);
-    d->cachedshape_point = scatPointSet;
-    d->cachedshape_point->ref();
+    m_d->cachedshape_point = scatPointSet;
+    m_d->cachedshape_point->ref();
   }
-  return d->cachedshape_point;
+  return m_d->cachedshape_point;
 }
 
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_Cross( double extent )
 {
-  std::map<double,SoNode*>::const_iterator it = d->cachedshapes_cross.find(extent);
-  if (it!=d->cachedshapes_cross.end())
+  std::map<double,SoNode*>::const_iterator it = m_d->cachedshapes_cross.find(extent);
+  if (it!=m_d->cachedshapes_cross.end())
     return it->second;
 
   SoVertexProperty * vertices = new SoVertexProperty;
@@ -445,18 +445,18 @@ SoNode* HitsSoNodeManager::getShapeNode_Cross( double extent )
   cross->numVertices.set1Value(numlines++,2);
   cross->numVertices.set1Value(numlines++,2);
 
-  d->cachedshapes_cross[extent] = cross;
-  d->cachedshapes_cross[extent]->ref();
+  m_d->cachedshapes_cross[extent] = cross;
+  m_d->cachedshapes_cross[extent]->ref();
 
-  return d->cachedshapes_cross[extent];
+  return m_d->cachedshapes_cross[extent];
 }
 
 //____________________________________________________________________
 SoTransform * HitsSoNodeManager::getUnitTransform()
 {
-  if (!d->cached_unittransform) {
-    d->cached_unittransform = new SoTransform;
-    d->cached_unittransform->ref();
+  if (!m_d->cached_unittransform) {
+    m_d->cached_unittransform = new SoTransform;
+    m_d->cached_unittransform->ref();
   }
-  return d->cached_unittransform;
+  return m_d->cached_unittransform;
 }

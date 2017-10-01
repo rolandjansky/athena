@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
    PRIVATE graphics/VP1/VP1HEPVis )
 
 # Find the external dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport )
+find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport Widgets)
 find_package( SoQt  )
 find_package( Coin3D  )
 

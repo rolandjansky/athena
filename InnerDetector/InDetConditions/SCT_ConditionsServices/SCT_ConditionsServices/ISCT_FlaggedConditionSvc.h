@@ -54,7 +54,7 @@ class ISCT_FlaggedConditionSvc: virtual public ISCT_ConditionsSvc {
   virtual int numBadIds() const =0;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  virtual std::map<IdentifierHash, std::string>* getBadIds() const =0;
+  virtual const std::map<IdentifierHash, std::string>* getBadIds() const =0;
 
   /**Reset between events*/
   virtual void resetBadIds()=0;

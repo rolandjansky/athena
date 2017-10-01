@@ -61,10 +61,10 @@ StatusCode NtupleWireCentricityTool :: initialize()
 	p_dt_spec_right = new TH1F("p_dt_spec_right", "", 1701, -200.5 * (25.0 / 32.0), 1500.5 * (25.0 / 32.0));
 	p_dt_spec_above = new TH1F("p_dt_spec_above", "", 1701, -200.5 * (25.0 / 32.0), 1500.5 * (25.0 / 32.0));
 	p_dt_spec_below = new TH1F("p_dt_spec_below", "", 1701, -200.5 * (25.0 / 32.0), 1500.5 * (25.0 / 32.0));
-	track_radius = new TH1F("track_radius", "", 200, -16.0, 16.0);
+	m_track_radius = new TH1F("track_radius", "", 200, -16.0, 16.0);
 	p_track_slope_cut = new TH1F("track_slope_cut", "", 1000, 0, 3);
 	p_track_slope = new TH1F("track_slope", "", 1000, -3, 3);
-	x_coordinate = new TH1F("x_coordinate", "", 4000, -2000, 2000);
+	m_x_coordinate = new TH1F("x_coordinate", "", 4000, -2000, 2000);
 	
 	ATH_MSG_INFO( "tool initialized." );
 //get calibration input service
@@ -129,7 +129,7 @@ StatusCode NtupleWireCentricityTool :: analyseSegments(const std::vector<MuonCal
 	summary_tree->Branch("l_above", &l_above, "l_above/D");
 	summary_tree->Branch("l_below", &l_below, "l_below/D");
 	
-	Double_t mean_x(x_coordinate->GetMean());
+	Double_t mean_x(m_x_coordinate->GetMean());
 	Double_t all_mean_slope(p_track_slope->GetMean());
 	summary_tree->Branch("mean_x", &mean_x, "mean_x/D");
 	summary_tree->Branch("all_mean_slope", &all_mean_slope, "all_mean_slope/D");
@@ -187,8 +187,8 @@ void NtupleWireCentricityTool :: setRegion()
 inline void NtupleWireCentricityTool :: process_hit(const MdtCalibHitBase * hit, const double & track_slope)
 	{
 	double r_track=hit->signedDistanceToTrack();
-	track_radius->Fill(r_track);
-	x_coordinate->Fill(hit->localPosition().x());
+	m_track_radius->Fill(r_track);
+	m_x_coordinate->Fill(hit->localPosition().x());
 	if(fabs(hit->localPosition().x())>m_region_width/2) return;
 	//fill right left histograms
 	if(r_track<0)

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
                           GaudiKernel
+			  Control/StoreGate
                           InnerDetector/InDetRecEvent/SiSpacePointsSeed
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces

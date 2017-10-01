@@ -60,10 +60,10 @@ public:
 
 //___________________________________________________________________________
 IVP12DDetViewsChannelWidget::IVP12DDetViewsChannelWidget(const QString & name, const QString & information, const QString & contact_info)
-  : IVP1ChannelWidget(name,information,contact_info), d(new Imp())
+  : IVP1ChannelWidget(name,information,contact_info), m_d(new Imp())
 {
-  d->channel=this;
-  d->first=true;
+  m_d->channel=this;
+  m_d->first=true;
   setMinimumSize(150,240);//minimum y size is to avoid absurd squeezing of buttons.
 
   //Tight layout:
@@ -80,18 +80,18 @@ IVP12DDetViewsChannelWidget::IVP12DDetViewsChannelWidget(const QString & name, c
   vboxLayout->addWidget(examiner);
 
   //Get pointers to the different views:
-  d->view_xy = examiner->view("X-Y");
-  d->view_rz = examiner->view("R-Z");
-  assert(d->view_xy&&d->view_rz);
+  m_d->view_xy = examiner->view("X-Y");
+  m_d->view_rz = examiner->view("R-Z");
+  assert(m_d->view_xy&&m_d->view_rz);
 
-  d->tabwidget = 0;
-  d->colorselectbutton = 0;
+  m_d->tabwidget = 0;
+  m_d->colorselectbutton = 0;
 }
 
 //___________________________________________________________________________
 IVP12DDetViewsChannelWidget::~IVP12DDetViewsChannelWidget()
 {
-  delete d;
+  delete m_d;
 }
 
 //___________________________________________________________________________
@@ -107,33 +107,33 @@ void IVP12DDetViewsChannelWidget::addSystem( IVP12DDetViewsSystem*system, double
   registerSystem(system);
 
   //Fixme: Attach to the relevant view instead.
-  assert(!d->system2itemcols.contains(system));
+  assert(!m_d->system2itemcols.contains(system));
 
-  d->system2itemcols.insert(system,system->getItemCollections_XY()+system->getItemCollections_RZ());
+  m_d->system2itemcols.insert(system,system->getItemCollections_XY()+system->getItemCollections_RZ());
 
   foreach (VP1GraphicsItemCollection*ic,system->getItemCollections_XY())
-    d->view_xy->addItemCollection(ic);
+    m_d->view_xy->addItemCollection(ic);
   foreach (VP1GraphicsItemCollection*ic,system->getItemCollections_RZ())
-    d->view_rz->addItemCollection(ic);
+    m_d->view_rz->addItemCollection(ic);
 
   foreach (VP1GraphicsItemCollection* ic,system->getItemCollections_XY())
-    d->view_xy->setDisallowInteractions(ic, !handleSelections );
+    m_d->view_xy->setDisallowInteractions(ic, !handleSelections );
   foreach (VP1GraphicsItemCollection* ic,system->getItemCollections_RZ())
-    d->view_rz->setDisallowInteractions(ic, !handleSelections );
+    m_d->view_rz->setDisallowInteractions(ic, !handleSelections );
 
    foreach (VP1GraphicsItemCollection* ic,system->getItemCollections_XY())
-     d->view_xy->setDisallowMovable(ic, !allowMovable );
+     m_d->view_xy->setDisallowMovable(ic, !allowMovable );
    foreach (VP1GraphicsItemCollection* ic,system->getItemCollections_RZ())
-     d->view_rz->setDisallowMovable(ic, !allowMovable );
+     m_d->view_rz->setDisallowMovable(ic, !allowMovable );
 
-  d->system2switchable << QPair<IVP1System*,bool>(system,switchable);
+  m_d->system2switchable << QPair<IVP1System*,bool>(system,switchable);
 
-  assert(!d->system2startdisabled.contains(system));
-  d->system2startdisabled.insert(system,startDisabled);
-  assert(d->system2startdisabled.contains(system));
+  assert(!m_d->system2startdisabled.contains(system));
+  m_d->system2startdisabled.insert(system,startDisabled);
+  assert(m_d->system2startdisabled.contains(system));
 
   if (allowController) {
-    d->systemsAllowedControllers << system;
+    m_d->systemsAllowedControllers << system;
     connect(system,SIGNAL(itemFromSystemSelected()),this,SLOT(showControlsForSystem()));
   }
 
@@ -144,22 +144,22 @@ void IVP12DDetViewsChannelWidget::create() {
   //Fixme: Less code should be replicated here and in IVP12DStandardChannelWidget+IVP13DStandardChannelWidget.
 
   //Set up the controller.
-  registerController(VP1ControllerHelper::compositionController( d->systemsAllowedControllers,
-								 d->sys2tabpage,d->tabwidget,
-								 d->system2switchable,
-								 d->checkbox2system,
-								 d->colorselectbutton ));
-  connect(d->colorselectbutton,SIGNAL(colorChanged(const QColor&)),this,SLOT(setBackgroundColor(const QColor&)));
-  d->system2switchable.clear();
+  registerController(VP1ControllerHelper::compositionController( m_d->systemsAllowedControllers,
+								 m_d->sys2tabpage,m_d->tabwidget,
+								 m_d->system2switchable,
+								 m_d->checkbox2system,
+								 m_d->colorselectbutton ));
+  connect(m_d->colorselectbutton,SIGNAL(colorChanged(const QColor&)),this,SLOT(setBackgroundColor(const QColor&)));
+  m_d->system2switchable.clear();
 
-  QMapIterator<QCheckBox*,IVP1System*> it(d->checkbox2system);
+  QMapIterator<QCheckBox*,IVP1System*> it(m_d->checkbox2system);
   while (it.hasNext()) {
     it.next();
 
-    assert(d->system2startdisabled.contains(it.value()));
-    if (d->system2startdisabled[it.value()]) {
+    assert(m_d->system2startdisabled.contains(it.value()));
+    if (m_d->system2startdisabled[it.value()]) {
       it.key()->setChecked(false);
-      d->updateSystemState(it.key());
+      m_d->updateSystemState(it.key());
     }
 
     connect(it.key(),SIGNAL(toggled(bool)),this,SLOT(toggleSystemActive()));
@@ -169,28 +169,28 @@ void IVP12DDetViewsChannelWidget::create() {
 
 //___________________________________________________________________________
 void IVP12DDetViewsChannelWidget::systemRefreshed(IVP1System*) {
-  if (d->first) {
+  if (m_d->first) {
     //This is not perfect, but usually it gives acceptable results.
     //Todo: An improvement would be to keep track of the first time
     //separately, and then only call fitViewToContents on the views
     //where this system provides collections.
-    d->view_xy->fitViewToContents();
-    d->view_rz->fitViewToContents();
-    d->first=false;
+    m_d->view_xy->fitViewToContents();
+    m_d->view_rz->fitViewToContents();
+    m_d->first=false;
   }
 }
 
 //___________________________________________________________________________
 void IVP12DDetViewsChannelWidget::systemErased(IVP1System*) {
-  d->view_xy->clearSelections();
-  d->view_rz->clearSelections();
+  m_d->view_xy->clearSelections();
+  m_d->view_rz->clearSelections();
 }
 
 //___________________________________________________________________________
 void IVP12DDetViewsChannelWidget::toggleSystemActive()
 {
   QCheckBox * cb = static_cast<QCheckBox*>(sender()); assert(cb);
-  d->updateSystemState(cb);
+  m_d->updateSystemState(cb);
 }
 
 //___________________________________________________________________________
@@ -259,31 +259,31 @@ void IVP12DDetViewsChannelWidget::setBackgroundColor(const QColor & col)
 {
   if (!col.isValid())
     return;
-  d->view_xy->setBackgroundBrush(col);
-  d->view_rz->setBackgroundBrush(col);
+  m_d->view_xy->setBackgroundBrush(col);
+  m_d->view_rz->setBackgroundBrush(col);
 }
 
 //___________________________________________________________________________
 void IVP12DDetViewsChannelWidget::showControlsForSystem(  )
 {
-  if (!d->tabwidget)
+  if (!m_d->tabwidget)
     return;
   IVP1System * sys = static_cast<IVP1System*>(sender());
   if (!sys) {
     message("showControlsForSystem Error: Unable to determine system identity.");
     return;
   }
-  if (!d->sys2tabpage.contains(sys)) {
+  if (!m_d->sys2tabpage.contains(sys)) {
     //Dont send warning here. The system in question might simply not have a controller!
     return;
   }
 
-  int index = d->tabwidget->indexOf(d->sys2tabpage[sys]);
-  if (index<0||!d->tabwidget->isTabEnabled(index)) {
+  int index = m_d->tabwidget->indexOf(m_d->sys2tabpage[sys]);
+  if (index<0||!m_d->tabwidget->isTabEnabled(index)) {
     message("Warning: Asked to show controller for a disabled system. Surely you jest?");
     return;
   }
-  d->tabwidget->setCurrentIndex(index);
+  m_d->tabwidget->setCurrentIndex(index);
 }
 
 //___________________________________________________________________________
@@ -303,15 +303,15 @@ QByteArray IVP12DDetViewsChannelWidget::saveState()
   out << IVP1ChannelWidget::saveState();//Always include state info from the base class.
 
   //Background color:
-  out << d->colorselectbutton->color();
+  out << m_d->colorselectbutton->color();
 
   //Systems turned on/off:
   //Fixme: Make sure that if you have two copies of the same system,
   //that the text in the checkbox gets appended some stuff like [1],
   //[2], etc., so that the strings used here will be unique.
   QMap<QString, bool> sysname2turnedon;
-  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-  while (it != d->checkbox2system.constEnd()) {
+  QMap<QCheckBox*,IVP1System*>::const_iterator it = m_d->checkbox2system.constBegin();
+  while (it != m_d->checkbox2system.constEnd()) {
     sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
      ++it;
   }
@@ -319,8 +319,8 @@ QByteArray IVP12DDetViewsChannelWidget::saveState()
   out << sysname2turnedon;
 
   //Current system tab:
-  if (d->tabwidget)
-    out << d->tabwidget->tabText(d->tabwidget->currentIndex());
+  if (m_d->tabwidget)
+    out << m_d->tabwidget->tabText(m_d->tabwidget->currentIndex());
   else
     out << QString("");
 
@@ -352,15 +352,15 @@ void IVP12DDetViewsChannelWidget::restoreFromState(QByteArray ba)
 
   QColor bgdcol;
   state >> bgdcol;
-  if (bgdcol!=d->colorselectbutton->color())
-    d->colorselectbutton->setColor(bgdcol);
+  if (bgdcol!=m_d->colorselectbutton->color())
+    m_d->colorselectbutton->setColor(bgdcol);
   setBackgroundColor(bgdcol);
 
   //Switch systems on/off:
   QMap<QString, bool> sysname2turnedon;
   state >> sysname2turnedon;
-  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-  while (it != d->checkbox2system.constEnd()) {
+  QMap<QCheckBox*,IVP1System*>::const_iterator it = m_d->checkbox2system.constBegin();
+  while (it != m_d->checkbox2system.constEnd()) {
     if (sysname2turnedon.contains(it.key()->text())) {
       if (sysname2turnedon[it.key()->text()]!=it.key()->isChecked())
 	it.key()->setChecked(sysname2turnedon[it.key()->text()]);
@@ -373,10 +373,10 @@ void IVP12DDetViewsChannelWidget::restoreFromState(QByteArray ba)
   //Current system tab
   QString tabname;
   state >> tabname;
-  if (d->tabwidget) {
-    for (int i = 0; i < d->tabwidget->count(); ++i) {
-      if (d->tabwidget->tabText(i) == tabname) {
-	d->tabwidget->setCurrentIndex(i);
+  if (m_d->tabwidget) {
+    for (int i = 0; i < m_d->tabwidget->count(); ++i) {
+      if (m_d->tabwidget->tabText(i) == tabname) {
+	m_d->tabwidget->setCurrentIndex(i);
 	break;
       }
     }

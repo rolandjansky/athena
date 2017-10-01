@@ -138,7 +138,7 @@ InDetServMatFactorySLHC::fetchTables()
   msg(MSG::INFO) << "Building InDet Service Material with InDet Version Tag: "  
 		 << indetVersionKey.tag() << " at Node: " << indetVersionKey.node() << endmsg;
   msg(MSG::INFO) << " InDetServices Version " 
-		 << rdbAccessSvc()->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endmsg;
+		 << rdbAccessSvc()->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node()) << endmsg;
  
   m_InDetServGenEnvelope = rdbAccessSvc()->getRecordsetPtr("InDetServGenEnvelope", indetVersionKey.tag(), indetVersionKey.node());
   msg(MSG::DEBUG) << "Table InDetServGenEnvelope Fetched" << endmsg;

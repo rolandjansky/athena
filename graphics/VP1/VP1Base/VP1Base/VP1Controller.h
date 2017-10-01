@@ -125,7 +125,7 @@ private:
   static VP1CustomTourEditor* m_customTourEditor;
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   bool m_initVarsMode;
 
 };

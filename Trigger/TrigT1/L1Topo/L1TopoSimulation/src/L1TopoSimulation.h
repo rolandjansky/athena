@@ -96,8 +96,6 @@ namespace LVL1 {
 
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering 
 
-      TH1 *  m_DecisionHist[3] { nullptr, nullptr, nullptr };
-
       BooleanProperty m_fillHistogramsBasedOnHardwareDecision { false }; // default: fill based on simulation
       UnsignedIntegerProperty m_prescaleForDAQROBAccess {4}; ///< read hdw bits every N events (used only when m_fillHistogramsBasedOnHardwareDecision is true)
       UnsignedIntegerProperty m_prescale; //! property for prescale factor

@@ -17,7 +17,7 @@ CLASS_DEF (B, 98765, 0)
 struct C
   : public DataObject
 {
-  static CLID& classID() { static CLID clid =  44444; return clid; }
+  static const CLID& classID() { static const CLID clid =  44444; return clid; }
 };
 
 int main()

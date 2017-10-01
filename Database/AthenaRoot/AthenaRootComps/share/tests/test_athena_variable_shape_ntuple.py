@@ -1,8 +1,10 @@
 from glob import glob
 if 1:
+    testdir = os.environ.get ('ATLAS_REFERENCE_DATA',
+                              'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd')
     _cbntfiles = [
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root',
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root',
+        testdir + '/ntuple.0.root',
+        testdir + '/ntuple.1.root',
         ]
     # _cbntfiles = [
     #     '/tmp/binet/data/ntuple.0.root',

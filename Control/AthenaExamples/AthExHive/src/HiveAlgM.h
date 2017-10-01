@@ -29,9 +29,9 @@ public:
   
 private:
   
-  int m_off { 1 };
-  SG::ReadHandleKey<HiveDataObj> m_rdh1;
-  SG::ReadHandleKey<HiveDataObj> m_rdh2;
+  Gaudi::Property<int> m_off {this, "Offset", 1, "offset"};
+  SG::ReadHandleKey<HiveDataObj> m_rdh1{this, "Key_R1", "a2", "read key 1"};
+  SG::ReadHandleKey<HiveDataObj> m_rdh2{this, "Key_R2", "l1", "read key 2"};
   
 };
 #endif

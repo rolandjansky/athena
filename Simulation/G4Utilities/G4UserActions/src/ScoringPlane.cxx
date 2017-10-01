@@ -28,7 +28,7 @@ namespace G4UA
   {
   }
 
-  void ScoringPlane::beginOfRun(const G4Run*)
+  void ScoringPlane::BeginOfRunAction(const G4Run*)
   {
 
     m_tree0 = new TTree("t0", "ATHENA event tree");
@@ -71,7 +71,7 @@ namespace G4UA
     G4cout<<"ScoringPlane: output root filename: "          << m_config.fname << G4endl;;
   }
 
-  void ScoringPlane::endOfRun(const G4Run*){
+  void ScoringPlane::EndOfRunAction(const G4Run*){
     TFile* file = new TFile(m_config.fname.c_str(), "RECREATE", "ATHENA ufo simulation");
 
     m_tree0->Write();
@@ -80,7 +80,7 @@ namespace G4UA
     file->Close();
   }
 
-  void ScoringPlane::processStep(const G4Step* aStep)
+  void ScoringPlane::UserSteppingAction(const G4Step* aStep)
   {
     m_z0 = aStep->GetPreStepPoint()->GetPosition().z();
     m_z1 = aStep->GetPostStepPoint()->GetPosition().z();
@@ -134,13 +134,13 @@ namespace G4UA
 
   }
 
-  void ScoringPlane::beginOfEvent(const G4Event*)
+  void ScoringPlane::BeginOfEventAction(const G4Event*)
   {
     m_evt++;
     m_ntr = 0;
   }
 
-  void ScoringPlane::endOfEvent(const G4Event*)
+  void ScoringPlane::EndOfEventAction(const G4Event*)
   {
     m_tree0->Fill();
   }

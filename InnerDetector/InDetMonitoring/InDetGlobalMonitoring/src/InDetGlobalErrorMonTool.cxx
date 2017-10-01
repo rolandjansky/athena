@@ -259,9 +259,9 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
-      std::set<IdentifierHash>::iterator fit = sctErrors->begin();
-      std::set<IdentifierHash>::iterator fitEnd = sctErrors->end();
+      const std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
+      std::set<IdentifierHash>::const_iterator fit = sctErrors->begin();
+      std::set<IdentifierHash>::const_iterator fitEnd = sctErrors->end();
       
       // Check that all modules are registered
       for (; fit != fitEnd; ++fit) {
@@ -341,9 +341,9 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
   double deltaZ = 0;
   
   m_disabledGeoSCT.clear();
-  std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
-  std::set<Identifier>::iterator fit = badModules->begin();
-  std::set<Identifier>::iterator fitEnd = badModules->end();
+  const std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
+  std::set<Identifier>::const_iterator fit = badModules->begin();
+  std::set<Identifier>::const_iterator fitEnd = badModules->end();
   
   // Check that all modules are registered
   for (; fit != fitEnd; ++fit)

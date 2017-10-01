@@ -8,12 +8,15 @@
 ///< includes:
 #include <string>
 #include <set>
+#include <vector>
+#include <algorithm>
 
 
 ///< Gaudi includes:
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/ClassID.h"
+#include "CxxUtils/checker_macros.h"
 
 ///< forward declarations:
 class IOpaqueAddress;
@@ -28,7 +31,10 @@ namespace SG {
 
   public:
 
-    typedef std::set<CLID> TransientClidSet;
+    /// Strictly a set, but there shouldn't be more than a handful
+    /// of entries, so store it as a sorted vector instead.
+    typedef std::vector<CLID> TransientClidSet;
+
     typedef std::set<std::string> TransientAliasSet;
     typedef IStringPool::sgkey_t sgkey_t;
 
@@ -43,7 +49,7 @@ namespace SG {
 		     IOpaqueAddress* addr, bool clearAddress = true);
 
     ///< Destructor
-    virtual ~TransientAddress();
+    ~TransientAddress();
 
     /// Set the CLID / key.
     /// This will only succeed if the clid/key are currently clear.
@@ -53,10 +59,12 @@ namespace SG {
     void reset();
 
     ///< Retrieve IOpaqueAddress
-    virtual IOpaqueAddress* address() const; 
+    // Can't change the signature here to satisfy the thread-safety
+    // checker as this should match the signature in the Gaudi IRegistry.
+    IOpaqueAddress* address ATLAS_NOT_CONST_THREAD_SAFE () const; 
 
     ///< set IOpaqueAddress
-    virtual void setAddress(IOpaqueAddress* pAddress);
+    void setAddress(IOpaqueAddress* pAddress);
 
     ///< Retrieve primary clid
     CLID clID() const;
@@ -71,10 +79,10 @@ namespace SG {
     void setSGKey (sgkey_t sgkey);
 
     ///< check if it is a transient ID (primary or symLinked):
-    bool transientID (const CLID& id) const;
+    bool transientID (CLID id) const;
 
     ///< set transient CLID's
-    void setTransientID(const CLID& id);
+    void setTransientID(CLID id);
 
     ///< get transient CLID's
     const TransientClidSet& transientID() const;
@@ -84,6 +92,9 @@ namespace SG {
 
     ///< set alias'
     void setAlias(const std::set<std::string>& keys);
+
+    ///< set alias'
+    void setAlias(std::set<std::string>&& keys);
 
     /// remove alias from proxy
     bool removeAlias(const std::string& key);
@@ -102,11 +113,13 @@ namespace SG {
     void consultProvider(const bool& flag);
 
     ///< Check the validity of the Transient Address.
-    bool isValid (IProxyDict* store);
+    /// If forceUpdate is true, then call @c updateAddress
+    /// even if we already have an address.
+    bool isValid (IProxyDict* store, bool forceUpdate = false);
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
-    IAddressProvider* provider() const;
+    IAddressProvider* provider();
     StoreID::type storeID() const;
     void setProvider(IAddressProvider* provider, StoreID::type storeID);
 
@@ -164,7 +177,7 @@ namespace SG {
 
   /// Retrieve IOpaqueAddress
   inline
-  IOpaqueAddress* TransientAddress::address() const 
+  IOpaqueAddress* TransientAddress::address ATLAS_NOT_CONST_THREAD_SAFE () const 
   { 
     return m_address; 
   }
@@ -199,16 +212,10 @@ namespace SG {
 
   /// check if it is a transient ID:
   inline
-  bool TransientAddress::transientID(const CLID& id) const
-  { 
-    return 0 != m_transientID.count(id);
-  }
-
-  /// set transient CLID's
-  inline
-  void TransientAddress::setTransientID(const CLID& id)
-  { 
-    m_transientID.insert(id);
+  bool TransientAddress::transientID(CLID id) const
+  {
+    return std::find (m_transientID.begin(), m_transientID.end(), id) !=
+      m_transientID.end();
   }
 
   /// get transient CLID's
@@ -230,6 +237,13 @@ namespace SG {
   void TransientAddress::setAlias(const std::set<std::string>& keys)
   {
     m_transientAlias = keys;
+  } 
+
+  /// set transient Alias'
+  inline 
+  void TransientAddress::setAlias(std::set<std::string>&& keys)
+  {
+    m_transientAlias = std::move(keys);
   } 
 
   /// remove alias
@@ -268,7 +282,7 @@ namespace SG {
   ///< cache the pointer to the Address provider which can update
   ///< this transient address
   inline
-  IAddressProvider* TransientAddress::provider() const
+  IAddressProvider* TransientAddress::provider()
   {
     return m_pAddressProvider;
   }

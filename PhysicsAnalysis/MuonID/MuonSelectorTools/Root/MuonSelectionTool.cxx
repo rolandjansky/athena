@@ -263,12 +263,12 @@ namespace CP {
       }
 
       // rejection muons with out-of-bounds hits
-      uint8_t m_combinedTrackOutBoundsPrecisionHits;
-      if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+      uint8_t combinedTrackOutBoundsPrecisionHits;
+      if(!mu.summaryValue(combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
 	ATH_MSG_WARNING("getQuality - # of out-of-bounds hits missing in combined muon! Returning VeryLoose...");
         return xAOD::Muon::VeryLoose;
       }
-      if (m_combinedTrackOutBoundsPrecisionHits>0){
+      if (combinedTrackOutBoundsPrecisionHits>0){
         return xAOD::Muon::VeryLoose;
       }
       
@@ -567,12 +567,12 @@ namespace CP {
     if( fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) return false;
     
     // rejection of muons with out-of-bounds hits 
-    uint8_t m_combinedTrackOutBoundsPrecisionHits;
-    if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+    uint8_t combinedTrackOutBoundsPrecisionHits;
+    if(!mu.summaryValue(combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
       ATH_MSG_WARNING("passedLowPtEfficiencyCuts - # of out-of-bounds hits missing in combined muon! Failing selection...");
       return false;
     }
-    if (m_combinedTrackOutBoundsPrecisionHits>0) {
+    if (combinedTrackOutBoundsPrecisionHits>0) {
       return false;
     }
 
@@ -616,12 +616,12 @@ namespace CP {
     if( mu.author()==xAOD::Muon::STACO ) return false;
 
     // :: Reject muons with out-of-bounds hits
-    uint8_t m_combinedTrackOutBoundsPrecisionHits;
-    if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+    uint8_t combinedTrackOutBoundsPrecisionHits;
+    if(!mu.summaryValue(combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
       ATH_MSG_WARNING("passedHighPtCuts - # of out-of-bounds hits missing in combined muon! Failing selection...");
       return false;
     }
-    if (m_combinedTrackOutBoundsPrecisionHits>0){
+    if (combinedTrackOutBoundsPrecisionHits>0){
       return false;
     }
 

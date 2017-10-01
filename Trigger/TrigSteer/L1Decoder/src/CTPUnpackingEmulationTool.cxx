@@ -11,21 +11,14 @@
 #include "GaudiKernel/EventContextHash.h"
 #include <fstream>
 
-using namespace HLT;
-
 
 CTPUnpackingEmulationTool::CTPUnpackingEmulationTool( const std::string& type,
-				    const std::string& name, 
-				    const IInterface* parent ) 
-  : AthAlgTool( type, name, parent ), 
-    m_inputFileName( "CTPEmulation.dat" ) {
-  declareProperty( "CTPToChainMapping", m_ctpToChainProperty, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both CTP ID and chain may appear many times" );
-  declareProperty( "ForceEnableAllChains", m_forceEnable=false, "Enables all chains in each event, testing mode" );
-  declareProperty( "InputFilename", m_inputFileName, "Fake CTP RoIb input filename" );
+                                                      const std::string& name, 
+                                                      const IInterface* parent ) 
+  : CTPUnpackingToolBase( type, name, parent )
+{
 }
 
-
-CTPUnpackingEmulationTool::~CTPUnpackingEmulationTool() {}
 
 
 StatusCode CTPUnpackingEmulationTool::parseInputFile() {
@@ -53,12 +46,14 @@ StatusCode CTPUnpackingEmulationTool::parseInputFile() {
   }
   inputFile.close(); 
 
-  ATH_MSG_DEBUG( "In input file "<<m_inputFileName<<" found "<<m_events.size()<<" chain sets" );
+  ATH_MSG_DEBUG( "In input file "<<m_inputFileName.value()<<" found "<<m_events.size()<<" chain sets" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode CTPUnpackingEmulationTool::initialize() {
+
+  CHECK( CTPUnpackingToolBase::initialize() );
   CHECK( decodeCTPToChainMapping() ); 
 
   for( auto ctpid : m_ctpToChain ){
@@ -83,7 +78,4 @@ StatusCode CTPUnpackingEmulationTool::decode( const ROIB::RoIBResult& /*roib*/, 
 }
 
 
-StatusCode CTPUnpackingEmulationTool::finalize() {
-  return StatusCode::SUCCESS;
-}
 

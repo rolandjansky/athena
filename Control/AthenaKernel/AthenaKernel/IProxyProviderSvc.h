@@ -55,7 +55,7 @@ public:
 inline
 const InterfaceID&
 IProxyProviderSvc::interfaceID() {
-  static InterfaceID ID("IProxyProviderSvc", 0 , 0);
+  static const InterfaceID ID("IProxyProviderSvc", 0 , 0);
   return ID;
 }
 

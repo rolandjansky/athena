@@ -19,6 +19,7 @@
 #include <unordered_map>
 
 #include "DataModelRoot/RootType.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 
@@ -98,7 +99,7 @@ public:
 
   bool has_type(const std::string& type_name) const;
 
-  std::string load_type(const std::string& type_name) const;
+  std::string load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) const;
 
   /// list of reflex-types associated with a library name
   std::vector<std::string> capabilities(const std::string& libname) const;
@@ -134,7 +135,7 @@ public:
   get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const;
 
   /// load the reflex type after having loaded the hosting library
-  RootType rflx_type(const std::string& type_name) const;
+  RootType rflx_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) const;
 
   /// Default constructor: 
   DsoDb();

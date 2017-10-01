@@ -520,7 +520,7 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     if (ioc.isSuccess()) {
       const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
       if (ptmp !=0) {
-        DataHeaderElement DheEI(ptmp->transientAddress(), 0, "ByteStreamEventInfo");
+        DataHeaderElement DheEI(ptmp, 0, "ByteStreamEventInfo");
         Dh->insert(DheEI);
       }
       //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);

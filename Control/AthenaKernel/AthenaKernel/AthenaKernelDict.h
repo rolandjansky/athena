@@ -10,6 +10,7 @@
 #include <vector>
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IAthenaSummarySvc.h"

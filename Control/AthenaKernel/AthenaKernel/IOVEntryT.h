@@ -17,30 +17,12 @@
  *
  *****************************************************************************/
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <set>
 
-class EventIDBaseComp
-{
-public:
-  bool operator() (const EventIDBase& e1, const EventIDBase& e2)
-  {
-    auto isRunLumi = [] (const EventIDBase& id)
-      { return id.run_number() != EventIDBase::UNDEFNUM &&
-               id.lumi_block() != EventIDBase::UNDEFNUM; };
-    if (isRunLumi(e1) && isRunLumi(e2)) {
-      unsigned int rn1 = e1.run_number();
-      unsigned int rn2 = e2.run_number();
-      unsigned int lb1 = e1.lumi_block();
-      unsigned int lb2 = e2.lumi_block();
-      return (std::tie(rn1, lb1) <
-              std::tie(rn2, lb2));
-    }
-    return e1 < e2;
-  }
-};
-
 template <typename T>
+
 class IOVEntryT {
 public: 
 
@@ -48,10 +30,10 @@ public:
   class IOVEntryTStartCritereon {
   public: 
     bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-      return EventIDBaseComp() (p2.range().start(), p1.range().start());
+      return p1.range().start() > p2.range().start();
     }
     bool operator() ( const IOVEntryT<T> *p1, const IOVEntryT<T> *p2 ) const {
-      return EventIDBaseComp() (p2->range().start(), p1->range().start());
+      return p1->range().start() > p2->range().start();
     }
   };
 
@@ -59,10 +41,10 @@ public:
   class IOVEntryTStopCritereon {
   public: 
     bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-      return EventIDBaseComp() (p1.range().stop(), p2.range().stop());
+      return p1.range().stop() < p2.range().stop();
     }
     bool operator() ( const IOVEntryT<T> *p1, const IOVEntryT<T> *p2 ) const {
-      return EventIDBaseComp() (p1->range().stop(), p2->range().stop());
+      return p1->range().stop() < p2->range().stop();
     }
   };
 
@@ -75,7 +57,7 @@ public:
   EventIDRange range() const { return m_range; }
   void setRange( const EventIDRange& range) { m_range=range; }
 
-  T* objPtr() const { return m_objPtr; }
+  T* objPtr ATLAS_NOT_CONST_THREAD_SAFE () const { return m_objPtr; }
   void setPtr( T* ptr ) { m_objPtr = ptr; }
 
   friend std::ostream& operator<< (std::ostream& os, const IOVEntryT<T>& rhs) {
@@ -93,7 +75,7 @@ template <typename T>
 class IOVEntryComp {
 public:
   bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-    return EventIDBaseComp() (p2->range().strart(), p1->range().start());
+    return p1.range().start() > p2.range().start();
   }
 };
 

@@ -8,6 +8,13 @@
 #   athena.py <myJobOptions.py> runbatch.py
 
 try:
+   #first check if command-line evtMax or skipEvents options were provided
+   if opts.evtMax != None:
+      theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
+   if opts.skipEvents != None:
+      if hasattr(svcMgr,"EventSelector"):
+         svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
+
    theApp.run()     # runs until theApp.EvtMax events reached
    from AthenaCommon.Debugging import hookDebugger,DbgStage
    if DbgStage.value == "fini":

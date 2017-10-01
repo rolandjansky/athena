@@ -1844,7 +1844,7 @@ StatusCode
 SCTHitEffMonTool::procHistograms() {                                                                             // hidetoshi
                                                                                                                  // 14.01.22
   if (m_superDetailed) {
-    std::set<Identifier> *m_badModules = m_configConditions->badModules();
+    const std::set<Identifier> *m_badModules = m_configConditions->badModules();
     INFO("Found " << m_badModules->size() << " bad modules");
     std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxEta;
     std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxPhi;

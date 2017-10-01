@@ -49,24 +49,24 @@ public:
 //________________________________________________________
 const QString& IVP1System::name() const
 {
-  return d->name;
+  return m_d->name;
 }
 
 //________________________________________________________
 const QString& IVP1System::information() const
 {
-  return d->information;
+  return m_d->information;
 }
 
 //________________________________________________________
 const QString& IVP1System::contact_info() const
 {
-  return d->contact_info;
+  return m_d->contact_info;
 }
 
 //________________________________________________________
 IVP1System::IVP1System(const QString & n, const QString & i, const QString & c)
-  : d(new Imp(n,i,c))
+  : m_d(new Imp(n,i,c))
 {
   if (verbose())
     messageVerbose("IVP1System()");
@@ -79,12 +79,12 @@ IVP1System::~IVP1System()
   if (verbose())
     messageVerbose("IVP1System() Destructor. Start...");
 
-  assert(d->state==UNCREATED||d->state==CONSTRUCTED);
-  assert(!d->controller);
+  assert(m_d->state==UNCREATED||m_d->state==CONSTRUCTED);
+  assert(!m_d->controller);
 
-  if(!d==0) {
-	  delete d;
-	  d=0;
+  if(!m_d==0) {
+	  delete m_d;
+	  m_d=0;
   }
   VP1Msg::messageDebug("IVP1System() Destructor. END.");
 }
@@ -94,19 +94,19 @@ void IVP1System::setChannel(IVP1ChannelWidget*cw)
 {
   if (verbose()) {
     messageVerbose("setChannel ");
-    messageVerbose("setChannel d->state==CONSTRUCTED = "+QString(d->state==CONSTRUCTED?"true":"false"));
+    messageVerbose("setChannel m_d->state==CONSTRUCTED = "+QString(m_d->state==CONSTRUCTED?"true":"false"));
     messageVerbose("setChannel cw!=0 = "+QString(cw!=0?"true":"false"));
   }
-  assert(!d->channel);
+  assert(!m_d->channel);
   assert(cw);
-  assert(d->state==CONSTRUCTED);
-  d->channel = cw;
+  assert(m_d->state==CONSTRUCTED);
+  m_d->channel = cw;
 }
 
 //________________________________________________________
 bool IVP1System::isRefreshing()
 {
-  return d->refreshing;
+  return m_d->refreshing;
 }
 
 //________________________________________________________
@@ -115,45 +115,45 @@ void IVP1System::setRefreshing(const bool& b)
   if (verbose())
     messageVerbose("setRefreshing() called with b="+QString(b?"true":"false"));
   if (b) {
-    assert(d->state==ERASED);
+    assert(m_d->state==ERASED);
   } else {
-    assert(d->state==REFRESHED);
+    assert(m_d->state==REFRESHED);
   }
-  d->refreshing = b;
+  m_d->refreshing = b;
 }
 
 
 //________________________________________________________
 IVP1System::State IVP1System::state() const
 {
-  return d->state;
+  return m_d->state;
 }
 
 //________________________________________________________
 IVP1System::ActiveState IVP1System::activeState() const
 {
-  return d->activeState;
+  return m_d->activeState;
 }
 
 //________________________________________________________
 void IVP1System::setState(const State&s)
 {
 #ifndef NDEBUG
-  assert (d->state != s);
+  assert (m_d->state != s);
   assert(s!=CONSTRUCTED);
   if (s==REFRESHED) {
-    assert(d->state==ERASED);
+    assert(m_d->state==ERASED);
   }
   if (s==ERASED) {
-    assert(d->state==REFRESHED||d->state==CONSTRUCTED);
+    assert(m_d->state==REFRESHED||m_d->state==CONSTRUCTED);
   }
   if (s==UNCREATED) {
-    assert(d->state==ERASED);
+    assert(m_d->state==ERASED);
   }
 #endif
-  d->state = s;
+  m_d->state = s;
   if (s==REFRESHED||s==ERASED)
-    d->channel->emitRefreshInfoChanged();
+    m_d->channel->emitRefreshInfoChanged();
 }
 
 //________________________________________________________
@@ -162,28 +162,28 @@ void IVP1System::setActiveState(const ActiveState&s,const bool& donttriggererase
   //First handle case where we dont actually change state. Only
   //special consideration is OFF->OFF where we have to do something if
   //we need to erase:
-  if (d->activeState==OFF&&s==OFF&&(d->state==REFRESHED||d->refreshing)&&!donttriggererase) {
+  if (m_d->activeState==OFF&&s==OFF&&(m_d->state==REFRESHED||m_d->refreshing)&&!donttriggererase) {
     needErase();
-    d->channel->emitRefreshInfoChanged();
+    m_d->channel->emitRefreshInfoChanged();
     return;
-  } else if (d->activeState==s) {
-    d->channel->emitRefreshInfoChanged();
+  } else if (m_d->activeState==s) {
+    m_d->channel->emitRefreshInfoChanged();
     return;
   }
 
   //Ok, we know that we are either ON->OFF or OFF->ON.
-  d->activeState = s;
+  m_d->activeState = s;
 
   if (s==ON) {
     //OFF->ON: We might need a refresh, so send out a signal for the scheduler:
     inactiveSystemTurnedActive();
   } else {
     //ON->OFF: We might need an erase signal:
-    if ((d->state==REFRESHED||d->refreshing)&&!donttriggererase) {
+    if ((m_d->state==REFRESHED||m_d->refreshing)&&!donttriggererase) {
       needErase();
     }
   }
-  d->channel->emitRefreshInfoChanged();
+  m_d->channel->emitRefreshInfoChanged();
 }
 
 //________________________________________________________
@@ -191,20 +191,20 @@ void IVP1System::uncreate()
 {
   if (verbose()) {
     messageVerbose("uncreate() base implementation");
-    messageVerbose("registerController d->state==ERASED = "+QString(d->state==ERASED?"true":"false"));
+    messageVerbose("registerController m_d->state==ERASED = "+QString(m_d->state==ERASED?"true":"false"));
   }
-  assert(d->state==ERASED);
+  assert(m_d->state==ERASED);
 }
 
 //________________________________________________________
 QWidget * IVP1System::controllerWidget() {
   if (verbose()) {
     messageVerbose("controllerWidget()");
-    messageVerbose("registerController d->state==ERASED = "+QString(d->state==ERASED?"true":"false"));
-    messageVerbose("registerController d->state==REFRESHED = "+QString(d->state==REFRESHED?"true":"false"));
+    messageVerbose("registerController m_d->state==ERASED = "+QString(m_d->state==ERASED?"true":"false"));
+    messageVerbose("registerController m_d->state==REFRESHED = "+QString(m_d->state==REFRESHED?"true":"false"));
   }
-  assert(d->state==REFRESHED||d->state==ERASED);
-  return d->controller;
+  assert(m_d->state==REFRESHED||m_d->state==ERASED);
+  return m_d->controller;
  }
 
 //_______________________________________________________
@@ -212,9 +212,9 @@ void IVP1System::deleteController()
 {
   if (verbose())
     messageVerbose("deleteController()");
-  if (d->controller)
-    d->controller->deleteLater();
-  d->controller = 0;
+  if (m_d->controller)
+    m_d->controller->deleteLater();
+  m_d->controller = 0;
 }
 
 //________________________________________________________
@@ -222,46 +222,46 @@ void IVP1System::registerController(QWidget*w)
 {
   if (verbose()) {
     messageVerbose("registerController ");
-    messageVerbose("registerController d->canregistercontroller = "+QString(d->canregistercontroller?"true":"false"));
-    messageVerbose("registerController d->state==CONSTRUCTED = "+QString(d->state==CONSTRUCTED?"true":"false"));
-    messageVerbose("registerController d->controller==0 = "+QString(d->controller==0?"true":"false"));
+    messageVerbose("registerController m_d->canregistercontroller = "+QString(m_d->canregistercontroller?"true":"false"));
+    messageVerbose("registerController m_d->state==CONSTRUCTED = "+QString(m_d->state==CONSTRUCTED?"true":"false"));
+    messageVerbose("registerController m_d->controller==0 = "+QString(m_d->controller==0?"true":"false"));
     messageVerbose("registerController w!=0 = "+QString(w!=0?"true":"false"));
   }
-  if (!d->canregistercontroller)
+  if (!m_d->canregistercontroller)
     message("ERROR: Please don't register controllers after create().");
-  if (d->state!=CONSTRUCTED)
+  if (m_d->state!=CONSTRUCTED)
     message("ERROR: Please only register controllers in CONSTRUCTED state.");
   if (!w) {
     message("ERROR: Attempt to register null controller.");
     return;
   }
-  if (d->controller) {
+  if (m_d->controller) {
     message("ERROR: Attempt to register controller twice.");
     return;
   }
-  d->controller = w;
+  m_d->controller = w;
   w->setParent(0);
 }
 
 //________________________________________________________
 void IVP1System::disallowUpdateGUI()
 {
-  d->allowupdategui=false;
+  m_d->allowupdategui=false;
 }
 
 //________________________________________________________
 void IVP1System::allowUpdateGUI()
 {
-  d->allowupdategui=true;
+  m_d->allowupdategui=true;
 }
 
 //________________________________________________________
 void IVP1System::updateGUI() {
 //	messageDebug("IVP1System::updateGUI() - START");
-  //assert(d->allowupdategui);
-  //assert(d->state==ERASED);
+  //assert(m_d->allowupdategui);
+  //assert(m_d->state==ERASED);
 
-  if ( d->allowupdategui && qApp->hasPendingEvents() ) {
+  if ( m_d->allowupdategui && qApp->hasPendingEvents() ) {
     qApp->processEvents();
   }
 
@@ -271,10 +271,10 @@ void IVP1System::updateGUI() {
 //________________________________________________________
 IVP1ChannelWidget * IVP1System::channel() const
 {
-  if (verbose()&&!d->channel)
+  if (verbose()&&!m_d->channel)
     messageVerbose("WARNING channel() returning NULL");
-  assert(d->channel);
-  return d->channel;
+  assert(m_d->channel);
+  return m_d->channel;
 }
 
 //_______________________________________________________
@@ -282,7 +282,7 @@ void IVP1System::setCanRegisterController(const bool&c)
 {
   if (verbose())
     messageVerbose("setCanRegisterController called with"+QString(c?"true":"false"));
-  d->canregistercontroller=c;
+  m_d->canregistercontroller=c;
 }
 
 //_______________________________________________________
@@ -331,20 +331,20 @@ void IVP1System::message(const QString& str) const
   if (receivers(SIGNAL(sysmessage(QString))) > 0)
     sysmessage(str);
   else
-    std::cout<<VP1Msg::prefix_msg()<<" ["<<d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
+    std::cout<<VP1Msg::prefix_msg()<<" ["<<m_d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
 }
 
 //_______________________________________________________
 void IVP1System::messageDebug(const QString& str) const
 {
-  std::cout<<VP1Msg::prefix_debug()<<" ["<<d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
+  std::cout<<VP1Msg::prefix_debug()<<" ["<<m_d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
 }
 
 //_______________________________________________________
 void IVP1System::messageVerbose(const QString& str) const
 {
   if (verbose())
-    std::cout<<VP1Msg::prefix_verbose()<<" ["<<d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
+    std::cout<<VP1Msg::prefix_verbose()<<" ["<<m_d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
 }
 
 

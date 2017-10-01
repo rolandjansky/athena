@@ -50,6 +50,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 
 #include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <vector>
 #include <string>
@@ -69,7 +70,8 @@ namespace DerivationFramework {
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx")
+    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -103,8 +105,9 @@ namespace DerivationFramework {
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
-    declareProperty("TrackExtrapolator",      m_extrapolator);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
+    declareProperty("TrackExtrapolator",      m_extrapolator);
+    declareProperty("AssociationTool",        m_assoTool);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
@@ -145,6 +148,7 @@ namespace DerivationFramework {
     
     if( m_storeTRT){
       CHECK(m_trtcaldbSvc.retrieve());
+      CHECK(m_assoTool.retrieve());
     }
 
     if( m_addPulls ){
@@ -154,6 +158,10 @@ namespace DerivationFramework {
     
     if( m_storeHoles ) {
       CHECK( m_holeSearchTool.retrieve() );
+    }
+
+    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
+      CHECK( m_TRTdEdxTool.retrieve() );
     }
 
     CHECK(m_extrapolator.retrieve());
@@ -288,6 +296,20 @@ namespace DerivationFramework {
 
       //  This is the vector in which we will store the element links to the MSOS's
       std::vector< ElementLink< xAOD::TrackStateValidationContainer > > msosLink;
+
+      if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
+	// for dEdx studies
+	SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
+	SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");    
+	SG::AuxElement::Decorator< float > decoratorTRTdEdx_noHT_divByL("ToT_dEdx_noHT_divByL");
+	SG::AuxElement::Decorator< float > decoratorTRTusedHits_noHT_divByL("ToT_usedHits_noHT_divByL");    
+	
+        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
+        decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
+        decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
+        decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
+      }
+
       
 
       if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
@@ -298,10 +320,9 @@ namespace DerivationFramework {
 	SG::AuxElement::Decorator< float > decoratorTRTusedHits_noHT_divByL("ToT_usedHits_noHT_divByL");    
 
 	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        ITRT_ToT_dEdx::EGasType gasType;
-	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, gasType, true, true);
+	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
 	decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, gasType, true, false);
+	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
       }
 
       // -- Add Track states to the current track, filtering on their type
@@ -429,9 +450,12 @@ namespace DerivationFramework {
         msos->setDetElementId(  surfaceID.get_compact() );
 
 
-        const Trk::TrackParameters* tp = trackState->trackParameters();       
+	const Trk::TrackParameters* tp = trackState->trackParameters();       
 
-        const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
+	  // some more detailed hit info
+	double lTheta=-1000., lPhi=-1000.;
+        //Get the measurement base object
+	const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
 	if (m_storeTRT) {
 	  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
 	  if (!measurement) {
@@ -451,6 +475,8 @@ namespace DerivationFramework {
 		msos->auxdata<float>("HitZ")=gp.z();
 		msos->auxdata<float>("HitR")=gp.perp();
 		msos->auxdata<float>("rTrkWire")= fabs(trackState->trackParameters()->parameters()[Trk::driftRadius]);
+		lTheta = trackState->trackParameters()->parameters()[Trk::theta];
+		lPhi = trackState->trackParameters()->parameters()[Trk::phi]; 
 	      }
 	      else {
 		msos->auxdata<float>("HitZ") =driftcircle->associatedSurface().center().z();
@@ -459,7 +485,17 @@ namespace DerivationFramework {
 	      }
 	    }
 	  }
+	  msos->setLocalAngles(lTheta, lPhi);
+	  
+	  bool isShared=false;
+	  const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+	  if (hit_trt) {
+	    if ( m_assoTool->isShared(*(hit_trt->prepRawData())) ) isShared=true;
+	    msos->auxdata<bool>("isShared") = isShared;
+	  }
 	}
+
+
 
         // Track extrapolation
         std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(*trkTrack,trackState->surface()) );
@@ -525,8 +561,6 @@ namespace DerivationFramework {
           }
         } 
  
-        //Get the measurement base object
-        //const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
         if(!measurement)
           continue;
       
@@ -598,11 +632,12 @@ namespace DerivationFramework {
             biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
 	    if (m_storeTRT) msos->auxdata<float>("TrackError_biased") = sqrt(fabs((*tp->covariance())(Trk::locX,Trk::locX)));
 
+	    if (m_storeTRT) msos->auxdata<float>("TrackError_biased") = sqrt(fabs((*tp->covariance())(Trk::locX,Trk::locX)));
             std::unique_ptr<const Trk::TrackParameters> unbiasedTp( m_updator->removeFromState(*tp, measurement->localParameters(), measurement->localCovariance()) );   
-            if(unbiasedTp.get()) {
+	      if(unbiasedTp.get()) {
 	      if (m_storeTRT) msos->auxdata<float>("TrackError_unbiased") = sqrt(fabs((*unbiasedTp.get()->covariance())(Trk::locX,Trk::locX)));
-              unbiased = m_residualPullCalculator->residualPull(measurement, unbiasedTp.get(), Trk::ResidualPull::Unbiased);
-	    }
+		unbiased = m_residualPullCalculator->residualPull(measurement, unbiasedTp.get(), Trk::ResidualPull::Unbiased);
+		  }
           }
           else {
             if (extrap.get()) {

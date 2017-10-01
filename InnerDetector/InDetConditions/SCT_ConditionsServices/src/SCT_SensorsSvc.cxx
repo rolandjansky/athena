@@ -20,11 +20,10 @@ const std::string sensorsFolderName("/SCT/Sensors");
 SCT_SensorsSvc::SCT_SensorsSvc( const std::string& name, ISvcLocator* pSvcLocator ):
   AthService(name, pSvcLocator),
   m_detStore("DetectorStore",name),
-  m_sensorsManufacturer{nullptr}{
+  m_sensorsManufacturer{} {
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsSvc::initialize(){
-  m_sensorsManufacturer = new std::map<CondAttrListCollection::ChanNum, std::string >;
   // Retrieve detector store
   if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endmsg, StatusCode::FAILURE;
   // Register callback function
@@ -61,12 +60,12 @@ void SCT_SensorsSvc::getSensorsData(std::vector<std::string> & userVector){
 
 std::string SCT_SensorsSvc::getManufacturer(unsigned int i){
   std::string manufacturer="";
-  manufacturer = (*m_sensorsManufacturer)[i];
+  manufacturer = m_sensorsManufacturer[i];
   return manufacturer;
 }
 
 void SCT_SensorsSvc::printManufacturers() {
-  for(auto it: *m_sensorsManufacturer) {
+  for(auto it: m_sensorsManufacturer) {
     ATH_MSG_INFO("channel " << it.first << " manufacturer " << it.second);
   }
 }
@@ -81,7 +80,7 @@ StatusCode SCT_SensorsSvc::fillSensorsData(int& /* i */ , std::list<std::string>
   for(sensorsData_itr = m_sensorsData->begin(); sensorsData_itr!= m_sensorsData->end(); ++sensorsData_itr)
     {
       CondAttrListCollection::ChanNum  channelNumber=sensorsData_itr->first;
-      (*m_sensorsManufacturer)[channelNumber] = sensorsData_itr->second[0].data<std::string>();
+      m_sensorsManufacturer[channelNumber] = sensorsData_itr->second[0].data<std::string>();
     }
 
   return StatusCode::SUCCESS;

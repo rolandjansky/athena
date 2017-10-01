@@ -2430,7 +2430,7 @@ SCTErrMonTool::fillConfigurationDetails() {
     msg(MSG::DEBUG) << "Inside fillConfigurationDetails()" << endmsg;
   }
   unsigned int nBadMods = m_ConfigurationSvc->badModules()->size(); // bad modules
-  std::map<Identifier, std::pair<bool, bool> > *badLinks = m_ConfigurationSvc->badLinks(); // bad links
+  const std::map<Identifier, std::pair<bool, bool> > *badLinks = m_ConfigurationSvc->badLinks(); // bad links
   unsigned int nBadLink0(0), nBadLink1(0), nBadLinkBoth(0);
   for (auto link: *badLinks) {
     std::pair<bool, bool> status = link.second;
@@ -2445,7 +2445,7 @@ SCTErrMonTool::fillConfigurationDetails() {
     }
   }
 
-  std::map<Identifier, unsigned int> *badChips = m_ConfigurationSvc->badChips(); // bad chips
+  const std::map<Identifier, unsigned int> *badChips = m_ConfigurationSvc->badChips(); // bad chips
   unsigned int nBadChips(0);
   for (auto chip : *badChips) {
     unsigned int status = chip.second;
@@ -2720,9 +2720,9 @@ bool SCTErrMonTool::SyncErrorSCT()
 
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
-      std::set<IdentifierHash>::iterator fit = sctErrors->begin();
-      std::set<IdentifierHash>::iterator fitEnd = sctErrors->end();
+      const std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
+      std::set<IdentifierHash>::const_iterator fit = sctErrors->begin();
+      std::set<IdentifierHash>::const_iterator fitEnd = sctErrors->end();
 
       // Check that all modules are registered
       for (; fit != fitEnd; ++fit) {
@@ -2753,9 +2753,9 @@ bool SCTErrMonTool::SyncDisabledSCT()
   double deltaZ = 0;
 
   m_disabledGeoSCT.clear();
-  std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
-  std::set<Identifier>::iterator fit = badModules->begin();
-  std::set<Identifier>::iterator fitEnd = badModules->end();
+  const std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
+  std::set<Identifier>::const_iterator fit = badModules->begin();
+  std::set<Identifier>::const_iterator fitEnd = badModules->end();
 
   // Check that all modules are registered
   for (; fit != fitEnd; ++fit){

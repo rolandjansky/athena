@@ -19,6 +19,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -35,10 +36,15 @@ public:
 };
 
 
-SG::DataProxy* make_proxy (CLID clid, const std::string& name)
+SG::DataProxy* make_proxy (CLID clid,
+                           const std::string& name,
+                           SG::sgkey_t sgkey = 0)
 {
-  SG::TransientAddress* tad = new SG::TransientAddress (clid, name);
-  return new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+  auto tad = std::make_unique<SG::TransientAddress> (clid, name);
+  if (sgkey) {
+    tad->setSGKey (sgkey);
+  }
+  return new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
 }
 
 
@@ -53,7 +59,7 @@ void test_ctor()
 }
 
 
-void test_addToStore()
+void test_addToStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addToStore\n";
 
@@ -67,7 +73,7 @@ void test_addToStore()
   assert (store.addToStore (123, dp1).isSuccess());
   assert (dp1->store() == &pool);
   assert (dp1->refCount() == 1);
-  assert (dp1->transientAddress()->sgkey() == sgkey);
+  assert (dp1->sgkey() == sgkey);
   assert (store.proxy_exact (sgkey) == dp1);
   assert (store.proxy (123, "dp1") == dp1);
 
@@ -81,11 +87,11 @@ void test_addToStore()
   SG::StringPool::sgkey_t sgkey2b = pool.stringToKey ("dp2", 124);
   assert (store.proxy_exact (sgkey2b) == dp2);
   assert (store.proxy_exact (sgkey2a) == 0);
-  assert (dp2->transientAddress()->sgkey() == sgkey2a);
+  assert (dp2->sgkey() == sgkey2a);
 }
 
 
-void test_addAlias()
+void test_addAlias ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addAlias\n";
 
@@ -102,19 +108,19 @@ void test_addAlias()
   assert (store.proxy (123, "dp1a") == dp1);
   assert (store.proxy_exact (pool.stringToKey ("dp1a", 123)) == dp1);
 
-  assert (dp1->transientAddress()->alias().count ("dp1a") == 1);
+  assert (dp1->alias().count ("dp1a") == 1);
 
   SG::DataProxy* dp2 = make_proxy (123, "dp2");
   assert (store.addToStore (123, dp2).isSuccess());
   assert (store.addAlias ("dpx", dp2).isSuccess());
   assert (dp2->refCount() == 2);
-  assert (dp2->transientAddress()->alias().count ("dpx") == 1);
+  assert (dp2->alias().count ("dpx") == 1);
 
   assert (store.addAlias ("dpx", dp1).isSuccess());
   assert (dp1->refCount() == 4);
   assert (dp2->refCount() == 1);
-  assert (dp2->transientAddress()->alias().count ("dpx") == 0);
-  assert (dp1->transientAddress()->alias().count ("dpx") == 1);
+  assert (dp2->alias().count ("dpx") == 0);
+  assert (dp1->alias().count ("dpx") == 1);
   assert (store.addAlias ("dpx", dp1).isSuccess());
   assert (dp1->refCount() == 4);
   assert (dp2->refCount() == 1);
@@ -134,8 +140,8 @@ void test_addSymLink()
 
   assert (store.proxy_exact (123, "dp1") == dp1);
   assert (store.proxy_exact (124, "dp1") == dp1);
-  assert (dp1->transientAddress()->transientID(123));
-  assert (dp1->transientAddress()->transientID(124));
+  assert (dp1->transientID(123));
+  assert (dp1->transientID(124));
 
   assert (store.addSymLink (124, dp1).isSuccess());
   assert (store.proxy_exact (124, "dp1") == dp1);
@@ -143,11 +149,11 @@ void test_addSymLink()
   SG::DataProxy* dp2 = make_proxy (125, "dp1");
   assert (store.addToStore (125, dp2).isSuccess());
   assert (store.addSymLink (125, dp1).isFailure());
-  assert (!dp1->transientAddress()->transientID(125));
+  assert (!dp1->transientID(125));
 }
 
 
-void test_proxy_exact()
+void test_proxy_exact ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_proxy_exact\n";
 
@@ -347,7 +353,7 @@ void test_keys()
   assert (store.addToStore (125, dp3).isSuccess());
   assert (store.addToStore (125, dp4).isSuccess());
   TestProvider prov;
-  dp4->transientAddress()->setProvider (&prov, StoreID::SPARE_STORE);
+  dp4->setProvider (&prov, StoreID::SPARE_STORE);
 
   store.keys (125, v, true, false);
   assert (v.size() == 2);
@@ -360,7 +366,7 @@ void test_keys()
 }
 
 
-void test_removeProxy()
+void test_removeProxy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_removeProxy\n";
 
@@ -401,7 +407,7 @@ void test_removeProxy()
 }
 
 
-void test_clearStore()
+void test_clearStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_clearStore\n";
 
@@ -477,7 +483,7 @@ void test_t2p()
 }
 
 
-void test_dummy()
+void test_dummy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_dummy\n";
 
@@ -486,8 +492,7 @@ void test_dummy()
 
   SG::StringPool::sgkey_t sgkey = pool.stringToKey ("dp1", 456);
 
-  SG::DataProxy* dp1 = make_proxy (0, "");
-  dp1->transientAddress()->setSGKey (sgkey);
+  SG::DataProxy* dp1 = make_proxy (0, "", sgkey);
   assert (store.addToStore (0, dp1).isSuccess());
   assert (dp1->refCount() == 1);
   assert (store.proxy_exact (sgkey) == dp1);
@@ -498,8 +503,7 @@ void test_dummy()
   assert (dp1->refCount() == 1);
 
   SG::StringPool::sgkey_t sgkey2 = pool.stringToKey ("dp2", 456);
-  SG::DataProxy* dp2 = make_proxy (0, "");
-  dp2->transientAddress()->setSGKey (sgkey2);
+  SG::DataProxy* dp2 = make_proxy (0, "", sgkey2);
   assert (store.addToStore (0, dp2).isSuccess());
   assert (dp2->refCount() == 1);
   assert (store.proxy_exact (sgkey2) == dp2);
@@ -511,7 +515,7 @@ void test_dummy()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   test_ctor();

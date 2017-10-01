@@ -12,4 +12,3 @@ import AthenaCommon.SystemOfUnits as Units
 # Common tools, services and algorithms used by jobs
 addTool("ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfig.getFastCaloSimCaloExtrapolation" , "FastCaloSimCaloExtrapolation"   )
 addTool("ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfig.getFastCaloSimGeometryHelper" , "FastCaloSimGeometryHelper"   )
-

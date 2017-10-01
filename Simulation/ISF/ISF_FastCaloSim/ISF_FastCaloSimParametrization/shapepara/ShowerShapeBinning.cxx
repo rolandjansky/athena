@@ -78,12 +78,16 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
    TTree *hitsTree   = (TTree *)inputHitsFile->Get("hits");
    TTree *globalTree = (TTree *)inputHitsFile->Get("global");
 
+   TH1F* hEventEnergy = (TH1F*)inputHitsFile->Get("hEventEnergy");
+   TH1F* hEventHit = (TH1F*)inputHitsFile->Get("hEventHit");
+
 
    // * initialize the hits and global TTrees
    InitHitsTree(hitsTree, globalTree);
 
    // * Get the global variables
    globalTree->GetEntry(0);
+
 
    float etaCenter = m_etaCenter;
    float phiCenter = m_phiCenter;
@@ -96,6 +100,7 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
    float cell_deta = m_cellDeta;
    float cell_dphi = m_cellDphi;
 
+   cout << " ==> eta, phi shifts = " << m_etaShift << " , " << m_phiShift << endl;
 
    if (m_debug)
    {
@@ -110,9 +115,12 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
 
    // * use fine binning for the initial histograms
    TH1F *h_alpha = new TH1F("h_alpha", "h_alpha", 630000, alphaMin, alphaMax);
-   TH1F *h_dr    = new TH1F("h_dr", "h_dr", 75000000, 0, rMax);
-
    TH1F *h_alphaE = new TH1F("h_alphaE", "h_alphaE", 630000, alphaMin, alphaMax);
+
+   TH1F *h_dr_init    = new TH1F("h_dr_init", "h_dr_init", 75000000, 0, rMax);
+   TH1F *h_drE_init    = new TH1F("h_drE_init", "h_dr_init", 75000000, 0, rMax);
+
+
 
    TH1F *hdeta = new TH1F("hdeta", "hdeta", 100, -0.2, 0.2);
    TH1F *hdphi = new TH1F("hdphi", "hdphi", 100, -0.2, 0.2);
@@ -144,52 +152,63 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
    TTree *m_hitsAlphaDrNtuple = new TTree("hitsAlphaDr", "hitsAlphaDr");
    BookHitsAlphaDrTree(m_hitsAlphaDrNtuple);
 
-   // float sumetaenergy = 0.;
-   // float sumphienergy = 0.;
-   // float energytotal  = 0;
-
-   // for (int ihit = 0; ihit < hitsTree->GetEntries(); ihit++)
-   // {
-   //    hitsTree->GetEntry(ihit);
-   //    int eventNumber = m_eventNumber;
-
-   //    float energy_hit = m_energy;
-   //    float deta       = m_deta;
-   //    float dphi       = m_dphi;
-
-   //    sumetaenergy += deta * energy_hit;
-   //    sumphienergy += dphi * energy_hit;
-   //    energytotal  += energy_hit;
-   // }
-
-   // float shiftyeta = sumetaenergy / energytotal;
-   // float shiftyphi = sumphienergy / energytotal;
-
-   // cout << " shwifty eta =" << shiftyeta << " shwifty phi = " << shiftyphi << endl;
 
 
 
    // * loop through all hits
 
+   int eventNumber = -1;
+   bool newEvent = false;
+   float eventEnergy = 0.;
+   int eventHit = 0;
+   float energy_hit = 0.;
+   float total_energy = 0.;
+   int nSkipHits = 0;
+   float eta_hit = 0.;
+   float phi_hit = 0.;
+   float eta_entrance = 0.;
+   float phi_entrance = 0.;
+   float deta = 0.;
+   float dphi = 0.;
+
+   float cutoff = 0.95; // cutoff energy fraction
+
    cout << " Looping over nhits = " << hitsTree->GetEntries() << endl;
+
+   int nSkpHitsTotal = 0;
 
    for (int ihit = 0; ihit < hitsTree->GetEntries(); ihit++)
    {
       hitsTree->GetEntry(ihit);
 
 
+      // read the TTree variables
+      eventNumber = m_eventNumber;
+      newEvent = m_newEvent;
 
-      int eventNumber = m_eventNumber;
+      if (newEvent) {
 
-      float energy_hit = m_energy;
-      float eta_hit    = m_etaHit;
-      float phi_hit    = m_phiHit;
+         // cout << " total energy, skipped hits in last event = " << total_energy << " , " << nSkipHits << endl;
+         eventEnergy = hEventEnergy->GetBinContent(eventNumber);
+         eventHit = hEventHit->GetBinContent(eventNumber);
+         total_energy = 0.; // set the total energy to zero for each event
+         nSkipHits = 0; // reset the number of hits skipped
+         // cout << " event no = " << eventNumber << " event energy = " << eventEnergy << "event hit =" << eventHit << "new event? =" << newEvent << " cutoff = " << cutoff << endl;
 
-      float eta_entrance = m_etaEntrance;
-      float phi_entrance = m_phiEntrance;
 
-      float deta = m_deta;
-      float dphi = m_dphi;
+      }
+
+      energy_hit = m_energy;
+      total_energy += energy_hit;
+      eta_hit    = m_etaHit;
+      phi_hit    = m_phiHit;
+
+      eta_entrance = m_etaEntrance;
+      phi_entrance = m_phiEntrance;
+
+      deta = m_deta;
+      dphi = m_dphi;
+
 
       float deta_mm, dphi_mm;
       tie(deta_mm, dphi_mm) = GetUnitsmm(eta_hit, deta, dphi, cell_r, cell_z);
@@ -204,8 +223,9 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
 
       // * calculate the corrected deta, dphi
 
-      float deta_corr = deta - etaShift;
-      float dphi_corr = dphi - phiShift;
+
+      float deta_corr = deta; // - etaShift;
+      float dphi_corr = dphi; // - phiShift;
 
       if (m_debug)
       {
@@ -252,27 +272,49 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
          cout << " delta r = " << delta_r << " mm, alpha = " << alpha << " mm" << endl;
       }
 
+      // if (total_energy <= eventEnergy * cutoff) {
       h_alpha->Fill(alpha);
       h_alphaE->Fill(alpha, energy_hit);
+      h_dr_init->Fill(delta_r);
+      h_drE_init->Fill(delta_r, energy_hit);
 
-      // * reweight r with hit energy,  if energy > 1 MeV weigher = energy, otherwise weight = 1
-      if (energy_hit > 1.)
-      {
-         h_dr->Fill(delta_r, energy_hit);
-      }
-      else
-      {
-         h_dr->Fill(delta_r, 1);
-      }
+      // } else {
+      //    nSkipHits++;
+      //    nSkpHitsTotal++;
 
+      // cout << " energy reached = " << cutoff << " of total event energy.. Skipping hits = " << ihit << endl;
+      //}
 
+      // cout << " Total number of hits skipped = " << nSkpHitsTotal << endl;
       // * fill the TTree
       m_eventNumber = eventNumber;
       m_alpha       = alpha;
       m_dr          = delta_r;
       m_energy      = energy_hit;
       m_hitsAlphaDrNtuple->Fill();
+
+
    }//end loop over hits
+
+   int bins;
+   double binmax;
+
+   tie(bins, binmax) = GetBinUpEdge(h_drE_init);
+   cout.precision(8);
+   cout << " bins = " << bins << " binmax = " << binmax << endl;
+
+
+
+
+   TH1F *h_dr = new TH1F("h_dr", "h_dr", bins + 1, 0, binmax);
+   TH1F *h_drE = new TH1F("h_drE", "h_drE", bins + 1, 0, binmax);
+
+
+   for (int i = 0; i < h_dr->GetNbinsX(); i ++) {
+
+      h_dr->SetBinContent(i, h_dr_init->GetBinContent(i));
+      h_drE->SetBinContent(i, h_drE_init->GetBinContent(i));
+   }
 
 
 
@@ -280,13 +322,17 @@ void ShowerShapeBinning::CreateHitsAlphaDrNtuple(std::string inputHits)
    m_hitsAlphaDrNtuple->Write();
    globalTree->CloneTree()->Write();
    h_alpha->Write();
-   h_dr->Write();
-
    h_alphaE->Write();
-   //
-   //  hdeta_corr->Write();
-   //  hdphi_corr->Write();
-   //
+   h_dr_init->Write();
+   h_drE_init->Write();
+   h_dr->Write();
+   h_drE->Write();
+
+
+//
+//  hdeta_corr->Write();
+//  hdphi_corr->Write();
+//
 
    hdeta->Write();
    hdetaE->Write();
@@ -338,10 +384,11 @@ void ShowerShapeBinning::RunBinning()
    for (int i = 0; i < nAlphaBoundaries; i++)
    {
       xAlphaBins[i] = xbinsAlpha.at(i);
-      if (m_debug)
-      {
-         cout << " BIN ALPHA  " << i << ":  " << xAlphaBins[i] << endl;
-      }
+
+      // if (m_debug)
+      // {
+      cout << " BIN ALPHA  " << i << ":  " << xAlphaBins[i] << endl;
+      // }
    }
 
    // * r binning is iterative to ensure no empty bins
@@ -417,6 +464,7 @@ void ShowerShapeBinning::RunBinning()
          hHits            = new TH2F("hHits", "hHits", nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
          hEnergyDensity   = new TH2F("hEnergyDensity", "hEnergyDensity", nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
          hEnergy          = new TH2F("hEnergy", "hEnergy", nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
+         hDrEnergy          = new TH1F("hDrEnergy", "hDrEnergy", nRBoundaries - 1, yRBins);
          hLnEnergy        = new TH2F("hLnEnergy", "hLnEnergy", nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
          hLnEnergyDensity = new TH2F("hLnEnergyDensity", "hLnEnergyDensity", nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
 
@@ -426,6 +474,7 @@ void ShowerShapeBinning::RunBinning()
          // * loop over events to fill histograms with this binning
          cout << " * Start looping over " << hitsAlphaDrTree->GetEntries() << " hits ..." << endl;
 
+         //double nevent = 0.0;
 
 
          for (int ihit = 0; ihit < hitsAlphaDrTree->GetEntries(); ihit++)
@@ -454,6 +503,9 @@ void ShowerShapeBinning::RunBinning()
                // * define the histogram for the first hit
                halphadrE = new TH2F(Form("halphadrE_%i", eventNumber), Form("halphadrE_%i", eventNumber), nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
                halphadrE->Sumw2();
+
+               hDrE = new TH1F(Form("hDrE_%i", eventNumber), Form("hDrE_%i", eventNumber), nRBoundaries - 1, yRBins);
+               hDrE->Sumw2();
             }
 
             float alpha  = m_alpha;
@@ -468,12 +520,14 @@ void ShowerShapeBinning::RunBinning()
 
             hHits->Fill(alpha, dr, 1);
             halphadrE->Fill(alpha, dr, energy);
+            hDrE->Fill(dr, energy);
 
 
             if (NextEventNumber != eventNumber or ihit == hitsAlphaDrTree->GetEntries() - 1)
             {
                // if the next event has a different eventNumber then normalize
 
+               nevent += 1.0;
                isNewEvent = true;
 
                if (m_debug)
@@ -483,13 +537,21 @@ void ShowerShapeBinning::RunBinning()
 
                if (halphadrE->Integral() > 0)
                {
-                  halphadrE->Scale(1 / (halphadrE->Integral()));
+                  //halphadrE->Scale(1 / (halphadrE->Integral()));
                   hEnergy->Add(halphadrE);
                }
+
+               //hDrE->Scale(1 / (hDrE->Integral()));
+               hDrEnergy->Add(hDrE);
 
                if (halphadrE)
                {
                   delete halphadrE;
+               }
+
+               if (hDrE) {
+
+                  delete hDrE;
                }
             }
 
@@ -497,8 +559,13 @@ void ShowerShapeBinning::RunBinning()
             {
                halphadrE = new TH2F(Form("halphadrE_%i", eventNumber), Form("halphadrE_%i", eventNumber), nAlphaBins, xAlphaBins, nRBoundaries - 1, yRBins);
                halphadrE->Sumw2();
+
+               hDrE = new TH1F(Form("hDrE_%i", eventNumber), Form("hDrE_%i", eventNumber), nRBoundaries - 1, yRBins);
+               hDrE->Sumw2();
             }
          }
+
+         cout << " *** Total No of events = " << nevent << endl;
          cout << " *Checking if there are empty bins with tolerance = " << m_tolerance << endl;
          isEmptyBin = CheckEmptyBin();
 
@@ -532,6 +599,9 @@ void ShowerShapeBinning::RunBinning()
          if (hGradient)
          {
             delete hGradient;
+         }
+         if (hDrEnergy) {
+            delete hDrEnergy;
          }
 
          cout << " end loop to combine bins" << endl;
@@ -631,11 +701,11 @@ void ShowerShapeBinning::CreateNNinput()
          m_alphaBin = xbinsAlpha.at(ibinx);
          if (ibiny == 0)
          {
-            m_rBin = TMath::Log(ybinsR.at(1)) - 1;
+            m_LnrBin = TMath::Log(ybinsR.at(1)) - 1;
          }
          else
          {
-            m_rBin = TMath::Log(ybinsR.at(ibiny));
+            m_LnrBin = TMath::Log(ybinsR.at(ibiny));
          }
 
          // * calculate r prob
@@ -688,11 +758,15 @@ void ShowerShapeBinning::CreateNNinput()
 
    // * write the TTrees and relevant histograms
 
+   cout << " ****** Nevents = " << nevent << endl;
+
    NNinputFile->cd();
    NNbinCenter->Write();
    NNprob->Write();
    hHits->Write();
+   hEnergy->Scale(1.0 / nevent);
    hEnergy->Write();
+
    hEnergyNorm->Write();
    hEnergyDensity->Write();
    hLnEnergy->Write();
@@ -701,6 +775,8 @@ void ShowerShapeBinning::CreateNNinput()
    hValidation->Write();
    h_alpha->Write();
    h_dr->Write();
+   hDrEnergy->Scale(1.0 / nevent);
+   hDrEnergy->Write();
    NNinputFile->Close();
 
    //  std::string inputDistrFile = m_topDir + m_particle + "/InputDistribution_" + m_particle + ".root";
@@ -908,6 +984,36 @@ bool ShowerShapeBinning::CheckGradient()
 }
 
 
+std::tuple<int, double> ShowerShapeBinning::GetBinUpEdge(TH1F* histo) {
+
+   int nbins = histo->GetNbinsX();
+
+   double energy = histo->Integral();
+
+   double cutoff = 0.95 * energy;
+
+   double tot_energy = 0.;
+
+   double bin_edge = 0.;
+
+   int bin_no = -1;
+
+   for (int i = 0; i < nbins; i++) {
+
+      tot_energy += histo->GetBinContent(i);
+
+      if (tot_energy >= cutoff) {
+
+         bin_edge = histo->GetXaxis()->GetBinUpEdge(i);
+         bin_no = i;
+         break;
+      }
+
+   }
+
+   return std::make_tuple(bin_no, bin_edge);
+}
+
 std::vector<float> ShowerShapeBinning::Getxbins(TH1F *histo, int nbins)
 {
    // * calculate variable bin width in alpha and dr making sure each bin has almost equal amount of hits.
@@ -932,6 +1038,13 @@ std::vector<float> ShowerShapeBinning::Getxbins(TH1F *histo, int nbins)
    if (isAlpha)
    {
       xbins.push_back(TMath::Pi() / 8);
+
+      for (int i = 1; i <= nbins; i++ ) {
+
+         xbins.push_back(TMath::Pi() / 8 + i * 2 * TMath::Pi() / nbins);
+      }
+
+      return xbins;
    }
    else
    {
@@ -995,6 +1108,7 @@ std::tuple<float, float> ShowerShapeBinning::GetUnitsmm(float eta_hit, float d_e
 void ShowerShapeBinning::InitHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
 {
    m_eventNumber = -1;
+   m_newEvent    = false;
    m_energy      = 0.;
    m_etaHit      = 0.;
    m_phiHit      = 0.;
@@ -1015,6 +1129,7 @@ void ShowerShapeBinning::InitHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
    m_cellDphi  = 0.;
 
    hitsNtuple->SetBranchAddress("eventNumber", &m_eventNumber);
+   hitsNtuple->SetBranchAddress("newEvent", &m_newEvent);
    hitsNtuple->SetBranchAddress("energy_hit", &m_energy);
    hitsNtuple->SetBranchAddress("eta_hit", &m_etaHit);
    hitsNtuple->SetBranchAddress("phi_hit", &m_phiHit);
@@ -1101,6 +1216,7 @@ void ShowerShapeBinning::BookNNinputTree(TTree *energyNtuple, TTree *probNtuple)
    m_rProb     = 0.;
    m_alphaBin  = 0.;
    m_rBin      = 0.;
+   m_LnrBin    = 0;
    m_weight    = 0.;
 
    energyNtuple->Branch("alpha", &m_alphaBinCenter);
@@ -1115,5 +1231,6 @@ void ShowerShapeBinning::BookNNinputTree(TTree *energyNtuple, TTree *probNtuple)
    probNtuple->Branch("r_prob", &m_rProb);
    probNtuple->Branch("alpha_bin", &m_alphaBin);
    probNtuple->Branch("r_bin", &m_rBin);
+   probNtuple->Branch("Lnr_bin", &m_LnrBin);
    probNtuple->Branch("weight", &m_weight);
 }

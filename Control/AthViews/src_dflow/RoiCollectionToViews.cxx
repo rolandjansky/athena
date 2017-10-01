@@ -106,7 +106,8 @@ StatusCode RoiCollectionToViews::execute()
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName, //Base name for all views to use
           viewVector,                                 //Vector to store views
           outputRoIs,                                 //A writehandle to use to access the views (the handle itself, not the contents)
-          outputRoICollectionVector ) );              //Data to initialise each view - one view will be made per entry
+          outputRoICollectionVector,                  //Data to initialise each view - one view will be made per entry
+          m_viewFallThrough ) );                      //Allow fall through from view to storegate
 
   //Run the algorithms in views
   CHECK( ViewHelper::RunViews( viewVector,              //View vector

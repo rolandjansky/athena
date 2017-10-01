@@ -55,7 +55,6 @@ public:
    */
   virtual const DataObjID& id() const = 0;
 
-
   /**
    * @brief Return the associated @c DataProxy, if any.
    */

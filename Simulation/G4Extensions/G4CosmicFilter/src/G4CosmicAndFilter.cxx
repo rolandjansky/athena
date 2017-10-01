@@ -8,24 +8,25 @@
 #include "G4RunManager.hh"
 #include "G4Event.hh"
 
-
 #include "StoreGate/ReadHandle.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-
-  G4CosmicAndFilter::G4CosmicAndFilter(const Config& config):
-    AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"G4CosmicAndFilter"),
-    m_config(config),m_report(),
-    m_evtStore("StoreGateSvc/StoreGateSvc","G4CosmicAndFilter"),
-    m_detStore("StoreGateSvc/DetectorStore","G4CosmicAndFilter"){;
+  G4CosmicAndFilter::G4CosmicAndFilter(const Config& config)
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "G4CosmicAndFilter"),
+      m_config(config), m_report(),
+      m_evtStore("StoreGateSvc/StoreGateSvc", "G4CosmicAndFilter"),
+      m_detStore("StoreGateSvc/DetectorStore", "G4CosmicAndFilter")
+  {
   }
 
-  void G4CosmicAndFilter::endOfEvent(const G4Event*){;
+  void G4CosmicAndFilter::EndOfEventAction(const G4Event*)
+  {
 
     m_report.ntot++;
     int counter(0);
@@ -38,14 +39,14 @@ namespace G4UA{
       {
 	counter = coll->size();
       }
-    
+
     if (counter==0)
       {
 	ATH_MSG_INFO("aborting event due to failing AND filter");
 	G4RunManager::GetRunManager()->AbortEvent();
 	return;
       }
-    
+
     SG::ReadHandle <TrackRecordCollection> coll2(m_config.collectionName2);
     if (! coll2.isValid())
     {
@@ -62,11 +63,10 @@ namespace G4UA{
 	G4RunManager::GetRunManager()->AbortEvent();
 	return;
       }
-    
+
     m_report.npass++;
     return;
 
   }
 
-
-} // namespace G4UA 
+} // namespace G4UA

@@ -15,9 +15,9 @@
 // Trk includes
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryBuilder.h"
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 class AtlasDetectorID;
-class PRD_MultiTruthCollection;  
 
 namespace HepMC {
   class GenParticle;
@@ -61,18 +61,18 @@ namespace Trk {
        StatusCode refreshEvent();
 
      private:
-        const AtlasDetectorID*                              m_idHelper;                         //! Helper to detect type of sub-detector from PRD->identify().
+       const AtlasDetectorID*                               m_idHelper;                         //! Helper to detect type of sub-detector from PRD->identify().
                                                                                                 
         ToolHandle<IPRD_Provider>                           m_idPrdProvider;                    //!< Identifier to PRD relation in the Inner Detector
         ToolHandle<IPRD_Provider>                           m_msPrdProvider;                    //!< Identifier to PRD relation in the Muons System
         
         ToolHandleArray<IPRD_TruthTrajectoryManipulator>    m_prdTruthTrajectoryManipulators;   //!< PRD truth tracjectory manipulators
         
-        std::vector<std::string>                            m_prdMultiTruthCollectionNames;     //!< PRD multi truth collection names this builder is working on
-        std::vector<const PRD_MultiTruthCollection*>        m_prdMultiTruthCollections;         //!< the retrieved PRD muli truth collections
+	SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_prdMultiTruthCollectionNames {this,"PRD_MultiTruthCollections",{"PixelClusterTruth","SCT_ClusterTruth","TRT_DriftCircleTruth"}, "PRD multi truth collection names this builder is working on"};
+	std::vector<const PRD_MultiTruthCollection*> m_prdMultiTruthCollections;         //!< the retrieved PRD muli truth collections
         
-        double                                              m_minPt;                            //!< minimum pT to be even considered
-        bool                                                m_geantinos;                        //!< Track geantinos or not        
+	Gaudi::Property<double>                             m_minPt {this,"MinimumPt",400.,"minimum pT to be even considered"};
+	Gaudi::Property<bool>                               m_geantinos {this,"Geantinos",false,"Track geantinos or not"};
         mutable std::map< const HepMC::GenParticle*, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         
   };

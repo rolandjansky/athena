@@ -42,7 +42,7 @@ public:
   int m_eFieldModel;      //!< 0 uniform E-field model, 1 flat diode model
 
 private:
-  TF1* m_model;
+  std::unique_ptr<TF1> m_model;
 };
 
 

@@ -13,7 +13,7 @@ def getVerboseSelectorTool(name="G4UA::VerboseSelectorTool", **kwargs):
 
 
 def addVerboseSelectorTool(name="G4UA::VerboseSelectorTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfEvent','Step','BeginOfTracking','EndOfTracking'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Tracking'],system)
 
 
 def getG4AtlantisDumperTool(name="G4UA::G4AtlantisDumperTool", **kwargs):
@@ -21,7 +21,7 @@ def getG4AtlantisDumperTool(name="G4UA::G4AtlantisDumperTool", **kwargs):
 
 
 def addG4AtlantisDumperTool(name="G4UA::G4AtlantisDumperTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['EndOfEvent','Step','BeginOfEvent'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Event'],system)
 
 
 def getEnergyConservationTestTool(name="G4UA::EnergyConservationTestTool", **kwargs):
@@ -29,7 +29,7 @@ def getEnergyConservationTestTool(name="G4UA::EnergyConservationTestTool", **kwa
 
 
 def addEnergyConservationTestTool(name="G4UA::EnergyConservationTestTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['EndOfEvent','Step','BeginOfTracking','EndOfTracking'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Tracking'],system)
 
 
 def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
@@ -42,7 +42,7 @@ def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
 
 
 def addHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','Step'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Step'],system)
 
 
 def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):

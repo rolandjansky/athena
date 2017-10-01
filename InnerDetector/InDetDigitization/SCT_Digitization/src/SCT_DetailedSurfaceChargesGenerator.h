@@ -70,7 +70,7 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   /** AlgTool finalize */
   virtual StatusCode finalize();
 
-private:
+ private:
 
   void setComTime(float comTime)                                 {m_comTime = comTime;} 
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
@@ -202,6 +202,3 @@ private:
 };
 
 #endif // SCT_DETAILEDSURFACECHARGESGENERATOR_H
-
-
- 

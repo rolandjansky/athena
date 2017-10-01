@@ -92,7 +92,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
   }  
  
   // Print the TRT version tag:
-  std::string trtVersionTag = m_rdbAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node(), false);
+  std::string trtVersionTag = m_rdbAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node());
   msg(MSG::INFO) << "TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
  
 

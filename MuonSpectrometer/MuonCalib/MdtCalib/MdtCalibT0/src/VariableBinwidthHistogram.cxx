@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-
 #include "MdtCalibT0/VariableBinwidthHistogram.h"
 
 // ROOT
 #include "TH1.h"
 #include "TGraph.h"
 #include <cmath>
+
+using namespace std;
 
 namespace MuonCalib{
 

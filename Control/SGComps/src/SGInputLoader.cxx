@@ -158,7 +158,7 @@ SGInputLoader::loadObjs(const DataObjIDColl& objs) const {
     SG::DataProxy* dp = evtStore()->proxy(obj.clid(), vhk.key());
     if (dp != 0) {
       ATH_MSG_DEBUG(" found proxy for " << obj);
-      if (dp->transientAddress()->provider() == 0) {
+      if (dp->provider() == 0) {
 	ATH_MSG_DEBUG("   obj " << obj << " has no provider, and is only Transient" );
       }
 
@@ -171,7 +171,7 @@ SGInputLoader::loadObjs(const DataObjIDColl& objs) const {
       }
 
       // ... and linked classes.
-      for (CLID clid2 : dp->transientAddress()->transientID()) {
+      for (CLID clid2 : dp->transientID()) {
         if (clid2 != obj.clid())
           evtStore()->addedNewTransObject(clid2, vhk.key());
       }

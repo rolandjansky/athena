@@ -22,7 +22,7 @@
 #include "GaudiKernel/IIoComponent.h"
 
 #include "AthenaKernel/IAthenaSelectorTool.h"
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaBaseComps/AthService.h"
 
@@ -38,7 +38,7 @@ class IROBDataProviderSvc;
 // Class EventSelectorByteStream.
 class EventSelectorByteStream : public ::AthService,
 		virtual public IEvtSelector,
-		virtual public IEventSeek,
+		virtual public IEvtSelectorSeek,
 		virtual public IEventShare,
 		virtual public IIoComponent {
 public:
@@ -48,64 +48,67 @@ public:
    virtual ~EventSelectorByteStream();
 
    /// Implementation of Service base class methods.
-   virtual StatusCode initialize();
-   virtual StatusCode start();
-   virtual StatusCode stop();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode start() override;
+   virtual StatusCode stop() override;
+   virtual StatusCode finalize() override;
 
    // Implementation of IInterface methods.
-   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode createContext(Context*& it) const;
+   virtual StatusCode createContext(Context*& it) const override;
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode next(Context& it) const;
+   virtual StatusCode next(Context& it) const override;
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode next(Context& it, int jump) const;
+   virtual StatusCode next(Context& it, int jump) const override;
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode previous(Context& it) const;
+   virtual StatusCode previous(Context& it) const override;
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode previous(Context& it, int jump) const;
+   virtual StatusCode previous(Context& it, int jump) const override;
 
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode last(Context& it) const;
+   virtual StatusCode last(Context& it) const override;
    /// Implementation of the IEvtSelector interface methods.
-   virtual StatusCode rewind(Context& it) const;
+   virtual StatusCode rewind(Context& it) const override;
 
-   virtual StatusCode createAddress(const Context& it,IOpaqueAddress*& iop) const;
-   virtual StatusCode releaseContext(Context*& it) const;
-   virtual StatusCode resetCriteria(const std::string& criteria, Context& context) const;
+   virtual StatusCode createAddress(const Context& it,IOpaqueAddress*& iop) const override;
+   virtual StatusCode releaseContext(Context*& it) const override;
+   virtual StatusCode resetCriteria(const std::string& criteria, Context& context) const override;
 
    /// Seek to a given event number.
    /// @param evtnum [IN]  The event number to which to seek.
-   virtual StatusCode seek(int evtnum);
+   virtual StatusCode seek (Context& it, int evtnum) const override;
 
    /// Return the current event number.
-   virtual int curEvent() const;
+   virtual int curEvent (const Context& it) const override;
+
+   /// Always returns -1.
+   virtual int size (Context& it) const override;
 
    /// Make this a server.
-   virtual StatusCode makeServer(int num);
+   virtual StatusCode makeServer(int num) override;
 
    /// Make this a client.
-   virtual StatusCode makeClient(int num);
+   virtual StatusCode makeClient(int num) override;
 
    /// Request to share a given event number.
    /// @param evtnum [IN]  The event number to share.
-   virtual StatusCode share(int evtnum);
+   virtual StatusCode share(int evtnum) override;
 
    /// Read the next maxevt events.
    /// @param evtnum [IN]  The number of events to read.
-   virtual StatusCode readEvent(int maxevt);
+   virtual StatusCode readEvent(int maxevt) override;
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-   virtual StatusCode io_reinit();
+   virtual StatusCode io_reinit() override;
 
 private: // internal member functions
    /// reinitialize the service when a @c fork() occured/was-issued
    StatusCode reinit();
    StatusCode openNewRun() const;
    void nextFile() const; 
-   int findEvent(int evtNum); //>! Search for event number evtNum.
+   int findEvent(int evtNum) const; //>! Search for event number evtNum.
    StatusCode buildEventAttributeList() const;
 
 private:

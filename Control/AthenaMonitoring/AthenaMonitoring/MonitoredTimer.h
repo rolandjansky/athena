@@ -11,6 +11,10 @@
 #include "AthenaMonitoring/IMonitoredVariable.h"
 
 namespace Monitored {
+
+  /**
+   * Monitoring for timers
+   */
   namespace MonitoredTimer {
 
     class MonitoredTimer;

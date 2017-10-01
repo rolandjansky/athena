@@ -1,7 +1,7 @@
 <unifiedTestConfiguration>
   <atn>
      <TEST name="MultiplePass" type="athena" suite="Examples">
-        <options_atn>-s AthenaServices/MultiplePass_test.py</options_atn>
+        <options_atn> AthenaServices/MultiplePass_test.py</options_atn>
         <timelimit>5</timelimit>
         <author> Paolo Calafiura </author>
         <mailto> pcalafiura@lbl.gov </mailto>
@@ -14,7 +14,7 @@
   </atn>
   <atn>
      <TEST name="MultiplePassWithAlgFilter" type="athena" suite="Examples">
-        <options_atn>-s AthenaServices/MultiplePassWithAlgFilter_test.py</options_atn>
+        <options_atn> AthenaServices/MultiplePassWithAlgFilter_test.py</options_atn>
         <timelimit>5</timelimit>
         <author> Paolo Calafiura </author>
         <mailto> pcalafiura@lbl.gov </mailto>

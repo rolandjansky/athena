@@ -64,6 +64,9 @@
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
+//ReadHandle
+#include "StoreGate/ReadHandle.h"
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -102,7 +105,6 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   m_etaWidth     = 4.0                ;
   m_ClusterE     = 15000.0                ;
 
-  m_inputClusterContainerName = "InDetCaloClusterROIs";
 
   declareInterface<ITRT_SeededTrackFinder>(this);
 
@@ -130,7 +132,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
   declareProperty("CaloClusterE"            ,m_ClusterE    );
-  declareProperty("InputClusterContainerName",m_inputClusterContainerName);
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -224,6 +226,10 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
+
+  //initlialize readhandlekey
+  ATH_CHECK(m_inputClusterContainerName.initialize());
+
 
   return sc;
 
@@ -383,10 +389,9 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
     m_caloF.clear();
     m_caloE.clear();
 
-    const CaloClusterROI_Collection* calo = 0;
-    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputClusterContainerName);
 
-    if(sc == StatusCode::SUCCESS && calo) {
+    if (calo.isValid()) {
 
       CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
 

@@ -10,25 +10,24 @@
 #include <vector>
 #include <set>
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{
   
   
   class SG_StepNtuple:
-  public AthMessaging, public IBeginRunAction,  public IBeginEventAction,  public IEndEventAction,  public ISteppingAction
+  public AthMessaging, public G4UserRunAction, public G4UserEventAction, public G4UserSteppingAction
   {
     
   public:
     SG_StepNtuple();
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
   
     bool isSUSYParticle(const int id) const;

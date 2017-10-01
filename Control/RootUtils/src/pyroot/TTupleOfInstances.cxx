@@ -12,6 +12,10 @@
 
 // Author: Wim Lavrijsen, Dec 2006
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "Python.h"
 #include "TTupleOfInstances.h"
 #include "TPython.h"

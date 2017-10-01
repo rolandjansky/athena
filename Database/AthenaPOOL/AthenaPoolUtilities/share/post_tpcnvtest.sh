@@ -230,6 +230,10 @@ PP="$PP"'|bits/regex.h:1545'
 
 PP="$PP"'|Cannot convert TrigRNNOutput'
 
+# New warnings from GeoModelSvc.
+PP="$PP"'|GeoModelSvc.*WARNING  Getting .* with default tag'
+
+
 
 test=$1
 if [ -z "$testStatus" ]; then

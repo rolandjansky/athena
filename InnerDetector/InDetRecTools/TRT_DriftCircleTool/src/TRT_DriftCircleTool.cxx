@@ -32,6 +32,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -152,6 +154,9 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
     return sc;
   }
 
+  // Initialize readhandle key
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   return sc;
 }
 
@@ -203,8 +208,9 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
   }
 
   float mu = -10;
-  const xAOD::EventInfo* m_eventInfo = 0;
-      if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
+  SG::ReadHandle<xAOD::EventInfo> m_eventInfo(m_eventInfoKey);
+  if (m_eventInfo.isValid()) {
+
                 mu = (float)           m_eventInfo->averageInteractionsPerCrossing();
       }
 

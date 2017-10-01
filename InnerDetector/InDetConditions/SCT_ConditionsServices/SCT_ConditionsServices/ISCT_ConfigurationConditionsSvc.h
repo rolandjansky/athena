@@ -38,15 +38,15 @@ class ISCT_ConfigurationConditionsSvc: virtual public ISCT_ConditionsSvc {
   //@}
 
   /** Set of bad module Identifiers */
-  virtual std::set<Identifier>* badModules()=0;
+  virtual const std::set<Identifier>* badModules()=0;
 
   /** Map of link status for all modules with at least one bad link (true = good, false = bad)*/
-  virtual std::map<Identifier, std::pair<bool, bool> >* badLinks()=0;
+  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks()=0;
   /** Link status for a particluar module (true = good, false = bad)*/
   virtual std::pair<bool, bool> badLinks(const Identifier& moduleId)=0;
 
   /** Map of chips status for all modules with at least one bad chip (packed as 1st 12 bits of unsigned int)*/
-  virtual std::map<Identifier, unsigned int>* badChips()=0;
+  virtual const std::map<Identifier, unsigned int>* badChips()=0;
   /** Chips status for a particular module (packed as 1st 12 bits of unsigned int)*/ 
   virtual unsigned int badChips(const Identifier& moduleId)=0;
 

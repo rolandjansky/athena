@@ -101,7 +101,7 @@ if stmt.Process()==True:
 oldname=info.find_data_file("cool_channel_id.dat")
 newname="cool_channel_id.dat"
 print "Old file:", oldname
-print "Nef file:", newname
+print "New file:", newname
 buffer.sort()
 file = open(newname,"w")
 for item in buffer:

@@ -718,22 +718,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
   assert(pEvent);
 
-  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
-  m_eventContext.set(m_nev,0);
-
-  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
-                                                            conditionsRun) );
-  Gaudi::Hive::setCurrentContext( m_eventContext );
-
-  m_aess->reset(m_eventContext);
-  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
-                           "EventContext").isFailure())
+  if (installEventContext (pEvent, conditionsRun).isFailure())
   {
     m_msg << MSG::ERROR 
-          << "Error recording event context object" << endmsg;
+          << "Error installing event context object" << endmsg;
     return (StatusCode::FAILURE);
   }
-
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
@@ -1037,24 +1027,28 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 
 //=========================================================================
 // Seek to a given event.
-// The event selector must support the IEventSeek interface for this to work.
+// The event selector must support the IEvtSelectorSeek interface for this to work.
 //=========================================================================
 StatusCode AthenaEventLoopMgr::seek (int evt)
 {
-  IEventSeek* is = dynamic_cast<IEventSeek*> (m_evtSelector);
+  IEvtSelectorSeek* is = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (is == nullptr) {
     m_msg << MSG::ERROR << "Seek failed; unsupported by event selector"
 	  <<endmsg;
     return StatusCode::FAILURE;
   }
-  StatusCode sc = is->seek(evt);
-  if (sc.isSuccess()) {
-    m_nevt = evt;
+
+  if (!m_evtContext) {
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       m_msg  << MSG::FATAL << "Can not create the event selector Context."
              << endmsg;
       return StatusCode::FAILURE;
     }
+  }
+
+  StatusCode sc = is->seek (*m_evtContext, evt);
+  if (sc.isSuccess()) {
+    m_nevt = evt;
   }
   else {
     m_msg << MSG::ERROR << "Seek failed." << endmsg;
@@ -1076,13 +1070,22 @@ int AthenaEventLoopMgr::curEvent() const
 //=========================================================================
 int AthenaEventLoopMgr::size()
 {
-  ICollectionSize* cs = dynamic_cast<ICollectionSize*> (m_evtSelector);
+  IEvtSelectorSeek* cs = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (cs == nullptr) {
     m_msg << MSG::ERROR << "Collection size unsupported by event selector"
 	  <<endmsg;
     return -1;
   }
-  return cs->size();
+
+  if (!m_evtContext) {
+    if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+      m_msg  << MSG::FATAL << "Can not create the event selector Context."
+             << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  return cs->size (*m_evtContext);
 }
 
 void AthenaEventLoopMgr::handle(const Incident& inc)
@@ -1135,6 +1138,21 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
   }
 
+  // Need to make sure we have a valid EventContext in place before
+  // doing anything that could fire incidents.
+  unsigned int conditionsRun = pEvent->event_ID()->run_number();
+  {
+    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
+    if ( pAttrList != nullptr ) {
+      if (pAttrList->exists ("ConditionsRun"))
+        conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
+    }
+  }
+  if (installEventContext (pEvent, conditionsRun).isFailure()) {
+    m_msg << MSG::ERROR << "Unable to install EventContext object" << endmsg;
+    return;
+  }
+
   sc = beginRunAlgorithms(*pEvent);
   if (!sc.isSuccess()) {
     m_msg << MSG::ERROR << "beginRunAlgorithms() failed" << endmsg;
@@ -1178,4 +1196,28 @@ AthenaEventLoopMgr::queryInterface(const InterfaceID& riid,
 StoreGateSvc* 
 AthenaEventLoopMgr::eventStore() const {
   return m_eventStore.get();
+}
+
+
+// Fill in our EventContext object and make it current.
+StatusCode AthenaEventLoopMgr::installEventContext (const EventInfo* pEvent,
+                                                    unsigned int conditionsRun)
+{
+  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext.set(m_nev,0);
+
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                            conditionsRun) );
+  Gaudi::Hive::setCurrentContext( m_eventContext );
+
+  m_aess->reset(m_eventContext);
+  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
+
+  return StatusCode::SUCCESS;
 }

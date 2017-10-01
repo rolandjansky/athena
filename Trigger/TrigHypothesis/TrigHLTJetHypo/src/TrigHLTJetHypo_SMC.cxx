@@ -39,14 +39,14 @@ TrigHLTJetHypo_SMC::~TrigHLTJetHypo_SMC(){
 
 Conditions TrigHLTJetHypo_SMC::getConditions() const {
 
-    std::vector<double> m_JetMassMin_d = getStringBoundaries(m_JetMassMin);
-    std::vector<double> m_JetMassMax_d = getStringBoundaries(m_JetMassMax);
+    std::vector<double> JetMassMin_d = getStringBoundaries(m_JetMassMin);
+    std::vector<double> JetMassMax_d = getStringBoundaries(m_JetMassMax);
 
     auto conditions = conditionsFactorysinglemass(m_etaMins,
             m_etaMaxs,
             m_EtThresholds,
-            m_JetMassMin_d,
-            m_JetMassMax_d);
+            JetMassMin_d,
+            JetMassMax_d);
     std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
 
     return conditions;
@@ -62,7 +62,7 @@ std::vector<double> TrigHLTJetHypo_SMC::getStringBoundaries (const std::vector<s
 
         else if (st.find("INF") != std::string::npos) {JetMassLimit.push_back(std::numeric_limits<double>::max());}
 
-        else {JetMassLimit.push_back(std::stod(st)*GeV);}
+        else {JetMassLimit.push_back(std::stod(st)*s_GeV);}
 
     }
 

@@ -4,10 +4,12 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "../DumpDecisions.h"
+#include "../RoRSeqFilter.h"
 
 DECLARE_ALGORITHM_FACTORY( DumpDecisions )
+DECLARE_ALGORITHM_FACTORY( RoRSeqFilter )
 
-DECLARE_FACTORY_ENTRIES( DumpDecisions )
-{
-  DECLARE_ALGORITHM( DumpDecisions )
-}
+// DECLARE_FACTORY_ENTRIES( DumpDecisions )
+// {
+//   DECLARE_ALGORITHM( DumpDecisions )
+// }

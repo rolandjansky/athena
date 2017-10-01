@@ -28,6 +28,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/IdContext.h"
+#include "Identifier/Identifier.h"
 
 /** Read Handle Key */
 #include "StoreGate/ReadHandleKey.h"
@@ -36,7 +37,6 @@
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class SCT_ID;
-class Identifier;
 class IdentifierHash;
 class StatusCode;
 class ISCT_CablingSvc;
@@ -80,7 +80,7 @@ public:
   virtual bool canFillDuringInitialize(){ return false; }
 
 
-  std::set<IdentifierHash>* getErrorSet(int errorType);
+  const std::set<IdentifierHash>* getErrorSet(int errorType);
 
   void setRODSimulatedData();
 
@@ -106,7 +106,7 @@ public:
 
   virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip);
   virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
-  virtual std::map<Identifier, unsigned int>* tempMaskedChips() const {return m_tempMaskedChips;}
+  virtual const std::map<Identifier, unsigned int>* tempMaskedChips() const {return &m_tempMaskedChips;}
   virtual unsigned int tempMaskedChips(const Identifier & moduleId) const;
   virtual unsigned int abcdErrorChips(const Identifier & moduleId) const;
 
@@ -121,12 +121,12 @@ private:
 
   bool m_filled;
   bool m_lookForSGErrContainer;
-  std::set<IdentifierHash>* m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
+  std::set<IdentifierHash> m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
-  std::set<IdentifierHash>* m_rxRedundancy;
+  std::set<IdentifierHash> m_rxRedundancy;
 
   std::map<IdentifierHash, unsigned int> m_firstTempMaskedChips;
-  std::map<Identifier, unsigned int>* m_tempMaskedChips;
+  std::map<Identifier, unsigned int> m_tempMaskedChips;
   IdContext m_cntx_sct;
 
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];

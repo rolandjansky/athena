@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthViews/View.h"
 
 #include "TrigL2ElectronHypoTool.h"
 
@@ -16,7 +17,6 @@
  * @class Implements Hypo selection on L2 electrons
  * @brief 
  **/
-using namespace TrigCompositeUtils;
 
 class TrigL2ElectronHypoAlg
   : public ::AthReentrantAlgorithm
@@ -38,10 +38,15 @@ class TrigL2ElectronHypoAlg
   TrigL2ElectronHypoAlg();
   ToolHandleArray< TrigL2ElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
 
+
+  SG::ReadHandleKey< std::vector<SG::View*> > m_views {this, "Views", "Unspecified", "Views to read electrons from" };
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this, "ElectronDecisions", "ElectronDecisions", "Output decisions"};
+  SG::ReadHandleKey< TrigCompositeUtils::DecisionContainer > m_clusterDecisionsKey {this, "ClusterDecisions", "L2ClusterContainer", "Decisions for clusters"};
+
+  // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
 
-  SG::ReadHandleKey< DecisionContainer > m_clusterDecisionsKey {this, "ClusterDecisions", "L2ClusterContainer", "Decisions for clusters"};
-  SG::WriteHandleKey< DecisionContainer > m_decisionsKey {this, "ElectronDecisions", "ElectronDecisions", "Output decisions"};
+
 
 }; 
 

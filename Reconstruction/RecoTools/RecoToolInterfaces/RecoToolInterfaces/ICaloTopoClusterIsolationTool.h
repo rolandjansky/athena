@@ -50,7 +50,7 @@ namespace xAOD {
        @param[in] container topo cluster contrainer (for trigger only)
        @return true if the calculation and decoration was successfull
     */
-    virtual bool decorateParticle_topoClusterIso(IParticle& tp,
+    virtual bool decorateParticle_topoClusterIso(const IParticle& tp,
                                                  const std::vector<Iso::IsolationType>& cones,
                                                  CaloCorrection corrections,
                                                  const CaloClusterContainer* TopClusters = 0) =0; 

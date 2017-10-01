@@ -7,44 +7,39 @@
 // STL includes
 #include <string>
 
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-// FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 // L1Decoder includes
-#include "./IRoIsUnpackingTool.h"
+#include "RoIsUnpackingToolBase.h"
 
 
-class RoIsUnpackingEmulationTool : virtual public AthAlgTool, virtual public IRoIsUnpackingTool { 
+class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase { 
 
 
  public: 
   RoIsUnpackingEmulationTool( const std::string& type,
-		       const std::string& name, 
-		       const IInterface* parent );
+                              const std::string& name, 
+                              const IInterface* parent );
 
-  virtual ~RoIsUnpackingEmulationTool(); 
-
-  StatusCode unpack(const EventContext& ctx,
-		    const ROIB::RoIBResult& roib,
-		    const HLT::IDSet& activeChains) const override;
+  virtual StatusCode unpack(const EventContext& ctx,
+                            const ROIB::RoIBResult& roib,
+                            const HLT::IDSet& activeChains) const override;
   
-  // Athena algtool's Hooks
-  StatusCode  initialize() override;
-  StatusCode  updateConfiguration() override;
-  StatusCode  finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode updateConfiguration() override;
   
  private: 
-  RoIsUnpackingEmulationTool();
-  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_trigRoIsKey;
-  float m_roIWidth;
+
+  ///@{ @name Properties
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
+    this, "OutputTrigRoIs", "EMRoIs", "Name of the RoIs object produced by the unpacker"};
+
+  Gaudi::Property<float> m_roIWidth{"RoIWidth", 0.1, "Size of RoI in eta/ phi"};
+
+  Gaudi::Property<std::string> m_inputFilename{this, "InputFilename", "RoIEmulation.dat", "FakeROI input filename"};
+  ///@}
 
   // emulation
   struct FakeRoI {
@@ -54,7 +49,6 @@ class RoIsUnpackingEmulationTool : virtual public AthAlgTool, virtual public IRo
     std::vector<std::string> passedThresholdIDs;
   };
 
-
   StatusCode readEmulatedData();
   std::vector<std::vector<FakeRoI>> parseInputFile();
   std::vector<FakeRoI> parseInputFileLine(const std::string& line, unsigned lineNumber);
@@ -62,7 +56,7 @@ class RoIsUnpackingEmulationTool : virtual public AthAlgTool, virtual public IRo
   
   std::vector<TrigConf::TriggerThreshold*> m_emtauThresholds;
   
-  std::string m_inputFilename;
+  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
   std::vector<std::vector<RoIsUnpackingEmulationTool::FakeRoI>> m_inputData;
   unsigned m_currentRowNumber;
 

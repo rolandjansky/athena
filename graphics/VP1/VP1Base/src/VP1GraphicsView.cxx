@@ -29,6 +29,7 @@
 #include "VP1Base/VP12DViewRPhiFishEyeTransformation.h"//fixme
 
 #include "VP1Base/VP1Settings.h"
+#include "VP1Base/VP1Msg.h"
 
 // QtCore
 #include <QTimer>
@@ -125,7 +126,7 @@ public:
   virtual ~HighLightItem() {
     std::cout<<"dying"<<std::endl;
     if (sendsignalondelete)
-      view->d->HighLightItemBeingDeleted(this);
+      view->m_d->HighLightItemBeingDeleted(this);
   }
   VP1GraphicsView* view;
   bool sendsignalondelete;
@@ -133,16 +134,16 @@ public:
 
 //____________________________________________________________________
 VP1GraphicsView::VP1GraphicsView ( QWidget * parent )
-  :QGraphicsView(parent), d(new Imp)
+  :QGraphicsView(parent), m_d(new Imp)
 {
-  d->init(this);
+  m_d->init(this);
 }
 
 //____________________________________________________________________
 VP1GraphicsView::VP1GraphicsView ( QGraphicsScene * scene, QWidget * parent )
-  : QGraphicsView(scene,parent), d(new Imp)
+  : QGraphicsView(scene,parent), m_d(new Imp)
 {
-  d->init(this);
+  m_d->init(this);
 }
 
 //____________________________________________________________________
@@ -202,8 +203,8 @@ void VP1GraphicsView::Imp::init(VP1GraphicsView*v)
 //____________________________________________________________________
 VP1GraphicsView::~VP1GraphicsView()
 {
-  delete d->transform;
-  delete d; d=0;
+  delete m_d->transform;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
@@ -219,8 +220,8 @@ void VP1GraphicsView::scaleView(qreal scaleFactor)
 //____________________________________________________________________
 void VP1GraphicsView::fitViewToContents()
 {
-  if (d->transform&&d->transformactive)
-    fitInView( d->transform->transform(scene()->sceneRect()), Qt::KeepAspectRatio );
+  if (m_d->transform&&m_d->transformactive)
+    fitInView( m_d->transform->transform(scene()->sceneRect()), Qt::KeepAspectRatio );
   else
     fitInView( scene()->sceneRect(), Qt::KeepAspectRatio );
 }
@@ -228,8 +229,8 @@ void VP1GraphicsView::fitViewToContents()
 //____________________________________________________________________
 void VP1GraphicsView::wheelEvent(QWheelEvent *event)
 {
-  if (d->showhelptext) {
-    d->showhelptext=false;
+  if (m_d->showhelptext) {
+    m_d->showhelptext=false;
     viewport()->update();
   };
   double ratefact = 0.8;
@@ -243,8 +244,13 @@ void VP1GraphicsView::wheelEvent(QWheelEvent *event)
 //____________________________________________________________________
 void VP1GraphicsView::keyPressEvent(QKeyEvent *event)
 {
-  if (d->showhelptext&&!(event->key()==Qt::Key_F1||event->key()==Qt::Key_H)) {
-    d->showhelptext=false;
+//    VP1Msg::messageDebug("VP1GraphicsView::keyPressEvent");
+
+//    std::string keyText = (event->text()).toStdString();
+//    VP1Msg::messageDebug(keyText.c_str());
+
+  if (m_d->showhelptext&&!(event->key()==Qt::Key_F1||event->key()==Qt::Key_H)) {
+    m_d->showhelptext=false;
     viewport()->update();
   };
 
@@ -257,25 +263,25 @@ void VP1GraphicsView::keyPressEvent(QKeyEvent *event)
     break;
   case Qt::Key_F1:
   case Qt::Key_H:
-    d->showhelptext=!d->showhelptext;
+    m_d->showhelptext=!m_d->showhelptext;
     viewport()->update();
     break;
   case Qt::Key_1:
     fitViewToContents();
     break;
   case Qt::Key_Escape:
-    if (d->mode==SEEK)
-      setMode(d->lastmajormode);
-    else if (d->mode==PICK)
+    if (m_d->mode==SEEK)
+      setMode(m_d->lastmajormode);
+    else if (m_d->mode==PICK)
       setMode(CHANGEVIEW);
     else
       setMode(PICK);
     break;
   case Qt::Key_S:
-    if (d->mode!=SEEK)
+    if (m_d->mode!=SEEK)
       setMode(SEEK);
     else
-      setMode(d->lastmajormode);
+      setMode(m_d->lastmajormode);
     break;
   case Qt::Key_Plus:
   case Qt::Key_Equal:
@@ -295,9 +301,9 @@ void VP1GraphicsView::keyPressEvent(QKeyEvent *event)
     break;
   }
 
-//   if (d->mode==PICK) {
+//   if (m_d->mode==PICK) {
 //     foreach (QGraphicsItem*item,items(event->pos())) {
-//       foreach(VP1GraphicsItemCollection* ic,d->cols_act) {
+//       foreach(VP1GraphicsItemCollection* ic,m_d->cols_act) {
 // 	if (ic->itemBelongsAndIsPresentlyActive(item)) {
 // 	  event->accept();
 // 	  //EMIT [event] SIGNALS.
@@ -313,14 +319,14 @@ void VP1GraphicsView::keyPressEvent(QKeyEvent *event)
 //____________________________________________________________________
 void VP1GraphicsView::setMode(const Mode& m)
 {
-  if (d->mode==m)
+  if (m_d->mode==m)
     return;
-  d->mode=m;
+  m_d->mode=m;
   if (m==PICK||m==CHANGEVIEW)
-    d->lastmajormode=m;
+    m_d->lastmajormode=m;
 
   if (m!=DRAGZOOM&&m!=DRAGZOOMHOLD)
-    d->dragzoom_startpoint=QPoint();
+    m_d->dragzoom_startpoint=QPoint();
 
   //Dragmode:
   if (m==CHANGEVIEW) {
@@ -351,16 +357,16 @@ void VP1GraphicsView::setMode(const Mode& m)
 
   //Interactions/movable:
   if (m==PICK) {
-    foreach (VP1GraphicsItemCollection*ic,d->cols_act)
-      if (!d->cols_override_inactive.contains(ic))
+    foreach (VP1GraphicsItemCollection*ic,m_d->cols_act)
+      if (!m_d->cols_override_inactive.contains(ic))
 	ic->setTemporaryIgnoreInteractions(false);
-    foreach (VP1GraphicsItemCollection*ic,d->cols_all)
-      if (!d->cols_override_unmovable.contains(ic))
+    foreach (VP1GraphicsItemCollection*ic,m_d->cols_all)
+      if (!m_d->cols_override_unmovable.contains(ic))
 	ic->setTemporaryIgnoreMovable(false);
   } else {
-    foreach (VP1GraphicsItemCollection*ic,d->cols_all)
+    foreach (VP1GraphicsItemCollection*ic,m_d->cols_all)
       ic->setTemporaryIgnoreMovable(true);
-    foreach (VP1GraphicsItemCollection*ic,d->cols_act)
+    foreach (VP1GraphicsItemCollection*ic,m_d->cols_act)
       ic->setTemporaryIgnoreInteractions(true);
   }
 }
@@ -368,28 +374,28 @@ void VP1GraphicsView::setMode(const Mode& m)
 //____________________________________________________________________
 VP1GraphicsView::Mode VP1GraphicsView::mode() const
 {
-  return d->mode;
+  return m_d->mode;
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::addItemCollection(VP1GraphicsItemCollection*ic) {
-  assert(!d->cols_all.contains(ic));
-  assert(!d->cols_act.contains(ic));
-  d->cols_all << ic;
+  assert(!m_d->cols_all.contains(ic));
+  assert(!m_d->cols_act.contains(ic));
+  m_d->cols_all << ic;
   if (ic->interactionMode()!=VP1GraphicsItemCollection::INERT) {
-    d->cols_act << ic;
-    ic->setTemporaryIgnoreInteractions( d->mode!=PICK || d->cols_override_inactive.contains(ic) );
-    ic->setTemporaryIgnoreMovable( d->mode!=PICK || d->cols_override_unmovable.contains(ic) );
+    m_d->cols_act << ic;
+    ic->setTemporaryIgnoreInteractions( m_d->mode!=PICK || m_d->cols_override_inactive.contains(ic) );
+    ic->setTemporaryIgnoreMovable( m_d->mode!=PICK || m_d->cols_override_unmovable.contains(ic) );
   }
   ic->attachToView(this);
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::removeItemCollection(VP1GraphicsItemCollection*ic) {
-  assert(d->cols_all.contains(ic));
-  d->cols_all.removeAll(ic);
-  if (d->cols_act.contains(ic))
-    d->cols_act.removeAll(ic);
+  assert(m_d->cols_all.contains(ic));
+  m_d->cols_all.removeAll(ic);
+  if (m_d->cols_act.contains(ic))
+    m_d->cols_act.removeAll(ic);
   ic->setTemporaryIgnoreInteractions(false);
   ic->setTemporaryIgnoreMovable(false);
   ic->real_detachFromView();
@@ -400,18 +406,18 @@ void VP1GraphicsView::removeItemCollection(VP1GraphicsItemCollection*ic) {
 //____________________________________________________________________
 void VP1GraphicsView::mouseDoubleClickEvent(QMouseEvent * event) {
 
-  if (d->showhelptext) {
-    d->showhelptext=false;
+  if (m_d->showhelptext) {
+    m_d->showhelptext=false;
     viewport()->update();
   };
 
-  if (d->mode!=PICK) {
+  if (m_d->mode!=PICK) {
     QGraphicsView::mouseDoubleClickEvent(event);
     return;
   }
   //Fixme: transformed pos
   foreach (QGraphicsItem*item,items(event->pos())) {
-    foreach(VP1GraphicsItemCollection* ic,d->cols_act) {
+    foreach(VP1GraphicsItemCollection* ic,m_d->cols_act) {
       if (ic->itemBelongsAndIsPresentlyActive(item)) {
 	event->accept();
 	//EMIT SIGNALS. CHANGE SELECTION.
@@ -429,9 +435,9 @@ void VP1GraphicsView::mouseMoveEvent(QMouseEvent *event)
 
   //Fixme: transformed pos
 
-  if ((d->mode==DRAGZOOM||d->mode==DRAGZOOMHOLD) && d->dragzoom_startpoint!=QPoint() ) {
-    double delta = event->pos().y()-d->dragzoom_startpoint.y();
-    d->dragzoom_startpoint=event->pos();
+  if ((m_d->mode==DRAGZOOM||m_d->mode==DRAGZOOMHOLD) && m_d->dragzoom_startpoint!=QPoint() ) {
+    double delta = event->pos().y()-m_d->dragzoom_startpoint.y();
+    m_d->dragzoom_startpoint=event->pos();
     ViewportAnchor save = transformationAnchor();
     setTransformationAnchor(AnchorViewCenter);
     scaleView(pow((double)2, -delta / (240.0/0.8)));//FIXME!! Dont have this equation more than once!
@@ -439,9 +445,9 @@ void VP1GraphicsView::mouseMoveEvent(QMouseEvent *event)
     event->accept();
     return;
   }
-  if (d->mode==PICK) {
+  if (m_d->mode==PICK) {
     foreach (QGraphicsItem*item,items(event->pos())) {
-      foreach(VP1GraphicsItemCollection* ic,d->cols_act) {
+      foreach(VP1GraphicsItemCollection* ic,m_d->cols_act) {
 	if (ic->itemBelongsAndIsPresentlyActive(item)) {
 	  event->accept();
 	  //EMIT [event] SIGNALS.
@@ -458,26 +464,26 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
 {
   setFocus(Qt::MouseFocusReason);//Fixme: also doubleclick event!
 
-  if (d->showhelptext) {
-    d->showhelptext=false;
+  if (m_d->showhelptext) {
+    m_d->showhelptext=false;
     viewport()->update();
   };
 
-  if (d->mode==SEEK) {
+  if (m_d->mode==SEEK) {
     event->accept();
-    setMode(d->lastmajormode);
+    setMode(m_d->lastmajormode);
     seekToPoint(mapToScene(event->pos()));
     return;
   }
 
-  if (d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
     event->accept();
-    d->dragzoom_startpoint=event->pos();
+    m_d->dragzoom_startpoint=event->pos();
     setMode(DRAGZOOM);
     return;
   }
 
-  if (d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
     if (event->buttons()==(Qt::LeftButton|Qt::MidButton|Qt::RightButton)) {
       setMode(DRAGZOOMHOLD);
     } else {
@@ -487,14 +493,14 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
     return;
   }
 
-  if (d->mode==DRAGZOOMHOLD) {//Fixme: also doubleclick event!
+  if (m_d->mode==DRAGZOOMHOLD) {//Fixme: also doubleclick event!
     setMode(CHANGEVIEW);
     event->accept();
     return;
   }
 
 
-  if (d->mode==PICK) {
+  if (m_d->mode==PICK) {
     if (event->buttons()!=Qt::LeftButton) {
       QGraphicsView::mousePressEvent(event);
       return;
@@ -502,31 +508,31 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
     //If we have previous selections already, and the mult select key
     //is down, then we will only consider items in the same collection
     //as active.
-    //    std::cout<<"pick mouse press. Multiselection stored:"<<d->ic_multiselection<<std::endl;
-    bool continueselection = d->ic_multiselection && (event->modifiers() & Qt::ShiftModifier);
+    //    std::cout<<"pick mouse press. Multiselection stored:"<<m_d->ic_multiselection<<std::endl;
+    bool continueselection = m_d->ic_multiselection && (event->modifiers() & Qt::ShiftModifier);
     QGraphicsItem*item(0);VP1GraphicsItemCollection*ic(0);
 
-//     QPoint pickpoint = d->transform ?
-//       mapFromScene(d->transform->inverseTransform( mapToScene(event->pos())))
+//     QPoint pickpoint = m_d->transform ?
+//       mapFromScene(m_d->transform->inverseTransform( mapToScene(event->pos())))
 //       : event->pos();
     QPoint pickpoint = event->pos();
     if (continueselection) {
-      assert(d->ic_multiselection);
-      d->locateActiveItemAtPoint(item,ic,pickpoint,d->ic_multiselection);
+      assert(m_d->ic_multiselection);
+      m_d->locateActiveItemAtPoint(item,ic,pickpoint,m_d->ic_multiselection);
       if (!item) {
  	//shift was down, and the user did not hit anything
  	QGraphicsView::mousePressEvent(event);
  	return;
       }
     } else {
-      d->locateActiveItemAtPoint(item,ic,pickpoint);
+      m_d->locateActiveItemAtPoint(item,ic,pickpoint);
     }
 
     if (item) {
       assert(ic);
       if (ic->interactionMode()==VP1GraphicsItemCollection::SINGLEPICKS) {
 	clearSelections();
-	d->setNewSelected(item);
+	m_d->setNewSelected(item);
 	ic->itemPickedPrivate(item);
       } else if (ic->interactionMode()==VP1GraphicsItemCollection::EVENTS) {
 	clearSelections();
@@ -536,8 +542,8 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
       } else if (ic->interactionMode()==VP1GraphicsItemCollection::SELECTIONS) {
 	assert(ic);
 	VP1GraphicsItemCollection * tmpic = ic;
-	d->ic_multiselection=ic;
-	d->setNewSelected(item,continueselection);
+	m_d->ic_multiselection=ic;
+	m_d->setNewSelected(item,continueselection);
 	emitSelectionChanged(tmpic);
       } else {
 	assert(0);
@@ -556,35 +562,35 @@ void VP1GraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
 
   //Fixme: transformed pos
-  if (d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
     event->accept();
-    d->dragzoom_startpoint=event->pos();
+    m_d->dragzoom_startpoint=event->pos();
     setMode(DRAGZOOM);
     return;
   }
 
-  if (d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
     event->accept();
     setMode(CHANGEVIEW);
     return;
   }
 
-  if (d->mode==PICK) {
+  if (m_d->mode==PICK) {
 //     foreach (QGraphicsItem*item,items(event->pos())) {
-//       if (item==static_cast<QGraphicsItem*>(d->selectionoutline))//Fixme: Dont do the cast here.
+//       if (item==static_cast<QGraphicsItem*>(m_d->selectionoutline))//Fixme: Dont do the cast here.
 // 	continue;
-//       foreach(VP1GraphicsItemCollection* ic,d->cols_act) {
+//       foreach(VP1GraphicsItemCollection* ic,m_d->cols_act) {
 // 	if (ic->itemBelongsAndIsPresentlyActive(item)) {
 // 	  event->accept();
 // 	  if (ic->interactionMode()==VP1GraphicsItemCollection::EVENTS) {
 // 	    //EMIT EVENT SIGNAL!
 // 	    return;
 // 	  }
-// 	  if (d->selecteditem==item) {
+// 	  if (m_d->selecteditem==item) {
 // 	    QGraphicsView::mouseReleaseEvent(event);
 // 	    return;
 // 	  }
-// 	  d->setNewSelected(item);
+// 	  m_d->setNewSelected(item);
 // 	  //EMIT pick/selection signals.
 // 	}
 //       }
@@ -676,27 +682,27 @@ void VP1GraphicsView::clearSelections() {//Fixme: only clear
 					 //permanent items stay
 					 //selected?)
 
-  bool haditemsinselection = d->ic_multiselection && !d->selecteditems.empty();
+  bool haditemsinselection = m_d->ic_multiselection && !m_d->selecteditems.empty();
 
   //Remove highlight items:
-  QMapIterator<QGraphicsItem*,HighLightItem*> it(d->selecteditems);
+  QMapIterator<QGraphicsItem*,HighLightItem*> it(m_d->selecteditems);
   while (it.hasNext()) {
     it.next();
     it.value()->sendsignalondelete = false;
-    //assert(!d->scene->items().contains(it.key()));
-    if (d->scene->items().contains(it.value())) {
-      d->scene->removeItem(it.value());
+    //assert(!m_d->scene->items().contains(it.key()));
+    if (m_d->scene->items().contains(it.value())) {
+      m_d->scene->removeItem(it.value());
       //      delete it.value();
     }
   }
 
   //Clear lists - possibly emit a signal:
-  d->selecteditems.clear();
-  if (d->clearselectionsemitsignals&&haditemsinselection) {
-    emitSelectionChanged(d->ic_multiselection);
-    d->ic_multiselection = 0;//TEST
+  m_d->selecteditems.clear();
+  if (m_d->clearselectionsemitsignals&&haditemsinselection) {
+    emitSelectionChanged(m_d->ic_multiselection);
+    m_d->ic_multiselection = 0;//TEST
   }
-  d->clearselectionsemitsignals=true;
+  m_d->clearselectionsemitsignals=true;
 }
 
 //____________________________________________________________________
@@ -771,7 +777,7 @@ void VP1GraphicsView::seekToPoint(QPointF targetpoint) {
   abortZoomAnimation();//In case there is already an animation running we abort it.
   QRectF currentview = mapToScene(viewport()->rect()).boundingRect();
   double w1= currentview.width(), h1= currentview.height();
-  double w2 = w1/d->zoomfactoronseek, h2 = h1/d->zoomfactoronseek;
+  double w2 = w1/m_d->zoomfactoronseek, h2 = h1/m_d->zoomfactoronseek;
   double x2 = targetpoint.x()-0.5*w2, y2 = targetpoint.y()-0.5*h2;
   initiateAnimatedZoomTo( QRectF(x2,y2,w2,h2) );
 }
@@ -780,7 +786,7 @@ void VP1GraphicsView::seekToPoint(QPointF targetpoint) {
 void VP1GraphicsView::initiateAnimatedZoomTo( QRectF goal )
 {
   abortZoomAnimation();
-  if (d->zoomanim_nsteps==1) {
+  if (m_d->zoomanim_nsteps==1) {
     fitInView(goal);
     return;
   }
@@ -793,44 +799,44 @@ void VP1GraphicsView::initiateAnimatedZoomTo( QRectF goal )
   double w2 = goal.width(), h2 = goal.height();
   double x2 = goal.x(), y2 = goal.y();
 
-  const double eps = 1.0/d->zoomanim_nsteps;
+  const double eps = 1.0/m_d->zoomanim_nsteps;
   for (double f = eps; f < 1.0+0.5*eps; f+=eps ) {
     //f values are spaced linearly between eps and 1.0. Let us
     //construct something which has values packed closer near 1.0 (for
     //that nice smooth slow-down feel):
     double f2 = sqrt(f);
-    d->zoomanim_queue.enqueue(QRectF( x1*(1.0-f2)+x2*f2, y1*(1.0-f2)+y2*f2,
+    m_d->zoomanim_queue.enqueue(QRectF( x1*(1.0-f2)+x2*f2, y1*(1.0-f2)+y2*f2,
 				      w1*(1.0-f2)+w2*f2, h1*(1.0-f2)+h2*f2 ));
   }
 
-  d->savedrenderhints=renderHints();
+  m_d->savedrenderhints=renderHints();
   setRenderHints(0);
-  d->zoomanim_timer->start();
+  m_d->zoomanim_timer->start();
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::updateZoomAnimation()
 {
-  assert(!d->zoomanim_queue.empty());
+  assert(!m_d->zoomanim_queue.empty());
   //For testing:
-  //   QGraphicsRectItem * item = new QGraphicsRectItem(d->zoomanim_queue.dequeue());
+  //   QGraphicsRectItem * item = new QGraphicsRectItem(m_d->zoomanim_queue.dequeue());
   //   item->setPen(QPen(Qt::blue,0,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin));
   //   scene()->addItem(item);
-  fitInView( d->zoomanim_queue.dequeue(), Qt::KeepAspectRatio );
-  if (d->zoomanim_queue.empty())
-    d->zoomanim_timer->stop();
+  fitInView( m_d->zoomanim_queue.dequeue(), Qt::KeepAspectRatio );
+  if (m_d->zoomanim_queue.empty())
+    m_d->zoomanim_timer->stop();
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::abortZoomAnimation()
 {
-  if (d->zoomanim_timer->isActive())
-    d->zoomanim_timer->stop();
-  if (!d->zoomanim_queue.empty())
-    d->zoomanim_queue.clear();
-  if (d->savedrenderhints)
-    setRenderHints(d->savedrenderhints);
-  d->savedrenderhints=0;//Fixme: renderhints changed during an
+  if (m_d->zoomanim_timer->isActive())
+    m_d->zoomanim_timer->stop();
+  if (!m_d->zoomanim_queue.empty())
+    m_d->zoomanim_queue.clear();
+  if (m_d->savedrenderhints)
+    setRenderHints(m_d->savedrenderhints);
+  m_d->savedrenderhints=0;//Fixme: renderhints changed during an
 			//animation cycle might not be saved... Should
 			//override the renderhints methods to avoid
 			//this.
@@ -841,33 +847,33 @@ void VP1GraphicsView::abortZoomAnimation()
 void VP1GraphicsView::setAnimatedZoomSteps( int n )
 {
   assert(n>=1);
-  d->zoomanim_nsteps = n;
-  d->zoomanim_timer->setInterval(std::max(1,static_cast<int>(d->zoomanim_totaltime/d->zoomanim_nsteps+0.5)));
+  m_d->zoomanim_nsteps = n;
+  m_d->zoomanim_timer->setInterval(std::max(1,static_cast<int>(m_d->zoomanim_totaltime/m_d->zoomanim_nsteps+0.5)));
   //Same as just below.
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::setAnimatedZoomTime( double t )
 {
-  d->zoomanim_totaltime = t;
-  d->zoomanim_timer->setInterval(std::max(1,static_cast<int>(d->zoomanim_totaltime/d->zoomanim_nsteps+0.5)));
+  m_d->zoomanim_totaltime = t;
+  m_d->zoomanim_timer->setInterval(std::max(1,static_cast<int>(m_d->zoomanim_totaltime/m_d->zoomanim_nsteps+0.5)));
   //Same as just above.
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::setZoomFactorOnSeek( double zf )
 {
-  d->zoomfactoronseek = zf;
+  m_d->zoomfactoronseek = zf;
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::viewHome() {
 
   const bool animatedhome = true;//Fixme: option?
-  if (d->home == QRect()) {
+  if (m_d->home == QRect()) {
     if (animatedhome) {
-      if (d->transform&&d->transformactive)
-	initiateAnimatedZoomTo(d->transform->transform(scene()->sceneRect()));
+      if (m_d->transform&&m_d->transformactive)
+	initiateAnimatedZoomTo(m_d->transform->transform(scene()->sceneRect()));
       else
 	initiateAnimatedZoomTo(scene()->sceneRect());
     } else {
@@ -875,40 +881,40 @@ void VP1GraphicsView::viewHome() {
     }
   } else {
     if (animatedhome) {
-      initiateAnimatedZoomTo(d->home);
+      initiateAnimatedZoomTo(m_d->home);
     } else {
-      fitInView( d->home, Qt::KeepAspectRatio );
+      fitInView( m_d->home, Qt::KeepAspectRatio );
     }
   }
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::setHome() {
-  d->home=mapToScene(viewport()->rect()).boundingRect();
+  m_d->home=mapToScene(viewport()->rect()).boundingRect();
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::emitSelectionChanged(VP1GraphicsItemCollection *ic) {
-  QList<QGraphicsItem*> emitlist = d->selecteditems.keys();
-  if (emitlist==d->lastemittedselecteditems)
+  QList<QGraphicsItem*> emitlist = m_d->selecteditems.keys();
+  if (emitlist==m_d->lastemittedselecteditems)
     return;
-  d->lastemittedselecteditems=emitlist;
+  m_d->lastemittedselecteditems=emitlist;
   ic->selectionChangedPrivate(emitlist);
 }
 
 //____________________________________________________________________
 void VP1GraphicsView::setDisallowInteractions(VP1GraphicsItemCollection*ic, const bool& disallow )
 {
-  if (d->cols_override_inactive.contains(ic)==disallow)
+  if (m_d->cols_override_inactive.contains(ic)==disallow)
     return;
 
   if ( disallow ) {
-    d->cols_override_inactive.insert(ic);
-    if ( d->cols_all.contains(ic) )
+    m_d->cols_override_inactive.insert(ic);
+    if ( m_d->cols_all.contains(ic) )
       ic->setTemporaryIgnoreInteractions(true);
   } else {
-    d->cols_override_inactive.remove(ic);
-    if ( d->cols_all.contains(ic) && d->mode != PICK )
+    m_d->cols_override_inactive.remove(ic);
+    if ( m_d->cols_all.contains(ic) && m_d->mode != PICK )
       ic->setTemporaryIgnoreInteractions(false);
   }
 }
@@ -916,16 +922,16 @@ void VP1GraphicsView::setDisallowInteractions(VP1GraphicsItemCollection*ic, cons
 //____________________________________________________________________
 void VP1GraphicsView::setDisallowMovable(VP1GraphicsItemCollection*ic, const bool& disallow )
 {
-  if (d->cols_override_unmovable.contains(ic)==disallow)
+  if (m_d->cols_override_unmovable.contains(ic)==disallow)
     return;
 
   if (disallow) {
-    d->cols_override_unmovable.insert(ic);
-    if (d->cols_all.contains(ic))
+    m_d->cols_override_unmovable.insert(ic);
+    if (m_d->cols_all.contains(ic))
       ic->setTemporaryIgnoreMovable(true);
   } else {
-    d->cols_override_unmovable.remove(ic);
-    if ( d->cols_all.contains(ic) && d->mode != PICK )
+    m_d->cols_override_unmovable.remove(ic);
+    if ( m_d->cols_all.contains(ic) && m_d->mode != PICK )
       ic->setTemporaryIgnoreMovable(false);
   }
 }
@@ -946,7 +952,7 @@ void VP1GraphicsView::print()
 void VP1GraphicsView::saveImage()
 {
   QString guess;
-  if (d->currentsaveimagefile.isEmpty()) {
+  if (m_d->currentsaveimagefile.isEmpty()) {
     QString base=VP1Settings::defaultFileSelectDirectory()+QDir::separator()+"vp1_capture";
     guess=base;
     int i(2);
@@ -954,7 +960,7 @@ void VP1GraphicsView::saveImage()
       guess=base+"_"+QString::number(i++);
     guess+=".png";
   } else {
-    guess=d->currentsaveimagefile;
+    guess=m_d->currentsaveimagefile;
   }
 
   QString filename = QFileDialog::getSaveFileName(0, "Select target image file", guess,
@@ -968,7 +974,7 @@ void VP1GraphicsView::saveImage()
     filename += ".png";
 
   pm.save(filename);
-  d->currentsaveimagefile = filename;
+  m_d->currentsaveimagefile = filename;
 }
 
 // //____________________________________________________________________
@@ -986,15 +992,15 @@ void VP1GraphicsView::saveImage()
 void VP1GraphicsView::drawForeground ( QPainter * painter, const QRectF & /*rect*/ ) {
 
   //Fixme: use rect?
-  if (!d->showhelptext)
+  if (!m_d->showhelptext)
     return;
   QRect imgrect = viewport()->rect();
   imgrect.setWidth(imgrect.width()*3);
   imgrect.setHeight(imgrect.height()*3);
-  if (!d->helptextimage||d->helptextimage->size()!=imgrect.size())
-    d->createNewHelptextImage(imgrect);//viewport()->rect());
+  if (!m_d->helptextimage||m_d->helptextimage->size()!=imgrect.size())
+    m_d->createNewHelptextImage(imgrect);//viewport()->rect());
   painter->setRenderHint(QPainter::Antialiasing, false);
-  painter->drawImage(mapToScene(viewport()->rect()).boundingRect(),*(d->helptextimage),
+  painter->drawImage(mapToScene(viewport()->rect()).boundingRect(),*(m_d->helptextimage),
 		     imgrect);
 }
 
@@ -1092,7 +1098,7 @@ void VP1GraphicsView::drawItems(QPainter *painter, int numItems,
 				const QStyleOptionGraphicsItem options[])
 {
 
-  if (!(d->transform&&d->transformactive)) {
+  if (!(m_d->transform&&m_d->transformactive)) {
     QGraphicsView::drawItems(painter,numItems,items,options);
     //Fixme: implement own drawing here also - to make sure inbuilt selection stuff is never shown?
     return;
@@ -1104,7 +1110,7 @@ void VP1GraphicsView::drawItems(QPainter *painter, int numItems,
     painter->setMatrix(item->sceneMatrix(), true);//??
     //     std::cout<< item->sceneMatrix().isIdentity()<<std::endl;
     //     std::cout<< item->sceneMatrix().dx()<<" : "<<item->sceneMatrix().dy()<<std::endl;
-    d->transform->paintItem(painter, item);
+    m_d->transform->paintItem(painter, item);
     painter->restore();
   }
 }

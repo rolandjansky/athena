@@ -1957,8 +1957,6 @@ void AmdcDbSvcMakerFromRDB::Set(
 
   XtomoData(pIRDBAccessSvc,pAmdcDbSvc);
 
-  pIRDBAccessSvc->shutdown();
-
 }
 
 int AmdcDbSvcMakerFromRDB::GetEpsLengthMM(std::string NameOfTheSet){ if (m_Map_Set_EpsLengthMM.find(NameOfTheSet) != m_Map_Set_EpsLengthMM.end()) return m_Map_Set_EpsLengthMM.find(NameOfTheSet)->second ; return m_EpsLengthMM; }

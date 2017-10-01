@@ -25,7 +25,5 @@ struct TreeTest
 }
 
 #include "RootUtils/InitHist.h"
-#include "RootUtils/StdHackGenerator.h"
-#include "RootUtils/ScanForAbstract.h"
 #include "RootUtils/ILogger.h"
 #include "RootUtils/ScatterH2.h"

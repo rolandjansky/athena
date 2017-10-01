@@ -14,7 +14,7 @@ namespace TrigConf {
       ClusterThresholdValue();
       ~ClusterThresholdValue();
 
-      virtual TriggerThresholdValue* createCopy() const;
+      virtual TriggerThresholdValue* createCopy() const override;
       
       // getters
       float emIsolation() const  { return m_EmIsolation; } // deprecated

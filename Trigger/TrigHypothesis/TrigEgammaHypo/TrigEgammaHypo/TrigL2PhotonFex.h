@@ -26,7 +26,7 @@
 // athena stuff
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // core trigger stuff
 #include "TrigT1Interfaces/RecEmTauRoI.h"

@@ -1,7 +1,0 @@
-package BarcodeEvent
-author <Elmar.Ritsch@cern.ch>
-
-public
-use AtlasPolicy                	AtlasPolicy-*                   
-use GaudiInterface             	GaudiInterface-*       		External
-end_public

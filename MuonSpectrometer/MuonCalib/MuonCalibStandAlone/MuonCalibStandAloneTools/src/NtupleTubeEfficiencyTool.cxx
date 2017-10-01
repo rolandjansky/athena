@@ -140,7 +140,7 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
     }
 	 
         
-    qfitter = NULL;
+    m_qfitter = NULL;
     
     m_nb_trigger = 0;
 
@@ -157,29 +157,29 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     //control histos
 
-    h_chi2 = new TH1F("h_chi2", "", 500, 0, 100);  
+    m_h_chi2 = new TH1F("h_chi2", "", 500, 0, 100);  
 
-    h_distance     = new TH1F("h_distance", 
+    m_h_distance     = new TH1F("h_distance", 
 			      "distance between track and wire", 
 			      150, 0, 15);   
-    h_nb_hit_tubes = new TH1I("h_nb_hit_tubes", 
+    m_h_nb_hit_tubes = new TH1I("h_nb_hit_tubes", 
 			      "nb of hit tubes in exluded layer", 
 			      51, 0, 50); 
  
 
     //efficiency and fakerate histos (per tube)
 
-    h_efficiency = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
+    m_h_efficiency = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
     
-    for (unsigned int k=0; k<h_efficiency.size(); k++) {
+    for (unsigned int k=0; k<m_h_efficiency.size(); k++) {
     
-	h_efficiency[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_efficiency[k].size(); l++) {
+	m_h_efficiency[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_efficiency[k].size(); l++) {
         
-	    h_efficiency[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
-	    for (unsigned int m=0; m<h_efficiency[k][l].size(); m++) {
+	    m_h_efficiency[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
+	    for (unsigned int m=0; m<m_h_efficiency[k][l].size(); m++) {
 	
-		h_efficiency[k][l][m] 
+		m_h_efficiency[k][l][m] 
 		    = new TH1F( Form("efficiency_%i_%i_%i",k+1,l+1,m+1), 
 				"Efficiency", 2, -0.5, 1.5) ;
             }
@@ -187,17 +187,17 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
     } 
 
    
-    h_fakerate = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
+    m_h_fakerate = vector< vector< vector<TH1F*> > >(2); //up to two multilayers 
     
-    for (unsigned int k=0; k<h_fakerate.size(); k++) {
+    for (unsigned int k=0; k<m_h_fakerate.size(); k++) {
     
-	h_fakerate[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_fakerate[k].size(); l++) {
+	m_h_fakerate[k] = vector< vector<TH1F*> >(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_fakerate[k].size(); l++) {
         
-	    h_fakerate[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
-	    for (unsigned int m=0; m<h_fakerate[k][l].size(); m++) {
+	    m_h_fakerate[k][l] = vector<TH1F*>(72); // up to 72 tubes per layer
+	    for (unsigned int m=0; m<m_h_fakerate[k][l].size(); m++) {
 	
-		h_fakerate[k][l][m] 
+		m_h_fakerate[k][l][m] 
 		    = new TH1F( Form("fakerate_%i_%i_%i",k+1,l+1,m+1), 
 				"Fakerate", 2, -0.5, 1.5) ;
 
@@ -209,35 +209,35 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     m_tfile->cd();
 
-    h_tube_efficiency  = vector< vector<TH1F*> >(2); //up to two multilayers 
-    for (unsigned int k=0; k<h_tube_efficiency.size(); k++) {
+    m_h_tube_efficiency  = vector< vector<TH1F*> >(2); //up to two multilayers 
+    for (unsigned int k=0; k<m_h_tube_efficiency.size(); k++) {
         
-        h_tube_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_tube_efficiency[k].size(); l++) {
+        m_h_tube_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_tube_efficiency[k].size(); l++) {
             
-            h_tube_efficiency[k][l] 
+            m_h_tube_efficiency[k][l] 
                 = new TH1F( Form("tube_efficiency_%i_%i",k+1,l+1), 
                             "Tube Efficiency", 72, 0.5, 72.5) ;
             
-            h_tube_efficiency[k][l]->GetXaxis()->SetTitle("Tube");
-            h_tube_efficiency[k][l]->GetYaxis()->SetTitle("Efficiency");
-            h_tube_efficiency[k][l]->SetMarkerStyle(8);
+            m_h_tube_efficiency[k][l]->GetXaxis()->SetTitle("Tube");
+            m_h_tube_efficiency[k][l]->GetYaxis()->SetTitle("Efficiency");
+            m_h_tube_efficiency[k][l]->SetMarkerStyle(8);
         }
     }
 
-    h_tube_fakerate  = vector< vector<TH1F*> >(2); //up to two multilayers 
-    for (unsigned int k=0; k<h_tube_fakerate.size(); k++) {
+    m_h_tube_fakerate  = vector< vector<TH1F*> >(2); //up to two multilayers 
+    for (unsigned int k=0; k<m_h_tube_fakerate.size(); k++) {
         
-        h_tube_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_tube_fakerate[k].size(); l++) {
+        m_h_tube_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_tube_fakerate[k].size(); l++) {
             
-            h_tube_fakerate[k][l] 
+            m_h_tube_fakerate[k][l] 
                 = new TH1F( Form("tube_fakerate_%i_%i",k+1,l+1), 
                             "Tube Fakerate", 72, 0.5, 72.5) ;
             
-            h_tube_fakerate[k][l]->GetXaxis()->SetTitle("Tube");
-            h_tube_fakerate[k][l]->GetYaxis()->SetTitle("Fakerate");
-            h_tube_fakerate[k][l]->SetMarkerStyle(8);
+            m_h_tube_fakerate[k][l]->GetXaxis()->SetTitle("Tube");
+            m_h_tube_fakerate[k][l]->GetYaxis()->SetTitle("Fakerate");
+            m_h_tube_fakerate[k][l]->SetMarkerStyle(8);
 
         }
     }
@@ -245,48 +245,48 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     //entry histos (per layer)
 
-    h_tube_entries_efficiency = vector< vector<TH1F*> >(2); //up to two multilayers 
-    for (unsigned int k=0; k<h_tube_entries_efficiency.size(); k++) {
+    m_h_tube_entries_efficiency = vector< vector<TH1F*> >(2); //up to two multilayers 
+    for (unsigned int k=0; k<m_h_tube_entries_efficiency.size(); k++) {
         
-        h_tube_entries_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_tube_entries_efficiency[k].size(); l++) {
+        m_h_tube_entries_efficiency[k] = vector<TH1F*>(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_tube_entries_efficiency[k].size(); l++) {
             
-            h_tube_entries_efficiency[k][l] 
+            m_h_tube_entries_efficiency[k][l] 
                 = new TH1F( Form("tube_entries_efficiency_%i_%i",k+1,l+1), 
                             "Tube Entries Efficiency", 72, 0.5, 72.5) ;
             
-            h_tube_entries_efficiency[k][l]->GetXaxis()->SetTitle("Tube");
-            h_tube_entries_efficiency[k][l]->GetYaxis()->SetTitle("Entries");
+            m_h_tube_entries_efficiency[k][l]->GetXaxis()->SetTitle("Tube");
+            m_h_tube_entries_efficiency[k][l]->GetYaxis()->SetTitle("Entries");
         }
     }
 
-    h_tube_entries_fakerate = vector< vector<TH1F*> >(2); //up to two multilayers 
-    for (unsigned int k=0; k<h_tube_entries_fakerate.size(); k++) {
+    m_h_tube_entries_fakerate = vector< vector<TH1F*> >(2); //up to two multilayers 
+    for (unsigned int k=0; k<m_h_tube_entries_fakerate.size(); k++) {
         
-        h_tube_entries_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
-	for (unsigned int l=0; l<h_tube_entries_fakerate[k].size(); l++) {
+        m_h_tube_entries_fakerate[k] = vector<TH1F*>(4); // up to four layers per multilayer
+	for (unsigned int l=0; l<m_h_tube_entries_fakerate[k].size(); l++) {
             
-            h_tube_entries_fakerate[k][l] 
+            m_h_tube_entries_fakerate[k][l] 
                 = new TH1F( Form("tube_entries_fakerate_%i_%i",k+1,l+1), 
                             "Tube Entries Fakerate", 72, 0.5, 72.5) ;
             
-            h_tube_entries_fakerate[k][l]->GetXaxis()->SetTitle("Tube");
-            h_tube_entries_fakerate[k][l]->GetYaxis()->SetTitle("Entries");
+            m_h_tube_entries_fakerate[k][l]->GetXaxis()->SetTitle("Tube");
+            m_h_tube_entries_fakerate[k][l]->GetYaxis()->SetTitle("Entries");
         }
     }
 
 
     //efficiency and fakerate histos (per chamber)
 
-    h_layer_efficiency   = new TH1F("layer_efficiency", "Layer Efficiency", 8, 0.5, 8.5);
-    h_chamber_efficiency = new TH1F("chamber_efficiency", "Chamber Efficiency", 3, -0.5, 2.5);
+    m_h_layer_efficiency   = new TH1F("layer_efficiency", "Layer Efficiency", 8, 0.5, 8.5);
+    m_h_chamber_efficiency = new TH1F("chamber_efficiency", "Chamber Efficiency", 3, -0.5, 2.5);
     
-    h_layer_efficiency->GetXaxis()->SetTitle("Layer");
-    h_layer_efficiency->GetYaxis()->SetTitle("Efficiency");
-    h_layer_efficiency->SetMarkerStyle(8);
+    m_h_layer_efficiency->GetXaxis()->SetTitle("Layer");
+    m_h_layer_efficiency->GetYaxis()->SetTitle("Efficiency");
+    m_h_layer_efficiency->SetMarkerStyle(8);
     
-    h_chamber_efficiency->GetYaxis()->SetTitle("Efficiency"); 
-    h_chamber_efficiency->SetMarkerStyle(8);
+    m_h_chamber_efficiency->GetYaxis()->SetTitle("Efficiency"); 
+    m_h_chamber_efficiency->SetMarkerStyle(8);
 
     return StatusCode::SUCCESS;
 
@@ -333,8 +333,8 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 
     m_nb_trigger++;
 
-    if(qfitter==NULL){ 
-        qfitter = new QuasianalyticLineReconstruction();
+    if(m_qfitter==NULL){ 
+        m_qfitter = new QuasianalyticLineReconstruction();
     }
 
     
@@ -390,9 +390,9 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     //-- Efficiency --//
     //----------------//
 
-    qfitter->setRoadWidth(m_road_width); //0.65
-    qfitter->switchOnRefit();
-    //qfitter->fit(segment);
+    m_qfitter->setRoadWidth(m_road_width); //0.65
+    m_qfitter->switchOnRefit();
+    //m_qfitter->fit(segment);
 
     //loop over multilayers
     for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
@@ -442,24 +442,24 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 
             if(m_exclude_layer){
                 
-                h_chi2->Fill(qfitter->chi2PerDegreesOfFreedom());
+                m_h_chi2->Fill(m_qfitter->chi2PerDegreesOfFreedom());
 
-                if (!qfitter->fit(segment, hit_selection)) {
+                if (!m_qfitter->fit(segment, hit_selection)) {
                     continue;
                 }
-                if (qfitter->numberOfTrackHits()<3) {
+                if (m_qfitter->numberOfTrackHits()<3) {
                     continue;
                 }
-                //if (qfitter->numberOfTrackHits()<(m_nb_hits-1) {
+                //if (m_qfitter->numberOfTrackHits()<(m_nb_hits-1) {
                 //  continue;
                 //}
-                if(qfitter->chi2PerDegreesOfFreedom()>m_chi2_cut){ 
+                if(m_qfitter->chi2PerDegreesOfFreedom()>m_chi2_cut){ 
                     continue;
                 }
 		
             }else{
                 
-                h_chi2->Fill(segment.chi2());
+                m_h_chi2->Fill(segment.chi2());
 
                 if(segment.chi2()>m_chi2_cut){ 
                     continue;
@@ -471,7 +471,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 	    MTStraightLine track;
             
             if(m_exclude_layer){
-                track = qfitter->track();
+                track = m_qfitter->track();
             }
             else{
                 track = MTStraightLine(segment.position(),segment.direction(),
@@ -501,11 +501,11 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 	
                 if ( distance < (MdtRoEl->innerTubeRadius()) ){
 		    traversed_tube.push_back(k+1);
-		    h_distance->Fill(distance);
+		    m_h_distance->Fill(distance);
 		}
 	    }
 
-	    h_nb_hit_tubes->Fill(traversed_tube.size());
+	    m_h_nb_hit_tubes->Fill(traversed_tube.size());
     
 
 	    // check whether the traversed tubes give a hit //
@@ -546,7 +546,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
                     }
 		}
     
-		h_efficiency[multilayer-1][layer-1][ traversed_tube[k]-1 ]->Fill(hit_flag);
+		m_h_efficiency[multilayer-1][layer-1][ traversed_tube[k]-1 ]->Fill(hit_flag);
 	    }
 
             
@@ -565,7 +565,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 		    }
 		}
 		
-		h_fakerate[multilayer-1][layer-1][ hit_tube[k]-1 ]->Fill(fake_flag);
+		m_h_fakerate[multilayer-1][layer-1][ hit_tube[k]-1 ]->Fill(fake_flag);
 	    }
 
 	
@@ -641,16 +641,16 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 		
                 //calculate efficiency, fakerate and errors
 
-		double efficiency = h_efficiency[k][l][m]->GetMean();
-		double entries    = h_efficiency[k][l][m]->GetEntries();
+		double efficiency = m_h_efficiency[k][l][m]->GetMean();
+		double entries    = m_h_efficiency[k][l][m]->GetEntries();
 		double error      = 0.; 
 	
 		if(entries!=0){
 		    error  = ( 1/sqrt(entries) ) * sqrt( efficiency*(1-efficiency) );
 		}
 		
-                double fakerate = h_fakerate[k][l][m]->GetMean() / (double)m_nb_trigger;
-		double fentries = h_fakerate[k][l][m]->GetEntries();
+                double fakerate = m_h_fakerate[k][l][m]->GetMean() / (double)m_nb_trigger;
+		double fentries = m_h_fakerate[k][l][m]->GetEntries();
 		double ferror   = 0; 
 		
                 if(fentries!=0){
@@ -664,17 +664,17 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 title += TString(m_reg_sel_svc->GetRegionSelection());
                 title += Form(" (ml%i, ly%i)",k+1,l+1); 
                 
-                h_tube_efficiency[k][l]->SetTitle(title);
-                h_tube_fakerate[k][l]->SetTitle(title.ReplaceAll("Efficiency","Fakerate"));
+                m_h_tube_efficiency[k][l]->SetTitle(title);
+                m_h_tube_fakerate[k][l]->SetTitle(title.ReplaceAll("Efficiency","Fakerate"));
 
-                h_tube_efficiency[k][l]->SetBinContent(m+1,efficiency);
-                h_tube_efficiency[k][l]->SetBinError(m+1,error);
+                m_h_tube_efficiency[k][l]->SetBinContent(m+1,efficiency);
+                m_h_tube_efficiency[k][l]->SetBinError(m+1,error);
 
-                h_tube_fakerate[k][l]->SetBinContent(m+1,fakerate);
-                h_tube_fakerate[k][l]->SetBinError(m+1,ferror);
+                m_h_tube_fakerate[k][l]->SetBinContent(m+1,fakerate);
+                m_h_tube_fakerate[k][l]->SetBinError(m+1,ferror);
 
-                h_tube_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
-                h_tube_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
+                m_h_tube_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
+                m_h_tube_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
 
 
                 //write text file
@@ -692,14 +692,14 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 entry_title += TString(m_reg_sel_svc->GetRegionSelection());
                 entry_title += Form(" (ml%i, ly%i)",k+1,l+1); 
  
-                h_tube_entries_efficiency[k][l]->SetTitle(entry_title);
-                h_tube_entries_fakerate[k][l]->SetTitle(entry_title.ReplaceAll("Efficiency","Fakerate"));
+                m_h_tube_entries_efficiency[k][l]->SetTitle(entry_title);
+                m_h_tube_entries_fakerate[k][l]->SetTitle(entry_title.ReplaceAll("Efficiency","Fakerate"));
 
-                h_tube_entries_efficiency[k][l]->SetBinContent(m+1,entries);
-                h_tube_entries_fakerate[k][l]->SetBinContent(m+1,fentries);
+                m_h_tube_entries_efficiency[k][l]->SetBinContent(m+1,entries);
+                m_h_tube_entries_fakerate[k][l]->SetBinContent(m+1,fentries);
                 
-                h_tube_entries_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
-                h_tube_entries_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
+                m_h_tube_entries_efficiency[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
+                m_h_tube_entries_fakerate[k][l]->GetXaxis()->SetRange(1,m_nb_tubes);
                 
 
                 //summarized efficiencies
@@ -732,14 +732,14 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
     TString layer_title = "Layer Efficiency ";
     layer_title += TString(m_reg_sel_svc->GetRegionSelection());
         
-    h_layer_efficiency->SetTitle(layer_title);
-    h_layer_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers*m_nb_layers);
+    m_h_layer_efficiency->SetTitle(layer_title);
+    m_h_layer_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers*m_nb_layers);
 
     TString chamber_title = "Efficiency ";
     chamber_title += TString(m_reg_sel_svc->GetRegionSelection());
    
-    h_chamber_efficiency->SetTitle(chamber_title);
-    h_chamber_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers+1);
+    m_h_chamber_efficiency->SetTitle(chamber_title);
+    m_h_chamber_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers+1);
 
     int layer_bin = 1;
     int chamber_bin = 2;
@@ -756,8 +756,8 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 layer_err = sqrt(1./layer_error[k][l]);
             }
             
-            h_layer_efficiency->SetBinContent(layer_bin, layer_eff);
-            h_layer_efficiency->SetBinError(layer_bin, layer_err);
+            m_h_layer_efficiency->SetBinContent(layer_bin, layer_eff);
+            m_h_layer_efficiency->SetBinError(layer_bin, layer_err);
             
             layer_bin++;
         }
@@ -770,9 +770,9 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
             ml_err = sqrt(1./multilayer_error[k]);
         }
 
-        h_chamber_efficiency->SetBinContent(chamber_bin, ml_eff);
-        h_chamber_efficiency->SetBinError(chamber_bin, ml_err);
-        h_chamber_efficiency->GetXaxis()->SetBinLabel(chamber_bin, TString(Form("ml%i",k+1)).Data());
+        m_h_chamber_efficiency->SetBinContent(chamber_bin, ml_eff);
+        m_h_chamber_efficiency->SetBinError(chamber_bin, ml_err);
+        m_h_chamber_efficiency->GetXaxis()->SetBinLabel(chamber_bin, TString(Form("ml%i",k+1)).Data());
 
         chamber_bin++;
     }
@@ -785,10 +785,10 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
         ch_err = sqrt(1./chamber_error);
     }
     
-    h_chamber_efficiency->SetBinContent(1, ch_eff);
-    h_chamber_efficiency->SetBinError(1, ch_err);
-    h_chamber_efficiency->GetXaxis()->SetBinLabel(1,"chamber");
-    h_chamber_efficiency->LabelsOption("d");
+    m_h_chamber_efficiency->SetBinContent(1, ch_eff);
+    m_h_chamber_efficiency->SetBinError(1, ch_err);
+    m_h_chamber_efficiency->GetXaxis()->SetBinLabel(1,"chamber");
+    m_h_chamber_efficiency->LabelsOption("d");
 
 
     //delete not used histos
@@ -798,10 +798,10 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
         for (int l=0; l<4; l++) {  //layers
             
             if(k>m_nb_multilayers-1 || l>m_nb_layers-1){
-                delete h_tube_efficiency[k][l];
-                delete h_tube_fakerate[k][l];
-                delete h_tube_entries_efficiency[k][l];
-                delete h_tube_entries_fakerate[k][l];
+                delete m_h_tube_efficiency[k][l];
+                delete m_h_tube_fakerate[k][l];
+                delete m_h_tube_entries_efficiency[k][l];
+                delete m_h_tube_entries_fakerate[k][l];
             }
         }
     }
@@ -851,26 +851,26 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
 
   //reset histo names
 
-   //  if( !(TString(h_tube_efficiency[0][0]->GetName()))
+   //  if( !(TString(m_h_tube_efficiency[0][0]->GetName()))
 //         .Contains(TString(m_cal_region->regionId()))){
                
-//         for (unsigned int k=0; k<h_tube_efficiency.size(); k++) {
+//         for (unsigned int k=0; k<m_h_tube_efficiency.size(); k++) {
                       
-//             for (unsigned int l=0; l<h_tube_efficiency[k].size(); l++) {
+//             for (unsigned int l=0; l<m_h_tube_efficiency[k].size(); l++) {
                 
-//                 h_tube_efficiency[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
-//                                                    TString(h_tube_efficiency[k][l]->GetName()) );
+//                 m_h_tube_efficiency[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
+//                                                    TString(m_h_tube_efficiency[k][l]->GetName()) );
                 
                 
 //             }
 //         }
         
-//         for (unsigned int k=0; k<h_tube_fakerate.size(); k++) {
+//         for (unsigned int k=0; k<m_h_tube_fakerate.size(); k++) {
             
-//             for (unsigned int l=0; l<h_tube_fakerate[k].size(); l++) {
+//             for (unsigned int l=0; l<m_h_tube_fakerate[k].size(); l++) {
                 
-//                 h_tube_fakerate[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
-//                                                  TString(h_tube_fakerate[k][l]->GetName()) );
+//                 m_h_tube_fakerate[k][l]->SetName( TString(m_cal_region->regionId()) + "_" +
+//                                                  TString(m_h_tube_fakerate[k][l]->GetName()) );
                 
 //             }
 //         }

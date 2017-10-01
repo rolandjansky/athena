@@ -93,7 +93,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   class HighLightItem;
   friend class HighLightItem;
   void emitSelectionChanged(VP1GraphicsItemCollection*);

@@ -13,6 +13,9 @@
 
 namespace Monitored {
 
+    /**
+     * Monitoring of (double-convertable) collections
+     */
     namespace MonitoredCollection {
   
         // Forward declares
@@ -29,9 +32,9 @@ namespace Monitored {
          *
          * \code
          *   std::vector<float> eta( {0.2, 0.1} );
-         *   auto m = MonitoredCollection::declare( "Eta", eta );
+         *   auto m = MonitoredCollection::declare("Eta", eta);
          * \endcode
-         **/
+         */
         template<class T>
         MonitoredValuesCollection<T> declare(std::string name, const T& collection) {
           return MonitoredValuesCollection<T>(std::move(name), collection);
@@ -50,10 +53,10 @@ namespace Monitored {
          *   std::vector<Track> tracks;
          *   auto phi = MonitoredCollection::declare( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
          * \endcode
-         **/
+         */
         template<class T>
         MonitoredObjectsCollection<T> declare(std::string name, const T& collection, 
-                                              std::function<double(const typename MonitoredObjectsCollection<T>::value_type&)> converterToDouble) {
+                                              std::function<double(const typename MonitoredObjectsCollection<T>::const_value_type&)> converterToDouble) {
             return MonitoredObjectsCollection<T>(std::move(name), collection, 
                                                  std::move(converterToDouble));
         }
@@ -69,14 +72,23 @@ namespace Monitored {
             struct get_value_type<T[N]> {
                 typedef T value_type;
             };
+
+            template <typename T>
+            struct make_pointer_const {
+              typedef T type;
+            };
+            template <typename T>
+            struct make_pointer_const<T*> {
+              typedef const T* type;
+            };
         }
   
         
         /**
-         * Monitored collection
+         * Monitoring of collections
          *
          * This class is not supposed to be used by the end user.
-         **/
+         */
         template<class T>
         class MonitoredValuesCollection : public IMonitoredVariable {
         public:
@@ -86,6 +98,7 @@ namespace Monitored {
             static_assert(std::is_convertible<value_type, double>::value, 
                           "Collection values must be convertable to double");
 
+            /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
             friend MonitoredValuesCollection<T> declare<T>(std::string name, const T& collection);
             
             MonitoredValuesCollection(MonitoredValuesCollection&&) = default;
@@ -104,18 +117,23 @@ namespace Monitored {
         
 
         /**
-         * Monitored object collection
+         * Monitoring of object collections
          *
          * This class is not supposed to be used by the end user.
-         **/
+         */
         template<class T>
         class MonitoredObjectsCollection : public IMonitoredVariable {
         public:
             /// Type of the collection elements
             using value_type = typename detail::get_value_type<T>::value_type;
+            using const_value_type = typename detail::make_pointer_const<value_type>::type;
 
-            friend MonitoredObjectsCollection<T> declare<T>(std::string name, const T& collection, 
-                                                            std::function<double(const value_type&)> converterToDouble);
+            /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
+            // With a non-template friend declaration, clang 4.0.1
+            // fails to match the friend.
+            template <class U>
+            friend MonitoredObjectsCollection<U> declare(std::string name, const U& collection, 
+                                                         std::function<double(const typename MonitoredObjectsCollection<U>::const_value_type&)> converterToDouble);
             
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
             
@@ -132,10 +150,10 @@ namespace Monitored {
             }
         private:
             const T& m_collection;
-            std::function<double(const value_type&)> m_converterToDouble;
+            std::function<double(const const_value_type&)> m_converterToDouble;
             
             MonitoredObjectsCollection(std::string name, const T& collection, 
-                                       std::function<double(const value_type&)> converterToDouble)
+                                       std::function<double(const const_value_type&)> converterToDouble)
             : IMonitoredVariable(std::move(name)), 
               m_collection(collection), 
               m_converterToDouble(std::move(converterToDouble)) { }

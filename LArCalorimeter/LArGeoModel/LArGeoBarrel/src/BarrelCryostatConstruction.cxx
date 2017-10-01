@@ -996,7 +996,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
 
 
-  if(rdbAccess->getChildTag("LArBarrelDM",larVersionKey.tag(),larVersionKey.node(),false)!="" && m_fullGeo) {
+  if(rdbAccess->getChildTag("LArBarrelDM",larVersionKey.tag(),larVersionKey.node())!="" && m_fullGeo) {
     // Dead material in barrel
     BarrelDMConstruction barrelDMConstruction;
     barrelDMConstruction.create (m_cryoMotherPhysical);

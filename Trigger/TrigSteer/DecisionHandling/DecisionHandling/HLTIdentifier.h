@@ -24,6 +24,8 @@ public:
    **/
   static void reportStringIDs( bool report ) { s_reportStringIDs = report; }
   static bool reportStringIDs() { return s_reportStringIDs; }
+  
+  static HLT::Identifier fromToolName( const std::string& tname );
   /**
    * @brief constructs identifier from human redable name
    **/  
@@ -42,12 +44,14 @@ public:
   /**
    * @brief numeric ID
    **/    
-  unsigned numeric() const { return m_id; }
+  inline unsigned numeric() const { return m_id; }
+  inline operator unsigned () const { return numeric(); }
   /**
    *  @brief comparisons, for containers of identifiers
    **/      
   bool operator == ( const Identifier& rhs )  const { return numeric() == rhs.numeric(); }
   bool operator < ( const Identifier& rhs )  const { return numeric() < rhs.numeric(); }
+  bool operator < ( unsigned id ) const { return numeric() < id; } 
 private:
   unsigned m_id;
   static bool s_reportStringIDs;

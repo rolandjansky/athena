@@ -463,7 +463,7 @@ namespace InDet
       
       if (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation)) {
 	return false;
-      }
+      }      
     }
     
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
@@ -983,7 +983,9 @@ namespace InDet
     //**-----------------------------------------------------------------------
 
     if(m_usePtDependentCuts) {
-
+      if (!track) {
+         return false;
+      }
       const AmgVector(5)& perigeeParms = track->parameters();
       double p = fabs(1./perigeeParms[Trk::qOverP]);  
       double pt = p*sin(perigeeParms[Trk::theta]);
