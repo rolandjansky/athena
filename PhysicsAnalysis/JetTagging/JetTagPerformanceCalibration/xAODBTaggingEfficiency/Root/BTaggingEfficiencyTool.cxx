@@ -234,6 +234,10 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     } while (end != std::string::npos);
   }
 
+  // For the SFEigen strategy, ensure that the charm -> tau extrapolation uncertainty is added
+  if (m_systStrategy != "Envelope" && std::find(excludeFromEVCov.begin(), excludeFromEVCov.end(), "extrapolation from charm") == excludeFromEVCov.end())
+    excludeFromEVCov.push_back("extrapolation from charm");
+
   // Use the PathResolver to find the full pathname (behind the scenes this can also be used to download the file),
   // if the file cannot be found directly.
   // For consistency with the PathResolver code, use the Boost library to check on this first possibility.
