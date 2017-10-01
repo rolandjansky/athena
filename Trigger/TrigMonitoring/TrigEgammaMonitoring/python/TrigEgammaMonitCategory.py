@@ -50,7 +50,13 @@ monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e28_lhtight_nod0_ivarloose']
 
 monitoring_jpsitags = [
-    'HLT_e5_lhtight_nod0',
+    'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',
+    'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',
+    'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
+    'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5',
+    'HLT_e5_lhtight_nod0_e4_etcut_L1JPSI-1M5',
+    'HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
+    'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e5_lhtight_nod0_e4_etcut',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee',
@@ -88,11 +94,7 @@ monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
                           ]
 # monitoringTP_electron += commissionTP_electron
 
-monitoringTP_Jpsiee = [
-        'HLT_e5_lhtight_nod0',
-        'HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
-        'HLT_e9_lhtight_nod0'
-        ]    
+monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
                       'HLT_g200_loose',
                       ]
@@ -100,7 +102,7 @@ monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
 monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',
                   'primary_double_pho':'HLT_g25_medium_L1EM20VH',
                   'primary_single_pho':'HLT_g200_loose',
-                  'monitoring_Jpsiee' :'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee'}
+                  'monitoring_Jpsiee' :'HLT_e5_lhtight_nod0'}
 
 # Cosmic items
 monitoring_electron_cosmic=['HLT_e0_perf_L1EM3_EMPTY']
