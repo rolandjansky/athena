@@ -1,83 +1,21 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-// L1Decoder includes
+
 #include "TAURoIsUnpackingTool.h"
 
-// STL includes
-
-// FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
-
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
-
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 TAURoIsUnpackingTool::TAURoIsUnpackingTool( const std::string& type, 
-		      const std::string& name, 
-		      const IInterface* parent ) : 
-  ::AthAlgTool  ( type, name, parent   ),
-  m_storeGate( "StoreGateSvc", name )
+                                            const std::string& name, 
+                                            const IInterface* parent ) 
+  : RoIsUnpackingToolBase(type, name, parent)
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
 
 }
 
-// Destructor
-///////////////
-TAURoIsUnpackingTool::~TAURoIsUnpackingTool()
-{}
-
-// Athena algtool's Hooks
-////////////////////////////
 StatusCode TAURoIsUnpackingTool::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TAURoIsUnpackingTool::finalize()
-{
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_CHECK(RoIsUnpackingToolBase::initialize());
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 
