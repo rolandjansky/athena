@@ -8,7 +8,7 @@
 #include "TopEventSelectionTools/EventSelectorBase.h"
 
 #include "AsgTools/ToolHandle.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace top {
 

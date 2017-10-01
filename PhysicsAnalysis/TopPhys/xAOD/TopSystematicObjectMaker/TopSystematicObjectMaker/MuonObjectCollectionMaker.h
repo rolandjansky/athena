@@ -32,10 +32,10 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 // Forward declaration(s):
 namespace top{
