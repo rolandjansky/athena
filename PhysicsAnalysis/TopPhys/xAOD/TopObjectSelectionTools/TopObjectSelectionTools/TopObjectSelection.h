@@ -34,7 +34,7 @@
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 
 // b-tagging includes
-#include "FTagAnalysisInterfaces/BTaggingSelectionTool.h"
+#include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
 
 // boosted-tagging includes
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
