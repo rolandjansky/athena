@@ -75,8 +75,14 @@ for jetrec in jtm.jetrecs:
   jetFlags.jetAODList += [ "xAOD::Jet" + auxprefix + "AuxContainer#" + jetrec.name() + "Aux." ]
 
 if jetFlags.useTracks() and jetFlags.useTopo():
-    jetFlags.jetAODList += [ "xAOD::CaloClusterContainer#EMOriginTopoClusters" , "xAOD::CaloClusterContainer#LCOriginTopoClusters" ,
-                             "xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.", "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."] 
+    jetFlags.jetAODList += [ "xAOD::CaloClusterContainer#EMOriginTopoClusters" ,
+                             "xAOD::CaloClusterContainer#LCOriginTopoClusters" ,
+                             "xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.",
+                             "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."] 
+    jetFlags.jetAODList += [ "xAOD::PFOContainer#CHSChargedParticleFlowObjects",
+                             "xAOD::PFOContainer#CHSNeutralParticleFlowObjects",
+                             "xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.",
+                             "xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux."] 
 
 # For testing. These blocks should not be enabled in production.
 if jetFlags.debug > 0:

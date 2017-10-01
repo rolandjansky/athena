@@ -136,6 +136,15 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
+        if thinneg:
+          from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
+          CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
+            "ThinNegativeEnergyCHSNeutralPFOsAlg",
+            NeutralPFOsKey="CHSNeutralParticleFlowObjects",
+            ThinNegativeEnergyNeutralPFOs = True
+            )
+          postalgs.append(CHSnPFOsThinAlg)
+
 
   from JetRec.JetRecConf import JetToolRunner
   runners = []
