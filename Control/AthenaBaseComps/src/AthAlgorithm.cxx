@@ -17,7 +17,7 @@
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-
+#include "./VHKASupport.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -152,8 +152,8 @@ StatusCode AthAlgorithm::sysInitialize()
 {
   ATH_CHECK( Algorithm::sysInitialize() );
 
-  for ( VarHandleKeyArrayWithState& a: m_vhka ) {
-    a.declare( this );
+  for ( SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
 
   m_varHandleArraysDeclared = true;
@@ -161,16 +161,8 @@ StatusCode AthAlgorithm::sysInitialize()
   return StatusCode::SUCCESS;
 }
 
-void AthAlgorithm::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
-  
-  auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
-  if ( vhkaIter == m_vhka.end() ) {
-    ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
-    return;
-  } else {
-    ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
-    vhkaIter->renounce();
-  }
+void AthAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
 }
 
 
@@ -186,9 +178,7 @@ std::vector<Gaudi::DataHandle*> AthAlgorithm::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = Algorithm::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfInput( v );
-    }
+    VHKASupport::insertInput( m_vhka, v );
   }
 
   return v;
@@ -207,9 +197,7 @@ std::vector<Gaudi::DataHandle*> AthAlgorithm::outputHandles() const
   std::vector<Gaudi::DataHandle*> v = Algorithm::outputHandles();
 
   if (!m_varHandleArraysDeclared) {    
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfOutput( v );      
-    }
+    VHKASupport::insertOutput( m_vhka, v );
   }
 
   return v;

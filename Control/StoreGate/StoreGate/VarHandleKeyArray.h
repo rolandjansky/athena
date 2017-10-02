@@ -13,6 +13,7 @@
  */
 
 #include "GaudiKernel/DataHandle.h"
+#include "GaudiKernel/IDataHandleHolder.h"
 #include "StoreGate/VarHandleKey.h"
 
 #include <vector>
@@ -33,6 +34,10 @@ namespace SG {
     virtual Gaudi::DataHandle::Mode mode() const = 0;
 
     virtual std::vector<SG::VarHandleKey*> keys() const = 0;
+
+    virtual void renounce() = 0;
+    virtual bool renounced() const = 0;
+    virtual void declare(IDataHandleHolder*)  = 0;
 
   };
 
@@ -107,6 +112,25 @@ namespace SG {
      */
     std::vector<SG::VarHandleKey*> keys() const;
     
+
+    /**
+     * @brief if called, handles will not be declared in the algorithm I/O
+     */
+    void renounce() { m_isRenounced = true; }
+    
+    /**
+     * @brief query renounced state
+     **/ 
+    virtual bool renounced() const override { return m_isRenounced; }
+
+    virtual void declare( IDataHandleHolder* ) override;
+
+  private:
+    
+
+
+    bool m_isRenounced{ false };
+
   };
   
 } // namespace SG

@@ -16,7 +16,7 @@
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "./VHKASupport.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -83,10 +83,9 @@ StatusCode AthAlgTool::sysInitialize()
 {
   ATH_CHECK( AlgTool::sysInitialize() );
 
-  for ( VarHandleKeyArrayWithState& a: m_vhka ) {
-    a.declare( this );
+  for (  SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
-
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
@@ -105,25 +104,14 @@ std::vector<Gaudi::DataHandle*> AthAlgTool::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = AlgTool::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfInput( v );
-    }
+    VHKASupport::insertInput( m_vhka, v );
   }
 
   return v;
 }
 
-
-void AthAlgTool::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
-  
-  auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
-  if ( vhkaIter == m_vhka.end() ) {
-    ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
-    return;
-  } else {
-    ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
-    vhkaIter->renounce();
-  }
+void AthAlgTool::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
 }
 
 
@@ -137,13 +125,9 @@ void AthAlgTool::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
 std::vector<Gaudi::DataHandle*> AthAlgTool::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = AlgTool::outputHandles();
-
-  if (!m_varHandleArraysDeclared) {    
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfOutput( v );      
-    }
-  }
-
+  if (!m_varHandleArraysDeclared) {
+    VHKASupport::insertOutput( m_vhka, v );
+  }  
   return v;
 }
 

@@ -19,6 +19,8 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #endif
 
+
+#include "./VHKASupport.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -166,28 +168,20 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 {
   ATH_CHECK( ReEntAlgorithm::sysInitialize() );
 
-  for ( VarHandleKeyArrayWithState& a: m_vhka ) {
-    a.declare( this );
+  for ( SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
 }
 
-void AthReentrantAlgorithm::renounceArray( const SG::VarHandleKeyArray& handlesArray ) {
-  
-  auto vhkaIter = std::find( m_vhka.begin(), m_vhka.end(), &handlesArray );
-  if ( vhkaIter == m_vhka.end() ) {
-    ATH_MSG_WARNING( "Renouncing inexistent ReadHandleKeyArray " << handlesArray.toString() );
-    return;
-  } else {
-    ATH_MSG_DEBUG( "Renouncing handles " << handlesArray.toString() );      
-    vhkaIter->renounce();
-  }
+void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
 }
 
 /**
- * @brief Return this algorithm's input handles.
+ * @briefS Return this algorithm's input handles.
  *
  * We override this to include handle instances from key arrays
  * if they have not yet been declared.
@@ -196,13 +190,9 @@ void AthReentrantAlgorithm::renounceArray( const SG::VarHandleKeyArray& handlesA
 std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
-
   if (!m_varHandleArraysDeclared) {
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfInput( v );
-    }
-  }
-  
+    VHKASupport::insertInput( m_vhka, v );
+  }  
   return v;
 }
 
@@ -217,12 +207,9 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
 std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
-
-  if (!m_varHandleArraysDeclared) {    
-    for ( const VarHandleKeyArrayWithState& a: m_vhka ) {
-      a.appendIfOutput( v );      
-    }
-  }
+  if (!m_varHandleArraysDeclared) {
+    VHKASupport::insertOutput( m_vhka, v );
+  }  
 
   return v;
 }
