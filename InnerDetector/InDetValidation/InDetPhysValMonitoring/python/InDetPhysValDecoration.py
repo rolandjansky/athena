@@ -376,19 +376,19 @@ def addExtraMonitoring() :
            topSequence = AlgSequence()
            mon_manager = topSequence.getChildren()[mon_index]
            from InDetPhysValMonitoring.InDetPhysValMonitoringTool import InDetPhysValMonitoringTool
+           
+           # from InDetRecExample.InDetKeys import InDetKeys
+           ##  for backward compatibility check whether DBM has been added already
+           # if InDetPhysValFlags.doValidateTightPrimaryTracks() :
+           #    mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolTightPrimary ) ]
 
-           from InDetRecExample.InDetKeys import InDetKeys
-           # for backward compatibility check whether DBM has been added already
-           if InDetPhysValFlags.doValidateTightPrimaryTracks() :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolTightPrimary ) ]
+           # if InDetPhysValFlags.doValidateGSFTracks() :
+             #  mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolGSF ) ]
 
-           if InDetPhysValFlags.doValidateGSFTracks() :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolGSF ) ]
-
-           from InDetRecExample.InDetKeys import InDetKeys
-           # for backward compatibility check whether DBM has been added already
-           if InDetPhysValFlags.doValidateDBMTracks() and hasattr(InDetKeys,'DBMTrackParticles') :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolDBM ) ]
+           # from InDetRecExample.InDetKeys import InDetKeys
+           ##  for backward compatibility check whether DBM has been added already
+           # if InDetPhysValFlags.doValidateDBMTracks() and hasattr(InDetKeys,'DBMTrackParticles') :
+            #   mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolDBM ) ]
 
   except ImportError :
     import sys,traceback
@@ -455,9 +455,9 @@ def addDecoratorIfNeeded() :
    # the monitoring manager exists already.
    from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    InDetPhysValFlags.init()
-   if InDetPhysValFlags.doValidateGSFTracks() or InDetPhysValFlags.doValidateDBMTracks() or InDetPhysValFlags.doValidateTightPrimaryTracks():
-       from RecExConfig.RecFlags import rec
-       rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValDecoration import addExtraMonitoring;addExtraMonitoring();']
+   # if InDetPhysValFlags.doValidateGSFTracks() or InDetPhysValFlags.doValidateDBMTracks() or InDetPhysValFlags.doValidateTightPrimaryTracks():
+    #    from RecExConfig.RecFlags import rec
+    #    rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValDecoration import addExtraMonitoring;addExtraMonitoring();']
 
    # from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    # print 'DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
