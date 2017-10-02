@@ -60,8 +60,6 @@ namespace Tau{
 	
 	TH1* m_migration_panTau;
 	TH1* m_migration_panTauProto;
-	TH1* m_migration_tauRec;
-	TH1* m_migration_eflow;
 	TH1* m_migration_cellBased;
     private:
 	void initializePlots();

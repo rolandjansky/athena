@@ -10,8 +10,6 @@ Migration::Migration(PlotBase* pParent, std::string sDir, std::string sTauJetCon
    PlotBase(pParent, sDir),
    m_migration_panTau(nullptr),
    m_migration_panTauProto(nullptr),
-   m_migration_tauRec(nullptr),
-   m_migration_eflow(nullptr),
    m_migration_cellBased(nullptr),
    m_sTauJetContainerName(sTauJetContainerName)
 {
@@ -25,19 +23,13 @@ void Migration::initializePlots()
 {
    m_migration_panTau = Book1D("panTau_migration",m_sTauJetContainerName + " panTau migration",DECAYSIZE,0,DECAYSIZE);
    m_migration_panTauProto = Book1D("panTauProto_migration",m_sTauJetContainerName + " panTau proto migration",DECAYSIZE,0,DECAYSIZE);
-   m_migration_tauRec = Book1D("tauRec_migration",m_sTauJetContainerName + " TauRec migration",DECAYSIZE,0,DECAYSIZE);
-   m_migration_eflow = Book1D("eflow_migration",m_sTauJetContainerName + " eflow migration",DECAYSIZE,0,DECAYSIZE);
    m_migration_cellBased = Book1D("cellBased_migration",m_sTauJetContainerName + " cellBased migration",DECAYSIZE,0,DECAYSIZE);
    m_migration_panTau->GetXaxis()->SetLabelSize(0.05);
    m_migration_panTauProto->GetXaxis()->SetLabelSize(0.05);
-   m_migration_tauRec->GetXaxis()->SetLabelSize(0.05);
-   m_migration_eflow->GetXaxis()->SetLabelSize(0.05);
    m_migration_cellBased->GetXaxis()->SetLabelSize(0.05);
    for(int i=1; i<= DECAYSIZE;i++){
       m_migration_panTauProto->GetXaxis()->SetBinLabel(i,m_lable[i-1]);
       m_migration_panTau->GetXaxis()->SetBinLabel(i,m_lable[i-1]);
-      m_migration_tauRec->GetXaxis()->SetBinLabel(i,m_lable[i-1]);
-      m_migration_eflow->GetXaxis()->SetBinLabel(i,m_lable[i-1]);
       m_migration_cellBased->GetXaxis()->SetBinLabel(i,m_lable[i-1]);
    }
 }
@@ -63,18 +55,6 @@ void Migration::fill(const xAOD::TauJet& thisTau,int nProng, int nNeu) {
 	
    
    
-   /*+++++++++++++++++++++++++++++++++++++++++++++++++
-     +++++++++++++++++++EFLOW_REC+++++++++++++++++++++
-     +++++++++++++++++++++++++++++++++++++++++++++++++*/
-   
-   //Charged Pions
-   // FIXME!!! taujet v2 does no longer have eflowrec pfos
-   // std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_chargedPFO = thisTau.eflowRec_Charged_PFOLinks();
-   // int efP = eflowRec_chargedPFO.size();
-   // //Neutral Pions
-   // std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_neutralPFO = thisTau.eflowRec_Pi0_PFOLinks();
-   // int efN = eflowRec_neutralPFO.size();
-   // decayModeFill(nProng,nNeu,efP,efN,m_migration_eflow);
    /*+++++++++++++++++++++++++++++++++++++++++++++++++
      +++++++++++++++++++CellBased+++++++++++++++++++++
      +++++++++++++++++++++++++++++++++++++++++++++++++*/
