@@ -192,7 +192,7 @@ class TrigEgammaMonToolBuilder:
                 TriggerList=self.tpList,
                 DefaultProbePid="LHMedium",
                 OfflineTagSelector='LHTight',
-                OfflineProbeSelector='LHMedium',
+                #OfflineProbeSelector='LHMedium',
                 File="",
                 TagTriggerList=self.tagItems,
                 RemoveCrack=False,
@@ -206,7 +206,7 @@ class TrigEgammaMonToolBuilder:
                                                             TriggerList=self.jpsiList,
                                                             File="",
                                                             OfflineTagSelector='LHTight',
-                                                            OfflineProbeSelector='LHMedium',
+                                                            #OfflineProbeSelector='LHMedium',
                                                             TagTriggerList= self.JpsitagItems)
     def configureAllMonTools(self,plotTool,toolList):        
         self.configureElectronMonTool(plotTool,toolList)
