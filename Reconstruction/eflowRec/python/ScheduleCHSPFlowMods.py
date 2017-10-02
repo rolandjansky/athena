@@ -20,3 +20,11 @@ job = AlgSequence()
 from JetRec.JetRecConf import JetAlgorithm
 job += JetAlgorithm("jetalgCHSPFlow",
                     Tools=[jtm.jetconstitCHSPFlow])
+
+from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
+CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
+    "ThinNegativeEnergyNCHSeutralPFOsAlg",
+    NeutralPFOsKey="CHSNeutralParticleFlowObjects",
+    ThinNegativeEnergyNeutralPFOs = True
+)
+job += CHSnPFOsThinAlg
