@@ -64,6 +64,7 @@ EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomIn
 
     tool.setProperty("WorkingPoint", WP).isSuccess();
     tool.setProperty("UncorrelateSystematics", uncorrelate_Syst).isSuccess();
+    tool.setProperty("LowPtThreshold", 15.e3).isSuccess();
     tool.retrieve().isSuccess();
 
     if (!CustomInput.empty()) tool.setProperty("CustomInputFolder", CustomInput).isSuccess();
@@ -119,8 +120,13 @@ int main(int argc, char* argv[]) {
     // instantiate the PRW tool which is needed to get random runnumbers 
     asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
-    std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
-    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    std::vector<std::string> m_ConfigFiles {
+           "dev/SUSYTools/merged_prw_mc16a_latest.root",
+           "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"   };
+    std::vector<std::string> m_LumiCalcFiles {
+           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root"),
+           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root")
+       };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
 
@@ -130,7 +136,12 @@ int main(int argc, char* argv[]) {
     // Initialize the PRW tool
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-    const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "GradientIso", "LooseIso" };
+    const std::vector<std::string> WPs {
+        "Loose", "Medium", "Tight", "HighPt",
+        "TTVA",
+        //Isolation
+        "GradientIso", "LooseIso"
+    };
     std::vector<EffiToolInstance> EffiTools;
     for (auto& WP : WPs) {
         EffiTools.push_back(createSFTool(WP, DefaultCalibRelease, false));

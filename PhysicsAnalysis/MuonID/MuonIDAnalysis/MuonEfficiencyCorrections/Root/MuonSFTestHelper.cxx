@@ -260,7 +260,7 @@ namespace TestMuonSF {
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::MuonContainer* muons) {
         for (const auto& mu : *muons) {
             if (fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-            tree()->Fill();
+            fillTree();
         }
         return CP::CorrectionCode::Ok;
     }
@@ -270,5 +270,9 @@ namespace TestMuonSF {
     std::shared_ptr<TTree> MuonSFTestHelper::tree_shared() const {
         return m_tree;
     }
+    void MuonSFTestHelper::fillTree() {
+        tree()->Fill();
+    }
+
 }
 

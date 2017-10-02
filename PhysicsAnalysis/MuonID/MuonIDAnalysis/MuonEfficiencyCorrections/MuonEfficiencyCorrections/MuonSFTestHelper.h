@@ -192,13 +192,13 @@ namespace TestMuonSF {
             CP::CorrectionCode fill(const xAOD::MuonContainer* muons);
             CP::CorrectionCode fill(const xAOD::Muon* mu);
             CP::CorrectionCode fill(const xAOD::Muon& mu);
+            void fillTree();
 
         private:
             std::string m_name;
             std::shared_ptr<TTree> m_tree;
             TTree* m_tree_raw_ptr;
             std::vector<EffiBranch_Ptr> m_Branches;
-
     };
 
 }

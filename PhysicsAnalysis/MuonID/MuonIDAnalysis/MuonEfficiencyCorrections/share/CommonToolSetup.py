@@ -73,7 +73,7 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release=""):
         from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
         EffiTool = CfgMgr.CP__MuonEfficiencyScaleFactors(ToolName)
         EffiTool.WorkingPoint = MuonWP
-        EffiTool.LowPtThreshold = 1.e4
+        EffiTool.LowPtThreshold = 15.e3
         if len(Release) > 0: EffiTool.CalibrationRelease = Release
         ToolSvc += EffiTool
     return getattr(ToolSvc,ToolName)

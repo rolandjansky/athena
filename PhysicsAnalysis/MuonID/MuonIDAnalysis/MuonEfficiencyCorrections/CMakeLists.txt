@@ -67,7 +67,7 @@ endmacro( _add_exec )
 
 if( XAOD_STANDALONE )
    _add_exec( MuonEfficiencyCorrectionsRootCoreTest )
-#   _add_exec( MuonEfficiencyCorrectionsSFFilesTest )
+   _add_exec( MuonEfficiencyCorrectionsSFFilesTest )
    _add_exec( MuonTriggerSFRootCoreTest )
    _add_exec( MuonTriggerSFFilesTest )
    _add_exec( MuonTriggerSFConfGenerator )
