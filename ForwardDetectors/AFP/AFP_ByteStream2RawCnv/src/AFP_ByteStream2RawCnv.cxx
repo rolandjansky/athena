@@ -15,10 +15,6 @@
 
 #include <algorithm>
 
-const std::set<unsigned int> AFP_ByteStream2RawCnv::s_linksToF = {12, 13};
-const std::set<unsigned int> AFP_ByteStream2RawCnv::s_linksSi = {0, 1, 2, 3, 8, 9, 10, 11};
-
-
 const InterfaceID &AFP_ByteStream2RawCnv::interfaceID() {
   static const InterfaceID IID_IAFP_ByteStream2RawCnv("AFP_ByteStream2RawCnv", 1, 0);
   return IID_IAFP_ByteStream2RawCnv;
