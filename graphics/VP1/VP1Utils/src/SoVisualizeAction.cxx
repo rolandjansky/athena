@@ -28,7 +28,7 @@
 #include "VP1Utils/SbPolyhedrizeAction.h"
 
 SoVisualizeAction::SoVisualizeAction()
-  : _shape(0)
+  : m_shape(0)
 {
   VP1HEPVisUtils::initAllCustomClasses();
   setDepthLimit(0);
@@ -47,7 +47,7 @@ void SoVisualizeAction::handleShape(const GeoShape *shape)
   const SbPolyhedron *poly =a.getPolyhedron();
   if (poly) {
     SoPolyhedron *myPoly = new SoPolyhedron(poly);
-    _shape=myPoly;
+    m_shape=myPoly;
   }
 
 }
@@ -56,7 +56,7 @@ void SoVisualizeAction::handleBox(const GeoBox *box)
 {
   SoGenericBox * gb = new SoGenericBox;
   gb->setParametersForBox( box->getXHalfLength(),box->getYHalfLength(),box->getZHalfLength() );
-  _shape=gb;
+  m_shape=gb;
 }
 
 void SoVisualizeAction::handleCons(const GeoCons *cons)
@@ -71,7 +71,7 @@ void SoVisualizeAction::handleCons(const GeoCons *cons)
   socons->fSPhi  =cons->getSPhi();
   socons->fDPhi  =cons->getDPhi();
 
-  _shape=socons;
+  m_shape=socons;
 }
 
 void SoVisualizeAction::handlePcon(const GeoPcon *pcon)
@@ -102,7 +102,7 @@ void SoVisualizeAction::handlePcon(const GeoPcon *pcon)
   delete  [] rmn;
   delete  [] rmx;
 
-  _shape=sopcons;
+  m_shape=sopcons;
 
 }
 
@@ -113,7 +113,7 @@ void SoVisualizeAction::handleTrap(const GeoTrap *trap)
 				trap->getDydzn(), trap->getDxdyndzn(), trap->getDxdypdzn(),
 				trap->getDydzp(), trap->getDxdyndzp(), trap->getDxdypdzp(),
 				trap->getAngleydzn(), trap->getAngleydzp());
-  _shape=gb;
+  m_shape=gb;
 }
 
 void SoVisualizeAction::handleTrd(const GeoTrd *trd)
@@ -122,7 +122,7 @@ void SoVisualizeAction::handleTrd(const GeoTrd *trd)
   gb->setParametersForTrd( trd->getXHalfLength1(), trd->getXHalfLength2(),
 			   trd->getYHalfLength1(), trd->getYHalfLength2(),
 			   trd->getZHalfLength() );
-  _shape=gb;
+  m_shape=gb;
 }
 
 void SoVisualizeAction::handleTube(const GeoTube *tube)
@@ -133,7 +133,7 @@ void SoVisualizeAction::handleTube(const GeoTube *tube)
   sotubs->pDz  = tube->getZHalfLength();
   sotubs->pSPhi= 0;
   sotubs->pDPhi= 2*M_PI;
-  _shape=sotubs;
+  m_shape=sotubs;
 }
 
 void SoVisualizeAction::handleTubs(const GeoTubs *tubs)
@@ -144,7 +144,7 @@ void SoVisualizeAction::handleTubs(const GeoTubs *tubs)
   sotubs->pDz  = tubs->getZHalfLength();
   sotubs->pSPhi= tubs->getSPhi();
   sotubs->pDPhi= tubs->getDPhi();
-  _shape=sotubs;
+  m_shape=sotubs;
 }
 
 void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
@@ -230,7 +230,7 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
 
   solar->fSPhi= 0;
   solar->fDPhi= 2*M_PI;
-  _shape=solar;
+  m_shape=solar;
 }
 
 
@@ -238,17 +238,17 @@ void SoVisualizeAction::handleSimplePolygonBrep(const GeoSimplePolygonBrep *brep
 {
   //Fixme: Detect if order of vertices is the wrong way around... and reorder if necessary.
 
-  double _dz = brep->getDZ();
-  std::vector<double> _x, _y;
+  double dz = brep->getDZ();
+  std::vector<double> x, y;
   for(unsigned int i=0; i<brep->getNVertices(); ++i)
   {
-    _x.push_back(brep->getXVertex(i));
-    _y.push_back(brep->getYVertex(i));
+    x.push_back(brep->getXVertex(i));
+    y.push_back(brep->getYVertex(i));
   }
 
-  SbPolyhedronPolygonXSect _sbPoly(_x,_y,_dz);
-  SoPolyhedron* _soPoly = new SoPolyhedron(_sbPoly);
-  _shape = _soPoly;
+  SbPolyhedronPolygonXSect sbPoly(x,y,dz);
+  SoPolyhedron* soPoly = new SoPolyhedron(sbPoly);
+  m_shape = soPoly;
 }
 
 void SoVisualizeAction::handleTessellatedSolid (const GeoTessellatedSolid* geoTessellated)
@@ -292,7 +292,7 @@ void SoVisualizeAction::handleTessellatedSolid (const GeoTessellatedSolid* geoTe
     }
   }
   soTessellated->finalize();
-  _shape=soTessellated;
+  m_shape=soTessellated;
 }
 
 void SoVisualizeAction::handleGenericTrap(const GeoGenericTrap *gentrap)
@@ -308,5 +308,5 @@ void SoVisualizeAction::handleGenericTrap(const GeoGenericTrap *gentrap)
 			   trapVertices[5].x(),trapVertices[5].y(),dZ,
 			   trapVertices[6].x(),trapVertices[6].y(),dZ,
 			   trapVertices[7].x(),trapVertices[7].y(),dZ);
-  _shape=gb;
+  m_shape=gb;
 }

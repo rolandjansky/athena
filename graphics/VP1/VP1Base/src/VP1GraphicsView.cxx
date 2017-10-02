@@ -29,6 +29,7 @@
 #include "VP1Base/VP12DViewRPhiFishEyeTransformation.h"//fixme
 
 #include "VP1Base/VP1Settings.h"
+#include "VP1Base/VP1Msg.h"
 
 // QtCore
 #include <QTimer>
@@ -243,6 +244,11 @@ void VP1GraphicsView::wheelEvent(QWheelEvent *event)
 //____________________________________________________________________
 void VP1GraphicsView::keyPressEvent(QKeyEvent *event)
 {
+//    VP1Msg::messageDebug("VP1GraphicsView::keyPressEvent");
+
+//    std::string keyText = (event->text()).toStdString();
+//    VP1Msg::messageDebug(keyText.c_str());
+
   if (m_d->showhelptext&&!(event->key()==Qt::Key_F1||event->key()==Qt::Key_H)) {
     m_d->showhelptext=false;
     viewport()->update();

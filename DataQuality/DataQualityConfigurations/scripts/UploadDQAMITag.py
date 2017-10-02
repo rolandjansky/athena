@@ -153,20 +153,26 @@ def update_dict_for_release(updict, release):
         relNbr, relAddtl=relSp[1].split(',', 1)
     else:
         relNbr, relAddtl=relSp[1], None
-    baseRelNbr=".".join(relNbr.split(".")[:3])
-    relPaths=("/afs/cern.ch/atlas/software/builds/"+relProj+"/"+relNbr,
-              "/afs/cern.ch/atlas/software/releases/"+baseRelNbr+"/"+relProj+"/"+relNbr)
-    for relPath in relPaths:
-        if not os.path.isdir(relPath):
-            s="ERROR Release directory " + relPath + " does not exist"
-            raise RuntimeError(s)
-        #else:
-        #    print "Found",relPath
-    #Release exists in both releases and builds area if we reach this point
+    ### 21.0 stored on cvmfs
+    baseRelNbr=".".join(relNbr.split(".")[:2])
+    relPath = "/cvmfs/atlas.cern.ch/repo/sw/software/%s/%s/%s" % (baseRelNbr, relProj, relNbr)
+    if not os.path.isdir(relPath):
+        s="ERROR Release directory " + relPath + " does not exist"
+        raise RuntimeError(s)
+    #Release exists if we reach this point
+
+    extraSetup = " oracleCOOL"
+    if relProj == "AtlasProduction":
+        extraSetup += " AtlasProduction"
+    elif relProj == "Athena":
+        extraSetup += " Athena"
+    elif relProj != "AtlasOffline":
+        s="ERROR: The project specified (" + relProj +") is not Athena, AtlasOffline or AtlasProduction. Are you sure?"
+        raise RuntimeError(s)
 
     # update dictionary
     tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_trf.py',
-                               'trfsetupcmd': "/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh /afs/cern.ch/atlas/tzero/software/patches/"+release+" "+release+" /afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh"}
+                               'trfsetupcmd': "/afs/cern.ch/atlas/tzero/software/setup/usetuptrf.sh " + relNbr + extraSetup}
     updict['moreInfo'] = '"{\'tasktransinfo\': %s}"' % tasktransinfo.__str__()
     updict['SWReleaseCache'] = release.replace('-', '_')
     updict['groupName'] = relProj

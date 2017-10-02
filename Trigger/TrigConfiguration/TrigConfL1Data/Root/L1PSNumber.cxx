@@ -29,12 +29,12 @@
 namespace TrigConf {
 
     L1PSNumber::L1PSNumber() {
-        n = 1;
-        m = 1;
-        d = 1;
-        s = -1;
-        psFloat = -1.0;
-        psLong = -1;
+        m_n = 1;
+        m_m = 1;
+        m_d = 1;
+        m_s = -1;
+        m_psFloat = -1.0;
+        m_psLong = -1;
     }
 
     /**
@@ -42,20 +42,20 @@ namespace TrigConf {
      */
     L1PSNumber::L1PSNumber(const int ps) {
         if (ps >= 1) {
-            n = ps;
-            s = 1;
+            m_n = ps;
+            m_s = 1;
         } else if (ps < 1 && ps>-1) {
             //invalid ps, set to default -1
-            n = 1;
-            s = -1;
+            m_n = 1;
+            m_s = -1;
         } else {
-            n = -ps;
-            s = -1;
+            m_n = -ps;
+            m_s = -1;
         }
-        m = 0;
-        d = 0;
-        psFloat = (float) n;
-        psLong = (int64_t) n;
+        m_m = 0;
+        m_d = 0;
+        m_psFloat = (float) m_n;
+        m_psLong = (int64_t) m_n;
     }
 
     /**
@@ -71,9 +71,9 @@ namespace TrigConf {
     L1PSNumber::L1PSNumber(const int nn, const unsigned int mm,
             const unsigned int dd, const int ss = 1) {
         if (validate(nn, mm, dd, ss)) {
-            psLong = makeLong(n, m, d);
+            m_psLong = makeLong(m_n, m_m, m_d);
         } else {
-            psLong = -1;
+            m_psLong = -1;
         }
     }
 
@@ -89,30 +89,30 @@ namespace TrigConf {
     }
 
     /**
-     * Checks whether the n,m,d combination is valid, i.e.
-     * whether n >= 1 && 1 < (m+d+1)/(m+1) < 2.
-     * Sets N, M, D & psFloat.
+     * Checks whether the m_n,m_m,m_d combination is valid, i.e.
+     * whether m_n >= 1 && 1 < (m_m+m_d+1)/(m_m+1) < 2.
+     * Sets N, M, D & m_psFloat.
      */
     bool L1PSNumber::validate(int nn, unsigned int mm, unsigned int dd, int ss = 1) {
         bool ret = false;
         if (nn <= -1 || nn >= 1) {
             if (nn < 0) {
-                n = -nn;
-                s = -1;
+                m_n = -nn;
+                m_s = -1;
             } else if (nn >= 1) {
-                n = nn;
-                s = ss;
+                m_n = nn;
+                m_s = ss;
             }
-            m = mm;
-            d = dd;
-            psFloat = (float) s * n * (m + d + 1.0) / (m + 1.0);
+            m_m = mm;
+            m_d = dd;
+            m_psFloat = (float) m_s * m_n * (m_m + m_d + 1.0) / (m_m + 1.0);
             ret = true;
         } else {
-            n = 1;
-            s = -1;
-            m = 0;
-            d = 0;
-            psFloat = -1.0;
+            m_n = 1;
+            m_s = -1;
+            m_m = 0;
+            m_d = 0;
+            m_psFloat = -1.0;
             ret = false;
         }
         return ret;
@@ -131,7 +131,7 @@ namespace TrigConf {
         int sTemp = -1;
 
         uint32_t psTemp = 1;
-        // psLong = -1;
+        // m_psLong = -1;
         // Take care of the sign.
         if (prescaleBitArray < 0) {
             sTemp = -1;
@@ -147,7 +147,7 @@ namespace TrigConf {
         mTemp = ((psTemp & MMASK) >> MSHIFT);
         dTemp = ((psTemp & DMASK) >> DSHIFT);
         L1PSNumber::validate(nTemp, mTemp, dTemp, sTemp);
-        psLong = prescaleBitArray;
+        m_psLong = prescaleBitArray;
     }
 
     /**
@@ -155,10 +155,10 @@ namespace TrigConf {
      */
     std::string L1PSNumber::write() {
         std::stringstream ss;
-        if (m == 0 && d == 0) {
+        if (m_m == 0 && m_d == 0) {
             ss << getInt32();
         } else {
-            ss << psFloat;
+            ss << m_psFloat;
         }
         return ss.str();
     }
@@ -183,9 +183,9 @@ namespace TrigConf {
                 ret = (int64_t) psF;
             } else {
                 // Check the nearest Combination of N,M & D.
-                for (int i = 0; i < auxLength; i++) {
-                    unsigned int tmpM = psAuxValues[i][0];
-                    unsigned int tmpD = psAuxValues[i][1];
+                for (int i = 0; i < s_auxLength; i++) {
+                    unsigned int tmpM = s_psAuxValues[i][0];
+                    unsigned int tmpD = s_psAuxValues[i][1];
                     tmpPS = (float) ((tmpM + tmpD + 1.0) / (tmpM + 1.0));
                     tmpDiff = fabs(tmpPS - psOne);
                     if (tmpPS * tmpN >= tmpN + 1) {
@@ -243,7 +243,7 @@ namespace TrigConf {
      * Help array containing the allowed MD combinations (for N=1). These will
      * be iterated in L1PSNumber::decodeFloat() to find the best aproximation.
      */
-    const unsigned int L1PSNumber::psAuxValues[79][2] = {
+    const unsigned int L1PSNumber::s_psAuxValues[79][2] = {
         {15, 1},
         {14, 1},
         {13, 1},

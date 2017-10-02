@@ -134,19 +134,19 @@ SoNode*     SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf 
    }
    const Trk::DiamondBounds* cdiabo = dynamic_cast<const Trk::DiamondBounds*>(&(psf.bounds()));
    if (cdiabo){
-     double _dz=0.25;
-     std::vector<double> _x,_y;
-     _x.push_back(cdiabo->minHalflengthX());_y.push_back( -2*cdiabo->halflengthY1());
-     _x.push_back(cdiabo->medHalflengthX());_y.push_back( 0.);
+     double dz=0.25;
+     std::vector<double> x,y;
+     x.push_back(cdiabo->minHalflengthX());y.push_back( -2*cdiabo->halflengthY1());
+     x.push_back(cdiabo->medHalflengthX());y.push_back( 0.);
      if (cdiabo->halflengthY2()>0.) {
-       _x.push_back(cdiabo->maxHalflengthX()); _y.push_back( 2*cdiabo->halflengthY2()); 
-       _x.push_back(-cdiabo->maxHalflengthX());_y.push_back( 2*cdiabo->halflengthY2()); 
+       x.push_back(cdiabo->maxHalflengthX()); y.push_back( 2*cdiabo->halflengthY2()); 
+       x.push_back(-cdiabo->maxHalflengthX());y.push_back( 2*cdiabo->halflengthY2()); 
      }
-     _x.push_back(-cdiabo->medHalflengthX());_y.push_back( 0.);
-     _x.push_back(-cdiabo->minHalflengthX());_y.push_back( -2*cdiabo->halflengthY1());
+     x.push_back(-cdiabo->medHalflengthX());y.push_back( 0.);
+     x.push_back(-cdiabo->minHalflengthX());y.push_back( -2*cdiabo->halflengthY1());
 
-     SbPolyhedronPolygonXSect _sbPoly(_x,_y,_dz);
-     return new SoPolyhedron(_sbPoly);;
+     SbPolyhedronPolygonXSect sbPoly(x,y,dz);
+     return new SoPolyhedron(sbPoly);;
    }
    
    const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(psf.bounds()));

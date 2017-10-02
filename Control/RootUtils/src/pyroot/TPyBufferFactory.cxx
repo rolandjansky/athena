@@ -5,6 +5,10 @@
 // @(#)root/pyroot:$Id$
 // Author: Wim Lavrijsen, Apr 2004
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 // Bindings
 #include "Python.h"
 #include "TPython.h"

@@ -16,31 +16,18 @@
 RoIsUnpackingEmulationTool::RoIsUnpackingEmulationTool( const std::string& type, 
 					  const std::string& name, 
 					  const IInterface* parent ) 
-  : AthAlgTool ( type, name, parent ),
-    m_inputFilename("RoIEmulation.dat") {
-
-  declareProperty( "Decisions", m_decisionsKey="EMRoIDecisions", "Decisions for each RoI" );
-  declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., (note spaces)" );
-  declareProperty( "OutputTrigRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
-  declareProperty( "InputFilename", m_inputFilename, "FakeROI input filename");
+  : RoIsUnpackingToolBase ( type, name, parent )
+{
 }
 
-
-RoIsUnpackingEmulationTool::~RoIsUnpackingEmulationTool(){
-}
 
 
 StatusCode RoIsUnpackingEmulationTool::initialize() {  
-  CHECK( m_decisionsKey.initialize() );
+
+  CHECK( RoIsUnpackingToolBase::initialize() );
   CHECK( m_trigRoIsKey.initialize() );
 
-  if (decodeMapping().isFailure() ) {
-    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
-    return StatusCode::FAILURE;
-  }
-
- if (readEmulatedData().isFailure() ) {
+  if (readEmulatedData().isFailure() ) {
     ATH_MSG_ERROR( "Failed to read emulated data" );
     return StatusCode::FAILURE;
   }
@@ -154,10 +141,6 @@ StatusCode RoIsUnpackingEmulationTool::updateConfiguration() {
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode RoIsUnpackingEmulationTool::finalize(){
-  return StatusCode::SUCCESS;
-}
 
 
 StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,

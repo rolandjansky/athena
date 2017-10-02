@@ -30,10 +30,10 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 					       const std::string& n,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
-  fNoIBL(false)
+  m_noIBL(false)
 {
   declareInterface< IFTK_UncertaintyTool >( this );
-  declareProperty( "NoIBL",  fNoIBL);
+  declareProperty( "NoIBL",  m_noIBL);
 }
 
 StatusCode FTK_UncertaintyTool::initialize() {
@@ -44,7 +44,7 @@ StatusCode FTK_UncertaintyTool::initialize() {
   //
   //   Load Constants
   //
-  if(fNoIBL)
+  if(m_noIBL)
     LoadConstants_NoIBL();
   else
     LoadConstants();
@@ -109,12 +109,12 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   //
   // square root model
   //
-  if(allConsts[hasIBL].mode(lookUpParam,trkEta) == FTK_UncertaintyTool::sqroot){
-    sigmaTP = sqrt(allConsts[hasIBL].par0(lookUpParam,trkEta)+allConsts[hasIBL].par1(lookUpParam,trkEta)*trkIpt*trkIpt);
+  if(m_allConsts[hasIBL].mode(lookUpParam,trkEta) == FTK_UncertaintyTool::sqroot){
+    sigmaTP = sqrt(m_allConsts[hasIBL].par0(lookUpParam,trkEta)+m_allConsts[hasIBL].par1(lookUpParam,trkEta)*trkIpt*trkIpt);
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
-		<< sigmaTP <<") = sqrt("<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
+		<< sigmaTP <<") = sqrt("<<m_allConsts[hasIBL].par0(lookUpParam,trkEta) 
+		<< "+" << m_allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
     
@@ -122,11 +122,11 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   // linear model
   //
   }else{
-    sigmaTP = allConsts[hasIBL].par0(lookUpParam,trkEta) + allConsts[hasIBL].par1(lookUpParam,trkEta)*fabs(trkIpt);
+    sigmaTP = m_allConsts[hasIBL].par0(lookUpParam,trkEta) + m_allConsts[hasIBL].par1(lookUpParam,trkEta)*fabs(trkIpt);
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
-		<< sigmaTP <<") = "<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
+		<< sigmaTP <<") = "<<m_allConsts[hasIBL].par0(lookUpParam,trkEta) 
+		<< "+" << m_allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (linear)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
   }
@@ -146,7 +146,7 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   // Convert 1/2pt  to qoverp
   //
   if(id0 == FTKTrackParam::qOp){
-    double sigmaEta     = allConsts[hasIBL].par0(FTKTrackParam::eta,trkEta)+allConsts[hasIBL].par1(FTKTrackParam::eta,trkEta)*fabs(trkIpt);
+    double sigmaEta     = m_allConsts[hasIBL].par0(FTKTrackParam::eta,trkEta)+m_allConsts[hasIBL].par1(FTKTrackParam::eta,trkEta)*fabs(trkIpt);
     double sigmaQoverP  = getSigmaQoverP(trkIpt, sigmaTP, trkEta, sigmaEta );
     sigmaTP             = sigmaQoverP;
   }
@@ -235,12 +235,12 @@ void FTK_UncertaintyTool::LoadConstants()
   //
   // has BLayer constants
   //
-  TPConsts&  nomConsts =  allConsts[1];
+  TPConsts&  nomConsts =  m_allConsts[1];
 
   //
   // no BLayer constants
   //
-  TPConsts&  nBLConsts =  allConsts[0];
+  TPConsts&  nBLConsts =  m_allConsts[0];
   
   //
   //  d0
@@ -328,12 +328,12 @@ void FTK_UncertaintyTool::LoadConstants_NoIBL()
   //
   // has BLayer constants
   //
-  TPConsts&  nomConsts =  allConsts[1];
+  TPConsts&  nomConsts =  m_allConsts[1];
 
   //
   // has noBLayer constants
   //
-  TPConsts&  nBLConsts =  allConsts[0];
+  TPConsts&  nBLConsts =  m_allConsts[0];
   
   //
   //  d0

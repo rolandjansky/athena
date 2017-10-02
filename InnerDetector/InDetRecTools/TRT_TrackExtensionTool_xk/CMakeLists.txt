@@ -9,6 +9,7 @@ atlas_subdir( TRT_TrackExtensionTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+			  Control/StoreGate
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces

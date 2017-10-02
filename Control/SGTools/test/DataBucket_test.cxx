@@ -10,6 +10,8 @@
 #include "SGTools/DataBucket.h"
 #include "SGTools/StorableConversions.h"
 #include "AthenaKernel/ILockable.h"
+#include "CxxUtils/checker_macros.h"
+#include <atomic>
 #include <iostream>
 #include <cassert>
 
@@ -31,7 +33,7 @@
 class GaudiDataObj : public DataObject {
  
 public: 
-  static int count;
+  static std::atomic<int> count;
  
   GaudiDataObj(): DataObject(), m_val(0) { ++count; };
   GaudiDataObj(int i): DataObject(), m_val(i) { ++count; };
@@ -48,7 +50,7 @@ public:
 private:
   int m_val;
 };
-int GaudiDataObj::count = 0;
+std::atomic<int> GaudiDataObj::count;
 
 class WrongType {};
 
@@ -70,7 +72,7 @@ public:
 class MyDataObj {
  
 public: 
-  static int count;
+  static std::atomic<int> count;
 
   MyDataObj(): m_val(0) { ++count; };
   MyDataObj(int i): m_val(i) { ++count; }
@@ -82,7 +84,7 @@ public:
 private:
   int m_val;
 };
-int MyDataObj::count = 0;
+std::atomic<int> MyDataObj::count;
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(MyDataObj, 8000, 3) 
@@ -151,7 +153,7 @@ public:
   X5 (int the_a) : a(the_a){}
   ~X5() { log.push_back (a); }
   int a;
-  static std::vector<int> log;
+  static std::vector<int> log ATLAS_THREAD_SAFE;
 };
 std::vector<int> X5::log;
 CLASS_DEF(X5, 8015, 1)
@@ -329,21 +331,6 @@ int main () {
   pGRes = 0;
   assert(0 != (pGRes = SG::Storable_cast<GaudiDataObj>(pDO, VERBOSE)));
 
-  const DataObject& rDO(*pDO);
-  const GaudiDataObj& rGRes(SG::Storable_cast<GaudiDataObj>(rDO, VERBOSE));
-  
-  try {
-    std::cerr << "Now we expect to see an error message:" << std::endl 
-              << "----Error Message Starts--->>" << std::endl; 
-    const WrongType& rWr = SG::Storable_cast<WrongType>(rGRes, VERBOSE);
-    pWrong=const_cast<WrongType*>(&rWr); //remove warning
-  } catch (bad_Storable_cast ) {
-    std::cerr << "<<---Error Message Ends-------" << std::endl;
-  }
-
-  const DataObject* cpDO(pDO);
-  const GaudiDataObj* cpGRes(SG::Storable_cast<GaudiDataObj>(cpDO, VERBOSE));
-  assert( 0 != cpGRes );
   delete pDO;
   delete DBGDO;
 

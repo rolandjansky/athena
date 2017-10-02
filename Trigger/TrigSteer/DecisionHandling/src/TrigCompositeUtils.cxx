@@ -43,6 +43,14 @@ namespace TrigCompositeUtils {
     destination.insert( decisions.begin(), decisions.end() );
   }
 
+  const std::vector<int>& decisionIDs( const Decision* d ) {    
+    return readOnlyAccessor( *d );    
+  }
+
+  std::vector<int>& decisionIDs( Decision* d ) {
+    return readWriteAccessor( *d );
+  }
+
   bool allFailed( const Decision* d ) {
     const std::vector<int>& decisions = readOnlyAccessor( *d );    
     return decisions.empty();
@@ -56,6 +64,9 @@ namespace TrigCompositeUtils {
     return false;
   }    
 
+  bool passed( DecisionID id, const DecisionIDContainer& idSet ) {
+    return idSet.count( id ) != 0;
+  }
 
   bool passingIDs( const Decision* d,  const DecisionIDContainer& required );
 

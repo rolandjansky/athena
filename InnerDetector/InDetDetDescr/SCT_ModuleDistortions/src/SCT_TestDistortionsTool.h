@@ -6,6 +6,7 @@
 #define SCT_TestDistortionsTool_h
 
 #include <string>
+#include <memory>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TH2F.h"
@@ -42,13 +43,13 @@ class SCT_TestDistortionsTool:public AthAlgorithm{
   private:
     ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool;
 
-    TH2F* ZvsX;
-    TH2F* ZvsY;
-    TH3F* XYZ;
-    TH2F* outerXedge;
-    TH2F* outerYedge;
-    TH2F* outerX;
-    TH2F* outerY;
+    std::unique_ptr<TH2F> m_ZvsX;
+    std::unique_ptr<TH2F> m_ZvsY;
+    std::unique_ptr<TH3F> m_XYZ;
+    std::unique_ptr<TH2F> m_outerXedge;
+    std::unique_ptr<TH2F> m_outerYedge;
+    std::unique_ptr<TH2F> m_outerX;
+    std::unique_ptr<TH2F> m_outerY;
 
 };
 #endif

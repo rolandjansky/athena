@@ -8,7 +8,7 @@ namespace LVL1MUONIF {
 
   Lvl1MuCTPIInput::Lvl1MuCTPIInput() {
     for (size_t isys=0; isys<NumberOfMuonSystem; isys++){
-      isFilledOutOfTimeCandidates[isys] = false;
+      m_isFilledOutOfTimeCandidates[isys] = false;
     }}
 
   /////////////
@@ -32,7 +32,7 @@ namespace LVL1MUONIF {
 	  Lvl1MuVect vSL(((right.m_data[idSys]).at(ip)).second);
 	  m_data[idSys].push_back(std::make_pair(bc,vSL));
 	}
-	isFilledOutOfTimeCandidates[idSys] = right.isFilledOutOfTimeCandidates[idSys];
+	m_isFilledOutOfTimeCandidates[idSys] = right.m_isFilledOutOfTimeCandidates[idSys];
       }	
     }  
     return *this;
@@ -112,7 +112,7 @@ namespace LVL1MUONIF {
 	if (isEmpty( idSys, bc)){
 	  Lvl1MuVect vSL(((right.m_data[idSys]).at(ip)).second);
 	  m_data[idSys].push_back(std::make_pair(bc,vSL));
-	  isFilledOutOfTimeCandidates[idSys] = right.isFilledOutOfTimeCandidates[idSys];
+	  m_isFilledOutOfTimeCandidates[idSys] = right.m_isFilledOutOfTimeCandidates[idSys];
 	}
       }	
     }  
@@ -147,7 +147,7 @@ namespace LVL1MUONIF {
     size_t ip = m_data[systemAddress].size();
     m_data[systemAddress].push_back( std::make_pair(bcid, vecSL) );
 
-    if (bcid!=0) isFilledOutOfTimeCandidates[systemAddress] = true; 
+    if (bcid!=0) m_isFilledOutOfTimeCandidates[systemAddress] = true; 
 
     return ip;
   }

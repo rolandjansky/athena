@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRGHLTJETHYPO_SMC_H
+#ifndef TRIGHLTJETHYPO_SMC_H
 #define TRIGHLTJETHYPO_SMC_H
 /********************************************************************
  *

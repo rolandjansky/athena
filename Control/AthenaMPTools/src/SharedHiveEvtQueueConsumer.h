@@ -10,8 +10,10 @@
 #include "AthenaInterprocess/SharedQueue.h"
 #include <queue>
 #include "GaudiKernel/IScheduler.h"
+#include "GaudiKernel/IEvtSelector.h"
 
 class IEventSeek;
+class IEvtSelectorSeek;
 class IEventShare;
 class IChronoStatSvc;
 
@@ -63,6 +65,8 @@ class SharedHiveEvtQueueConsumer : public AthenaMPToolBase
 
   ServiceHandle<IChronoStatSvc>  m_chronoStatSvc;
   IEventSeek*                    m_evtSeek;
+  IEvtSelectorSeek*              m_evtSelSeek;
+  IEvtSelector::Context*         m_evtContext;
   IEventShare*                   m_evtShare;
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          

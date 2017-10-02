@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -12,56 +12,29 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-
-
-static const InterfaceID IID_TrigL2CaloHypoTool("TrigL2CaloHypoTool", 1, 0);
+#include "ITrigL2CaloHypoTool.h"
 
 /**
  * @class Implementation of the Egamma selection for CaloClusters
  * @brief 
  **/
 
-
-
-class TrigL2CaloHypoTool
-  : virtual public ::AthAlgTool
-{ 
+class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> { 
  public: 
+  TrigL2CaloHypoToolInc( const std::string& type, 
+			 const std::string& name, 
+			 const IInterface* parent );
 
+  virtual ~TrigL2CaloHypoToolInc();
+  virtual StatusCode initialize() override;
 
-  TrigL2CaloHypoTool( const std::string& type, 
-		      const std::string& name, 
-		      const IInterface* parent );
+  virtual StatusCode decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const override;
 
-  virtual ~TrigL2CaloHypoTool();
-  StatusCode initialize() override;
-  StatusCode finalize() override;
+  virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& i ) const override;
 
-  static const InterfaceID& interfaceID();
-
-  struct Input {
-    Input(TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::TrigEMCluster* c)
-    : decision(d), roi(r), cluster(c) {}
-    TrigCompositeUtils::Decision* decision;
-    const TrigRoiDescriptor* roi;
-    const xAOD::TrigEMCluster* cluster;
-  };
-
-  /**
-   * @brief decides upon all clusters
-   * Note it is for a reason a non-virtual method, it is an interface in gaudi sense and implementation.
-   * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
-   * Will actually see when N obj hypos will enter the scene
-   **/
-  StatusCode decide( std::vector<Input>& input )  const;
-  
  private:
   HLT::Identifier m_decisionId;
-
   
-  bool singleObjectDecision( const Input& i, int selectionIndex = 0 ) const;
-
-
   //Calorimeter electron ID  cuts
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
@@ -77,15 +50,10 @@ class TrigL2CaloHypoTool
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
   Gaudi::Property< bool > m_acceptAll { this, "AcceptAll", false , "Ignore selection" };
-  Gaudi::Property< int > m_multiplicity { this, "Multiplicity", 1, "Multiplicity, when >1 all the cuts need to be duplicated" };
-
-  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool" };
+  
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  
+  int findCutIndex( float eta ) const;
 }; 
-
-inline const InterfaceID& TrigL2CaloHypoTool::interfaceID() 
-{ 
-   return IID_TrigL2CaloHypoTool; 
-}
-
-
+DECLARE_TOOL_FACTORY( TrigL2CaloHypoToolInc )
 #endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H
