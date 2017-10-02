@@ -223,14 +223,16 @@ def main():
     msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
 
 
-    if "outputTXTFile" in trf.argdict:
-      whitelist_out.append('TXT')
+#    if "outputTXTFile" in trf.argdict:
+#      whitelist_out.append('TXT')
 
 # read files/dirs that should be saved and if present in cwd - remove
 
     if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value!=0)):
 #       print("mamy cleanOut !!!",trf.argdict["cleanOut"].value) 
        whitelist_out = ['log.generate','.root']
+       if "outputTXTFile" in trf.argdict:
+          whitelist_out.append('TXT')
        if "saveList" in trf.argdict:
          saveList_dic= trf.argdict["saveList"].value
          saveList_str= str(saveList_dic)
