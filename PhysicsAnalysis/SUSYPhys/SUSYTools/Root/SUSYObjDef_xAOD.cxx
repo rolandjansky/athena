@@ -17,8 +17,8 @@
 #include "PathResolver/PathResolver.h"
 
 // Including all the abstract interfaces - for systematics functions
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
 #include "JetResolution/IJERTool.h"
