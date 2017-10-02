@@ -46,7 +46,7 @@ SCT_RodEncoder::SCT_RodEncoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
      m_cabling("SCT_CablingSvc",name),
-     m_bsErrs("SCT_ByteStreamErrorsSvc",name),
+     m_bsErrs("InDetSCT_ByteStreamErrorsSvc",name),
      m_sct_id(nullptr),
      m_rodid(0),
      m_condensed(false),
