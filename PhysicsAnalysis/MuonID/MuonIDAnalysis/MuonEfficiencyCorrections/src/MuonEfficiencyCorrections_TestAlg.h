@@ -41,13 +41,16 @@ namespace CP {
             ServiceHandle<ITHistSvc> m_histSvc;
        
             ToolHandleArray<IMuonEfficiencyScaleFactors> m_effi_SF_tools;
+            ToolHandleArray<IMuonEfficiencyScaleFactors> m_comparison_tools;
+            
             /// Scale factor tool
             ToolHandle<IPileupReweightingTool> m_prw_Tool;
             
             std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_test_helper;
+            std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_comparison_helper;
             
-    
-        
+            std::string m_first_release_name;
+            std::string m_second_release_name;
     };
 
 }// namespace CP

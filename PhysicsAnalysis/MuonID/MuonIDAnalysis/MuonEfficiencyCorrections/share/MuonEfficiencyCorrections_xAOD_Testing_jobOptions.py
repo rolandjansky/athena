@@ -28,15 +28,15 @@ alg.PileupReweightingTool = GetPRWTool()
 
 WPs = [
     "Loose", "Medium", "Tight" , "TTVA", "HighPt", "BadMuon", 
-#    "GradientIso", "LooseIso",
-#    "TightIso", "FixedCutLooseIso", "FixedCutTightTrackOnlyIso",
+    "GradientIso", "LooseIso",
+    "TightIso", "FixedCutLooseIso", "FixedCutTightTrackOnlyIso",
 ]
 for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
 theJob += alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 200
+#theApp.EvtMax = 200
 
 #ServiceMgr.MessageSvc.OutputLevel = INFO
 #ServiceMgr.MessageSvc.defaultLimit = 100
