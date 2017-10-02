@@ -20,7 +20,7 @@ namespace xAOD {
     :	AthAlgTool(type, name, parent)
   {
     declareInterface<IPFlowObjectsInConeTool>(this);
-    declareProperty("PFlowKey",       m_pfokey    = "CHSParticleFlowObjects", "StoreGate key for PFOs");
+    declareProperty("PFlowKey",       m_pfokey    = "CHSNeutralParticleFlowObjects", "StoreGate key for PFOs");
   }
 
   PFlowObjectsInConeTool::~PFlowObjectsInConeTool()
