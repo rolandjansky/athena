@@ -73,10 +73,14 @@ void AthRNGSvc::printEngineState(const INamedInterface* client,
   // Retrieve the current slot's engine
   ATHRNG::RNGWrapper* wrapper = getEngine(client, streamName);
   CLHEP::HepRandomEngine* engine( *wrapper );
+
   // Extract the engine state numbers
   std::vector<unsigned long> rngStates = engine->put();
+
+  // Print the state numbers
   std::string rngName = client->name();
   if(!streamName.empty()) rngName += "/" + streamName;
+  std::lock_guard<std::mutex> lock(m_mutex);
   msg(MSG::ALWAYS) << rngName << " ";
   // We mask 32 bits because the other bits are garbage and unused
   for(const unsigned long s : rngStates) {
