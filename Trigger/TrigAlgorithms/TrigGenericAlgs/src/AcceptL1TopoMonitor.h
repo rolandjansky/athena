@@ -2,12 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef TRIGGENERICALGS_ACCEPTL1TOPOMONITOR_H
 #define TRIGGENERICALGS_ACCEPTL1TOPOMONITOR_H 1
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+/**
+ * @brief  Algorithm to monitor L1Topo transmission and simulation errors
+ * @author Davide Gerbaudo
+ * @author Simon George
+ *
+ * $Id: $
+ */
+
+#include "TrigInterfaces/AllTEAlgo.h"
+
 #include "GaudiKernel/HistoProperty.h"
+
 #include <vector>
 #include <map>
 
@@ -31,14 +40,14 @@ namespace TrigConf {
 class IL1TopoConfigSvc;
 }
 
-class AcceptL1TopoMonitor:public AthAlgorithm {
+class AcceptL1TopoMonitor : public HLT::AllTEAlgo {
 public:
     AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator);
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
-    StatusCode beginRun();
-    StatusCode endRun();
+    HLT::ErrorCode hltInitialize();
+    HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int output);
+    HLT::ErrorCode hltFinalize();
+    HLT::ErrorCode hltBeginRun();
+    HLT::ErrorCode hltEndRun();
 private:
     static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
     StatusCode doCnvMon(bool);

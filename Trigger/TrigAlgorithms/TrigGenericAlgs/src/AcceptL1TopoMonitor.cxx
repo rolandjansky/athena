@@ -46,9 +46,12 @@
 #include <sstream>
 #include <string>
 
+
+const HLT::Reason::Code NO_MASK = HLT::Reason::USERDEF_1;
+
 //----------------------------------------------------------
 AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
+    HLT::AllTEAlgo(name, pSvcLocator),
     m_robDataProviderSvc( "ROBDataProviderSvc", name ),
     m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     //m_histPropNoBins(Gaudi::Histo1DDef("",0,1,1)), //! generic for labelled bins set at fill time
@@ -104,10 +107,10 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::initialize()
+HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
 {
     ATH_MSG_INFO ("initialize");
-    CHECK( m_robDataProviderSvc.retrieve() );
+    (m_robDataProviderSvc.retrieve());
     ATH_MSG_DEBUG ("Properties:" );
     ATH_MSG_DEBUG ( m_doRawMon );
     ATH_MSG_DEBUG ( m_doCnvMon );
@@ -119,7 +122,7 @@ StatusCode AcceptL1TopoMonitor::initialize()
     ATH_MSG_DEBUG ( m_vROIROBIDs );
     ATH_MSG_DEBUG ( m_prescaleForDAQROBAccess );
     ATH_MSG_DEBUG ( m_simTopoCTPLocation );
-    return StatusCode::SUCCESS;
+    return HLT::OK;
 }
 //----------------------------------------------------------
 /* The execute method just decides whether to run any monitoring at
@@ -128,7 +131,8 @@ StatusCode AcceptL1TopoMonitor::initialize()
    ROBs) and via converters, if they are enabled by properties of this
    algorithm.
 */
-StatusCode AcceptL1TopoMonitor::execute()
+HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_seed*/,
+                                               unsigned int output)
 {
     ATH_MSG_DEBUG ("execute");
     //--------------------------------------------------------------------------
@@ -136,22 +140,22 @@ StatusCode AcceptL1TopoMonitor::execute()
     //--------------------------------------------------------------------------
     if (Athena::Timeout::instance().reached()) {
         ATH_MSG_INFO( " Time out reached in entry to execute." );
-        return StatusCode::SUCCESS;
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
     }
     if (m_useDetMask){
         ATH_MSG_VERBOSE( "Using DetMask to decide whether to monitor this event" );
         // Check L1Topo detector is present; get event information
         const EventInfo* event;
-        CHECK_RECOVERABLE( evtStore()->retrieve(event) );
+        (evtStore()->retrieve(event));
         if(! event){
             ATH_MSG_WARNING( "Could not retrieve EventInfo object" );
-            return StatusCode::SUCCESS;
+            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
         }
         // get event ID
         EventID* eventId;
         if ( !(eventId = event->event_ID())){
             ATH_MSG_WARNING( "Could not find EventID object" );
-            return StatusCode::SUCCESS;
+            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
         }
         // check detector mask
         uint64_t mask64 = ((uint64_t)eventId->detector_mask0()) | (((uint64_t)eventId->detector_mask1())<<32);
@@ -161,7 +165,7 @@ StatusCode AcceptL1TopoMonitor::execute()
             if(m_firstEvent)
                 ATH_MSG_INFO( "SubDetector::TDAQ_CALO_TOPO_PROC not included so do nothing and return" );
             m_firstEvent = false;
-            return StatusCode::SUCCESS;
+            return HLT::ErrorCode(HLT::Action::CONTINUE, NO_MASK);
         }
     }
     else {
@@ -172,32 +176,54 @@ StatusCode AcceptL1TopoMonitor::execute()
     if (m_prescaleForDAQROBAccess>0){
         prescaleForDAQROBAccess = m_scaler->decision(m_prescaleForDAQROBAccess);
     }
-    ATH_MSG_DEBUG( "Prescale for DAQ ROB access: "<<std::boolalpha<<prescaleForDAQROBAccess<<std::noboolalpha );
+    ATH_MSG_DEBUG("Prescale for DAQ ROB access: "
+                  <<std::boolalpha<<prescaleForDAQROBAccess<<std::noboolalpha);
     if (m_doRawMon){
-        CHECK( doRawMon(prescaleForDAQROBAccess) );
+        (doRawMon(prescaleForDAQROBAccess));
     }
     if (m_doCnvMon){
-        CHECK( doCnvMon(prescaleForDAQROBAccess) );
+        (doCnvMon(prescaleForDAQROBAccess));
     }
     if (m_doSimMon){
-        CHECK( doSimMon(prescaleForDAQROBAccess) );
-        CHECK( doOverflowSimMon() );
+        (doSimMon(prescaleForDAQROBAccess));
+        (doOverflowSimMon());
     }
     if(m_doSimDaq){
-        CHECK(doSimDaq(prescaleForDAQROBAccess));
+        (doSimDaq(prescaleForDAQROBAccess));
     }
     if (m_doWriteValData){
-        CHECK( doWriteValData() );
+        (doWriteValData());
     }
-    return StatusCode::SUCCESS;
+
+    // DG-2017-10-02 ASK-WERNER: do we need to output an empty seed?
+    std::vector<HLT::TriggerElement*> empty_seed;
+    HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+    te->setActiveState(true);
+
+    // DG-2017-10-02 ASK-WERNER: do we need to output a Composite? (see L1CorrelationAlgo)
+    // m_passBitContainer = new xAOD::TrigCompositeContainer();
+    // xAOD::TrigCompositeAuxContainer compAux;
+    // m_passBitContainer->setStore(&compAux);    
+    // xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
+    // m_passBitContainer->push_back(compObj); //add jets to the composite container
+    // compObj->setName("mistimemon_L1Dec");
+    // compObj->setDetail( "l1a_type", m_l1a_type);
+    // compObj->setDetail( "other_type", m_other_type);
+    // compObj->setDetail( "beforeafterflag", m_beforeafterflag);    
+    // /*HLT::ErrorCode hltStatus =*/ attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
+
+    // if (anything suspicious) accept;
+    // else reject;
+    return HLT::OK;
+
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::finalize()
+HLT::ErrorCode AcceptL1TopoMonitor::hltFinalize()
 {
     ATH_MSG_INFO ("finalize");
     delete m_scaler;
     m_scaler=0;
-    return StatusCode::SUCCESS;
+    return HLT::OK;
 }
 //----------------------------------------------------------
 StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle)
@@ -225,11 +251,11 @@ StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& ro
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::beginRun()
+HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
 {
     ATH_MSG_INFO ("beginRun");
     ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
-    CHECK( rootHistSvc.retrieve() );
+    ( rootHistSvc.retrieve() );
     m_scaler->reset();
 
     // fill map of all ROB SIDs from properties, mapping to an integer counter for use as a bin index.
@@ -249,40 +275,40 @@ StatusCode AcceptL1TopoMonitor::beginRun()
     ATH_MSG_VERBOSE( "ROB source ID labels for histograms: "<<m_allSIDLabelsToInts );
 
 
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histSIDsViaConverters, "ROB_src_IDs_fromCnv", "L1Topo ROB source IDs received via converters;ROB ID", nROBs, 0, nROBs ) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histSIDsDirectFromROBs, "ROB_src_IDs_fromROB", "L1Topo ROB source IDs received direct from ROBs;ROB ID", nROBs, 0, nROBs ) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histCTPSignalPartFromROIConv, "CTP_sig_part_fromROICnv", "4-bit CTP signal part from ROI via converter;CTP signal part", 16, 0, 16) ); // 4 bits
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histOverflowBitsFromROIConv, "CTP_Overflow_fromROICnv", "L1Topo CTP signal overflow bits from ROI via converter;overflow bits", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTriggerBitsFromROIConv, "CTP_Trigger_fromROICnv", "L1Topo CTP signal trigger bits from ROI via converter;trigger bits", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histPayloadCRCFromDAQConv, "CRC_fromDAQCnv", "non zero payload CRCs via converter;Payload CRC", 256, 0, 256 ) ); // CRC is 8 bits
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histFibreStatusFlagsFromDAQConv, "NonZero_FibreStatus_fromDAQCnv", "L1Topo Non-zero Fibre status flags from DAQ via converter; fibre status flags", 70, 0, 70) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromROIROB, "TOBtype_fromROIROB", "4-bit TOB type via ROI ROB;TOB type", 16, 0, 16) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromDAQROB, "TOBtype_fromDAQROB", "4-bit TOB type via DAQ ROB;TOB type", 16, 0, 16) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histPayloadSizeDAQROB, "DAQ_ROB_payload_size", "L1Topo DAQ ROB payload size;number of words", 300, 0, 300) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histPayloadSizeROIROB, "ROI_ROB_payload_size", "L1Topo ROI ROB payload size;number of words", 300, 0, 300) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histBCNsFromDAQConv, "DAQ_ROB_rel_bx_fromCnv", "L1Topo DAQ ROB relative bunch crossings sent via converter;relative bunch crossing", 10,-5,5) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwStatComparison, "Hdw_vs_Sim_Stat", "L1Topo decisions hardware - simulation statistical differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventComparison, "Hdw_vs_Sim_Events", "L1Topo decisions hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventOverflowComparison, "Hdw_vs_Sim_EventOverflow", "L1Topo overflow hardware XOR simulation event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpSimHdwEventComparison, "CTP_Hdw_vs_Sim_Events", "L1Topo decisions CTP hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobEventComparison, "DAQ_ROB_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware XOR DAQ ROB hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histDaqRobCtpEventComparison, "DAQ_ROB_Hdw_vs_CTP_Hdw_Events", "L1Topo DAQ ROB hardware XOR CTP TIP hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimResult, "HdwNotSimResult", "L1Topo events with hardware accept and simulation fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimOverflow, "SimOverflows", "L1Topo simulation overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwOverflow, "HdwOverflows", "L1Topo hardware overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwOverflow, "SimNotHdwOverflow", "L1Topo events with overflow simulation=1  and hardware=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimOverflow, "HdwNotSimOverflow", "L1Topo events with overflow hardware=1  and simulation=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histSIDsViaConverters, "ROB_src_IDs_fromCnv", "L1Topo ROB source IDs received via converters;ROB ID", nROBs, 0, nROBs ) );
+    ( bookAndRegisterHist(rootHistSvc, m_histSIDsDirectFromROBs, "ROB_src_IDs_fromROB", "L1Topo ROB source IDs received direct from ROBs;ROB ID", nROBs, 0, nROBs ) );
+    ( bookAndRegisterHist(rootHistSvc, m_histCTPSignalPartFromROIConv, "CTP_sig_part_fromROICnv", "4-bit CTP signal part from ROI via converter;CTP signal part", 16, 0, 16) ); // 4 bits
+    ( bookAndRegisterHist(rootHistSvc, m_histOverflowBitsFromROIConv, "CTP_Overflow_fromROICnv", "L1Topo CTP signal overflow bits from ROI via converter;overflow bits", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTriggerBitsFromROIConv, "CTP_Trigger_fromROICnv", "L1Topo CTP signal trigger bits from ROI via converter;trigger bits", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histPayloadCRCFromDAQConv, "CRC_fromDAQCnv", "non zero payload CRCs via converter;Payload CRC", 256, 0, 256 ) ); // CRC is 8 bits
+    ( bookAndRegisterHist(rootHistSvc, m_histFibreStatusFlagsFromDAQConv, "NonZero_FibreStatus_fromDAQCnv", "L1Topo Non-zero Fibre status flags from DAQ via converter; fibre status flags", 70, 0, 70) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromROIROB, "TOBtype_fromROIROB", "4-bit TOB type via ROI ROB;TOB type", 16, 0, 16) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromDAQROB, "TOBtype_fromDAQROB", "4-bit TOB type via DAQ ROB;TOB type", 16, 0, 16) );
+    ( bookAndRegisterHist(rootHistSvc, m_histPayloadSizeDAQROB, "DAQ_ROB_payload_size", "L1Topo DAQ ROB payload size;number of words", 300, 0, 300) );
+    ( bookAndRegisterHist(rootHistSvc, m_histPayloadSizeROIROB, "ROI_ROB_payload_size", "L1Topo ROI ROB payload size;number of words", 300, 0, 300) );
+    ( bookAndRegisterHist(rootHistSvc, m_histBCNsFromDAQConv, "DAQ_ROB_rel_bx_fromCnv", "L1Topo DAQ ROB relative bunch crossings sent via converter;relative bunch crossing", 10,-5,5) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwStatComparison, "Hdw_vs_Sim_Stat", "L1Topo decisions hardware - simulation statistical differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventComparison, "Hdw_vs_Sim_Events", "L1Topo decisions hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventOverflowComparison, "Hdw_vs_Sim_EventOverflow", "L1Topo overflow hardware XOR simulation event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoCtpSimHdwEventComparison, "CTP_Hdw_vs_Sim_Events", "L1Topo decisions CTP hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobEventComparison, "DAQ_ROB_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware XOR DAQ ROB hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histDaqRobCtpEventComparison, "DAQ_ROB_Hdw_vs_CTP_Hdw_Events", "L1Topo DAQ ROB hardware XOR CTP TIP hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimResult, "HdwNotSimResult", "L1Topo events with hardware accept and simulation fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimOverflow, "SimOverflows", "L1Topo simulation overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoHdwOverflow, "HdwOverflows", "L1Topo hardware overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwOverflow, "SimNotHdwOverflow", "L1Topo events with overflow simulation=1  and hardware=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimOverflow, "HdwNotSimOverflow", "L1Topo events with overflow hardware=1  and simulation=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
     unsigned int nProblems=m_problems.size();
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimResult, "SimDaqRobResults", "L1Topo simulation accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwResult, "HdwDaqRobResults", "L1Topo hardware accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimNotHdwResult, "SimNotHdwDaqRobResult", "L1Topo events with simulation accept and hardware fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
-    CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwNotSimResult, "HdwNotSimDaqRobResult", "L1Topo events with hardware accept and simulation fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimResult, "SimDaqRobResults", "L1Topo simulation accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwResult, "HdwDaqRobResults", "L1Topo hardware accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimNotHdwResult, "SimNotHdwDaqRobResult", "L1Topo events with simulation accept and hardware fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+    ( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwNotSimResult, "HdwNotSimDaqRobResult", "L1Topo events with hardware accept and simulation fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
 
     // Next, apply x-bin labels to some histograms
     for (unsigned int i=0; i<nProblems; ++i){
@@ -357,21 +383,21 @@ StatusCode AcceptL1TopoMonitor::beginRun()
     }
     // release histogramming service
     rootHistSvc.release().ignore();
-    return StatusCode::SUCCESS;
+    return HLT::OK;
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::endRun()
+HLT::ErrorCode AcceptL1TopoMonitor::hltEndRun()
 {
     ATH_MSG_INFO ("endRun");
-    return StatusCode::SUCCESS;
+    return HLT::OK;
 }
 //----------------------------------------------------------
 StatusCode AcceptL1TopoMonitor::doRawMon(bool prescalForDAQROBAccess)
 {
     ATH_MSG_DEBUG( "doRawMon" );
-    CHECK( monitorROBs(m_vROIROBIDs.value(),true) ); //isROIROB=true
+    ( monitorROBs(m_vROIROBIDs.value(),true) ); //isROIROB=true
     if (prescalForDAQROBAccess){
-        CHECK( monitorROBs(m_vDAQROBIDs.value(),false) ); //isROIROB=false
+        ( monitorROBs(m_vDAQROBIDs.value(),false) ); //isROIROB=false
     }
     return StatusCode::SUCCESS;
 }
@@ -435,7 +461,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
     // Retrieve and print the L1Topo RDOs from the ROI RODs
     std::vector<L1Topo::L1TopoTOB> roiTobs;
     const ROIB::RoIBResult* roibresult = 0;
-    CHECK (evtStore()->retrieve(roibresult) );
+     (evtStore()->retrieve(roibresult) );
     const std::vector< ROIB::L1TopoResult > l1TopoResults = roibresult->l1TopoResult();
     ATH_MSG_DEBUG( "Number of L1Topo ROI RODs found: "<<l1TopoResults.size() );
     if (l1TopoResults.size()==0){
@@ -560,7 +586,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
                     {
                         // New block detected, so send the one just completed for monitoring
                         if (! firstWord){
-                            CHECK( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
+                            ( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
                         }
                         header = L1Topo::Header(word);
                         // reset containers
@@ -614,7 +640,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
                     firstWord=false;
                 } // for(word)
                 // monitor last block
-                CHECK( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
+                ( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
             } // for(rdo)
         } // else not failure not empty
 
@@ -694,7 +720,7 @@ StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess)
                      <<" Perhaps it was prescaled? Skipping simulation comparison.");
     } else {
         const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
-        CHECK_RECOVERABLE( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
+        ( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
         if (!simTopoCTP){
             ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. Skipping simulation comparison." );
         } else {
@@ -831,7 +857,7 @@ StatusCode AcceptL1TopoMonitor::doWriteValData()
     if ( ! evtStore()->transientContains<HLT::HLTResult>(m_HltResultName.value()) ) {
         ATH_MSG_INFO("Could not find HLTResult with key "<<m_HltResultName.value()<<"in SG." );
     } else {
-        CHECK_RECOVERABLE( evtStore()->retrieve(hltResult,m_HltResultName.value()) );
+        ( evtStore()->retrieve(hltResult,m_HltResultName.value()) );
         if (!hltResult){
             ATH_MSG_INFO( "Retrieve of HLT::HLTResult failed. No data are written to HLTResult" );
             return StatusCode::RECOVERABLE;
@@ -842,7 +868,7 @@ StatusCode AcceptL1TopoMonitor::doWriteValData()
     if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
         ATH_MSG_INFO("Could not find LVL1::FrontPanelCTP with key "<<m_simTopoCTPLocation.value()<<"in SG." );
     } else {
-        CHECK_RECOVERABLE( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
+        ( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
         if (!simTopoCTP){
             ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. No data are written to HLTResult" );
             return StatusCode::RECOVERABLE;
@@ -889,7 +915,7 @@ StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
     ATH_MSG_DEBUG( "doOverflowSimMon" );
     if(evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value())){
         const DataHandle< LVL1::FrontPanelCTP > simTopoOverflowCTP;
-        CHECK_RECOVERABLE( evtStore()->retrieve(simTopoOverflowCTP, m_simTopoOverflowCTPLocation.value()) );
+        ( evtStore()->retrieve(simTopoOverflowCTP, m_simTopoOverflowCTPLocation.value()) );
         if(simTopoOverflowCTP){
             for(unsigned int i=0; i<32; ++i) { // store words
                 uint32_t mask = 0x1; mask <<= i;
