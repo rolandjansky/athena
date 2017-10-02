@@ -119,6 +119,18 @@ namespace L1Topo{
   }
 
 
+const std::string formatVecHex8(const std::vector<uint32_t>& vec)
+{
+    std::ostringstream s;
+    s<<"[ ";
+    for (auto elem: vec){
+        s<<std::hex<<std::showbase<<std::setfill('0')<<std::setw(10)
+         <<elem<<" "<<std::dec<<std::noshowbase;
+    }
+    s<<"]";
+    return s.str();
+}
+
   // this is out of date and should not be used
   unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB c){
     uint32_t module = (moduleId >>4) & 0x1;

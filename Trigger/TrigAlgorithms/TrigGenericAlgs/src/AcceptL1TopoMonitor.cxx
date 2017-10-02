@@ -46,29 +46,6 @@
 #include <sstream>
 #include <string>
 
-// To be moved to L1TopoRDO Helpers.cxx
-namespace L1Topo{
-const std::string formatVecHex8(const std::vector<uint32_t>& vec)
-{
-    std::ostringstream s;
-    s<<"[ ";
-    for (auto elem: vec){
-        s<<std::hex<<std::showbase<<std::setfill('0')<<std::setw(10)
-         <<elem<<" "<<std::dec<<std::noshowbase;
-    }
-    s<<"]";
-    return s.str();
-}
-}
-namespace L1Topo{
-const std::string formatHex1(const uint32_t word)
-{
-    std::ostringstream s;
-    s<<std::hex<<std::showbase<<std::setfill('0')<<std::setw(3)
-     <<word<<std::dec<<std::noshowbase;
-    return s.str();
-}
-}
 //----------------------------------------------------------
 AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
