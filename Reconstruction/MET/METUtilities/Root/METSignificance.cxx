@@ -487,8 +487,10 @@ namespace met {
     // tau objects
     const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj)); 
     pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
+    //for taus, this is not a relative resolution. so we divide by pT
+    pt_reso /=tau->pt();
     if(m_doPhiReso) phi_reso = tau->pt()*0.01;
-    ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi());
+    ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi() << " phi reso: " << phi_reso);
   }
 
   //

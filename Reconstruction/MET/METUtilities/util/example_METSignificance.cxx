@@ -82,7 +82,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       debug = true;
     }
   }
-
+  std::cout << "FileName: " << fileName << std::endl;
   asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
