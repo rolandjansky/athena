@@ -42,7 +42,7 @@ SCT_CalibBsErrorSvc::SCT_CalibBsErrorSvc(const std::string &name, ISvcLocator * 
   AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name), 
-  m_bytestreamErrorsSvc( "SCT_ByteStreamErrorsSvc", name ),
+  m_bytestreamErrorsSvc( "InDetSCT_ByteStreamErrorsSvc", name ),
   m_pSCTHelper(0),
   m_scterr_bec(0),
   m_scterr_layer(0),
