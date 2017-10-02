@@ -2,20 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
+#include <algorithm>
 #include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/Combinators.h"
 
-#include "TrigL2CaloHypoTool.h"
+#include "TrigL2CaloHypoToolInc.h"
 
 
+using namespace TrigCompositeUtils;
 
-TrigL2CaloHypoTool::TrigL2CaloHypoTool( const std::string& type, 
+TrigL2CaloHypoToolInc::TrigL2CaloHypoToolInc( const std::string& type, 
 		    const std::string& name, 
-		    const IInterface* parent ) :
-  AthAlgTool( type, name, parent ),
-  m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
+		    const IInterface* parent ) 
+  : base_class( type, name, parent ),
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
-StatusCode TrigL2CaloHypoTool::initialize()  {
+StatusCode TrigL2CaloHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   
   ATH_MSG_DEBUG( "AcceptAll           = " << ( m_acceptAll==true ? "True" : "False" ) ); 
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
@@ -34,10 +36,9 @@ StatusCode TrigL2CaloHypoTool::initialize()  {
     return StatusCode::FAILURE;
   }
 
-  unsigned int nEtaBin=m_etabin.size();
-#define CHECK_SIZE( __n) if ( m_##__n.size() != nEtaBin - 1 )		\
-    { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << nEtaBin - 1 ); \
-      return StatusCode::FAILURE; }
+  unsigned int nEtaBin = m_etabin.size();
+#define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
+    { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << (nEtaBin - 1) ); return StatusCode::FAILURE; }
 
   CHECK_SIZE( eTthr );
   CHECK_SIZE( eT2thr );
@@ -48,8 +49,11 @@ StatusCode TrigL2CaloHypoTool::initialize()  {
   CHECK_SIZE( WETA2thr );
   CHECK_SIZE( WSTOTthr ); 
   CHECK_SIZE( F3thr );
+#undef CHECK_SIZE
 
-  ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
+
+
+  ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
 
   if ( not m_monTool.name().empty() ) 
     CHECK( m_monTool.retrieve() );
@@ -57,15 +61,12 @@ StatusCode TrigL2CaloHypoTool::initialize()  {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2CaloHypoTool::finalize()  {
-  return StatusCode::SUCCESS;
-}
-
-TrigL2CaloHypoTool::~TrigL2CaloHypoTool()
-{}
 
 
-bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selectionIndex ) const {
+TrigL2CaloHypoToolInc::~TrigL2CaloHypoToolInc(){}
+
+
+bool TrigL2CaloHypoToolInc::decide( const ITrigL2CaloHypoTool::ClusterInfo& input ) const {
 
   bool pass = false;
 
@@ -105,8 +106,8 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
 
 
   if ( fabs( roiDescriptor->eta() ) > 2.6 ) {
-      ATH_MSG_DEBUG( "The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
-      pass=false; // special case 
+      ATH_MSG_DEBUG( "REJECT The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
+      pass=false; // special case       
       return pass;
   } 
 
@@ -124,13 +125,12 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
   auto pClus = input.cluster;
   
   float absEta = fabs( pClus->eta() );
-  etaBin = -1;
-  monEta = pClus->eta();
-  monPhi = pClus->phi();
-  for ( std::size_t iBin = 0; iBin < m_etabin.size()-1; iBin++ )
-    if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin; 
+  // etaBin = -1;
+  // monEta = pClus->eta();
+  // monPhi = pClus->phi();
  
-  const size_t etaIndex = etaBin + ( m_etabin.size()/m_multiplicity ) * selectionIndex;
+  const int cutIndex = findCutIndex( absEta );
+  
   // find if electron is in calorimeter crack
   bool inCrack = ( absEta > 2.37 || ( absEta > 1.37 && absEta < 1.52 ) );
 
@@ -176,7 +176,10 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
   		 << " roi eta=" << etaRef << " DeltaEta=" << dEta
   		 << " cut: <"   << m_detacluster          );
   
-  if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) return pass;
+  if ( fabs( pClus->eta() - etaRef ) > m_detacluster ) {
+    ATH_MSG_DEBUG("REJECT Cluster dEta cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //Deta
   
   // DeltaPhi( clus-ROI )
@@ -184,55 +187,70 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
   		 << " roi phi="<< phiRef    << " DeltaPhi="<< dPhi
   		 << " cut: <"  << m_dphicluster );
   
-  if( dPhi > m_dphicluster ) return pass;
+  if( dPhi > m_dphicluster ) {
+    ATH_MSG_DEBUG("REJECT Clsuter dPhi cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //DPhi
 
   // eta range
-  if ( etaBin==-1 ) {  // VD
+  if ( cutIndex == -1 ) {  // VD
     ATH_MSG_DEBUG( "Cluster eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] );
     return pass;
   } else { 
-    ATH_MSG_DEBUG( "eta bin used for cuts " << etaIndex );
+    ATH_MSG_DEBUG( "eta bin used for cuts " << cutIndex );
   }
   PassedCuts = PassedCuts + 1; // passed eta cut
   
   // Rcore
   ATH_MSG_DEBUG ( "TrigEMCluster: Rcore=" << rCore 
-		  << " cut: >"  << m_carcorethr[etaIndex] );
-  if ( rCore < m_carcorethr[etaIndex] )  return pass;
+  		  << " cut: >"  << m_carcorethr[cutIndex] );
+  if ( rCore < m_carcorethr[cutIndex] ) {
+    ATH_MSG_DEBUG("REJECT rCore cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //Rcore
 
   // Eratio
-  ATH_MSG_DEBUG( " cut: >"  << m_caeratiothr[etaIndex] );   
+  ATH_MSG_DEBUG( " cut: >"  << m_caeratiothr[cutIndex] );   
   if ( inCrack || F1 < m_F1thr[0] ) {
     ATH_MSG_DEBUG ( "TrigEMCluster: InCrack= " << inCrack << " F1=" << F1 );
   } else {
-    if ( energyRatio < m_caeratiothr[etaIndex] ) return pass;
+    if ( energyRatio < m_caeratiothr[cutIndex] ) {
+      ATH_MSG_DEBUG("REJECT e ratio cut failed");
+      return pass;
+    }
   }
   PassedCuts = PassedCuts + 1; //Eratio
   if( inCrack ) energyRatio = -1; //Set default value in crack for monitoring.
   
   // ET_em
-  ATH_MSG_DEBUG( "TrigEMCluster: ET_em=" << eT_T2Calo << " cut: >"  << m_eTthr[etaIndex] );
-  if ( eT_T2Calo < m_eTthr[etaIndex] ) return pass;
+  ATH_MSG_DEBUG( "TrigEMCluster: ET_em=" << eT_T2Calo << " cut: >"  << m_eTthr[cutIndex] );
+  if ( eT_T2Calo < m_eTthr[cutIndex] ) {
+    ATH_MSG_DEBUG("REJECT et cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; // ET_em
  
   float hadET_cut = 0.0;  
   // find which ET_had to apply	: this depends on the ET_em and the eta bin
-  if ( eT_T2Calo >  m_eT2thr[etaIndex] ) {
-    hadET_cut = m_hadeT2thr[etaIndex] ;
+  if ( eT_T2Calo >  m_eT2thr[cutIndex] ) {
+    hadET_cut = m_hadeT2thr[cutIndex] ;
 
-    ATH_MSG_DEBUG ( "ET_em>"     << m_eT2thr[etaIndex] << ": use high ET_had cut: <" << hadET_cut );
+    ATH_MSG_DEBUG ( "ET_em>"     << m_eT2thr[cutIndex] << ": use high ET_had cut: <" << hadET_cut );
   } else {
-    hadET_cut = m_hadeTthr[etaIndex];
+    hadET_cut = m_hadeTthr[cutIndex];
 
-    ATH_MSG_DEBUG ( "ET_em<"    << m_eT2thr[etaIndex] << ": use low ET_had cut: <" << hadET_cut );
+    ATH_MSG_DEBUG ( "ET_em<"    << m_eT2thr[cutIndex] << ": use low ET_had cut: <" << hadET_cut );
   }
   
   // ET_had
   ATH_MSG_DEBUG ( "TrigEMCluster: ET_had=" << hadET_T2Calo << " cut: <" << hadET_cut );
 
-  if ( hadET_T2Calo > hadET_cut ) return pass;
+  if ( hadET_T2Calo > hadET_cut ) {
+    ATH_MSG_DEBUG("REJECT et had cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //ET_had
   
   // F1
@@ -240,21 +258,28 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
   // if ( m_F1 < m_F1thr[0] ) return pass;  //( VD ) not cutting on this variable, only used to select whether to cut or not on eRatio
   PassedCuts = PassedCuts + 1; //F1
 
-
   //Weta2
-  ATH_MSG_DEBUG ( "TrigEMCluster: Weta2=" << Weta2 << " cut: <"  << m_WETA2thr[etaIndex] ); 
-  if ( Weta2 > m_WETA2thr[etaIndex] ) return pass;
+  ATH_MSG_DEBUG ( "TrigEMCluster: Weta2=" << Weta2 << " cut: <"  << m_WETA2thr[cutIndex] ); 
+  if ( Weta2 > m_WETA2thr[cutIndex] ) {
+    ATH_MSG_DEBUG("REJECT weta 2 cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //Weta2
 
-
   //Wstot
-  ATH_MSG_DEBUG ( "TrigEMCluster: Wstot=" <<Wstot << " cut: <"  << m_WSTOTthr[etaIndex] ); 
-  if ( Wstot >= m_WSTOTthr[etaIndex] ) return pass;
+  ATH_MSG_DEBUG ( "TrigEMCluster: Wstot=" <<Wstot << " cut: <"  << m_WSTOTthr[cutIndex] ); 
+  if ( Wstot >= m_WSTOTthr[cutIndex] ) {
+    ATH_MSG_DEBUG("REJECT wstot cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //Wstot
 
   //F3
-  ATH_MSG_DEBUG( "TrigEMCluster: F3=" << F3 << " cut: <"  << m_F3thr[etaIndex] ); 
-  if ( F3 > m_F3thr[etaIndex] ) return pass;
+  ATH_MSG_DEBUG( "TrigEMCluster: F3=" << F3 << " cut: <"  << m_F3thr[cutIndex] ); 
+  if ( F3 > m_F3thr[cutIndex] ) {
+    ATH_MSG_DEBUG("REJECT F3 cut failed");
+    return pass;
+  }
   PassedCuts = PassedCuts + 1; //F3
 
   // got this far => passed!
@@ -266,13 +291,22 @@ bool TrigL2CaloHypoTool::singleObjectDecision( const Input& input, int selection
   return pass;
 }
 
+int TrigL2CaloHypoToolInc::findCutIndex( float eta ) const {
+  const float absEta = std::abs(eta);
+  
+  auto binIterator = std::adjacent_find( m_etabin.begin(), m_etabin.end(), [=](float left, float right){ return left < absEta and absEta < right; }  );
+  if ( binIterator == m_etabin.end() ) {
+    return -1;
+  }
+  return  binIterator - m_etabin.begin();
+}
 
-StatusCode TrigL2CaloHypoTool::decide( std::vector<Input>& input )  const {
 
-  if ( m_multiplicity == 1 ) {
-    for ( auto& i: input ) {
-      if ( singleObjectDecision( i ) ) {
-	TrigCompositeUtils::addDecisionID( m_decisionId, i.decision );
+StatusCode TrigL2CaloHypoToolInc::decide( std::vector<ClusterInfo>& input )  const {
+  for ( auto& i: input ) {
+    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+      if ( decide( i ) ) {
+	addDecisionID( m_decisionId, i.decision );
       }
     }
   }
