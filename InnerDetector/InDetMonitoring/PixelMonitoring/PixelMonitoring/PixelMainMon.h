@@ -217,6 +217,7 @@ private:
 
    std::vector<Identifier> m_RDOIDs;                  ///////Make class scope 
    std::vector<Identifier> m_ClusterIDs;              ///////Make class scope 
+   std::vector<double> m_CosAlphas;
 
    const DataHandle<PixelRDO_Container> m_rdocontainer; //container for pixel RDO
    //PixelRODErrorCollection* m_error_summary;//container for pixel ROD errors

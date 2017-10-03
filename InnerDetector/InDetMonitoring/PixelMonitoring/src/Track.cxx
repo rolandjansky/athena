@@ -180,8 +180,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
       const Trk::TrackSummary* summary = track0->trackSummary();
       const Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track0->perigeeParameters());
       const Trk::Track* track = track0;
-      int nbadclus=0;
-      int ngoodclus=0;
       
       ///
       /// get the track state on surfaces (a vector, on element per surface) and loop over it
@@ -320,15 +318,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
  
 	nPixelHits++; //add another pixel hit
 
-	/// Fill containters, which hold id's of hits and clusters on track
-	///
-	if (m_doOnTrack) {
-	  for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
-	    m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
-	  }
-	  m_ClusterIDs.push_back( clus->identify());
-	}
-
 	const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
 	if (pixelCluster) {
 	  ///
@@ -351,11 +340,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  //colWidthOfCluster = pixelCluster->width().colRow().y();
 	  rowWidthOfCluster = pixelCluster->width().colRow().x();
 	  totalToTOfCluster = pixelCluster->totalToT();
-            
-	  if ( npixHitsInCluster == 1 && totalToTOfCluster < 8) { nbadclus++; }
-	  else { ngoodclus++; }
 	}
-
 	    
 	///
 	/// Get track parameters for current surface (with AtaPlane)
@@ -400,6 +385,19 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	      if (pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
 	      if (pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
             }
+	    ///
+	    /// Fill containters, which hold id's of hits and clusters on track _and_ incident angle information for later normalization
+	    ///
+	    double mytrack_mag = mytrack.mag();
+	    double cosalpha = 0.;
+	    if (mytrack_mag != 0) cosalpha = fabs(trknormcomp/mytrack_mag); 
+	    if (m_doOnTrack) {
+	      for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
+		m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	      }
+	      m_ClusterIDs.push_back( clus->identify());
+	      m_CosAlphas.push_back(cosalpha);
+	    }
 	  }
       } // end of TSOS loop
 
@@ -421,6 +419,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
    if (m_doOnTrack) {
      sort( m_RDOIDs.begin(), m_RDOIDs.end() );
+     sort( m_CosAlphas.begin(), m_CosAlphas.end(),
+	   [&](const int& a, const int& b) {
+	     return (m_ClusterIDs[a] < m_ClusterIDs[b]);
+	   }
+	   );
      sort( m_ClusterIDs.begin(), m_ClusterIDs.end() );
    }
 
