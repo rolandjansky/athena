@@ -235,6 +235,8 @@ namespace FCS_Param
     // Inject the Calculator into m_config
     FCS_Param::Config config(m_config);
     config.m_LArCalculator = calc;
+    if(msgLvl(MSG::VERBOSE))    { config.verboseLevel = 10; }
+    else if(msgLvl(MSG::DEBUG)) { config.verboseLevel = 5;  }
     // Create the simple SD
    std::unique_ptr<FCS_StepInfoSD> sd =
       std::make_unique<LArFCS_StepInfoSD>(sdName, m_config);
@@ -261,6 +263,8 @@ namespace FCS_Param
     // Inject the Calculator into m_config
     FCS_Param::Config config(m_config);
     config.m_TileCalculator = calc;
+    if(msgLvl(MSG::VERBOSE))    { config.verboseLevel = 10; }
+    else if(msgLvl(MSG::DEBUG)) { config.verboseLevel = 5;  }
      // Create the simple SD
     std::unique_ptr<FCS_StepInfoSD> sd =
       std::make_unique<TileFCS_StepInfoSD>(sdName, m_config);

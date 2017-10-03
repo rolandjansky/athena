@@ -36,6 +36,8 @@ namespace FCS_Param {
 
   struct Config
   {
+    /** Helper to keep the same verbosity everywhere */
+    int verboseLevel=0;
     bool shift_lar_subhit=true;
     bool shorten_lar_step=false;
 
