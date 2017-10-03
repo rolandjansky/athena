@@ -42,33 +42,14 @@ SUSY17ThinningHelper.AppendToStream( SUSY17Stream )
 # THINNING TOOLS 
 #====================================================================
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY17MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY17MetTPThinningTool",
-                                                                ThinningService         = SUSY17ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY17MetTPThinningTool
-thinningTools.append(SUSY17MetTPThinningTool)
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-SUSY17JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "SUSY17JetTPThinningTool",
-                                                                ThinningService         = SUSY17ThinningHelper.ThinningSvc(),
-                                                                JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY17JetTPThinningTool
-thinningTools.append(SUSY17JetTPThinningTool)
-
+# B.M.: likely not used
 # TrackParticles directly
-SUSY17TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY17TPThinningTool",
-                                                                 ThinningService         = SUSY17ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY17TPThinningTool
-thinningTools.append(SUSY17TPThinningTool)
+#SUSY17TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY17TPThinningTool",
+#                                                                 ThinningService         = SUSY17ThinningHelper.ThinningSvc(),
+#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
+#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY17TPThinningTool
+#thinningTools.append(SUSY17TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -231,8 +212,9 @@ SeqSUSY17 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 OutputJets["SUSY17"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
@@ -241,9 +223,10 @@ replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

@@ -7,6 +7,9 @@
 // $Id: errorcheck.h 299732 2014-03-27 17:41:34Z krasznaa $
 #ifndef MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
 #define MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
+
+#include <string>
+
 namespace CP {
     enum MuonEfficiencyType {
         Undefined = 0,

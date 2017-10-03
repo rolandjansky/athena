@@ -25,7 +25,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Local
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 class TH1;
 class TH2;

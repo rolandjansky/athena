@@ -297,20 +297,22 @@ SeqSUSY6 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  OutputJets["SUSY6"] = []
-  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
-  replaceAODReducedJets(reducedJetList, SeqSUSY6, "SUSY6")
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#
+#  OutputJets["SUSY6"] = []
+#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#
+#  replaceAODReducedJets(reducedJetList, SeqSUSY6, "SUSY6")
 
 
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

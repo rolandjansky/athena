@@ -42,33 +42,14 @@ SUSY5ThinningHelper.AppendToStream( SUSY5Stream )
 # THINNING TOOLS 
 #====================================================================
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY5MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY5MetTPThinningTool",
-                                                                ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY5MetTPThinningTool
-thinningTools.append(SUSY5MetTPThinningTool)
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-SUSY5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "SUSY5JetTPThinningTool",
-                                                                ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
-                                                                JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY5JetTPThinningTool
-thinningTools.append(SUSY5JetTPThinningTool)
-
+# B.M.: likely not used
 # TrackParticles directly
-SUSY5TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY5TPThinningTool",
-                                                                 ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY5TPThinningTool
-thinningTools.append(SUSY5TPThinningTool)
+#SUSY5TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY5TPThinningTool",
+#                                                                 ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
+#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
+#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY5TPThinningTool
+#thinningTools.append(SUSY5TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -240,8 +221,9 @@ SeqSUSY5 += CfgMgr.DerivationFramework__DerivationKernel(
 OutputJets["SUSY5"] = [] 
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
 
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 
@@ -249,10 +231,11 @@ replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
+# now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
+  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

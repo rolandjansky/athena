@@ -525,7 +525,6 @@ namespace ST {
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
     bool m_tauRecalcOLR;
-    bool m_tauNoAODFixCheck;
 
     double m_jetPt;
     double m_jetEta;
@@ -562,7 +561,6 @@ namespace ST {
     double m_orMuJetInnerDR;
     bool m_orDoMuonJetGhostAssociation;
     bool m_orRemoveCaloMuons;
-    bool m_orApplyJVT;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
 

@@ -1299,8 +1299,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (m_orDoTau) ATH_CHECK(m_orToolbox.tauJetORT.setProperty("EnableUserPriority", true));
     if (m_orDoPhoton) ATH_CHECK(m_orToolbox.phoJetORT.setProperty("EnableUserPriority", true));
 
-    if (!m_orDoEleJet) m_orToolbox.eleJetORT.setTypeAndName("");
-    if (!m_orDoMuonJet) m_orToolbox.muJetORT.setTypeAndName("");
+    if (!m_orDoEleJet){
+      // Disable the electron removal part of e-j overlap removal
+      ATH_CHECK( m_orToolbox.eleJetORT.setProperty("OuterDR",-1.) );
+      ATH_CHECK( m_orToolbox.eleJetORT.setProperty("SlidingDRMaxCone",-1.) );
+    }
+    if (!m_orDoMuonJet){
+      // Disable the muon removal part of m-j overlap removal
+      ATH_CHECK( m_orToolbox.muJetORT.setProperty("OuterDR",-1.) );
+      ATH_CHECK( m_orToolbox.muJetORT.setProperty("SlidingDRMaxCone",-1.) );
+    }
 
     ATH_CHECK(m_orToolbox.initialize());
 

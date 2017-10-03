@@ -8,28 +8,24 @@ Note that the newest recommendations are always on the [background forum TWiki p
 Recommended tags
 ------------------------------------
 
-**Rel 21.0 Samples :**   Base,21.2.2 + newest SUSYTools
-
-**Rel 20.7 Samples :**   Base,2.4.37 + SUSYTools-00-08-69
-
-**Rel 20.1 Samples :**   Base,2.3.8 + SUSYTools-00-07-58
+The recommended tags are on the [background forum TWiki page](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BackgroundStudies).
 
 ------------------------------------
 AnalysisBase / AthAnalysisBase Setup
 ------------------------------------
 
-Because these two releases are becoming more similar, most of the instructions are the same.  Set up the latest recommended AnalysisBase release::
+Because these two releases are becoming more similar, most of the instructions are the same.  These instructions refer to 21.2.5 as an example, but you should pick the appropriate version when setting up.  Set up the latest recommended AnalysisBase release::
 
 ```bash
 setupATLAS
-asetup AnalysisBase,21.2.2
+asetup AnalysisBase,21.2.5
 ```
 
 Or the latest AthAnalysis release::
 
 ```bash
 setupATLAS
-asetup AthAnalysis,21.2.2
+asetup AthAnalysis,21.2.5
 ```
 
 For working with code, a sparse checkout is pretty straightforward::
@@ -42,7 +38,7 @@ And then the version of SUSYTools in the release can be checked out via::
 
 ```bash
 cd athena
-git checkout 21.2.0
+git checkout 21.2.5
 git atlas addpkg SUSYTools
 ```
 
@@ -82,16 +78,24 @@ Convenience script for getting packages we recommend -- at the moment, this is n
 Testing
 --------------
 
-To run unit tests, simply go to your build area and type::
+Unit tests now use [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest).  To run unit tests, simply go to your build area and type::
 
 ```bash
 gmake test
 ```
 
+More complex testing is best done directly with the `ctest` command.  To see what tests are available::
+
+```bash
+ctest -N
+```
+
+To run specific tests (or tests for specific packages), use the `-R` option to restrict running to tests with a string in the name (e.g. `-R SUSYTools`) or `-E` to exclude certain tests (e.g. `-E SUSYToolsTester`).  To get logs / verbose output, use `-V`.
+
 To test locally in an AnalysisBase release, get your favourite benchmark sample (e.g. `mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.DAOD_SUSY1.e3698_s2608_s2183_r7725_r7676_p2596/`), and run::
 
 ```bash
-SUSYToolsTester <myAOD.pool.root> 100 isData=0 isAtlfast=0 Debug=0 NoSyst=0 2>&1 | tee log
+SUSYToolsTester <myAOD.pool.root> maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0 2>&1 | tee log
 ```
 
 The standard `SUSYToolsTester` code is meant to test the configuration of all the relevant CP tools and apply a minimal analysis flow. It includes the recalibration and correction of all physics objects, the recalculation of the MissingET, the extraction of SFs and other specific functionalities that are enabled based on the DxAOD stream. All systematic variations available in the central registry are tested by default, and a cutflow is displayed for each of them. This can be disabled by setting `NoSyst=1`.
@@ -104,10 +108,6 @@ athena.py SUSYTools/minimalExampleJobOptions_mc.py
 ```
 
 which is the athena-friendly equivalent of the `SUSYToolsTester` code above for running on MC.  You can also change "mc" to "data" or "atlfast" to run on data or fast simulation if you would prefer.
-
-## Still to add ##
-
-Unit tests for specific packages
 
 --------------------------------
 Retrieving Cross sections
