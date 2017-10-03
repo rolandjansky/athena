@@ -67,8 +67,6 @@ class TrigTRT_DriftCircleProviderTool: public AthAlgTool, virtual public ITrigTR
   ToolHandle<TrigTRT_DCCollByteStreamTool>  m_TRT_DCCollBSTool;
   ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_trtByteStreamErrorService;
                                     
-  const TRT_ID* m_trtId;
-
   //  double m_zMin, m_zMax;
 
   std::vector<int> m_trtDataErrors;
