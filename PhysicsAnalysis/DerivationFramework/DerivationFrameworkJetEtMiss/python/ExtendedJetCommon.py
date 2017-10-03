@@ -259,7 +259,7 @@ def overlapRemoval(sequence=DerivationFrameworkJob):
 def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     ecTool = EventCleaningTool('EventCleaningTool')
     ecTool.JvtDecorator = "DFCommonJets_passJvt"
-    ecTool.OrDecorator = "overlaps"
+    ecTool.OrDecorator = "DFCommonJets_isOverlap"
     algClean = EventCleaningTestAlg('EventCleaningTestAlg',
                             EventCleaningTool=ecTool,
                             JetCollectionName="AntiKt4EMTopoJets")
@@ -270,4 +270,4 @@ def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
 overlapRemoval()
-#eventClean_xAODColl("AntiKt4EMTopo")
+eventClean_xAODColl("AntiKt4EMTopo")

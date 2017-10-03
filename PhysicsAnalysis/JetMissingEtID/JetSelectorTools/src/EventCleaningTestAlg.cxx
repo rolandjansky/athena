@@ -60,7 +60,7 @@ StatusCode EventCleaningTestAlg::execute()
   result = m_ecTool->acceptEvent(jets) ;
   
   //Decorate event
-  const static SG::AuxElement::Decorator<char> dec_eventClean("eventClean_" + m_cleaningLevel);
+  const static SG::AuxElement::Decorator<char> dec_eventClean("DFCommonJets_eventClean_" + m_cleaningLevel);
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
   dec_eventClean(*eventInfo) = result; 
