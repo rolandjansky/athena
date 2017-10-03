@@ -34,7 +34,7 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
     m_offlineDecoder("SCT_RodDecoder",this), 
-    m_byteStreamErrSvc("InDetSCT_ByteStreamErrorsSvc",name),
+    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool") 
 {
   declareInterface< ISCT_ClusterCacheTool>( this );

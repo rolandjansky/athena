@@ -25,7 +25,7 @@ namespace DerivationFramework {
     m_sgName(""),
     m_containerName(""),
     m_sctId(0),  
-    m_byteStreamErrSvc("InDetSCT_ByteStreamErrorsSvc",name),
+    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_cabling("SCT_CablingSvc",name)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);

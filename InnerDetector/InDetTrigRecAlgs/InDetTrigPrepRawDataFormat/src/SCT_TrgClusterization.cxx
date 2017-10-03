@@ -67,7 +67,7 @@ namespace InDet{
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
     m_sctRDOContainerName("SCT_RDOs"),
-    m_bsErrorSvc("InDetSCT_ByteStreamErrorsSvc",name),
+    m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
