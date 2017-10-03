@@ -11,7 +11,7 @@ def getMuonTriggerSFTester(input_name, triggers=[], MuonWP="Medium", Binning = "
     algSeq = AlgSequence()
     algName ="MuTriggerSFTester_%s_%s"%(MuonWP,Binning)
     if not hasattr(algSeq, algName):
-        alg = CfgMgr.Trig__TestTrigSF(algName)
+        alg = CfgMgr.Trig__MuonTriggerSF_TestAlg(algName)
         alg.inputContainerName = input_name
         alg.prwTool = GetPRWTool() 
         alg.TriggerEfficiencyTool = GetTriggerSFTool(MuonWP,Binning)
@@ -25,7 +25,7 @@ def getMuonTriggerSFTester(input_name, triggers=[], MuonWP="Medium", Binning = "
 #		Setup the Tools
 #######################################################################
 #
-#athena -c "inputFile='/ptmp/mpp/zenon/DirectStau/mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.deriv.DAOD_SUSY3.e3601_s3126_r9364_r9315_p3179/DAOD_SUSY3.11544886._000178.pool.root.1'" MuonEfficiencyCorrections/TriggerSF_Tester_jobOptions.py
+#athena -c "inputFile='/ptmp/mpp/niko/MCP/testfiles/rel21/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON1.e3601_s3126_r9364_r9315_p3144/DAOD_MUON1.11370094._000130.pool.root.1'" MuonEfficiencyCorrections/TriggerSF_Tester_jobOptions.py
 #
 
 #trigs = [

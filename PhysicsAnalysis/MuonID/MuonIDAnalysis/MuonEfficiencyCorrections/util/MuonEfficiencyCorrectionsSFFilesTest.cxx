@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
 
     const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
             //Isolation
-            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","TightIso","GradientIso","GradientLooseIso",
+            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","GradientIso","GradientLooseIso",
             "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
     };
     std::vector<EffiToolInstance> EffiTools;

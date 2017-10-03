@@ -28,7 +28,9 @@ alg.PileupReweightingTool = GetPRWTool()
 
 WPs = [
         "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
-        "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","TightIso","GradientIso","GradientLooseIso",
+        "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso",
+        #"TightIso",
+        "GradientIso","GradientLooseIso",
         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso" ]
 for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
 theJob += alg
