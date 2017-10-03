@@ -5,9 +5,9 @@
 #include "TauHistUtils/Had1ProngPlots.h"
 
 namespace Tau{
-
+   
 Had1ProngPlots::Had1ProngPlots(PlotBase* pParent, std::string sDir,
-			       std::string sTauJetContainerName):
+                               std::string sTauJetContainerName):
    PlotBase(pParent, sDir),
    m_oGeneralTauPlots(this, "", sTauJetContainerName),
    m_tauNWideTracks(nullptr),
@@ -30,13 +30,13 @@ Had1ProngPlots::Had1ProngPlots(PlotBase* pParent, std::string sDir,
    m_sTauJetContainerName(sTauJetContainerName)
 {
 }
-	
+        
 Had1ProngPlots::~Had1ProngPlots()
 {
 }
 
-void Had1ProngPlots::initializePlots(){
-
+void Had1ProngPlots::initializePlots()
+{
    // m_oGeneralTauPlots.initialize();
    m_tauCoreFrac   = Book1D("CoreFrac",m_sTauJetContainerName + " Tau CoreFrac; CoreFrac; # Taus",40,0.,2.);
    m_tauEoverPTrk  = Book1D("EoverPTrk",m_sTauJetContainerName + " Tau E over pLeadTrk; EoverP; # Taus",50,0.,4.);
@@ -61,61 +61,61 @@ void Had1ProngPlots::initializePlots(){
 
 }
 
-void Had1ProngPlots::fill(const xAOD::TauJet& tau) {
-  m_oGeneralTauPlots.fill(tau);
-
-  float avariable=0;
-
-  bool test = false;
-
-  test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
-  if(test)     m_tauCoreFrac->Fill(avariable,1.);
- 
-  test=tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);
-  if(test) m_tauEoverPTrk->Fill(avariable, 1.);
-
-  test=tau.detail(xAOD::TauJetParameters::trkAvgDist, avariable);
-  if (test) m_tauTrkAvgDist->Fill(avariable, 1.);
-
-  test=tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, avariable);
-  if (test) m_tauIpSig->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::dRmax, avariable);
-  if (test) m_tauDRMax->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::trFlightPathSig, avariable);
-  if (test) m_tauSflight->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
-  if (test) m_tauMtrks->Fill(avariable/1000.,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::SumPtTrkFrac, avariable);
-  if (test) m_SumPtTrkFrac->Fill(avariable/1000.,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::innerTrkAvgDist, avariable);
-  if (test) m_innerTrkAvgDist->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::ptRatioEflowApprox, avariable);
-  if (test) m_ptRatioEflowApprox->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::mEflowApprox, avariable);
-  if (test) m_mEflowApprox->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, avariable);
-  if(test)     m_ChPiEMEOverCaloEME->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::EMPOverTrkSysP, avariable);
-  if(test)     m_EMPOverTrkSysP->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
-  if(test)     m_HadRadius->Fill(avariable,1.);
-
-  test=tau.detail(xAOD::TauJetParameters::EMRadius, avariable);
-  if(test) m_EMRadius->Fill(avariable, 1.);
-
-  test=tau.detail(xAOD::TauJetParameters::isolFrac, avariable);
-  if (test) m_IsoFrac->Fill(avariable, 1.);
-
+void Had1ProngPlots::fill(const xAOD::TauJet& tau)
+{
+   m_oGeneralTauPlots.fill(tau);
+   
+   float avariable=0;
+   
+   bool test = false;
+   
+   test = tau.detail(xAOD::TauJetParameters::centFrac, avariable);
+   if ( test ) m_tauCoreFrac->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);
+   if ( test ) m_tauEoverPTrk->Fill(avariable, 1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::trkAvgDist, avariable);
+   if ( test ) m_tauTrkAvgDist->Fill(avariable, 1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, avariable);
+   if ( test ) m_tauIpSig->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::dRmax, avariable);
+   if ( test ) m_tauDRMax->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::trFlightPathSig, avariable);
+   if ( test ) m_tauSflight->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
+   if ( test ) m_tauMtrks->Fill(avariable/1000.,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::SumPtTrkFrac, avariable);
+   if ( test ) m_SumPtTrkFrac->Fill(avariable/1000.,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::innerTrkAvgDist, avariable);
+   if ( test ) m_innerTrkAvgDist->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::ptRatioEflowApprox, avariable);
+   if ( test ) m_ptRatioEflowApprox->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::mEflowApprox, avariable);
+   if ( test ) m_mEflowApprox->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, avariable);
+   if ( test ) m_ChPiEMEOverCaloEME->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::EMPOverTrkSysP, avariable);
+   if ( test ) m_EMPOverTrkSysP->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
+   if ( test ) m_HadRadius->Fill(avariable,1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::EMRadius, avariable);
+   if ( test ) m_EMRadius->Fill(avariable, 1.);
+   
+   test = tau.detail(xAOD::TauJetParameters::isolFrac, avariable);
+   if ( test ) m_IsoFrac->Fill(avariable, 1.);
 
 }
 

@@ -5,7 +5,7 @@
 #include "TauHistUtils/ParamPlots.h"
 
 namespace Tau{
-
+   
 ParamPlots::ParamPlots(PlotBase* pParent, std::string sDir, std::string sParticleType)
    : PlotBase(pParent, sDir),
      eta(nullptr),
