@@ -62,8 +62,8 @@
 #include <TauAnalysisTools/TauTruthTrackMatchingTool.h>
 #include <TrigConfxAOD/xAODConfigTool.h>
 #include <gtest/gtest.h>
-#include <FTagAnalysisInterfaces/BTaggingEfficiencyTool.h>
-#include <FTagAnalysisInterfaces/BTaggingSelectionTool.h>
+#include <xAODBTaggingEfficiency/BTaggingEfficiencyTool.h>
+#include <xAODBTaggingEfficiency/BTaggingSelectionTool.h>
 
 #ifdef ROOTCORE
 #include <xAODRootAccess/Init.h>
