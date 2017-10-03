@@ -3517,7 +3517,9 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	    }
 
 	    // track out from vertex
-	    Amg::Vector3D momentum = parameters.position()*Gaudi::Units::TeV/parameters.position().mag();
+	    // protect the momentum to avoid excessive Eloss
+            double Emax = 50000.;
+	    Amg::Vector3D momentum = parameters.position()*Emax/parameters.position().mag();
 	    trackParameters = new Trk::Perigee(vertex->position(),
 					       momentum,
 					       1.,
