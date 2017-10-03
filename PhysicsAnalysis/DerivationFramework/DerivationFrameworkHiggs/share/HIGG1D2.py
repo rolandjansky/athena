@@ -76,7 +76,7 @@ print HIGG1D2_MuMuMassTool
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
-expression = '(count(abs(DFCommonPhotons_eta)<2.5 && DFCommonPhotons_et>9.5*GeV)>=1 && (count(HIGG1D2_DiElectronMass > 40.0*GeV)>=1 || count(HIGG1D2_DiMuonMass > 40.0*GeV)>=1))'
+expression = '(count(abs(DFCommonPhotons_eta)<2.5 && DFCommonPhotons_et>9.5*GeV)>=1 && (count(HIGG1D2_DiElectronMass > 40.0*GeV)>=1 || count(HIGG1D2_DiMuonMass > 40.0*GeV)>=1)) || (count(DFCommonPhotons_et>500*GeV && abs(DFCommonPhotons_eta)<2.4 && Photons.DFCommonPhotonsIsEMLoose)>=1)'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG1D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG1D2SkimmingTool",
                                                                expression = expression)
