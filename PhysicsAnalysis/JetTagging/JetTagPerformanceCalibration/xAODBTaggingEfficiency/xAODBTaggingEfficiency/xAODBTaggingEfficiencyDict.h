@@ -11,8 +11,6 @@
 #define EIGEN_DONT_VECTORIZE
 #endif
 
-#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
-#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
 
