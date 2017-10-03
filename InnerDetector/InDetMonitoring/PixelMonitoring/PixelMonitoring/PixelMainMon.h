@@ -138,6 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
+   bool OnTrack(Identifier id, double &cosalpha);
    double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
    int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
@@ -454,6 +455,7 @@ private:
    TH1F_LW*              m_3cluster_ToT_mod[PixLayer::COUNT];
    TH1F_LW*              m_bigcluster_ToT_mod[PixLayer::COUNT];
    TH1F_LW*              m_cluster_Q_mod[PixLayerIBL2D3DDBM::COUNT];
+   TH1F_LW*              m_cluster_Q_corr[PixLayerIBL2D3DDBM::COUNT];
    TH1F_LW*              m_1cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_2cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_3cluster_Q_mod[PixLayer::COUNT];

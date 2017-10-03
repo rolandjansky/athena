@@ -372,6 +372,20 @@ bool PixelMainMon::OnTrack(Identifier id, bool isCluster)
    return onTrack;
 }
 
+bool PixelMainMon::OnTrack(Identifier id, double &cosalpha)
+{
+  bool onTrack = binary_search(m_ClusterIDs.begin(), m_ClusterIDs.end(), id);
+  if (!onTrack) return false;
+  auto first = lower_bound(m_CosAlphas.begin(),m_CosAlphas.end(), id,
+			   [&](const int& a, const int& b) {
+			     return (m_ClusterIDs[a] < m_ClusterIDs[b]);
+			   }
+			   );
+  cosalpha = *first;
+  return onTrack;
+}
+
+
 //Not yet updated to include IBL:
 int PixelMainMon::ParseDetailsString(std::string & detailsMod)
 {

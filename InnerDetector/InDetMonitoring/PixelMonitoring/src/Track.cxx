@@ -160,6 +160,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
   if (m_doOnTrack) {
     m_RDOIDs.clear();
     m_ClusterIDs.clear();
+    m_CosAlphas.clear();
   }
 
    
