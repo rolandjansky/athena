@@ -289,9 +289,8 @@ namespace InDet
 	  return false;
 	}
     }
-    
-    const Trk::TrackParameters* extrapolatedParameters= firstmeaspar ?
-      m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ) : 0;
+   
+    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ); 
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
         
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
