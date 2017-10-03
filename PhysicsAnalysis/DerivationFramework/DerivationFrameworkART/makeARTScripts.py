@@ -2,7 +2,7 @@ import os
 
 makeDataDAODs=True
 makeMCDAODs=True
-makeTruthDAODs=False
+makeTruthDAODs=True
 
 formatList = ['PHYSVAL', 
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5', 
@@ -46,6 +46,8 @@ def generateText(formatName,label,inputFile,isTruth):
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
+   outputFile.write("\n")
+   outputFile.write("set -e"+"\n")
    outputFile.write("\n")
    if (isTruth==False): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 5000 "+"--preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "+"\n")
    if (isTruth==True): outputFile.write("Reco_tf.py --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 1000"+"\n")
