@@ -37,19 +37,19 @@ namespace FCS_Param
                              const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent)
     , m_hitCollName("EventSteps")
-    , m_bpsmodcalc("BarrelPresamplerCalibrationCalculator", name)
-    , m_embcalc("BarrelCalibrationCalculator", name)
-    , m_emepiwcalc("EMECPosInnerWheelCalibrationCalculator", name)
-    , m_emeniwcalc("EMECNegInnerWheelCalibrationCalculator", name)
-    , m_emepowcalc("EMECPosOuterWheelCalibrationCalculator", name)
-    , m_emenowcalc("EMECNegOuterWheelCalibrationCalculator", name)
-    , m_emepscalc("EMECPresamplerCalibrationCalculator", name)
-    , m_emeobarcalc("EMECBackOuterBarretteCalibrationCalculator", name)
-    , m_heccalc("HECCalibrationWheelActiveCalculator", name)
-    , m_fcal1calc("FCAL1CalibCalculator", name)
-    , m_fcal2calc("FCAL2CalibCalculator", name)
-    , m_fcal3calc("FCAL3CalibCalculator", name)
-    , m_minfcalcalc("MiniFCALActiveCalibrationCalculator", name)
+    , m_bpsmodcalc("EMBPresamplerCalculator", name)
+    , m_embcalc("EMBCalculator", name)
+    , m_emepiwcalc("EMECPosInnerWheelCalculator", name)
+    , m_emeniwcalc("EMECNegInnerWheelCalculator", name)
+    , m_emepowcalc("EMECPosOuterWheelCalculator", name)
+    , m_emenowcalc("EMECNegOuterWheelCalculator", name)
+    , m_emepscalc("EMECPresamplerCalculator", name)
+    , m_emeobarcalc("EMECBackOuterBarretteCalculator", name)
+    , m_heccalc("HECWheelCalculator", name)
+    , m_fcal1calc("FCAL1Calculator", name)
+    , m_fcal2calc("FCAL2Calculator", name)
+    , m_fcal3calc("FCAL3Calculator", name)
+    , m_minfcalcalc("MiniFCALCalculator", name)
     , m_tileCalculator("TileGeoG4SDCalc", name)
     , m_larEmID(nullptr)
     , m_larFcalID(nullptr)
@@ -235,11 +235,15 @@ namespace FCS_Param
     // Inject the Calculator into m_config
     FCS_Param::Config config(m_config);
     config.m_LArCalculator = calc;
+    if(!calc) {
+      throw GaudiException("nullptr for ILArCalculatorSvc provided to constructor for: " + sdName,
+                           name(), StatusCode::FAILURE);
+    }
     if(msgLvl(MSG::VERBOSE))    { config.verboseLevel = 10; }
     else if(msgLvl(MSG::DEBUG)) { config.verboseLevel = 5;  }
     // Create the simple SD
    std::unique_ptr<FCS_StepInfoSD> sd =
-      std::make_unique<LArFCS_StepInfoSD>(sdName, m_config);
+      std::make_unique<LArFCS_StepInfoSD>(sdName, config);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID);
 
     // Assign the volumes to the SD
@@ -263,11 +267,15 @@ namespace FCS_Param
     // Inject the Calculator into m_config
     FCS_Param::Config config(m_config);
     config.m_TileCalculator = calc;
+    if(!calc) {
+      throw GaudiException("nullptr for ITileCalculator provided to constructor for: " + sdName,
+                           name(), StatusCode::FAILURE);
+    }
     if(msgLvl(MSG::VERBOSE))    { config.verboseLevel = 10; }
     else if(msgLvl(MSG::DEBUG)) { config.verboseLevel = 5;  }
      // Create the simple SD
     std::unique_ptr<FCS_StepInfoSD> sd =
-      std::make_unique<TileFCS_StepInfoSD>(sdName, m_config);
+      std::make_unique<TileFCS_StepInfoSD>(sdName, config);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID);
 
     // Assign the volumes to the SD
