@@ -32,9 +32,12 @@ FCS_StepInfoSD::~FCS_StepInfoSD()
 {
 }
 
-G4bool FCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
+G4bool FCS_StepInfoSD::ProcessHits(G4Step*,G4TouchableHistory*)
 {
-  //FIXME Complain loudly if this is called!!
+  G4ExceptionDescription description;
+  description << "ProcessHits: Base class method should not be called!!!";
+  G4Exception("FCS_StepInfoSD", "FCSBadCall", FatalException, description);
+  abort();
   return false;
 }
 
@@ -153,6 +156,8 @@ void FCS_StepInfoSD::EndOfAthenaEvent( ISF_FCS_Parametrization::FCS_StepInfoColl
     delete it.second;
   } // Vector of IDs in the map
   m_hit_map.clear();
-  G4cout << "FCS_StepInfoSD::EndOfAthenaEvent: After initial cleanup, N=" << hitContainer->size() << G4endl;
+  if (m_config.verboseLevel > 4) {
+    G4cout << "FCS_StepInfoSD DEBUG EndOfAthenaEvent: After initial cleanup, N=" << hitContainer->size() << G4endl;
+  }
   return;
 }
