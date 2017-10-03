@@ -1721,6 +1721,7 @@ namespace top {
 		if(m_config->getReleaseSeries() == 25){
 		  m_jet_MV2c10mu[i] = -999;
 		  m_jet_MV2c10rnn[i] = -999;
+		  // Cannot currently calculate DLX from the EDM, so only store weight components
 		  m_jet_DL1[i] = -999;
 		  m_jet_DL1mu[i] = -999;
 		  m_jet_DL1rnn[i] = -999;
@@ -1756,9 +1757,7 @@ namespace top {
 		    
 		    // DL1
 		    double _pu, _pc, _pb = -999;
-		    m_jet_DL1[i]    = btag->calcDL1LLR("DL1");
-		    m_jet_DL1mu[i]  = btag->calcDL1LLR("DL1mu");
-		    m_jet_DL1rnn[i] = btag->calcDL1LLR("DL1rnn");
+
 		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
 		    // so just providing the DL1rnn weights to construct tagger offline
 		    btag->pu("DL1rnn",_pu);
@@ -1767,14 +1766,14 @@ namespace top {
 		    m_jet_DL1rnn_pu[i] = _pu;
                     m_jet_DL1rnn_pc[i] = _pc;
                     m_jet_DL1rnn_pb[i] = _pb;		    
-		    
+		    // DL1mu - as above
 		    btag->pu("DL1mu",_pu);
                     btag->pb("DL1mu",_pb);
                     btag->pc("DL1mu",_pc);
 		    m_jet_DL1mu_pu[i] = _pu;
 		    m_jet_DL1mu_pc[i] = _pc;
 		    m_jet_DL1mu_pb[i] = _pb;
-
+		    // DL1 - as above
 		    btag->pu("DL1",_pu);
                     btag->pb("DL1",_pb);
                     btag->pc("DL1",_pc);
