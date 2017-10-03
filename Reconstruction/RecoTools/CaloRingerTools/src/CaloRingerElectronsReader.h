@@ -24,6 +24,10 @@
 // Asg selectors include:
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+
 namespace Ringer {
 
 class CaloRingerElectronsReader : public CaloRingerInputReader, 
@@ -80,16 +84,36 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
      **/
     PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
 	"ElectronSelectors", {}, "The ASG Electron Selectors."};
+
+    /** @brief electron collection input name*/
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_inputElectronContainerKey {this,
+      "inputKey",
+      "Electrons",
+      "Name of the input electron container"};
     /// @}
 
     /// Tool CaloRingerElectronsReader props (non configurables):
     /// @{
-    /// The electron container
-    xAOD::ElectronContainer* m_container;
-    const xAOD::ElectronContainer* m_constContainer;
+
+    /** @brief helper class to contain write docoration handle keys */
+    template<class T> struct writeDecorHandleKeys {
+      StatusCode initializeDecorKeys(const std::string &name); // note, not constructor
+
+      std::vector<SG::WriteDecorHandleKey<T> > keys;
+    };
+    
+    /** @brief helper class to contain write decoration handles */
+    template<class T> struct writeDecorHandles {
+     writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
+      
+      std::vector<SG::WriteDecorHandle<T, char> > selection;
+      std::vector<SG::WriteDecorHandle<T, unsigned int> > isEM;
+      std::vector<SG::WriteDecorHandle<T, float> > lhood;
+
+    };
 
     /// The CaloRings Builder functor:
-    BuildCaloRingsFctor<xAOD::Electron> *m_clRingsBuilderElectronFctor;
+    BuildCaloRingsFctor<const xAOD::Electron> *m_clRingsBuilderElectronFctor;
 
     /// Whether selectors are available
     Gaudi::Property<bool> m_selectorsAvailable {this, 

@@ -8,9 +8,8 @@
 
 #include <algorithm>
 
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
 #include "PATCore/TAccept.h"
+#include "StoreGate/ReadHandle.h"
 
 namespace Ringer {
 
@@ -19,8 +18,6 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent) :
   CaloRingerInputReader(type, name, parent),
-  m_container(nullptr),
-  m_constContainer(nullptr),
   m_clRingsBuilderElectronFctor(nullptr)
 {
 
@@ -41,6 +38,8 @@ StatusCode CaloRingerElectronsReader::initialize()
 
   CHECK( CaloRingerInputReader::initialize() );
 
+  ATH_CHECK(m_inputElectronContainerKey.initialize());
+
   if ( m_selectorsAvailable ) {
     CHECK( retrieveSelectors() );
   }
@@ -48,7 +47,7 @@ StatusCode CaloRingerElectronsReader::initialize()
   if ( m_builderAvailable ) {
     // Initialize our fctor
     m_clRingsBuilderElectronFctor =
-      new BuildCaloRingsFctor<xAOD::Electron>(
+      new BuildCaloRingsFctor<const xAOD::Electron>(
         m_crBuilder,
         msg()
       );
@@ -87,50 +86,23 @@ StatusCode CaloRingerElectronsReader::execute()
 
   ATH_MSG_DEBUG("Entering " << name() << " execute, m_builderAvailable = " << m_builderAvailable);
 
-  xAOD::ElectronAuxContainer* crAux{nullptr};
-
-  // Retrieve electrons
-  if ( m_builderAvailable ) {
-
-    if ( evtStore()->retrieve( m_container, m_inputKey).isFailure() )
-    {
-      ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
-      return StatusCode::FAILURE;
-    }
-  } else {
-
-    ATH_MSG_DEBUG("No builder available, will work on copies!");
-
-    if ( evtStore()->retrieve( m_constContainer, m_inputKey).isFailure() ){
-      ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
-      return StatusCode::FAILURE;
-    }
-
-    // Create container to hold new information
-    m_container = new xAOD::ElectronContainer();
-    m_container->reserve( m_constContainer->size() );
-
-    // Create its aux container and set it:
-    crAux = new xAOD::ElectronAuxContainer();
-    crAux->reserve( m_constContainer->size() );
-    m_container->setStore( crAux );
-
-    // Copy information to non_const container
-    for ( const xAOD::Electron *el : *m_constContainer ) {
-      auto elCopy = new xAOD::Electron(*el);
-      m_container->push_back( elCopy );
-    }
+   // Retrieve photons 
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_inputElectronContainerKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!electrons.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_inputElectronContainerKey.key());
+    return StatusCode::FAILURE;
   }
 
   // Check if requested to run CaloRings Builder:
   if ( m_builderAvailable ) {
     // Set current container size:
-    m_clRingsBuilderElectronFctor->prepareToLoopFor(m_container->size());
+    m_clRingsBuilderElectronFctor->prepareToLoopFor(electrons->size());
 
     // loop over our particles:
     std::for_each( 
-        m_container->begin(), 
-        m_container->end(), 
+        electrons->begin(), 
+        electrons->end(), 
         *m_clRingsBuilderElectronFctor );
   }
 
@@ -138,7 +110,7 @@ StatusCode CaloRingerElectronsReader::execute()
 
   // Run selectors, if available:
   for ( const auto& selector : m_ringerSelectors ) {
-    for ( xAOD::Electron *el : *m_container ) {
+    for ( const xAOD::Electron *el : *electrons ) {
 
       // Execute selector for each electron
       StatusCode lsc = selector->execute(el);
@@ -182,17 +154,6 @@ StatusCode CaloRingerElectronsReader::execute()
           selector->name() + std::string("_output")
         );
     }
-  }
-
-  if ( ! m_builderAvailable ) {
-    // In case we worked on copies, place the container on EventStore and set
-    // it to be const:
-    CHECK( evtStore()->overwrite( crAux, 
-          m_inputKey + "Aux.", 
-          /*allowMods = */ false) );
-    CHECK( evtStore()->overwrite( m_container, 
-          m_inputKey, 
-          /*allowMods = */ false) );
   }
 
   return sc;

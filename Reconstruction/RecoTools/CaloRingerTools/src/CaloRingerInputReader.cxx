@@ -20,9 +20,6 @@ CaloRingerInputReader::CaloRingerInputReader(const std::string& type,
   // declare interface
   declareInterface<ICaloRingerInputReader>(this);
 
-  // The input container key 
-  declareProperty("inputKey", m_inputKey, "The input container key" );
-
 }
 
 // =============================================================================

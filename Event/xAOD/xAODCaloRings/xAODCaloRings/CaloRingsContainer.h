@@ -24,7 +24,7 @@ typedef CaloRingsContainer_v1 CaloRingsContainer;
 typedef std::vector< ElementLink< CaloRingsContainer > >
   CaloRingsLinks;
 /// The CaloRings element links decorator type:
-typedef SG::AuxElement::Accessor< xAOD::CaloRingsLinks > 
+typedef SG::AuxElement::Decorator< xAOD::CaloRingsLinks > 
   caloRingsDeco_t;
 /// The CaloRings element links reader type:
 typedef SG::AuxElement::ConstAccessor< xAOD::CaloRingsLinks > 

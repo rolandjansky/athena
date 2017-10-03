@@ -71,10 +71,6 @@ class CaloRingerInputReader : public ::AthAlgTool,
      **/
     PublicToolHandle<ICaloRingsBuilder> m_crBuilder {this,
 	"crBuilder", "", "CaloRingsBuilder Tool"};
-    /** 
-     * @brief the input key to retrieve at StoreGate.
-     **/
-    std::string m_inputKey;
     /// @}
 
     /// Tool CaloRingerInputReader props (non configurables):

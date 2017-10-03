@@ -148,7 +148,7 @@ StatusCode egammaTrackSlimmer::execute() {
   //Photon vertex thinning
   SG::ReadHandle<xAOD::PhotonContainer> photons(m_InputPhotonContainerKey);
   // check is only used for serial running; remove when MT scheduler used
-  if(!electrons.isValid()) {
+  if(!photons.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_InputPhotonContainerKey.key());
     return StatusCode::FAILURE;
   }

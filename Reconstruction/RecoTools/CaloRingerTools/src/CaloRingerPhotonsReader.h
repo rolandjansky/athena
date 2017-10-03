@@ -25,6 +25,7 @@
 // Asg selectors include:
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
 
+#include "StoreGate/ReadHandleKey.h"
 
 namespace Ringer {
 
@@ -83,16 +84,21 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
      **/
     Gaudi::Property<std::vector<std::string> > m_ringerSelectorResultNames {this,
 	"ResultNames", {}, "The ASG Selectors result names."};
+
+
+    /** @brief photon collection input name*/
+    SG::ReadHandleKey<xAOD::PhotonContainer> m_inputPhotonContainerKey {this,
+      "inputKey",
+      "Photons",
+      "Name of the input photon container"};
     /// @}
 
 
     /// Tool CaloRingerPhotonsReader props (non configurables):
     /// @{
-    /// The Photon container
-    xAOD::PhotonContainer* m_container;
 
     /// The CaloRings Builder functor:
-    BuildCaloRingsFctor<xAOD::Photon> *m_clRingsBuilderPhotonFctor;
+    BuildCaloRingsFctor<const xAOD::Photon> *m_clRingsBuilderPhotonFctor;
 
     /// Whether selectors are available
     //bool m_selectorAvailable;
