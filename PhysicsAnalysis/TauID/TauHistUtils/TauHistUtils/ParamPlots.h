@@ -9,8 +9,8 @@
 #include "xAODBase/IParticle.h"
 
 namespace Tau{
-   
-   class ParamPlots:public PlotBase {
+
+class ParamPlots:public PlotBase {
    public:      
       ParamPlots(PlotBase *pParent, std::string sDir, std::string sParticleType);
       ~ParamPlots();
@@ -26,8 +26,8 @@ namespace Tau{
    private:
       void initializePlots();
       std::string m_sParticleType;
-   };
-   
+};
+
 }
 
 #endif // TRKVALHISTUTILS_PARAMPLOTS_H

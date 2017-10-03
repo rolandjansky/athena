@@ -11,8 +11,8 @@
 #include "xAODTau/TauDefs.h"
 
 namespace Tau{
-   
-   class GeneralTauPlots: public PlotBase {
+
+class GeneralTauPlots: public PlotBase {
    public:
       GeneralTauPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
       virtual ~GeneralTauPlots();
@@ -30,12 +30,12 @@ namespace Tau{
       TH1* m_pt_jetBDTlooseHighPt;
       TH1* m_pt_jetBDTmedHighPt;
       TH1* m_pt_jetBDTtightHighPt;
-      
+
    private:
       void initializePlots();
       std::string m_sTauJetContainerName;
-   };
-   
+};
+
 }
 
 #endif

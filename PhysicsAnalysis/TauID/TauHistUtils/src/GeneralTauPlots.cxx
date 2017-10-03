@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "TauHistUtils/GeneralTauPlots.h"
 
 namespace Tau{
@@ -20,15 +21,14 @@ GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::strin
    m_pt_jetBDTmedHighPt(nullptr),
    m_pt_jetBDTtightHighPt(nullptr),
    m_sTauJetContainerName(sTauJetContainerName)
-{       
+{	
 }
 
 GeneralTauPlots::~GeneralTauPlots()
 {
 }
 
-void GeneralTauPlots::initializePlots()
-{
+void GeneralTauPlots::initializePlots(){
    // m_oParamPlots.initialize();
    m_tauCharge      = Book1D("Charge",m_sTauJetContainerName + " Tau charge; charge; # Taus",7,-3.,4.);
    m_tauNCoreTracks = Book1D("NCoreTracks",m_sTauJetContainerName + " Tau n core tracks; nCore; # Taus",10,0.,10.);
@@ -43,27 +43,25 @@ void GeneralTauPlots::initializePlots()
    m_pt_jetBDTtightHighPt = Book1D("Pt_jetBDTtigthHighPt",m_sTauJetContainerName + " Tight tau pt; pt; # Taus", 20, 0.0, 1500.0);
 }
 
-void GeneralTauPlots::fill(const xAOD::TauJet& tau)
-{
-   m_oParamPlots.fill(tau);
-   m_tauCharge->Fill(tau.charge(), 1.); 
-   m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
-   m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), 1.);
-   if ( tau.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore) ) {
-      m_id_BDTJetScore->Fill(tau.discriminant(xAOD::TauJetParameters::BDTJetScore));
-   }
-   if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) {
-      m_pt_jetBDTloose       -> Fill(tau.pt()/1000, 1.0);
-      m_pt_jetBDTlooseHighPt -> Fill(tau.pt()/1000, 1.0);
-   }
-   if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) ) {
-      m_pt_jetBDTmed       -> Fill(tau.pt()/1000, 1.0);
-      m_pt_jetBDTmedHighPt -> Fill(tau.pt()/1000, 1.0);
-   }
-   if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigTight) ) {
-      m_pt_jetBDTtight       -> Fill(tau.pt()/1000, 1.0);
-      m_pt_jetBDTtightHighPt -> Fill(tau.pt()/1000, 1.0);
-   }
+void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
+  m_oParamPlots.fill(tau);
+  m_tauCharge->Fill(tau.charge(), 1.); 
+  m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
+  //  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
+  m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), 1.); // 
+  if( tau.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore) )m_id_BDTJetScore->Fill(tau.discriminant(xAOD::TauJetParameters::BDTJetScore));
+  if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) {
+     m_pt_jetBDTloose       -> Fill(tau.pt()/1000, 1.0);
+     m_pt_jetBDTlooseHighPt -> Fill(tau.pt()/1000, 1.0);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) ) {
+     m_pt_jetBDTmed       -> Fill(tau.pt()/1000, 1.0);
+     m_pt_jetBDTmedHighPt -> Fill(tau.pt()/1000, 1.0);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigTight) ) {
+     m_pt_jetBDTtight       -> Fill(tau.pt()/1000, 1.0);
+     m_pt_jetBDTtightHighPt -> Fill(tau.pt()/1000, 1.0);
+  }
 
 }
 

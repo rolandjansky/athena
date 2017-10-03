@@ -15,7 +15,7 @@ EfficiencyPtPlots::EfficiencyPtPlots(PlotBase* pParent, std::string sDir, std::s
    m_eff_jetBDTmed(nullptr),
    m_eff_jetBDTtight(nullptr),
    m_sTauJetContainerName(sTauJetContainerName)
-{       
+{	
 }
 
 EfficiencyPtPlots::~EfficiencyPtPlots()
@@ -58,7 +58,7 @@ void EfficiencyPtPlots::fill(const xAOD::TauJet& tau)
       m_eff_pt_jetBDTmedHighPt->Fill(tau.pt()/1000, 0.0, 1.0);
       m_eff_jetBDTmed         ->Fill(0.0,           0.0, 1.0);
    }
-   
+
    if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigTight) ) {
       m_eff_pt_jetBDTtight      ->Fill(tau.pt()/1000, 1.0, 1.0);
       m_eff_pt_jetBDTtightHighPt->Fill(tau.pt()/1000, 1.0, 1.0);
