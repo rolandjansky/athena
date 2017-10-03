@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZdcRawChannelCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -46,6 +47,7 @@ void testit (const ZdcRawChannel& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ZdcRawChannel trans1 (Identifier (1234));
   trans1.setSize (3);

@@ -8,7 +8,7 @@
 
 void ZDC_SimStripHitCnv_p1::persToTrans(const ZDC_SimStripHit_p1* persObj, ZDC_SimStripHit* transObj, MsgStream& log) {
 
-  log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::persToTrans " << endreq;
+  log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::persToTrans " << endmsg;
 
   *transObj = ZDC_SimStripHit (persObj->Side,
                                persObj->ModNo,
@@ -18,7 +18,7 @@ void ZDC_SimStripHitCnv_p1::persToTrans(const ZDC_SimStripHit_p1* persObj, ZDC_S
 
 void ZDC_SimStripHitCnv_p1::transToPers(const ZDC_SimStripHit* transObj, ZDC_SimStripHit_p1* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::transToPers " << endreq;
+  log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::transToPers " << endmsg;
 
   persObj->Side 	   = transObj->GetSide();
   persObj->ModNo	   = transObj->GetMod();

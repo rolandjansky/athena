@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZDC_SimPixelHit_CollectionCnv_p1.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -55,6 +56,8 @@ void testit (const ZDC_SimPixelHit_Collection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  ZDC_SimPixelHit_Collection dum1 ("coll");
+  Athena_test::Leakcheck check;
 
   ZDC_SimPixelHit_Collection trans1 ("coll");
   for (int i = 0; i < 10; i++) {

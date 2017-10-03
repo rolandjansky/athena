@@ -9,7 +9,7 @@
 
 ZdcDigitsCollection_PERS* ZdcDigitsCollectionCnv::createPersistent(ZdcDigitsCollection* transCont) {
 
-    MsgStream mlog(messageService(), "ZdcDigitsCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZdcDigitsCollectionConverter" );
     ZdcDigitsCollectionCnv_p1   converter;
     ZdcDigitsCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
 
@@ -20,7 +20,7 @@ ZdcDigitsCollection_PERS* ZdcDigitsCollectionCnv::createPersistent(ZdcDigitsColl
 ZdcDigitsCollection* ZdcDigitsCollectionCnv::createTransient() {
 
 
-    MsgStream mlog(messageService(), "ZdcDigitsCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZdcDigitsCollectionConverter" );
     ZdcDigitsCollectionCnv_p1   converter_p1;
 
     ZdcDigitsCollection       *trans_cont(0);

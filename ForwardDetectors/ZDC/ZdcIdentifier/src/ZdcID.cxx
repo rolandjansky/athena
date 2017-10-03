@@ -24,16 +24,16 @@ int
 ZdcID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
     MsgStream log(m_msgSvc, "ZdcID");
-    log << MSG::INFO << "Initialize from dictionary" << endreq;
+    log << MSG::INFO << "Initialize from dictionary" << endmsg;
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
         if (m_msgSvc) {
-            log << MSG::DEBUG << "(Re)initialize" << endreq;
+            log << MSG::DEBUG << "(Re)initialize" << endmsg;
         }
         else {
             std::cout  << " DEBUG (Re)initialize" << std::endl;
@@ -48,7 +48,7 @@ ZdcID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
     m_dict = dict_mgr.find_dictionary ("ForwardDetectors"); 
     if(!m_dict) {
-        log << MSG::ERROR << " ZdcID::initialize_from_dict - cannot access ForwardDetectors dictionary " << endreq;
+        log << MSG::ERROR << " ZdcID::initialize_from_dict - cannot access ForwardDetectors dictionary " << endmsg;
         return 1;
     }
 
@@ -67,7 +67,7 @@ ZdcID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (atlasDict->get_label_value("subdet", "ForwardDetectors", fwdField)) {
         log << MSG::ERROR << "Could not get value for label 'ForwardDetectors' of field 'subdet' in dictionary " 
             << atlasDict->m_name
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -76,7 +76,7 @@ ZdcID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "ZDC", zdcField)) {
         log << MSG::ERROR << "Could not get value for label 'ZDC' of field 'part' in dictionary " 
             << m_dict->m_name
-            << endreq;
+            << endmsg;
         return (1);
     }
     if (m_msgSvc) {
@@ -101,13 +101,13 @@ ZdcID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_full_channel_range = m_dict->build_multirange(region_id, prefix);
 
     if (m_msgSvc) {
-        log << MSG::INFO << " ZdcID::initialize_from_dict "  << endreq;
+        log << MSG::INFO << " ZdcID::initialize_from_dict "  << endmsg;
         log << MSG::DEBUG
             << "Module  range -> " << (std::string)m_full_module_range
-            << endreq;
+            << endmsg;
         log << MSG::DEBUG
             << "Channel range -> " << (std::string)m_full_channel_range
-            << endreq;
+            << endmsg;
     }
     else {
         std::cout << " INFO ZdcID::initialize_from_dict "  << std::endl;
@@ -130,7 +130,7 @@ ZdcID::initLevelsFromDict(void)
 {
     MsgStream log(m_msgSvc, "ZdcID");
     if(!m_dict) {
-        log << MSG::ERROR << " ZdcID::initLevelsFromDict - dictionary NOT initialized " << endreq;
+        log << MSG::ERROR << " ZdcID::initLevelsFromDict - dictionary NOT initialized " << endmsg;
         return (1);
     }
     
@@ -151,7 +151,7 @@ ZdcID::initLevelsFromDict(void)
     if (m_dict->find_region(id, m_zdc_region_index)) {
         log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find zdc region index: id, reg "  
             << (std::string)id << " " << m_zdc_region_index
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -161,7 +161,7 @@ ZdcID::initLevelsFromDict(void)
         m_FORWARD_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'subdet' field "  << endreq;
+        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'subdet' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("part");
@@ -169,7 +169,7 @@ ZdcID::initLevelsFromDict(void)
         m_ZDC_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'part' field "  << endreq;
+        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'part' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("side");
@@ -177,7 +177,7 @@ ZdcID::initLevelsFromDict(void)
         m_SIDE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'side' field "  << endreq;
+        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'side' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("module");
@@ -185,7 +185,7 @@ ZdcID::initLevelsFromDict(void)
         m_MODULE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'module' field "   << endreq;
+        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'module' field "   << endmsg;
         return (1);
     }
     field = m_dict->find_field("type");
@@ -193,7 +193,7 @@ ZdcID::initLevelsFromDict(void)
         m_TYPE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR<< "ZdcID::initLevelsFromDict - unable to find 'type' field "  << endreq;
+        log << MSG::ERROR<< "ZdcID::initLevelsFromDict - unable to find 'type' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("channel");
@@ -201,7 +201,7 @@ ZdcID::initLevelsFromDict(void)
         m_CHANNEL_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'channel' field " << endreq;        
+        log << MSG::ERROR << "ZdcID::initLevelsFromDict - unable to find 'channel' field " << endmsg;        
         return (1);
     }
     
@@ -217,13 +217,13 @@ ZdcID::initLevelsFromDict(void)
     m_channel_impl  = region.m_implementation[m_CHANNEL_INDEX]; 
 
     if (m_msgSvc) {
-        log << MSG::DEBUG << "decode index and bit fields for each level: "  << endreq;
-        log << MSG::DEBUG << "forward  "  << m_forward_impl.show_to_string() << endreq;
-        log << MSG::DEBUG << "zdc      "  << m_zdc_impl.show_to_string()     << endreq; 
-        log << MSG::DEBUG << "side     "  << m_side_impl.show_to_string()    << endreq; 
-        log << MSG::DEBUG << "module   "  << m_module_impl.show_to_string()  << endreq; 
-        log << MSG::DEBUG << "type     "  << m_type_impl.show_to_string()    << endreq; 
-        log << MSG::DEBUG << "channel  "  << m_channel_impl.show_to_string() << endreq; 
+        log << MSG::DEBUG << "decode index and bit fields for each level: "  << endmsg;
+        log << MSG::DEBUG << "forward  "  << m_forward_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "zdc      "  << m_zdc_impl.show_to_string()     << endmsg; 
+        log << MSG::DEBUG << "side     "  << m_side_impl.show_to_string()    << endmsg; 
+        log << MSG::DEBUG << "module   "  << m_module_impl.show_to_string()  << endmsg; 
+        log << MSG::DEBUG << "type     "  << m_type_impl.show_to_string()    << endmsg; 
+        log << MSG::DEBUG << "channel  "  << m_channel_impl.show_to_string() << endmsg; 
     }
     else {
         std::cout << " DEBUG decode index and bit fields for each level: "  << std::endl;
@@ -266,7 +266,7 @@ ZdcID::init_hashes(void)
                 log << MSG::ERROR << " ZDC_ID::init_hashes "
                     << " Error: duplicated id for module id. nid " << nids
                     << " compact id " << MSG::hex << id.get_compact() << MSG::dec
-                    << " id " << (std::string)exp_id << endreq;
+                    << " id " << (std::string)exp_id << endmsg;
 		return (1);
 	    }
 	    nids++;
@@ -276,7 +276,7 @@ ZdcID::init_hashes(void)
         log << MSG::ERROR << " ZDC_ID::init_hashes "
             << " Error: set size NOT EQUAL to hash max. size " << ids.size()
             << " hash max " << m_module_hash_max 
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -308,7 +308,7 @@ ZdcID::init_hashes(void)
                 log << MSG::ERROR << " ZDC_ID::init_hashes "
                     << " Error: duplicated id for channel id. nid " << nids
                     << " compact id " << MSG::hex << id.get_compact() << MSG::dec
-                    << " id " << (std::string)exp_id << endreq;
+                    << " id " << (std::string)exp_id << endmsg;
 		return (1);
 	    }
 	    nids++;
@@ -318,7 +318,7 @@ ZdcID::init_hashes(void)
         log << MSG::ERROR << " ZDC_ID::init_hashes "
             << " Error: set size NOT EQUAL to hash max. size " << ids.size()
             << " hash max " << m_channel_hash_max 
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -350,7 +350,7 @@ ZdcID::test_packing    (void) const
                                           module(id));
 	    if (id != new_id) {
                 log << MSG::ERROR << "ZDC_ID::test_packing: new and old compacts not equal. New/old/expanded ids " 
-                    << show_to_string(id) << " " << show_to_string(new_id) << endreq;
+                    << show_to_string(id) << " " << show_to_string(new_id) << endmsg;
 		nerr++;
 		continue;
 	    }
@@ -358,7 +358,7 @@ ZdcID::test_packing    (void) const
 	    Identifier new_id_1   = module_id(idHash);
 	    if (id != new_id_1) {
                 log << MSG::ERROR << "ZDC_ID::test_packing: new and old compacts from hash not equal. New/old/expanded ids. hash " << idHash << " " 
-                    << show_to_string(id) << " " << show_to_string(new_id_1) << endreq;
+                    << show_to_string(id) << " " << show_to_string(new_id_1) << endmsg;
 		nerr++;
 		continue;
 	    }
@@ -369,7 +369,7 @@ ZdcID::test_packing    (void) const
 
 	if (m_msgSvc) {	
 	    log << MSG::DEBUG << "ZDC_ID::test_packing: tested module ids. nids, errors " 
-		<< nids << " " << nerr << endreq;
+		<< nids << " " << nerr << endmsg;
 	}
 	else {
 	    std::cout << " DEBUG ZDC_ID::test_packing: tested module ids. nids, errors " 
@@ -386,7 +386,7 @@ ZdcID::test_packing    (void) const
                                            channel(id));
 	    if (id != new_id) {
                 log << MSG::ERROR << "ZDC_ID::test_packing: new and old compacts not equal. New/old/expanded ids " 
-                    << show_to_string(id) << " " << show_to_string(new_id) << endreq;
+                    << show_to_string(id) << " " << show_to_string(new_id) << endmsg;
 		nerr++;
 		continue;
 	    }
@@ -394,7 +394,7 @@ ZdcID::test_packing    (void) const
 	    Identifier new_id_1   = channel_id(idHash);
 	    if (id != new_id_1) {
                 log << MSG::ERROR << "ZDC_ID::test_packing: new and old compacts from hash not equal. New/old/expanded ids hash " << idHash << " " 
-                    << show_to_string(id) << " " << show_to_string(new_id_1) << endreq;
+                    << show_to_string(id) << " " << show_to_string(new_id_1) << endmsg;
 		nerr++;
 		continue;
 	    }
@@ -406,7 +406,7 @@ ZdcID::test_packing    (void) const
 
 	if (m_msgSvc) {	
 	    log << MSG::DEBUG << "ZDC_ID::test_packing: tested channel ids. nids, errors " 
-		<< nids << " " << nerr << endreq;
+		<< nids << " " << nerr << endmsg;
 	}
 	else {
 	    std::cout << " DEBUG ZDC_ID::test_packing: tested channel ids. nids, errors " 
@@ -416,7 +416,7 @@ ZdcID::test_packing    (void) const
 	if (m_msgSvc) {
 	    log << MSG::DEBUG << "ZDC_ID::test_packing: Successful tested " 
 		<< nids << " ids. " 
-		<< endreq;
+		<< endmsg;
 	}
 	else {
 	    std::cout << " DEBUG ZDC_ID::test_packing: Successful tested " 
@@ -426,7 +426,7 @@ ZdcID::test_packing    (void) const
     }
     else {
         log << MSG::ERROR << "ZDC_ID::test_packing: Unable to test module/channel is packing - no dictionary has been defined. " 
-            << endreq;
+            << endmsg;
     }
 }
 

@@ -50,7 +50,7 @@ ZdcByteStreamRawDataV2::~ZdcByteStreamRawDataV2()
 StatusCode ZdcByteStreamRawDataV2::initialize()
 {
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endreq;
+			<< endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -66,16 +66,16 @@ StatusCode ZdcByteStreamRawDataV2::execute()
 	//ZdcDigitsCollection* ttCollection = 0;
 	const DataHandle<xAOD::TriggerTowerContainer> ttCollection;
 
-	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation << endreq;
+	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation << endmsg;
 
 	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcTriggerTowerContainerLocation);
 	if (sc.isFailure() || !ttCollection || ttCollection->empty())
 	{
-		msg() << "No Zdc Digits found" << endreq;
+		msg() << "No Zdc Digits found" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
-	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endreq;
+	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -95,7 +95,7 @@ StatusCode ZdcByteStreamRawDataV2::finalize()
 //FIXME There is no such thing like ZdcDigitsMap
 void ZdcByteStreamRawDataV2::printZdcTriggerTowers() const
 {
-  //msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endreq;
+  //msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endmsg;
 // 	ZdcDigitsMap::const_iterator mapIter = m_ZdcDigitsMap.begin();
 // 	ZdcDigitsMap::const_iterator mapEnd = m_ZdcDigitsMap.end();
 }

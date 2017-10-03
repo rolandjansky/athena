@@ -15,7 +15,7 @@
 
 ZDC_SimPixelHit_Collection_PERS* ZDC_SimPixelHit_CollectionCnv::createPersistent(ZDC_SimPixelHit_Collection* transCont) {
 
-    MsgStream mlog(messageService(), "ZDC_SimPixelHit_CollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZDC_SimPixelHit_CollectionConverter" );
     ZDC_SimPixelHit_CollectionCnv_p1   converter;
     ZDC_SimPixelHit_Collection_PERS *persObj = converter.createPersistent( transCont, mlog );
 
@@ -26,7 +26,7 @@ ZDC_SimPixelHit_Collection_PERS* ZDC_SimPixelHit_CollectionCnv::createPersistent
 ZDC_SimPixelHit_Collection* ZDC_SimPixelHit_CollectionCnv::createTransient() {
 
 
-    MsgStream mlog(messageService(), "ZDC_SimPixelHit_CollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZDC_SimPixelHit_CollectionConverter" );
     ZDC_SimPixelHit_CollectionCnv_p1   converter_p1;
 
     ZDC_SimPixelHit_Collection       *trans_cont(0);

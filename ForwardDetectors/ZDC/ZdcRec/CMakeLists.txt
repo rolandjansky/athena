@@ -32,7 +32,7 @@ atlas_add_library( ZdcRecLib
                    PUBLIC_HEADERS ZdcRec
                    INCLUDE_DIRS ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AsgTools AthenaBaseComps xAODForward xAODTrigL1Calo ZdcEvent GaudiKernel StoreGateLib SGtests ZdcByteStreamLib ZDCAnalysisLib
+                   LINK_LIBRARIES ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AsgTools AthenaBaseComps xAODForward xAODTrigL1Calo ZdcEvent GaudiKernel StoreGateLib SGtests ZdcByteStreamLib ZdcAnalysisLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ZdcConditions ZdcIdentifier )
 
 atlas_add_component( ZdcRec
