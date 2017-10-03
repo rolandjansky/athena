@@ -28,8 +28,8 @@ setupATLAS
 asetup AthAnalysis,21.2.5
 ```
 
-For working with code, a sparse checkout is pretty straightforward::
-In order for this to work, you need your own fork of the athena project, see the [ATLAS git tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/)
+For working with code, a sparse checkout is pretty straightforward  
+In order for this to work, you need your own fork of the athena project, see the [ATLAS git tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/)  
 
 ```bash
 git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
@@ -39,7 +39,7 @@ And then the version of SUSYTools in the release can be checked out via::
 
 ```bash
 cd athena
-git checkout upstream/21.2
+git checkout 21.2.5
 git atlas addpkg SUSYTools
 ```
 
