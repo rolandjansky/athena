@@ -89,7 +89,16 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     m_histTopoDaqRobSimNotHdwResult(0),
     m_histTopoDaqRobHdwNotSimResult(0),
     m_setTopoSimResult(false),
-    m_firstEvent(true)
+    m_firstEvent(true),
+    m_acceptThisEvent(false),
+    m_hasGenericRoiError(false),
+    m_hasGenericDaqError(false),
+    m_hasCrcTobError(false),
+    m_hasCrcFibreError(false),
+    m_hasCrcDaqError(false),
+    m_hasRoibDaqDifference(false),
+    m_hasRoibCtpDifference(false),
+    m_hasDaqCtpDifference(false)
 {
     m_scaler = new HLT::PeriodicScaler();
     declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910000, 0x00910010, 0x00910020}, "L1TOPO DAQ ROB IDs");
@@ -105,6 +114,14 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     declareProperty("SimTopoOverflowCTPLocation", m_simTopoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation,
                     "StoreGate key of simulated topo overflow output for CTP" );
     declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
+    declareProperty("AcceptGenericRoiError"  , m_acceptGenericRoiError=false,   "accept event with Generic Roi error"  );
+    declareProperty("AcceptGenericDaqError"  , m_acceptGenericDaqError=false,   "accept event with Generic Daq error"  );
+    declareProperty("AcceptCrcTobError"      , m_acceptCrcTobError=false,       "accept event with CrcTob error"      );
+    declareProperty("AcceptCrcFibreError"    , m_acceptCrcFibreError=false,     "accept event with CrcFibre error"    );
+    declareProperty("AcceptCrcDaqError"      , m_acceptCrcDaqError=false,       "accept event with CrcDaq error"      );
+    declareProperty("AcceptRoibDaqDifference", m_acceptRoibDaqDifference=false, "accept event with Roib Daq Difference");
+    declareProperty("AcceptRoibCtpDifference", m_acceptRoibCtpDifference=false, "accept event with Roib Ctp Difference");
+    declareProperty("AcceptDaqCtpDifference" , m_acceptDaqCtpDifference=false,  "accept event with Daq Ctp Difference");
 }
 //----------------------------------------------------------
 HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
@@ -135,6 +152,15 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
                                                unsigned int output)
 {
     ATH_MSG_DEBUG ("execute");
+    m_acceptThisEvent = false;
+    m_hasGenericRoiError = false;
+    m_hasGenericDaqError = false;
+    m_hasCrcTobError = false;
+    m_hasCrcFibreError = false;
+    m_hasCrcDaqError = false;
+    m_hasRoibDaqDifference = false;
+    m_hasRoibCtpDifference = false;
+    m_hasDaqCtpDifference = false;
     //--------------------------------------------------------------------------
     // check that there is still time left
     //--------------------------------------------------------------------------
@@ -195,25 +221,20 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
         (doWriteValData());
     }
 
+    const bool anythingToAccept = (
+        (m_acceptGenericRoiError   and m_hasGenericRoiError) or
+        (m_acceptGenericDaqError   and m_hasGenericDaqError) or
+        (m_acceptCrcTobError       and m_hasCrcTobError) or
+        (m_acceptCrcFibreError     and m_hasCrcFibreError) or
+        (m_acceptCrcDaqError       and m_hasCrcDaqError) or
+        (m_acceptRoibDaqDifference and m_hasRoibDaqDifference) or
+        (m_acceptRoibCtpDifference and m_hasRoibCtpDifference) or
+        (m_acceptDaqCtpDifference  and m_hasDaqCtpDifference));
     // DG-2017-10-02 ASK-WERNER: do we need to output an empty seed?
     std::vector<HLT::TriggerElement*> empty_seed;
+    output = anythingToAccept;
     HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
-    te->setActiveState(true);
-
-    // DG-2017-10-02 ASK-WERNER: do we need to output a Composite? (see L1CorrelationAlgo)
-    // m_passBitContainer = new xAOD::TrigCompositeContainer();
-    // xAOD::TrigCompositeAuxContainer compAux;
-    // m_passBitContainer->setStore(&compAux);    
-    // xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
-    // m_passBitContainer->push_back(compObj); //add jets to the composite container
-    // compObj->setName("mistimemon_L1Dec");
-    // compObj->setDetail( "l1a_type", m_l1a_type);
-    // compObj->setDetail( "other_type", m_other_type);
-    // compObj->setDetail( "beforeafterflag", m_beforeafterflag);    
-    // /*HLT::ErrorCode hltStatus =*/ attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
-
-    // if (anything suspicious) accept;
-    // else reject;
+    te->setActiveState(true); // is this correct?
     return HLT::OK;
 
 }
@@ -476,11 +497,13 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
         if (! errors.empty()){
             ATH_MSG_INFO( "ROI Converter errors reported: "<<errors );
             m_histTopoProblems->Fill(static_cast<float>(Problems::ROI_CNV_ERR));
+            m_hasGenericRoiError = true;
         }
         const std::vector<uint32_t> cDataWords = rdo.getDataWords();
         if ( cDataWords.empty() ) {
             ATH_MSG_INFO( "L1TopoRDO ROI payload is empty" );
             m_histTopoProblems->Fill(static_cast<float>(Problems::ROI_PAYLOAD_EMPTY));
+            m_hasGenericRoiError = true;
         }
         for (auto word : cDataWords){
             ATH_MSG_VERBOSE( "got ROI word: "<<L1Topo::formatHex8(word) );
@@ -496,6 +519,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
                 for (bool crc: {tob.crc_EM(), tob.crc_Tau(), tob.crc_Muon(), tob.crc_Jet(), tob.crc_Energy()}){
                     if (crc){
                         m_histInputLinkCRCfromROIConv->Fill(ibin);
+                        m_hasCrcTobError = true;
                     }
                     ibin++;
                 }
@@ -522,6 +546,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
             {
                 ATH_MSG_WARNING( "unexpected TOB type in ROI: "<<L1Topo::formatHex8(word) );
                 m_histTopoProblems->Fill(static_cast<float>(Problems::ROI_BAD_TOB));
+                m_hasGenericRoiError = true;
                 break;
             }
             }
@@ -554,9 +579,11 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
         if (sc.isFailure() or 0 == rdos) {
             ATH_MSG_INFO ( "Could not retrieve L1Topo DAQ RDO collection from StoreGate" );
             m_histTopoProblems->Fill(static_cast<float>(Problems::DAQ_NO_RDO));
+            m_hasGenericDaqError = true;
         } else if (rdos->empty()) {
             ATH_MSG_INFO ( "L1Topo DAQ RDO collection is empty" );
             m_histTopoProblems->Fill(static_cast<float>(Problems::DAQ_COLL_EMPTY));
+            m_hasGenericDaqError = true;
         } else {
             // loop over and print RDOs
             for (auto & rdo : *rdos){
@@ -567,11 +594,13 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
                 if (! errors.empty()){
                     ATH_MSG_INFO( "DAQ Converter errors reported: "<<errors );
                     m_histTopoProblems->Fill(static_cast<float>(Problems::DAQ_CNV_ERR));
+                    m_hasGenericDaqError = true;
                 }
                 const std::vector<uint32_t> cDataWords = rdo->getDataWords();
                 if ( cDataWords.empty() ) {
                     ATH_MSG_INFO ( "L1TopoRDO DAQ payload is empty" );
                     m_histTopoProblems->Fill(static_cast<float>(Problems::DAQ_PAYLOAD_EMPTY));
+                    m_hasGenericDaqError = true;
                 }
                 // initialise collections filled for each block
                 std::vector<L1Topo::L1TopoTOB> daqTobs;
@@ -618,6 +647,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
                         }
                         if (status.crc()){
                             m_histTopoProblems->Fill(static_cast<float>(Problems::FIBRE_CRC));
+                            m_hasCrcFibreError = true;
                         }
                         break;
                     }
@@ -647,6 +677,8 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
         // Compare ROI and DAQ L1Topo TOBS
         if (roiTobs.empty() and daqTobsBC0.empty()){
             ATH_MSG_DEBUG( "L1Topo TOBs from both ROI and DAQ via converters are empty: zero supression or problem?" );
+            m_hasGenericRoiError = true;
+            m_hasGenericDaqError = true;
         }
         /*
           if (daqTobsBC0==roiTobs){
@@ -674,9 +706,13 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
         } // for(tob)
         ATH_MSG_VERBOSE("trigger  bits from DAQ ROB Cnv: "<<m_triggerBitsDaqRob);
         ATH_MSG_VERBOSE("overflow bits from DAQ ROB Cnv: "<<m_overflowBitsDaqRob);
-        compBitSets("L1Topo hardware", "L1Topo DAQ ROB",
-                    m_triggerBits, m_triggerBitsDaqRob,
-                    m_histTopoDaqRobEventComparison);
+        if(compBitSets("L1Topo hardware", "L1Topo DAQ ROB",
+                       m_triggerBits, m_triggerBitsDaqRob,
+                       m_histTopoDaqRobEventComparison)) {
+            /* do nothing */
+        } else {
+            m_hasRoibDaqDifference = true;
+        }
     } // if(prescalForDAQROBAccess)
     else {
         ATH_MSG_DEBUG( "L1Topo DAQ ROB access via converter skipped due to prescale" );
@@ -694,6 +730,7 @@ StatusCode AcceptL1TopoMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& 
     if (header.payload_crc()!=0){
         ATH_MSG_INFO( "header payload CRC not zero: "<<L1Topo::formatHex8(header.payload_crc()) );
         m_histPayloadCRCFromDAQConv->Fill(header.payload_crc(), 1. );
+        m_hasCrcDaqError = true;
     }
     // This is to be expected; not an error.
     //if (vFibreStatus.size()!=header.active_fibres()){
@@ -807,12 +844,20 @@ StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess)
                     m_topoCtpResult[i]=tip.test(i+topoTipStart);
                 }
                 // Compare L1Topo trigger bits
-                compBitSets("L1Topo hardware trigger|overflow", "CTP TIP hardware",
-                            m_triggerBits|m_overflowBits, m_topoCtpResult,
-                            m_histTopoCtpHdwEventComparison);
-                compBitSets("L1Topo DAQ ROB trigger|overflow", "CTP TIP hardware",
-                            m_triggerBitsDaqRob|m_overflowBitsDaqRob, m_topoCtpResult,
-                            m_histDaqRobCtpEventComparison);
+                if(compBitSets("L1Topo hardware trigger|overflow", "CTP TIP hardware",
+                               m_triggerBits|m_overflowBits, m_topoCtpResult,
+                               m_histTopoCtpHdwEventComparison)) {
+                    /* do nothing */
+                } else {
+                    m_hasRoibCtpDifference = true;
+                }
+                if(compBitSets("L1Topo DAQ ROB trigger|overflow", "CTP TIP hardware",
+                               m_triggerBitsDaqRob|m_overflowBitsDaqRob, m_topoCtpResult,
+                               m_histDaqRobCtpEventComparison)) {
+                    /* do nothing */
+                } else {
+                    m_hasDaqCtpDifference = true;
+                }
                 if (m_overflowBits.none() && m_setTopoSimResult){
                     // Compare L1Topo outputs from simulation with those at the CTP
                     compBitSets("L1Topo CTP TIP hardware", "L1Topo CTP simulation",
@@ -883,14 +928,11 @@ StatusCode AcceptL1TopoMonitor::doWriteValData()
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-// compare two bitsets and histogram the differences
-// return true if the same, otherwise false
-void AcceptL1TopoMonitor::compBitSets(std::string leftLabel, std::string rightLabel,
+bool AcceptL1TopoMonitor::compBitSets(std::string leftLabel, std::string rightLabel,
                                       const std::bitset<m_nTopoCTPOutputs>& left,
                                       const std::bitset<m_nTopoCTPOutputs>& right,
                                       TH1F*& hist)
 {
-    // Compare L1Topo outputs from simulation with those at the CTP
     if (left!=right){
         std::bitset<m_nTopoCTPOutputs> diff = (left ^ right);
         ATH_MSG_DEBUG( "compBitSets: "<<leftLabel<<" and "<<rightLabel<<" differ in this event:\n"<<left<<"\n"<<right);
@@ -907,7 +949,7 @@ void AcceptL1TopoMonitor::compBitSets(std::string leftLabel, std::string rightLa
     else {
         ATH_MSG_DEBUG( "compBitSets: "<<leftLabel<<" and "<<rightLabel<<" are the same" );
     }
-    return;
+    return left==right;
 }
 //----------------------------------------------------------
 StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
@@ -938,7 +980,7 @@ StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
             ATH_MSG_DEBUG("L1Topo overflow word 2 clk 0 : 0x"<< std::hex<<sw8<<sf0<< simTopoOverflowCTP->cableWord2(0));
             ATH_MSG_DEBUG("L1Topo overflow word 1 clk 1 : 0x"<< std::hex<<sw8<<sf0<< simTopoOverflowCTP->cableWord1(1));
             ATH_MSG_DEBUG("L1Topo overflow word 2 clk 1 : 0x"<< std::hex<<sw8<<sf0<< simTopoOverflowCTP->cableWord2(1));
-            compBitSets("L1Topo hardware", "L1Topo simulation",
+            compBitSets("L1Topo hardware overflow", "L1Topo simulated overflow",
                         m_overflowBits,
                         m_topoSimOverfl,
                         m_histTopoSimHdwEventOverflowComparison);

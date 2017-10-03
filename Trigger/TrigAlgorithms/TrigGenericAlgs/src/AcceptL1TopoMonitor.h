@@ -50,6 +50,10 @@ public:
     HLT::ErrorCode hltEndRun();
 private:
     static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
+    /**
+       retrieve and print the L1Topo RDOs from the ROI RODs
+       TODO
+     */
     StatusCode doCnvMon(bool);
     StatusCode doRawMon(bool);
     StatusCode doSimMon(bool);
@@ -60,7 +64,12 @@ private:
     StatusCode monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
     StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
     StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge);
-    void compBitSets(std::string leftLabel, std::string rightLabel,
+    /**
+        @brief compare two bitsets and histogram the differences
+
+        return true if the same, otherwise false
+    */
+    bool compBitSets(std::string leftLabel, std::string rightLabel,
                      const std::bitset<m_nTopoCTPOutputs>& left,
                      const std::bitset<m_nTopoCTPOutputs>& right,
                      TH1F*& hist);
@@ -125,6 +134,27 @@ private:
     std::bitset<m_nTopoCTPOutputs> m_overflowBitsDaqRob; //! overflow bits for BC0 from the DAQ ROB
     bool m_setTopoSimResult; //! keep track of whether this event's sim results had been stored
     bool m_firstEvent; //! used to toggle the ATH_MSG_INFO only on the first event
+    bool m_acceptThisEvent; //! whether this event had errors and it should be accepted
+
+    bool m_hasGenericRoiError;
+    bool m_hasGenericDaqError;
+    bool m_hasCrcTobError;
+    bool m_hasCrcFibreError;
+    bool m_hasCrcDaqError;
+    bool m_hasRoibDaqDifference;
+    bool m_hasRoibCtpDifference;
+    bool m_hasDaqCtpDifference;
+
+    bool m_acceptGenericRoiError;
+    bool m_acceptGenericDaqError;
+    bool m_acceptCrcTobError;
+    bool m_acceptCrcFibreError;
+    bool m_acceptCrcDaqError;
+    bool m_acceptRoibDaqDifference;
+    bool m_acceptRoibCtpDifference;
+    bool m_acceptDaqCtpDifference;
+
+
     enum class Problems {
         ROI_NO_RDO=0,
             ROI_CNV_ERR,
