@@ -28,7 +28,8 @@ from TrigTauRec.TrigTauRecConfig import (TrigTauRecMerged_Tau2012,
                                          TrigTauRecMerged_TauCaloOnly,
                                          TrigTauRecMerged_TauFTK,
                                          TrigTauRecMerged_TauPrecision,
-                                         TrigTauRecMerged_TauPreselection)
+                                         TrigTauRecMerged_TauPreselection,
+                                         TrigTauRecMerged_TauPreselectionMva)
 from TrigTauRec.TrigTauRecCosmicsConfig import TrigTauRecCosmics_Tau2012
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
@@ -211,8 +212,11 @@ class L2EFChain_tau(L2EFChainDef):
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              
         # Run TrigTauRec to store pre-selected taus
-        recPreselection = TrigTauRecMerged_TauPreselection()
-
+        if 'mva' in preselection:
+            recPreselection = TrigTauRecMerged_TauPreselectionMva()
+        else:
+            recPreselection = TrigTauRecMerged_TauPreselection()
+            
         self.EFsequenceList += [[[ self.currentItem ],
                                  [recPreselection],
                                  self.continueChain('L2', 'storepre')]]
@@ -300,13 +304,13 @@ class L2EFChain_tau(L2EFChainDef):
         # Strategies which need calorimeter pre-selection
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
                          'track', 'trackonly', 'tracktwo',
-                         'trackcalo', 'tracktwocalo','tracktwo2015']
+                         'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwomva']
         # Strategies which need fast-track finding
-        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
+        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015', 'tracktwomva']
         needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
         needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
+                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015', 'tracktwomva']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre
         
         #Set the default values
@@ -338,12 +342,12 @@ class L2EFChain_tau(L2EFChainDef):
             # Two step fast-tracking
             if preselection in needsTrackTwoPre:
                 self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
-                if preselection != 'tracktwo':
-                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+                if preselection in ('tracktwo', 'tracktwomva'):
                     self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
+                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
                 else:
-                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
                     self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
             # One step fast-tracking
             if preselection in needsTrackPre:
                 self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
