@@ -44,7 +44,7 @@ class AcceptL1TopoMonitor : public HLT::AllTEAlgo {
 public:
     AcceptL1TopoMonitor(const std::string& name, ISvcLocator* pSvcLocator);
     HLT::ErrorCode hltInitialize();
-    HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int output);
+    HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int outputTeType);
     HLT::ErrorCode hltFinalize();
     HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltEndRun();

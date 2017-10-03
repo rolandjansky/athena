@@ -147,7 +147,7 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
    algorithm.
 */
 HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_seed*/,
-                                               unsigned int output)
+                                               unsigned int outputTeType)
 {
     ATH_MSG_DEBUG ("execute");
     m_acceptThisEvent = false;
