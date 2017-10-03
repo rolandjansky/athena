@@ -146,7 +146,7 @@ namespace CP {
                         bool isData = itype.find("data") != std::string::npos;
                         std::string histname = ("_MuonTrigEff_" + periodName + "_" + triggerName + "_" + quality + "_" + "_EtaPhi_" + m_binning + "_" + iregion + "_" + itype);
                         for (const auto& isys : systematic) {
-                            if (itype.find("data") != std::string::npos && isys.find("nominal") == std::string::npos) continue;
+                            if (itype.find("data") != std::string::npos && isys.find("syst") != std::string::npos) continue;
                             std::string path = "eff_etaphi_" + m_binning + "_" + iregion + "_" + itype + "_" + isys;
                             TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
                             if (not hist) {
