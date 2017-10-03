@@ -16,7 +16,6 @@ TRT_Hits_Monitoring_Tool::TRT_Hits_Monitoring_Tool(const std::string &type, cons
 	m_pTRTHelper(0),
 	m_lastPublishTime(boost::posix_time::min_date_time) // never
 {
-	//	declareProperty("TRTRawDataObjectName", m_rawDataObjectName = "TRT_RDOs");
 	declareProperty("Partition",            m_partition         = "initial");
 	declareProperty("Server",               m_server            = "beamconditions");
 	declareProperty("Name",                 m_name              = "hitfractionTRT");
@@ -62,18 +61,6 @@ StatusCode TRT_Hits_Monitoring_Tool::fillHistograms() {
 	const static boost::posix_time::time_duration sleepTime = boost::posix_time::milliseconds(m_sleepTime);
 	const boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
 	if (now - m_lastPublishTime < sleepTime) return StatusCode::SUCCESS; // do not publish results too often
-
-	/*
-	  if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
-	  ATH_MSG_ERROR("StoreGate contains no TRT_RDO_Container named " << m_rawDataObjectName);
-	  return StatusCode::FAILURE;
-	  }
-	  TRT_RDO_Container *rdoContainer = 0;
-	  StatusCode sc = evtStore()->retrieve(rdoContainer, m_rawDataObjectName); // get TRT Raw Data Objects (all TRT hits)
-	  if (sc.isFailure() || !rdoContainer) {
-	  ATH_MSG_ERROR("Could not retrieve TRT_RDO_Container named " << m_rawDataObjectName);
-	  return StatusCode::FAILURE;
-	  }	*/
 
 	SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainer);
 	if (!rdoContainer.isValid()) {

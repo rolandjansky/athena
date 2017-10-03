@@ -19,8 +19,7 @@
 
 class TRT_ID;
 
-class TRT_Hits_Monitoring_Tool: public ManagedMonitorToolBase
-{
+class TRT_Hits_Monitoring_Tool: public ManagedMonitorToolBase {
 public:
 	TRT_Hits_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent);
 	virtual ~TRT_Hits_Monitoring_Tool();
@@ -47,7 +46,6 @@ private:
 	std::string m_nameEA_longToT;
 	std::string m_nameEC_longToT;
 
-	//	std::string m_rawDataObjectName;
 	std::string m_partition;
 	std::string m_server;
 	std::string m_name;
