@@ -20,7 +20,7 @@ def getFCS_StepInfoSensitiveDetector(name="FCS_StepInfoSensitiveDetector", **kwa
     kwargs.setdefault("TileVolumes",["Tile::Scintillator"])
     kwargs.setdefault("OutputCollectionNames", ["EventSteps"])
     # TODO Add extra configuration here!!
-    return CfgMgr.FCS_Param__FCS_StepIntoSDTool(name, **kwargs)
+    return CfgMgr.FCS_Param__FCS_StepInfoSDTool(name, **kwargs)
 
 ##def getFastCaloSimParamActionTool(name='G4UA::FastCaloSimParamActionTool', **kwargs):
 ##    from G4AtlasApps.SimFlags import simFlags
