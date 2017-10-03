@@ -162,15 +162,19 @@ if( XAOD_STANDALONE )
    # This test takes a bit longer, but it's worth it
    set_tests_properties( SUSYTools_ut_SUSYTools_wp_checker_ctest PROPERTIES TIMEOUT 600)
    atlas_add_test( ut_SUSYToolsTester_atlfast
-      SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
+      SOURCES test/ut_SUSYToolsTester_atlfast.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms")
    atlas_add_test( ut_SUSYToolsTester_data
-      SOURCES test/ut_SUSYToolsTester_data.cxx )
+      SOURCES test/ut_SUSYToolsTester_data.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms")
    # Needs just a little extra time to be sure we get 100% success
    set_tests_properties( SUSYTools_ut_SUSYToolsTester_data_ctest PROPERTIES TIMEOUT 180)
    atlas_add_test( ut_SUSYToolsTester_mc
-      SOURCES test/ut_SUSYToolsTester_mc.cxx )
+      SOURCES test/ut_SUSYToolsTester_mc.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms")
    atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
-      SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx )
+      SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms")
 endif()
 
 # Install files from the package:
