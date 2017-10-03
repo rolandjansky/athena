@@ -5,7 +5,6 @@
 /***************************************************************************
  Liquid Argon detector description package
  -----------------------------------------
- Copyright (C) 1998 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: CaloTTDescriptor.cxx,v 1.5 2006-02-15 09:05:19 fledroit Exp $

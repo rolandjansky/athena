@@ -5,7 +5,6 @@
 /***************************************************************************
  Detector description conversion service package
  -----------------------------------------------
- Copyright (C) 2002 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: DetDescrConverter.h,v 1.6 2008-12-14 02:24:44 ssnyder Exp $

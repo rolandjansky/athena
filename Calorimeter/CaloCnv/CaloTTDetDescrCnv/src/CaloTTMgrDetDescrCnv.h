@@ -5,7 +5,6 @@
 /***************************************************************************
  Calo Trigger Tower Manager converter package
  --------------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: CaloTTMgrDetDescrCnv.h,v 1.7 2008-12-14 01:56:04 ssnyder Exp $

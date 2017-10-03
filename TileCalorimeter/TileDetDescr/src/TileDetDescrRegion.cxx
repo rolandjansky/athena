@@ -5,7 +5,6 @@
 /***************************************************************************
  Tile Calorimeter detector description package
  -----------------------------------------
- Copyright (C) 1998 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: TileDetDescrRegion.cxx,v 1.4 2003-10-27 16:12:25 solodkov Exp $
