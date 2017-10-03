@@ -108,7 +108,6 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     declareProperty("doCnvMon", m_doCnvMon = true, "enable L1Topo monitoring via converters");
     declareProperty("doSimMon", m_doSimMon = true, "enable L1Topo hardware vs simulation comparison");
     declareProperty("doSimDaq", m_doSimDaq = true, "enable L1Topo DAQ hardware vs simulation comparison");
-    declareProperty("doWriteValData", m_doWriteValData = true, "write L1Topo simulation/validation data into HLTResult");
     declareProperty("useDetMask", m_useDetMask = true, "only monitor if L1Topo is included in the event according to the detector mask; this can disable monitoring automatically in spite of other options");
     declareProperty("SimTopoCTPLocation", m_simTopoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of simulated topo decision output for CTP, defaults to default output key of L1TopoSimulation" );
     declareProperty("SimTopoOverflowCTPLocation", m_simTopoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation,
@@ -133,7 +132,6 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
     ATH_MSG_DEBUG ( m_doCnvMon );
     ATH_MSG_DEBUG ( m_doSimMon );
     ATH_MSG_DEBUG ( m_doSimDaq );
-    ATH_MSG_DEBUG ( m_doWriteValData );
     ATH_MSG_DEBUG ( m_useDetMask );
     ATH_MSG_DEBUG ( m_vDAQROBIDs );
     ATH_MSG_DEBUG ( m_vROIROBIDs );
@@ -216,9 +214,6 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
     }
     if(m_doSimDaq){
         (doSimDaq(prescaleForDAQROBAccess));
-    }
-    if (m_doWriteValData){
-        (doWriteValData());
     }
 
     const bool anythingToAccept = (
@@ -891,40 +886,6 @@ StatusCode AcceptL1TopoMonitor::doSimDaq(bool prescalForDAQROBAccess)
                                                   and not m_topoSimResult.test(i));
         }
     } // if(overflow.none)
-    return StatusCode::SUCCESS;
-}
-//----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::doWriteValData()
-{
-    ATH_MSG_DEBUG( "doWriteValData" );
-    // Retrieve HLTResuly
-    DataHandle<HLT::HLTResult> hltResult; ///! HLTResult object
-    if ( ! evtStore()->transientContains<HLT::HLTResult>(m_HltResultName.value()) ) {
-        ATH_MSG_INFO("Could not find HLTResult with key "<<m_HltResultName.value()<<"in SG." );
-    } else {
-        ( evtStore()->retrieve(hltResult,m_HltResultName.value()) );
-        if (!hltResult){
-            ATH_MSG_INFO( "Retrieve of HLT::HLTResult failed. No data are written to HLTResult" );
-            return StatusCode::RECOVERABLE;
-        }
-    }
-    // Retrieve L1Topo CTP simulated decision if present
-    const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
-    if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
-        ATH_MSG_INFO("Could not find LVL1::FrontPanelCTP with key "<<m_simTopoCTPLocation.value()<<"in SG." );
-    } else {
-        ( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
-        if (!simTopoCTP){
-            ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. No data are written to HLTResult" );
-            return StatusCode::RECOVERABLE;
-        }
-    }
-    // Write the L1Topo simulation data into the HLTResult
-    hltResult->getExtraData().anonymous.push_back( 4 );                         // number of words to be written
-    hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord1(0) ); // L1Topo simulation words
-    hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord1(1) );
-    hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord2(0) );
-    hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord2(1) );
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
