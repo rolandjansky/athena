@@ -166,13 +166,13 @@ namespace CP {
     HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
         TH1* histHolder = 0;
         f->GetObject((name + std::string("_") + time_unit).c_str(), histHolder);
+         // if no period weighting, the histo may also not have a time period in the name at all
+           
+        if (!histHolder && time_unit == "All") {
+            f->GetObject(name.c_str(), histHolder);
+        }
         if (!histHolder) {
-            // if no period weighting, the histo may also not have a time period in the name at all
-            if (time_unit == "All") {
-                f->GetObject(name.c_str(), histHolder);
-            } else {
-                return HistHandler_Ptr();
-            }
+            return HistHandler_Ptr();
         }
         // replace the histos by clones so that we can close the files again
         std::string CloneName = Form("%s_%s_%s_%s%s", name.c_str(), toolname().c_str(), EfficiencyTypeName(m_Type).c_str(), time_unit.c_str(), sysname().c_str());

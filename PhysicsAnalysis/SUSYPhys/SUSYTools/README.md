@@ -1,6 +1,6 @@
 SUSYTools
 ====================================
-**Current Main Developers**: stefano.zambito@cern.ch, zach.marshall@cern.ch
+**Current Main Developers**: stefano.zambito@cern.ch, keisuke.yoshihara@cern.ch
 
 Note that the newest recommendations are always on the [background forum TWiki page](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BackgroundStudies).  Bugs can be reported on [JIRA](https://its.cern.ch/jira/projects/ATLSUSYSW).  In case you are starting out, here are some useful tutorials for [GIT](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/GitTutorial) and [CMake](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CMakeTestProjectInstructions) as they are used in ATLAS.
 
@@ -42,11 +42,11 @@ git checkout 21.2.5
 git atlas addpkg SUSYTools
 ```
 
-or the trunk version::
+or the latest version (which lives in the 21.2 branch)::
 
 ```bash
 cd athena
-git checkout master
+git checkout 21.2
 git atlas addpkg SUSYTools
 ```
 
