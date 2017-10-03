@@ -20,6 +20,9 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
 #include "GaudiKernel/ThreadGaudi.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -225,13 +228,32 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
         (m_acceptRoibDaqDifference and m_hasRoibDaqDifference) or
         (m_acceptRoibCtpDifference and m_hasRoibCtpDifference) or
         (m_acceptDaqCtpDifference  and m_hasDaqCtpDifference));
-    // DG-2017-10-02 ASK-WERNER: do we need to output an empty seed?
+    // in addition to setting the TriggerElement state, store the flags in a TrigComposite
+    xAOD::TrigCompositeContainer * errorFlagContainer = new xAOD::TrigCompositeContainer();
+    xAOD::TrigCompositeAuxContainer compAux;
+    errorFlagContainer->setStore(&compAux);
+    xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
+    errorFlagContainer->push_back(compObj);
+    compObj->setName("L1Topo_error_codes");
+    compObj->setDetail("hasGenericRoiError",   m_hasGenericRoiError  );
+    compObj->setDetail("hasGenericDaqError",   m_hasGenericDaqError  );
+    compObj->setDetail("hasCrcTobError",       m_hasCrcTobError      );
+    compObj->setDetail("hasCrcFibreError",     m_hasCrcFibreError    );
+    compObj->setDetail("hasCrcDaqError",       m_hasCrcDaqError      );
+    compObj->setDetail("hasRoibDaqDifference", m_hasRoibDaqDifference);
+    compObj->setDetail("hasRoibCtpDifference", m_hasRoibCtpDifference);
+    compObj->setDetail("hasDaqCtpDifference",  m_hasDaqCtpDifference );
     std::vector<HLT::TriggerElement*> empty_seed;
-    output = anythingToAccept;
-    HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
-    te->setActiveState(true); // is this correct?
+    HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, outputTeType);
+    te->setActiveState(anythingToAccept);
+    HLT::ErrorCode hltStatus = attachFeature(te, errorFlagContainer, "errors_L1TopoMonitor");
+    if(hltStatus != HLT::OK) {
+        msg()<<MSG::ERROR
+             <<"Write of TrigCompositeContainer feature into output TE failed"
+             <<endmsg;
+        return hltStatus;
+    }
     return HLT::OK;
-
 }
 //----------------------------------------------------------
 HLT::ErrorCode AcceptL1TopoMonitor::hltFinalize()

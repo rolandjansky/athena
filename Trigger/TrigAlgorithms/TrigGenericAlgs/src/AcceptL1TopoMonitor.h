@@ -152,7 +152,6 @@ private:
     bool m_acceptRoibCtpDifference;
     bool m_acceptDaqCtpDifference;
 
-
     enum class Problems {
         ROI_NO_RDO=0,
             ROI_CNV_ERR,
