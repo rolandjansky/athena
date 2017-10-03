@@ -136,12 +136,12 @@ int main(int argc, char* argv[]) {
     // Initialize the PRW tool
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-    const std::vector<std::string> WPs {
-        "Loose", "Medium", "Tight", "HighPt",
-        "TTVA",
-        //Isolation
-        "GradientIso", "LooseIso"
+     const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
+            //Isolation
+            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","TightIso","GradientIso","GradientLooseIso",
+            "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
     };
+   
     std::vector<EffiToolInstance> EffiTools;
     for (auto& WP : WPs) {
         EffiTools.push_back(createSFTool(WP, DefaultCalibRelease, false));

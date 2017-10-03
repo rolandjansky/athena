@@ -133,9 +133,11 @@ int main(int argc, char* argv[]) {
     TStopwatch tsw;
     tsw.Start();
 
-    const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA",
-    //Isolation
-            "GradientIso", "LooseIso" };
+    const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
+            //Isolation
+            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","TightIso","GradientIso","GradientLooseIso",
+            "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
+    };
     std::vector<EffiToolInstance> EffiTools;
     std::vector<EffiToolInstance> ComparisonTools;
 
