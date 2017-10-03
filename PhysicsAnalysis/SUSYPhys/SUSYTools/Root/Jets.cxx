@@ -20,8 +20,8 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "METUtilities/METHelpers.h"
 
