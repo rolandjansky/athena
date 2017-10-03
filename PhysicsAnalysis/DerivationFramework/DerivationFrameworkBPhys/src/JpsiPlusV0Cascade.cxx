@@ -112,11 +112,15 @@ namespace DerivationFramework {
       auto Vtxwritehandles = m_cascadeOutputsKeys.makeHandles();
       if(Vtxwritehandles.size() !=2)  { ATH_MSG_FATAL("Incorrect number of VtxContainers"); return StatusCode::FAILURE; }
       
-      ATH_CHECK( Vtxwritehandles[0].record (std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()) );
-      ATH_CHECK( Vtxwritehandles[1].record (std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()) );
 
-
-      
+      auto cont1 = std::make_unique<xAOD::VertexContainer>();
+      auto cont1aux =  std::make_unique<xAOD::VertexAuxContainer>();
+      auto cont2  = std::make_unique<xAOD::VertexContainer>();
+      auto cont2aux = std::make_unique<xAOD::VertexAuxContainer>();
+      cont1->setStore(cont1aux.get());
+      cont2->setStore(cont2aux.get());
+      ATH_CHECK( Vtxwritehandles[0].record (std::move(cont1), std::move(cont1aux) ));
+      ATH_CHECK( Vtxwritehandles[1].record (std::move(cont2), std::move(cont2aux) ));
 
       // get PV container
       const xAOD::Vertex * primaryVertex(0);
@@ -139,6 +143,9 @@ namespace DerivationFramework {
       ATH_CHECK(performSearch(&cascadeinfoContainer));
 
       SG::AuxElement::Decorator<VertexLinkVector> CascadeLinksDecor("CascadeVertexLinks"); 
+      SG::AuxElement::Decorator<float> Mass_bdecor("Mass_B");
+      SG::AuxElement::Decorator<float> Mass_berrdecor("Mass_B_err");
+
 
       ATH_MSG_INFO("cascadeinfoContainer size " << cascadeinfoContainer.size());
       for (Trk::VxCascadeInfo* x : cascadeinfoContainer) {
@@ -152,13 +159,14 @@ namespace DerivationFramework {
         Vtxwritehandles[0]->push_back(cascadeVertices[0]);
         Vtxwritehandles[1]->push_back(cascadeVertices[1]);
         x->getSVOwnership(false);//Prevent Container from deleting vertices
-
+        const auto defaultVertex = cascadeVertices[0];
 
         std::vector<xAOD::Vertex*> verticestoLink;
         verticestoLink.push_back(cascadeVertices[1]);
         if(Vtxwritehandles[1].ptr() == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1].ptr() is null");
         if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[1].ptr(), cascadeVertices[0])) 
             ATH_MSG_ERROR("Error decorating vertices");
+
 
 
         double mass_v0 = m_mass_ks; 
@@ -208,6 +216,11 @@ namespace DerivationFramework {
         double Mass_V0_err = m_CascadeTools->invariantMassError(moms[0],x->getCovariance()[0]);
         ATH_MSG_INFO("Mass_B " << Mass_B << " Mass_V0 " << Mass_V0);
         ATH_MSG_INFO("Mass_B_err " << Mass_B_err << " Mass_V0_err " << Mass_V0_err);
+
+        Mass_bdecor(*defaultVertex) = Mass_B;//Example of decoration
+        Mass_berrdecor(*defaultVertex) = Mass_B_err;
+
+
         double mprob_B = m_CascadeTools->massProbability(mass_b,Mass_B,Mass_B_err);
         double mprob_V0 = m_CascadeTools->massProbability(mass_v0,Mass_V0,Mass_V0_err);
         ATH_MSG_INFO("mprob_B " << mprob_B << " mprob_V0 " << mprob_V0);
@@ -251,6 +264,9 @@ namespace DerivationFramework {
         double TauErr_v = m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1],mass_v0);
         double TauErr_v0 = m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesV0,mass_v0);
         ATH_MSG_INFO("TauErr_b " << TauErr_b << " TauErr_v " << TauErr_v << " TauErr_v0 " << TauErr_v0);
+//This are buggy at the moment skipping for now
+        continue;
+
         double a0z_b = m_CascadeTools->a0z(moms[1],cascadeVertices[1],primaryVertex);
         double a0z_v = m_CascadeTools->a0z(moms[0],cascadeVertices[0],cascadeVertices[1]);
         double a0z_V = m_V0Tools->a0z(cascadeVertices[0],cascadeVertices[1]);
@@ -300,7 +316,7 @@ namespace DerivationFramework {
       //Vertices have been kept in m_cascadeOutputs and should be owned by their container
       for(auto x : cascadeinfoContainer) delete x;
 
-
+      ATH_MSG_INFO("Exiting cascade");
       return StatusCode::SUCCESS;
     }
 
