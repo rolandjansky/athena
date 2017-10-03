@@ -2,4 +2,4 @@
 
 from AthenaCommon.CfgGetter import addTool
 
-addTool("ISF_FastCaloSimSD.ISF_FastCaloSimSDConfig.getLArFCS_StepInfoSensitiveDetector", "LArFCS_StepInfoSensitiveDetector")
+addTool("ISF_FastCaloSimSD.ISF_FastCaloSimSDConfig.getFCS_StepInfoSensitiveDetector", "FCS_StepInfoSensitiveDetector")

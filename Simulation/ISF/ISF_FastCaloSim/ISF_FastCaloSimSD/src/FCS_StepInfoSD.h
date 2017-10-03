@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_FASTCALOSIM_LARFCS_STEPINFOSD_H
-#define ISF_FASTCALOSIM_LARFCS_STEPINFOSD_H
+#ifndef ISF_FASTCALOSIM_FCS_STEPINFOSD_H
+#define ISF_FASTCALOSIM_FCS_STEPINFOSD_H
 
 #include "G4VSensitiveDetector.hh"
 
@@ -15,6 +15,9 @@
 #include <set>
 
 // Forward declarations
+class G4Step;
+class G4TouchableHistory;
+
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
@@ -22,11 +25,55 @@ class LArMiniFCAL_ID;
 class CaloDetDescrManager;
 
 class ILArCalculatorSvc;
+class ITileCalculator;
 class LArHitContainer;
 
 class StoreGateSvc;
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
+
+namespace FCS_Param {
+
+  struct Config
+  {
+    bool shift_lar_subhit=true;
+    bool shorten_lar_step=false;
+
+    // Merging properties
+    double            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusLAr=25.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusTile=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+
+    double            m_maxTime=25.;
+    double            m_maxTimeLAr=25.;
+    double            m_maxTimeHEC=25.;
+    double            m_maxTimeFCAL=25.;
+    double            m_maxTimeTile=25.;
+
+    // Optimised merging scheme
+    double            m_maxEtaPS=1.;
+    double            m_maxPhiPS=5.;
+    double            m_maxrPS=0.;
+
+    double            m_maxEtaEM1=1.;
+    double            m_maxPhiEM1=5.;
+    double            m_maxrEM1=15.;
+
+    double            m_maxEtaEM2=1.;
+    double            m_maxPhiEM2=5.;
+    double            m_maxrEM2=60.;
+
+    double            m_maxEtaEM3=1.;
+    double            m_maxPhiEM3=5.;
+    double            m_maxrEM3=8.;
+
+    ILArCalculatorSvc *m_LArCalculator=nullptr;
+    ITileCalculator *m_TileCalculator=nullptr;
+  };
+
+}
 
 /// @class FCS_StepInfoSD
 /// @brief Common sensitive detector class for LAr systems.
@@ -38,45 +85,8 @@ class FCS_StepInfoSD : public G4VSensitiveDetector
 {
 public:
 
-    struct Config
-    {
-      bool shift_lar_subhit=true;
-      bool shorten_lar_step=false;
-
-      // Merging properties
-      double            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
-      double            m_maxRadiusLAr=25.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
-      double            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
-      double            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
-      double            m_maxRadiusTile=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
-
-      double            m_maxTime=25.;
-      double            m_maxTimeLAr=25.;
-      double            m_maxTimeHEC=25.;
-      double            m_maxTimeFCAL=25.;
-      double            m_maxTimeTile=25.;
-
-      // Optimised merging scheme
-      double            m_maxEtaPS=1.;
-      double            m_maxPhiPS=5.;
-      double            m_maxrPS=0.;
-
-      double            m_maxEtaEM1=1.;
-      double            m_maxPhiEM1=5.;
-      double            m_maxrEM1=15.;
-
-      double            m_maxEtaEM2=1.;
-      double            m_maxPhiEM2=5.;
-      double            m_maxrEM2=60.;
-
-      double            m_maxEtaEM3=1.;
-      double            m_maxPhiEM3=5.;
-      double            m_maxrEM3=8.;
-
-    };
-
   /// Constructor
-  FCS_StepInfoSD(G4String a_name, ILArCalculatorSvc* calc, const Config& config);
+  FCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config);
 
   /// Destructor
   virtual ~FCS_StepInfoSD();
@@ -98,25 +108,21 @@ public:
     m_larMiniFcalID = mini;
   }
 
-private:
-  /// Helper function for making "real" identifiers from LArG4Identifiers
-  Identifier ConvertID(const LArG4Identifier& a_ident) const;
-
+protected:
   /// We are keeping a map instead of trying to keep the full vector.
   /// At the end of the event we'll push the map back into the flat
   /// vector for storage in StoreGate.
   void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
-  std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
-
-  Config m_config;
-  /// Member variable - the calculator we'll use
-  ILArCalculatorSvc * m_calculator;
+  FCS_Param::Config m_config;
   /// Pointers to the identifier helpers
   const LArEM_ID*       m_larEmID;
   const LArFCAL_ID*     m_larFcalID;
   const LArHEC_ID*      m_larHecID;
   const LArMiniFCAL_ID* m_larMiniFcalID;
   const CaloDetDescrManager *m_calo_dd_man;
+
+private:
+  std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 };
 
-#endif // ISF_FASTCALOSIM_LARFCS_STEPINFOSD_H
+#endif // ISF_FASTCALOSIM_FCS_STEPINFOSD_H
