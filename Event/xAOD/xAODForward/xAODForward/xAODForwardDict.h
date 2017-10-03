@@ -34,6 +34,12 @@
 #include "xAODForward/versions/AFPSiHitAuxContainer_v1.h"
 #include "xAODForward/versions/AFPSiHit_v1.h"
 
+#include "xAODForward/AFPToFHitContainer.h"
+#include "xAODForward/AFPToFHitAuxContainer.h"
+#include "xAODForward/versions/AFPToFHitContainer_v1.h"
+#include "xAODForward/versions/AFPToFHitAuxContainer_v1.h"
+#include "xAODForward/versions/AFPToFHit_v1.h"
+
 #include "xAODForward/AFPSiHitsClusterContainer.h"
 #include "xAODForward/AFPSiHitsClusterAuxContainer.h"
 #include "xAODForward/versions/AFPSiHitsClusterContainer_v1.h"
@@ -81,6 +87,13 @@ namespace xAOD
     ElementLink<xAOD::AFPSiHitContainer_v1> afpSiHit_l3;
     std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > afpSiHit_l4;
     std::vector<std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > > afpSiHit_l5;
+
+    xAOD::AFPToFHitContainer_v1 afpToFHit_c1;
+    DataLink<xAOD::AFPToFHitContainer_v1> afpToFHit_l1;
+    std::vector<DataLink<xAOD::AFPToFHitContainer_v1> > afpToFHit_l2;
+    ElementLink<xAOD::AFPToFHitContainer_v1> afpToFHit_l3;
+    std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> > afpToFHit_l4;
+    std::vector<std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> > > afpToFHit_l5;
 
     xAOD::AFPSiHitsClusterContainer_v1 afpSiHitsContainer_c1;
     DataLink<xAOD::AFPSiHitsClusterContainer_v1> afpSiHitsContainer_l1;

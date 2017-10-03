@@ -16,6 +16,7 @@
 
 class IEventSeek;
 class IChronoStatSvc;
+class IIncidentSvc;
 namespace yampl {
   class ISocketFactory;
   class ISocket;
@@ -57,12 +58,14 @@ class EvtRangeProcessor : public AthenaMPToolBase
   int decodeProcessResult(const AthenaInterprocess::ProcessResult* presult);
   StatusCode startProcess();
   StatusCode setNewInputFile(const std::string& newFile);
+  void reportError(yampl::ISocket* socket,AthenaMPToolBase::ESRange_Status status);
 
   bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
   int  m_nEventsBeforeFork;
 
   ServiceHandle<IChronoStatSvc>     m_chronoStatSvc;
+  ServiceHandle<IIncidentSvc>       m_incidentSvc;
   IEventSeek*                       m_evtSeek;
 
   StringProperty                    m_channel2Scatterer;

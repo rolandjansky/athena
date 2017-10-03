@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // Double excited lepton production
 
 #include "Pythia8_i/UserProcessFactory.h"

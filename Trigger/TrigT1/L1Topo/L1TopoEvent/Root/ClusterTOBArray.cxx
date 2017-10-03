@@ -8,7 +8,7 @@
 TCS::ClusterTOBArray::ClusterTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<ClusterTOB>(reserve)
-{};
+{}
 
 void
 TCS::ClusterTOBArray::print(std::ostream &o) const {

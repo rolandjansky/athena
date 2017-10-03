@@ -12,8 +12,8 @@
 class AFP_ROBID
 {
 public:
-  static const uint32_t sideA; ///< ROB ID of stations on A side
-  static const uint32_t sideC; ///< ROB ID of stations on C side
+  static constexpr unsigned int sideA = 0x00850001; ///< ROB ID of stations on A side
+  static constexpr unsigned int sideC = 0x00850002; ///< ROB ID of stations on C side
 };
 
 #endif

@@ -774,8 +774,8 @@ jobproperties.TileRecFlags.doTileOverflowFit = doTileOverflowFit
 # but only for physics runs, i.e. it will be wrong for cis or laser runs.
 # so, we set them to false here, but then load proper OFC and phases
 # for every type of run
-jobproperties.TileRecFlags.OfcFromCOOL = False
-jobproperties.TileRecFlags.BestPhaseFromCOOL = False
+jobproperties.TileRecFlags.OfcFromCOOL = OfcFromCOOL
+jobproperties.TileRecFlags.BestPhaseFromCOOL = PhaseFromCOOL
 
 jobproperties.print_JobProperties('tree&value')
 
@@ -801,25 +801,11 @@ print tileInfoConfigurator
 #=== configure TileCondToolOfcCool
 #============================================================
 OfcFromCoolOF1 = doTileOF1 and OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2') # there are OFCs for OF1 only in CONDBR2
-if not ReadPool or OfcFromCOOL or doTileMF:
-    if TileLasPulse:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'LAS')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'LAS', 'OF1', 'TileCondToolOfcCoolOF1')
-    elif TileCisPulse:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'CIS')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'CIS','OF1', 'TileCondToolOfcCoolOF1')
-    else:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'PHY')
-        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'PHY', 'OF1', 'TileCondToolOfcCoolOF1')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tileCondToolOfcCool
-    if OfcFromCoolOF1: ToolSvc += tileCondToolOfcCoolOF1
 
 #============================================================
 #=== configure TileCondToolOfc
 #============================================================
-if doTileOpt2 or doTileOptATLAS or doTileOF1:
+if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
     from TileConditions.TileConditionsConf import TileCondToolOfc
     tileCondToolOfc = TileCondToolOfc()
     tileCondToolOfc.nSamples = TileFrameLength # default = 7
@@ -827,13 +813,9 @@ if doTileOpt2 or doTileOptATLAS or doTileOF1:
     tileCondToolOfc.CacheSize = 0 # (max phases per channel) 0-no cache (default)
     tileCondToolOfc.OutputLevel = OutputLevel
 
+    ToolSvc += tileCondToolOfc
+
     #  'LAS' or "CIS" or 'PHY' pulse shape
-    if TileLasPulse:
-        tileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','LAS')
-    elif TileCisPulse:
-        tileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','CISPULSE100')
-    else:
-        tileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
 
     print tileCondToolOfc
 
@@ -855,11 +837,16 @@ if not ReadPool:
 
     from TileByteStream.TileByteStreamConf import TileROD_Decoder
     ToolSvc += TileROD_Decoder()
-    ToolSvc.TileROD_Decoder.TileCondToolOfcCool = tileCondToolOfcCool
     ToolSvc.TileROD_Decoder.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
     if TileCompareMode:
         ToolSvc.TileROD_Decoder.useFrag5Raw  = True
         ToolSvc.TileROD_Decoder.useFrag5Reco = True
+
+        TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+        TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+        tileInfoConfigurator.setupCOOLOFC(type = TilePulse)
+        ToolSvc.TileROD_Decoder.TileCondToolOfcCool = ToolSvc.TileCondToolOfcCool
 else:
     if ReadDigits:
         from TileRecUtils.TileRawChannelGetter import *
@@ -878,22 +865,11 @@ if doTileFit:
 
 if doTileFitCool:
     ToolSvc.TileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
-    if TileLasPulse:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','LAS','TileCondToolPulseShape')
-    elif TileCisPulse:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolLeak100Shape = getTileCondToolPulseShape('COOL','CISLEAK100','TileCondToolLeak100Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolLeak5p2Shape = getTileCondToolPulseShape('COOL','CISLEAK5P2','TileCondToolLeak5p2Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulse5p2Shape = getTileCondToolPulseShape('COOL','CISPULSE5P2','TileCondToolPulse5p2Shape')
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','CISPULSE100','TileCondToolPulseShape')
-    else:
-        ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHYS','TileCondToolPulseShape')
     ToolSvc.TileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
     
     print ToolSvc.TileRawChannelBuilderFitFilterCool
 
 if doTileOpt2:
-    if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOpt2Filter.TileCondToolOfc = tileCondToolOfcCool
 
     if TileMonoRun or TileRampRun:
         ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
@@ -907,9 +883,6 @@ if doTileOptATLAS:
     if ReadPool:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
 
-    if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolOfc = tileCondToolOfcCool
-
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
@@ -922,8 +895,6 @@ if doTileOptATLAS:
     print ToolSvc.TileRawChannelBuilderOptATLAS
     
 if doTileMF:
-    if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfc = tileCondToolOfcCool
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
@@ -936,9 +907,6 @@ if doTileMF:
 
 if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
-
-    if OfcFromCoolOF1:
-        ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfcCoolOF1
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
@@ -1045,7 +1013,7 @@ if (doTileNtuple or doD3PD):
     exec 'svcMgr.THistSvc.Output += [ "AANT DATAFILE=\'%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
     svcMgr.THistSvc.MaxFileSize = 32768
 
-    from AnalysisTools.AnalysisToolsConf import AANTupleStream
+    from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
     topSequence += AANTupleStream( "AANTupleStream1" )
     AANTupleStream1 = topSequence.AANTupleStream1
     AANTupleStream1.ExtraRefNames = [ "StreamESD","StreamRDO" ]

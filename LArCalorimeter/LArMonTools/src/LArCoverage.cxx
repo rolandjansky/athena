@@ -300,30 +300,30 @@ LArCoverage::bookHistograms()
       phiEMEndcap[it]= new float[nbinsphiEMEndcap[it]+1];
 
     // Sampling 0 
-    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[0][ibin] = -TMath::Pi()+ ibin*2*TMath::Pi()/64;
+    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[0][ibin] = -TMath::Pi()+ ibin*(2*M_PI/64);
     for(int ibin=0;ibin<=12;ibin++) etaEMEndcapA[0][ibin] = 1.5+ibin*0.025; 
     for(int ibin=0;ibin<=12;ibin++) etaEMEndcapC[0][ibin] = -(1.5+ibin*0.025); 
     sort(etaEMEndcapC[0],etaEMEndcapC[0]+nbinsetaEMEndcap[0]+1);
     // Sampling 1 
-    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[1][ibin] = -TMath::Pi()+ ibin*2*TMath::Pi()/64;
+    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[1][ibin] = -TMath::Pi()+ ibin*(2*M_PI/64);
     etaEMEndcapA[1][0] = 1.375; 
     for(int ibin=1;ibin<=3;ibin++) etaEMEndcapA[1][ibin] = 1.425+(ibin-1)*0.025; 
-    for(int ibin=4;ibin<=99;ibin++) etaEMEndcapA[1][ibin] = 1.5+(ibin-4)*0.025/8; 
-    for(int ibin=100;ibin<=147;ibin++) etaEMEndcapA[1][ibin] = 1.8+(ibin-100)*0.025/6; 
-    for(int ibin=148;ibin<=211;ibin++) etaEMEndcapA[1][ibin] = 2.0+(ibin-148)*0.025/4; 
+    for(int ibin=4;ibin<=99;ibin++) etaEMEndcapA[1][ibin] = 1.5+(ibin-4)*(0.025/8); 
+    for(int ibin=100;ibin<=147;ibin++) etaEMEndcapA[1][ibin] = 1.8+(ibin-100)*(0.025/6); 
+    for(int ibin=148;ibin<=211;ibin++) etaEMEndcapA[1][ibin] = 2.0+(ibin-148)*(0.025/4); 
     for(int ibin=212;ibin<=215;ibin++) etaEMEndcapA[1][ibin] = 2.4+(ibin-212)*0.025; 
     for(int ibin=216;ibin<=223;ibin++) etaEMEndcapA[1][ibin] = 2.5+(ibin-216)*0.1; 
     etaEMEndcapC[1][0] = -1.375; 
     for(int ibin=1;ibin<=3;ibin++) etaEMEndcapC[1][ibin] = -(1.425+(ibin-1)*0.025); 
-    for(int ibin=4;ibin<=99;ibin++) etaEMEndcapC[1][ibin] = -(1.5+(ibin-4)*0.025/8); 
-    for(int ibin=100;ibin<=147;ibin++) etaEMEndcapC[1][ibin] = -(1.8+(ibin-100)*0.025/6); 
-    for(int ibin=148;ibin<=211;ibin++) etaEMEndcapC[1][ibin] = -(2.0+(ibin-148)*0.025/4); 
+    for(int ibin=4;ibin<=99;ibin++) etaEMEndcapC[1][ibin] = -(1.5+(ibin-4)*(0.025/8)); 
+    for(int ibin=100;ibin<=147;ibin++) etaEMEndcapC[1][ibin] = -(1.8+(ibin-100)*(0.025/6)); 
+    for(int ibin=148;ibin<=211;ibin++) etaEMEndcapC[1][ibin] = -(2.0+(ibin-148)*(0.025/4)); 
     for(int ibin=212;ibin<=215;ibin++) etaEMEndcapC[1][ibin] = -(2.4+(ibin-212)*0.025); 
     for(int ibin=216;ibin<=223;ibin++) etaEMEndcapC[1][ibin] = -(2.5+(ibin-216)*0.1); 
     sort(etaEMEndcapC[1],etaEMEndcapC[1]+nbinsetaEMEndcap[1]+1);
     // Sampling 2 
     // Last 7 eta bins are 4 times bigger in phi 
-    for(int ibin=0;ibin<=256;ibin++) phiEMEndcap[2][ibin] = -TMath::Pi()+ ibin*2*TMath::Pi()/256;
+    for(int ibin=0;ibin<=256;ibin++) phiEMEndcap[2][ibin] = -TMath::Pi()+ ibin*(2*M_PI/256);
     etaEMEndcapA[2][0] = 1.375; 
     for(int ibin=1;ibin<=43;ibin++) etaEMEndcapA[2][ibin] = 1.425+(ibin-1)*0.025; 
     for(int ibin=44;ibin<=51;ibin++) etaEMEndcapA[2][ibin] = 2.5+(ibin-44)*0.1; 
@@ -332,7 +332,7 @@ LArCoverage::bookHistograms()
     for(int ibin=44;ibin<=51;ibin++) etaEMEndcapC[2][ibin] = -(2.5+(ibin-44)*0.1); 
     sort(etaEMEndcapC[2],etaEMEndcapC[2]+nbinsetaEMEndcap[2]+1);
     // Sampling 3 
-    for(int ibin=0;ibin<=256;ibin++) phiEMEndcap[3][ibin] = -TMath::Pi()+ ibin*2*TMath::Pi()/256;
+    for(int ibin=0;ibin<=256;ibin++) phiEMEndcap[3][ibin] = -TMath::Pi()+ ibin*(2*M_PI/256);
     for(int ibin=0;ibin<=20;ibin++) etaEMEndcapA[3][ibin] = 1.5+ibin*0.05; 
     for(int ibin=0;ibin<=20;ibin++) etaEMEndcapC[3][ibin] = -(1.5+ibin*0.05); 
     sort(etaEMEndcapC[3],etaEMEndcapC[3]+nbinsetaEMEndcap[3]+1);
