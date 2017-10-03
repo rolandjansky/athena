@@ -20,16 +20,15 @@
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
 #include "JetRec/PseudoJetGetter.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "AsgTools/AsgTool.h"
 
-
-class TriggerPseudoJetGetter: public PseudoJetGetter,
-  virtual public ITriggerPseudoJetGetter {
+class TriggerPseudoJetGetter: virtual public ITriggerPseudoJetGetter,
+  public asg::AsgTool {
+  ASG_TOOL_CLASS(TriggerPseudoJetGetter, ITriggerPseudoJetGetter) 
 
  public:
 	  
-  TriggerPseudoJetGetter(const std::string&,
-                         const std::string&,
-                         const IInterface*); 
+  TriggerPseudoJetGetter(const std::string& name);
 
   virtual ~TriggerPseudoJetGetter();
 
@@ -45,10 +44,21 @@ class TriggerPseudoJetGetter: public PseudoJetGetter,
   void print() const override;
 
 
+  // method from IPseudojetCetter - some not applicable to trigger jets...
+  // needed only for future changes to offline jets
+  // virtual StatusCode createAndRecord() const override;
+
+  /// Label assignd to this collection of pseudojets.
+  virtual std::string label() const override;
+  virtual int inputContainerNames(std::vector<std::string>& connames) override;
+  virtual int outputContainerNames(std::vector<std::string>& connames) override;
+
+
  private: 
 
-  bool m_primed;  // Indicates if prime has been called before get()
-
+  bool m_primed;         // Indicates if prime has been called before get()
+  std::string m_label;   // Label for the collection.
+  std::string m_outputContainer;   // junk attribute to conform to offline
   const PseudoJetVector*  m_pseudoJetVector;
 
 };
