@@ -15,7 +15,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonEfficiencyScaleFactors )
 DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonTriggerScaleFactors )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( CP, MuonEfficiencyCorrections_TestAlg )
 
-
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trig, MuonTriggerSF_TestAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trig, TestTrigSF )
 
 DECLARE_FACTORY_ENTRIES( MuonEfficiencyCorrections ) {
@@ -24,6 +24,8 @@ DECLARE_FACTORY_ENTRIES( MuonEfficiencyCorrections ) {
    DECLARE_NAMESPACE_TOOL( CP, MuonTriggerScaleFactors )
 
    DECLARE_NAMESPACE_ALGORITHM( CP, MuonEfficiencyCorrections_TestAlg )
+   DECLARE_NAMESPACE_ALGORITHM( Trig, MuonTriggerSF_TestAlg )
+
 
    DECLARE_NAMESPACE_ALGORITHM( Trig, TestTrigSF )
 }
