@@ -305,12 +305,13 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       int idRef = m_SFIndices.find(flavourIDRef)->second;
       // First, handle any named variations
       std::vector<std::string> systematics = m_CDI->listScaleFactorUncertainties(idRef,true);
-      // "Cosmetic" fix: the outside world wants to see "FT_EFF_" prefixes but internally these don't always exist.
-      // We cannot fix this generically but we can at least do so for the "extrapolation" uncertainty.
-      // Also replace any spaces with underscores (this is to make ROOT browsing happy)
+      // Replace any spaces with underscores (this is to make ROOT browsing happy).
+      // Also, remove the "extrapolation" uncertainty from the list (it will be added later under Extrapolation rather than SFNamed).
+      bool hasExtrapolation = false;
       for (unsigned int i = 0, n = systematics.size(); i < n; ++i) {
 	if (systematics[i] == "extrapolation") {
-	  systematics[i] = "FT_EFF_extrapolation";
+          hasExtrapolation = true;
+          systematics.erase(systematics.begin() + i);
 	} else {
 	  std::replace_if(systematics[i].begin(), systematics[i].end(), [] (char c) { return c == ' '; }, '_');
 	}
@@ -318,6 +319,15 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       if (!addSystematics(systematics, flavourID, SFNamed)) {
 	ATH_MSG_ERROR("SFEigen model: error adding named systematics for flavour " << getLabel(flavourIDRef) << ", invalid initialization");
 	return StatusCode::FAILURE;
+      }
+      // Add here the extrapolation uncertainty (if it exists -- which ought to be the case).
+      // "Cosmetic" fix: the outside world wants to see "FT_EFF_" prefixes.
+      if (hasExtrapolation) {
+        std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_extrapolation");
+        if (! addSystematics(extrapSyst, flavourID, Extrapolation)) {
+          ATH_MSG_ERROR("Envelope model: error adding extrapolation uncertainty for flavour " << getLabel(flavourIDRef) << ", invalid initialization");
+          return StatusCode::FAILURE;
+        }
       }
       // And then the eigenvector variations
       std::vector<std::string> eigenSysts = makeEigenSyst(getLabel(flavourIDRef),m_CDI->getNumVariations(idRef, SFEigen));
