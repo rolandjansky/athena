@@ -9,8 +9,7 @@
 
 CorrectPFOTool::CorrectPFOTool(const std::string &name):
   JetConstituentModifierBase(name), 
-  m_weightPFOTool(""),
-  m_trkVtxAssocName("JetTrackVtxAssoc") {
+  m_weightPFOTool("") {
 
 
   // Configuration
@@ -53,8 +52,8 @@ StatusCode CorrectPFOTool::process_impl(xAOD::IParticleContainer* cont) const {
 const xAOD::Vertex* CorrectPFOTool::getPrimaryVertex() const {
   // Retrieve Primary Vertices
   const xAOD::VertexContainer* pvtxs = nullptr;
-  ATH_CHECK(evtStore()->retrieve(pvtxs, m_vertexContainer_key);
-  if(pvtxs->empty()){
+  if(evtStore()->retrieve(pvtxs, m_vertexContainer_key).isFailure()
+     || pvtxs->empty()){
       ATH_MSG_WARNING(" This event has no primary vertices " );
       return nullptr;
   } 

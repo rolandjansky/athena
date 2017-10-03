@@ -35,14 +35,9 @@ StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* 
 
 const xAOD::Vertex* ChargedHadronSubtractionTool::getPrimaryVertex() const {
   // Retrieve Primary Vertices
-  auto handle = SG::makeHandle(m_vertexContainer_key);
-  if (!handle.isValid()){
-      ATH_MSG_WARNING(" This event has no primary vertices " );
-      return nullptr;
-  }
-    
-  const xAOD::VertexContainer* pvtxs = handle.cptr();
-  if(pvtxs->empty()){
+  const xAOD::VertexContainer* pvtxs = nullptr;
+  if(evtStore()->retrieve(pvtxs, m_vertexContainer_key).isFailure()
+     || pvtxs->empty()){
       ATH_MSG_WARNING(" This event has no primary vertices " );
       return nullptr;
   } 
@@ -74,12 +69,10 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
   const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
   const xAOD::Vertex* vtx = nullptr;
   if(m_useTrackToVertexTool) {
-    auto handle = SG::makeHandle(m_trkVtxAssoc_key);
-    if(!handle.isValid()){
-      ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+    if(evtStore()->retrieve(trkVtxAssoc,m_trkVtxAssoc_key).isFailure()){
+      ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key); 
       return StatusCode::FAILURE;
     }
-    trkVtxAssoc = handle.cptr();
   } else {
     vtx = getPrimaryVertex();
     if(vtx==nullptr) {
