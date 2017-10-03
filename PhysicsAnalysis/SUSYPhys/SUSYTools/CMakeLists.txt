@@ -148,15 +148,15 @@ if( XAOD_STANDALONE )
    atlas_add_test( gt_SUSYTools_xs_loader
       SOURCES test/gt_SUSYTools_xs_loader.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} SampleHandler )
-
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} SampleHandler
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    atlas_add_test( ut_SUSYTools_test_xs_files
       SOURCES test/ut_SUSYTools_test_xs_files.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} SampleHandler )
-
    atlas_add_test( ut_SUSYTools_config_checker
-      SCRIPT test/ut_SUSYTools_config_checker.py )
+      SCRIPT test/ut_SUSYTools_config_checker.py
+      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s")
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py )
    # This test takes a bit longer, but it's worth it
