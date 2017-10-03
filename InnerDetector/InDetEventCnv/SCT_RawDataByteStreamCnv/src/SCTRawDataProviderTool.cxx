@@ -20,7 +20,7 @@ SCTRawDataProviderTool::SCTRawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
      m_decoder   ("SCT_RodDecoder", this), 
-     m_bsErrSvc  ("InDetSCT_ByteStreamErrorsSvc",name),
+     m_bsErrSvc  ("SCT_ByteStreamErrorsSvc",name),
      m_robIdSet()
 {
   declareProperty ("Decoder", m_decoder);

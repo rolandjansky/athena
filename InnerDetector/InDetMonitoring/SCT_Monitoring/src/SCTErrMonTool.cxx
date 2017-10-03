@@ -188,7 +188,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_ConfNoiseOnlineRecent{},
   m_DetailedConfiguration{},
   m_thistSvc("THistSvc", name),
-  m_byteStreamErrSvc("InDetSCT_ByteStreamErrorsSvc", name),
+  m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc", name),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true),
   m_sctManager( 0 ),
