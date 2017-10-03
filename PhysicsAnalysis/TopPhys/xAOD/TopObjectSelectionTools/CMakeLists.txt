@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODTau
                           xAODTracking
                           ElectronPhotonSelectorTools
-                          MuonSelectorTools
                           TopEvent
                           TopSystematicObjectMaker
                           AssociationUtils
@@ -23,11 +22,11 @@ atlas_depends_on_subdirs( PUBLIC
                           TrigTauMatching
                           GoodRunsLists
                           JetJvtEfficiency
-                          xAODBTaggingEfficiency
                           JetSubStructureMomentTools
                           JetSubStructureUtils
                           JetReclustering
-                          BoostedJetTaggers 
+                          BoostedJetTaggers	
+			  MuonAnalysisInterfaces
 			  FTagAnalysisInterfaces )
 
 # This package uses ROOT:
@@ -54,7 +53,6 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   xAODTau
                                   xAODTracking
                                   ElectronPhotonSelectorToolsLib
-                                  MuonSelectorToolsLib
                                   TopEvent
                                   TopSystematicObjectMaker
                                   AssociationUtilsLib
@@ -64,11 +62,11 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TrigTauMatchingLib
                                   GoodRunsListsLib
                                   JetJvtEfficiencyLib
-                                  xAODBTaggingEfficiencyLib
                                   JetSubStructureMomentToolsLib
                                   JetSubStructureUtils
                                   JetReclusteringLib
                                   BoostedJetTaggersLib
+				  MuonAnalysisInterfacesLib
 				  FTagAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
