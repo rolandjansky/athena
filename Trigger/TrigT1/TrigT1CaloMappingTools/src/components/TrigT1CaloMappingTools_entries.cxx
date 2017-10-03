@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "../CpmMappingTool.h"
 #include "../JemMappingTool.h"
@@ -14,11 +13,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, PpmMappingTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, PpmCoolMappingTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, PpmCoolOrBuiltinMappingTool )
 
-DECLARE_FACTORY_ENTRIES( TrigT1CaloMappingTools )
-{
-  DECLARE_NAMESPACE_TOOL( LVL1, CpmMappingTool )
-  DECLARE_NAMESPACE_TOOL( LVL1, JemMappingTool )
-  DECLARE_NAMESPACE_TOOL( LVL1, PpmMappingTool )
-  DECLARE_NAMESPACE_TOOL( LVL1, PpmCoolMappingTool )
-  DECLARE_NAMESPACE_TOOL( LVL1, PpmCoolOrBuiltinMappingTool )
-}

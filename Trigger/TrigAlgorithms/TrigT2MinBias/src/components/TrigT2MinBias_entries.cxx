@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigT2MinBias/T2MbtsFex.h"
 #include "TrigT2MinBias/T2MbtsHypo.h"
 #include "TrigT2MinBias/TrigCountSpacePoints.h"
@@ -17,13 +16,3 @@ DECLARE_ALGORITHM_FACTORY(TrigCountTrtHitsHypo)
 DECLARE_ALGORITHM_FACTORY(T2ZdcFex)
 DECLARE_ALGORITHM_FACTORY(T2ZdcHypo)
 
-DECLARE_FACTORY_ENTRIES(TrigT2MinBias) {
-  DECLARE_ALGORITHM(T2MbtsFex)
-  DECLARE_ALGORITHM(T2MbtsHypo)
-  DECLARE_ALGORITHM(TrigCountSpacePoints)
-  DECLARE_ALGORITHM(TrigCountSpacePointsHypo)
-  DECLARE_ALGORITHM(TrigCountTrtHits)
-  DECLARE_ALGORITHM(TrigCountTrtHitsHypo)
-  DECLARE_ALGORITHM(T2ZdcFex)
-  DECLARE_ALGORITHM(T2ZdcHypo)
-}

@@ -6,7 +6,6 @@
 #include "TrigTauHypo/EFTauInvHypo.h"
 #include "TrigTauHypo/EFTauMVHypo.h"
 #include "TrigTauHypo/EFTauDiKaonHypo.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigTauHypo/EFHadCalibHypo.h"
 #include "TrigTauHypo/T2TauTauCombHypo.h"
 #include "TrigTauHypo/T2TauTauCombFexAlgo.h"
@@ -54,33 +53,3 @@ DECLARE_ALGORITHM_FACTORY( EFTauTopoHypo )
 DECLARE_ALGORITHM_FACTORY( EFPhotonTauFex )
 DECLARE_ALGORITHM_FACTORY( EFPhotonTauHypo )
 
-
-DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
-  DECLARE_ALGORITHM( T2CaloTauHypo );
-  DECLARE_ALGORITHM( T2IDTauHypo );
-  DECLARE_ALGORITHM( T2IDCoreTauHypo );
-  DECLARE_ALGORITHM( T2IDIsoTauHypo );
-  DECLARE_ALGORITHM( T2TauHypo );
-  DECLARE_ALGORITHM( EFTauInvHypo );
-  DECLARE_ALGORITHM( EFTauMVHypo );
-  DECLARE_ALGORITHM( EFTauDiKaonHypo );
-  DECLARE_ALGORITHM( EFHadCalibHypo );      
-  DECLARE_ALGORITHM( T2TauTauCombHypo );      
-  DECLARE_ALGORITHM( T2TauTauCombFexAlgo );      
-  DECLARE_ALGORITHM( EFTauTauCombHypo );
-  DECLARE_ALGORITHM( EFTauTauCombFexAlgo );
-  DECLARE_ALGORITHM( HLTCaloPreSelHypo );
-  DECLARE_ALGORITHM( HLTTrackPreSelHypo );
-  DECLARE_ALGORITHM( HLTTauGenericHypo );
-  DECLARE_ALGORITHM( HLTTauTrackRoiUpdater );
-  DECLARE_ALGORITHM( HLTTauCaloRoiUpdater );
-  DECLARE_ALGORITHM( HLTVertexPreSelHypo );
-  DECLARE_ALGORITHM( HLTVertexCombo );
-  DECLARE_ALGORITHM( L2TauTopoFex );
-  DECLARE_ALGORITHM( L2TauTopoHypo );
-  DECLARE_ALGORITHM( EFTauTopoFex );
-  DECLARE_ALGORITHM( EFTauTopoHypo );
-  DECLARE_ALGORITHM( EFPhotonTauFex );
-  DECLARE_ALGORITHM( EFPhotonTauHypo );
-
-}

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "../L1CaloDecoder.h"
 #include "../FakeRoI.h"
 #include "../FakeRoIView.h"
@@ -31,3 +27,4 @@ DECLARE_TOOL_FACTORY(RoIsUnpackingEmulationTool)
 DECLARE_TOOL_FACTORY(MURoIsUnpackingTool)
 DECLARE_TOOL_FACTORY(JRoIsUnpackingTool)
 DECLARE_TOOL_FACTORY(TAURoIsUnpackingTool)
+
