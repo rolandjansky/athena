@@ -57,16 +57,16 @@ StatusCode LArBadChannelMasker::initialize()
 /*   StatusCode sc = service("DetectorStore", m_detStore); 	 
    if (!sc.isSuccess() || 0 == m_detStore) 	 
    { 	 
-      log << MSG::ERROR <<"Could not get DetectorStore." <<endreq; 	 
+      log << MSG::ERROR <<"Could not get DetectorStore." <<endmsg; 	 
       return StatusCode::FAILURE; 	 
    } 	 
 	  	 
    sc = m_detStore->regFcn(&ILArBadChanTool::updateFromDB, &(*m_badChanToolHandle), 	 
       &ILArBadChannelMasker::testCallBack, dynamic_cast<ILArBadChannelMasker*>(this), true); 	 
    if(sc.isSuccess()) 	 
-      log << MSG::DEBUG << "Successfully registered a callback to ILArBadChanTool::updateFromDB." << endreq; 	 
+      log << MSG::DEBUG << "Successfully registered a callback to ILArBadChanTool::updateFromDB." << endmsg; 	 
    else 	 
-      log << MSG::WARNING << "Failed to register a callback to ILArBadChanTool::updateFromDB." << endreq;
+      log << MSG::WARNING << "Failed to register a callback to ILArBadChanTool::updateFromDB." << endmsg;
 */
 
    LArBadChannel tempBC(m_bitMask);    //consider overloading the function
@@ -142,7 +142,7 @@ const std::vector<std::string>& LArBadChannelMasker::defaultProblems()
 StatusCode LArBadChannelMasker::testCallBack(IOVSVC_CALLBACK_ARGS) 	 
 {  //Could monitor DB updates, or implement a check of whether the database was read. 	 
    //Maybe use a one-shot incident listener instead?
-   log << MSG::DEBUG << "In LArBadChannelMasker::testCallBack" << endreq; 	 
+   log << MSG::DEBUG << "In LArBadChannelMasker::testCallBack" << endmsg; 	 
    return StatusCode::SUCCESS; 	 
 }*/
 

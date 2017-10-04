@@ -16,6 +16,7 @@ use LArElecCalib        LArElecCalib-*                  LArCalorimeter
 use LArIdentifier       LArIdentifier-*                 LArCalorimeter
 use LArRecUtils	        LArRecUtils-*	                LArCalorimeter
 use LArCabling          LArCabling-*                    LArCalorimeter
+use LArTools            LArTools-*                      LArCalorimeter
 use CaloInterface       CaloInterface-*                 Calorimeter
 use CaloGeoHelpers      CaloGeoHelpers-*                Calorimeter
 
@@ -44,4 +45,4 @@ apply_pattern component_library
 apply_pattern declare_joboptions	files="*.py"
 apply_pattern declare_python_modules	files="*.py"
 
-apply_pattern declare_scripts files="CaloRescaleNoiseHV.sh CaloNoise_fillDB.py CaloPedestalShift.sh CaloPedestal_fillDB.py"
+apply_pattern declare_scripts files="CaloRescaleNoiseHV.sh CaloNoise_fillDB.py CaloPedestalShift.sh CaloPedestal_fillDB.py CaloScaleNoise_jobOptions.py"

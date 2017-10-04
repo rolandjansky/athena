@@ -4,12 +4,15 @@ if 'OutputFile' not in dir():
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
+if 'DBString' not in dir():
+   DBString="<db>COOLOFL_LAR/"
+
 if 'sqlite' in dir():
     dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
     if not 'tag' in dir():
         tag="LARBadChannelsOflBadChannels-UPD4-00"
 else:
-    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
+    dbStr=DBString+DBInstance+"</db>"
 
 if 'tag' in dir():
     tagStr="<tag>"+tag+"</tag>"
@@ -22,16 +25,19 @@ if not 'IOVEndRun' in dir():
 if not 'IOVEndLB' in dir():
    IOVEndLB = -1
 
+if not 'folderStr' in dir():
+   folderStr="/LAR/BadChannelsOfl/BadChannels"
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
-globalflags.DatabaseInstance=DBInstance
+if 'OFLP' not in DBInstance:
+   globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -73,14 +79,14 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
-conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr)
+conddb.addFolder("",folderStr+tagStr+dbStr)
 #conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")
 
 svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.CoolFolder="/LAR/BadChannelsOfl/BadChannels"
+theLArBadChannelTool.CoolFolder=folderStr
 theLArBadChannelTool.CoolMissingFEBsFolder=""
 ToolSvc+=theLArBadChannelTool
 

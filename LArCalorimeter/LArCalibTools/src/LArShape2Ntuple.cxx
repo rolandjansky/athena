@@ -43,7 +43,7 @@ StatusCode LArShape2Ntuple::stop() {
   
   sc=m_nt->addItem("Gain",gain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'gain' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'gain' failed" );
     return StatusCode::FAILURE;
   }
 
@@ -51,33 +51,33 @@ StatusCode LArShape2Ntuple::stop() {
   if (m_isComplete) {
     sc=m_nt->addItem("TimeOffset",timeOffset,0,100);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'TimeOffset' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'TimeOffset' failed" );
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Phase",phase,0,49);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'phase' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'phase' failed" );
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("PhaseTime",phasetime,0,800);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'PhaseTime' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'PhaseTime' failed" );
       return StatusCode::FAILURE;
     }
   }
   sc=m_nt->addItem("nSamples",nSamples,0,100);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'nSamples' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'nSamples' failed" );
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("Shape",nSamples,Shape);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'Shape' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'Shape' failed" );
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("ShapeDer",nSamples,ShapeDer);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'ShapeDer' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'ShapeDer' failed" );
     return StatusCode::FAILURE;
   }
   
@@ -87,7 +87,7 @@ StatusCode LArShape2Ntuple::stop() {
   if (m_isComplete) {
     sc = detStore()->retrieve(larShapeComplete,m_contKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Can't retrieve LArShapeComplete object with key " << m_contKey << endreq;
+      ATH_MSG_ERROR( "Can't retrieve LArShapeComplete object with key " << m_contKey );
       return StatusCode::FAILURE;
     }
     larShape=larShapeComplete; //Cast to base-class
@@ -95,7 +95,7 @@ StatusCode LArShape2Ntuple::stop() {
   else { //Use just the abstract interface (works also for LArShapeFlat and LArShapeMC)
     sc = detStore()->retrieve(larShape,m_contKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Can't retrieve ILArShape object with key " << m_contKey << endreq;
+      ATH_MSG_ERROR( "Can't retrieve ILArShape object with key " << m_contKey );
       return StatusCode::FAILURE;
     }
   }
@@ -130,14 +130,14 @@ StatusCode LArShape2Ntuple::stop() {
 	sc = ntupleSvc()->writeRecord(m_nt);
 	cellCounter++;
 	if (sc!=StatusCode::SUCCESS) {
-	  msg(MSG::ERROR) << "writeRecord failed" << endreq;
+	  ATH_MSG_ERROR( "writeRecord failed" );
 	  return StatusCode::FAILURE;
 	}
       }//loop over phases
     }//loop over channels
   }//loop over gains
      
-  (*m_log) <<  MSG::INFO << "Total number of cells = " << cellCounter << endreq;
-  (*m_log) <<  MSG::INFO << "LArShape2Ntuple has finished." << endreq;
+  ATH_MSG_INFO( "Total number of cells = " << cellCounter );
+  ATH_MSG_INFO( "LArShape2Ntuple has finished." );
   return StatusCode::SUCCESS;
 } // end finalize-method.

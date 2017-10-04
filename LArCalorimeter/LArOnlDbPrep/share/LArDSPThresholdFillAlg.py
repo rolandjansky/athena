@@ -11,7 +11,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 #globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-GEO-18-01-01')
-globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-GEO-20-00-01')
+globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-R2-2015-04-00-00')
 globalflags.DetGeo.set_Value_and_Lock('commis')
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
@@ -28,7 +28,7 @@ DetFlags.digitize.all_setOff()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
-svcMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2015-05"
+svcMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2017-03"
 
 #Get identifier mapping (needed by LArConditionsContainer)
 include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")

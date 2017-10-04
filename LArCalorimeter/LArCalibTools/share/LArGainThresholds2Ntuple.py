@@ -12,7 +12,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -28,13 +28,13 @@ from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            
-svcMgr.IOVDbSvc.GlobalTag="LARCALIB-000-02"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = 500000
 svcMgr.EventSelector.InitialTimeStamp=int(time())
-dbname="<db>COOLOFL_LAR/COMP200</db>"
+dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
 conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
