@@ -454,7 +454,8 @@ def ConfigureBeamEnergy():
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
                     #beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
                     # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
-                    beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208))
+                    #beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208)) - lowered to 6.37 to match s_NN = 5.02 for earlier Pb-p runs.
+                    beamEnergy=2721000. # 2.72 TeV for Xe-Xe (=6.5 TeV * (Z=54/A=129))
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
                     return
