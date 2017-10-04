@@ -25,8 +25,6 @@
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
 
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandle.h"
 
 namespace Ringer {
 
@@ -95,22 +93,8 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     /// Tool CaloRingerElectronsReader props (non configurables):
     /// @{
 
-    /** @brief helper class to contain write docoration handle keys */
-    template<class T> struct writeDecorHandleKeys {
-      StatusCode initializeDecorKeys(const std::string &name); // note, not constructor
-
-      std::vector<SG::WriteDecorHandleKey<T> > keys;
-    };
-    
-    /** @brief helper class to contain write decoration handles */
-    template<class T> struct writeDecorHandles {
-     writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
-      
-      std::vector<SG::WriteDecorHandle<T, char> > selection;
-      std::vector<SG::WriteDecorHandle<T, unsigned int> > isEM;
-      std::vector<SG::WriteDecorHandle<T, float> > lhood;
-
-    };
+    /// The writeDecorHandleKeys for the selectors
+    writeDecorHandleKeys<xAOD::ElectronContainer> m_selectorDecorHandleKeys;
 
     /// The CaloRings Builder functor:
     BuildCaloRingsFctor<const xAOD::Electron> *m_clRingsBuilderElectronFctor;

@@ -71,7 +71,7 @@ StatusCode CaloRingerPhotonsReader::execute()
   }
 
   if ( m_builderAvailable ) {
-    m_clRingsBuilderPhotonFctor->prepareToLoopFor(m_container->size());
+    m_clRingsBuilderPhotonFctor->prepareToLoopFor(photons->size());
 
     // loop over our particles:
     std::for_each( 

@@ -40,6 +40,9 @@ StatusCode CaloRingerElectronsReader::initialize()
 
   ATH_CHECK(m_inputElectronContainerKey.initialize());
 
+
+  m_selectorDecorHandleKeys.setContName(m_inputElectronContainerKey.key());
+
   if ( m_selectorsAvailable ) {
     CHECK( retrieveSelectors() );
   }
@@ -70,6 +73,9 @@ StatusCode CaloRingerElectronsReader::retrieveSelectors()
       ATH_MSG_FATAL( "Could not get tool: " << tool );
       return StatusCode::FAILURE;
     }
+
+    ATH_CHECK(m_selectorDecorHandleKeys.addSelector(tool->name()));
+
   }
   return StatusCode::SUCCESS;
 }
@@ -108,9 +114,13 @@ StatusCode CaloRingerElectronsReader::execute()
 
   StatusCode sc(SUCCESS);
 
+  writeDecorHandles<xAOD::ElectronContainer> decoHandles(m_selectorDecorHandleKeys);
+
   // Run selectors, if available:
-  for ( const auto& selector : m_ringerSelectors ) {
+  for ( size_t i = 0; i < m_ringerSelectors.size(); i++ ) {
     for ( const xAOD::Electron *el : *electrons ) {
+
+      const auto& selector = m_ringerSelectors[i];
 
       // Execute selector for each electron
       StatusCode lsc = selector->execute(el);
@@ -131,16 +141,10 @@ StatusCode CaloRingerElectronsReader::execute()
           << std::noboolalpha << outputSpace);
 
       // Save the bool result
-      el->setPassSelection(
-          static_cast<char>(accept), 
-          selector->name()
-        );
+      decoHandles.sel(i)(*el) = static_cast<char>(accept);
 
       //// Save the resulting bitmask
-      el->setSelectionisEM(
-          static_cast<unsigned int>(accept.getCutResultInverted()), 
-          selector->name() + std::string("_isEM")
-        );
+      decoHandles.isEM(i)(*el) = static_cast<unsigned int>(accept.getCutResultInverted());
 
       // Check if output space is empty, if so, use error code
       float outputToSave(std::numeric_limits<float>::min());
@@ -149,10 +153,7 @@ StatusCode CaloRingerElectronsReader::execute()
       }
 
       // Save chain output
-      el->setLikelihoodValue(
-          outputToSave,
-          selector->name() + std::string("_output")
-        );
+      decoHandles.lhood(i)(*el) = outputToSave;
     }
   }
 
