@@ -120,5 +120,9 @@ bool TrigEgammaEFPhotonSelectorTool::ApplyIsolation(const xAOD::Photon *ph, cons
     return true;
   }
 
+  if (!status)
+    ATH_MSG_WARNING("Problem to emulate the isolation selector.");
+
+
   return isIsolated;
 }
