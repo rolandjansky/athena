@@ -8,7 +8,7 @@
 #define XAODJET_JETTRIGAUXCONTAINER_H
 #ifndef SIMULATIONBASE
 // Local include(s):
-#include "xAODJet/versions/JetTrigAuxContainer_v1.h"
+#include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 
 namespace xAOD {
    /// Definition of the current jet trigger auxiliary container
@@ -18,7 +18,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef JetTrigAuxContainer_v1 JetTrigAuxContainer;
+   typedef JetTrigAuxContainer_v2 JetTrigAuxContainer;
 }
 
 // Set up a CLID for the class:

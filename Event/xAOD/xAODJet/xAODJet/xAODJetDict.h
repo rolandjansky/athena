@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetDict.h 658646 2015-04-02 10:29:26Z delsart $
+// $Id: xAODJetDict.h 796773 2017-02-12 19:01:20Z sschramm $
 #ifndef XAODJET_XAODJETDICT_H
 #define XAODJET_XAODJETDICT_H
 
@@ -26,6 +26,7 @@
 #include "xAODJet/versions/JetContainer_v1.h"
 #include "xAODJet/versions/JetAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"
+#include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 #include "xAODJet/versions/Jet_v1.h"
 #include "xAODJet/JetTypes.h"
 
