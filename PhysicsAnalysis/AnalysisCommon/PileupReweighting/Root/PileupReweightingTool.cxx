@@ -27,9 +27,12 @@ namespace CP {
 
 PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPileupReweighting(name.c_str()), asg::AsgTool( name ), 
    m_inConfigMode(false), 
-   m_upTool(0), m_downTool(0), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
+   m_upTool(), m_downTool(), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
    m_activeTool(this), 
-   m_noWeightsMode(false), 
+   m_noWeightsMode(false),
+#ifdef XAOD_STANDALONE
+   m_defaultWeightTool( new McEventWeight( "DefaultWeightTool" ) ),
+#endif // XAOD_STANDALONE
    m_weightTool("McEventWeight/myWeightTool"),
    m_grlTool(""), m_tdt("") {
 
@@ -56,9 +59,11 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
 
 #ifdef XAOD_STANDALONE
-   declareProperty( "WeightTool", m_weightTool = new McEventWeight("myWeightTool"),"The tool to compute the weight in the sumOfWeights");
+   declareProperty( "WeightTool", m_weightTool = m_defaultWeightTool.get(),
+                    "The tool to compute the weight in the sumOfWeights" );
 #else
-   declareProperty( "WeightTool", m_weightTool,"The tool to compute the weight in the sumOfWeights");
+   declareProperty( "WeightTool", m_weightTool,
+                    "The tool to compute the weight in the sumOfWeights" );
 #endif
 
 #ifndef XAOD_STANDALONE
@@ -120,11 +125,11 @@ CP::SystematicCode PileupReweightingTool::applySystematicVariation( const CP::Sy
    }
    if(systConfig.find( m_systUp ) != systConfig.end()) {
       if(!m_upTool) { ATH_MSG_ERROR("Requested up variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
-       m_activeTool = m_upTool;
+      m_activeTool = m_upTool.get();
    }
    else if(systConfig.find( m_systDown ) != systConfig.end() ) {
       if(!m_downTool) { ATH_MSG_ERROR("Requested down variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
-      m_activeTool = m_downTool;
+      m_activeTool = m_downTool.get();
    }
    else m_activeTool = this;
    return SystematicCode::Ok;
@@ -159,13 +164,13 @@ StatusCode PileupReweightingTool::initialize() {
 
    //see if we need variations 
    if(m_upVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
-      m_upTool = new TPileupReweighting((name()+"_upVariation").c_str());
+      m_upTool.reset( new TPileupReweighting((name()+"_upVariation").c_str()) );
       m_upTool->SetParentTool(this);
       m_upTool->CopyProperties(this);
       m_upTool->SetDataScaleFactors(m_upVariation);
    }
    if(m_downVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
-      m_downTool = new TPileupReweighting((name()+"_downVariation").c_str());
+      m_downTool.reset( new TPileupReweighting((name()+"_downVariation").c_str()) );
       m_downTool->SetParentTool(this);
       m_downTool->CopyProperties(this);
       m_downTool->SetDataScaleFactors(m_downVariation);
@@ -336,7 +341,7 @@ StatusCode PileupReweightingTool::finalize() {
 #endif
    }
 
-   if(m_upTool) {delete m_upTool;m_upTool=0;} if(m_downTool)  {delete m_downTool;m_downTool=0;} 
+   m_upTool.reset(); m_downTool.reset(); 
 
    return StatusCode::SUCCESS;
 }
