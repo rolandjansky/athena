@@ -293,9 +293,9 @@ StatusCode PileupReweightingTool::finalize() {
                pStarts.push_back(subp->start); pEnds.push_back(subp->end);
             }
          }
-         for(auto inHist : period.second->inputHists) {
+         for(auto& inHist : period.second->inputHists) {
             channel = inHist.first;
-            TH1* hist = inHist.second;
+            TH1* hist = inHist.second.get();
             strncpy(histName,hist->GetName(),sizeof(histName)-1);
             CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
             if(!outTreeMC) {
@@ -316,7 +316,7 @@ StatusCode PileupReweightingTool::finalize() {
          runNumber = run.first;
          if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
    
-         TH1* hist = run.second.inputHists["None"];
+         TH1* hist = run.second.inputHists["None"].get();
          strncpy(histName,hist->GetName(),sizeof(histName)-1);
          CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
          if(!outTreeData) {
