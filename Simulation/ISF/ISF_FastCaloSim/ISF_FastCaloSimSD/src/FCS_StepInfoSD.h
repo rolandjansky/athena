@@ -113,10 +113,20 @@ public:
   }
 
 protected:
-  /// We are keeping a map instead of trying to keep the full vector.
-  /// At the end of the event we'll push the map back into the flat
-  /// vector for storage in StoreGate.
-  void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+  /// Keep a map instead of trying to keep the full vector.
+  /// At the end of the event we'll push the map back into the
+  /// FCS_StepInfoCollection in StoreGate.
+  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+  FCS_Param::Config m_config;
+  /// Pointers to the identifier helpers
+  const LArEM_ID*       m_larEmID;
+  const LArFCAL_ID*     m_larFcalID;
+  const LArHEC_ID*      m_larHecID;
+  const LArMiniFCAL_ID* m_larMiniFcalID;
+  const CaloDetDescrManager *m_calo_dd_man;
+  std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
+
+private:
   ///
   double getMaxTime(const CaloCell_ID::CaloSample& layer) const;
   ///
@@ -128,16 +138,6 @@ protected:
   ///
   double getMaxDeltaPhi(const CaloCell_ID::CaloSample& layer) const;
 
-  FCS_Param::Config m_config;
-  /// Pointers to the identifier helpers
-  const LArEM_ID*       m_larEmID;
-  const LArFCAL_ID*     m_larFcalID;
-  const LArHEC_ID*      m_larHecID;
-  const LArMiniFCAL_ID* m_larMiniFcalID;
-  const CaloDetDescrManager *m_calo_dd_man;
-
-private:
-  std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 };
 
 #endif // ISF_FASTCALOSIM_FCS_STEPINFOSD_H
