@@ -34,6 +34,12 @@ public:
   TileFCS_StepInfoSD(const TileFCS_StepInfoSD&) = delete;
   TileFCS_StepInfoSD& operator=(const TileFCS_StepInfoSD&) = delete;
 
+protected:
+  /// Keep a map instead of trying to keep the full vector.
+  /// At the end of the event we'll push the map back into the
+  /// FCS_StepInfoCollection in StoreGate.
+  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector) override final;
+
 private:
  ITileCalculator* m_calculator;
 };

@@ -50,9 +50,6 @@ inline double FCS_StepInfoSD::getMaxTime(const CaloCell_ID::CaloSample& layer) c
   if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3) {
     return m_config.m_maxTimeHEC;
   }
-  if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2) {
-    return m_config.m_maxTimeTile;
-  }
   if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2) {
     return m_config.m_maxTimeFCAL;
   }
@@ -67,9 +64,6 @@ inline double FCS_StepInfoSD::getMaxRadius(const CaloCell_ID::CaloSample& layer)
   }
   if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3) {
     return m_config.m_maxRadiusHEC;
-  }
-  if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2) {
-    return m_config.m_maxRadiusTile;
   }
   if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2) {
         return m_config.m_maxRadiusFCAL;
@@ -202,7 +196,7 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
       }
       else if ( hit_diff2 >= maxRadius ) { continue; }
       // Found a match.  Make a temporary that will be deleted!
-      ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
+      const ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
       *map_it += my_info;
       match = true;
       break;
@@ -216,11 +210,8 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
 
 void FCS_StepInfoSD::EndOfAthenaEvent( ISF_FCS_Parametrization::FCS_StepInfoCollection* hitContainer )
 {
-  double average_size(0.);
-  const double denominator(m_hit_map.size());
   // Unpack map into vector
   for (auto it : m_hit_map) {
-    average_size+=static_cast<double>(it.second->size());
     for (auto a_s : * it.second) {
       // Giving away ownership of the objects!
       hitContainer->push_back( a_s );
@@ -232,7 +223,5 @@ void FCS_StepInfoSD::EndOfAthenaEvent( ISF_FCS_Parametrization::FCS_StepInfoColl
   if (m_config.verboseLevel > 4) {
     G4cout <<this->GetName()<< " DEBUG EndOfAthenaEvent: After initial cleanup, N=" << hitContainer->size() << G4endl;
   }
-  if(denominator>0.1) average_size/=denominator;
-  G4cout << "Average size = " << average_size <<G4endl;
   return;
 }
