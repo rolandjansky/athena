@@ -49,14 +49,14 @@ G4bool TileFCS_StepInfoSD::ProcessHits(G4Step* a_step, G4TouchableHistory* /*ROh
 
     //Check if MicroHit is not in scintillator
     if ((micHit.pmt_up == m_invalid_id) && (micHit.pmt_down == m_invalid_id)) {
-      G4cout <<"TileFCS_StepInfoSD WARNING ProcessHits: Invalid hit in Tile??"<<G4endl;
+      G4cout <<this->GetName()<<" WARNING ProcessHits: Invalid hit in Tile??"<<G4endl;
       return result;
     }
     else {
       // Store TileHits Information
       if ((micHit.pmt_up == m_invalid_id) ||  (micHit.pmt_down == m_invalid_id)) {
-        G4cout <<"TileFCS_StepInfoSD WARNING ProcessHits: Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
-        G4cout <<"TileFCS_StepInfoSD WARNING ProcessHits: E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
+        G4cout <<this->GetName()<<" WARNING ProcessHits: Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
+        G4cout <<this->GetName()<<" WARNING ProcessHits: E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
       }
       const G4ThreeVector pos = 0.5*(a_step->GetPreStepPoint()->GetPosition()+a_step->GetPostStepPoint()->GetPosition());
 

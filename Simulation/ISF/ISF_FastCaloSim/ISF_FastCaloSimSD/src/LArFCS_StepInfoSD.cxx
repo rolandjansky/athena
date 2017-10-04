@@ -79,7 +79,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       else {
         if (m_config.verboseLevel > 4) {
           //Maybe 0 hits or something like that...
-          G4cout << "LArFCS_StepInfo WARNING ProcessHits: Call to ILArCalculatorSvc::Process failed! Details:" << G4endl
+          G4cout << this->GetName()<<" WARNING ProcessHits: Call to ILArCalculatorSvc::Process failed! Details:" << G4endl
                  << "          " << "Volume: "<< a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<" "<<m_calculator<< " position: "<<stepPosition<<" SL: "<<StepLength<<G4endl
                  << "          " << "Orig position: "<<substep->GetPreStepPoint()->GetPosition()<<"  /  "<<substep->GetPostStepPoint()->GetPosition()<<G4endl
                  << "          " << "StepLength: "<<StepLength<<" step: "<<preStepPosition<<" / "<<postStepPosition<<G4endl;
@@ -91,7 +91,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       //Or if total energy is <0
       if (et <= 0.) {
         if (m_config.verboseLevel > 4) {
-          G4cout << "LArFCS_StepInfo WARNING ProcessHits: Total negative energy: " << et << " not processing..." << G4endl;
+          G4cout << this->GetName()<<" WARNING ProcessHits: Total negative energy: " << et << " not processing..." << G4endl;
         }
         return result;
       }
@@ -120,7 +120,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       for (const auto& larhit: processedHits) {
         Identifier id = this->ConvertID(larhit.id);
         if (id == invalidIdentifier) {
-          G4cout <<"LArFCS_StepInfo WARNING ProcessHits: Something wrong with LArG4Identifier: "<<(std::string) larhit.id<<G4endl
+          G4cout << this->GetName()<<" WARNING ProcessHits: Something wrong with LArG4Identifier: "<<(std::string) larhit.id<<G4endl
                  <<"          "<<id<<G4endl
                  <<"          "<<id.getString()<<G4endl
                  <<"          "<< a_step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()<<G4endl
@@ -131,24 +131,24 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         if (numberOfProcessedHits>1) {
           if (!m_larEmID->is_em_barrel(id)) {
             //It didn't seem to happen outside em_barrel, so flag up if it does:
-            G4cout <<"LArFCS_StepInfo WARNING ProcessHits: Outside LAr barrel, but numberOfProcessedHits="<<numberOfProcessedHits
+            G4cout << this->GetName()<<" WARNING ProcessHits: Outside LAr barrel, but numberOfProcessedHits="<<numberOfProcessedHits
                    <<", LArG4Identifier: "<<(std::string) larhit.id<<G4endl;
           }
           else {
             if (m_config.shift_lar_subhit) {
               //find subhit with largest energy
               if (maxSubHitEnergyindex == -1) {
-                G4cout <<"LArFCS_StepInfo WARNING ProcessHits: no subhit index with e>-999??? "<<G4endl;
+                G4cout << this->GetName()<<" WARNING ProcessHits: no subhit index with e>-999??? "<<G4endl;
                 return result;
               }
               if(m_config.verboseLevel > 9) {
-                G4cout <<"LArFCS_StepInfo VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
+                G4cout << this->GetName()<<" VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
               }
               //from identifier
               CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
               if (!maxEnergyCell) {
                 //How often does this happen? Do not shift.
-                G4cout <<"LArFCS_StepInfo WARNING ProcessHits: maxEnergyCell failed: "<<maxEnergyIdentifier.getString()<<G4endl
+                G4cout << this->GetName()<<" WARNING ProcessHits: maxEnergyCell failed: "<<maxEnergyIdentifier.getString()<<G4endl
                        <<"          "<<m_calo_dd_man->get_element(id)->getSampling()<<G4endl
                        <<"          "<<originalStepPosition.eta()<<G4endl
                        <<"          "<< originalStepPosition.phi()<<G4endl;
@@ -157,7 +157,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
               else if (maxEnergyCell == thiscell) {
                 //The cells match, so do not shift this hit.
                 if(m_config.verboseLevel > 9) {
-                  G4cout <<"LArFCS_StepInfo VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
+                  G4cout << this->GetName()<<" VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
                   <<"          "<<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<G4endl
                   <<"          "<<"No shift"<<G4endl;
                 }
@@ -169,7 +169,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 stepPosition = originalStepPosition+diff;
                 if(m_config.verboseLevel > 9) {
                   CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
-                  G4cout <<"LArFCS_StepInfo VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
+                  G4cout << this->GetName()<<" VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
                   <<"          "<<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<G4endl
                   <<"          "<<"Highest E cell: "<<maxEnergyCell->x()<<" "<<maxEnergyCell->y()<<" "<<maxEnergyCell->z()<<G4endl
                   <<"          "<<"(Best cell: "<<bestcell->x()<<" "<<bestcell->y()<<" "<<bestcell->z()<<")"<<G4endl

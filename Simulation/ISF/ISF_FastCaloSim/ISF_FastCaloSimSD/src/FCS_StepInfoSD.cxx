@@ -157,7 +157,7 @@ void FCS_StepInfoSD::EndOfAthenaEvent( ISF_FCS_Parametrization::FCS_StepInfoColl
   } // Vector of IDs in the map
   m_hit_map.clear();
   if (m_config.verboseLevel > 4) {
-    G4cout << "FCS_StepInfoSD DEBUG EndOfAthenaEvent: After initial cleanup, N=" << hitContainer->size() << G4endl;
+    G4cout <<this->GetName()<< " DEBUG EndOfAthenaEvent: After initial cleanup, N=" << hitContainer->size() << G4endl;
   }
   return;
 }
