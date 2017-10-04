@@ -15,15 +15,16 @@
 
 DetStatusSvc::DetStatusSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
-  par_conddbfolder("/GLOBAL/DETSTATUS/LBSUMM"),
-  par_detreqs(""),
+  m_detStore ("DetectorStore", name),
+  m_par_conddbfolder("/GLOBAL/DETSTATUS/LBSUMM"),
+  m_par_detreqs(""),
   m_sgkey("DetectorStatus")
 {
   // declare properties
-  declareProperty("CondDBFolder",par_conddbfolder);
-  declareProperty("StatusNames",par_detname);
-  declareProperty("StatusReqs",par_detreq);
-  declareProperty("StringReqs",par_detreqs);
+  declareProperty("CondDBFolder",m_par_conddbfolder);
+  declareProperty("StatusNames",m_par_detname);
+  declareProperty("StatusReqs",m_par_detreq);
+  declareProperty("StringReqs",m_par_detreqs);
 }
 
 DetStatusSvc::~DetStatusSvc() {}
@@ -48,64 +49,49 @@ StatusCode DetStatusSvc::initialize()
   // service initialisation - get parameters, setup default cache
   // and register for condDB callbacks if needed
 
-  MsgStream log(msgSvc(), name());
-  if (StatusCode::SUCCESS!=Service::initialize()) log << MSG::ERROR <<
-	    "Service initialisation failed" << endmsg;
+  if (StatusCode::SUCCESS!=Service::initialize())
+    ATH_MSG_ERROR("Service initialisation failed"  );
 
-  log << MSG::DEBUG << "in initialize()" << endmsg;
+  ATH_MSG_DEBUG( "in initialize()"  );
 
-  // get event store
-  if (StatusCode::SUCCESS!=service("StoreGateSvc",p_evtstore)) {
-    log << MSG::FATAL << "Detector store not found" << endmsg; 
-    return StatusCode::FAILURE;
-  }
-  // get detector store
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    log << MSG::FATAL << "Detector store not found" << endmsg; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_detStore.retrieve() );
+
   // register callback if needed
   const DataHandle<CondAttrListCollection> cptr;
-  if (StatusCode::SUCCESS==p_detstore->regFcn(&DetStatusSvc::update,this,
-						cptr,par_conddbfolder)) {
-    log << MSG::INFO << 
-    "Register callback to read detector status from CondDB folder "
-	    << par_conddbfolder << endmsg;
+  if (StatusCode::SUCCESS==m_detStore->regFcn(&DetStatusSvc::update,this,
+						cptr,m_par_conddbfolder)) {
+    ATH_MSG_INFO( "Register callback to read detector status from CondDB folder "
+                  << m_par_conddbfolder  );
   } else {
-    log << MSG::FATAL << "Could not register callback to CondDB folder "
-          << par_conddbfolder << endmsg;
+    ATH_MSG_FATAL( "Could not register callback to CondDB folder "
+                   << m_par_conddbfolder  );
     return StatusCode::FAILURE;
   }
   // put (empty) DetStatusMap in TDS ready for callback to update
   DetStatusMap* statmap=new DetStatusMap();
-  if (StatusCode::SUCCESS!=p_detstore->record(statmap,m_sgkey)) {
-    log << MSG::FATAL << "Could not record DetStatusMap at " << m_sgkey
-        << " in TDS" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_detStore->record(statmap,m_sgkey) );
 
   // check status requirements - list from separate folders
-  if (par_detname.size()!=par_detreq.size()) {
-    log << MSG::INFO << 
-      "Inconsistent setting of StatusNames and StatusReqs properities" 
-	<< endmsg;
+  if (m_par_detname.size()!=m_par_detreq.size()) {
+    ATH_MSG_INFO( 
+      "Inconsistent setting of StatusNames and StatusReqs properities" );
     return StatusCode::FAILURE;
   }
   m_detname.clear();
   m_detreq.clear();
-  for (unsigned int i=0;i<par_detname.size();++i) {
-    m_detname.push_back(par_detname[i]);
-    m_detreq.push_back(par_detreq[i]);
+  for (unsigned int i=0;i<m_par_detname.size();++i) {
+    m_detname.push_back(m_par_detname[i]);
+    m_detreq.push_back(m_par_detreq[i]);
   }
   // add in list from string
-  if (par_detreqs!="") {
+  if (m_par_detreqs!="") {
     if (StatusCode::FAILURE==parseDetReqString()) return StatusCode::FAILURE;
   }
   if (m_detname.size()>0) {
-    log << MSG::INFO << "Number of detector status requirements set: " <<
-      m_detname.size() << endmsg;
+    ATH_MSG_INFO( "Number of detector status requirements set: " <<
+                  m_detname.size()  );
     for (unsigned int i=0;i<m_detname.size();++i)
-      log << m_detname[i] << ": >= " << m_detreq[i] << endmsg;
+      ATH_MSG_VERBOSE( m_detname[i] << ": >= " << m_detreq[i]  );
   }
   return StatusCode::SUCCESS;
 }
@@ -116,15 +102,14 @@ StatusCode DetStatusSvc::finalize() {
 
 StatusCode DetStatusSvc::parseDetReqString() {
   // parse the detreq string into pairs of status flags and values
-  MsgStream log(msgSvc(), name());
   size_t iofs0,iofs1,iofs2;
   iofs0=0;
   while (iofs0!=std::string::npos) {
-    iofs1=par_detreqs.find(' ',iofs0);
+    iofs1=m_par_detreqs.find(' ',iofs0);
     iofs2=std::string::npos;
     if (iofs1!=std::string::npos) {
-      iofs2=par_detreqs.find(' ',iofs1+1);
-      std::string nums=par_detreqs.substr(iofs1+1,1);
+      iofs2=m_par_detreqs.find(' ',iofs1+1);
+      std::string nums=m_par_detreqs.substr(iofs1+1,1);
       const char* numv=nums.c_str();
       int status=0;
       if (isdigit(*numv)) {
@@ -140,11 +125,10 @@ StatusCode DetStatusSvc::parseDetReqString() {
       } else if (nums=="G" || nums=="g") {
         status=3;
       } else {
-        log << MSG::ERROR << "Character " << *numv << " does not define status"
-	  << endmsg;
+        ATH_MSG_ERROR( "Character " << *numv << " does not define status" );
         return StatusCode::FAILURE;
       }
-      m_detname.push_back(par_detreqs.substr(iofs0,iofs1-iofs0));
+      m_detname.push_back(m_par_detreqs.substr(iofs0,iofs1-iofs0));
       m_detreq.push_back(status);
     }
     if (iofs2!=std::string::npos) {
@@ -157,21 +141,19 @@ StatusCode DetStatusSvc::parseDetReqString() {
 }
 
 StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "Update callback invoked for keys: ";
-  for (std::list<std::string>::const_iterator itr=keys.begin();
-       itr!=keys.end(); ++itr) log << " " << *itr;
-  log << endmsg;
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG << "Update callback invoked for keys: ";
+    for (std::list<std::string>::const_iterator itr=keys.begin();
+         itr!=keys.end(); ++itr) msg() << " " << *itr;
+    msg() << endmsg;
+  }
   // read the conditions object
   const CondAttrListCollection* cptr=0;
-  if (StatusCode::SUCCESS==p_detstore->retrieve(cptr,par_conddbfolder) &&
+  if (StatusCode::SUCCESS==m_detStore->retrieve(cptr,m_par_conddbfolder) &&
       cptr!=0) {
     // find status object in TDS and reset it ready for new status info
     DetStatusMap* statmap=0;
-    if (StatusCode::SUCCESS!=p_detstore->retrieve(statmap,m_sgkey)) {
-      log << MSG::ERROR << "Cannot find DetStatus map to update" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_detStore->retrieve(statmap,m_sgkey) );
     statmap->clear();
     // loop over all the elements in the collection
     for (CondAttrListCollection::const_iterator citr=cptr->begin();
@@ -185,18 +167,16 @@ StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
 				  alist["deadFrac"].data<float>(),
 				  alist["Thrust"].data<float>()));
       } else {
-	log << MSG::ERROR << 
+	ATH_MSG_ERROR( 
 	  "COOL data problem: no status name defined for channel " <<
-	  chan << endmsg;
+	  chan  );
       }
     }
-    log << MSG::DEBUG << "Updated DetStatusMap has size " << statmap->size()
-	<< endmsg;
-    statmap->toOutputStream(log);
-    log << endmsg;
+    ATH_MSG_DEBUG( "Updated DetStatusMap has size " << statmap->size() );
+    statmap->toOutputStream(msg());
+    msg() << endmsg;
   } else {
-    log << MSG::ERROR << "Problem reading detector status from CondDB"
-	  << endmsg;
+    ATH_MSG_ERROR( "Problem reading detector status from CondDB" );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -205,7 +185,7 @@ StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
 const DetStatusMap* DetStatusSvc::getStatusMap() const {
   const DetStatusMap* statmap=0;
   // return DetStatusMap maintained in the TDS
-  if (StatusCode::SUCCESS == p_detstore->retrieve(statmap,m_sgkey)) 
+  if (StatusCode::SUCCESS == m_detStore->retrieve(statmap,m_sgkey)) 
     return statmap;
   // No map found, return empty one
   static DetStatusMap empty;
@@ -213,13 +193,12 @@ const DetStatusMap* DetStatusSvc::getStatusMap() const {
 }
 
 void DetStatusSvc::print() const {
-  MsgStream log(msgSvc(), name());
   const DetStatusMap* statmap=getStatusMap();
   if (statmap!=0) {
-    log << MSG::INFO;
-    statmap->toOutputStream(log);
+    msg() << MSG::INFO;
+    statmap->toOutputStream(msg());
   } else {
-    log << MSG::ERROR << "Cannot find DetStatusMap to print" << endmsg;
+    ATH_MSG_ERROR( "Cannot find DetStatusMap to print"  );
   }
 }
 
@@ -243,7 +222,6 @@ void DetStatusSvc::getIter(DetStatusMap::const_iterator& begin,
 }
 
 bool DetStatusSvc::vetoed() const {
-  MsgStream log(msgSvc(), name());
   bool veto=false;
   DetStatusMap::const_iterator begin,end;
   getIter(begin,end);
@@ -261,9 +239,9 @@ bool DetStatusSvc::vetoed() const {
 	if (usedreq[i]==0) ++nseen;
 	++usedreq[i];
 	if (itr->second.code()<m_detreq[i]) {
-	  log << MSG::DEBUG << "Event vetoed by status " << name << ", code "
-	      << itr->second.code() << " below requirement of " << 
-	    m_detreq[i] << endmsg;
+	  ATH_MSG_DEBUG( "Event vetoed by status " << name << ", code "
+                         << itr->second.code() << " below requirement of " << 
+                         m_detreq[i]  );
 	  veto=true;
 	}
 	break;
@@ -272,8 +250,8 @@ bool DetStatusSvc::vetoed() const {
   }
   // check all requirements saw a status flag
   if (nseen<m_detname.size()) {
-    log << MSG::DEBUG << "Only " << nseen << " of " << m_detname.size()
-	<< " requirements saw status flags - event vetoed" << endmsg;
+    ATH_MSG_DEBUG( "Only " << nseen << " of " << m_detname.size()
+                   << " requirements saw status flags - event vetoed"  );
     veto=true;
   }
   return veto;

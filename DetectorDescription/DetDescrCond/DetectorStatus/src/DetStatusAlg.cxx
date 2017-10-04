@@ -13,44 +13,42 @@
 
 DetStatusAlg::DetStatusAlg(const std::string& name, ISvcLocator* pSvcLocator)
     :AthAlgorithm   (name, pSvcLocator),
-     m_log       (msgSvc(), name),
-     par_print(false),par_veto(false),
+     m_par_print(false),m_par_veto(false),
      m_count(0),m_nveto(0)
 {
   // declare properties
-  declareProperty("Print",par_print);
-  declareProperty("Veto",par_veto);
+  declareProperty("Print",m_par_print);
+  declareProperty("Veto",m_par_veto);
 }
 
 DetStatusAlg::~DetStatusAlg()
 {}
 
 StatusCode DetStatusAlg::initialize() {
-  m_log << MSG::INFO << "Initialize called" << endmsg;
+  ATH_MSG_INFO( "Initialize called"  );
   // get DetStatusSvc
-  if (StatusCode::SUCCESS!=service("DetStatusSvc",p_detstatussvc)) {
-    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endmsg;
+  if (StatusCode::SUCCESS!=service("DetStatusSvc",m_detstatussvc)) {
+    ATH_MSG_ERROR( "Cannot get DetStatusSvc"  );
     return StatusCode::FAILURE;
   }
-  if (par_veto) m_log << MSG::INFO << "Events with bad status will be vetoed"
-		      << endmsg;
+  if (m_par_veto) ATH_MSG_INFO( "Events with bad status will be vetoed" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode DetStatusAlg::execute() {
   // execute method - dispatch calls to DetStatusSvc
-  if (par_print) p_detstatussvc->print();
+  if (m_par_print) m_detstatussvc->print();
 
   // veto functionality
-  if (par_veto) doVeto();
+  if (m_par_veto) doVeto();
 
   // if nothing done, retrieve the map anyway, to ensure conditions data
   // gets read in to StoreGate from CondDB
   // this is needed to ensure it can be written out to file-level meta-data
-  if (!(par_print || par_veto)) {
+  if (!(m_par_print || m_par_veto)) {
     DetStatusMap::const_iterator begin,end;
-    p_detstatussvc->getIter(begin,end);
-    m_log << MSG::DEBUG << "Dummy retrieve of DetStatusMap done" << endmsg;
+    m_detstatussvc->getIter(begin,end);
+    ATH_MSG_DEBUG( "Dummy retrieve of DetStatusMap done"  );
   }
 
   return StatusCode::SUCCESS;
@@ -58,8 +56,8 @@ StatusCode DetStatusAlg::execute() {
 
 void DetStatusAlg::doVeto() {
   ++m_count;
-  if (p_detstatussvc->vetoed()) {
-    m_log << MSG::DEBUG << "Event vetoed due to bad status" << endmsg;
+  if (m_detstatussvc->vetoed()) {
+    ATH_MSG_DEBUG( "Event vetoed due to bad status"  );
     ++m_nveto;
     // set filter to false so this can be used in an algorithm Sequence
     setFilterPassed(false);
@@ -67,9 +65,9 @@ void DetStatusAlg::doVeto() {
 }
 
 StatusCode DetStatusAlg::finalize() {
-  if (par_veto) {
-    m_log << MSG::INFO << "Saw " << m_count << " events of which " <<
-      m_nveto << " vetoed due to bad status" << endmsg;
+  if (m_par_veto) {
+    ATH_MSG_INFO( "Saw " << m_count << " events of which " <<
+                  m_nveto << " vetoed due to bad status"  );
   }
   return StatusCode::SUCCESS;
 }
