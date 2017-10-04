@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopCorrections
                           TopParticleLevel
-                          MuonSelectorTools 
 			  JetSelectorTools )
 
 # This package uses ROOT:
@@ -36,7 +35,6 @@ atlas_add_library( TopEventSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   TopCorrections
                                   TopParticleLevel
-                                  MuonSelectorToolsLib
 				  JetSelectorToolsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
