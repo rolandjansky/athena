@@ -93,9 +93,9 @@ StatusCode LArAutoCorrBuilder::stop() {
       NAutoCorr++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero );
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min );
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max );
+    ATH_MSG_DEBUG( "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero );
+    ATH_MSG_DEBUG( "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min );
+    ATH_MSG_DEBUG( "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max );
   }//end loop over gains
 
   //ATH_MSG_INFO(" Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions() );

@@ -113,12 +113,12 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
   }
 
   if (doPathology) {
-    ATH_MSG_INFO( " LArHVToolDB::LoadCalibration: Load HV pathology database " );TH_MSG_INFO(
+    ATH_MSG_INFO( " LArHVToolDB::LoadCalibration: Load HV pathology database " );
     if (m_pathologyContainer) delete m_pathologyContainer;
     if (detStore()->contains<AthenaAttributeList>(m_HVPathologiesFolderName)) {
       if (m_pathologiesHandle.isValid()) {
 	m_pathologyContainer = m_pathologyTool->attrList2HvPathology((*m_pathologiesHandle));
-          msg (MSG::INFO) << " Number of HV pathologies found " << m_pathologyContainer->m_v.size() );
+          ATH_MSG_INFO( " Number of HV pathologies found " << m_pathologyContainer->m_v.size() );
           for(unsigned i=0; i<m_pathologyContainer->m_v.size(); ++i) {
          
               LArHVPathologiesDb::LArHVElectPathologyDb electPath = m_pathologyContainer->m_v[i];
@@ -233,7 +233,7 @@ StatusCode LArHVToolDB::initialize(){
     if (sc.isFailure())
       ATH_MSG_ERROR( "cannot register callback to " << m_HVPathologiesFolderName );
     else
-      ATH_MSG_INFO( "registered callback to " << m_HVPathologiesFolderName  );TH_MSG_INFO(
+      ATH_MSG_INFO( "registered callback to " << m_HVPathologiesFolderName  );
   }
   else
     ATH_MSG_INFO( " no information for HV pathology available " );
@@ -330,15 +330,15 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                 double curr;
                 electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
-                   ATH_MSG_DEBUG( "Original hv: "<<hv<<" ";
+                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]);
+                   ATH_MSG_DEBUG( "Original hv: "<<hv<<" ");
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
                       if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
                          if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
                          curr=0.;
                       }
                    }
-                   ATH_MSG_DEBUG( "set hv: "<<hv<<endmsg;
+                   ATH_MSG_DEBUG( "set hv: "<<hv);
                 }
                 //std::cout << "     hv value " << hv << std::endl;
                 //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in barrel " << std::endl;
@@ -377,7 +377,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                double curr;
                electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
+                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index] );
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
                       if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
                          if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
@@ -418,7 +418,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           subgap->voltage_current(hv,curr);
           //std::cout << "     hv value " << hv << std::endl;
           if (hasPathology) {
-             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index]<<endmsg;
+             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index] );
              for (unsigned int ii=0;ii<listElec.size();ii++) {
                 if (listElec[ii]==i && listElec[ii]<m_hasPathologyHEC[index].size() && m_hasPathologyHEC[index][listElec[ii]]) {
                      if(m_hasPathologyHEC[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyHEC[index][listElec[ii]]&0xFFF0)>>4);
@@ -466,7 +466,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           double curr;
           line->voltage_current(hv,curr);
           if (hasPathology) {
-             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index]<<endmsg;
+             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index] );
              for (unsigned int ii=0;ii<listElec.size();ii++) {
                 if (listElec[ii]==i && listElec[ii]<m_hasPathologyFCAL[index].size() && m_hasPathologyFCAL[index][listElec[ii]]) {
                      if(m_hasPathologyFCAL[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
