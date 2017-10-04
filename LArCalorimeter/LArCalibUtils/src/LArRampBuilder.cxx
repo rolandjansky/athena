@@ -57,8 +57,8 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("isHEC",           m_ishec=false);
   declareProperty("HECKey",          m_hec_key="");
   declareProperty("BadChannelMask",  m_badChannelMask);
-  declareProperty("CorrectBadChannels",  m_doBadChannelMask);
-  declareProperty("Iterate",         m_iterate);
+  declareProperty("CorrectBadChannels",  m_doBadChannelMask = false);
+  declareProperty("Iterate",         m_iterate = false);
 
   int defaultDeadChannelCut;
   if (m_dac0sub)

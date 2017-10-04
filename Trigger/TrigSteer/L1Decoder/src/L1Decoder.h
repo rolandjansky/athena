@@ -42,12 +42,22 @@ protected: // protected to support unit testing
 			    const std::string& type) const;
   
 private:
-  SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey;
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_chainsKey;
 
-  ToolHandle<ICTPUnpackingTool> m_ctpUnpacker; // = ToolHandle<CTPUnpackingTool>("CTPUnpackingTool/CTPUnpackingTool", this); // last arg makes it private tool    
-  //  ToolHandle<PrescalingTool> m_prescaler = ToolHandle<PrescalingTool>("PrescalingTool/PrescalingTool", this); 
-  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers;  // = ToolHandleArray<IRoIsUnpackingTool>(this);    
+  ///@{ @name Properties
+  SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
+      "Name of RoIBResult"};
+
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_chainsKey{this, "Chains", "HLTChains", 
+      "Chains status after L1 and prescaling"};
+
+  ToolHandle<ICTPUnpackingTool> m_ctpUnpacker{this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
+      "Tool used to unpack the CTP info"};
+
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{this, "roiUnpackers", {},
+      "Tools unpacking RoIs"};
+  ///@}
+
   std::map<HLT::Identifier, float> m_prescalingInfo;  
 };
+
 #endif

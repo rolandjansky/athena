@@ -11,7 +11,6 @@
  **                   
  **************************************************************************/ 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // derived algorithm classes
 #include "../TrigDecisionMaker.h"
@@ -21,9 +20,4 @@ using namespace TrigDec;
 
 DECLARE_ALGORITHM_FACTORY( TrigDecisionMaker )
 //DECLARE_ALGORITHM_FACTORY( TrigDecisionTest )
-
-DECLARE_FACTORY_ENTRIES( TrigDecisionMaker ) {
-  DECLARE_ALGORITHM( TrigDecisionMaker )
-    //  DECLARE_ALGORITHM( TrigDecisionTest )
-}
 

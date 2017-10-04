@@ -30,6 +30,9 @@
 // Math functions:
 #include <cmath>
 
+// ReadHandle
+#include "StoreGate/ReadHandle.h"
+
 //STL includes
 #include <sstream>
 
@@ -45,13 +48,11 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_TRTHelper(nullptr),
-  m_trt_rdo_location("TRT_RDOs"),
   m_TRTStrawStatusSummarySvc("InDetTRTStrawStatusSummarySvc", n),
   m_driftFunctionTool("TRT_DriftFunctionTool")  
 {
  declareInterface<ITRT_LocalOccupancy>(this);
   //declareProperty("isData", m_DATA = true);
- declareProperty("TRT_RDOContainerName", m_trt_rdo_location);
  declareProperty("TRTStrawSummarySvc",   m_TRTStrawStatusSummarySvc);
  declareProperty("isTrigger",            m_isTrigger = false);
  declareProperty("includeT0Shift",       m_T0Shift = true);
@@ -83,6 +84,10 @@ StatusCode TRT_LocalOccupancy::initialize()
   CHECK ( m_TRTStrawStatusSummarySvc.retrieve() );
   
   ATH_MSG_INFO ("initialize() successful in " << name());
+
+  //Initlalize ReadHandleKey
+  ATH_CHECK( m_trt_rdo_location.initialize() );
+  ATH_CHECK( m_trt_driftcircles.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -191,11 +196,10 @@ void
 TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
                                         int track_local[NLOCAL][NLOCALPHI]) const
 {
-    const TRT_RDO_Container* p_trtRDOContainer;
-    StatusCode sc = evtStore()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
-    if (sc.isFailure() ) {
+    SG::ReadHandle<TRT_RDO_Container> p_trtRDOContainer(m_trt_rdo_location);
+    if ( !p_trtRDOContainer.isValid() ) {
       ATH_MSG_DEBUG( "Could not find the TRT_RDO_Container " 
-		     << m_trt_rdo_location );
+		     << m_trt_rdo_location.key() );
       return;
     } 
 
@@ -421,16 +425,11 @@ TRT_LocalOccupancy::makeData() const
 {
   auto data = std::make_unique<OccupancyData>();
 
-  const InDet::TRT_DriftCircleContainer* driftCircleContainer = nullptr; 
-  if ( evtStore()->contains<InDet::TRT_DriftCircleContainer>("TRT_DriftCircles") )
-  {
-    StatusCode sc = evtStore()->retrieve(driftCircleContainer, "TRT_DriftCircles");
-    if (sc.isFailure() || !driftCircleContainer)        ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
-    else                                                ATH_MSG_DEBUG   ("Found Drift Circles in StoreGate");
-  }
+  SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles );
     
   // put # hits in vectors
-  if (driftCircleContainer) {
+  if ( driftCircleContainer.isValid() ) {
+    ATH_MSG_DEBUG("Found Drift Circles in StoreGate");
     for (const InDet::TRT_DriftCircleCollection *colNext : *driftCircleContainer) {
       if(!colNext) continue;
       // loop over DCs
@@ -453,6 +452,8 @@ TRT_LocalOccupancy::makeData() const
 	//} // if (isMiddleBXOn)
       }
     }
+  } else {
+    ATH_MSG_WARNING("No TRT Drift Circles in StoreGate");
   }
 
   // count live straws

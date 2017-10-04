@@ -106,7 +106,10 @@ svcMgr.PoolSvc.OutputLevel = 2
 svcMgr.AthenaPoolCnvSvc.OutputLevel = 2
 topSequence.WriteData.OutputLevel = 2
 Stream2.OutputLevel = 2
+Stream2.WritingTool.OutputLevel = 3
+Stream2.HelperTools[0].OutputLevel = 3
 RegStream2.OutputLevel = 2
+RegStream2.Tool.OutputLevel = 3
 
 #
 # End of job options file

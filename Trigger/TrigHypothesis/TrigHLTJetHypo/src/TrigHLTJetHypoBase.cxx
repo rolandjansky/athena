@@ -39,6 +39,11 @@
 #include <map>
 #include <fstream> // debugging
 
+using std::chrono::steady_clock;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+using std::chrono::nanoseconds;
+
 
 TrigHLTJetHypoBase::TrigHLTJetHypoBase(const std::string& name,
 			       ISvcLocator* pSvcLocator):

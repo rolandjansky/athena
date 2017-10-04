@@ -34,7 +34,7 @@ namespace LVL1MUCTPI {
    StatusCode Converter::convertRoIs( const std::vector< unsigned int >& roi_vector,
                                       LVL1MUONIF::Lvl1MuCTPIInput* muctpi_input ) {
 
-      MsgLogger m_logger( "Converter::convertRoIs()" );
+      MsgLogger logger( "Converter::convertRoIs()" );
 
       // Maps needed for the translation:
       std::map< unsigned int, HelperRoIBarrelSector >  barrel_map;
@@ -55,9 +55,10 @@ namespace LVL1MUCTPI {
          SectorType type = getSectorType( getRoISectorAddress( *it_roi_vector ) );
 
          if( type == Barrel ) {
-            REPORT_VERBOSE_MSG( "Barrel sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_roi_vector );
+            REPORT_VERBOSE_MSG2( "Barrel sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_roi_vector,
+                                 logger);
 
             if( isRoIFirstCand( *it_roi_vector ) ) {
                barrel_map[ getRoISectorAddress( *it_roi_vector ) ].addFirst( *it_roi_vector );
@@ -67,9 +68,10 @@ namespace LVL1MUCTPI {
 
          } else if( type == Endcap ) {
 
-            REPORT_VERBOSE_MSG( "Endcap sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_roi_vector );
+            REPORT_VERBOSE_MSG2( "Endcap sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_roi_vector,
+                                 logger);
 
             if( isRoIFirstCand( *it_roi_vector ) ) {
                endcap_map[ getRoISectorAddress( *it_roi_vector ) ].addFirst( *it_roi_vector );
@@ -79,9 +81,10 @@ namespace LVL1MUCTPI {
 
          } else if( type == Forward ) {
 
-            REPORT_VERBOSE_MSG( "Forward sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_roi_vector );
+            REPORT_VERBOSE_MSG2( "Forward sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_roi_vector,
+                                 logger);
 
             if( isRoIFirstCand( *it_roi_vector ) ) {
                forward_map[ getRoISectorAddress( *it_roi_vector ) ].addFirst( *it_roi_vector );
@@ -91,7 +94,8 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Coding error found. System of candidate not recognized." );
+            REPORT_FATAL_MSG2( "Coding error found. System of candidate not recognized.",
+                               logger);
             return StatusCode::FAILURE;
          }
       }
@@ -108,7 +112,7 @@ namespace LVL1MUCTPI {
          barrel_map.end();
       for( ; it_barrel_map != end_barrel_map; ++it_barrel_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:"  << std::endl << it_barrel_map->second.toString());
+          REPORT_MSG2(DEBUG, "Adding sector logic word:"  << std::endl << it_barrel_map->second.toString(), logger);
 
          if( it_barrel_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -126,7 +130,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }
@@ -137,7 +141,7 @@ namespace LVL1MUCTPI {
          endcap_map.end();
       for( ; it_endcap_map != end_endcap_map; ++it_endcap_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString());
+          REPORT_MSG2(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString(), logger);
 
          if( it_endcap_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -155,7 +159,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }
@@ -166,7 +170,7 @@ namespace LVL1MUCTPI {
          forward_map.end();
       for( ; it_forward_map != end_forward_map; ++it_forward_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString());
+          REPORT_MSG2(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString(), logger);
 
          if( it_forward_map->second.subSystem() == HelperRoISector::A_side ) {
 
@@ -184,7 +188,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }
@@ -196,7 +200,7 @@ namespace LVL1MUCTPI {
                                      unsigned int bcid,
                                      LVL1MUONIF::Lvl1MuCTPIInput* muctpi_input ) {
 
-      MsgLogger m_logger( "Converter::convertRDO()" );
+      MsgLogger logger( "Converter::convertRDO()" );
 
       // Maps needed for the translation:
       std::map< unsigned int, HelperRDOBarrelSector >  barrel_map;
@@ -216,7 +220,7 @@ namespace LVL1MUCTPI {
 
          // Only consider the candidates with the correct BCID:
          if( getRDOBCID( *it_rdo_vector ) != bcid ) {
-            REPORT_VERBOSE_MSG( "Discarding candidate with wrong BCID" );
+            REPORT_VERBOSE_MSG2( "Discarding candidate with wrong BCID", logger );
             continue;
          }
 
@@ -224,9 +228,10 @@ namespace LVL1MUCTPI {
 
          if( type == Barrel ) {
 
-            REPORT_VERBOSE_MSG( "Barrel sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_rdo_vector );
+            REPORT_VERBOSE_MSG2( "Barrel sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_rdo_vector,
+                                 logger);
 
             if( isRDOFirstCand( *it_rdo_vector ) ) {
                barrel_map[ getRDOSectorAddress( *it_rdo_vector ) ].addFirst( *it_rdo_vector );
@@ -236,9 +241,10 @@ namespace LVL1MUCTPI {
 
          } else if( type == Endcap ) {
 
-            REPORT_VERBOSE_MSG( "Endcap sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_rdo_vector );
+            REPORT_VERBOSE_MSG2( "Endcap sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_rdo_vector,
+                                 logger);
 
             if( isRDOFirstCand( *it_rdo_vector ) ) {
                endcap_map[ getRDOSectorAddress( *it_rdo_vector ) ].addFirst( *it_rdo_vector );
@@ -248,9 +254,10 @@ namespace LVL1MUCTPI {
 
          } else if( type == Forward ) {
 
-            REPORT_VERBOSE_MSG( "Forward sector candidate found : 0x" << std::hex
-                                << std::setw( 8 ) << std::setfill( '0' )
-                                << *it_rdo_vector );
+            REPORT_VERBOSE_MSG2( "Forward sector candidate found : 0x" << std::hex
+                                 << std::setw( 8 ) << std::setfill( '0' )
+                                 << *it_rdo_vector,
+                                 logger);
 
             if( isRDOFirstCand( *it_rdo_vector ) ) {
                forward_map[ getRDOSectorAddress( *it_rdo_vector ) ].addFirst( *it_rdo_vector );
@@ -260,7 +267,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Coding error found. System of candidate not recognized." );
+            REPORT_FATAL_MSG2( "Coding error found. System of candidate not recognized.", logger);
             return StatusCode::FAILURE;
          }
       }
@@ -277,7 +284,7 @@ namespace LVL1MUCTPI {
          barrel_map.end();
       for( ; it_barrel_map != end_barrel_map; ++it_barrel_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_barrel_map->second.toString());
+         REPORT_MSG2(DEBUG, "Adding sector logic word:" << std::endl << it_barrel_map->second.toString(), logger);
 
          if( it_barrel_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -295,7 +302,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }
@@ -306,7 +313,7 @@ namespace LVL1MUCTPI {
          endcap_map.end();
       for( ; it_endcap_map != end_endcap_map; ++it_endcap_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString());
+         REPORT_MSG2(DEBUG, "Adding sector logic word:" << std::endl << it_endcap_map->second.toString(), logger);
 
          if( it_endcap_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -324,7 +331,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }
@@ -335,7 +342,7 @@ namespace LVL1MUCTPI {
          forward_map.end();
       for( ; it_forward_map != end_forward_map; ++it_forward_map ) {
 
-         REPORT_MSG(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString());
+         REPORT_MSG2(DEBUG, "Adding sector logic word:" << std::endl << it_forward_map->second.toString(), logger);
 
          if( it_forward_map->second.subSystem() == HelperRDOSector::A_side ) {
 
@@ -353,7 +360,7 @@ namespace LVL1MUCTPI {
 
          } else {
 
-            REPORT_FATAL_MSG( "Code error detected in Converter. --> Aborting conversion!" );
+            REPORT_FATAL_MSG2( "Code error detected in Converter. --> Aborting conversion!", logger );
             return StatusCode::FAILURE;
          }
       }

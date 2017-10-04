@@ -15,7 +15,6 @@
 #include "../WriteData.h"
 #include "../WriteDataReentrant.h"
 #include "../ReadDataReentrant.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( ReadData )
 DECLARE_ALGORITHM_FACTORY( ReadPileUpData )

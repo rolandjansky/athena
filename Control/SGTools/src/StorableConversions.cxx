@@ -56,23 +56,4 @@ void* Storable_cast(DataObject* pDObj, CLID clid,
 }
 
 
-/**
- * @brief Try to get the pointer back from a @a DataObject,
- *        converted to be of type @a clid.
- * @param pDObj The @a DataObject.
- * @param clid The ID of the class to which to convert.
- * @param irt To be called if we make a new instance.
- * @param isConst True if the object being converted is regarded as const.
- *
- * Only works if the @a DataObject is a @a DataBucket.
- * Returns 0 on failure,
- */
-const void* Storable_cast(const DataObject* pDObj, CLID clid,
-                          IRegisterTransient* irt /*= 0*/,
-                          bool isConst /*= true*/)
-{
-  return fromStorable (const_cast<DataObject*> (pDObj), clid, irt, isConst);
-}
-
-
 } // namespace SG

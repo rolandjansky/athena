@@ -23,17 +23,17 @@
 #include <Inventor/elements/SoTransparencyElement.h>
 #include <algorithm>//for min/max
 
-bool SoTransparency::didInit = false;
+bool SoTransparency::s_didInit = false;
 
 SO_NODE_SOURCE(SoTransparency)
 // Initializes the SoTransparency class.
 void
 SoTransparency::initClass()
 {
-  if ( !didInit )
+  if ( !s_didInit )
   {
     SO_NODE_INIT_CLASS(SoTransparency, SoNode, "Node");
-    didInit = true;
+    s_didInit = true;
   }
 }
 

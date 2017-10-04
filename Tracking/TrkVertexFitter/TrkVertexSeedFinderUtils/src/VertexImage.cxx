@@ -9,6 +9,8 @@
 
 namespace Trk {
 
+  VertexImage::VertexImage( ) : VertexImage(NULL, 0, 0, 0, 0.0f, 0.0f, 0.0f, false) { }
+
   VertexImage::VertexImage( float * hist_3d, int nx, int ny, int nz, 
                             float xrange, float yrange, float zrange,
                             bool inplace ) :
@@ -231,6 +233,7 @@ namespace Trk {
     // compute average position and width of positive weights
     if (nPos <= 0) {
       //msg(MSG::WARNING) << "XY projection of image has no positive weights" << endmsg;
+      if (hxy) delete[] hxy;
       return;
     }
     // update fallback quantities to something better
@@ -246,6 +249,7 @@ namespace Trk {
     // if we don't have at least 5 qualifying bins, we can't fit the five unknowns
     if (nPos < 5) {
       std::cout << "VertexImage: less than five bins available for fitting centroid" << std::endl;
+      if (hxy) delete[] hxy;
       return;
     }
 
@@ -293,6 +297,7 @@ namespace Trk {
 	s_n++;
       }
     }
+    if (hxy) delete[] hxy;
     //AmgMatrix(5,5) m;
     Eigen::Matrix<double,5,5> m;
     m << s_x4, s_x2y2, s_x3, s_x2y, s_x2,
@@ -320,7 +325,6 @@ namespace Trk {
       std::cout << "Bad result from gaussian fit" << std::endl;
       std::cout << "VertexImage : " << sol << std::endl;
     }
-
   }
 
   // Project on z using Gaussian weighting in x,y

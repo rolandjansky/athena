@@ -40,7 +40,7 @@ public:
   virtual bool insert(const SourceID& sid, DataObject* obj) = 0;
   virtual bool insert(const SourceID& sid, void* obj) = 0;
 
-  virtual SG::DataProxy* proxy() const = 0;
+  virtual SG::DataProxy* proxy() = 0;
   virtual void setProxy(SG::DataProxy*) = 0;
 
   virtual std::vector<SourceID> sources() const = 0;
@@ -74,7 +74,7 @@ public:
 
   virtual const DataObjID& id() const { return m_id; }
 
-  virtual SG::DataProxy* proxy() const { return m_proxy; }
+  virtual SG::DataProxy* proxy() { return m_proxy; }
   virtual void setProxy(SG::DataProxy* prx) { m_proxy = prx; }
 
   virtual std::vector<SourceID> sources() const;

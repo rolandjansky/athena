@@ -5,7 +5,6 @@
 // ***************************************************************************
 // LArCalorimeter/LArDetDescr/LArRecoMaterialTool.cxx
 // -------------------------------------------------------------
-// Copyright (C) 2005 by ATLAS Collaboration
 //****************************************************************************
 
 #include "LArDetDescr/LArRecoMaterialTool.h"

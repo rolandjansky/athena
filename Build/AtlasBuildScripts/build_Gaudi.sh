@@ -90,6 +90,8 @@ source ${EXTDIR}/setup.sh || ((ERROR_COUNT++))
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
+rm -f CMakeCache.txt
+rm -rf * # Remove the full build temporarily, to fix GAUDI-1315
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
     -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} \

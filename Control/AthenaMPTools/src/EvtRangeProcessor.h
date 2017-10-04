@@ -14,7 +14,7 @@
 #include <deque>
 #include <set>
 
-class IEventSeek;
+class IEvtSelectorSeek;
 class IChronoStatSvc;
 class IIncidentSvc;
 namespace yampl {
@@ -66,7 +66,7 @@ class EvtRangeProcessor : public AthenaMPToolBase
 
   ServiceHandle<IChronoStatSvc>     m_chronoStatSvc;
   ServiceHandle<IIncidentSvc>       m_incidentSvc;
-  IEventSeek*                       m_evtSeek;
+  IEvtSelectorSeek*                 m_evtSeek;
 
   StringProperty                    m_channel2Scatterer;
   StringProperty                    m_channel2EvtSel;

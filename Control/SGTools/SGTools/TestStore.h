@@ -21,6 +21,7 @@
 #include "SGTools/StringPool.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/CurrentEventStore.h"
+#include "CxxUtils/checker_macros.h"
 #include <unordered_map>
 
 
@@ -48,7 +49,7 @@ struct TestStoreRemapHash
 };
 
 
-class TestStore
+class ATLAS_NOT_THREAD_SAFE TestStore
   : virtual public IProxyDict
 {
 public:
@@ -142,7 +143,7 @@ public:
 
 
 extern TestStore store;
-void initTestStore();
+void initTestStore ATLAS_NOT_THREAD_SAFE ();
 
 
 } // namespace SGTest

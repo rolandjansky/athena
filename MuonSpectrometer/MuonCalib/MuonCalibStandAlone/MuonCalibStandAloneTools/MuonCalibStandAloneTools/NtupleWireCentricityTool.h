@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _NtupleWireCentricityTool_H
-#define _NtupleWireCentricityTool_H
+#ifndef MUONCALIBSTANDALONETOOLS_NTUPLEWIRECENTRICITYTOOL_H
+#define MUONCALIBSTANDALONETOOLS_NTUPLEWIRECENTRICITYTOOL_H
 
 
 //c - c++
@@ -74,9 +74,9 @@ class NtupleWireCentricityTool : public AthAlgTool, virtual public NtupleCalibra
 	//! track slope
 		TH1F *p_track_slope_cut;
 	//! x coordinate
-		TH1F *x_coordinate;
+		TH1F *m_x_coordinate;
 	//! track radius
-		TH1F *track_radius;
+		TH1F *m_track_radius;
 	//! calibration input service
 		ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 	//! drift velocity for large radii

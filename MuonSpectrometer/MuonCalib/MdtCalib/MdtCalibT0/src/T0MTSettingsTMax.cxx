@@ -15,8 +15,7 @@ T0MTSettingsTMax :: T0MTSettingsTMax() :	m_vbh_bin_content_rel(4.0),
 						m_dist_background(80.0),
 						m_min_background_bins(10),
 						m_dist_ab(50.0),
-						m_width_ab(300.0),
-						m_start_t(3.0)
+						m_width_ab(300.0)
 	{
 	}
 

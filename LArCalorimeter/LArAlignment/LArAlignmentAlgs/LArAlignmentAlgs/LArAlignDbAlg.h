@@ -5,7 +5,6 @@
 /***************************************************************************
  LArCalorimeter/LArAlignment/LArAloignmentAlgs package
  -----------------------------------------
- Copyright (C) 2005 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef LARALIGNDBALG_LARALIGNDBALG_H

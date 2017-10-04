@@ -214,93 +214,93 @@ StatusCode FTKBankGenAlgo::initialize(){
   // get detector configurations
   m_nplanes=m_pmap->getNPlanes();
   m_nregions = m_rmap->getNumRegions();  
-  TotalDim=m_pmap->getTotalDim();
-  initPattTree(m_nbanks, m_nplanes+1,TotalDim);
+  m_TotalDim=m_pmap->getTotalDim();
+  initPattTree(m_nbanks, m_nplanes+1,m_TotalDim);
   
-  log << MSG::INFO << "get dim" << TotalDim <<endmsg;
+  log << MSG::INFO << "get dim" << m_TotalDim <<endmsg;
     
-  TotalDim2=TotalDim*TotalDim;
+  m_TotalDim2=m_TotalDim*m_TotalDim;
   
   m_sectorID =(int *) calloc(m_nplanes,sizeof(int));
   m_hashID =(int *) calloc(m_nplanes,sizeof(int));
-  m_tmpVec = (double *) calloc(TotalDim,sizeof(double));    
-  m_tmpxC = (double *) calloc(TotalDim,sizeof(double));
-  m_tmpxD = (double *) calloc(TotalDim,sizeof(double));
-  m_tmpxPhi  = (double *) calloc(TotalDim,sizeof(double));
-  m_tmpxCoto  =  (double *) calloc(TotalDim,sizeof(double));
-  m_tmpxZ  =(double *) calloc(TotalDim,sizeof(double));
-  m_tmpcovx = (double *) calloc(TotalDim*TotalDim,sizeof(double));
+  m_tmpVec = (double *) calloc(m_TotalDim,sizeof(double));    
+  m_tmpxC = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxD = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxPhi  = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxCoto  =  (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxZ  =(double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpcovx = (double *) calloc(m_TotalDim*m_TotalDim,sizeof(double));
 
-  npatterns =(int *) calloc(m_nbanks,sizeof(int));
-  ntracks =(int *) calloc(m_nbanks,sizeof(int));
+  m_npatterns =(int *) calloc(m_nbanks,sizeof(int));
+  m_ntracks =(int *) calloc(m_nbanks,sizeof(int));
     
-  p_ss = (int *) calloc(m_nplanes+1,sizeof(int));
-  p_hashss = (int *) calloc(m_nplanes+1,sizeof(int));
-  tmphitc = (double *) calloc(TotalDim,sizeof(double));    
-  tmpxC = (double *) calloc(TotalDim,sizeof(double));
-  tmpxD = (double *) calloc(TotalDim,sizeof(double));
-  tmpxPhi  = (double *) calloc(TotalDim,sizeof(double));
-  tmpxCoto  =  (double *) calloc(TotalDim,sizeof(double));
-  tmpxZ  =(double *) calloc(TotalDim,sizeof(double));
-  tmpcovx = (double *) calloc(TotalDim*TotalDim,sizeof(double));
+  m_p_ss = (int *) calloc(m_nplanes+1,sizeof(int));
+  m_p_hashss = (int *) calloc(m_nplanes+1,sizeof(int));
+  m_tmphitc = (double *) calloc(m_TotalDim,sizeof(double));    
+  m_tmpxC2 = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxD2 = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxPhi2  = (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxCoto2  =  (double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpxZ2  =(double *) calloc(m_TotalDim,sizeof(double));
+  m_tmpcovx2 = (double *) calloc(m_TotalDim*m_TotalDim,sizeof(double));
   for(int i=0;i<m_nbanks;i++){
-    ntracks[i]=0;
-    npatterns[i]=0;
+    m_ntracks[i]=0;
+    m_npatterns[i]=0;
   }
 
   if(m_const_test_mode){
 
-    count_pass_filter = 0;
-    count_match = 0;
-    coverage = 0;
+    m_count_pass_filter = 0;
+    m_count_match = 0;
+    m_coverage = 0;
 
-    strcpy(c_sector_dir_path, m_sector_dir_path.c_str());
-    strcpy(c_gcon_dir_path, m_gcon_dir_path.c_str());
+    strcpy(m_c_sector_dir_path, m_sector_dir_path.c_str());
+    strcpy(m_c_gcon_dir_path, m_gcon_dir_path.c_str());
 
     //sector file
     //TODO tmp_SSID.resize(m_nplanes); to check
-    tmp_ssID = (int *) calloc(m_nplanes+1,sizeof(int));
-    tmp_hashID = (int *) calloc(m_nplanes+1,sizeof(int));
+    m_tmp_ssID = (int *) calloc(m_nplanes+1,sizeof(int));
+    m_tmp_hashID = (int *) calloc(m_nplanes+1,sizeof(int));
 
     for(int ibank=0;ibank<m_nbanks;ibank++){
-      sprintf(str_sector_file_name,"%s/sectors_raw_%dL_reg%d.patt",c_sector_dir_path,m_nplanes,ibank);
+      sprintf(m_str_sector_file_name,"%s/sectors_raw_%dL_reg%d.patt",m_c_sector_dir_path,m_nplanes,ibank);
       
-      ifstream sector_file(str_sector_file_name);
+      ifstream sector_file(m_str_sector_file_name);
       if(!sector_file){
-    	log << MSG::FATAL << str_sector_file_name << " not found!!" << endmsg;
+    	log << MSG::FATAL << m_str_sector_file_name << " not found!!" << endmsg;
 	return StatusCode::FAILURE;
       }
 
       //read header
-      for(int i=0;i<2;i++)sector_file >> header[i];
+      for(int i=0;i<2;i++)sector_file >> m_header[i];
     
       while(!sector_file.eof()){
 
-	addPattReturnCode=0;      
+	m_addPattReturnCode=0;      
 
     	//read sector
-    	sector_file >> tmp_sectorID;
+    	sector_file >> m_tmp_sectorID;
       
-    	for(int i=0;i<m_nplanes;i++) sector_file >> tmp_ssID[i];
-	tmp_ssID[m_nplanes]=tmp_sectorID;
-    	sector_file >> dummy;
-    	sector_file >> dummy;
+    	for(int i=0;i<m_nplanes;i++) sector_file >> m_tmp_ssID[i];
+	m_tmp_ssID[m_nplanes]=m_tmp_sectorID;
+    	sector_file >> m_dummy;
+    	sector_file >> m_dummy;
 	
-	int_c.clear();
-	int_phi.clear();
-	int_d0.clear();
-	int_z0.clear();
-	int_eta.clear();
+	m_int_c.clear();
+	m_int_phi.clear();
+	m_int_d0.clear();
+	m_int_z0.clear();
+	m_int_eta.clear();
 
-	int_c.resize(1);
-	int_phi.resize(1);
-	int_d0.resize(1);
-	int_z0.resize(1);
-	int_eta.resize(1);
+	m_int_c.resize(1);
+	m_int_phi.resize(1);
+	m_int_d0.resize(1);
+	m_int_z0.resize(1);
+	m_int_eta.resize(1);
   
-	Mtmp.nhit=1;
-	addPattReturnCode=addKDPattern(ibank, m_const_test_mode, tmp_ssID, tmp_hashID, 1,Mtmp,tmphitc,tmpxC,tmpxD,tmpxPhi,tmpxCoto,tmpxZ,tmpcovx,
-				       int_c,int_phi,int_d0,int_z0,int_eta);
+	m_Mtmp.nhit=1;
+	m_addPattReturnCode=addKDPattern(ibank, m_const_test_mode, m_tmp_ssID, m_tmp_hashID, 1,m_Mtmp,m_tmphitc,m_tmpxC2,m_tmpxD2,m_tmpxPhi2,m_tmpxCoto2,m_tmpxZ2,m_tmpcovx2,
+				       m_int_c,m_int_phi,m_int_d0,m_int_z0,m_int_eta);
 
       }//sector_file.eof
       log << MSG::INFO << "sector:region " << ibank << " loaded." << endmsg;
@@ -312,48 +312,48 @@ StatusCode FTKBankGenAlgo::initialize(){
 
     //setBank function
     for(int ibank=0;ibank<m_nbanks;ibank++){
-      sprintf(str_gcon_file_name,"%s/corrgen_raw_%dL_reg%d.gcon",c_gcon_dir_path,m_nplanes,ibank);
-      ifstream gcon_file(str_gcon_file_name);
+      sprintf(m_str_gcon_file_name,"%s/corrgen_raw_%dL_reg%d.gcon",m_c_gcon_dir_path,m_nplanes,ibank);
+      ifstream gcon_file(m_str_gcon_file_name);
       if(!gcon_file){
-      	log << MSG::FATAL << str_gcon_file_name << " not found!!" << endmsg;
+      	log << MSG::FATAL << m_str_gcon_file_name << " not found!!" << endmsg;
 	return StatusCode::FAILURE;
       }
 
-      gcon_path = str_gcon_file_name;
-      log << MSG::INFO << "gcon file =  " << gcon_path << endmsg;
-      m_constant[ibank] = new FTKConstantBank(TotalDim,gcon_path.c_str());
+      m_gcon_path = m_str_gcon_file_name;
+      log << MSG::INFO << "gcon file =  " << m_gcon_path << endmsg;
+      m_constant[ibank] = new FTKConstantBank(m_TotalDim,m_gcon_path.c_str());
       log << MSG::INFO << "constant:region " << ibank << " loaded." << endmsg;
     }
 
-    base_trk.setNCoords(TotalDim);
-    base_trk.setNPlanes(m_nplanes);
-    base_trk.setNMissing(0);
+    m_base_trk.setNCoords(m_TotalDim);
+    m_base_trk.setNPlanes(m_nplanes);
+    m_base_trk.setNMissing(0);
 
     char filename_coverage[30];
     sprintf(filename_coverage,"coverage.txt");
-    file_coverage.open(filename_coverage);
+    m_file_coverage.open(filename_coverage);
 
     char filename_truthpar[30];
     sprintf(filename_truthpar,"truthpar.txt");
-    file_truthpar.open(filename_truthpar);
+    m_file_truthpar.open(filename_truthpar);
 
     char filename_recpar[30];
     sprintf(filename_recpar,"recpar.txt");
-    file_recpar.open(filename_recpar);
+    m_file_recpar.open(filename_recpar);
 
     char filename_resolution[30];
     sprintf(filename_resolution,"resolution.txt");
-    file_resolution.open(filename_resolution);
+    m_file_resolution.open(filename_resolution);
 
-    file_resolution << "dC dD dPhi dZ0 dCoto Chi2" << endl;
+    m_file_resolution << "dC dD dPhi dZ0 dCoto Chi2" << endl;
 
   }else{//const test mode
 
     char filename[30];
   
-    sprintf(filename,"matrix_%dL_%dDim.root",m_nplanes,TotalDim);
+    sprintf(filename,"matrix_%dL_%dDim.root",m_nplanes,m_TotalDim);
   
-    file = new TFile(filename,"recreate");
+    m_file = new TFile(filename,"recreate");
     gROOT->cd();
   
     char name[5];
@@ -376,8 +376,8 @@ StatusCode FTKBankGenAlgo::initialize(){
     m_slicetree=new TTree("slice", "slice para");
   
     for(int i = 0; i < m_nregions; ++i){
-      m_tree[i]->Branch("ndim",&TotalDim,"ndim/I");
-      m_tree[i]->Branch("ndim2",&TotalDim2,"ndim2/I");
+      m_tree[i]->Branch("ndim",&m_TotalDim,"ndim/I");
+      m_tree[i]->Branch("ndim2",&m_TotalDim2,"ndim2/I");
       m_tree[i]->Branch("Vec", m_tmpVec,"Vec[ndim]/D");
       m_tree[i]->Branch("nplanes",&m_nplanes,"nplanes/I");
       m_tree[i]->Branch("sectorID", m_sectorID,"sectorID[nplanes]/I");
@@ -388,12 +388,12 @@ StatusCode FTKBankGenAlgo::initialize(){
       m_tree[i]->Branch("tmpPhi", &m_tmpPhi,"tmpPhi/D");
       m_tree[i]->Branch("tmpCoto", &m_tmpCoto,"tmpCoto/D");
       m_tree[i]->Branch("tmpZ", &m_tmpZ,"tmpZ/D");
-      m_tree[i]->Branch("tmpxC", m_tmpxC,"tmpxC[ndim]/D");
-      m_tree[i]->Branch("tmpxD", m_tmpxD,"tmpxD[ndim]/D");
-      m_tree[i]->Branch("tmpxPhi", m_tmpxPhi,"tmpxPhi[ndim]/D");
-      m_tree[i]->Branch("tmpxCoto", m_tmpxCoto,"tmpxCoto[ndim]/D");
-      m_tree[i]->Branch("tmpxZ", m_tmpxZ,"tmpxZ[ndim]/D");
-      m_tree[i]->Branch("tmpcovx", m_tmpcovx,"tmpcovx[ndim2]/D");
+      m_tree[i]->Branch("tmpxC2", m_tmpxC,"tmpxC2[ndim]/D");
+      m_tree[i]->Branch("tmpxD2", m_tmpxD,"tmpxD2[ndim]/D");
+      m_tree[i]->Branch("tmpxPhi2", m_tmpxPhi,"tmpxPhi2[ndim]/D");
+      m_tree[i]->Branch("tmpxCoto2", m_tmpxCoto,"tmpxCoto2[ndim]/D");
+      m_tree[i]->Branch("tmpxZ2", m_tmpxZ,"tmpxZ2[ndim]/D");
+      m_tree[i]->Branch("tmpcovx2", m_tmpcovx,"tmpcovx2[ndim2]/D");
     
       m_intc= new std::vector<short>;
       m_intphi= new std::vector<short>;
@@ -441,73 +441,73 @@ StatusCode FTKBankGenAlgo::execute() {
   // clear array of variables
   m_hitInputTool->reference()->clearRawHits(); 
   m_hitInputTool->reference()->clearTruthTrack();  
-  hitslist.clear();
+  m_hitslist.clear();
   m_trainingtracks.clear();
 
-  int_c.clear();
-  int_phi.clear();
-  int_d0.clear();
-  int_z0.clear();
-  int_eta.clear();
+  m_int_c.clear();
+  m_int_phi.clear();
+  m_int_d0.clear();
+  m_int_z0.clear();
+  m_int_eta.clear();
   
   // event difinitions
-  doPattgen = true;
-  GoodTrack = true;
+  m_doPattgen = true;
+  m_GoodTrack = true;
   
   /////////////////////////////////////////////////////
   // track validation part (copied from th_rd.c)    //
   ////////////////////////////////////////////////////
   //hits & truth track is get from SGHitInput
   m_hitInputTool->reference()->readData();  
-  truth_track = m_hitInputTool->reference()->getTruthTrack();
+  m_truth_track = m_hitInputTool->reference()->getTruthTrack();
 
   // clustering hits
   m_hitInputTool->reference()->processEvent(false);
-  nhits =  m_hitInputTool->reference()->getNHits(); 
-  hitslist = m_hitInputTool->reference()->getHitsList();
+  m_nhits =  m_hitInputTool->reference()->getNHits(); 
+  m_hitslist = m_hitInputTool->reference()->getHitsList();
 
-  nmuon = 0;
-  eta = 0;
-  pt =0;
-  truth_phi = 0;
+  m_nmuon = 0;
+  m_eta = 0;
+  m_pt =0;
+  m_truth_phi = 0;
 
   // reset the hits of maps
   m_maphits.clear();
 
-  for(unsigned int i=0;i<truth_track.size();++i){
-    c = truth_track[i].getQ()/(sqrt(truth_track[i].getPX()*truth_track[i].getPX()+truth_track[i].getPY()*truth_track[i].getPY()));
-    c=(c)/2.;
-    pt = TMath::Sqrt(truth_track[i].getPX()*truth_track[i].getPX()+truth_track[i].getPY()*truth_track[i].getPY())/1000;
-    eta = TMath::ASinH(truth_track[i].getPZ()/TMath::Sqrt(truth_track[i].getPX()*truth_track[i].getPX()+truth_track[i].getPY()*truth_track[i].getPY()));
-    truth_phi = TMath::ATan2(truth_track[i].getPY(),truth_track[i].getPX());
-    log << MSG::DEBUG << "i pt = "<<i<< " " <<pt<<endmsg;
-    log << MSG::DEBUG << "i c = "<<i<< " " <<c<<endmsg;
-    log << MSG::DEBUG << "i eta = "<<i<<" "<<eta<<endmsg;
-    log << MSG::DEBUG << "i phi = "<<i<<" "<<truth_phi<<endmsg;
-    log << MSG::DEBUG << "i pdgcode = "<<i<<" "<<truth_track[i].getPDGCode()<<endmsg;
+  for(unsigned int i=0;i<m_truth_track.size();++i){
+    m_c = m_truth_track[i].getQ()/(sqrt(m_truth_track[i].getPX()*m_truth_track[i].getPX()+m_truth_track[i].getPY()*m_truth_track[i].getPY()));
+    m_c=(m_c)/2.;
+    m_pt = TMath::Sqrt(m_truth_track[i].getPX()*m_truth_track[i].getPX()+m_truth_track[i].getPY()*m_truth_track[i].getPY())/1000;
+    m_eta = TMath::ASinH(m_truth_track[i].getPZ()/TMath::Sqrt(m_truth_track[i].getPX()*m_truth_track[i].getPX()+m_truth_track[i].getPY()*m_truth_track[i].getPY()));
+    m_truth_phi = TMath::ATan2(m_truth_track[i].getPY(),m_truth_track[i].getPX());
+    log << MSG::DEBUG << "i pt = "<<i<< " " <<m_pt<<endmsg;
+    log << MSG::DEBUG << "i c = "<<i<< " " <<m_c<<endmsg;
+    log << MSG::DEBUG << "i eta = "<<i<<" "<<m_eta<<endmsg;
+    log << MSG::DEBUG << "i phi = "<<i<<" "<<m_truth_phi<<endmsg;
+    log << MSG::DEBUG << "i pdgcode = "<<i<<" "<<m_truth_track[i].getPDGCode()<<endmsg;
 
     m_monval[0]++;
-    if(truth_track[i].getBarcode() >= 1000000 || (abs(truth_track[i].getPDGCode())!=m_TRAIN_PDG))continue;
+    if(m_truth_track[i].getBarcode() >= 1000000 || (abs(m_truth_track[i].getPDGCode())!=m_TRAIN_PDG))continue;
 
     m_monval[1]++;
 
-    //    if(truth_track[i].getBarcode() >= 100000)continue;
-    if(pt>m_PT_THRESHOLD && abs(truth_track[i].getPDGCode())==m_TRAIN_PDG){//GoodTrack!!
+    //    if(m_truth_track[i].getBarcode() >= 100000)continue;
+    if(m_pt>m_PT_THRESHOLD && abs(m_truth_track[i].getPDGCode())==m_TRAIN_PDG){//m_GoodTrack!!
       // add the track to the list of good tracks
-      m_trainingtracks.push_back(truth_track[i]);
+      m_trainingtracks.push_back(m_truth_track[i]);
       // prepare the entry in the map of hits
-      m_maphits[truth_track[i].getBarcode()] = vector<FTKHit>();
+      m_maphits[m_truth_track[i].getBarcode()] = vector<FTKHit>();
 
       m_monval[2]++;
     }
   }
 
   // get the number of tracks
-  nmuon = m_trainingtracks.size();
+  m_nmuon = m_trainingtracks.size();
 
-  for(unsigned int j=0;j<hitslist.size();j++){ // loop over the hits
+  for(unsigned int j=0;j<m_hitslist.size();j++){ // loop over the hits
     // get the predominant barcode for the current hit
-    int hitbarcode = hitslist[j].getTruth().best_barcode();
+    int hitbarcode = m_hitslist[j].getTruth().best_barcode();
     // check if the barcode is associated to a good muon
     map<int, vector<FTKHit> >::iterator ilist = m_maphits.find(hitbarcode);
 
@@ -515,16 +515,16 @@ StatusCode FTKBankGenAlgo::execute() {
     if(ilist==m_maphits.end()) continue;
 
     // add hit to the list
-    (*ilist).second.push_back(hitslist[j]);
+    (*ilist).second.push_back(m_hitslist[j]);
   } // end loop over the hits
 
-  if(0==nmuon) GoodTrack=false;
+  if(0==m_nmuon) m_GoodTrack=false;
 
   ///////////////////////////////////////////////////////
   //////   make sector                             //////
   ///////////////////////////////////////////////////////
   
-  if(!GoodTrack){log << MSG::DEBUG << " bad track event " << endmsg;}
+  if(!m_GoodTrack){log << MSG::DEBUG << " bad track event " << endmsg;}
   else{ // there are good tracks
 
     //****************************************************************//
@@ -532,9 +532,9 @@ StatusCode FTKBankGenAlgo::execute() {
     //***************************************************************//
 
 
-    for(int nTruth=0;nTruth<nmuon;nTruth++){ // loop over the tracks
+    for(int nTruth=0;nTruth<m_nmuon;nTruth++){ // loop over the tracks
       m_monval[3]++;
-      doPattgen = true;
+      m_doPattgen = true;
 
       int sector=0,sector_HW=0,cur_plane=0,cur_sector=0,cur_sector_HW=0;
       int phi_mod=0,eta_mod=0,section=0;
@@ -558,14 +558,14 @@ StatusCode FTKBankGenAlgo::execute() {
         FTKHit &curhit = curhitlist[i];
 #define FHIT sechit[curhit.getPlane()] //filtered hit for the current logical layer
 
-        if(doPattgen && GoodTrack){//don't make pattern
+        if(m_doPattgen && m_GoodTrack){//don't make pattern
            //int plane= curhit.getPlane();
            sector = curhit.getSector();
            sector_HW = curhit.getIdentifierHash();
 
           phi_mod = curhit.getPhiModule();
 
-          if(curhit.getIsBarrel()){//section and eta definition
+          if(curhit.getIsBarrel()){//section and m_eta definition
             eta_mod = curhit.getEtaModule();
             section =0;
           }else{
@@ -611,7 +611,7 @@ StatusCode FTKBankGenAlgo::execute() {
             if(sector == cur_sector){
               //	    if(sector_ref==FHIT.sector_ref){
               log << MSG::DEBUG << "Two hits on same module, exiting filterHitsSec " <<endmsg;
-              doPattgen = false;
+              m_doPattgen = false;
 	      m_monval[4]++;
             }else {//not same sector
               sdiff = cur_section-section;
@@ -645,12 +645,12 @@ StatusCode FTKBankGenAlgo::execute() {
                 }else{
                   //Not overlap, free and exit
                   log << MSG::DEBUG << "Hits are too far away in phi, exiting filterHitsSec " <<endmsg;
-                  doPattgen =false;
+                  m_doPattgen =false;
 		  m_monval[5]++;
                 }
 
                 // sector overlap is a perfectly reasonable situation with forward disks
-                // eta and phi will differ in general in this case
+                // m_eta and phi will differ in general in this case
                 // Take the lower-z hit preferentially (right thing to do? d0/pT tradeoff)
                 // But something fishy is going on if we've got two hits on the same disk.
               }
@@ -681,7 +681,7 @@ StatusCode FTKBankGenAlgo::execute() {
                 else if (m_pmap->getPlane(curhit.getPlane(),cur_section).getPDisk()
                     ==m_pmap->getPlane(curhit.getPlane(),section).getPDisk() ){
                   log << MSG::DEBUG << "Two modules hit in same physical disk" <<m_pmap->getPlane(curhit.getPlane(),cur_section).getPDisk()<< "exiting filterHitsSec " <<endmsg;
-                  doPattgen=false;
+                  m_doPattgen=false;
 		  m_monval[6]++;
                   //Two endcap hits on opposite sides makes no sense: discard
                 }
@@ -690,7 +690,7 @@ StatusCode FTKBankGenAlgo::execute() {
 
                   log << MSG::DEBUG << " Endcap disks on opposite sides hit, exiting filterHitsSec " <<endmsg;
 
-                  doPattgen=false;
+                  m_doPattgen=false;
 		  m_monval[7]++;
                   //Two endcap hits on same side: different disks: take the lower-z
                 }
@@ -719,9 +719,9 @@ StatusCode FTKBankGenAlgo::execute() {
 
 
               }
-              else{//ediff != 0: Different eta idx is no good, free and exit
+              else{//ediff != 0: Different m_eta idx is no good, free and exit
                 log << MSG::DEBUG << "Hits are in different eta, exiting filterHitsSec " <<endmsg;
-                doPattgen=false;
+                m_doPattgen=false;
 		m_monval[8]++;
               }
             }//not same sector
@@ -729,7 +729,7 @@ StatusCode FTKBankGenAlgo::execute() {
           else if(FHIT.count>1) {
 
             log << MSG::DEBUG << "Too many hits on a plane, exiting filterHitsSec " <<endmsg;
-            doPattgen = false;
+            m_doPattgen = false;
 	    m_monval[9]++;
           } // How many do hits exist in same plane.
           log << MSG::DEBUG << " gethittype "<<FHIT.hittype <<endmsg;
@@ -739,11 +739,11 @@ StatusCode FTKBankGenAlgo::execute() {
 
       curhitlist.clear();
 
-      if(doPattgen && GoodTrack){
+      if(m_doPattgen && m_GoodTrack){
         for(int i=0;i<m_nplanes;++i){
           log << MSG::DEBUG << "getsector pre " <<sechit[i].sector<< endmsg;
           if(0==sechit[i].count){
-            doPattgen = false;
+            m_doPattgen = false;
 	    m_monval[10]++;
             log << MSG::DEBUG << "Plane"<< i <<" has no hits, exiting filterHitsSec "<< endmsg;
 
@@ -756,7 +756,7 @@ StatusCode FTKBankGenAlgo::execute() {
       ///////////////////////////////////////////////////////
 
       int nregion=-999;
-      if(!doPattgen){
+      if(!m_doPattgen){
         log << MSG::INFO << "don't generate sector table " <<endmsg;
         nregion=-999;
       } else {
@@ -766,24 +766,24 @@ StatusCode FTKBankGenAlgo::execute() {
         if (m_UseIdentifierHash){
           for(int i=0;i<m_nplanes;++i) {
             log << MSG::DEBUG << "getsector " <<sechit[i].sector_HW<< endmsg;
-            p_ss[i]=sechit[i].sector_HW;
+            m_p_ss[i]=sechit[i].sector_HW;
           }
         }
         else {
           for(int i=0;i<m_nplanes;++i) {
             log << MSG::DEBUG << "getsector " <<sechit[i].sector<< endmsg;
-            p_ss[i]=sechit[i].sector;
+            m_p_ss[i]=sechit[i].sector;
           }
         }
 	*/
 
 	for(int i=0;i<m_nplanes;i++){
-	  p_hashss[i] = sechit[i].sector_HW;
-	  p_ss[i] = sechit[i].sector;
+	  m_p_hashss[i] = sechit[i].sector_HW;
+	  m_p_ss[i] = sechit[i].sector;
 	}
 
-        p_hashss[m_nplanes]=0;//for sectors, we set it to zero.
-        p_ss[m_nplanes]=0;//for sectors, we set it to zero.
+        m_p_hashss[m_nplanes]=0;//for sectors, we set it to zero.
+        m_p_ss[m_nplanes]=0;//for sectors, we set it to zero.
 	
 #ifdef NEWTOWERASSIGN
         // the sector is set by the first hit, the following hits can only confirm it
@@ -828,7 +828,7 @@ StatusCode FTKBankGenAlgo::execute() {
                   else if (refeta==1&&cureta==2&&sechit[m_nplanes-1].originalhit.getEtaCode()>=6) nregion = itwr;
                 }
                 else {
-                  /* If the the current and reference towers are in the same eta
+                  /* If the the current and reference towers are in the same m_eta
                    * region, the greater index is preferred. The exception is to
                    * consider refphi=0 preferred to curphi=15, to restore the simmetry
                    */
@@ -856,7 +856,7 @@ StatusCode FTKBankGenAlgo::execute() {
                   else if (refeta==1&&cureta==2&&sechit[m_nplanes-1].originalhit.getEtaCode()>=6) nregion = itwr;
                 }
                 else {
-                  /* If the the current and reference towers are in the same eta
+                  /* If the the current and reference towers are in the same m_eta
                    * region, the greater index is preferred. The exception is to
                    * consider refphi=0 preferred to curphi=7, to restore the simmetry
                    */
@@ -886,14 +886,14 @@ StatusCode FTKBankGenAlgo::execute() {
             log << MSG::DEBUG << "getsector " <<sechit[i].sector<< endmsg;
             log << MSG::DEBUG << "getplane " <<sechit[i].plane<< endmsg;
 
-            p_ss[m_nplanes]=0;//for sectors, we set it to zero.
+            m_p_ss[m_nplanes]=0;//for sectors, we set it to zero.
 
             //	    int phi = sechit[i].sector/1000;
             int phi = sechit[i].sector/1000;
             result[i]=0;
 
-            if(sechit[i].sector%1000<20){//section and eta definition
-              //	    if(sechit[i].sector_ref%1000<20){//section and eta definition
+            if(sechit[i].sector%1000<20){//section and m_eta definition
+              //	    if(sechit[i].sector_ref%1000<20){//section and m_eta definition
               section=0;
             }else{
               section=sechit[i].sector%10;
@@ -939,21 +939,21 @@ StatusCode FTKBankGenAlgo::execute() {
 
           for(int i=0;i<m_nplanes;++i) {
             log << MSG::DEBUG << "getsector " <<sechit[i].sector<< endmsg;
-            p_ss[i]=sechit[i].sector;
+            m_p_ss[i]=sechit[i].sector;
             // log << MSG::DEBUG << "getsector " <<sechit[i].sector_ref<< endmsg;
-            // p_ss[i]=sechit[i].sector_ref;
+            // m_p_ss[i]=sechit[i].sector_ref;
           }
-          p_ss[m_nplanes]=0;//for sectors, we set it to zero.
+          m_p_ss[m_nplanes]=0;//for sectors, we set it to zero.
 
           ////////////////////////////////////////////////////////
-          //   Eta (analogues to whichRegionEta of rmap_rd.c)   //
+          //   Eta (analogues to whichRegionEta of rmap_rd.m_c)   //
           ////////////////////////////////////////////////////////
 
           static int pM_eta[]={2,3,5,7};
           static int *result_eta;
           static int allocated_eta = 0;
           int region_eta = -1;
-          // total tower id's where we switch tower-eta
+          // total tower id's where we switch tower-m_eta
           const int t0 = 0;
           const int t1 = m_rmap->getNumRegionsPhi()*1;
           const int t2 = m_rmap->getNumRegionsPhi()*2;
@@ -972,8 +972,8 @@ StatusCode FTKBankGenAlgo::execute() {
             result_eta[i_eta] = 1;
 
           for(i_eta=0;i_eta<m_nplanes;++i_eta) {
-            cside = CSIDE_INT(p_ss[i_eta]);
-            aside = ASIDE_INT(p_ss[i_eta]);
+            cside = CSIDE_INT(m_p_ss[i_eta]);
+            aside = ASIDE_INT(m_p_ss[i_eta]);
             // endcap C-side
             if(cside==1) {
               result_eta[i_eta] *= pM_eta[0];
@@ -988,7 +988,7 @@ StatusCode FTKBankGenAlgo::execute() {
             }
             // barrel
             else {
-              etamod = ETA_MOD_INT(p_ss[i_eta]);
+              etamod = ETA_MOD_INT(m_p_ss[i_eta]);
               if(etamod >= m_rmap->getRegionMapItem(t0,i_eta,0).getEtaMin() && etamod<=m_rmap->getRegionMapItem(t0,i_eta,0).getEtaMax() ) {
                 result_eta[i_eta] *= pM_eta[0];
               }
@@ -1018,7 +1018,7 @@ StatusCode FTKBankGenAlgo::execute() {
               }
               else {
                 if(itower_eta==2 && tower1_OK==1) {
-                  if( ETA_MOD_INT(p_ss[m_nplanes-1]) <= 5 ) region_eta=1; else region_eta=2;
+                  if( ETA_MOD_INT(m_p_ss[m_nplanes-1]) <= 5 ) region_eta=1; else region_eta=2;
                   break;
                 }
                 region_eta = itower_eta;
@@ -1046,7 +1046,7 @@ StatusCode FTKBankGenAlgo::execute() {
           int tow0_OK;
           int j;
 
-          if(-1 != region_eta){//eta is defined
+          if(-1 != region_eta){//m_eta is defined
             if(!allocated_phi) {
               allocated_phi = 1;
               if((result_phi = (int *)calloc(m_nplanes,sizeof(int))) == NULL)
@@ -1056,8 +1056,8 @@ StatusCode FTKBankGenAlgo::execute() {
               result_phi[i_phi] = 1;
 
             for(i_phi=0;i_phi<m_nplanes;++i_phi) {
-              phi = PHI_MOD_INT(p_ss[i_phi]);
-              section_phi = SECTION_INT(p_ss[i_phi]);
+              phi = PHI_MOD_INT(m_p_ss[i_phi]);
+              section_phi = SECTION_INT(m_p_ss[i_phi]);
               for(itow=0;itow<m_rmap->getNumRegionsPhi();itow++) {
                 itower_phi = m_rmap->getNumRegionsPhi()*region_eta + itow;
                 if( m_rmap->getRegionMapItem(itower_phi,i_phi,section_phi).getPhiMin() <= m_rmap->getRegionMapItem(itower_phi,i_phi,section_phi).getPhiMax() ) {
@@ -1102,7 +1102,7 @@ StatusCode FTKBankGenAlgo::execute() {
               }
             }
 
-          }//eta is defined
+          }//m_eta is defined
 
           /////////////////////
           //  which region?? //
@@ -1123,59 +1123,59 @@ StatusCode FTKBankGenAlgo::execute() {
 
       //cout << "REGION " << nregion << endl;
 
-      //ConstGenTest: check coverage
+      //ConstGenTest: check m_coverage
       if(m_const_test_mode) {
-        addPattReturnCode=-1;
+        m_addPattReturnCode=-1;
         if(-999!=nregion){
 
-          count_pass_filter++;
+          m_count_pass_filter++;
 
-          int_c.resize(1);
-          int_phi.resize(1);
-          int_d0.resize(1);
-          int_z0.resize(1);
-          int_eta.resize(1);
+          m_int_c.resize(1);
+          m_int_phi.resize(1);
+          m_int_d0.resize(1);
+          m_int_z0.resize(1);
+          m_int_eta.resize(1);
 
-          Mtmp.nhit=5;
-          p_ss[m_nplanes]=std::numeric_limits<int>::max();
-          p_hashss[m_nplanes]=std::numeric_limits<int>::max();
+          m_Mtmp.nhit=5;
+          m_p_ss[m_nplanes]=std::numeric_limits<int>::max();
+          m_p_hashss[m_nplanes]=std::numeric_limits<int>::max();
 
-          addPattReturnCode=addKDPattern(nregion, m_const_test_mode, p_ss,p_hashss, 1,Mtmp,tmphitc,tmpxC,tmpxD,tmpxPhi,tmpxCoto,tmpxZ,tmpcovx,
-                                         int_c,int_phi,int_d0,int_z0,int_eta);
+          m_addPattReturnCode=addKDPattern(nregion, m_const_test_mode, m_p_ss,m_p_hashss, 1,m_Mtmp,m_tmphitc,m_tmpxC2,m_tmpxD2,m_tmpxPhi2,m_tmpxCoto2,m_tmpxZ2,m_tmpcovx2,
+                                         m_int_c,m_int_phi,m_int_d0,m_int_z0,m_int_eta);
 
-          if(-1!=addPattReturnCode){//find sector
-            count_match++;
-            the_sectorID = addPattReturnCode;
+          if(-1!=m_addPattReturnCode){//find sector
+            m_count_match++;
+            m_the_sectorID = m_addPattReturnCode;
           }
         }
 
-        coverage = double(count_match)/double(count_pass_filter);
-        log << MSG::INFO <<" count_pass_filter count_match= "<< count_pass_filter << " " << count_match <<endmsg;
-        log << MSG::INFO <<" coverage= "<< coverage <<endmsg;
+        m_coverage = double(m_count_match)/double(m_count_pass_filter);
+        log << MSG::INFO <<" count_pass_filter count_match= "<< m_count_pass_filter << " " << m_count_match <<endmsg;
+        log << MSG::INFO <<" coverage= "<< m_coverage <<endmsg;
       }//const test mode
 
 
       ///////////////////////////////////////////////////////////////////////////////
       /////////////                   corrgen part                  ////////////////
       //////////////////////////////////////////////////////////////////////////////
-      if(doPattgen==true){
+      if(m_doPattgen==true){
 	m_monval[11]++;
 
         int npixel=0,nsct=0;
 
-        ///////geopar.c
+        ///////geopar.m_c
         // This updated by JAA for new code to calculate d0
-        d = curtrack.getD0();
-        z0 =curtrack.getZ();
+        m_d = curtrack.getD0();
+        m_z0 =curtrack.getZ();
 
-        x0 = curtrack.getX() -(curtrack.getQ())*(curtrack.getPY()) ;
-        y0 = curtrack.getY() +(curtrack.getQ())*(curtrack.getPX()) ;
-        c = curtrack.getQ()/(sqrt(curtrack.getPX()*curtrack.getPX()+curtrack.getPY()*curtrack.getPY()));
-        c=(c)/2.;
-        phi = atan2(-x0*fabs(curtrack.getQ())/(curtrack.getQ()),y0*fabs(curtrack.getQ())/(curtrack.getQ()));
-        coto = curtrack.getPZ()/sqrt(curtrack.getPX()*curtrack.getPX()+curtrack.getPY()*curtrack.getPY());
+        m_x0 = curtrack.getX() -(curtrack.getQ())*(curtrack.getPY()) ;
+        m_y0 = curtrack.getY() +(curtrack.getQ())*(curtrack.getPX()) ;
+        m_c = curtrack.getQ()/(sqrt(curtrack.getPX()*curtrack.getPX()+curtrack.getPY()*curtrack.getPY()));
+        m_c=(m_c)/2.;
+        m_phi = atan2(-m_x0*fabs(curtrack.getQ())/(curtrack.getQ()),m_y0*fabs(curtrack.getQ())/(curtrack.getQ()));
+        m_coto = curtrack.getPZ()/sqrt(curtrack.getPX()*curtrack.getPX()+curtrack.getPY()*curtrack.getPY());
 
-        // // //d = - 1/((c)*2.) + sqrt(x0*x0+y0*y0)*fabs(c)/(c);
+        // // //m_d = - 1/((m_c)*2.) + sqrt(m_x0*m_x0+m_y0*m_y0)*fabs(m_c)/(m_c);
 
         // // //d0 is the distance of beam spot
         // // double a,b;
@@ -1190,60 +1190,60 @@ StatusCode FTKBankGenAlgo::execute() {
 
         // a=curtrack.getPY()/curtrack.getPX();
         // b=curtrack.getY()-a*curtrack.getX();
-        // d=fabs(-1*a*beam_x + beam_y - b )/sqrt(a*a + 1);
+        // m_d=fabs(-1*a*beam_x + beam_y - b )/sqrt(a*a + 1);
 
         // if(tmp_x*curtrack.getPY() - tmp_y*curtrack.getPX() >= 0  ){
-        //   d = -1*d;
+        //   m_d = -1*m_d;
         // }
 
         ////////////////////////////////////////////////////////
-        ///////  slice file part           ////////////////////
+        ///////  slice m_file part           ////////////////////
         ////////////////////////////////////////////////////////
-        int_c.resize(1);
-        int_phi.resize(1);
-        int_d0.resize(1);
-        int_z0.resize(1);
-        int_eta.resize(1);
+        m_int_c.resize(1);
+        m_int_phi.resize(1);
+        m_int_d0.resize(1);
+        m_int_z0.resize(1);
+        m_int_eta.resize(1);
 
-        int_c[0]=  (c-m_par_c_min)*m_par_c_slices/(m_par_c_max-m_par_c_min);
-        int_phi[0]=(phi-m_par_phi_min*M_PI)*m_par_phi_slices/((m_par_phi_max-m_par_phi_min)*M_PI);
-        int_d0[0]=(d-m_par_d0_min)*m_par_d0_slices/(m_par_d0_max-m_par_d0_min);
-        int_z0[0]=(z0-m_par_z0_min)*m_par_z0_slices/(m_par_z0_max-m_par_z0_min);
-        int_eta[0]=(coto-sinh(m_par_eta_min))*m_par_eta_slices/(sinh(m_par_eta_max)-sinh(m_par_eta_min));
+        m_int_c[0]=  (m_c-m_par_c_min)*m_par_c_slices/(m_par_c_max-m_par_c_min);
+        m_int_phi[0]=(m_phi-m_par_phi_min*M_PI)*m_par_phi_slices/((m_par_phi_max-m_par_phi_min)*M_PI);
+        m_int_d0[0]=(m_d-m_par_d0_min)*m_par_d0_slices/(m_par_d0_max-m_par_d0_min);
+        m_int_z0[0]=(m_z0-m_par_z0_min)*m_par_z0_slices/(m_par_z0_max-m_par_z0_min);
+        m_int_eta[0]=(m_coto-sinh(m_par_eta_min))*m_par_eta_slices/(sinh(m_par_eta_max)-sinh(m_par_eta_min));
 
-        log << MSG::DEBUG << "check 38 int region ntruth c d0 phi z0 coto = " << nregion << " " << nTruth << " " << int_c[0] << " " << int_d0[0] << " " << int_phi[0] << " " << int_z0[0] << " " << int_eta[0] << endmsg;
+        log << MSG::DEBUG << "check 38 int region ntruth c d0 phi z0 coto = " << nregion << " " << nTruth << " " << m_int_c[0] << " " << m_int_d0[0] << " " << m_int_phi[0] << " " << m_int_z0[0] << " " << m_int_eta[0] << endmsg;
 
-        ////////////////////////////////// slice file part end
+        ////////////////////////////////// slice m_file part end
 
-        Mtmp.C=c;
-        Mtmp.D=d;
-        Mtmp.Coto=coto;
-        Mtmp.Z=z0;
+        m_Mtmp.C=m_c;
+        m_Mtmp.D=m_d;
+        m_Mtmp.Coto=m_coto;
+        m_Mtmp.Z=m_z0;
 
         // region = 3,4,5 (default). Testing: add in region 6!
         if(!m_const_test_mode){
           if(8==m_nbanks){
             if (nregion>=3 && nregion <= 5) {
-              while(phi<0) phi += 2*M_PI;
+              while(m_phi<0) m_phi += 2*M_PI;
             }
           }else if(64==m_nbanks){
             if( nregion==9 || nregion==10 || nregion==25 || nregion==26 || nregion==41 || nregion==42 || nregion==57 || nregion==58 ) {
-              while(phi<0) phi += 2*M_PI;
+              while(m_phi<0) m_phi += 2*M_PI;
             }
           }else if(32==m_nbanks){
 	    if( nregion%8==4 || nregion%8==5 ){
-	      if(phi<0) phi += 2*M_PI;
+	      if(m_phi<0) m_phi += 2*M_PI;
 	    }
 	  }
 	  if(m_ITkMode){
 	    // Play it safe for now since region map is not yet solidified
-	    while( phi < 0 ) phi += 2*M_PI;
+	    while( m_phi < 0 ) m_phi += 2*M_PI;
 	  }
         }
 
-        Mtmp.Phi=phi;
+        m_Mtmp.Phi=m_phi;
 
-        log << MSG::DEBUG << "check 35 region ntruth c d0 phi z0 coto = " << nregion << " " << nTruth << " " << c << " " << d << " " << phi << " " << z0 << " " << coto << endmsg;
+        log << MSG::DEBUG << "check 35 region ntruth_c d0 phi z0 coto = " << nregion << " " << nTruth << " " << m_c << " " << m_d << " " << m_phi << " " << m_z0 << " " << m_coto << endmsg;
         
         for(int i=0;i<m_nplanes;++i){
           if(2==sechit[i].ndim){
@@ -1257,21 +1257,21 @@ StatusCode FTKBankGenAlgo::execute() {
 
         //check constant
         if(m_const_test_mode){
-          if(-1!=addPattReturnCode){//if find same sector
-            base_trk.setSectorID(the_sectorID);
+          if(-1!=m_addPattReturnCode){//if find same sector
+            m_base_trk.setSectorID(m_the_sectorID);
 
             int ix,iy;
 
             for(int j=0;j<npixel;j++){
               ix = 2*j;
               iy = 2*j+1;
-              base_trk.setCoord(ix,sechit[j].dimx);
-              base_trk.setCoord(iy,sechit[j].dimy);
+              m_base_trk.setCoord(ix,sechit[j].dimx);
+              m_base_trk.setCoord(iy,sechit[j].dimy);
             }
 
             for(int j=0;j<nsct;j++){
               ix = 2*npixel+j;
-              base_trk.setCoord(ix,sechit[npixel+j].dimx);
+              m_base_trk.setCoord(ix,sechit[npixel+j].dimx);
             }
 
             FTKConstantBank *current_bank = m_constant[nregion];
@@ -1281,24 +1281,24 @@ StatusCode FTKBankGenAlgo::execute() {
               return StatusCode::FAILURE;
             }
             /* Do the actual fit - see code in FTKConstantBank::linfit  */
-            current_bank->linfit(the_sectorID,base_trk);
+            current_bank->linfit(m_the_sectorID,m_base_trk);
 
             log << MSG::INFO << "\t\t\tReconstructed parameters\n\t\t\t"	\
-                << 2.*base_trk.getHalfInvPt() << ' ' << base_trk.getIP()		\
-                << ' ' << base_trk.getPhi() << ' ' << base_trk.getZ0()	\
-                << ' ' << base_trk.getCotTheta() << endmsg;
-            log << MSG::INFO << "\t\t\tChi2 " << base_trk.getChi2() << endmsg;
+                << 2.*m_base_trk.getHalfInvPt() << ' ' << m_base_trk.getIP()		\
+                << ' ' << m_base_trk.getPhi() << ' ' << m_base_trk.getZ0()	\
+                << ' ' << m_base_trk.getCotTheta() << endmsg;
+            log << MSG::INFO << "\t\t\tChi2 " << m_base_trk.getChi2() << endmsg;
 
-            file_resolution << Mtmp.C - 2.*base_trk.getHalfInvPt() << " " << Mtmp.D - base_trk.getIP() << " " << Mtmp.Phi - base_trk.getPhi() << " " << Mtmp.Z - base_trk.getZ0() << " " << Mtmp.Coto - base_trk.getCotTheta() << " " << base_trk.getChi2() << endl;
-            file_truthpar << nregion << " " << Mtmp.C << " " << Mtmp.D << " " << Mtmp.Phi << " " << Mtmp.Z << " " << Mtmp.Coto << endl;
-            file_recpar << nregion << " " << 2.*base_trk.getHalfInvPt() << " " << base_trk.getIP() << " " << base_trk.getPhi() << " " << base_trk.getZ0() << " " << base_trk.getCotTheta() << endl;
+            m_file_resolution << m_Mtmp.C - 2.*m_base_trk.getHalfInvPt() << " " << m_Mtmp.D - m_base_trk.getIP() << " " << m_Mtmp.Phi - m_base_trk.getPhi() << " " << m_Mtmp.Z - m_base_trk.getZ0() << " " << m_Mtmp.Coto - m_base_trk.getCotTheta() << " " << m_base_trk.getChi2() << endl;
+            m_file_truthpar << nregion << " " << m_Mtmp.C << " " << m_Mtmp.D << " " << m_Mtmp.Phi << " " << m_Mtmp.Z << " " << m_Mtmp.Coto << endl;
+            m_file_recpar << nregion << " " << 2.*m_base_trk.getHalfInvPt() << " " << m_base_trk.getIP() << " " << m_base_trk.getPhi() << " " << m_base_trk.getZ0() << " " << m_base_trk.getCotTheta() << endl;
 
           }
 
         }else{
           // add a sector to the map of sectors
 
-          std::vector<double> vec(TotalDim);
+          std::vector<double> vec(m_TotalDim);
 
           for(int j=0;j<npixel;j++){
             vec[2*(j)]=sechit[j].dimx;
@@ -1308,38 +1308,38 @@ StatusCode FTKBankGenAlgo::execute() {
           for(int j=0;j<nsct;j++){
             vec[2*npixel+j]=sechit[npixel+j].dimx;
           }
-          log << MSG::DEBUG <<" x0= "<<x0<<"y0= "<<y0<<endmsg;
-          //	  log << MSG::DEBUG <<" c= "<<c<<"d= "<<d<<"phi= "<<phi<<"z0= "<<z0<<"coto= " <<coto<<endmsg;
+          log << MSG::DEBUG <<" x0= "<<m_x0<<"y0= "<<m_y0<<endmsg;
+          //	  log << MSG::DEBUG <<" c= "<<m_c<<"d= "<<m_d<<"phi= "<<m_phi<<"z0= "<<m_z0<<"coto= " <<m_coto<<endmsg;
 
-          for(int i=0;i<TotalDim;i++){
+          for(int i=0;i<m_TotalDim;i++){
             //      log << MSG::DEBUG <<" vec= "<<vec[i]<<endmsg;
-            tmphitc[i]=vec[i];
+            m_tmphitc[i]=vec[i];
 
-            tmpxC[i]=Mtmp.C*vec[i];
-            tmpxD[i]=Mtmp.D*vec[i];
-            tmpxPhi[i]=Mtmp.Phi*vec[i];
-            tmpxCoto[i]=Mtmp.Coto*vec[i];
-            tmpxZ[i]=Mtmp.Z*vec[i];
+            m_tmpxC2[i]=m_Mtmp.C*vec[i];
+            m_tmpxD2[i]=m_Mtmp.D*vec[i];
+            m_tmpxPhi2[i]=m_Mtmp.Phi*vec[i];
+            m_tmpxCoto2[i]=m_Mtmp.Coto*vec[i];
+            m_tmpxZ2[i]=m_Mtmp.Z*vec[i];
 
-            for( int j = i; j < TotalDim; j++ ) {
-              tmpcovx[i*TotalDim+j]=vec[i]*vec[j];
+            for( int j = i; j < m_TotalDim; j++ ) {
+              m_tmpcovx2[i*m_TotalDim+j]=vec[i]*vec[j];
             }
           }
 
           if(-999!=nregion){
 	    m_monval[12]++;
-            Mtmp.nhit=1;
+            m_Mtmp.nhit=1;
 
-            addPattReturnCode=addKDPattern(nregion, m_const_test_mode, p_ss, p_hashss, 1,
-                                           Mtmp,tmphitc,tmpxC,tmpxD,tmpxPhi,tmpxCoto,tmpxZ,tmpcovx,
-                                           int_c,int_phi,int_d0,int_z0,int_eta);
+            m_addPattReturnCode=addKDPattern(nregion, m_const_test_mode, m_p_ss, m_p_hashss, 1,
+                                           m_Mtmp,m_tmphitc,m_tmpxC2,m_tmpxD2,m_tmpxPhi2,m_tmpxCoto2,m_tmpxZ2,m_tmpcovx2,
+                                           m_int_c,m_int_phi,m_int_d0,m_int_z0,m_int_eta);
 
-            if(1==addPattReturnCode){
-              ++npatterns[nregion];
-            }else if(2==addPattReturnCode){
-              ++ntracks[nregion];
+            if(1==m_addPattReturnCode){
+              ++m_npatterns[nregion];
+            }else if(2==m_addPattReturnCode){
+              ++m_ntracks[nregion];
             }
-            log << MSG::DEBUG <<"region is "<<nregion<<" #pattern= " <<npatterns[nregion]<<" #ntracks= "<<ntracks[nregion]<<endmsg;
+            log << MSG::DEBUG <<"region is "<<nregion<<" #pattern= " <<m_npatterns[nregion]<<" #ntracks= "<<m_ntracks[nregion]<<endmsg;
           }
 
         }//const test mode
@@ -1365,11 +1365,11 @@ StatusCode FTKBankGenAlgo::finalize() {
   //////////////////////////////////////////
   if(m_const_test_mode){
 
-    file_coverage << "denominator numerator coverage" << endl;
-    file_coverage << count_pass_filter << " " << count_match << " " << coverage << endl;
+    m_file_coverage << "denominator numerator coverage" << endl;
+    m_file_coverage << m_count_pass_filter << " " << m_count_match << " " << m_coverage << endl;
       
-    file_coverage.close();
-    file_resolution.close();
+    m_file_coverage.close();
+    m_file_resolution.close();
 
   }else{//const test mode
       
@@ -1397,7 +1397,7 @@ StatusCode FTKBankGenAlgo::finalize() {
 	m_tmpCoto=getPattCoto(b,i);
 	m_tmpZ=getPattZ(b,i);
 	
-	for(int k=0;k<TotalDim;k++){
+	for(int k=0;k<m_TotalDim;k++){
 	  m_tmpVec[k]=getPatthitc(b,i,k);
 	  m_tmpxC[k]=getPattxC(b,i,k);
 	  m_tmpxD[k]=getPattxD(b,i,k);
@@ -1405,8 +1405,8 @@ StatusCode FTKBankGenAlgo::finalize() {
 	  m_tmpxCoto[k]=getPattxCoto(b,i,k);
 	  m_tmpxZ[k]=getPattxZ(b,i,k);
 	  
-	  for(int l=0;l<TotalDim;l++){
-	    m_tmpcovx[k*TotalDim+l]=getPattcovx(b,i,k*TotalDim+l);
+	  for(int l=0;l<m_TotalDim;l++){
+	    m_tmpcovx[k*m_TotalDim+l]=getPattcovx(b,i,k*m_TotalDim+l);
 	  }
 	  log <<getPatthitc(b,i,k)<<" ";
 	}
@@ -1415,7 +1415,7 @@ StatusCode FTKBankGenAlgo::finalize() {
 	log << MSG::DEBUG <<"b= "<< b <<" i= "<< i << endmsg;
 	log << MSG::DEBUG <<"C= "<< getPattC(b,i)   <<"D= "<< getPattD(b,i) <<"Phi= "<< getPattPhi(b,i)
 	    <<"Coto= "<< getPattCoto(b,i) <<"Z= "<< getPattZ(b,i)<<endmsg;
-	m_nsector=npatterns[b];
+	m_nsector=m_npatterns[b];
 	for(int m=0;m<m_nhit;m++){
 	  m_intc->push_back(getPattintc(b,i,m));
 	  m_intphi->push_back(getPattintphi(b,i,m));
@@ -1423,38 +1423,38 @@ StatusCode FTKBankGenAlgo::finalize() {
 	  m_intz0->push_back(getPattintz0(b,i,m));
 	  m_inteta->push_back(getPattinteta(b,i,m));
 	}
-	file->cd();
+	m_file->cd();
 	m_tree[b]->Fill();
 	gROOT->cd();
       }
 
-      file->cd();
+      m_file->cd();
       m_tree[b]->Write();   
       gROOT->cd();
       delete m_tree[b];
       m_tree[b]=NULL;
     }
     
-    free(p_ss);
-    free(p_hashss);
-    free(tmphitc);
-    free(tmpxC);
-    free(tmpxD);
-    free(tmpxPhi);
-    free(tmpxCoto);
-    free(tmpxZ);
-    free(tmpcovx);
+    free(m_p_ss);
+    free(m_p_hashss);
+    free(m_tmphitc);
+    free(m_tmpxC2);
+    free(m_tmpxD2);
+    free(m_tmpxPhi2);
+    free(m_tmpxCoto2);
+    free(m_tmpxZ2);
+    free(m_tmpcovx2);
 
-    file->cd();
+    m_file->cd();
     m_slicetree->Fill();
     m_slicetree->Write();
     m_montree->Fill();
     m_montree->Write();
     gROOT->cd();
         
-    file->Close();
-    delete file;
-    file=NULL;
+    m_file->Close();
+    delete m_file;
+    m_file=NULL;
     //  }
   }//const test mode  
   void finishPattTree();

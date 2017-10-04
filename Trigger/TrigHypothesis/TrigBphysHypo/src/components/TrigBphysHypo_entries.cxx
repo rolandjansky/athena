@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TrigL2BMuMuXHypo.h"
 #include "../TrigL2BMuMuXFex.h"
 #include "../TrigL2BMuMuHypo.h"
@@ -58,36 +57,4 @@ DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigMultiTrkFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassFex )
 //DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
-
-
-DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
-//    DECLARE_ALGORITHM( TrigL2DiMuXHypo )
-//    DECLARE_ALGORITHM( TrigL2DiMuXFex )
-    DECLARE_ALGORITHM( TrigL2BMuMuXHypo )
-    DECLARE_ALGORITHM( TrigL2BMuMuXFex )
-    DECLARE_ALGORITHM( TrigL2BMuMuHypo )
-    DECLARE_ALGORITHM( TrigL2MultiMuFex )
-    DECLARE_ALGORITHM( TrigL2MultiMuHypo )
-    DECLARE_ALGORITHM( TrigL2BMuMuFex )
-    DECLARE_ALGORITHM( TrigEFBMuMuXHypo )
-    DECLARE_ALGORITHM( TrigEFBMuMuXFex )
-    DECLARE_ALGORITHM( TrigEFBMuMuHypo )
-    DECLARE_ALGORITHM( TrigEFMultiMuHypo )
-//    DECLARE_ALGORITHM( TrigL2DiMuHypo )
-//    DECLARE_ALGORITHM( TrigL2DsPhiPiHypo )
-//    DECLARE_ALGORITHM( TrigL2DsPhiPiFex )
-    DECLARE_ALGORITHM( TrigL2TrkMassFex )
-    DECLARE_ALGORITHM( TrigL2TrkMassHypo )
-    DECLARE_ALGORITHM( TrigEFTrkMassHypo )
-//    DECLARE_ALGORITHM( TrigL2LooseMuonHypo )
-
-    DECLARE_TOOL( TrigBphysHelperUtilsTool )
-
-    DECLARE_ALGORITHM( TrigEFBMuMuFex   )
-    DECLARE_ALGORITHM( TrigEFMultiMuFex )
-    DECLARE_ALGORITHM( TrigMultiTrkFex )
-    DECLARE_ALGORITHM( TrigEFTrkMassFex )
-//    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
-
-}
 

@@ -43,14 +43,15 @@ public:
   Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,  
 		int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,  
 		int minStrawHits, int minTrHits, double prob=0, 
-		int maxPixelHoles=20, int maxSctHoles=20, int maxSiHoles=20 ) :
+		int maxPixelHoles=20, int maxSctHoles=20, int maxSiHoles=20, bool expectBL=false ) :
     m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), m_pTMax(pTMin-1), // guarantee that the default pTMax is *always* < pTMin  
     m_minPixelHits(minPixelHits),   m_minSctHits(minSctHits),     m_minSiHits(minSiHits),   
     m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits),
     m_maxPixelHoles(maxPixelHoles), m_maxSctHoles(maxSctHoles), m_maxSiHoles(maxSiHoles),
     m_prob(prob),
-    m_chargeSelection(0)
-  { } 
+    m_chargeSelection(0),
+    m_expectBL(expectBL)
+  {   } 
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
@@ -65,6 +66,9 @@ public:
     if( m_prob>0 && TMath::Prob( t->chi2(), t->dof() )<m_prob )    selected = false;
     // track chare selection
     if ( m_chargeSelection!=0 && t->pT()*m_chargeSelection<=0 )  selected = false;
+    /// require a blayer (ibl in run2) hit only if one is expected
+    if ( m_expectBL && ( ( t->expectBL() || t->hasTruth() ) && t->bLayerHits()<1) )  selected = false;
+
     return selected;
   } 
 
@@ -98,6 +102,8 @@ private:
   double  m_prob;
 
   int     m_chargeSelection;
+
+  bool    m_expectBL;
 };
 
 

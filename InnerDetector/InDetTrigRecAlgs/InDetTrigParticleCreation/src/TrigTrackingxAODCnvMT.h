@@ -131,9 +131,9 @@ namespace InDet
     std::vector<float>          m_dqm_ibl_hit_expected_found;
 
     //Timers
-    TrigTimer* m_timerMemAlloc;
-    TrigTimer* m_timerFeatureAttach;
-    TrigTimer* m_timerTrackConversion;
+    //TrigTimer* m_timerMemAlloc;
+    //TrigTimer* m_timerFeatureAttach;
+    //TrigTimer* m_timerTrackConversion;
 
 
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;

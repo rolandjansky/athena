@@ -216,6 +216,7 @@ namespace InDet
             if( !covMatrix ) ATH_MSG_WARNING( "Perigee without covariance" << *result );
             else  setDefiningParameters(*track_particle, *result);
             // ATH_MSG_DEBUG( "new parameters  " << *track_particle << "." );
+	    delete result;
           }
           else {
             ATH_MSG_WARNING( "Failed to extrapolate " << *track_particle << "to primary vertex " << vxCandidate->position() );

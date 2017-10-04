@@ -19,36 +19,38 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // L1Decoder includes
-#include "./IRoIsUnpackingTool.h"
+#include "RoIsUnpackingToolBase.h"
 
 
-class EMRoIsUnpackingTool : virtual public AthAlgTool, virtual public IRoIsUnpackingTool { 
+class EMRoIsUnpackingTool : public RoIsUnpackingToolBase { 
+public: 
 
-
- public: 
-  EMRoIsUnpackingTool( const std::string& type,
-		       const std::string& name, 
-		       const IInterface* parent );
-
-  virtual ~EMRoIsUnpackingTool(); 
+  EMRoIsUnpackingTool(const std::string& type,
+                      const std::string& name, 
+                      const IInterface* parent);
 
   StatusCode unpack(const EventContext& ctx,
-		    const ROIB::RoIBResult& roib,
-		    const HLT::IDSet& activeChains) const override;
+                    const ROIB::RoIBResult& roib,
+                    const HLT::IDSet& activeChains) const override;
   
-  // Athena algtool's Hooks
-  StatusCode  initialize() override;
-  StatusCode  updateConfiguration() override;
-  StatusCode  finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode updateConfiguration() override;
+  virtual StatusCode finalize() override;
   
- private: 
-  EMRoIsUnpackingTool();
-  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_trigRoIsKey;
-  SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey;  
+private: 
+
+  ///@{ @name Properties
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
+    this, "OutputTrigRoIs", "EMRoIs", "Name of the RoIs object produced by the unpacker"};
+
+  SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey{
+    this, "OutputRecRoIs", "RecEMRoIs", "Name of the RoIs object produced by the unpacker"};
+
+  Gaudi::Property<float>            m_roIWidth{this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};
+  ///@}
+  
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  float m_roIWidth;
-  ToolHandle<GenericMonitoringTool> m_monTool;
+  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
 }; 
 
 #endif //> !L1DECODER_EMROISUNPACKINGTOOL_H

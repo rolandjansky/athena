@@ -30,10 +30,10 @@ ALFAHitAnalysis::ALFAHitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_thistSvc("THistSvc", name)
 { 
   for (int i(0); i<8; i++) {
-    h_E_full_sum_h[i]=0;
-    h_E_layer_sum_h[i]=0;
-    h_hit_layer[i]=0;
-    h_hit_fiber[i]=0;
+    m_h_E_full_sum_h[i]=0;
+    m_h_E_layer_sum_h[i]=0;
+    m_h_hit_layer[i]=0;
+    m_h_hit_fiber[i]=0;
   }
   declareProperty("NtupleFileName", m_ntupleFileName);    
   declareProperty("HistPath", m_path); 
@@ -53,27 +53,27 @@ StatusCode ALFAHitAnalysis::initialize() {
     s << "edep_in_det_no." << j+1;
     float Emax = 5;
     if (j==3) Emax = 150;
-    h_E_full_sum_h[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, Emax);
-    h_E_full_sum_h[j]->StatOverflows();
-    CHECK( m_thistSvc->regHist( m_path + h_E_full_sum_h[j]->GetName(), h_E_full_sum_h[j] ) );
+    m_h_E_full_sum_h[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, Emax);
+    m_h_E_full_sum_h[j]->StatOverflows();
+    CHECK( m_thistSvc->regHist( m_path + m_h_E_full_sum_h[j]->GetName(), m_h_E_full_sum_h[j] ) );
 
     s.str("");
     s << "edep_per_layer_det_no." << j+1;
-    h_E_layer_sum_h[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, 15);
-    h_E_layer_sum_h[j]->StatOverflows();
-    CHECK( m_thistSvc->regHist( m_path + h_E_layer_sum_h[j]->GetName(), h_E_layer_sum_h[j] ) );
+    m_h_E_layer_sum_h[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, 15);
+    m_h_E_layer_sum_h[j]->StatOverflows();
+    CHECK( m_thistSvc->regHist( m_path + m_h_E_layer_sum_h[j]->GetName(), m_h_E_layer_sum_h[j] ) );
 
     s.str("");
     s << "hit_layer_det_no." << j+1;
-    h_hit_layer[j] = new TH1D(s.str().c_str(), s.str().c_str(), 50, 0, 50);
-    h_hit_layer[j]->StatOverflows();
-    CHECK( m_thistSvc->regHist( m_path + h_hit_layer[j]->GetName(), h_hit_layer[j] ) );
+    m_h_hit_layer[j] = new TH1D(s.str().c_str(), s.str().c_str(), 50, 0, 50);
+    m_h_hit_layer[j]->StatOverflows();
+    CHECK( m_thistSvc->regHist( m_path + m_h_hit_layer[j]->GetName(), m_h_hit_layer[j] ) );
 
     s.str("");
     s << "hit_fiber_det_no." << j+1;
-    h_hit_fiber[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, 60);
-    h_hit_fiber[j]->StatOverflows();
-    CHECK( m_thistSvc->regHist( m_path + h_hit_fiber[j]->GetName(), h_hit_fiber[j] ) );
+    m_h_hit_fiber[j] = new TH1D(s.str().c_str(), s.str().c_str(), 100, 0, 60);
+    m_h_hit_fiber[j]->StatOverflows();
+    CHECK( m_thistSvc->regHist( m_path + m_h_hit_fiber[j]->GetName(), m_h_hit_fiber[j] ) );
   }
 
   m_tree = new TTree("ALFA", "ALFA");
@@ -143,17 +143,17 @@ StatusCode ALFAHitAnalysis::execute() {
 	  E_full_sum[l] += E_fiber_sum[l][i][j][k];
 	  E_layer_sum[l][2*i+k] += E_fiber_sum[l][i][j][k];
 	  if (E_fiber_sum[l][i][j][k] > 0.) {
-	    h_hit_layer[l]->Fill(2*i+k+1);
-	    h_hit_fiber[l]->Fill(j+1);
+	    m_h_hit_layer[l]->Fill(2*i+k+1);
+	    m_h_hit_fiber[l]->Fill(j+1);
 	  }
 	}
       }
     }
   }
   for (int l=0; l<8; l++) {
-    h_E_full_sum_h[l]->Fill(E_full_sum[l]);
+    m_h_E_full_sum_h[l]->Fill(E_full_sum[l]);
     for (int i = 0; i< 20; i++) {
-      h_E_layer_sum_h[l]->Fill(E_layer_sum[l][i]);
+      m_h_E_layer_sum_h[l]->Fill(E_layer_sum[l][i]);
     }
   }
 

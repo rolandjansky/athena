@@ -5,7 +5,6 @@
 /***************************************************************************
  Detector description conversion service package
  -----------------------------------------------
- Copyright (C) 2002 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: IDetDescrCnvSvc.h,v 1.1 2002-07-10 13:44:41 schaffer Exp $

@@ -17,9 +17,8 @@
 #include "PersistentDataModel/Guid.h"
 
 #include "AthenaKernel/IAthenaSelectorTool.h"
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
-#include "AthenaKernel/ICollectionSize.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <map>
@@ -46,9 +45,8 @@ class IAthenaPoolCnvSvc;
 class EventSelectorAthenaPool :
                 public ::AthService,
 	virtual public IEvtSelector,
-	virtual public IEventSeek,
+	virtual public IEvtSelectorSeek,
 	virtual public IEventShare,
-	virtual public ICollectionSize,
 	virtual public IIoComponent {
 
 public: // Constructor and Destructor
@@ -58,73 +56,76 @@ public: // Constructor and Destructor
    virtual ~EventSelectorAthenaPool();
 
    /// Required of all Gaudi Services
-   virtual StatusCode initialize();
-   virtual StatusCode start();
-   virtual StatusCode stop();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode start() override;
+   virtual StatusCode stop() override;
+   virtual StatusCode finalize() override;
    /// Does this object satisfy a given interface?  See Gaudi documentation for details.
-   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
-   virtual StatusCode createContext(IEvtSelector::Context*& ctxt) const;
+   virtual StatusCode createContext(IEvtSelector::Context*& ctxt) const override;
 
    /// @param ctxt [IN/OUT] current event context is interated to next event.
-   virtual StatusCode next(IEvtSelector::Context& ctxt) const;
+   virtual StatusCode next(IEvtSelector::Context& ctxt) const override;
    /// @param ctxt [IN/OUT] current event context is interated to next event.
    /// @param jump [IN] number of events to jump (currently not supported).
-   virtual StatusCode next(IEvtSelector::Context& ctxt, int jump) const;
+   virtual StatusCode next(IEvtSelector::Context& ctxt, int jump) const override;
 
    /// @param ctxt [IN/OUT] current event context is interated to previous event.
-   virtual StatusCode previous(IEvtSelector::Context& ctxt) const;
+   virtual StatusCode previous(IEvtSelector::Context& ctxt) const override;
    /// @param ctxt [IN/OUT] current event context is interated to previous event.
    /// @param jump [IN] number of events to jump (currently not supported).
-   virtual StatusCode previous(IEvtSelector::Context& ctxt, int jump) const;
+   virtual StatusCode previous(IEvtSelector::Context& ctxt, int jump) const override;
 
    /// @param ctxt [IN/OUT] current event context is interated to last event.
-   virtual StatusCode last(IEvtSelector::Context& ctxt) const;
+   virtual StatusCode last(IEvtSelector::Context& ctxt) const override;
 
    /// @param ctxt [IN/OUT] current event context is rewound to first event.
-   virtual StatusCode rewind(IEvtSelector::Context& ctxt) const;
+   virtual StatusCode rewind(IEvtSelector::Context& ctxt) const override;
 
    /// @param ctxt [IN] current event context.
    /// @param iop [OUT] pointer to IOpaqueAddress reference of selection context.
-   virtual StatusCode createAddress(const IEvtSelector::Context& ctxt, IOpaqueAddress*& iop) const;
+   virtual StatusCode createAddress(const IEvtSelector::Context& ctxt, IOpaqueAddress*& iop) const override;
 
    /// @param ctxt [IN] current event context is released.
-   virtual StatusCode releaseContext(IEvtSelector::Context*& ctxt) const;
+   virtual StatusCode releaseContext(IEvtSelector::Context*& ctxt) const override;
 
    /// Set a selection criteria.
    /// @param criteria filter predicate (SQL-style WHERE clause)
    /// @param ctxt [IN] current event context.
-   virtual StatusCode resetCriteria(const std::string& criteria, IEvtSelector::Context& ctxt) const;
+   virtual StatusCode resetCriteria(const std::string& criteria, IEvtSelector::Context& ctxt) const override;
 
    /// Seek to a given event number.
+   /// @param ctxt [IN/OUT] current event context.
    /// @param evtnum [IN]  The event number to which to seek.
-   virtual StatusCode seek(int evtnum);
+   virtual StatusCode seek(Context& ctxt, int evtnum) const override;
 
    /// Return the current event number.
-   virtual int curEvent() const;
+   /// @param ctxt [IN/OUT] current event context.
+   virtual int curEvent (const Context& ctxt) const override;
 
    /// Make this a server.
-   virtual StatusCode makeServer(int num);
+   virtual StatusCode makeServer(int num) override;
 
    /// Make this a client.
-   virtual StatusCode makeClient(int num);
+   virtual StatusCode makeClient(int num) override;
 
    /// Request to share a given event number.
    /// @param evtnum [IN]  The event number to share.
-   virtual StatusCode share(int evtnum);
+   virtual StatusCode share(int evtnum) override;
 
    /// Read the next maxevt events.
    /// @param evtnum [IN]  The number of events to read.
-   virtual StatusCode readEvent(int maxevt);
+   virtual StatusCode readEvent(int maxevt) override;
 
    /// Return the size of the collection.
-   virtual int size();
+   /// @param ctxt [IN/OUT] current event context.
+   virtual int size (Context& ctxt) const override;
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-   virtual StatusCode io_reinit();
+   virtual StatusCode io_reinit() override;
    /// Callback method to finalize the internal state of the component for I/O purposes (e.g. before @c fork(2))
-   virtual StatusCode io_finalize();
+   virtual StatusCode io_finalize() override;
 
 private: // internal member functions
    /// Return pointer to active event SG
@@ -136,13 +137,13 @@ private: // internal member functions
    /// Record AttributeList in StoreGate
    StatusCode recordAttributeList() const;
    /// Search for event number evtNum.
-   int findEvent(int evtNum);
+   int findEvent(int evtNum) const;
 
    /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
    void fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const;
 
 private: // data
-   EventContextAthenaPool*      m_beginIter;
+   mutable EventContextAthenaPool*      m_beginIter;
    EventContextAthenaPool*      m_endIter;
 
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;

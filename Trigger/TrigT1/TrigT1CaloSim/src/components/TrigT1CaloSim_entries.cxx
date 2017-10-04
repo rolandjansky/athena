@@ -16,7 +16,6 @@
 #include "TrigT1CaloSim/EnergyCMX.h"
 #include "TrigT1CaloSim/TransientDatabaseOverride.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 using namespace LVL1;
 
@@ -38,33 +37,3 @@ DECLARE_ALGORITHM_FACTORY(JetCMX)
 DECLARE_ALGORITHM_FACTORY(EnergyCMX)
 DECLARE_ALGORITHM_FACTORY(TransientDatabaseOverride)
 
-DECLARE_FACTORY_ENTRIES(TrigT1CaloSim) {
-    DECLARE_ALGORITHM(TriggerTowerMaker)
-    DECLARE_ALGORITHM(Run2TriggerTowerMaker)
-    DECLARE_ALGORITHM(CPMTowerMaker)
-    DECLARE_ALGORITHM(JetElementMaker)
-    DECLARE_ALGORITHM(Run2CPMTowerMaker)
-    DECLARE_ALGORITHM(Run2JetElementMaker)
-    DECLARE_ALGORITHM(MergeSlices)
-    DECLARE_ALGORITHM(Tester)
-    DECLARE_ALGORITHM(ReprocessTriggerTowers)
-    DECLARE_ALGORITHM(CPMSim)
-    DECLARE_ALGORITHM(JEMJetSim)
-    DECLARE_ALGORITHM(JEMEnergySim)
-    DECLARE_ALGORITHM(RoIROD)
-    DECLARE_ALGORITHM(CPCMX)
-    DECLARE_ALGORITHM(JetCMX)
-    DECLARE_ALGORITHM(EnergyCMX)
-    DECLARE_ALGORITHM(TransientDatabaseOverride)
-}
-
-//Notes:
-//
-//1. The argument to the DECLARE_FACTORY_ENTRIES(XXX) is the name of the
-//   component library (libXXX.so).
-//2. Each Algorithm that is contained in the library should be declared
-//   by the DECLARE_ALGORITHM() statement.
-//3. Each Service that is contained in the library should be declared
-//   by the DECLARE_SERVICE() statement.
-//
-// See Athena User Guide for more information

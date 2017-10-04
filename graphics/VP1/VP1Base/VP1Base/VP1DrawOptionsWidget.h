@@ -57,7 +57,7 @@ signals:
   void complexityChanged(const double&);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private slots:
   void updateNodes();
 };

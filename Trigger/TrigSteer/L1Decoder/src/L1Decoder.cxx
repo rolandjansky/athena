@@ -3,17 +3,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
-#include "./L1Decoder.h"
+#include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_ctpUnpacker("CTPUnpackingTool/CTPUnpackingTool", this),
-    m_roiUnpackers(this) {
-  
-  declareProperty("RoIBResult", m_RoIBResultKey="RoIBResult", "Name of RoIBResult");
-  declareProperty("Chains", m_chainsKey="HLTChains", "Chains status after L1 and prescaling");
-  declareProperty("ctpUnpacker", m_ctpUnpacker, "Tool used to unpack the CTP info");
-  declareProperty("roiUnpackers", m_roiUnpackers, "Tools unpacking RoIs");
+  : AthReentrantAlgorithm(name, pSvcLocator)
+{
 }
 
 StatusCode L1Decoder::initialize() {

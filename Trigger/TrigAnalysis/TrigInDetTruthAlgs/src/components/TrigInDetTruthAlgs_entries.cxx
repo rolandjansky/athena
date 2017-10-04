@@ -12,7 +12,6 @@
  **                   
  **************************************************************************/ 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // derived algorithm classes
 #include "../TrigInDetTrackTruthMaker.h"
@@ -27,9 +26,4 @@ DECLARE_TOOL_FACTORY(TrigL2SpacePointTruthTool )
 /**
  * Declares the entries present in the factory at libTrigInDetTruthAlgs
  */
-DECLARE_FACTORY_ENTRIES( TrigInDetTruthAlgs ) {
-  DECLARE_ALGORITHM( TrigInDetTrackTruthMaker )
-  DECLARE_TOOL(TrigL2SpacePointTruthTool)
-}
-
 

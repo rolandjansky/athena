@@ -62,47 +62,47 @@ public:
 
 //____________________________________________________________________
 VP1AvailableToolsHelper::VP1AvailableToolsHelper(IToolSvc* ts, QObject * parent)
-  : QObject(parent), VP1HelperClassBase(0,"VP1AvailableToolsHelper"), d(new Imp)
+  : QObject(parent), VP1HelperClassBase(0,"VP1AvailableToolsHelper"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->toolsvc = ts;
-  if (!d->toolsvc)
+  m_d->theclass = this;
+  m_d->toolsvc = ts;
+  if (!m_d->toolsvc)
     message("ERROR - received NULL ToolSvc Pointer");
 
   //Should go away in future gaudi versions:
-  d->restartTimer(0);
+  m_d->restartTimer(0);
 }
 
 //____________________________________________________________________
 VP1AvailableToolsHelper::VP1AvailableToolsHelper(IVP1System* sys, QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1AvailableToolsHelper"), d(new Imp)
+  : QObject(parent), VP1HelperClassBase(sys,"VP1AvailableToolsHelper"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->toolsvc = sys ? sys->toolSvc() : 0;
+  m_d->theclass = this;
+  m_d->toolsvc = sys ? sys->toolSvc() : 0;
   if (!sys)
     message("ERROR - received NULL system Pointer");
-  if (!d->toolsvc)
+  if (!m_d->toolsvc)
     message("ERROR - could not get ToolSvc Pointer");
 }
 
 //____________________________________________________________________
 VP1AvailableToolsHelper::~VP1AvailableToolsHelper()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1AvailableToolsHelper::scheduleImmediateUpdate() const
 {
-  d->restartTimer(0);
+  m_d->restartTimer(0);
 }
 
 //____________________________________________________________________
 void VP1AvailableToolsHelper::addMonitoredType(const QString& mt, const QStringList& ignoreList)
 {
-  d->monitoredTypeToIgnoreList[mt] = ignoreList;
-  if (!d->monitoredTypes.contains(mt)) {
-    d->monitoredTypes << mt;
+  m_d->monitoredTypeToIgnoreList[mt] = ignoreList;
+  if (!m_d->monitoredTypes.contains(mt)) {
+    m_d->monitoredTypes << mt;
     scheduleImmediateUpdate();
   }
 }
@@ -112,9 +112,9 @@ void VP1AvailableToolsHelper::addMonitoredTypes(const QStringList& mts, const QS
 {
   bool added(false);
   foreach (QString mt, mts) {
-    d->monitoredTypeToIgnoreList[mt] = ignoreList;
-    if (!d->monitoredTypes.contains(mt)) {
-      d->monitoredTypes << mt;
+    m_d->monitoredTypeToIgnoreList[mt] = ignoreList;
+    if (!m_d->monitoredTypes.contains(mt)) {
+      m_d->monitoredTypes << mt;
       added=true;
     }
   }
@@ -125,9 +125,9 @@ void VP1AvailableToolsHelper::addMonitoredTypes(const QStringList& mts, const QS
 //____________________________________________________________________
 void VP1AvailableToolsHelper::removeMonitoredType(const QString& mt)
 {
-  if (d->monitoredTypes.contains(mt)) {
-    d->monitoredTypes.removeAll(mt);
-    d->removeIgnoreList(mt);
+  if (m_d->monitoredTypes.contains(mt)) {
+    m_d->monitoredTypes.removeAll(mt);
+    m_d->removeIgnoreList(mt);
     scheduleImmediateUpdate();
   }
 }
@@ -137,9 +137,9 @@ void VP1AvailableToolsHelper::removeMonitoredTypes(const QStringList& mts)
 {
   bool removed(false);
   foreach (QString mt, mts) {
-    if (d->monitoredTypes.contains(mt)) {
-      d->monitoredTypes.removeAll(mt);
-      d->removeIgnoreList(mt);
+    if (m_d->monitoredTypes.contains(mt)) {
+      m_d->monitoredTypes.removeAll(mt);
+      m_d->removeIgnoreList(mt);
       removed = true;
     }
   }
@@ -150,9 +150,9 @@ void VP1AvailableToolsHelper::removeMonitoredTypes(const QStringList& mts)
 //____________________________________________________________________
 void VP1AvailableToolsHelper::clearMonitoredTypes(const QString&)
 {
-  if (d->monitoredTypes.count()>0) {
-    d->monitoredTypes.clear();
-    d->monitoredTypeToIgnoreList.clear();
+  if (m_d->monitoredTypes.count()>0) {
+    m_d->monitoredTypes.clear();
+    m_d->monitoredTypeToIgnoreList.clear();
     scheduleImmediateUpdate();
   }
 }
@@ -160,7 +160,7 @@ void VP1AvailableToolsHelper::clearMonitoredTypes(const QString&)
 //____________________________________________________________________
 QStringList VP1AvailableToolsHelper::monitoredTypes() const
 {
-  return d->monitoredTypes;
+  return m_d->monitoredTypes;
 }
 
 //____________________________________________________________________
@@ -208,37 +208,37 @@ QStringList VP1AvailableToolsHelper::Imp::actualCurrentlyAvailableTools()
 //____________________________________________________________________
 void VP1AvailableToolsHelper::update() const
 {
-  QStringList newtools = d->actualCurrentlyAvailableTools();
-  if ( newtools == d->availableTools ) {
-    d->restartTimer(2000);
+  QStringList newtools = m_d->actualCurrentlyAvailableTools();
+  if ( newtools == m_d->availableTools ) {
+    m_d->restartTimer(2000);
     return;
   }
   messageVerbose("update() found changes in tool list!");
-  d->availableTools = newtools;
-  bool notempty = ! d->availableTools.empty();
+  m_d->availableTools = newtools;
+  bool notempty = ! m_d->availableTools.empty();
 
   if (notempty) {
-    foreach (QComboBox* cb, d->handledComboBoxes) {
+    foreach (QComboBox* cb, m_d->handledComboBoxes) {
       cb->clear();
-      cb->addItems(d->availableTools);
+      cb->addItems(m_d->availableTools);
     }
   }
-  foreach (QWidget* w, d->handledWidgets) {
+  foreach (QWidget* w, m_d->handledWidgets) {
     if (w->isEnabled() != notempty)
       w->setEnabled(notempty);
   }
 
-  messageDebug("Emitting availableToolsChanged (ntools="+QString::number(d->availableTools.count())+")");
-  availableToolsChanged(d->availableTools);
+  messageDebug("Emitting availableToolsChanged (ntools="+QString::number(m_d->availableTools.count())+")");
+  availableToolsChanged(m_d->availableTools);
 
-  d->restartTimer(2000);
+  m_d->restartTimer(2000);
 }
 
 //____________________________________________________________________
 QStringList VP1AvailableToolsHelper::availableTools() const
 {
   update();
-  return d->availableTools;
+  return m_d->availableTools;
 }
 
 //____________________________________________________________________
@@ -272,9 +272,9 @@ void VP1AvailableToolsHelper::handleComboBox(QComboBox*cb)
     message("handleComboBox ERROR: Null pointer to combobox");
     return;
   }
-  if (!d->handledComboBoxes.contains(cb)) {
+  if (!m_d->handledComboBoxes.contains(cb)) {
     setComboBoxData(cb);
-    d->handledComboBoxes << cb;
+    m_d->handledComboBoxes << cb;
     connect(cb,SIGNAL(destroyed(QObject*)),this,SLOT(widgetDeleted(QObject*)));
   }
 }
@@ -287,9 +287,9 @@ void VP1AvailableToolsHelper::handleEnabledState(QWidget*w)
     message("handleEnabledState ERROR: Null pointer to widget");
     return;
   }
-  if (!d->handledWidgets.contains(w)) {
+  if (!m_d->handledWidgets.contains(w)) {
     disableIfNoTools(w);
-    d->handledWidgets << w;
+    m_d->handledWidgets << w;
     connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(widgetDeleted(QObject*)));
   }
 }
@@ -297,22 +297,22 @@ void VP1AvailableToolsHelper::handleEnabledState(QWidget*w)
 //____________________________________________________________________
 void VP1AvailableToolsHelper::widgetDeleted(QObject* o)
 {
-  if ( o->inherits("QComboBox") && d->handledComboBoxes.contains(static_cast<QComboBox*>(o)))
-    d->handledComboBoxes.removeAll(static_cast<QComboBox*>(o));
-  if ( o->isWidgetType() && d->handledWidgets.contains(static_cast<QWidget*>(o)))
-    d->handledWidgets.removeAll(static_cast<QWidget*>(o));
+  if ( o->inherits("QComboBox") && m_d->handledComboBoxes.contains(static_cast<QComboBox*>(o)))
+    m_d->handledComboBoxes.removeAll(static_cast<QComboBox*>(o));
+  if ( o->isWidgetType() && m_d->handledWidgets.contains(static_cast<QWidget*>(o)))
+    m_d->handledWidgets.removeAll(static_cast<QWidget*>(o));
 }
 
 //____________________________________________________________________
 void VP1AvailableToolsHelper::timerEvent ( QTimerEvent * event )
 {
   event->accept();
-  if (event->timerId()!=d->timerid) {
+  if (event->timerId()!=m_d->timerid) {
     message("ERROR: Bad timer ID!!");
     killTimer(event->timerId());
   }
-  d->silent = true;
+  m_d->silent = true;
   update();
-  d->silent = false;
-  d->restartTimer(3000);
+  m_d->silent = false;
+  m_d->restartTimer(3000);
 }

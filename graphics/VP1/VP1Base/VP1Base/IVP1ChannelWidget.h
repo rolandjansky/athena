@@ -117,7 +117,7 @@ private:
   IVP1ChannelWidget( const IVP1ChannelWidget & );
   IVP1ChannelWidget & operator= ( const IVP1ChannelWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   void setCloneID(unsigned id);
   const std::set<IVP1System *>& systems();

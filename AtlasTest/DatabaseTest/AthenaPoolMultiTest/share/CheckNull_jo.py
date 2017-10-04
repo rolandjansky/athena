@@ -90,6 +90,7 @@ FullColl.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
 FullColl.ItemList        += [ "CollectionMetadataContainer#Default" ]
 #FullColl.Tool = TagTool
 FullColl.OutputLevel = DEBUG
+FullColl.Tool.OutputLevel = INFO
 
 athRegSeq += FullColl
 

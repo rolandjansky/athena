@@ -51,6 +51,7 @@ public:
    **/      
   bool operator == ( const Identifier& rhs )  const { return numeric() == rhs.numeric(); }
   bool operator < ( const Identifier& rhs )  const { return numeric() < rhs.numeric(); }
+  bool operator < ( unsigned id ) const { return numeric() < id; } 
 private:
   unsigned m_id;
   static bool s_reportStringIDs;

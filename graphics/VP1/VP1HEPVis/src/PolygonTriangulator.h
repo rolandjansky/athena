@@ -53,7 +53,7 @@ public:
 
 private:
   class Polygon;
-  Polygon * polygon;
+  Polygon * m_polygon;
 };
 
 #endif

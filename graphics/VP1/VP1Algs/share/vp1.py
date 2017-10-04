@@ -85,7 +85,7 @@ if (vp1InputFiles == []):
     globalflags.DetGeo.set_Value_and_Lock('atlas')
     globalflags.DataSource.set_Value_and_Lock('geant4')
 
-    # # Set geometry version
+    # Set geometry version
     if (not "DetDescrVersion" in dir()):
         #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
         DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
@@ -96,6 +96,24 @@ if (vp1InputFiles == []):
         vp1GlobCond="OFLCOND-SDR-BS7T-05-14"
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(vp1GlobCond)
+
+
+    ### NEW FOR REL. >= 22
+
+    # Conditions Service for reading conditions data in serial and MT Athena
+    from IOVSvc.IOVSvcConf import CondSvc
+    svcMgr += CondSvc()
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    # Conditions data access infrastructure for serial and MT Athena
+    from IOVSvc.IOVSvcConf import CondInputLoader
+    condSeq += CondInputLoader( "CondInputLoader")
+
+    import StoreGate.StoreGateConf as StoreGateConf
+    svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
 else:
     if(vp1NoAutoConf):
         # AutoConfiguration disabled
@@ -131,6 +149,24 @@ else:
 
         from IOVDbSvc.CondDB import conddb
         conddb.setGlobalTag(vp1GlobCond)
+
+
+        ### NEW FOR REL. >= 22
+
+        # Conditions Service for reading conditions data in serial and MT Athena
+        from IOVSvc.IOVSvcConf import CondSvc
+        svcMgr += CondSvc()
+
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+
+        # Conditions data access infrastructure for serial and MT Athena
+        from IOVSvc.IOVSvcConf import CondInputLoader
+        condSeq += CondInputLoader( "CondInputLoader")
+
+        import StoreGate.StoreGateConf as StoreGateConf
+        svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
     else:
         # AutoConfiguration enabled
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -152,6 +188,23 @@ else:
         if('vp1GlobCond' in dir()):
             from IOVDbSvc.CondDB import conddb
             conddb.setGlobalTag(vp1GlobCond)
+
+
+        ### NEW FOR REL. >= 22
+
+        # Conditions Service for reading conditions data in serial and MT Athena
+        from IOVSvc.IOVSvcConf import CondSvc
+        svcMgr += CondSvc()
+
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+
+        # Conditions data access infrastructure for serial and MT Athena
+        from IOVSvc.IOVSvcConf import CondInputLoader
+        condSeq += CondInputLoader( "CondInputLoader")
+
+        import StoreGate.StoreGateConf as StoreGateConf
+        svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
 if vp1FilterEvents:
     import VP1Algs.VP1EvtFilter

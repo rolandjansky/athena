@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PRIVATE
+                          Control/StoreGate
                           Tracking/TrkEvent/TrkTrack )
 
 # Component(s) in the package:

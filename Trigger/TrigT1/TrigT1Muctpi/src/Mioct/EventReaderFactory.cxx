@@ -14,8 +14,8 @@ namespace LVL1MUCTPI {
 
    EventReader* EventReaderFactory::getEventReader() {
 
-      MsgLogger m_logger( "EventReaderFactory" );
-      REPORT_MSG(DEBUG, "Using a SectorLogicReader");
+      MsgLogger logger( "EventReaderFactory" );
+      REPORT_MSG2(DEBUG, "Using a SectorLogicReader", logger);
       return new SectorLogicReader();
    }
 

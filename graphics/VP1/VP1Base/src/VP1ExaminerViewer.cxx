@@ -11,7 +11,9 @@
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: March 2008                               //
 //                                                            //
-//  Update: Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch //
+//  Updates:                                                  //
+//  Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
+//  Sep 2017, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
@@ -39,6 +41,7 @@
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/nodekits/SoBaseKit.h>
+#include <Inventor/SoSceneManager.h>
 
 #include <QBuffer>
 #include <QByteArray>
@@ -135,7 +138,7 @@ public:
   resetCamera_isPerspective(false)
 {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::Imp() constructor");
-		signalcatcher->d = this; init();
+		signalcatcher->m_d = this; init();
 
 		// TEST
 		// With this command, Coin does not clear the pixel-buffer,
@@ -522,7 +525,7 @@ VP1ExaminerViewer::VP1ExaminerViewer(QWidget * parent,
 		SoQtFullViewer::BuildFlag flag,
 		SoQtViewer::Type type)
 : SoQtExaminerViewer(parent,(name?name:"VP1ExaminerViewer"),embed,flag,type,false/*delay createViewerButtons call*/),
-  d(new Imp(this,detectorViewButtons))
+  m_d(new Imp(this,detectorViewButtons))
 {
 	VP1Msg::messageDebug("VP1ExaminerViewer::VP1ExaminerViewer()");
 	// Explicitly trigger the construction of viewer decorations.
@@ -531,7 +534,7 @@ VP1ExaminerViewer::VP1ExaminerViewer(QWidget * parent,
 		rightWheelLabel->setVisible(false);//it will be shown again by the first setCameraType call
 	setBaseWidget(widget);
 	setLeftWheelString("Rotz");
-	d->rotationMode=Imp::ZROT;
+	m_d->rotationMode=Imp::ZROT;
 //	setRightWheelString("Zoom");
 	setRightWheelString("Zoom test");
 	leftWheel->setMinimumHeight(20);
@@ -547,13 +550,13 @@ VP1ExaminerViewer::VP1ExaminerViewer(QWidget * parent,
 	setAutoClippingStrategy(CONSTANT_NEAR_PLANE, 0.9, fixedDistanceClipPlanesCB, this);
 
   // Let's build this now, otherwise there will be problems with making the connections later:
-	d->customtoureditor = new VP1CustomTourEditor(this);
-	QObject::connect(&(d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
-  VP1Controller::setCustomTourEditor(d->customtoureditor);
-	d->customtoureditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
-	if (d->customtoureditorState!=QByteArray()) {
-		d->customtoureditor->setState(d->customtoureditorState);
-		d->customtoureditorState = QByteArray();
+	m_d->customtoureditor = new VP1CustomTourEditor(this);
+	QObject::connect(&(m_d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),m_d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
+  VP1Controller::setCustomTourEditor(m_d->customtoureditor);
+	m_d->customtoureditor->disableObjectWhenTourNotAvailable(m_d->customtour_execute);
+	if (m_d->customtoureditorState!=QByteArray()) {
+		m_d->customtoureditor->setState(m_d->customtoureditorState);
+		m_d->customtoureditorState = QByteArray();
 	}
 
 	// test Ric
@@ -666,13 +669,13 @@ QByteArray VP1ExaminerViewer::saveState()
 	out << isdeco;
 	out << isheadlight;
 	out << isviewing;
-	out << d->decorationMenuRemoved;
+	out << m_d->decorationMenuRemoved;
 	VP1Msg::messageVerbose("saveState (deco,headlight,viewing,nodecomenu) = ("
-			+str(isdeco)+", "+str(isheadlight)+", "+str(isviewing)+", "+str(d->decorationMenuRemoved)+")");
+			+str(isdeco)+", "+str(isheadlight)+", "+str(isviewing)+", "+str(m_d->decorationMenuRemoved)+")");
 
 	//Antialiasing state:
-	out << d->isantialias;//version 6+
-	VP1Msg::messageVerbose("saveState (isantialis)) = ("+str(d->isantialias)+")");
+	out << m_d->isantialias;//version 6+
+	VP1Msg::messageVerbose("saveState (isantialis)) = ("+str(m_d->isantialias)+")");
 	//OLD (up to version 5):
 	//   SbBool smoothing; int numPasses;
 	//   getAntialiasing(smoothing, numPasses);
@@ -696,40 +699,40 @@ QByteArray VP1ExaminerViewer::saveState()
 	// Added for version 1 //
 	/////////////////////////
 
-	d->ensureMenuInit();
-	out << d->popup_tourReturnToStartAction->isChecked();
-	out << d->popup_tourStartEachEvent->isChecked();
+	m_d->ensureMenuInit();
+	out << m_d->popup_tourReturnToStartAction->isChecked();
+	out << m_d->popup_tourStartEachEvent->isChecked();
 
 	qint32 ispeed(0);//medium
-	if (d->popup_tourSpeedVerySlow->isChecked()) ispeed = -2;
-	else if (d->popup_tourSpeedSlow->isChecked()) ispeed = -1;
-	else if (d->popup_tourSpeedFast->isChecked()) ispeed = 1;
-	else if (d->popup_tourSpeedVeryFast->isChecked()) ispeed = 2;
+	if (m_d->popup_tourSpeedVerySlow->isChecked()) ispeed = -2;
+	else if (m_d->popup_tourSpeedSlow->isChecked()) ispeed = -1;
+	else if (m_d->popup_tourSpeedFast->isChecked()) ispeed = 1;
+	else if (m_d->popup_tourSpeedVeryFast->isChecked()) ispeed = 2;
 	out << ispeed;
 
-	out << d->popup_tourPartsVertex->isChecked();
-	out << d->popup_tourPartsInDet->isChecked();
-	out << d->popup_tourPartsCalo->isChecked();
-	out << d->popup_tourPartsMuon->isChecked();
+	out << m_d->popup_tourPartsVertex->isChecked();
+	out << m_d->popup_tourPartsInDet->isChecked();
+	out << m_d->popup_tourPartsCalo->isChecked();
+	out << m_d->popup_tourPartsMuon->isChecked();
 
 	qint32 iloop(1);
-	if (d->popup_tourLoopTwice->isChecked()) iloop = 2;
-	else if (d->popup_tourLoopThrice->isChecked()) iloop = 3;
-	else if (d->popup_tourLoopForever->isChecked()) iloop = 999;
+	if (m_d->popup_tourLoopTwice->isChecked()) iloop = 2;
+	else if (m_d->popup_tourLoopThrice->isChecked()) iloop = 3;
+	else if (m_d->popup_tourLoopForever->isChecked()) iloop = 999;
 	out << iloop;
 
 	/////////////////////////
 	// Added for version 2 //
 	/////////////////////////
-	out << d->resetCamera_isPerspective;
-	out << d->resetCamera_state;
+	out << m_d->resetCamera_isPerspective;
+	out << m_d->resetCamera_state;
 
 	/////////////////////////
 	// Added for version 3 //
 	/////////////////////////
 
 	QList<QByteArray> persistifiedViews;
-	foreach(Imp::StoredView sv, d->storedViews)
+	foreach(Imp::StoredView sv, m_d->storedViews)
 	persistifiedViews << sv.persistifiedState();
 	out << persistifiedViews;
 
@@ -737,13 +740,13 @@ QByteArray VP1ExaminerViewer::saveState()
 	// Added for version 4 //
 	/////////////////////////
 
-	out << d->ambientLightPercentage;
+	out << m_d->ambientLightPercentage;
 
 	/////////////////////////
 	// Added for version 5 //
 	/////////////////////////
 
-	out << (d->customtoureditor ? d->customtoureditor->state() : QByteArray());
+	out << (m_d->customtoureditor ? m_d->customtoureditor->state() : QByteArray());
 
 	// ===> Finish up:
 	buffer.close();
@@ -810,13 +813,13 @@ void VP1ExaminerViewer::restoreFromState(QByteArray ba_state)
 		SbBool smoothing; int numPasses;
 		state >> smoothing;
 		state >> numPasses;
-		d->isantialias=smoothing;
+		m_d->isantialias=smoothing;
 	}
 	if (version>=6) {
-		state >> d->isantialias;
+		state >> m_d->isantialias;
 	}
-	setAntiAlias(d->isantialias);
-	VP1Msg::messageVerbose("restoreState (isantialias)) = ("+str(d->isantialias)+")");
+	setAntiAlias(m_d->isantialias);
+	VP1Msg::messageVerbose("restoreState (isantialias)) = ("+str(m_d->isantialias)+")");
 	//   getAntialiasing(current_smoothing, current_numPasses);
 	//   state >> smoothing;
 	//   state >> numPasses;
@@ -840,68 +843,68 @@ void VP1ExaminerViewer::restoreFromState(QByteArray ba_state)
 
 	if (version>=1) {
 
-		d->ensureMenuInit();
+		m_d->ensureMenuInit();
 		bool b;
-		state >> b; d->popup_tourReturnToStartAction->setChecked(b);
-		state >> b; d->popup_tourStartEachEvent->setChecked(b);
+		state >> b; m_d->popup_tourReturnToStartAction->setChecked(b);
+		state >> b; m_d->popup_tourStartEachEvent->setChecked(b);
 
 		qint32 ispeed;
 		state >> ispeed;
-		if (ispeed==-2) d->popup_tourSpeedVerySlow->setChecked(true);
-		else if (ispeed==-1) d->popup_tourSpeedSlow->setChecked(true);
-		else if (ispeed==1) d->popup_tourSpeedFast->setChecked(true);
-		else if (ispeed==2) d->popup_tourSpeedVeryFast->setChecked(true);
+		if (ispeed==-2) m_d->popup_tourSpeedVerySlow->setChecked(true);
+		else if (ispeed==-1) m_d->popup_tourSpeedSlow->setChecked(true);
+		else if (ispeed==1) m_d->popup_tourSpeedFast->setChecked(true);
+		else if (ispeed==2) m_d->popup_tourSpeedVeryFast->setChecked(true);
 
-		state >> b; d->popup_tourPartsVertex->setChecked(b);
-		state >> b; d->popup_tourPartsInDet->setChecked(b);
-		state >> b; d->popup_tourPartsCalo->setChecked(b);
-		state >> b; d->popup_tourPartsMuon->setChecked(b);
+		state >> b; m_d->popup_tourPartsVertex->setChecked(b);
+		state >> b; m_d->popup_tourPartsInDet->setChecked(b);
+		state >> b; m_d->popup_tourPartsCalo->setChecked(b);
+		state >> b; m_d->popup_tourPartsMuon->setChecked(b);
 
 		qint32 iloop;
 		state >> iloop;
-		if (iloop==2) d->popup_tourLoopTwice->setChecked(true);
-		else if (iloop==3) d->popup_tourLoopThrice->setChecked(true);
-		else if (iloop==999) d->popup_tourLoopForever->setChecked(true);
+		if (iloop==2) m_d->popup_tourLoopTwice->setChecked(true);
+		else if (iloop==3) m_d->popup_tourLoopThrice->setChecked(true);
+		else if (iloop==999) m_d->popup_tourLoopForever->setChecked(true);
 
 	}
 
 	if (version>=2) {
-		state >> d->resetCamera_isPerspective;
-		state >> d->resetCamera_state;
-		if (d->popup_resetCameraAction) {
-			bool v(d->resetCamera_state!=QByteArray());
-			if (d->popup_resetCameraAction->isVisible()!=v)
-				d->popup_resetCameraAction->setVisible(v);
+		state >> m_d->resetCamera_isPerspective;
+		state >> m_d->resetCamera_state;
+		if (m_d->popup_resetCameraAction) {
+			bool v(m_d->resetCamera_state!=QByteArray());
+			if (m_d->popup_resetCameraAction->isVisible()!=v)
+				m_d->popup_resetCameraAction->setVisible(v);
 		}
 	}
 	if (version>=3) {
-		d->storedViews.clear();
+		m_d->storedViews.clear();
 		QList<QByteArray> persistifiedViews;
 		state >> persistifiedViews;
 		foreach(QByteArray ba_pv, persistifiedViews) {
 			Imp::StoredView sv(ba_pv);
 			if (sv.isValid())
-				d->storedViews << sv;
+				m_d->storedViews << sv;
 		}
-		d->storedViewsChanged();
+		m_d->storedViewsChanged();
 	}
 
 	if (version>=4)
-		state >> d->ambientLightPercentage;
+		state >> m_d->ambientLightPercentage;
 
 	if (version>=5) {
 		QByteArray ba;
 		state >> ba;
 		if (ba!=QByteArray()) {
-			if (!d->customtoureditor)
-				d->customtoureditorState = ba;
+			if (!m_d->customtoureditor)
+				m_d->customtoureditorState = ba;
 			else
-				d->customtoureditor->setState(ba);
+				m_d->customtoureditor->setState(ba);
 		}
 	}
 
-	d->updateEnvironmentNode();
-	d->updateAmbientLightText();
+	m_d->updateEnvironmentNode();
+	m_d->updateAmbientLightText();
 
 	// ===> Finish up:
 			buffer.close();
@@ -915,7 +918,7 @@ VP1ExaminerViewer::~VP1ExaminerViewer()
 	//Fix bug in SoQt, in which the menu does not get deleted (reported and fixed upstream after SoQt 1.4.1)
 	delete prefmenu;
 #endif
-	delete d;
+	delete m_d;
 	SoQtExaminerViewer::setSceneGraph(0);
 }
 
@@ -929,24 +932,24 @@ void VP1ExaminerViewer::createViewerButtons(QWidget * parent, SbPList * buttonli
 
 	if (buttonlist->getLength()==7) {
 		//Get pointers:
-		d->button_interact = static_cast<QPushButton*>(buttonlist->get(0));
-		d->button_examine = static_cast<QPushButton*>(buttonlist->get(1));
-		d->button_home = static_cast<QPushButton*>(buttonlist->get(2));
-		d->button_sethome = static_cast<QPushButton*>(buttonlist->get(3));
-		d->button_viewall = static_cast<QPushButton*>(buttonlist->get(4));
-		d->button_seek = static_cast<QPushButton*>(buttonlist->get(5));
-		d->button_togglecamera = static_cast<QPushButton*>(buttonlist->get(6));
+		m_d->button_interact = static_cast<QPushButton*>(buttonlist->get(0));
+		m_d->button_examine = static_cast<QPushButton*>(buttonlist->get(1));
+		m_d->button_home = static_cast<QPushButton*>(buttonlist->get(2));
+		m_d->button_sethome = static_cast<QPushButton*>(buttonlist->get(3));
+		m_d->button_viewall = static_cast<QPushButton*>(buttonlist->get(4));
+		m_d->button_seek = static_cast<QPushButton*>(buttonlist->get(5));
+		m_d->button_togglecamera = static_cast<QPushButton*>(buttonlist->get(6));
 		//Other stuff? Connections? Change pixmaps?
-		d->button_interact->setToolTip("Pick mode (ESC/M toggles). Use this in order to select objects.");
-		d->button_examine->setToolTip("Navigation mode (ESC/M toggles). Use to ROTATE (left click), ZOOM (wheel or SHIFT+CTRL+left click) or PAN (middle click or SHIFT+left click or CTRL+left click).");
-		d->button_home->setToolTip("Change view to home view");
-		d->button_sethome->setToolTip("Store current view as new home");
-		d->button_viewall->setToolTip("View all objects currently displayed (V)");
-		d->button_seek->setToolTip("Seek to point (S). Sets cameras rotation centre to the clicked point and zooms towards it.");
-		d->button_togglecamera->setToolTip("Toggle (C) camera between perspective (P) and orthographic (O) mode.");
+		m_d->button_interact->setToolTip("Pick mode (ESC/M toggles). Use this in order to select objects.");
+		m_d->button_examine->setToolTip("Navigation mode (ESC/M toggles). Use to ROTATE (left click), ZOOM (wheel or SHIFT+CTRL+left click) or PAN (middle click or SHIFT+left click or CTRL+left click).");
+		m_d->button_home->setToolTip("Change view to home view");
+		m_d->button_sethome->setToolTip("Store current view as new home");
+		m_d->button_viewall->setToolTip("View all objects currently displayed (V)");
+		m_d->button_seek->setToolTip("Seek to point (S). Sets cameras rotation centre to the clicked point and zooms towards it.");
+		m_d->button_togglecamera->setToolTip("Toggle (C) camera between perspective (P) and orthographic (O) mode.");
 		//These are just confusing anyway:
-		d->button_home->setVisible(false);
-		d->button_sethome->setVisible(false);
+		m_d->button_home->setVisible(false);
+		m_d->button_sethome->setVisible(false);
 	} else {
 		VP1Msg::message("VP1ExaminerViewer::createViewerButtons ERROR: Did not get list of exactly 7 buttons from base.");
 	}
@@ -1131,22 +1134,22 @@ void VP1ExaminerViewer_SignalCatcher::catchSignal()
 {
 	if (!sender())
 		return;
-	if (sender()==&(d->animationSequencer)) {
-		if (d->tourLoopsForever)
-			d->animationSequencer.startAnimating(d->tourLoopsForeverSkipFirstFrame);
+	if (sender()==&(m_d->animationSequencer)) {
+		if (m_d->tourLoopsForever)
+			m_d->animationSequencer.startAnimating(m_d->tourLoopsForeverSkipFirstFrame);
 		return;
 	}
 	QPushButton* button = dynamic_cast<QPushButton*>(sender());
 	if (button) {
-		if (d->detectorbuttons.find(button)!=d->detectorbuttons.end())
-			d->detectorZoomButtonClicked(d->detectorbuttons.find(button)->second);
-		else if (button==d->takeTourButton)
-			d->takeTourButtonClicked();
+		if (m_d->detectorbuttons.find(button)!=m_d->detectorbuttons.end())
+			m_d->detectorZoomButtonClicked(m_d->detectorbuttons.find(button)->second);
+		else if (button==m_d->takeTourButton)
+			m_d->takeTourButtonClicked();
 		return;
 	}
 	QMenu* menu = dynamic_cast<QMenu*>(sender());
 	if (menu) {
-		d->aboutToShowMenu(menu);
+		m_d->aboutToShowMenu(menu);
 		return;
 	}
 	VP1Msg::messageDebug("VP1ExaminerViewer_SignalCatcher::catchSignal ERROR: Received unknown signal");
@@ -1156,15 +1159,15 @@ void VP1ExaminerViewer_SignalCatcher::catchSignal()
 void VP1ExaminerViewer::startTour()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::startTour()");
-	if (d->detectorViewButtons)
-		d->takeTourButtonClicked();
+	if (m_d->detectorViewButtons)
+		m_d->takeTourButtonClicked();
 }
 
 //____________________________________________________________________
 bool VP1ExaminerViewer::startTourEachEvent() const
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::startTourEachEvent()");
-	return d->popup_tourStartEachEvent ? d->popup_tourStartEachEvent->isChecked() : false;
+	return m_d->popup_tourStartEachEvent ? m_d->popup_tourStartEachEvent->isChecked() : false;
 }
 
 //____________________________________________________________________
@@ -1207,7 +1210,7 @@ SoSphere * VP1ExaminerViewer::Imp::getRegionSphere(REGION region,bool perspectiv
 //____________________________________________________________________
 void VP1ExaminerViewer::Imp::grabFocus()
 {
-//	VP1Msg::messageVerbose("VP1ExaminerViewer::Imp::grabFocus()");
+    VP1Msg::messageVerbose("VP1ExaminerViewer::Imp::grabFocus()");
 	QWidget * w = theclass->getGLWidget();
 	if (w)
 		w->setFocus(Qt::OtherFocusReason);
@@ -1237,22 +1240,22 @@ void VP1ExaminerViewer::startCustomTour()
 {
 	VP1Msg::messageVerbose("startCustomTour begin.");
 
-	if (!d->customtoureditor||!d->customtoureditor->tourAvailable())
+	if (!m_d->customtoureditor||!m_d->customtoureditor->tourAvailable())
 		return;
 
-	d->grabFocus();
+	m_d->grabFocus();
 	if (isAnimating())
 		stopAnimating();
-	bool jump(d->action_movieenabled->isChecked());
-	if (currentCamIsPerspective()!=d->customtoureditor->tourIsPerspective()) {
+	bool jump(m_d->action_movieenabled->isChecked());
+	if (currentCamIsPerspective()!=m_d->customtoureditor->tourIsPerspective()) {
 		toggleCameraType();
 		jump = true;
 	}
-	d->animationSequencer.sequence().clearAllFrames();
-	d->customtoureditor->addTourToAnimationSequencer(d->animationSequencer,jump);
-	d->applyMovieSettingsToAnimationSequencer();
+	m_d->animationSequencer.sequence().clearAllFrames();
+	m_d->customtoureditor->addTourToAnimationSequencer(m_d->animationSequencer,jump);
+	m_d->applyMovieSettingsToAnimationSequencer();
 	//Start animation:
-	d->animationSequencer.startAnimating();
+	m_d->animationSequencer.startAnimating();
 }
 
 //____________________________________________________________________
@@ -1370,9 +1373,9 @@ void VP1ExaminerViewer::removeDecorationMenuOption()
 {
 
 	VP1Msg::messageVerbose("VP1ExaminerViewer::removeDecorationMenuOption()");
-	if (d->decorationMenuRemoved || !prefmenu)
+	if (m_d->decorationMenuRemoved || !prefmenu)
 		return;
-	d->decorationMenuRemoved = true;
+	m_d->decorationMenuRemoved = true;
 	int id = prefmenu->getMenuItem("decoration");
 	if (id!=-1)
 		prefmenu->removeMenuItem(id);
@@ -1382,6 +1385,9 @@ void VP1ExaminerViewer::removeDecorationMenuOption()
 //____________________________________________________________________
 SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 {
+//    VP1Msg::messageDebug("VP1ExaminerViewer::processSoEvent()");
+//    std::cout << "event type: " << evt->getClassTypeId().getName() << " - " << evt->getTypeId().getName() << std::endl;
+
 	if (evt->getTypeId().isDerivedFrom(SoKeyboardEvent::getClassTypeId())) {
 		//We want to add a few shortcuts:
 		// "A": View all
@@ -1391,7 +1397,7 @@ SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 		// "M": Toggle view/selection mode.
 		//  If "Q" then we do NOT pass it on to the base class (because that closes the top window!!)
 
-		d->grabFocus(); //probably redundant since we got the event, but can't hurt.
+		m_d->grabFocus(); //probably redundant since we got the event, but can't hurt.
 
 		if (SO_KEY_PRESS_EVENT(evt,SoKeyboardEvent::V)) {
 			viewAll();
@@ -1419,7 +1425,7 @@ SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 		}
 		if (SO_KEY_PRESS_EVENT(evt,SoKeyboardEvent::A)) {
 			setAntiAlias(!isAntiAlias());
-			d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
+			m_d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
 			return true;//eat event
 		}
 
@@ -1427,7 +1433,7 @@ SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 		//    class does not eat event.
 
 	} else if (evt->getTypeId().isDerivedFrom(SoMouseButtonEvent::getClassTypeId())) {
-		d->grabFocus();//Any click grabs focus:
+		m_d->grabFocus();//Any click grabs focus:
 		if (isViewing()) {//In viewing mode we open a popup menu on right clicks:
 			const SoMouseButtonEvent * ev_mouse = static_cast<const SoMouseButtonEvent*>(evt);
 			if ((ev_mouse->getButton() == SoMouseButtonEvent::BUTTON2/*right click*/)) {
@@ -1446,7 +1452,7 @@ SbBool VP1ExaminerViewer::processSoEvent(const SoEvent * const evt )
 void VP1ExaminerViewer::viewAll()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::viewAll()");
-	d->grabFocus();
+	m_d->grabFocus();
 	if (currentCamIsPerspective()) {
 		//Fix for bad camera:
 		toggleCameraType();
@@ -1461,7 +1467,7 @@ void VP1ExaminerViewer::viewAll()
 void VP1ExaminerViewer::toggleCameraType()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::toggleCameraType()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::toggleCameraType();
 }
 
@@ -1469,7 +1475,7 @@ void VP1ExaminerViewer::toggleCameraType()
 void VP1ExaminerViewer::setCameraType(SoType type)
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::setCameraType()");
-	d->grabFocus();
+	m_d->grabFocus();
 	if (rightWheelLabel)
 		rightWheelLabel->setUpdatesEnabled(false);
 	SoQtExaminerViewer::setCameraType(type);
@@ -1491,7 +1497,7 @@ void VP1ExaminerViewer::setCameraType(SoType type)
 void VP1ExaminerViewer::setSeekMode(SbBool enable)
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::setSeekMode()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::setSeekMode(enable);
 }
 
@@ -1499,7 +1505,7 @@ void VP1ExaminerViewer::setSeekMode(SbBool enable)
 void VP1ExaminerViewer::setViewing(SbBool enable)
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::setViewing()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::setViewing(enable);
 }
 
@@ -1507,7 +1513,7 @@ void VP1ExaminerViewer::setViewing(SbBool enable)
 void VP1ExaminerViewer::bottomWheelFinish()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::bottomWheelFinish()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::bottomWheelFinish();
 }
 
@@ -1515,7 +1521,7 @@ void VP1ExaminerViewer::bottomWheelFinish()
 void VP1ExaminerViewer::bottomWheelMotion(float val)
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::bottomWheelMotion()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::bottomWheelMotion(val);
 }
 
@@ -1523,30 +1529,30 @@ void VP1ExaminerViewer::bottomWheelMotion(float val)
 void VP1ExaminerViewer::bottomWheelStart()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::bottomWheelStart()");
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::bottomWheelStart();
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::leftWheelFinish()
 {
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::leftWheelFinish();
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::leftWheelMotion(float val)
 {
-	d->grabFocus();
+	m_d->grabFocus();
 
 	if (isAnimating())
 		stopAnimating();
 
 	float newval = 0.0;
-	if (d->rotationMode==Imp::XROT)
-		newval = d->rotXWheelMotion(val, getLeftWheelValue());
+	if (m_d->rotationMode==Imp::XROT)
+		newval = m_d->rotXWheelMotion(val, getLeftWheelValue());
 	else
-		newval = d->rotZWheelMotion(val, getLeftWheelValue());
+		newval = m_d->rotZWheelMotion(val, getLeftWheelValue());
 
 	SoQtFullViewer::leftWheelMotion(newval);//NB: We bypass SoQtExaminerViewer implementation
 }
@@ -1554,28 +1560,28 @@ void VP1ExaminerViewer::leftWheelMotion(float val)
 //____________________________________________________________________
 void VP1ExaminerViewer::leftWheelStart()
 {
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::leftWheelStart();
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::rightWheelFinish()
 {
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::rightWheelFinish();
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::rightWheelMotion(float val)
 {
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::rightWheelMotion(val);
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::rightWheelStart()
 {
-	d->grabFocus();
+	m_d->grabFocus();
 	SoQtExaminerViewer::rightWheelStart();
 }
 
@@ -1636,25 +1642,49 @@ void VP1ExaminerViewer::setBufferingType(SoQtViewer::BufferType bt)
 //____________________________________________________________________
 void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
 {
-	SoQtExaminerViewer::setAntialiasing(smoothing, numPasses); // Needed for offscreen rendering (i.e. snapshots).
-	if (smoothing)
-		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
-	else
-		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
-	VP1Msg::message(" AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems. Mac users: if the display goes blank, please try resizing the main VP1 window.");
-	//FIXME - remove above messages at some point? EJWM.
+    VP1Msg::messageDebug("VP1ExaminerViewer::setAntialiasing()");
 
-	QGLWidget* qglw = (QGLWidget*)getGLWidget();
-	QGLFormat fmt = qglw->format();
-	fmt.setSampleBuffers(smoothing);
-	fmt.setSamples(numPasses);
-	qglw->setFormat(fmt);    // note: this is supposedly deprecated..
-	qglw->makeCurrent();
-	if(smoothing && numPasses > 1)
-		glEnable(GL_MULTISAMPLE);
-	else
-		glDisable(GL_MULTISAMPLE);
-	d->isantialias=smoothing;
+    SoQtExaminerViewer::setAntialiasing(smoothing, numPasses); // Needed for offscreen rendering (i.e. snapshots).
+
+    // --- OLD AA method ---
+    //	QGLWidget* qglw = (QGLWidget*)getGLWidget();
+    //	QGLFormat fmt = qglw->format();
+    //	fmt.setSampleBuffers(smoothing);
+    //	fmt.setSamples(numPasses);
+    //	qglw->setFormat(fmt);    // note: this is supposedly deprecated..
+    //	qglw->makeCurrent();
+
+    //    if(smoothing && numPasses > 1)
+    //        glEnable(GL_MULTISAMPLE);
+    //    else
+    //        glDisable(GL_MULTISAMPLE);
+
+    // --- NEW AA method (26Sep2017) ---
+    if (smoothing) {
+		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
+
+        VP1Msg::message("Sep 2017: AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems.");
+        //FIXME - remove above messages at some point? EJWM.
+
+        if (getGLRenderAction()->isSmoothing() != smoothing)
+                getGLRenderAction()->setSmoothing(smoothing); // --> quite ugly outcome!
+
+        int buffers = 4;
+        #if SOQT_MAJOR_VERSION > 1 || (SOQT_MAJOR_VERSION == 1 && SOQT_MINOR_VERSION >= 5)
+            if (getSampleBuffers() != buffers)
+                setSampleBuffers(buffers);
+        #else
+            if (buffers > 1)
+                VP1Msg::message("Multisampling is not supported by SoQT < 1.5, this anti-aliasing mode is disabled");
+        #endif
+    }
+    else {
+		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
+        getGLRenderAction()->setSmoothing(smoothing);
+        setSampleBuffers(0);
+    }
+
+    m_d->isantialias=smoothing;
 }
 
 //____________________________________________________________________
@@ -1672,7 +1702,7 @@ void VP1ExaminerViewer::setDrawStyle(SoQtViewer::DrawType t, SoQtViewer::DrawSty
 //____________________________________________________________________
 bool VP1ExaminerViewer::isAntiAlias() const
 {
-	return d->isantialias;
+	return m_d->isantialias;
 	//   SbBool smoothing; int numPasses;
 	//   getAntialiasing(smoothing, numPasses);
 	//   return smoothing&&numPasses>1;
@@ -1681,22 +1711,23 @@ bool VP1ExaminerViewer::isAntiAlias() const
 //____________________________________________________________________
 void VP1ExaminerViewer::setAntiAlias(bool b)
 {
-	d->isantialias=b;
+	m_d->isantialias=b;
 	b ? setAntialiasing(true,4) : setAntialiasing(false,1);
+    std::cout << "antiAliasing set." << std::endl;
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::resetCamera()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::resetCamera()");
-	if (d->resetCamera_state==QByteArray())
+	if (m_d->resetCamera_state==QByteArray())
 		return;
 	if (isAnimating())
 		stopAnimating();
-	if (d->resetCamera_isPerspective != (currentCamIsPerspective()))
+	if (m_d->resetCamera_isPerspective != (currentCamIsPerspective()))
 		toggleCameraType();
-	if (getCamera()&&d->resetCamera_state!=QByteArray())
-		VP1QtInventorUtils::deserializeSoCameraParameters(d->resetCamera_state,*(getCamera()));//Fixme: Check return value?
+	if (getCamera()&&m_d->resetCamera_state!=QByteArray())
+		VP1QtInventorUtils::deserializeSoCameraParameters(m_d->resetCamera_state,*(getCamera()));//Fixme: Check return value?
 }
 
 
@@ -1742,14 +1773,14 @@ QPixmap VP1ExaminerViewer::getSnapShotFromCamState(bool camStateIsPerspective, Q
 //____________________________________________________________________
 void VP1ExaminerViewer::storeCameraParametersForReset()
 {
-	if (d->resetCamera_state!=QByteArray())
+	if (m_d->resetCamera_state!=QByteArray())
 		return;
 	//Camera type and parameters:
-	d->resetCamera_isPerspective = (currentCamIsPerspective());
-	d->resetCamera_state = currentCameraState();
+	m_d->resetCamera_isPerspective = (currentCamIsPerspective());
+	m_d->resetCamera_state = currentCameraState();
 
-	if (d->popup_resetCameraAction&&!d->popup_resetCameraAction->isVisible())
-		d->popup_resetCameraAction->setVisible(true);
+	if (m_d->popup_resetCameraAction&&!m_d->popup_resetCameraAction->isVisible())
+		m_d->popup_resetCameraAction->setVisible(true);
 }
 
 //____________________________________________________________________
@@ -1951,12 +1982,10 @@ bool VP1ExaminerViewer::Imp::ensureMenuInit()
 
 	//Stereo view sub menu:
 	QMenu * stereoviewmenu_main = advancedmenu->addMenu("&Stereographic view");
-
 	stereo_launcheditor = stereoviewmenu_main->addAction("Launch &editor");
 
 	// focal length submenu
 	popup_focal_value_action = advancedmenu->addAction("dummy"); // dummy text replaced here below
-	// an action to change the let the user change the stereo offset by entering a double
 	SoCamera *camera = theclass->getCamera();
 	float default_focal_camera = camera->focalDistance.getValue();
 	popup_focal_value_action->setData(default_focal_camera);
@@ -2198,13 +2227,13 @@ void VP1ExaminerViewer::dumpSceneToFile(QString filename)
 		if (isAnimating())
 			stopAnimating();
 		filename = QFileDialog::getSaveFileName(w, "Select output file",
-				(d->lastDumpFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():d->lastDumpFile),
+				(m_d->lastDumpFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_d->lastDumpFile),
 				"Inventor files (*.iv)",0,QFileDialog::DontResolveSymlinks);
 		if(filename.isEmpty())
 			return;
 		if (!filename.endsWith(".iv"))
 			filename += ".iv";
-		d->lastDumpFile=filename;
+		m_d->lastDumpFile=filename;
 	}
 
 	SoGroup * standardisedRoot(0);
@@ -2233,13 +2262,13 @@ void VP1ExaminerViewer::dumpSceneToVRMLFile(QString filename){
 		if (isAnimating())
 			stopAnimating();
 		filename = QFileDialog::getSaveFileName(w, "Select output file",
-				(d->lastDumpFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():d->lastDumpFile),
+				(m_d->lastDumpFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_d->lastDumpFile),
 				"VRML2.0/X3D files (*.wrl)",0,QFileDialog::DontResolveSymlinks);
 		if(filename.isEmpty())
 			return;
 		if (!filename.endsWith(".wrl"))
 			filename += ".wrl";
-		d->lastDumpFile=filename;
+		m_d->lastDumpFile=filename;
 	}
 
 	SoGroup * standardisedRoot(0);
@@ -2263,13 +2292,13 @@ void VP1ExaminerViewer::produceSVGImage(QString filename)
 		if (isAnimating())
 			stopAnimating();
 		filename = QFileDialog::getSaveFileName(w, "Select output file",
-				(d->lastSVGFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():d->lastSVGFile),
+				(m_d->lastSVGFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_d->lastSVGFile),
 				"Scalable Vector Graphics files (*.svg)",0,QFileDialog::DontResolveSymlinks);
 		if(filename.isEmpty())
 			return;
 		if (!filename.endsWith(".svg"))
 			filename += ".svg";
-		d->lastSVGFile=filename;
+		m_d->lastSVGFile=filename;
 	}
 
 	VP1Msg::messageVerbose("Attempting to produce svg output: "+filename);
@@ -2311,13 +2340,13 @@ void VP1ExaminerViewer::produceEPSImage(QString filename)
 		if (isAnimating())
 			stopAnimating();
 		filename = QFileDialog::getSaveFileName(w, "Select output file",
-				(d->lastEPSFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():d->lastEPSFile),
+				(m_d->lastEPSFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_d->lastEPSFile),
 				"Encapsulated Postscript files (*.eps)",0,QFileDialog::DontResolveSymlinks);
 		if(filename.isEmpty())
 			return;
 		if (!filename.endsWith(".eps"))
 			filename += ".eps";
-		d->lastEPSFile=filename;
+		m_d->lastEPSFile=filename;
 	}
 
 	VP1Msg::messageVerbose("Attempting to produce eps output: "+filename);
@@ -2353,36 +2382,36 @@ void VP1ExaminerViewer::setAmbientLight(int a)
 	VP1Msg::messageVerbose("setAmbientLight()");
 
 	a = std::max(0,std::min(100,a));
-	if (d->ambientLightPercentage==a)
+	if (m_d->ambientLightPercentage==a)
 		return;
-	d->ambientLightPercentage = a;
-	d->updateAmbientLightText();
-	d->updateEnvironmentNode();
+	m_d->ambientLightPercentage = a;
+	m_d->updateAmbientLightText();
+	m_d->updateEnvironmentNode();
 }
 
 //____________________________________________________________________
 int VP1ExaminerViewer::ambientLight() const
 {
-	return d->ambientLightPercentage;
+	return m_d->ambientLightPercentage;
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::showPopupMenu()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer: Showing popup menu.");
-	if (!d->ensureMenuInit())
+	if (!m_d->ensureMenuInit())
 		return;
-	d->updatePopupMenuStates();
+	m_d->updatePopupMenuStates();
 
 	//Execute
-	QAction * selAct = d->popup_menu->exec(QCursor::pos());
+	QAction * selAct = m_d->popup_menu->exec(QCursor::pos());
 
 	//Act on selection:
 	if (!selAct) {
 		VP1Msg::messageVerbose("     => No selection.");
 		return;
 	}
-	if ( selAct == d->popup_bgdColAction ) {
+	if ( selAct == m_d->popup_bgdColAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Change background colour.");
 		if (isAnimating())
 			stopAnimating();
@@ -2392,7 +2421,7 @@ void VP1ExaminerViewer::showPopupMenu()
 			setBackgroundColor(VP1QtInventorUtils::qcol2sbcol(col));
 		return;
 	}
-	if ( selAct == d->popup_ambientLightAction ) {
+	if ( selAct == m_d->popup_ambientLightAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu ambient light editor triggered");
 		bool ok;
 		// int newamb = QInputDialog::getInteger(getWidget(), "Change ambient light",
@@ -2403,52 +2432,52 @@ void VP1ExaminerViewer::showPopupMenu()
 			setAmbientLight(newamb);
 		return;
 	}
-	if ( selAct == d->popup_headLightAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu head light changed to "+VP1Msg::str(d->popup_headLightAction->isChecked()));
-		setHeadlight(d->popup_headLightAction->isChecked());
+	if ( selAct == m_d->popup_headLightAction ) {
+		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu head light changed to "+VP1Msg::str(m_d->popup_headLightAction->isChecked()));
+		setHeadlight(m_d->popup_headLightAction->isChecked());
 		return;
 	}
-	if ( selAct == d->popup_hidedecorationsaction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu hide controls changed to "+VP1Msg::str(d->popup_hidedecorationsaction->isChecked()));
-		setDecoration(! d->popup_hidedecorationsaction->isChecked());
+	if ( selAct == m_d->popup_hidedecorationsaction ) {
+		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu hide controls changed to "+VP1Msg::str(m_d->popup_hidedecorationsaction->isChecked()));
+		setDecoration(! m_d->popup_hidedecorationsaction->isChecked());
 		return;
 	}
-	if ( selAct == d->popup_antiAliasAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(d->popup_antiAliasAction->isChecked()));
-		setAntiAlias(d->popup_antiAliasAction->isChecked());
-		d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
-		return;
+    if ( selAct == m_d->popup_antiAliasAction ) {
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(m_d->popup_antiAliasAction->isChecked()));
+        setAntiAlias(m_d->popup_antiAliasAction->isChecked());
+        m_d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
+        VP1Msg::messageVerbose("Anti-aliasing, done.");
+        return;
 	}
-	if ( selAct == d->popup_dumpSceneAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
+    if ( selAct == m_d->popup_dumpSceneAction ) {
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to an *.iv (OpenInventor) file");
 		dumpSceneToFile();
 		return;
 	}
-	
-	if ( selAct == d->popup_dumpSceneVRMLAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
+    if ( selAct == m_d->popup_dumpSceneVRMLAction ) {
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to a *.wrl (VRML) file");
 		dumpSceneToVRMLFile();
 		return;
 	}
 
-	if ( selAct == d->popup_toSVGAction ) {
+	if ( selAct == m_d->popup_toSVGAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Produce SVG image");
 		produceSVGImage();
 		return;
 	}
 
-	if ( selAct == d->popup_toEPSAction ) {
+	if ( selAct == m_d->popup_toEPSAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Produce EPS image");
 		produceEPSImage();
 		return;
 	}
 
-	if ( selAct == d->popup_resetCameraAction ) {
+	if ( selAct == m_d->popup_resetCameraAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Reset camera");
 		resetCamera();
 		return;
 	}
-	if (d->popup_drawstyle_still_actions.contains(selAct)) {
+	if (m_d->popup_drawstyle_still_actions.contains(selAct)) {
 		SoQtViewer::DrawStyle ds = Imp::intToViewerDrawStyle(selAct->data().toInt());
 		if (VP1Msg::verbose())
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu still draw style selected: "
@@ -2457,7 +2486,7 @@ void VP1ExaminerViewer::showPopupMenu()
 			setDrawStyle(STILL,ds);
 		return;
 	}
-	if (d->popup_drawstyle_interactive_actions.contains(selAct)) {
+	if (m_d->popup_drawstyle_interactive_actions.contains(selAct)) {
 		SoQtViewer::DrawStyle ds = Imp::intToViewerDrawStyle(selAct->data().toInt());
 		if (VP1Msg::verbose())
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu interactive draw style selected: "
@@ -2466,7 +2495,7 @@ void VP1ExaminerViewer::showPopupMenu()
 			setDrawStyle(INTERACTIVE,ds);
 		return;
 	}
-	if (d->popup_transptype_actions.contains(selAct)) {
+	if (m_d->popup_transptype_actions.contains(selAct)) {
 		SoGLRenderAction::TransparencyType type = VP1QtInventorUtils::intToTransparencyType(selAct->data().toInt());
 		if (VP1Msg::verbose())
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu transparency type selected: "
@@ -2475,7 +2504,7 @@ void VP1ExaminerViewer::showPopupMenu()
 		return;
 	}
 
-	if (d->storeViewActions.contains(selAct)) {
+	if (m_d->storeViewActions.contains(selAct)) {
 		QString name = selAct->data().toString();
 		VP1Msg::messageVerbose("Storing current view as "+name);
 
@@ -2487,26 +2516,26 @@ void VP1ExaminerViewer::showPopupMenu()
 		//Remove old stored views with that name (if any)
 		int i(0);
 		bool replaced(false);
-		foreach(Imp::StoredView oldsv, d->storedViews) {
+		foreach(Imp::StoredView oldsv, m_d->storedViews) {
 			if (oldsv.name()==name) {
-				d->storedViews.replace(i,sv);
+				m_d->storedViews.replace(i,sv);
 				replaced = true;
 				break;
 			}
 			++i;
 		}
 		if (!replaced)
-			d->storedViews << sv;
-		d->storedViewsChanged();
+			m_d->storedViews << sv;
+		m_d->storedViewsChanged();
 		return;
 	}
 
-	if (d->zoomToViewActions.contains(selAct)) {
+	if (m_d->zoomToViewActions.contains(selAct)) {
 		QString name = selAct->data().toString();
 		SoGroup * root = dynamic_cast<SoGroup*>(getSceneGraph());
 		SoCamera * camera = getCamera();
 		if (root&&camera) {
-			foreach(Imp::StoredView sv, d->storedViews) {
+			foreach(Imp::StoredView sv, m_d->storedViews) {
 				if (sv.name()==name) {
 					if (isAnimating())
 						stopAnimating();
@@ -2523,14 +2552,14 @@ void VP1ExaminerViewer::showPopupMenu()
 
 
 
-	if (d->restoreViewActions.contains(selAct)) {
+	if (m_d->restoreViewActions.contains(selAct)) {
 		QString name = selAct->data().toString();
 		SoGroup * root = dynamic_cast<SoGroup*>(getSceneGraph());
 		SoCamera * camera = getCamera();
 		if (root&&camera) {
-			foreach(Imp::StoredView sv, d->storedViews) {
+			foreach(Imp::StoredView sv, m_d->storedViews) {
 				if (sv.name()==name) {
-					if (!d->fitsCurrentCamType(sv))
+					if (!m_d->fitsCurrentCamType(sv))
 						toggleCameraType();
 					if (isAnimating())
 						stopAnimating();
@@ -2547,121 +2576,121 @@ void VP1ExaminerViewer::showPopupMenu()
 
 	}
 
-	if (d->deleteViewActions.contains(selAct)) {
+	if (m_d->deleteViewActions.contains(selAct)) {
 		QString name = selAct->data().toString();
 		int i(0);
-		foreach(Imp::StoredView sv, d->storedViews) {
+		foreach(Imp::StoredView sv, m_d->storedViews) {
 			if (sv.name()==name) {
-				d->storedViews.removeAt(i);
+				m_d->storedViews.removeAt(i);
 				break;
 			}
 			++i;
 		}
-		d->storedViewsChanged();
+		m_d->storedViewsChanged();
 		return;
 	}
 
-	if (selAct==d->customtour_launcheditor) {
+	if (selAct==m_d->customtour_launcheditor) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Launch custom tour editor.");
-		if (!d->customtoureditor) {
-			d->customtoureditor = new VP1CustomTourEditor(this);
-			QObject::connect(&(d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
-      VP1Controller::setCustomTourEditor(d->customtoureditor);
-			d->customtoureditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
-			if (d->customtoureditorState!=QByteArray()) {
-				d->customtoureditor->setState(d->customtoureditorState);
-				d->customtoureditorState = QByteArray();
+		if (!m_d->customtoureditor) {
+			m_d->customtoureditor = new VP1CustomTourEditor(this);
+			QObject::connect(&(m_d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),m_d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
+      VP1Controller::setCustomTourEditor(m_d->customtoureditor);
+			m_d->customtoureditor->disableObjectWhenTourNotAvailable(m_d->customtour_execute);
+			if (m_d->customtoureditorState!=QByteArray()) {
+				m_d->customtoureditor->setState(m_d->customtoureditorState);
+				m_d->customtoureditorState = QByteArray();
 			}
 		}
-		d->customtoureditor->show();
+		m_d->customtoureditor->show();
 		//Fixme: deal with minimised state!
 		return;
 	}
 
-	if (selAct==d->customtour_execute) {
+	if (selAct==m_d->customtour_execute) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Execute custom tour.");
 		startCustomTour();
 		return;
 	}
 
-	if (selAct==d->action_movieenabled) {
+	if (selAct==m_d->action_movieenabled) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu movie enabled changed.");
-		d->updateMovieMenuVisuals();
+		m_d->updateMovieMenuVisuals();
 		return;
 	}
-	if (selAct==d->action_moviewidth) {
-		int old = d->action_moviewidth->data().toInt();
+	if (selAct==m_d->action_moviewidth) {
+		int old = m_d->action_moviewidth->data().toInt();
 		bool ok;
 		// int newwidth = QInputDialog::getInteger(getWidget(), "Change movie width",
 		int newwidth = QInputDialog::getInt(getWidget(), "Change movie width",
 				"New movie width:", old,1,4000,1,&ok);
 		if (ok&&old!=newwidth) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie width to "+VP1Msg::str(newwidth));
-			d->action_moviewidth->setData(newwidth);
-			d->updateMovieMenuVisuals();
+			m_d->action_moviewidth->setData(newwidth);
+			m_d->updateMovieMenuVisuals();
 		}
 		return;
 	}
-	if (selAct==d->action_movieheight) {
-		int old = d->action_movieheight->data().toInt();
+	if (selAct==m_d->action_movieheight) {
+		int old = m_d->action_movieheight->data().toInt();
 		bool ok;
 		// int newheight = QInputDialog::getInteger(getWidget(), "Change movie height",
 		int newheight = QInputDialog::getInt(getWidget(), "Change movie height",
 				"New movie height:", old,1,4000,1,&ok);
 		if (ok&&old!=newheight) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie height to "+VP1Msg::str(newheight));
-			d->action_movieheight->setData(newheight);
-			d->updateMovieMenuVisuals();
+			m_d->action_movieheight->setData(newheight);
+			m_d->updateMovieMenuVisuals();
 		}
 		return;
 	}
-	if (selAct==d->action_moviefps) {
-		int old = d->action_moviefps->data().toInt();
+	if (selAct==m_d->action_moviefps) {
+		int old = m_d->action_moviefps->data().toInt();
 		bool ok;
 		// int newfps = QInputDialog::getInteger(getWidget(), "Change movie FPS",
 		int newfps = QInputDialog::getInt(getWidget(), "Change movie FPS",
 				"New movie frames per second:", old,1,4000,1,&ok);
 		if (ok&&old!=newfps) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie fps to "+VP1Msg::str(newfps));
-			d->action_moviefps->setData(newfps);
-			d->updateMovieMenuVisuals();
+			m_d->action_moviefps->setData(newfps);
+			m_d->updateMovieMenuVisuals();
 		}
 		return;
 	}
-	if (selAct==d->action_movieoutdir) {
-		QString old = d->action_movieoutdir->data().toString();
+	if (selAct==m_d->action_movieoutdir) {
+		QString old = m_d->action_movieoutdir->data().toString();
 		QString newoutdir = QFileDialog::getExistingDirectory ( getWidget(), "Select movie frame output directory",old);
 		if (!newoutdir.isEmpty()&&old!=newoutdir) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie outdir to "+VP1Msg::str(newoutdir));
-			d->action_movieoutdir->setData(newoutdir);
-			d->updateMovieMenuVisuals();
+			m_d->action_movieoutdir->setData(newoutdir);
+			m_d->updateMovieMenuVisuals();
 		}
 		return;
 	}
-	if (selAct==d->action_moviefadetocurrentview) {
+	if (selAct==m_d->action_moviefadetocurrentview) {
 		fadeLastRecordedFrameToCurrent(1.0);
 		return;
 	}
 
-	if (selAct==d->popup_tourReturnToStartAction
-			||selAct==d->popup_tourStartEachEvent
-			||selAct==d->popup_tourSpeedVerySlow
-			||selAct==d->popup_tourSpeedSlow
-			||selAct==d->popup_tourSpeedMedium
-			||selAct==d->popup_tourSpeedFast
-			||selAct==d->popup_tourSpeedVeryFast
-			||selAct==d->popup_tourPartsVertex
-			||selAct==d->popup_tourPartsInDet
-			||selAct==d->popup_tourPartsCalo
-			||selAct==d->popup_tourPartsMuon
-			||selAct==d->popup_tourLoopOnce
-			||selAct==d->popup_tourLoopTwice
-			||selAct==d->popup_tourLoopThrice
-			||selAct==d->popup_tourLoopForever) {
+	if (selAct==m_d->popup_tourReturnToStartAction
+			||selAct==m_d->popup_tourStartEachEvent
+			||selAct==m_d->popup_tourSpeedVerySlow
+			||selAct==m_d->popup_tourSpeedSlow
+			||selAct==m_d->popup_tourSpeedMedium
+			||selAct==m_d->popup_tourSpeedFast
+			||selAct==m_d->popup_tourSpeedVeryFast
+			||selAct==m_d->popup_tourPartsVertex
+			||selAct==m_d->popup_tourPartsInDet
+			||selAct==m_d->popup_tourPartsCalo
+			||selAct==m_d->popup_tourPartsMuon
+			||selAct==m_d->popup_tourLoopOnce
+			||selAct==m_d->popup_tourLoopTwice
+			||selAct==m_d->popup_tourLoopThrice
+			||selAct==m_d->popup_tourLoopForever) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu tour setting changed.");
 		return;
 	}
-	if (selAct==d->popup_tourExecute) {
+	if (selAct==m_d->popup_tourExecute) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Tour Execute selected => starting tour.");
 		startTour();
 		return;
@@ -2671,17 +2700,17 @@ void VP1ExaminerViewer::showPopupMenu()
 	// stereo view actions
 
 
-	if (selAct==d->stereo_launcheditor) {
+	if (selAct==m_d->stereo_launcheditor) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Launch custom STEREO editor.");
-			if (!d->customstereoeditor) {
-				d->customstereoeditor = new VP1CustomStereoEditor(this);
-//				d->customstereoeditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
-//				if (d->customstereoeditorState!=QByteArray()) { //TODO: implement save stereo settings
-//					d->customstereoeditor->setState(d->customstereoeditorState);
-//					d->customstereoeditorState = QByteArray();
+			if (!m_d->customstereoeditor) {
+				m_d->customstereoeditor = new VP1CustomStereoEditor(this);
+//				m_d->customstereoeditor->disableObjectWhenTourNotAvailable(m_d->customtour_execute);
+//				if (m_d->customstereoeditorState!=QByteArray()) { //TODO: implement save stereo settings
+//					m_d->customstereoeditor->setState(m_d->customstereoeditorState);
+//					m_d->customstereoeditorState = QByteArray();
 //				}
 			}
-			d->customstereoeditor->show();
+			m_d->customstereoeditor->show();
 			//Fixme: deal with minimised state!
 			return;
 		}
@@ -2689,10 +2718,10 @@ void VP1ExaminerViewer::showPopupMenu()
 // N.B.!! --> those separate actions below are not needed anymore,
 //            because we introduced the stereo editor window
 
-//	if (d->popup_stereo_offset_actions.contains(selAct)) {
+//	if (m_d->popup_stereo_offset_actions.contains(selAct)) {
 //
 ////		//old value
-//		float old = d->stereo_offset_value; //->data().toFloat();
+//		float old = m_d->stereo_offset_value; //->data().toFloat();
 //
 //		// new value
 //		float offset = selAct->data().toFloat();
@@ -2701,31 +2730,31 @@ void VP1ExaminerViewer::showPopupMenu()
 //		if (old != newoffset) {
 //			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu stereo offset selected: "
 //					+VP1Msg::str(newoffset));
-//			d->stereo_offset_value = newoffset;
+//			m_d->stereo_offset_value = newoffset;
 //		}
 //
 //		setStereoOffsetSlot(offset);
 //		return;
 //	}
 //
-//	if (selAct==d->popup_stereo_offset_value_action) {
+//	if (selAct==m_d->popup_stereo_offset_value_action) {
 //
-//			float old = d->popup_stereo_offset_value_action->data().toFloat();
+//			float old = m_d->popup_stereo_offset_value_action->data().toFloat();
 //			bool ok;
 //			int newoffset = QInputDialog::getDouble(getWidget(), "Change stereo OFFSET - 0.1 is the standard offset between left and right eye",
 //					"New stereo offset: ", old,0.1,4000,1,&ok);
 //			if (ok && old != newoffset) {
 //				VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed stereo offset to "+VP1Msg::str(newoffset));
-//				d->popup_stereo_offset_value_action->setData(newoffset);
+//				m_d->popup_stereo_offset_value_action->setData(newoffset);
 //				setStereoOffsetSlot(newoffset);
-//				d->popup_stereo_offset_value_action->setText("Change STEREO offset [current: "+QString::number(newoffset)+"]");
+//				m_d->popup_stereo_offset_value_action->setText("Change STEREO offset [current: "+QString::number(newoffset)+"]");
 //			}
 //			return;
 //		}
 //
-	if (selAct==d->popup_focal_value_action) {
+	if (selAct==m_d->popup_focal_value_action) {
 
-		//		float old = d->popup_focal_value_action->data().toFloat();
+		//		float old = m_d->popup_focal_value_action->data().toFloat();
 		bool ok;
 		SoPerspectiveCamera * camera = dynamic_cast<SoPerspectiveCamera*>(getCamera());
 		if (! (camera==NULL) ) {
@@ -2740,11 +2769,11 @@ void VP1ExaminerViewer::showPopupMenu()
 					&ok);
 			if (ok && current_value != newfocal) {
 				VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed focal length to "+VP1Msg::str(newfocal));
-				d->popup_focal_value_action->setData(newfocal);
+				m_d->popup_focal_value_action->setData(newfocal);
 				//			SoCamera *camera = getCamera();
 				camera->focalDistance.setValue(newfocal);
 				//			camera->heightAngle.setValue(newfocal);
-				d->popup_focal_value_action->setText("Change FOCAL LENGTH value [current: "+QString::number(newfocal)+"]");
+				m_d->popup_focal_value_action->setText("Change FOCAL LENGTH value [current: "+QString::number(newfocal)+"]");
 			}
 		} else {
 			VP1Msg::message("Warning! No 'camera'...");
@@ -2753,27 +2782,27 @@ void VP1ExaminerViewer::showPopupMenu()
 	}
 //
 //
-//	if (d->popup_stereo_type_actions.contains(selAct)) {
+//	if (m_d->popup_stereo_type_actions.contains(selAct)) {
 //
-//		SoQtViewer::StereoType type = d->intToViewerStereoType(selAct->data().toInt());
+//		SoQtViewer::StereoType type = m_d->intToViewerStereoType(selAct->data().toInt());
 //
 //		if (VP1Msg::verbose())
 //			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu stereo type selected: "
-//					+d->viewerStereoType2PrettyString(type));
+//					+m_d->viewerStereoType2PrettyString(type));
 //
 //		setStereoTypeSlot(type);
 //
 //		// enable the relevant menus
 //		if (type == SoQtViewer::STEREO_ANAGLYPH) {
-//			d->stereo_set_anaglyph_menu->setEnabled(true);
+//			m_d->stereo_set_anaglyph_menu->setEnabled(true);
 //		} else {
-//			d->stereo_set_anaglyph_menu->setEnabled(false);
+//			m_d->stereo_set_anaglyph_menu->setEnabled(false);
 //		}
 //
 //
 //		return;
 //	}
-//	if (d->popup_stereo_anaglyph_actions.contains(selAct)) {
+//	if (m_d->popup_stereo_anaglyph_actions.contains(selAct)) {
 //
 //		QString type = selAct->data().toString();
 //
@@ -2803,43 +2832,43 @@ void VP1ExaminerViewer::showPopupMenu()
 //
 //
 //	// STEREO - Camera
-//	if (selAct==d->popup_stereo_offset_value_action_camera) {
+//	if (selAct==m_d->popup_stereo_offset_value_action_camera) {
 //
-//		float old = d->popup_stereo_offset_value_action_camera->data().toFloat();
+//		float old = m_d->popup_stereo_offset_value_action_camera->data().toFloat();
 //		bool ok;
 //		float newoffset = QInputDialog::getDouble(getWidget(), "Change stereo OFFSET (Camera) - 0.1 is the standard offset between left and right eye",
 //				"New stereo offset: ", old,0.1,4000,1,&ok);
 //		if (ok && old != newoffset) {
 //			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed CAMERA stereo offset to "+VP1Msg::str(newoffset));
-//			d->popup_stereo_offset_value_action_camera->setData(newoffset);
+//			m_d->popup_stereo_offset_value_action_camera->setData(newoffset);
 //
 //			SoCamera *camera = getCamera();
 //			camera->setStereoAdjustment(newoffset);
 ////			setStereoOffsetSlot(newoffset);
-//			d->popup_stereo_offset_value_action_camera->setText("Change CAMERA STEREO offset [current: "+QString::number(newoffset)+"]");
+//			m_d->popup_stereo_offset_value_action_camera->setText("Change CAMERA STEREO offset [current: "+QString::number(newoffset)+"]");
 //		}
 //		return;
 //	}
-//	if (selAct==d->popup_stereo_balance_value_action_camera) {
+//	if (selAct==m_d->popup_stereo_balance_value_action_camera) {
 //
-//		float old = d->popup_stereo_balance_value_action_camera->data().toFloat();
+//		float old = m_d->popup_stereo_balance_value_action_camera->data().toFloat();
 //		bool ok;
 //		float newoffset = QInputDialog::getDouble(getWidget(), "Change stereo OFFSET (Camera) - 0.1 is the standard offset between left and right eye",
 //				"New stereo offset: ", old,0.1,4000,1,&ok);
 //		if (ok && old != newoffset) {
 //			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed CAMERA stereo offset to "+VP1Msg::str(newoffset));
-//			d->popup_stereo_balance_value_action_camera->setData(newoffset);
+//			m_d->popup_stereo_balance_value_action_camera->setData(newoffset);
 //
 //			SoCamera *camera = getCamera();
 //			camera->setBalanceAdjustment(newoffset);
 ////			setStereoOffsetSlot(newoffset);
-//			d->popup_stereo_balance_value_action_camera->setText("Change CAMERA STEREO balance [current: "+QString::number(newoffset)+"]");
+//			m_d->popup_stereo_balance_value_action_camera->setText("Change CAMERA STEREO balance [current: "+QString::number(newoffset)+"]");
 //		}
 //		return;
 //	}
 //
 //
-//	if (d->popup_stereo_anaglyph_actions_camera.contains(selAct)) {
+//	if (m_d->popup_stereo_anaglyph_actions_camera.contains(selAct)) {
 //
 //			QString type = selAct->data().toString();
 //
@@ -2876,15 +2905,15 @@ void VP1ExaminerViewer::launchStereoEditor()
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::launchStereoEditor()");
 
-	if (!d->customstereoeditor) {
-		d->customstereoeditor = new VP1CustomStereoEditor(this);
-		//				d->customstereoeditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
-		//				if (d->customstereoeditorState!=QByteArray()) { //TODO: implement save stereo settings
-		//					d->customstereoeditor->setState(d->customstereoeditorState);
-		//					d->customstereoeditorState = QByteArray();
+	if (!m_d->customstereoeditor) {
+		m_d->customstereoeditor = new VP1CustomStereoEditor(this);
+		//				m_d->customstereoeditor->disableObjectWhenTourNotAvailable(m_d->customtour_execute);
+		//				if (m_d->customstereoeditorState!=QByteArray()) { //TODO: implement save stereo settings
+		//					m_d->customstereoeditor->setState(m_d->customstereoeditorState);
+		//					m_d->customstereoeditorState = QByteArray();
 		//				}
 	}
-	d->customstereoeditor->show();
+	m_d->customstereoeditor->show();
 	//Fixme: deal with minimised state!
 	return;
 }
@@ -3047,39 +3076,39 @@ void VP1ExaminerViewer::setSceneGraph(SoNode *n)
 {
 	VP1Msg::messageVerbose("VP1ExaminerViewer::setSceneGraph()");
 
-	if (!d->actualSceneGraph) {
-		d->actualSceneGraph = new SoGroup;
-		d->actualSceneGraph->ref();
-		if (!d->environmentNode) {
-			d->environmentNode = new SoEnvironment;
-			d->environmentNode->ref();
+	if (!m_d->actualSceneGraph) {
+		m_d->actualSceneGraph = new SoGroup;
+		m_d->actualSceneGraph->ref();
+		if (!m_d->environmentNode) {
+			m_d->environmentNode = new SoEnvironment;
+			m_d->environmentNode->ref();
 		}
-		d->updateEnvironmentNode();
-		d->actualSceneGraph->addChild(d->environmentNode);
-		SoQtExaminerViewer::setSceneGraph(d->actualSceneGraph);
+		m_d->updateEnvironmentNode();
+		m_d->actualSceneGraph->addChild(m_d->environmentNode);
+		SoQtExaminerViewer::setSceneGraph(m_d->actualSceneGraph);
 	}
-	while(d->actualSceneGraph->getNumChildren()>1)
-		d->actualSceneGraph->removeChild(1);
+	while(m_d->actualSceneGraph->getNumChildren()>1)
+		m_d->actualSceneGraph->removeChild(1);
 
 	if (n)
-		d->actualSceneGraph->addChild(n);
+		m_d->actualSceneGraph->addChild(n);
 }
 
 //____________________________________________________________________
 SoNode* VP1ExaminerViewer::getSceneGraph()
 {
-	return (d->actualSceneGraph && d->actualSceneGraph->getNumChildren()>1) ? d->actualSceneGraph->getChild(1) : 0;
+	return (m_d->actualSceneGraph && m_d->actualSceneGraph->getNumChildren()>1) ? m_d->actualSceneGraph->getChild(1) : 0;
 }
 
 //____________________________________________________________________
 void VP1ExaminerViewer::fadeLastRecordedFrameToCurrent(double time_seconds)
 {
-	if (!d->ensureMenuInit())
+	if (!m_d->ensureMenuInit())
 		return;
 	QString lastfile, nextfile;
-	QString outdir = d->action_movieoutdir->data().toString();
+	QString outdir = m_d->action_movieoutdir->data().toString();
 	VP1CameraHelper::getLastAndNextFrameFileNames( outdir,
-			d->movieFrameFileNamePrefix,
+			m_d->movieFrameFileNamePrefix,
 			lastfile, nextfile );
 
 	QImage img0(lastfile);
@@ -3095,13 +3124,13 @@ void VP1ExaminerViewer::fadeLastRecordedFrameToCurrent(double time_seconds)
 	if (img1.isNull())
 		return;
 
-	int nTransitionFrames = std::max(1,static_cast<int>(d->action_moviefps->data().toInt()*time_seconds+0.5));
+	int nTransitionFrames = std::max(1,static_cast<int>(m_d->action_moviefps->data().toInt()*time_seconds+0.5));
 	VP1Msg::messageDebug("VP1ExaminerViewer Creating "+VP1Msg::str(nTransitionFrames)+" transition frames");
 
 	for (int i = 0; i < nTransitionFrames; ++i) {
 		double fadefact((i+1.0)/(nTransitionFrames+1.0));//Should not be 0.0 or 1.0
 		QString dummy, filename;
-		VP1CameraHelper::getLastAndNextFrameFileNames( outdir, d->movieFrameFileNamePrefix,dummy,filename );
+		VP1CameraHelper::getLastAndNextFrameFileNames( outdir, m_d->movieFrameFileNamePrefix,dummy,filename );
 		QImage img = VP1QtUtils::fadeImage(img0, img1, fadefact );
 		if (img.isNull()) {
 			VP1Msg::messageDebug("VP1ExaminerViewer ERROR: Problems creating image!");
@@ -3112,7 +3141,7 @@ void VP1ExaminerViewer::fadeLastRecordedFrameToCurrent(double time_seconds)
 	}
 
 	QString dummy, filename;
-	VP1CameraHelper::getLastAndNextFrameFileNames( outdir, d->movieFrameFileNamePrefix,dummy,filename );
+	VP1CameraHelper::getLastAndNextFrameFileNames( outdir, m_d->movieFrameFileNamePrefix,dummy,filename );
 	if (!img1.save(filename))
 		VP1Msg::messageDebug("VP1ExaminerViewer ERROR: Could not save image file "+filename);
 

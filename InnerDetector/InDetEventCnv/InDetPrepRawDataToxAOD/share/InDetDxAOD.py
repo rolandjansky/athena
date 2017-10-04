@@ -12,6 +12,10 @@ dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
 dumpSctInfo = InDetDxAODFlags.DumpSctInfo()
 dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
 
+# event selection for TRT tag and probe
+TrtZSel = InDetDxAODFlags.TrtZSelection()
+TrtJSel = InDetDxAODFlags.TrtJpsiSelection()
+
 # Thin hits to store only the ones on-track
 thinHitsOnTrack= InDetDxAODFlags.ThinHitsOnTrack()
 
@@ -52,6 +56,16 @@ if ( 'dumpTruthInfo' in dir() ):
 
 if InDetFlags.doSLHC():
     dumpTrtInfo=False
+
+if isIdTrkDxAODSimulation:
+    # should only be used for data
+    TrtZSel=False
+    TrtJSel=False
+
+if TrtZSel or TrtJSel:
+    # ensure that normal data TRT options are configured
+    dumpTrtInfo=True
+    dumpTriggerInfo=True
 
 ## Other settings
 # Prefix for decoration, if any
@@ -135,6 +149,167 @@ if makeSplitTracks:
     IDDerivationSequence += xAODSplitTrackParticleCnvAlg
 
 
+# setup Z and J/psi selectors for TRT
+ZeeMassTool=None
+ZmmMassTool=None
+Z_SkimmingTool=None
+JPSIeeMassTool=None
+JPSImmMassTool=None
+JPSI_SkimmingTool=None
+if TrtZSel or TrtJSel:
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__InvariantMassTool
+    if TrtZSel:
+        triggersE = [
+            # Single electron
+            'HLT_e24_lhmedium_L1EM18VH',
+            'HLT_e24_lhmedium_L1EM20VH',
+            'HLT_e60_lhmedium',
+            'HLT_e120_lhloose',
+            'HLT_e5_lhvloose',
+            'HLT_e12_lhvloose_L1EM10VH',
+            'HLT_e12_lhvloose_nod0_L1EM10VH',
+            'HLT_e15_lhvloose_L1EM7',
+            'HLT_e20_lhvloose',
+            'HLT_e20_lhvloose_L1EM12',
+            'HLT_e20_lhvloose_nod0',
+            'HLT_e24_lhmedium_nod0_L1EM20VH',
+            'HLT_e24_lhtight_nod0_ivarloose',
+            'HLT_e26_lhtight_nod0_ivarloose',
+            'HLT_e26_lhtight_smooth_ivarloose',
+            'HLT_e28_lhmedium_nod0_L1EM20VH',
+            'HLT_e28_lhtight_nod0_ivarloose',
+            'HLT_e28_lhtight_smooth_ivarloose',
+            'HLT_e50_lhvloose_L1EM15',
+            'HLT_e60_medium',
+            'HLT_e60_lhmedium_nod0',
+            'HLT_e140_lhloose_nod0',
+            'HLT_e300_etcut']
+        expression_trigE = ' || '.join(triggersE)
+        
+        triggersM = [
+            # Single muon
+            'HLT_mu26_imedium',
+            'HLT_mu26_ivarmedium',
+            'HLT_mu28_imedium',
+            'HLT_mu28_ivarmedium',
+            'HLT_mu40',
+            'HLT_mu50' 
+            ]
+        expression_trigM = ' || '.join(triggersM)
+
+        # Zee TnP
+        requirement_Zee_tag = '(Electrons.Tight || Electrons.LHTight) && Electrons.pt > 24.5*GeV'
+        requirement_Zee_probe = 'Electrons.pt > 6.5*GeV'
+        
+        ZeeMassTool = DerivationFramework__InvariantMassTool( name = "ZeeMassTool",
+                                                              ObjectRequirements = requirement_Zee_tag,
+                                                              SecondObjectRequirements = requirement_Zee_probe,
+                                                              StoreGateEntryName = "Zee_DiElectronMass",
+                                                              MassHypothesis = 0.511*MeV,
+                                                              SecondMassHypothesis = 0.511*MeV,
+                                                              ContainerName = "Electrons",
+                                                              SecondContainerName = "Electrons")
+        
+        ToolSvc+=ZeeMassTool
+        expression_Zee = 'count(Zee_DiElectronMass > 75.0*GeV && Zee_DiElectronMass < 105.0*GeV)>=1'
+        
+        # Zmumu TnP
+        requirement_Zmm_tag = 'Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 10.*GeV'
+        requirement_Zmm_probe = 'Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV'
+        
+        ZmmMassTool = DerivationFramework__InvariantMassTool( name = "ZmmMassTool",
+                                                              ObjectRequirements = requirement_Zmm_tag,
+                                                              SecondObjectRequirements = requirement_Zmm_probe,
+                                                              StoreGateEntryName = "Zmm_DiMuonMass",
+                                                              MassHypothesis = 105.66*MeV,
+                                                              SecondMassHypothesis = 105.66*MeV,
+                                                              ContainerName = "Muons",
+                                                              SecondContainerName = "Muons")
+        ToolSvc+=ZmmMassTool
+        expression_Zmm = 'count(Zmm_DiMuonMass > 75.0*GeV && Zmm_DiMuonMass < 105.0*GeV)>=1'
+
+        expression = '( ' + expression_Zee + ' && ( ' + expression_trigE + ' ) ) || ( ' + expression_Zmm + ' && ( ' + expression_trigM + ' ) )'
+        
+        # Event selection tool
+        from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+        Z_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "Z_SkimmingTool",
+                                                                     expression = expression)
+        
+        ToolSvc += Z_SkimmingTool
+        print Z_SkimmingTool
+        
+    if TrtJSel:
+        triggersE = [
+            # Di-electron
+            'HLT_e9_etcut_e5_lhtight_nod0_Jpsiee',
+            'HLT_e14_etcut_e5_lhtight_nod0_Jpsiee',
+            'HLT_e5_lhtight_nod0_e4_etcut',
+            'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
+            'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee',
+            'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee',
+            ]
+        expression_trigE = ' || '.join(triggersE)
+        
+        triggersM = [
+            # Di-muon
+            'HLT_2mu4',
+            'HLT_2mu6',
+            'HLT_2mu6_bJpsimumu',
+            'HLT_2mu6_bJpsimumu_delayed',
+            'HLT_2mu6_bJpsimumu_Lxy0_delayed',
+            'HLT_2mu10_bJpsimumu',
+            'HLT_2mu10_bJpsimumu_delayed',
+            'HLT_2mu10_bJpsimumu_noL2',
+            'HLT_2mu14',
+            'HLT_2mu14_nomucomb',
+            'HLT_2mu15'
+            ]
+        expression_trigM = ' || '.join(triggersM)
+
+        # JPSIee TnP
+        requirement_JPSIee_tag = '(Electrons.Tight || Electrons.LHTight) && Electrons.pt > 4.5*GeV'
+        requirement_JPSIee_probe = 'Electrons.pt > 4.5*GeV'
+        
+        JPSIeeMassTool = DerivationFramework__InvariantMassTool( name = "JPSIeeMassTool",
+                                                                 ObjectRequirements = requirement_JPSIee_tag,
+                                                                 SecondObjectRequirements = requirement_JPSIee_probe,
+                                                                 StoreGateEntryName = "JPSIee_DiElectronMass",
+                                                                 MassHypothesis = 0.511*MeV,
+                                                                 SecondMassHypothesis = 0.511*MeV,
+                                                                 ContainerName = "Electrons",
+                                                                 SecondContainerName = "Electrons")
+        
+        ToolSvc+=JPSIeeMassTool
+        expression_JPSIee = '(count(JPSIee_DiElectronMass > 2.0*GeV && JPSIee_DiElectronMass < 4.0*GeV)>=1)'
+        
+        # JPSImumu TnP
+        requirement_JPSImm_tag = '(Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV)'
+        requirement_JPSImm_probe = '(Muons.ptcone40/Muons.pt < 0.3 && Muons.pt > 4.5*GeV)'
+        
+        JPSImmMassTool = DerivationFramework__InvariantMassTool( name = "JPSImmMassTool",
+                                                                 ObjectRequirements = requirement_JPSImm_tag,
+                                                                 SecondObjectRequirements = requirement_JPSImm_probe,
+                                                                 StoreGateEntryName = "JPSImm_DiMuonMass",
+                                                                 MassHypothesis = 105.66*MeV,
+                                                                 SecondMassHypothesis = 105.66*MeV,
+                                                                 ContainerName = "Muons",
+                                                                 SecondContainerName = "Muons")
+        ToolSvc+=JPSImmMassTool
+        expression_JPSImm = '(count(JPSImm_DiMuonMass > 2.0*GeV && JPSImm_DiMuonMass < 4.0*GeV)>=1)'
+
+        expression = '( ' + expression_JPSIee + ' && ( ' + expression_trigE + ' ) ) || ( ' + expression_JPSImm + ' && ( ' + expression_trigM + ' ) )'
+        
+        
+# Event selection tool
+        from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+        JPSI_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JPSI_SkimmingTool",
+                                                                        expression = expression)
+
+        ToolSvc += JPSI_SkimmingTool
+        print JPSI_SkimmingTool
+
+
+
 #################
 ### Setup decorators tools
 #################
@@ -152,9 +327,34 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD
         print xAOD_TRT_PrepDataToxAOD.properties()
 
+    # to store dEdx info
     from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
     ToolSvc += TRT_dEdx_Tool
+
+    # to get shared hit info
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
+    InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+                                                                          PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
+                                                                          addTRToutliers                 = True,
+                                                                          OutputLevel=INFO
+                                                                          )
+    print InDetPrdAssociationTool
+    ToolSvc += InDetPrdAssociationTool
+    TrackCollectionKeys = []
+
+    from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+    InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
+    print InDetNewTrackingCutsPixel
+
+    from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
+    InDetPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetPRD_Association'+InDetNewTrackingCutsPixel.extension(),
+                                                            AssociationTool = InDetPrdAssociationTool,
+                                                            TracksName = ['Tracks'],
+                                                            OutputLevel=INFO
+                                                            )
+    topSequence += InDetPRD_Association
+    print InDetPRD_Association
 
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
@@ -194,6 +394,10 @@ if dumpPixInfo:
 ### Setup Augmentation tools
 #################
 augmentationTools=[]
+if TrtZSel:
+    augmentationTools.append(ZeeMassTool, ZmmMassTool)
+if TrtJSel:
+    augmentationTools.append(JPSIeeMassTool, JPSImmMassTool)
 
 from AthenaCommon import CfgMgr
 
@@ -213,6 +417,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StoreSCT   = dumpSctInfo,
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
+                                                           AssociationTool = InDetPrdAssociationTool,
                                                           OutputLevel = INFO)
 
 if dumpTrtInfo:
@@ -312,6 +517,10 @@ if isIdTrkDxAODSimulation:
 # Skimming Tools
 #====================================================================
 skimmingTools = []
+if TrtZSel:
+    skimmingTools.append(Z_SkimmingTool)
+if TrtJSel:
+    skimmingTools.append(JPSI_SkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -436,6 +645,14 @@ if dumpTriggerInfo:
     IDTRKVALIDStream.AddItem("HLT::HLTResult#HLTResult_HLT")
     IDTRKVALIDStream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
     IDTRKVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
+
+    if dumpTrtInfo and not isIdTrkDxAODSimulation:
+        # strangely these options cause crashes in R21 MC reco:  ATLASRECTS-3861 
+        from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+        SlimmingHelper = SlimmingHelper("SlimmingHelper")
+        SlimmingHelper.AllVariables += ["HLT_xAOD__ElectronContainer_egamma_Electrons","HLT_xAOD__MuonContainer_MuonEFInfo"]
+        print SlimmingHelper
+        SlimmingHelper.AppendContentToStream(IDTRKVALIDStream)
 
 if (printIdTrkDxAODConf):
     print IDTRKVALIDStream

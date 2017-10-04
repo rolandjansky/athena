@@ -107,7 +107,6 @@ namespace MuonCalib {
     int m_verbose_level;
     //---------------------------t0 - tmax - settings-------------------------------
     bool m_fit_time;
-    bool m_fit_adc;
     int m_min_entries_time, m_min_entries_adc;
     T0MTSettingsT0 m_t0_settings;
     T0MTSettingsTMax m_tmax_settings;

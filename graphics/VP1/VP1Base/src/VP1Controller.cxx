@@ -76,24 +76,24 @@ void VP1Controller::initLastVars()
 VP1Controller::VP1Controller(IVP1System * sys, const QString& classname )
   : QWidget(0),//Controllers always created parentless.
     VP1HelperClassBase(sys,classname),
-    d(new Imp),
+    m_d(new Imp),
     m_initVarsMode(true)//Start as true in case any possible_change
 			//stuff are called before intLastVars()?
 {
-  d->fallBackMaterial = 0;
-  d->lastUpdateSlot = 0;
-  d->collWidget = 0;
+  m_d->fallBackMaterial = 0;
+  m_d->lastUpdateSlot = 0;
+  m_d->collWidget = 0;
   setObjectName(classname);
 }
 
 //____________________________________________________________________
 VP1Controller::~VP1Controller()
 {
-  foreach (Imp::DialogInfo* di,d->dialogs)
+  foreach (Imp::DialogInfo* di,m_d->dialogs)
     delete di;
-  if (d->fallBackMaterial)
-    d->fallBackMaterial->unref();
-  delete d;
+  if (m_d->fallBackMaterial)
+    m_d->fallBackMaterial->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -140,7 +140,7 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
   if (enabledButton)
     launchButton->setEnabled(enabledButton->isChecked());
 
-  d->dialogs << new Imp::DialogInfo(launchButton,dialog,enabledButton);
+  m_d->dialogs << new Imp::DialogInfo(launchButton,dialog,enabledButton);
 
   connect(launchButton,SIGNAL(clicked()),this,SLOT(toggleDialogState()));
   if (enabledButton)
@@ -155,9 +155,9 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
 
   //To avoid an extra call in the code we do this a few times more than necessary (fixme: put in initLastVars!!):
   int maxwidth(0);
-  foreach (Imp::DialogInfo* di,d->dialogs)
+  foreach (Imp::DialogInfo* di,m_d->dialogs)
     maxwidth = std::max(maxwidth,di->launchButton->sizeHint().width());
-  foreach (Imp::DialogInfo* di,d->dialogs)
+  foreach (Imp::DialogInfo* di,m_d->dialogs)
     di->launchButton->setMinimumWidth(maxwidth);
 }
 
@@ -165,7 +165,7 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
 void VP1Controller::enabledButtonStateChanged()
 {
   Imp::DialogInfo * di(0);
-  foreach (Imp::DialogInfo* di2,d->dialogs) {
+  foreach (Imp::DialogInfo* di2,m_d->dialogs) {
     if (di2->enabledButton==sender()) {
       di = di2;
       break;
@@ -192,7 +192,7 @@ void VP1Controller::enabledButtonStateChanged()
 void VP1Controller::toggleDialogState(QObject* widget)
 {
   Imp::DialogInfo * di(0);
-  foreach (Imp::DialogInfo* di2,d->dialogs) {
+  foreach (Imp::DialogInfo* di2,m_d->dialogs) {
     if (di2->launchButton==sender() || (widget && di2->dialogWidget==widget)) {
       di = di2;
       break;
@@ -229,20 +229,20 @@ void VP1Controller::toggleDialogState(QObject* widget)
 //____________________________________________________________________
 void VP1Controller::collWidgetContentChanged()
 {
-  if (sender()!=d->collWidget||!d->collWidget) {
+  if (sender()!=m_d->collWidget||!m_d->collWidget) {
     message("ERROR: Unexpected signal in collWidgetContentChanged slot!!");
     return;
   }
-  QScrollArea* scrollarea = dynamic_cast<QScrollArea*>(d->collWidget->parent());
-  if (!scrollarea&&d->collWidget->parent())
-    scrollarea = dynamic_cast<QScrollArea*>(d->collWidget->parent()->parent());
+  QScrollArea* scrollarea = dynamic_cast<QScrollArea*>(m_d->collWidget->parent());
+  if (!scrollarea&&m_d->collWidget->parent())
+    scrollarea = dynamic_cast<QScrollArea*>(m_d->collWidget->parent()->parent());
   if (!scrollarea) {
-    message("ERROR: d->collWidget not child or grandchild of a scroll area!!");
+    message("ERROR: m_d->collWidget not child or grandchild of a scroll area!!");
     return;
   }
-  int width = d->collWidget->appropriateFixedWidth();
-  d->collWidget->setMinimumWidth(width);
-  d->collWidget->setMaximumWidth(width);
+  int width = m_d->collWidget->appropriateFixedWidth();
+  m_d->collWidget->setMinimumWidth(width);
+  m_d->collWidget->setMaximumWidth(width);
   QScrollBar * sb = scrollarea->verticalScrollBar();
   if (sb)
     width+=sb->sizeHint().width();
@@ -277,7 +277,7 @@ void VP1Controller::setupCollWidgetInScrollArea(QScrollArea * scrollarea, VP1Col
   scrollarea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   collWidget->setObjectName(objectName()+"_CollWidget");
   scrollarea->setObjectName(objectName()+"_CollWidgetScrollArea");
-  d->collWidget = collWidget;
+  m_d->collWidget = collWidget;
   connect(collWidget,SIGNAL(visibleContentsChanged()),this,SLOT(collWidgetContentChanged()));
 }
 
@@ -317,14 +317,14 @@ const char * VP1Controller::addUpdateSlot(const char * slot)
 {
   messageVerbose("Adding update slot: "+QString(slot));
   connect(this,SIGNAL(dummyUpdateTrigger()),this,slot);
-  d->lastUpdateSlot = slot;
+  m_d->lastUpdateSlot = slot;
   return slot;
 }
 
 //____________________________________________________________________
 void VP1Controller::connectToLastUpdateSlot(QObject* sender,const char * signal)
 {
-  connect(sender,signal,this,d->lastUpdateSlot);
+  connect(sender,signal,this,m_d->lastUpdateSlot);
 }
 
 //____________________________________________________________________
@@ -390,11 +390,11 @@ void VP1Controller::restoreSettings(QByteArray ba)
   actualRestoreSettings(s);
 
   //warn unrestored:
-  if (d->collWidget)
-    s.ignoreWidget(d->collWidget);
+  if (m_d->collWidget)
+    s.ignoreWidget(m_d->collWidget);
   s.warnUnrestored((QWidget*)(this));
   QPair<QPushButton*,QWidget*> b2d;
-  foreach (Imp::DialogInfo* di,d->dialogs)
+  foreach (Imp::DialogInfo* di,m_d->dialogs)
     s.warnUnrestored(di->dialogWidget);
 
   QTimer::singleShot(0, this, SLOT(testForChanges()));
@@ -411,12 +411,12 @@ QByteArray VP1Controller::saveSettings() const
   actualSaveSettings(s);
 
   //Warn unsaved:
-  if (d->collWidget)
-    s.ignoreWidget(d->collWidget);
+  if (m_d->collWidget)
+    s.ignoreWidget(m_d->collWidget);
 
   s.warnUnsaved((QWidget*)(this));
   QPair<QPushButton*,QWidget*> b2d;
-  foreach (Imp::DialogInfo* di,d->dialogs)
+  foreach (Imp::DialogInfo* di,m_d->dialogs)
     s.warnUnsaved(di->dialogWidget);
 
   return s.result();
@@ -426,11 +426,11 @@ QByteArray VP1Controller::saveSettings() const
 //____________________________________________________________________
 SoMaterial * VP1Controller::fallBackMaterial() const
 {
-  if (!d->fallBackMaterial) {
-    d->fallBackMaterial = new SoMaterial;
-    d->fallBackMaterial->ref();
+  if (!m_d->fallBackMaterial) {
+    m_d->fallBackMaterial = new SoMaterial;
+    m_d->fallBackMaterial->ref();
   }
-  return d->fallBackMaterial;
+  return m_d->fallBackMaterial;
 }
 
 //____________________________________________________________________

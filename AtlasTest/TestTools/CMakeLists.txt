@@ -31,4 +31,4 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/runUnitTests.sh share/post.sh scripts/nightlies/TestHelloWorld.sh )
+atlas_install_scripts( share/runUnitTests.sh share/post.sh scripts/nightlies/TestHelloWorld.sh share/skip_if_libraryMissing.sh )

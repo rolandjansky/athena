@@ -150,7 +150,7 @@ private:
   //
   //! ChildList. Required whenever the class has hidden children.
   //
-  SoChildList *children;
+  SoChildList *m_children;
 
   //
   //! help with trigonometry.  increments sines an cosines by an angle.
@@ -161,7 +161,7 @@ private:
     cosPhi = oldCos*cosDeltaPhi-oldSin*sinDeltaPhi;
   }
 
-  static bool didInit;
+  static bool s_didInit;
 };
 
 #endif

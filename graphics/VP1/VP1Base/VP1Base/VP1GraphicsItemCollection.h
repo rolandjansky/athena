@@ -99,7 +99,7 @@ private:
   VP1GraphicsItemCollection( const VP1GraphicsItemCollection & );
   VP1GraphicsItemCollection & operator= ( const VP1GraphicsItemCollection & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private:
   friend class VP1GraphicsView;
   void attachToView(VP1GraphicsView*);

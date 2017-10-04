@@ -45,16 +45,16 @@ public:
 };
 
 HitToSoNode::HitToSoNode(IVP1System * sys)
-    : VP1HelperClassBase(sys,"HitToSoNode"), d(new Imp)
+    : VP1HelperClassBase(sys,"HitToSoNode"), m_d(new Imp)
 {
-    d->theclass = this;
+    m_d->theclass = this;
 }
 
 //____________________________________________________________________
 HitToSoNode::~HitToSoNode()
 {
     messageVerbose("destructor begin");
-    delete d;
+    delete m_d;
     messageVerbose("destructor end");
 }
 
@@ -234,13 +234,13 @@ void HitToSoNode::buildTubeShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&shap
         halflength = length/2.0;
         // FIXME! translate to z position here instead of in AscObj_TSOS, for symmetry with buildStripShapes
       }
-      SoNode * simpleShape = d->nodeManager.getShapeNode_DriftTube( halflength, 0.0 );
+      SoNode * simpleShape = m_d->nodeManager.getShapeNode_DriftTube( halflength, 0.0 );
       shape_simple->addChild(simpleShape);
          //Detailed shape uses tube (unless negligible radius):
     if (radius==0.0)
         shape_detailed->addChild(simpleShape);
     else
-        shape_detailed->addChild(d->nodeManager.getShapeNode_DriftTube( halflength, radius ));
+        shape_detailed->addChild(m_d->nodeManager.getShapeNode_DriftTube( halflength, radius ));
     }
 }
 
@@ -277,7 +277,7 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
             0.0f);
             
         gpSep->addChild(localtransGP);
-        gpSep->addChild(d->nodeManager.getShapeNode_Cross(10));
+        gpSep->addChild(m_d->nodeManager.getShapeNode_Cross(10));
         shape_detailed->addChild(gpSep);
     }
 
@@ -289,10 +289,10 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
 
 
     shape_simple->addChild(localtrans0);
-    shape_simple->addChild( d->nodeManager.getShapeNode_Strip(stripLength));
+    shape_simple->addChild( m_d->nodeManager.getShapeNode_Strip(stripLength));
 
     shape_detailed->addChild(localtrans0);
-    shape_detailed->addChild(d->nodeManager.getShapeNode_Strip(stripLength,stripWidth,stripThickness));
+    shape_detailed->addChild(m_d->nodeManager.getShapeNode_Strip(stripLength,stripWidth,stripThickness));
     // Transform back to centre of Surface
     SoTranslation * localtrans1 = new SoTranslation;
     localtrans1->translation.setValue(static_cast<float>( -(*localposStrip)[Trk::locX]),

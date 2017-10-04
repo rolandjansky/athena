@@ -1,5 +1,4 @@
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 #include "../TestFEXAlg.h"
@@ -23,15 +22,3 @@ DECLARE_ALGORITHM_FACTORY( TestViewMerger )
 DECLARE_ALGORITHM_FACTORY( SchedulerProxyAlg )
 DECLARE_ALGORITHM_FACTORY( TestCombiner )
 
-DECLARE_FACTORY_ENTRIES( ViewAlgsTest )
-{
-  DECLARE_ALGORITHM( TestFEXAlg )
-  DECLARE_NAMESPACE_ALGORITHM( AthViews, TestFEXAlgView )
-  DECLARE_ALGORITHM( TestMergeAlg )
-  DECLARE_ALGORITHM( TestSplitAlg )
-  DECLARE_ALGORITHM( MergeRoIsAlg )
-  DECLARE_ALGORITHM( TestViewDriver )
-  DECLARE_ALGORITHM( TestViewMerger )
-  DECLARE_ALGORITHM( SchedulerProxyAlg )
-  DECLARE_ALGORITHM( TestCombiner )
-}

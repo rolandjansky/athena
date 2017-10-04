@@ -6,7 +6,7 @@
 #include "copy_file_icc_hack.h"
 #include "AthenaInterprocess/ProcessGroup.h"
 
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
@@ -49,7 +49,7 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_nEventsBeforeFork(0)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_incidentSvc("IncidentSvc", name)
-  , m_evtSeek(0)
+  , m_evtSeek(nullptr)
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
   , m_sharedRankQueue(0)
@@ -88,7 +88,7 @@ StatusCode EvtRangeProcessor::initialize()
 
   sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
   if(sc.isFailure() || m_evtSeek==0) {
-    ATH_MSG_ERROR("Error retrieving IEventSeek");
+    ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
     return StatusCode::FAILURE;
   }
   
@@ -350,7 +350,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
   }
 
   // ________________________ Event selector restart ________________________
-  IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
+  IService* evtSelSvc = dynamic_cast<IService*>(evtSelector());
   if(!evtSelSvc) {
     ATH_MSG_ERROR("Failed to dyncast event selector to IService");
     return outwork;
@@ -369,7 +369,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
       itSvcLast = service_list.end();
     for(;itSvc!=itSvcLast;++itSvc) {
       IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(*itSvc);
-      if(evtsel && (evtsel != m_evtSelector)) {
+      if(evtsel && (evtsel != evtSelector())) {
 	if((*itSvc)->start().isSuccess())
 	  ATH_MSG_DEBUG("Restarted event selector " << (*itSvc)->name());
 	else {
@@ -486,31 +486,41 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 		 << ", Last Event:" << endEvent);
 
     // Process the events
-    for(int i(startEvent-1); i<endEvent; ++i) {
-      StatusCode sc = m_evtSeek->seek(i);
-      if(sc.isRecoverable()) {
-	ATH_MSG_WARNING("Event " << i << " from range: " << rangeID << " not in the input file");
-	rangeStatus = AthenaMPToolBase::ESRANGE_NOTFOUND;
-	break;
+    IEvtSelector::Context* ctx = nullptr;
+    if (evtSelector()->createContext (ctx).isFailure()) {
+      ATH_MSG_WARNING("Failed to create IEventSelector context.");
+      rangeStatus = AthenaMPToolBase::ESRANGE_SEEKFAILED;
+    }
+    else {
+      for(int i(startEvent-1); i<endEvent; ++i) {
+        StatusCode sc = m_evtSeek->seek(*ctx, i);
+        if(sc.isRecoverable()) {
+          ATH_MSG_WARNING("Event " << i << " from range: " << rangeID << " not in the input file");
+          rangeStatus = AthenaMPToolBase::ESRANGE_NOTFOUND;
+          break;
+        }
+        else if(sc.isFailure()) {
+          ATH_MSG_WARNING("Failed to seek to " << i << " in range: " << rangeID);
+          rangeStatus = AthenaMPToolBase::ESRANGE_SEEKFAILED;
+          break;
+        }
+        ATH_MSG_INFO("Seek to " << i << " succeeded");
+        m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
+        sc = m_evtProcessor->nextEvent(nEvt++);
+        m_chronoStatSvc->chronoStop("AthenaMP_nextEvent");
+        if(sc.isFailure()){
+          ATH_MSG_WARNING("Failed to process the event " << i << " in range:" << rangeID);
+          rangeStatus = AthenaMPToolBase::ESRANGE_PROCFAILED;
+          break;
+        }
+        else {
+          ATH_MSG_DEBUG("Event processed");
+          nEventsProcessed++;
+        }
       }
-      else if(sc.isFailure()) {
-        ATH_MSG_WARNING("Failed to seek to " << i << " in range: " << rangeID);
-	rangeStatus = AthenaMPToolBase::ESRANGE_SEEKFAILED;
-        break;
-      }
-      ATH_MSG_INFO("Seek to " << i << " succeeded");
-      m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
-      sc = m_evtProcessor->nextEvent(nEvt++);
-      m_chronoStatSvc->chronoStop("AthenaMP_nextEvent");
-      if(sc.isFailure()){
-        ATH_MSG_WARNING("Failed to process the event " << i << " in range:" << rangeID);
-        rangeStatus = AthenaMPToolBase::ESRANGE_PROCFAILED;
-	break;
-      }
-      else {
-        ATH_MSG_DEBUG("Event processed");
-        nEventsProcessed++;
-      }
+    }
+    if (evtSelector()->releaseContext (ctx).isFailure()) {
+      ATH_MSG_WARNING("Failed to release IEventSelector context.");
     }
 
     // Fire dummy NextEventRange incident in order to cut the previous output and report it
@@ -724,7 +734,7 @@ StatusCode EvtRangeProcessor::startProcess()
 StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)
 {
   // Get Property Server
-  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(evtSelector());
   if(!propertyServer) {
     ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
     return StatusCode::FAILURE;

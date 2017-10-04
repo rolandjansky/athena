@@ -13,15 +13,21 @@ def writeEmulationFiles(data):
 # Testing menu used in the L1 decoders
 class MenuTest:
     CTPToChainMapping = ["0:HLT_e3_etcut",
+                         "0:HLT_e5_etcut"
                          "0:HLT_g5_etcut",
                          "1:HLT_e7_etcut",
                          "23:HLT_2e3_etcut",
+                         "23:HLT_e3e5_etcut",
                          "15:HLT_mu6",
                          "33:HLT_2mu6",
                          "15:HLT_mu6idperf",
                          "42:HLT_e15mu4"]
 
     EMThresholdToChainMapping = ["EM3 : HLT_e3_etcut",
+                                 "EM3 : HLT_e5_etcut",
+                                 "EM3 : HLT_2e3_etcut",
+                                 "EM3 : HLT_e3e5_etcut",
+                                 "EM5 : HLT_e3e5_etcut",
                                  "EM3 : HLT_g5_etcut",
                                  "EM7 : HLT_e7_etcut",
                                  "EM15 : HLT_e15mu4_etcut"]
@@ -52,7 +58,9 @@ class L1DecoderTest(L1Decoder) :
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
-            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel)
+            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "EMRoIDecisions",
+                                             OutputTrigRoIs = "EMRoIs")
             emUnpacker.ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
@@ -60,7 +68,9 @@ class L1DecoderTest(L1Decoder) :
 
         # MU unpacker
         if TriggerFlags.doMuon():
-            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel)
+            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "MURoIDecisions",
+                                             OutputTrigRoIs = "MURoIs")
             muUnpacker.ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
             muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
             self.roiUnpackers += [muUnpacker]

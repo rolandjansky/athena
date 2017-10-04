@@ -4,50 +4,23 @@
 #ifndef L1DECODER_JROISUNPACKINGTOOL_H
 #define L1DECODER_JROISUNPACKINGTOOL_H 1
 
+#include "RoIsUnpackingToolBase.h"
 
 #include <string>
 
-// FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-// L1Decoder includes
-#include "./IRoIsUnpackingTool.h"
+class JRoIsUnpackingTool : public RoIsUnpackingToolBase { 
+public: 
 
-// Forward declaration
-class StoreGateSvc;
-
-
-
-class JRoIsUnpackingTool
-  : virtual public ::IRoIsUnpackingTool,
-            public ::AthAlgTool
-{ 
-
-
- public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
   JRoIsUnpackingTool( const std::string& type,
-	     const std::string& name, 
-	     const IInterface* parent );
+                      const std::string& name, 
+                      const IInterface* parent );
 
-  /// Destructor: 
-  virtual ~JRoIsUnpackingTool(); 
-  StatusCode  updateConfiguration() override { return StatusCode::SUCCESS; }
-  // Athena algtool's Hooks
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  finalize() override;
+  virtual StatusCode updateConfiguration() override { return StatusCode::SUCCESS; }
 
- private: 
+  virtual StatusCode initialize() override;
 
-  /// Default constructor: 
-  JRoIsUnpackingTool();
-
-
-  
+private: 
 
 }; 
 

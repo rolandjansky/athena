@@ -23,7 +23,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Base
    graphics/VP1/VP1Utils
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    Control/StoreGate
    DetectorDescription/AtlasDetDescr
    Event/EventPrimitives
@@ -82,7 +82,7 @@ atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    TrkEventPrimitives TrkParameters VP1Base VP1Utils StoreGateLib SGtests
    MuonIdHelpersLib MuonRecHelperToolsLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES}
-   ${HEPMC_LIBRARIES} DataModel AtlasDetDescr EventPrimitives
+   ${HEPMC_LIBRARIES} AthContainers AtlasDetDescr EventPrimitives
    ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry InDetPrepRawData
    InDetRIO_OnTrack InDetSimEvent MuonReadoutGeometry MuonChamberT0s
    MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonSimEvent Particle

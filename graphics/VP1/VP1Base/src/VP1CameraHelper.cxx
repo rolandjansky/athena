@@ -149,12 +149,12 @@ public:
 //____________________________________________________________________
 void VP1CameraHelper::forceAbort()
 {
-  std::map<SoCamera*,VP1CameraHelper*>::iterator it = Imp::helpers.find(d->camera);
+  std::map<SoCamera*,VP1CameraHelper*>::iterator it = Imp::helpers.find(m_d->camera);
   if (it!=Imp::helpers.end())
     Imp::helpers.erase(it);
-  d->instance_invalid = true;
-  d->camera->unrefNoDelete();
-  d->camera = 0;
+  m_d->instance_invalid = true;
+  m_d->camera->unrefNoDelete();
+  m_d->camera = 0;
 }
 
 std::map<SoCamera*,VP1CameraHelper*> VP1CameraHelper::Imp::helpers;
@@ -189,54 +189,54 @@ void VP1CameraHelper::setOutputImagesMode( VP1ExaminerViewer * ra,
     VP1Msg::messageDebug("VP1CameraHelper::setOutputImagesMode ERROR: Bad input. Empty prefix.");
     return;
   }
-  d->fps = fps;
-  d->outputdir = outputdir;
-  d->width = width;
-  d->height = height;
-  d->prefix = prefix;
-  d->renderArea = ra;
+  m_d->fps = fps;
+  m_d->outputdir = outputdir;
+  m_d->width = width;
+  m_d->height = height;
+  m_d->prefix = prefix;
+  m_d->renderArea = ra;
 }
 
 
 //____________________________________________________________________
 VP1CameraHelper::VP1CameraHelper(SoCamera * camera, SoGroup * sceneroot)
-  : QObject(0), d(new Imp)
+  : QObject(0), m_d(new Imp)
 {
-  d->theclass=this;
-  d->camera=camera;
-  d->forceCircular = false;
+  m_d->theclass=this;
+  m_d->camera=camera;
+  m_d->forceCircular = false;
   if (camera) {
     std::map<SoCamera*,VP1CameraHelper*>::iterator it = Imp::helpers.find(camera);
     if (it!=Imp::helpers.end())
       it->second->forceAbort();
     Imp::helpers[camera] = this;
   }
-  d->sceneroot=sceneroot;
+  m_d->sceneroot=sceneroot;
 
-  d->fps=-1;
-  d->ntotframes = -1;
-  d->width = 100;
-  d->height = 100;
-  d->iframe = -1;
-  d->renderArea = 0;
+  m_d->fps=-1;
+  m_d->ntotframes = -1;
+  m_d->width = 100;
+  m_d->height = 100;
+  m_d->iframe = -1;
+  m_d->renderArea = 0;
 
-  d->seekdistance = 50.0f;
-  d->seekdistanceabs = FALSE;
-  d->seektopoint = TRUE;
-  d->seekperiod = 2.0f;
-  d->inseekmode = FALSE;
-  d->seeksensor = new SoTimerSensor(Imp::seeksensorCB, d);
+  m_d->seekdistance = 50.0f;
+  m_d->seekdistanceabs = FALSE;
+  m_d->seektopoint = TRUE;
+  m_d->seekperiod = 2.0f;
+  m_d->inseekmode = FALSE;
+  m_d->seeksensor = new SoTimerSensor(Imp::seeksensorCB, m_d);
 
-  d->searchaction = new SoSearchAction;
-  d->matrixaction = new SoGetMatrixAction(SbViewportRegion(100,100));
+  m_d->searchaction = new SoSearchAction;
+  m_d->matrixaction = new SoGetMatrixAction(SbViewportRegion(100,100));
 
-  d->camera->ref();
-  d->sceneroot->ref();
-  d->camera_ref=d->camera->getRefCount();
-  d->instance_invalid = false;
+  m_d->camera->ref();
+  m_d->sceneroot->ref();
+  m_d->camera_ref=m_d->camera->getRefCount();
+  m_d->instance_invalid = false;
 
   if (!camera||!sceneroot)
-    d->instance_invalid=true;
+    m_d->instance_invalid=true;
 
 }
 
@@ -244,15 +244,15 @@ VP1CameraHelper::VP1CameraHelper(SoCamera * camera, SoGroup * sceneroot)
 //____________________________________________________________________
 VP1CameraHelper::~VP1CameraHelper()
 {
-  if (d->seeksensor->isScheduled())
-    d->seeksensor->unschedule();
-  delete d->seeksensor;
-  d->searchaction->reset(); delete d->searchaction;
-  delete d->matrixaction;
-  SoCamera * cam = d->camera;
-  if (d->sceneroot)
-    d->sceneroot->unref();
-  delete d; d=0;
+  if (m_d->seeksensor->isScheduled())
+    m_d->seeksensor->unschedule();
+  delete m_d->seeksensor;
+  m_d->searchaction->reset(); delete m_d->searchaction;
+  delete m_d->matrixaction;
+  SoCamera * cam = m_d->camera;
+  if (m_d->sceneroot)
+    m_d->sceneroot->unref();
+  delete m_d; m_d=0;
   if (cam) {
     std::map<SoCamera*,VP1CameraHelper*>::iterator it = Imp::helpers.find(cam);
     if (it!=Imp::helpers.end())
@@ -307,12 +307,12 @@ VP1CameraHelper * VP1CameraHelper::animatedZoomToCameraState( SoCamera * camera,
   // std::cout<<"clipVol_lastPercentage%="<<d->clipVol_lastPercentage<<", clipVol_percentage%="<<d->clipVol_percentage
   //   <<", clipVol_startPercentage%="<<d->clipVol_startPercentage<<", clipVol_endPercentage%="<<d->clipVol_endPercentage<<std::endl;
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
-  helper->d->actual_animatedZoomToCameraState( camstate,duration_in_secs );
-  helper->d->varySpeed=varySpeed;
-  helper->d->clipVol_startPercentage=lastClipVolPercent;
-  helper->d->clipVol_percentage=lastClipVolPercent;
-  helper->d->clipVol_endPercentage=clipVolPercent;
-  helper->d->forceCircular = forceCircular;
+  helper->m_d->actual_animatedZoomToCameraState( camstate,duration_in_secs );
+  helper->m_d->varySpeed=varySpeed;
+  helper->m_d->clipVol_startPercentage=lastClipVolPercent;
+  helper->m_d->clipVol_percentage=lastClipVolPercent;
+  helper->m_d->clipVol_endPercentage=clipVolPercent;
+  helper->m_d->forceCircular = forceCircular;
   return helper;
 }
 
@@ -374,9 +374,9 @@ VP1CameraHelper*  VP1CameraHelper::animatedZoomToPath( SoCamera * camera, SoGrou
 						       bool forceCircular )
 {  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
-  helper->d->actual_animatedZoomToPath( path,duration_in_secs, slack, lookat, upvec );
-  helper->d->varySpeed=varySpeed;
-  helper->d->forceCircular = forceCircular;
+  helper->m_d->actual_animatedZoomToPath( path,duration_in_secs, slack, lookat, upvec );
+  helper->m_d->varySpeed=varySpeed;
+  helper->m_d->forceCircular = forceCircular;
   return helper;
 }
 
@@ -416,9 +416,9 @@ VP1CameraHelper * VP1CameraHelper::animatedZoomToSubTree(SoCamera * camera, SoGr
 							 bool forceCircular )
 {  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
-  helper->d->actual_animatedZoomToSubTree( subtreeroot,duration_in_secs,slack,lookat,upvec );
-  helper->d->varySpeed=varySpeed;
-  helper->d->forceCircular = forceCircular;
+  helper->m_d->actual_animatedZoomToSubTree( subtreeroot,duration_in_secs,slack,lookat,upvec );
+  helper->m_d->varySpeed=varySpeed;
+  helper->m_d->forceCircular = forceCircular;
   return helper;
 }
 
@@ -464,9 +464,9 @@ VP1CameraHelper * VP1CameraHelper::animatedZoomToBBox(SoCamera * camera, SoGroup
 {
   
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
-  helper->d->actual_animatedZoomToBBox( box,duration_in_secs,slack,lookat,upvec );
-  helper->d->varySpeed=varySpeed;
-  helper->d->forceCircular = forceCircular;
+  helper->m_d->actual_animatedZoomToBBox( box,duration_in_secs,slack,lookat,upvec );
+  helper->m_d->varySpeed=varySpeed;
+  helper->m_d->forceCircular = forceCircular;
   return helper;
 }
 
@@ -594,9 +594,9 @@ VP1CameraHelper * VP1CameraHelper::animatedZoomToPoint(SoCamera * camera, SoGrou
 						       bool forceCircular )
 {  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
-  helper->d->actual_animatedZoomToPoint( targetpoint,duration_in_secs );
-  helper->d->varySpeed=varySpeed;
-  helper->d->forceCircular = forceCircular;
+  helper->m_d->actual_animatedZoomToPoint( targetpoint,duration_in_secs );
+  helper->m_d->varySpeed=varySpeed;
+  helper->m_d->forceCircular = forceCircular;
   return helper;
 }
 

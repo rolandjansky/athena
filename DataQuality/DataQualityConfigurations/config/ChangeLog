@@ -1,3 +1,6 @@
+2017-02-12 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: added fraction of sctflagged events, number of BSerrors with sctflag
+
 2016-11-28 Shunsuke Honda <shunsuke.shonda@cern.ch>
 	* SCT/collision_run.config: added hitoccupancy histograms
 	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration

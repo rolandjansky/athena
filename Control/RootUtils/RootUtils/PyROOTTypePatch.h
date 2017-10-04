@@ -49,6 +49,9 @@
 #ifndef ROOTUTILS_PYROOTTYPEPATCH_H
 #define ROOTUTILS_PYROOTTYPEPATCH_H
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #ifdef _POSIX_C_SOURCE
 # undef _POSIX_C_SOURCE
