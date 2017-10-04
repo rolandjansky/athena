@@ -115,10 +115,8 @@ from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
 from AthenaCommon.CfgGetter import getPublicTool
-ServiceMgr.UserActionSvc.BeginOfRunActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.EndOfRunActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.RunActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.EventActions += [getPublicTool("EnergyLossRecorder")]
 ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("EnergyLossRecorder")]
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------

@@ -3,7 +3,6 @@
 */
 
 // ***************************************************************************
-// Copyright (C) 2004 by ATLAS Collaboration
 //
 // 3.8.2005 Creation of the tool by claire.bourdarios@cern.ch
 //

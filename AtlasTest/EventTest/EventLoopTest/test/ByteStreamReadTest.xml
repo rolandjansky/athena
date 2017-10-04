@@ -1,7 +1,7 @@
 <unifiedTestConfiguration>
   <atn>
      <TEST name="ByteStreamReadTest" type="athena" suite="Examples">
-        <options_atn>-s EventLoopTest/ByteStreamReadTest.py</options_atn>
+        <options_atn>EventLoopTest/ByteStreamReadTest.py</options_atn>
         <timelimit>5</timelimit>
         <author> Hong Ma </author>
         <mailto> hma@bnl.gov </mailto>

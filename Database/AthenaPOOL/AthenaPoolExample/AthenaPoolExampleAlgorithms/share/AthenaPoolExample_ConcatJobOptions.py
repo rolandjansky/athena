@@ -76,7 +76,11 @@ svcMgr.AthenaPoolCnvSvc.OutputLevel = 2
 topSequence.WriteData.OutputLevel = 2
 topSequence.ReWriteData.OutputLevel = 2
 Stream1.OutputLevel = 2
+Stream1.WritingTool.OutputLevel = 3
+Stream1.HelperTools[0].OutputLevel = 3
 Stream2.OutputLevel = 2
+Stream2.WritingTool.OutputLevel = 3
+Stream2.HelperTools[0].OutputLevel = 3
 
 from StoreGate.StoreGateConf import StoreGateSvc
 svcMgr += StoreGateSvc()

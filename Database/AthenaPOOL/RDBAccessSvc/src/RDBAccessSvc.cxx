@@ -39,6 +39,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "PoolSvc/IPoolSvc.h"
 
+#include <thread>
+
 RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc):
   AthService(name,svc)
 {
@@ -166,6 +168,7 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
 
   ATH_MSG_DEBUG("Getting RecordsetPtr with key " << key);
 
+  std::lock_guard<std::mutex> guard(m_mutex);
   if(!connect(connName)) {
     ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning empty recordset");
     return IRDBRecordset_ptr(new RDBRecordset(this));
@@ -229,6 +232,9 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
 				  const std::string& tag2node,
 				  const std::string& connName)
 {
+  ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
+  std::lock_guard<std::mutex> guard(m_mutex);
+
   IRDBQuery* query{nullptr};
 
   if(!connect(connName)) {
@@ -285,16 +291,10 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
 std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 				      const std::string& parentTag,
 				      const std::string& parentNode,
-				      bool fetchData,
 				      const std::string& connName)
 {
-  // The fetchData argument is not much of use and also
-  // after introduction of smart pointers to recordsets this parameter can lead to some
-  // extra data retrieval.
-  //
-  // Based on all above I'm going to make fetchData obsolete and keep it around only for backwards compatibility
-
-  ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode << " " << (fetchData?"Fetch":"Nofetch"));
+  ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
+  std::lock_guard<std::mutex> guard(m_mutex);
 
   // Check lookup table first
   std::string lookupMapKey = parentTag + "::" + connName;
@@ -347,6 +347,9 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 RDBTagDetails RDBAccessSvc::getTagDetails(const std::string& tag,
 					  const std::string& connName)
 {
+  ATH_MSG_DEBUG("getTagDetails for tag: " << tag);
+  std::lock_guard<std::mutex> guard(m_mutex);
+
   RDBTagDetails tagDetails;
 
   if(!connect(connName)) {

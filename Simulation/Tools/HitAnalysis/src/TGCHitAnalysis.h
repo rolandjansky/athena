@@ -16,11 +16,11 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class TGCHitAnalysis : public AthAlgorithm {
 
  public:
@@ -34,8 +34,6 @@ class TGCHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-
-
    TH1* h_hits_x;
    TH1* h_hits_y;
    TH1* h_hits_z;
@@ -72,8 +70,6 @@ class TGCHitAnalysis : public AthAlgorithm {
    std::vector<float>* m_hits_kine;
    std::vector<float>* m_hits_step;
    
-   
-   
    TTree * m_tree;
    std::string m_ntupleFileName; 
    std::string m_path;
@@ -82,4 +78,3 @@ class TGCHitAnalysis : public AthAlgorithm {
 };
 
 #endif // TGC_HIT_ANALYSIS_H
-

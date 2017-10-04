@@ -1593,7 +1593,7 @@ OraclePixGeoManager::OraclePixGeoManager()
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
-  m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
+  m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
 
 
 /////////////////////////////////////////////////////////

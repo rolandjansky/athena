@@ -50,8 +50,6 @@ namespace LVL1 {
 	that contains the input LUCID information. */
     const LUCID_DigitContainer* m_digitContainer;
     
-    short          m_lucidLVL1TubeID;
-
     /** thresholds for the level 1 LUCID trigger */
     float          m_threshold_a; 
     float          m_threshold_c; 

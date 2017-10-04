@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigGenericAlgs/DummyFEX.h"
 #include "TrigGenericAlgs/DummyUnseededAllTEAlgo.h"
 #include "TrigGenericAlgs/DummyCopyAllTEAlgo.h"
@@ -38,23 +37,3 @@ DECLARE_ALGORITHM_FACTORY( SeededSuperRoiAllTEAlgo )
 DECLARE_ALGORITHM_FACTORY( TrigRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( MergeTopoStarts )
 
-
-DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
-    DECLARE_ALGORITHM( DummyFEX )
-    DECLARE_ALGORITHM( DummyUnseededAllTEAlgo )
-    DECLARE_ALGORITHM( DummyCopyAllTEAlgo )
-    DECLARE_ALGORITHM( DummyCombineAlgo )
-    DECLARE_ALGORITHM( OverlapRemoval )
-    DECLARE_ALGORITHM( ReverseRoI )
-    DECLARE_ALGORITHM( AcceptWhenInputMissing )
-    DECLARE_ALGORITHM( AcceptWhenInputPresent )
-    DECLARE_ALGORITHM( PrescaleAlgo )
-    DECLARE_ALGORITHM( ROBRequestAlgo )
-    DECLARE_ALGORITHM( L1CorrelationAlgo )
-    DECLARE_ALGORITHM( DetectorTimingAlgo ) 
-    DECLARE_ALGORITHM( TimeBurner )      
-    DECLARE_ALGORITHM( AcceptAnyInput )      
-    DECLARE_ALGORITHM( SeededSuperRoiAllTEAlgo )      
-    DECLARE_ALGORITHM( TrigRoiUpdater )
-    DECLARE_ALGORITHM( MergeTopoStarts )
-}

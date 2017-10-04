@@ -60,6 +60,10 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
 DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
 
+# Doesn't work with run 1 data (conditions issue).
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
+
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 

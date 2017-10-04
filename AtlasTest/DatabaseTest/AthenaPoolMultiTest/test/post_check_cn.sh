@@ -80,7 +80,8 @@ else
 		# ignore root collect key 
 		egrep -a -v 'NewEventCollection.root, recovered'  |\
                 # ignore destructor messages
-                egrep -a -v 'destructor'
+                egrep -a -v 'destructor' |\
+                egrep -a -v 'Property update'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 

@@ -5,7 +5,6 @@
 #ifndef MUONEVENTATHENAPOOL_CSCSTRIPPREPDATACONTAINERCNV_H
 #define MUONEVENTATHENAPOOL_CSCSTRIPPREPDATACONTAINERCNV_H
 
-//#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
@@ -26,9 +25,7 @@ typedef  T_AthenaPoolCustomCnv<Muon::CscStripPrepDataContainer, CscStripPrepData
  ** Create derived converter to customize the saving of identifiable
  ** container
  **/
-class CscStripPrepDataContainerCnv : 
-    public CscStripPrepDataContainerCnvBase,
-    public AthenaPoolCnvTPExtension 
+class CscStripPrepDataContainerCnv :  public CscStripPrepDataContainerCnvBase
 {
     
     friend class CnvFactory<CscStripPrepDataContainerCnv>;

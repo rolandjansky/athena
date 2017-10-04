@@ -47,12 +47,10 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_jobOptionsSvc(0), m_trigCompositeContainer(0),
-
-    //adding a part of DataHandle for AthenaMT
     m_roiCollection("L1MURoIs"),		//ReadHandle L1MuRoIs to read in
     m_muFeContainer("MuonFeature"),		//WriteHandle MuonFeature to record
-    m_muFeDeContainer("MuonFeatureDetails")	//WriteHandle MuonFeatureDetails to record
+    m_muFeDeContainer("MuonFeatureDetails"),    //WriteHandle MuonFeatureDetails to record
+    m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
@@ -367,13 +365,13 @@ StatusCode MuFastSteering::execute() {
   float muFeDePt = 1.52;
   float muFeDeAlpha = 1.23;
   float muFeDeBeta = -1.15;
-  muFeDeTestValue.setPt(muFeDePt);
-  muFeDeTestValue.setAlpha(muFeDeAlpha);
-  muFeDeTestValue.setBeta(muFeDeBeta);
+  m_muFeDeTestValue.setPt(muFeDePt);
+  m_muFeDeTestValue.setAlpha(muFeDeAlpha);
+  m_muFeDeTestValue.setBeta(muFeDeBeta);
   
   //WriteHandle:MuonFeatureDetails to record
   SG::WriteHandle<MuonFeatureDetails> muFeDeContainerHandle(m_muFeDeContainerKey);
-  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(muFeDeTestValue);
+  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(m_muFeDeTestValue);
   if(!muFeDeContainerHandle.isValid()){
         ATH_MSG_ERROR("ReadHandle for MuonFeatureDetails isn't Valid");
         return StatusCode::FAILURE;
@@ -802,6 +800,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int endcapinner = 3;
   int bee = 8;
   int bme = 9;
+  // int bmg = 10;
 
   std::string muonCollKey = "MuonL2SAInfo";
   
@@ -828,6 +827,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
       bme = xAOD::L2MuonParameters::Chamber::BME;
       endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
+      // bmg  = xAOD::L2MuonParameters::Chamber::Backup;
     }
 
     ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());

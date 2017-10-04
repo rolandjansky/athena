@@ -26,7 +26,7 @@ NtupleAnalyticAutocalibrationTool :: NtupleAnalyticAutocalibrationTool(const std
 				m_full_matrix(true), 
 				m_fix_min(true), 
 				m_fix_max(false), 
-				max_it(100),
+				m_max_it(100),
 				m_force_mono(false),
 				m_control_histograms(false),
 				m_calib_input_svc("MdtCalibInputSvc", n),
@@ -42,7 +42,7 @@ NtupleAnalyticAutocalibrationTool :: NtupleAnalyticAutocalibrationTool(const std
 	declareProperty("FullMatrix", m_full_matrix);
 	declareProperty("FixMin", m_fix_min);
 	declareProperty("FixMax", m_fix_max);
-	declareProperty("MaximumIterations", max_it);
+	declareProperty("MaximumIterations", m_max_it);
 	declareProperty("ForceMonotonous", m_force_mono);
 	declareProperty("ControlHistograms", m_control_histograms);
 	declareProperty("ConventionalSmoothening", m_smoothening);
@@ -92,7 +92,7 @@ void NtupleAnalyticAutocalibrationTool :: setRegion()
 		}
 //create objects
 	ATH_MSG_INFO( "Creating RtCalibrationAnalytic!" );
-	m_autocalibration = new RtCalibrationAnalytic("RT", m_rt_accuracy, m_func_type_num, m_order, m_split, m_full_matrix, m_fix_min, m_fix_max,	max_it, m_smoothening, m_parabolic_extrapolation);
+	m_autocalibration = new RtCalibrationAnalytic("RT", m_rt_accuracy, m_func_type_num, m_order, m_split, m_full_matrix, m_fix_min, m_fix_max,	m_max_it, m_smoothening, m_parabolic_extrapolation);
 	ATH_MSG_INFO( "setInput!" );
 	m_autocalibration->setInput(new RtCalibrationOutput(rt_relation, new RtFullInfo()));
 	if(m_force_mono)

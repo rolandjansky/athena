@@ -56,9 +56,9 @@ class CleanerFactory{
  private:
 
   //run 1 cleaning
-  double m_n90Threshold;
-  double m_presamplerThreshold;
-  double m_negativeEThreshold;
+  //double m_n90Threshold;
+  //double m_presamplerThreshold;
+  //double m_negativeEThreshold;
   
   //loose cleaning
   double m_fSampMaxLooseThreshold;

@@ -44,7 +44,6 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   , m_DQstatus(0)
   , m_nEventsProcessed(0)
   , m_histogramsNotBooked(true)
-  , m_nChannelsInDrawerThreshold(20)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -59,7 +58,6 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   declareProperty("FillEmptyFromDB", m_fillEmtyFromDB = false);
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
   declareProperty("TriggerTypes", m_triggerTypes);
-  declareProperty("ChannelsNumberInDrawerThreshold", m_nChannelsInDrawerThreshold);
 
   m_path = "/Tile/DigiNoise"; //ROOT File relative directory
 }
@@ -218,8 +216,7 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
     
     for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
-      if (digitsCollection->size() < m_nChannelsInDrawerThreshold
-          || (digitsCollection->getLvl1Type() !=  getL1info())) continue;
+      if (digitsCollection->empty() || (digitsCollection->getLvl1Type() !=  getL1info())) continue;
       
       HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
       int ros = m_tileHWID->ros(adc_id);

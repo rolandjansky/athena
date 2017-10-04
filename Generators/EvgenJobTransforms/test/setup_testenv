@@ -1,3 +1,33 @@
 export TESTDATA=/afs/cern.ch/atlas/offline/ProdData/17.2.X
 export JODIR=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest
 export JODIR15=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest
+
+if [ "$MADPATH" = "" ]; then
+  for p in `echo $LD_LIBRARY_PATH | tr : ' '`; do
+    if [ "${p%LCG_*}" != "$p" ]; then
+      while [ "$p" != "/" ]; do
+        d=`basename $p`
+        if [ "${d#LCG_}" != "$d" ]; then
+          for mgdir in `echo $p/MCGenerators/madgraph5amc/*`; do
+            export MADPATH=$mgdir/$LCG_PLATFORM
+            break 3
+          done
+          break 2
+        fi
+        p=`dirname $p`
+      done
+      break
+    fi
+  done
+fi
+
+if [ "$HERWIG7_PATH" = "" ]; then
+  for p in `echo $LD_LIBRARY_PATH | tr : ' '`; do
+    if [ `basename $p` = "Herwig" ]; then
+      d=`dirname $p`
+      d=`dirname $d`
+      export HERWIG7_PATH=$d
+      break
+    fi
+  done
+fi

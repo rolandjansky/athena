@@ -13,6 +13,11 @@
  */
 
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
 #include "Utility.h"
 #include "TInterpreter.h"
 #include <sstream>

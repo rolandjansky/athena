@@ -14,15 +14,8 @@
 
 HiveTool::HiveTool(const std::string& type, const std::string& name, 
 			 const IInterface* parent)
-  : base_class( type, name, parent ),
-    m_rdh1("x1"),
-    m_wrh1("X1")
-{
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_W1",m_wrh1);
-
-}
+  : base_class( type, name, parent )
+{}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 

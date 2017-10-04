@@ -8,7 +8,7 @@
 #define ATHVIEWS_VIEW_H
 
 #include "AthenaKernel/IProxyDict.h"
-
+#include "AthViews/SimpleView.h"
 // DECLARATIONS
 namespace SG {
   class DataProxy;
@@ -20,12 +20,12 @@ class DataObject;
 namespace SG {
 class View : public IProxyDict {
 public:
-  View (const std::string& name);
+  View (const std::string& name, bool AllowFallThrough=false);
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;
   
-  void impl ( IProxyDict* impl ) { m_implementation = impl; }
+  void impl ( SimpleView* impl ) { m_implementation = impl; }
   IProxyDict* impl (void ) { return m_implementation; }
   const IProxyDict* impl (void ) const { return m_implementation; }
 
@@ -33,6 +33,10 @@ public:
   /*virtual SG::DataProxy* proxy(const CLID& id) const { 
     return m_implementation->proxy(id); 
   }*/
+
+  void linkParent( const IProxyDict* parent) {
+    m_implementation->linkParent( parent );
+  }
 
   
   virtual SG::DataProxy* deep_proxy(const void* const pTransient) const { 
@@ -105,7 +109,7 @@ public:
   virtual void registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid ){ m_implementation->registerKey( key, str, clid ); }
 
 private:
-  IProxyDict *m_implementation;
+  SimpleView *m_implementation;
 };
 } // EOF SG namespace
 

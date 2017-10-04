@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
 #include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
@@ -18,13 +17,3 @@ DECLARE_TOOL_FACTORY(OnlineSpacePointProviderTool)
 DECLARE_TOOL_FACTORY(TrigL2LayerNumberTool)
 DECLARE_TOOL_FACTORY(TrigSpacePointConversionTool)
 
-DECLARE_FACTORY_ENTRIES(TrigOnlineSpacePointTool) {
-  DECLARE_TOOL(PixelSpacePointTool)
-  DECLARE_TOOL(SCT_SpacePointTool)
-  DECLARE_TOOL(PixelClusterCacheTool)
-  DECLARE_TOOL(SCT_ClusterCacheTool)
-  DECLARE_TOOL(FastSCT_RodDecoder)
-  DECLARE_TOOL(OnlineSpacePointProviderTool)
-  DECLARE_TOOL(TrigL2LayerNumberTool)
-  DECLARE_TOOL(TrigSpacePointConversionTool)
-}

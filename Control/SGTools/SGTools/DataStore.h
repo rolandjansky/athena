@@ -172,10 +172,10 @@ namespace SG {
     // to check if it already exists
     T2pMap  m_t2p;
 
-    void setSGAudSvc() const;
-    mutable ISGAudSvc * m_pSGAudSvc;
-    mutable bool m_noAudSvc;    
-    inline bool doAudit() const {
+    void setSGAudSvc();
+    ISGAudSvc * m_pSGAudSvc;
+    bool m_noAudSvc;    
+    inline bool doAudit() {
       if (!m_noAudSvc) setSGAudSvc();
       return (m_pSGAudSvc);
     }

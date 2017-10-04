@@ -1101,7 +1101,6 @@ bool ALFA_GeometryReader::SetIdealGeometry(const eRPotName eRPName, const eFiber
 	int i,j;
 	bool bRes=true;
 	eFiberType eFiberAlfaType;
-	FIBERPARAMS FiberParams;
 	ROMAPOT RomaPot;
 
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::SetIdealGeometry");
@@ -1126,7 +1125,7 @@ bool ALFA_GeometryReader::SetIdealGeometry(const eRPotName eRPName, const eFiber
 	{
 		for(i=1;i<=ALFALAYERSCNT*ALFAPLATESCNT;i++){
 			for(j=1;j<=ALFAFIBERSCNT;j++){
-				memset(&FiberParams,0,sizeof(FIBERPARAMS));
+                                FIBERPARAMS FiberParams;
 
 				eFiberAlfaType=(i%2==0)? EFT_VFIBER:EFT_UFIBER;
 				FiberParams.nLayerID=i;
@@ -1146,7 +1145,7 @@ bool ALFA_GeometryReader::SetIdealGeometry(const eRPotName eRPName, const eFiber
 		{
 			for(j=1;j<=ODFIBERSCNT;j++)
 			{
-				memset(&FiberParams,0,sizeof(FIBERPARAMS));
+                                FIBERPARAMS FiberParams;
 
 				FiberParams.nLayerID=i;
 				FiberParams.nPlateID=FiberParams.nLayerID/2+FiberParams.nLayerID%2;
@@ -1191,7 +1190,6 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 	char* pch1, *pch2;
 	FILE* pFile;
 	eFiberType eType=EFT_UNDEFINED;
-	FIBERPARAMS FiberParams;
 	ROMAPOT RomaPot;
 
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::ReadFile");
@@ -1219,8 +1217,8 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 	nLine=0;
 	while(!feof(pFile)){
 		if(fgets(szLine,sizeof(szLine),pFile)!=NULL){
-			
-			memset(&FiberParams,0,sizeof(FIBERPARAMS));
+
+                        FIBERPARAMS FiberParams;
 			
 			nLine++;
 			if(nLine<6) continue;
@@ -1337,7 +1335,6 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::ReadDatabase");
 
 	eFiberType eType=EFT_UNDEFINED;
-	FIBERPARAMS FiberParams;
 	ROMAPOT RomaPot;
 	
 	std::vector<std::string> strDBElements;
@@ -1379,7 +1376,7 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	{
 		if (eRPName == (*iter).nPotID)
 		{
-			memset(&FiberParams,0,sizeof(FIBERPARAMS));
+                        FIBERPARAMS FiberParams;
 
 			FiberParams.nLayerID = (*iter).nLayerID;
 			FiberParams.nFiberID = (*iter).nFiberID;
@@ -1426,7 +1423,6 @@ bool ALFA_GeometryReader::GetUFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 	bool bRes=false;
 	std::list<FIBERPARAMS>::const_iterator iter;
 	std::map<eRPotName, ROMAPOT>::const_iterator rpiter;
-	FIBERPARAMS FiberParams;
 
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetUFiberParams");
 	
@@ -1440,8 +1436,7 @@ bool ALFA_GeometryReader::GetUFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
-			FiberParams=*iter;
-			memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                        *pFiberParams = *iter;
 			bRes=true;
 		}
 	}
@@ -1457,7 +1452,6 @@ bool ALFA_GeometryReader::GetVFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 	bool bRes=false;
 	std::list<FIBERPARAMS>::const_iterator iter;
 	std::map<eRPotName, ROMAPOT>::const_iterator rpiter;
-	FIBERPARAMS FiberParams;
 	
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetVFiberParams");
 
@@ -1471,8 +1465,7 @@ bool ALFA_GeometryReader::GetVFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
-			FiberParams=*iter;
-			memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                        *pFiberParams = *iter;
 			bRes=true;
 		}
 	}
@@ -2037,7 +2030,6 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 	bool bRes=false;
 	std::list<FIBERPARAMS>::const_iterator iter;
 	std::map<eRPotName, ROMAPOT>::const_iterator rpiter;
-	FIBERPARAMS FiberParams;
 	
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberParams");
 	
@@ -2059,8 +2051,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 				}
 				else
 				{
-					FiberParams=*iter;
-					memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                                        *pFiberParams = *iter;
 					bRes=true;
 				}
 
@@ -2080,8 +2071,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 				}
 				else
 				{
-					FiberParams=*iter;
-					memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                                        *pFiberParams = *iter;
 					bRes=true;
 				}
 
@@ -2101,8 +2091,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 				}
 				else
 				{
-					FiberParams=*iter;
-					memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                                        *pFiberParams = *iter;
 					bRes=true;
 				}
 
@@ -2122,8 +2111,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 				}
 				else
 				{
-					FiberParams=*iter;
-					memcpy(pFiberParams,&FiberParams,sizeof(FIBERPARAMS));
+                                        *pFiberParams = *iter;
 					bRes=true;
 				}
 

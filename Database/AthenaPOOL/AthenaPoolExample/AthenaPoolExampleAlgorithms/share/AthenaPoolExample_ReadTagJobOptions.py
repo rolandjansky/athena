@@ -51,13 +51,13 @@ svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 """
 # Turn on the tree cache for the CollectionTree - tree cache only works for one tree.
 # Set number of events for learning before turning on cache - default is 5
-svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "TREE_CACHE_LEARN_EVENTS = '6'" ]
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; TREE_CACHE_LEARN_EVENTS = '6'" ]
 # And set tree cache size - default is 10 MB (10 000 000)
-svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "ContainerName = 'CollectionTree'; TREE_CACHE = '100000'" ]
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '100000'" ]
 
 # Print out values - must have PoolSvc in info mode
-svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "TREE_CACHE_LEARN_EVENTS = 'int'" ]
-svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "TREE_CACHE_SIZE = 'int'" ]
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; TREE_CACHE_LEARN_EVENTS = 'int'" ]
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; TREE_CACHE_SIZE = 'int'" ]
 
 # Print out for each event the number of bytes read and the number of
 # read calls. With the tree cache, one should see jumps in the bytes
@@ -65,8 +65,8 @@ svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "TREE_CACHE_SIZE = 'int'" ]
 # event. However, the cache only works on one tree - the main event
 # tree (CollectionTree) - and we read some things from other trees, so
 # one does see a small increase event-by-event.
-svcMgr.AthenaPoolCnvSvc.PrintInputAttrPerEvt += [ "BYTES_READ = 'double'" ]
-svcMgr.AthenaPoolCnvSvc.PrintInputAttrPerEvt += [ "READ_CALLS = 'int'" ]
+svcMgr.AthenaPoolCnvSvc.PrintInputAttrPerEvt += [ "DatabaseName = '*'; BYTES_READ = 'double'" ]
+svcMgr.AthenaPoolCnvSvc.PrintInputAttrPerEvt += [ "DatabaseName = '*'; READ_CALLS = 'int'" ]
 """
 
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__QueryTag
@@ -100,6 +100,7 @@ svcMgr.MessageSvc.defaultLimit = 100000
 
 svcMgr.MetaDataSvc.OutputLevel = 2
 svcMgr.EventSelector.OutputLevel = 2
+svcMgr.EventSelector.HelperTools[0].OutputLevel = 3
 svcMgr.AthenaPoolAddressProviderSvc.OutputLevel = 2
 svcMgr.PoolSvc.OutputLevel = 2
 topSequence.ReadData.OutputLevel = 2

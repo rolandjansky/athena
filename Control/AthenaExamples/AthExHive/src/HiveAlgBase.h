@@ -40,7 +40,7 @@ protected:
   
 private:
 
-  int m_time;
+  Gaudi::Property<int> m_time{this, "Time", 0, "default alg sleep time"};
   
 
 };

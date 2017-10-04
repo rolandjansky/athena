@@ -84,50 +84,50 @@ public:
 //___________________________________________________________________________
 void IVP13DStandardChannelWidget::launchStereoEditor()
 {
-	d->viewer->launchStereoEditor();
+	m_d->viewer->launchStereoEditor();
 }
 
 
 //___________________________________________________________________________
 bool IVP13DStandardChannelWidget::setAntiAliasing(bool aa)
 {
-	d->viewer->setAntiAlias(aa);
+	m_d->viewer->setAntiAlias(aa);
 	return true;
 }
 
 //___________________________________________________________________________
 bool IVP13DStandardChannelWidget::isAntiAliasing()
 {
-	return d->viewer->isAntiAlias();
+	return m_d->viewer->isAntiAlias();
 }
 
 //___________________________________________________________________________
 IVP13DStandardChannelWidget::IVP13DStandardChannelWidget(const QString & name, const QString & information,
 							 const QString & contact_info, bool detectorViewButtons)
-  : IVP13DChannelWidget(name,information,contact_info), d(new Imp)
+  : IVP13DChannelWidget(name,information,contact_info), m_d(new Imp)
 {
-  d->detectorViewButtons = detectorViewButtons;
-  d->need_initial_viewall=true;
-  d->channel=this;
-  d->uisnapshot.checkBox_as_shown = 0;//Use this to see if the uisnapshot pointers are initialised/
+  m_d->detectorViewButtons = detectorViewButtons;
+  m_d->need_initial_viewall=true;
+  m_d->channel=this;
+  m_d->uisnapshot.checkBox_as_shown = 0;//Use this to see if the uisnapshot pointers are initialised/
 
   SoCooperativeSelection::ensureInitClass();
 
-  d->root= new SoSeparator;
-  d->root->setName("StandardChannelWidgetSceneRoot");
-  d->root->ref();
-  d->viewer = 0;
+  m_d->root= new SoSeparator;
+  m_d->root->setName("StandardChannelWidgetSceneRoot");
+  m_d->root->ref();
+  m_d->viewer = 0;
 
-  d->tabwidget = 0;
+  m_d->tabwidget = 0;
 
-  d->extradisplaywidget_splitter = 0;
+  m_d->extradisplaywidget_splitter = 0;
 }
 
 //___________________________________________________________________________
 IVP13DStandardChannelWidget::~IVP13DStandardChannelWidget()
 {
-  d->root->unref();
-  delete d;
+  m_d->root->unref();
+  delete m_d;
 }
 
 //___________________________________________________________________________
@@ -141,26 +141,26 @@ void IVP13DStandardChannelWidget::addSystem( IVP13DSystem*system, const SystemOp
 
   registerSystem(system);
   if (!( options & DisallowCameraAccess ))
-    d->systemsAllowedCameraList << system;
+    m_d->systemsAllowedCameraList << system;
 
   SoSeparator * sysroot = system->getSceneGraph();
-  assert(!d->system2rootNodes.contains(system));
-  d->system2rootNodes.insert(system,sysroot);
-  d->root->addChild(sysroot);
+  assert(!m_d->system2rootNodes.contains(system));
+  m_d->system2rootNodes.insert(system,sysroot);
+  m_d->root->addChild(sysroot);
 
-  d->system2switchable << QPair<IVP1System*,bool>(system,switchable);
+  m_d->system2switchable << QPair<IVP1System*,bool>(system,switchable);
 
-  assert(!d->system2startdisabled.contains(system));
-  d->system2startdisabled.insert(system,startDisabled);
-  assert(d->system2startdisabled.contains(system));
+  assert(!m_d->system2startdisabled.contains(system));
+  m_d->system2startdisabled.insert(system,startDisabled);
+  assert(m_d->system2startdisabled.contains(system));
 
   if (allowController) {
-    d->systemsAllowedControllers << system;
+    m_d->systemsAllowedControllers << system;
     connect(system,SIGNAL(itemFromSystemSelected()),this,SLOT(showControlsForSystem()));
   }
 
   if (allowExtraDisplayWidget)
-    d->systemsAllowedExtraDisplayWidgets << system;
+    m_d->systemsAllowedExtraDisplayWidgets << system;
 }
 
 //___________________________________________________________________________
@@ -168,46 +168,46 @@ void IVP13DStandardChannelWidget::create() {
 
   //Set up the controller.
   QWidget * snapshotgroupbox = new QWidget();
-  d->uisnapshot.setupUi(snapshotgroupbox);
+  m_d->uisnapshot.setupUi(snapshotgroupbox);
 
   VP1ColorSelectButton * colorselectbutton_dummy;
-  registerController(VP1ControllerHelper::compositionController( d->systemsAllowedControllers,
-								 d->sys2tabpage,d->tabwidget,
-								 d->system2switchable,
-								 d->checkbox2system,
+  registerController(VP1ControllerHelper::compositionController( m_d->systemsAllowedControllers,
+								 m_d->sys2tabpage,m_d->tabwidget,
+								 m_d->system2switchable,
+								 m_d->checkbox2system,
 								 colorselectbutton_dummy,
 								 snapshotgroupbox,true ));
   short x,y;
   SoOffscreenRenderer::getMaximumResolution().getValue(x,y);
 
   // now the range is set in the ui file.
-//  d->uisnapshot.spinBox_width->setRange ( 1, x/4 - 10 );
-//  d->uisnapshot.spinBox_height->setRange ( 1, y/4 - 10 );
+//  m_d->uisnapshot.spinBox_width->setRange ( 1, x/4 - 10 );
+//  m_d->uisnapshot.spinBox_height->setRange ( 1, y/4 - 10 );
 
-  connect(d->uisnapshot.checkBox_as_shown,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
-  connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-  connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-  connect(d->uisnapshot.radioButton_width,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
-  connect(d->uisnapshot.radioButton_height,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
+  connect(m_d->uisnapshot.checkBox_as_shown,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
+  connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+  connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+  connect(m_d->uisnapshot.radioButton_width,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
+  connect(m_d->uisnapshot.radioButton_height,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
 
-  connect(d->uisnapshot.groupBox_imagePresets,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
-  connect(d->uisnapshot.radioButton_720p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
-  connect(d->uisnapshot.radioButton_1080p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
-  connect(d->uisnapshot.radioButton_4K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
-  connect(d->uisnapshot.radioButton_8K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(m_d->uisnapshot.groupBox_imagePresets,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(m_d->uisnapshot.radioButton_720p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(m_d->uisnapshot.radioButton_1080p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(m_d->uisnapshot.radioButton_4K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(m_d->uisnapshot.radioButton_8K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
 
 
-  //   d->systemsAllowedControllers.clear();
-  d->system2switchable.clear();
+  //   m_d->systemsAllowedControllers.clear();
+  m_d->system2switchable.clear();
 
-  QMapIterator<QCheckBox*,IVP1System*> it(d->checkbox2system);
+  QMapIterator<QCheckBox*,IVP1System*> it(m_d->checkbox2system);
   while (it.hasNext()) {
     it.next();
 
-    assert(d->system2startdisabled.contains(it.value()));
-    if (d->system2startdisabled[it.value()]) {
+    assert(m_d->system2startdisabled.contains(it.value()));
+    if (m_d->system2startdisabled[it.value()]) {
       it.key()->setChecked(false);
-      d->updateSystemState(it.key());
+      m_d->updateSystemState(it.key());
     }
 
     connect(it.key(),SIGNAL(toggled(bool)),this,SLOT(toggleSystemActive()));
@@ -219,38 +219,38 @@ void IVP13DStandardChannelWidget::create() {
 
   //Setup viewer (with possible splitter for extra widgets):
   QList<QPair<QString,QWidget*> > sysname2extradisplay;
-  foreach (IVP13DSystem* sys,d->systemsAllowedExtraDisplayWidgets) {
+  foreach (IVP13DSystem* sys,m_d->systemsAllowedExtraDisplayWidgets) {
     QWidget * edwidget = sys->buildExtraDisplayWidget();
     if (edwidget)
       sysname2extradisplay << QPair<QString,QWidget*>(sys->name(),edwidget);
   }
 
   if (sysname2extradisplay.count()==0) {
-    d->viewer = new VP1ExaminerViewer(this,d->detectorViewButtons);
-    setMinimumSize(d->min3dx,d->min3dy);
+    m_d->viewer = new VP1ExaminerViewer(this,m_d->detectorViewButtons);
+    setMinimumSize(m_d->min3dx,m_d->min3dy);
   } else if (sysname2extradisplay.count()==1) {
-    d->setupSplitter(sysname2extradisplay.front().second);
+    m_d->setupSplitter(sysname2extradisplay.front().second);
   } else if (sysname2extradisplay.count()>1) {
     VP1TabWidget * tabWidget = new VP1TabWidget(0);
     for (int i = 0; i < sysname2extradisplay.count(); ++i) {
       tabWidget->addTab(sysname2extradisplay.at(i).second,sysname2extradisplay.at(i).first);
     }
     tabWidget->setCurrentIndex(0);
-    d->setupSplitter(tabWidget);
+    m_d->setupSplitter(tabWidget);
   }
 
-  registerRenderArea(d->viewer);//remember this...
+  registerRenderArea(m_d->viewer);//remember this...
 
-  d->viewer->setSceneGraph(d->root);
-  d->viewer->setGLRenderAction(new SoLineHighlightRenderAction());
+  m_d->viewer->setSceneGraph(m_d->root);
+  m_d->viewer->setGLRenderAction(new SoLineHighlightRenderAction());
 
   // Default Transparency Type
-  //  d->viewer->setTransparencyType( SoGLRenderAction::DELAYED_BLEND ); // old
-  d->viewer->setTransparencyType( SoGLRenderAction::BLEND ); // this looks better
+  //  m_d->viewer->setTransparencyType( SoGLRenderAction::DELAYED_BLEND ); // old
+  m_d->viewer->setTransparencyType( SoGLRenderAction::BLEND ); // this looks better
 
   //Setup camera info:
-  foreach(IVP13DSystem*sys,d->systemsAllowedCameraList)
-    sys->registerViewer(d->viewer);
+  foreach(IVP13DSystem*sys,m_d->systemsAllowedCameraList)
+    sys->registerViewer(m_d->viewer);
 
 
   /* We want to change the default value for the "As shown" option
@@ -262,7 +262,7 @@ void IVP13DStandardChannelWidget::create() {
    * (We do that with setChecked() in order to not having to change
    * the whole logics behind.
    */
-  d->uisnapshot.checkBox_as_shown->setChecked(false); // fixme: check if that works, or if it's still TRUE
+  m_d->uisnapshot.checkBox_as_shown->setChecked(false); // fixme: check if that works, or if it's still TRUE
 
 }
 
@@ -325,17 +325,17 @@ void IVP13DStandardChannelWidget::lastOfActiveSystemsRefreshed()
 {
   VP1Msg::messageVerbose("IVP13DStandardChannelWidget::lastOfActiveSystemsRefreshed() called.");
 
-  if (d->need_initial_viewall) {
-    d->viewer->viewAll();
-    d->viewer->storeCameraParametersForReset();
-    d->need_initial_viewall=false;
+  if (m_d->need_initial_viewall) {
+    m_d->viewer->viewAll();
+    m_d->viewer->storeCameraParametersForReset();
+    m_d->need_initial_viewall=false;
   }
 
   if(VP1QtUtils::environmentVariableIsSet("VP1_SCREENSHOTS_DIR"))
-    d->autoSnapshot();
+    m_d->autoSnapshot();
 
-  if (d->viewer->startTourEachEvent())
-    d->viewer->startTour();
+  if (m_d->viewer->startTourEachEvent())
+    m_d->viewer->startTour();
 
   // apparently this is the last method called when all systems have been drawn
   // so we call here the renderPixmap() method is we are in "batch-mode"
@@ -361,7 +361,7 @@ void IVP13DStandardChannelWidget::systemErased(IVP1System*sys)
 void IVP13DStandardChannelWidget::toggleSystemActive()
 {
   QCheckBox * cb = static_cast<QCheckBox*>(sender()); assert(cb);
-  d->updateSystemState(cb);
+  m_d->updateSystemState(cb);
 }
 
 
@@ -428,8 +428,8 @@ void IVP13DStandardChannelWidget::addSystem(IVP13DSystemSimple* sys, const Syste
 //___________________________________________________________________________
 void IVP13DStandardChannelWidget::stopSpinning()
 {
-  if (d->viewer->isAnimating())
-    d->viewer->stopAnimating();
+  if (m_d->viewer->isAnimating())
+    m_d->viewer->stopAnimating();
 }
 
 //___________________________________________________________________________
@@ -437,7 +437,7 @@ QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool ba
 {
 	VP1Msg::messageDebug("IVP13DStandardChannelWidget::getSnapshot()  - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch));
   //   SoToVRML2Action tovrml2;
-  //   tovrml2.apply(d->selection);
+  //   tovrml2.apply(m_d->selection);
   //   SoVRMLGroup *newroot = tovrml2.getVRML2SceneGraph();
   //   newroot->ref();
   //   SoOutput out;
@@ -448,12 +448,12 @@ QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool ba
   //   out.closeFile();
 
 
-  VP1Msg::messageVerbose("checkBox_as_shown: " + QString::number(d->uisnapshot.checkBox_as_shown->isChecked()) );
-  VP1Msg::messageVerbose("spinBox_width: " + QString::number(d->uisnapshot.spinBox_width->value()) );
-  VP1Msg::messageVerbose("spinBox_height: " + QString::number(d->uisnapshot.spinBox_height->value()) );
-  VP1Msg::messageVerbose("checkBox_transp: " + QString::number(d->uisnapshot.checkBox_transp->isChecked()) );
+  VP1Msg::messageVerbose("checkBox_as_shown: " + QString::number(m_d->uisnapshot.checkBox_as_shown->isChecked()) );
+  VP1Msg::messageVerbose("spinBox_width: " + QString::number(m_d->uisnapshot.spinBox_width->value()) );
+  VP1Msg::messageVerbose("spinBox_height: " + QString::number(m_d->uisnapshot.spinBox_height->value()) );
+  VP1Msg::messageVerbose("checkBox_transp: " + QString::number(m_d->uisnapshot.checkBox_transp->isChecked()) );
 
-  if (d->uisnapshot.checkBox_as_shown->isChecked()) {
+  if (m_d->uisnapshot.checkBox_as_shown->isChecked()) {
 	  VP1Msg::messageVerbose("'As shown' option checked - using IVP13DChannelWidget::getSnapshot()");
 	  return IVP13DChannelWidget::getSnapshot();
   }
@@ -463,29 +463,29 @@ QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool ba
   int original_width = 0;
   if (width) {
   	  VP1Msg::messageVerbose("'width' passed at function call. Setting the value of the GUI field to: " + QString::number(width));
-  	  original_width = d->uisnapshot.spinBox_width->value();
-  	  d->uisnapshot.spinBox_width->setValue( width );
+  	  original_width = m_d->uisnapshot.spinBox_width->value();
+  	  m_d->uisnapshot.spinBox_width->setValue( width );
   }
 
 
   // if transparent bkg is requested programmatically, we force it
   if (transp) {
 	  VP1Msg::messageVerbose("'transp' option set - using VP1QtInventorUtils::renderToPixmap() with transp set to 'true'");
-	  return VP1QtInventorUtils::renderToPixmap(d->viewer,
-			  d->uisnapshot.spinBox_width->value(),
-			  d->uisnapshot.spinBox_height->value(),
+	  return VP1QtInventorUtils::renderToPixmap(m_d->viewer,
+			  m_d->uisnapshot.spinBox_width->value(),
+			  m_d->uisnapshot.spinBox_height->value(),
 			  true);
   }
 
   // if changed programatically, set the width back to the original value set by the user
-  if (width) d->uisnapshot.spinBox_width->setValue( original_width );
+  if (width) m_d->uisnapshot.spinBox_width->setValue( original_width );
 
   // default, with user's preferences from the GUI
   VP1Msg::messageVerbose("save the screenshot with the default tool (with settings from GUI) - using VP1QtInventorUtils::renderToPixmap()");
-  return VP1QtInventorUtils::renderToPixmap(d->viewer,
-					    d->uisnapshot.spinBox_width->value(),
-					    d->uisnapshot.spinBox_height->value(),
-					    d->uisnapshot.checkBox_transp->isChecked());
+  return VP1QtInventorUtils::renderToPixmap(m_d->viewer,
+					    m_d->uisnapshot.spinBox_width->value(),
+					    m_d->uisnapshot.spinBox_height->value(),
+					    m_d->uisnapshot.checkBox_transp->isChecked());
 
   //return QPixmap(); // for DEBUG
 
@@ -496,31 +496,31 @@ void IVP13DStandardChannelWidget::setImageFromPresets()
 {
 	VP1Msg::messageDebug("IVP13DStandardChannelWidget::setImageFromPresets()");
 
-	disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-	disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	disconnect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	disconnect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 
-	if (d->uisnapshot.radioButton_720p->isChecked()) {
-		d->uisnapshot.spinBox_width->setValue(1280);
-		d->uisnapshot.spinBox_height->setValue(720);
+	if (m_d->uisnapshot.radioButton_720p->isChecked()) {
+		m_d->uisnapshot.spinBox_width->setValue(1280);
+		m_d->uisnapshot.spinBox_height->setValue(720);
 	}
-	else if (d->uisnapshot.radioButton_1080p->isChecked()) {
-		d->uisnapshot.spinBox_width->setValue(1920);
-		d->uisnapshot.spinBox_height->setValue(1080);
+	else if (m_d->uisnapshot.radioButton_1080p->isChecked()) {
+		m_d->uisnapshot.spinBox_width->setValue(1920);
+		m_d->uisnapshot.spinBox_height->setValue(1080);
 	}
-	else if (d->uisnapshot.radioButton_4K->isChecked()) {
-		d->uisnapshot.spinBox_width->setValue(4096);
-		d->uisnapshot.spinBox_height->setValue(2160);
+	else if (m_d->uisnapshot.radioButton_4K->isChecked()) {
+		m_d->uisnapshot.spinBox_width->setValue(4096);
+		m_d->uisnapshot.spinBox_height->setValue(2160);
 	}
-	else if (d->uisnapshot.radioButton_8K->isChecked()) {
-		d->uisnapshot.spinBox_width->setValue(8192);
-		d->uisnapshot.spinBox_height->setValue(4320);
+	else if (m_d->uisnapshot.radioButton_8K->isChecked()) {
+		m_d->uisnapshot.spinBox_width->setValue(8192);
+		m_d->uisnapshot.spinBox_height->setValue(4320);
 	}
 	else {
 	VP1Msg::messageDebug("ERROR! Sender unknown!!");
 	}
 
-	connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-	connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 
 	// update
 	updateSnapshotDim();
@@ -532,79 +532,79 @@ void IVP13DStandardChannelWidget::updateSnapshotDim()
 {
   VP1Msg::messageDebug("IVP13DStandardChannelWidget::updateSnapshotDim()");
 
-  //  if (!d->uisnapshot.checkBox_as_shown)
+  //  if (!m_d->uisnapshot.checkBox_as_shown)
 //    return;
-//  if (sender()==d->uisnapshot.spinBox_width)
-//    d->uisnapshot.radioButton_width->setChecked(true);
-//  else if (sender()==d->uisnapshot.spinBox_height)
-//    d->uisnapshot.radioButton_height->setChecked(true);
+//  if (sender()==m_d->uisnapshot.spinBox_width)
+//    m_d->uisnapshot.radioButton_width->setChecked(true);
+//  else if (sender()==m_d->uisnapshot.spinBox_height)
+//    m_d->uisnapshot.radioButton_height->setChecked(true);
 
-  if (!d->uisnapshot.checkBox_as_shown)
+  if (!m_d->uisnapshot.checkBox_as_shown)
     return;
 
-  if (sender()==d->uisnapshot.spinBox_width)
-    d->uisnapshot.radioButton_width->setChecked(true);
-  else if (sender()==d->uisnapshot.spinBox_height)
-    d->uisnapshot.radioButton_height->setChecked(true);
+  if (sender()==m_d->uisnapshot.spinBox_width)
+    m_d->uisnapshot.radioButton_width->setChecked(true);
+  else if (sender()==m_d->uisnapshot.spinBox_height)
+    m_d->uisnapshot.radioButton_height->setChecked(true);
 
   /*
    * Get widget width and height
    * Note: the method "getNormalWidget" is from the "SoQtGLWidget" class
    *       and it returns a QWidget object
    */
-	int onscreen_width = d->viewer->getNormalWidget()->geometry().width();
-	int onscreen_height = d->viewer->getNormalWidget()->geometry().height();
+	int onscreen_width = m_d->viewer->getNormalWidget()->geometry().width();
+	int onscreen_height = m_d->viewer->getNormalWidget()->geometry().height();
 
-	if ( d->uisnapshot.checkBox_as_shown->isChecked() ) {
-		disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-		disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-		d->uisnapshot.spinBox_width->setValue(onscreen_width);
-		d->uisnapshot.spinBox_height->setValue(onscreen_height);
-		connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-		connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	if ( m_d->uisnapshot.checkBox_as_shown->isChecked() ) {
+		disconnect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+		disconnect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+		m_d->uisnapshot.spinBox_width->setValue(onscreen_width);
+		m_d->uisnapshot.spinBox_height->setValue(onscreen_height);
+		connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+		connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 	} else {
-		if (d->uisnapshot.checkBox_lockRatio->isChecked()) {
+		if (m_d->uisnapshot.checkBox_lockRatio->isChecked()) {
 			VP1Msg::messageDebug("checkBox_lockRatio is checked - updating only rendering size");
-			if (d->uisnapshot.radioButton_width->isChecked()) {
-				disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-				d->uisnapshot.spinBox_height->setValue(static_cast<int>(d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
-				connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+			if (m_d->uisnapshot.radioButton_width->isChecked()) {
+				disconnect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+				m_d->uisnapshot.spinBox_height->setValue(static_cast<int>(m_d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
+				connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 			} else {
-				disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-				d->uisnapshot.spinBox_width->setValue(static_cast<int>(d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_height+0.5));
-				connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+				disconnect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+				m_d->uisnapshot.spinBox_width->setValue(static_cast<int>(m_d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_height+0.5));
+				connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 			}
 		}
 		else {
 			VP1Msg::messageDebug("checkBox_lockRatio is NOT checked - Updating the widget size as well");
 
-//			if (d->uisnapshot.radioButton_width->isChecked() ) {
-//				int newWidth =  static_cast<int>(d->uisnapshot.spinBox_width->value() * static_cast<double>(onscreen_height) / d->uisnapshot.spinBox_height->value() + 0.5);
-//				d->viewer->getNormalWidget()->resize(newWidth, onscreen_height);
-//			} else if (d->uisnapshot.radioButton_height->isChecked()) {
-//				int newHeight = static_cast<int>( onscreen_width * static_cast<double>(d->uisnapshot.spinBox_height->value()) / d->uisnapshot.spinBox_width->value() + 0.5);
-//				d->viewer->resize(onscreen_width, newHeight);
+//			if (m_d->uisnapshot.radioButton_width->isChecked() ) {
+//				int newWidth =  static_cast<int>(m_d->uisnapshot.spinBox_width->value() * static_cast<double>(onscreen_height) / m_d->uisnapshot.spinBox_height->value() + 0.5);
+//				m_d->viewer->getNormalWidget()->resize(newWidth, onscreen_height);
+//			} else if (m_d->uisnapshot.radioButton_height->isChecked()) {
+//				int newHeight = static_cast<int>( onscreen_width * static_cast<double>(m_d->uisnapshot.spinBox_height->value()) / m_d->uisnapshot.spinBox_width->value() + 0.5);
+//				m_d->viewer->resize(onscreen_width, newHeight);
 //			}
 
 		}
 	}
 
   //Finally, ensure that we are within the ranges:
-  if (d->uisnapshot.spinBox_width->value()>=d->uisnapshot.spinBox_width->maximum()) {
-    disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    d->uisnapshot.spinBox_width->setValue(d->uisnapshot.spinBox_width->maximum());
-    d->uisnapshot.spinBox_height->setValue(static_cast<int>(d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
-    connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+  if (m_d->uisnapshot.spinBox_width->value()>=m_d->uisnapshot.spinBox_width->maximum()) {
+    disconnect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    disconnect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    m_d->uisnapshot.spinBox_width->setValue(m_d->uisnapshot.spinBox_width->maximum());
+    m_d->uisnapshot.spinBox_height->setValue(static_cast<int>(m_d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
+    connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
   }
-  if (d->uisnapshot.spinBox_height->value()>=d->uisnapshot.spinBox_height->maximum()) {
-    disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    d->uisnapshot.spinBox_height->setValue(d->uisnapshot.spinBox_height->maximum());
-    d->uisnapshot.spinBox_width->setValue(static_cast<int>(d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_width+0.5));
-    connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-    connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+  if (m_d->uisnapshot.spinBox_height->value()>=m_d->uisnapshot.spinBox_height->maximum()) {
+    disconnect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    disconnect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    m_d->uisnapshot.spinBox_height->setValue(m_d->uisnapshot.spinBox_height->maximum());
+    m_d->uisnapshot.spinBox_width->setValue(static_cast<int>(m_d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_width+0.5));
+    connect(m_d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+    connect(m_d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
   }
 
 }
@@ -641,32 +641,32 @@ QByteArray IVP13DStandardChannelWidget::saveState()
 //  //that the text in the checkbox gets appended some stuff like [1],
 //  //[2], etc., so that the strings used here will be unique.
 //  QMap<QString, bool> sysname2turnedon;
-//  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-//  while (it != d->checkbox2system.constEnd()) {
+//  QMap<QCheckBox*,IVP1System*>::const_iterator it = m_d->checkbox2system.constBegin();
+//  while (it != m_d->checkbox2system.constEnd()) {
 //    sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
 //     ++it;
 //  }
 //
 //
 //  // snapshot settings
-//  bool transp_checked = d->uisnapshot.checkBox_transp->isChecked();
-//  bool widthfixed = d->uisnapshot.radioButton_width->isChecked();
-//  bool as_shown = d->uisnapshot.checkBox_as_shown->isChecked();
+//  bool transp_checked = m_d->uisnapshot.checkBox_transp->isChecked();
+//  bool widthfixed = m_d->uisnapshot.radioButton_width->isChecked();
+//  bool as_shown = m_d->uisnapshot.checkBox_as_shown->isChecked();
 //
-//  bool locked_ratio = d->uisnapshot.checkBox_lockRatio->isChecked();
+//  bool locked_ratio = m_d->uisnapshot.checkBox_lockRatio->isChecked();
 //
-//  qint32 width = (qint32)(d->uisnapshot.spinBox_width->value());
-//  qint32 height = (qint32)(d->uisnapshot.spinBox_height->value());
+//  qint32 width = (qint32)(m_d->uisnapshot.spinBox_width->value());
+//  qint32 height = (qint32)(m_d->uisnapshot.spinBox_height->value());
 //
 //  // image presets
-//  bool isUsingPreset = d->uisnapshot.groupBox_imagePresets->isChecked();
-//  bool is720p = d->uisnapshot.radioButton_720p->isChecked();
-//  bool is1080p = d->uisnapshot.radioButton_1080p->isChecked();
-//  bool is4K = d->uisnapshot.radioButton_4K->isChecked();
-//  bool is8K = d->uisnapshot.radioButton_8K->isChecked();
+//  bool isUsingPreset = m_d->uisnapshot.groupBox_imagePresets->isChecked();
+//  bool is720p = m_d->uisnapshot.radioButton_720p->isChecked();
+//  bool is1080p = m_d->uisnapshot.radioButton_1080p->isChecked();
+//  bool is4K = m_d->uisnapshot.radioButton_4K->isChecked();
+//  bool is8K = m_d->uisnapshot.radioButton_8K->isChecked();
 //
 //  // active tab
-//  QString tab_index = (d->tabwidget ? d->tabwidget->tabText(d->tabwidget->currentIndex()) : QString("") );
+//  QString tab_index = (m_d->tabwidget ? m_d->tabwidget->tabText(m_d->tabwidget->currentIndex()) : QString("") );
 //
 //
 //  /*
@@ -677,8 +677,8 @@ QByteArray IVP13DStandardChannelWidget::saveState()
 //  out << (qint32)7; //version
 //  out << IVP13DChannelWidget::saveState();//Always include state info from the base class.
 //  out << sysname2turnedon;
-//  out << ( d->extradisplaywidget_splitter ? d->extradisplaywidget_splitter->saveState() : QByteArray() );
-//  out << d->viewer->saveState();
+//  out << ( m_d->extradisplaywidget_splitter ? m_d->extradisplaywidget_splitter->saveState() : QByteArray() );
+//  out << m_d->viewer->saveState();
 //  out << transp_checked;
 //  out << widthfixed;
 //  out << as_shown;
@@ -722,8 +722,8 @@ QByteArray IVP13DStandardChannelWidget::saveState()
      //that the text in the checkbox gets appended some stuff like [1],
      //[2], etc., so that the strings used here will be unique.
      QMap<QString, bool> sysname2turnedon;
-     QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-     while (it != d->checkbox2system.constEnd()) {
+     QMap<QCheckBox*,IVP1System*>::const_iterator it = m_d->checkbox2system.constBegin();
+     while (it != m_d->checkbox2system.constEnd()) {
        sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
         ++it;
      }
@@ -732,22 +732,22 @@ QByteArray IVP13DStandardChannelWidget::saveState()
 
      out << sysname2turnedon;
 
-     out << ( d->extradisplaywidget_splitter ? d->extradisplaywidget_splitter->saveState() : QByteArray() );
+     out << ( m_d->extradisplaywidget_splitter ? m_d->extradisplaywidget_splitter->saveState() : QByteArray() );
 
-     out << d->viewer->saveState();
+     out << m_d->viewer->saveState();
 
      //version <=3 had bool here.
 
-     out << d->uisnapshot.checkBox_transp->isChecked();
-     bool widthfixed = d->uisnapshot.radioButton_width->isChecked();
-     bool as_shown = d->uisnapshot.checkBox_as_shown->isChecked();
+     out << m_d->uisnapshot.checkBox_transp->isChecked();
+     bool widthfixed = m_d->uisnapshot.radioButton_width->isChecked();
+     bool as_shown = m_d->uisnapshot.checkBox_as_shown->isChecked();
      out << widthfixed;
      out << as_shown;
      if (!as_shown)
-       out << (qint32)(widthfixed ? d->uisnapshot.spinBox_width->value() : d->uisnapshot.spinBox_height->value());
+       out << (qint32)(widthfixed ? m_d->uisnapshot.spinBox_width->value() : m_d->uisnapshot.spinBox_height->value());
 
-     if (d->tabwidget)
-       out << d->tabwidget->tabText(d->tabwidget->currentIndex());
+     if (m_d->tabwidget)
+       out << m_d->tabwidget->tabText(m_d->tabwidget->currentIndex());
      else
        out << QString("");
 
@@ -788,7 +788,7 @@ void IVP13DStandardChannelWidget::restoreFromState(QByteArray ba)
 	// ===> Decode the state info:
 
 	if (version == 7)
-		d->restoreFromState_v7(state);
+		m_d->restoreFromState_v7(state);
 
 	if (version<=3) {
 		QColor bgdcol_dummy;
@@ -798,8 +798,8 @@ void IVP13DStandardChannelWidget::restoreFromState(QByteArray ba)
 	//Switch systems on/off:
 	QMap<QString, bool> sysname2turnedon;
 	state >> sysname2turnedon;
-	QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-	while (it != d->checkbox2system.constEnd()) {
+	QMap<QCheckBox*,IVP1System*>::const_iterator it = m_d->checkbox2system.constBegin();
+	while (it != m_d->checkbox2system.constEnd()) {
 		if (sysname2turnedon.contains(it.key()->text())) {
 			if (sysname2turnedon[it.key()->text()]!=it.key()->isChecked())
 				it.key()->setChecked(sysname2turnedon[it.key()->text()]);
@@ -818,44 +818,44 @@ void IVP13DStandardChannelWidget::restoreFromState(QByteArray ba)
 	//Splitter:
 	QByteArray splitstate;
 	state >> splitstate;
-	if (d->extradisplaywidget_splitter)
-		d->extradisplaywidget_splitter->restoreState(splitstate);
+	if (m_d->extradisplaywidget_splitter)
+		m_d->extradisplaywidget_splitter->restoreState(splitstate);
 
 	//Viewer settings:
 	QByteArray ba_viewer;
 	state >> ba_viewer;
-	d->viewer->restoreFromState(ba_viewer);//Fixme: reset camera???
-	d->need_initial_viewall = false;
+	m_d->viewer->restoreFromState(ba_viewer);//Fixme: reset camera???
+	m_d->need_initial_viewall = false;
 
 	//Snapshot parameters:
 	bool aa_dummy, transp, widthfixed, as_shown;
 	if (version<=3)
 		state >> aa_dummy;
 	state >> transp; state >> widthfixed; state >> as_shown;
-	d->uisnapshot.checkBox_transp->setChecked(transp);
-	d->uisnapshot.checkBox_as_shown->setChecked(as_shown);
+	m_d->uisnapshot.checkBox_transp->setChecked(transp);
+	m_d->uisnapshot.checkBox_as_shown->setChecked(as_shown);
 	if (widthfixed) {
-		d->uisnapshot.radioButton_width->setChecked(true);
-		d->uisnapshot.radioButton_height->setChecked(false);
+		m_d->uisnapshot.radioButton_width->setChecked(true);
+		m_d->uisnapshot.radioButton_height->setChecked(false);
 	} else {
-		d->uisnapshot.radioButton_width->setChecked(false);
-		d->uisnapshot.radioButton_height->setChecked(true);
+		m_d->uisnapshot.radioButton_width->setChecked(false);
+		m_d->uisnapshot.radioButton_height->setChecked(true);
 	}
 	if (!as_shown) {
 		qint32 fixval;
 		state >> fixval;
 		if (widthfixed)
-			d->uisnapshot.spinBox_width->setValue(fixval);
+			m_d->uisnapshot.spinBox_width->setValue(fixval);
 		else
-			d->uisnapshot.spinBox_height->setValue(fixval);
+			m_d->uisnapshot.spinBox_height->setValue(fixval);
 	}
 
 	QString tabname;
 	state >> tabname;
-	if (d->tabwidget) {
-		for (int i = 0; i < d->tabwidget->count(); ++i) {
-			if (d->tabwidget->tabText(i) == tabname) {
-				d->tabwidget->setCurrentIndex(i);
+	if (m_d->tabwidget) {
+		for (int i = 0; i < m_d->tabwidget->count(); ++i) {
+			if (m_d->tabwidget->tabText(i) == tabname) {
+				m_d->tabwidget->setCurrentIndex(i);
 				break;
 			}
 		}
@@ -874,24 +874,24 @@ void IVP13DStandardChannelWidget::restoreFromState(QByteArray ba)
 //___________________________________________________________________________
 void IVP13DStandardChannelWidget::showControlsForSystem(  )
 {
-  if (!d->tabwidget)
+  if (!m_d->tabwidget)
     return;
   IVP1System * sys = static_cast<IVP1System*>(sender());
   if (!sys) {
     message("showControlsForSystem Error: Unable to determine system identity.");
     return;
   }
-  if (!d->sys2tabpage.contains(sys)) {
+  if (!m_d->sys2tabpage.contains(sys)) {
     //Dont send warning here. The system in question might simply not have a controller!
     return;
   }
 
-  int index = d->tabwidget->indexOf(d->sys2tabpage[sys]);
-  if (index<0||!d->tabwidget->isTabEnabled(index)) {
+  int index = m_d->tabwidget->indexOf(m_d->sys2tabpage[sys]);
+  if (index<0||!m_d->tabwidget->isTabEnabled(index)) {
     message("Warning: Asked to show controller for a disabled system. Surely you jest?");
     return;
   }
-  d->tabwidget->setCurrentIndex(index);
+  m_d->tabwidget->setCurrentIndex(index);
 }
 
 

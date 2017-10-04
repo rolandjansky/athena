@@ -91,8 +91,6 @@ private:
 		double m_dist_ab;
 	//! width of a/b region
 		double m_width_ab;
-	//! start value for T
-		double m_start_t;
 	};
 	
 }

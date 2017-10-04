@@ -16,6 +16,6 @@
 
 //____________________________________________________________________
 VP12DViewRPhiFishEyeTransformation::VP12DViewRPhiFishEyeTransformation()
-  : IVP12DViewTransformation(), fisheyepar(0.1)
+  : IVP12DViewTransformation(), m_fisheyepar(0.1)
 {
 }

@@ -138,5 +138,19 @@ class DumpPixelNNInfo(JobProperty):
     pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DumpPixelNNInfo)
 
+class TrtZSelection(JobProperty):
+    """Z event selection based on TRT tag and probe"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtZSelection)
+
+class TrtJpsiSelection(JobProperty):
+    """J/psi event selection based on TRT tag and probe"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtJpsiSelection)
+
 
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

@@ -30,7 +30,8 @@ public:
   
 private:
   
-  bool m_writeFirst { true };
+  Gaudi::Property<bool> m_writeFirst {this, "WriteBeforeRead", true,
+      "do write before the read" };
 
   SG::ReadHandleKeyArray<HiveDataObj> m_rhv {
     this, "Key_RV", {"a1","a2","d1","e1","c1"},

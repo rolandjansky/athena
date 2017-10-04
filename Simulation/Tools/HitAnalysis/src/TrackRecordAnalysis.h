@@ -16,8 +16,6 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
-
 class TH1;
 class TH2;
 class TTree;
@@ -35,26 +33,23 @@ class TrackRecordAnalysis : public AthAlgorithm {
 
  private:
    
-
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hits_eta;
-   TH1* h_hits_phi;
-   TH1* h_hits_px;
-   TH1* h_hits_py;
-   TH1* h_hits_pz;
-   TH1* h_hits_pt;
-   TH1* h_time;
-   TH1* h_edep;
-   TH1* h_pdg;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hits_eta;
+   TH1* m_h_hits_phi;
+   TH1* m_h_hits_px;
+   TH1* m_h_hits_py;
+   TH1* m_h_hits_pz;
+   TH1* m_h_hits_pt;
+   TH1* m_h_time;
+   TH1* m_h_edep;
+   TH1* m_h_pdg;
 
-
-   
    std::vector<float>* m_x;
    std::vector<float>* m_y;
    std::vector<float>* m_z;
@@ -68,13 +63,14 @@ class TrackRecordAnalysis : public AthAlgorithm {
    std::vector<float>* m_time;
    std::vector<float>* m_edep;
    std::vector<float>* m_pdg;
+
+   std::string m_collection;
         
    TTree * m_tree;
    std::string m_ntupleFileName; 
    std::string m_path; 
    ServiceHandle<ITHistSvc>  m_thistSvc;
-   std::string m_collection;
+
 };
 
 #endif // TRACK_RECORD_ANALYSIS_H
-

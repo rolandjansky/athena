@@ -231,7 +231,14 @@ private:
 
   CBTree* m_trigTree;
 
-  std::set< const SG::TransientAddress*, SortTADptr > m_preLoad, m_partPreLoad;
+  std::set< const SG::TransientAddress*, SortTADptr > m_preLoad;
+
+  typedef std::tuple <CLID, std::string> TADkey_t;
+  TADkey_t TADkey (const SG::DataProxy& p)
+  { return TADkey_t (p.clID(), p.name()); }
+  TADkey_t TADkey (const SG::TransientAddress& t)
+  { return TADkey_t (t.clID(), t.name()); }
+  std::set< TADkey_t > m_partPreLoad;
 
   bool m_first;
   BooleanProperty m_preLoadRanges, m_preLoadData, m_partialPreLoadData;

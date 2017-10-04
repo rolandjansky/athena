@@ -14,54 +14,49 @@
 // Constructors
 ////////////////
 EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type, 
-					  const std::string& name, 
-					  const IInterface* parent ) 
-  : AthAlgTool ( type, name, parent ),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_monTool( "GenericMonitoringTool/MonTool", this ) {
-
-  declareProperty( "Decisions", m_decisionsKey="EMRoIDecisions", "Decisions for each RoI" );
-  declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., ( note spaces )" );
-  declareProperty( "OutputTrigRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "OutputRecRoIs", m_recRoIsKey="RecEMRoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
-  declareProperty( "MonTool", m_monTool=ToolHandle<GenericMonitoringTool>( "", this ), "Monitoring tool" );
+                                          const std::string& name, 
+                                          const IInterface* parent ) 
+  : RoIsUnpackingToolBase(type, name, parent),
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
+{
 }
 
 
-EMRoIsUnpackingTool::~EMRoIsUnpackingTool(){
-}
+StatusCode EMRoIsUnpackingTool::initialize() {
 
-
-StatusCode EMRoIsUnpackingTool::initialize() {  
+  CHECK( RoIsUnpackingToolBase::initialize() );
   CHECK( m_configSvc.retrieve() );
-  CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize() );
-  if ( not m_monTool.name().empty() ) 
-    CHECK( m_monTool.retrieve() );
 
-  if ( decodeMapping().isFailure() ) {
-    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode EMRoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
+  m_emThresholds.clear();
+
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::EM );
   ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
   for ( auto th :  filteredThresholds ) {
     if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
+      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
       m_emThresholds.push_back( th );
     } else {
       ATH_MSG_DEBUG( "Nullptr to the threshold" ); 
     }
   }
+  
+  if ( m_emThresholds.empty() ) {
+    ATH_MSG_WARNING( "No EM thresholds configured" );
+  } else {
+    ATH_MSG_INFO( "Configured " << m_emThresholds.size() << " thresholds" );
+  }
+
+  
+
   return StatusCode::SUCCESS;
 }
 
@@ -109,9 +104,14 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
 	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	      TrigCompositeUtils::DecisionIDContainer ids; 
+	      TrigCompositeUtils::decisionIDs( decision, ids ); 
+	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
 	}
       }
       
+
       // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail( "Thresholds", passedThresholds ); // record passing threshold names ( for easy debugging )            
       decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
       decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
@@ -129,7 +129,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
-  ATH_MSG_DEBUG( "Unpackked " <<  trigRoIs->size() << " RoIs" );
+  ATH_MSG_DEBUG( "Unpacked " <<  trigRoIs->size() << " RoIs" );
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );

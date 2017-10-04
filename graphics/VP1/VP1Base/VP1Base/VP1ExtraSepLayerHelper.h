@@ -52,7 +52,7 @@ private:
   VP1ExtraSepLayerHelper & operator= (const VP1ExtraSepLayerHelper & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

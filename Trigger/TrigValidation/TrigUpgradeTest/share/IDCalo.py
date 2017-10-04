@@ -7,6 +7,107 @@ include("TrigUpgradeTest/testHLT_MT.py")
 viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+allViewAlgorithms = topSequence.allViewAlgorithms
+
+if viewTest:
+  viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
+  viewMaker.ViewBaseName = "testView"
+  viewMaker.AlgPoolName = svcMgr.ViewAlgPool.name()
+  viewMaker.InputRoICollection = "EMRoIs"
+  viewMaker.OutputRoICollection = "EMViewRoIs"
+  viewMaker.ViewFallThrough = True
+  topSequence += viewMaker
+
+
+from InDetRecExample.InDetKeys import InDetKeys
+
+#Pixel
+
+from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
+InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
+ToolSvc += InDetPixelRodDecoder
+
+from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
+InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
+                                                         Decoder = InDetPixelRodDecoder)
+ToolSvc += InDetPixelRawDataProviderTool
+if (InDetFlags.doPrintConfigurables()):
+  print      InDetPixelRawDataProviderTool
+
+# load the PixelRawDataProvider
+from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
+InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
+                                                 RDOKey       = InDetKeys.PixelRDOs(),
+                                                 ProviderTool = InDetPixelRawDataProviderTool)
+
+# if ( viewTest ):
+#   allViewAlgorithms += InDetPixelRawDataProvider
+#   allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
+#   allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
+#   svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelRawDataProvider" ]
+#   topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
+# else:
+#   topSequence += InDetPixelRawDataProvider
+#   topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
+#   topSequence.InDetPixelRawDataProvider.RoIs = "EMRoIs"
+
+
+if (InDetFlags.doPrintConfigurables()):
+  print          InDetPixelRawDataProvider
+
+
+#SCT
+from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
+InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
+                                    TriggerMode = False)
+ToolSvc += InDetSCTRodDecoder
+
+from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
+InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
+                                                    Decoder = InDetSCTRodDecoder)
+ToolSvc += InDetSCTRawDataProviderTool
+if (InDetFlags.doPrintConfigurables()):
+  print      InDetSCTRawDataProviderTool
+
+# load the SCTRawDataProvider
+from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
+InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
+                                            RDOKey       = InDetKeys.SCT_RDOs(),
+                                            ProviderTool = InDetSCTRawDataProviderTool)
+
+if ( viewTest ):
+  allViewAlgorithms += InDetSCTRawDataProvider
+  allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
+  allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCTRawDataProvider" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
+else:
+  topSequence += InDetSCTRawDataProvider
+  topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
+  topSequence.InDetSCTRawDataProvider.RoIs = "EMRoIs"
+
+
+#TRT
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+InDetTRTCalDbSvc = TRT_CalDbSvc()
+ServiceMgr += InDetTRTCalDbSvc
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
+InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+ServiceMgr += InDetTRTStrawStatusSummarySvc
+
+from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
+InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
+                                    LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
+ToolSvc += InDetTRTRodDecoder
+  
+from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
+InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
+                                                      Decoder = InDetTRTRodDecoder)
+ToolSvc += InDetTRTRawDataProviderTool
+
+
 allViewAlgorithms = None
 if viewTest:
   allViewAlgorithms = topSequence.allViewAlgorithms
@@ -15,6 +116,7 @@ if TriggerFlags.doID:
   #workaround to prevent online trigger folders to be enabled
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
+
   
   
   from InDetRecExample.InDetJobProperties import InDetFlags
@@ -172,11 +274,12 @@ if TriggerFlags.doID:
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
-                                                        ClustersName            = "PixelTrigClusters")
+                                                        ClustersName            = "PixelTrigClusters", OutputLevel = INFO)
   if ( viewTest ):
     allViewAlgorithms += InDetPixelClusterization
     allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.Pixel_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
   else:
@@ -204,12 +307,13 @@ if TriggerFlags.doID:
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc, OutputLevel = INFO)
   
   if ( viewTest ):
     allViewAlgorithms += InDetSCT_Clusterization
     allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.SCT_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
   else:

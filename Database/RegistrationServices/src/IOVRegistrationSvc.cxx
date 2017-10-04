@@ -581,18 +581,12 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	std::string saddr;
 	if (addr) {
   	  // Get symlinks, if any
-	  typedef SG::TransientAddress::TransientClidSet TransientClidSet;
-	  const SG::TransientAddress* tad = proxy->transientAddress();
-	  if (tad) {
-	    const TransientClidSet clids = tad->transientID();
-	    ATH_MSG_DEBUG ("clid size " << clids.size());
-	    TransientClidSet::const_iterator clidIt  = clids.begin();
-	    TransientClidSet::const_iterator clidEnd = clids.end();
-	    for (; clidIt != clidEnd; ++clidIt) {
-	     if (clid != (*clidIt)) symlinks.push_back((*clidIt));
-	     ATH_MSG_DEBUG ("clid  " << (*clidIt));
-	    }
-	  }
+          symlinks = proxy->transientID();
+          auto it = std::find (symlinks.begin(), symlinks.end(), clid);
+          if (it != symlinks.end()) {
+            symlinks.erase (it);
+          }
+
 	  // Check whether the IOA is a CondAttrListCollAddress - if so
 	  // we will store a CondAttrListCollection
 	  CondAttrListCollAddress* collAddr = dynamic_cast<CondAttrListCollAddress*>(addr);

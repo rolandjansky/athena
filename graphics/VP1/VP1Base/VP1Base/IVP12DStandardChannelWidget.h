@@ -61,7 +61,7 @@ protected slots:
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private slots:
   void toggleSystemActive();
   void setBackgroundColor(const QColor &);

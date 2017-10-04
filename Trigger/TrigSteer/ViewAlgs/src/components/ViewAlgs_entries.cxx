@@ -1,14 +1,13 @@
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "../MenuAlgView.h"
+#include "../EventViewCreatorAlgorithm.h"
+#include "../MergeViews.h"
+#include "../TrigL2ElectronViewsMergerTool.h"
+#include "../TrigL2CaloViewsMergerTool.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthViews,MenuAlgView )
-
-DECLARE_FACTORY_ENTRIES( ViewAlgs )
-{
-
-  DECLARE_NAMESPACE_ALGORITHM( AthViews, MenuAlgView )
-}
+DECLARE_ALGORITHM_FACTORY( EventViewCreatorAlgorithm )
+DECLARE_ALGORITHM_FACTORY( MergeViews )
+DECLARE_TOOL_FACTORY( TrigL2ElectronViewsMergerTool )
+DECLARE_TOOL_FACTORY( TrigL2CaloViewsMergerTool )
 

@@ -36,7 +36,7 @@ enum eMetrologyCoordSystem { EMCS_ATLAS, EMCS_STATION, EMCS_ROMANPOT, EMCS_DETPI
 enum eTransformElement { ETE_A1, ETE_A2, ETE_A3, ETE_T1, ETE_T2, ETE_T3 };
 //enum eOwnerType { EOT_UNDEFINED=0, EOT_GEOMODEL, EOT_RECO };
 
-typedef struct _RPPINS{
+struct RPPINS{
 	// points in station CS
 	HepGeom::Point3D<double> IdealRPPin1, RealRPPin1;
 	HepGeom::Point3D<double> IdealRPPin2, RealRPPin2;
@@ -47,9 +47,10 @@ typedef struct _RPPINS{
 	HepGeom::Point3D<double> DCPInAlfaCS,DCPInRPotCS,DCPInAtlasCS;
 
 	void clear();
-} RPPINS, *PRPPINS;
+};
+typedef RPPINS* PRPPINS;
 
-typedef struct _RPPOSPARAMS {
+struct RPPOSPARAMS {
 	char szLabel[8];
 	HepGeom::Point3D<double> IdealMainPoint;
 	HepGeom::Point3D<double> IdealMainPointInStation;
@@ -80,9 +81,10 @@ typedef struct _RPPOSPARAMS {
 	HepGeom::Scale3D DetScaleInRP;
 
 	void clear();
-} RPPOSPARAMS, *PRPPOSPARAMS;
+};
+typedef RPPOSPARAMS* PRPPOSPARAMS;
 
-typedef struct _ASPOSPARAMS {
+struct ASPOSPARAMS {
 	char szLabel[8];
 	HepGeom::Point3D<double> IdealMainPoint;
 
@@ -94,48 +96,53 @@ typedef struct _ASPOSPARAMS {
 	HepGeom::Transform3D ASTransformInATLAS;
 
 	void clear();
-} ASPOSPARAMS, *PASPOSPARAMS;
+};
+typedef ASPOSPARAMS* PASPOSPARAMS;
 
-typedef struct _FIBERPARAMS {
-	int nPlateID;
-	int nFiberID;
-	int nLayerID;
+struct FIBERPARAMS {
+	int nPlateID = 0;
+	int nFiberID = 0;
+	int nLayerID = 0;
 
 	struct {
 			union {
 				double fCentreXPos;
 				double fCentreYPos;
 			};
-			double fAngle;
+			double fAngle = 0;
 	} fcs_cladding;
 
 	struct {
-			double fSlope;
-			double fOffset;
-			double fZPos;
+			double fSlope = 0;
+			double fOffset = 0;
+			double fZPos = 0;
 	} fcs_atlas;
 
 	struct {
-		double fOriginX, fOriginY, fOriginZ;
-		double fDirX, fDirY, fDirZ;
+		double fOriginX = 0, fOriginY = 0, fOriginZ = 0;
+		double fDirX = 0, fDirY = 0, fDirZ = 0;
 	} fcs_atlas_full;
 	
-	double fSlope;
-	double fOffset;
-	double fZPos;
+	double fSlope = 0;
+	double fOffset = 0;
+	double fZPos = 0;
 	
-	double fMainRefPointSlope;
+	double fMainRefPointSlope = 0;
 	HepGeom::Point3D<float> MainRefPointPos;
-} FIBERPARAMS, *PFIBERPARAMS;
 
-typedef struct _PLATEPARAMS {
+        FIBERPARAMS() { fcs_cladding.fCentreXPos = 0; }
+};
+typedef FIBERPARAMS* PFIBERPARAMS;
+
+struct PLATEPARAMS {
 	double fUCladdingSizeX;
 	double fVCladdingSizeX;
-} PLATEPARAMS, *PPLATEPARAMS;
+};
+typedef PLATEPARAMS* PPLATEPARAMS;
 
-typedef struct _ROMAPOT {
+struct ROMAPOT {
 
-	_ROMAPOT()
+	ROMAPOT()
 	{
 		clear();
 	}
@@ -164,9 +171,10 @@ typedef struct _ROMAPOT {
 		MapPlates.clear();
 		MapODPlates.clear();
 	}
-} ROMAPOT, *PROMAPOT;
+};
+typedef ROMAPOT PROMAPOT;
 
-typedef struct _CFGRPPOSPARAMS {
+struct CFGRPPOSPARAMS {
 	int /*eRPPositionType*/ eRPPosType;
 	int /*eGeoSourceType*/ eMDGeoType;
 	int /*eGeoSourceType*/ eODGeoType;
@@ -186,9 +194,10 @@ typedef struct _CFGRPPOSPARAMS {
 		HepGeom::Transform3D UserTransformOfDetInRPot;
 		HepGeom::Transform3D UserTransformOfRPInStation;
 	} usercorr;
-} CFGRPPOSPARAMS, *PCFGRPPOSPARAMS;
+};
+typedef CFGRPPOSPARAMS* PCFGRPPOSPARAMS;
 
-typedef struct _GEOMETRYCONFIGURATION {
+struct GEOMETRYCONFIGURATION {
 	int /*eMetrologyType*/ eRPMetrologyGeoType;
 	std::string strRPMetrologyConnString;
 	bool bShiftToX97Pos;
@@ -201,7 +210,8 @@ typedef struct _GEOMETRYCONFIGURATION {
 
 	//bool bEnableUserLVDT;
 	void clear();
-} GEOMETRYCONFIGURATION, *PGEOMETRYCONFIGURATION;
+};
+typedef GEOMETRYCONFIGURATION* PGEOMETRYCONFIGURATION;
 
 class ALFA_RDBAccess;
 

@@ -6,7 +6,6 @@
  MuonGeoModel code for finding global coordinates of the 8 corners of each 
  multilayer of every muon chamber
  -----------------------------------------
- Copyright (C) 2006 by ATLAS Collaboration 
  Based on MuonGMCheck of stefspa
  Modified by lkashif to include determination of chamber corner coordinates
 ***************************************************************************/

@@ -166,6 +166,7 @@ PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO|Loop Finished .seconds'
 PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
+PP="$PP"'|DEBUG Calling destructor'
 
 
 if [ "$extrapatterns" != "" ]; then
@@ -230,9 +231,14 @@ else
                fi
            fi
        else
-           tail $joblog
-           echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
-           echo  " post.sh> Please check ${PWD}/$joblog"
+           # Don't warn for gtest tests.
+           tail -1 $joblog | grep 'PASSED .* tests' > /dev/null
+           refstat=$?
+           if [ $refstat != 0 ]; then
+             tail $joblog
+             echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
+             echo  " post.sh> Please check ${PWD}/$joblog"
+           fi
        fi
    else
        tail $joblog

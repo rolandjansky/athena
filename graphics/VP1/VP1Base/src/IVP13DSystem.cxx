@@ -73,20 +73,20 @@ void IVP13DSystem::Imp::clickedoutside(void *userdata, SoCooperativeSelection *s
     std::cout<<"IVP13DSystem::Imp::clickedoutside Error: Could not find system pointer!"<<std::endl;
     return;
   }
-  if (system->d->selectionsWithDisabledNotifications.contains(selection))
+  if (system->m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
-  if (system->d->clickedoutsideScheduled)
+  if (system->m_d->clickedoutsideScheduled)
     return;
-  system->d->clickedoutsideScheduled = true;
+  system->m_d->clickedoutsideScheduled = true;
   QTimer::singleShot(0, system, SLOT(activateClickedOutside()));
 }
 
 //___________________________________________________________________________________________________________
 void IVP13DSystem::activateClickedOutside()
 {
-  if (!d->clickedoutsideScheduled)
+  if (!m_d->clickedoutsideScheduled)
     return;
-  d->clickedoutsideScheduled = false;
+  m_d->clickedoutsideScheduled = false;
   userClickedOnBgd();
 }
 
@@ -108,10 +108,10 @@ void IVP13DSystem::Imp::start_changeselection(void * userdata, SoSelection *sel)
     return;
   }
 
-  if (system->d->selectionsWithDisabledNotifications.contains(selection))
+  if (system->m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
-  system->d->selection2lastpathlist[selection] = *(selection->getList());
+  system->m_d->selection2lastpathlist[selection] = *(selection->getList());
 
   //redraw and emission of itemFromSystemSelected() take place in finished_changeselection!
 
@@ -138,25 +138,25 @@ void IVP13DSystem::Imp::finished_changeselection(void *userdata, SoSelection *se
     return;
 
   //Only take action when selection actually changed between start and finish:
-  if (system->d->selection2lastpathlist.find(selection)==system->d->selection2lastpathlist.end()) {
+  if (system->m_d->selection2lastpathlist.find(selection)==system->m_d->selection2lastpathlist.end()) {
     std::cout<<"IVP13DSystem::Imp::finished_changeselection Error: Could not find last selection path list!"<<std::endl;
     return;
   }
 
-  int  nlastselection = system->d->selection2lastpathlist[selection].getLength();
+  int  nlastselection = system->m_d->selection2lastpathlist[selection].getLength();
   bool changed = false;
   if (nlastselection!=selection->getList()->getLength()) {
     changed = true;
   } else {
     for (int i = 0; i < selection->getList()->getLength(); ++i) {
-      if (system->d->selection2lastpathlist[selection].get(i)!=selection->getList()->get(i)) {
+      if (system->m_d->selection2lastpathlist[selection].get(i)!=selection->getList()->get(i)) {
 	changed = true;
 	break;
       }
     }
   }
   if (!changed) {
-    system->d->selection2lastpathlist.erase(system->d->selection2lastpathlist.find(selection));
+    system->m_d->selection2lastpathlist.erase(system->m_d->selection2lastpathlist.find(selection));
     return;
   }
 
@@ -167,7 +167,7 @@ void IVP13DSystem::Imp::finished_changeselection(void *userdata, SoSelection *se
     system->itemFromSystemSelected();//Emit this signal
   }
 
-  if (system->d->selectionsWithDisabledNotifications.contains(selection))
+  if (system->m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
   QSet<SoNode*> selnodes;
@@ -214,7 +214,7 @@ void IVP13DSystem::Imp::made_selection( void * userdata, SoPath * path )
 
   system->itemFromSystemSelected();//Emit this signal
 
-  if (system->d->selectionsWithDisabledNotifications.contains(selection))
+  if (system->m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
 
@@ -247,7 +247,7 @@ void IVP13DSystem::Imp::made_deselection( void * userdata, SoPath * path )
   }
 
   IVP13DSystem * system = Imp::selection2system[selection];
-  if (system->d->selectionsWithDisabledNotifications.contains(selection))
+  if (system->m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
   system->userDeselectedSingleNode(selection,deselectedNode,fPath);
@@ -296,8 +296,8 @@ void IVP13DSystem::unregisterSelectionNode( SoCooperativeSelection * selection )
   selection->removeClickOutsideCallback( Imp::clickedoutside, this );
 
   Imp::selection2system.erase(Imp::selection2system.find(selection));
-  if (d->selectionsWithDisabledNotifications.contains(selection))
-    d->selectionsWithDisabledNotifications.remove(selection);
+  if (m_d->selectionsWithDisabledNotifications.contains(selection))
+    m_d->selectionsWithDisabledNotifications.remove(selection);
   selection->unref();
 
   messageVerbose("selection node unregistered");
@@ -317,13 +317,13 @@ void IVP13DSystem::setUserSelectionNotificationsEnabled( SoCooperativeSelection 
     message("setUserSelectionNotificationsEnabled Error: Called for selection which was never registered!");
     return;
   }
-  if (enabled != d->selectionsWithDisabledNotifications.contains(selection))
+  if (enabled != m_d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
   if (enabled)
-    d->selectionsWithDisabledNotifications.remove(selection);
+    m_d->selectionsWithDisabledNotifications.remove(selection);
   else
-    d->selectionsWithDisabledNotifications << selection;
+    m_d->selectionsWithDisabledNotifications << selection;
 
 }
 
@@ -354,10 +354,10 @@ void IVP13DSystem::deselectAll(SoCooperativeSelection* exception_sel)
 
 //___________________________________________________________________________________________________________
 IVP13DSystem::IVP13DSystem( const QString & name, const QString & information, const QString & contact_info):
-  IVP1System(name,information,contact_info), d(new Imp)
+  IVP1System(name,information,contact_info), m_d(new Imp)
 {
   SoCooperativeSelection::ensureInitClass();
-  d->clickedoutsideScheduled = false;
+  m_d->clickedoutsideScheduled = false;
 }
 
 //___________________________________________________________________________________________________________
@@ -365,7 +365,7 @@ IVP13DSystem::~IVP13DSystem()
 {
   messageDebug("~IVP13DSystem()");
 
-  d->selection2lastpathlist.clear();
+  m_d->selection2lastpathlist.clear();
 
   //Unregister all nodes for this system:
   std::set<SoCooperativeSelection*> sel2unregister;
@@ -382,27 +382,27 @@ IVP13DSystem::~IVP13DSystem()
   messageDebug("Unregistered all nodes. Unref all camera pointers...");
 
   //Unref all camera pointers:
-  std::set<SoCamera*> ::iterator itCam, itCamE = d->staticcameras.end();
-  for (itCam = d->staticcameras.begin();itCam!=itCamE;++itCam)
+  std::set<SoCamera*> ::iterator itCam, itCamE = m_d->staticcameras.end();
+  for (itCam = m_d->staticcameras.begin();itCam!=itCamE;++itCam)
     (*itCam)->unref();
 
   messageDebug("Unref all camera pointers: done.");
 
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //___________________________________________________________________________________________________________
 std::set<SoCamera*> IVP13DSystem::getCameraList()
 {
-  std::set<SoCamera*> cameralist = d->staticcameras;
-  std::set<SoQtViewer*>::const_iterator it, itE=d->viewers.end();
-  for (it=d->viewers.begin();it!=itE;++it) {
+  std::set<SoCamera*> cameralist = m_d->staticcameras;
+  std::set<SoQtViewer*>::const_iterator it, itE=m_d->viewers.end();
+  for (it=m_d->viewers.begin();it!=itE;++it) {
     SoCamera*cam = (*it)->getCamera();
     if (cam)
       cameralist.insert(cam);
   }
 
-  //d->camerasfromviewer
+  //m_d->camerasfromviewer
   return cameralist;
 }
 
@@ -410,8 +410,8 @@ std::set<SoCamera*> IVP13DSystem::getCameraList()
 void IVP13DSystem::registerCamera(SoCamera *cam) {
   if (!cam)
     return;
-  if (d->staticcameras.find(cam)==d->staticcameras.end())
-    d->staticcameras.insert(cam);
+  if (m_d->staticcameras.find(cam)==m_d->staticcameras.end())
+    m_d->staticcameras.insert(cam);
   cam->ref();
 }
 
@@ -420,6 +420,6 @@ void IVP13DSystem::registerViewer(SoQtViewer *viewer)
 {
   if (!viewer)
     return;
-  if (d->viewers.find(viewer)==d->viewers.end())
-    d->viewers.insert(viewer);
+  if (m_d->viewers.find(viewer)==m_d->viewers.end())
+    m_d->viewers.insert(viewer);
 }

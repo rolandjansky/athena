@@ -140,7 +140,7 @@ private:
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 //calibration input service
   ServiceHandle<MdtCalibInputSvc> m_input_service;	
-  std::vector<MuonCalib::NtupleStationId> region_ids;
+  std::vector<MuonCalib::NtupleStationId> m_region_ids;
 // private methods //
   StatusCode saveCalibrationResults(void);
   ///< write out all memorized results to text files (location specified

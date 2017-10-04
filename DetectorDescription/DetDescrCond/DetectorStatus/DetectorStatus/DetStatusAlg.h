@@ -25,10 +25,9 @@ class DetStatusAlg: public AthAlgorithm {
  private:
   void doVeto();
 
-  MsgStream m_log;
-  const IDetStatusSvc* p_detstatussvc;
-  bool par_print;
-  bool par_veto;
+  const IDetStatusSvc* m_detstatussvc;
+  bool m_par_print;
+  bool m_par_veto;
   unsigned int m_count;
   unsigned int m_nveto;
 };

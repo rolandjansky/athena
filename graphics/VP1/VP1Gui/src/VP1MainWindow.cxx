@@ -734,8 +734,6 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 			vp1pluginpath<<VP1Settings::defaultFileSelectDirectory();
 	}
 
-
-
 	//Add directories from pathvar (looking in subdir instareasubdir):
 	QString varStr = QString(::getenv(pathvar.toStdString().c_str()));
 	//VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);
@@ -990,7 +988,7 @@ void VP1MainWindow::request_channelInformation() {
 	QMessageBox::information(0, "Information about channel: "+tabmanager->selectedChannelWidget()->name(),Qt::convertFromPlainText(out),QMessageBox::Ok,QMessageBox::Ok);
 }
 
-
+//_________________________________________________________________________________
 void VP1MainWindow::makeAllChannelsEventDisplay()
 {
 	VP1Msg::messageVerbose("VP1MainWindow::makeAllChannelsEventDisplay()");
@@ -1020,7 +1018,7 @@ void VP1MainWindow::makeAllChannelsEventDisplay()
 
 
 
-
+//_________________________________________________________________________________
 void VP1MainWindow::getAllChannelsIntoSnapshots(QList<QPixmap>& list, QStringList& listNames)
 {
 	VP1Msg::messageDebug("VP1MainWindow::getAllChannelsIntoSnapshots()");
@@ -1063,7 +1061,7 @@ void VP1MainWindow::getAllChannelsIntoSnapshots(QList<QPixmap>& list, QStringLis
 
 }
 
-
+//_________________________________________________________________________________
 QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(IVP1ChannelWidget* tab, int width)
 {
 	VP1Msg::messageDebug("VP1MainWindow::getSingleChannelCustomSnapshot()");
@@ -1093,7 +1091,7 @@ QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(IVP1ChannelWidget* tab, in
 
 	return snap;
 }
-
+//_________________________________________________________________________________
 QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(QString tabName, int width)
 {
 	QList<IVP1ChannelWidget*> allTabs = tabmanager->allChannels();
@@ -1122,7 +1120,7 @@ QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(QString tabName, int width
 	return QPixmap();
 }
 
-
+//_________________________________________________________________________________
 void VP1MainWindow::saveAllCurrentChannels()
 {
 	VP1Msg::messageDebug("VP1MainWindow::saveAllCurrentChannels()");

@@ -144,8 +144,8 @@ namespace LVL1MUCTPI {
                                        0x20 : 0x0 );
             break;
          default:
-            MsgLogger m_logger( "MioctData" );
-            REPORT_ERROR_MSG( "There's a coding mistake in the MIOCT simulation!" );
+            MsgLogger logger( "MioctData" );
+            REPORT_ERROR_MSG2( "There's a coding mistake in the MIOCT simulation!", logger );
             break;
          }
       }

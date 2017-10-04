@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEvent
                           PRIVATE
                           Control/StoreGate
+                          Generators/TruthUtils
                           Generators/GeneratorObjects
                           Generators/GenInterfaces )
 

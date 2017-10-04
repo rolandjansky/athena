@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
     std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
-    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
 
@@ -122,8 +122,8 @@ int main(int argc, char* argv[]) {
 
     //This option unfolds all the statistical systematics per bin of the SFs. Please only activate
     //this *if* you know what you're doing. The world is gonna implode by that
-    bool doUncorrelateSystematicsForMedium = true;
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
+    bool doUncorrelateSystematics = false;
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     // instance for TTVA scale factors
     CP::MuonEfficiencyScaleFactors m_ttva_corr("TTVASFTestClass");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "UncorrelateSystematics", doUncorrelateSystematics));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 
     // instance for isolation scale factors
     CP::MuonEfficiencyScaleFactors m_iso_effi_corr("GradientIsoSFTestClass");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
 
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
     // setting a custom input folder containing SF files: this is NOT recommended!
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 
     CP::MuonEfficiencyScaleFactors m_badboys_effi_corr("HighPtBadMuonVetoSFTestClass");
     ASG_CHECK_SA(APP_NAME, m_badboys_effi_corr.setProperty("WorkingPoint", "BadMuonHighPt"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -231,13 +231,13 @@ int main(int argc, char* argv[]) {
 
             float nominalSF = 1.;
             CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, nominalSF));
-            if (doUncorrelateSystematicsForMedium) std::cout << "nominal SF " << nominalSF << std::endl;
+            if (doUncorrelateSystematics) std::cout << "nominal SF " << nominalSF << std::endl;
             for (const auto &sysMedium : m_SystMedium) {
                 CHECK_CPSys(m_effi_corr.applySystematicVariation(sysMedium));
                 CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
                 std::string sysMediumName = (sysMedium.name().empty()) ? "Nominal" : sysMedium.name();
                 // only print the systematic variation in case it is the relevant one when UncorrelateSystematics is enabled
-                if (!doUncorrelateSystematicsForMedium || nominalSF != sf) std::cout << sysMediumName << " scaleFactor = " << sf << std::endl;
+                if (!doUncorrelateSystematics || nominalSF != sf) std::cout << sysMediumName << " scaleFactor = " << sf << std::endl;
             }
             CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
 

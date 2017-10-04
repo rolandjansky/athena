@@ -90,7 +90,7 @@ OraclePixGeoManager::init()
   // Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
 
-  m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
+  m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
 
 /////////////////////////////////////////////////////////
 //

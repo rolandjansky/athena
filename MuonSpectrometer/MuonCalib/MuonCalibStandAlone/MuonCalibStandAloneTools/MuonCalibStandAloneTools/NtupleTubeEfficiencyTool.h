@@ -110,10 +110,10 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
         bool   m_exclude_layer;  //exclude layer and refit for eff determination    
 
         // calibration region//
-	const NtupleStationId	* m_cal_region;	
+	//const NtupleStationId	* m_cal_region;	
 	
         // line reconstruction //
-        QuasianalyticLineReconstruction *qfitter;    
+        QuasianalyticLineReconstruction *m_qfitter;    
 	//! pointe rto region selectin service
 	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 
@@ -124,25 +124,23 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
 	int m_nb_tubes;
 	
         // histograms //
-       	TH1F *h_distance;
-	TH1I *h_nb_hit_tubes;
+       	TH1F *m_h_distance;
+	TH1I *m_h_nb_hit_tubes;
 	
-        std::vector< std::vector< std::vector<TH1F*> > > h_efficiency;
-	std::vector< std::vector< std::vector<TH1F*> > > h_fakerate;
+        std::vector< std::vector< std::vector<TH1F*> > > m_h_efficiency;
+	std::vector< std::vector< std::vector<TH1F*> > > m_h_fakerate;
 
-        std::vector< std::vector<TH1F*> > h_tube_efficiency;  
-        std::vector< std::vector<TH1F*> > h_tube_fakerate; 
+        std::vector< std::vector<TH1F*> > m_h_tube_efficiency;  
+        std::vector< std::vector<TH1F*> > m_h_tube_fakerate; 
 
-        std::vector< std::vector<TH1F*> > h_tube_entries_efficiency;  
-        std::vector< std::vector<TH1F*> > h_tube_entries_fakerate;
+        std::vector< std::vector<TH1F*> > m_h_tube_entries_efficiency;  
+        std::vector< std::vector<TH1F*> > m_h_tube_entries_fakerate;
 
-        TH1F *h_layer_efficiency;
-        TH1F *h_layer_fakerate;
+        TH1F *m_h_layer_efficiency;
 
-        TH1F *h_chamber_efficiency;
-        TH1F *h_chamber_fakerate;
+        TH1F *m_h_chamber_efficiency;
 
-	TH1F *h_chi2;
+	TH1F *m_h_chi2;
 	
     };
 

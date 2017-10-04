@@ -60,15 +60,30 @@ namespace TrigCompositeUtils {
   /**
    * @brief Extracts DecisionIDs stored in the Decsion object 
    **/
-  void decisionIDs(const Decision* d, DecisionIDContainer& id );
+  void decisionIDs( const Decision* d, DecisionIDContainer& id );
+
+  /**
+   * @brief Another variant of the above method
+   **/
+  const std::vector<int>& decisionIDs( const Decision* d ); 
+  std::vector<int>& decisionIDs( Decision* d );
 
 
+  /**
+   * @brief return true if thre is no positive decision stored
+   **/
+  bool allFailed( const Decision* d );
+  
   /**
    * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
    **/
   bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
 
-
+  /**
+   * @brief checks if required ID is in the set of the decisions
+   **/
+  bool passed( DecisionID id, const DecisionIDContainer& );
+  
   /**
    * @brief Links to the previous object
    **/

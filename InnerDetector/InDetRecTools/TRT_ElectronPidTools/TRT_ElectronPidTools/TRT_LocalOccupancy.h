@@ -21,6 +21,9 @@
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "SGTools/CLASS_DEF.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "InDetRawData/TRT_RDO_Container.h"
+
 #include <vector>
 
 class AtlasDetectorID;
@@ -110,7 +113,8 @@ namespace InDet
 
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
-   std::string                               m_trt_rdo_location   ;
+   SG::ReadHandleKey<TRT_RDO_Container> m_trt_rdo_location{ this, "TRT_RDOContainerName", "TRT_RDOs", "m_trt_rdo_location" };
+   SG::ReadHandleKey<TRT_DriftCircleContainer> m_trt_driftcircles{ this, "TRT_DriftCircleCollection", "TRT_DriftCircles", "m_trt_driftcircles" };
    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
    ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
 

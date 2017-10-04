@@ -600,7 +600,7 @@ TagInfoMgr::getRunNumber (unsigned int& runNumber)
         m_log << MSG::ERROR << "getRunNumber: Cannot get EventSelector " << eventSelector << endmsg; 
         return StatusCode::FAILURE;
     }
-    BooleanProperty overrideRunNumber = IntegerProperty("OverrideRunNumber", false);
+    BooleanProperty overrideRunNumber = BooleanProperty("OverrideRunNumber", false);
     sc = propertyServer->getProperty(&overrideRunNumber);
     if (!sc.isSuccess()) {
         // Not all EventSelectors have this property, but we should

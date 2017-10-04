@@ -289,9 +289,8 @@ namespace InDet
 	  return false;
 	}
     }
-    
-    const Trk::TrackParameters* extrapolatedParameters= firstmeaspar ?
-      m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ) : 0;
+   
+    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ); 
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
         
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
@@ -463,7 +462,7 @@ namespace InDet
       
       if (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation)) {
 	return false;
-      }
+      }      
     }
     
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
@@ -983,7 +982,9 @@ namespace InDet
     //**-----------------------------------------------------------------------
 
     if(m_usePtDependentCuts) {
-
+      if (!track) {
+         return false;
+      }
       const AmgVector(5)& perigeeParms = track->parameters();
       double p = fabs(1./perigeeParms[Trk::qOverP]);  
       double pt = p*sin(perigeeParms[Trk::theta]);

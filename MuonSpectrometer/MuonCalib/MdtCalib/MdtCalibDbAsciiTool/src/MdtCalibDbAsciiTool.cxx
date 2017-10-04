@@ -181,14 +181,8 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  SG::TransientAddress* tad =  proxy->transientAddress();
-  if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   IAddressProvider* addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   if( m_debug ) *m_log << MSG::DEBUG << "set address provider for MdtTubeCalibContainerCollection" << endmsg;
 
   sc=defaultRt();
@@ -204,14 +198,8 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  tad =  proxy->transientAddress();
-  if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   if( m_debug ) *m_log << MSG::DEBUG << "set address provider for MdtRtRelationCollection" << endmsg;
 
   return sc;

@@ -81,11 +81,11 @@ namespace DerivationFramework {
 
     // fill BS error information
     for (int n_type=0; n_type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++n_type) {
-      std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(n_type);
+      const std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(n_type);
       if (errorSet != 0) {
         int eta=0,phi=0,bec=0,layer=0,side=0;
-        std::set<IdentifierHash>::iterator it = errorSet->begin();
-        std::set<IdentifierHash>::iterator itEnd = errorSet->end();
+        std::set<IdentifierHash>::const_iterator it = errorSet->begin();
+        std::set<IdentifierHash>::const_iterator itEnd = errorSet->end();
         // add totalNumErrors to vector
         totalNumErrors += errorSet->size();
         scterr_Ntot.push_back(totalNumErrors);

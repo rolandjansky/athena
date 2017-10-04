@@ -9,7 +9,7 @@
 <!-- Single Particle Evgen within simulation -->
 
 <TEST name="Athena_SLHC_single_particle_sim" type="athena" suite="InDetSLHC_Example">
-   <options_atn> -s InDetSLHC_Example/jobOptions_simulation_SLHC.py</options_atn>
+   <options_atn> InDetSLHC_Example/jobOptions_simulation_SLHC.py</options_atn>
    <timelimit>20</timelimit>
    <author> John Chapman </author>
    <mailto> chapman@hep.phy.cam.ac.uk </mailto>
@@ -20,8 +20,9 @@
    </expectations>
 </TEST>
 
+<!-- Needs to be updated for the current release.
 <TEST name="Athena_SLHC_single_particle_digi" type="athena" suite="InDetSLHC_Example">
-   <options_atn> -s InDetSLHC_Example/jobOptions_digitization_SLHC.py</options_atn>
+   <options_atn> InDetSLHC_Example/jobOptions_digitization_SLHC.py</options_atn>
    <timelimit>20</timelimit>
    <author> John Chapman </author>
    <mailto> chapman@hep.phy.cam.ac.uk </mailto>
@@ -31,6 +32,7 @@
       <returnValue>0</returnValue>
    </expectations>
 </TEST>
+-->
 
 <TEST name="Sim_tf_SLHC_single_particle_sim" type="script" suite="InDetSLHC_Example">
       <options_atn>
@@ -45,6 +47,7 @@
       </expectations>
 </TEST>
 
+<!-- Needs to be updated for the current release.
 <TEST name="Digi_tf_SLHC_single_particle_digi" type="script" suite="InDetSLHC_Example">
       <options_atn>
         Digi_tf.py --inputHITSFile=test.HITS.pool.root --outputRDOFile=test.RDO.pool.root --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
@@ -56,10 +59,12 @@
             <returnValue>0</returnValue>
       </expectations>
 </TEST>
+-->
 
 
 <!-- InDet only Reco default -->
 
+<!-- Requires files built by digi test.
 <TEST name="Reco_tf_SLHC_single_particle_reco" type="script" suite="InDetSLHC_Example">
   <options_atn>export TRF_ECHO=True; Reco_tf.py --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --inputRDOFile test.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile testESD.root --outputAODFile testAOD.root --maxEvents 10</options_atn>
   <timelimit>30</timelimit>
@@ -71,8 +76,10 @@
     <returnValue>0</returnValue>
   </expectations>
 </TEST>
+-->
 
 
+<!-- Needs to be updated for the current release.
 <TEST name="Digi_tf_SLHC_single_particle_intime_pileup_digi" type="script" suite="InDetSLHC_Example">
       <options_atn>
 	xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19.2.1_000001_200evt.pool.root $ATN_WORK_AREA;
@@ -88,6 +95,7 @@
             <returnValue>0</returnValue>
        </expectations>
     </TEST>
+-->
 
 </atn>
 

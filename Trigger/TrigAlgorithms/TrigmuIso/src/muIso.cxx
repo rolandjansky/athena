@@ -81,17 +81,15 @@ muIso::~muIso()
 HLT::ErrorCode muIso::hltInitialize()
 {
 
-   msg() << MSG::DEBUG << "on initialize()" << endmsg;
+  ATH_MSG_DEBUG( "on initialize()"  );
 
-   msg() << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );
 
    m_pStoreGate = store();
    // Timer Service
    m_pTimerService = 0;
 
-   msg() << MSG::DEBUG
-         << "Initialization completed successfully"
-         << endmsg;
+   ATH_MSG_DEBUG( "Initialization completed successfully" );
 
    return HLT::OK;
 }
@@ -99,7 +97,7 @@ HLT::ErrorCode muIso::hltInitialize()
 HLT::ErrorCode muIso::hltFinalize()
 {
 
-   msg() << MSG::DEBUG << "in finalize()" << endmsg;
+   ATH_MSG_DEBUG( "in finalize()"  );
 
    return HLT::OK;
 }
@@ -107,8 +105,8 @@ HLT::ErrorCode muIso::hltFinalize()
 HLT::ErrorCode muIso::hltBeginRun()
 {
 
-   msg() << MSG::INFO << "At BeginRun of " << name() << " - package version "
-         << PACKAGE_VERSION << endmsg;
+   ATH_MSG_INFO( "At BeginRun of " << name() << " - package version "
+                 << PACKAGE_VERSION  );
 
    return HLT::OK;
 }
@@ -116,7 +114,7 @@ HLT::ErrorCode muIso::hltBeginRun()
 HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE)
 {
 
-   msg() << MSG::DEBUG << "in execute()" << endmsg;
+   ATH_MSG_DEBUG( "in execute()"  );
 
    //Initalize Monitored variables
    m_ErrorFlagMI = 0;
@@ -136,36 +134,27 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    StatusCode sc = m_pStoreGate->retrieve(pEvent);
    if (sc.isFailure()) {
       m_ErrorFlagMI = 1;
-      msg() << MSG::ERROR << "Could not find xAOD::EventInfo object" << endmsg;
+      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
    }
 
-   auto m_current_run_id = pEvent->runNumber();
-   auto m_current_event_id = pEvent->eventNumber();
-   auto m_current_bcg_id = pEvent->bcid();
+   auto current_run_id = pEvent->runNumber();
+   auto current_event_id = pEvent->eventNumber();
+   auto current_bcg_id = pEvent->bcid();
 
-   if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << " ---> Run Number       : "
-            << m_current_run_id << endmsg;
-      msg() << MSG::DEBUG << " ---> Event Number     : " << std::hex
-            << m_current_event_id << std::dec << endmsg;
-      msg() << MSG::DEBUG << " ---> Bunch Crossing ID: " << std::hex
-            << m_current_bcg_id << std::dec << endmsg;
-   }
+   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
+   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
+   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
 
-   if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Configured to fex ID:   " << endmsg;
-      msg() << MSG::DEBUG << "R ID:                   " << m_RID           << endmsg;
-      msg() << MSG::DEBUG << "PtMin ID:               " << m_PtMinTrk      << endmsg;
-      msg() << MSG::DEBUG << "AbsEtaMax ID:           " << m_EtaMaxTrk     << endmsg;
-      msg() << MSG::DEBUG << "AbsDeltaZeta Max ID:    " << m_DzetaMax      << endmsg;
-   }
+   ATH_MSG_DEBUG( "Configured to fex ID:   "  );
+   ATH_MSG_DEBUG( "R ID:                   " << m_RID            );
+   ATH_MSG_DEBUG( "PtMin ID:               " << m_PtMinTrk       );
+   ATH_MSG_DEBUG( "AbsEtaMax ID:           " << m_EtaMaxTrk      );
+   ATH_MSG_DEBUG( "AbsDeltaZeta Max ID:    " << m_DzetaMax       );
 
    // Some debug output:
-   if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "inputTE->ID():  " << inputTE->getId() << endmsg;
-      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
-   }
+   ATH_MSG_DEBUG( "inputTE->ID():  " << inputTE->getId()  );
+   ATH_MSG_DEBUG( "outputTE->ID(): " << outputTE->getId()  );
 
    // Start Trigger Element Processing
 
@@ -178,7 +167,7 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    HLT::ErrorCode status = getFeature(outputTE, const_muonColl);
    muonColl = const_cast<xAOD::L2CombinedMuonContainer*>(const_muonColl);
    if (status != HLT::OK || ! muonColl) {
-      msg() << MSG::ERROR << " L2CombinedMuonContainer not found --> ABORT" << endmsg;
+      ATH_MSG_ERROR( " L2CombinedMuonContainer not found --> ABORT"  );
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
    }
 
@@ -196,7 +185,7 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
 
    if (muonCB->pt() == 0.) {
       m_ErrorFlagMI = 1;
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L2CombinedMuon pt = 0 --> stop processing RoI" << endmsg;
+      ATH_MSG_DEBUG( " L2CombinedMuon pt = 0 --> stop processing RoI"  );
       muonIS->setErrorFlag(m_ErrorFlagMI);
       muonISColl->push_back(muonIS);
       return muIsoSeed(outputTE, muonISColl);
@@ -216,14 +205,10 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    double phi      = muonCB->phi();
    double zeta     = muonCB->idTrack()->z0();
 
-   if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG
-            << "Input L2CombinedMuon pt (GeV) = " << pt
-            << " / eta = "                    << eta
-            << " / phi = "                    << phi
-            << " / z = "                      << zeta
-            << endmsg;
-
+   ATH_MSG_DEBUG( "Input L2CombinedMuon pt (GeV) = " << pt
+                  << " / eta = "                    << eta
+                  << " / phi = "                    << phi
+                  << " / z = "                      << zeta );
 
    // ID tracks Decoding
    std::string algoId = m_ID_algo_to_use;
@@ -231,14 +216,12 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    status = getFeature(outputTE, idTrackParticles, algoId);
 
    if (status != HLT::OK) {
-      if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << " Failed to get " << algoId << " xAOD::TrackParticleContainer --> ABORT" << endmsg;
+      ATH_MSG_DEBUG( " Failed to get " << algoId << " xAOD::TrackParticleContainer --> ABORT"  );
       m_ErrorFlagMI = 2;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
    }
    if (!idTrackParticles) {
-      if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << "Pointer to xAOD::TrackParticleContainer[" << algoId << "] = 0" << endmsg;
+      ATH_MSG_DEBUG( "Pointer to xAOD::TrackParticleContainer[" << algoId << "] = 0"  );
       m_ErrorFlagMI = 2;
       muonIS->setErrorFlag(m_ErrorFlagMI);
       muonIS->setSumPt01(0.0);
@@ -249,7 +232,7 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
       return muIsoSeed(outputTE, muonISColl);
    }
 
-   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Got xAOD::TrackParticleContainer with size: " << idTrackParticles->size() << endmsg;
+   ATH_MSG_DEBUG( " Got xAOD::TrackParticleContainer with size: " << idTrackParticles->size()  );
 
    //ID based isolation
    float  sumpt01 = 0.0;
@@ -268,12 +251,10 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
       double pt_id    = (*trkit)->pt() * q_id;
       double z_id     = (*trkit)->z0();
 
-      if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << "Found track: "
-               << "  with pt (GeV) = " << pt_id / CLHEP::GeV
-               << ", eta =" << eta_id
-               << ", phi =" << phi_id
-               << endmsg;
+      ATH_MSG_DEBUG( "Found track: "
+                     << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+                     << ", eta =" << eta_id
+                     << ", phi =" << phi_id );
 
       if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
       if (fabs(eta_id)               > m_EtaMaxTrk)      continue;
@@ -281,17 +262,15 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
       double dzeta    = z_id - zeta;
       if (fabs(dzeta) > m_DzetaMax)       continue;
 
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Track selected " << endmsg;
+      ATH_MSG_DEBUG( "Track selected "  );
 
-      if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << "Found track: "
-               << m_ID_algo_to_use
-               << "  with pt = " << pt_id
-               << ", eta = " << eta_id
-               << ", phi = " << phi_id
-               << ", Zid = " << z_id
-               << ", DZeta = " << dzeta
-               << endmsg;
+      ATH_MSG_DEBUG( "Found track: "
+                     << m_ID_algo_to_use
+                     << "  with pt = " << pt_id
+                     << ", eta = " << eta_id
+                     << ", phi = " << phi_id
+                     << ", Zid = " << z_id
+                     << ", DZeta = " << dzeta );
 
       //see if is in cone
       double deta = fabs(eta_id - eta);
@@ -314,12 +293,11 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    sumpt03 -= muonCB->idTrack()->pt();
    sumpt04 -= muonCB->idTrack()->pt();
 
-   msg() << MSG::DEBUG << " REGTEST ID ALGO: ntrk / pt / sumpt02 / iso"
-         << " / " << ntrk
-         << " / " << pt
-         << " / " << sumpt02
-         << " / " << sumpt02 / pt
-         << endmsg;
+   ATH_MSG_DEBUG( " REGTEST ID ALGO: ntrk / pt / sumpt02 / iso"
+                  << " / " << ntrk
+                  << " / " << pt
+                  << " / " << sumpt02
+                  << " / " << sumpt02 / pt );
 
    // updated monitored variables
    m_NTRK     = ntrk;
@@ -353,15 +331,11 @@ HLT::ErrorCode muIso::muIsoSeed(HLT::TriggerElement* outputTE, xAOD::L2IsoMuonCo
    if (status != HLT::OK) {
       outputTE->setActiveState(false);
       delete muon_cont;
-      msg() << MSG::ERROR
-            << " Record of xAOD::L2IsoMuonContainer in TriggerElement failed"
-            << endmsg;
+      ATH_MSG_ERROR( " Record of xAOD::L2IsoMuonContainer in TriggerElement failed"
+                     );
       return status;
    } else {
-      if (msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG
-               << " xAOD::L2IsoMuonContainer attached to the TriggerElement"
-               << endmsg;
+     ATH_MSG_DEBUG( " xAOD::L2IsoMuonContainer attached to the TriggerElement" );
    }
    outputTE->setActiveState(true);
    return HLT::OK;

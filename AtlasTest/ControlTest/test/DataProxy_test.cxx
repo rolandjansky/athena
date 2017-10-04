@@ -53,7 +53,6 @@ int main() {
 
   DataProxy emptyProxy;
   assert( !emptyProxy.isValid() );
-  assert( emptyProxy.transientAddress() );
 
   //cerr << "Now we expect to see a warning message:" << endl
   //     << "----Warning Message Starts--->>" << endl; 
@@ -65,17 +64,9 @@ int main() {
   assert( emptyProxy.name().empty() );
   assert( emptyProxy.identifier().empty() );
   assert( 0 == emptyProxy.clID() );
-  assert( 0 == emptyProxy.transientAddress()->transientID().size() );
+  assert( 0 == emptyProxy.transientID().size() );
   assert( emptyProxy.isResetOnly() );
   assert( !emptyProxy.isConst() );
-  try {
-    cerr << "Now we expect to see a warning message:" << endl
-	 << "----Warning Message Starts--->>" << endl; 
-    const Bla& bRef(DataProxy_cast<Bla>(emptyProxy));
-    bRef.doNothing(); //remove warning
-  } catch (...) {
-    cerr << "<<---Warning Message Ends-------" << endl;
-  }
   
 
   Bla *pBla(new Bla(77));
@@ -88,10 +79,10 @@ int main() {
   assert( transientProxy.name() == "bla" );
   assert( transientProxy.identifier() == "bla" );
   assert( ClassID_traits<Bla>::ID() == transientProxy.clID() );
-  assert( transientProxy.transientAddress()->transientID().size() == 1);
+  assert( transientProxy.transientID().size() == 1);
   assert( transientProxy.isResetOnly() );
   assert( !transientProxy.isConst() );
-  assert( (DataProxy_cast<Bla>(transientProxy)).i == 77 );
+  assert( (DataProxy_cast<Bla>(&transientProxy))->i == 77 );
 
 
   IConversionSvc* pIConvSvc(nullptr);
@@ -117,11 +108,11 @@ int main() {
   assert( addressProxy.name() == "foo" );
   assert( addressProxy.identifier() == "foo" );
   assert( ClassID_traits<Foo>::ID() == addressProxy.clID() );
-  assert( addressProxy.transientAddress()->transientID().size() == 1);
+  assert( addressProxy.transientID().size() == 1);
   assert( addressProxy.isResetOnly() );
   assert( !addressProxy.isConst() );
-  const Foo& fRef(DataProxy_cast<Foo>(addressProxy));
-  fRef.doNothing(); //remove warning
+  Foo* fptr(DataProxy_cast<Foo>(&addressProxy));
+  fptr->doNothing(); //remove warning
 
 
   IProxyProviderSvc* pIPPSvc(nullptr);
@@ -145,17 +136,9 @@ int main() {
   assert( identifiedProxy.name() == "bla" );
   assert( identifiedProxy.identifier() == "bla" );
   assert( ClassID_traits<Bla>::ID() == identifiedProxy.clID() );
-  assert( identifiedProxy.transientAddress()->transientID().size() == 1);
+  assert( identifiedProxy.transientID().size() == 1);
   assert( identifiedProxy.isResetOnly() );
   assert( !identifiedProxy.isConst() );
-  try {
-    cerr << "Now we expect to see an warning message:" << endl
-	 << "----Warning Message Starts--->>" << endl; 
-    const Bla& bRef(DataProxy_cast<Bla>(identifiedProxy));
-    bRef.doNothing(); //remove warning
-  } catch (...) {
-    cerr << "<<---Warning Message Ends-------" << endl;
-  }
 
 
   cout << "*** DataProxy_test OK ***" <<endl;

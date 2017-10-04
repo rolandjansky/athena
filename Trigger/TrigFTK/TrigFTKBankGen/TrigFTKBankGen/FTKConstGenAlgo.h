@@ -65,12 +65,11 @@ public:
   std::vector<std::string> m_fpath;  
   std::vector<std::string> m_gfpath;
   std::vector<std::string> m_sfpath;
-  string m_extractpath;  
+  std::string m_extractpath;  
   
   std::string m_outfilename; // the algorithm mostly produce a single file, if set this is the name of the file, a default option is otherwise used
-  TFile *file;
-  TFile *good_file;
-  TFile *cfile;
+  TFile *m_good_file;
+  TFile *m_cfile;
   TTree *m_ctree;
 
   bool m_ITkMode; // toggle ITk geometry
@@ -79,16 +78,13 @@ public:
   int m_nsubregion;
   int m_nbank;
   int m_nfile;
-  int addPattReturnCode;
-  float nsector;
-  bool match;
+  int m_addPattReturnCode;
+  float m_nsector;
  
-  double pr;
+  double m_pr;
 
-  int nevent;
-
-  int nplane;
-  int nplane8;
+  int m_nplane;
+  int m_nplane8;
 
   // variables for merge
   std::vector<short> *m_mergeintc;
@@ -98,25 +94,25 @@ public:
   std::vector<short> *m_mergeinteta;
   
   // variables for extract 1st stage
-  int plane_index_1st_stage;
-  int plane_index_2nd_stage;
-  int coord_index_1st_stage;
-  int coord_index_2nd_stage;
-  int index_missing_plane;
-  int index_missing_coord;
+  int m_plane_index_1st_stage;
+  int m_plane_index_2nd_stage;
+  int m_coord_index_1st_stage;
+  int m_coord_index_2nd_stage;
+  int m_index_missing_plane;
+  int m_index_missing_coord;
 
-  std::vector<int> vec_plane_index_1st_stage;
-  std::vector<int> vec_plane_index_2nd_stage;
-  std::vector<int> vec_coord_index_1st_stage;
-  std::vector<int> vec_coord_index_2nd_stage;
-  std::vector<int> vec_doInvert;
-  std::vector<int> vec_ndimension;
+  std::vector<int> m_vec_plane_index_1st_stage;
+  std::vector<int> m_vec_plane_index_2nd_stage;
+  std::vector<int> m_vec_coord_index_1st_stage;
+  std::vector<int> m_vec_coord_index_2nd_stage;
+  std::vector<int> m_vec_doInvert;
+  std::vector<int> m_vec_ndimension;
 
   // variables for 12L->8L
-  bool doRelation; // if true, this layer/coords has/have missing layer/coords
-  bool doInvert;// endcap inversion for some SCT layers
-  int inversion;
-  int inversion2;
+  bool m_doRelation; // if true, this layer/coords has/have missing layer/coords
+  bool m_doInvert;// endcap inversion for some SCT layers
+  int m_inversion;
+  int m_inversion2;
 
   std::vector<short> *m_extract_intc;
   std::vector<short> *m_extract_intphi;
@@ -131,7 +127,7 @@ public:
   std::string m_pmap_path;
   std::string m_pmap_8L_path;
 
-  bool *endcap_inversion; // true if endcap invert stereo and axial layer IDs
+  bool *m_endcap_inversion; // true if endcap invert stereo and axial layer IDs
 
   // functions
   void merge();

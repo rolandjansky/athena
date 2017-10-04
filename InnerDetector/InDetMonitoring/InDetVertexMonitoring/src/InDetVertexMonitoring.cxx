@@ -19,24 +19,17 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "InDetVertexMonitoring/InDetVertexMonitoring.h"
+#include "InDetVertexMonitoring.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-InDetVertexMonitoring::InDetVertexMonitoring( const std::string & type, const std::string & name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ),
-  m_doControlPlots(false), m_histFolder("InDetGlobal/PrimaryVertexMultiplicity")
+InDetVertexMonitoring::InDetVertexMonitoring( const std::string & type, const std::string & name, const IInterface* parent ) 
+  : ManagedMonitorToolBase( type, name, parent )
 {
-  declareProperty( "VertexContainer", m_VxContainerName = "PrimaryVertices" );
-    /** sumpt ntrack etc **/
-  declareProperty("DoControlPlots", m_doControlPlots, "enable control plots");
-  declareProperty("histFolder", m_histFolder);
   m_h_vxdist = 0;
   m_h_Ntracks = 0;
   m_h_sumpt = 0;
@@ -55,15 +48,11 @@ InDetVertexMonitoring::~InDetVertexMonitoring() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode InDetVertexMonitoring::initialize(){
-  StatusCode sc;
-  sc = ManagedMonitorToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
-  
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("Unable to access StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
+
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
+  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_vertexContainer.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -101,28 +90,25 @@ StatusCode InDetVertexMonitoring::bookHistograms()
 StatusCode InDetVertexMonitoring::fillHistograms()
 {
 
-//  std::map<long int,TH1F*>::iterator it;
-  
-  const xAOD::VertexContainer* Vertexes = 0;
-  StatusCode sc=m_storeGate->retrieve( Vertexes, m_VxContainerName);
-  if( sc.isFailure()  ||  !Vertexes ) {
+  SG::ReadHandle<xAOD::VertexContainer> vertexContainer(m_vertexContainer);
+  if ( !vertexContainer.isValid() )
+  {
     ATH_MSG_WARNING ("No xAOD::VertexContainer found");
     return StatusCode::FAILURE;
-  }  
-  
-  //  int lumiBlock=0;
+  }
 
-  const xAOD::EventInfo*  p_evt = 0;
-  sc = m_storeGate->retrieve(p_evt);
-  if( sc.isFailure()) {
+  // Event info is never actually used
+  // Leaving in the call since perhaps the check for presence is necessary
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+  if ( !eventInfo.isValid() )
+  {
      ATH_MSG_WARNING ("No Event Info found");
      return StatusCode::FAILURE;
-  }   
+  }
 
-  //  lumiBlock = p_evt->lumiBlock(); 
-  int n_vtx = Vertexes->size()-1;
+  int n_vtx = vertexContainer->size()-1;
 
-  for (const xAOD::Vertex* vtx : (*Vertexes) ) {
+  for ( const xAOD::Vertex* vtx : (*vertexContainer) ) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) continue;
   
     int ntrk(-1);
@@ -155,13 +141,13 @@ StatusCode InDetVertexMonitoring::fillHistograms()
    double deltaZ = 0.;
    double zit1 = 0.;
    double zit2 = 0.;
-   for (const xAOD::Vertex *vtx : (*Vertexes) ) {
+   for ( const xAOD::Vertex *vtx : (*vertexContainer) ) {
      //Check vertex type (e.g. no dummy vertex)
      if ( ! ( vtx->vertexType() == xAOD::VxType::PriVtx or vtx->vertexType() == xAOD::VxType::PileUp ) )
        continue;
      zit1 = vtx->z();
      // Loop over vertices again (starting from vxIter + 1) to get all distinct pairs
-     for (const xAOD::Vertex *vtx2 : (*Vertexes) ) {
+     for ( const xAOD::Vertex *vtx2 : (*vertexContainer) ) {
        //Check vertex type (e.g. no dummy vertex)
        if ( ! ( vtx2->vertexType() == xAOD::VxType::PriVtx or vtx->vertexType() == xAOD::VxType::PileUp ) )
 	 continue;

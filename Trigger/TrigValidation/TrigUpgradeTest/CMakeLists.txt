@@ -54,9 +54,20 @@ atlas_add_test( IDRunData     SCRIPT test/test_id_run_data.sh
                 PROPERTIES TIMEOUT 500 
               )
 
-atlas_add_test( caloRunData   SCRIPT test/test_calo_run_data.sh
+#atlas_add_test( caloRunData   SCRIPT test/test_calo_run_data.sh
+#                PROPERTIES TIMEOUT 500 
+#              )
+# replaced by complete egamma test
+
+atlas_add_test( egammaRunData   SCRIPT test/test_egamma_run_data.sh
                 PROPERTIES TIMEOUT 500 
               )
+
+atlas_add_test( muRunData   SCRIPT test/test_mu_run_data.sh
+                PROPERTIES TIMEOUT 500 
+              )
+
+
 
 atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
                 PROPERTIES TIMEOUT 500 

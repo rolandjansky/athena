@@ -131,70 +131,70 @@ StatusCode FTKConstGenAlgo::initialize(){
       }
     }
     
-    doRelation = false;
-    nplane = m_pmap->getNPlanes();
-    nplane8 = m_pmap_8L->getNPlanes();
+    m_doRelation = false;
+    m_nplane = m_pmap->getNPlanes();
+    m_nplane8 = m_pmap_8L->getNPlanes();
 
     // These 6 counters will evolve in each step of map building
     // to generalize to 1st/2nd stage extrapolation.
-    endcap_inversion = new bool[12];
+    m_endcap_inversion = new bool[m_nplane];
 
-    plane_index_1st_stage = 0;
-    plane_index_2nd_stage = 0;
-    coord_index_1st_stage = 0;
-    coord_index_2nd_stage = 0;
-    index_missing_plane = 0;
-    index_missing_coord = 0;
+    m_plane_index_1st_stage = 0;
+    m_plane_index_2nd_stage = 0;
+    m_coord_index_1st_stage = 0;
+    m_coord_index_2nd_stage = 0;
+    m_index_missing_plane = 0;
+    m_index_missing_coord = 0;
 
-    doInvert = false;
+    m_doInvert = false;
 
     // select 8L from 12L, and check do endcap inversion or not
     for(int nlayer=0; nlayer<m_pmap->getNPlanes(); nlayer++){// loop Layer for 2nd stage
 
       // dimension of this layer (2 for pixel, 1 for SCT). Reading from .pmap file.
-      const int ndimension = m_pmap->getPlane(plane_index_2nd_stage,0).getNDimension();
+      const int ndimension = m_pmap->getPlane(m_plane_index_2nd_stage,0).getNDimension();
       
-      // if doRelation is false, the layer is not used for 1st stage
-      doRelation = false;
-      if (plane_index_1st_stage >= nplane8) {
-	doRelation = true;
-      } else if (m_pmap_8L->getPlane(plane_index_1st_stage, 0).getLayer() !=
-		 m_pmap   ->getPlane(plane_index_2nd_stage, 0).getLayer()
+      // if m_doRelation is false, the layer is not used for 1st stage
+      m_doRelation = false;
+      if (m_plane_index_1st_stage >= m_nplane8) {
+	m_doRelation = true;
+      } else if (m_pmap_8L->getPlane(m_plane_index_1st_stage, 0).getLayer() !=
+		 m_pmap   ->getPlane(m_plane_index_2nd_stage, 0).getLayer()
 		 ) {
-	doRelation = true;
+	m_doRelation = true;
       }
       
-      if(doRelation){
+      if(m_doRelation){
 	
 	// move the indexes
-	plane_index_2nd_stage += 1;
-	coord_index_2nd_stage += ndimension;
-	index_missing_plane += 1;
-	index_missing_coord += ndimension;
+	m_plane_index_2nd_stage += 1;
+	m_coord_index_2nd_stage += ndimension;
+	m_index_missing_plane += 1;
+	m_index_missing_coord += ndimension;
 	
       }else{
 
       // do Invert in this plane?
-      doInvert = m_pmap->getPlane(plane_index_2nd_stage,0).getNSte() != m_pmap->getPlane(plane_index_2nd_stage,1).getNSte();
-      if (m_pmap->getPlane(plane_index_2nd_stage,0).getNDimension()!=1) doInvert = false;
+      m_doInvert = m_pmap->getPlane(m_plane_index_2nd_stage,0).getNSte() != m_pmap->getPlane(m_plane_index_2nd_stage,1).getNSte();
+      if (m_pmap->getPlane(m_plane_index_2nd_stage,0).getNDimension()!=1) m_doInvert = false;
       
-      endcap_inversion[index_missing_plane] = doInvert;
+      m_endcap_inversion[m_index_missing_plane] = m_doInvert;
 	
       // keep values for later use
-      vec_plane_index_1st_stage.push_back(plane_index_1st_stage);
-      vec_plane_index_2nd_stage.push_back(plane_index_2nd_stage);
-      vec_coord_index_1st_stage.push_back(coord_index_1st_stage);
-      vec_coord_index_2nd_stage.push_back(coord_index_2nd_stage);
-      vec_ndimension.push_back(ndimension);
-      vec_doInvert.push_back(doInvert);
+      m_vec_plane_index_1st_stage.push_back(m_plane_index_1st_stage);
+      m_vec_plane_index_2nd_stage.push_back(m_plane_index_2nd_stage);
+      m_vec_coord_index_1st_stage.push_back(m_coord_index_1st_stage);
+      m_vec_coord_index_2nd_stage.push_back(m_coord_index_2nd_stage);
+      m_vec_ndimension.push_back(ndimension);
+      m_vec_doInvert.push_back(m_doInvert);
 
       // move the indexes
-      plane_index_1st_stage += 1;
-      coord_index_1st_stage += ndimension;
-      plane_index_2nd_stage += 1;
-      coord_index_2nd_stage += ndimension;
+      m_plane_index_1st_stage += 1;
+      m_coord_index_1st_stage += ndimension;
+      m_plane_index_2nd_stage += 1;
+      m_coord_index_2nd_stage += ndimension;
 
-      }//doRelation
+      }//m_doRelation
 
     }// loop for 2nd stage layer
 
@@ -262,7 +262,7 @@ void FTKConstGenAlgo::merge()
   double *tmpxCoto=NULL;
   double *tmpxZ=NULL;
   double *tmpcovx=NULL;
-  ULong64_t m_merged_monval[100]={0};
+  ULong64_t merged_monval[100]={0};
   bool monFlag=false;
 
   std::vector<short >* tmp_intc = new std::vector<short >;
@@ -326,7 +326,7 @@ void FTKConstGenAlgo::merge()
 
   // extract logical layers related info: total dimenstion and number of logical layers
   tree->SetBranchAddress("ndim",&ndim);
-  tree->SetBranchAddress("nplanes",&nplane);
+  tree->SetBranchAddress("nplanes",&m_nplane);
   tree->SetBranchAddress("ndim2",&ndim2);
   tree->GetEntry(0); 
   
@@ -347,8 +347,8 @@ void FTKConstGenAlgo::merge()
   slice_tree->SetBranchAddress("eta_slices", &tmp_etaslices);
   slice_tree->GetEntry(0); 
   
-  sectorID = (int *) calloc(nplane+1,sizeof(int));
-  hashID = (int *) calloc(nplane+1,sizeof(int));
+  sectorID = (int *) calloc(m_nplane+1,sizeof(int));
+  hashID = (int *) calloc(m_nplane+1,sizeof(int));
   vec = (double *) calloc(ndim,sizeof(double));  
   tmpxC = (double *) calloc(ndim,sizeof(double));  
   tmpxD = (double *) calloc(ndim,sizeof(double));
@@ -377,7 +377,7 @@ void FTKConstGenAlgo::merge()
   }
 
   nbanks = b_end - b_int;
-  initPattTree(nbanks, nplane+1,ndim);
+  initPattTree(nbanks, m_nplane+1,ndim);
 
   for(int i=0;i<m_nfile;i++){ // loop over the input files
     const string &fpath = m_fpath[i]; 
@@ -428,7 +428,7 @@ void FTKConstGenAlgo::merge()
       am_tree->SetBranchAddress("tmpinteta", &tmp_inteta);
       
       // check the number of sectors analyzed
-      nsector = nsector+nevent;
+      m_nsector = m_nsector+nevent;
       
       for(int j=0;j<nevent;j++){ // event loop
         // load the current entry
@@ -436,15 +436,15 @@ void FTKConstGenAlgo::merge()
         Mtmp.C=tmpC, Mtmp.D=tmpD, Mtmp.Phi=tmpPhi;
         Mtmp.Coto=tmpCoto, Mtmp.Z=tmpZ,Mtmp.nhit=nhit;
 
-        sectorID[nplane] = 0;//for sector, we set it to zero.
-        hashID[nplane] = 0;//for sector, we set it to zero.
+        sectorID[m_nplane] = 0;//for sector, we set it to zero.
+        hashID[m_nplane] = 0;//for sector, we set it to zero.
 
         bank_order = b - b_int;
-        addPattReturnCode=addKDPattern(bank_order,false,sectorID,hashID,1,Mtmp,vec,tmpxC,tmpxD,tmpxPhi,tmpxCoto,tmpxZ,tmpcovx,
+        m_addPattReturnCode=addKDPattern(bank_order,false,sectorID,hashID,1,Mtmp,vec,tmpxC,tmpxD,tmpxPhi,tmpxCoto,tmpxZ,tmpcovx,
                                        tmp_intc[0],tmp_intphi[0],tmp_intd0[0],tmp_intz0[0],tmp_inteta[0]);
 
 	// new pattern found
-        if(1==addPattReturnCode){
+        if(1==m_addPattReturnCode){
           ++npatterns;
         }
       } // end event loop
@@ -455,15 +455,15 @@ void FTKConstGenAlgo::merge()
     } // end bank loop
 
     if(monFlag){
-      TTree *m_montree = (TTree *)mfile->Get("montree");
-      ULong64_t m_monval[100]={0};
-      m_montree->SetBranchAddress("monval", m_monval);
-      m_montree->GetEntry(0);
+      TTree *montree = (TTree *)mfile->Get("montree");
+      ULong64_t monval[100]={0};
+      montree->SetBranchAddress("monval", monval);
+      montree->GetEntry(0);
       for(int ibin=0;ibin<100;ibin++){
-        m_merged_monval[ibin] += m_monval[ibin];
+        merged_monval[ibin] += monval[ibin];
       }// for ibin                                                                                                                                                                                     
-      delete m_montree;
-      m_montree=NULL;
+      delete montree;
+      montree=NULL;
     }
 
     // close current file
@@ -507,19 +507,19 @@ void FTKConstGenAlgo::merge()
   double *mergexZ=NULL;
   double *mergecovx=NULL;
 
-  TTree *m_tree=NULL;
-  TTree *m_mergeslice=NULL;
-  TTree *m_merged_montree=0;
+  TTree *mtree=NULL;
+  TTree *mergeslice=NULL;
+  TTree *merged_montree=0;
   if(monFlag){
-    m_merged_montree = new TTree("montree", "monitor tree");
-    m_merged_montree->Branch("monval", m_merged_monval, "m_monval[100]/l");
-    m_merged_montree->Fill();
+    merged_montree = new TTree("montree", "monitor tree");
+    merged_montree->Branch("monval", merged_monval, "m_monval[100]/l");
+    merged_montree->Fill();
   }
 
-  m_mergeslice=new TTree("slice", "slice para");
+  mergeslice=new TTree("slice", "slice para");
   
-  mergeSec = (int *) calloc(nplane,sizeof(int));  
-  mergehashID = (int *) calloc(nplane,sizeof(int));  
+  mergeSec = (int *) calloc(m_nplane,sizeof(int));  
+  mergehashID = (int *) calloc(m_nplane,sizeof(int));  
   mergevec = (double *) calloc(ndim,sizeof(double));  
   mergexC = (double *) calloc(ndim,sizeof(double));  
   mergexD = (double *) calloc(ndim,sizeof(double));
@@ -533,9 +533,9 @@ void FTKConstGenAlgo::merge()
     // if the output file is not specified the name is built according a specific conention
     char filename[40];
     if(true==m_allregion){
-      sprintf(filename,"matrix_%dL_%dDim_regall.root",nplane,ndim);
+      sprintf(filename,"matrix_%dL_%dDim_regall.root",m_nplane,ndim);
     }else{
-      sprintf(filename,"matrix_%dL_%dDim_reg%d.root",nplane,ndim,m_region);
+      sprintf(filename,"matrix_%dL_%dDim_reg%d.root",m_nplane,ndim,m_region);
     }
     m_outfilename = filename;
   }
@@ -546,28 +546,28 @@ void FTKConstGenAlgo::merge()
   char name[5];
   char mtitle[20];
 
-  m_mergeslice->Branch("c_max",&tmp_cmax);
-  m_mergeslice->Branch("phi_max",&tmp_phimax);
-  m_mergeslice->Branch("d0_max",&tmp_d0max);
-  m_mergeslice->Branch("z0_max",&tmp_z0max);
-  m_mergeslice->Branch("eta_max",&tmp_etamax);
+  mergeslice->Branch("c_max",&tmp_cmax);
+  mergeslice->Branch("phi_max",&tmp_phimax);
+  mergeslice->Branch("d0_max",&tmp_d0max);
+  mergeslice->Branch("z0_max",&tmp_z0max);
+  mergeslice->Branch("eta_max",&tmp_etamax);
   
-  m_mergeslice->Branch("c_min",&tmp_cmin);
-  m_mergeslice->Branch("phi_min",&tmp_phimin);
-  m_mergeslice->Branch("d0_min",&tmp_d0min);
-  m_mergeslice->Branch("z0_min",&tmp_z0min);
-  m_mergeslice->Branch("eta_min",&tmp_etamin);
+  mergeslice->Branch("c_min",&tmp_cmin);
+  mergeslice->Branch("phi_min",&tmp_phimin);
+  mergeslice->Branch("d0_min",&tmp_d0min);
+  mergeslice->Branch("z0_min",&tmp_z0min);
+  mergeslice->Branch("eta_min",&tmp_etamin);
   
-  m_mergeslice->Branch("c_slices",&tmp_cslices);
-  m_mergeslice->Branch("phi_slices",&tmp_phislices);
-  m_mergeslice->Branch("d0_slices",&tmp_d0slices);
-  m_mergeslice->Branch("z0_slices",&tmp_z0slices); 
-  m_mergeslice->Branch("eta_slices",&tmp_etaslices);    
-  m_mergeslice->Fill();
-  m_mergeslice->Write();
+  mergeslice->Branch("c_slices",&tmp_cslices);
+  mergeslice->Branch("phi_slices",&tmp_phislices);
+  mergeslice->Branch("d0_slices",&tmp_d0slices);
+  mergeslice->Branch("z0_slices",&tmp_z0slices); 
+  mergeslice->Branch("eta_slices",&tmp_etaslices);    
+  mergeslice->Fill();
+  mergeslice->Write();
 
   if(monFlag){
-    m_merged_montree->Write();
+    merged_montree->Write();
   }
 
   gROOT->cd();
@@ -580,26 +580,26 @@ void FTKConstGenAlgo::merge()
     sprintf(name,"am%d",b);
     sprintf(mtitle,"Ambank %d para",b);
         
-    m_tree = new TTree(name, mtitle);
+    mtree = new TTree(name, mtitle);
     
-    m_tree->Branch("ndim",&ndim,"ndim/I");
-    m_tree->Branch("ndim2",&ndim2,"ndim2/I");
-    m_tree->Branch("Vec", mergevec,"Vec[ndim]/D");
-    m_tree->Branch("nplanes",&nplane,"nplanes/I");
-    m_tree->Branch("sectorID", mergeSec,"sectorID[nplanes]/I");
-    m_tree->Branch("hashID", mergehashID,"hashID[nplanes]/I");
-    m_tree->Branch("nhit", &mergenhit,"nhit/F");
-    m_tree->Branch("tmpC", &mergeC,"tmpC/D");
-    m_tree->Branch("tmpD", &mergeD,"tmpD/D");
-    m_tree->Branch("tmpPhi", &mergePhi,"tmpPhi/D");
-    m_tree->Branch("tmpCoto", &mergeCoto,"tmpCoto/D");
-    m_tree->Branch("tmpZ", &mergeZ,"tmpZ/D");
-    m_tree->Branch("tmpxC", mergexC,"tmpxC[ndim]/D");
-    m_tree->Branch("tmpxD", mergexD,"tmpxD[ndim]/D");
-    m_tree->Branch("tmpxPhi", mergexPhi,"tmpxPhi[ndim]/D");
-    m_tree->Branch("tmpxCoto", mergexCoto,"tmpxCoto[ndim]/D");
-    m_tree->Branch("tmpxZ", mergexZ,"tmpxZ[ndim]/D");
-    m_tree->Branch("tmpcovx", mergecovx,"tmpcovx[ndim2]/D");
+    mtree->Branch("ndim",&ndim,"ndim/I");
+    mtree->Branch("ndim2",&ndim2,"ndim2/I");
+    mtree->Branch("Vec", mergevec,"Vec[ndim]/D");
+    mtree->Branch("nplanes",&m_nplane,"nplanes/I");
+    mtree->Branch("sectorID", mergeSec,"sectorID[nplanes]/I");
+    mtree->Branch("hashID", mergehashID,"hashID[nplanes]/I");
+    mtree->Branch("nhit", &mergenhit,"nhit/F");
+    mtree->Branch("tmpC", &mergeC,"tmpC/D");
+    mtree->Branch("tmpD", &mergeD,"tmpD/D");
+    mtree->Branch("tmpPhi", &mergePhi,"tmpPhi/D");
+    mtree->Branch("tmpCoto", &mergeCoto,"tmpCoto/D");
+    mtree->Branch("tmpZ", &mergeZ,"tmpZ/D");
+    mtree->Branch("tmpxC", mergexC,"tmpxC[ndim]/D");
+    mtree->Branch("tmpxD", mergexD,"tmpxD[ndim]/D");
+    mtree->Branch("tmpxPhi", mergexPhi,"tmpxPhi[ndim]/D");
+    mtree->Branch("tmpxCoto", mergexCoto,"tmpxCoto[ndim]/D");
+    mtree->Branch("tmpxZ", mergexZ,"tmpxZ[ndim]/D");
+    mtree->Branch("tmpcovx", mergecovx,"tmpcovx[ndim2]/D");
                      
     m_mergeintc= new std::vector<short>;
     m_mergeintphi= new std::vector<short>;
@@ -607,11 +607,11 @@ void FTKConstGenAlgo::merge()
     m_mergeintz0= new std::vector<short>;
     m_mergeinteta= new std::vector<short>;
 
-    m_tree->Branch("tmpintc", &m_mergeintc);
-    m_tree->Branch("tmpintphi", &m_mergeintphi);
-    m_tree->Branch("tmpintd0", &m_mergeintd0);
-    m_tree->Branch("tmpintz0", &m_mergeintz0);
-    m_tree->Branch("tmpinteta", &m_mergeinteta);
+    mtree->Branch("tmpintc", &m_mergeintc);
+    mtree->Branch("tmpintphi", &m_mergeintphi);
+    mtree->Branch("tmpintd0", &m_mergeintd0);
+    mtree->Branch("tmpintz0", &m_mergeintz0);
+    mtree->Branch("tmpinteta", &m_mergeinteta);
 
     bank_order = b - b_int;
 
@@ -625,7 +625,7 @@ void FTKConstGenAlgo::merge()
       m_mergeinteta->clear();	
 
       log << MSG::INFO <<"sector ";
-      for(int k=0;k<nplane;k++){
+      for(int k=0;k<m_nplane;k++){
 	mergeSec[k]=getPatternSS(bank_order,i,k);
 	mergehashID[k]=getPatthashID(bank_order,i,k);
 	log <<getPatternSS(bank_order,i,k)<<" ";//tmp out
@@ -662,15 +662,15 @@ void FTKConstGenAlgo::merge()
 	      
       }
       
-      m_tree->Fill();
+      mtree->Fill();
     }
 
     file->cd();
-    m_tree->Write();
+    mtree->Write();
     gROOT->cd();
 
-    delete m_tree;
-    m_tree=NULL;
+    delete mtree;
+    mtree=NULL;
   }
 
   free(mergeSec);
@@ -766,14 +766,14 @@ void FTKConstGenAlgo::constantgen()
     monFlag=true; 
   }
 
-  TTree *m_montree=NULL;
+  TTree *montree=NULL;
   if(monFlag){
-    TTree *m_montree_org = (TTree *)mafile->Get("montree");
-    m_montree_org->SetName("montree_org");
-    m_montree = m_montree_org->CloneTree();
-    m_montree->SetName("montree");
-    delete m_montree_org;
-    m_montree_org=NULL;
+    TTree *montree_org = (TTree *)mafile->Get("montree");
+    montree_org->SetName("montree_org");
+    montree = montree_org->CloneTree();
+    montree->SetName("montree");
+    delete montree_org;
+    montree_org=NULL;
   }
 
   const_tree->SetBranchAddress("ndim",&tmp_ndim);
@@ -879,6 +879,7 @@ void FTKConstGenAlgo::constantgen()
   maxvals[2]= maxvals[2]*M_PI;
   minvals[2]= minvals[2]*M_PI;
 
+  // Hardcoded resolutions need to be fixed
   double resolutions[14] = {0.04, 0.08265625, 0.04, 0.08265625, 0.04, 0.08265625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625};
 #ifdef DEBUG_NOISE
   float n[30];
@@ -906,7 +907,7 @@ void FTKConstGenAlgo::constantgen()
   ///////// root file part
     
   sprintf(filename,"const_%dL_%dDim_reg%d.root",nplane,ndim,m_region);
-  cfile = new TFile(filename,"recreate");
+  m_cfile = new TFile(filename,"recreate");
   gROOT->cd();
   
   sprintf(name,"Am%d",m_region);
@@ -940,8 +941,8 @@ void FTKConstGenAlgo::constantgen()
   //
 
   // matrix files with good sectors
-  TTree *m_good_tree=NULL;
-  TTree *m_good_slice=NULL;
+  TTree *good_tree=NULL;
+  TTree *good_slice=NULL;
 
   double good_C;
   double good_D;
@@ -978,67 +979,67 @@ void FTKConstGenAlgo::constantgen()
   }
 
   // open the output file for the good matrixes
-  good_file = TFile::Open(m_outfilename.c_str(),"recreate");
+  m_good_file = TFile::Open(m_outfilename.c_str(),"recreate");
   gROOT->cd();
 
-  m_good_slice=new TTree("slice", "slice para");
+  good_slice=new TTree("slice", "slice para");
   
-  m_good_slice->Branch("c_max",&maxvals[0]);
-  m_good_slice->Branch("d0_max",&maxvals[1]);
-  m_good_slice->Branch("phi_max",&maxvals[2]);
-  m_good_slice->Branch("z0_max",&maxvals[3]);
-  m_good_slice->Branch("eta_max",&maxvals[4]);
+  good_slice->Branch("c_max",&maxvals[0]);
+  good_slice->Branch("d0_max",&maxvals[1]);
+  good_slice->Branch("phi_max",&maxvals[2]);
+  good_slice->Branch("z0_max",&maxvals[3]);
+  good_slice->Branch("eta_max",&maxvals[4]);
   
-  m_good_slice->Branch("c_min",&minvals[0]);
-  m_good_slice->Branch("d0_min",&minvals[1]);
-  m_good_slice->Branch("phi_min",&minvals[2]);
-  m_good_slice->Branch("z0_min",&minvals[3]);
-  m_good_slice->Branch("eta_min",&minvals[4]);
+  good_slice->Branch("c_min",&minvals[0]);
+  good_slice->Branch("d0_min",&minvals[1]);
+  good_slice->Branch("phi_min",&minvals[2]);
+  good_slice->Branch("z0_min",&minvals[3]);
+  good_slice->Branch("eta_min",&minvals[4]);
   
-  m_good_slice->Branch("c_slices",&nslices[0]);
-  m_good_slice->Branch("d0_slices",&nslices[1]);
-  m_good_slice->Branch("phi_slices",&nslices[2]);
-  m_good_slice->Branch("z0_slices",&nslices[3]); 
-  m_good_slice->Branch("eta_slices",&nslices[4]);    
+  good_slice->Branch("c_slices",&nslices[0]);
+  good_slice->Branch("d0_slices",&nslices[1]);
+  good_slice->Branch("phi_slices",&nslices[2]);
+  good_slice->Branch("z0_slices",&nslices[3]); 
+  good_slice->Branch("eta_slices",&nslices[4]);    
 
-  m_good_slice->Fill();
+  good_slice->Fill();
   
-  good_file->cd();
-  m_good_slice->Write();
+  m_good_file->cd();
+  good_slice->Write();
   if(monFlag){
-    m_montree->Write();
+    montree->Write();
   }
   gROOT->cd();
 
   sprintf(name,"am%d",m_region);
   sprintf(title,"Ambank %d para",m_region);
   
-  m_good_tree = new TTree(name, title);
+  good_tree = new TTree(name, title);
 
-  m_good_tree->Branch("ndim",&ndim,"ndim/I");
-  m_good_tree->Branch("ndim2",&ndim2,"ndim2/I");
-  m_good_tree->Branch("Vec", good_Vec,"Vec[ndim]/D");
-  m_good_tree->Branch("nplanes",&nplane,"nplanes/I");
-  m_good_tree->Branch("sectorID", sum_Sec,"sectorID[nplanes]/I");
-  m_good_tree->Branch("hashID", sum_Hash,"hashID[nplanes]/I");
-  m_good_tree->Branch("nhit", &sum_nhit,"nhit/F");
-  m_good_tree->Branch("tmpC", &good_C,"tmpC/D");
-  m_good_tree->Branch("tmpD", &good_D,"tmpD/D");
-  m_good_tree->Branch("tmpPhi", &good_Phi,"tmpPhi/D");
-  m_good_tree->Branch("tmpCoto", &good_Coto,"tmpCoto/D");
-  m_good_tree->Branch("tmpZ", &good_Z,"tmpZ/D");
-  m_good_tree->Branch("tmpxC", good_xC,"tmpxC[ndim]/D");
-  m_good_tree->Branch("tmpxD", good_xD,"tmpxD[ndim]/D");
-  m_good_tree->Branch("tmpxPhi", good_xPhi,"tmpxPhi[ndim]/D");
-  m_good_tree->Branch("tmpxCoto", good_xCoto,"tmpxCoto[ndim]/D");
-  m_good_tree->Branch("tmpxZ", good_xZ,"tmpxZ[ndim]/D");
-  m_good_tree->Branch("tmpcovx", good_covx_i,"tmpcovx[ndim2]/D");
+  good_tree->Branch("ndim",&ndim,"ndim/I");
+  good_tree->Branch("ndim2",&ndim2,"ndim2/I");
+  good_tree->Branch("Vec", good_Vec,"Vec[ndim]/D");
+  good_tree->Branch("nplanes",&nplane,"nplanes/I");
+  good_tree->Branch("sectorID", sum_Sec,"sectorID[nplanes]/I");
+  good_tree->Branch("hashID", sum_Hash,"hashID[nplanes]/I");
+  good_tree->Branch("nhit", &sum_nhit,"nhit/F");
+  good_tree->Branch("tmpC", &good_C,"tmpC/D");
+  good_tree->Branch("tmpD", &good_D,"tmpD/D");
+  good_tree->Branch("tmpPhi", &good_Phi,"tmpPhi/D");
+  good_tree->Branch("tmpCoto", &good_Coto,"tmpCoto/D");
+  good_tree->Branch("tmpZ", &good_Z,"tmpZ/D");
+  good_tree->Branch("tmpxC", good_xC,"tmpxC[ndim]/D");
+  good_tree->Branch("tmpxD", good_xD,"tmpxD[ndim]/D");
+  good_tree->Branch("tmpxPhi", good_xPhi,"tmpxPhi[ndim]/D");
+  good_tree->Branch("tmpxCoto", good_xCoto,"tmpxCoto[ndim]/D");
+  good_tree->Branch("tmpxZ", good_xZ,"tmpxZ[ndim]/D");
+  good_tree->Branch("tmpcovx", good_covx_i,"tmpcovx[ndim2]/D");
   
-  m_good_tree->Branch("tmpintc", &sum_intc);
-  m_good_tree->Branch("tmpintphi", &sum_intphi);
-  m_good_tree->Branch("tmpintd0", &sum_intd0);
-  m_good_tree->Branch("tmpintz0", &sum_intz0);
-  m_good_tree->Branch("tmpinteta", &sum_inteta);
+  good_tree->Branch("tmpintc", &sum_intc);
+  good_tree->Branch("tmpintphi", &sum_intphi);
+  good_tree->Branch("tmpintd0", &sum_intd0);
+  good_tree->Branch("tmpintz0", &sum_intz0);
+  good_tree->Branch("tmpinteta", &sum_inteta);
   
   //
   // calcurate constants start
@@ -1200,25 +1201,25 @@ void FTKConstGenAlgo::constantgen()
     gco.real = gc.real;
 
     for(int i=0;i<ndim-NPARS;i++) {
-      pr = proj(gc.Vd,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
-      for(int j=0;j<ndim;j++) gco.Vd[j] += -gc.kernel[i][j]*pr;
-      gco.Cd += -gc.kaverages[i]*pr;
+      m_pr = proj(gc.Vd,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      for(int j=0;j<ndim;j++) gco.Vd[j] += -gc.kernel[i][j]*m_pr;
+      gco.Cd += -gc.kaverages[i]*m_pr;
       
-      pr = proj(gc.Vc,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
-      for(int j=0;j<ndim;j++) gco.Vc[j] += - gc.kernel[i][j]*pr;
-      gco.Cc += -gc.kaverages[i]*pr;
+      m_pr = proj(gc.Vc,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      for(int j=0;j<ndim;j++) gco.Vc[j] += - gc.kernel[i][j]*m_pr;
+      gco.Cc += -gc.kaverages[i]*m_pr;
 	  
-      pr = proj(gc.Vf,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
-      for(int j=0;j<ndim;j++) gco.Vf[j] += -gc.kernel[i][j]*pr;
-      gco.Cf += -gc.kaverages[i]*pr;
+      m_pr = proj(gc.Vf,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      for(int j=0;j<ndim;j++) gco.Vf[j] += -gc.kernel[i][j]*m_pr;
+      gco.Cf += -gc.kaverages[i]*m_pr;
 
-      pr = proj(gc.Vz0,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
-      for(int j=0;j<ndim;j++) gco.Vz0[j] += -gc.kernel[i][j]*pr;
-      gco.Cz0 += -gc.kaverages[i]*pr;
+      m_pr = proj(gc.Vz0,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      for(int j=0;j<ndim;j++) gco.Vz0[j] += -gc.kernel[i][j]*m_pr;
+      gco.Cz0 += -gc.kaverages[i]*m_pr;
 
-      pr = proj(gc.Vo,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
-      for(int j=0;j<ndim;j++) gco.Vo[j] += -gc.kernel[i][j]*pr;
-      gco.Co += -gc.kaverages[i]*pr;
+      m_pr = proj(gc.Vo,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      for(int j=0;j<ndim;j++) gco.Vo[j] += -gc.kernel[i][j]*m_pr;
+      gco.Co += -gc.kaverages[i]*m_pr;
       
         
       // Copy the kernel 
@@ -1261,7 +1262,7 @@ void FTKConstGenAlgo::constantgen()
       nconst++;
 
       //fill matrix
-      m_good_tree->Fill();
+      good_tree->Fill();
 
       // Record information on eigenvalues and noise
 #ifdef DEBUG_NOISE
@@ -1291,20 +1292,20 @@ void FTKConstGenAlgo::constantgen()
   // for good matrix
   //
 
-  good_file->cd();
-  m_good_tree->Write();
+  m_good_file->cd();
+  good_tree->Write();
   gROOT->cd();
   
-  delete m_good_tree;
-  m_good_tree=NULL;
+  delete good_tree;
+  good_tree=NULL;
 
   //
   // const.root    
   //
-  cfile->cd();
+  m_cfile->cd();
   m_ctree->Write();
   gROOT->cd();
-  cfile->Close();
+  m_cfile->Close();
   
 
   ////// ASCII file part (.gcon and .patt)
@@ -1477,8 +1478,8 @@ void FTKConstGenAlgo::extract_1stStage()
   TTree *tree = (TTree*)Lfile->Get(Form("am%d",m_region));
   TTree *slice_tree = (TTree*) Lfile->Get("slice");
 
-  for(int idx=0; idx<(int)vec_plane_index_2nd_stage.size(); idx++){
-    log << MSG::INFO <<"2nd stage layer :" << vec_plane_index_2nd_stage[idx] << ", 1st stage layer: "<< vec_plane_index_1st_stage[idx] << ", doInvert: " << vec_doInvert[idx] << ", coord 2nd stage: " << vec_coord_index_2nd_stage[idx] << ", coord 1st stage: " << vec_coord_index_1st_stage[idx] << endmsg;
+  for(int idx=0; idx<(int)m_vec_plane_index_2nd_stage.size(); idx++){
+    log << MSG::INFO <<"2nd stage layer :" << m_vec_plane_index_2nd_stage[idx] << ", 1st stage layer: "<< m_vec_plane_index_1st_stage[idx] << ", doInvert: " << m_vec_doInvert[idx] << ", coord 2nd stage: " << m_vec_coord_index_2nd_stage[idx] << ", coord 1st stage: " << m_vec_coord_index_1st_stage[idx] << endmsg;
   }
 
   // prepare the pointers to retrieve the data from the TTrees
@@ -1504,8 +1505,8 @@ void FTKConstGenAlgo::extract_1stStage()
   double *tmpxZ;
   double *tmpcovx;
 
-  int ndim8 = 11;
-  int ndim2_8 = 11*11;
+  int ndim8 = m_pmap_8L->getTotalDim();;
+  int ndim2_8 = ndim8*ndim8;
   int nth_dim8 = 0;
   int nth_dim8_2 = 0;
   int idx_cov8 = 0;
@@ -1552,7 +1553,7 @@ void FTKConstGenAlgo::extract_1stStage()
   //
 
   tree->SetBranchAddress("ndim",&ndim);
-  tree->SetBranchAddress("nplanes",&nplane);
+  tree->SetBranchAddress("nplanes",&m_nplane);
   tree->SetBranchAddress("ndim2",&ndim2);
   tree->GetEntry(0); 
   
@@ -1573,8 +1574,8 @@ void FTKConstGenAlgo::extract_1stStage()
   slice_tree->SetBranchAddress("eta_slices", &tmp_etaslices);
   slice_tree->GetEntry(0); 
   
-  sectorID = (int *) calloc(nplane+1,sizeof(int));  
-  hashID = (int *) calloc(nplane+1,sizeof(int));  
+  sectorID = (int *) calloc(m_nplane+1,sizeof(int));  
+  hashID = (int *) calloc(m_nplane+1,sizeof(int));  
   vec = (double *) calloc(ndim,sizeof(double));  
   tmpxC = (double *) calloc(ndim,sizeof(double));  
   tmpxD = (double *) calloc(ndim,sizeof(double));
@@ -1583,8 +1584,8 @@ void FTKConstGenAlgo::extract_1stStage()
   tmpxZ = (double *) calloc(ndim,sizeof(double));  
   tmpcovx = (double *) calloc(ndim2,sizeof(double));  
 
-  sectorID8 = (int *) calloc(nplane8+1,sizeof(int));  
-  hashID8 = (int *) calloc(nplane8+1,sizeof(int));  
+  sectorID8 = (int *) calloc(m_nplane8+1,sizeof(int));  
+  hashID8 = (int *) calloc(m_nplane8+1,sizeof(int));  
   vec8 = (double *) calloc(ndim8,sizeof(double));  
   tmpxC8 = (double *) calloc(ndim8,sizeof(double));  
   tmpxD8 = (double *) calloc(ndim8,sizeof(double));
@@ -1606,7 +1607,7 @@ void FTKConstGenAlgo::extract_1stStage()
     b_end=m_region+1; 
   }
 
-  initPattTree(m_nbank,nplane8+1,ndim8);  //(nregions, nplane+1, ndim)
+  initPattTree(m_nbank,m_nplane8+1,ndim8);  //(nregions, m_nplane+1, ndim)
 
   for(int b=b_int;b<b_end;b++) { // loop over the banks
 
@@ -1648,63 +1649,69 @@ void FTKConstGenAlgo::extract_1stStage()
       Mtmp.Coto=tmpCoto, Mtmp.Z=tmpZ,Mtmp.nhit=nhit;
 
       // check if the module belongs to endcap (for endcap inversion.).
-      bool isEndcap[12]={0};
+      std::vector<bool> isEndcap (m_nplane);
 
-      for(int plane_idx_2nd_stage = 0;plane_idx_2nd_stage<nplane;plane_idx_2nd_stage++){
-      	if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
+      for(int plane_idx_2nd_stage = 0;plane_idx_2nd_stage<m_nplane;plane_idx_2nd_stage++){
+	if(m_ITkMode){
+	  if((sectorID[plane_idx_2nd_stage]%100) / 10 != 2 ){
+	    isEndcap[plane_idx_2nd_stage]=true;
+	  }
+	}else{
+	  if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
+	}
       }
 
       // main function extract 1st stage (8L) from 2nd stage (12L)
-      for(int idx_layer=0; idx_layer<(int)vec_plane_index_2nd_stage.size(); idx_layer++){
+      for(int idx_layer=0; idx_layer<(int)m_vec_plane_index_2nd_stage.size(); idx_layer++){
 	
-	if(vec_doInvert[idx_layer] && isEndcap[vec_plane_index_2nd_stage[idx_layer]]){// if endcap and SCT layer
+	if(m_vec_doInvert[idx_layer] && isEndcap[m_vec_plane_index_2nd_stage[idx_layer]]){// if endcap and SCT layer
 
 	  // stereo or axial
-	  if(vec_plane_index_2nd_stage[idx_layer] % 2 == 0) inversion = 1;
-	  else inversion = -1;
+	  if(m_vec_plane_index_2nd_stage[idx_layer] % 2 == 0) m_inversion = 1;
+	  else m_inversion = -1;
 
-	}else{// if no inversion
-	  inversion = 0;
-	}// endcap inversion
+	}else{// if no m_inversion
+	  m_inversion = 0;
+	}// endcap m_inversion
 
-	sectorID8[idx_layer] = sectorID[vec_plane_index_2nd_stage[idx_layer] + inversion];
-	hashID8[idx_layer] = hashID[vec_plane_index_2nd_stage[idx_layer] + inversion];
+	sectorID8[idx_layer] = sectorID[m_vec_plane_index_2nd_stage[idx_layer] + m_inversion];
+	hashID8[idx_layer] = hashID[m_vec_plane_index_2nd_stage[idx_layer] + m_inversion];
 	
-	for(int ndm=0; ndm<vec_ndimension[idx_layer]; ndm++){// pixel:2, SCT:1
+	for(int ndm=0; ndm<m_vec_ndimension[idx_layer]; ndm++){// pixel:2, SCT:1
 
-	  nth_dim  = vec_coord_index_2nd_stage[idx_layer] + ndm;
-	  nth_dim8 = vec_coord_index_1st_stage[idx_layer] + ndm;
+	  nth_dim  = m_vec_coord_index_2nd_stage[idx_layer] + ndm;
+	  nth_dim8 = m_vec_coord_index_1st_stage[idx_layer] + ndm;
 
-	  vec8[nth_dim8] = vec[nth_dim + inversion];
-	  tmpxC8[nth_dim8] = tmpxC[nth_dim + inversion];
-	  tmpxD8[nth_dim8] = tmpxD[nth_dim + inversion];
-	  tmpxPhi8[nth_dim8] = tmpxPhi[nth_dim + inversion];
-	  tmpxCoto8[nth_dim8] = tmpxCoto[nth_dim + inversion];
-	  tmpxZ8[nth_dim8] = tmpxZ[nth_dim + inversion];
+	  vec8[nth_dim8] = vec[nth_dim + m_inversion];
+	  tmpxC8[nth_dim8] = tmpxC[nth_dim + m_inversion];
+	  tmpxD8[nth_dim8] = tmpxD[nth_dim + m_inversion];
+	  tmpxPhi8[nth_dim8] = tmpxPhi[nth_dim + m_inversion];
+	  tmpxCoto8[nth_dim8] = tmpxCoto[nth_dim + m_inversion];
+	  tmpxZ8[nth_dim8] = tmpxZ[nth_dim + m_inversion];
 
 	  // tmpcovx culcuration
-	  for(int idx2_layer=0; idx2_layer<(int)vec_plane_index_2nd_stage.size(); idx2_layer++){
-	    for(int ndm2=0; ndm2<vec_ndimension[idx2_layer]; ndm2++){
+	  for(int idx2_layer=0; idx2_layer<(int)m_vec_plane_index_2nd_stage.size(); idx2_layer++){
+	    for(int ndm2=0; ndm2<m_vec_ndimension[idx2_layer]; ndm2++){
 	      
-	      if(vec_doInvert[idx2_layer] && isEndcap[vec_plane_index_2nd_stage[idx2_layer]]){//if endcap and SCT layer
+	      if(m_vec_doInvert[idx2_layer] && isEndcap[m_vec_plane_index_2nd_stage[idx2_layer]]){//if endcap and SCT layer
 		
 		// stereo or axial
-		if(vec_plane_index_2nd_stage[idx2_layer] % 2 == 0) inversion2 = 1;
-		else inversion2 = -1;
+		if(m_vec_plane_index_2nd_stage[idx2_layer] % 2 == 0) m_inversion2 = 1;
+		else m_inversion2 = -1;
 		
-	      }else{// if no inversion
-		inversion2 = 0;
-	      }// endcap inversion
+	      }else{// if no m_inversion
+		m_inversion2 = 0;
+	      }// endcap m_inversion
 
-	      nth_dim2   = vec_coord_index_2nd_stage[idx2_layer] + ndm2;
-	      nth_dim8_2 = vec_coord_index_1st_stage[idx2_layer] + ndm2;
+	      nth_dim2   = m_vec_coord_index_2nd_stage[idx2_layer] + ndm2;
+	      nth_dim8_2 = m_vec_coord_index_1st_stage[idx2_layer] + ndm2;
 
 	      idx_cov8 = (nth_dim8) * ndim8 + nth_dim8_2;//11*x + y
 	      
 	      if(nth_dim8>nth_dim8_2){//make triangle
 		tmpcovx8[idx_cov8] = 0;
 	      }else{
-		tmpcovx8[idx_cov8] = tmpcovx[(nth_dim + inversion) * ndim + nth_dim2 + inversion2];
+		tmpcovx8[idx_cov8] = tmpcovx[(nth_dim + m_inversion) * ndim + nth_dim2 + m_inversion2];
 	      }// nth_dim8 < 7
 
 	    }// dimension loop 2
@@ -1719,10 +1726,10 @@ void FTKConstGenAlgo::extract_1stStage()
       hashID8[8] = 0;//for sector, we set it to zero
       bank_order = b - b_int;
       
-      addPattReturnCode=addKDPattern(bank_order,false,sectorID8,hashID8,1,Mtmp,vec8,tmpxC8,tmpxD8,tmpxPhi8,tmpxCoto8,tmpxZ8,tmpcovx8,
+      m_addPattReturnCode=addKDPattern(bank_order,false,sectorID8,hashID8,1,Mtmp,vec8,tmpxC8,tmpxD8,tmpxPhi8,tmpxCoto8,tmpxZ8,tmpcovx8,
 				     tmp_intc[0],tmp_intphi[0],tmp_intd0[0],tmp_intz0[0],tmp_inteta[0]);
 
-      if(1==addPattReturnCode){
+      if(1==m_addPattReturnCode){
 	++npatterns;
       }
 
@@ -1763,13 +1770,13 @@ void FTKConstGenAlgo::extract_1stStage()
   double *extract_xZ=NULL;
   double *extract_covx=NULL;
 
-  TTree *m_tree=NULL;
-  TTree *m_extract_slice=NULL;
+  TTree *mtree=NULL;
+  TTree *extract_slice=NULL;
 
-  m_extract_slice=new TTree("slice", "slice para");
+  extract_slice=new TTree("slice", "slice para");
   
-  extract_Sec = (int *) calloc(nplane8,sizeof(int));  
-  extract_hash = (int *) calloc(nplane8,sizeof(int));  
+  extract_Sec = (int *) calloc(m_nplane8,sizeof(int));  
+  extract_hash = (int *) calloc(m_nplane8,sizeof(int));  
   extract_vec = (double *) calloc(ndim8,sizeof(double));  
   extract_xC = (double *) calloc(ndim8,sizeof(double));  
   extract_xD = (double *) calloc(ndim8,sizeof(double));
@@ -1782,9 +1789,9 @@ void FTKConstGenAlgo::extract_1stStage()
   if (m_outfilename.size()==0) {
     char filename[40];
     if(true==m_allregion){
-      sprintf(filename,"matrix_%dL_%dDim_regall.root",nplane8,ndim8);
+      sprintf(filename,"matrix_%dL_%dDim_regall.root",m_nplane8,ndim8);
     }else{
-      sprintf(filename,"matrix_%dL_%dDim_reg%d.root",nplane8,ndim8,m_region);
+      sprintf(filename,"matrix_%dL_%dDim_reg%d.root",m_nplane8,ndim8,m_region);
     }
     Lfile = new TFile(filename,"recreate");
   }
@@ -1795,25 +1802,25 @@ void FTKConstGenAlgo::extract_1stStage()
   char name[5];
   char mtitle[20];
 
-  m_extract_slice->Branch("c_max",&tmp_cmax);
-  m_extract_slice->Branch("phi_max",&tmp_phimax);
-  m_extract_slice->Branch("d0_max",&tmp_d0max);
-  m_extract_slice->Branch("z0_max",&tmp_z0max);
-  m_extract_slice->Branch("eta_max",&tmp_etamax);
+  extract_slice->Branch("c_max",&tmp_cmax);
+  extract_slice->Branch("phi_max",&tmp_phimax);
+  extract_slice->Branch("d0_max",&tmp_d0max);
+  extract_slice->Branch("z0_max",&tmp_z0max);
+  extract_slice->Branch("eta_max",&tmp_etamax);
   
-  m_extract_slice->Branch("c_min",&tmp_cmin);
-  m_extract_slice->Branch("phi_min",&tmp_phimin);
-  m_extract_slice->Branch("d0_min",&tmp_d0min);
-  m_extract_slice->Branch("z0_min",&tmp_z0min);
-  m_extract_slice->Branch("eta_min",&tmp_etamin);
+  extract_slice->Branch("c_min",&tmp_cmin);
+  extract_slice->Branch("phi_min",&tmp_phimin);
+  extract_slice->Branch("d0_min",&tmp_d0min);
+  extract_slice->Branch("z0_min",&tmp_z0min);
+  extract_slice->Branch("eta_min",&tmp_etamin);
   
-  m_extract_slice->Branch("c_slices",&tmp_cslices);
-  m_extract_slice->Branch("phi_slices",&tmp_phislices);
-  m_extract_slice->Branch("d0_slices",&tmp_d0slices);
-  m_extract_slice->Branch("z0_slices",&tmp_z0slices); 
-  m_extract_slice->Branch("eta_slices",&tmp_etaslices);    
-  m_extract_slice->Fill();
-  m_extract_slice->Write();
+  extract_slice->Branch("c_slices",&tmp_cslices);
+  extract_slice->Branch("phi_slices",&tmp_phislices);
+  extract_slice->Branch("d0_slices",&tmp_d0slices);
+  extract_slice->Branch("z0_slices",&tmp_z0slices); 
+  extract_slice->Branch("eta_slices",&tmp_etaslices);    
+  extract_slice->Fill();
+  extract_slice->Write();
 
   //
   // define 8L matrix branch, sort by ntracks, and fill
@@ -1823,26 +1830,26 @@ void FTKConstGenAlgo::extract_1stStage()
     sprintf(name,"am%d",b);
     sprintf(mtitle,"Ambank %d para",b);
         
-    m_tree = new TTree(name, mtitle);
+    mtree = new TTree(name, mtitle);
     
-    m_tree->Branch("ndim",&ndim8,"ndim8/I");
-    m_tree->Branch("ndim2",&ndim2_8,"ndim2_8/I");
-    m_tree->Branch("Vec", extract_vec,"Vec[ndim8]/D");
-    m_tree->Branch("nplanes",&nplane8,"nplanes/I");
-    m_tree->Branch("sectorID", extract_Sec, "sectorID[nplanes]/I");
-    m_tree->Branch("hashID", extract_hash, "hashID[nplanes]/I");
-    m_tree->Branch("nhit", &extract_nhit,"nhit/F");
-    m_tree->Branch("tmpC", &extract_C,"tmpC/D");
-    m_tree->Branch("tmpD", &extract_D,"tmpD/D");
-    m_tree->Branch("tmpPhi", &extract_Phi,"tmpPhi/D");
-    m_tree->Branch("tmpCoto", &extract_Coto,"tmpCoto/D");
-    m_tree->Branch("tmpZ", &extract_Z,"tmpZ/D");
-    m_tree->Branch("tmpxC", extract_xC,"tmpxC[ndim8]/D");
-    m_tree->Branch("tmpxD", extract_xD,"tmpxD[ndim8]/D");
-    m_tree->Branch("tmpxPhi", extract_xPhi,"tmpxPhi[ndim8]/D");
-    m_tree->Branch("tmpxCoto", extract_xCoto,"tmpxCoto[ndim8]/D");
-    m_tree->Branch("tmpxZ", extract_xZ,"tmpxZ[ndim8]/D");
-    m_tree->Branch("tmpcovx", extract_covx,"tmpcovx[ndim2_8]/D");
+    mtree->Branch("ndim",&ndim8,"ndim8/I");
+    mtree->Branch("ndim2",&ndim2_8,"ndim2_8/I");
+    mtree->Branch("Vec", extract_vec,"Vec[ndim8]/D");
+    mtree->Branch("nplanes",&m_nplane8,"nplanes/I");
+    mtree->Branch("sectorID", extract_Sec, "sectorID[nplanes]/I");
+    mtree->Branch("hashID", extract_hash, "hashID[nplanes]/I");
+    mtree->Branch("nhit", &extract_nhit,"nhit/F");
+    mtree->Branch("tmpC", &extract_C,"tmpC/D");
+    mtree->Branch("tmpD", &extract_D,"tmpD/D");
+    mtree->Branch("tmpPhi", &extract_Phi,"tmpPhi/D");
+    mtree->Branch("tmpCoto", &extract_Coto,"tmpCoto/D");
+    mtree->Branch("tmpZ", &extract_Z,"tmpZ/D");
+    mtree->Branch("tmpxC", extract_xC,"tmpxC[ndim8]/D");
+    mtree->Branch("tmpxD", extract_xD,"tmpxD[ndim8]/D");
+    mtree->Branch("tmpxPhi", extract_xPhi,"tmpxPhi[ndim8]/D");
+    mtree->Branch("tmpxCoto", extract_xCoto,"tmpxCoto[ndim8]/D");
+    mtree->Branch("tmpxZ", extract_xZ,"tmpxZ[ndim8]/D");
+    mtree->Branch("tmpcovx", extract_covx,"tmpcovx[ndim2_8]/D");
                      
     m_extract_intc= new std::vector<short>;
     m_extract_intphi= new std::vector<short>;
@@ -1850,11 +1857,11 @@ void FTKConstGenAlgo::extract_1stStage()
     m_extract_intz0= new std::vector<short>;
     m_extract_inteta= new std::vector<short>;
 
-    m_tree->Branch("tmpintc", &m_extract_intc);
-    m_tree->Branch("tmpintphi", &m_extract_intphi);
-    m_tree->Branch("tmpintd0", &m_extract_intd0);
-    m_tree->Branch("tmpintz0", &m_extract_intz0);
-    m_tree->Branch("tmpinteta", &m_extract_inteta);
+    tree->Branch("tmpintc", &m_extract_intc);
+    tree->Branch("tmpintphi", &m_extract_intphi);
+    tree->Branch("tmpintd0", &m_extract_intd0);
+    tree->Branch("tmpintz0", &m_extract_intz0);
+    tree->Branch("tmpinteta", &m_extract_inteta);
 
     bank_order = b - b_int;
 
@@ -1869,7 +1876,7 @@ void FTKConstGenAlgo::extract_1stStage()
       m_extract_inteta->clear();	
       
       log << MSG::INFO <<"sector ";
-      for(int k=0;k<nplane8;k++){
+      for(int k=0;k<m_nplane8;k++){
 	extract_Sec[k]=getPatternSS(bank_order,i,k);
 	extract_hash[k]=getPatthashID(bank_order,i,k);
 	log <<getPatternSS(bank_order,i,k)<<" ";
@@ -1906,15 +1913,15 @@ void FTKConstGenAlgo::extract_1stStage()
       }
 
       // fill the output TTree after the reduce information has been informed
-      m_tree->Fill();
+      mtree->Fill();
     }
     // save the result in the output TTree
     Lfile->cd();
-    m_tree->Write();
+    mtree->Write();
     gROOT->cd();
 
-    delete m_tree;
-    m_tree=NULL;
+    delete mtree;
+    mtree=NULL;
   }// loop over regions
 
   free(extract_Sec);

@@ -110,9 +110,9 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
    extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
    // Extracting INPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
-   extractPoolAttributes(m_inputPoolAttr, &m_inputAttr, &m_inputAttr);
+   extractPoolAttributes(m_inputPoolAttr, &m_inputAttr, &m_inputAttr, &m_inputAttr);
    // Extracting the INPUT POOL ItechnologySpecificAttributes which are to be printed for each event
-   extractPoolAttributes(m_inputPoolAttrPerEvent, &m_inputAttrPerEvent, &m_inputAttrPerEvent);
+   extractPoolAttributes(m_inputPoolAttrPerEvent, &m_inputAttrPerEvent, &m_inputAttrPerEvent, &m_inputAttrPerEvent);
    if (!m_inputPoolAttrPerEvent.value().empty()) {
       // Setup incident for EndEvent to print out attributes each event
       ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
@@ -121,6 +121,12 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       incSvc->addListener(this, "EndEvent", pri);
       ATH_MSG_DEBUG("Subscribed to EndEvent for printing out input file attributes.");
    }
+   pool::DbType dbType = m_dbType;
+   m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
+   if (!processPoolAttributes(m_inputAttr, "", IPoolSvc::kInputStream, false, true, true).isSuccess()) {
+      ATH_MSG_DEBUG("setInputAttribute failed setting POOL domain attributes.");
+   }
+   m_dbType = dbType;
    m_doChronoStat = m_skipFirstChronoCommit.value() ? false : true;
    return(StatusCode::SUCCESS);
 }
@@ -859,12 +865,15 @@ StatusCode AthenaPoolCnvSvc::cleanUp() {
 StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    // Set attributes for input file
    m_lastFileName = fileName; // Save file name for printing attributes per event
+   pool::DbType dbType = m_dbType;
+   m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
    if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, false, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL database/container attributes.");
    }
    if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed getting POOL database/container attributes.");
    }
+   m_dbType = dbType;
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -993,9 +1002,12 @@ StatusCode AthenaPoolCnvSvc::readData() const {
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::handle(const Incident& incident) {
    if (incident.type() == "EndEvent") {
+      pool::DbType dbType = m_dbType;
+      m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
       if (!processPoolAttributes(m_inputAttrPerEvent, m_lastFileName, IPoolSvc::kInputStream).isSuccess()) {
          ATH_MSG_DEBUG("handle EndEvent failed process POOL database attributes.");
       }
+      m_dbType = dbType;
    }
 }
 //______________________________________________________________________________
@@ -1144,7 +1156,7 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
          std::string data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         if ((file == fileName || (file.substr(0, 1) == "*"
+         if (!fileName.empty() && (file == fileName || (file.substr(0, 1) == "*"
 		         && file.find("," + fileName + ",") == std::string::npos))) {
             if (data == "int" || data == "DbLonglong" || data == "double" || data == "string") {
                if (doGet) {

@@ -45,11 +45,11 @@ namespace DerivationFramework {
     double m_minEtEg;
 
     std::set<int> findGoodTracks(const TrackCollection* trackCont,
-                              TLorentzVector candHepLorentz, 
+                                 const TLorentzVector& candHepLorentz, 
                               double maxDeltaR) const ;
     
 
-    StatusCode thinTracks( const TrackCollection * trackCont , std::set<int> goodTracks ) const ;
+    StatusCode thinTracks( const TrackCollection * trackCont , const std::set<int>& goodTracks ) const ;
         
   };  
 }

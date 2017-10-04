@@ -66,8 +66,8 @@ protected:
 protected:
   virtual ~SoPolyhedron();
 private:
-  static bool   didInit;
-  SbPolyhedron* fPolyhedron;
+  static bool   s_didInit;
+  SbPolyhedron* m_polyhedron;
 
   //---------------//
 public:

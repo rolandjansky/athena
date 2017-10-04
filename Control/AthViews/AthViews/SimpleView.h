@@ -35,13 +35,20 @@ class SimpleView : public IProxyDict
 	public:
 		DeclareInterfaceID( SimpleView, 2, 0 );
 		SimpleView();
-		SimpleView( std::string Name );
+		SimpleView( std::string Name, bool AllowFallThrough=false );
 		virtual ~SimpleView();
 
 		/// get default proxy with given id. Returns 0 to flag failure
 		// TEMPORARY: This method is going away.
 		/*virtual SG::DataProxy* proxy(const CLID& id) const
 		{ return 0; };*/
+
+                /**
+                 * @brief links to the previously used views
+		 * though this additional parent views additional data abject become availbe
+		 **/
+                 void linkParent( const IProxyDict* parent );
+
 
 		/// get proxy for a given data object address in memory,
 		/// but performs a deep search among all possible 'symlinked' containers
@@ -174,7 +181,8 @@ class SimpleView : public IProxyDict
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
 		std::string m_name;
-
+                std::vector<const IProxyDict*> m_parents;
+    bool m_allowFallThrough;
 };
 
 

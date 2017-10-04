@@ -9,7 +9,10 @@
 #define VP1STRINGIFY(str) VP1ACTUAL_STRINGIFY(str)
 #define VP1SLOTNAME(x) VP1CONTROLLERCLASSNAME::possibleChange_##x
 #define VP1SIGNALNAME(x) x##Changed
-#define VP1LASTVARNAME(x) d->last_##x
+#ifndef VP1IMPVARNAME
+# define VP1IMPVARNAME d
+#endif
+#define VP1LASTVARNAME(x) VP1IMPVARNAME->last_##x
 #define POSSIBLECHANGE_IMP(x) void VP1SLOTNAME(x)() {	\
   if (changed( VP1LASTVARNAME(x) , x())) { \
     if (verbose()&&!initVarsMode()) messageVerbose("Emitting "+QString(VP1STRINGIFY(VP1SIGNALNAME(x)))+"( "+toString(VP1LASTVARNAME(x))+" )"); \

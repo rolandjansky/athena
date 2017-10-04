@@ -4,7 +4,6 @@
 
 /***************************************************************************
  -----------------------------------------
- Copyright (C) 2002 by ATLAS Collaboration
  ***************************************************************************
  this class reads in the electronic mapping from the TBElectronics.map-file to return the Muon-Offline-Identifier to a given channel.
  ***************************************************************************/

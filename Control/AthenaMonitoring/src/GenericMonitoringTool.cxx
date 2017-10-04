@@ -63,7 +63,10 @@ StatusCode GenericMonitoringTool::initialize() {
   }
 
   if ( m_fillers.empty() ) {
-    ATH_MSG_ERROR("No variables to be monitored, detach this tool, it will save time");
+    std::string hists;
+    for (const auto &h : m_histograms) hists += (h+",");
+    ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<
+                  "] Remove this monitoring tool or check its configuration.");
     return StatusCode::FAILURE;
   }
 

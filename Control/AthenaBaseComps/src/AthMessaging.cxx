@@ -26,12 +26,7 @@
 /// Constructor with parameters: 
 AthMessaging::AthMessaging (IMessageSvc* msgSvc, 
 			    const std::string& name) :
-  m_msg (msgSvc, name)
-{}
-
-/// Constructor from an existing stream.
-AthMessaging::AthMessaging (MsgStream& msg)
-  : m_msg (msg)
+  m_imsg(msgSvc), m_nm(name)
 {}
 
 // Destructor

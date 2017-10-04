@@ -208,6 +208,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
+
+  ATH_CHECK( m_pixcontainerkey.initialize() );
+  ATH_CHECK( m_sctcontainerkey.initialize() );
+
   return sc;
 }
 
@@ -602,9 +606,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   detectorElementLinks(DE,DEL);
 
   SG::ReadHandle<InDet::SiClusterContainer> pixcontainer(m_pixcontainerkey);
-  ATH_CHECK(pixcontainer.isValid());
   SG::ReadHandle<InDet::SiClusterContainer> sctcontainer(m_sctcontainerkey);
-  ATH_CHECK(sctcontainer.isValid());
 
   // List cluster preparation
   //

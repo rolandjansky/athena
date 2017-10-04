@@ -20,7 +20,6 @@
  **                 N.Berger Dec.06 - migrate to new steering (RG)
  **************************************************************************/
 
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 #include "TrkCaloExtension/CaloExtensionHelpers.h" 
 #include "TrigL2ElectronFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
@@ -34,50 +33,12 @@ inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) {
 
 
 TrigL2ElectronFexMT::TrigL2ElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
-      m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-      m_roiCollectionKey(""),
-      m_TrigEMClusterContainerKey(""),
-      m_TrackParticleContainerKey(""),
-      m_outputElectronsKey("")
-
+    : AthAlgorithm(name, pSvcLocator)
 {
-    declareProperty( "AcceptAll",            m_acceptAll  = false );
-    declareProperty( "ClusEt",              m_clusEtthr = 20.0*CLHEP::GeV );
-    declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
-    declareProperty( "CaloTrackdEtaNoExtrap",        m_calotrkdeta_noextrap );
-    declareProperty( "TrackPtHighEt",              m_trackPtthr = 2.0*CLHEP::GeV );
-    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet = 0);
-    declareProperty( "CaloTrackdETA",        m_calotrackdeta = 0);
-    declareProperty( "CaloTrackdPHI",        m_calotrackdphi = 0); 
-    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low = 0);
-    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high = 0);
-    declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
-    declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
-    declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
-    declareProperty("TrackParticlesName", 
-                  m_TrackParticleContainerKey = std::string("Tracks"),
-                  "TrackParticle container");
-    declareProperty("ElectronsName", 
-                  m_outputElectronsKey = std::string("Electrons"),
-                  "Electron container");
-    declareProperty("roiCollectionName", 
-                  m_roiCollectionKey = std::string("rois"),
-                  "RoI Collection");
 
-    declareProperty("TrigEMClusterName", 
-                  m_TrigEMClusterContainerKey = std::string("clusters"),
-                  "TrigEMCluster Container");
+  // TODO: Replace this with a .h property once Gaudi!385 has been merged
+  declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Monitoring tool");
 
-
-
-    //    declareMonitoredStdContainer("PtCalo",m_calopt_mon);
-    //declareMonitoredStdContainer("PtTrack",m_trackpt_mon);
-    //declareMonitoredStdContainer("CaloTrackdEta",m_calotrackdeta_mon); 
-    //declareMonitoredStdContainer("CaloTrackdPhi",m_calotrackdphi_mon); 
-    //declareMonitoredStdContainer("CaloTrackEoverP",m_calotrackdeoverp_mon);
-    //declareMonitoredStdContainer("CaloTrackdEtaNoExtrapMon",m_calotrkdeta_noextrap_mon);
-    // initialize error counter
     m_extrapolator_failed = 0;
 }
 
@@ -90,13 +51,12 @@ StatusCode TrigL2ElectronFexMT::initialize()
 {
   ATH_MSG_DEBUG("Initialization:");
 
-
-  ATH_CHECK( m_roiCollectionKey.initialize() );
-
-  ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
-  ATH_CHECK( m_TrackParticleContainerKey.initialize() );
-  ATH_CHECK( m_outputElectronsKey.initialize() );
-
+  if (!m_monTool.empty()) {
+    ATH_MSG_DEBUG("Retrieving monTool");
+    CHECK(m_monTool.retrieve());
+  } else {
+    ATH_MSG_INFO("No monTool configured => NO MONITOING");
+  }
   // initialize error counter
   m_extrapolator_failed = 0;
 
@@ -119,6 +79,11 @@ StatusCode TrigL2ElectronFexMT::initialize()
   ATH_MSG_DEBUG("CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low); 
   ATH_MSG_DEBUG("CaloTrackdEoverPHigh = " << m_calotrackdeoverp_high);
 
+ATH_CHECK( m_roiCollectionKey.initialize() );
+ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
+ATH_CHECK( m_TrackParticleContainerKey.initialize() );
+ATH_CHECK( m_outputElectronsKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -135,14 +100,12 @@ StatusCode TrigL2ElectronFexMT::finalize()
 
 
 StatusCode TrigL2ElectronFexMT::execute() {
-
-  // Collection may be never used. Better only create if necessary
-  // NULL value is specially important to avoid crashs in monitoring
-  //m_trigElecColl = NULL;
+ using namespace Monitored;   
+ using namespace xAOD;   
 
   auto ctx = getContext();
 
-  auto trigElecColl =   SG::makeHandle (m_outputElectronsKey, ctx);
+  auto trigElecColl =   SG::makeHandle (m_outputElectronsKey, ctx);  
   ATH_CHECK( trigElecColl.record (std::make_unique<xAOD::TrigElectronContainer>(),
                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
@@ -158,7 +121,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
     return StatusCode::SUCCESS;
   }
 
-  TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
+  const TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
 
   ATH_MSG_DEBUG(" RoI ID = "   << (roiDescriptor)->roiId()
 		<< ": Eta = "      << (roiDescriptor)->eta()
@@ -197,6 +160,23 @@ StatusCode TrigL2ElectronFexMT::execute() {
   size_t coll_size = tracks->size();
   trigElecColl->reserve(coll_size);
 
+  // monitoring
+  std::vector<float> calotrkdeta_noextrap_mon; //!< monitor preselection between track eta and cluster before extrapolation 
+  std::vector<float> calotrackdeta_mon; 
+  std::vector<float> calotrackdphi_mon; 
+  std::vector<float> calotrackdeoverp_mon;
+  std::vector<float> trackpt_mon;
+  std::vector<float> calopt_mon;
+
+  auto mon1 = MonitoredCollection::declare("PtCalo", calopt_mon);
+  auto mon2 = MonitoredCollection::declare("PtTrack", trackpt_mon);
+  auto mon3 = MonitoredCollection::declare("CaloTrackdEta", calotrackdeta_mon);
+  auto mon4 = MonitoredCollection::declare("CaloTrackdPhi", calotrackdphi_mon);
+  auto mon5 = MonitoredCollection::declare("CaloTrackEoverP", calotrackdeoverp_mon);
+  auto mon6 = MonitoredCollection::declare("CaloTrackdEtaNoExtrapMon",  calotrkdeta_noextrap_mon);
+
+  auto mon = MonitoredScope::declare(m_monTool,  mon1, mon2, mon3, mon4, mon5, mon6);
+
   // loop over tracks
 
   unsigned int track_index=0;
@@ -220,7 +200,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
 	if(!extrapolate(el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
               ATH_MSG_VERBOSE("extrapolator failed");
               continue; 
-          }
+	}
           else{
               ATH_MSG_VERBOSE("REGTEST: TrigElectron: cluster index = " << clusEL.index() <<
                       " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
@@ -232,12 +212,12 @@ StatusCode TrigL2ElectronFexMT::execute() {
                       etaAtCalo, phiAtCalo,  etoverpt,        
                       clusEL,
                       trackEL);
-              m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
-              m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
-              m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
-              m_trackpt_mon.push_back(getTkPt(trigElec));
-              m_calopt_mon.push_back(getCaloPt(trigElec));
-              m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
+	      calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
+              calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
+              calotrackdeoverp_mon.push_back(trigElec->etOverPt());
+              trackpt_mon.push_back(getTkPt(trigElec));
+              calopt_mon.push_back(getCaloPt(trigElec));
+              calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
           }
       }
       else {  
@@ -317,12 +297,12 @@ StatusCode TrigL2ElectronFexMT::execute() {
                   << " phiAtCalo = " << phiAtCalo << " phiAtCalo = " << trigElec->trkPhiAtCalo()
                   );
 
-          m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
-          m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
-          m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
-          m_trackpt_mon.push_back(getTkPt(trigElec));
-          m_calopt_mon.push_back(getCaloPt(trigElec));
-          m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
+          calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
+          calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
+          calotrackdeoverp_mon.push_back(trigElec->etOverPt());
+          trackpt_mon.push_back(getTkPt(trigElec));
+          calopt_mon.push_back(getCaloPt(trigElec));
+          calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
       }
       track_index++;
   }

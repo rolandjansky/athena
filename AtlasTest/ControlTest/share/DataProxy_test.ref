@@ -2,43 +2,32 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/DataProxy_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work14/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
+JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/ControlTest/StoreGateTestCommon.txt
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionsStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (9,1): CLIDSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
-JobOptionsSvc        INFO # =======> /afs/cern.ch/atlas/software/builds/nightlies/mig14/AtlasCore/rel_3/InstallArea/jobOptions/ToyConversion/ToyConversionOpts.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/ToyConversion/ToyConversionOpts.txt
 JobOptionsSvc        INFO # (5,1): EventPersistencySvc.CnvServices += ["ToyConversionSvc"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/DataProxy_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on lxplus0158 on Wed Apr 23 20:31:29 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Thu Aug  3 19:40:18 2017
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-41-08[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-11[m
-ClassIDSvc           INFO  getRegistryEntries: read 153 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-41-08[m
+ClassIDSvc           INFO  getRegistryEntries: read 1913 CLIDRegistry entries for module ALL[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-Now we expect to see a warning message:
-----Warning Message Starts--->>
-<<---Warning Message Ends-------
-FIXME: in opt 32 bits we need to print the address of addressProxy to avoid a crash when the jobs ends!?!  @0x7fff17a40a10
-building toy 0xff8ae0
+FIXME: in opt 32 bits we need to print the address of addressProxy to avoid a crash when the jobs ends!?!  @0x7ffc8985ffb0
 EventPersistenc...   INFO Added successfully Conversion service:ToyConversionSvc[m
 Now we expect to see a warning message:
 ----Warning Message Starts--->>
 [93;1mDataProxy         WARNING accessData:  IOA pointer not set[m
-<<---Warning Message Ends-------
-Now we expect to see an warning message:
-----Warning Message Starts--->>
 <<---Warning Message Ends-------
 *** DataProxy_test OK ***

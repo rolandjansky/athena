@@ -23,7 +23,7 @@ NtupleCurvedAutocalibrationTool :: NtupleCurvedAutocalibrationTool(const std::st
 				m_order(15),
 				m_fix_min(true), 
 				m_fix_max(false), 
-				max_it(100),
+				m_max_it(100),
 				m_force_mono(false),
 				m_control_histograms(false),
 				m_calib_input_svc("MdtCalibInputSvc", n),
@@ -38,7 +38,7 @@ NtupleCurvedAutocalibrationTool :: NtupleCurvedAutocalibrationTool(const std::st
 	declareProperty("FunctionOrder", m_order);
 	declareProperty("FixMin", m_fix_min);
 	declareProperty("FixMax", m_fix_max);
-	declareProperty("MaximumIterations", max_it);
+	declareProperty("MaximumIterations", m_max_it);
 	declareProperty("ForceMonotonous", m_force_mono);
 	declareProperty("ControlHistograms", m_control_histograms);
 	declareProperty("ParabolicExtrapolation", m_parabolic_extrapolation);
@@ -91,7 +91,7 @@ void NtupleCurvedAutocalibrationTool :: setRegion()
 	ATH_MSG_INFO( "Creating RtCalibrationCurved!" );
 	m_autocalibration = new RtCalibrationCurved("RT", m_rt_accuracy,
                                         m_func_type_num, m_order,
-                                        m_fix_min, m_fix_max, max_it,
+                                        m_fix_min, m_fix_max, m_max_it,
                                         m_parabolic_extrapolation,
                                         m_smoothing,
 					m_multilayer_rt_difference);

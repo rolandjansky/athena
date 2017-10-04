@@ -25,3 +25,8 @@ MsgStream& operator<< ( MsgStream& m, const HLT::Identifier& id ) {
   }
   return m;
 }
+
+
+Identifier Identifier::fromToolName( const std::string& tname ) {
+  return Identifier(  tname.substr( tname.find('.') + 1 ) );
+}

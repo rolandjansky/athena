@@ -65,35 +65,28 @@ m_calib_input_svc("MdtCalibInputSvc", n), m_reg_sel_svc("RegionSelectionSvc", n)
 	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	m_curved = true;
 	declareProperty("CurvedFit", m_curved);
-	REJ_LOW = 0.1;
-	declareProperty("RejectLow", REJ_LOW);
-	REJ_TOP = 0.3;
-	declareProperty("RejectTop", REJ_TOP);
-	DELTA_CONV = 0.05;
-	declareProperty("DeltaConv", DELTA_CONV);
-	DIFF_MAX = 0.006;
-	declareProperty("DiffMax", DIFF_MAX);
-	MAX_NUM_IT = 20;
-	declareProperty("MaximumIterations" ,MAX_NUM_IT);
-	replace_with_flat = false;
-	declareProperty("InitialFlatResolution", replace_with_flat);
-	hist_fit_method = false;
-	declareProperty("HistFitMethod", hist_fit_method);
-	suppress_outliers = false;
-	declareProperty("SuppressOutliers", suppress_outliers);
-	SUPPRESS_LOW = 0.2;
-	declareProperty("SuppressionLow", SUPPRESS_LOW);
-	SUPPRESS_TOP = 0.2;
-	declareProperty("SuppressionTop", SUPPRESS_TOP);
-	spr_out_name = string("spr_out.root");
-	declareProperty("OutputResolutionFunction", spr_out_name);
-
-	SBIN=500;
-	RESBIN=60;
-
-	SRANGE=2.0;
-	RRANGE=15.0;
-	RESRANGE=6.0;
+	m_REJ_LOW = 0.1;
+	declareProperty("RejectLow", m_REJ_LOW);
+	m_REJ_TOP = 0.3;
+	declareProperty("RejectTop", m_REJ_TOP);
+	m_DELTA_CONV = 0.05;
+	declareProperty("DeltaConv", m_DELTA_CONV);
+	m_DIFF_MAX = 0.006;
+	declareProperty("DiffMax", m_DIFF_MAX);
+	m_MAX_NUM_IT = 20;
+	declareProperty("MaximumIterations" ,m_MAX_NUM_IT);
+	m_replace_with_flat = false;
+	declareProperty("InitialFlatResolution", m_replace_with_flat);
+	m_hist_fit_method = false;
+	declareProperty("HistFitMethod", m_hist_fit_method);
+	m_suppress_outliers = false;
+	declareProperty("SuppressOutliers", m_suppress_outliers);
+	m_SUPPRESS_LOW = 0.2;
+	declareProperty("SuppressionLow", m_SUPPRESS_LOW);
+	m_SUPPRESS_TOP = 0.2;
+	declareProperty("SuppressionTop", m_SUPPRESS_TOP);
+	m_spr_out_name = string("spr_out.root");
+	declareProperty("OutputResolutionFunction", m_spr_out_name);
 	}
 
 
@@ -115,8 +108,8 @@ StatusCode NtupleSimpleResolutionTool::initialize()
 /////////////////////
 // OTHER VARIABLES //
 /////////////////////
-	MINNUMHITS = 4;
-	if(m_curved) MINNUMHITS = 5;
+        m_MINNUMHITS = 4;
+	if(m_curved) m_MINNUMHITS = 5;
 
 	m_sprgr=0;
 	m_sprgr_r=0;
@@ -174,8 +167,8 @@ StatusCode NtupleSimpleResolutionTool::initialize()
 void NtupleSimpleResolutionTool :: setRegion()
 	{
 	
-	p_rt_relation = m_calib_input_svc->GetRtRelation();
-	if(p_rt_relation == NULL)
+	m_rt_relation = m_calib_input_svc->GetRtRelation();
+	if(m_rt_relation == NULL)
 		{
 		ATH_MSG_FATAL( "Cannot find rt-relatino for this region" );
 		return;
@@ -187,10 +180,10 @@ void NtupleSimpleResolutionTool :: setRegion()
 //*****************************************************************************
 
 ///////////////////////
-// METHOD m_destruct //
+// METHOD destruct //
 ///////////////////////
 
-void NtupleSimpleResolutionTool::m_destruct(void) {
+void NtupleSimpleResolutionTool::destruct(void) {
 
 	if(!m_is_initialized) return;
 
@@ -213,7 +206,7 @@ if(segments.size() == 0)
 for(unsigned int i=0; i<segments.size(); i++) {
 	const MuonCalibSegment *seg=segments[i];
 	
-	if (seg->mdtHitsOnTrack()<MINNUMHITS) continue;
+	if (seg->mdtHitsOnTrack()<m_MINNUMHITS) continue;
 		
 	bool seg_rej = false;
 	for (unsigned int l=0;l<seg->mdtHitsOnTrack();l++) {
@@ -250,7 +243,7 @@ for(unsigned int i=0; i<segments.size(); i++) {
 		}
 
 // replace initial space resolution with flat 0.3
-		if(replace_with_flat) {
+		if(m_replace_with_flat) {
 			seg->mdtHOT()[l]->setDriftRadius(fabs(seg->mdtHOT()[l]->driftRadius()),0.3);
 		}
 
@@ -258,7 +251,7 @@ for(unsigned int i=0; i<segments.size(); i++) {
 	m_number_of_segments = m_refitted_segment.size();
 	m_refitted_segment.push_back(new MuonCalibSegment(*(seg)));
 	}
-	end_of_data(p_rt_relation);
+	end_of_data(m_rt_relation);
 
 	return StatusCode :: SUCCESS;
 }
@@ -272,7 +265,7 @@ for(unsigned int i=0; i<segments.size(); i++) {
 void NtupleSimpleResolutionTool::handle_segment(MuonCalibSegment &seg, double *par_lim_low, 
 double *par_lim_upp) {
 
-	if(seg.mdtHitsOnTrack()<MINNUMHITS || seg.mdtHitsOnTrack()>MAXNUMHITS) return;
+	if(seg.mdtHitsOnTrack()<m_MINNUMHITS || seg.mdtHitsOnTrack()>MAXNUMHITS) return;
 	bool seg_rej = false;
 	for (unsigned int l=0;	l<seg.mdtHitsOnTrack();l++) {
 		if (fabs(seg.mdtHOT()[l]->driftRadius())>15.0 ||
@@ -387,7 +380,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 	double r_conv = 0;
 	unsigned int iteration(0);
 
-	for(int it=0; (delta_conv>DELTA_CONV)&&(it<MAX_NUM_IT); it++) {
+	for(int it=0; (delta_conv>m_DELTA_CONV)&&(it<m_MAX_NUM_IT); it++) {
 
 	double par_low[6] = {0,0,0,0,0,0};
 	double par_upp[6] = {SRANGE,0,0,0,0,0};
@@ -412,7 +405,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 
 	trkErrorFix(par_low, par_upp);
 
-	if(suppress_outliers) {
+	if(m_suppress_outliers) {
 	for(unsigned int j=0;j<RBIN;j++) {
 //		TH1D *proj_y = m_residual0->ProjectionY("_y", j+1,j+1);
 		TH1D *proj_y = m_residual->ProjectionY("_y", j+1,j+1);
@@ -421,11 +414,11 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 		for(unsigned int i=0;i<RESBIN;i++) {
 			num += proj_y->GetBinContent(i+1);
 		}
-		for(int i=0;sum_low<SUPPRESS_LOW*num;i++) {
+		for(int i=0;sum_low<m_SUPPRESS_LOW*num;i++) {
 			sum_low += proj_y->GetBinContent(i+1);
 			m_low[j]= -0.5*RESRANGE + RESRANGE*i/float(RESBIN);
 		}
-		for(int i=0;sum_top<(1-SUPPRESS_TOP)*num;i++) {
+		for(int i=0;sum_top<(1-m_SUPPRESS_TOP)*num;i++) {
 			sum_top += proj_y->GetBinContent(i+1);
 			m_top[j]= -0.5*RESRANGE + RESRANGE*i/float(RESBIN);
 		}
@@ -467,7 +460,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 //				double d_diff = diff/abs(m_sprfun->Eval(x[j]));
 				double diff = abs((m_sprfun_r->Eval(x[j]))-(sprfun_old->Eval(x[j])));
 				double d_diff = diff/abs(m_sprfun_r->Eval(x[j]));
-				if(d_diff>delta_conv && diff> DIFF_MAX) {
+				if(d_diff>delta_conv && diff> m_DIFF_MAX) {
 					delta_conv=d_diff;
 					r_conv=x[j];
 				}
@@ -500,7 +493,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 ///////////////////////////////////// writing output
 //	m_sfile->Write();
 
-	m_outfile = new TFile(spr_out_name.c_str(), "RECREATE");
+	m_outfile = new TFile(m_spr_out_name.c_str(), "RECREATE");
 	m_sprfun_r->Write();
 	m_sprgr_r->Write();
 	m_sigma_track->Write();
@@ -586,11 +579,11 @@ int NtupleSimpleResolutionTool::trkErrorFix(double *par_l, double *par_u) {
 		for(unsigned int i=0;i<SBIN;i++) {
 			num += proj_y->GetBinContent(i+1);
 		}
-		for(int i=0;sum_low<REJ_LOW*num;i++) {
+		for(int i=0;sum_low<m_REJ_LOW*num;i++) {
 			sum_low += proj_y->GetBinContent(i+1);
 			thr_low=SRANGE*i/float(SBIN);
 		}
-		for(int i=0;sum_top<REJ_TOP*num;i++) {
+		for(int i=0;sum_top<m_REJ_TOP*num;i++) {
 			sum_top += proj_y->GetBinContent(i+1);
 			thr_top=SRANGE*i/float(SBIN);
 		}
@@ -654,7 +647,7 @@ int NtupleSimpleResolutionTool::spResCalc(bool SfromR) {
 		double sigma_tr, sigma_r, s_dr, s_tr;
 		Double_t entr = 0;
 
-		if(hist_fit_method) {
+		if(m_hist_fit_method) {
 
 			for(unsigned int k=0;k<RESBIN;k++) {
 //				float bin_err = sqrt(dr_y->GetBinContent(k+1));

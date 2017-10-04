@@ -10,7 +10,6 @@
 //#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( EFMissingET )
 DECLARE_TOOL_FACTORY( EFMissingETBaseTool )
@@ -25,17 +24,3 @@ DECLARE_TOOL_FACTORY( EFMissingETFromTrackAndJets )
 DECLARE_TOOL_FACTORY( EFMissingETFlags )
 DECLARE_TOOL_FACTORY( EFMissingETFromHelper )
 
-DECLARE_FACTORY_ENTRIES(TrigEFMissingET) {
-    DECLARE_ALGORITHM( EFMissingET );
-    DECLARE_TOOL( EFMissingETBaseTool );
-    DECLARE_TOOL( EFMissingETFromCells );
-    DECLARE_TOOL( EFMissingETFromClusters );
-    DECLARE_TOOL( EFMissingETFromClustersPS );
-    DECLARE_TOOL( EFMissingETFromClustersPUC );
-    DECLARE_TOOL( EFMissingETFromFEBHeader );
-    DECLARE_TOOL( EFMissingETFromJets );
-    DECLARE_TOOL( EFMissingETFromTrackAndJets );
-    //DECLARE_TOOL( EFMissingETFromLvl1Ppr );
-    DECLARE_TOOL( EFMissingETFlags );
-    DECLARE_TOOL( EFMissingETFromHelper );
-}

@@ -86,7 +86,7 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
 
   // Print the SCT version tag:
   std::string sctVersionTag;
-  sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
+  sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
   msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
 
   // Check if version is empty. If so, then the SCT cannot be built. 

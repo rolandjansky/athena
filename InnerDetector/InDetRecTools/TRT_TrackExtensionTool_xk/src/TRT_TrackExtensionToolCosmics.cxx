@@ -33,7 +33,6 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
     m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
 {
-  m_trtname         = "TRT_DriftCircles";
   m_trtmanager      = "TRT"             ;
   m_minNumberDCs    = 9                 ;
   m_roadwidth       = 10.               ;
@@ -51,8 +50,8 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   declareProperty("BoundaryLocZTolerance",m_roadwidth_locz );
   declareProperty("SearchNeighbour"      ,m_searchNeighbour=false);
   declareProperty("MinNumberDriftCircles",m_minNumberDCs   );
-  declareProperty("TRT_ClustersContainer",m_trtname        );
   declareProperty("BoundaryCheck"        ,m_boundarycheck=false);
+
 
   m_trtcylinder=0;
   m_trtdiscA=0;
@@ -113,6 +112,11 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
   if(m_outputlevel<=0) {
     m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
+
+
+  //Initialize container
+  ATH_CHECK(m_trtname.initialize());
+
   return sc;
 
 
@@ -218,9 +222,8 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
     t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
     m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
   }
-  m_trtcontainer = 0;
-  StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
-  if(sc.isFailure() && m_outputlevel<=0) {
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
 }
@@ -234,7 +237,8 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.erase(m_measurement.begin(), m_measurement.end());
 
-  if(!m_trtcontainer) return m_measurement;
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
@@ -265,6 +269,11 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars)
 {
   msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endmsg;
+
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (!trtcontainer.isValid()) {
+    return;
+  }
   
   double lastz=-99999;
   std::vector< const Trk::TrackParameters* >::const_iterator parameterIter = tpars->begin();
@@ -307,9 +316,9 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //check if this PRD exists
 	  // get the driftCircleCollection belonging to this id
-	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = m_trtcontainer->indexFind(detElements[i+1]);
+	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = trtcontainer->indexFind(detElements[i+1]);
 	  
-	  if(containerIterator==m_trtcontainer->end()) {
+	  if(containerIterator==trtcontainer->end()) {
 	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endmsg;
 	    continue;
 	  }
@@ -405,8 +414,13 @@ const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
     return m_measurement;
   }
 
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (!trtcontainer.isValid()) {
+    return m_measurement;
+  }
+
 InDet::TRT_DriftCircleContainer::const_iterator
-   w = m_trtcontainer->begin(),we = m_trtcontainer->end();
+   w = trtcontainer->begin(),we = trtcontainer->end();
    for(; w!=we; ++w) {
      if ((**w).empty()) continue; 
      const Trk::Surface &surf=(**(**w).begin()).detectorElement()->surface();

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRGHLTJETHYPO2_H
-#define TRIGHLTJETHYPO2_H
+#ifndef TRIGHLTJETHYPO_TRIGHLTJETHYPO2_H
+#define TRIGHLTJETHYPO_TRIGHLTJETHYPO2_H
 /********************************************************************
  *
  * NAME:     Trighltjethypo2.h
@@ -26,8 +26,6 @@
 class TriggerElement;
 class TrigHLTJetHypoHelper;
 enum class HypoStrategy;
-
-using namespace std::chrono;
 
 class TrigHLTJetHypo2 : public HLT::HypoAlgo {
 
@@ -77,7 +75,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
                             const HLT::TriggerElement*);
   void resetCounters();
 
-  void accumulateTime(nanoseconds) noexcept;
+  void accumulateTime(std::chrono::nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
   // vectors with Et thresholds, eta nins and eta maxs
@@ -182,6 +180,6 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   // double m_chainTimeSquareAv{0.}; //std::chrono
   unsigned int m_nCalls{0};
 
-  bool m_dumpJets{false};
+  //bool m_dumpJets{false};
 };
 #endif

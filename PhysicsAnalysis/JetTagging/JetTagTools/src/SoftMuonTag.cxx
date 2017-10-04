@@ -1044,6 +1044,7 @@ namespace Analysis
     //if(inputVars.size()<10) BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
     //else            	  BTag->setVariable<double>("SVMT", "discriminant", smt);
     BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
+    BTag->setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/
 

@@ -56,7 +56,8 @@ if( NOT XAOD_STANDALONE )
   atlas_add_test( ut_HFORTools_test
     SOURCES test/ut_HFORTools_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${Boost_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccess AthenaBaseComps GaudiKernel HFORToolsLib )
+    LINK_LIBRARIES ${Boost_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccess AthenaBaseComps GaudiKernel HFORToolsLib
+    PROPERTIES TIMEOUT 300 )
 endif()
 
 # Install files from the package:
