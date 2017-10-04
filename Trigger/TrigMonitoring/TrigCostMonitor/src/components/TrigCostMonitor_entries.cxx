@@ -17,7 +17,6 @@
 #include "TrigCostMonitor/TrigNtVarsTool.h"
 
 // Framework
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( TrigCostAlg )
 DECLARE_ALGORITHM_FACTORY( TrigCostRun )
@@ -34,20 +33,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtRobsTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtSaveTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtVarsTool )
 
-DECLARE_FACTORY_ENTRIES( TrigCostMonitor )
-{
-  DECLARE_ALGORITHM( TrigCostAlg )
-  DECLARE_ALGORITHM( TrigCostRun )
-  DECLARE_TOOL( TrigCostTool )
-
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtConfTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtElemTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtExecTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtLvl1Tool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtHltRTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtEBWeightTool )  
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtPostTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtRobsTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtSaveTool )
-  DECLARE_NAMESPACE_TOOL( Trig, TrigNtVarsTool )
-}

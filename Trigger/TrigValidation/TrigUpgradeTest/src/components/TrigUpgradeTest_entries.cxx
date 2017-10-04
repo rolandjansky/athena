@@ -1,8 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../ITestHypoTool.h"
 #include "../TestHypoAlg.h"
 #include "../TestHypoTool.h"
@@ -22,15 +17,3 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestRecoAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestRoRSeqFilter )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestMerger )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestComboHypoAlg )
-
-DECLARE_FACTORY_ENTRIES( TrigUpgradeTest )
-{
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestInputMaker )
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestHypoAlg )
-  DECLARE_NAMESPACE_TOOL      ( HLTTest, TestHypoTool )
-  DECLARE_NAMESPACE_TOOL      ( HLTTest, TestMHypoTool )
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestRecoAlg )
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestRoRSeqFilter )
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestMerger )
-  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestComboHypoAlg )
-}

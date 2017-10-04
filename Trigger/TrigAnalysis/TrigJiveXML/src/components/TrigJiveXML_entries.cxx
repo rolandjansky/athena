@@ -14,7 +14,6 @@
 #include "TrigJiveXML/xAODTrigDecisionRetriever.h"
 #include "TrigJiveXML/xAODTriggerTowerRetriever.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 using namespace JiveXML;
 
@@ -34,21 +33,3 @@ DECLARE_TOOL_FACTORY(xAODMuonROIRetriever)
 DECLARE_TOOL_FACTORY(xAODTrigDecisionRetriever)
 DECLARE_TOOL_FACTORY(xAODTriggerTowerRetriever)
 
-DECLARE_FACTORY_ENTRIES(TrigJiveXML) {
-  DECLARE_ALGTOOL(EmTauROIRetriever)
-  DECLARE_ALGTOOL(TrigInDetTrackRetriever)
-  DECLARE_ALGTOOL(JetROIRetriever)
-  DECLARE_ALGTOOL(LVL1JetElementRetriever)
-  DECLARE_ALGTOOL(LVL1ResultRetriever)
-  DECLARE_ALGTOOL(LVL1TrigTowerRetriever)
-  DECLARE_ALGTOOL(MuonROIRetriever)
-  DECLARE_ALGTOOL(TrigSiSpacePointRetriever)
-  DECLARE_ALGTOOL(TriggerInfoRetriever)
-  DECLARE_ALGTOOL(CTPDecisionRetriever)
-  DECLARE_ALGTOOL(xAODEmTauROIRetriever)
-  DECLARE_ALGTOOL(xAODJetROIRetriever)
-  DECLARE_ALGTOOL(xAODMuonROIRetriever)
-  DECLARE_ALGTOOL(xAODTrigDecisionRetriever)
-  DECLARE_ALGTOOL(LVL1TriggerTowerRetriever)
-  DECLARE_ALGTOOL(xAODTriggerTowerRetriever)
-}

@@ -5,7 +5,6 @@
 /***************************************************************************
  Calorimeter detector description package
  -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: CaloDetDescrManager.cxx,v 1.69 2009-03-03 14:34:12 gunal Exp $

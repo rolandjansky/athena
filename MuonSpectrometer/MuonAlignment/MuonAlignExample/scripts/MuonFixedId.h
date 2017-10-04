@@ -5,7 +5,6 @@
 /***************************************************************************
  * Muon Calibration Utilities
  * -----------------------------------------
- * Copyright (C) 2005 by ATLAS Collaboration
  *
  * Authors       : Martin Woudstra, Zdenko van Kesteren, Peter Kluit
  * Creation Date: 21 March 2005

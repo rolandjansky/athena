@@ -5,7 +5,6 @@
 /***************************************************************************
  Temporary package for CLHEP SEAL dictionary
  -------------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: AtlasSealCLHEPDict.h,v 1.3 2006-03-10 22:22:20 mnowak Exp $

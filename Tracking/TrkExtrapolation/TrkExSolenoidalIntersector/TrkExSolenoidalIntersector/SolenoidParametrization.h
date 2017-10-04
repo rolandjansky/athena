@@ -5,7 +5,6 @@
 /***************************************************************************
  Fast (approximate) methods for solenoidal field properties
  ----------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef TRKEXSOLENOIDALINTERSECTOR_SOLENOIDPARAMETRIZATION_H

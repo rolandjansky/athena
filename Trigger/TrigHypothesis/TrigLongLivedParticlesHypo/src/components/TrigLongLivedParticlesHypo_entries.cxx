@@ -7,7 +7,6 @@
 #include "TrigLongLivedParticlesHypo/TrigNewLoFHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigLLPInnerDetectorHypo.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 DECLARE_ALGORITHM_FACTORY( TrigL2HVJetHypoAllCuts )
@@ -18,15 +17,4 @@ DECLARE_ALGORITHM_FACTORY( MuonClusterIsolationHypo )
 DECLARE_ALGORITHM_FACTORY( TrigLoFRemovalHypo )
 DECLARE_ALGORITHM_FACTORY( TrigNewLoFHypo )
 DECLARE_ALGORITHM_FACTORY( TrigCaloRatioHypo )
-
-DECLARE_FACTORY_ENTRIES( TrigLongLivedParticlesHypo ) {
-  DECLARE_ALGORITHM( TrigL2HVJetHypoAllCuts )
-  DECLARE_ALGORITHM( TrigL2HVJetHypo )
-  DECLARE_ALGORITHM( TrigL2HVJetHypoTrk )
-  DECLARE_ALGORITHM( MuonClusterHypo )
-  DECLARE_ALGORITHM( MuonClusterIsolationHypo )
-  DECLARE_ALGORITHM( TrigLoFRemovalHypo )
-  DECLARE_ALGORITHM( TrigNewLoFHypo )
-  DECLARE_ALGORITHM( TrigCaloRatioHypo )
-}
 
