@@ -36,10 +36,7 @@ class EventViewCreatorAlgorithm : public AthAlgorithm
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
     SG::WriteHandleKey< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_inViewDecisions{ this, "InViewDecisions", "Unspecified", "The name of decision container placed in the view" };
 
-
     Gaudi::Property< std::vector<std::string> > m_viewAlgorithmNames{ this, "AlgorithmNameSequence", std::vector<std::string>(), "Algorithms to run in each view" };
-
-
 
     Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
     

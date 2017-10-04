@@ -163,7 +163,7 @@ private:
         std::map<NtupleStationId, TH2F *> m_MDT_radius_vs_DistanceToSegmentTrack;
 
 
-        std::map<NtupleStationId, TH2F*>  r_MDT_residual_vs_adc[15]; 
+        std::map<NtupleStationId, TH2F*>  m_r_MDT_residual_vs_adc[15]; 
 	
 	std::map<NtupleStationId, TH1F *> m_MDT_segment_localangle_YZ;	//local incidence angle XZ, YZ distributions of the segments
         std::map<NtupleStationId, TH1F *> m_MDT_segment_localangle_XZ;
@@ -192,7 +192,6 @@ private:
 	
 	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
 						     // detector manager
-	const MuonGM::RpcDetectorElement *m_rpcDetEl; // pointer to the RPC detector element 
 	const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
 // private methods //

@@ -62,7 +62,7 @@ private:
   IVP12DSystem( const IVP12DSystem & );
   IVP12DSystem & operator= ( const IVP12DSystem & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 private slots:
   void itemPickedPrivate(QGraphicsItem*);

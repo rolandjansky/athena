@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
 #include "TriggerMenuAnalysis/RoILinksCnvTool.h"
 #include "TriggerMenuAnalysis/ReadTriggerInfo.h"
@@ -22,18 +21,4 @@ DECLARE_TOOL_FACTORY(TrigMenuHists)
 DECLARE_TOOL_FACTORY(RoILinksCnvTool)
 DECLARE_ALGORITHM_FACTORY(ReadTriggerInfo)
 DECLARE_ALGORITHM_FACTORY(TestNewTDT)
-
-DECLARE_FACTORY_ENTRIES(TriggerMenuAnalysis) {
-  DECLARE_TOOL(TrigAccessTool)
-  DECLARE_TOOL(TrigMenuHists)
-  DECLARE_TOOL(RoILinksCnvTool)
-  DECLARE_ALGORITHM(ReadTriggerInfo)
-  DECLARE_ALGORITHM(TestNewTDT)
-  DECLARE_ALGORITHM(FlatHltNaviMaker)
-  DECLARE_ALGORITHM(HltNaviChecker)
-
-  DECLARE_ALGORITHM(JustInitTDTAlgo)
-  DECLARE_ALGORITHM(TrigMenuNtupleAlg)
-  DECLARE_ALGORITHM(DumpAPTInput)
-}
 

@@ -101,7 +101,7 @@ namespace SG {
     ///the encoded version/key. Mutable so that ownership can be transferred
     ///in the copy constructor
     std::string m_versionKey; 
-    mutable std::string m_baseKey;
+    std::string m_baseKey;
   };
 } // ns SG
 

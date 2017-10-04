@@ -5,7 +5,7 @@
 #ifndef HOLDERTEMPLATE_H_
 #define HOLDERTEMPLATE_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/StatusCode.h"     
+#include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
 
 class array;
@@ -22,7 +22,7 @@ enum class HistConf;
  */
 template <typename T>
 struct LWHistDeleter {
-  void operator() (T* hist) {
+  void operator()(T* hist) {
     // To avoid "unused variable" compiler warnings for the parameter.
     (void)hist;
   }
@@ -136,6 +136,6 @@ class HolderTemplate {
   //! Boolean for job option 'doIBL'. --> TO BE REMOVED
   const bool m_doIBL;
 };
-}
+}  // namespace PixMon
 
 #endif  // HOLDERTEMPLATE_H_

@@ -56,28 +56,28 @@ std::map<SoSensor*,VP1SoMaterialMixer::Imp*> VP1SoMaterialMixer::Imp::sensor2mat
 
 //____________________________________________________________________
 VP1SoMaterialMixer::VP1SoMaterialMixer(IVP1System * sys)
-  : VP1HelperClassBase(sys,"VP1SoMaterialMixer"), d(new Imp)
+  : VP1HelperClassBase(sys,"VP1SoMaterialMixer"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->defmat = 0;
+  m_d->theclass = this;
+  m_d->defmat = 0;
 }
 
 //____________________________________________________________________
 VP1SoMaterialMixer::~VP1SoMaterialMixer()
 {
   {
-    std::map<std::set<SoMaterial*>,SoMaterial*>::const_iterator it, itE = d->matlists2mixedmats.end();
+    std::map<std::set<SoMaterial*>,SoMaterial*>::const_iterator it, itE = m_d->matlists2mixedmats.end();
     std::set<SoMaterial*>::iterator it2, it2E;
-    for (it = d->matlists2mixedmats.begin();it!=itE;++it) {
+    for (it = m_d->matlists2mixedmats.begin();it!=itE;++it) {
       for (it2=it->first.begin(), it2E=it->first.end();it2!=it2E;++it2)
 	(*it2)->unref();
       it->second->unref();
     }
   }
   {
-    std::map<std::map<SoMaterial*,double>,SoMaterial*>::iterator it, itE = d->matlists2mixedmats_weighted.end();
+    std::map<std::map<SoMaterial*,double>,SoMaterial*>::iterator it, itE = m_d->matlists2mixedmats_weighted.end();
     std::map<SoMaterial*,double>::const_iterator it2,it2E;
-    for (it = d->matlists2mixedmats_weighted.begin();it!=itE;++it) {
+    for (it = m_d->matlists2mixedmats_weighted.begin();it!=itE;++it) {
       for (it2=it->first.begin(),it2E=it->first.end();it2!=it2E;++it2)
  	it2->first->unref();
       it->second->unref();
@@ -85,29 +85,29 @@ VP1SoMaterialMixer::~VP1SoMaterialMixer()
   }
 
   {
-    std::map<SoMaterial*,SoNodeSensor*>::iterator it(d->mat2sensors.begin()), itE(d->mat2sensors.end());
+    std::map<SoMaterial*,SoNodeSensor*>::iterator it(m_d->mat2sensors.begin()), itE(m_d->mat2sensors.end());
     for (;it!=itE;++it) {
-      d->sensor2matmixerimp.erase(d->sensor2matmixerimp.find(it->second));
+      m_d->sensor2matmixerimp.erase(m_d->sensor2matmixerimp.find(it->second));
       delete it->second;
       it->first->unref();
     }
   }
-  if (d->defmat)
-    d->defmat->unref();
+  if (m_d->defmat)
+    m_d->defmat->unref();
 
   //Print out warning if too many different mixed materials, to give
   //the developers a chance to notice if they are doing something not
   //optimal.
 
-  if (d->matlists2mixedmats.size()+d->matlists2mixedmats_weighted.size()>100)
+  if (m_d->matlists2mixedmats.size()+m_d->matlists2mixedmats_weighted.size()>100)
     messageDebug("WARNING: Watched more than 100 ("
-		 +str(d->matlists2mixedmats.size()+d->matlists2mixedmats_weighted.size())
+		 +str(m_d->matlists2mixedmats.size()+m_d->matlists2mixedmats_weighted.size())
 		 + ") different material combinations. Try to use fewer combinations for better performance!");
-  if (d->mat2sensors.size()>1000)
-    messageDebug("WARNING: Monitored more than 1000 (" +str(d->mat2sensors.size())+
+  if (m_d->mat2sensors.size()>1000)
+    messageDebug("WARNING: Monitored more than 1000 (" +str(m_d->mat2sensors.size())+
 		 ") different materials. Try to lower this number for better performance!");
 
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -267,18 +267,18 @@ SoMaterial * VP1SoMaterialMixer::getMixedMaterial(const std::set<SoMaterial*>& m
   bool error(false);
   std::set<SoMaterial*>::const_iterator it(matlist.begin()), itE(matlist.end());
   for (;it!=itE;++it) {
-    if (!d->inputMaterialValid(*it)) {
+    if (!m_d->inputMaterialValid(*it)) {
      error=true;
      break;
    }
   }
   if (matlist.empty()) {
     VP1Msg::message("ERROR: asked to handle empty material list.");
-    return d->defaultMaterial();
+    return m_d->defaultMaterial();
   }
   if (error) {
     VP1Msg::message("ERROR: asked to handle invalid material list.");
-    return d->defaultMaterial();
+    return m_d->defaultMaterial();
   }
 
   //Someone might be silly enough to call with just one material:
@@ -286,22 +286,22 @@ SoMaterial * VP1SoMaterialMixer::getMixedMaterial(const std::set<SoMaterial*>& m
     return *(matlist.begin());
 
   //Do we already have a mixed material for this list:
-  std::map<std::set<SoMaterial*>,SoMaterial*>::const_iterator it2 = d->matlists2mixedmats.find(matlist);
-  if (it2!=d->matlists2mixedmats.end())
+  std::map<std::set<SoMaterial*>,SoMaterial*>::const_iterator it2 = m_d->matlists2mixedmats.find(matlist);
+  if (it2!=m_d->matlists2mixedmats.end())
     return it2->second;
 
   //Create new mixed material:
   SoMaterial * mixmat = new SoMaterial;
-  d->setMaterialFieldsAsAverageOfMatList(mixmat,matlist);
+  m_d->setMaterialFieldsAsAverageOfMatList(mixmat,matlist);
 
   //Set up monitoring, add to maps and refcount materials:
   std::set<SoMaterial*>::const_iterator it3(matlist.begin()), it3E(matlist.end());
   for (;it3!=it3E;++it3) {
-    d->monitorMaterial(*it3);
+    m_d->monitorMaterial(*it3);
     (*it3)->ref();//since we keep the pointer.
   }
   mixmat->ref();
-  d->matlists2mixedmats[matlist] = mixmat;
+  m_d->matlists2mixedmats[matlist] = mixmat;
 
   return mixmat;
 }
@@ -313,18 +313,18 @@ SoMaterial * VP1SoMaterialMixer::getMixedMaterial(const std::map<SoMaterial*,dou
   bool error(false);
   std::map<SoMaterial*,double>::const_iterator it(matlist.begin()), itE(matlist.end());
   for (;it!=itE;++it) {
-    if (!d->inputMaterialValid(it->first)||it->second<=0.0) {
+    if (!m_d->inputMaterialValid(it->first)||it->second<=0.0) {
      error=true;
      break;
    }
   }
   if (matlist.empty()) {
     VP1Msg::message("ERROR: asked to handle empty material list.");
-    return d->defaultMaterial();
+    return m_d->defaultMaterial();
   }
   if (error) {
     VP1Msg::message("ERROR: asked to handle invalid material list.");
-    return d->defaultMaterial();
+    return m_d->defaultMaterial();
   }
 
   //Someone might be silly enough to call with just one material:
@@ -332,22 +332,22 @@ SoMaterial * VP1SoMaterialMixer::getMixedMaterial(const std::map<SoMaterial*,dou
     return matlist.begin()->first;
 
   //Do we already have a mixed material for this list:
-  std::map<std::map<SoMaterial*,double>,SoMaterial*>::const_iterator it2 = d->matlists2mixedmats_weighted.find(matlist);
-  if (it2!=d->matlists2mixedmats_weighted.end())
+  std::map<std::map<SoMaterial*,double>,SoMaterial*>::const_iterator it2 = m_d->matlists2mixedmats_weighted.find(matlist);
+  if (it2!=m_d->matlists2mixedmats_weighted.end())
     return it2->second;
 
   //Create new mixed material:
   SoMaterial * mixmat = new SoMaterial;
-  d->setMaterialFieldsAsAverageOfMatList(mixmat,matlist);
+  m_d->setMaterialFieldsAsAverageOfMatList(mixmat,matlist);
 
   //Set up monitoring, add to maps and refcount materials:
   std::map<SoMaterial*,double>::const_iterator it3(matlist.begin()), it3E(matlist.end());
   for (;it3!=it3E;++it3) {
-    d->monitorMaterial(it3->first);
+    m_d->monitorMaterial(it3->first);
     it3->first->ref();//since we keep the pointer.
   }
   mixmat->ref();
-  d->matlists2mixedmats_weighted[matlist] = mixmat;
+  m_d->matlists2mixedmats_weighted[matlist] = mixmat;
 
   return mixmat;
 }

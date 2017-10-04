@@ -76,47 +76,47 @@ void VP1CustomTourFrameWidget::Imp::init()
 VP1CustomTourFrameWidget::VP1CustomTourFrameWidget(bool camPerspective,
 						   QByteArray camState,
 						   QWidget * parent)
-  : QFrame(parent), d(new Imp(this))
+  : QFrame(parent), m_d(new Imp(this))
 {
-  d->camPerspective = camPerspective;
-  d->camState = camState;
-  d->init();
+  m_d->camPerspective = camPerspective;
+  m_d->camState = camState;
+  m_d->init();
 }
 
 //____________________________________________________________________
 VP1CustomTourFrameWidget::VP1CustomTourFrameWidget( QByteArray serialisedFrame,
 						    QWidget * parent )
-  : QFrame(parent), d(new Imp(this))
+  : QFrame(parent), m_d(new Imp(this))
 {
   VP1Deserialise s(serialisedFrame);
-  d->camState = s.restoreByteArray();
-  d->camPerspective = s.restoreBool();
-  s.restore(d->ui.doubleSpinBox_zoomToFrameTime);
-  s.restore(d->ui.doubleSpinBox_stayOnFrameTime);
+  m_d->camState = s.restoreByteArray();
+  m_d->camPerspective = s.restoreBool();
+  s.restore(m_d->ui.doubleSpinBox_zoomToFrameTime);
+  s.restore(m_d->ui.doubleSpinBox_stayOnFrameTime);
   if (s.version()>0) {
-  	s.restore(d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
+  	s.restore(m_d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
   }
-  s.restore(d->ui.comboBox_approachMethod);
-  s.restore(d->ui.checkBox_frameEnabled);
+  s.restore(m_d->ui.comboBox_approachMethod);
+  s.restore(m_d->ui.checkBox_frameEnabled);
   QPixmap pm = s.restore<QPixmap>();
   if (!pm.isNull())
-    d->ui.label_snapshot->setPixmap(pm);
+    m_d->ui.label_snapshot->setPixmap(pm);
   s.warnUnrestored(this);
-  d->init();
+  m_d->init();
 }
 
 //____________________________________________________________________
 QByteArray VP1CustomTourFrameWidget::serialise() const
 {
   VP1Serialise s(1/*version*/);
-  s.save(d->camState);
-  s.save(d->camPerspective);
-  s.save(d->ui.doubleSpinBox_zoomToFrameTime);
-  s.save(d->ui.doubleSpinBox_stayOnFrameTime);
-  s.save(d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
-  s.save(d->ui.comboBox_approachMethod);
-  s.save(d->ui.checkBox_frameEnabled);
-  s.save(d->ui.label_snapshot->pixmap() ? *(d->ui.label_snapshot->pixmap()) : QPixmap());
+  s.save(m_d->camState);
+  s.save(m_d->camPerspective);
+  s.save(m_d->ui.doubleSpinBox_zoomToFrameTime);
+  s.save(m_d->ui.doubleSpinBox_stayOnFrameTime);
+  s.save(m_d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
+  s.save(m_d->ui.comboBox_approachMethod);
+  s.save(m_d->ui.checkBox_frameEnabled);
+  s.save(m_d->ui.label_snapshot->pixmap() ? *(m_d->ui.label_snapshot->pixmap()) : QPixmap());
   s.warnUnsaved(this);
   return s.result();
 }
@@ -124,19 +124,19 @@ QByteArray VP1CustomTourFrameWidget::serialise() const
 //____________________________________________________________________
 VP1CustomTourFrameWidget::~VP1CustomTourFrameWidget()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1CustomTourFrameWidget::buttonClicked()
 {
-  if (sender()==d->ui.pushButton_moveEarlier)
+  if (sender()==m_d->ui.pushButton_moveEarlier)
     emit requestStepToEarlier();
-  else if (sender()==d->ui.pushButton_moveLater)
+  else if (sender()==m_d->ui.pushButton_moveLater)
     emit requestStepToLater();
-  else if (sender()==d->ui.pushButton_remove)
+  else if (sender()==m_d->ui.pushButton_remove)
     emit requestDelete();
-  else if (sender()==d->ui.pushButton_show)
+  else if (sender()==m_d->ui.pushButton_show)
     emit requestShow();
 }
 
@@ -144,67 +144,67 @@ void VP1CustomTourFrameWidget::buttonClicked()
 bool VP1CustomTourFrameWidget::frameIsEnabled() const
 {
 
-  return d->ui.checkBox_frameEnabled->isChecked();
+  return m_d->ui.checkBox_frameEnabled->isChecked();
 }
 
 //____________________________________________________________________
 bool VP1CustomTourFrameWidget::zoomToFrameWithVariableSpeed() const
 {
-  return d->ui.comboBox_approachMethod->currentIndex()==0;
+  return m_d->ui.comboBox_approachMethod->currentIndex()==0;
 }
 //____________________________________________________________________
 bool VP1CustomTourFrameWidget::zoomToFrameForcedCircular() const
 {
-  return d->ui.comboBox_approachMethod->currentIndex()==2;
+  return m_d->ui.comboBox_approachMethod->currentIndex()==2;
 }
 
 //____________________________________________________________________
 double VP1CustomTourFrameWidget::zoomToFrameTime() const
 {
-  return d->ui.doubleSpinBox_zoomToFrameTime->value();
+  return m_d->ui.doubleSpinBox_zoomToFrameTime->value();
 }
 
 //____________________________________________________________________
 double VP1CustomTourFrameWidget::stayOnFrameTime() const
 {
-  return d->ui.doubleSpinBox_stayOnFrameTime->value();
+  return m_d->ui.doubleSpinBox_stayOnFrameTime->value();
 }
 
 //____________________________________________________________________
 double VP1CustomTourFrameWidget::clipVolumePercentOfATLAS() const
 {
-  return d->ui.doubleSpinBox_clipVolumePercentOfATLAS->value();
+  return m_d->ui.doubleSpinBox_clipVolumePercentOfATLAS->value();
 }
 
 //____________________________________________________________________
 bool VP1CustomTourFrameWidget::camStateIsPerspective() const
 {
-  return d->camPerspective;
+  return m_d->camPerspective;
 }
 
 //____________________________________________________________________
 QByteArray VP1CustomTourFrameWidget::camState() const
 {
-  return d->camState;
+  return m_d->camState;
 }
 
 //____________________________________________________________________
 void VP1CustomTourFrameWidget::setStepToEarlierControlsEnabled(bool b)
 {
-  d->ui.pushButton_moveEarlier->setVisible(b);
+  m_d->ui.pushButton_moveEarlier->setVisible(b);
 }
 
 //____________________________________________________________________
 void VP1CustomTourFrameWidget::setStepToLaterControlsEnabled(bool b)
 {
-  d->ui.pushButton_moveLater->setVisible(b);
+  m_d->ui.pushButton_moveLater->setVisible(b);
 }
 
 //____________________________________________________________________
 void VP1CustomTourFrameWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton)
-    d->dragStartPosition = event->pos();
+    m_d->dragStartPosition = event->pos();
   QFrame::mousePressEvent(event);
 }
 
@@ -213,14 +213,14 @@ void VP1CustomTourFrameWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (!(event->buttons() & Qt::LeftButton))
     return;
-  if ((event->pos() - d->dragStartPosition).manhattanLength()
+  if ((event->pos() - m_d->dragStartPosition).manhattanLength()
       < QApplication::startDragDistance())
     return;
   QDrag *drag = new QDrag(this);
   QMimeData *mimeData = new QMimeData;
   mimeData->setData("vp1/customtourframe", QByteArray() );
   drag->setMimeData(mimeData);//drag assumes ownership of mimeData
-  QPixmap pm = d->ui.label_snapshot->pixmap() ? *(d->ui.label_snapshot->pixmap()) : QPixmap();
+  QPixmap pm = m_d->ui.label_snapshot->pixmap() ? *(m_d->ui.label_snapshot->pixmap()) : QPixmap();
   if (!pm.isNull())
     drag->setPixmap(pm );
   drag->exec(Qt::CopyAction | Qt::MoveAction);
@@ -247,13 +247,13 @@ void VP1CustomTourFrameWidget::setSnapshot(QPixmap pm)
 {
   if (pm.isNull())
     return;
-  d->ui.label_snapshot->setPixmap(pm);
+  m_d->ui.label_snapshot->setPixmap(pm);
 }
 
 //____________________________________________________________________
 void VP1CustomTourFrameWidget::frameEnabledToggled()
 {
-  d->ui.label_snapshot->setEnabled(frameIsEnabled());
-  d->ui.label_camtypeicon->setEnabled(frameIsEnabled());
+  m_d->ui.label_snapshot->setEnabled(frameIsEnabled());
+  m_d->ui.label_camtypeicon->setEnabled(frameIsEnabled());
   emit frameEnableStateChanged();
 }

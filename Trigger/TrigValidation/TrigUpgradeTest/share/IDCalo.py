@@ -16,6 +16,7 @@ if viewTest:
   viewMaker.AlgPoolName = svcMgr.ViewAlgPool.name()
   viewMaker.InputRoICollection = "EMRoIs"
   viewMaker.OutputRoICollection = "EMViewRoIs"
+  viewMaker.ViewFallThrough = True
   topSequence += viewMaker
 
 
@@ -273,11 +274,12 @@ if TriggerFlags.doID:
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
-                                                        ClustersName            = "PixelTrigClusters")
+                                                        ClustersName            = "PixelTrigClusters", OutputLevel = INFO)
   if ( viewTest ):
     allViewAlgorithms += InDetPixelClusterization
     allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.Pixel_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
   else:
@@ -305,12 +307,13 @@ if TriggerFlags.doID:
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc, OutputLevel = INFO)
   
   if ( viewTest ):
     allViewAlgorithms += InDetSCT_Clusterization
     allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.SCT_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
   else:

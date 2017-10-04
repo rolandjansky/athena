@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
@@ -61,40 +62,53 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -c,  --config value       \t configure which histograms to plot from config file,\n";
-  s << "    -t,  --tag value          \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value          \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value          \t creates output files into directory, \"value\" \n";
+  s << "    -c,  --config       value \t configure which histograms to plot from config file,\n\n";
+  s << "    -t,  --tag          value \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key          value \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
+
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
-  s << "    -es, --effscale value     \t scale efficiencies to value\n";
-  s << "    -er, --effscaleref  value \t scale efficiencies to value\n";
+  s << "    -es, --effscale     value \t scale efficiencies to value\n";
+  s << "    -er, --effscaleref  value \t scale reference efficiencies to value\n";
+  s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n\n";
+
   s << "    -r,  --refit              \t refit all test resplots\n";
   s << "    -rr, --refitref           \t also refit all reference resplots\n";
-  s << "         --oldrms             \t use fast rms95 when refitting resplots\n";
+  s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
+
+  s << "    -as, --atlasstyle         \t use ATLAS style\n";
   s << "    -l,  --labels             \t use specified labels for key\n";
   s << "         --taglabels          \t use specified additional labels \n";
-  s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -al, --atlaslable value   \t set value for atlas label\n";
-  s << "         --yrange  min max    \t use specified y axis range\n";  
-  s << "    -ns, --nostats            \t do not show stats for mean and rms\n";
-  s << "    -nm, --nomeans            \t do not show stats for the means\n";
-  s << "    -nr, --noref              \t do not plot reference histograms\n";
-  s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
+  s << "    -al, --atlaslable   value \t set value for atlas label\n";
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
+
   s << "    -rc, --refchains values ..\t allow different reference chains for comparison\n";
   s << "    -s,  --swap pattern regex \t swap \"pattern\" in the reference chains name by \"regex\"\n";
+  s << "    -nr, --noref              \t do not plot reference histograms\n";
+  s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
+  s << "    -us, --usechainref        \t use the histograms from chain definied in the \"Chain\" histogram as reference\n\n";
+
+
+  s << "    -ns, --nostats            \t do not show stats for mean and rms\n";
+  s << "    -nm, --nomeans            \t do not show stats for the means\n";
+  s << "         --chi2               \t show the chi2 with respect to the reference\n\n";
+
   s << "    -np, --noplots            \t do not actually make any plot\n";
+  s << "    -q,  --quiet              \t make the plots but do not print them out\n\n";
+
   s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
-  s << "         --chi2               \t show the chi2 with respect to the reference\n";
+  s << "         --yrange     min max \t use specified y axis range\n";  
+  s << "    -xo, --xoffset      value \t relative x offset for the key\n"; 
+  s << "    -yp, --ypos         value \t relative yposition for the key\n"; 
+  s << "    -xe, --xerror       value \t size of the x error tick marks\n"; 
+  s << "    -nw, --nowatermark        \t do not plot the release watermark\n\n"; 
+
   s << "    -C,  --Cfiles             \t write C files also\n"; 
-  s << "    -nw, --nowatermark        \t do not plot the release watermark\n"; 
   s << "         --nopng              \t do not print png files\n"; 
-  s << "         --deleteref          \t delete unused reference histograms\n";
-  s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
-  s << "    -yp, --ypos               \t relative yposition for the key\n"; 
-  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
-  s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
-  //  s << "         --fe,            \t relative x offset for the key\n"; 
+  s << "         --deleteref          \t delete unused reference histograms\n\n";
+
+
+
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
@@ -154,6 +168,7 @@ void zero( TH2* h ) {
 
 double chi2( TH1* h0, TH1* h1 ) { 
   double c2 = 0;
+
   for ( int i=0 ; i<h0->GetNbinsX() ; i++ ) {
  
     double d0 = h0->GetBinContent(i+1);
@@ -222,11 +237,15 @@ int main(int argc, char** argv) {
   bool scalepix    = true;
   bool oldrms      = false;
   bool addchains   = false;
-
+  bool usechainref = false;
+  bool quiet       = false;
 
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
+
+
+  std::string chainref = ""; 
 
   double scale_eff     = -1;
   double scale_eff_ref = -1;
@@ -343,6 +362,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-rc" || arg=="--refchains" ) { 
       addingrefchains = true;
     }
+    else if ( arg=="-uc" || arg=="--usechainref" ) { 
+      usechainref = true;
+    }
     else if ( arg=="-nb" || arg=="--nobayes" ) { 
       _bayes = false;
     }
@@ -369,6 +391,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-as" || arg=="--atlasstyle" ) { 
       atlasstyle = true;
     }
+    else if ( arg=="-q" || arg=="--quiet" ) { 
+      quiet = true;
+    } 
     else if ( arg=="-al" || arg=="--atlaslabel" ) { 
       if ( ++i<argc ) atlaslabel=argv[i];
       else return usage(argv[0], -1);
@@ -460,9 +485,11 @@ int main(int argc, char** argv) {
   if ( !nostats ) std::cout << "\tsuppress meanstats:          " << ( nomeans ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
-  if ( usrlabels.size()>0 )    std::cout << "\tlabels:       " << usrlabels << std::endl;  
-  if ( taglabels.size()>0 )    std::cout << "\textra text:   " << taglabels << std::endl;  
+  std::cout << "\tuse chain references:        " << ( usechainref ? "true" : "false" ) << std::endl;
 
+  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                 " << usrlabels << std::endl;        
+  if ( taglabels.size()>0 )  std::cout << "\textra text:             " << taglabels << std::endl;  
+  
 
   for ( size_t il=0 ; il<usrlabels.size() ; il++ ) { 
     std::cout << "usr label[" << il << "] : " << usrlabels[il] << std::endl;
@@ -540,9 +567,12 @@ int main(int argc, char** argv) {
   
   // Make output directory                                                                                                                           
   if (dir != "") {
+    std::cout << "trying to make directory" << std::endl;
     dir += "/";
-    if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
-    else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    if ( !quiet && !noplots && !exists(dir) ) { 
+      if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
+      else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    }
   }
 
   TFile& ftest = *_ftest;
@@ -578,19 +608,17 @@ int main(int argc, char** argv) {
 
     std::string rawrun = refrun.erase( refrun.find("run"), 4 );
 
-    //    if ( frefname!=ftestname && contains(frefname, rawrun) ) { 
     if ( contains(frefname, rawrun) ) { 
       
       std::string release = frefname;
 
       release.erase( 0, release.find(rawrun) ); 
    
-      //      release.erase( release.find(rawrun)+1, release.find("HIST")+5);
-
-      if ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
-      if ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
-      if ( contains(release,"_") ) release.erase( release.find("_"), release.size() ); 
-      if ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      if    ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
+      while ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      while ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      while ( contains(release,"_p") ) release.erase( release.find("_p"), release.size() ); 
+      while ( contains(release,"_t") ) release.erase( release.find("_t"), release.size() ); 
 
       newtag += " ";
       newtag += release;
@@ -871,7 +899,11 @@ int main(int argc, char** argv) {
 
       if ( fulldbg )  std::cout << __LINE__ << std::endl; 
 
-      std::string refchain = fullreplace( refchains[j], pattern, regex );
+      std::string refchain = "";
+      
+      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
+      else                refchain = fullreplace( refchains[j], pattern, regex );
+      
 
       if ( fulldbg )  std::cout << __LINE__ << std::endl; 
 
@@ -954,24 +986,25 @@ int main(int argc, char** argv) {
 
 	  //	  gPad->SetLogz(true);
 
-	  std::string plotname = chains[j];
-	  plotname += "_";
-	  //	  plotname += "HLT_";
-	  plotname += hist.c_str();
-	  plotname += ".png";
-	  replace( plotname, "/", "_");
-
-	  plotname = fullreplace( plotname, "InDetTrigTrackingxAODCnv", "" );
-                               
-	  std::cout << "plot 2D " << dir+plotname << std::endl;
-	  
-       	  c1->Print((dir+plotname).c_str());
-	  
-	  delete c1;
-	}
+          if ( !quiet ) { 
+            std::string plotname = chains[j];
+            plotname += "_";
+            //	  plotname += "HLT_";
+            plotname += hist.c_str();
+            plotname += ".png";
+            replace( plotname, "/", "_");
+            
+            plotname = fullreplace( plotname, "InDetTrigTrackingxAODCnv", "" );
+            
+            std::cout << "plot 2D " << dir+plotname << std::endl;
+            
+            c1->Print((dir+plotname).c_str());
+          }
+          delete c1;
+        }
       }
   }
-
+  
   gStyle->SetPadRightMargin(rightmargin); 
 
   
@@ -1113,6 +1146,15 @@ int main(int argc, char** argv) {
 	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
 	if ( hchain ) { 
 	  std::string name = hchain->GetTitle();
+	  if ( usechainref ) { 
+	    chainref = name;
+	    std::string::size_type pos = chainref.find(":for");
+            if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
+	    std::replace( chainref.begin(), chainref.end(), ':', '/');	    
+	    std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref;
+	    chainref = newchain;
+	  }
+
 	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
 	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
 	  else                          chain_name = name;
@@ -1132,9 +1174,11 @@ int main(int argc, char** argv) {
 
       TGraphAsymmErrors* tgtest = 0;
 
+      
+      std::string refchain = "";
 
-      std::string refchain = fullreplace( refchains[j], pattern, regex );
-
+      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
+      else                refchain = fullreplace( refchains[j], pattern, regex );
   
       /// refit the resplots - get the 2d histogram and refit
      
@@ -1174,11 +1218,11 @@ int main(int argc, char** argv) {
 	    //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
 	    //      else   rtest.Finalise(Resplot::FitNull95);
 	    if ( rtest.finalised() ) { 
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Refit(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Refit(Resplot::FitNull);
 	      else  rtest.Refit(Resplot::FitNull95);
 	    }
 	    else {
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Finalise(Resplot::FitNull);
 	      else  rtest.Finalise(Resplot::FitNull95);
 	    }
 
@@ -1268,6 +1312,22 @@ int main(int argc, char** argv) {
 	  if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+"/"+reghist) << " " << htest<< std::endl; 
 	  continue;
 	}
+
+	
+	
+	if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
+	  std::cout << "Class TH2: " << htest->GetName() << std::endl;
+	  continue;
+	}
+
+	if ( std::string(htest->ClassName()).find("TH1")!=std::string::npos ) { 
+	  std::cout << "Class TH1: " << htest->GetName() << std::endl; 
+	}
+	else if ( std::string(htest->ClassName()).find("TProfile")!=std::string::npos ) {  
+	  std::cout << "Class TProf: " << htest->GetName() << std::endl; 
+	}
+
+
 
 	if ( !noreftmp && hreft==0 ) { 
 	  if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+"/"+reghist)  << " " << hreft << std::endl; 
@@ -1462,25 +1522,25 @@ int main(int argc, char** argv) {
 	  if ( href ) href->SetTitle("");
 	  plotname = key+"_";
 	}
-	else if(contains(chains[j],"FTK")){
-	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  if ( href ) href->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  plotname = "FTK_";
-	}
-	else if(fcontains(chains[j],"HLT_")){
+	else if (fcontains(chains[j],"HLT_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "HLT_";
 	}
-	else if(fcontains(chains[j],"EF_")){
+	else if (fcontains(chains[j],"EF_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "EF_";
 	}
-	else if(fcontains(chains[j],"L2_")){
+	else if (fcontains(chains[j],"L2_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "L2_";
+	}
+	else if (contains(chains[j],"FTK") && ! contains(chains[j],"HLT_") ) { 
+	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  if ( href ) href->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  plotname = "FTK_";
 	}
 	
 	plotname += histos[i]; 
@@ -1553,7 +1613,7 @@ int main(int argc, char** argv) {
       }
       
 
-      if ( href ) Chi2.push_back( label( "chi2 = %lf", chi2( htest, href ) ) );
+      if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
 
       if( residual ) {
 	
@@ -1841,7 +1901,7 @@ int main(int argc, char** argv) {
 
     if ( !noplots ) { 
 
-      if ( plotname!="" ) { 
+      if ( !quiet && plotname!="" ) { 
 
 	if ( Cfile ) plots.back().Print( dir+plotname+tag+".C" );
 
@@ -1860,7 +1920,7 @@ int main(int argc, char** argv) {
 	
 	plots_eff.Draw( legend_eff );
 	
-	if ( plotname!="" ) {
+	if ( !quiet && plotname!="" ) {
 
 	  plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
 
@@ -1885,6 +1945,7 @@ int main(int argc, char** argv) {
   
   /// if deleting all non-used reference histograms 
 
+
   /// make sure we are not using the same reference as test file
   bool files_duplicated = ( _fref==_ftest );
 
@@ -1899,11 +1960,10 @@ int main(int argc, char** argv) {
       //      TFile* newout = new TFile(".newout.root","recreate"); 
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
-      
-      /// copy the release tree if need be 
-
-      if ( dataTree ) dataTree->Write("dataTree");
-      
+    
+      /// copy the release tree       
+      copyReleaseInfo( &fref, newout );
+        
       TDirectory* base = gDirectory;
       
       for ( unsigned i=0 ; i<savedhistos.size() ; i++ ) { 

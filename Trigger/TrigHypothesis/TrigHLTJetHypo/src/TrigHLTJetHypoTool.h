@@ -19,9 +19,6 @@
 #include <string>
 #include <chrono>
 
-using namespace std::chrono;
-using namespace TrigCompositeUtils;
-
 class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool, 
 // virtual public AthAlgTool {
   public AthAlgTool {
@@ -31,11 +28,11 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
                      const IInterface* );
   
   // to allow access to the IHelloTool interface
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-  StatusCode initialize() override;
-  StatusCode decide(const xAOD::JetContainer*, bool&) const override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode decide(const xAOD::JetContainer*, bool&) const override;
 
-  DecisionID decisionId() const override;
+  virtual TrigCompositeUtils::DecisionID decisionId() const override;
 
  protected:
   
@@ -59,7 +56,7 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
                   const HypoJetVector&,
                   const HypoJetVector&) const;
 
-  void accumulateTime(nanoseconds) noexcept;
+  void accumulateTime(std::chrono::nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
 

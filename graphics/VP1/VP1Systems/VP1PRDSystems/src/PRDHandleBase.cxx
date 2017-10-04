@@ -292,8 +292,6 @@ Amg::Vector3D PRDHandleBase::Imp::positionPRD(const Trk::PrepRawData* prd)
   if (!prd||!prd->detectorElement())
     return Amg::Vector3D(0.0,0.0,0.0);
   const Trk::Surface& theSurface = prd->detectorElement()->surface(prd->identify());
-  if (!&theSurface)
-    return Amg::Vector3D(0.0,0.0,0.0);
 
   const Amg::Vector3D* hitpos = theSurface.localToGlobal(prd->localPosition());
   if (!hitpos)

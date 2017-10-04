@@ -27,6 +27,4 @@ atlas_add_component( InDetVertexMonitoring
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib GaudiKernel LWHists AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities xAODEventInfo xAODTracking )
 
-# Install files from the package:
-atlas_install_headers( InDetVertexMonitoring )
 

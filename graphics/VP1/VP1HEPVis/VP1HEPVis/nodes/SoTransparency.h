@@ -47,6 +47,6 @@ class SoTransparency : public SoNode {
   virtual ~SoTransparency();
 
   // true if initClass() have been callen once.
-  static bool didInit;
+  static bool s_didInit;
 
 };

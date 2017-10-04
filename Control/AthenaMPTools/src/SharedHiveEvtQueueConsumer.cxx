@@ -8,6 +8,7 @@
 #include "AthenaInterprocess/Incidents.h"
 
 #include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -49,6 +50,8 @@ SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
   , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
+  , m_evtSelSeek(0)
+  , m_evtContext(0)
   , m_evtShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
@@ -97,11 +100,12 @@ StatusCode SharedHiveEvtQueueConsumer::initialize()
     }
   }
   else {
-    sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
-    if(sc.isFailure() || m_evtSeek==0) {
-      ATH_MSG_ERROR("Error retrieving IEventSeek");
+    sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
+    if(sc.isFailure() || m_evtSelSeek==0) {
+      ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( evtSelector()->createContext (m_evtContext) );
   }
 
   if(m_useSharedReader) {
@@ -126,6 +130,11 @@ StatusCode SharedHiveEvtQueueConsumer::initialize()
 StatusCode 
 SharedHiveEvtQueueConsumer::finalize()
 {
+  if (m_evtContext) {
+    ATH_CHECK( evtSelector()->releaseContext (m_evtContext) );
+    m_evtContext = nullptr;
+  }
+
   delete m_sharedRankQueue;
   return StatusCode::SUCCESS;
 }
@@ -452,14 +461,20 @@ SharedHiveEvtQueueConsumer::exec_func()
   // by EventsBeforeFork+SkipEvents and only after that start seeking on the PileUpEventLoopMgr
   // **
   if(m_isPileup && all_ok) {
-    IEventSeek* evtSeek(0);
-    StatusCode sc = serviceLocator()->service(m_evtSelName,evtSeek);
-    if(sc.isFailure() || evtSeek==0) {
-      ATH_MSG_ERROR("Error retrieving Event Selector with IEventSeek interface for PileUp job");
-      all_ok = false;
-    } else {
+    if (!m_evtSelSeek) {
+      StatusCode sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
+      if(sc.isFailure() || m_evtSelSeek==0) {
+        ATH_MSG_ERROR("Error retrieving Event Selector with IEvtSelectorSeek interface for PileUp job");
+        all_ok = false;
+      }
+      if (evtSelector()->createContext (m_evtContext).isFailure()) {
+        ATH_MSG_ERROR("Error creating IEventSelector context.");
+        all_ok = false;
+      }
+    }
+    if (all_ok) {
       if((m_nEventsBeforeFork+skipEvents)
-	 && evtSeek->seek(m_nEventsBeforeFork+skipEvents).isFailure()) {
+	 && m_evtSelSeek->seek(*m_evtContext, m_nEventsBeforeFork+skipEvents).isFailure()) {
 	ATH_MSG_ERROR("Unable to seek to " << m_nEventsBeforeFork+skipEvents);    
 	all_ok = false;
       }
@@ -531,7 +546,12 @@ SharedHiveEvtQueueConsumer::exec_func()
 	}
       } else {
 	m_chronoStatSvc->chronoStart("AthenaMP_seek");
-	sc=m_evtSeek->seek(evtnum);
+        if (m_evtSeek) {
+          sc=m_evtSeek->seek(evtnum);
+        }
+        else {
+          sc=m_evtSelSeek->seek(*m_evtContext, evtnum);
+        }
 	if(sc.isFailure()){
 	  ATH_MSG_ERROR("Unable to seek to " << evtnum);
 	  all_ok=false;
@@ -561,7 +581,14 @@ SharedHiveEvtQueueConsumer::exec_func()
       ATH_MSG_ERROR("Could not finalize the Run");
       all_ok=false;
     } else {
-      if(m_evtSeek->seek(evtnumAndChunk+skipEvents).isFailure()) { 
+      StatusCode sc;
+      if (m_evtSeek) {
+        sc = m_evtSeek->seek(evtnumAndChunk+skipEvents);
+      }
+      else {
+        sc = m_evtSelSeek->seek(*m_evtContext, evtnumAndChunk+skipEvents);
+      }
+      if(sc.isFailure()) { 
 	ATH_MSG_DEBUG("Seek past maxevt to " << evtnumAndChunk+skipEvents << " returned failure. As expected...");
       }
     }

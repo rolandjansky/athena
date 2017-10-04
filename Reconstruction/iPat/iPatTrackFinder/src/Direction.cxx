@@ -6,7 +6,6 @@
  some simple geometrical properties for direction vectors
  represented using transverse direction cosines
  --------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: Direction.cxx,v 1.5 2006-10-04 21:33:05 pop Exp $

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef __H_DECODEETACODE__
-#define __H_DECODEETACODE__
+#ifndef TRIGFTKBANKGEN_DECODEETACODE_H
+#define TRIGFTKBANKGEN_DECODEETACODE_H
 
 // decode "etacode", see TrigFTKSim/FTKHit.h
 

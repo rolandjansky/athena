@@ -671,7 +671,7 @@ StatusCode EventSelectorByteStream::resetCriteria(const std::string& /*criteria*
 }
 
 //__________________________________________________________________________
-StatusCode EventSelectorByteStream::seek(int evtNum) {
+StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
    // Check that input is seekable
    if (!m_filebased) {
       ATH_MSG_ERROR("Input not seekable, choose different input svc");
@@ -704,7 +704,7 @@ StatusCode EventSelectorByteStream::seek(int evtNum) {
       if (delta > 0) {
         if (next(*m_beginIter,delta).isFailure()) return StatusCode::FAILURE;
       }
-      else return this->seek(evtNum);
+      else return this->seek(it, evtNum);
    } 
    else { // event in current file
       int delta = (evtNum - m_firstEvt[m_fileCount] + 1) - m_eventSource->positionInBlock();
@@ -840,7 +840,7 @@ StatusCode EventSelectorByteStream::buildEventAttributeList() const
 }
 
 //__________________________________________________________________________
-int EventSelectorByteStream::findEvent(int evtNum) {
+int EventSelectorByteStream::findEvent(int evtNum) const {
    // Loop over file event counts
    //ATH_MSG_INFO("try to find evnum = " << evtNum << " in " << m_numEvt.size() << " files");
    for (size_t i = 0; i < m_inputCollectionsProp.value().size(); i++) {
@@ -877,9 +877,14 @@ int EventSelectorByteStream::findEvent(int evtNum) {
 }
 
 //__________________________________________________________________________
-int EventSelectorByteStream::curEvent() const {
-   // event counter in IEventSeek interface
+int EventSelectorByteStream::curEvent (const Context& /*it*/) const {
+   // event counter in IEvtSelectorSeek interface
    return int(m_NumEvents);
+}
+
+//__________________________________________________________________________
+int EventSelectorByteStream::size (Context& /*it*/) const {
+  return -1;
 }
 
 //________________________________________________________________________________
@@ -987,8 +992,8 @@ StatusCode EventSelectorByteStream::queryInterface(const InterfaceID& riid, void
       *ppvInterface = dynamic_cast<IIoComponent*>(this);
    } else if (riid == IProperty::interfaceID()) {
       *ppvInterface = dynamic_cast<IProperty*>(this);
-   } else if (riid == IEventSeek::interfaceID()) {
-      *ppvInterface = dynamic_cast<IEventSeek*>(this);
+   } else if (riid == IEvtSelectorSeek::interfaceID()) {
+      *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
    } else if (riid == IEventShare::interfaceID()) {
       *ppvInterface = dynamic_cast<IEventShare*>(this);
    } else {

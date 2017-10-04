@@ -5,7 +5,6 @@
 /***************************************************************************
  Package for Testbeam Detector Description converter
  -------------------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef TBDETDESCRCNV_TBDETDESCRCNV_H

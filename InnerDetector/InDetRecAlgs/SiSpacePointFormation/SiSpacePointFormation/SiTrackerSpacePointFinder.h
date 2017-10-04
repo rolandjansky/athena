@@ -49,7 +49,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
@@ -150,7 +150,6 @@ namespace InDet {
     Amg::Vector3D m_vertex;
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; 
 
-    Event* m_event;
     int m_numberOfEvents;
     const InDetDD::SCT_DetectorManager* m_manager; 
     // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused

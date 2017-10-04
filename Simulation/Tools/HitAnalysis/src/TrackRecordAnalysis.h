@@ -34,21 +34,21 @@ class TrackRecordAnalysis : public AthAlgorithm {
  private:
    
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hits_eta;
-   TH1* h_hits_phi;
-   TH1* h_hits_px;
-   TH1* h_hits_py;
-   TH1* h_hits_pz;
-   TH1* h_hits_pt;
-   TH1* h_time;
-   TH1* h_edep;
-   TH1* h_pdg;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hits_eta;
+   TH1* m_h_hits_phi;
+   TH1* m_h_hits_px;
+   TH1* m_h_hits_py;
+   TH1* m_h_hits_pz;
+   TH1* m_h_hits_pt;
+   TH1* m_h_time;
+   TH1* m_h_edep;
+   TH1* m_h_pdg;
 
    std::vector<float>* m_x;
    std::vector<float>* m_y;

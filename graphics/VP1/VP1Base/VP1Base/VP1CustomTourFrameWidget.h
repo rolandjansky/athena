@@ -71,7 +71,7 @@ private:
   VP1CustomTourFrameWidget( const VP1CustomTourFrameWidget & );
   VP1CustomTourFrameWidget & operator= ( const VP1CustomTourFrameWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

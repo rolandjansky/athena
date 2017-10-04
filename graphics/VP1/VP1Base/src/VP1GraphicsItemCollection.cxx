@@ -53,60 +53,60 @@ public:
 
 //____________________________________________________________________
 VP1GraphicsItemCollection::VP1GraphicsItemCollection( QObject * parent)
- : QObject(parent), d(new Imp)
+ : QObject(parent), m_d(new Imp)
 {
-  d->view=0;
-  d->lastview=0;
-  d->scene=0;
-  d->ignoreall_int=false;
-  d->ignoreall_move=false;
-  d->interactionmode=INERT;
-  d->nactiveitems=0;
+  m_d->view=0;
+  m_d->lastview=0;
+  m_d->scene=0;
+  m_d->ignoreall_int=false;
+  m_d->ignoreall_move=false;
+  m_d->interactionmode=INERT;
+  m_d->nactiveitems=0;
 }
 
 //____________________________________________________________________
 VP1GraphicsItemCollection::~VP1GraphicsItemCollection()
 {
-  if (d->view)
+  if (m_d->view)
     detachFromView();
   clear();
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1GraphicsItemCollection::setInteractionMode( const VP1GraphicsItemCollection::INTERACTIONMODE& im )
 {
-  assert(!d->scene&&"VP1GraphicsItemCollection::setInteractionMode can not be called while a scene is attached.");
-  if (d->scene) {
+  assert(!m_d->scene&&"VP1GraphicsItemCollection::setInteractionMode can not be called while a scene is attached.");
+  if (m_d->scene) {
     std::cout<<"VP1GraphicsItemCollection::setInteractionMode can not be called while a scene is attached."<<std::endl;
     return;
   }
-  d->interactionmode = im;
+  m_d->interactionmode = im;
 }
 
 //____________________________________________________________________
 VP1GraphicsItemCollection::INTERACTIONMODE VP1GraphicsItemCollection::interactionMode() const
 {
-  return d->interactionmode;
+  return m_d->interactionmode;
 }
 
 //____________________________________________________________________
 void VP1GraphicsItemCollection::addItem(QGraphicsItem*item, const bool& active,const bool&movable)
 {
-  assert(!d->items2active.contains(item)&&"Please do not add the same item twice");
+  assert(!m_d->items2active.contains(item)&&"Please do not add the same item twice");
   assert(!item->flags()&&"Please do not add any flags to your items!!");
 
-  if (d->scene) {
+  if (m_d->scene) {
     //The following must postponed if there is no scene:
-    d->scene->addItem(item);
-    item->setFlag(QGraphicsItem::ItemIsMovable,(movable&&(!d->ignoreall_move)));
+    m_d->scene->addItem(item);
+    item->setFlag(QGraphicsItem::ItemIsMovable,(movable&&(!m_d->ignoreall_move)));
   }
-  assert(!d->items2active.contains(item));
-  d->items2active.insert(item,active);
+  assert(!m_d->items2active.contains(item));
+  m_d->items2active.insert(item,active);
   if (active)
-    ++d->nactiveitems;
+    ++m_d->nactiveitems;
   if (movable)
-    d->movableitems<<item;
+    m_d->movableitems<<item;
 }
 
 //Fixme: Make VP1GraphicsView setScene() private so it is the same throughout a GV lifetime.
@@ -114,45 +114,45 @@ void VP1GraphicsItemCollection::addItem(QGraphicsItem*item, const bool& active,c
 //____________________________________________________________________
 bool VP1GraphicsItemCollection::removeItem(QGraphicsItem*item)
 {
-  Imp::ItemDataMapItr it = d->items2active.find( item );
-  if (it==d->items2active.end())
+  Imp::ItemDataMapItr it = m_d->items2active.find( item );
+  if (it==m_d->items2active.end())
     return false;
   if (it.value())
-    --d->nactiveitems;
-  if (d->scene) {
-    d->scene->removeItem(item);
+    --m_d->nactiveitems;
+  if (m_d->scene) {
+    m_d->scene->removeItem(item);
   }
-  d->items2active.erase(it);
-  assert(!d->items2active.contains(item));
+  m_d->items2active.erase(it);
+  assert(!m_d->items2active.contains(item));
 
-  if (!d->movableitems.empty()) {
-    QSet<QGraphicsItem*>::iterator it2 = d->movableitems.find(item);
-    if (it2!=d->movableitems.end()) {
-      assert(d->movableitems.contains(item));
-      d->movableitems.erase(it2);
+  if (!m_d->movableitems.empty()) {
+    QSet<QGraphicsItem*>::iterator it2 = m_d->movableitems.find(item);
+    if (it2!=m_d->movableitems.end()) {
+      assert(m_d->movableitems.contains(item));
+      m_d->movableitems.erase(it2);
     }
   }
-  assert(!d->movableitems.contains(item));
+  assert(!m_d->movableitems.contains(item));
   return true;
 }
 
 //____________________________________________________________________
 bool VP1GraphicsItemCollection::setMovable(QGraphicsItem* item, const bool& movable)
 {
-  Imp::ItemDataMapItr it = d->items2active.find( item );
-  if (it==d->items2active.end())
+  Imp::ItemDataMapItr it = m_d->items2active.find( item );
+  if (it==m_d->items2active.end())
     return false;
-  if (movable==d->movableitems.contains(item))//Nothing needs to be done:
+  if (movable==m_d->movableitems.contains(item))//Nothing needs to be done:
     return true;
   if (movable) {
-    assert(!d->movableitems.contains(item));
-    d->movableitems<<item;
+    assert(!m_d->movableitems.contains(item));
+    m_d->movableitems<<item;
   } else {
-    assert(d->movableitems.contains(item));
-    d->movableitems.remove(item);
-    assert(!d->movableitems.contains(item));
+    assert(m_d->movableitems.contains(item));
+    m_d->movableitems.remove(item);
+    assert(!m_d->movableitems.contains(item));
   }
-  if (!d->ignoreall_move)
+  if (!m_d->ignoreall_move)
     item->setFlag(QGraphicsItem::ItemIsMovable,movable);
   return true;
 }
@@ -160,14 +160,14 @@ bool VP1GraphicsItemCollection::setMovable(QGraphicsItem* item, const bool& mova
 //____________________________________________________________________
 bool VP1GraphicsItemCollection::setActive(QGraphicsItem* item, const bool& active)
 {
-  Imp::ItemDataMapItr it = d->items2active.find( item );
-  if (it==d->items2active.end())
+  Imp::ItemDataMapItr it = m_d->items2active.find( item );
+  if (it==m_d->items2active.end())
     return false;
   it.value()=active;
   if (active)
-    ++d->nactiveitems;
+    ++m_d->nactiveitems;
   else
-    --d->nactiveitems;
+    --m_d->nactiveitems;
   return true;
 }
 
@@ -175,30 +175,30 @@ bool VP1GraphicsItemCollection::setActive(QGraphicsItem* item, const bool& activ
 void VP1GraphicsItemCollection::clear(const bool& deleteitems)
 {
   //Clear selections before deleting items in order to only get one selectionchanged signal.
-  if (d->view)
-    d->view->clearSelections();
+  if (m_d->view)
+    m_d->view->clearSelections();
 
-  Imp::ItemDataMapItr it,itE=d->items2active.end();
-  if (d->scene) {
+  Imp::ItemDataMapItr it,itE=m_d->items2active.end();
+  if (m_d->scene) {
     //Remove item from scene and possible also remove event filter.
-    for (it=d->items2active.begin();it!=itE;++it)
-      d->scene->removeItem(it.key());
+    for (it=m_d->items2active.begin();it!=itE;++it)
+      m_d->scene->removeItem(it.key());
   }
   if (deleteitems) {
     //Delete the items:
-    for (it=d->items2active.begin();it!=itE;++it) {
+    for (it=m_d->items2active.begin();it!=itE;++it) {
       delete it.key();
     }
   }
-  d->items2active.clear();
-  d->movableitems.clear();
-  d->nactiveitems=0;
+  m_d->items2active.clear();
+  m_d->movableitems.clear();
+  m_d->nactiveitems=0;
 }
 
 //____________________________________________________________________
 bool VP1GraphicsItemCollection::hasItem(QGraphicsItem* item) const
 {
-  return d->items2active.contains(item);
+  return m_d->items2active.contains(item);
 }
 
 //____________________________________________________________________
@@ -215,19 +215,19 @@ void VP1GraphicsItemCollection::Imp::setEnabledMovableItems(const bool& enabled)
 //____________________________________________________________________
 void VP1GraphicsItemCollection::setTemporaryIgnoreInteractions( const bool& b )
 {
-  if (d->ignoreall_int==b)
+  if (m_d->ignoreall_int==b)
     return;
-  d->ignoreall_int=b;
+  m_d->ignoreall_int=b;
 }
 
 //____________________________________________________________________
 void VP1GraphicsItemCollection::setTemporaryIgnoreMovable( const bool& b )
 {
-  if (d->ignoreall_move==b)
+  if (m_d->ignoreall_move==b)
     return;
-  d->ignoreall_move=b;
-  if (d->scene)
-    d->setEnabledMovableItems(!b);
+  m_d->ignoreall_move=b;
+  if (m_d->scene)
+    m_d->setEnabledMovableItems(!b);
 }
 
 //____________________________________________________________________
@@ -239,26 +239,26 @@ bool VP1GraphicsItemCollection::Imp::ignoresInteractions() const
 //____________________________________________________________________
 void VP1GraphicsItemCollection::attachToView(VP1GraphicsView*view)
 {
-  assert(!d->scene);
-  assert(!d->view);
-  d->scene=view->scene();
-  //  d->lastscene=d->scene;
-  d->view=view;
-  d->lastview=d->view;
-  Imp::ItemDataMapItr it,itE=d->items2active.end();
-  for (it=d->items2active.begin();it!=itE;++it) {
-    d->scene->addItem(it.key());
+  assert(!m_d->scene);
+  assert(!m_d->view);
+  m_d->scene=view->scene();
+  //  m_d->lastscene=m_d->scene;
+  m_d->view=view;
+  m_d->lastview=m_d->view;
+  Imp::ItemDataMapItr it,itE=m_d->items2active.end();
+  for (it=m_d->items2active.begin();it!=itE;++it) {
+    m_d->scene->addItem(it.key());
   }
   //Update this, since we didnt do any updates while there was no scene:
-  d->setEnabledMovableItems(!d->ignoreall_move);
+  m_d->setEnabledMovableItems(!m_d->ignoreall_move);
 }
 
 //____________________________________________________________________
 void VP1GraphicsItemCollection::detachFromView()
 {
-  if (!d->view)
+  if (!m_d->view)
     return;
-  d->view->removeItemCollection(this);
+  m_d->view->removeItemCollection(this);
   //NB. The call to removeItemCollection ends up by calling
   //VP1GraphicsItemCollection::real_detachFromView().
 }
@@ -267,24 +267,24 @@ void VP1GraphicsItemCollection::detachFromView()
 void VP1GraphicsItemCollection::real_detachFromView()
 {
   //This method is called after the collection has been removed from the the view.
-  if (!d->view)
+  if (!m_d->view)
     return;
   //Remove item from scene:
-  Imp::ItemDataMapItr it,itE=d->items2active.end();
-  for (it=d->items2active.begin();it!=itE;++it) {
-    d->scene->removeItem(it.key());
+  Imp::ItemDataMapItr it,itE=m_d->items2active.end();
+  for (it=m_d->items2active.begin();it!=itE;++it) {
+    m_d->scene->removeItem(it.key());
   }
-  d->view=0;
-  d->scene=0;
+  m_d->view=0;
+  m_d->scene=0;
 }
 
 //____________________________________________________________________
 void VP1GraphicsItemCollection::reattachToView()
 {
-  if (d->view)
+  if (m_d->view)
     return;
-  assert(d->lastview);
-  d->lastview->addItemCollection(this);
+  assert(m_d->lastview);
+  m_d->lastview->addItemCollection(this);
   //NB. The call to addItemCollection ends up by calling
   //VP1GraphicsItemCollection::attachToView().
 }
@@ -292,38 +292,38 @@ void VP1GraphicsItemCollection::reattachToView()
 //____________________________________________________________________
 bool VP1GraphicsItemCollection::isAttachedToView()
 {
-  return d->view;
+  return m_d->view;
 }
 
 
 //____________________________________________________________________
 int VP1GraphicsItemCollection::nItems() const
 {
-  return d->items2active.count();
+  return m_d->items2active.count();
 }
 
 //____________________________________________________________________
 int VP1GraphicsItemCollection::nActiveItems() const
 {
-  return d->nactiveitems;
+  return m_d->nactiveitems;
 }
 
 //____________________________________________________________________
 int VP1GraphicsItemCollection::nMovableItems() const
 {
-  return d->movableitems.count();
+  return m_d->movableitems.count();
 }
 
 //____________________________________________________________________
 int VP1GraphicsItemCollection::nPresentlyActiveItems() const
 {
-  return d->ignoresInteractions() ? 0 : d->nactiveitems;
+  return m_d->ignoresInteractions() ? 0 : m_d->nactiveitems;
 }
 
 //____________________________________________________________________
 int VP1GraphicsItemCollection::nPresentlyMovableItems() const
 {
-  return d->ignoresInteractions() ? 0 : d->movableitems.count();
+  return m_d->ignoresInteractions() ? 0 : m_d->movableitems.count();
 }
 
 //____________________________________________________________________
@@ -331,10 +331,10 @@ bool VP1GraphicsItemCollection::itemBelongsAndIsPresentlyActive(QGraphicsItem*it
 {
   if (!nPresentlyActiveItems())
     return false;
-  QHash<QGraphicsItem*,bool>::const_iterator it = d->items2active.find(item);
+  QHash<QGraphicsItem*,bool>::const_iterator it = m_d->items2active.find(item);
 
 
-  if (it==d->items2active.constEnd())
+  if (it==m_d->items2active.constEnd())
     return false;
   else
     return it.value();

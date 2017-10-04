@@ -49,22 +49,22 @@ bool HitCounter :: Initialize(const NtupleStationId &id)
 			m_per_mezz[mid]=0;
 			}
 		}
-	n_dead_tubes=0;
-	n_dead_mezz=0;
-	n_dead_ml=0;	
+	m_n_dead_tubes=0;
+	m_n_dead_mezz=0;
+	m_n_dead_ml=0;	
 	m_name = id.regionId();	
 	m_is_initialized=true;
-	p_wd = gDirectory->mkdir(m_name.c_str(), m_name.c_str());
-//	p_wd->Write();	
-	p_wd->cd();
-	p_hits_per_segments = new TH1F("hits_per_segments", "", 433, -0.5, 432.5);
+	m_wd = gDirectory->mkdir(m_name.c_str(), m_name.c_str());
+//	m_wd->Write();	
+	m_wd->cd();
+	m_hits_per_segments = new TH1F("hits_per_segments", "", 433, -0.5, 432.5);
 	return true;
 	}
 
 
 void HitCounter :: ProcessSegment(const MuonCalibSegment & segment)
 	{
-	p_hits_per_segments->Fill(static_cast<Axis_t>(segment.hitsOnTrack()));
+	m_hits_per_segments->Fill(static_cast<Axis_t>(segment.hitsOnTrack()));
 	MuonCalibSegment :: MdtHitCit it(segment.mdtHOTBegin());
 	for(; it!=segment.mdtHOTEnd(); it++)
 		{
@@ -91,9 +91,9 @@ void HitCounter :: ProcessSegment(const MuonCalibSegment & segment)
 		}
 	}
 
-const std::string & HitCounter :: FittingBy(int min_hits, double m_bad_fit_rate)
+const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 	{
-	p_wd->cd();
+	m_wd->cd();
 //try per tube
 	double n_bad(0.0), n_total(0.0);
 	Axis_t index(0.0);
@@ -111,7 +111,7 @@ const std::string & HitCounter :: FittingBy(int min_hits, double m_bad_fit_rate)
 			}
 		else
 			{
-			n_dead_tubes++;
+			m_n_dead_tubes++;
 			}
 		tubes->Fill(index, it->second);
 		index++;
@@ -120,7 +120,7 @@ const std::string & HitCounter :: FittingBy(int min_hits, double m_bad_fit_rate)
 		tubes_index->SetBinContent(fix_index + 1, it->second);
 		}
 	tubes->SetEntries(m_per_chamber);
-	if(n_bad/n_total <= m_bad_fit_rate)
+	if(n_bad/n_total <= bad_fit_rate)
 		{
 		m_fit_by="TUBE";
 		m_fit_by_int = 1;
@@ -138,13 +138,13 @@ const std::string & HitCounter :: FittingBy(int min_hits, double m_bad_fit_rate)
 			}
 		else
 			{
-			n_dead_mezz++;
+			m_n_dead_mezz++;
 			}
 		mezzanaines->Fill(index, it->second);
 		index++;
 		}
 	mezzanaines->SetEntries(m_per_chamber);
-	if(n_bad/n_total <= m_bad_fit_rate && m_fit_by_int == -1)
+	if(n_bad/n_total <= bad_fit_rate && m_fit_by_int == -1)
 		{
 		m_fit_by="MEZZ_CARD";
 		m_fit_by_int=2;
@@ -162,18 +162,18 @@ const std::string & HitCounter :: FittingBy(int min_hits, double m_bad_fit_rate)
 			}
 		else
 			{
-			n_dead_ml++;
+			m_n_dead_ml++;
 			}
 		mls->Fill(index, it->second);
 		index++;
 		}
 	mls->SetEntries(m_per_chamber);
-	if(n_bad/n_total <= m_bad_fit_rate && m_fit_by_int == -1)
+	if(n_bad/n_total <= bad_fit_rate && m_fit_by_int == -1)
 		{
 		m_fit_by="MULTILAYER";
 		m_fit_by_int = 3;
 		}
-//	p_wd->Write();	
+//	m_wd->Write();	
 //try total
 	if(m_per_chamber>=min_hits &&m_fit_by_int == -1 )
 		{

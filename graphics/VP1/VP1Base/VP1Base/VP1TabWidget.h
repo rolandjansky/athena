@@ -140,7 +140,7 @@ class VP1TabWidget : public QTabWidget
 
   private:
     class Private;
-    Private * const d;
+    Private * const m_d;
 };
 
 #endif

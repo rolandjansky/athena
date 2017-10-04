@@ -65,7 +65,7 @@ public:
 
 //____________________________________________________________________
 VP1StdCollection::VP1StdCollection(IVP1System* sys,const QString& helperClassName)
-  : VP1Collection(sys,helperClassName), d(new Imp)
+  : VP1Collection(sys,helperClassName), m_d(new Imp)
 {
 }
 
@@ -84,33 +84,33 @@ void VP1StdCollection::init(VP1MaterialButtonBase* button)
   safetext.replace('>','_');
   safetext.replace('&','_');
 
-  d->theswitch = new SoSwitch;
-  d->theswitch->ref();
-  d->theswitch->setName(("StdCollSwitch"+safetext).toStdString().c_str());
+  m_d->theswitch = new SoSwitch;
+  m_d->theswitch->ref();
+  m_d->theswitch->setName(("StdCollSwitch"+safetext).toStdString().c_str());
 
   // get a default material for the collection
-  d->material = new SoMaterial;
-  d->material->setName(("StdCollMat"+safetext).toStdString().c_str());
-  d->material->ref();
-  assignDefaultMaterial(d->material);
+  m_d->material = new SoMaterial;
+  m_d->material->setName(("StdCollMat"+safetext).toStdString().c_str());
+  m_d->material->ref();
+  assignDefaultMaterial(m_d->material);
 
   // the material button hosting the default material
-  button==0?d->matButton = new VP1MaterialButton:d->matButton=button; // Use button if something has been passed in...
-  d->matButton->setObjectName("matButtonColl_"+safetext);
-  d->matButton->setToolTip(matButtonToolTip());
-  d->matButton->setMaterial(d->material);
-  connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(possibleChangeMatTranspOrBrightness()));
+  button==0?m_d->matButton = new VP1MaterialButton:m_d->matButton=button; // Use button if something has been passed in...
+  m_d->matButton->setObjectName("matButtonColl_"+safetext);
+  m_d->matButton->setToolTip(matButtonToolTip());
+  m_d->matButton->setMaterial(m_d->material);
+  connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(possibleChangeMatTranspOrBrightness()));
 
   // the collection checkbox
-  d->checkBox = new QCheckBox();
-  d->checkBox->setText(d->checkBox->fontMetrics().elidedText(text(), Qt::ElideRight, 140 ));
-  d->checkBox->setObjectName("checkBoxColl_"+safetext);
-  d->checkBox->setToolTip(checkBoxToolTip());
-  connect(d->checkBox,SIGNAL(toggled(bool)),this,SLOT(setVisible(bool)));
+  m_d->checkBox = new QCheckBox();
+  m_d->checkBox->setText(m_d->checkBox->fontMetrics().elidedText(text(), Qt::ElideRight, 140 ));
+  m_d->checkBox->setObjectName("checkBoxColl_"+safetext);
+  m_d->checkBox->setToolTip(checkBoxToolTip());
+  connect(m_d->checkBox,SIGNAL(toggled(bool)),this,SLOT(setVisible(bool)));
 
-  d->collsep = new SoSeparator;
-  d->collsep->ref();
-  d->collsep->setName(("StdCollSep"+safetext).toStdString().c_str());
+  m_d->collsep = new SoSeparator;
+  m_d->collsep->ref();
+  m_d->collsep->setName(("StdCollSep"+safetext).toStdString().c_str());
 
   possibleChangeMatTranspOrBrightness();
 }
@@ -118,138 +118,138 @@ void VP1StdCollection::init(VP1MaterialButtonBase* button)
 //____________________________________________________________________
 VP1StdCollection::~VP1StdCollection()
 {
-  delete d->checkBox;
-  delete d->matButton;
-  foreach (QWidget*w,d->extraWidgets)
+  delete m_d->checkBox;
+  delete m_d->matButton;
+  foreach (QWidget*w,m_d->extraWidgets)
     delete w;
-  d->material->unref();
-  d->collsep->unref();
-  d->theswitch->unref();
-  delete d;
+  m_d->material->unref();
+  m_d->collsep->unref();
+  m_d->theswitch->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
 QString VP1StdCollection::text() const
 {
-  if (!d->textProvided) {
-    d->textProvided = true;
-    d->text = provideText();
+  if (!m_d->textProvided) {
+    m_d->textProvided = true;
+    m_d->text = provideText();
   }
-  return d->text;
+  return m_d->text;
 }
 
 //____________________________________________________________________
 bool VP1StdCollection::visible() const
 {
-  return d->visible;
+  return m_d->visible;
 }
 
 //____________________________________________________________________
 bool VP1StdCollection::isLoaded() const
 {
-  return d->loaded;
+  return m_d->loaded;
 }
 
 //____________________________________________________________________
 bool VP1StdCollection::problemsLoading() const
 {
-  return d->problemsloading;
+  return m_d->problemsloading;
 }
 
 //____________________________________________________________________
 void VP1StdCollection::setVisible(bool b)
 {
-  if (d->visible==b||problemsLoading())
+  if (m_d->visible==b||problemsLoading())
     return;
-  d->visible=b;
-  messageVerbose("Visible state ("+text()+") => "+str(d->visible));
+  m_d->visible=b;
+  messageVerbose("Visible state ("+text()+") => "+str(m_d->visible));
 
   //Possibly load:
-  if (d->visible&&!d->loaded) {
-    d->loaded = true;
-    d->theswitch->whichChild = SO_SWITCH_NONE;
+  if (m_d->visible&&!m_d->loaded) {
+    m_d->loaded = true;
+    m_d->theswitch->whichChild = SO_SWITCH_NONE;
     bool ok = load();
     if (!ok) {
-      d->problemsloading = true;
-      d->visible = false;
-      d->checkBox->blockSignals(true);
-      d->checkBox->setChecked(false);
-      d->checkBox->setToolTip("Problems encountered during attempt to load this collection");
+      m_d->problemsloading = true;
+      m_d->visible = false;
+      m_d->checkBox->blockSignals(true);
+      m_d->checkBox->setChecked(false);
+      m_d->checkBox->setToolTip("Problems encountered during attempt to load this collection");
       foreach (QWidget*w,widgetsForGuiRow())
 	w->setEnabled(false);
       message("Problems loading "+text());
       return;
     }
-    d->theswitch->addChild(d->material);
-    d->theswitch->addChild(d->collsep);
+    m_d->theswitch->addChild(m_d->material);
+    m_d->theswitch->addChild(m_d->collsep);
   }
 
   Q_ASSERT(!problemsLoading());
 
   //Update checkbox and switch:
-  if (d->checkBox->isChecked()!=d->visible) {
-    bool save = d->checkBox->blockSignals(true);
-    d->checkBox->setChecked(d->visible);
+  if (m_d->checkBox->isChecked()!=m_d->visible) {
+    bool save = m_d->checkBox->blockSignals(true);
+    m_d->checkBox->setChecked(m_d->visible);
     if (!save)
-      d->checkBox->blockSignals(false);
+      m_d->checkBox->blockSignals(false);
   }
-  if ((d->theswitch->whichChild.getValue()==SO_SWITCH_ALL) != d->visible)
-    d->theswitch->whichChild = ( d->visible ? SO_SWITCH_ALL : SO_SWITCH_NONE );
+  if ((m_d->theswitch->whichChild.getValue()==SO_SWITCH_ALL) != m_d->visible)
+    m_d->theswitch->whichChild = ( m_d->visible ? SO_SWITCH_ALL : SO_SWITCH_NONE );
 
-  visibilityChanged(d->visible);
+  visibilityChanged(m_d->visible);
 }
 
 
 //____________________________________________________________________
 SoSwitch * VP1StdCollection::collSwitch() const
 {
-  if (!d->theswitch)
+  if (!m_d->theswitch)
     message("ERROR: collSwitch() called before init()");
-  return d->theswitch;
+  return m_d->theswitch;
 }
 
 //____________________________________________________________________
 SoSeparator * VP1StdCollection::collSep() const
 {
-  if (!d->collsep)
+  if (!m_d->collsep)
     message("ERROR: collSep() called before init()");
-  return d->collsep;
+  return m_d->collsep;
 }
 
 //____________________________________________________________________
 SoMaterial * VP1StdCollection::material() const
 {
-  if (!d->material)
+  if (!m_d->material)
     message("ERROR: material() called before init()");
-  return d->material;
+  return m_d->material;
 }
 
 //____________________________________________________________________
 void VP1StdCollection::largeChangesBegin()
 {
-  if (!d->collsep)
+  if (!m_d->collsep)
     message("ERROR: largeChangesBegin() called before init()");
-  d->collsep->enableNotify(false);
-  ++(d->largechangescount_sep);
-  d->theswitch->enableNotify(false);
-  ++(d->largechangescount_switch);
+  m_d->collsep->enableNotify(false);
+  ++(m_d->largechangescount_sep);
+  m_d->theswitch->enableNotify(false);
+  ++(m_d->largechangescount_switch);
 }
 
 //____________________________________________________________________
 void VP1StdCollection::largeChangesEnd()
 {
-  if (!d->collsep)
+  if (!m_d->collsep)
     message("ERROR: largeChangesEnd() called before init()");
-  if (d->largechangescount_sep>0) {
-    if (--(d->largechangescount_sep)==0) {
-      d->collsep->enableNotify(true);
-      d->collsep->touch();
+  if (m_d->largechangescount_sep>0) {
+    if (--(m_d->largechangescount_sep)==0) {
+      m_d->collsep->enableNotify(true);
+      m_d->collsep->touch();
     }
   }
-  if (d->largechangescount_switch>0) {
-    if (--(d->largechangescount_switch)==0) {
-      d->theswitch->enableNotify(true);
-      d->theswitch->touch();
+  if (m_d->largechangescount_switch>0) {
+    if (--(m_d->largechangescount_switch)==0) {
+      m_d->theswitch->enableNotify(true);
+      m_d->theswitch->touch();
     }
   }
 }
@@ -257,12 +257,12 @@ void VP1StdCollection::largeChangesEnd()
 //____________________________________________________________________
 QList<QWidget*> VP1StdCollection::provideWidgetsForGuiRow() const
 {
-  d->extraWidgets = provideExtraWidgetsForGuiRow();
+  m_d->extraWidgets = provideExtraWidgetsForGuiRow();
 
   QList<QWidget*> l;
-  l << d->checkBox;
-  l << d->matButton;
-  l << d->extraWidgets;
+  l << m_d->checkBox;
+  l << m_d->matButton;
+  l << m_d->extraWidgets;
   return l;
 }
 
@@ -271,15 +271,15 @@ QByteArray VP1StdCollection::persistifiableState() const
 {
 	messageDebug("VP1StdCollection::persistifiableState()");
 
-  if (!d->material) {
+  if (!m_d->material) {
     message("ERROR: persistifiableState() called before init()");
     return QByteArray();
   }
   VP1Serialise serialise(1/*version*/);
   serialise.disableUnsavedChecks();
-  serialise.save(d->visible);
-  Q_ASSERT(d->material&&"Did you forget to call init() on this VP1StdCollection?");
-  serialise.save(d->material);
+  serialise.save(m_d->visible);
+  Q_ASSERT(m_d->material&&"Did you forget to call init() on this VP1StdCollection?");
+  serialise.save(m_d->material);
   serialise.save(extraWidgetsState());//version 1+
   return serialise.result();
 }
@@ -287,7 +287,7 @@ QByteArray VP1StdCollection::persistifiableState() const
 //____________________________________________________________________
 void VP1StdCollection::setState(const QByteArray&state)
 {
-  if (!d->material) {
+  if (!m_d->material) {
     message("ERROR: setState(..) called before init()");
     return;
   }
@@ -302,9 +302,9 @@ void VP1StdCollection::setState(const QByteArray&state)
   QByteArray matState = des.restoreByteArray();
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
 
-  VP1QtInventorUtils::deserialiseSoMaterial(matState,d->material);
-  d->matButton->copyValuesFromMaterial(d->material);
-  // d->material->restoreFromState(matState);
+  VP1QtInventorUtils::deserialiseSoMaterial(matState,m_d->material);
+  m_d->matButton->copyValuesFromMaterial(m_d->material);
+  // m_d->material->restoreFromState(matState);
   setVisible(vis);
 
   if (extraWidgetState!=QByteArray())
@@ -314,11 +314,11 @@ void VP1StdCollection::setState(const QByteArray&state)
 //____________________________________________________________________
 qint32 VP1StdCollection::collTypeID() const
 {
-  if (!d->idProvided) {
-    d->idProvided = true;
-    d->id = provideCollTypeID();
+  if (!m_d->idProvided) {
+    m_d->idProvided = true;
+    m_d->id = provideCollTypeID();
   }
-  return d->id;
+  return m_d->id;
 }
 
 //____________________________________________________________________
@@ -335,23 +335,23 @@ QByteArray VP1StdCollection::providePersistifiableID() const
 //____________________________________________________________________
 double VP1StdCollection::collMaterialTransparency() const
 {
-  return d->lastMatTransparency;
+  return m_d->lastMatTransparency;
 }
 
 //____________________________________________________________________
 double VP1StdCollection::collMaterialBrightness() const
 {
-  return d->lastMatBrightness;
+  return m_d->lastMatBrightness;
 }
 
 //____________________________________________________________________
 void VP1StdCollection::possibleChangeMatTranspOrBrightness()
 {
-  double t = d->matButton->lastAppliedTransparency();
-  double b = d->matButton->lastAppliedBrightness();
-  if ( d->lastMatTransparency == t && d->lastMatBrightness == b )
+  double t = m_d->matButton->lastAppliedTransparency();
+  double b = m_d->matButton->lastAppliedBrightness();
+  if ( m_d->lastMatTransparency == t && m_d->lastMatBrightness == b )
     return;
-  d->lastMatTransparency = t;
-  d->lastMatBrightness = b;
+  m_d->lastMatTransparency = t;
+  m_d->lastMatBrightness = b;
   collMaterialTransparencyAndBrightnessChanged();
 }

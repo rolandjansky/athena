@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigMuonHypo/MuonRoiFex.h"
 #include "TrigMuonHypo/MufastHypo.h"
 #include "TrigMuonHypo/MufastStauHypo.h"
@@ -69,38 +68,3 @@ DECLARE_ALGORITHM_FACTORY( TrigMuonEFCombinerDiMuonMassPtImpactsHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonCaloTagHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonIDTrackMultiHypo )
 
-DECLARE_FACTORY_ENTRIES( TrigMuonHypo ) {
-
-	DECLARE_ALGORITHM( MuonRoiFex )
-	DECLARE_ALGORITHM( MufastHypo )
-	DECLARE_ALGORITHM( MufastPEBHypo )
-        DECLARE_ALGORITHM( MufastOTRHypo )
-        DECLARE_ALGORITHM( MufastCALHypo )
-	DECLARE_ALGORITHM( MucombHypo )
-	DECLARE_ALGORITHM( MuisoHypo )
-	DECLARE_ALGORITHM( TrigMooreHypo )
-	DECLARE_ALGORITHM( TrigMuonEFSegmentFinderHypo )
-	DECLARE_ALGORITHM( TrigMuonEFTrackBuilderHypo )
-	DECLARE_ALGORITHM( TrigMuonEFTrackBuilderMultiHypo )
-	DECLARE_ALGORITHM( TrigMuonEFExtrapolatorHypo )
-	DECLARE_ALGORITHM( TrigMuonEFExtrapolatorMultiHypo )
-	DECLARE_ALGORITHM( TrigMuonEFCombinerHypo )
-	DECLARE_ALGORITHM( TrigMuonEFCombinerMultiHypo )
-	DECLARE_ALGORITHM( TrigMuonEFSegmentHypo )
-	DECLARE_ALGORITHM( TrigMuonEFTrackIsolationHypo )
-	DECLARE_ALGORITHM( TrigMuonEFCaloIsolationHypo )
-	DECLARE_ALGORITHM( TrigL2DimuonMassHypo )
-        DECLARE_ALGORITHM( StauHypo )
-        DECLARE_ALGORITHM( TileMuHypo )
-	DECLARE_ALGORITHM( TrigMuGirlHypo )
-	DECLARE_ALGORITHM( TrigMuTagIMOHypo )
-	DECLARE_ALGORITHM( TrigL2MuonOverlapRemover )
-	DECLARE_ALGORITHM( TrigEFMuonOverlapRemover )
-	DECLARE_ALGORITHM( MufastNSWHypo )
-	DECLARE_ALGORITHM( TrigMuonEFExtrapolatorNSWHypo )
-	DECLARE_ALGORITHM( TrigMuonEFCombinerDiMuonMassHypo )
-	DECLARE_ALGORITHM( TrigMuonEFCombinerDiMuonMassPtImpactsHypo )
-        DECLARE_ALGORITHM( TrigMuonCaloTagHypo )
-        DECLARE_ALGORITHM( TrigMuonIDTrackMultiHypo )
-
-}

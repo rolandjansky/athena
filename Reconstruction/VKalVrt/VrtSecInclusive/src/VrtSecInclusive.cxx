@@ -483,26 +483,24 @@ namespace VKalVrtAthena {
     if( m_FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = Incomp.size();
     
     // set of vertices created in the following while loop.
-    vector<WrkVrt> *WrkVrtSet= new vector<WrkVrt>;
+    vector<WrkVrt> WrkVrtSet;
     
     // Reconstruction of initial solution set (2-track vertices)
-    ATH_CHECK( reconstruct2TrackVertices( Incomp, WrkVrtSet ) );
+    ATH_CHECK( reconstruct2TrackVertices( Incomp, &WrkVrtSet ) );
     
     // No need to use Incomp anymore.
     Incomp.clear();
     
     // Reconstruction of N-track vertices from 2-track vertices
-    ATH_CHECK( reconstructNTrackVertices( WrkVrtSet ) );
+    ATH_CHECK( reconstructNTrackVertices( &WrkVrtSet ) );
     
     if ( m_mergeFinalVerticesDistance ) {
       ATH_MSG_DEBUG("execute: trying to merge vertices within " << m_VertexMergeFinalDistCut << " mm.");
-      ATH_CHECK( mergeFinalVertices( WrkVrtSet ) );
+      ATH_CHECK( mergeFinalVertices( &WrkVrtSet ) );
     } // end if m_mergeFinalVerticesDistance
     
       // Refitting and selection of good-quality vertices
-    ATH_CHECK( refitAndSelectGoodQualityVertices( WrkVrtSet ) );
-    
-    delete WrkVrtSet;
+    ATH_CHECK( refitAndSelectGoodQualityVertices( &WrkVrtSet ) );
     
     // Fill AANT
     if( m_FillNtuple ) {

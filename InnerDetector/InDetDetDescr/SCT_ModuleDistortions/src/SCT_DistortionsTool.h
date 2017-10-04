@@ -60,7 +60,6 @@ class SCT_DistortionsTool : public AthAlgTool, virtual public ISCT_ModuleDistort
     std::string m_textFileNameScand;
     std::string m_textFileNameProfiles;
 
-    bool m_doCorrections;
     float m_distortionsScale;
 
     mutable std::map<int,int> m_moduleSites;

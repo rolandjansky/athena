@@ -91,7 +91,7 @@ class VP1TabBar: public QTabBar
 
   private:
     class Private;
-    Private* const d;
+    Private* const m_d;
 };
 
 #endif

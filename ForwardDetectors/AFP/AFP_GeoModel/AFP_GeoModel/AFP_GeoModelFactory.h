@@ -48,8 +48,8 @@ private:
     AFP_GeoModelFactory(const AFP_GeoModelFactory &right);
 
     // The manager:
-    AFP_GeoModelManager       *detectorManager;
-    StoreGateSvc             *detectorStore;
+    AFP_GeoModelManager       *m_detectorManager;
+    StoreGateSvc             *m_detectorStore;
 
 private:
     //common auxiliary map of solid shapes

@@ -59,7 +59,7 @@ private:
   IVP12DSystemSimple( const IVP12DSystemSimple & );
   IVP12DSystemSimple & operator= ( const IVP12DSystemSimple & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void create(StoreGateSvc* detstore);
   void refresh(StoreGateSvc* storegate);
   void erase();

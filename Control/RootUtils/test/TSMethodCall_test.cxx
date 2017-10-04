@@ -21,12 +21,13 @@
 #include <cassert>
 
 
-boost::shared_mutex sm;
-
-
 struct TestThread
 {
-  TestThread (RootUtils::TSMethodCall& meth, int n): m_meth(meth), m_n(n) {}
+  TestThread (RootUtils::TSMethodCall& meth,
+              int n,
+              boost::shared_mutex& sm)
+    : m_meth(meth), m_n(n), m_sm(sm)
+  {}
 
   static void test1 (RootUtils::TSMethodCall& tsmeth)
   {
@@ -42,7 +43,7 @@ struct TestThread
 
   void operator() ()
   {
-    boost::shared_lock_guard<boost::shared_mutex> guard (sm);
+    boost::shared_lock_guard<boost::shared_mutex> guard (m_sm);
     for (int i = 0; i < m_n; i++) {
       test1 (m_meth);
     }
@@ -50,6 +51,7 @@ struct TestThread
 
   RootUtils::TSMethodCall& m_meth;
   int m_n;
+  boost::shared_mutex& m_sm;
 };
 
 
@@ -62,13 +64,14 @@ void test1()
   assert (meth.call() != nullptr);
 
   TestThread::test1 (meth);
+  boost::shared_mutex sm;
   sm.lock();
 
   const int nthread = 10;
   const int niter = 10000;
   std::thread threads[nthread];
   for (int i=0; i < nthread; i++)
-    threads[i] = std::thread (TestThread (meth, niter));
+    threads[i] = std::thread (TestThread (meth, niter, sm));
 
   // Try to get the threads starting as much at the same time as possible.
   sm.unlock();

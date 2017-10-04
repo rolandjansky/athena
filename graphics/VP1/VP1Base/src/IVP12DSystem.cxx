@@ -30,22 +30,22 @@ public:
 
 //____________________________________________________________________
 IVP12DSystem::IVP12DSystem(const QString & name, const QString & information, const QString & contact_info)
-  : IVP1System(name,information,contact_info), d(new Imp)
+  : IVP1System(name,information,contact_info), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 IVP12DSystem::~IVP12DSystem()
 {
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
 void IVP12DSystem::registerItemCollection(VP1GraphicsItemCollection*ic)
 {
-  assert(!d->collections.contains(ic)
+  assert(!m_d->collections.contains(ic)
 	 &&"IVP12DSystem::registerItemCollection Error: Item collection registered twice");
-  d->collections<<ic;
+  m_d->collections<<ic;
   connect(ic,SIGNAL(itemPicked(QGraphicsItem*)),this,SLOT(itemPickedPrivate(QGraphicsItem*)));
   connect(ic,SIGNAL(itemGotEvent(QGraphicsItem*,QEvent*)),this,SLOT(itemGotEventPrivate(QGraphicsItem*,QEvent*)));
   connect(ic,SIGNAL(selectionChanged(QList<QGraphicsItem*>)),this,SLOT(selectionChangedPrivate(QList<QGraphicsItem*>)));
@@ -54,7 +54,7 @@ void IVP12DSystem::registerItemCollection(VP1GraphicsItemCollection*ic)
 //____________________________________________________________________
 QSet<VP1GraphicsItemCollection*> IVP12DSystem::getItemCollections()
 {
-  return d->collections;
+  return m_d->collections;
 }
 
 //____________________________________________________________________

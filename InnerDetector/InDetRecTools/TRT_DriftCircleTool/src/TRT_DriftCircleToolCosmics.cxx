@@ -32,6 +32,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +45,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
   m_useConditionsStatus(false),
   m_trt_mgr_location("TRT"),
-  m_comTimeName("ComTime"),
   m_trt_mgr(0),
   m_trtid(0),
   m_coll_pll(0),
@@ -71,12 +71,12 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_mask_middle_HT_bit_argon(false),
   m_mask_last_HT_bit(false),
   m_mask_last_HT_bit_argon(false)
+
 {
   declareInterface<ITRT_DriftCircleTool>(this);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
   declareProperty("ConditionsSummaryTool",m_ConditionsSummary);
-  declareProperty("ComTimeName",m_comTimeName);
   declareProperty("UseConditionsStatus",m_useConditionsStatus);
 
   declareProperty("UseConditionsHTStatus",m_useConditionsHTStatus);
@@ -154,6 +154,9 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
       ATH_MSG_INFO( "Retrieved service " << m_ConditionsSummary);
     }
   }
+
+  // Initialize Read handle key
+  ATH_CHECK(m_comTimeName.initialize());
   return sc;
 }
 
@@ -203,12 +206,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
     return rio;
   }
 
+  SG::ReadHandle<ComTime> theComTime(m_comTimeName);
+  
 
-  const ComTime* theComTime;
   	 
   double timecor=0.;
-
-  if ( evtStore()->retrieve(theComTime,m_comTimeName)) {
+  if (theComTime.isValid()) {
     timecor = theComTime->getTime() + m_global_offset;
     ATH_MSG_VERBOSE("Retrieved ComTime object with name "
 		    << m_comTimeName<<" found! Time="<<timecor);

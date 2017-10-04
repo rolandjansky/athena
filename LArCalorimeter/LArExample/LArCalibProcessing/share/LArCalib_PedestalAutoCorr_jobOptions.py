@@ -210,12 +210,6 @@ if not 'OutputObjectSpecAutoCorr' in dir():
 if not 'ReadBadChannelFromCOOL' in dir():
    ReadBadChannelFromCOOL = True   
 
-if ( ReadBadChannelFromCOOL ):      
-   if 'InputBadChannelSQLiteFile' in dir():
-      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
-   else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"
 
 #######################################################################################
 # print summary
@@ -347,6 +341,13 @@ if not 'InputBadChannelSQLiteFile' in dir():
    PedestalAutoCorrLog.info( "Read Bad Channels from Oracle DB")
 else :   
    PedestalAutoCorrLog.info( "Read Bad Channels from SQLite file") 
+
+if ( ReadBadChannelFromCOOL ):      
+   if 'InputBadChannelSQLiteFile' in dir():
+      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+   else:
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
 
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 

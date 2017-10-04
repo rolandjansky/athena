@@ -66,7 +66,7 @@ public:
   virtual ~IVP12DDetViewsSystem();
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void create(StoreGateSvc* detstore);
   void refresh(StoreGateSvc* storegate);
   void erase();

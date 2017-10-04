@@ -95,20 +95,20 @@ namespace LVL1MUCTPI {
    //                                                                  //
    //////////////////////////////////////////////////////////////////////
 
-   inline MsgLogger& MsgLogger::operator<< ( MsgLogger& ( *_f )( MsgLogger& ) ) {
+   inline MsgLogger& MsgLogger::operator<< ( MsgLogger& ( *f )( MsgLogger& ) ) {
 
-      return ( _f )( *this );
+      return ( f )( *this );
    }
 
-   inline MsgLogger& MsgLogger::operator<< ( std::ostream& ( *_f )( std::ostream& ) ) {
+   inline MsgLogger& MsgLogger::operator<< ( std::ostream& ( *f )( std::ostream& ) ) {
 
-      ( _f )( *this );
+      ( f )( *this );
       return *this;
    }
 
-   inline MsgLogger& MsgLogger::operator<< ( std::ios& ( *_f )( std::ios& ) ) {
+   inline MsgLogger& MsgLogger::operator<< ( std::ios& ( *f )( std::ios& ) ) {
 
-      ( _f )( *this );
+      ( f )( *this );
       return *this;
    }
 
@@ -151,11 +151,12 @@ namespace LVL1MUCTPI {
  *   REPORT_MSG( LVL1MUCTPI::INFO, "Some information message" );
  * </code>
  */
-#define REPORT_MSG( LEVEL, MESSAGE )                            \
-   if( m_logger.msgLvl(LEVEL) ) {                               \
-      m_logger << LEVEL << MSGLOGGER_REPORT_PREFIX << MESSAGE   \
+#define REPORT_MSG2( LEVEL, MESSAGE, LOGGER )                   \
+   if( LOGGER.msgLvl(LEVEL) ) {                                 \
+        LOGGER << LEVEL << MSGLOGGER_REPORT_PREFIX << MESSAGE   \
                << LVL1MUCTPI::MsgLogger::endmsg;                \
    }
+#define REPORT_MSG( LEVEL, MESSAGE ) REPORT_MSG2(LEVEL, MESSAGE, m_logger)
 
 /// Convenience macro for reporting VERBOSE messages in the code
 /**
@@ -168,10 +169,11 @@ namespace LVL1MUCTPI {
  *   REPORT_VERBOSE_MSG( "This is a verbose message with a number: " << number );
  * </code>
  */
-#define REPORT_VERBOSE_MSG( MESSAGE )                                   \
-   if( m_logger.msgLvl(LVL1MUCTPI::VERBOSE) ) {                         \
-      m_logger << LVL1MUCTPI::VERBOSE << MESSAGE << LVL1MUCTPI::MsgLogger::endmsg; \
+#define REPORT_VERBOSE_MSG2( MESSAGE, LOGGER )                          \
+   if( LOGGER.msgLvl(LVL1MUCTPI::VERBOSE) ) {                         \
+      LOGGER << LVL1MUCTPI::VERBOSE << MESSAGE << LVL1MUCTPI::MsgLogger::endmsg; \
    }
+#define REPORT_VERBOSE_MSG(MESSAGE ) REPORT_VERBOSE_MSG2(MESSAGE, m_logger)
 
 /// Convenience macro for reporting ERROR messages in the code
 /**
@@ -184,6 +186,8 @@ namespace LVL1MUCTPI {
  *   REPORT_ERROR_MSG( "A serious error message" );
  * </code>
  */
+#define REPORT_ERROR_MSG2( MESSAGE, LOGGER )           \
+   REPORT_MSG2( LVL1MUCTPI::ERROR, MESSAGE, LOGGER )
 #define REPORT_ERROR_MSG( MESSAGE ) \
    REPORT_MSG( LVL1MUCTPI::ERROR, MESSAGE )
 
@@ -200,5 +204,7 @@ namespace LVL1MUCTPI {
  */
 #define REPORT_FATAL_MSG( MESSAGE ) \
    REPORT_MSG( LVL1MUCTPI::FATAL, MESSAGE )
+#define REPORT_FATAL_MSG2( MESSAGE, LOGGER )           \
+   REPORT_MSG2( LVL1MUCTPI::FATAL, MESSAGE, LOGGER )
 
 #endif // TRIGT1MUCTPI_MSGLOGGER_H

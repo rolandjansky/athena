@@ -28,7 +28,6 @@
 
 #include "../ThreadInitTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( HiveAlgA )
 DECLARE_ALGORITHM_FACTORY( HiveAlgB )

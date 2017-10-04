@@ -100,7 +100,7 @@ private:
   VP1CollectionWidget( const VP1CollectionWidget & );
   VP1CollectionWidget & operator= ( const VP1CollectionWidget & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

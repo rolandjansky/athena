@@ -43,9 +43,9 @@ public:
 
 //___________________________________________________
 IVP13DChannelWidget::IVP13DChannelWidget(const QString & name, const QString & information, const QString & contact_info)
-: IVP1ChannelWidget(name,information,contact_info), d(new Imp)
+: IVP1ChannelWidget(name,information,contact_info), m_d(new Imp)
 {
-	d->itE = d->renderareas.end();
+	m_d->itE = m_d->renderareas.end();
 
 }
 
@@ -53,10 +53,10 @@ IVP13DChannelWidget::IVP13DChannelWidget(const QString & name, const QString & i
 IVP13DChannelWidget::~IVP13DChannelWidget()
 {
 	setUpdatesEnabled(false);
-	d->it = d->renderareas.begin();
-	for (;d->it!=d->itE;++(d->it)) {
-		//    SoQtRenderArea* ra = *(d->it);
-		VP1ExaminerViewer* ra = *(d->it);
+	m_d->it = m_d->renderareas.begin();
+	for (;m_d->it!=m_d->itE;++(m_d->it)) {
+		//    SoQtRenderArea* ra = *(m_d->it);
+		VP1ExaminerViewer* ra = *(m_d->it);
 		ra->setAutoRedraw(false);//extra
 		SoNode * root = ra->getSceneGraph();
 		root->ref();
@@ -76,15 +76,15 @@ IVP13DChannelWidget::~IVP13DChannelWidget()
 		delete trick2;
 		root->unref();
 	}
-	delete d;
+	delete m_d;
 }
 
 //___________________________________________________
 void IVP13DChannelWidget::setUpdatesEnabled ( bool enable )
 {
-	d->it = d->renderareas.begin();
-	for (;d->it!=d->itE;++(d->it)) {
-		(*(d->it))->setAutoRedraw(enable);
+	m_d->it = m_d->renderareas.begin();
+	for (;m_d->it!=m_d->itE;++(m_d->it)) {
+		(*(m_d->it))->setAutoRedraw(enable);
 	}
 	IVP1ChannelWidget::setUpdatesEnabled(enable);
 }
@@ -100,8 +100,8 @@ void IVP13DChannelWidget::registerRenderArea(VP1ExaminerViewer* ra)
 
 	VP1QtInventorUtils::ensureInitLineWidthAndPointSize(ra);
 
-	d->renderareas.push_back(ra);
-	d->itE = d->renderareas.end();
+	m_d->renderareas.push_back(ra);
+	m_d->itE = m_d->renderareas.end();
 
 	//To make sure that it is the actual 3D widget that gets focus when
 	//we e.g. click anywhere else in the widget where the render area is
@@ -114,9 +114,9 @@ void IVP13DChannelWidget::registerRenderArea(VP1ExaminerViewer* ra)
 void IVP13DChannelWidget::goingToNextEvent()
 {
 	//Stop spinning and abort any ongoing animations:
-	d->it = d->renderareas.begin();
-	for (;d->it!=d->itE;++(d->it)) {
-		VP1ExaminerViewer* ra = *(d->it);
+	m_d->it = m_d->renderareas.begin();
+	for (;m_d->it!=m_d->itE;++(m_d->it)) {
+		VP1ExaminerViewer* ra = *(m_d->it);
 		if (ra->getTypeId().isDerivedFrom(SoQtViewer::getClassTypeId())) {
 			VP1CameraHelper::abortAnyCurrentZoom(static_cast<SoQtViewer*>(ra)->getCamera());
 			if (ra->getTypeId().isDerivedFrom(SoQtExaminerViewer::getClassTypeId())) {
@@ -137,10 +137,10 @@ QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool /*batch*/)
 
 	//Unfortunately, the renderer's areas does not render properly by a
 	//simple grabWidget. We remedy this the hard way...
-	//  d->it = d->renderareas.begin();
-	//  message("Have "+QString::number(d->renderareas.size())+" ras");
-	//  for (;d->it!=d->itE;++(d->it)) {
-	//    SoQtRenderArea* ra = *(d->it);
+	//  m_d->it = m_d->renderareas.begin();
+	//  message("Have "+QString::number(m_d->renderareas.size())+" ras");
+	//  for (;m_d->it!=m_d->itE;++(m_d->it)) {
+	//    SoQtRenderArea* ra = *(m_d->it);
 	//    if (ra->isDoubleBuffer()) message("doublebuffer");
 	//    if (ra->isDrawToFrontBufferEnable()) message("isDrawToFrontBufferEnable");
 	//    if (ra->isQuadBufferStereo()) message("isQuadBufferStereo");
@@ -157,9 +157,9 @@ QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool /*batch*/)
 	painter.begin(&pm);
 	painter.drawPixmap(0,0,QPixmap::grabWidget ( this ));
 
-	d->it = d->renderareas.begin();
-	for (;d->it!=d->itE;++(d->it)) {
-		VP1ExaminerViewer* ra = *(d->it);
+	m_d->it = m_d->renderareas.begin();
+	for (;m_d->it!=m_d->itE;++(m_d->it)) {
+		VP1ExaminerViewer* ra = *(m_d->it);
 		QWidget * ra_w = ra->getNormalWidget();
 		QPixmap pmra = VP1QtInventorUtils::renderToPixmap(ra, ra_w->geometry().width(),ra_w->geometry().height());
 		if (pmra.isNull()) {
@@ -195,9 +195,9 @@ QByteArray IVP13DChannelWidget::saveState()
 
 	//Transparency types (version 0 saved as strings instead of ints):
 	QList<int> transptypes;
-	d->it = d->renderareas.begin();
-	for (;d->it!=d->itE;++(d->it))
-		transptypes << VP1QtInventorUtils::transparencyTypeToInt((*(d->it))->getTransparencyType());
+	m_d->it = m_d->renderareas.begin();
+	for (;m_d->it!=m_d->itE;++(m_d->it))
+		transptypes << VP1QtInventorUtils::transparencyTypeToInt((*(m_d->it))->getTransparencyType());
 	out << transptypes;
 
 	//For any render area that can be casted as an SoQtViewer, we store the camera type and parameters.
@@ -237,14 +237,14 @@ void IVP13DChannelWidget::restoreFromState(QByteArray ba)
 	} else {
 		QList<int> transptypes;
 		state >> transptypes;
-		if (transptypes.count()!=static_cast<int>(d->renderareas.size())) {
+		if (transptypes.count()!=static_cast<int>(m_d->renderareas.size())) {
 			message("Warning: State data in .vp1 file is in wrong format - ignoring!");
 			buffer.close();
 			return;
 		}
-		d->it = d->renderareas.begin();
-		for (;d->it!=d->itE;++(d->it))
-			(*(d->it))->setTransparencyType(VP1QtInventorUtils::intToTransparencyType(transptypes.takeFirst()));
+		m_d->it = m_d->renderareas.begin();
+		for (;m_d->it!=m_d->itE;++(m_d->it))
+			(*(m_d->it))->setTransparencyType(VP1QtInventorUtils::intToTransparencyType(transptypes.takeFirst()));
 	}
 
 	//Camera angles:

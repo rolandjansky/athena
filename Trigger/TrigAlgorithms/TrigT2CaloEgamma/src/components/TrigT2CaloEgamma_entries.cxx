@@ -10,7 +10,6 @@
 //#include "TrigT2CaloEgamma/T2CaloSwSeed.h"
 //#include "TrigT2CaloEgamma/T2CaloSwCluster.h"
 #include "TrigT2CaloEgamma/EgammaAllFex.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( T2CaloEgamma )
 DECLARE_ALGORITHM_FACTORY( T2CaloEgammaFastAlgo )
@@ -25,16 +24,3 @@ DECLARE_TOOL_FACTORY( RingerFex )
 DECLARE_TOOL_FACTORY( EgammaAllFex )
 //DECLARE_TOOL_FACTORY( T2CaloEgammaMon )
 
-DECLARE_FACTORY_ENTRIES(TrigT2CaloEgamma) {
-    DECLARE_ALGORITHM( T2CaloEgamma );
-    DECLARE_ALGORITHM( T2CaloEgammaFastAlgo );
-    //DECLARE_ALGORITHM( T2CaloEgammaSamp1 );
-    //DECLARE_ALGORITHM( T2CaloSwSeed );
-    //DECLARE_ALGORITHM( T2CaloSwCluster );
-    DECLARE_TOOL( EgammaSamp2Fex );
-    DECLARE_TOOL( EgammaSamp1Fex );
-    DECLARE_TOOL( EgammaEmEnFex );
-    DECLARE_TOOL( EgammaHadEnFex );
-    DECLARE_TOOL( RingerFex );
-//    DECLARE_TOOL( T2CaloEgammaMon );
-}

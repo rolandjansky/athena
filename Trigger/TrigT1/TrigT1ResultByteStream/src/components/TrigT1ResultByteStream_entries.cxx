@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigT1ResultByteStream/RoIBResultByteStreamCnv.h"
 #include "TrigT1ResultByteStream/RecRoIBResultByteStreamCnv.h"
@@ -40,12 +39,3 @@ DECLARE_TOOL_FACTORY( RecMuCTPIByteStreamTool )
 DECLARE_TOOL_FACTORY( RecRoIBResultByteStreamTool )
 DECLARE_TOOL_FACTORY( RoIBResultByteStreamTool )
 
-DECLARE_FACTORY_ENTRIES( TrigT1ResultByteStream)
-{
-  DECLARE_CONVERTER( RoIBResultByteStreamCnvT )
-  DECLARE_CONVERTER( RecRoIBResultByteStreamCnvT )
-  DECLARE_CONVERTER( MuCTPIByteStreamCnv )
-  DECLARE_CONVERTER( CTPByteStreamCnv )
-  DECLARE_CONVERTER( RecMuCTPIByteStreamCnv )
-  DECLARE_CONVERTER( RecCTPByteStreamCnv )
-}

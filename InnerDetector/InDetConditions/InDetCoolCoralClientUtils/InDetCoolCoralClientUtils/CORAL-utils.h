@@ -18,25 +18,25 @@
 
 
 #define VECTOR2STRING( my_vector, my_string) { \
-    std::ostringstream _os_; \
-    size_t _k_; \
-    _os_ << my_vector.size() << ' '; \
-    for (_k_ = 0; _k_ < my_vector.size(); _k_ ++) { \
-        _os_ << my_vector[_k_] << ' '; \
+    std::ostringstream os_; \
+    size_t k_; \
+    os_ << my_vector.size() << ' '; \
+    for (k_ = 0; k_ < my_vector.size(); k_ ++) { \
+        os_ << my_vector[k_] << ' '; \
     } \
-    my_string = _os_.str(); \
+    my_string = os_.str(); \
 }
                                                                                                                    
 #define STRING2VECTOR( my_string, my_vector) { \
-    std::istringstream _is_ (my_string); \
-    size_t _new_size_, _k_; \
-    _is_ >> _new_size_; \
-    if (_new_size_ >9000000) {throw std::out_of_range("bad array limit in CORAL-utils.h");}\
-     __typeof__ (my_vector[0]) _tmp_; \
+    std::istringstream is_ (my_string); \
+    size_t new_size_, k_; \
+    is_ >> new_size_; \
+    if (new_size_ >9000000) {throw std::out_of_range("bad array limit in CORAL-utils.h");}\
+     __typeof__ (my_vector[0]) tmp_; \
     my_vector.clear(); \
-    for (_k_ = 0; _k_ < _new_size_; _k_ ++) { \
-        _is_ >> _tmp_; \
-        my_vector.push_back (_tmp_); \
+    for (k_ = 0; k_ < new_size_; k_ ++) { \
+        is_ >> tmp_; \
+        my_vector.push_back (tmp_); \
     } \
 }
 

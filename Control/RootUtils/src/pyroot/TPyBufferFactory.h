@@ -23,6 +23,10 @@
 #define ROOTUTILS_TPYBUFFERFACTORY_H
 
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 namespace RootUtils {
 
 /** Factory for python buffers of non-string type

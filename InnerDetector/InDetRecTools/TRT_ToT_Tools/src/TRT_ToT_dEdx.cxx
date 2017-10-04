@@ -1046,8 +1046,8 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
 
   if(gasType==kUnset)
     {
-      ATH_MSG_WARNING("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_WARNING("getProb():: Now gasTypeInStraw sets to kXenon.");
+      ATH_MSG_DEBUG("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
+      ATH_MSG_DEBUG("getProb():: Now gasTypeInStraw sets to kXenon.");
       gasType = kXenon;
     }
 
@@ -1118,8 +1118,8 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
 
   if(gasType==kUnset)
     {
-      ATH_MSG_WARNING("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_WARNING("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
+      ATH_MSG_DEBUG("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
+      ATH_MSG_DEBUG("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
       gasType = kXenon;
     }
 

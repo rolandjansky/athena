@@ -41,7 +41,7 @@ using namespace Genfun;
 using namespace CLHEP;
 
 AFP_GeoModelFactory::AFP_GeoModelFactory(StoreGateSvc *detStore, AFP_Geometry* pGeometry)
-    :detectorManager(NULL), detectorStore(detStore)
+    :m_detectorManager(NULL), m_detectorStore(detStore)
 {
     pGeometry->GetCfgParams(&m_CfgParams);
     m_pGeometry=pGeometry;
@@ -63,7 +63,7 @@ void AFP_GeoModelFactory::DefineMaterials()
     GeoMaterialPropertiesTable *pMPT=NULL;
 
     DataHandle<StoredMaterialManager> materialManager;
-    if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+    if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
         return;
     }
 
@@ -228,7 +228,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 {
     char szLabel[32];
     StatusCode SCode;
-    detectorManager=new AFP_GeoModelManager();
+    m_detectorManager=new AFP_GeoModelManager();
     HepGeom::Transform3D TransEnvInWorld;
     HepGeom::Transform3D PosElementInEnv;
 
@@ -249,7 +249,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv);
-    detectorManager->addTreeTop(pPhysLongEnv);
+    m_detectorManager->addTreeTop(pPhysLongEnv);
 
     //add Long Hamburg Pipe (station A)
     PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP00",ESE_RPOT);
@@ -274,7 +274,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv);
-    detectorManager->addTreeTop(pPhysShortEnv);
+    m_detectorManager->addTreeTop(pPhysShortEnv);
 
     //add Short Hamburg Pipe (station A)
     PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP01",ESE_RPOT);
@@ -294,7 +294,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv1);
-    detectorManager->addTreeTop(pPhysShortEnv1);
+    m_detectorManager->addTreeTop(pPhysShortEnv1);
 
     //add Short Hamburg Pipe (station C)
     PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP02",ESE_RPOT);
@@ -314,7 +314,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv1);
-    detectorManager->addTreeTop(pPhysLongEnv1);
+    m_detectorManager->addTreeTop(pPhysLongEnv1);
 
     //add Long Hamburg Pipe (station C)
     PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP03",ESE_RPOT);
@@ -332,7 +332,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // Register the Surface Container with the Detector Store
-    SCode=detectorStore->record(pBSContainer, "AFP_GeoModel");
+    SCode=m_detectorStore->record(pBSContainer, "AFP_GeoModel");
     if (SCode.isFailure()){
 
     }
@@ -340,7 +340,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 
 const AFP_GeoModelManager * AFP_GeoModelFactory::getDetectorManager() const
 {
-    return detectorManager;
+    return m_detectorManager;
 }
 
 

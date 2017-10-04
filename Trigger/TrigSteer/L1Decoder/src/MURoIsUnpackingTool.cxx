@@ -3,9 +3,6 @@
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
-
-
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -16,40 +13,23 @@
 MURoIsUnpackingTool::MURoIsUnpackingTool( const std::string& type, 
 					  const std::string& name, 
 					  const IInterface* parent )
-  : AthAlgTool  ( type, name, parent ),
+  : RoIsUnpackingToolBase  ( type, name, parent ),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
     m_recRpcRoISvc( "LVL1RPC::RPCRecRoiSvc/LVL1RPC::RPCRecRoiSvc", name ),
-    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc", name ),
-    m_monTool( "GenericMonitoringTool/MonTool", this ) {
-
-  declareProperty( "Decisions", m_decisionsKey="MURoIDecisions", "Decisions for each RoI" );
-  declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3:HLT_e5', 'EM3:HLT_e5tight', ..." );
-  declareProperty( "OutputTrigRoIs", m_trigRoIsKey="MURoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "OutputRecRoIs",  m_recRoIsKey ="RecMURoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
-  declareProperty( "MonTool", m_monTool=ToolHandle<GenericMonitoringTool>( "", this ), "Monitoring tool" );
+    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc", name )
+{
 }
 
-// Destructor
-///////////////
-MURoIsUnpackingTool::~MURoIsUnpackingTool(){}
 
-// Athena algtool's Hooks
-////////////////////////////
 StatusCode MURoIsUnpackingTool::initialize() {
+
+  CHECK( RoIsUnpackingToolBase::initialize() );
   CHECK( m_configSvc.retrieve() );
-  CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize() );
   CHECK( m_recRpcRoISvc.retrieve() );
   CHECK( m_recTgcRoISvc.retrieve() );
-  if ( not m_monTool.name().empty() ) 
-    CHECK( m_monTool.retrieve() );
 
-  if ( decodeMapping().isFailure() ) {
-    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -65,13 +45,10 @@ StatusCode MURoIsUnpackingTool::updateConfiguration() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MURoIsUnpackingTool::finalize() {
-  return StatusCode::SUCCESS;
-}
 
 StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
-					const ROIB::RoIBResult& roib,
-					const HLT::IDSet& activeChains ) const {
+                                        const ROIB::RoIBResult& roib,
+                                        const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
   auto decisionAux    = std::make_unique<DecisionAuxContainer>();
@@ -99,14 +76,22 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
     auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+    decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
     for ( auto th: m_muonThresholds ) {
       if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
 	// this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
-	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	ATH_MSG_DEBUG( "Threshold passed: " << th->name() );
+	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	    TrigCompositeUtils::DecisionIDContainer ids; 
+	    TrigCompositeUtils::decisionIDs( decision, ids ); 
+	    return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
+	
       }
     }
+
   }
   // monitoring
   {
@@ -127,7 +112,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   }
   {
     auto handle = SG::makeHandle(  m_decisionsKey, ctx );
-    CHECK( handle.record( std::move( decisionOutput ) ) );
+    CHECK( handle.record( std::move( decisionOutput ), std::move( decisionAux ) ) );
   }
   return StatusCode::SUCCESS;
 }
