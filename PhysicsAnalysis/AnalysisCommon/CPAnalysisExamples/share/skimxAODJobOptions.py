@@ -67,8 +67,7 @@ if not isMC: svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool"  ]
 xaodStream.AddMetaDataItem(["xAOD::LumiBlockRangeContainer#*","xAOD::LumiBlockRangeAuxContainer#*",
                             "xAOD::TriggerMenuContainer#*","xAOD::TriggerMenuAuxContainer#*",
                             "xAOD::CutBookkeeperContainer#*", "xAOD::CutBookkeeperAuxContainer#*",
-                            "xAOD::FileMetaData#*","xAOD::FileMetaDataAuxInfo#",
-                            "EventStreamInfo#*"])
+                            "xAOD::FileMetaData#*","xAOD::FileMetaDataAuxInfo#"])
 
 
 
