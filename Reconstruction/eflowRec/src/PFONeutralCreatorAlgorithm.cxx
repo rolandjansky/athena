@@ -10,7 +10,7 @@ PFONeutralCreatorAlgorithm::PFONeutralCreatorAlgorithm( const std::string& name,
     m_eOverPMode(false),
     m_LCMode(false),
     m_eflowCaloObjectContainerReadHandle("eflowCaloObjects"),
-    m_neutralPFOContainerWriteHandle("JetETMissNeutralParticleFlowObjectsV2"),
+    m_neutralPFOContainerWriteHandle("JetETMissNeutralParticleFlowObjects"),
     m_neutralPFOContainerWriteHandle_nonModified("JetETMissNeutralParticleFlowObjects_nonModified")    
 {
   /* Name of  eflow Container to be created */
@@ -104,6 +104,8 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
 
     }
 
+    ATH_MSG_DEBUG("Created neutral PFO with E, pt, eta and phi of " << thisPFO->e() << ", " << thisPFO->pt() << ", " << thisPFO->eta() << " and " << thisPFO->phi());
+    
     thisPFO->setCharge(0);
 
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
@@ -248,7 +250,7 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
     thisPFO->setAttribute(myAttribute_TIMING, clusterTiming);
 
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisPFO->e() << ", " << thisPFO->eta() << " and " << thisPFO->phi() << std::endl;
+    //if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisPFO->e() << ", " << thisPFO->eta() << " and " << thisPFO->phi() << std::endl;
 
   }
 }

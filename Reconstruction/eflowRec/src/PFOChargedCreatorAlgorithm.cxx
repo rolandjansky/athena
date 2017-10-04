@@ -11,7 +11,7 @@ PFOChargedCreatorAlgorithm::PFOChargedCreatorAlgorithm(const std::string& name, 
     m_trackVertexAssociationTool("",this),
     m_vertexContainerReadHandle("PrimaryVertices"),
     m_eflowCaloObjectContainerReadHandle("eflowCaloObjects"),
-    m_chargedPFOContainerWriteHandle("JetETMissChargedParticleFlowObjectsV2")
+    m_chargedPFOContainerWriteHandle("JetETMissChargedParticleFlowObjects")
 {
   /* Name of  eflow Container to be created */
   declareProperty("EOverPMode", m_eOverPMode);
@@ -113,6 +113,8 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     /* Set the 4-vector of the xAOD::PFO */
     thisPFO->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
 
+    ATH_MSG_DEBUG("Created charged PFO with E, pt, eta and phi of " << thisPFO->e() << ", " << thisPFO->pt() << ", " << thisPFO->eta() << " and " << thisPFO->phi());
+    
     /* Add the amount of energy the track was expected to deposit in the calorimeter - this is needed to calculate the charged weight in the jet finding */
     xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
     thisPFO->setAttribute<float>(myAttribute_tracksExpectedEnergyDeposit,efRecTrack->getEExpect() );
