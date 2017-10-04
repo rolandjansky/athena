@@ -1,4 +1,4 @@
-Wed Jun 21 14:56:20 EDT 2017
+Mon Oct  2 12:54:46 EDT 2017
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 463 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
@@ -16,7 +16,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Jun 21 14:56:46 2017
+                                          running on karma on Mon Oct  2 12:55:10 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -24,7 +24,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 9658 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10227 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -46,7 +46,7 @@ EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
 Domain[ROOT_All] Info                           xaoddata.root
 RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
@@ -61,10 +61,10 @@ ImplicitCollection Info Opened the implicit collection with connection string "P
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1375 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1402 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 386 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
@@ -82,21 +82,21 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
 Domain[ROOT_All] Info                           xaoddata.root
 RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
 RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=226 typename=f) has different type than the branch vector<int>
@@ -140,10 +140,10 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
-ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
-1
+ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 1000 aFloat: 0.1 anInt2: 2000 dInt1: 3000 cEL: cvec[1]
+1
 ClassIDSvc           INFO  getRegistryEntries: read 32 CLIDRegistry entries for module ALL
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 501 aFloat: 600 anInt2: 701 dInt1: 481
@@ -171,7 +171,7 @@ hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 41
 hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 02448862-7BE9-7748-ACC7-3DD1490F248A
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 3A8200FB-0D74-334B-818B-FAD96A2D6522
 Domain[ROOT_All] Info                           xaoddata2.root
 RootDatabase.open Info xaoddata2.root File version:60806
 StorageSvc Info Building shape according to reflection information using shape ID for:
@@ -186,8 +186,8 @@ StorageSvc Info Building shape according to reflection information using shape I
 StorageSvc Info xAOD::ShallowAuxContainer [C63C39D7-9501-49DC-B1B0-6AD98B1AEEFA]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info xAOD::AuxContainerBase [C87C71B3-B03F-42FC-AF99-DF497F148397]
-ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 35D5BC8D-6CAA-8B4A-B26F-96B981AA6D19
+ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
 Domain[ROOT_All] Info                           xaoddata2b.root
 RootDatabase.open Info xaoddata2b.root File version:60806
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
@@ -234,9 +234,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 0.928 ]
-2
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 2000 aFloat: 0.2 anInt2: 4000 dInt1: 6000 cEL: cvec[2]
+2
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 1001 aFloat: 1200 anInt2: 1401 dInt1: 961
  anInt1 1002 aFloat: 1200.1 anInt2: 1402 dInt1: 962
@@ -305,9 +305,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 0.938 ]
-3
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 3000 aFloat: 0.3 anInt2: 6000 dInt1: 9000 cEL: cvec[3]
+3
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 1501 aFloat: 1800 anInt2: 2101 dInt1: 1441
  anInt1 1502 aFloat: 1800.1 anInt2: 2102 dInt1: 1442
@@ -376,9 +376,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 0.948 ]
-4
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 4000 aFloat: 0.4 anInt2: 8000 dInt1: 12000 cEL: cvec[4]
+4
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 2001 aFloat: 2400 anInt2: 2801 dInt1: 1921
  anInt1 2002 aFloat: 2400.1 anInt2: 2802 dInt1: 1922
@@ -407,9 +407,9 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
-5
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 5000 aFloat: 0.5 anInt2: 10000 dInt1: 15000 cEL: [18446744073709551615]
+5
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 2501 aFloat: 3000 anInt2: 3501 dInt1: 2401
  anInt1 2502 aFloat: 3000.1 anInt2: 3502 dInt1: 2402
@@ -478,9 +478,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [190 191 192 193 194 195 196 197 198 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 0.968 ]
-6
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 6000 aFloat: 0.6 anInt2: 12000 dInt1: 18000 cEL: cvec[6]
+6
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 3001 aFloat: 3600 anInt2: 4201 dInt1: 2881
  anInt1 3002 aFloat: 3600.1 anInt2: 4202 dInt1: 2882
@@ -549,9 +549,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [290 291 292 293 294 295 296 297 298 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 0.978 ]
-7
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 7000 aFloat: 0.7 anInt2: 14000 dInt1: 21000 cEL: cvec[7]
+7
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 3501 aFloat: 4200 anInt2: 4901 dInt1: 3361
  anInt1 3502 aFloat: 4200.1 anInt2: 4902 dInt1: 3362
@@ -620,9 +620,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [390 391 392 393 394 395 396 397 398 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 0.988 ]
-8
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 8000 aFloat: 0.8 anInt2: 16000 dInt1: 24000 cEL: cvec[8]
+8
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 4001 aFloat: 4800 anInt2: 5601 dInt1: 3841
  anInt1 4002 aFloat: 4800.1 anInt2: 5602 dInt1: 3842
@@ -691,9 +691,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [490 491 492 493 494 495 496 497 498 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 0.998 ]
-9
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 9000 aFloat: 0.9 anInt2: 18000 dInt1: 27000 cEL: cvec[9]
+9
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 4501 aFloat: 5400 anInt2: 6301 dInt1: 4321
  anInt1 4502 aFloat: 5400.1 anInt2: 6302 dInt1: 4322
@@ -762,9 +762,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [590 591 592 593 594 595 596 597 598 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-10
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 10000 aFloat: 1 anInt2: 20000 dInt1: 30000 cEL: cvec[0]
+10
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 5001 aFloat: 6000 anInt2: 7001 dInt1: 4801
  anInt1 5002 aFloat: 6000.1 anInt2: 7002 dInt1: 4802
@@ -833,9 +833,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [690 691 692 693 694 695 696 697 698 ]
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-11
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 11000 aFloat: 1.1 anInt2: 22000 dInt1: 33000 cEL: cvec[1]
+11
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 5501 aFloat: 6600 anInt2: 7701 dInt1: 5281
  anInt1 5502 aFloat: 6600.1 anInt2: 7702 dInt1: 5282
@@ -904,9 +904,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [790 791 792 793 794 795 796 797 798 ]
   pvFloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-12
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 12000 aFloat: 1.2 anInt2: 24000 dInt1: 36000 cEL: cvec[2]
+12
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 6001 aFloat: 7200 anInt2: 8401 dInt1: 5761
  anInt1 6002 aFloat: 7200.1 anInt2: 8402 dInt1: 5762
@@ -975,9 +975,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [890 891 892 893 894 895 896 897 898 ]
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-13
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 13000 aFloat: 1.3 anInt2: 26000 dInt1: 39000 cEL: cvec[3]
+13
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 6501 aFloat: 7800 anInt2: 9101 dInt1: 6241
  anInt1 6502 aFloat: 7800.1 anInt2: 9102 dInt1: 6242
@@ -1046,9 +1046,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [990 991 992 993 994 995 996 997 998 ]
   pvFloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-14
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 14000 aFloat: 1.4 anInt2: 28000 dInt1: 42000 cEL: cvec[4]
+14
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 7001 aFloat: 8400 anInt2: 9801 dInt1: 6721
  anInt1 7002 aFloat: 8400.1 anInt2: 9802 dInt1: 6722
@@ -1117,9 +1117,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-15
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 15000 aFloat: 1.5 anInt2: 30000 dInt1: 45000 cEL: cvec[5]
+15
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 7501 aFloat: 9000 anInt2: 10501 dInt1: 7201
  anInt1 7502 aFloat: 9000.1 anInt2: 10502 dInt1: 7202
@@ -1188,9 +1188,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]
   pvFloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-16
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 16000 aFloat: 1.6 anInt2: 32000 dInt1: 48000 cEL: cvec[6]
+16
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 8001 aFloat: 9600 anInt2: 11201 dInt1: 7681
  anInt1 8002 aFloat: 9600.1 anInt2: 11202 dInt1: 7682
@@ -1259,9 +1259,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-17
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 17000 aFloat: 1.7 anInt2: 34000 dInt1: 51000 cEL: cvec[7]
+17
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 8501 aFloat: 10200 anInt2: 11901 dInt1: 8161
  anInt1 8502 aFloat: 10200.1 anInt2: 11902 dInt1: 8162
@@ -1330,9 +1330,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]
   pvFloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-18
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 18000 aFloat: 1.8 anInt2: 36000 dInt1: 54000 cEL: cvec[8]
+18
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 9001 aFloat: 10800 anInt2: 12601 dInt1: 8641
  anInt1 9002 aFloat: 10800.1 anInt2: 12602 dInt1: 8642
@@ -1401,9 +1401,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-19
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 19000 aFloat: 1.9 anInt2: 38000 dInt1: 57000 cEL: cvec[9]
+19
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 9501 aFloat: 11400 anInt2: 13301 dInt1: 9121
  anInt1 9502 aFloat: 11400.1 anInt2: 13302 dInt1: 9122
@@ -1472,9 +1472,9 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-20
 cinfo aux items: aFloat anInt anInt2 cEL dInt1 
 cinfo  anInt1 20000 aFloat: 2 anInt2: 40000 dInt1: 60000 cEL: cvec[0]
+20
 ctrig aux items: aFloat anInt anInt2 dInt1 
  anInt1 10001 aFloat: 12000 anInt2: 14001 dInt1: 9601
  anInt1 10002 aFloat: 12000.1 anInt2: 14002 dInt1: 9602
@@ -1500,15 +1500,15 @@ cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
 hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
 Stream2              INFO Records written: 21
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
 xaoddata2.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 02448862-7BE9-7748-ACC7-3DD1490F248A
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3A8200FB-0D74-334B-818B-FAD96A2D6522
 xaoddata2b.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 35D5BC8D-6CAA-8B4A-B26F-96B981AA6D19
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
