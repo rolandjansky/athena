@@ -33,41 +33,41 @@ namespace MuonCalib {
     MuonCalibTrack_EBranch(std::string branchName = "trk_"); //!< default constructor 
     bool  fillBranch(const MuonCalibTrack_E& track) ;        //!< fill content of hit into branch 
     bool  createBranch(TTree* tree);                         //!< create branch structure in tree 
-    void reset() { index = 0; }                              //!< set hit_index to zero 
-    int getBranchEntries() { return index; }                 //!< returns the number of hits currently in the branch 
+    void reset() { m_index = 0; }                              //!< set hit_index to zero 
+    int getBranchEntries() { return m_index; }                 //!< returns the number of hits currently in the branch 
   
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                 //!< flag to check whether branches were initialized 
+    bool m_branchesInit;               //!< flag to check whether branches were initialized 
     bool m_first;                      //!< flag to make sure that overflow message is only printed once
-    static const int blockSize = 3000; //!< quantities stored in the tree 
-    int  index;                        //!< counter keeping track on the number of MuonCalib::MuonCalibTrack_E s stored in the event
+    static const int s_blockSize = 3000; //!< quantities stored in the tree 
+    int  m_index;                      //!< counter keeping track on the number of MuonCalib::MuonCalibTrack_E s stored in the event
 
-    float x0[blockSize];
-    float y0[blockSize];
-    float z0[blockSize];
-    float phi[blockSize];
-    float theta[blockSize];
-    float qOverP[blockSize];
-//    float errInvP[blockSize];
-    int author[blockSize];
-    float cov00[blockSize];
-    float cov01[blockSize];
-    float cov02[blockSize];
-    float cov03[blockSize];
-    float cov04[blockSize];
-    float cov11[blockSize];
-    float cov12[blockSize];
-    float cov13[blockSize];
-    float cov14[blockSize];
-    float cov22[blockSize];
-    float cov23[blockSize];
-    float cov24[blockSize];
-    float cov33[blockSize];
-    float cov34[blockSize];
-    float cov44[blockSize];
-    float chi2[blockSize];
-    int   ndof[blockSize];
+    float m_x0[s_blockSize];
+    float m_y0[s_blockSize];
+    float m_z0[s_blockSize];
+    float m_phi[s_blockSize];
+    float m_theta[s_blockSize];
+    float m_qOverP[s_blockSize];
+//    float m_errInvP[s_blockSize];
+    int m_author[s_blockSize];
+    float m_cov00[s_blockSize];
+    float m_cov01[s_blockSize];
+    float m_cov02[s_blockSize];
+    float m_cov03[s_blockSize];
+    float m_cov04[s_blockSize];
+    float m_cov11[s_blockSize];
+    float m_cov12[s_blockSize];
+    float m_cov13[s_blockSize];
+    float m_cov14[s_blockSize];
+    float m_cov22[s_blockSize];
+    float m_cov23[s_blockSize];
+    float m_cov24[s_blockSize];
+    float m_cov33[s_blockSize];
+    float m_cov34[s_blockSize];
+    float m_cov44[s_blockSize];
+    float m_chi2[s_blockSize];
+    int   m_ndof[s_blockSize];
 
   };
 }// namespace MuonCalib

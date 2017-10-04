@@ -92,9 +92,9 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
     
   // CombinedMuonTrackParticles, ExtrapolatedMuonTrackParticles, MuonSpectrometerTrackParticles
   const xAOD::TrackParticleContainer *tracks(0);
-  std::string m_trackSGKey = "MuonSpectrometerTrackParticles";
-  if(!evtStore()->retrieve(tracks, m_trackSGKey).isSuccess()) {
-    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<m_trackSGKey);
+  std::string trackSGKey = "MuonSpectrometerTrackParticles";
+  if(!evtStore()->retrieve(tracks, trackSGKey).isSuccess()) {
+    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackSGKey);
     return StatusCode::SUCCESS;
   }
   for(auto msTrk: *tracks) {
@@ -106,9 +106,9 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
   }
     
   const xAOD::TrackParticleContainer *tracksExt(0);
-  std::string m_trackExtSGKey = "ExtrapolatedMuonTrackParticles";
-  if(!evtStore()->retrieve(tracksExt, m_trackExtSGKey).isSuccess()) {
-    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<m_trackExtSGKey);
+  std::string trackExtSGKey = "ExtrapolatedMuonTrackParticles";
+  if(!evtStore()->retrieve(tracksExt, trackExtSGKey).isSuccess()) {
+    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackExtSGKey);
     return StatusCode::SUCCESS;
   }
   for(auto msTrk: *tracksExt){
@@ -120,9 +120,9 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
   }
   
   const xAOD::TrackParticleContainer *tracksComb(0);
-  std::string m_trackCombSGKey = "CombinedMuonTrackParticles";
-  if(!evtStore()->retrieve(tracksComb, m_trackCombSGKey).isSuccess()) {
-    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<m_trackCombSGKey);
+  std::string trackCombSGKey = "CombinedMuonTrackParticles";
+  if(!evtStore()->retrieve(tracksComb, trackCombSGKey).isSuccess()) {
+    ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackCombSGKey);
     return StatusCode::SUCCESS;
   }
   for(auto msTrk: *tracksComb){
