@@ -16,6 +16,7 @@ typedef struct _triginfo
     bool trigEtcut; // Et cut only chain
     float trigThrHLT; // HLT Et threshold
     float trigThrL1; // L1 Et threshold
+    bool trigIsEmulation;
 } TrigInfo;
 
 // Enums
