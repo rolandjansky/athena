@@ -33,4 +33,4 @@ ginstall : hcg
 	cp hcg $(INSTALLDIR)
 
 clean : 
-	rm hcg
+	rm -f hcg
