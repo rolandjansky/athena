@@ -7,7 +7,7 @@
 
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 
 #include "TH2D.h"
 #include "TH1D.h"
