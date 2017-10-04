@@ -6,7 +6,8 @@
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AsgTools/ToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "AsgTools/ToolHandleArray.h"
 
 #include "PATInterfaces/SystematicsUtil.h"
