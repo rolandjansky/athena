@@ -37,7 +37,6 @@ int main() {
    SIMPLE_CHECK( tool.setProperty( "OutputLevel", MSG::DEBUG ) );
    SIMPLE_CHECK( tool.setProperty( "ServerAddress",
                                    "atlas-trigconf.cern.ch" ) );
-   SIMPLE_CHECK( tool.setProperty( "MaxBunchSpacing", 150 ) );
 
    // Try to load some configurations by key:
    SIMPLE_CHECK( tool.loadConfig( 104 ) );
@@ -64,6 +63,15 @@ int main() {
    SIMPLE_ASSERT( tool.distanceFromFront( 238 ) == 300 );
    SIMPLE_ASSERT( tool.gapBeforeTrain( 146 ) == 250 );
    SIMPLE_ASSERT( tool.bunchTrainSpacing() == 50 );
+
+   // Check a 8b4e configuration:
+   SIMPLE_CHECK( tool.loadConfig( 334849, 100 ) );
+   SIMPLE_ASSERT( tool.isFilled( 200 ) );
+   SIMPLE_ASSERT( tool.isInTrain( 210 ) );
+   SIMPLE_ASSERT( tool.distanceFromFront( 232 ) == 0 );
+   SIMPLE_ASSERT( tool.distanceFromFront( 250 ) == 150 );
+   SIMPLE_ASSERT( tool.gapBeforeTrain( 270 ) == 125 );
+   SIMPLE_ASSERT( tool.bunchTrainSpacing() == 25 );
 
    // Return gracefully:
    return 0;

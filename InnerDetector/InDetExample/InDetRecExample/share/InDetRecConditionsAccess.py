@@ -471,7 +471,7 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTConditionsSummaryService 
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_ActiveFractionSvc
+    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
     InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name = "InDetTRTActiveFractionSvc")
 
     ServiceMgr += InDetTRT_ActiveFractionSvc

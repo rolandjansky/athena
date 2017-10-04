@@ -9,8 +9,8 @@
 #include <LWHists/TH1F_LW.h>
 
 #include <xAODEventInfo/EventInfo.h>
-#include <AFP_RawEv/AFP_RawData.h>
-#include <AFP_RawEv/AFP_RawDataContainer.h>
+#include <AFP_RawEv/AFP_SiRawData.h>
+#include <AFP_RawEv/AFP_RawContainer.h>
 
 #include <AFP_Monitoring/AFPTechnicalMonitorTool.h>
 
@@ -85,7 +85,6 @@ StatusCode AFPTechnicalMonitorTool::bookHistograms( )
 
 StatusCode AFPTechnicalMonitorTool::fillHistograms()
 {
-  
   // read information
   const xAOD::EventInfo* eventInfo = 0;
   CHECK( evtStore()->retrieve( eventInfo) );
@@ -94,19 +93,19 @@ StatusCode AFPTechnicalMonitorTool::fillHistograms()
   if(m_environment == AthenaMonManager::online || m_environment == AthenaMonManager::tier0Raw) {
 
     // read information
-    const AFP_RawDataContainer* afpContainer = 0;
+    const AFP_RawContainer* afpContainer = 0;
     CHECK(evtStore()->retrieve(afpContainer));
 
-    for (AFP_RawDataCollection* hitCollection : *afpContainer) {
-      for (AFP_RawData* hit : *hitCollection) {
-    	if (hit->Get_link() >= 0 && hit->Get_link() <= 3) {
-    	  m_cNearStation.fillHistograms(*hit);
+    for (const AFP_SiRawCollection& hitCollection : afpContainer->collectionsSi()) {
+      for (const AFP_SiRawData& hit : hitCollection.dataRecords()) {
+    	if (hit.link() <= 3) {	// hit.link() is unsigned, so always greater than 0
+    	  m_cNearStation.fillHistograms(hit);
     	}
-    	else if (hit->Get_link() >= 8 && hit->Get_link() <= 11) {
-    	  m_cFarStation.fillHistograms(*hit);
+    	else if (hit.link() >= 8 && hit.link() <= 11) {
+    	  m_cFarStation.fillHistograms(hit);
     	}
     	else
-    	  ATH_MSG_WARNING("Unrecognised station index: "<<hit->Get_link());
+    	  ATH_MSG_WARNING("Unrecognised station index: "<<hit.link());
       }
     }
 

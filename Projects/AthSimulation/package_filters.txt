@@ -145,6 +145,7 @@
 + Event/EventTPCnv
 + Event/FourMom
 + Event/NavFourMom
++ Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
 + Event/xAOD/xAODCore
@@ -330,6 +331,7 @@
 + TileCalorimeter/TileSvc/TileIdCnv
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
++ Tools/ART
 + Tools/AtlasDoxygen
 + Tools/CodeCheck
 + Tools/JobTransforms
@@ -347,7 +349,6 @@
 + Tracking/TrkDetDescr/TrkSurfaces
 + Tracking/TrkEvent/TrkEventPrimitives
 + Tracking/TrkEvent/TrkNeutralParameters
-+ Tracking/TrkEvent/TrkParameters
 + Tracking/TrkEvent/TrkParametersBase
 + Tracking/TrkEvent/TrkTrackLink
 

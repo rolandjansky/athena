@@ -22,6 +22,14 @@ BRANCH=`echo $RELEASE_BASE |tr "/" " " |awk '{print $5}'`
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 lsetup asetup
 asetup none,cmakesetup --platform ${PLATFORM}
+
+if [ -d /cvmfs/atlas.cern.ch/repo/sw/tdaq ]; then
+   echo "WARNING: Setting TDAQ_RELEASE_BASE to /cvmfs/atlas.cern.ch/repo/sw/tdaq"
+   export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/tdaq
+else
+   echo "Error: Cannot find TDAQ software installation"
+   return 1
+fi
 source ${RELEASE_BASE}/build/install/${PROJECT}/*/InstallArea/${PLATFORM}/setup.sh
 
 # setup as if asetup was run
@@ -50,9 +58,9 @@ else
   echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
 fi
 
-TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/_build-jobs/${SUBDIR}
+TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
 if [[ ! -e ${TARGETDIR} ]]; then
   echo Target directory ${TARGETDIR}
-  eos mkdir ${TARGETDIR}
+  eos mkdir -p ${TARGETDIR}
   xrdcp -vr ${OUTDIR} ${TARGETDIR}
 fi
