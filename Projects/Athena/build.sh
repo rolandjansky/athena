@@ -29,6 +29,7 @@ EXE_CPACK=""
 NIGHTLY=true
 BUILDTOOLTYPE=""
 BUILDTOOL="make -k"
+INSTALLRULE="install/fast"
 while getopts ":t:b:hcmipaN" opt; do
     case $opt in
         t)
@@ -55,6 +56,7 @@ while getopts ":t:b:hcmipaN" opt; do
 	N)
 	    BUILDTOOL="ninja"
 	    BUILDTOOLTYPE="-GNinja"
+	    INSTALLRULE="install"
 	    ;;
         h)
             usage
@@ -123,7 +125,7 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time ${BUILDTOOL} install/fast \
+    time ${BUILDTOOL} ${INSTALLRULE} \
 	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
 fi
 
