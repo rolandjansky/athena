@@ -9,6 +9,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
 
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
 namespace JiveXML{
 
   
@@ -17,8 +22,8 @@ namespace JiveXML{
    * @brief Retrieves all @c InDet::TRT_DriftCircle objects
    *
    *  - @b Properties
-   *    - TRTClusters: @copydoc m_TRTDriftCircleCollName
-   *    - TRT_TruthMap: @copydoc m_TRTTruthMapName
+   *    - TRTClusters: @copydoc m_TRTDriftCircleCollKey
+   *    - TRT_TruthMap: @copydoc m_TRTTruthMapKey
    *    .
    *
    *  - @b Retrieved @b Data
@@ -50,7 +55,7 @@ namespace JiveXML{
       virtual std::string dataTypeName() const { return typeName; };
 
       /// initialize only geo model tool
-      virtual StatusCode initialize() { return geo.retrieve(); }
+      virtual StatusCode initialize();
 
     private:
       
@@ -61,9 +66,10 @@ namespace JiveXML{
       const ToolHandle<IInDetGeoModelTool> geo;
 
       /// The StoreGate key for the TRT Cluster collection to retrieve
-      std::string m_TRTDriftCircleCollName; 
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleCollKey{ this, "TRTClusters", "TRT_DriftCircles", "Container name for TRT Drift Circles" }; 
       /// The StoreGate key for the TRT MultiTruthMap with the track associations
-      std::string m_TRTTruthMapName; 
+      bool m_useTRTTruthMap;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_TRTTruthMapKey{ this, "TRT_TruthMap", "PRD_MultiTruthTRT", "Container name for PRD Multi-truth TRT MAP" };
   };
 
 }
