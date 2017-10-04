@@ -173,7 +173,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 
 	for(int layerJ=0;layerJ<nLayers;layerJ++) {
 	    
-	  if(!validateLayerPair(layerI, layerJ, rm, zm)) continue; 
+	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
 	  
 	  bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
 	    
@@ -285,7 +285,7 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 	    for(int layerJ=0;layerJ<nLayers;layerJ++) {//loop over other layers
 
-	      if(!validateLayerPair(layerI, layerJ, rm, zm)) continue; 
+	      if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
 
 	      bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
 	      bool checkPSS = (!m_settings.m_tripletDoPSS) && (isSct && isPixel2);
@@ -323,94 +323,168 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 }
 
+bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float rm, float zm) {
 
-bool TrigTrackSeedGenerator::validateLayerPair(int layerI, int layerJ, float rm, float zm) {
+  const float deltaRefCoord = 5.0;
 
   if(layerJ==layerI) return false;//skip the same layer ???
-  
+
   if(m_pStore->m_layers[layerJ].m_nSP==0) return false;
 
   int typeI = m_settings.m_layerGeometry[layerI].m_type;
+
   float refCoordI = m_settings.m_layerGeometry[layerI].m_refCoord;
+
   int typeJ = m_settings.m_layerGeometry[layerJ].m_type;
+
   float refCoordJ = m_settings.m_layerGeometry[layerJ].m_refCoord;
-  
-  if((typeI!=0) && (typeJ!=0) && refCoordI*refCoordJ<0.0) return false;
-	    
+
+  if((typeI!=0) && (typeJ!=0) && refCoordI*refCoordJ<0.0) return false;//only ++ or -- EC combinations are allowed
+
   //project beamline interval to the ref. coord of the layer
-  
+
   bool isBarrel = (typeJ == 0);
-  
+
   if(isBarrel && fabs(refCoordJ-rm)>m_maxDeltaRadius) return false;
 
   //boundaries for nextLayer
 
   m_minCoord = 10000.0;
   m_maxCoord =-10000.0;
-  
+
   if(isBarrel) {
-    m_minCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;
-    m_maxCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;
+
+    if(refCoordJ<rm){//inner layer
+
+      m_minCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//+deltaRefCoord
+      m_maxCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//-deltaRefCoord
+      m_minCoord -= deltaRefCoord*fabs(zm-m_zMinus)/rm;//corrections due to the layer width
+      m_maxCoord += deltaRefCoord*fabs(zm-m_zPlus)/rm;
+      //if(m_minCoord>m_maxCoord) {
+      //std::cout<<"1 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+      //}
+    }
+    else {//outer layer
+
+      m_minCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//+deltaRefCoord
+      m_maxCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//-deltaRefCoord
+      m_minCoord -= deltaRefCoord*fabs(zm-m_zPlus)/rm;
+      m_maxCoord += deltaRefCoord*fabs(zm-m_zMinus)/rm;
+      //if(m_minCoord>m_maxCoord) {
+      //std::cout<<"2 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+      //}
+    }
   }
-  else {
-    m_minCoord = rm*(refCoordJ-m_zMinus)/(zm-m_zMinus);
-    m_maxCoord = rm*(refCoordJ-m_zPlus)/(zm-m_zPlus);
+  else {//endcap
+    float maxB =m_settings.m_layerGeometry[layerJ].m_maxBound;
+    float minB =m_settings.m_layerGeometry[layerJ].m_minBound;
+    if(maxB<rm) return false;// This currently rejects SP type doublets
+                              // Could correct this by retrieving if layers are pix or SCT, and not performing this check for SCt->pix doublets
+    if(refCoordJ>0) {//positive EC
+      //float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+      //float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
+      //if(m_zPlus<zMin || m_zMinus > zMax) return false;
+      if(refCoordJ > zm) {//outer layer
+	
+	if(zm <= m_zMinus) return false;
+	
+	float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+	if( m_zMinus > zMax) return false;
+	if (rm < minB) {
+	  float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
+	  if(m_zPlus<zMin) return false;
+	}
+
+	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+
+	if(zm <= m_zPlus) m_maxCoord = maxB;
+	
+	if(m_minCoord > maxB) return false;
+	if(m_maxCoord < minB) return false;
+	
+	//if(m_minCoord>m_maxCoord) {
+	//std::cout<<"31 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+      else {//inner layer
+
+	float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
+	if( m_zMinus > zMax) return false;
+	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer
+	  float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+	  if(m_zPlus<zMin) return false;
+	}
+
+	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+	//if(m_minCoord>m_maxCoord) {
+	//std::cout<<"32 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+    }
+    else {//negative EC
+      //float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+      //float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
+      //if(m_zPlus<zMin || m_zMinus > zMax) return false;
+      if(refCoordJ < zm) {//outer layer
+
+	if(zm > m_zPlus) return false;
+	
+	float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+	if( m_zPlus < zMin) return false;
+	if (rm<minB) {// otherwise, intersect of line from minB through middle sp will be on the wrong side of the layer
+	  float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
+	  if(m_zMinus>zMax) return false;
+	}
+
+	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+	if(zm > m_zMinus) m_maxCoord = maxB;	
+	if(m_minCoord > maxB) return false;
+	if(m_maxCoord < minB) return false;
+	
+	//if(m_minCoord>m_maxCoord) {
+	//std::cout<<"41 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+      else {//inner layer
+
+	float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
+	if( m_zPlus < zMin) return false;
+	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer
+	  float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+	  if(m_zMinus>zMax) return false;
+	}
+
+	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+	//if(m_minCoord>m_maxCoord) {
+	//std::cout<<"42 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+    }
   }
-  
-  if(m_minCoord>m_maxCoord) {
-    float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
-  }
-  
+  //if(m_minCoord>m_maxCoord) {
+  // std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+  // }
+  //float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
+  //}
   float minBoundJ = m_settings.m_layerGeometry[layerJ].m_minBound;
   float maxBoundJ = m_settings.m_layerGeometry[layerJ].m_maxBound;
   if(maxBoundJ<m_minCoord || minBoundJ>m_maxCoord) return false;
-  
   return true;
 }
 
- bool TrigTrackSeedGenerator::validateLayerPair(int layerI, int layerJ, float rm, float zm, float zvertex) {
 
-  if(layerJ==layerI) return false;//skip the same layer ???
-  
-  if(m_pStore->m_layers[layerJ].m_nSP==0) return false;
-
-  int typeI = m_settings.m_layerGeometry[layerI].m_type;
-  float refCoordI = m_settings.m_layerGeometry[layerI].m_refCoord;
-  int typeJ = m_settings.m_layerGeometry[layerJ].m_type;
-  float refCoordJ = m_settings.m_layerGeometry[layerJ].m_refCoord;
-  
-  if((typeI!=0) && (typeJ!=0) && refCoordI*refCoordJ<0.0) return false;
-	    
-  bool isBarrel = (typeJ == 0);
-	  
-  if(isBarrel && fabs(refCoordJ-rm)>m_maxDeltaRadius) return false;
-
-  //boundaries for nextLayer
-
-  m_minCoord = 10000.0;
-  m_maxCoord =-10000.0;
-  
-  if(isBarrel) {
-    float z1 = zvertex + refCoordJ*(zm-zvertex)/rm;
-    m_minCoord = z1 - m_zTol;
-    m_maxCoord = z1 + m_zTol;
-  }
-  else {
-    float r1 = rm*(refCoordJ-zvertex)/(zm-zvertex);
-    m_minCoord = r1 - m_zTol;
-    m_maxCoord = r1 + m_zTol;
-  }
-  
-  if(m_minCoord>m_maxCoord) {
-    float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
-  }
-  
-  float minBoundJ = m_settings.m_layerGeometry[layerJ].m_minBound;
-  float maxBoundJ = m_settings.m_layerGeometry[layerJ].m_maxBound;
-  if(maxBoundJ<m_minCoord || minBoundJ>m_maxCoord) return false;
-  
-  return true;
-}
 
 bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const TrigSiSpacePointBase*>& spVec, SP_RANGE& delta) {
   
