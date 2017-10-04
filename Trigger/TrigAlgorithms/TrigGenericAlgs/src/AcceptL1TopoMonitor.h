@@ -10,6 +10,26 @@
  * @author Davide Gerbaudo
  * @author Simon George
  *
+ * This algorithm fetches L1Topo data from different sources, and
+ * performs comparisons trying to detect errors.
+ * Problematic events are accepted and written to a debug stream.
+ * The input collections are read in from:
+ * - ROI path: ROIB::RoIBResult. Read out full L1Topo RDO (TOBs, CRC,
+ *   trigger+overflow bits) every event, w/out zero suppression.
+ * - DAQ path: L1TopoRDOCollection. Read out zero-suppressed TOBs and
+ *   trigger bits every N events.
+ * - Real-time path to CTP: CTP_RDO. Read out trigger bits from the
+ *   TIP bus of the CTP. Note that these bits are OR'ed with the
+ *   overflow ones.
+ * - Simulation: LVL1::FrontPanelCTP. Trigger and overflow bits from
+ *   L1TopoSimulation.
+ *
+ * Configurable flags (Accept*Error, Accept*Difference) are used to
+ * toggle which events are accepted.
+ *
+ * The reasons for accepting an event are stored in the output as a
+ * TrigComposite for offline debugging.
+ *
  * $Id: $
  */
 
@@ -51,15 +71,33 @@ public:
 private:
     static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
     /**
-       retrieve and print the L1Topo RDOs from the ROI RODs
-       TODO
+       @brief Monitoring with converters
+       Retrieve ROIB, DAQ, and compare them.
      */
     StatusCode doCnvMon(bool);
+    /**
+       @brief monitorROBs for ROIB and DAQ inputs
+     */
     StatusCode doRawMon(bool);
+    /**
+       @brief compare simulated trigger bits against the ones from ROIB
+     */
     StatusCode doSimMon(bool);
+    /**
+       @brief compare simulated trigger bits against the ones from ROIB
+     */
     StatusCode doSimDaq(bool);
+    /**
+       @brief compare simulated trigger bits against the ones from DAQ
+     */
     StatusCode doOverflowSimMon();
+    /**
+       @brief Monitor ROB fragments: word types and payload size
+     */
     StatusCode monitorROBs(const std::vector<uint32_t>&, bool);
+    /**
+       @brief Monitor L1Topo block info from ROIB: header and fiber status
+     */
     StatusCode monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
     StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
     StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge);
