@@ -1059,6 +1059,9 @@ if rec.doFileMetaData():
         # EventFormat tool
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        # FileMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool( "FileMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1457,14 +1460,23 @@ if rec.doWriteAOD():
     StreamAOD_Augmented=MSMgr.NewPoolStream(streamAODName,athenaCommonFlags.PoolAODOutput(),asAlg=True)
 
     if rec.doFileMetaData():
-        # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+        if not ( rec.readESD() or rec.readAOD() ):
+            # Trigger tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
-        # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+            # EventFormat tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+            # FileMetaCreatorData tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+            pass
+
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())
