@@ -109,14 +109,6 @@ if DetFlags.haveRIO.pixel_on():
 if DetFlags.haveRIO.SCT_on():
   ToolSvc.CombinedMuonIDHoleSearch.SctSummarySvc      = ServiceMgr.InDetSCT_ConditionsSummarySvc
 
-# Commented out - old Run 1 code; Run 1 version of TRT Electron PID Tool has been deleted
-#if DetFlags.haveRIO.TRT_on():
-#  # load TRT_ElectronPid tool
-#  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-#  ToolSvc += InDet__TRT_ElectronPidTool(name = "CombinedMuonTRT_ElectronPid",
-#                                        isData = (globalflags.DataSource == 'data'))
-#  ToolSvc.CombinedMuonTrackSummary.TRT_ElectronPidTool = ToolSvc.CombinedMuonTRT_ElectronPid
-  
 # check configuration
 #print ToolSvc.CombinedMuonIDHoleSearch
 #print ToolSvc.CombinedMuonIDSummaryHelper
