@@ -31,8 +31,8 @@ class ZDC_DetFactory : public GeoVDetectorFactory
 
   int Make_Pixel_ID(int Pid = -1);
 
-  ZDC_DetManager* detectorManager;
-  StoreGateSvc*   detectorStore;
+  ZDC_DetManager* m_detectorManager;
+  StoreGateSvc*   m_detectorStore;
 };
 
 #endif

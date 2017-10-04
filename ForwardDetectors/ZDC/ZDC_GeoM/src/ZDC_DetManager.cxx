@@ -17,7 +17,7 @@ ZDC_DetManager::~ZDC_DetManager()
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " DESTRUCTOR OF DETMANAGER start:: getNumTreeTops() = " 
 					    << getNumTreeTops() << endmsg;
   
-  for (unsigned int i=0; i<volume.size(); i++) volume[i]->unref();
+  for (unsigned int i=0; i<m_volume.size(); i++) m_volume[i]->unref();
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " DESTRUCTOR OF DETMANAGER end:: getNumTreeTops() = " 
 					    << getNumTreeTops() <<endmsg;
@@ -25,12 +25,12 @@ ZDC_DetManager::~ZDC_DetManager()
 
 unsigned int ZDC_DetManager::getNumTreeTops() const
 {
-   return volume.size(); 
+   return m_volume.size(); 
 }
 
 PVConstLink ZDC_DetManager::getTreeTop(unsigned int i) const
 {
-   return volume[i];
+   return m_volume[i];
 }
 
 void  ZDC_DetManager::addTreeTop(PVLink vol)
@@ -40,7 +40,7 @@ void  ZDC_DetManager::addTreeTop(PVLink vol)
  
   vol->ref();
   
-  volume.push_back(vol);
+  m_volume.push_back(vol);
   
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ADDTREETOP OF DETMANAGER end:: getNumTreeTops() = " 
 					    << getNumTreeTops() << endmsg;
