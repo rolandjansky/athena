@@ -216,9 +216,8 @@ private:
 
    const AtlasDetectorID* m_idHelper;      
 
-   std::vector<Identifier> m_RDOIDs;                  ///////Make class scope 
-   std::vector<Identifier> m_ClusterIDs;              ///////Make class scope 
-   std::vector<double> m_CosAlphas;
+   std::vector<Identifier> m_RDOIDs;
+   std::vector<std::pair<Identifier, double> > m_ClusterIDs;
 
    const DataHandle<PixelRDO_Container> m_rdocontainer; //container for pixel RDO
    //PixelRODErrorCollection* m_error_summary;//container for pixel ROD errors

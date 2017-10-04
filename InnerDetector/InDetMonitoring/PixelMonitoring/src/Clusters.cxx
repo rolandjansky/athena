@@ -531,7 +531,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
 	 
 	  if (pixlayer != 99) nclusters_all++; // count all (no DBM) clusters on and off track
  
-	  double cosaplha(0.);
+	  double cosalpha(0.);
 	  if( m_doOnTrack && !OnTrack(clusID,cosalpha) ){
 	    continue;
 	    /// if we only want hits on track, and the hit is NOT on the track, skip filling.

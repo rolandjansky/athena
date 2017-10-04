@@ -160,7 +160,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
   if (m_doOnTrack) {
     m_RDOIDs.clear();
     m_ClusterIDs.clear();
-    m_CosAlphas.clear();
   }
 
    
@@ -245,7 +244,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	float npixHitsInCluster = 0;
 	//float colWidthOfCluster = 0;
 	float rowWidthOfCluster = 0;
-	float totalToTOfCluster = 0;
 	bool  passClusterSelection = false;
 
 	///
@@ -340,7 +338,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  npixHitsInCluster = pixelCluster->rdoList().size();
 	  //colWidthOfCluster = pixelCluster->width().colRow().y();
 	  rowWidthOfCluster = pixelCluster->width().colRow().x();
-	  totalToTOfCluster = pixelCluster->totalToT();
 	}
 	    
 	///
@@ -396,8 +393,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	      for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
 		m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
 	      }
-	      m_ClusterIDs.push_back( clus->identify());
-	      m_CosAlphas.push_back(cosalpha);
+	      m_ClusterIDs.push_back(std::make_pair(clus->identify(),cosalpha));
 	    }
 	  }
       } // end of TSOS loop
@@ -420,12 +416,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
    if (m_doOnTrack) {
      sort( m_RDOIDs.begin(), m_RDOIDs.end() );
-     sort( m_CosAlphas.begin(), m_CosAlphas.end(),
-	   [&](const int& a, const int& b) {
-	     return (m_ClusterIDs[a] < m_ClusterIDs[b]);
-	   }
-	   );
-     sort( m_ClusterIDs.begin(), m_ClusterIDs.end() );
+     sort( m_ClusterIDs.begin(), m_ClusterIDs.end(), [](const std::pair<Identifier, double> &left, const std::pair<Identifier, double> &right) {
+     	 return left.first < right.first;
+       });
    }
 
    if (m_doOnline) {

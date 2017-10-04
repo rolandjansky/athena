@@ -362,26 +362,28 @@ void PixelMainMon::FillSummaryHistos (PixelMon2DMapsLW* occupancy, TH1F_LW* A, T
 bool PixelMainMon::OnTrack(Identifier id, bool isCluster)
 {
    bool onTrack=false;
-   if(isCluster)
+   if (isCluster)
    {
-      onTrack=binary_search (m_ClusterIDs.begin(), m_ClusterIDs.end(), id);
-   }else{
-      onTrack=binary_search (m_RDOIDs.begin(), m_RDOIDs.end(), id);
+     std::pair<Identifier, double> searchVal = std::make_pair(id, -1.0);
+     onTrack = std::binary_search(m_ClusterIDs.begin(), m_ClusterIDs.end(), searchVal, 
+				  [](std::pair<Identifier, double> l, std::pair<Identifier, double> r) -> bool { return l.first < r.first; });
+   } else {
+     onTrack=binary_search (m_RDOIDs.begin(), m_RDOIDs.end(), id);
    }
-   //search through vector of ID's on track to see if there is a match
    return onTrack;
 }
 
 bool PixelMainMon::OnTrack(Identifier id, double &cosalpha)
 {
-  bool onTrack = binary_search(m_ClusterIDs.begin(), m_ClusterIDs.end(), id);
-  if (!onTrack) return false;
-  auto first = lower_bound(m_CosAlphas.begin(),m_CosAlphas.end(), id,
-			   [&](const int& a, const int& b) {
-			     return (m_ClusterIDs[a] < m_ClusterIDs[b]);
-			   }
-			   );
-  cosalpha = *first;
+  bool onTrack(false);
+  std::pair<Identifier, double> searchVal = std::make_pair(id, -1.0);
+  auto it = std::lower_bound(m_ClusterIDs.begin(), m_ClusterIDs.end(), searchVal, 
+			     [](std::pair<Identifier, double> l, std::pair<Identifier, double> r) -> bool { return l.first < r.first; });
+
+  if (it!=m_ClusterIDs.end() && !(id<(*it).first)) {
+    onTrack = true;
+    cosalpha = (*it).second;
+  }
   return onTrack;
 }
 
