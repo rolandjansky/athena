@@ -1,17 +1,17 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOTOOLS_CALOCOMPACTCELLTOOL_H
-#define CALOTOOLS_CALOCOMPACTCELLTOOL_H
+#ifndef CALOTPCNV_CALOCOMPACTCELLTOOL_H
+#define CALOTPCNV_CALOCOMPACTCELLTOOL_H
 
 /**
     @class CaloCompactCellTool
-    @brief Tool to convert from CaloCellContainer to CaloCompactCellContainer and back
+    @brief helper to convert from CaloCellContainer to CaloCompactCellContainer and back
     @author Sven Menke
 */
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -19,22 +19,25 @@
 
 #include <math.h>
 
-#include "CaloInterface/ICaloCompactCellTool.h"
 
 class IChronoStatSvc;
 
-class CaloCompactCellTool: public AthAlgTool,
-			   virtual public ICaloCompactCellTool
+class CaloCompactCellTool
 {
-
  public:
+  enum KNOWN_VERSIONS {
+    VERSION_400 = 400,
+    VERSION_500 = 500,
+    VERSION_501 = 501,
+    VERSION_502 = 502,
+    VERSION_503 = 503,
+    VERSION_504 = 504,
 
-  CaloCompactCellTool(const std::string& type, const std::string& name,
-		      const IInterface* parent);
+    // Select the latest version.
+    VERSION_LATEST = -1
+  };
 
-  virtual ~CaloCompactCellTool();
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  CaloCompactCellTool();
 
   StatusCode getTransient(const CaloCompactCellContainer & theCompactContainer,
 			  CaloCellContainer * theCellContainer);
@@ -43,7 +46,7 @@ class CaloCompactCellTool: public AthAlgTool,
 
   StatusCode getPersistent(const CaloCellContainer & theCellContainer,
 			   CaloCompactCellContainer * theCompactContainer,
-			   int theVersion = ICaloCompactCellTool::VERSION_LATEST);
+			   int theVersion = VERSION_LATEST);
   // fills a CaloCompactCellContainer ; caller has the responsibility
   // of creating and deleting the object again
 

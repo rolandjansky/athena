@@ -7,7 +7,7 @@
 // $Id: CaloCellPacker_400_500.h,v 1.3 2009-03-19 01:42:14 ssnyder Exp $
 
 /**
- * @file CaloTools/CaloCellPacker_400_500.h
+ * @file CaloTPCnv/src/CaloCellPacker_400_500.h
  * @author scott snyder, from earlier code by Ilija Vukotic and Sven Menke
  * @date Jan 2009
  * @brief Calo cell packer/unpacker v400/500.
@@ -20,13 +20,12 @@
 #define CALOCELLPACKER_400_500_H
 
 
-#include "CaloTools/CaloCellPackerUtils.h"
+#include "CaloCellPackerUtils.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
 #include "AthAllocators/DataPool.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
-#include "CaloInterface/ICaloCompactCellTool.h"
 class CaloCellContainer;
 class CaloCell;
 struct CaloCellPacker_400_500_test;

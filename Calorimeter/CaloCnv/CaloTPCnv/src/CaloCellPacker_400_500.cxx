@@ -4,19 +4,19 @@
 
 // $Id: CaloCellPacker_400_500.cxx,v 1.5 2009-03-31 19:04:04 ssnyder Exp $
 /**
- * @file CaloTools/src/CaloCellPacker_400_500.cxx
+ * @file CaloTPCnv/src/CaloCellPacker_400_500.cxx
  * @author scott snyder, from earlier code by Ilija Vukotic and Sven Menke
  * @date Jan 2009
  * @brief Calo cell packer/unpacker v400/500.
  */
 
 
-#include "CaloTools/CaloCellPacker_400_500.h"
+#include "CaloCellPacker_400_500.h"
+#include "CaloCompactCellTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "TileEvent/TileCell.h"
-#include "CaloInterface/ICaloCompactCellTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -38,17 +38,17 @@ void CaloCellPacker_400_500::init_header (header& header,
 {
   header.m_version = version;
   switch (version) {
-  case ICaloCompactCellTool::VERSION_501:
-  case ICaloCompactCellTool::VERSION_502:
-  case ICaloCompactCellTool::VERSION_503:
-  case ICaloCompactCellTool::VERSION_504:
+  case CaloCompactCellTool::VERSION_501:
+  case CaloCompactCellTool::VERSION_502:
+  case CaloCompactCellTool::VERSION_503:
+  case CaloCompactCellTool::VERSION_504:
     header.m_length = sizeof(header501)/sizeof(int);
     break;
 
-  case ICaloCompactCellTool::VERSION_500:
+  case CaloCompactCellTool::VERSION_500:
     header.m_length = sizeof(header500)/sizeof(int);
     break;
-  case ICaloCompactCellTool::VERSION_400:
+  case CaloCompactCellTool::VERSION_400:
     header.m_length = sizeof(header400)/sizeof(int);
     break;
   default:

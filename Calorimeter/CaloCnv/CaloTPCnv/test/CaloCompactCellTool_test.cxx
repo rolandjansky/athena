@@ -12,8 +12,8 @@
 
 #undef NDEBUG
 
-#include "CaloTools/CaloCompactCellTool.h"
-#include "CaloTools/CaloCellPacker_400_500.h"
+#include "../src/CaloCompactCellTool.h"
+#include "../src/CaloCellPacker_400_500.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
@@ -574,7 +574,7 @@ void compare_lar (const CaloCell* cell1, const CaloCell* cell2,
   // Test quality flag.
   assert ((cell1->provenance()&0x2000) == (cell2->provenance()&0x2000));
 
-  if (version <= ICaloCompactCellTool::VERSION_400) {
+  if (version <= CaloCompactCellTool::VERSION_400) {
     // Quality not saved.
     assert (cell2->quality() == 0);
   }
@@ -603,14 +603,14 @@ void compare_tile (const TileCell* cell1, const TileCell* cell2,
   assert ((cell1->qbit1() >= TileCell::KEEP_TIME) == 
           (cell2->qbit1() >= TileCell::KEEP_TIME));
 
-  if (version < ICaloCompactCellTool::VERSION_502 ) {
+  if (version < CaloCompactCellTool::VERSION_502 ) {
     assert ((cell2->qbit1() & 0x1F) == 0); // Provenance not saved.
   }
   else {
     assert ((cell1->qbit1() & 0x1F) == (cell2->qbit1() & 0x1F));
   }
 
-  if (version < ICaloCompactCellTool::VERSION_502 ) {
+  if (version < CaloCompactCellTool::VERSION_502 ) {
     assert (cell2->qual1() == 0); // Quality not saved.
   } else {
       if (cell1->qbit1() < TileCell::KEEP_TIME && 
@@ -630,14 +630,14 @@ void compare_tile (const TileCell* cell1, const TileCell* cell2,
     assert ((cell1->qbit2() >= TileCell::KEEP_TIME) == 
             (cell2->qbit2() >= TileCell::KEEP_TIME));
 
-    if (version < ICaloCompactCellTool::VERSION_502 ) {
+    if (version < CaloCompactCellTool::VERSION_502 ) {
       assert ((cell2->qbit2() & 0x1F) == 0); // Provenance not saved.
     }
     else {
       assert ((cell1->qbit2() & 0x1F) == (cell2->qbit2() & 0x1F));
     }
 
-    if (version < ICaloCompactCellTool::VERSION_502 ) {
+    if (version < CaloCompactCellTool::VERSION_502 ) {
       assert (cell2->qual2() == 0); // Quality not saved.
     } else {
       if (cell1->qbit1() < TileCell::KEEP_TIME && cell1->qbit2() < TileCell::KEEP_TIME) {
@@ -751,7 +751,7 @@ void compare_containers (const CaloCellContainer* cont,
 void test_one (int n,
                int version,
                const std::vector<CaloCell*>& cells,
-               ICaloCompactCellTool* tool,
+               CaloCompactCellTool& tool,
                bool clustery = false,
                bool dump = false,
                bool ordered = true)
@@ -763,14 +763,14 @@ void test_one (int n,
     dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool->getPersistent (*cont, &ccc, version);
+  tool.getPersistent (*cont, &ccc, version);
 
   if (dump)
     dump_packed (ccc);
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool->getTransient (ccc, cont2);
+  tool.getTransient (ccc, cont2);
 
   if (dump)
     dump_cells (*cont2);
@@ -786,18 +786,18 @@ void test_one (int n,
 
 void test_supercells (int version,
                       const std::vector<CaloCell*>& cells,
-                      ICaloCompactCellTool* tool)
+                      CaloCompactCellTool& tool)
 {
   printf ("*** test SC %d\n", version);
   CaloCellContainer* cont = fill_supercells (cells);
   //dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool->getPersistent (*cont, &ccc, version);
+  tool.getPersistent (*cont, &ccc, version);
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool->getTransient (ccc, cont2);
+  tool.getTransient (ccc, cont2);
   //dump_cells (*cont2);
 
   compare_containers (cont, cont2, true, version);
@@ -819,68 +819,68 @@ struct CaloCellPacker_400_500_test
 
   static
   void test_fin (const CaloCompactCellContainer& ccc,
-                 ICaloCompactCellTool* tool);
+                 CaloCompactCellTool& tool);
 
   static
   void test_err1 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
   static
   void test_err2 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err3 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err4 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err5 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err6 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err7 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err8 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err9 (const CaloCompactCellContainer& ccc,
-                  ICaloCompactCellTool* tool);
+                  CaloCompactCellTool& tool);
 
   static
   void test_err10 (const CaloCompactCellContainer& ccc,
-                   ICaloCompactCellTool* tool);
+                   CaloCompactCellTool& tool);
 
   static
   void test_err11 (const CaloCompactCellContainer& ccc,
-                   ICaloCompactCellTool* tool);
+                   CaloCompactCellTool& tool);
 };
 
 
 void
 CaloCellPacker_400_500_test::test_fin (const CaloCompactCellContainer&
                                        ccc2,
-                                       ICaloCompactCellTool* tool)
+                                       CaloCompactCellTool& tool)
 {
   CaloCellContainer cont2 (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool->getTransient (ccc2, &cont2);
+  tool.getTransient (ccc2, &cont2);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err1 (const CaloCompactCellContainer&
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err1\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -894,7 +894,7 @@ CaloCellPacker_400_500_test::test_err1 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err2 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err2\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -908,7 +908,7 @@ CaloCellPacker_400_500_test::test_err2 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err3 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err3\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -922,7 +922,7 @@ CaloCellPacker_400_500_test::test_err3 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err4 (const CaloCompactCellContainer&
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err4\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -935,7 +935,7 @@ CaloCellPacker_400_500_test::test_err4 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err5 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err5\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -948,7 +948,7 @@ CaloCellPacker_400_500_test::test_err5 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err6 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err6\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -964,7 +964,7 @@ CaloCellPacker_400_500_test::test_err6 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err7 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err7\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -981,7 +981,7 @@ CaloCellPacker_400_500_test::test_err7 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err8 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err8\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -998,7 +998,7 @@ CaloCellPacker_400_500_test::test_err8 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err9 (const CaloCompactCellContainer& 
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err9\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -1014,7 +1014,7 @@ CaloCellPacker_400_500_test::test_err9 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err10(const CaloCompactCellContainer&
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err10\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -1039,7 +1039,7 @@ CaloCellPacker_400_500_test::test_err10(const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err11(const CaloCompactCellContainer&
                                         ccc,
-                                        ICaloCompactCellTool* tool)
+                                        CaloCompactCellTool& tool)
 {
   printf (" --- err11\n");
   CaloCompactCellContainer ccc2 = ccc;
@@ -1052,12 +1052,12 @@ CaloCellPacker_400_500_test::test_err11(const CaloCompactCellContainer&
 
 // Test handling of corrupt data.
 void test_errs (const std::vector<CaloCell*>& cells,
-                ICaloCompactCellTool* tool)
+                CaloCompactCellTool& tool)
 {
   printf ("*** test_errs\n");
   CaloCellContainer* cont = fill_cells (10000, cells, true, true);
   CaloCompactCellContainer ccc;
-  tool->getPersistent (*cont, &ccc, ICaloCompactCellTool::VERSION_501);
+  tool.getPersistent (*cont, &ccc, CaloCompactCellTool::VERSION_501);
 
   typedef CaloCellPacker_400_500_test T;
 
@@ -1078,7 +1078,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   seed = 101;
   CaloCellContainer* cont2 = fill_cells (10000, cells, true, false);
   CaloCompactCellContainer ccc2;
-  tool->getPersistent (*cont2, &ccc2, ICaloCompactCellTool::VERSION_500);
+  tool.getPersistent (*cont2, &ccc2, CaloCompactCellTool::VERSION_500);
   T::test_fin (ccc2, tool);
 
   delete cont;
@@ -1088,7 +1088,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
 //============================================================================
 
 
-std::vector<CaloCell*> init (IdDictParser* parser, ICaloCompactCellTool* & tool)
+std::vector<CaloCell*> init (IdDictParser* parser)
 {
   ISvcLocator* svcloc;
   if (!Athena_test::initGaudi("CaloCompactCellTool_test.txt", svcloc)) {
@@ -1114,9 +1114,6 @@ std::vector<CaloCell*> init (IdDictParser* parser, ICaloCompactCellTool* & tool)
   CHECK( svcloc->service ("ToolSvc", toolsvc, true) );
   g_toolsvc = toolsvc;
 
-  tool = 0;
-  CHECK( toolsvc->retrieveTool ("CaloCompactCellTool", tool) );
-
   StoreGateSvc* detstore = 0;
   CHECK( svcloc->service ("DetectorStore", detstore) );
 
@@ -1134,87 +1131,86 @@ std::vector<CaloCell*> init (IdDictParser* parser, ICaloCompactCellTool* & tool)
 
 void runtests (IdDictParser* parser)
 {
-  ICaloCompactCellTool* tool = 0;
-  std::vector<CaloCell*> cells = init (parser, tool);
-  if (!tool) std::abort();
+  CaloCompactCellTool tool;
+  std::vector<CaloCell*> cells = init (parser);
 
   seed = 10;
-  test_one (400, ICaloCompactCellTool::VERSION_400, cells, tool, false, true);
-  test_one (400, ICaloCompactCellTool::VERSION_400, cells, tool,  true, true);
-  test_one (10000, ICaloCompactCellTool::VERSION_400, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_400, cells, tool, true);
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool,  true, true);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_400, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_400, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_400, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_400, cells, tool);
 
   seed = 20;
-  test_one (400, ICaloCompactCellTool::VERSION_500, cells, tool, false, true);
-  test_one (400, ICaloCompactCellTool::VERSION_500, cells, tool,  true, true);
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool,  true, true);
 
-  test_one (10000, ICaloCompactCellTool::VERSION_500, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_500, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_500, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_500, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_500, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_500, cells, tool);
 
   seed = 40;
-  test_one (400, ICaloCompactCellTool::VERSION_501, cells, tool, false);
-  test_one (400, ICaloCompactCellTool::VERSION_501, cells, tool,  true);
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, false);
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool,  true);
 
-  test_one (10000, ICaloCompactCellTool::VERSION_501, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_501, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_501, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_501, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_501, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool);
 
   // Unordered
-  test_one (400, ICaloCompactCellTool::VERSION_501, cells, tool,  false,
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool,  false,
             true, false);
 
   seed = 50;
-  test_one (400, ICaloCompactCellTool::VERSION_502, cells, tool, false);
-  test_one (400, ICaloCompactCellTool::VERSION_502, cells, tool,  true);
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, false);
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool,  true);
 
-  test_one (10000, ICaloCompactCellTool::VERSION_502, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_502, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_502, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_502, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_502, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_502, cells, tool);
 
   seed = 60;
-  test_one (400, ICaloCompactCellTool::VERSION_503, cells, tool, false);
-  test_one (400, ICaloCompactCellTool::VERSION_503, cells, tool,  true);
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, false);
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool,  true);
 
-  test_one (10000, ICaloCompactCellTool::VERSION_503, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_503, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_503, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_503, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_503, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_503, cells, tool);
 
   seed = 70;
-  test_one (400, ICaloCompactCellTool::VERSION_504, cells, tool, false);
-  test_one (400, ICaloCompactCellTool::VERSION_504, cells, tool,  true);
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, false);
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool,  true);
 
-  test_one (10000, ICaloCompactCellTool::VERSION_504, cells, tool);
-  test_one (10000, ICaloCompactCellTool::VERSION_504, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, true);
 
-  test_one (100000, ICaloCompactCellTool::VERSION_504, cells, tool);
-  test_one (100000, ICaloCompactCellTool::VERSION_504, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, true);
 
-  test_one (cells.size(), ICaloCompactCellTool::VERSION_504, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool);
 
   seed = 80;
-  test_supercells (ICaloCompactCellTool::VERSION_504, cells, tool);
+  test_supercells (CaloCompactCellTool::VERSION_504, cells, tool);
 
   seed = 30;
   test_errs (cells, tool);
@@ -1229,10 +1225,8 @@ float tv_diff (const timeval& tv1, const timeval& tv2)
 
 void timetests (IdDictParser* parser, int nrep)
 {
-  ICaloCompactCellTool* tool = 0;
-  std::vector<CaloCell*> cells = init (parser, tool);
-  if (!tool) std::abort();
-
+  CaloCompactCellTool tool;
+  std::vector<CaloCell*> cells = init (parser);
   CaloCellContainer* cont = fill_cells (10000, cells, true, true);
 
   rusage ru0, ru1, ru2, ru3;
@@ -1240,14 +1234,14 @@ void timetests (IdDictParser* parser, int nrep)
   CaloCompactCellContainer ccc;
   getrusage (RUSAGE_SELF, &ru0);
   for (int i=0; i < nrep; i++)
-    tool->getPersistent (*cont, &ccc);
+    tool.getPersistent (*cont, &ccc);
   getrusage (RUSAGE_SELF, &ru1);
 
   SG::Arena::Push push (*arena);
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   getrusage (RUSAGE_SELF, &ru2);
   for (int i = 0; i < nrep; i++) {
-    tool->getTransient (ccc, cont2);
+    tool.getTransient (ccc, cont2);
     cont2->clear();
     arena->reset();
   }
