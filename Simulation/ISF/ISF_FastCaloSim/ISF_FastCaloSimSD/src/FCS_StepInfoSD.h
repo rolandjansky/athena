@@ -7,12 +7,16 @@
 
 #include "G4VSensitiveDetector.hh"
 
+#include "CaloIdentifier/CaloCell_ID.h" // For CaloCell_ID::CaloSample
 #include "LArG4Code/LArG4Identifier.h"
 
 #include "LArSimEvent/LArHit.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <set>
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
+
+#include <map>
+#include <vector>
 
 // Forward declarations
 class G4Step;
@@ -29,8 +33,6 @@ class ITileCalculator;
 class LArHitContainer;
 
 class StoreGateSvc;
-
-#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 namespace FCS_Param {
 
@@ -115,6 +117,17 @@ protected:
   /// At the end of the event we'll push the map back into the flat
   /// vector for storage in StoreGate.
   void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+  ///
+  double getMaxTime(const CaloCell_ID::CaloSample& layer) const;
+  ///
+  double getMaxRadius(const CaloCell_ID::CaloSample& layer) const;
+  ///
+  double getMaxDeltaR(const CaloCell_ID::CaloSample& layer) const;
+  ///
+  double getMaxDeltaEta(const CaloCell_ID::CaloSample& layer) const;
+  ///
+  double getMaxDeltaPhi(const CaloCell_ID::CaloSample& layer) const;
+
   FCS_Param::Config m_config;
   /// Pointers to the identifier helpers
   const LArEM_ID*       m_larEmID;
