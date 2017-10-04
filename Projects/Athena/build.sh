@@ -12,6 +12,8 @@ usage() {
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
+    echo " -N: Use Ninja"
+
     echo "If none of the c, m, i or p options are set then the script will do"
     echo "*all* steps. Otherwise only the enabled steps are run - it's your"
     echo "reponsibility to ensure that precusors are in good shape"
@@ -25,7 +27,10 @@ EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
 NIGHTLY=true
-while getopts ":t:b:hcmipa" opt; do
+BUILDTOOLTYPE=""
+BUILDTOOL="make -k"
+INSTALLRULE="install/fast"
+while getopts ":t:b:hcmipaN" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -47,6 +52,11 @@ while getopts ":t:b:hcmipa" opt; do
 	    ;;
 	a)
 	    NIGHTLY=false
+	    ;;
+	N)
+	    BUILDTOOL="ninja"
+	    BUILDTOOLTYPE="-GNinja"
+	    INSTALLRULE="install"
 	    ;;
         h)
             usage
@@ -97,7 +107,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaSrcDir} 2>&1 | tee cmake_config.log
 fi
@@ -110,12 +120,12 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    time ${BUILDTOOL} 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time make install/fast \
+    time ${BUILDTOOL} ${INSTALLRULE} \
 	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
 fi
 
