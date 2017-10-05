@@ -37,7 +37,7 @@ class ArrayFunction : public AbsFunction  {
   // It is illegal to assign a ArrayFunction
   const ArrayFunction & operator=(const ArrayFunction &right);
 
-  std::vector<double> _values;
+  std::vector<double> m_values;
 };
 }
 #endif
