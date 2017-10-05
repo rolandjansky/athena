@@ -35,6 +35,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 //#include "VxVertex/VxContainer.h"
 
+#include "StoreGate/ReadHandle.h"
 
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
@@ -67,13 +68,13 @@ const int TRT_Monitoring_Tool::s_moduleNum[2]={96,64};
 //------------------------------------------------------------------------------------------------//
 TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent) :
 	ManagedMonitorToolBase(type, name, parent),
-	lastLumiBlock(-99),
-	evtLumiBlock(0),
-	good_bcid(0),
+	m_lastLumiBlock(-99),
+	m_evtLumiBlock(0),
+	m_good_bcid(0),
 	m_nTotalTracks(0),
-	nBSErrors(),
-	nRobErrors(),
-	passEventBurst(),
+	m_nBSErrors(),
+	m_nRobErrors(),
+	m_passEventBurst(),
 	m_idHelper(0),
 	p_toolSvc("IToolSvc",name),
 	m_sumSvc("TRT_StrawStatusSummarySvc",name),
@@ -86,24 +87,23 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_trtcaldbSvc("TRT_CalDbSvc",name),
 	m_doDCS(false),
 	m_pTRTHelper(0),
-	mgr(0),
+	m_mgr(0),
 	m_TrackSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
 	m_drifttool("TRT_DriftFunctionTool"),
 	m_rdoContainer(0),
 	m_trkCollection(0),
-	TRT_BCIDColl(0),
-	theComTime(0),
+	m_TRT_BCIDColl(0),
+	m_theComTime(0),
 	eventInfo(0),
 	m_comTimeObjectName("ComTime"),
-	geo_summary_provider("debug"),
-	rbins(40),
-	rmin(0.0),
-	rmax(2.0),
-	tbins(68),
-	tmin(-12.5),
-	tmax(75.0),
-	fitmin(-5.0),
-	fitmax(30.0),
+	m_rbins(40),
+	m_rmin(0.0),
+	m_rmax(2.0),
+	m_tbins(68),
+	m_tmin(-12.5),
+	m_tmax(75.0),
+	m_fitmin(-5.0),
+	m_fitmax(30.0),
 	m_HTfraconTrack_B(),
 	m_LonTrack_B(),
 	m_nTrack_B(),
@@ -154,7 +154,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	//m_propagator(0),
 	//m_extrapolator(0),
 	DEBUG(false),
-	m_printEventInfo(false),
 	m_longToTCut(9.375),
 	m_EventBurstCut(200),
 	m_lumiBlocksToResetOcc(20),
@@ -182,43 +181,22 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("DriftFunctionTool",        m_drifttool);
 	declareProperty("DoTRT_DCS",                m_doDCS);
 	declareProperty("DoRDOsMon",                m_doRDOsMon           = true);
-	declareProperty("DoGeoMon",                 m_doGeoMon            = false);//obsolete
 	declareProperty("TRTRawDataObjectName",     m_rawDataObjectName   = "TRT_RDOs");
 	declareProperty("NumberOfEvents",           m_nEvents             = -1);
 	declareProperty("DoTracksMon",              m_doTracksMon         = true);
 	declareProperty("TRTTracksObjectName",      m_tracksObjectName    = "Tracks");
-	declareProperty("doAside",                  DoAside               = true);//obsolete
-	declareProperty("doCside",                  DoCside               = true);//obsolete
 	declareProperty("doStraws",                 DoStraws              = true);
 	declareProperty("doChips",                  DoChips               = false);
 	declareProperty("doExpert",                 DoExpert              = false);
 	declareProperty("doEfficiency",             DoEfficiency          = true);
 	declareProperty("doMaskStraws",             DoMaskStraws          = true);
 	declareProperty("doShift",                  DoShift               = true);
-	declareProperty("doDiagnostic",             DoDiagnostic          = false);//obsolete
 	declareProperty("ComTimeObjectName",        m_comTimeObjectName   = "TRT_Phase");
 	declareProperty("TrkSummaryTool",           m_TrackSummaryTool);
-	declareProperty("Geo_Summary_Provider",     geo_summary_provider);//probably obsolete
-	declareProperty("Map_Path",                 mapPath); // obsolete
-	declareProperty("maxDistToStraw",           m_maxDistToStraw      = 2.0);//obsolete
 	declareProperty("DistanceToStraw",          m_DistToStraw         = 0.4);
-	declareProperty("is_TRT_only_tracks",       m_trt_only_trks       = true);//obsolete
-	declareProperty("is_zero_mag_field",        m_zero_field          = true);//obsolete
 	//
 	//   Tunable parameters for TRT monitoring histograms
 	//
-	declareProperty("LE_TimeWindow_MIN",        m_LE_timeWindow_MIN   = 0);//obsolete
-	declareProperty("LE_TimeWindow_MAX",        m_LE_timeWindow_MAX   = 24);//obsolete
-	declareProperty("LL_TimeWindow_MIN",        m_LL_timeWindow_MIN   = 0);//obsolete
-	declareProperty("LL_TimeWindow_MAX",        m_LL_timeWindow_MAX   = 24);//obsolete
-	declareProperty("HL_TimeWindow_MIN",        m_HL_timeWindow_MIN   = 0);//obsolete
-	declareProperty("HL_TimeWindow_MAX",        m_HL_timeWindow_MAX   = 3);//obsolete
-	declareProperty("MIN_N_LL_Hits",            m_MIN_N_LL_Hits       = 10);//obsolete
-	declareProperty("MIN_TOT_Hits",             m_MIN_TOT_Hits        = 2);//obsolete
-	declareProperty("NoiseSuppressionLevel_30pc", m_NoiseSuppressionLevel_30pc = false);//obsolete
-	declareProperty("NoiseSuppressionMap",      m_NoiseSuppressionMap = false);//obsolete
-	declareProperty("Debug",                    DEBUG);//obsolete
-	declareProperty("PrintEventInfo",           m_printEventInfo);//obsolete
 	declareProperty("ITRT_CalDbSvc",            m_trtcaldbSvc);
 	declareProperty("LongToTCut",               m_longToTCut);
 	declareProperty("NPhiBins",                 m_nphi_bins           = 360);
@@ -240,7 +218,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("min_trt_hits",             m_min_trt_hits        = 10);
 	declareProperty("min_tracks_straw",         m_min_tracks_straw    = 10);
 	declareProperty("every_xth_track",          m_every_xth_track     = 25);
-	declareProperty("whatdatatype",             m_datatype);//obsolete
 	declareProperty("doArgonXenonSeparation",   m_ArgonXenonSplitter  = true); // Argon Histograms won't be created if this is set to false.
 	declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
 
@@ -424,69 +401,43 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 }
 
 //-------------------------------------------------------------------------//
-TRT_Monitoring_Tool::~TRT_Monitoring_Tool()
-//-------------------------------------------------------------------------//
-{
+TRT_Monitoring_Tool::~TRT_Monitoring_Tool() {
+	//-------------------------------------------------------------------------//
 }
 
 //------------------------------------------------------------------------------------//
-StatusCode TRT_Monitoring_Tool::initialize()
-//------------------------------------------------------------------------------------//
-{
+StatusCode TRT_Monitoring_Tool::initialize() {
+	//------------------------------------------------------------------------------------//
 	ATH_MSG_VERBOSE("Initializing TRT Monitoring");
 
-	StatusCode sc = ManagedMonitorToolBase::initialize();
-	if (!sc.isSuccess()) return sc;
+	StatusCode sc;
+	ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
-	sc = AlgTool::initialize();
-	if (!sc.isSuccess())
-		return StatusCode::FAILURE;
+	ATH_CHECK( AlgTool::initialize() );
 
 	IToolSvc* p_toolSvc;
-	sc = service("ToolSvc",p_toolSvc);
-	if (sc.isFailure()) {
-		ATH_MSG_FATAL("Tool Service not found");
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK( service("ToolSvc", p_toolSvc) );
+
 	// Retrieve detector manager.
-	sc = detStore()->retrieve(mgr, "TRT");
-	if (sc.isFailure()) {
-		ATH_MSG_ERROR("Unable to retrieve pointer to TRT DetectorManager");
-		return sc;
-	}
+	ATH_CHECK( detStore->retrieve(m_mgr, "TRT") );
 
 	// Get ID helper for TRT to access various detector components like straw, straw_layer, layer_or_wheel, phi_module, etc...
-	sc = detStore()->retrieve(m_pTRTHelper,"TRT_ID");
-	if (sc.isFailure()) {
-		ATH_MSG_ERROR("Unable to retrieve pointer to TRT Helper");
-		return sc;
-	}
-	if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-		ATH_MSG_FATAL("Could not get AtlasDetectorID helper");
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK( detSTore()->retrieve(m_pTRTHelper, "TRT_ID") );
+	ATH_CHECK( detSTore()->retrieve(m_idHelper, "AtlasID") );
 
 	if (DoExpert) {
 		// Retrieve the TRT_Straw Status Service.
 		if (m_sumSvc.name().empty()) {
 			ATH_MSG_WARNING("TRT_StrawStatusSvc not given.");
 		} else {
-			sc = m_sumSvc.retrieve();
-			if (sc.isFailure()) {
-				ATH_MSG_FATAL("I couldn't retrieve " << m_sumSvc);
-				return sc;
-			}
+			ATH_CHECK( m_sumSvc.retrieve() );
 		}
 		if (m_doDCS) {
 			// Retrieve the TRT_DCS Conditions Service.
 			if (m_DCSSvc.name().empty()) {
 				ATH_MSG_WARNING("TRT_DCSConditionsSvc not given.");
 			} else {
-				sc = m_DCSSvc.retrieve();
-				if (sc.isFailure()) {
-					ATH_MSG_FATAL("I couldn't retrieve " << m_DCSSvc);
-					return sc;
-				}
+				ATH_CHECK( m_DCSSvc.retrieve() );
 			}
 		}// if do dcs
 
@@ -494,52 +445,23 @@ StatusCode TRT_Monitoring_Tool::initialize()
 		if (m_condSvc_BS.name().empty()) {
 			ATH_MSG_WARNING("TRT_ConditionsSvc not given.");
 		} else {
-			sc = m_condSvc_BS.retrieve();
-			if (sc.isFailure()) {
-				ATH_MSG_FATAL("I couldn't retrieve " << m_condSvc_BS );
-				return sc;
-			}
+			ATH_CHECK( m_condSvc_BS.retrieve() );
 		}
 		// Retrieve the TRT TRTTrackHoleSearchTool.
-		if ( m_trt_hole_finder.retrieve().isFailure() ){
-			ATH_MSG_FATAL( "Failed to retrieve the TRTTrackHoleSearchTool." );
-			return StatusCode::FAILURE;
-
-		} else {
-			ATH_MSG_INFO( "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder );
-		}
-		/**
-		   if (m_condSvc_DAQ.name().empty()) {
-		   ATH_MSG_WARNING("TRT_ConditionsSvc not given.");
-		   } else {
-		   sc = m_condSvc_DAQ.retrieve();
-		   if (sc.isFailure()) {
-		   ATH_MSG_FATAL("I couldn't retrieve " << m_condSvc_DAQ );
-		   return sc;
-		   }
-		   }
-		*/
+		ATH_CHECK( m_trt_hole_finder.retrieve() );
 
 		// Retrieve the TRT_DAQConditions Service.
 		if (m_DAQSvc.name().empty()) {
 			ATH_MSG_WARNING("TRT_DAQConditionsSvc not given.");
 		} else {
-			sc = m_DAQSvc.retrieve();
-			if (sc.isFailure()) {
-				ATH_MSG_FATAL("I couldn't retrieve " << m_DAQSvc);
-				return sc;
-			}
+			ATH_CHECK( m_DAQSvc.retrieve() );
 		}
 
 		// Retrieve the TRT_ByteStreamService.
 		if (m_BSSvc.name().empty()) {
 			ATH_MSG_WARNING("TRT_ByteStreamSvc not given.");
 		} else {
-			sc = m_BSSvc.retrieve();
-			if (sc.isFailure()) {
-				ATH_MSG_FATAL("I couldn't retrieve " << m_BSSvc);
-				return sc;
-			}
+			ATH_CHECK( m_BSSvc.retrieve() );
 		}
 		// Test out the TRT_ConditionsSummaryTool.
 		//Identifier ident = m_trtid->straw_id(1,1,1,1,1);
@@ -554,32 +476,29 @@ StatusCode TRT_Monitoring_Tool::initialize()
 	if (m_TRTStrawNeighbourSvc.name().empty()) {
 		ATH_MSG_WARNING("TRT_StrawNeighbourSvc not given.");
 	} else {
-		sc = m_TRTStrawNeighbourSvc.retrieve();
-		if (sc.isFailure()) {
+		if (m_TRTStrawNeighbourSvc.retrieve().isFailure()) {
 			ATH_MSG_FATAL("Could not get StrawNeighbourSvc.");
 		}
 	}
+
 	// Get Track summary tool
-	sc= m_TrackSummaryTool.retrieve();
-	if (sc.isFailure())
+	if (m_TrackSummaryTool.retrieve().isFailure())
 		ATH_MSG_ERROR("Cannot get TrackSummaryTool");
 	else
 		ATH_MSG_DEBUG("Retrieved succesfully the track summary tool" << m_TrackSummaryTool);
+
 	//Get TRTCalDbTool
 	if (m_trtcaldbSvc.name().empty()) {
 		ATH_MSG_WARNING("TRT_CalDbSvc not given.");
 	} else {
 		if (m_trtcaldbSvc.retrieve().isFailure()) {
 			ATH_MSG_ERROR("Cannot get TRTCalDBSvc.");
-			//return StatusCode::FAILURE;
 		}
 	}
+
 	// retrieve TRTTrackHoleSearchTool
 	if (DoEfficiency) {
-		if (m_trt_hole_finder.retrieve().isFailure()) {
-			ATH_MSG_FATAL("Failed to retrieve the TRTTrackHoleSearchTool.");
-			return StatusCode::FAILURE;
-		}
+		ATH_CHECK( m_trt_hole_finder.retrieve() );
 	}
 
 	// Initialize arrays
@@ -607,14 +526,14 @@ StatusCode TRT_Monitoring_Tool::initialize()
 					idSide = idBarrelEndcap ? 1 : -1;
 					if ((m_pTRTHelper->is_barrel(id))&&(m_pTRTHelper->barrel_ec(id)==-1)) {
 						sectorflag=1;
-						element = mgr->getBarrelElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
+						element = m_mgr->getBarrelElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
 					}
 				} else if (ibe==1) { // endcap
 					idSide = idBarrelEndcap ? 1 : 0;
 					if ((!m_pTRTHelper->is_barrel(id))
 					    && ((m_pTRTHelper->barrel_ec(id)==-2) || (m_pTRTHelper->barrel_ec(id)==2))) {
 						sectorflag=1;
-						element = mgr->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);//, idStrawLayer_ec);
+						element = m_mgr->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);//, idStrawLayer_ec);
 					}
 				}
 
@@ -712,6 +631,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 	StatusCode sc;
 	//If it is a new run check rdo and track containers.
 	if (newRunFlag()) {
+		if ()
 		if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
 			ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in StoreGate. Skipping TRT RDO Monitoring.");
 			m_doRDOsMon = false;
@@ -721,6 +641,8 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 			m_doTracksMon = false;
 		}
 	}// is new run?
+
+	
 
 	if (m_lumiTool.retrieve().isFailure()) {
 		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
@@ -1261,30 +1183,30 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
 
 	m_initScaleVectors(); //a fix for  hitW
 
-	const EventInfo* eventInfo0;
-	sc = evtStore()->retrieve(eventInfo0);
+	const EventInfo* m_eventInfo0;
+	sc = evtStore()->retrieve(m_eventInfo0);
 	if (m_doRDOsMon) {
 		sc = Retrieve_TRT_RDOs();
 		if (sc == StatusCode::FAILURE) return sc;
 
 		sc = CheckEventBurst();
 		if (sc == StatusCode::FAILURE) return sc;
-		if (passEventBurst) {
+		if (m_passEventBurst) {
 			nEvents++;//counts N of events.this value used in summary histogram
-			evtLumiBlock++;//counts number of events in the current lumi block.It is initialized to zero at the end of each lumi block
+			m_evtLumiBlock++;//counts number of events in the current lumi block.It is initialized to zero at the end of each lumi block
 			sc = Fill_TRT_RDOs();
 			if (sc == StatusCode::FAILURE) return sc;
 		}
 	} else {
 		nEvents++;
-		passEventBurst = true;
-		evtLumiBlock++;
+		m_passEventBurst = true;
+		m_evtLumiBlock++;
 	}
 
 	if (m_doTracksMon) {
 		sc = Retrieve_TRT_Tracks();
 		if (sc == StatusCode::FAILURE) return sc;
-		if (passEventBurst) sc = Fill_TRT_Tracks();
+		if (m_passEventBurst) sc = Fill_TRT_Tracks();
 		if (sc == StatusCode::FAILURE) return sc;
 	}
 
@@ -1298,7 +1220,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
 			sc = Retrieve_TRT_Tracks();
 			if (sc == StatusCode::FAILURE) return sc;
 		}//if (!m_doTracksMon)
-		if (passEventBurst) sc = Fill_TRT_HT();
+		if (m_passEventBurst) sc = Fill_TRT_HT();
 		if (sc == StatusCode::FAILURE) return sc;
 	}
 
@@ -1658,18 +1580,18 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 
 	if (endOfLumiBlockFlag() || endOfRunFlag()) {
 		if (DoShift) {
-			Int_t lumiblock1440 = lastLumiBlock % 1440;
+			Int_t lumiblock1440 = m_lastLumiBlock % 1440;
 
 			if (m_doTracksMon) {
 
-				if (evtLumiBlock > 0) {
-					m_hNHitsperLB_B->Fill(lastLumiBlock,   (float)nHitsperLB_B / (evtLumiBlock * 105088.));
-					m_hNTrksperLB_B->Fill(lastLumiBlock,   (float)nTrksperLB_B /  evtLumiBlock);
-					m_hNHLHitsperLB_B->Fill(lastLumiBlock, (float)nHLHitsperLB_B/ (evtLumiBlock * 105088.));
+				if (m_evtLumiBlock > 0) {
+					m_hNHitsperLB_B->Fill(m_lastLumiBlock,   (float)nHitsperLB_B / (m_evtLumiBlock * 105088.));
+					m_hNTrksperLB_B->Fill(m_lastLumiBlock,   (float)nTrksperLB_B /  m_evtLumiBlock);
+					m_hNHLHitsperLB_B->Fill(m_lastLumiBlock, (float)nHLHitsperLB_B/ (m_evtLumiBlock * 105088.));
 					for (int iside=0; iside<2; iside++) {
-						m_hNHitsperLB_E[iside]->Fill(lastLumiBlock,  (float)nHitsperLB_E[iside]   / (evtLumiBlock * 122880.));
-						m_hNTrksperLB_E[iside]->Fill(lastLumiBlock,  (float)nTrksperLB_E[iside]   /  evtLumiBlock);
-						m_hNHLHitsperLB_E[iside]->Fill(lastLumiBlock, (float)nHLHitsperLB_E[iside] / (evtLumiBlock * 122880.));
+						m_hNHitsperLB_E[iside]->Fill(m_lastLumiBlock,  (float)nHitsperLB_E[iside]   / (m_evtLumiBlock * 122880.));
+						m_hNTrksperLB_E[iside]->Fill(m_lastLumiBlock,  (float)nTrksperLB_E[iside]   /  m_evtLumiBlock);
+						m_hNHLHitsperLB_E[iside]->Fill(m_lastLumiBlock, (float)nHLHitsperLB_E[iside] / (m_evtLumiBlock * 122880.));
 					}
 				}
 
@@ -1686,10 +1608,10 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 				for (int ibe=0; ibe<2; ibe++) { //ibe=0(barrel), ibe=1(endcap)
 					for (int i = 0; i < s_iStack_max[ibe]; i++) {
 						if (ibe==0) { // barrel
-							if (evtLumiBlock > 0) {
-								float occ = (m_LLOcc[ibe][i]/evtLumiBlock)/nfill[ibe];
+							if (m_evtLumiBlock > 0) {
+								float occ = (m_LLOcc[ibe][i]/m_evtLumiBlock)/nfill[ibe];
 								m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
-								occ = (m_LLOcc[ibe][i+32]/evtLumiBlock)/nfill[ibe];
+								occ = (m_LLOcc[ibe][i+32]/m_evtLumiBlock)/nfill[ibe];
 								m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
 							}
 							m_LLOcc[ibe][i]=0; m_LLOcc[ibe][i+32]=0;
@@ -1704,8 +1626,8 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 							m_nTrack_B[i] = 0;
 
 						} else if (ibe==1) { // endcap
-							if (evtLumiBlock > 0) {
-								float occ = (m_LLOcc[ibe][i]/evtLumiBlock)/nfill[ibe];
+							if (m_evtLumiBlock > 0) {
+								float occ = (m_LLOcc[ibe][i]/m_evtLumiBlock)/nfill[ibe];
 								m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
 							}
 							m_LLOcc[ibe][i]=0;
@@ -1723,7 +1645,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 			} //if (m_doTracksMon)
 		}//Doshift
 		//Resetting Occupuncy histograms for online environment
-		if (DoShift && m_environment == AthenaMonManager::online && (lastLumiBlock % m_lumiBlocksToResetOcc) == 0) {
+		if (DoShift && m_environment == AthenaMonManager::online && (m_lastLumiBlock % m_lumiBlocksToResetOcc) == 0) {
 			for (int ibe=0; ibe<2; ibe++) {
 				for (int iside=0; iside<2; iside++) {
 					m_hAvgHLOcc_side[ibe][iside]->Reset();
@@ -1735,7 +1657,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 		}
 
 		ATH_MSG_DEBUG("end of event and lumi block");
-		evtLumiBlock = 0;//number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
+		m_evtLumiBlock = 0;//number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
 	} //if (endOfLumiBlock || endOfRun)
 
 	if (endOfRunFlag()) {
@@ -1771,10 +1693,10 @@ StatusCode TRT_Monitoring_Tool::Retrieve_TRT_RDOs()
 }//Retrieve_TRT_RDOs()
 
 
-//Check for EventBurst: Counts highlevelhits and returns passEventBurst flag true if the count is less than m_passEventBurstCut,returns allways succes
+//Check for EventBurst: Counts highlevelhits and returns m_passEventBurst flag true if the count is less than m_m_passEventBurstCut,returns allways succes
 StatusCode TRT_Monitoring_Tool::CheckEventBurst()
 {
-	passEventBurst = true;
+	m_passEventBurst = true;
 	if (m_EventBurstCut <= 0) return StatusCode::SUCCESS;
 
 	int nHLHits = 0;
@@ -1795,7 +1717,7 @@ StatusCode TRT_Monitoring_Tool::CheckEventBurst()
 			} //loop over TRT RDOs
 		} // if TRT_Collection
 	} // loop over RDOs
-	if (nHLHits > m_EventBurstCut) passEventBurst = false;
+	if (nHLHits > m_EventBurstCut) m_passEventBurst = false;
 	return StatusCode::SUCCESS;
 }//CheckEventBurst
 
@@ -1808,10 +1730,10 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 
 	TRT_RDO_Container::const_iterator RDO_CollectionBegin = m_rdoContainer->begin();
 	TRT_RDO_Container::const_iterator RDO_CollectionEnd   = m_rdoContainer->end();
-	InDetTimeCollection *TRT_BCIDColl = 0;
+	InDetTimeCollection *m_TRT_BCIDColl = 0;
 	//retrieve InDetTimeCollection from Store Gate
 	if (evtStore()->contains<InDetTimeCollection>("TRT_BCID")) {
-		if (evtStore()->retrieve(TRT_BCIDColl, "TRT_BCID").isFailure()) {
+		if (evtStore()->retrieve(m_TRT_BCIDColl, "TRT_BCID").isFailure()) {
 			ATH_MSG_INFO("Could not get InDetTimeCollection from Store Gate");
 		} else {
 			ATH_MSG_DEBUG("Got BCID Collection from Store Gate");
@@ -1819,13 +1741,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 	}
 
 	//retrieve EventInfo from Store Gate
-	const EventInfo* eventInfo;
-	if (evtStore()->retrieve(eventInfo).isFailure()) {
+	const EventInfo* m_eventInfo;
+	if (evtStore()->retrieve(m_eventInfo).isFailure()) {
 		ATH_MSG_ERROR("Could not retrieve the EventInfo from Store Gate");
 		return StatusCode::FAILURE;
 	}
 	//Check readout Integrity of TRT
-	if (Check_TRT_Readout_Integrity(eventInfo).isFailure()) {
+	if (Check_TRT_Readout_Integrity(m_eventInfo).isFailure()) {
 		ATH_MSG_ERROR("Failure when checking the TRT readout integrity");
 		return StatusCode::FAILURE;
 	}
@@ -1852,15 +1774,15 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 	int goodid_status = 0;
 	int prev_bcid = 0;
 
-	if (TRT_BCIDColl) {
-		InDetTimeCollection::const_iterator itrt_bcid = TRT_BCIDColl->begin();
-		while (goodid_status == 0 && itrt_bcid != TRT_BCIDColl->end()) {
+	if (m_TRT_BCIDColl) {
+		InDetTimeCollection::const_iterator itrt_bcid = m_TRT_BCIDColl->begin();
+		while (goodid_status == 0 && itrt_bcid != m_TRT_BCIDColl->end()) {
 			if (!(*itrt_bcid)) continue;
 			const unsigned int trt_bcid = (*itrt_bcid)->second;
-			if (itrt_bcid > TRT_BCIDColl->begin() && prev_bcid-trt_bcid == 0) {
+			if (itrt_bcid > m_TRT_BCIDColl->begin() && prev_bcid-trt_bcid == 0) {
 				goodid_status = 1;
 			}
-			else if (itrt_bcid > TRT_BCIDColl->begin() && prev_bcid-trt_bcid != 0) {
+			else if (itrt_bcid > m_TRT_BCIDColl->begin() && prev_bcid-trt_bcid != 0) {
 				ATH_MSG_WARNING("TRT BCID is not consistent.  TRT RODID is " << std::hex << (*itrt_bcid)->first << " trt bcid from ROD is " << std::hex << trt_bcid);
 			}
 			prev_bcid = trt_bcid;
@@ -2214,9 +2136,9 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 	for (int ibe=0; ibe<2; ibe++) {
 		if (DoShift) {
 			if (ibe==0) {
-				m_hBCIDvsOcc[ibe]->Fill(good_bcid,(nTRTHits[ibe]/105088.0));
+				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid,(nTRTHits[ibe]/105088.0));
 			} else if (ibe==1) {
-				m_hBCIDvsOcc[ibe]->Fill(good_bcid,(nTRTHits[ibe]/245760.0));
+				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid,(nTRTHits[ibe]/245760.0));
 			}
 
 			for (int iside=0; iside<2; iside++) {
@@ -2362,15 +2284,15 @@ StatusCode TRT_Monitoring_Tool::Retrieve_TRT_Tracks()
 	}
 
 	if (evtStore()->contains<ComTime>(m_comTimeObjectName)) {
-		if (evtStore()->retrieve(theComTime, m_comTimeObjectName).isFailure()) {
+		if (evtStore()->retrieve(m_theComTime, m_comTimeObjectName).isFailure()) {
 			ATH_MSG_DEBUG("ComTime object not found with name " << m_comTimeObjectName << ".");
-			theComTime = 0; // protection for later on
+			m_theComTime = 0; // protection for later on
 		} else {
 			ATH_MSG_DEBUG("ComTime object found successfully");
 		}
 	} else {
 		ATH_MSG_DEBUG("No ComTime object found in storegate.");
-		theComTime = 0;
+		m_theComTime = 0;
 	}
 	return StatusCode::SUCCESS;
 }//Retrieve_TRT_Tracks()
@@ -2383,7 +2305,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	ATH_MSG_VERBOSE("Filling TRT Tracks Histos");
 
 	//Initialize a bunch of stuff before looping over the track collection. Fill some basic histograms.
-	const float timeCor = theComTime ? theComTime->getTime() : 0;
+	const float timeCor = m_theComTime ? m_theComTime->getTime() : 0;
 
 	DataVector<Trk::Track>::const_iterator p_trk;
 
@@ -3105,14 +3027,14 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 
 			if (ibe==0) {
 				if ((m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]) > 0) nTrksperLB_B++;
-				if (theComTime) {
+				if (m_theComTime) {
 					if (DoShift && (m_phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8))
 						m_hEvtPhaseDetPhi_B->Fill(m_phi2D[ibe], timeCor);
 				} //the comtime
 			} else if (ibe==1) {
 				for (int iside=0; iside<2; iside++) {
 					if (m_nTRTHitsW[ibe][iside] > 0) nTrksperLB_E[iside]++;
-					if (theComTime) {
+					if (m_theComTime) {
 						if (m_nTRTHits_side[ibe][iside]>5 && (std::fabs(timeCor)
 						                                      > 1e-8)) {
 							if (DoShift) m_hEvtPhaseDetPhi_E[iside]->Fill(m_phi2D[ibe], timeCor);
@@ -3123,7 +3045,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 		}//ibe
 	}//for (p_trk=m_trkCollection->begin(); p_trk!=m_trkCollection->end(); ++p_trk)
 
-	if (theComTime) {
+	if (m_theComTime) {
 		if (std::fabs(timeCor) > 1e-8) {
 			if (DoShift) m_hEvtPhase->Fill(timeCor);// Event Phase Correction factor
 			if (DoShift) {
@@ -3666,7 +3588,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 	ATH_MSG_VERBOSE("");
 
 	//Time corrolation
-	//const float timeCor = theComTime ? theComTime->getTime() : 0;
+	//const float timeCor = m_theComTime ? m_theComTime->getTime() : 0;
 	//track iterator
 	DataVector<Trk::Track>::const_iterator p_trk;
 	const Trk::Perigee* perigee = NULL;
@@ -3874,21 +3796,21 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 
 
 //-------------------------------------------------------------------------------------------------//
-StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eventInfo)
+StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* m_eventInfo)
 //-------------------------------------------------------------------------------------------------//
 {
 	StatusCode sc = StatusCode::SUCCESS;
-	if (eventInfo) {
+	if (m_eventInfo) {
 		ATH_MSG_VERBOSE("Got the event info");
 
-		EventID* TRTEventID = eventInfo->event_ID();
+		EventID* TRTEventID = m_eventInfo->event_ID();
 		if (TRTEventID) {
 			const unsigned int m_lumiBlock = TRTEventID->lumi_block();
 			ATH_MSG_VERBOSE("This is lumiblock : "<<m_lumiBlock);
 
-			good_bcid = TRTEventID->bunch_crossing_id();
-			if ((int)m_lumiBlock != lastLumiBlock) {
-				lastLumiBlock = m_lumiBlock;
+			m_good_bcid = TRTEventID->bunch_crossing_id();
+			if ((int)m_lumiBlock != m_lastLumiBlock) {
+				m_lastLumiBlock = m_lumiBlock;
 			}
 
 			//Get BSConversion Errors from BSConditionsServices:
@@ -3902,8 +3824,8 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 			const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
 			const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
 
-			float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
-			float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
+			float m_nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
+			float m_nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
 
 			const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { BCIDErrorSet, L1IDErrorSet };
 			for (int iset = 0; iset < 2; ++iset) {
@@ -3911,7 +3833,7 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 					for (int ibe = 0; ibe < 2; ++ibe) {
 						for (int iside = 0; iside < 2; ++iside) {
 							if (((setIt->first >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
-								nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+								m_nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
 							}
 						}
 					}
@@ -3924,7 +3846,7 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 					for (int ibe = 0; ibe < 2; ++ibe) {
 						for (int iside = 0; iside < 2; ++iside) {
 							if (((*setIt >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
-								nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+								m_nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
 							}
 						}
 					}
@@ -3933,7 +3855,7 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 
 			for (int ibe = 0; ibe < 2; ++ibe) {
 				for (int iside = 0; iside < 2; ++iside) {
-					m_hChipBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, nBSErrors[ibe][iside]);
+					m_hChipBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, m_nBSErrors[ibe][iside]);
 					m_hChipBSErrorsVsLB[ibe][iside]->SetEntries(m_lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
 				}
 			}
@@ -3942,7 +3864,7 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 				for (int ibe = 0; ibe < 2; ++ibe) {
 					for (int iside = 0; iside < 2; ++iside) {
 						if (setIt->first % rod_id_base[ibe][iside] < 0xffff) {
-							nRobErrors[ibe][iside] += 1. / nRobsTotal[ibe][iside];
+							m_nRobErrors[ibe][iside] += 1. / nRobsTotal[ibe][iside];
 						}
 					}
 				}
@@ -3950,12 +3872,12 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 
 			for (int ibe = 0; ibe < 2; ++ibe) {
 				for (int iside = 0; iside < 2; ++iside) {
-					m_hRobBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, nRobErrors[ibe][iside]);
+					m_hRobBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, m_nRobErrors[ibe][iside]);
 					m_hRobBSErrorsVsLB[ibe][iside]->SetEntries(m_lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
 				}
 			}
 		} // TRTEventID
-	} // eventInfo
+	} // m_eventInfo
 
 	return sc;
 }//Check_TRT_Readout_Integrity
