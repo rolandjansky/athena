@@ -63,7 +63,7 @@ StatusCode BTaggingSelectionTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // The tool support only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets with MV2c20 for now
+  // The tool supports only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets, and VR track jets (AntiKtVR30Rmax4Rmin02TrackJets)
   if ("MV2c20"!=m_taggerName&&
       "MV2c10"!=m_taggerName&&
       "MV2cl100_MV2c100"!=m_taggerName){
@@ -72,20 +72,21 @@ StatusCode BTaggingSelectionTool::initialize() {
   }
   if ("AntiKt4EMTopoJets"  != m_jetAuthor &&
       "AntiKt2PV0TrackJets"!= m_jetAuthor &&
-      "AntiKt4PV0TrackJets"!= m_jetAuthor
+      "AntiKt4PV0TrackJets"!= m_jetAuthor &&
+      "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor
       ){
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support jet collection: "+m_jetAuthor );
     return StatusCode::FAILURE;
   }
 
   // Change the minPt cut if the user didn't touch it
-  if (20000==m_minPt){// is it still teh default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor) m_minPt=10000 ;
+  if (20000==m_minPt){// is it still the default value
+    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_minPt=10000 ;
     if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_minPt= 7000 ;
   }
   // Change the maxRangePt cut if the user didn't touch it
-  if (1000000==m_maxRangePt){// is it still teh default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
+  if (1000000==m_maxRangePt){// is it still the default value
+    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
     if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_maxRangePt= 500000;
   }
 
@@ -178,7 +179,8 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
   }
 
   if ("AntiKt2PV0TrackJets"== m_jetAuthor ||
-      "AntiKt4PV0TrackJets"== m_jetAuthor
+      "AntiKt4PV0TrackJets"== m_jetAuthor ||
+      "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor
       ){
     // We want at least 2 tracks in a track jet
     m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
