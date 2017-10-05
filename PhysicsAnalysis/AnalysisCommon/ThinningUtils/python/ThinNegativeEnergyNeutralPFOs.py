@@ -15,6 +15,14 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
                 ThinNegativeEnergyNeutralPFOs = True
             )
             print theNegativeEnergyNeutralPFOsThinner
+
+            CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
+                "ThinNegativeEnergyCHSNeutralPFOsAlg",
+                NeutralPFOsKey="CHSNeutralParticleFlowObjects",
+                ThinNegativeEnergyNeutralPFOs = True
+                )
+            print CHSnPFOsThinAlg
+
         except Exception:
             mlog.error("could not get handle to ThinNegativeEnergyNeutralPFOsAlg")
             print traceback.format_exc()
@@ -23,4 +31,5 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence += theNegativeEnergyNeutralPFOsThinner
+        topSequence += CHSnPFOsThinAlg
         return True

@@ -179,7 +179,7 @@ class separateJetAlgs(JobProperty):
   """
   statusOn     = True     
   allowedTypes = ['bool']  # type
-  StoredValue  = False      # default value
+  StoredValue  = True      # default value
 
 class timeJetToolRunner(JobProperty):
   """ Timing flag for JetToolRunner: 0 for no timing, 1 for some, 2 for detailed

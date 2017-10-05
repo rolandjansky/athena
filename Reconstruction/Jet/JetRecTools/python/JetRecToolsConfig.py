@@ -1,11 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os
-from AthenaCommon import Logging
-#from JetRec.JetToolSupport import jtm
-#import JetRec.JetRecStandardTools
-from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, TrackPseudoJetGetter #MissingCellListTool, 
-
+from AthenaCommon import Logging, CfgMgr
 
 ## # ------------------------------------------------
 ## # Bad/Missing Cells list creation
@@ -34,9 +30,8 @@ def badChanInputHistoHelper():
 
 
     badChanInputHistoHelper()
-    from JetMomentTools.JetMomentToolsConf import JetBadChanCorrTool
     from JetRec.JetRecStandard import jtm
-    jtm += JetBadChanCorrTool("JetBadChanCorrTool", MissingCellMap="MissingCaloCellsMap")
+    jtm += CfgMgr.JetBadChanCorrTool("JetBadChanCorrTool", MissingCellMap="MissingCaloCellsMap")
 
 
 # -----------------------------------
@@ -66,9 +61,15 @@ class ConstituentToolManager(object):
     # map of named standard list of modifiers
     standardModifierLists = dict()
 
+    import cppyy
+    try: cppyy.loadDictionary('xAODBaseDict')
+    except: pass
+    from ROOT import xAOD
+
     # map of known input collection to their type
-    inputContainerMap = dict( CaloCalTopoClusters = "CaloCluster", CaloTopoClusters = "CaloCluster",
-                              InDetTrackParticles = "TrackParticles")
+    inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
+                              EMOriginTopoClusters = xAOD.Type.CaloCluster, LCOriginTopoClusters = xAOD.Type.CaloCluster, 
+                              InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
         
 
     log = Logging.logging.getLogger("ConstituentToolManager")
@@ -104,7 +105,7 @@ class ConstituentToolManager(object):
            InputContainer  (str) : name of input constituents container (property of JetConstituentModSequence)
            modList (str or list): if str, this is taken as a shortcut to a knonw, default list of modifier tools (from self.standardModifierLists)
                                   if list, entries are eihter configured modifier tools either strings in which case they are shortcut to known modifier tool (in self.modifiersMap).
-          InputType : (str or None) the type of particles in the input container. If None attempt is made to guess it from InputContainer (from self.inputContainerMap).
+          InputType : (int or None) the type of particles in the input container. If None attempt is made to guess it from InputContainer (from self.inputContainerMap).
           
         """
         
@@ -112,19 +113,19 @@ class ConstituentToolManager(object):
 
         # Deal with input -----------------
         if InputType is None:
-            # get it from the knonw inputs
+            # get it from the known inputs
             InputType = self.inputContainerMap[ InputContainer ]
         if InputType is None:
-            self.log.error( seqName+'. Unknonw input container : '+InputContainer )
+            self.log.error( seqName+'. Unknown input container : '+InputContainer )
             return 
 
         # deal with modifiers ---------------
         if isinstance(modList, str):
             modKey = modList
-            # translate into a knonw list :
+            # translate into a known list :
             modList = self.standardModifierLists.get( modKey , None)
             if modList is None :
-                self.log.error( seqName+". Uknown shortcut for constit modifier list : "+modKey)
+                self.log.error( seqName+". Unknown shortcut for constit modifier list : "+modKey)
                 return None
         # loop over modList
         finalList = []
@@ -133,21 +134,22 @@ class ConstituentToolManager(object):
                 # translate into a real tool
                 tool = self.modifiersMap.get(t,None)
                 if tool is None:
-                    self.log.error( seqName+". Uknown shortcut for constit modifier list : "+t)
+                    self.log.error( seqName+". Unknown shortcut for constit modifier list : "+t)
                     return None
                 t = tool
+                t.InputType = InputType
             # append to the final list
             finalList.append( t )
             
-        clustModSeq = JetConstituentModSequence( seqName, # the name of the tool 
-                                                 InputContainer = InputContainer,
-                                                 OutputContainer = OutputContainer,
-                                                 InputType = InputType,
-                                                 Modifiers = finalList, # pass the list of modifier we want 
-                                                 )
-        self += clustModSeq
+        constModSeq = CfgMgr.JetConstituentModSequence( seqName, # the name of the tool 
+                                                        InputContainer = InputContainer,
+                                                        OutputContainer = OutputContainer,
+                                                        InputType = InputType,
+                                                        Modifiers = finalList, # pass the list of modifier we want 
+                                                        )
+        self += constModSeq
         
-        return clustModSeq
+        return constModSeq
 
 
 # -----------------------------------
@@ -157,14 +159,12 @@ ctm = ConstituentToolManager()
     
 # -----------------------------------
 # add standard tools to ctm
-from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, CaloClusterConstituentsOrigin, SoftKillerWeightTool
-
-
-ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
+ctm.add( CfgMgr.SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
          alias = 'softkiller' )
 
-ctm.add( CaloClusterConstituentsOrigin("JetConstit_LCOrigin") ,
-         alias = 'lc_origin' )
-ctm.add( CaloClusterConstituentsOrigin("JetConstit_EMOrigin", UseEMScale=True) ,
-         alias = 'em_origin' )
+ctm.add( CfgMgr.ClusterAtEMScaleTool("JetConstit_ClusEM") ,
+         alias = 'clus_emscale' )
+
+ctm.add( CfgMgr.CaloClusterConstituentsOrigin("JetConstit_ClusOrigin") ,
+         alias = 'clus_origin' )
 

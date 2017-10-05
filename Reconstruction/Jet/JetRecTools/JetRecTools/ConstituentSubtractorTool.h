@@ -26,14 +26,17 @@ public:
 	
   ConstituentSubtractorTool(const std::string & name); 
 
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont) const;
+  // Check that the configuration is sane
+  StatusCode initialize();
 
-public:
+private:
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
 
   float m_maxDeltaR;
   float m_alpha;
   float m_maxEta;
+  bool m_ignoreChargedPFOs;
 
 };
 

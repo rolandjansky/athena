@@ -62,18 +62,6 @@ if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFl
 else:
     recAlgs.doEFlow=False
 
-#
-# functionality : isolation for egamma and combined muon
-#
-pdr.flag_domain('egmiso')
-if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
-    try:
-        from IsolationAlgs.IsoGetter import isoGetter
-        isoGetter()
-    except Exception:
-        treatException("Could not set up isolation. Switched off !")
-
-
 #AODFix_postMuonCombinedRec()
 #
 # functionality : CaloTower protojets + preclustering + KT algorithm + CombinedJetAlg
@@ -91,6 +79,16 @@ if rec.doJetMissingETTag() and DetFlags.Calo_on():
         jetOK=False
     AODFix_postJetRec()
 
+#
+# functionality : isolation for egamma and combined muon
+#
+pdr.flag_domain('egmiso')
+if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
+    try:
+        from IsolationAlgs.IsoGetter import isoGetter
+        isoGetter()
+    except Exception:
+        treatException("Could not set up isolation. Switched off !")
 
 if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
     try:
