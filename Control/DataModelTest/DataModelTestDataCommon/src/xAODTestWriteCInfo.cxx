@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file DataModelTestDataWrite/src/xAODTestWriteCInfo.cxx
+ * @file DataModelTestDataCOMMON/src/xAODTestWriteCInfo.cxx
  * @author snyder@bnl.gov
  * @date Apr 2016
  * @brief Algorithm to test writing xAOD classes with auxiliary data (cinfo).
@@ -33,6 +33,7 @@ xAODTestWriteCInfo::xAODTestWriteCInfo (const std::string &name,
     m_cvecKey ("cvec"),
     m_cinfoKey ("cinfo")
 {
+  declareProperty ("Offset", m_offset = 0);
   declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("CVecKey", m_cvecKey);
   declareProperty ("CInfoKey", m_cinfoKey);
@@ -70,9 +71,9 @@ StatusCode xAODTestWriteCInfo::execute_r (const EventContext& ctx) const
   static C::Accessor<int> anInt2 ("anInt2");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
-  cinfo->setAnInt (count * 1000);
-  cinfo->setAFloat ((float)count * 0.1);
-  anInt2(*cinfo) = count * 2000;
+  cinfo->setAnInt (count * 1000 + m_offset);
+  cinfo->setAFloat ((float)count * 0.1 + m_offset);
+  anInt2(*cinfo) = count * 2000 + m_offset;
 
   if (!cvec->empty()) {
     cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());

@@ -6,15 +6,15 @@
 
 // $Id$
 /**
- * @file DataModelTestDataWrite/src/xAODTestWriteCInfo.h
+ * @file DataModelTestDataCommon/src/xAODTestWriteCInfo.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2016
  * @brief Algorithm to test writing xAOD classes with auxiliary data (cinfo).
  */
 
 
-#ifndef DATAMODELTESTDATAWRITE_XAODTESTWRITECINFO_H
-#define DATAMODELTESTDATAWRITE_XAODTESTWRITECINFO_H
+#ifndef DATAMODELTESTDATACOMMON_XAODTESTWRITECINFO_H
+#define DATAMODELTESTDATACOMMON_XAODTESTWRITECINFO_H
 
 
 //#include "xAODEventInfo/EventInfo.h"
@@ -63,6 +63,7 @@ public:
 
 
 private:
+  int m_offset;
   //SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
@@ -73,4 +74,4 @@ private:
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATAWRITE_XAODTESTWRITECINFO_H
+#endif // not DATAMODELTESTDATACOMMON_XAODTESTWRITECINFO_H
