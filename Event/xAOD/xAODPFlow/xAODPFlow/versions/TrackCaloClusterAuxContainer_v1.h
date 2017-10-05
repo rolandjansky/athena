@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // Dear emacs, this is -*- c++ -*-
 // $Id: TrackCaloClusterAuxContainer_v1.h $
 #ifndef XAODPFLOW_VERSIONS_TRACKCALOCLUSTERAUXCONTAINER_V1_H
