@@ -33,15 +33,15 @@ namespace LVL1MUCTPI {
 
       virtual StatusCode initialize() override;
 
-      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& ) const; 
+      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& ) const override; 
 
-      virtual void handle(const Incident&);
+      virtual void handle(const Incident&) override;
 
 
       // left over from ALgorithm implementation ... can I just leave them in here
       // and use them as normal funcitons?
       /// Regular Gaudi algorithm finalization function
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       /// Regular Gaudi algorithm execute function
       virtual StatusCode execute();
       /// Regular Gaudi algorithm beginRun function
