@@ -5,15 +5,16 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODPFlow/TrackCaloClusterAuxContainer.h"
+#include "xAODTrackCaloClusterAuxContainerCnv_v1.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrackCaloClusterAuxContainer,
-                               xAOD::TrackCaloClusterAuxContainer >
-   xAODTrackCaloClusterAuxContainerCnvBase;
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TrackCaloClusterAuxContainer,
+				     xAODTrackCaloClusterAuxContainerCnv_v1 >
+   xAODTrackCaloClusterAuxContainerCnv;
 
 /**
  *  @short POOL converter for the xAOD::TrackCaloClusterAuxContainer class
@@ -26,27 +27,5 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrackCaloClusterAuxContainer,
  *
  * @author Noemi Calace <Noemi.Calace@cern.ch>
  */
-class xAODTrackCaloClusterAuxContainerCnv :
-   public xAODTrackCaloClusterAuxContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrackCaloClusterAuxContainerCnv >;
-
-   /// Function initialising the converter
-   virtual StatusCode initialize() override;
-
-protected:
-   /// Converter constructor
-   xAODTrackCaloClusterAuxContainerCnv( ISvcLocator* svcLoc );
-
-   /// Function preparing the container to be written out
-   virtual xAOD::TrackCaloClusterAuxContainer*
-   createPersistent( xAOD::TrackCaloClusterAuxContainer* trans ) override;
-   /// Function reading in the object from the input file
-   virtual xAOD::TrackCaloClusterAuxContainer* createTransient() override;
-
-private:
-
-}; // class xAODTrackCaloClusterAuxContainerCnv
 
 #endif // XAODPFLOWATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_H

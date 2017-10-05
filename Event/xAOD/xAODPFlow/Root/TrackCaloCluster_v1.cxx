@@ -65,17 +65,13 @@ namespace xAOD {
 				     setCaloClusterLinks)
                      
   size_t xAOD::TrackCaloCluster_v1::nCaloClusters() const {
-    static const SG::AuxElement::Accessor< std::vector< ElementLink<xAOD::CaloClusterContainer> > >  acc( "caloClusterLinks" );
-    if( acc.isAvailable( *this ) ) {
-       return acc( *this ).size();
-    }
-    return 0;
+    return this->caloClusterLinks().size();
   }
                      
   const xAOD::CaloCluster* TrackCaloCluster_v1::caloCluster(size_t i) const {
-    if(i>=nCaloClusters())
+    if(i>this->nCaloClusters())
       return 0;
-    const std::vector< ElementLink<xAOD::CaloClusterContainer> >& links = caloClusterLinks();
+    const std::vector< ElementLink<xAOD::CaloClusterContainer> >& links = this->caloClusterLinks();
     if( ! links[ i ].isValid() ) {
         return 0;
     }
