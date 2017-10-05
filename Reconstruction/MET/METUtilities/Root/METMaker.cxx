@@ -1063,6 +1063,10 @@ namespace met {
       if(softTermsSource && MissingETBase::Source::isSoftTerm(met->source())) {
 	if(!MissingETBase::Source::hasPattern(met->source(),softTermsSource)) continue;
       }
+      // skip the duplicate terms
+      if( met->name().find("_Duplicate")!=std::string::npos){
+	continue;
+      }
       ATH_MSG_VERBOSE("Add MET term " << met->name() );
       *metFinal += *met;
     }
