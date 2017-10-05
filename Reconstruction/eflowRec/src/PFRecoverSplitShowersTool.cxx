@@ -55,22 +55,22 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
   // tool service
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
+    ATH_MSG_WARNING(" Tool Service Not Found");
     return StatusCode::SUCCESS;
   }
 
   if (m_matchingTool.retrieve().isFailure()){
-    msg(MSG::WARNING) << "Couldn't retrieve PFTrackClusterMatchingTool." << endmsg;
+    ATH_MSG_WARNING("Couldn't retrieve PFTrackClusterMatchingTool");
     return StatusCode::SUCCESS;
   }
 
   if (m_theEOverPTool.retrieve().isFailure()){
-    msg(MSG::WARNING) << "Cannot find eflowEOverPTool" << endmsg;
+    ATH_MSG_WARNING("Cannot find eflowEOverPTool");
     return StatusCode::SUCCESS;
   }
 
   if (m_theEOverPTool->execute(m_binnedParameters.get()).isFailure()){
-    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
+    ATH_MSG_WARNING("Could not execute eflowCellEOverPTool");
     return StatusCode::SUCCESS;
   }
 
@@ -79,7 +79,7 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
 
 void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*,xAOD::CaloClusterContainer& theCaloClusterContainer){
 
-  msg(MSG::DEBUG) << "Executing PFRecoverSplitShowersTool" << endmsg;
+  ATH_MSG_DEBUG("Executing");
 
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
 
@@ -197,10 +197,9 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
       m_eflowCaloObjectContainer->push_back(std::move(thisEflowCaloObject));
       continue;
     }
-    if (msgLvl(MSG::WARNING)){
+    if (msgLvl(MSG::DEBUG)){
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
-      msg(MSG::DEBUG) << "Recovering charged EFO with e,eta and phi " << track->e() << ", "
-                << track->eta() << " and " << track->phi() << endmsg;
+      ATH_MSG_DEBUG("Recovering charged EFO with e,eta and phi " << track->e() << ", " << track->eta() << " and " << track->phi());
     }
     /* Get list of matched clusters */
     std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
@@ -222,7 +221,7 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_tracksToRecover, m_clustersToConsider,
                                                           m_eflowCaloObjectContainer);
-  msg(MSG::DEBUG) << "PFRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects." << endmsg;
+  ATH_MSG_DEBUG("PFRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects");
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo = nCaloObj; iCalo < m_eflowCaloObjectContainer->size(); ++iCalo) {

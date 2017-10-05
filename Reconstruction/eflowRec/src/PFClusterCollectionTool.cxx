@@ -68,8 +68,7 @@ std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(efl
       xAOD::CaloCluster* thisCluster = thisEfRecCluster->getClusterForModification(&theCaloClusterContainer);
       result->push_back(thisCluster);
 
-      msg(MSG::DEBUG) << "Adding cluster with E, eta and phi to moments maker "
-          << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi() << endmsg;
+      ATH_MSG_DEBUG("Adding cluster with E, eta and phi to moments maker " << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi());
     }
   }
   return result;

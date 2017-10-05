@@ -29,7 +29,7 @@ StatusCode PFClusterSelector::execute(){
 
   /* Verify the read handle has a valid pointer, and if not return */
   if (!m_caloClustersReadHandle.isValid()){
-    msg(MSG::WARNING) << " Invalid ReadHandle for xAOD::CaloCluster with key: " <<  m_caloClustersReadHandle.key()  << endmsg;
+    ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::CaloCluster with key: " <<  m_caloClustersReadHandle.key());
     return StatusCode::SUCCESS;
   }
   /* Record the eflowRecCluster output container */
@@ -49,9 +49,9 @@ StatusCode PFClusterSelector::execute(){
         //zhangr
         std::map<IdentifierHash, double>::iterator it = cellsWeightMap.begin();
         for (; it != cellsWeightMap.end(); ++it) {
-           msg(MSG::DEBUG) << "zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
+	  ATH_MSG_DEBUG("zhangrui eflowPreparation " << iCluster << "/" << nClusters << ": e="
                     << m_caloClustersReadHandle->at(iCluster)->e() << " (" << it->first << "  "
-                    << it->second << ")" << endmsg;
+			<< it->second << ")");
         }
       }
 
@@ -63,8 +63,7 @@ StatusCode PFClusterSelector::execute(){
 
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = m_caloClustersReadHandle->at(iCluster);
-      msg(MSG::DEBUG) << "eflowPreparation clus = " << thisCluster->eta() << " "
-		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endmsg;
+      ATH_MSG_DEBUG("eflowPreparation clus = " << thisCluster->eta() << " " << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()));
     }
   }
   

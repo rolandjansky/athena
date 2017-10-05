@@ -250,8 +250,6 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
     thisPFO->setAttribute(myAttribute_TIMING, clusterTiming);
 
-    //if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisPFO->e() << ", " << thisPFO->eta() << " and " << thisPFO->phi() << std::endl;
-
   }
 }
 
@@ -264,6 +262,6 @@ void PFONeutralCreatorAlgorithm::addMoment(const xAOD::CaloCluster::MomentType& 
     float float_moment = static_cast<float>(moment);
     thePFO.setAttribute(myAttribute, float_moment);
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endmsg;
+  else ATH_MSG_WARNING(" Could not retrieve moment from the CaloCluster");
 
 }

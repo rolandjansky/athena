@@ -147,6 +147,9 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 #PFlow
 
 include("eflowRec/PFlowMTConfig.py")
+#We are using an ESD file as input and so must change the names of the containers we create, because overwrite is not allowed in AthenaMT
+topSequence.PFOChargedCreatorAlgorithm.PFOOutputName="JetETMissChargedParticleFlowObjectsV2"
+topSequence.PFONeutralCreatorAlgorithm.PFOOutputName="JetETMissNeutralParticleFlowObjectsV2"
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )

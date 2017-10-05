@@ -117,7 +117,7 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction);
 
   if (msgLvl(MSG::DEBUG)) printAllClusters(*recClusterContainer);
-
+  
   /* Check e/p mode - only perform subtraction if not in this mode */
   if (!m_calcEOverP) {performSubtraction(theCaloClusterContainer);}
 
@@ -169,7 +169,7 @@ int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   /* Create 3 types eflowCaloObjects: track-only, cluster-only, track-cluster-link */
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_eflowTrackContainer, m_eflowClusterContainer, m_eflowCaloObjectContainer);
-  msg(MSG::DEBUG)  << "PFCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endmsg;
+  ATH_MSG_DEBUG("PFCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects.");
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo=0; iCalo<m_eflowCaloObjectContainer->size(); ++iCalo) {
@@ -183,7 +183,7 @@ int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
 
 void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer){
 
-  msg(MSG::DEBUG)  << "Accessed radial energy profile function" << std::endl;
+  ATH_MSG_DEBUG("Accessed radial energy profile function");
 
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   
@@ -234,14 +234,14 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
       for (int i=0; i < eflowCalo::nRegions ;i++){
 	
 	eflowCaloENUM layer = (eflowCaloENUM)i;
-	msg(MSG::DEBUG)  <<"layer is "<<layer<<std::endl;
+	ATH_MSG_DEBUG("layer is "<<layer);
 	double ringThickness = ringThicknessGenerator.ringThickness((eflowCaloENUM)i);
-	msg(MSG::DEBUG)  <<"ring thickness is "<<ringThickness<<std::endl;
+	ATH_MSG_DEBUG("ring thickness is "<<ringThickness);
 	
 	double eta_extr = calorimeterCellList.etaFF(layer);
-	msg(MSG::DEBUG)  <<"extrapolated eta ["<<layer<<"] is "<<eta_extr<<std::endl;
+	ATH_MSG_DEBUG("extrapolated eta ["<<layer<<"] is "<<eta_extr);
 	double phi_extr = calorimeterCellList.phiFF(layer);
-	msg(MSG::DEBUG)  <<"extrapolated phi ["<<layer<<"] is "<<phi_extr<<std::endl;
+	ATH_MSG_DEBUG("extrapolated phi ["<<layer<<"] is "<<phi_extr);
     
 	if (eta_extr == -999.0){
 	  continue;
@@ -282,41 +282,41 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
 	    const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
 	    CaloCell_ID::CaloSample sampling = DDE->getSampling();
             
-	    msg(MSG::DEBUG)  << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-	    msg(MSG::DEBUG)  << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
+	    ATH_MSG_DEBUG(" cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling);
+	    ATH_MSG_DEBUG(" cell energy is " << ((*firstPair).first)->energy());
             
 	    totalCells += 1;
 	    totalCellsinRing += 1;
 	    
 	    totalEnergyPerRing += ((*firstPair).first)->energy();
 	    totalEnergyPerCell = ((*firstPair).first)->energy();
-	    msg(MSG::DEBUG)  << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-	    msg(MSG::DEBUG)  << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
+	    ATH_MSG_DEBUG(" Total E per Cell is " << totalEnergyPerCell);
+	    ATH_MSG_DEBUG(" Total E per Ring is " << totalEnergyPerRing);
 	    
 	    cellVolume = DDE->volume();
-	    msg(MSG::DEBUG)  << " cell volume is " << cellVolume/1000.<<std::endl;
+	    ATH_MSG_DEBUG(" cell volume is " << cellVolume/1000.);
 	    
 	    energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-	    msg(MSG::DEBUG)  << " E density per Cell is " << energyDensityPerCell<<std::endl;
-	    msg(MSG::DEBUG)  << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
+	    ATH_MSG_DEBUG(" E density per Cell is " << energyDensityPerCell);
+	    ATH_MSG_DEBUG(" Initial added E density per Cell is " << energyDensityPerRing);
 	    energyDensityPerRing += energyDensityPerCell;
-	    msg(MSG::DEBUG)  << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
+	    ATH_MSG_DEBUG(" Final added E density per Cell is " << energyDensityPerRing);
 	    averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
 	  }
 	  
-	  msg(MSG::DEBUG)  << " track E is " << efRecTrack->getTrack()->e()/1000.;
-	  msg(MSG::DEBUG)  << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
+	  ATH_MSG_DEBUG(" track E is " << efRecTrack->getTrack()->e()/1000.);
+	  ATH_MSG_DEBUG(" Average E density per Ring is " << averageEnergyDensityPerRing);
 	  
 	  if (averageEnergyDensityPerRing != 0){
 	    avgEdensityToStoreVector.push_back(averageEnergyDensityPerRing);
 	    layerToStore = (eflowCaloENUM)i;
-	    msg(MSG::DEBUG)  <<"layerToStore is "<< layerToStore << std::endl;
+	    ATH_MSG_DEBUG("layerToStore is "<< layerToStore);
 	    layerToStoreVector.push_back(layerToStore);
 	    radiusToStore = (indexofRing)*ringThickness;
-	    msg(MSG::DEBUG)  <<"radiusToStore is "<< radiusToStore << std::endl;
+	    ATH_MSG_DEBUG("radiusToStore is "<< radiusToStore);
 	    radiusToStoreVector.push_back(radiusToStore);
 	  }
-	  else {msg(MSG::DEBUG)  <<"averageEnergyDensityPerRing = 0"<<std::endl;}
+	  else {ATH_MSG_DEBUG("averageEnergyDensityPerRing = 0");}
 	}//loop on 100 cells
       }//loop on calo regions
 	

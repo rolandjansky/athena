@@ -27,7 +27,7 @@ StatusCode PFMomentCalculatorTool::initialize(){
 
   /* Retrieve the cluster moments maker */
   if ( m_clusterMomentsMaker.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Cannot find CaloClusterMomentsMaker Tool "<< endmsg;
+    ATH_MSG_WARNING("Cannot find CaloClusterMomentsMaker Tool");
     return StatusCode::SUCCESS;
   }
   return StatusCode::SUCCESS;
@@ -45,10 +45,7 @@ void PFMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloObjec
   for (auto cluster : *tempClusterContainer) CaloClusterKineHelper::calculateKine(cluster, true, true);
 
   /* Remake the cluster moments */
-
-  if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) {
-    msg(MSG::WARNING) << "Could not execute ClusterMomentsMaker " << endmsg;
-  }
+  if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute ClusterMomentsMaker");
 
 }
 

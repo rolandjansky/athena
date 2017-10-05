@@ -43,7 +43,7 @@ StatusCode PFTrackSelector::execute(){
 
   /* Verify the read handle has a valid pointer, and if not return */
   if (!m_tracksReadHandle.isValid()){
-    if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << "Can not retrieve xAOD::TrackParticleContainer with name: " << m_tracksReadHandle.key() << endmsg; }
+    ATH_MSG_WARNING("Can not retrieve xAOD::TrackParticleContainer with name: " << m_tracksReadHandle.key());
     return StatusCode::FAILURE;
   }
 
@@ -53,7 +53,7 @@ StatusCode PFTrackSelector::execute(){
   for (; itTrackParticle != m_tracksReadHandle->end(); ++itTrackParticle, ++trackIndex) {
     const xAOD::TrackParticle* track = (*itTrackParticle);
     if (!track){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Have invalid pointer to xAOD::TrackParticle " << endmsg;
+      ATH_MSG_WARNING("Have invalid pointer to xAOD::TrackParticle");
       continue;	
     }
 
@@ -107,14 +107,14 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 	      return true;
 	    }
 	  }//if valid track pointer
-	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object map has NULL pointer to original TrackParticle " << endmsg;
+	  else ATH_MSG_WARNING("Electron object map has NULL pointer to original TrackParticle");
 	}//if has a track
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object has " << nTrack << " tracks " << endmsg;
+	else ATH_MSG_WARNING("Electron object has " << nTrack << " tracks");
       }//if valid pointer
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron is a NULL pointer " << endmsg;
+      else ATH_MSG_WARNING("Electron is a NULL pointer");
     }//electron loop    
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid ReadHandle for electrons with key: " << m_electronsReadHandle.key() << endmsg;
+  else ATH_MSG_WARNING("Invalid ReadHandle for electrons with key: " << m_electronsReadHandle.key());
 
   return false;
 
@@ -137,14 +137,14 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
 	    if (track == ID_track) return true;
 	    return false;
 	  }
-	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has a NULL pointer to the track " << endmsg;
+	  else ATH_MSG_WARNING("This muon has a NULL pointer to the track");
 	}
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid link to the track " << endmsg;
+	else ATH_MSG_WARNING("This muon has an invalid link to the track");
       }//if muon pointer is valid
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon is a NULL pointer " << endmsg;
+      else ATH_MSG_WARNING("This muon is a NULL pointer");
     }//muon loop
   }
-   else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid ReadHandle for muons with key: " << m_muonsReadHandle.key() << endmsg;
+  else ATH_MSG_WARNING("Invalid ReadHandle for muons with key: " << m_muonsReadHandle.key());
 
   return false;
 }

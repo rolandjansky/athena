@@ -98,12 +98,9 @@ void PFLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool,
   CaloClusterCollectionProcessor* myCollectionProcessor = &(*calibTool);
   CaloClusterProcessor* myCalibProcessor = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor);
   if (myCalibProcessor) {
-    if (myCalibProcessor->execute(cluster).isFailure()) {
-      if (msgLvl(MSG::WARNING))
-        msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endmsg;
-    }
-  } else if (msgLvl(MSG::WARNING))
-    msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endmsg;
+    if (myCalibProcessor->execute(cluster).isFailure()) ATH_MSG_WARNING("Could not execute " << calibTool.name());
+  }
+  else ATH_MSG_WARNING("Dynamic_cast provided NULL pointer to CaloClusterProcessor");
 }
 
 void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {

@@ -83,7 +83,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     /* Get the track elementLink and add it to the xAOD:PFO  */
     ElementLink<xAOD::TrackParticleContainer> theTrackLink = efRecTrack->getTrackElemLink();
     bool isSet = thisPFO->setTrackLink(theTrackLink);
-    if (!isSet) { msg(MSG::WARNING) << "Could not set Track B in PFO " << endmsg; }
+    if (!isSet) ATH_MSG_WARNING("Could not set Track B in PFO ");
     thisPFO->setCharge(efRecTrack->getTrack()->charge());
 
     std::pair<double,double> etaPhi(0.0,0.0);
@@ -106,7 +106,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
       xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityVectorCellOrdering;
       thisPFO->setAttribute<std::vector<float> >(myAttribute_avgEdensityVectorCellOrdering,efRecTrack->getAvgEDensityCellOrderVector() );              
     } else {
-      /* In normal mode we want te track eta,phi at the perigee */
+      /* In normal mode we want the track eta,phi at the perigee */
       etaPhi.first = efRecTrack->getTrack()->eta();
       etaPhi.second = efRecTrack->getTrack()->phi();
     }
@@ -131,7 +131,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject.efRecCluster(iCluster);
 	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
 	 bool isSet = thisPFO->addClusterLink(theClusLink);
-	 if (!isSet) msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg;
+	 if (!isSet) ATH_MSG_WARNING("Could not set Cluster in PFO");
        }//cluster loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   
 
@@ -146,7 +146,7 @@ void PFOChargedCreatorAlgorithm::addVertexLinksToChargedPFO(const xAOD::VertexCo
     if (theTrack){
       ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,theVertexContainer);
       bool haveSetLink = theChargedPFO->setVertexLink(theVertexLink);
-      if (!haveSetLink) msg(MSG::WARNING) << " Could not set vertex link on charged PFO " << endmsg;
+      if (!haveSetLink) ATH_MSG_WARNING(" Could not set vertex link on charged PFO");
     }//if valid pointer to xAOD::TrackParticle
   }
 
