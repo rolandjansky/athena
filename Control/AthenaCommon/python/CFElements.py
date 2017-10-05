@@ -21,8 +21,20 @@ def seqAND(name, subs=[]):
         seq += s
     return seq
 
+def seqOR(name, subs=[]):
+    """ sequential OR sequencer, used when a barier needs to be set but all subs reached irresepectively of the decision """
+    seq = AthSequencer( name )
+    seq.ModeOR = True
+    seq.Sequential = True
+    seq.StopOverride = True
+    for s in subs:
+        seq += s
+    return seq
+
 def stepSeq(name, filterAlg, rest):
     """ elementary HLT step sequencer, filterAlg is gating, rest is anything that needs to happe within the step """
     stepReco = parOR(name+"_reco", rest)
     stepAnd = seqAND(name, [ filterAlg, stepReco ])
     return stepAnd
+
+    
