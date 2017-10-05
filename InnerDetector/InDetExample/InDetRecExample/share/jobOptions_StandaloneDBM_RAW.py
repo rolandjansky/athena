@@ -104,6 +104,8 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTruth = False
 InDetFlags.doDBMstandalone = True
 InDetFlags.doTrackSegmentsPixelPrdAssociation = False
+InDetFlags.doTrackSegmentsPixelFourLayer = False
+InDetFlags.doTrackSegmentsPixelThreeLayer = False
 
 # --- uncomment to change the default of one of the following options:
 InDetFlags.doLowPt                = False

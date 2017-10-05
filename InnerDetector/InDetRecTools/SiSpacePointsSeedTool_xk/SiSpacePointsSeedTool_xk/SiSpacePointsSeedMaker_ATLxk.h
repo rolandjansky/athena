@@ -201,6 +201,8 @@ namespace InDet {
       float m_sF                                                  ;
       float m_sFv                                                 ;
 
+      bool m_skipIBLcut                                           ;
+
       ///////////////////////////////////////////////////////////////////
       // Tables for 3 space points seeds search
       ///////////////////////////////////////////////////////////////////
