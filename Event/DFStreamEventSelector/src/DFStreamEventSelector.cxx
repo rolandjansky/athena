@@ -1,5 +1,4 @@
 #include "DFStreamEventSelector.h"
-#include "hltinterface/DataSource.h"
 #include <functional>
 #include <memory>
 #include <errno.h>
@@ -7,6 +6,9 @@
 #include <dlfcn.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include "hltinterface/DataSource.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 DFStreamEventSelector::DFStreamEventSelector(const std::string &name, ISvcLocator* pSvcLocator):AthService(name,pSvcLocator),	
 												m_incidentSvc("IncidentSvc", name),
@@ -30,12 +32,12 @@ StatusCode DFStreamEventSelector::initialize(){
     }
     
     union{
-      HLT::DataSource* (*fptr)(void);
+      hltinterface::DataSource* (*fptr)(void);
       void *ptr;
     } uc;
 
     union{
-      void (*fptr)(HLT::DataSource*);
+      void (*fptr)(hltinterface::DataSource*);
       void *ptr;
     } ud;
 
@@ -57,7 +59,7 @@ StatusCode DFStreamEventSelector::initialize(){
       return StatusCode::FAILURE;
     }
     dlerror();
-    m_ds=std::shared_ptr<HLT::DataSource>(uc.fptr(),std::ptr_fun(ud.fptr));
+    m_ds=std::shared_ptr<hltinterface::DataSource>(uc.fptr(),std::ptr_fun(ud.fptr));
   }
   if(!m_ds){
     ATH_MSG_FATAL("DataSource creation failed");
@@ -85,27 +87,115 @@ StatusCode DFStreamEventSelector::initialize(){
     ATH_MSG_FATAL("DataSource Configuration failed with an unknown exception");
     return StatusCode::FAILURE;
   }
+  if(!m_robProvider.retrieve().isSuccess()){
+    ATH_MSG_FATAL("Cant retrieve ROBDataProviderSvc");
+    return StatusCode::FAILURE;
+  }
+  if(!m_evtStore.retrieve().isSuccess()){
+    ATH_MSG_FATAL("Cant retrieve EventStore");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode DFStreamEventSelector::start(){
-  
+  boost::property_tree::ptree conf;
+  try{
+    m_ds->prepareForRun(conf);
+  }catch(std::exception &ex){
+    ATH_MSG_FATAL("DataSource preparation failed with "<<ex.what());
+    return StatusCode::FAILURE;
+  }catch(...){
+    ATH_MSG_FATAL("DataSource preparation failed with an unknown exception");
+    return StatusCode::FAILURE;
+  }
+  conf.put("start_id",0);
+  conf.put("stride",1);
+  conf.put("appName","Test");// used by the PSC
+  conf.put("clientName","Test");
+  conf.put("workerId",0);//used by PSC
+  conf.put("numberOfWorkers",1);// used by PSC
+  try{
+    m_ds->prepareWorker(conf);
+  }catch(std::exception &ex){
+    ATH_MSG_FATAL("DataSource preparation failed with "<<ex.what());
+    return StatusCode::FAILURE;
+  }catch(...){
+    ATH_MSG_FATAL("DataSource preparation failed with an unknown exception");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
+
 StatusCode DFStreamEventSelector::stop(){
+  boost::property_tree::ptree conf;
+  try{
+    m_ds->finalizeWorker(conf);
+  }catch(std::exception &ex){
+    ATH_MSG_FATAL("DataSource finalization failed with "<<ex.what());
+    return StatusCode::FAILURE;
+  }catch(...){
+    ATH_MSG_FATAL("DataSource finalization failed with an unknown exception");
+    return StatusCode::FAILURE;
+  }
+  try{
+    m_ds->finalize(conf);
+  }catch(std::exception &ex){
+    ATH_MSG_FATAL("DataSource finalization failed with "<<ex.what());
+    return StatusCode::FAILURE;
+  }catch(...){
+    ATH_MSG_FATAL("DataSource finalization failed with an unknown exception");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
+
 }
+
 StatusCode DFStreamEventSelector::finalize(){
+  m_ds.reset();
+  if(!m_robProvider.release().isSuccess()){
+    ATH_MSG_FATAL("Cant release ROBDataProviderSvc");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode DFStreamEventSelector::createContext(EvtContext*& c) const{
+  c=new DFContext();
   if(c)return StatusCode::SUCCESS;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode DFStreamEventSelector::next(EvtContext& /*c*/) const{
+  std::vector<eformat::ROBFragment<const uint32_t*> > data;
+  uint32_t lvl1id(0);
+  uint64_t gid(0);
+  uint64_t lumiBlock(0);
+  try{
+    m_ds->getL1Result(data,lvl1id,gid,lumiBlock);
+  }catch(std::exception &ex){
+    ATH_MSG_FATAL("DataSource getL1Result failed with "<<ex.what());
+    return StatusCode::FAILURE;
+  }catch(...){
+    ATH_MSG_FATAL("DataSource getL1Result failed");
+    return StatusCode::FAILURE;
+  }
+  auto evInfo=new xAOD::EventInfo();
+  auto evInfoAux=new xAOD::EventAuxInfo();
+  evInfo->setStore(evInfoAux);
+  evInfo->setEventNumber(gid);
+  evInfo->setLumiBlock(lumiBlock);
+  if(!m_evtStore->record(evInfo,"EventInfo").isSuccess()){
+    ATH_MSG_FATAL("EventInfo registration to storegate failed");
+    return StatusCode::FAILURE;
+  }
+  if(!m_evtStore->record(evInfoAux,"EventInfoAux").isSuccess()){
+    ATH_MSG_FATAL("EventInfo registration to storegate failed");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -145,7 +235,9 @@ StatusCode DFStreamEventSelector::createAddress(const EvtContext& /*c*/,IOpaqueA
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFStreamEventSelector::releaseContext(EvtContext*&)const{
+StatusCode DFStreamEventSelector::releaseContext(EvtContext*& c)const{
+  delete c;
+  c=0;
   return StatusCode::SUCCESS;
 }
 
