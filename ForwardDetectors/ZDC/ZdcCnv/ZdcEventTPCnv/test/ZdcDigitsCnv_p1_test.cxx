@@ -13,7 +13,7 @@
 
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZdcDigitsCnv_p1.h"
-#include "TestTools/leakcheck.h"
+//#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -45,7 +45,7 @@ void testit (const ZdcDigits& trans1)
 void test1()
 {
   std::cout << "test1\n";
-  Athena_test::Leakcheck check;
+  //Athena_test::Leakcheck check;
 
   ZdcDigits trans1 (Identifier (1234));
   trans1.set_digits_gain0_delay0 (std::vector<int> {1});
