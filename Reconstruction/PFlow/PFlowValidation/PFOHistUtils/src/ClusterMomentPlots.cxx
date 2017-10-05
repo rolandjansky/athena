@@ -22,6 +22,9 @@ namespace PFO {
     m_AVG_LAR_Q = nullptr;
     m_AVG_TILE_Q = nullptr;
     m_CELL_SIG_SAMPLING = nullptr;
+    m_ENG_BAD_HV_CELLS = nullptr;
+    m_N_BAD_HV_CELLS = nullptr;
+    m_EM_PROBABILITY = nullptr;
 
 }
 
@@ -42,6 +45,9 @@ namespace PFO {
     m_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sClusterContainerName + "_AVG_LAR_Q",240,-1.0,200.0);
     m_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sClusterContainerName + "_AVG_TILE_Q",240,-1.0,200.0);
     m_CELL_SIG_SAMPLING = Book1D("PFO_CELL_SIG_SAMPLING",m_sClusterContainerName + "_CELL_SIG_SAMPLING",31,-1.0,30);
+    m_ENG_BAD_HV_CELLS = Book1D("PFO_ENG_BAD_HV_CELLS",m_sClusterContainerName + "_ENG_BAD_HV_CELLS",500,-5000.0,20000.0); 
+    m_N_BAD_HV_CELLS = Book1D("PFO_N_BAD_HV_CELLS",m_sClusterContainerName + "_N_BAD_HV_CELLS",50,-1.0,100.0);
+    m_EM_PROBABILITY = Book1D("PFO_EM_PROBABILITY",m_sClusterContainerName + "_EM_PROBABILITY",50,-0.05,1.05); 
 
   }
 
@@ -121,6 +127,21 @@ namespace PFO {
     gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,moment_CELL_SIG_SAMPLING);
     if (true == gotMoment) m_CELL_SIG_SAMPLING->Fill(moment_CELL_SIG_SAMPLING);
     else m_CELL_SIG_SAMPLING->Fill(-1.0);
+
+    double moment_ENG_BAD_HV_CELLS = 0.0;
+    gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::ENG_BAD_HV_CELLS,moment_ENG_BAD_HV_CELLS);
+    if (true == gotMoment) m_ENG_BAD_HV_CELLS->Fill(moment_ENG_BAD_HV_CELLS);
+    else m_ENG_BAD_HV_CELLS->Fill(-1.0);
+
+    double moment_N_BAD_HV_CELLS = 0.0;
+    gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::N_BAD_HV_CELLS,moment_N_BAD_HV_CELLS);
+    if (true == gotMoment) m_N_BAD_HV_CELLS->Fill(moment_N_BAD_HV_CELLS);
+    else m_N_BAD_HV_CELLS->Fill(-1.0);
+
+    double moment_EM_PROBABILITY = 0.0;
+    gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::EM_PROBABILITY,moment_EM_PROBABILITY);
+    if (true == gotMoment) m_EM_PROBABILITY->Fill(moment_EM_PROBABILITY);
+    else m_EM_PROBABILITY->Fill(-1.0);
 
   }
 
