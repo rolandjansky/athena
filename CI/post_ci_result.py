@@ -80,7 +80,7 @@ def main():
     comment += compose_stage_text("test",args.test) + "  \n"
     comment += "  \n"
     comment += "Full details available at [NICOS {0}](http://atlas-nightlies-browser.cern.ch/~platinum/nightlies/info?tp=g&nightly=MR-CI-builds&rel={0}&ar=*)  \n".format(args.nicos_name)
-    comment += "For experts only: Jenkins output [[CI-MERGE-REQUEST {0}]](http://aibuild080.cern.ch:8080/job/CI-MERGE-REQUEST/{0}/) (for remote access see the [FAQ](https://atlassoftwaredocs.web.cern.ch/guides/MR_reviewers/#faq))".format(args.ci_id)
+    comment += "For experts only: Jenkins output [[CI-MERGE-REQUEST {0}]](http://aibuild080.cern.ch:8080/job/CI-MERGE-REQUEST/{0}/) (for [remote](http://localhost:9999/job/CI-MERGE-REQUEST/{0}/) access see the [FAQ](https://atlassoftwaredocs.web.cern.ch/guides/MR_reviewers/#faq))".format(args.ci_id)
 
     logging.debug(comment)
     try:
