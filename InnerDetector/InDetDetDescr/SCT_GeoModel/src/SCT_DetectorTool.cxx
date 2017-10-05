@@ -280,9 +280,9 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
 StatusCode 
 SCT_DetectorTool::clear(StoreGateSvc* detStore)
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
+  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   return StatusCode::SUCCESS;
