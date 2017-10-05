@@ -16,8 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           ElectronPhotonFourMomentumCorrection
                           ElectronPhotonSelectorTools
                           ElectronPhotonShowerShapeFudgeTool
-                          MuonMomentumCorrections
-			  MuonSelectorTools
                           TauAnalysisTools
                           JetCalibTools
                           JetCPInterfaces
@@ -31,7 +29,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopJetSubstructure
                           xAODTracking
-                          InDetTrackSystematicsTools )
+                          InDetTrackSystematicsTools 
+			  MuonAnalysisInterfaces )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -55,8 +54,6 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   ElectronPhotonFourMomentumCorrectionLib
                                   ElectronPhotonSelectorToolsLib
                                   ElectronPhotonShowerShapeFudgeToolLib
-                                  MuonMomentumCorrectionsLib
-				  MuonSelectorToolsLib
                                   TauAnalysisToolsLib
                                   JetCalibToolsLib
                                   JetCPInterfaces
@@ -71,6 +68,7 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   TopJetSubstructure
                                   xAODTracking
                                   InDetTrackSystematicsToolsLib
+				  MuonAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

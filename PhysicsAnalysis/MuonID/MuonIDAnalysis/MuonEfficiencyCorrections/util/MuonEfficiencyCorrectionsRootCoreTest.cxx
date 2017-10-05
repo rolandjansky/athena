@@ -32,7 +32,7 @@
 #include "xAODMuon/MuonAuxContainer.h"
 
 // Local include(s):
-#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+
 #include "PATInterfaces/ISystematicsTool.h"
 
 #include "xAODCore/tools/IOStats.h"
@@ -41,6 +41,8 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 
 #define CHECK_CPCorr(Arg) \
@@ -55,6 +57,20 @@
 
 /// Example of how to run the MuonEfficiencyCorrections package to obtain information from muons
 
+typedef asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
+
+EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomInput, bool uncorrelate_Syst) {
+    EffiToolInstance tool(std::string("CP::MuonEfficiencyScaleFactors/EffiTool_") + WP);
+
+    tool.setProperty("WorkingPoint", WP).isSuccess();
+    tool.setProperty("UncorrelateSystematics", uncorrelate_Syst).isSuccess();
+    tool.setProperty("LowPtThreshold", 15.e3).isSuccess();
+    tool.retrieve().isSuccess();
+
+    if (!CustomInput.empty()) tool.setProperty("CustomInputFolder", CustomInput).isSuccess();
+
+    return tool;
+}
 int main(int argc, char* argv[]) {
 
     // force strict checking of return codes
@@ -104,8 +120,13 @@ int main(int argc, char* argv[]) {
     // instantiate the PRW tool which is needed to get random runnumbers 
     asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
-    std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
-    std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    std::vector<std::string> m_ConfigFiles {
+           "dev/SUSYTools/merged_prw_mc16a_latest.root",
+           "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"   };
+    std::vector<std::string> m_LumiCalcFiles {
+           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root"),
+           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root")
+       };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
 
@@ -115,78 +136,16 @@ int main(int argc, char* argv[]) {
     // Initialize the PRW tool
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-    // instantiate a MuonEfficiencyScaleFactors tool used for the retrieval of Medium muon reconstruction SFs
-    CP::MuonEfficiencyScaleFactors m_effi_corr("RecoMediumSFTestClass");
-    // set the working point
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "WorkingPoint", "Medium"));
-
-    //This option unfolds all the statistical systematics per bin of the SFs. Please only activate
-    //this *if* you know what you're doing. The world is gonna implode by that
-    bool doUncorrelateSystematics = false;
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
-
-    // setting a custom input folder containing SF files: this is NOT recommended!
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
-
-    // Initialize the tool
-    ASG_CHECK_SA(APP_NAME, m_effi_corr.initialize());
-
-    // get the list of systematics from the SystematicStore (the tool has to be initialized before)
-    std::vector<CP::SystematicSet> m_SystMedium;
-    for (const auto& set : CP::make_systematics_vector(m_effi_corr.recommendedSystematics())) {
-        m_SystMedium.push_back(CP::SystematicSet(set));
+     const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
+            //Isolation
+            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","GradientIso","GradientLooseIso",
+            "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
+    };
+   
+    std::vector<EffiToolInstance> EffiTools;
+    for (auto& WP : WPs) {
+        EffiTools.push_back(createSFTool(WP, DefaultCalibRelease, false));
     }
-
-    // instance for TTVA scale factors
-    asg::AnaToolHandle < CP::IMuonEfficiencyScaleFactors >  m_ttva_corr("CP::MuonEfficiencyScaleFactors/TTVASFTestClass");
-    ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("UncorrelateSystematics", doUncorrelateSystematics));
-
-    // setting a custom input folder containing SF files: this is NOT recommended!
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_ttva_corr.setProperty("CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_ttva_corr.initialize());
-
-    // for people not using the SystematicStore, they need to know the systematic names by heart -> not recommended!
-    CP::SystematicSet TTVAstatup;
-    TTVAstatup.insert(CP::SystematicVariation("MUON_EFF_TTVA_STAT", 1));
-    CP::SystematicSet TTVAsysup;
-    TTVAsysup.insert(CP::SystematicVariation("MUON_EFF_TTVA_SYS", 1));
-    CP::SystematicSet TTVAstatdown;
-    TTVAstatdown.insert(CP::SystematicVariation("MUON_EFF_TTVA_STAT", -1));
-    CP::SystematicSet TTVAsysdown;
-    TTVAsysdown.insert(CP::SystematicVariation("MUON_EFF_TTVA_SYS", -1));
-
-    // instance for isolation scale factors
-    CP::MuonEfficiencyScaleFactors m_iso_effi_corr("GradientIsoSFTestClass");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
-
-    ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
-    // setting a custom input folder containing SF files: this is NOT recommended!
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.initialize());
-    // for people not using the SystematicStore, they need to know the systematic names by heart -> not recommended!
-    CP::SystematicSet isosysup;
-    isosysup.insert(CP::SystematicVariation("MUON_EFF_ISO_SYS", 1));
-    CP::SystematicSet isostatup;
-    isostatup.insert(CP::SystematicVariation("MUON_EFF_ISO_STAT", 1));
-
-    CP::MuonEfficiencyScaleFactors m_badboys_effi_corr("HighPtBadMuonVetoSFTestClass");
-    ASG_CHECK_SA(APP_NAME, m_badboys_effi_corr.setProperty("WorkingPoint", "BadMuonHighPt"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "UncorrelateSystematics", doUncorrelateSystematics));
-
-    // setting a custom input folder containing SF files: this is NOT recommended!
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_badboys_effi_corr.initialize());
-    // for people not using the SystematicStore, they need to know the systematic names by heart -> not recommended!
-    CP::SystematicSet BADMUONstatup;
-    BADMUONstatup.insert(CP::SystematicVariation("MUON_EFF_BADMUON_STAT", 1));
-    CP::SystematicSet BADMUONsysup;
-    BADMUONsysup.insert(CP::SystematicVariation("MUON_EFF_BADMUON_SYS", 1));
-    CP::SystematicSet BADMUONstatdown;
-    BADMUONstatdown.insert(CP::SystematicVariation("MUON_EFF_BADMUON_STAT", -1));
-    CP::SystematicSet BADMUONsysdown;
-    BADMUONsysdown.insert(CP::SystematicVariation("MUON_EFF_BADMUON_SYS", -1));
-
     // Start looping over the events:
     tsw.Start();
 
@@ -211,130 +170,31 @@ int main(int argc, char* argv[]) {
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
         Info(APP_NAME, "Number of muons: %i", static_cast<int>(muons->size()));
 
-        xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
-        xAOD::MuonContainer::const_iterator mu_end = muons->end();
-
-        for (; mu_itr != mu_end; ++mu_itr) {
-            bool IsHighEta = fabs((*mu_itr)->eta()) > 2.5;
+        for (const auto& mu : *muons) {
             // Print some info about the selected muon:
-            Info(APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", (*mu_itr)->eta(), (*mu_itr)->phi(), (*mu_itr)->pt());
+            Info(APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", mu->eta(), mu->phi(), mu->pt());
+            for (auto& effi : EffiTools) {
+                for (auto& syst : CP::make_systematics_vector(effi->recommendedSystematics())) {
+                    CHECK_CPSys(effi->applySystematicVariation(syst));
+                    float nominalSF = 1.;
+                    float data_Eff = 1.;
+                    float mc_Eff = 1.;
+                    CHECK_CPCorr(effi->getEfficiencyScaleFactor(*mu, nominalSF));
+                    CHECK_CPCorr(effi->getDataEfficiency(*mu, data_Eff));
+                    CHECK_CPCorr(effi->getMCEfficiency(*mu, mc_Eff));
+                    std::string sysName = (syst.name().empty()) ? "Nominal" : syst.name();
+                    Info(APP_NAME, "Applied %s variation. The scale-factor is  %.3f, the data-efficiency is %.3f and the mc-efficiency is %.3f", sysName.c_str(), nominalSF, data_Eff, mc_Eff);
 
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
-            // directly obtain some efficiencies and SF
-            float eff = 0.0, sf = 0.0;
-            if (!IsHighEta) {
-                CHECK_CPCorr(m_effi_corr.getDataEfficiency(**mu_itr, eff));
-                Info(APP_NAME, "        data efficiency = %g", eff);
-                CHECK_CPCorr(m_effi_corr.getMCEfficiency(**mu_itr, eff));
-                Info(APP_NAME, "        MC efficiency = %g", eff);
+                    CHECK_CPCorr(effi->getEfficiencyScaleFactorReplicas(*mu, replicas));
+                    for (size_t t = 0; t < replicas.size(); t++) {
+                        Info(APP_NAME, "       scaleFactor Replica %d = %.8f", static_cast<int>(t), replicas[t]);
+                    }
+                }
             }
-
-            float nominalSF = 1.;
-            CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, nominalSF));
-            if (doUncorrelateSystematics) std::cout << "nominal SF " << nominalSF << std::endl;
-            for (const auto &sysMedium : m_SystMedium) {
-                CHECK_CPSys(m_effi_corr.applySystematicVariation(sysMedium));
-                CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-                std::string sysMediumName = (sysMedium.name().empty()) ? "Nominal" : sysMedium.name();
-                // only print the systematic variation in case it is the relevant one when UncorrelateSystematics is enabled
-                if (!doUncorrelateSystematics || nominalSF != sf) std::cout << sysMediumName << " scaleFactor = " << sf << std::endl;
-            }
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
-
-            CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactorReplicas(**mu_itr, replicas));
-            for (size_t t = 0; t < replicas.size(); t++) {
-                Info(APP_NAME, "       scaleFactor Replica %d = %.8f", static_cast<int>(t), replicas[t]);
-            }
-
-            // also run in decorating mode... Note that here we use our non-const copy created further up
-            CHECK_CPCorr(m_effi_corr.applyEfficiencyScaleFactor(**mu_itr));
-            if (!IsHighEta) {
-                CHECK_CPCorr(m_effi_corr.applyDataEfficiency(**mu_itr));
-                CHECK_CPCorr(m_effi_corr.applyMCEfficiency(**mu_itr));
-                // now we can retrieve the info from the muon directly:
-                Info(APP_NAME, "       data efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("Efficiency"));
-                Info(APP_NAME, "       MC efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("mcEfficiency"));
-                Info(APP_NAME, "       SF from decorated muon = %g", (**mu_itr).auxdataConst<float>("EfficiencyScaleFactor"));
-
-                CHECK_CPCorr(m_badboys_effi_corr.applyEfficiencyScaleFactor(**mu_itr));
-                CHECK_CPCorr(m_badboys_effi_corr.applyDataEfficiency(**mu_itr));
-                CHECK_CPCorr(m_badboys_effi_corr.applyMCEfficiency(**mu_itr));
-
-                Info(APP_NAME, "         Bad muons, come for you sf = %g", (**mu_itr).auxdataConst<float>("BADMUONEfficiencyScaleFactor"));
-                Info(APP_NAME, "         Bad muons, look for data efficiency = %g", (**mu_itr).auxdataConst<float>("BADMUONEfficiency"));
-                Info(APP_NAME, "         Bad muons, what you gonna do if they come for you mcEff = %g", (**mu_itr).auxdataConst<float>("BADMUONmcEfficiency"));
-
-                CHECK_CPSys(m_badboys_effi_corr.applySystematicVariation(BADMUONstatup));
-                CHECK_CPCorr(m_badboys_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-                Info(APP_NAME, "           BADMUON Stat Up scaleFactor = %g", sf);
-                CHECK_CPSys(m_badboys_effi_corr.applySystematicVariation(BADMUONstatdown));
-                CHECK_CPCorr(m_badboys_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-                Info(APP_NAME, "           BADMUON Stat Down scaleFactor = %g", sf);
-                CHECK_CPSys(m_badboys_effi_corr.applySystematicVariation(BADMUONsysup));
-                CHECK_CPCorr(m_badboys_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-                Info(APP_NAME, "           BADMUON Sys Up scaleFactor = %g", sf);
-                CHECK_CPSys(m_badboys_effi_corr.applySystematicVariation(BADMUONsysdown));
-                CHECK_CPCorr(m_badboys_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-                Info(APP_NAME, "           BADMUON Sys Down scaleFactor = %g", sf);
-                CHECK_CPSys(m_badboys_effi_corr.applySystematicVariation(CP::SystematicSet()));
-
-            }
-
-            CHECK_CPCorr(m_ttva_corr->getDataEfficiency(**mu_itr, eff));
-            Info(APP_NAME, "        TTVA efficiency = %g", eff);
-
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(CP::SystematicSet()));
-
-            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
-            Info(APP_NAME, "       TTVA Central scaleFactor = %g", sf);
-            if (!IsHighEta) {
-                CHECK_CPCorr(m_ttva_corr->applyDataEfficiency(**mu_itr));
-                CHECK_CPCorr(m_ttva_corr->applyMCEfficiency(**mu_itr));
-                // now we can retrieve the info from the muon directly:
-                Info(APP_NAME, "       data efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("TTVAEfficiency"));
-                Info(APP_NAME, "       MC efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("TTVAmcEfficiency"));
-            } // if in audit mode, this should return a true
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAstatup));
-            // and this a false (since we are looking at a different systematic)
-            //         }
-            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
-            Info(APP_NAME, "           TTVA Stat Up scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAstatdown));
-            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
-            Info(APP_NAME, "           TTVA Stat Down scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAsysup));
-            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
-            Info(APP_NAME, "           TTVA Sys Up scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(TTVAsysdown));
-            CHECK_CPCorr(m_ttva_corr->getEfficiencyScaleFactor(**mu_itr, sf));
-            Info(APP_NAME, "           TTVA Sys Down scaleFactor = %g", sf);
-            CHECK_CPSys(m_ttva_corr->applySystematicVariation(CP::SystematicSet()));
-
-            // do the isolation part similar as reco efficinecy
-            float isoeff = 0.0, isosf = 0.0;
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_iso_effi_corr.getDataEfficiency(**mu_itr, isoeff));
-            Info(APP_NAME, "       isolation efficiency = %g", isoeff);
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            Info(APP_NAME, "       isolation scaleFactor = %g", isosf);
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isosysup));
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            Info(APP_NAME, "           Sys Up isolation scaleFactor = %g", isosf);
-
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isostatup));
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            Info(APP_NAME, "           Sys Up isolation scaleFactor2 = %g", isosf);
-            CHECK_CPCorr(m_iso_effi_corr.applyEfficiencyScaleFactor(**mu_itr));
-            CHECK_CPCorr(m_iso_effi_corr.applyDataEfficiency(**mu_itr));
-            // now we can retrieve the info from the muon directly:
-            Info(APP_NAME, "       isolation efficiency from decorated muon = %g", (**mu_itr).auxdataConst<float>("ISOEfficiency"));
-            Info(APP_NAME, "       isolation SF from decorated muon = %g", (**mu_itr).auxdataConst<float>("ISOEfficiencyScaleFactor"));
-            /// Isolation test done
         }
-
         // Close with a message:
         Info(APP_NAME, "===>>>  done processing event #%i, "
-                        "run #%i %i events processed so far  <<<===", static_cast<int>(ei->eventNumber()), static_cast<int>(ei->runNumber()), static_cast<int>(entry + 1));
+                "run #%i %i events processed so far  <<<===", static_cast<int>(ei->eventNumber()), static_cast<int>(ei->runNumber()), static_cast<int>(entry + 1));
     }
     double t_run = tsw.CpuTime() / entries;
     Info(APP_NAME, " MCP init took %gs", t_init);
