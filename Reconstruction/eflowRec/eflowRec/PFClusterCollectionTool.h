@@ -19,8 +19,8 @@ class PFClusterCollectionTool : virtual public IPFClusterCollectionTool, public 
   static const InterfaceID& interfaceID();
 
   StatusCode initialize();
-  std::unique_ptr<xAOD::CaloClusterContainer> execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters, xAOD::CaloClusterContainer& theCaloClusterContainer);
-  std::unique_ptr<eflowRecClusterContainer> retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
+  std::unique_ptr<xAOD::CaloClusterContainer> execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters, xAOD::CaloClusterContainer& theCaloClusterContainer);
+  std::unique_ptr<eflowRecClusterContainer> retrieve(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters);
   StatusCode finalize();
 
 };

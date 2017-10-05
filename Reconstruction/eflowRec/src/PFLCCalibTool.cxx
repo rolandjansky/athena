@@ -52,7 +52,7 @@ StatusCode PFLCCalibTool::initialize() {
 
 }
 
-void PFLCCalibTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
 
   if (m_useLocalWeight) {
     std::unique_ptr<eflowRecClusterContainer> theEFRecCluster = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);

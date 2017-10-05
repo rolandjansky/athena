@@ -33,7 +33,7 @@ StatusCode PFMomentCalculatorTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-void PFMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
 
   /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
   bool useNonModifiedClusters = true;

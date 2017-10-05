@@ -30,7 +30,7 @@ class PFMomentCalculatorTool : virtual public IPFBaseTool, public AthAlgTool {
   static const InterfaceID& interfaceID();
 
   StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
   StatusCode finalize();
 
  private:

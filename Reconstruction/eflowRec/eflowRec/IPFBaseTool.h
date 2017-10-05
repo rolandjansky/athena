@@ -13,8 +13,11 @@ class IPFBaseTool : virtual public IAlgTool {
 
  public:
 
+  /** Standard initialize method */
   virtual StatusCode intialize() {return StatusCode::SUCCESS;}
-  virtual void execute(eflowCaloObjectContainer*, xAOD::CaloClusterContainer&) = 0;
+  /** Execute method to use eflowCaloObjectContainer and modify xAOD::CaloClusterContainer */
+  virtual void execute(const eflowCaloObjectContainer&, xAOD::CaloClusterContainer&) = 0;
+  /** Standard finalize method */
   virtual StatusCode finalize() {return StatusCode::SUCCESS;}
 
 };

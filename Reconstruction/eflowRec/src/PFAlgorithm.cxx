@@ -45,7 +45,7 @@ StatusCode PFAlgorithm::execute(){
 
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
-    thisIPFBaseTool->execute(theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
+    thisIPFBaseTool->execute(*theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
   }
     
   return StatusCode::SUCCESS;
