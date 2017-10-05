@@ -1,8 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef STOREGATE_VHKASUPPORT_H
+#define STOREGATE_VHKASUPPORT_H
 
 #include <vector>
 #include <StoreGate/VarHandleKeyArray.h>
@@ -20,3 +21,4 @@ namespace VHKASupport {
    **/  
   void insertOutput ( const std::vector<SG::VarHandleKeyArray*>& src,  std::vector<Gaudi::DataHandle*>& dest );
 }
+#endif // STOREGATE_VHKASUPPORT_H

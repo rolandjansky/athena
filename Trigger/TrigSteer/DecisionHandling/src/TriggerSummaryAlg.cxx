@@ -6,7 +6,7 @@
 #include "TriggerSummaryAlg.h"
 //#include "TrigSteerEvent/Chain.h"
 
-using namespace TrigCompositeUtils;
+
 TriggerSummaryAlg::TriggerSummaryAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ) {}
@@ -36,12 +36,12 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   // that is certain input
   auto l1DecisionHandle = SG::makeHandle( m_l1decisionKey, context );
   auto inputHandles( m_finalDecisionKeys.makeHandles() );
-  DecisionIDContainer allPassingIDs;
+  TrigCompositeUtils::DecisionIDContainer allPassingIDs;
   for ( auto input: inputHandles ) {
     if ( input.isValid() ) {
       ATH_MSG_DEBUG( "Partial result " << input.key() << " present" );
       for ( auto decisionObject: *input )  {
-	decisionIDs( decisionObject, allPassingIDs );
+	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
       }
     } else {
       ATH_MSG_DEBUG( "Missing input " << input.key() << " which may be perfectly correct" );
@@ -56,14 +56,14 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 
   
 
-  auto summaryCont = std::make_unique<DecisionContainer>();
-  auto summaryAuxCont = std::make_unique<DecisionAuxContainer>();
+  auto summaryCont = std::make_unique<TrigCompositeUtils::DecisionContainer>();
+  auto summaryAuxCont = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
   summaryCont->setStore( summaryAuxCont.get() );
 
-  auto summaryObj = newDecisionIn( summaryCont.get() );
+  auto summaryObj = TrigCompositeUtils::newDecisionIn( summaryCont.get() );
   summaryObj->setName( "passing" );
   for ( auto id: allPassingIDs ) {
-    addDecisionID( id, summaryObj );
+    TrigCompositeUtils::addDecisionID( id, summaryObj );
   }
   
 

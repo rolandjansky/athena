@@ -79,8 +79,9 @@ namespace SG {
   template <class Base>
   inline  
   void VarHandleKeyArrayCommon<Base>::declare(IDataHandleHolder* owner) {
-    if ( renounced() ) 
+    if ( renounced() ) {
       return;
+    }     
     for (auto k: keys() ) {
       owner->declare ( *k );
       k->setOwner( owner );

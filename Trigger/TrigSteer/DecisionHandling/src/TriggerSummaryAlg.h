@@ -12,8 +12,8 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 /**
- * @class $( klass )s
- * @brief 
+ * @class An algorithm reading partial decisions and storing them in an HLTResult
+ * @brief In addition a merged decisions collection is prepared
  **/
 
 class TriggerSummaryAlg : public ::AthReentrantAlgorithm { 
