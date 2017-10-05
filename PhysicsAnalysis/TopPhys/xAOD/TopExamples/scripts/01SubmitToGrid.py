@@ -3,19 +3,20 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import TopExamples.grid
 import DerivationTags
-import Data
-import MC15c_TOPQ1
+import Data_rel21
+import MC16_TOPQ1
 
 config = TopExamples.grid.Config()
 config.code          = 'top-xaod'
-config.settingsFile  = 'dil-cuts.txt'
+config.settingsFile  = 'validation-cuts.txt'
 
-config.gridUsername  = 'aknue'
-config.suffix        = '02-04-24'
+config.gridUsername  = 'iconnell'
+config.suffix        = '17-10-03'
 config.excludedSites = ''
 config.noSubmit      = False
 config.mergeType     = 'Default' #'None', 'Default' or 'xAOD'
 config.destSE        = '' #This is the default (anywhere), or try e.g. 'UKI-SOUTHGRID-BHAM-HEP_LOCALGROUPDISK'
+config.CMake         = True
 # by default the requested memory is set to 2GB, if you need to increase this, please disable the line below!!!
 # config.memory = '4000' 
 
@@ -32,26 +33,29 @@ config.destSE        = '' #This is the default (anywhere), or try e.g. 'UKI-SOUT
 
 ###############################################################################
 
-# Data - look in Data.py
-# Change if you want TOPQ2/3/4
-names = ['Data15_TOPQ1', 'Data16_TOPQ1']
+# Data - look in Data_rel21.py
+# Change if you want TOPQ2/3/4/5
+names = ['Data15_TOPQ1', 
+         'Data16_TOPQ1', 
+         'Data17_TOPQ1']
 samples = TopExamples.grid.Samples(names)
 TopExamples.grid.submit(config, samples)
 
 ###############################################################################
 
-###MC Simulation - look in MC15c_TOPQ1.py
+###MC Simulation - look in MC16_TOPQ1.py
 ###Using list of TOPQ1 25ns MC samples, consistent mixture of p-tags
 ###Edit these lines if you don't want to run everything!
-names = [
-    'TOPQ1_ttbar_PowPy6',
-    'TOPQ1_singleTop_PowPy6',
-    'TOPQ1_ttV',
-    'TOPQ1_Wjets_Sherpa221',
-    'TOPQ1_Zjets_Sherpa221',
-    'TOPQ1_Diboson_Sherpa',
-]
-
+names = ['TOPQ1_ttbar_PowPy8',
+         'TOPQ1_ttbar_dil_PowPy8',
+         'TOPQ1_tchan_lep_PowPy6',
+         'TOPQ1_Wt_inc_PowPy6',
+         'TOPQ1_schan_noAllHad_PowPy6',
+         'TOPQ1_diboson_Sherpa',
+         'TOPQ1_Zjets_Sherpa221',
+         'TOPQ1_Wjets_Sherpa221',
+         'TOPQ1_ttV',    
+         ]
 samples = TopExamples.grid.Samples(names)
 TopExamples.grid.submit(config, samples)
 
