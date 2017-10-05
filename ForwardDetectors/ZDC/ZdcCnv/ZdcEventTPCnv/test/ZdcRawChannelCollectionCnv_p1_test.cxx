@@ -14,7 +14,7 @@
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZdcRawChannelCollectionCnv_p1.h"
 #include "CxxUtils/make_unique.h"
-#include "TestTools/leakcheck.h"
+//#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -57,7 +57,7 @@ void testit (const ZdcRawChannelCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
-  Athena_test::Leakcheck check;
+  //Athena_test::Leakcheck check;
 
   ZdcRawChannelCollection trans1;
   for (int i=0; i < 10; i++) {
