@@ -39,11 +39,11 @@ public:
   DFStreamEventSelector(const std::string &name, ISvcLocator* pSvcLocator);
   virtual ~DFStreamEventSelector();
   typedef IEvtSelector::Context   EvtContext;
-  class DFContext:public IEvtSelector::Context{
+  class DFContext:public EvtContext{
   public:
-    DFContext();
-    ~DFContext();
-    void* identifier() const;
+    DFContext():L1id(0){};
+    virtual ~DFContext(){};
+    virtual void* identifier() const override final {return (void*)&L1id;}  ;
   private:
     uint32_t L1id;
   };

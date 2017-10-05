@@ -12,13 +12,14 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Event/ByteStreamCnvSvcBase
-   Event/ByteStreamData
+   # Event/ByteStreamData
    GaudiKernel
    PRIVATE
    Control/AthenaKernel
    Control/SGTools
    Control/StoreGate
    Event/EventInfo
+   Event/xAOD/xAODEventInfo
    )
 
 # External dependencies:
@@ -40,7 +41,7 @@ atlas_add_library( DFStreamEventSelectorLib
    LINK_LIBRARIES AthenaBaseComps GaudiKernel
    StoreGateLib rt ${TDAQ-COMMON_hltinterface_LIBRARY}
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} 
-   AthenaKernel StorageSvc EventInfo)
+   AthenaKernel StorageSvc EventInfo xAODEventInfo)
 
 atlas_add_component( DFStreamEventSelector
    src/components/*.cxx
