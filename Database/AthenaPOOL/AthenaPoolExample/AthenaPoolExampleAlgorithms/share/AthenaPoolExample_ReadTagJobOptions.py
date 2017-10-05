@@ -100,6 +100,7 @@ svcMgr.MessageSvc.defaultLimit = 100000
 
 svcMgr.MetaDataSvc.OutputLevel = 2
 svcMgr.EventSelector.OutputLevel = 2
+svcMgr.EventSelector.HelperTools[0].OutputLevel = 3
 svcMgr.AthenaPoolAddressProviderSvc.OutputLevel = 2
 svcMgr.PoolSvc.OutputLevel = 2
 topSequence.ReadData.OutputLevel = 2
