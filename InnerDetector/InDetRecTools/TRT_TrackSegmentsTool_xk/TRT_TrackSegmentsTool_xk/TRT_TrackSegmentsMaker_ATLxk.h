@@ -27,7 +27,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLink_xk.h"
 
-#include "StoreGate/ReadHandle.h"
+
 #include "StoreGate/ReadHandleKey.h"
 
 class MsgStream;
@@ -107,8 +107,8 @@ namespace InDet{
       const InDetDD::TRT_DetectorManager   * m_trtmgr          ;
       const TRT_ID                         * m_trtid           ; 
       //      std::string                            m_trtname         ; // Name  TRT container
-      //SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname; // Name  TRT container
-      SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer; // TRTs   container  
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; // TRTs   container ; // Name  TRT container
+      
       bool                                   m_build           ;
       bool                                   m_gupdate         ;
       bool                                   m_useassoTool     ;

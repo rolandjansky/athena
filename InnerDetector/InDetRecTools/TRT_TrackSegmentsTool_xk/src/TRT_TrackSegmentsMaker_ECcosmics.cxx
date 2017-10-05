@@ -41,7 +41,6 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   : AthAlgTool(t,n,p),
     m_multiTruthCollectionTRTName("PRD_MultiTruthTRT"),
     m_phaseMode(false),
-    m_trtcontainer("TRT_DriftCircles"),
     m_riomakerD ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
     m_riomakerN ("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
     m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
@@ -80,7 +79,6 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   declareProperty("MinDCperSeed",m_minDCSeed);
 
   declareProperty("HitLimit",m_hitLimit=2000);
-  declareProperty("TRT_ClustersContainer", m_trtcontainer);
   
   m_counter=0;
   m_truthCollectionTRT = false;
@@ -145,7 +143,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::initialize()
   }
   
   // Initialize ReadHandle
-  ATH_CHECK(m_trtcontainer.initialize());
+  ATH_CHECK(m_trtname.initialize());
 
   //m_trtid = m_trtmanager->getIdHelper();
   // TRT
@@ -1758,7 +1756,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
 
 
   
-
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if (not m_trtcontainer.isValid()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;

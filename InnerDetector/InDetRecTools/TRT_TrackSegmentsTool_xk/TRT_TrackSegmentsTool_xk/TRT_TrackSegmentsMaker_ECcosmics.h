@@ -25,7 +25,7 @@
 
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class MsgStream;
 
@@ -122,7 +122,7 @@ namespace InDet{
       const InDetDD::TRT_DetectorManager*      m_trtmanager  ; //!< TRT DetectorManager
       const TRT_ID*                            m_trtid       ; 
 
-      SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer; //!< TRTs   container 
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerD   ; //!< RI0_onTrack creator with drift information
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerN   ; //!< RI0_onTrack creator without drift information
       ToolHandle<Trk::IPRD_AssociationTool>    m_assoTool    ; // Track-PRD association tool

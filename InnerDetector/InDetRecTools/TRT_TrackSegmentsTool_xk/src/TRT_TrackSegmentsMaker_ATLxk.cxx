@@ -23,7 +23,7 @@
 #include "EventInfo/TagInfo.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkExInterfaces/IPropagator.h"
-
+#include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +33,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   : AthAlgTool(t,n,p)                                                ,
     m_propTool     ("Trk::RungeKuttaPropagator"                  ),
     m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           ),
-    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_trtcontainer("TRT_DriftCircles")
+    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels")
 {
   m_fieldmode   =      "MapSolenoid" ;
   m_pTmin       =                500.;
@@ -65,7 +64,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareProperty("RemoveNoiseDriftCircles",m_removeNoise  );
   declareProperty("pTmin"                  ,m_pTmin        );
   declareProperty("sharedFrac"             ,m_sharedfrac   );
-  declareProperty("TRT_ClustersContainer"  ,m_trtcontainer );
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -101,7 +100,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
 
   // Initialize ReadHandle
   //
-  ATH_CHECK(m_trtcontainer.initialize());
+  ATH_CHECK(m_trtname.initialize());
   
 
   // Get propagator tool
@@ -215,6 +214,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
 
   // Get drift circles collection
   //
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
@@ -293,6 +293,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
   // Get drift cilrcles collection
   //
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
@@ -469,7 +470,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   int n  = 62-fieldmode[mode].size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
 
-  n     = 62-m_trtcontainer.key().size();
+  n     = 62-m_trtname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
   n     = 62-m_propTool.type().size();
@@ -489,7 +490,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| Tool tracks extension   | "<<m_extensionTool.type()<<s7<<std::endl;    
   out<<"| Tool track-prd associa  | "<<m_assoTool     .type()<<s8<<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]       <<s3<<std::endl;
-  out<<"| TRT container           | "<<m_trtcontainer.key().size()             <<s4<<std::endl;
+  out<<"| TRT container           | "<<m_trtname.key().size()             <<s4<<std::endl;
   out<<"| Min. number straws      | "
      <<std::setw(12)<<m_clustersCut
      <<"                                                  |"<<std::endl;
