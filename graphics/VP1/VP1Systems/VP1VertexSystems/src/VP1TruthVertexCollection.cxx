@@ -66,16 +66,16 @@ public:
 
   class VertexHandle {
   public:
-    VertexHandle(const HepMC::GenVertex* v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),d(dd) {}
+    VertexHandle(const HepMC::GenVertex* v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),m_d(dd) {}
     ~VertexHandle() { if (m_line) m_line->unref(); }
 
     void recheckCutStatus() {
       bool cutval(cut());
       if (cutval!=m_attached) {
 	if (cutval)
-	  ensureAttach(d->theclass->collSep());
+	  ensureAttach(m_d->theclass->collSep());
 	else
-	  ensureDetach(d->theclass->collSep());
+	  ensureDetach(m_d->theclass->collSep());
       }
     }
     void updateShape() {
@@ -94,7 +94,7 @@ public:
 	m_line->vertexProperty = vertices;
       }
 
-      QPair<VertexCommonFlags::QUANTITY,double> p = d->controller->truthCrossLength();
+      QPair<VertexCommonFlags::QUANTITY,double> p = m_d->controller->truthCrossLength();
       double extent;
       if (p.second<0)
 	extent = -p.second;
@@ -125,7 +125,7 @@ public:
       const HepMC::FourVector mom(px,py,pz,e);
       switch(q) {
       case VertexCommonFlags::ENERGY: return e;
-      case VertexCommonFlags::MOMENTUM: return d->mag(mom);
+      case VertexCommonFlags::MOMENTUM: return m_d->mag(mom);
       case VertexCommonFlags::TRANSVERSE_MOM: return mom.perp();
       default: // VertexCommonFlags::MASS:
 	return mom.m();
@@ -151,13 +151,13 @@ public:
     }
     bool cut() {
 
-      if (d->controller->truthCutPrimaryVertexOnly()&&this!=d->vertices.at(0))
+      if (m_d->controller->truthCutPrimaryVertexOnly()&&this!=m_d->vertices.at(0))
 	return false;
 
-      if (!d->controller->truthCutAllowedEta().contains(m_vertex->position().eta()))
+      if (!m_d->controller->truthCutAllowedEta().contains(m_vertex->position().eta()))
 	return false;
 
-      QPair<VertexCommonFlags::QUANTITY,VP1Interval> p = d->controller->truthCutQuantity();
+      QPair<VertexCommonFlags::QUANTITY,VP1Interval> p = m_d->controller->truthCutQuantity();
       if (!p.second.isAllR()) {
 	if (!p.second.contains(quantityVal(p.first)))
 	  return false;
@@ -165,7 +165,7 @@ public:
 
       //We handle phi cut last:
       double phi(m_vertex->position().phi());
-      foreach(VP1Interval i,d->controller->truthCutAllowedPhi()) {
+      foreach(VP1Interval i,m_d->controller->truthCutAllowedPhi()) {
 	if (i.contains(phi)||i.contains(phi+2*M_PI)||i.contains(phi-2*M_PI))
 	  return true;
       }
@@ -174,7 +174,7 @@ public:
     bool m_attached;
     const HepMC::GenVertex * m_vertex;
     SoLineSet * m_line;
-    VP1TruthVertexCollection::Imp * d;
+    VP1TruthVertexCollection::Imp * m_d;
   };
 
   QList<VertexHandle*> vertices;
@@ -183,11 +183,11 @@ public:
 
 //____________________________________________________________________
 VP1TruthVertexCollection::VP1TruthVertexCollection(VertexSysController*controller,const QString& key)
-  : VP1StdCollection(controller->systemBase(),"VP1TruthVertexCollection_"+key), d(new Imp)
+  : VP1StdCollection(controller->systemBase(),"VP1TruthVertexCollection_"+key), m_d(new Imp)
 {
-  d->key = key;
-  d->theclass = this;
-  d->controller = controller;
+  m_d->key = key;
+  m_d->theclass = this;
+  m_d->controller = controller;
   connect(controller,SIGNAL(truthCutAllowedEtaChanged(const VP1Interval&)),this,SLOT(recheckAllCuts()));
   connect(controller,SIGNAL(truthCutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(recheckAllCuts()));
   connect(controller,SIGNAL(truthCutPrimaryVertexOnlyChanged(bool)),this,SLOT(recheckAllCuts()));
@@ -198,15 +198,15 @@ VP1TruthVertexCollection::VP1TruthVertexCollection(VertexSysController*controlle
 //____________________________________________________________________
 VP1TruthVertexCollection::~VP1TruthVertexCollection()
 {
-  foreach(Imp::VertexHandle*vh,d->vertices)
+  foreach(Imp::VertexHandle*vh,m_d->vertices)
     delete vh;
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 QString VP1TruthVertexCollection::provideText() const
 {
-  return d->key;
+  return m_d->key;
 }
 
 //____________________________________________________________________
@@ -237,7 +237,7 @@ SoLineSet * VP1TruthVertexCollection::Imp::createCross(const double& x, const do
 bool VP1TruthVertexCollection::load()
 {
   const McEventCollection* mcEventColl;
-  if (!VP1SGAccessHelper(systemBase()).retrieve(mcEventColl, d->key))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(mcEventColl, m_d->key))
     return false;
 
   //Fixme: Here we take the first event in the event collection. Instead we should loop!
@@ -255,7 +255,7 @@ bool VP1TruthVertexCollection::load()
       const HepMC::GenVertex * vtx(*itVertex);
       if (!vtx)
 	continue;
-      d->vertices << new Imp::VertexHandle(vtx,d);
+      m_d->vertices << new Imp::VertexHandle(vtx,m_d);
     }
   }
 
@@ -271,7 +271,7 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
   SoNode * pickedNode = (pickedPath ? (pickedPath->getLength()>0?pickedPath->getNodeFromTail(0):0): 0);
 
   Imp::VertexHandle* vertexHandle(0);
-  foreach(Imp::VertexHandle* vh,d->vertices) {
+  foreach(Imp::VertexHandle* vh,m_d->vertices) {
     if (vh->line()==pickedNode) {
       vertexHandle = vh;
       break;
@@ -282,7 +282,7 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
   const HepMC::GenVertex * vtx = vertexHandle->vertex();
 
   QStringList l;
-  if (d->controller->printInfoOnClick()) {
+  if (m_d->controller->printInfoOnClick()) {
 
     //Make output:
     l <<"Truth vertex from collection "+text()+":" ;
@@ -294,7 +294,7 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
       QString name = VP1ParticleData::particleName(pdg,ok);
       if (!ok)
 	name = "<unknown>";
-      l << "--> In: "+name+" ("+str(pdg)+")  [ P = "+str(d->mag((*itPartIn)->momentum())/Gaudi::Units::GeV)+" GeV ]";
+      l << "--> In: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag((*itPartIn)->momentum())/Gaudi::Units::GeV)+" GeV ]";
     }
     HepMC::GenVertex::particles_out_const_iterator itPartOut,itPartOutE(vtx->particles_out_const_end());
     for ( itPartOut = vtx->particles_out_const_begin();itPartOut!=itPartOutE;++itPartOut) {
@@ -303,10 +303,10 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
       QString name = VP1ParticleData::particleName(pdg,ok);
       if (!ok)
 	name = "<unknown>";
-      l << "--> Out: "+name+" ("+str(pdg)+")  [ P = "+str(d->mag((*itPartOut)->momentum())/Gaudi::Units::GeV)+" GeV ]";
+      l << "--> Out: "+name+" ("+str(pdg)+")  [ P = "+str(m_d->mag((*itPartOut)->momentum())/Gaudi::Units::GeV)+" GeV ]";
     }
 
-    if (d->controller->printVerboseInfoOnClick()) {
+    if (m_d->controller->printVerboseInfoOnClick()) {
       l <<"======== Dump ========";
       std::ostringstream s;
       vtx->print(s);
@@ -315,7 +315,7 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
     }
 
   }
-  if (d->controller->zoomOnClick()) {
+  if (m_d->controller->zoomOnClick()) {
     std::set<SoCamera*> cameras = static_cast<IVP13DSystem*>(systemBase())->getCameraList();
     std::set<SoCamera*>::iterator it,itE = cameras.end();
     for (it=cameras.begin();it!=itE;++it)
@@ -330,7 +330,7 @@ void VP1TruthVertexCollection::recheckAllCuts()
 {
   static_cast<IVP13DSystem*>(systemBase())->deselectAll();
   largeChangesBegin();
-  foreach(Imp::VertexHandle* vh,d->vertices)
+  foreach(Imp::VertexHandle* vh,m_d->vertices)
     vh->recheckCutStatus();
   largeChangesEnd();
 }
@@ -339,7 +339,7 @@ void VP1TruthVertexCollection::recheckAllCuts()
 void VP1TruthVertexCollection::updateAllShapes()
 {
   largeChangesBegin();
-  foreach(Imp::VertexHandle* vh,d->vertices)
+  foreach(Imp::VertexHandle* vh,m_d->vertices)
     vh->updateShape();
   largeChangesEnd();
 }
