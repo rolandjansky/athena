@@ -7,6 +7,7 @@
 // METMaker.cxx
 // Implementation file for class METMaker
 // Author: T.J.Khoo<khoo@cern.ch>
+// Author: D.S.Schaefer<schae@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 // METUtilities includes
@@ -137,10 +138,10 @@ namespace met {
     
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
-    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0; }
     else if (m_jetSelection == "Expert")  { 
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
       m_CenJetPtCut = m_customCenJetPtCut;
@@ -381,6 +382,8 @@ namespace met {
 	return StatusCode::FAILURE;
       }
     }
+    ATH_MSG_VERBOSE( "metSoftClus: " << metSoftClus << " metSoftTrk: " << metSoftTrk 
+		     << " coreSoftClus: " << coreSoftClus << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildJetMET(metJet, jets, map,
                          metSoftClus, coreSoftClus,
@@ -419,6 +422,8 @@ namespace met {
       ATH_MSG_ERROR("failed to fill MET term \"" << softKey << "\"");
       return StatusCode::FAILURE;
     }
+    ATH_MSG_VERBOSE( " rebuildTrackMET - metSoftTrk: " << metSoftTrk 
+		     << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildTrackMET(metJet, jets, map,
 			   metSoftTrk,  coreSoftTrk,
@@ -464,6 +469,9 @@ namespace met {
       ATH_MSG_ERROR("failed to fill MET term \"" << softTrkKey << "\"");
       return StatusCode::FAILURE;
     }
+
+    ATH_MSG_VERBOSE( ":::rebuildJetMET - metSoftClus: " << metSoftClus << " metSoftTrk: " << metSoftTrk 
+		     << " coreSoftClus: " << coreSoftClus << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildJetMET(metJet, jets, map,
                          metSoftClus, coreSoftClus,
@@ -1079,15 +1087,17 @@ namespace met {
     }
     metCont->reserve(10);
 
+    // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
+    std::string duplicate = "";
     if(metCont->find(metKey)!=metCont->end()){
       ATH_MSG_VERBOSE("avoiding adding a duplicate term");
-      return StatusCode::SUCCESS;
+      duplicate = "_Duplicate";
     }
 
     met = new xAOD::MissingET();
     metCont->push_back(met);
 
-    met->setName  (metKey);
+    met->setName  (metKey+duplicate);
     met->setSource(metSource);
 
     return StatusCode::SUCCESS;
