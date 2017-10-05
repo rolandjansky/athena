@@ -84,17 +84,17 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
 
 StatusCode LUCID_DetectorTool::clear(StoreGateSvc* detStore) {
 
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<LUCID_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<LUCID_DetectorManager>::ID(),m_manager->getName());
 
-  if(_proxy) {
-    _proxy->reset();
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   
-  _proxy = detStore->proxy(ClassID_traits<GeoBorderSurfaceContainer>::ID(), "LUCID", false);
+  proxy = detStore->proxy(ClassID_traits<GeoBorderSurfaceContainer>::ID(), "LUCID", false);
   
-  if(_proxy) {
-    _proxy->reset();
+  if(proxy) {
+    proxy->reset();
   }
 
   return StatusCode::SUCCESS;
