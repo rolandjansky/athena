@@ -86,8 +86,8 @@ TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
 
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::checkforSecondaryPseudoJets(const HLT::TriggerElement* inputTE,
-						      LabelIndex* indexMap,
-      						      PseudoJetVector& pjv_secondary
+						      jet::LabelIndex* indexMap,
+      						      jet::PseudoJetVector& pjv_secondary
                                         					){
   // checking if set up for retrieval of secondary pseudojets.
   //
@@ -133,8 +133,8 @@ TrigHLTJetRecFromCluster::checkforSecondaryPseudoJets(const HLT::TriggerElement*
 
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::getSecondaryPseudoJets(const HLT::TriggerElement* inputTE,
-                                        LabelIndex* indexMap,
-                                        PseudoJetVector& pjvtracks){
+                                        jet::LabelIndex* indexMap,
+                                        jet::PseudoJetVector& pjvtracks){
          // retrieving xAOD tracks only if full scan
   
 	  ATH_MSG_DEBUG("Full scan reconstruction... retrieving tracks");

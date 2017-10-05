@@ -125,7 +125,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
   jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
-  PseudoJetVector pjv_in;
+  jet::PseudoJetVector pjv_in;
   
   status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
   if (status == HLT::OK) {
@@ -298,9 +298,9 @@ TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
 template<typename InputContainer>
 HLT::ErrorCode
 TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
-                                                 const HLT::TriggerElement* outputTE, 
-                                                 LabelIndex* indexMap,
-                                                 jet::PseudoJetVector& pjv_secondary){
+                                                 const HLT::TriggerElement* /*unused*/, 
+                                                 jet::LabelIndex* /*unused*/,
+                                                 jet::PseudoJetVector& /*unused*/){
   ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }

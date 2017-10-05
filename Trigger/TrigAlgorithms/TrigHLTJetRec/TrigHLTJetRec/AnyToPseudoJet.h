@@ -30,7 +30,7 @@ class AnyToPseudoJet {
 
   /* No special assigment operator for copy constructor, or destructor
    as the LableIndex is deleted by the caller */
-  AnyToPseudoJet(LabelIndex* index_map, int idx = 1):m_indexMap(index_map), m_idx(idx){}
+  AnyToPseudoJet(jet::LabelIndex* index_map, int idx = 1):m_indexMap(index_map), m_idx(idx){}
 
    // T is decided by the caller.When using a DataVector<T> dv  and 
    //   // AnyToPSeudoJet  is used in an STL Algorithm, set T to dv::const_value_type

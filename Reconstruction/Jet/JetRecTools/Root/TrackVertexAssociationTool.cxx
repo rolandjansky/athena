@@ -66,7 +66,7 @@ int TrackVertexAssociationTool::execute() const {
     }
     if(!oneOwningContainer) {
       ATH_MSG_ERROR("Track view container holds track from multiple owning containers.");
-      ATH_MSG_ERROR("Problem is this container: " << m_trackContainer);
+      ATH_MSG_ERROR("Problem is this container: " << m_trackContainer_key.key());
       return 11;
     }
   }
