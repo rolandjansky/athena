@@ -10,7 +10,6 @@
  * @brief Gaudi algorithm factory declarations.
  */
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "../xAODTestReadSymlink.h"
 #include "../xAODTestReadDecor.h"
@@ -32,3 +31,4 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, CondReaderAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, CondAlg1)
 
 DECLARE_NAMESPACE_TOOL_FACTORY(DMTest, xAODTestReadSymlinkTool)
+

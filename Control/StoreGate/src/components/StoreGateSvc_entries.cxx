@@ -3,7 +3,6 @@
 #include "StoreGate/tools/SGImplSvc.h"
 #include "StoreGate/SegMemSvc.h"
 #include "../SGHiveMgrSvc.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_SERVICE_FACTORY( ActiveStoreSvc )
 DECLARE_SERVICE_FACTORY( StoreGateSvc )

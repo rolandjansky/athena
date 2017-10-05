@@ -6,7 +6,6 @@
  * @brief Gaudi algorithm factory declarations.
  */
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../DMTestRead.h"
 #include "../AuxDataTestRead.h"
 #include "../AuxDataTestDecor.h"

@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../AthenaEventLoopMgr.h"
 #include "../PyAthenaEventLoopMgr.h"
 #include "../AthenaOutputStream.h"
@@ -67,3 +65,4 @@ DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
 DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )
 DECLARE_ALGORITHM_FACTORY( AthIncFirerAlg )
+

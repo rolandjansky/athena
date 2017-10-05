@@ -1,4 +1,3 @@
-
 #include "../AthExUnittestAlg.h"
 DECLARE_ALGORITHM_FACTORY( AthExUnittestAlg )
 
