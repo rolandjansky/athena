@@ -743,7 +743,6 @@ def defineMenu():
 #SX        'L1_BPH-4M8-MU6MU4-B',        
 #SX        'L1_BPH-4M8-MU6MU4-BO',
         'L1_DY-DR-2MU4',
-        'L1_EM15VH_2EM8VH_MU6',
         #'L1_DY-BOX-MU6MU4',
         'L1_DY-BOX-2MU6',
         'L1_LFV-MU',
@@ -755,9 +754,7 @@ def defineMenu():
         'L1_DPHI-J20XE50',
         'L1_DPHI-CJ20XE50',
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
-        'L1_MJJ-900',
         'L1_MJJ-800',
-        'L1_MJJ-700',
         'L1_MJJ-400',
         #'L1_MJJ-350',
 #        'L1_MJJ-300',
@@ -811,16 +808,11 @@ def defineMenu():
         
         # combined L1Topo for VBF
         'L1_MU6_MJJ-200',
-        'L1_J30_2J20_4J20.0ETA49_MJJ-400',
-        'L1_J30_2J20_4J20.0ETA49_MJJ-700',
-        'L1_J30_2J20_4J20.0ETA49_MJJ-800',
-        'L1_J30_2J20_4J20.0ETA49_MJJ-900',
         'L1_3J20_4J20.0ETA49_MJJ-400',
         'L1_3J20_4J20.0ETA49_MJJ-700',
         'L1_3J20_4J20.0ETA49_MJJ-800',
         'L1_3J20_4J20.0ETA49_MJJ-900',
         
-        'L1_XE35_MJJ-200',
    
         ### ATR-15062
         'L1_EM18VHI_MJJ-300',
@@ -1370,7 +1362,6 @@ def defineMenu():
 
 
         'L1_DY-DR-2MU4' : 315,
-        'L1_EM15VH_2EM8VH_MU6' : 316,
         #'L1_DY-BOX-MU6MU4' : 317,
         'L1_DY-BOX-2MU6' : 318,
         'L1_LFV-MU' : 319,
@@ -1380,9 +1371,7 @@ def defineMenu():
         'L1_DPHI-J20s2XE50' : 323,
         'L1_DPHI-J20XE50' : 324,
         'L1_DPHI-CJ20XE50' : 325,
-        'L1_MJJ-900' : 326,
         'L1_MJJ-800' : 327,
-        'L1_MJJ-700' : 328,
         'L1_MJJ-400' : 329,
         #'L1_MJJ-350' : 330,
 #        'L1_MJJ-300' : 331,
@@ -1421,15 +1410,10 @@ def defineMenu():
 #        'L1_BPH-DR-MU6MU4-B' : 356,
 #        'L1_BPH-DR-MU6MU4-BO' : 357,
         'L1_MU6_MJJ-200' : 358,
-        'L1_J30_2J20_4J20.0ETA49_MJJ-400' : 362,
-        'L1_J30_2J20_4J20.0ETA49_MJJ-700' : 363,
-        'L1_J30_2J20_4J20.0ETA49_MJJ-800' : 364,
-        'L1_J30_2J20_4J20.0ETA49_MJJ-900' : 365,
         'L1_3J20_4J20.0ETA49_MJJ-400' : 366,
         'L1_3J20_4J20.0ETA49_MJJ-700' : 367,
         'L1_3J20_4J20.0ETA49_MJJ-800' : 368,
         'L1_3J20_4J20.0ETA49_MJJ-900' : 369,
-        'L1_XE35_MJJ-200' : 370,
         'L1_EM7_FIRSTEMPTY': 371, 
         'L1_RD0_ABORTGAPNOTCALIB':372,
         'L1_3J25.0ETA23' : 373,
