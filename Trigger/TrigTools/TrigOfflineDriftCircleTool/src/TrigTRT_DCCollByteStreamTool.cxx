@@ -19,6 +19,8 @@
 #include <string> 
 #include <sstream>
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 static const InterfaceID IID_ITrigTRT_DCCollByteStreamTool
   ("TrigTRT_DCCollByteStreamTool", 1, 0);
 
