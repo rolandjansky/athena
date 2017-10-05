@@ -5,9 +5,10 @@
 #ifndef IPFBASETOOL_H
 #define IPFBASETOOL_H
 
-class eflowCaloObjectContainer;
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+class eflowCaloObjectContainer;
 
 class IPFBaseTool : virtual public IAlgTool {
 
