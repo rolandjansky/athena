@@ -447,6 +447,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		} else {
 			ATH_CHECK( m_condSvc_BS.retrieve() );
 		}
+
 		// Retrieve the TRT TRTTrackHoleSearchTool.
 		ATH_CHECK( m_trt_hole_finder.retrieve() );
 
@@ -463,6 +464,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		} else {
 			ATH_CHECK( m_BSSvc.retrieve() );
 		}
+
 		// Test out the TRT_ConditionsSummaryTool.
 		//Identifier ident = m_trtid->straw_id(1,1,1,1,1);
 		Identifier ident;
@@ -519,29 +521,28 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 				int idLayerWheel   = m_pTRTHelper->layer_or_wheel(id);
 				int idPhiModule    = m_pTRTHelper->phi_module(id);
 				int idStrawLayer   = m_pTRTHelper->straw_layer(id);
+				bool isBarrel = m_pTRTHelper->is_barrel(id);
 
 				int idSide;  int sectorflag=0;
-				const InDetDD::TRT_BaseElement * element= NULL;
-				if (ibe==0) { // barrel
+				const InDetDD::TRT_BaseElement* element = nullptr;
+				if (ibe == 0) { // barrel
 					idSide = idBarrelEndcap ? 1 : -1;
-					if ((m_pTRTHelper->is_barrel(id))&&(m_pTRTHelper->barrel_ec(id)==-1)) {
+					if (isBarrel && (idBarrelEndcap == -1)) {
 						sectorflag=1;
 						element = m_mgr->getBarrelElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
 					}
-				} else if (ibe==1) { // endcap
+				} else if (ibe == 1) { // endcap
 					idSide = idBarrelEndcap ? 1 : 0;
-					if ((!m_pTRTHelper->is_barrel(id))
-					    && ((m_pTRTHelper->barrel_ec(id)==-2) || (m_pTRTHelper->barrel_ec(id)==2))) {
+					if (!isBarrel && ((idBarrelEndcap == -2) || (isBarrelEndcap == 2))) {
 						sectorflag=1;
 						element = m_mgr->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);//, idStrawLayer_ec);
 					}
 				}
 
-				if (sectorflag==1) {
-					if (element ==NULL) continue;
+				if (sectorflag == 1) {
+					if (!element) continue;
 
 					for (unsigned int istraw = 0; istraw < element->nStraws(); istraw++) {
-						//if (istraw>element->nStraws())  continue;//obsolete
 
 						std::vector<Identifier> neighbourIDs;
 						Identifier strawID = m_pTRTHelper->straw_id(id, int(istraw));
@@ -607,22 +608,16 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		}
 	} // doshift for phi bin init
 
-	if (m_lumiTool.retrieve().isFailure()) {
-		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
-		return StatusCode::FAILURE;
-	} else {
-		ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
-	}
+	ATH_CHECK( m_lumiTool.retrieve() );
 
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
-	return sc;
+	return StatusCode::SUCCESS;
 }
 
 
 //------------------------------------------------------------------------------------//
-StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
+StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 //------------------------------------------------------------------------------------//
-{
 	ATH_MSG_VERBOSE("Booking TRT histograms");
 
 	if (newLumiBlockFlag()) ATH_MSG_VERBOSE("newLumiBlock");
@@ -631,15 +626,19 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 	StatusCode sc;
 	//If it is a new run check rdo and track containers.
 	if (newRunFlag()) {
-		if ()
-		if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
+		SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
+		SG::ReadHandle<TrackCollection> trackContainer(m_trackContainerKey);
+		if (!rdoContainer.isValid()) {
 			ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in StoreGate. Skipping TRT RDO Monitoring.");
 			m_doRDOsMon = false;
 		}
-		if (!evtStore()->contains<TrackCollection>(m_tracksObjectName)) {
+		if (!trackContainer.isValid()) {
 			ATH_MSG_WARNING("No TrackCollection by the name of " << m_tracksObjectName << " in StoreGate. Skipping TRT Track Monitoring.");
 			m_doTracksMon = false;
 		}
+
+		//		if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
+		//		if (!evtStore()->contains<TrackCollection>(m_tracksObjectName)) {
 	}// is new run?
 
 	

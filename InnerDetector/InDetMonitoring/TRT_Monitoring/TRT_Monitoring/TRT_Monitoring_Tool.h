@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -12,6 +13,10 @@
 
 #include "LumiBlockComps/ILuminosityTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackCollection.h"
+
 #include <string>
 #include <vector>
 #include <set>
@@ -23,16 +28,14 @@ class TProfile_LW;
 class TH1D_LW;
 class LWHist1D;
 
-namespace Trk
-{
+namespace Trk {
 	class ITrackHoleSearchTool;
 	class Track;
 	class TrackStateOnSurface;
 	class ITrackSummaryTool;
 }
 
-namespace InDetDD
-{
+namespace InDetDD {
 	class TRT_DetectorManager;
 }
 
@@ -51,8 +54,7 @@ class ITRT_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 class ITRT_DriftFunctionTool;
 
-class TRT_Monitoring_Tool : public ManagedMonitorToolBase
-{
+class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
  public:
 	TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent);
 	virtual ~TRT_Monitoring_Tool();
@@ -62,17 +64,17 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
 	virtual StatusCode procHistograms();
 
  private:
-	int lastLumiBlock;
-	int evtLumiBlock;
-	int good_bcid;
+	int m_lastLumiBlock;
+	int m_evtLumiBlock;
+	int m_good_bcid;
 	int m_nTotalTracks;
 	int m_nTracksB[2];
 	int m_nTracksEC[2];
 	int m_nTracksEC_B[2];
-	float nBSErrors[195];
-	float nRobErrors[195];
+	float m_nBSErrors[195];
+	float m_nRobErrors[195];
 	std::vector<unsigned int> m_rodMap;
-	bool passEventBurst;
+	bool m_passEventBurst;
 	bool m_ArgonXenonSplitter;
 	enum GasType{ Xe=0,Ar=1,Kr=2 };
 
@@ -141,11 +143,14 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 	ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc;
 
+	SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
+	SG::ReadHandleKey<TrackCollection> m_trackContainerKey{this, "TRTTrackObjectName", "Tracks", "Name of tracks container"};
+
 	bool m_doDCS;
 
 
 	const TRT_ID* m_pTRTHelper;
-	const InDetDD::TRT_DetectorManager *mgr;
+	const InDetDD::TRT_DetectorManager *m_mgr;
 
 	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool;
 	ToolHandle<ITRT_DriftFunctionTool> m_drifttool;
@@ -156,23 +161,23 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
 	const DataVector<Trk::Track> *m_trkCollection;
 	std::string m_tracksObjectName;
 
-	const InDetTimeCollection *TRT_BCIDColl;
+	const InDetTimeCollection *m_TRT_BCIDColl;
 
-	const ComTime *theComTime;
-	const EventInfo* eventInfo;
+	const ComTime *m_theComTime;
+	const EventInfo* m_eventInfo;
 
 	std::string m_comTimeObjectName;
-	std::string geo_summary_provider;//obsolete
-	std::string mapPath;
+	std::string m_geo_summary_provider;//obsolete
+	std::string m_mapPath;
 
-	int rbins;
-	float rmin;
-	float rmax;
-	float tbins;
-	float tmin;
-	float tmax;
-	float fitmin;
-	float fitmax;
+	int m_rbins;
+	float m_rmin;
+	float m_rmax;
+	float m_tbins;
+	float m_tmin;
+	float m_tmax;
+	float m_fitmin;
+	float m_fitmax;
 
 	TH1F_LW* m_hSummary;
 	TProfile* m_hChipBSErrorsVsLB[2][2];
