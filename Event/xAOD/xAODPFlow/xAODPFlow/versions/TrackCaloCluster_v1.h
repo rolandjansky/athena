@@ -28,8 +28,6 @@ namespace xAOD {
     
     // Default Constructor
     TrackCaloCluster_v1();
-    // Destuctor
-    ~TrackCaloCluster_v1();
     
     /// @name xAOD::IParticle functions
     /// @{
@@ -80,6 +78,10 @@ namespace xAOD {
     const std::vector< ElementLink<xAOD::CaloClusterContainer> > & caloClusterLinks() const;
     /// @brief Set the links to the CaloClusters
     void setCaloClusterLinks(const std::vector< ElementLink< xAOD::CaloClusterContainer > >& caloClusterLinks);
+    /// @brief Returns the size of the associated TrackCaloCluster vector.
+    size_t nCaloClusters() const;
+    /// @brief Returns a pointer (which can be NULL) to the ith xAOD::CaloCluster associated with this TrackCaloCluster.
+    const xAOD::CaloCluster* caloCluster( size_t i ) const;
     /// @}   
     
     

@@ -8,8 +8,8 @@ IParticleToCaloExtensionMap::~IParticleToCaloExtensionMap() {
   m_caloExtensionMap.clear();
 }
 
-void IParticleToCaloExtensionMap::addEntry(const xAOD::IParticle* particle, const Trk::TrackParameters* caloEntry) {
-  m_caloExtensionMap.insert( std::pair<const xAOD::IParticle*, const Trk::TrackParameters*>(particle, caloEntry) );  
+void IParticleToCaloExtensionMap::addEntry(const xAOD::IParticle& particle, const Trk::TrackParameters& caloEntry) {
+  m_caloExtensionMap.insert( std::pair<const xAOD::IParticle*, const Trk::TrackParameters*>(&particle, &caloEntry) );  
 }
 
 const Trk::TrackParameters*  IParticleToCaloExtensionMap::readCaloEntry(const xAOD::IParticle* particle) const

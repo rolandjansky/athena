@@ -2,7 +2,11 @@
 
 // Local include(s):
 #include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
- 
+
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+
 namespace xAOD {
  
    TrackCaloClusterAuxContainer_v1::TrackCaloClusterAuxContainer_v1()

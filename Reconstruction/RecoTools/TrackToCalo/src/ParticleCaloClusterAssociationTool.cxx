@@ -123,7 +123,7 @@ namespace Rec {
       }
     }
     if (caloExtensionMap)
-      caloExtensionMap->addEntry(&particle,caloExtension->caloEntryLayerIntersection());
+      if(caloExtension->caloEntryLayerIntersection()) caloExtensionMap->addEntry(particle,*(caloExtension->caloEntryLayerIntersection()));
          
     return true;
     

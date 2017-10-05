@@ -6,16 +6,15 @@
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_IPARTICLETOCALEXTENSIONMAP_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_IPARTICLETOCALEXTENSIONMAP_H
 
-#include "xAODTracking/TrackParticle.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "xAODBase/IParticle.h"
+#include "TrkParameters/TrackParameters.h"
 
 class IParticleToCaloExtensionMap {
  public:
   IParticleToCaloExtensionMap();
   ~IParticleToCaloExtensionMap();
   
-  void addEntry(const xAOD::IParticle* particle, const Trk::TrackParameters* extension);
+  void addEntry(const xAOD::IParticle& particle, const Trk::TrackParameters& extension);
   const Trk::TrackParameters*  readCaloEntry(const xAOD::IParticle* particle) const;
   unsigned int size() const;
 

@@ -29,23 +29,18 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           )
 
-# External dependencies:
-find_package( Eigen )
-
 # Component(s) in the package:
 atlas_add_library( TrackCaloClusterRecToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrackCaloClusterRecTools
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
+                   LINK_LIBRARIES GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth 
                    xAODPFlow xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack 
-                   TrkExInterfaces TrackVertexAssociationToolLib)
+                   TrkExInterfaces TrackVertexAssociationToolLib TrackCaloClusterRecInterfacesLib)
 
 atlas_add_component( TrackCaloClusterRecTools
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
+                     LINK_LIBRARIES GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
                      AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODPFlow xAODAssociations 
-                     TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationToolLib 
+                     TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationToolLib TrackCaloClusterRecInterfacesLib
                      TrackCaloClusterRecToolsLib )

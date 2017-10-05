@@ -12,6 +12,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkEventPrimitives )
-
-# Install files from the package:
-atlas_install_headers( TrackCaloClusterRecInterfaces )
+                          
+# Declare library:
+atlas_add_library( TrackCaloClusterRecInterfacesLib
+                   TrackCaloClusterRecInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrackCaloClusterRecInterfaces
+                   LINK_LIBRARIES GaudiKernel xAODBase xAODCaloEvent TrkCaloExtension TrkEventPrimitives )

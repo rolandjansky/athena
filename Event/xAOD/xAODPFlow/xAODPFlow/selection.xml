@@ -30,7 +30,8 @@
    
   <!-- TrackCaloCluster_v1 dictionaries: -->
   <class name="xAOD::TrackCaloCluster_v1">
-         <field name="m_p4" transient="true"/>
+         <field name="m_p4"         transient="true"/>
+         <field name="m_p4Cached"   transient="true"/>
   </class>
   
   <read sourceClass="xAOD::TrackCaloCluster_v1" version="[1-]"

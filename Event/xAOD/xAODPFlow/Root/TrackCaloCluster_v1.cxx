@@ -14,8 +14,6 @@ namespace xAOD {
 
   TrackCaloCluster_v1::TrackCaloCluster_v1() : IParticle(), m_p4(), m_p4Cached( false ) {}
   
-  TrackCaloCluster_v1::~TrackCaloCluster_v1() {}
-  
   double TrackCaloCluster_v1::e() const {
     return p4().E();
   }
@@ -51,7 +49,7 @@ namespace xAOD {
   
   const xAOD::TrackParticle* TrackCaloCluster_v1::trackParticle() const {
     // The accessor:       
-    static SG::AuxElement::Accessor< ElementLink< xAOD::TrackParticleContainer > >  acc( "trackPartcleLink" );
+    static const SG::AuxElement::Accessor< ElementLink< xAOD::TrackParticleContainer > >  acc( "trackPartcleLink" );
     if( !acc.isAvailable( *this ) ) {
       return 0;       
     }
@@ -65,11 +63,28 @@ namespace xAOD {
 				     std::vector< ElementLink< xAOD::CaloClusterContainer > >, 
 				     caloClusterLinks, 
 				     setCaloClusterLinks)
+                     
+  size_t xAOD::TrackCaloCluster_v1::nCaloClusters() const {
+    static const SG::AuxElement::Accessor< std::vector< ElementLink<xAOD::CaloClusterContainer> > >  acc( "caloClusterLinks" );
+    if( acc.isAvailable( *this ) ) {
+       return acc( *this ).size();
+    }
+    return 0;
+  }
+                     
+  const xAOD::CaloCluster* TrackCaloCluster_v1::caloCluster(size_t i) const {
+    if(i>=nCaloClusters())
+      return 0;
+    const std::vector< ElementLink<xAOD::CaloClusterContainer> >& links = caloClusterLinks();
+    if( ! links[ i ].isValid() ) {
+        return 0;
+    }
+    return *( links[ i ] );
+  }
   
   void TrackCaloCluster_v1::setParameters(float pt, float eta, float phi, float m, TrackCaloCluster_v1::Taste taste,
 					  const ElementLink<xAOD::TrackParticleContainer> particle, 
 					  const std::vector< ElementLink< xAOD::CaloClusterContainer > > clusters) {
-
     static const Accessor< float > acc1( "pt" );     
     acc1( *this ) = pt;     
     static const  Accessor< float > acc2( "eta" );     
@@ -81,12 +96,11 @@ namespace xAOD {
     
     m_p4Cached = false;        
     
-    static Accessor< int > acc( "taste" );     
+    static const Accessor< int > acc( "taste" );     
     acc( *this ) = (int)taste;
     
     setTrackParticleLink(particle);
     setCaloClusterLinks(clusters);
-    
   }
   
 
