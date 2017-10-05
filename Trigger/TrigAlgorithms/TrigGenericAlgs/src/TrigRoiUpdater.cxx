@@ -81,11 +81,6 @@ namespace PESA
   void TrigRoiUpdater::handle(const Incident& inc) {
     if (inc.type() == "BeginEvent") {
       //cleanup stored RoIs
-      std::cout << "Print out in handle, this: " << this << std::endl;
-      std::cout << "Print out in handle, m_rois: " << std::endl;
-      for (auto it = m_rois.begin(); it != m_rois.end(); it++) {
-	std::cout << &(*it) << std::endl;
-      }
       m_rois.clear();
     }
   }
@@ -118,6 +113,11 @@ namespace PESA
 	if (roiName.find("forID1")!=std::string::npos) forIDfound = true;
 	break;
       }
+    }
+    
+    if (roi->composite()) {
+      ATH_MSG_DEBUG("Not touching a composite RoI");
+      updateNeeded = false;
     }
 
     //signature specific modifications
