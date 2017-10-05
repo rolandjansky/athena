@@ -30,12 +30,12 @@ StatusCode DFStreamEventSelector::initialize(){
     }
     
     union{
-      HLT::DataSource* (*fptr)(void);
+      hltinterface::DataSource* (*fptr)(void);
       void *ptr;
     } uc;
 
     union{
-      void (*fptr)(HLT::DataSource*);
+      void (*fptr)(hltinterface::DataSource*);
       void *ptr;
     } ud;
 
@@ -57,7 +57,7 @@ StatusCode DFStreamEventSelector::initialize(){
       return StatusCode::FAILURE;
     }
     dlerror();
-    m_ds=std::shared_ptr<HLT::DataSource>(uc.fptr(),std::ptr_fun(ud.fptr));
+    m_ds=std::shared_ptr<hltinterface::DataSource>(uc.fptr(),std::ptr_fun(ud.fptr));
   }
   if(!m_ds){
     ATH_MSG_FATAL("DataSource creation failed");

@@ -29,7 +29,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-namespace HLT{
+namespace hltinterface{
   class DataSource;
 }
 
@@ -124,9 +124,9 @@ public:
   virtual StatusCode finalize() override;
 	
 private:
-  typedef HLT::DataSource* (*dscreator)(void);  
+  typedef hltinterface::DataSource* (*dscreator)(void);  
 
-  std::shared_ptr<HLT::DataSource> m_ds;
+  std::shared_ptr<hltinterface::DataSource> m_ds;
   ServiceHandle<IIncidentSvc> m_incidentSvc;
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<IROBDataProviderSvc> m_robProvider;
