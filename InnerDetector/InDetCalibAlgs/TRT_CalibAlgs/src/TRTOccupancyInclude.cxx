@@ -49,8 +49,6 @@ StatusCode TRTOccupancyInclude::execute()
   msg(MSG::DEBUG) << "execute()" << endmsg;
 
   SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
-  //const xAOD::EventInfo* eventInfo = 0;
-  //if (evtStore()->retrieve(eventInfo).isFailure()) {
   if (not evtInfo.isValid()) {
     ATH_MSG_WARNING(" Cannot access to event info.");
     return StatusCode::SUCCESS;

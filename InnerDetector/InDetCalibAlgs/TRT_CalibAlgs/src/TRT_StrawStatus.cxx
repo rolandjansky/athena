@@ -57,7 +57,6 @@ m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", name),
 m_trt_hole_finder("TRTTrackHoleSearchTool"),
 m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
 m_locR_cut(1.4),
-//m_tracksName("CombinedInDetTracks"),
 m_fileName("TRT_StrawStatusOutput"),
 m_skipBusyEvents(0), // for cosmics - reject events that are either showers or noise bursts
 m_printDetailedInformation(0) // print the information on mapping as well as which straws are declared dead etc. 
