@@ -199,11 +199,11 @@ namespace InDet
 
     //m_mcswitch = false;
 
-    float m_RcorrZero  = 9.06;
-    float m_RcorrOne   = -3.437;
-    float m_RcorrTwo   = 2.6573;
-    float m_RcorrThree = -1.5598;
-    float m_RcorrFour  = 0.15772;
+    float RcorrZero  = 9.06;
+    float RcorrOne   = -3.437;
+    float RcorrTwo   = 2.6573;
+    float RcorrThree = -1.5598;
+    float RcorrFour  = 0.15772;
     
     float st_R_zero = 25.545; 
     float st_R_one =  2.7807;
@@ -482,7 +482,7 @@ namespace InDet
 	      if ( (trtdistance > 0.0) && (f_TrkAnodeDist <= 1.9) && (f_TrkAnodeDist >= 0.01) && (TOT == NLTbits) ){
 	
 		//Straw Radius Correction
-		RCorrectedTotBits = NLTbits*1.0-(m_RcorrZero+m_RcorrOne*(f_TrkAnodeDist)+m_RcorrTwo*(pow(f_TrkAnodeDist,2))+ m_RcorrThree*(pow(f_TrkAnodeDist,3))+m_RcorrFour*(pow(f_TrkAnodeDist,4)));
+		RCorrectedTotBits = NLTbits*1.0-(RcorrZero+RcorrOne*(f_TrkAnodeDist)+RcorrTwo*(pow(f_TrkAnodeDist,2))+ RcorrThree*(pow(f_TrkAnodeDist,3))+RcorrFour*(pow(f_TrkAnodeDist,4)));
 		trailingbittime = trailingbittime-(st_R_zero+st_R_one*f_TrkAnodeDist+st_R_two*pow(f_TrkAnodeDist,2)+st_R_three*pow(f_TrkAnodeDist,3)+st_R_four*pow(f_TrkAnodeDist,4));
 		
 		//Eta Corrections
