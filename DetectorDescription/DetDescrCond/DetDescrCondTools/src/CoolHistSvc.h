@@ -73,7 +73,7 @@ class CoolHistSvc : public virtual ICoolHistSvc,
 			 const std::string& histname);
   void closeFiles();
 
-  unsigned int par_maxfiles; // maximum number of files to have open
+  unsigned int m_par_maxfiles; // maximum number of files to have open
   StoreGateSvc* p_detstore;
   IPoolSvc* m_poolsvc;
 
