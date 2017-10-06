@@ -30,7 +30,6 @@ public:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_readKey;
   SG::WriteCondHandleKey<LArMCSym>  m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc;
-  bool m_isSuperCell;
 
 };
 

@@ -12,30 +12,40 @@
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 class LArMCSym {
 
  public:
   LArMCSym() = delete;
   LArMCSym(const LArOnlineID* onlId, 
+	   const CaloCell_ID* caloId,
 	   std::vector<HWIdentifier>&& oflHashtoSymOnl); 
    
-  // method to handle z-phi symmetry
-  HWIdentifier ZPhiSym(const HWIdentifier& notSymOffId) const {
-    const IdentifierHash h=m_onlineID->channel_Hash(notSymOffId);
-    return ZPhiSym(h);
+  HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
+    const IdentifierHash h=m_caloCellID->calo_cell_hash(notSymOffId);
+    return ZPhiSymOfl(h);
   }
 
-  HWIdentifier ZPhiSym(const IdentifierHash notSymOffHash) const {
+  HWIdentifier ZPhiSymOfl(const IdentifierHash notSymOffHash) const {
     assert(notSymOffHash < m_oflHashtoSymOnl.size());
     return m_oflHashtoSymOnl[notSymOffHash];
   }
   
+  HWIdentifier ZPhiSymOnl(const HWIdentifier notSymOnlId) const {
+    const IdentifierHash h=m_onlineID->channel_Hash(notSymOnlId);
+    return ZPhiSymOnl(h);
+  }
   
 
+  HWIdentifier ZPhiSymOnl(const IdentifierHash notSymOnlHash) const {
+    assert(notSymOnlHash < m_onlHashtoSymOnl.size());
+    return m_onlHashtoSymOnl[notSymOnlHash];
+  }
 
  private:
   const LArOnlineID* m_onlineID;
+  const CaloCell_ID* m_caloCellID;
   const std::vector<HWIdentifier> m_oflHashtoSymOnl;
   const std::vector<HWIdentifier> m_onlHashtoSymOnl;
 

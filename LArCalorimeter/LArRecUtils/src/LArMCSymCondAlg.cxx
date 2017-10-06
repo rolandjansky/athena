@@ -6,8 +6,7 @@
 
 #include "LArMCSymCondAlg.h"
 #include "LArIdentifier/LArOnlineID.h"
-
-#include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 
 LArMCSymCondAlg::LArMCSymCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -63,18 +62,17 @@ StatusCode LArMCSymCondAlg::execute() {
   }
 
   const LArOnlineID* larOnlineID=nullptr;
-  //  const CaloCell_ID* calocellID=nullptr;
+  const CaloCell_ID* caloCellID=nullptr;
   const LArEM_ID* lar_em_id=nullptr;
   const LArHEC_ID* lar_hec_id=nullptr;
   const LArFCAL_ID* lar_fcal_id=nullptr;
 
-  //ATH_CHECK(detStore()->retrieve(calocellID,"CaloCell_ID"));
-  
-  ATH_CHECK(detStore()->retrieve(larOnlineID,"LArOnlineID"));
+
   ATH_CHECK(detStore()->retrieve(lar_em_id,"LArEM_ID"));
   ATH_CHECK(detStore()->retrieve(lar_hec_id,"LArHEC_ID"));
   ATH_CHECK(detStore()->retrieve(lar_fcal_id,"LArFCAL_ID"));
-  
+  ATH_CHECK(detStore()->retrieve(caloCellID,"CaloCell_ID"));
+  ATH_CHECK(detStore()->retrieve(larOnlineID,"LArOnlineID"));
   
   const unsigned ncellem=lar_em_id->channel_hash_max();
   const unsigned ncellhec=lar_hec_id->channel_hash_max();
@@ -82,12 +80,16 @@ StatusCode LArMCSymCondAlg::execute() {
 
   const unsigned larHashMax=ncellem+ncellhec+ncellfcal;
 
+  const unsigned onlHashMax=larOnlineID->channelHashMax();
+
   std::vector<HWIdentifier> oflHashtoSymOnl(larHashMax);
+  std::vector<HWIdentifier> onlHashtoSymOnl(onlHashMax);
   
   ATH_MSG_DEBUG("Start looping over EM calo cells");
   for ( unsigned int idhash=0; idhash<ncellem;idhash++){
     const Identifier id=lar_em_id->channel_id (idhash);
-
+    const HWIdentifier hwid=cabling->createSignalChannelID(id);
+    const IdentifierHash hwid_hash=larOnlineID->channel_Hash(hwid);
     const int barrel_ec = abs( lar_em_id->barrel_ec(id) ) ;
     const int sampling  = lar_em_id->sampling(id);
     const int region    = lar_em_id->region(id);
@@ -98,12 +100,15 @@ StatusCode LArMCSymCondAlg::execute() {
     const HWIdentifier symOnId = cabling->createSignalChannelID(symOffId);
     const IdentifierHash idHash = lar_em_id->channel_hash(id);
     oflHashtoSymOnl[idHash] = symOnId;
+    onlHashtoSymOnl[hwid_hash]= symOnId;
   }
 
   ATH_MSG_DEBUG("start loop over HEC calo");
 
   for ( unsigned int idhash=0; idhash<ncellhec;idhash++){
     const Identifier id=lar_hec_id->channel_id (idhash);
+    const HWIdentifier hwid=cabling->createSignalChannelID(id);
+    const IdentifierHash hwid_hash=larOnlineID->channel_Hash(hwid);
 
     const int pos_neg   = abs( lar_hec_id->pos_neg(id) ) ;
     const int sampling  = lar_hec_id->sampling(id);
@@ -115,6 +120,7 @@ StatusCode LArMCSymCondAlg::execute() {
     const HWIdentifier symOnId = cabling->createSignalChannelID(symOffId);
     const IdentifierHash idHash=lar_hec_id->channel_hash(id);
     oflHashtoSymOnl[ncellem+idHash] = symOnId;
+    onlHashtoSymOnl[hwid_hash]= symOnId;
   }
 
   ATH_MSG_DEBUG("start loop over FCAL calo");
@@ -123,6 +129,9 @@ StatusCode LArMCSymCondAlg::execute() {
   for ( unsigned int idhash=0; idhash<lar_fcal_id->channel_hash_max();
        idhash++){
     const Identifier id=lar_fcal_id->channel_id (idhash);
+    const HWIdentifier hwid=cabling->createSignalChannelID(id);
+    const IdentifierHash hwid_hash=larOnlineID->channel_Hash(hwid);
+
 
     const int pos_neg   = abs( lar_fcal_id->pos_neg(id) ) ;
     const int module    = lar_fcal_id->module(id);
@@ -138,10 +147,12 @@ StatusCode LArMCSymCondAlg::execute() {
     HWIdentifier symOnId = cabling->createSignalChannelID(symOffId);
     IdentifierHash idHash=lar_fcal_id->channel_hash(id);
     oflHashtoSymOnl[ncellem+ncellhec+idHash] = symOnId;
+    onlHashtoSymOnl[hwid_hash]= symOnId;
   }
 
 
-  std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,std::move(oflHashtoSymOnl));
+  std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,caloCellID,
+							     std::move(oflHashtoSymOnl));
 
 
   
