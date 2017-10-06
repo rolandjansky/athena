@@ -25,16 +25,12 @@ class IEFlowCellEOverPTool;
 class PFTrackClusterMatchingTool;
 class eflowRecTrack;
 
-static const InterfaceID IID_PFCellLevelSubtractionTool("PFCellLevelSubtractionTool", 1, 0);
-
-class PFCellLevelSubtractionTool : virtual public IPFSubtractionTool, public AthAlgTool {
+class PFCellLevelSubtractionTool : public extends<AthAlgTool, IPFSubtractionTool> {
 public:
 
   PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent);
 
   ~PFCellLevelSubtractionTool();
-
-  static const InterfaceID& interfaceID();
 
   StatusCode initialize();
   void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
@@ -70,8 +66,6 @@ public:
   std::unique_ptr<eflowLayerIntegrator> m_integrator;
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool;
 
-  //double m_rCell;
-
   double m_subtractionSigmaCut;
   double m_consistencySigmaCut;
 
@@ -88,10 +82,5 @@ public:
   bool m_useUpdated2015ChargedShowerSubtraction;
 
 };
-
-inline const InterfaceID& PFCellLevelSubtractionTool::interfaceID()
-{ 
-  return IID_PFCellLevelSubtractionTool; 
-}
 
 #endif 

@@ -16,14 +16,13 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
 PFLCCalibTool::PFLCCalibTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_clusterCollectionTool("eflowRecClusterCollectionTool", this),
   m_clusterLocalCalibTool("CaloClusterLocalCalib", this),
   m_clusterLocalCalibOOCCTool("CaloClusterLocalCalib", this),
   m_clusterLocalCalibOOCCPi0Tool("CaloClusterLocalCalib", this),
   m_clusterLocalCalibDMTool("CaloClusterLocalCalib", this),
   m_useLocalWeight(false) {
-  declareInterface<PFLCCalibTool>(this);
   declareProperty("eflowRecClusterCollectionTool", m_clusterCollectionTool,       "Tool to choose clusters to use");
   declareProperty("CaloClusterLocalCalib",        m_clusterLocalCalibTool,        "Cluster Calibration for EFlowRec");
   declareProperty("CaloClusterLocalCalibOOCC",    m_clusterLocalCalibOOCCTool,    "Cluster CalibrationOOCC for EFlowRec");

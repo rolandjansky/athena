@@ -42,7 +42,7 @@
 using namespace eflowSubtract;
 
 PFCellLevelSubtractionTool::PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
-  AthAlgTool( type, name, parent),
+  base_class( type, name, parent),
   m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
   m_matchingToolForPull_015("PFTrackClusterMatchingTool/PFPullMatchingTool_015", this),
   m_matchingToolForPull_02("PFTrackClusterMatchingTool/PFPullMatchingTool_02", this),
@@ -55,7 +55,6 @@ PFCellLevelSubtractionTool::PFCellLevelSubtractionTool(const std::string& type,c
   m_goldenModeString(""),
   m_nMatchesInCellLevelSubtraction(1),
   m_useUpdated2015ChargedShowerSubtraction(true)
-
 { 
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("PFTrackClusterMatchingTool_015", m_matchingToolForPull_015, "The 0.15 track-cluster matching tool to calculate the pull");

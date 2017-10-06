@@ -26,9 +26,7 @@ class eflowRecTrackContainer;
 class eflowRecClusterContainer;
 class eflowCaloObject;
 
-static const InterfaceID IID_PFRecoverSplitShowersTool("PFRecoverSplitShowersTool", 1, 0);
-
-class PFRecoverSplitShowersTool : virtual public IPFSubtractionTool, public AthAlgTool {
+class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool> {
   
  public:
 
@@ -84,10 +82,5 @@ private:
   bool m_useUpdated2015ChargedShowerSubtraction;
   
 };
-
-inline const InterfaceID& PFRecoverSplitShowersTool::interfaceID()
-{
-  return IID_PFRecoverSplitShowersTool;
-}
 
 #endif

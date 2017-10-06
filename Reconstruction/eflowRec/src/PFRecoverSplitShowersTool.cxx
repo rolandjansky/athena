@@ -26,20 +26,19 @@
 using namespace eflowSubtract;
 
 PFRecoverSplitShowersTool::PFRecoverSplitShowersTool(const std::string& type,const std::string& name,const IInterface* parent):
-AthAlgTool(type, name, parent),
-m_eflowCaloObjectContainer(0),
-m_rCell(0.75),
-m_windowRms(0.032),
-m_theEOverPTool("eflowCellEOverPTool",this),
-m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
-m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
-m_integrator(std::make_unique<eflowLayerIntegrator>(m_windowRms, 1.0e-3, 3.0)),
-m_subtractionSigmaCut(1.5),
-m_recoverIsolatedTracks(false),
-m_nTrackClusterMatches(0),
-m_useUpdated2015ChargedShowerSubtraction(true)
+  base_class(type, name, parent),
+  m_eflowCaloObjectContainer(0),
+  m_rCell(0.75),
+  m_windowRms(0.032),
+  m_theEOverPTool("eflowCellEOverPTool",this),
+  m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
+  m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
+  m_integrator(std::make_unique<eflowLayerIntegrator>(m_windowRms, 1.0e-3, 3.0)),
+  m_subtractionSigmaCut(1.5),
+  m_recoverIsolatedTracks(false),
+  m_nTrackClusterMatches(0),
+  m_useUpdated2015ChargedShowerSubtraction(true)
 {
-  declareInterface<PFRecoverSplitShowersTool>(this);
   declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
   declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Parameters Tool");
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");

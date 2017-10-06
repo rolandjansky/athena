@@ -17,17 +17,13 @@
 
 class eflowCaloObjectContainer;
 
-static const InterfaceID IID_PFMomentCalculatorTool("PFMomentCalculatorTool", 1, 0);
-
-class PFMomentCalculatorTool : virtual public IPFBaseTool, public AthAlgTool {
+class PFMomentCalculatorTool : public extends<AthAlgTool, IPFBaseTool> {
 
   public:
   
   PFMomentCalculatorTool(const std::string& type,const std::string& name,const IInterface* parent);
 
   ~PFMomentCalculatorTool() {}
-
-  static const InterfaceID& interfaceID();
 
   StatusCode initialize();
   void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
@@ -45,10 +41,5 @@ class PFMomentCalculatorTool : virtual public IPFBaseTool, public AthAlgTool {
   bool m_LCMode;
 
 };
-
-inline const InterfaceID& PFMomentCalculatorTool::interfaceID()
-{ 
-  return IID_PFMomentCalculatorTool;
-}
 
 #endif

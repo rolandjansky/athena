@@ -17,10 +17,11 @@ class IPFSubtractionTool : virtual public IAlgTool {
 
  public:
 
-  virtual StatusCode intialize() {return StatusCode::SUCCESS;}
+  /** Execute method to modify calorimeter clusters, when performing charegd shower subtraction procedures in particle flow  */
   virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*, xAOD::CaloClusterContainer&) = 0;
-  virtual StatusCode finalize() {return StatusCode::SUCCESS;}
 
+  DeclareInterfaceID(IPFSubtractionTool,1,0);
+  
 };
 
 #endif

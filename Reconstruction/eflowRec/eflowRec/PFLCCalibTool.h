@@ -18,17 +18,13 @@
 class eflowCaloObjectContainer;
 class eflowRecCluster;
 
-static const InterfaceID IID_PFLCCalibTool("PFLCCalibTool", 1, 0);
-
-class PFLCCalibTool : virtual public IPFBaseTool, public AthAlgTool {
+class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   public:
   
   PFLCCalibTool(const std::string& type,const std::string& name,const IInterface* parent);
 
   ~PFLCCalibTool() {}
-
-  static const InterfaceID& interfaceID();
 
   StatusCode initialize();
   void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer);
@@ -58,10 +54,5 @@ class PFLCCalibTool : virtual public IPFBaseTool, public AthAlgTool {
   bool m_useLocalWeight;
 
 };
-
-inline const InterfaceID& PFLCCalibTool::interfaceID()
-{ 
-  return IID_PFLCCalibTool;
-}
 
 #endif

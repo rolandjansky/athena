@@ -14,12 +14,10 @@ class IPFBaseTool : virtual public IAlgTool {
 
  public:
 
-  /** Standard initialize method */
-  virtual StatusCode intialize() {return StatusCode::SUCCESS;}
   /** Execute method to use eflowCaloObjectContainer and modify xAOD::CaloClusterContainer */
   virtual void execute(const eflowCaloObjectContainer&, xAOD::CaloClusterContainer&) = 0;
-  /** Standard finalize method */
-  virtual StatusCode finalize() {return StatusCode::SUCCESS;}
+
+  DeclareInterfaceID(IPFBaseTool,1,0);
 
 };
 #endif

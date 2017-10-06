@@ -8,15 +8,13 @@
 #include "eflowRec/IPFClusterCollectionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class PFClusterCollectionTool : virtual public IPFClusterCollectionTool, public AthAlgTool {
+class PFClusterCollectionTool : public extends<AthAlgTool, IPFClusterCollectionTool> {
 
   public:
   
   PFClusterCollectionTool(const std::string& type,const std::string& name,const IInterface* parent);
 
   ~PFClusterCollectionTool() {};
-
-  static const InterfaceID& interfaceID();
 
   StatusCode initialize();
   std::unique_ptr<xAOD::CaloClusterContainer> execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters, xAOD::CaloClusterContainer& theCaloClusterContainer);
