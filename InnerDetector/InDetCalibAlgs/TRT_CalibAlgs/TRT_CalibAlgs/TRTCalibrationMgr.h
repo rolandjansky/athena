@@ -85,10 +85,10 @@ private:
   bool m_writeConstants;
   int m_ntrk;
   
-  SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey;
-  SG::ReadHandleKey<ComTime> m_theComTimeKey;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
+  SG::ReadHandleKey<ComTime> m_theComTimeKey{this,"ComTimeKey","TRT_Phase","RHK for TRT Phase"};
   //const DataHandle<xAOD::EventInfo> m_EventInfo;
-  SG::ReadHandle<xAOD::EventInfo> m_EventInfo;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for xAOD::EventInfo"};
   ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
   //std::vector<std::string> m_TrkCollections;

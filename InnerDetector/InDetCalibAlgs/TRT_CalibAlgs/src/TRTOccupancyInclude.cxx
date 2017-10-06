@@ -17,7 +17,6 @@ TRTOccupancyInclude::TRTOccupancyInclude(const std::string& name, ISvcLocator* p
   AthAlgorithm   (name, pSvcLocator),
   m_LocalOccTool()
 {
-  declareProperty("EventInfoKey", m_eventInfoKey = std::string("EventInfo"));
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
 }
 

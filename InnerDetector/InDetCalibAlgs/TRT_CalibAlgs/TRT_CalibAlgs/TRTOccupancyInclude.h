@@ -49,7 +49,7 @@ private:
 
 
   ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "RHK to retrieve xAOD::EventInfo"}; //!
 };
 
 #endif // TRT_CALIBALGS_TRTOCCUPANCYINCLUDE_H 

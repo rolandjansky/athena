@@ -39,7 +39,6 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   m_docalibrate(false),
   m_writeConstants(false),
   m_ntrk(0),
-  m_EventInfo("EventInfo"),
   m_trackSelector("InDet::InDetTrackSelectorTool/InDetTrackSelectorTool"),
   m_TrkCollections(),
   m_max_ntrk(100000)
@@ -48,11 +47,9 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   m_AccumulatorTools.push_back("TRTCalAccumulator");
   m_TRTCalibTools.push_back("TRTCalibrator");
   m_FitTools.push_back("FitTool");
-  //m_TrkCollections.push_back("Tracks");
   m_TrkCollections.emplace_back("Tracks");
   declareProperty("TRTCalDBTool", m_trtcaldbSvc);
   // declare algorithm parameters
-  //m_TrkCollections.push_back("ConvertedIPatTracks");
   m_TrkCollections.emplace_back("ConvertedIPatTracks");
   declareProperty("TrkCollections",m_TrkCollections );
 
@@ -65,9 +62,7 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DoRefit",m_dorefit);
   declareProperty("TrackSelectorTool",    m_trackSelector,            "Tool for the selection of tracks");
   declareProperty("DoCalibrate",m_docalibrate);
-  declareProperty("VerticesKey", m_verticesKey = std::string("PrimaryVertices"));
-  declareProperty("xAODEventInfo", m_EventInfo);
-  declareProperty("ComTimeKey", m_theComTimeKey = std::string("TRT_Phase"));
+
 }
 
 //---------------------------------------------------------------------
@@ -105,7 +100,7 @@ StatusCode TRTCalibrationMgr::initialize()
 
   //Initialize ReadHandles and ReadHandleKeys
   ATH_CHECK(m_verticesKey.initialize());
-  ATH_CHECK(m_EventInfo.initialize());
+  ATH_CHECK(m_EventInfoKey.initialize());
   ATH_CHECK(m_theComTimeKey.initialize());
   ATH_CHECK(m_TrkCollections.initialize());
   // Each ROI/road may create its own collection....
@@ -163,9 +158,7 @@ StatusCode TRTCalibrationMgr::execute()
 */
 
   // Get Primary vertex
-  //const xAOD::VertexContainer* vertices =  evtStore()->retrieve< const xAOD::VertexContainer >("PrimaryVertices");
   SG::ReadHandle<xAOD::VertexContainer> vertices(m_verticesKey);
-  //IF(!VERTICES) {
   if (not vertices.isValid()) {
         ATH_MSG_ERROR ("Couldn't retrieve VertexContainer with key: PrimaryVertices");
         return StatusCode::FAILURE;
@@ -183,7 +176,7 @@ StatusCode TRTCalibrationMgr::execute()
   }
 
   // get event info pointer
-  //if ((evtStore()->retrieve(m_EventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> m_EventInfo(m_EventInfoKey);
   if (not m_EventInfo.isValid()) {
     msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endmsg;
     return StatusCode::FAILURE;
@@ -191,7 +184,6 @@ StatusCode TRTCalibrationMgr::execute()
   
   // Loop over tracks; get track info and accumulate it
   const Trk::Track* aTrack;
-  //const TrackCollection* trks; //CANCELLED LINE
   //const DataVector<Trk::Track>* trks;
 
   //Get the Event phase:
@@ -200,15 +192,11 @@ StatusCode TRTCalibrationMgr::execute()
   
 
   SG::ReadHandle<ComTime> theComTime(m_theComTimeKey);
-  //ComTime* theComTime(0);
-  //StatusCode sc = evtStore()->retrieve(theComTime, "TRT_Phase");
-  //if(sc.isFailure()){
   if (not theComTime.isValid()) {
     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
     eventPhase = -1;//invalid, reject track 
   }
   
-  //if(theComTime){
   if (theComTime.cptr()) {
     eventPhase = theComTime->getTime();
   }
@@ -221,11 +209,10 @@ StatusCode TRTCalibrationMgr::execute()
   //if(eventPhase!=0 && m_TrkCollections.size()>=3){
     
   TrackCollection::const_iterator t;
-  //for (unsigned int i=0;i<m_TrkCollections.size();i++){
+
   for (SG::ReadHandle<TrackCollection>& trks : m_TrkCollections.makeHandles()) {
     // retrieve all tracks from TDS
-    //sc=evtStore()->retrieve(trks,m_TrkCollections[i]);
-    //if (!(evtStore()->retrieve(trks,m_TrkCollections[i])).isFailure()){
+
     if (trks.isValid()){  
       //      if (trks->size()>100){
       

@@ -62,10 +62,6 @@ m_fileName("TRT_StrawStatusOutput"),
 m_skipBusyEvents(0), // for cosmics - reject events that are either showers or noise bursts
 m_printDetailedInformation(0) // print the information on mapping as well as which straws are declared dead etc. 
 {
-  declareProperty("tracksCollection", m_tracksName = std::string("CombinedInDetTracks"));
-    declareProperty("EventInfoKey", m_eventInfoKey = std::string("EventInfo"));
-    declareProperty("RDO_ContainerKey", m_rdoContainerKey = std::string("TRT_RDOs"));
-    declareProperty("VxContainerKey", m_vxContainerKey = std::string("VxPrimaryCandidate"));
     declareProperty("outputFileName", m_fileName);
     declareProperty("skipBusyEvents", m_skipBusyEvents);        
     declareProperty("trt_hole_finder",          m_trt_hole_finder);
@@ -152,9 +148,7 @@ StatusCode InDet::TRT_StrawStatus::finalize(){
 //================ Execution ====================================================
 
 StatusCode InDet::TRT_StrawStatus::execute(){
-  //const xAOD::EventInfo *eventInfo = 0;
-  //StatusCode sc = evtStore()->retrieve(eventInfo); 
-  //if ( sc.isFailure() ) {
+  
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
     StatusCode sc = StatusCode::SUCCESS;
     if (not eventInfo.isValid()) {
@@ -168,20 +162,18 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         m_runNumber = runNumber;
     } 
     int lumiBlock0 =eventInfo->lumiBlock();
-    //const TRT_RDO_Container* rdoContainer; // container of all TRT hits
+  
     SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
-    //sc = evtStore()->retrieve(rdoContainer, "TRT_RDOs");
-    //if ( sc.isFailure() ) {
+  
     if (not rdoContainer.isValid()) {
         msg(MSG::ERROR) << "no TRT_RDO container available " << endmsg;
 	sc = StatusCode::FAILURE;
         return sc;
     }
-    //const DataVector<Trk::Track> *trkCollection; // track collection
-    //sc = evtStore()->retrieve( trkCollection, m_tracksName );
+  
     SG::ReadHandle<DataVector<Trk::Track>> trkCollection(m_tracksName);
-  //if ( sc.isFailure() ) {
-  if (not trkCollection.isValid()) {
+  
+    if (not trkCollection.isValid()) {
         msg(MSG::ERROR) << "Could not find Tracks Collection: " << m_tracksName << endmsg;
 	sc = StatusCode::FAILURE;
         return sc;
@@ -189,10 +181,9 @@ StatusCode InDet::TRT_StrawStatus::execute(){
     
     //================ Event selection  
     
-    //const VxContainer* vxContainer(0); // require at least one primary vertex with at least three tracks
-    //sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
+    
     SG::ReadHandle<VxContainer> vxContainer(m_vxContainerKey);
-    //if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endmsg;
+    
     if (not vxContainer.isValid()) { 
       msg(MSG::ERROR) << "vertex container missing!" << endmsg;
       sc = StatusCode::FAILURE;
