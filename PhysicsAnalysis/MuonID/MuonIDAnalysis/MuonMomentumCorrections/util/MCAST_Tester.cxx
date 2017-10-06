@@ -41,7 +41,6 @@
 using namespace std;
 
 int main( int argc, char* argv[] ) {
-
   bool do_it_the_right_way = false;
   //::: The application's name:
   const char* APP_NAME = argv[ 0 ];
@@ -108,8 +107,8 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  corrTool.msg().setLevel( MSG::VERBOSE);
-  //corrTool.msg().setLevel( MSG::INFO);
+  //corrTool.msg().setLevel( MSG::VERBOSE);
+  corrTool.msg().setLevel( MSG::INFO);
   //corrTool.msg().setLevel( MSG::WARNING);
   //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
@@ -118,7 +117,8 @@ int main( int argc, char* argv[] ) {
   //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
   corrTool.setProperty("SagittaCorr",true); 
-  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
+  //corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
+  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_25_07_17");
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
