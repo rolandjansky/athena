@@ -94,25 +94,25 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "_jetClean_" + m_cleaningLevel);
 	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_or);
 	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_jvt);	
-	ATH_MSG_INFO("m_or: " << m_or << ", m_jvt: " << m_jvt);
+	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
 
 	for (auto thisJet : *jets){  //loop over decorated jet collection 
 		pass_pt = thisJet->pt() > m_pt; 
 		pass_eta = fabs(thisJet->eta()) < m_eta;
 		pass_accept = keepJet(*thisJet); 
 		jvtDecision = acc_passJvt(*thisJet);
-		orDecision = !acc_passOR(*thisJet); //Recall passOR==0 if object is NOT an overlap.
+		orDecision = !acc_passOR(*thisJet);  //recall, passOR==0 means that the jet is not an overlap and should be kept!
 
-		ATH_MSG_INFO("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
-		if(pass_pt && pass_eta && acc_passJvt(*thisJet) && acc_passOR(*thisJet)){//only consider jets for cleaning if they pass these requirements. 
+		ATH_MSG_DEBUG("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
+		if(pass_pt && pass_eta && jvtDecision && orDecision){//only consider jets for cleaning if they pass these requirements. 
 			isThisJetGood = pass_accept;
 			isEventAllGood = isEventAllGood && isThisJetGood; //any event with a bad jet is rejected 
 		}	
 		else isThisJetGood = pass_accept;     //if it fails any one of these, it shouldn't be able to kill the whole event, but we still need to know cleaning
-		ATH_MSG_INFO("Is jet good? " << isThisJetGood);
+		ATH_MSG_DEBUG("Is jet good? " << isThisJetGood);
 		dec_jetClean(*thisJet) = isThisJetGood;
  	}
-	ATH_MSG_INFO("Is event good? " << isEventAllGood);
+	ATH_MSG_DEBUG("Is event good? " << isEventAllGood);
 	return isEventAllGood;		
 }
 

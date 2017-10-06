@@ -27,6 +27,7 @@ namespace DerivationFramework {
     dec_jvt(0),
     dec_passJvt(0),
     m_jvtTool(""),
+    m_jetJvtEfficiencyTool("CP::JetJvtEfficiency/JetJvtEfficiencyTool"),
     m_dojvt(false),
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
@@ -40,6 +41,7 @@ namespace DerivationFramework {
     declareProperty("JetCalibTool",   m_jetCalibTool);
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
+    //declareProperty("JetJvtEfficiencyTool",     m_jetJvtEfficiencyTool);
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
@@ -78,6 +80,11 @@ namespace DerivationFramework {
 	  }
 	}
       }
+    }
+
+    if(!m_jetJvtEfficiencyTool.empty()) {
+        CHECK(m_jetJvtEfficiencyTool.retrieve());
+        ATH_MSG_INFO("Jvt efficiency tool initialized \"" << m_momentPrefix+"pass"+m_jvtMomentKey << "\"");
     }
 
     if(!m_jetTrackSumMomentsTool.empty()) {
@@ -152,7 +159,7 @@ namespace DerivationFramework {
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
-
+      
       if(m_docalib) {
 	// generate static decorators to avoid multiple lookups	
 	(*dec_calibpt)(jet_orig)  = jet->pt();
@@ -165,7 +172,7 @@ namespace DerivationFramework {
 	if(m_dojvt) {
 	  (*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
 	  ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
-	  bool passJVT = jet->pt()>50e3 || fabs(jet->eta())>2.4 || (*dec_jvt)(jet_orig)>0.64;
+	  bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
           (*dec_passJvt)(jet_orig) = passJVT;
 
 	  if(m_dobtag) {

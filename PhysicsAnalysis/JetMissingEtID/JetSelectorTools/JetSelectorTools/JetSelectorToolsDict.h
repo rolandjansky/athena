@@ -11,7 +11,7 @@
 
 // Includes for the dictionary generation:
 #include "JetSelectorTools/JetCleaningTool.h"
-
+#include "JetSelectorTools/EventCleaningTool.h"
 #include "JetSelectorTools/JetAttributeSelector.h"
 
 #endif // JETSELECTORTOOLS_JETSELECTORTOOLSDICT_H
