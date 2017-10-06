@@ -54,6 +54,8 @@ class ItemDef:
         bgrp9cond           = BGRP0 & BGRP9                                                  # noqa: F821
         bgrp11cond          = BGRP0 & BGRP11                                                 # noqa: F821
         bgrp12cond          = BGRP0 & BGRP12                                                 # noqa: F821
+        bgrp13cond          = BGRP0 & BGRP13 #UNPAIREDB1                                     # noqa: F821
+        bgrp14cond          = BGRP0 & BGRP14 #UNPAIREDB2                                     # noqa: F821
         alfacalib           = BGRP0 & BGRP10                                                 # noqa: F821
         abortgap            = BGRP0 & BGRP8                                                  # noqa: F821
         
@@ -521,6 +523,7 @@ class ItemDef:
         LVL1MenuItem('L1_J12_EMPTY').setLogic( J12 & cosmiccond ).setTriggerType(TT.calo)             # noqa: F821
         LVL1MenuItem('L1_J12_FIRSTEMPTY').setLogic( J12 & firstempty ).setTriggerType(TT.calo)        # noqa: F821
         LVL1MenuItem('L1_J12_ABORTGAPNOTCALIB').setLogic( J12 & abortgap ).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_J12_UNPAIREDB1').setLogic( J12 & bgrp13cond  ).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_J50_UNPAIRED_ISO'   ).setLogic( J50 & unpaired_isocond   ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J50_UNPAIRED_NONISO').setLogic( J50 & unpaired_nonisocond).setTriggerType(TT.calo)    # noqa: F821
@@ -1025,6 +1028,8 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_AC_CALIB'     ).setLogic( BCM_AtoC & calibcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_BCM_CA_CALIB'     ).setLogic( BCM_CtoA & calibcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( BCM_Wide & calibcond).setTriggerType(TT.minb)    # noqa: F821        
+
+        LVL1MenuItem('L1_BCM_AC_UNPAIREDB1'  ).setLogic( BCM_AtoC & bgrp13cond).setTriggerType(TT.minb)    # noqa: F821
 
 
 
@@ -1763,6 +1768,9 @@ class ItemDef:
         LVL1MenuItem.currentPartition = 2
 
         LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)    # noqa: F821
+				#UNPAIREDB2 is BGRP14, needs to go in partition 2
+        LVL1MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_J12_UNPAIREDB2').setLogic( J12 & bgrp14cond).setTriggerType(TT.calo)    # noqa: F821
 
 
         # Partition 3

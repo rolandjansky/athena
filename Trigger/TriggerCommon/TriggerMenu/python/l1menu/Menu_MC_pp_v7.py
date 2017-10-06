@@ -12,6 +12,7 @@ def print_available():
       if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
     available.sort()
     print "There are %d available CTP IDs:"%len(available),",".join(available)
+    print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
 
 def defineMenu():
     """
@@ -483,6 +484,7 @@ def defineMenu():
         "L1_J20.28ETA31",
         #'L1_J40.0ETA25', 
         "L1_J12_EMPTY","L1_J12_FIRSTEMPTY", "L1_J12_UNPAIRED_ISO", "L1_J12_UNPAIRED_NONISO", "L1_J12_ABORTGAPNOTCALIB", 
+        "L1_J12_UNPAIREDB1", "L1_J12_UNPAIREDB2", 
         "L1_J15.31ETA49_UNPAIRED_ISO",
         "L1_J30_EMPTY", "L1_J30_FIRSTEMPTY", "L1_J30.31ETA49_EMPTY", "L1_J30.31ETA49_UNPAIRED_ISO",
         "L1_J30.31ETA49_UNPAIRED_NONISO",
@@ -615,6 +617,7 @@ def defineMenu():
         # BCM
         'L1_BCM_Wide_BGRP0','L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO', 'L1_BCM_AC_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
+        'L1_BCM_AC_UNPAIREDB1','L1_BCM_CA_UNPAIREDB2',
         'L1_BCM_AC_UNPAIRED_NONISO','L1_BCM_CA_UNPAIRED_NONISO',
         'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB','L1_BCM_Wide_ABORTGAPNOTCALIB',
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
@@ -1035,6 +1038,8 @@ def defineMenu():
         'L1_J12_FIRSTEMPTY' : 112,
         'L1_J12_UNPAIRED_ISO' : 113,
         'L1_J12_UNPAIRED_NONISO' : 114,
+        'L1_J12_UNPAIREDB1' : 443,
+        'L1_J12_UNPAIREDB2' : 476,
         'L1_J12_ABORTGAPNOTCALIB' : 115,
         'L1_J15.31ETA49_UNPAIRED_ISO' : 75,
         'L1_J30_EMPTY' : 116,
@@ -1094,6 +1099,7 @@ def defineMenu():
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
         'L1_BCM_AC_CA_UNPAIRED_ISO' : 162,
         'L1_BCM_AC_UNPAIRED_ISO' : 163,
+        'L1_BCM_AC_UNPAIREDB1' : 447,
         'L1_MBTS_1_EMPTY' : 164,
         'L1_MBTS_1_UNPAIRED_ISO' : 165,
         'L1_MBTS_2_EMPTY' : 166,
@@ -1240,6 +1246,7 @@ def defineMenu():
         
       
         'L1_BCM_CA_UNPAIRED_ISO' : 229,
+        'L1_BCM_CA_UNPAIREDB2' : 475,
         'L1_BCM_AC_UNPAIRED_NONISO' : 230,
         'L1_BCM_CA_UNPAIRED_NONISO' : 231,
         'L1_BCM_AC_ABORTGAPNOTCALIB' : 232,
