@@ -100,23 +100,23 @@ namespace SG {
      * vector of std::strings
      * @param vs vector of initializer strings
      */
-    StatusCode assign(const std::vector<std::string>& vs);
+    virtual StatusCode assign(const std::vector<std::string>& vs) override;
 
     /**
      * @brief string representation of the VarHandleKeyArray
      */
-    std::string toString() const;
+    virtual std::string toString() const override;
 
     /**
      * @brief create array of all base VarHandleKeys in the Array
      */
-    std::vector<SG::VarHandleKey*> keys() const;
+    virtual std::vector<SG::VarHandleKey*> keys() const override;
     
 
     /**
      * @brief if called, handles will not be declared in the algorithm I/O
      */
-    void renounce() { m_isRenounced = true; }
+    virtual void renounce() override { m_isRenounced = true; }
     
     /**
      * @brief query renounced state
