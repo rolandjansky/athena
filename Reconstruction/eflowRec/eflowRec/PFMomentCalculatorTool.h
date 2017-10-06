@@ -32,13 +32,13 @@ class PFMomentCalculatorTool : public extends<AthAlgTool, IPFBaseTool> {
  private:
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
-  ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool;
+  ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool{this,"PFClusterCollectionTool","eflowRecClusterCollectionTool","Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters"};
   
   /* Tool to calculate cluster moments */
-  ToolHandle<CaloClusterCollectionProcessor> m_clusterMomentsMaker;
+  ToolHandle<CaloClusterCollectionProcessor> m_clusterMomentsMaker{this,"CaloClusterMomentsMaker","CaloClusterMomentsMaker","Tool to calculate cluster moments"};
 
-  /** Bool to toggle whether we are in LC mode - false by default */
-  bool m_LCMode;
+  /** Toggle whether we are in LC mode - false by default */
+  Gaudi::Property<bool> m_LCMode{this,"LCMode",false,"Toggle whether we are in LC mode - false by default"};
 
 };
 

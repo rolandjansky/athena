@@ -6,24 +6,15 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 
 PFONeutralCreatorAlgorithm::PFONeutralCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
-    m_eOverPMode(false),
-    m_LCMode(false),
-    m_eflowCaloObjectContainerReadHandle("eflowCaloObjects"),
-    m_neutralPFOContainerWriteHandle("JetETMissNeutralParticleFlowObjects"),
-    m_neutralPFOContainerWriteHandle_nonModified("JetETMissNeutralParticleFlowObjects_nonModified")    
+    AthAlgorithm(name, pSvcLocator)
 {
-  /* Name of  eflow Container to be created */
-  declareProperty("EOverPMode", m_eOverPMode);
-  declareProperty("PFOOutputName", m_neutralPFOContainerWriteHandle);
-  declareProperty("PFOOutputName_nonModified", m_neutralPFOContainerWriteHandle_nonModified);
 }
 
 StatusCode PFONeutralCreatorAlgorithm::initialize(){
 
-  ATH_CHECK(m_eflowCaloObjectContainerReadHandle.initialize());
-  ATH_CHECK(m_neutralPFOContainerWriteHandle.initialize());
-  if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandle_nonModified.initialize());
+  ATH_CHECK(m_eflowCaloObjectContainerReadHandleKey.initialize());
+  ATH_CHECK(m_neutralPFOContainerWriteHandleKey.initialize());
+  if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandleKey_nonModified.initialize());
   return StatusCode::SUCCESS;
   
 }
@@ -31,19 +22,22 @@ StatusCode PFONeutralCreatorAlgorithm::initialize(){
 StatusCode PFONeutralCreatorAlgorithm::execute(){
 
   ATH_MSG_DEBUG("Executing");
-  
-  ATH_CHECK(m_neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
-  if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandle_nonModified.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
-  
+
+  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey);
+  ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
+  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle_nonModified(m_neutralPFOContainerWriteHandleKey_nonModified);
+  if (m_LCMode) ATH_CHECK(neutralPFOContainerWriteHandle_nonModified.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
+    
   /* Create Neutral PFOs from all eflowCaloObjects */
-  for (auto thisEflowCaloObject : *m_eflowCaloObjectContainerReadHandle) createNeutralPFO(*thisEflowCaloObject);
+  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey);
+  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createNeutralPFO(*thisEflowCaloObject, neutralPFOContainerWriteHandle, neutralPFOContainerWriteHandle_nonModified);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PFONeutralCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 
-void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject){
+void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject,SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle, SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle_nonModified){
 
   unsigned int nClusters = energyFlowCaloObject.nClusters();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
@@ -64,12 +58,12 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     xAOD::PFO* thisPFO = new xAOD::PFO();
     if (m_LCMode) {
       if (thisEfRecCluster->isTouchable()) {
-        m_neutralPFOContainerWriteHandle->push_back(thisPFO);
+        neutralPFOContainerWriteHandle->push_back(thisPFO);
       } else {
-	m_neutralPFOContainerWriteHandle_nonModified->push_back(thisPFO);
+	neutralPFOContainerWriteHandle_nonModified->push_back(thisPFO);
       }
     } else {
-      m_neutralPFOContainerWriteHandle->push_back(thisPFO);
+      neutralPFOContainerWriteHandle->push_back(thisPFO);
     }
 
     ElementLink<xAOD::CaloClusterContainer> theClusterLink = thisEfRecCluster->getClusElementLink();

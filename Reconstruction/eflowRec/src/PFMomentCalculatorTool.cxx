@@ -9,14 +9,8 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 PFMomentCalculatorTool::PFMomentCalculatorTool(const std::string& type,const std::string& name,const IInterface* parent) :
-  base_class( type, name, parent),
-  m_clusterCollectionTool("eflowRecClusterCollectionTool",this),
-  m_clusterMomentsMaker("CaloClusterMomentsMaker",this),
-  m_LCMode(false)
+  base_class( type, name, parent)
 {
-  declareProperty("PFClusterCollectionTool",  m_clusterCollectionTool, "Tool to choose clusters to use");
-  declareProperty("CaloClusterMomentsMaker",      m_clusterMomentsMaker,          "Tool to Calculate Cluster Moments");
-  declareProperty("LCMode", m_LCMode, "Toggle whether we are in LC mode or not");
 }
 
 StatusCode PFMomentCalculatorTool::initialize(){

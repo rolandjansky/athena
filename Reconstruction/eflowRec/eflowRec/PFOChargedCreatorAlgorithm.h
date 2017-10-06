@@ -21,30 +21,30 @@ public:
   ~PFOChargedCreatorAlgorithm() {}
 
   StatusCode initialize();
-  void execute(const eflowCaloObject& energyFlowCaloObject);
+  void execute(const eflowCaloObject& energyFlowCaloObject, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
   StatusCode execute();
   StatusCode finalize();
 
 private:
   /** Create the charged PFO */ 
-  void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters = false);
+  void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
   /** Function to add links to the vertex to which a charged PFO is matched (using the tracking CP loose vertex association tool) */
-  void addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer);
+  void addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
 
-  /** Toggle e/p mode */
-  bool m_eOverPMode;
+  /** Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed */
+  Gaudi::Property<bool> m_eOverPMode{this,"EOverPMode",false,"Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed"};
 
   /** ToolHandle to tracking CP loose vertex selection tool */
-  ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
+  ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool{this,"TrackVertexAssociationTool","","ToolHandle to tracking CP loose vertex selection tool"};
 
-  /** ReadHandle for vertex container */
-  SG::ReadHandle<xAOD::VertexContainer> m_vertexContainerReadHandle;
+  /** ReadHandleKey for vertex container */
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerReadHandleKey{this,"VertexContainerName","PrimaryVertices","ReadHandleKey for vertex container"};
 
-  /** ReadHandle for eflowCaloObjectContainer */
-  SG::ReadHandle<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandle;
+  /** ReadHandleKey for eflowCaloObjectContainer */
+  SG::ReadHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandleKey{this,"eflowCaloObjectContainerName","eflowCaloObjects","ReadHandleKey for eflowCaloObjectContainer"};
   
-  /** WriteHandle for charged PFO */
-  SG::WriteHandle<xAOD::PFOContainer> m_chargedPFOContainerWriteHandle;
+  /** WriteHandleKey for charged PFO */
+  SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOContainerWriteHandleKey{this,"PFOOutputName","JetETMissChargedParticleFlowObjects","WriteHandleKey for charged PFO"};
   
   
 };

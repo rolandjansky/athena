@@ -43,29 +43,9 @@ using namespace eflowSubtract;
 
 PFCellLevelSubtractionTool::PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   base_class( type, name, parent),
-  m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
-  m_matchingToolForPull_015("PFTrackClusterMatchingTool/PFPullMatchingTool_015", this),
-  m_matchingToolForPull_02("PFTrackClusterMatchingTool/PFPullMatchingTool_02", this),
   m_binnedParameters(nullptr),
-  m_integrator(nullptr),
-  m_theEOverPTool("eflowCellEOverPTool",this),
-  m_subtractionSigmaCut(1.2),
-  m_consistencySigmaCut(1.0),
-  m_calcEOverP(false),
-  m_goldenModeString(""),
-  m_nMatchesInCellLevelSubtraction(1),
-  m_useUpdated2015ChargedShowerSubtraction(true)
+  m_integrator(nullptr)
 { 
-  declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
-  declareProperty("PFTrackClusterMatchingTool_015", m_matchingToolForPull_015, "The 0.15 track-cluster matching tool to calculate the pull");
-  declareProperty("PFTrackClusterMatchingTool_02", m_matchingToolForPull_02, "The 0.2 track-cluster matching tool to calculate the pull");
-  declareProperty("eflowCellEOverPTool", m_theEOverPTool, "Energy Flow E/P Values and Shower Paremeters Tool");
-  declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
-  declareProperty("ConsistencySigmaCut",m_consistencySigmaCut);
-  declareProperty("CalcEOverP",m_calcEOverP,"Whether to disable energy flow");
-  declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
-  declareProperty("nMatchesInCellLevelSubtraction",m_nMatchesInCellLevelSubtraction,"Number of clusters to match");
-  declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
 }
 
 PFCellLevelSubtractionTool::~PFCellLevelSubtractionTool() {
@@ -466,3 +446,5 @@ void PFCellLevelSubtractionTool::printAllClusters(const eflowRecClusterContainer
     }
   }
 }
+
+//bool PFCellLevelSubtractionTool::runInGoldenMode() { return ((m_goldenModeString.value() == "golden1") || (m_goldenModeString.value() == "golden2")); }

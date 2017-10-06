@@ -37,21 +37,22 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
   void applyLocalWeight(eflowRecCluster* theEFRecCluster);
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
-  ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool;
+  ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool{this,"eflowRecClusterCollectionTool","eflowRecClusterCollectionTool","Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters"};
 
   /* Tool for applying local hadronc calibration weights to cells */
-  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibTool;
+  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibTool{this,"CaloClusterLocalCalib","CaloClusterLocalCalib","Tool for applying local hadronc calibration weights to cells"};
 
   /* Tool to deal with out of cluster corrections */
-  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibOOCCTool;
+  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibOOCCTool{this,"CaloClusterLocalCalibOOCC","CaloClusterLocalCalib","Tool to deal with out of cluster corrections"};
 
   /* Tool to do Pi0 corrections */
-  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibOOCCPi0Tool;
+  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibOOCCPi0Tool{this,"CaloClusterLocalCalibOOCCPi0","CaloClusterLocalCalib","Tool to do Pi0 corrections"};
 
-  /* Tool for correcting clusters at cell level for dead materia */
-  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibDMTool;
+  /* Tool for correcting clusters at cell level for dead material */
+  ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibDMTool{this,"CaloClusterLocalCalibDM","CaloClusterLocalCalib","Tool for correcting clusters at cell level for dead material"};
 
-  bool m_useLocalWeight;
+  /** Toggle which LC weights scheme to use - default is to recalculate weights, rather than use saved weights */
+  Gaudi::Property<bool> m_useLocalWeight{this,"UseLocalWeight",false,"Toggle which LC weights scheme to use - default is to recalculate weights, rather than use saved weights"};
 
 };
 

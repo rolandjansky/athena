@@ -16,19 +16,8 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
 PFLCCalibTool::PFLCCalibTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_clusterCollectionTool("eflowRecClusterCollectionTool", this),
-  m_clusterLocalCalibTool("CaloClusterLocalCalib", this),
-  m_clusterLocalCalibOOCCTool("CaloClusterLocalCalib", this),
-  m_clusterLocalCalibOOCCPi0Tool("CaloClusterLocalCalib", this),
-  m_clusterLocalCalibDMTool("CaloClusterLocalCalib", this),
-  m_useLocalWeight(false) {
-  declareProperty("eflowRecClusterCollectionTool", m_clusterCollectionTool,       "Tool to choose clusters to use");
-  declareProperty("CaloClusterLocalCalib",        m_clusterLocalCalibTool,        "Cluster Calibration for EFlowRec");
-  declareProperty("CaloClusterLocalCalibOOCC",    m_clusterLocalCalibOOCCTool,    "Cluster CalibrationOOCC for EFlowRec");
-  declareProperty("CaloClusterLocalCalibOOCCPi0", m_clusterLocalCalibOOCCPi0Tool, "Cluster CalibrationOOCCPi0 for EFlowRec");
-  declareProperty("CaloClusterLocalCalibDM",      m_clusterLocalCalibDMTool,      "Cluster CalibrationDM for EFlowRec");
-  declareProperty("UseLocalWeight",               m_useLocalWeight,               "Use weight before subtraction");
+  base_class(type, name, parent)
+{
 }
 
 StatusCode PFLCCalibTool::initialize() {

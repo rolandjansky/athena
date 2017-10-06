@@ -6,41 +6,32 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 
 PFOChargedCreatorAlgorithm::PFOChargedCreatorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator) ,
-    m_eOverPMode(false),
-    m_trackVertexAssociationTool("",this),
-    m_vertexContainerReadHandle("PrimaryVertices"),
-    m_eflowCaloObjectContainerReadHandle("eflowCaloObjects"),
-    m_chargedPFOContainerWriteHandle("JetETMissChargedParticleFlowObjects")
+  AthAlgorithm(name,pSvcLocator)
 {
-  /* Name of  eflow Container to be created */
-  declareProperty("EOverPMode", m_eOverPMode);
-  declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
-  declareProperty("VertexContainerName",m_vertexContainerReadHandle);
-  declareProperty("PFOOutputName", m_chargedPFOContainerWriteHandle);
 }
 
 StatusCode PFOChargedCreatorAlgorithm::initialize(){
 
   ATH_CHECK(m_trackVertexAssociationTool.retrieve());
 
-  ATH_CHECK(m_vertexContainerReadHandle.initialize());
-  ATH_CHECK(m_eflowCaloObjectContainerReadHandle.initialize());
+  ATH_CHECK(m_vertexContainerReadHandleKey.initialize());
+  ATH_CHECK(m_eflowCaloObjectContainerReadHandleKey.initialize());
 
-  ATH_CHECK(m_chargedPFOContainerWriteHandle.initialize());
+  ATH_CHECK(m_chargedPFOContainerWriteHandleKey.initialize());
   
   return StatusCode::SUCCESS;
 }
 
-void PFOChargedCreatorAlgorithm::execute(const eflowCaloObject& energyFlowCaloObject){
+void PFOChargedCreatorAlgorithm::execute(const eflowCaloObject& energyFlowCaloObject, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
 
   ATH_MSG_DEBUG("Processing eflowCaloObject");
   
-  if (m_eOverPMode) createChargedPFO(energyFlowCaloObject, true);
-  else createChargedPFO(energyFlowCaloObject);
+  if (m_eOverPMode) createChargedPFO(energyFlowCaloObject, true, chargedPFOContainerWriteHandle);
+  else createChargedPFO(energyFlowCaloObject,false,chargedPFOContainerWriteHandle);
 
-  const xAOD::VertexContainer* theVertexContainer = m_vertexContainerReadHandle.ptr();  
-  addVertexLinksToChargedPFO(*theVertexContainer);
+  SG::ReadHandle<xAOD::VertexContainer> vertexContainerReadHandle(m_vertexContainerReadHandleKey);
+  const xAOD::VertexContainer* theVertexContainer = vertexContainerReadHandle.ptr();  
+  addVertexLinksToChargedPFO(*theVertexContainer, chargedPFOContainerWriteHandle);
   
 }
 
@@ -48,17 +39,19 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(){
 
   ATH_MSG_DEBUG("Processing eflowCaloObjectContainer");
 
-  ATH_CHECK(m_chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
+  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey);
+  ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Charged PFOs from all eflowCaloObjects */
-  for (auto thisEflowCaloObject : *m_eflowCaloObjectContainerReadHandle) execute(*thisEflowCaloObject);
+  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey);
+  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) execute(*thisEflowCaloObject,chargedPFOContainerWriteHandle);
 
   return StatusCode::SUCCESS;  
 }
 
 StatusCode PFOChargedCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 
-void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters){
+void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
 
   /* Loop over all tracks in the eflowCaloObject */
   int nTracks = energyFlowCaloObject.nTracks();
@@ -73,7 +66,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     
     /* Create new xAOD::PFO */
     xAOD::PFO* thisPFO = new xAOD::PFO();
-    m_chargedPFOContainerWriteHandle->push_back(thisPFO);
+    chargedPFOContainerWriteHandle->push_back(thisPFO);
 
     /* Get the track elementLink and add it to the xAOD:PFO  */
     ElementLink<xAOD::TrackParticleContainer> theTrackLink = efRecTrack->getTrackElemLink();
@@ -133,10 +126,10 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
   }//loop over the tracks on the eflowCaloObject
 }
 
-void PFOChargedCreatorAlgorithm::addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer){
+void PFOChargedCreatorAlgorithm::addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
 
   //This is a loop on all xAOD::PFO with non-zero charge
-  for (auto theChargedPFO : *m_chargedPFOContainerWriteHandle){
+  for (auto theChargedPFO : *(chargedPFOContainerWriteHandle.ptr())){
     const xAOD::TrackParticle* theTrack = theChargedPFO->track(0);
     if (theTrack){
       ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,theVertexContainer);

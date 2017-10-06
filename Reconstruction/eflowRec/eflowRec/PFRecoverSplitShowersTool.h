@@ -63,23 +63,25 @@ private:
   double m_windowRms;
 
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
-  ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool;
+  ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Parameters Tool"};
 
   /** Track-Cluster matching tool */
-  ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
+  ToolHandle<PFTrackClusterMatchingTool> m_matchingTool{this,"PFTrackClusterMatchingTool","PFTrackClusterMatchingTool/RcvrSpltMatchingTool","The track-cluster matching tool"};
 
   std::unique_ptr<eflowEEtaBinnedParameters> m_binnedParameters;
   std::unique_ptr<eflowLayerIntegrator> m_integrator;
 
-  double m_subtractionSigmaCut;
-
-  bool m_recoverIsolatedTracks;
-
   /** Count the number of track-cluster matches -- for the summary in finalize */
   unsigned int m_nTrackClusterMatches;
 
+  /** Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction */
+  Gaudi::Property<double> m_subtractionSigmaCut{this,"SubtractionSigmaCut",1.5,"Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction"};
+
+  /** Toggle whether to recover isolated tracks */
+  Gaudi::Property<bool> m_recoverIsolatedTracks{this,"RecoverIsolatedTracks",false,"Toggle whether to recover isolated tracks"};
+  
   /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
-  bool m_useUpdated2015ChargedShowerSubtraction;
+  Gaudi::Property<bool> m_useUpdated2015ChargedShowerSubtraction{this,"useUpdated2015ChargedShowerSubtraction",true,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region"};
   
 };
 
