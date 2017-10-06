@@ -162,18 +162,18 @@ StatusCode MDT_RegionSelectorTable::createTable() {
         
 	// what are is this loop over?
         for (int i=0; i<4; i++) {
-	  const MuonGM::MdtReadoutElement* _mdt = NULL;
-	  if ( i<2 )  _mdt = mdt1;
-	  else _mdt = mdt2;
-	  if (_mdt == NULL) {
+	  const MuonGM::MdtReadoutElement* mdt = NULL;
+	  if ( i<2 )  mdt = mdt1;
+	  else mdt = mdt2;
+	  if (mdt == NULL) {
 	    //  std::cout<<" element not found for index i = "<<i<<" --------- "<<std::endl;
                 if (i==2) {
                     Idv[2] = p_IdHelper->channelID(Id, 1, ntlay, 1);
-                    _mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
+                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
                 }
                 else if (i==3) {
                     Idv[3] = p_IdHelper->channelID(Id, 1, ntlay, ntubesl1);
-                    _mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
+                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
                 }
                 else
                 {
@@ -182,14 +182,14 @@ StatusCode MDT_RegionSelectorTable::createTable() {
                 }
                 
 	  }            
-	  Amg::Vector3D mdtPos = _mdt->tubePos(Idv[i]);
+	  Amg::Vector3D mdtPos = mdt->tubePos(Idv[i]);
 	  //	  std::cout<<p_IdHelper->show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp()<<std::endl;
 	  //
 	  Amg::Vector3D mdtPos1 = mdtPos;
 	  Amg::Vector3D mdtPos2 = mdtPos;
 	  double scaleMin  = (mdtPos.perp()-tubePitch/2.)/mdtPos.perp();
 	  double scalePlus = (mdtPos.perp()+tubePitch/2.)/mdtPos.perp();
-	  if (_mdt->barrel()) {
+	  if (mdt->barrel()) {
           
                 // these are z ranges of the first or last tube layer 
                 //mdtPos1.setZ(mdtPos.z()-tubePitch/2.);
@@ -254,7 +254,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
                 }
                 if (i<2) 
                 {
-                    if (_mdt->sideA())
+                    if (mdt->sideA())
                     {
                         //mdtPos1.setZ(mdtPos.z()-tubePitch/2.);
                         //mdtPos2.setZ(mdtPos.z()-tubePitch/2.);
@@ -271,7 +271,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
                 }
                 else
                 {
-                    if (_mdt->sideA())
+                    if (mdt->sideA())
                     {
                        //mdtPos1.setZ(mdtPos.z()+tubePitch/2.);
                        //mdtPos2.setZ(mdtPos.z()+tubePitch/2.);
@@ -295,7 +295,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
 	  double rminMod = 0.;
 	  double rmaxMod = 0.;
 	  double dphi = 0.;
-	  if (_mdt->barrel()) {
+	  if (mdt->barrel()) {
 	        eminMod = mdtPos1.eta(); 
 		emaxMod = mdtPos2.eta(); 
                                                 
@@ -305,11 +305,11 @@ StatusCode MDT_RegionSelectorTable::createTable() {
                 rminMod = mdtPos1.perp();   
                 rmaxMod = mdtPos2.perp();
                 
-                dphi = atan2(_mdt->getSsize()/2., (mdtPos.perp()-tubePitch/2.));
+                dphi = atan2(mdt->getSsize()/2., (mdtPos.perp()-tubePitch/2.));
 	  }            
 	  else 
           {
-                if (_mdt->sideA())
+                if (mdt->sideA())
                 {
                     eminMod = mdtPos2.eta(); 
                     emaxMod = mdtPos1.eta(); 
@@ -331,7 +331,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
                     rminMod = mdtPos1.perp();   
                     rmaxMod = mdtPos2.perp();                       
                 }
-                dphi = atan2(_mdt->tubeLength(Idv[i])/2., (mdtPos.perp()-tubePitch/2.));
+                dphi = atan2(mdt->tubeLength(Idv[i])/2., (mdtPos.perp()-tubePitch/2.));
 	  }
 	  double pminMod = mdtPos.phi() - dphi;
 	  double pmaxMod = mdtPos.phi() + dphi;
