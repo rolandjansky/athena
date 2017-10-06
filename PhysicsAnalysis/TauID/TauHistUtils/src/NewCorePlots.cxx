@@ -79,7 +79,7 @@ void NewCorePlots::initializePlots(){
 
     m_innerTrkAvgDist                   = Book1D("innerTrkAvgDist",m_sTauJetContainerName + "Tau innerTrkAvgDist; innerTrkAvgDist; # of Taus",10,-0.2,.8);
     m_ptRatioEflowApprox                 = Book1D("ptRatioEflowApprox",m_sTauJetContainerName + "Tau ptRatioEflowApprox; ptRatioEflowApprox; # of Taus", 10, 0, 10);
-    m_mEflowApprox						= Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0,300);
+    m_mEflowApprox						= Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0.0,3000.0);
 }
 
 void NewCorePlots::fill(const xAOD::TauJet& tau) {
