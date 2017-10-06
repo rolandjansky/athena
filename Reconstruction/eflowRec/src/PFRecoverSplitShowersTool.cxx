@@ -51,13 +51,6 @@ PFRecoverSplitShowersTool::~PFRecoverSplitShowersTool() {}
 
 StatusCode PFRecoverSplitShowersTool::initialize(){
 
-  // tool service
-  IToolSvc* myToolSvc;
-  if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    ATH_MSG_WARNING(" Tool Service Not Found");
-    return StatusCode::SUCCESS;
-  }
-
   if (m_matchingTool.retrieve().isFailure()){
     ATH_MSG_WARNING("Couldn't retrieve PFTrackClusterMatchingTool");
     return StatusCode::SUCCESS;

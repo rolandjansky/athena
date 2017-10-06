@@ -74,10 +74,6 @@ PFCellLevelSubtractionTool::~PFCellLevelSubtractionTool() {
 StatusCode PFCellLevelSubtractionTool::initialize(){
   StatusCode sc;
 
-  /* tool service */
-  IToolSvc* myToolSvc;
-  sc = service("ToolSvc", myToolSvc);
-
   if (m_matchingTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
   }
