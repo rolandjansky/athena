@@ -42,7 +42,10 @@ VersionedKey::VersionedKey(const char* versionedKey) {
   copyVK(std::string(versionedKey));
 }
 VersionedKey::VersionedKey(const VersionedKey& versionedKey) :
-  m_versionKey(versionedKey.m_versionKey) {}
+  m_versionKey(versionedKey.m_versionKey),
+  m_baseKey (versionedKey.m_baseKey)
+{
+}
 
 void VersionedKey::decode(std::string& outKey, unsigned char& version) const {
   outKey = this->key();
@@ -55,11 +58,13 @@ void VersionedKey::encode(const std::string& inKey, unsigned char version) {
   char vers[5];
   snprintf(vers, 5, versionFormatString(), version);
   m_versionKey = vers + inKey;
+  m_baseKey = inKey;
 }
 
 void VersionedKey::copyVK(const std::string& inKey) {
   if (isVersionedKey(inKey)) {
     m_versionKey = inKey;
+    m_baseKey = m_versionKey.substr(4);
   } else {
     encode(inKey, 0);  //FIXME should autoincrement
   }
@@ -69,9 +74,6 @@ unsigned char VersionedKey::version() const {
 }
 /// @returns base key
 const std::string& VersionedKey::key() const { 
-  if (m_baseKey.empty()) {
-    m_baseKey = m_versionKey.substr(4);
-  } 
   return m_baseKey;
 }
 

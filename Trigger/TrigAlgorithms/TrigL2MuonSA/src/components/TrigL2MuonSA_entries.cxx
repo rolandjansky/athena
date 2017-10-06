@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigL2MuonSA/MuFastSteering.h"
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
@@ -61,35 +60,3 @@ DECLARE_SERVICE_FACTORY(PtBarrelLUTSvc)
 DECLARE_SERVICE_FACTORY(PtEndcapLUTSvc)
 DECLARE_SERVICE_FACTORY(AlignmentBarrelLUTSvc)
 
-DECLARE_FACTORY_ENTRIES(TrigL2MuonSA)
-{
-  DECLARE_ALGORITHM(MuFastSteering);
-  DECLARE_TOOL(MuCalStreamerTool)
-  DECLARE_TOOL(MuFastDataPreparator);
-  DECLARE_TOOL(TgcDataPreparator);
-  DECLARE_TOOL(RpcDataPreparator);
-  DECLARE_TOOL(MdtDataPreparator);
-  DECLARE_TOOL(CscDataPreparator);
-  DECLARE_TOOL(TgcRoadDefiner);
-  DECLARE_TOOL(TgcFit);
-  DECLARE_TOOL(RpcRoadDefiner);
-  DECLARE_TOOL(RpcPatFinder);
-  DECLARE_TOOL(MdtRegionDefiner);
-  DECLARE_TOOL(MuFastPatternFinder);
-  DECLARE_TOOL(MuFastStationFitter);
-  DECLARE_TOOL(MuFastTrackFitter);
-  DECLARE_TOOL(MuFastTrackExtrapolator);
-  DECLARE_TOOL(AlphaBetaEstimate);
-  DECLARE_TOOL(SagittaRadiusEstimate);
-  DECLARE_TOOL(PtFromAlphaBeta);
-  DECLARE_TOOL(PtFromRadius);
-  DECLARE_TOOL(PtBarrelLUT);
-  DECLARE_TOOL(PtEndcapLUT);
-  DECLARE_TOOL(AlignmentBarrelLUT);
-  DECLARE_TOOL(CscSegmentMaker);
-  DECLARE_TOOL(CscRegDict);
-
-  DECLARE_SERVICE(PtBarrelLUTSvc);
-  DECLARE_SERVICE(PtEndcapLUTSvc);
-  DECLARE_SERVICE(AlignmentBarrelLUTSvc);
-}

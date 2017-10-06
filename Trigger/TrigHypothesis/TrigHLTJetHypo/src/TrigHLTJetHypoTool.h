@@ -28,9 +28,9 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
                      const IInterface* );
   
   // to allow access to the IHelloTool interface
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-  StatusCode initialize() override;
-  StatusCode decide(const xAOD::JetContainer*, bool&) const override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode decide(const xAOD::JetContainer*, bool&) const override;
 
   virtual TrigCompositeUtils::DecisionID decisionId() const override;
 

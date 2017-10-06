@@ -18,59 +18,41 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "IRoIsUnpackingTool.h"
+#include "RoIsUnpackingToolBase.h"
 
 
-class MURoIsUnpackingTool
-  : virtual public ::IRoIsUnpackingTool,
-    public ::AthAlgTool
+class MURoIsUnpackingTool : public RoIsUnpackingToolBase
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   MURoIsUnpackingTool( const std::string& type,
-		       const std::string& name, 
-		       const IInterface* parent );
+                       const std::string& name, 
+                       const IInterface* parent );
 
-  /// Destructor: 
-  virtual ~MURoIsUnpackingTool(); 
-  
-  // Athena algtool's Hooks
-  StatusCode initialize() override;
-  StatusCode updateConfiguration() override;
-  StatusCode finalize() override;
-  StatusCode unpack(const EventContext& ctx,
-		    const ROIB::RoIBResult& roib,
-		    const HLT::IDSet& activeChains) const override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode updateConfiguration() override;
+  virtual StatusCode unpack(const EventContext& ctx,
+                            const ROIB::RoIBResult& roib,
+                            const HLT::IDSet& activeChains) const override;
 private: 
 
-  /// Default constructor: 
-  MURoIsUnpackingTool();
-  
-  std::vector<TrigConf::TriggerThreshold*> m_muonThresholds;
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_trigRoIsKey;
-  SG::WriteHandleKey< DataVector<LVL1::RecMuonRoI> > m_recRoIsKey;
+  ///@{ @name Properties
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_trigRoIsKey{
+    this, "OutputTrigRoIs", "MURoIs", "Name of the RoIs object produced by the unpacker"};
+
+  SG::WriteHandleKey< DataVector<LVL1::RecMuonRoI> > m_recRoIsKey{
+    this, "OutputRecRoIs", "RecMURoIs", "Name of the RoIs object produced by the unpacker"};
+
+  Gaudi::Property<float> m_roIWidth{"RoIWidth", 0.1, "Size of RoI in eta/ phi"};
+  ///@}
+
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ServiceHandle<LVL1::RecMuonRoiSvc> m_recRpcRoISvc;
   ServiceHandle<LVL1::RecMuonRoiSvc> m_recTgcRoISvc;
-  float m_roIWidth;
-  ToolHandle<GenericMonitoringTool> m_monTool;
+
+  std::vector<TrigConf::TriggerThreshold*> m_muonThresholds;
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 
 #endif //> !L1DECODER_MUROISUNPACKINGTOOL_H

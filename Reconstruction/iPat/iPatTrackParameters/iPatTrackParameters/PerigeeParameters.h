@@ -6,7 +6,6 @@
  PerigeeParameters describes 5 track parameters with their covariance matrix
  in the perigree representation (at closest tranverse approach to vertex)
  ------------------------------------------------------------------------
- Copyright (C) 1998 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKPARAMETERS_PERIGEE_PARAMETERS_H

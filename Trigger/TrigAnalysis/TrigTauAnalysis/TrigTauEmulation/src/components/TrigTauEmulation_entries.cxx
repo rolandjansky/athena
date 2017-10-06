@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigTauEmulation/Level1EmulationTool.h"
 #include "TrigTauEmulation/HltEmulationTool.h"
@@ -24,17 +23,3 @@ DECLARE_ALGORITHM_FACTORY( TTETestAlg )
 DECLARE_TOOL_FACTORY( EmTauSelectionTool )
 DECLARE_TOOL_FACTORY( FastTrackSelectionTool )
 
-DECLARE_FACTORY_ENTRIES( TrigTauEmulation ) 
-{
-  DECLARE_NAMESPACE_TOOL( TrigTauEmul, Level1EmulationTool );
-  DECLARE_NAMESPACE_TOOL( TrigTauEmul, HltEmulationTool );
-  DECLARE_TOOL( EmTauSelectionTool );
-  DECLARE_TOOL( MuonRoISelectionTool );
-  DECLARE_TOOL( JetRoISelectionTool );
-  DECLARE_TOOL( EnergySumSelectionTool );
-  DECLARE_TOOL( HltTauSelectionTool );
-  DECLARE_ALGORITHM( TTETestAlg );
-  DECLARE_TOOL( EmTauSelectionTool );
-  DECLARE_TOOL( FastTrackSelectionTool );
-
-}

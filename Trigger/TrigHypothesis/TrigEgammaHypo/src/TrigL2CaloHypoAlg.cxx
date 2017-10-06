@@ -11,11 +11,9 @@ TrigL2CaloHypoAlg::TrigL2CaloHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
-TrigL2CaloHypoAlg::~TrigL2CaloHypoAlg()
-{}
+TrigL2CaloHypoAlg::~TrigL2CaloHypoAlg() {}
 
-StatusCode TrigL2CaloHypoAlg::initialize()
-{
+StatusCode TrigL2CaloHypoAlg::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK( m_hypoTools.retrieve() );
 
@@ -27,19 +25,14 @@ StatusCode TrigL2CaloHypoAlg::initialize()
   renounce( m_roisKey );
   CHECK( m_roisKey.initialize() );
 
+  CHECK( m_previousDecisionsKey.initialize() );
+
   CHECK( m_decisionsKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2CaloHypoAlg::finalize()
-{
-  ATH_MSG_INFO ( "Finalizing " << name() << "..." );
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
-{  
+StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto viewsHandle = SG::makeHandle( m_viewsKey, context );
   
@@ -48,7 +41,18 @@ StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
   decisions->setStore( aux.get() );
 
 
-  std::vector<TrigL2CaloHypoTool::Input> toolInput;
+  std::map<const TrigRoiDescriptor*, const TrigCompositeUtils::Decision* > roiToDecision;
+  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
+  for ( auto previousDecision: *previousDecisionsHandle ) {
+    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    CHECK( roiEL.isValid() );
+    const TrigRoiDescriptor* roi = *roiEL;
+    roiToDecision.insert( std::make_pair( roi, previousDecision ) );
+  }
+  ATH_MSG_DEBUG( "RoI to decisions map size: " << roiToDecision.size() );
+
+
+  std::vector<ITrigL2CaloHypoTool::ClusterInfo> toolInput;
   // exploit knowledge that there is one cluster in the view
   size_t counter = 0;
   for ( auto view: *viewsHandle ) {
@@ -56,12 +60,12 @@ StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
     
     auto roiHandle =  SG::makeHandle( m_roisKey, context );
     CHECK( roiHandle.setProxyDict( view ) );
+    const TrigRoiDescriptor* roi = roiHandle.cptr()->at(0);
 
     auto clusterHandle =  SG::makeHandle( m_clustersKey, context );
     CHECK( clusterHandle.setProxyDict( view ) );
-    
-    toolInput.emplace_back( d, roiHandle.cptr()->at(0), clusterHandle.cptr()->at(0) );
-
+       
+    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), roiToDecision[roi] );
 
     {
       auto el = ElementLink<xAOD::TrigEMClusterContainer>( view->name()+"_"+clusterHandle.key(), 0 ); // 0 because there is only one obj in per-view collection
@@ -83,7 +87,6 @@ StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
   for ( auto& tool: m_hypoTools ) {
     CHECK( tool->decide( toolInput ) );
   }
-
  
   {
     auto handle =  SG::makeHandle( m_decisionsKey, context );

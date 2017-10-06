@@ -23,7 +23,10 @@ namespace Trk
     m_a3Window(                 0.01168   ) ,
     m_cutoffFreqDenominator_xy( 2         ) ,
     m_cutoffFreqDenominator_z(  1         ) ,
-    m_angularCutoffParameter(   0.75      ) {
+    m_angularCutoffParameter(   0.75      ) ,
+    m_x_min(0), m_x_max(0), m_y_min(0), m_y_max(0), m_z_min(0), m_z_max(0),
+    m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0), 
+    m_histRS(NULL), m_histFS(NULL)          {
 
     declareProperty("xbins"                   , m_xbins                    );
     declareProperty("ybins"                   , m_ybins                    );

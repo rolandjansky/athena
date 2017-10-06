@@ -1,6 +1,5 @@
 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigConfigSvc/L1TopoConfigSvc.h"
 #include "TrigConfigSvc/LVL1ConfigSvc.h"
@@ -19,13 +18,3 @@ DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, HLTJobOptionsSvc  )
 DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, DSConfigSvc       )
 DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, TrigConfigSvc     )
 
-DECLARE_FACTORY_ENTRIES( TrigConfigSvc ) {
-  DECLARE_NAMESPACE_ALGORITHM( TrigConf, TrigConfDataIOVChanger )
-
-  DECLARE_NAMESPACE_SERVICE( TrigConf, L1TopoConfigSvc   )
-  DECLARE_NAMESPACE_SERVICE( TrigConf, LVL1ConfigSvc     )
-  DECLARE_NAMESPACE_SERVICE( TrigConf, HLTConfigSvc      )
-  DECLARE_NAMESPACE_SERVICE( TrigConf, HLTJobOptionsSvc  )
-  DECLARE_NAMESPACE_SERVICE( TrigConf, DSConfigSvc       )
-  DECLARE_NAMESPACE_SERVICE( TrigConf, TrigConfigSvc     )
-}

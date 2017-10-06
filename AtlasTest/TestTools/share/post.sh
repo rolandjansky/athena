@@ -166,6 +166,7 @@ PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO|Loop Finished .seconds'
 PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
+PP="$PP"'|DEBUG Calling destructor'
 
 
 if [ "$extrapatterns" != "" ]; then

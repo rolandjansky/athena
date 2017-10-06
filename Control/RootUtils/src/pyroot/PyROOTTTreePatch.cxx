@@ -10,6 +10,10 @@
  * @brief Performance improvements and fixes for root's pythonized @c TTree.
  */
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "RootUtils/PyROOTTTreePatch.h"
 #include "Utility.h"
 #include "Converters.h"

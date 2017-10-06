@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaL1SelectorTool.h"
@@ -24,18 +23,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFElectronSelectorTool)
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFPhotonSelectorTool)   
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolTest) 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolAlg) 
-
-DECLARE_FACTORY_ENTRIES(TrigEgammaEmulationTool) {
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEmulationTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaSelectorBaseTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL1SelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2SelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2ElectronSelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2CaloSelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2CaloRingerSelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFCaloSelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFElectronSelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFPhotonSelectorTool)
-  DECLARE_NAMESPACE_ALGORITHM(Trig,TrigEgammaMatchingToolTest)
-}
 

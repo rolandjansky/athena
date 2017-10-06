@@ -27,9 +27,6 @@ Here's a brief list of what's here.
  - RootUtils::PyROOTTTreePatch: Work around performance problems with
    PyROOT's pythonization of TTree.
 
- - RootUtils::ScanForAbstract: Work around problems caused by Root's
-   inability to correctly represent virtual bases in TClass.
-
  - RootUtils::StdHackGenerator: Work around inconsistent use of std::
    with Root's autoloading.
 

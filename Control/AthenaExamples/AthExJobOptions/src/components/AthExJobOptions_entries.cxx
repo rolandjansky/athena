@@ -9,7 +9,6 @@
 #include "AthExJobOptions/AnotherConcreteSvc.h"
 #include "AthExJobOptions/ExampleEvtLoopPreSelectTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 typedef ToolSpace::TemplatedTool< double > ToolSpaceTemplatedToolDouble;
 
@@ -25,15 +24,3 @@ DECLARE_TOOL_FACTORY( ExampleEvtLoopPreSelectTool )
 DECLARE_SERVICE_FACTORY( ConcreteSvc )
 DECLARE_SERVICE_FACTORY( AnotherConcreteSvc )
 
-DECLARE_FACTORY_ENTRIES( AthExJobOptions ) {
-   DECLARE_ALGORITHM( NoopAlgorithm )
-   DECLARE_ALGORITHM( TopAlgorithm )
-   DECLARE_ALGORITHM( SubAlgorithm )
-   DECLARE_ALGORITHM( TestSvcHandleArrayAlg )
-   DECLARE_ALGTOOL( ConcreteTool )
-   DECLARE_ALGTOOL( ToolUsingTool )
-   DECLARE_ALGTOOL( ToolSpaceTemplatedToolDouble )
-   DECLARE_ALGTOOL( ExampleEvtLoopPreSelectTool )
-   DECLARE_SERVICE( ConcreteSvc )
-   DECLARE_SERVICE( AnotherConcreteSvc )
-}

@@ -25,14 +25,17 @@ using namespace std;
 
 namespace {
 
-bool crc_init = false;
-uint64_t CRCTable[256];
+class CRCTable
+{
+public:
+  CRCTable();
+  uint64_t table[256];
+};
 
 
 // Initialize the CRC table.
-void init_table()
+CRCTable::CRCTable()
 {
-  crc_init = true;
   for (int i = 0; i < 256; i++)
   {
     uint64_t r = i;
@@ -43,9 +46,11 @@ void init_table()
       else
         r >>= 1;
     }
-    CRCTable[i] = r;
+    table[i] = r;
   }
 }
+
+static const CRCTable table;
 
 } // anonymous namespace
 
@@ -59,14 +64,11 @@ namespace SG {
  */
 uint64_t crc64 (const std::string& str)
 {
-  if (!crc_init)
-    init_table();
-
   uint64_t crc = INITIALCRC;
   const char* seq = str.data();
   const char* end = seq + str.size();
   while (seq < end)
-    crc = CRCTable[(crc ^ *seq++) & 0xff] ^ (crc >> 8);
+    crc = table.table[(crc ^ *seq++) & 0xff] ^ (crc >> 8);
   return crc;
 }
 
@@ -79,11 +81,8 @@ uint64_t crc64 (const std::string& str)
  */
 uint64_t crc64addint (uint64_t crc, unsigned int x)
 {
-  if (!crc_init)
-    init_table();
-
   while (x > 0) {
-    crc = CRCTable[(crc ^ x) & 0xff] ^ (crc >> 8);
+    crc = table.table[(crc ^ x) & 0xff] ^ (crc >> 8);
     x >>= 8;
   }
   return crc;

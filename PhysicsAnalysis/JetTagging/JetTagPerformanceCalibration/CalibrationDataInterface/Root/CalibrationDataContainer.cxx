@@ -1304,7 +1304,7 @@ CalibrationDataMappedHistogramContainer::findBin() const
   // Find the bin corresponding to the computed variables (the computation is assumed to have just
   // taken place and resulted in the m_vars array having been filled appropriately)
 
-  Int_t mapped[3];
+  Int_t mapped[3] = {0};
   const TH1* hist = dynamic_cast<const TH1*>(m_objResult);
   Int_t ndim = hist->GetDimension();
   // Push the mapped variables onto an array.
@@ -1445,6 +1445,24 @@ CalibrationDataMappedHistogramContainer::Bin::Bin(const CalibrationDataMappedHis
     m_up[dim]  = other.m_up[dim];
     m_low[dim] = other.m_low[dim];
   }
+}
+
+//________________________________________________________________________________
+CalibrationDataMappedHistogramContainer::Bin&
+CalibrationDataMappedHistogramContainer::Bin::operator=(const CalibrationDataMappedHistogramContainer::Bin& other)
+{
+  if (this != &other) {
+    m_dimension = other.m_dimension;
+    delete[] m_up;
+    delete[] m_low;
+    m_up  = new double[m_dimension];
+    m_low = new double[m_dimension];
+    for (unsigned int dim = 0; dim < m_dimension; ++dim) {
+      m_up[dim]  = other.m_up[dim];
+      m_low[dim] = other.m_low[dim];
+    }
+  }
+  return *this;
 }
 
 //________________________________________________________________________________
