@@ -141,7 +141,7 @@ void OverlapRemovalTestAlg::printObjects(const xAOD::IParticleContainer& contain
   for(auto obj : container){
     if(selectAcc(*obj)){
       bool overlaps = overlapAcc(*obj);
-      ATH_MSG_INFO("  " << type << " pt " << obj->pt()*invGeV
+      ATH_MSG_DEBUG("  " << type << " pt " << obj->pt()*invGeV
                     << " eta " << obj->eta() << " phi " << obj->phi()
                     << " overlaps " << overlaps);
     }

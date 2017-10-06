@@ -88,15 +88,15 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool pass_accept = 0;
 	int jvtDecision = 0;
 	int orDecision = 0;
- 	bool isThisJetGood = 0;
+	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
-	
-	for (auto thisJet : *jets){  //loop over decorated jet collection 
-        	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "_jetClean_" + m_cleaningLevel);
- 		const static SG::AuxElement::Accessor<char> acc_passOR(m_or);
-  		const static SG::AuxElement::Accessor<char> acc_passJvt(m_jvt);	
-		ATH_MSG_INFO("m_or: " << m_or << ", m_jvt: " << m_jvt);
 
+	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "_jetClean_" + m_cleaningLevel);
+	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_or);
+	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_jvt);	
+	ATH_MSG_INFO("m_or: " << m_or << ", m_jvt: " << m_jvt);
+
+	for (auto thisJet : *jets){  //loop over decorated jet collection 
 		pass_pt = thisJet->pt() > m_pt; 
 		pass_eta = fabs(thisJet->eta()) < m_eta;
 		pass_accept = keepJet(*thisJet); 
