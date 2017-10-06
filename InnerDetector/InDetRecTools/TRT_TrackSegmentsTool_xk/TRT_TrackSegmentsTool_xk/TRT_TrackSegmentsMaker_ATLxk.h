@@ -106,7 +106,6 @@ namespace InDet{
       Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
       const InDetDD::TRT_DetectorManager   * m_trtmgr          ;
       const TRT_ID                         * m_trtid           ; 
-      //      std::string                            m_trtname         ; // Name  TRT container
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; // TRTs   container ; // Name  TRT container
       
       bool                                   m_build           ;

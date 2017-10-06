@@ -219,7 +219,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
-  //if(!m_trtcontainer) return;
+
   if (not m_trtcontainer.isValid()) return;
   // Initiate extension tool
   //

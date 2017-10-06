@@ -115,7 +115,6 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
 
-      //std::string                              m_trtname     ; //!< Container with TRT clusters
       std::string                              m_multiTruthCollectionTRTName; //!< Name of TRT TruthCollection
       bool                                     m_phaseMode   ; //!< Switch to destinguish between phase calculation and full reco
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
