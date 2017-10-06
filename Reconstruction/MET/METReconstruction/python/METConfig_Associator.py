@@ -4,7 +4,7 @@ from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 
 modConstKey = ""
-modClusColl = {}
+modClusColls = {}
 if metFlags.UseTracks():
     modConstKey="OriginCorr"
     modClusColls={
