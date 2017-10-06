@@ -61,15 +61,15 @@ def getLooperKillerEventOverlayTool(name="G4UA::LooperKillerEventOverlayTool", *
     return getLooperKillerTool(name, **kwargs)
 
 
+def getMonopoleLooperKillerTool(name="G4UA::MonopoleLooperKillerTool", **kwargs):
+    kwargs.setdefault("MaxSteps",2000000)
+    kwargs.setdefault("PrintSteps",2)
+    kwargs.setdefault("VerboseLevel",0)
+    return getLooperKillerTool(name, **kwargs)
+
+
 def addLooperKillerTool(name="G4UA::LooperKillerTool", system=False):
     G4AtlasServicesConfig.addAction(name,['Step'],system)
-
-
-def getMonopoleLooperKillerTool(name="MonopoleLooperKillerTool", **kwargs):
-    kwargs.setdefault("PrintSteps", 2)
-    kwargs.setdefault("MaxSteps", 2000000)
-    kwargs.setdefault("VerboseLevel", 0)
-    return getLooperKillerTool(name, **kwargs)
 
 
 def getMomentumConservationTool(name="G4UA::MomentumConservationTool", **kwargs):
