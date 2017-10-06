@@ -11,7 +11,7 @@
 
 LArMCSymCondAlg::LArMCSymCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_readKey("LArOnOnffMap"),
+  m_readKey("LArOnOffIdMap"),
   m_writeKey("LArMCSym","LArMCSym"),
   m_condSvc("CondSvc",name) {
   
