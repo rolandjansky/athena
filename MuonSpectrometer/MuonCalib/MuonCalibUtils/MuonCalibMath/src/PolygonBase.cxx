@@ -40,7 +40,7 @@ void PolygonBase::init(const std::vector<double> & x) {
 	for (unsigned int k=0; k<x.size()-1; k++) {
 		if (x[k]>=x[k+1]) {
 			cerr << "\n"
-				<< "Class PolygonBase, method m_init: ERROR!\n"
+				<< "Class PolygonBase, method init: ERROR!\n"
 				<< "Abscissae not in increasing order!\n";
 			exit(1);
 		}
