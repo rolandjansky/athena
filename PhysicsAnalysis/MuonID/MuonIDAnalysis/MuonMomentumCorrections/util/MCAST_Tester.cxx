@@ -293,7 +293,6 @@ int main( int argc, char* argv[] ) {
           delete mu;
         }
         else {
-          //if( muon->type() == 0 ) continue;
           if( !corrTool.applyCorrection( *muon ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
@@ -308,7 +307,6 @@ int main( int argc, char* argv[] ) {
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
-        //break; 
       }
       //}
     }
