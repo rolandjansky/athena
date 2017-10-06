@@ -9,7 +9,7 @@
 // Extra Tree
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
