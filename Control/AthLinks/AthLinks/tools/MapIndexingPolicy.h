@@ -19,7 +19,6 @@
 
 
 #include "AthLinks/tools/DefaultIndexingPolicy.h"
-#include "AthLinks/tools/RemoveDataPtr.h"
 #include "AthLinks/tools/IndexHolder.h"
 #include "AthLinks/exceptions.h"
 #include "AthenaKernel/tools/type_tools.h"
