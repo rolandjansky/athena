@@ -104,10 +104,10 @@ HLT::ErrorCode FexAlgo::plugin_acceptInputs(TEVec& inputTEs, bool& pass) {
 HLT::ErrorCode
 FexAlgo::processRobRequests(const std::vector< unsigned int >& inputs ) {
 
-  // FEX has exactly one input type
+  // FEX should normally have exactly one input type but some chains call this method with 0 inputs
   if (inputs.size() != 1) {
-    ATH_MSG_ERROR ( "The size of the input to FexAlgo::processRobRequests(v<uint> input) is " << inputs.size() << ", needs to be 1! Returning ABORT CHAIN!");
-    return HLT::ErrorCode( Action::ABORT_CHAIN, Reason::BAD_JOB_SETUP );  
+    ATH_MSG_DEBUG ( "The size of the input to FexAlgo::processRobRequests(v<uint> input) is " << inputs.size() << ", should be 1! No ROBs for prefetching will be prepared");
+    return HLT::OK;
   }
 
   // get input TEs from Navigation
