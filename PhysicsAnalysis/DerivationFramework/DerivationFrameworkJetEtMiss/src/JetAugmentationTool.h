@@ -20,6 +20,7 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 #include "xAODJet/JetContainer.h"
 
 namespace DerivationFramework {

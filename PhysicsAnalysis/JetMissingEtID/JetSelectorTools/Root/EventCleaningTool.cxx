@@ -42,12 +42,14 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_eta()
   , m_jvt()
   , m_or()
+  , m_prefix()
   , m_cleaningLevel()
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
   declareProperty( "EtaCut" , m_eta = 4.5 );
   declareProperty( "JvtDecorator" , m_jvt = "passJvt" );
   declareProperty( "OrDecorator" , m_or = "passOR" );
+  declareProperty( "JetCleanPrefix", m_prefix = "DFCommonJets" );
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
 }
 
@@ -90,27 +92,27 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isEventAllGood = 1;
 	
 	for (auto thisJet : *jets){  //loop over decorated jet collection 
-        	const static SG::AuxElement::Decorator<char> dec_jetClean("DFCommonJets_jetClean_" + m_cleaningLevel);
+        	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "_jetClean_" + m_cleaningLevel);
  		const static SG::AuxElement::Accessor<char> acc_passOR(m_or);
   		const static SG::AuxElement::Accessor<char> acc_passJvt(m_jvt);	
-		ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
+		ATH_MSG_INFO("m_or: " << m_or << ", m_jvt: " << m_jvt);
 
 		pass_pt = thisJet->pt() > m_pt; 
 		pass_eta = fabs(thisJet->eta()) < m_eta;
 		pass_accept = keepJet(*thisJet); 
 		jvtDecision = acc_passJvt(*thisJet);
-		orDecision = acc_passOR(*thisJet);
+		orDecision = !acc_passOR(*thisJet); //Recall passOR==0 if object is NOT an overlap.
 
-		ATH_MSG_DEBUG("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
-		if(pass_pt && pass_eta && acc_passJvt(*thisJet) && !acc_passOR(*thisJet)){//only consider jets for cleaning if they pass these requirements. Recall passOR==0 if object is NOT an overlap.
+		ATH_MSG_INFO("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
+		if(pass_pt && pass_eta && acc_passJvt(*thisJet) && acc_passOR(*thisJet)){//only consider jets for cleaning if they pass these requirements. 
 			isThisJetGood = pass_accept;
 			isEventAllGood = isEventAllGood && isThisJetGood; //any event with a bad jet is rejected 
 		}	
-		else isThisJetGood = 1;     //if it fails any one of these, it shouldn't be able to kill the whole event 
-		ATH_MSG_DEBUG("Is jet good? " << isThisJetGood);
+		else isThisJetGood = pass_accept;     //if it fails any one of these, it shouldn't be able to kill the whole event, but we still need to know cleaning
+		ATH_MSG_INFO("Is jet good? " << isThisJetGood);
 		dec_jetClean(*thisJet) = isThisJetGood;
  	}
-	ATH_MSG_DEBUG("Is event good? " << isEventAllGood);
+	ATH_MSG_INFO("Is event good? " << isEventAllGood);
 	return isEventAllGood;		
 }
 

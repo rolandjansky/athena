@@ -26,7 +26,7 @@ OverlapRemovalTestAlg::OverlapRemovalTestAlg(const std::string& name,
   declareProperty("OverlapRemovalTool", m_orTool);
   declareProperty("SelectionLabel", m_selectionLabel="selected",
                   "Input label for the OverlapRemovalTool");
-  declareProperty("OverlapLabel", m_overlapLabel="DFCommonJets_isOverlap",
+  declareProperty("OverlapLabel", m_overlapLabel="overlaps",
                   "Output label for the OverlapRemovalTool");
   declareProperty("BJetLabel", m_bJetLabel="isBJet",
                   "Input label for b-tagged jets");
@@ -76,11 +76,11 @@ StatusCode OverlapRemovalTestAlg::execute()
 
   // Dump the objects
   ATH_MSG_DEBUG("Dumping results");
-  //printObjects(*electrons, "ele");
-  //printObjects(*muons, "muo");
-  //printObjects(*taus, "tau");
-  //printObjects(*jets, "jet");
-  //printObjects(*photons, "pho");
+  printObjects(*electrons, "ele");
+  printObjects(*muons, "muo");
+  printObjects(*taus, "tau");
+  printObjects(*jets, "jet");
+  printObjects(*photons, "pho");
 
   return StatusCode::SUCCESS;
 }

@@ -40,7 +40,7 @@ namespace ORUtils
     // Input/output labels for reset functionality.
     declareProperty("InputLabel", m_inputLabel = "selected",
                     "Decoration which specifies input objects");
-    declareProperty("OutputLabel", m_outputLabel = "DFCommonJets_isOverlap",
+    declareProperty("OutputLabel", m_outputLabel = "overlaps",
                     "Decoration given to objects that fail OR");
     declareProperty("OutputPassValue", m_outputPassValue = false,
                     "Set the result assigned to objects that pass");

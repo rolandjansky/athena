@@ -23,7 +23,7 @@ from AssociationUtils.AssociationUtilsConf import (
 
 #-------------------------------------------------------------------------------
 def recommended_tools(masterName='OverlapRemovalTool',
-                      inputLabel='selected', outputLabel='DFCommonJets_isOverlap',
+                      inputLabel='selected', outputLabel='overlaps',
                       bJetLabel='', boostedLeptons=False,
                       outputPassValue=False,
                       linkOverlapObjects=False,
