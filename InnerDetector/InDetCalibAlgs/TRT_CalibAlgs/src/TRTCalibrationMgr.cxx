@@ -51,7 +51,7 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   declareProperty("TRTCalDBTool", m_trtcaldbSvc);
   // declare algorithm parameters
   m_TrkCollections.emplace_back("ConvertedIPatTracks");
-  declareProperty("TrkCollections",m_TrkCollections );
+  //declareProperty("TrkCollections",m_TrkCollections );
 
   declareProperty("AlignTrkTools",m_TrackInfoTools);
   declareProperty("AccumulatorTools",m_AccumulatorTools);
