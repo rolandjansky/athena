@@ -54,36 +54,25 @@ StatusCode PFLCCalibTool::initialize() {
 void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
 
   if (m_useLocalWeight) {
-    std::unique_ptr<eflowRecClusterContainer> theEFRecCluster = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
+    std::unique_ptr<eflowRecClusterContainer> theEFRecClusterContainer = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
     /* Calibrate each cluster */
-    eflowRecClusterContainer::iterator itCluster = theEFRecCluster->begin();
-    eflowRecClusterContainer::iterator endCluster = theEFRecCluster->end();
-    for (; itCluster != endCluster; ++itCluster) {
-      eflowRecCluster* cluster = (*itCluster);
-      applyLocalWeight(cluster);
-    }
+    for (auto thisEFlowRecCluster : *theEFRecClusterContainer) applyLocalWeight(thisEFlowRecCluster);
   } else {
     /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
     std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, true, theCaloClusterContainer);
 
     /* Calibrate each cluster */
-    xAOD::CaloClusterContainer::iterator itCluster = tempClusterContainer->begin();
-    xAOD::CaloClusterContainer::iterator endCluster = tempClusterContainer->end();
-    for (; itCluster != endCluster; ++itCluster) {
-      xAOD::CaloCluster* cluster = (*itCluster);
+    for (auto thisCaloCluster : *tempClusterContainer){
       /* Subsequently apply all ClusterLocalCalibTools, print debug output at each stage, if DEBUG it set */
+      apply(m_clusterLocalCalibTool, thisCaloCluster);
 
-      apply(m_clusterLocalCalibTool, cluster);
+      apply(m_clusterLocalCalibOOCCTool, thisCaloCluster);
 
-      apply(m_clusterLocalCalibOOCCTool, cluster);
+      apply(m_clusterLocalCalibOOCCPi0Tool, thisCaloCluster);
 
-      apply(m_clusterLocalCalibOOCCPi0Tool, cluster);
-
-      apply(m_clusterLocalCalibDMTool, cluster);
-
-    }
-
-  }
+      apply(m_clusterLocalCalibDMTool, thisCaloCluster);
+    }//loop on CaloCluster
+  }//if not use local weight scheme
 }
 
 StatusCode PFLCCalibTool::finalize() {

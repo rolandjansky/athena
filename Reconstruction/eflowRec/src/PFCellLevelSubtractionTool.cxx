@@ -203,19 +203,10 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
       std::vector<eflowRecCluster*> matchedClusters;
       matchedClusters.clear();
       std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-      std::vector<eflowTrackClusterLink*>::iterator itLink = links.begin();
-      std::vector<eflowTrackClusterLink*>::iterator endLink = links.end();
-        
-      for (; itLink != endLink; ++itLink) {
-	matchedClusters.push_back((*itLink)->getCluster());
-      }
-        
+      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+      
       std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      std::vector<eflowRecCluster*>::const_iterator itCluster = matchedClusters.begin();
-      std::vector<eflowRecCluster*>::const_iterator endCluster = matchedClusters.end();
-      for (; itCluster != endCluster; ++itCluster) {
-	clusterSubtractionList.push_back((*itCluster)->getClusterForModification(&theCaloClusterContainer));
-      }
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
@@ -265,26 +256,25 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
 	  }
         
 	  indexofRing += 1;
-	  std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-	  std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-	  std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
 	  
 	  int totalCellsinRing = 0;
 	  double energyDensityPerRing = 0;
 	  double averageEnergyDensityPerRing = 0;
-      
-	  for (; firstPair != lastPair; ++firstPair) {
-	    const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
+
+	  std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
+	  
+	  for (auto thisPair : tempVector){
+	    const CaloDetDescrElement* DDE = (thisPair.first)->caloDDE();
 	    CaloCell_ID::CaloSample sampling = DDE->getSampling();
             
-	    ATH_MSG_DEBUG(" cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling);
-	    ATH_MSG_DEBUG(" cell energy is " << ((*firstPair).first)->energy());
+	    ATH_MSG_DEBUG(" cell eta and phi are " << (thisPair.first)->eta() << " and " << (thisPair.first)->phi() << " with index " << thisPair.second << " and sampling of " << sampling);
+	    ATH_MSG_DEBUG(" cell energy is " << (thisPair.first)->energy());
             
 	    totalCells += 1;
 	    totalCellsinRing += 1;
 	    
-	    totalEnergyPerRing += ((*firstPair).first)->energy();
-	    totalEnergyPerCell = ((*firstPair).first)->energy();
+	    totalEnergyPerRing += (thisPair.first)->energy();
+	    totalEnergyPerCell = (thisPair.first)->energy();
 	    ATH_MSG_DEBUG(" Total E per Cell is " << totalEnergyPerCell);
 	    ATH_MSG_DEBUG(" Total E per Ring is " << totalEnergyPerRing);
 	    
@@ -388,20 +378,12 @@ void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& 
       std::vector<eflowRecCluster*> matchedClusters;
       matchedClusters.clear();
       std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-      std::vector<eflowTrackClusterLink*>::iterator itLink = links.begin();
-      std::vector<eflowTrackClusterLink*>::iterator endLink = links.end();
-      for (; itLink != endLink; ++itLink) {
-	matchedClusters.push_back((*itLink)->getCluster());
-      }
+      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
       ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
       
       std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      std::vector<eflowRecCluster*>::const_iterator itCluster = matchedClusters.begin();
-      std::vector<eflowRecCluster*>::const_iterator endCluster = matchedClusters.end();
-      for (; itCluster != endCluster; ++itCluster) {
-	clusterSubtractionList.push_back((*itCluster)->getClusterForModification(&theCaloClusterContainer));
-      }
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
 
       ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       

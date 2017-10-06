@@ -57,12 +57,8 @@ StatusCode PFLeptonSelector::selectElectrons(){
     return StatusCode::FAILURE;
   }
 
-  xAOD::ElectronContainer::const_iterator firstElectron = m_electronsReadHandle->begin();
-  xAOD::ElectronContainer::const_iterator lastElectron = m_electronsReadHandle->end();
-
-  for (; firstElectron != lastElectron; ++firstElectron){
-
-    const xAOD::Electron* theElectron = *firstElectron;
+  for (auto theElectron : *m_electronsReadHandle){
+    
     if (theElectron){
       if (theElectron->pt() > 10000){
         bool val_med = false;
@@ -102,12 +98,8 @@ StatusCode PFLeptonSelector::selectMuons() {
     return StatusCode::FAILURE;
   }
 
-  xAOD::MuonContainer::const_iterator firstMuon = m_muonsReadHandle->begin();
-  xAOD::MuonContainer::const_iterator lastMuon = m_muonsReadHandle->end();
-
-  for (; firstMuon != lastMuon; ++firstMuon) {
-    const xAOD::Muon* theMuon = *firstMuon;
-
+  for (auto theMuon : *m_muonsReadHandle){  
+    
     //Details of medium muons are here:
     //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
     //No need to ask for combined muon, by construction other muons will not have ID track - we just ask for medium muons
@@ -142,17 +134,12 @@ void PFLeptonSelector::storeLeptonCells(const xAOD::CaloCluster& theCluster){
   const CaloClusterCellLink* theCellLink = theCluster.getCellLinks();
 
   if (theCellLink){
-  
-    CaloClusterCellLink::const_iterator firstCell = theCellLink->begin();
-    CaloClusterCellLink::const_iterator lastCell = theCellLink->end();
-    
-    for (; firstCell != lastCell; ++firstCell){
-      if (m_leptonCaloCellsWriteHandle.isValid()) m_leptonCaloCellsWriteHandle->push_back(*firstCell);
+    for (auto theCaloCell : *theCellLink){
+      if (m_leptonCaloCellsWriteHandle.isValid()) m_leptonCaloCellsWriteHandle->push_back(theCaloCell);
       else ATH_MSG_WARNING(" Do not have valid WriteHandle for CaloCellContaienr with name: " << m_leptonCaloCellsWriteHandle.key());
     }//cell loop
   }
   else ATH_MSG_WARNING("This cluster has an invalid pointer to its cells, in storeLeptonCells");
-
 }
 
 StatusCode PFLeptonSelector::recordLeptonContainers(){

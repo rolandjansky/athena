@@ -19,12 +19,8 @@ std::unique_ptr<eflowRecClusterContainer> PFClusterCollectionTool::retrieve(cons
   std::unique_ptr<eflowRecClusterContainer> result =  std::make_unique<eflowRecClusterContainer>();
 
   /* Loop over all eflowCaloObjects */
-  eflowCaloObjectContainer::const_iterator itEFCaloObject = theEflowCaloObjectContainer.begin();
-  eflowCaloObjectContainer::const_iterator endEFCaloObject = theEflowCaloObjectContainer.end();
-  for (; itEFCaloObject != endEFCaloObject; ++itEFCaloObject) {
-
-    const eflowCaloObject* thisEflowCaloObject = *itEFCaloObject;
-
+  for (auto thisEflowCaloObject : theEflowCaloObjectContainer){
+    
     /* Add all clusters on the eflowCaloObject to the container */
     unsigned int nClusters = thisEflowCaloObject->nClusters();
     for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
@@ -47,12 +43,8 @@ std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(con
   std::unique_ptr<xAOD::CaloClusterContainer> result = std::make_unique<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
 
   /* Loop over all eflowCaloObjects */
-  eflowCaloObjectContainer::const_iterator itEFCaloObject = theEflowCaloObjectContainer.begin();
-  eflowCaloObjectContainer::const_iterator endEFCaloObject = theEflowCaloObjectContainer.end();
-  for (; itEFCaloObject != endEFCaloObject; ++itEFCaloObject) {
-
-    const eflowCaloObject* thisEflowCaloObject = *itEFCaloObject;
-
+  for (auto thisEflowCaloObject : theEflowCaloObjectContainer){
+    
     /* Add all clusters on the eflowCaloObject to the container */
     unsigned int nClusters = thisEflowCaloObject->nClusters();
     for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {

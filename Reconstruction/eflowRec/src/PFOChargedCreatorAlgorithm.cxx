@@ -51,14 +51,9 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(){
   ATH_CHECK(m_chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Charged PFOs from all eflowCaloObjects */
-  unsigned int nEFCaloObs = m_eflowCaloObjectContainerReadHandle->size();
-  for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb){
-    const eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainerReadHandle->at(iEFCalOb);
-    execute(*thisEflowCaloObject);
-  }
+  for (auto thisEflowCaloObject : *m_eflowCaloObjectContainerReadHandle) execute(*thisEflowCaloObject);
 
-  return StatusCode::SUCCESS;
-  
+  return StatusCode::SUCCESS;  
 }
 
 StatusCode PFOChargedCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }

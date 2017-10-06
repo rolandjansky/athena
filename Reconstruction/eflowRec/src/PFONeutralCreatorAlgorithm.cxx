@@ -36,11 +36,7 @@ StatusCode PFONeutralCreatorAlgorithm::execute(){
   if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandle_nonModified.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Neutral PFOs from all eflowCaloObjects */
-  unsigned int nEFCaloObs =  m_eflowCaloObjectContainerReadHandle->size();
-  for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb){
-    const eflowCaloObject* thisEflowCaloObject =  m_eflowCaloObjectContainerReadHandle->at(iEFCalOb);
-    createNeutralPFO(*thisEflowCaloObject);
-  }
+  for (auto thisEflowCaloObject : *m_eflowCaloObjectContainerReadHandle) createNeutralPFO(*thisEflowCaloObject);
 
   return StatusCode::SUCCESS;
 }
@@ -49,7 +45,7 @@ StatusCode PFONeutralCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 
 void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject){
 
-   unsigned int nClusters = energyFlowCaloObject.nClusters();
+  unsigned int nClusters = energyFlowCaloObject.nClusters();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
     eflowRecCluster* thisEfRecCluster = energyFlowCaloObject.efRecCluster(iCluster);
 
@@ -93,13 +89,9 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
       //we cannot access geometric weights for LC clusters, so we make an approximation of the EM energy by looping over the calocells
       //Then the EM 4-vector uses the energy/pt at this EM scale + eta,phi from LC 4-vector
       const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-      auto theFirstCell = theCellLink->begin();
-      auto theLastCell = theCellLink->end();
       float emPt = 0.0;
-      for (; theFirstCell != theLastCell; ++theFirstCell){
-	const CaloCell* thisCell = *theFirstCell;
-	emPt += thisCell->e()/cosh(thisCell->eta());
-      }
+      for (auto thisCaloCell : *theCellLink) emPt += thisCaloCell->e()/cosh(thisCaloCell->eta());
+      
       thisPFO->setP4EM(emPt,cluster->eta(),cluster->phi(),0.0);//mass is always zero at EM scale
 
     }

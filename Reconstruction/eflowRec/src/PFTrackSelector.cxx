@@ -48,21 +48,20 @@ StatusCode PFTrackSelector::execute(){
   }
 
   /* Do the track selection for tracks to be used in all of the following steps: */
-  xAOD::TrackParticleContainer::const_iterator itTrackParticle = m_tracksReadHandle->begin();
   int trackIndex = 0;
-  for (; itTrackParticle != m_tracksReadHandle->end(); ++itTrackParticle, ++trackIndex) {
-    const xAOD::TrackParticle* track = (*itTrackParticle);
-    if (!track){
+  for (auto thisTrack : *m_tracksReadHandle){
+
+    if (!thisTrack){
       ATH_MSG_WARNING("Have invalid pointer to xAOD::TrackParticle");
       continue;	
     }
 
-    ATH_MSG_DEBUG("Have track with pt, eta and phi of " << track->pt() << ", " << track->eta() << " and " << track->phi());
+    ATH_MSG_DEBUG("Have track with pt, eta and phi of " << thisTrack->pt() << ", " << thisTrack->eta() << " and " << thisTrack->phi());
     
-    bool rejectTrack(!selectTrack(*track));
+    bool rejectTrack(!selectTrack(*thisTrack));
 
-    bool isElectron = this->isElectron(track);
-    bool isMuon = this->isMuon(track);
+    bool isElectron = this->isElectron(thisTrack);
+    bool isMuon = this->isMuon(thisTrack);
     ATH_MSG_DEBUG("isElectron is " << isElectron << " and isMuon is " << isMuon);
     if (true == isElectron || true == isMuon) rejectTrack = true;
 
@@ -74,6 +73,7 @@ StatusCode PFTrackSelector::execute(){
       thisEFRecTrack->setTrackId(trackIndex);
       m_eflowRecTracksWriteHandle->push_back(std::move(thisEFRecTrack));
     }
+    trackIndex++;
   }
 
   std::sort(m_eflowRecTracksWriteHandle->begin(), m_eflowRecTracksWriteHandle->end(), eflowRecTrack::SortDescendingPt());
@@ -92,16 +92,13 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 
   if (m_electronsReadHandle.isValid()){
 
-    xAOD::ElectronContainer::const_iterator firstElectron = m_electronsReadHandle->begin();
-    xAOD::ElectronContainer::const_iterator lastElectron = m_electronsReadHandle->end();
-    
-    for (; firstElectron != lastElectron; ++firstElectron){
-      const xAOD::Electron* this_egamma = *firstElectron;
-      if (this_egamma){
-	unsigned int nTrack = this_egamma->nTrackParticles();
+    for (auto thisElectron : *m_electronsReadHandle){
+
+      if (thisElectron){
+	unsigned int nTrack = thisElectron->nTrackParticles();
 	
 	if (0 != nTrack){	  
-	  const xAOD::TrackParticle* origTrack = xAOD::EgammaHelpers::getOriginalTrackParticle(this_egamma);	  
+	  const xAOD::TrackParticle* origTrack = xAOD::EgammaHelpers::getOriginalTrackParticle(thisElectron);	  
 	  if (origTrack){
 	    if (track == origTrack) {
 	      return true;
@@ -124,11 +121,7 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
 
   if (m_muonsReadHandle.isValid()){
 
-    xAOD::MuonContainer::const_iterator firstMuon = m_muonsReadHandle->begin();
-    xAOD::MuonContainer::const_iterator lastMuon = m_muonsReadHandle->end();
-    
-    for (; firstMuon != lastMuon ; ++firstMuon){
-      const xAOD::Muon* theMuon = *firstMuon;
+    for (auto theMuon : *m_muonsReadHandle){      
       if (theMuon){
 	const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->inDetTrackParticleLink();
 	if (theLink.isValid()){
