@@ -66,8 +66,8 @@ class LUCID_RDBAccess {
 
  private: 
   
-  IRDBRecordset_ptr lucidParams; 
-  ISvcLocator* svcLocator; 
+  IRDBRecordset_ptr m_lucidParams; 
+  ISvcLocator* m_svcLocator; 
 }; 
 
 #endif
