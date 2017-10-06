@@ -274,7 +274,7 @@ namespace PESA
 
       ATH_MSG_DEBUG( "list of ROBs ID in PIX: " );
       for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
-	ATH_MSG_DEBUG( uIntListOfRobs.at(i_lid) );
+	ATH_MSG_DEBUG( "0x" << std::hex << uIntListOfRobs.at(i_lid) << std::dec );
 
       config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
       uIntListOfRobs.clear();
@@ -285,7 +285,7 @@ namespace PESA
 
       ATH_MSG_DEBUG( "list of ROBs ID in SCT: " );
       for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
-	ATH_MSG_DEBUG( uIntListOfRobs.at(i_lid) );
+	ATH_MSG_DEBUG( "0x" << std::hex << uIntListOfRobs.at(i_lid) << std::dec );
 
       config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
     }
