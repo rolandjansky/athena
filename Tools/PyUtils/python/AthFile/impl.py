@@ -29,7 +29,7 @@ except:
     pass
 
 ### globals -------------------------------------------------------------------
-DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', True)
+DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', False)
 '''Revert to old file peeking via Athena sub-process if True.'''
 
 DEFAULT_AF_CACHE_FNAME = os.environ.get('DEFAULT_AF_CACHE_FNAME',
