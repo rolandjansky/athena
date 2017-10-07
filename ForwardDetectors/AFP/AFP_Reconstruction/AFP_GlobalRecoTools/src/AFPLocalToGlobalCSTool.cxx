@@ -70,9 +70,6 @@ StatusCode AFPLocalToGlobalCSTool::finalize()
 
 TVector3 AFPLocalToGlobalCSTool::localToGlobalCS(const double localX, const double localY, const double localZ, const int stationID) const
 {
-  //  const double sign = (stationID < 2) ? 1 : -1;
-  //  const HepGeom::Point3D<double> localPoint (sign*localX + SID_DEATH_EDGE, localY + SID_LOWER_EDGE, localZ);
-
   const HepGeom::Point3D<double> localPoint (localX, localY, localZ);
   HepGeom::Point3D<double> globalPoint;
 

@@ -52,8 +52,6 @@ namespace xAOD {
      * @copydetails xAOD::AFPSiHit_v2::stationID()
      *
      * @param stationID index of the station where track was reconstructed
-     *
-     * @ingroup setters
      */
     void setStationID (int stationID);
 
@@ -149,9 +147,6 @@ namespace xAOD {
      */
     void setYSlope (float newYSlope);
   
-    // float zSlope() const;
-    // void setZSlope (float newZSlope);
-
     /** 
      * @brief Number of empty layers that the track passes through.
      * 
@@ -162,7 +157,6 @@ namespace xAOD {
      */
     int nHoles() const;
 
-
     /** 
      * @brief Set number of empty pixels that the track passes through.
      * 
@@ -171,7 +165,6 @@ namespace xAOD {
      * @param nHoles number of empty pixels that the track passes through
      */
     void setNHoles (int nHoles);
-
 
     /** 
      * @brief Number of clusters used to reconstruct the track.
@@ -241,13 +234,11 @@ namespace xAOD {
     /** 
      * @brief Identification number of the algorithm used to reconstruct the track.
      * 
-     * The following coding is used.
-     *
-     * | ID  | Algorithm              | Comments |
-     * | :-: | ---------------------- | -------- |
-     * | 0   | Basic Kalman algorithm |          |
+     * It is advised to use class xAOD::AFPTrackRecoAlgID instead of
+     * integers to process this information. In this class the
+     * numbering scheme is explained.
      * 
-     * @return identification number of the algorithm used to reconstruct the track
+     * @return identification number of the algorithm used to reconstruct the track (see xAOD::AFPTrackRecoAlgID )
      */
     int algID() const;
 

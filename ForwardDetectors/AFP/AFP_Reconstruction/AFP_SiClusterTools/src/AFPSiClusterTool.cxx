@@ -27,7 +27,6 @@ AFPSiClusterTool::AFPSiClusterTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : ::AthAlgTool(type, name, parent),
-  //m_clusterAlgToolHandle ("AFPSiClusterSingleHitTool"),
   m_clusterAlgToolHandle ("AFPSiClusterBasicNearestNeighbour"),
   m_rowColToLocalCSToolHandle ("AFPSiRowColToLocalCSTool")
 {

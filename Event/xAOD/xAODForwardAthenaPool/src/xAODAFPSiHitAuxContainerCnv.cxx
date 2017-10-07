@@ -37,19 +37,17 @@ xAOD::AFPSiHitAuxContainer* xAODAFPSiHitAuxContainerCnv::createTransient() {
   static const pool::Guid v1_guid( "B7C50786-FA4B-4D48-86C3-180EF5E6DE43" );
   static const pool::Guid v2_guid( "E14F7E45-B4A5-4DC0-82AB-A1135FFD2C78" );
 
-  ATH_MSG_WARNING ("Moj test");
-
   // Check which version of the container we're reading:
   if( compareClassGuid( v2_guid ) ) {
     // It's the latest version, read it directly:
     return poolReadObject< xAOD::AFPSiHitAuxContainer >();
-  } // else if ( compareClassGuid(v1_guid) ) {
-  //   static xAODAFPSiHitAuxContainerCnv_v1 converter;
-  //   // Read in the v1 object:
-  //   std::unique_ptr< xAOD::AFPSiHitAuxContainer_v1 > old( poolReadObject< xAOD::AFPSiHitAuxContainer_v1 >() );
-  //   // Return the converted object:
-  //   return converter.createTransient( old.get(), msg() );
-  // }
+  } else if ( compareClassGuid(v1_guid) ) {
+    static xAODAFPSiHitAuxContainerCnv_v1 converter;
+    // Read in the v1 object:
+    std::unique_ptr< xAOD::AFPSiHitAuxContainer_v1 > old( poolReadObject< xAOD::AFPSiHitAuxContainer_v1 >() );
+    // Return the converted object:
+    return converter.createTransient( old.get(), msg() );
+  }
 
   // If we didn't recognise the ID:
   throw std::runtime_error( "Unsupported version of "
