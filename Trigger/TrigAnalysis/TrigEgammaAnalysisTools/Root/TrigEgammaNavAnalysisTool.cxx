@@ -69,8 +69,6 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
         setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
     }
    
-    //for (const auto trigger: m_trigList)
-    //      setTrigInfo(trigger);
 
     plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()) {

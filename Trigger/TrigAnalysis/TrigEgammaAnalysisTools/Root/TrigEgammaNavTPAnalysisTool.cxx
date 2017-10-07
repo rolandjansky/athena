@@ -117,9 +117,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
         setLabels(hist1(m_anatype+"_EffHLT"),m_trigList);
         setLabels(hist1(m_anatype+"_CutCounter"),m_cutlabels);
     }
-    // Book the histograms per signature
-    //for (int i = 0; i < (int) m_trigList.size(); i++)
-    //    setTrigInfo(m_trigList[i]);
  
     plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()){
