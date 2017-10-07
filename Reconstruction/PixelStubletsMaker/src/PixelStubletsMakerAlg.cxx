@@ -149,6 +149,19 @@ StatusCode PixelStubletsMakerAlg::finalize() {
 }
 
 StatusCode PixelStubletsMakerAlg::execute() {
+  // Output tracks record
+  xAOD::TrackParticleContainer *tpc = new xAOD::TrackParticleContainer();
+  if (evtStore()->record(tpc, m_outputContainerName).isFailure()) {
+    ATH_MSG_ERROR("Couldn't record " << m_outputContainerName);
+    return StatusCode::FAILURE;
+  }
+  xAOD::TrackParticleAuxContainer *tpc_aux = new xAOD::TrackParticleAuxContainer();
+  if (evtStore()->record(tpc_aux, m_outputContainerName + "Aux.").isFailure()) {
+    ATH_MSG_ERROR("Couldn't record " << m_outputContainerName << "Aux.");
+    return StatusCode::FAILURE;
+  }
+  tpc->setStore(tpc_aux);
+
   // Event information
   const xAOD::EventInfo *eventInfo = nullptr;
   if (StatusCode::SUCCESS != evtStore()->retrieve(eventInfo) || !eventInfo) {
@@ -321,17 +334,6 @@ StatusCode PixelStubletsMakerAlg::execute() {
   ATH_MSG_INFO(" # of clusters at fourth layer = " << fourthLayerClusters.size());
 
   // Tracking
-  xAOD::TrackParticleContainer *tpc = new xAOD::TrackParticleContainer();
-  if (evtStore()->record(tpc, m_outputContainerName).isFailure()) {
-    ATH_MSG_ERROR("Couldn't record " << m_outputContainerName);
-    return StatusCode::FAILURE;
-  }
-  xAOD::TrackParticleAuxContainer *tpc_aux = new xAOD::TrackParticleAuxContainer();
-  if (evtStore()->record(tpc_aux, m_outputContainerName + "Aux.").isFailure()) {
-    ATH_MSG_ERROR("Couldn't record " << m_outputContainerName << "Aux.");
-    return StatusCode::FAILURE;
-  }
-  tpc->setStore(tpc_aux);
 
   double phi;
   double eta;
