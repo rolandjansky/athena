@@ -4,6 +4,9 @@
 # propagating all B-physics metadata objects to the output file.
 #
 
+# Python import(s):
+import re
+
 # Core import(s):
 from RecExConfig.InputFilePeeker import inputFileSummary
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -12,12 +15,20 @@ from AthenaCommon.Logging import logging
 # Create a logger:
 _logger = logging.getLogger( "SaveExtraMetadataInMerge_jobOFragment" )
 
-# Check if there are any xAOD::FileMetaData objects in the input file's metadata
-# payload:
-if 'xAOD::FileMetaData' in inputFileSummary[ 'metadata_itemsDic' ]:
+# Find the exact name of xAOD::FileMetaData_vX in the inputFileSummary
+# dictionary:
+mdType = ""
+for key in inputFileSummary[ 'metadata_itemsDic' ].keys():
+    if re.match( 'xAOD::FileMetaData_v[0-9]+', key ):
+        mdType = key
+        break
+    pass
+
+# If there is, then let's do the rest of the setup:
+if mdType != "":
 
     # Loop over the keys of all the xAOD::FileMetaData objects:
-    for key in inputFileSummary[ 'metadata_itemsDic' ][ 'xAOD::FileMetaData' ]:
+    for key in inputFileSummary[ 'metadata_itemsDic' ][ mdType ]:
 
         # If it doesn't look like a b-physics metadata object, then leave
         # it alone:
