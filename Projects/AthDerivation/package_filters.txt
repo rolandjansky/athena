@@ -290,6 +290,9 @@
 + Reconstruction/tauEvent
 + Reconstruction/tauRec.*
 + Reconstruction/TrackParticleTPCnv
++ Reconstruction/RecTPCnv
++ Reconstruction/RecAthenaPool
++ Reconstruction/MissingETEvent
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
