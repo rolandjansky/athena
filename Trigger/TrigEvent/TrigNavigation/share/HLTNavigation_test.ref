@@ -22,7 +22,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/test.tx
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on pc-tbed-pub-09.cern.ch on Fri Oct  6 16:11:54 2017
+                                          running on pc-tbed-pub-01.cern.ch on Sat Oct  7 17:04:22 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -53,13 +53,6 @@ ToolSvc.NavigationVERBOSE type: TestBContainer(96422) container: TestBContainer(
 ToolSvc.NavigationVERBOSE type: TestBContainerView(96423) container: TestBContainerView(96423)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG  successfully initialized Navigation 
-NavigationCore      DEBUG MLOG printout
-NavigationCore      FATAL MSG::FATAL
-NavigationCore      ERROR MSG::ERROR 
-NavigationCore    WARNING MSG::WARNING 
-NavigationCore       INFO MSG::INFO 
-NavigationCore      DEBUG MSG::DEBUG 
-NavigationCore      DEBUG MSG level()=
 NavigationCore      DEBUG Navigation reset done
 HLTNavigation_test   INFO LINE:360 Start of the test: Construction
 HLTNavigation_test   INFO LINE:387 Test progress fine:  after adding inital nodes
@@ -80,11 +73,11 @@ NavigationCore      DEBUG Getting holder for type: 6421 label: Single
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: Single and index: 0
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "Single" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2238910
+ToolSvc.NavigationVERBOSE got Holder: 0x1f54910
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "Single" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: Single
 NavigationCore      DEBUG Getting holder for type: 6421 label: Single
-ToolSvc.NavigationVERBOSE got Holder: 0x2238910
+ToolSvc.NavigationVERBOSE got Holder: 0x1f54910
 NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
 NavigationCore      DEBUG Getting holder for type: 6421
 NavigationCore      DEBUG Getting holder for type: 6421
@@ -95,14 +88,14 @@ NavigationCore      DEBUG Getting holder for type: 6421 label: ToolTestA
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: ToolTestA and index: 1
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolTestA" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x223a630
+ToolSvc.NavigationVERBOSE got Holder: 0x1f56630
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "ToolB" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ToolB
 NavigationCore      DEBUG Getting holder for type: 6421 label: ToolB
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: ToolB and index: 2
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolB" subTypeIndex: 2 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x223be30
+ToolSvc.NavigationVERBOSE got Holder: 0x1f57e30
 NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
 NavigationCore      DEBUG Getting holder for type: 6421
 NavigationCore      DEBUG Getting holder for type: 6421
@@ -113,7 +106,7 @@ NavigationCore      DEBUG Getting holder for type: 6421
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 1111 label: "ToolB" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ToolB
 NavigationCore      DEBUG Getting holder for type: 6421 label: ToolB
-ToolSvc.NavigationVERBOSE got Holder: 0x223be30
+ToolSvc.NavigationVERBOSE got Holder: 0x1f57e30
 NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 11 label: ""
 NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 12 label: ""
 NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 13 label: ""
@@ -368,14 +361,14 @@ NavigationCore      DEBUG Getting holder for type: 96422 label: Test1
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: Test1 and index: 0
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "Test1" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x223dd00
+ToolSvc.NavigationVERBOSE got Holder: 0x1f59d00
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 111 label: "BContainer2" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: BContainer2
 NavigationCore      DEBUG Getting holder for type: 96422 label: BContainer2
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x22407e0
+ToolSvc.NavigationVERBOSE got Holder: 0x1f5c7e0
 NavigationCore      DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: ""
 NavigationCore      DEBUG Getting holder for type: 96422
 NavigationCore      DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: "Test1"
@@ -388,7 +381,7 @@ NavigationCore      DEBUG Getting holder for type: 96422 label: ConstBContainer
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer and index: 2
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer" subTypeIndex: 2 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2242590
+ToolSvc.NavigationVERBOSE got Holder: 0x1f5e590
 NavigationCore      DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 11111 label: ""
 NavigationCore      DEBUG Getting holder for type: 96422
 NavigationCore      DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 111 label: "BContainer2"
@@ -401,7 +394,7 @@ NavigationCore      DEBUG Getting holder for type: 96422 label: ConstBContainer2
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer2 and index: 3
 NavigationCore      DEBUG getHolder: predefined holder got
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer2" subTypeIndex: 3 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2244150
+ToolSvc.NavigationVERBOSE got Holder: 0x1f60150
 HLTNavigation_test   INFO LINE:778 End of the test: const attach test
 HLTNavigation_test   INFO LINE:783 Start of the test: external_collection test
 ToolSvc.Navigation  DEBUG associateExternalCollection: of clid: 96422(TestBContainer) label: "external"
@@ -412,7 +405,7 @@ NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) cont
 ToolSvc.Navigation  DEBUG associateExternalCollection: of clid: 96422(TestBContainer) label: "external"
 NavigationCore      DEBUG Getting holder for type: 96422 label: external
 HLTNavigation_test   INFO LINE:794 End of the test: external_collection test
-HLTNavigation_test   INFO LINE:883 Test progress fine:  OK navigation tool retrieved
+HLTNavigation_test   INFO LINE:882 Test progress fine:  OK navigation tool retrieved
 HLTNavigation_test   INFO LINE:715 Start of the test: serialize test
 NavigationCore      DEBUG serialization of feature: 6421 label: Single size of payload: 0
 NavigationCore      DEBUG serialization of feature: 6421 label: ToolTestA size of payload: 7
@@ -441,4 +434,4 @@ NavigationCore      DEBUG deserializing holder blob of size: 9
 NavigationCore      DEBUG deserializing holder blob of size: 7
 HLTNavigation_test   INFO LINE:722 Test progress fine:  serialize/deserialze sequence worked
 HLTNavigation_test   INFO LINE:729 End of the test: serialize test
-HLTNavigation_test   INFO LINE:892 Test progress fine:  SUCCESS test passed OK 
+HLTNavigation_test   INFO LINE:891 Test progress fine:  SUCCESS test passed OK 

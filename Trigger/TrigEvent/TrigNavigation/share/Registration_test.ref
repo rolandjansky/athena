@@ -22,7 +22,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/test.tx
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on pc-tbed-pub-09.cern.ch on Fri Oct  6 16:14:17 2017
+                                          running on pc-tbed-pub-01.cern.ch on Sat Oct  7 17:04:22 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -54,41 +54,17 @@ ToolSvc.NavigationVERBOSE type: TestBContainerView(96423) container: TestBContai
 ToolSvc.NavigationVERBOSE type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG  successfully initialized Navigation 
 NavigationCore      DEBUG Navigation reset done
-NavigationCore    VERBOSE NavigationCore::prepare Compile time known types : type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare Compile time known types : type: TestC(7800) container: DataVector<TestC>(78001)label: "" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare Compile time known types : type: TestBContainer(96422) container: TestBContainer(96422)label: "" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare Compile time known types : type: TestBContainerView(96423) container: TestBContainerView(96423)label: "" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare Compile time known types : type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare Preregistering objects #:6
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: EverEmptyButPresent
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: EverEmptyButPresent index: 0
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: EverEmptyButPresent and index: 0
-NavigationCore    VERBOSE Holder created, registering 0x168f210 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: AgainPresentButEmpty
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: AgainPresentButEmpty index: 1
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: AgainPresentButEmpty and index: 1
-NavigationCore    VERBOSE Holder created, registering 0x16aa800 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: 
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label:  index: 2
 NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label:  and index: 2
-NavigationCore    VERBOSE Holder created, registering 0x16ac0f0 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer1
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer1 index: 0
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer1 and index: 0
-NavigationCore    VERBOSE Holder created, registering 0x16ad6d0 type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer2
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer2 index: 1
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
-NavigationCore    VERBOSE Holder created, registering 0x16af0e0 type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-NavigationCore    VERBOSE NavigationCore::prepare preregistering objects of clid: 96477 label: DContainer1
-NavigationCore    VERBOSE NavigationCore::prepare creating handler for type (CLID): 96477 label: DContainer1 index: 0
 NavigationCore      DEBUG createHolder: creating holder for CLID: 96477 label: DContainer1 and index: 0
-NavigationCore    VERBOSE Holder created, registering 0x16b0610 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
 NavigationCore      DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
 NavigationCore      DEBUG NavigationCore::prepare Navigation structure prepared for next event
-Registration_test    INFO LINE:101 Test progress fine:  Test finished
+Registration_test    INFO LINE:100 Test progress fine:  Test finished
