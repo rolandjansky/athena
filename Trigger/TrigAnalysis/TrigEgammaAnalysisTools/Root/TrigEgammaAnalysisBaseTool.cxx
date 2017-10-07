@@ -471,9 +471,10 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
       {
         (p1trigger+="_")+=strs.at(i); 
         
-        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
+	if((strs.at(i+1)[0]=='e' && strs.at(i+1)[1]!='t') || strs.at(i+1)[0]=='g') index=(i+1);
       } 
-    
+   
+    if(index<0) return false;
     p2trigger+=("HLT_"+strs.at(index));
     
     for(unsigned int i=index+1; i< strs.size();i++){
@@ -545,8 +546,14 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
     prescale=efprescale || l1prescale;
     ATH_MSG_DEBUG("L1 prescale " << l1item << " " << l1prescale << " before " << l1_beforepre << " after " << l1_afterpre);
     ATH_MSG_DEBUG("EF prescale " << trigger << " " << efprescale << " Prescale " << prescale);
-    if(rerun) return false; // Rerun use the event
-    if(prescale) return true; // Prescaled, reject event
+    if(rerun){
+	ATH_MSG_DEBUG("Trigger " << trigger << " is in rerun, assuming equivalent to unprescaled" );
+       	return false; // Rerun use the event
+    }
+    if(prescale){
+	ATH_MSG_DEBUG("Trigger " << trigger << " is *not* in rerun and prescaled!");
+       	return true; // Prescaled, reject event
+    }
     return false; // Not prescaled, use event
 }
 
@@ -637,9 +644,14 @@ float TrigEgammaAnalysisBaseTool::getEt(const xAOD::Electron* eg){
         const xAOD::TrackParticle *trk=eg->trackParticle();
         const xAOD::CaloCluster *clus=eg->caloCluster();
         float eta   = fabs(trk->eta()); 
-        return clus->e()/cosh(eta);      
+	float et = clus->e()/cosh(eta);      
+	ATH_MSG_DEBUG("getEt() = " << et );
+        return et;
     }
-    else return -99.;
+    else {
+	ATH_MSG_DEBUG("Tracking or cluster not found, returing -99 "  );
+	return -99.;
+    }
 }
 float TrigEgammaAnalysisBaseTool::getEtCluster37(const xAOD::Egamma* eg){
     if(eg && (eg->caloCluster())){

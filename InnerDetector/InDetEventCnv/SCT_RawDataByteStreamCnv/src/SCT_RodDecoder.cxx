@@ -33,7 +33,7 @@ SCT_RodDecoder::SCT_RodDecoder
      m_sct_id(nullptr),
      m_indet_mgr(nullptr),
      m_cabling("SCT_CablingSvc",name),
-     m_byteStreamErrSvc("InDetSCT_ByteStreamErrorsSvc",name),
+     m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
      m_condensedMode(false),
      m_superCondensedMode(false),
      m_errorHit(nullptr),

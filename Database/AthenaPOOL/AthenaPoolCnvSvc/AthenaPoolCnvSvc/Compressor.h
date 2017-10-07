@@ -12,8 +12,8 @@
  */
 
 
-#ifndef EVENTCOMMONTPCNV_COMPRESSOR_H
-#define EVENTCOMMONTPCNV_COMPRESSOR_H
+#ifndef ATHENAPOOLCNVSVC_COMPRESSOR_H
+#define ATHENAPOOLCNVSVC_COMPRESSOR_H
  
 // TO DO :
 // add double to int compressor
@@ -68,4 +68,4 @@ private:
 	bool m_bitStrip;
 };
 
-#endif // not EVENTCOMMONTPCNV_COMPRESSOR_H
+#endif // not ATHENAPOOLCNVSVC_COMPRESSOR_H

@@ -509,14 +509,14 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
   */
   std::cout <<"ZH FastCaloSimParamAlg after clusterize: "<<stepinfo->size()<<std::endl;
   // remove invalid
-  //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i = stepinfo->begin(); i != stepinfo->end();) {
-  //  if ((*i)->valid()) {
-  //    i++;
-  //  } else {
-  //    delete (*i);
-  //    i = stepinfo->erase(i);
-  //  }
-  // }
+  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i = stepinfo->begin(); i != stepinfo->end();) {
+    if ((*i)->valid()) {
+      i++;
+    } else {
+      delete (*i);
+      i = stepinfo->erase(i);
+    }
+  }
   
   //std::cout <<"ZH after clustering "<<stepinfo->size()<<std::endl;
 }

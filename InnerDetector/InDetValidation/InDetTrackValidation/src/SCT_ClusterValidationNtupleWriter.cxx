@@ -51,7 +51,7 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
         m_dataObjectName("SCT_RDOs"),
 	m_spacePointContainerName("SCT_SpacePoints"),
 	m_inputTrackCollection("CombinedInDetTracks"),
-        m_byteStreamErrSvc("InDetSCT_ByteStreamErrorsSvc",name),
+        m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
         m_cabling("SCT_CablingSvc",name),
         m_ntupleFileName("/NTUPLES/FILE1"), 
         m_ntupleDirName("FitterValidation"),
