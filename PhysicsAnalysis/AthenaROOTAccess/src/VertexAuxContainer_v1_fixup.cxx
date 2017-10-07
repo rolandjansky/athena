@@ -32,8 +32,6 @@ void VertexAuxContainer_v1_fixup::fixupAfterAux (void* data,
   // in which case we'll get the size wrong!
   size_t sz;
   {
-    typedef std::vector<float>
-      NeutralLink_t;
     SG::auxid_t auxid = reg.getAuxID<float> ("chiSquared");
     void* data1 = const_cast<void*> (aux->getIOData (auxid));
     std::vector<float>* vec = reinterpret_cast<std::vector<float>*> (data1);
