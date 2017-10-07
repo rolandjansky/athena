@@ -66,6 +66,8 @@ private:
   /// subtracted kinematics for each constituent
   ToolHandle<IHISubtractorTool> m_subtractor_tool;
   ToolHandle<IHIUEModulatorTool> m_modulator_tool;
+  bool m_originCorrection;
+  std::string m_vertexContainer;
 
 protected:
   /// \brief Protected set/get functions provide access to private data

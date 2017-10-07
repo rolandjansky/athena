@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 
 class CavernPropertyCalculator(object):
 
@@ -135,13 +137,13 @@ class CavernPropertyCalculator(object):
             else:
                 from AthenaCommon.AppMgr import theApp
                 GeoModelSvc = theApp.service('GeoModelSvc')
-            if (newSize <=  500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock500'
-            elif (newSize <= 1000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock1000'
-            elif (newSize <= 1500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock1500'
-            elif (newSize <= 2000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock2000'
-            elif (newSize <= 3000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock3000'
-            elif (newSize <= 4000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock4000'
-            elif (newSize <= 5000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock5000'
+            if (newSize <=  500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock500'
+            elif (newSize <= 1000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock1000'
+            elif (newSize <= 1500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock1500'
+            elif (newSize <= 2000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock2000'
+            elif (newSize <= 3000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock3000'
+            elif (newSize <= 4000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock4000'
+            elif (newSize <= 5000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-04-Bedrock5000'
         else :
             print "No need to resize the bedrock for cosmic generation"
 

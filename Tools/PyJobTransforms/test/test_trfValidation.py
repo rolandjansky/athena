@@ -178,7 +178,7 @@ class eventCheckTests(unittest.TestCase):
                                          'maxEvents': None,
                                          'evAccEff': 0.99})
         self.assertRaises(trfExceptions.TransformValidationException, evmatch.decide)
-        
+
     def test_inputGlobWithFail(self):
         evmatch = eventMatch(executor=None)
         evmatch.configureCheck(override={'inEventDict': {'NTUP_ZEE': 100},
@@ -540,7 +540,8 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport10 = athenaLogFileReport('file10')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10',\
+                 'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)
             except OSError:
@@ -568,6 +569,44 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.assertEqual(self.myFileReport10.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR,
                                                            'firstError': {'count': 1, 'firstLine': 9,
                                                                           'message': 'DRAW_TOPSLMUKernel                                ERROR Incompatible vectors - different length'},})
+
+    def test_logscanErrorWithSubstepNameSerial(self):
+        testLogERRORwithSubstepNameSerial = '''
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   INFO    ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   WARNING Frag has unexpected size ignoring 6 words to end of ROD frag
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   ERROR   ROB 540007 ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 AlgErrorAuditor           ERROR   Illegal Return Code: Algorithm ManagedAthenaTileMon reported an \
+ERROR, but returned a StatusCode "SUCCESS"'''
+
+        logFileName = 'logWithSubstepNameSerial'
+        with open(logFileName, 'w') as logFile:
+            print >> logFile, testLogERRORwithSubstepNameSerial
+
+        logFileReportSerial = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
+        expectedError = dict(level='ERROR', nLevel=logging.ERROR,
+                             firstError=dict(count=1, firstLine=4, message='ToolSvc.TileROD_Decoder   ERROR   ROB 54'
+                                                                           '0007 ROD 540007 has unexpected data size'))
+        self.assertEqual(logFileReportSerial.worstError(), expectedError)
+
+    def test_logscanErrorWithSubstepNameMP(self):
+        testLogERRORwithSubstepNameMP = '''
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   INFO    ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   WARNING Frag 0x40f has unexpected size ignoring \
+6 words till the end of ROD frag
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   ERROR   ROB 540007 ROD 540007 has unexpected \
+data size
+RAWtoALL 22:21:40 2017-07-13 19:23:38,184 AlgErrorAuditor           ERROR   Illegal Return Code: Algorithm \
+ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
+
+        logFileName = 'logWithSubstepNameMP'
+        with open(logFileName, 'w') as logFile:
+            print >> logFile, testLogERRORwithSubstepNameMP
+
+        logFileReportMP = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
+        expectedError = dict(level='ERROR', nLevel=logging.ERROR,
+                             firstError=dict(count=1, firstLine=4, message='ToolSvc.TileROD_Decoder   ERROR   ROB '
+                                                                           '540007 ROD 540007 has unexpected data size'))
+        self.assertEqual(logFileReportMP.worstError(), expectedError)
 
     def test_badAlloc(self):
         self.assertEqual(self.myFileReport4.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],

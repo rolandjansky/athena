@@ -4,7 +4,7 @@ from DCSCalculator2.lib import DCSC_Subdetector_DefectsOnly, DCSC_Defect_Global_
 from DCSCalculator2.variable import DefectIOV
 from DQUtils import process_iovs
 from DQUtils.sugar import IOVSet, RunLumi
-from DQUtils.iov_truncator import truncate_to_run_iovs
+from DQUtils.iov_truncator import truncate_to_run_iovs, make_run_iovs
 
 class Online_Beamspot_Status(DCSC_Defect_Global_Variable):
     """
@@ -38,5 +38,6 @@ class Trigger(DCSC_Subdetector_DefectsOnly):
 
     def run(self, lbtime, run_iovs):
         self.evaluate_inputs(lbtime)
-        return IOVSet(sum((truncate_to_run_iovs(run_iovs, var.iovs)[0]
+        return IOVSet(sum((truncate_to_run_iovs(
+                        make_run_iovs([run_iovs]), var.iovs)[0]
                            for var in self.variables), []))

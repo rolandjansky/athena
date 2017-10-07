@@ -1,3 +1,6 @@
+
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -6,7 +9,7 @@
 
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
-import os, re, string
+import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
@@ -120,10 +123,10 @@ if not hasattr(postSeq, "CopyEventWeight"):
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
-
+theApp.EvtMax = -1
 # This is necessary for athenaMP
-if hasattr(runArgs, "maxEvents"):
-  theApp.EvtMax = runArgs.maxEvents
+#if hasattr(runArgs, "maxEvents"):
+#  theApp.EvtMax = runArgs.maxEvents
 
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
@@ -131,7 +134,7 @@ if not hasattr(postSeq, "CountHepMC"):
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = True
+postSeq.CountHepMC.CorrectEventID = False
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -260,17 +263,23 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "").replace("Tauolapp", "").replace("TauolaPP", "")
+        return s.replace("Photospp", "").replace("Photos", "").replace("TauolaPP", "").replace("Tauolapp", "").replace("Tauola", "")
     def _norm2(s):
         return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
         
     def _short2(s):
          return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
      
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+#    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
+#        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+#        evgenLog.error("gennames '%s' " %(expectedgenpart))
+#        sys.exit(1)
+
+    if genpart != _norm(expectedgenpart)  and _norm2(genpart) != _norm(expectedgenpart):
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), _norm(_short2(expectedgenpart)), genpart))
         evgenLog.error("gennames '%s' " %(expectedgenpart))
         sys.exit(1)
+
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
     if not gens_notune(gennames) and len(jo_physshortparts) < 3:
@@ -288,20 +297,50 @@ if gen_require_steering(gennames):
 
 ## Check that the evgenConfig.minevents setting is acceptable
 ## minevents defines the production event sizes and must be sufficiently "round"
+rounding = 0
+if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
+else:
+   multiInput = 0
+   
 if evgenConfig.minevents < 1:
     raise RunTimeError("evgenConfig.minevents must be at least 1")
 else:
-    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500]
+    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
-    if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
-        msg += "minevents in range >= 1000 must be a multiple of 1000"
-        raise RuntimeError(msg)
-    elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
-        msg += "minevents in range < 1000 must be one of %s" % allowed_minevents_lt1000
-        raise RuntimeError(msg)
-    else:
-        postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+    if multiInput !=0 :
+        dummy_minevents = evgenConfig.minevents*(multiInput)
+        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents))
+        evgenConfig.minevents = dummy_minevents
 
+    if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
+        rest1000 = evgenConfig.minevents % 1000
+        if multiInput !=0 :
+            rounding=1
+            if rest1000 < 1000-rest1000:
+                evgenLog.info('Replacing minevents '+str(evgenConfig.minevents)+' with roundeded '+str(evgenConfig.minevents-rest1000))
+                evgenConfig.minevents = evgenConfig.minevents-rest1000
+            else:
+                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
+                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
+        else:    
+           msg += "minevents in range >= 1000 must be a multiple of 1000"
+           raise RuntimeError(msg)
+    elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
+        if multiInput !=0:
+           rounding=1
+#           minimum_list = [abs(variable - evgenConfig.minevents) for variable in allowed_minevents_lt1000]
+#           from operator import itemgetter
+#           evgenLog.info("Minimum list: %s" % minimum_list)
+#           evgenLog.info("index of the min. value: " + str(min(enumerate(minimum_list), key=itemgetter(1))[0]) + " and the value is: " + str(allowed_minevents_lt1000[min(enumerate(minimum_list), key=itemgetter(1))[0]]))
+           round_minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
+           evgenLog.info('Replacing minevents lt 1000 '+str(evgenConfig.minevents)+' with rounded '+str(round_minevents))
+           evgenConfig.minevents=round_minevents
+        else:
+           msg += "minevents in range <= 1000 must be one of %s" % allowed_minevents_lt1000
+           raise RuntimeError(msg)
+#    else:
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
+    evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
@@ -474,6 +513,54 @@ def find_unique_file(pattern):
         raise RuntimeError("More than one '%s' file found" % pattern)
     return files[0]
 
+# This function merges a list of input LHE file to make one outputFile.  The header is taken from the first
+# file, but the number of events is updated to equal the total number of events in all the input files
+def merge_lhe_files(listOfFiles,outputFile):
+    if(os.path.exists(outputFile)):
+      print "outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
+      os.rename(outputFile,outputFile+".OLD")
+    output = open(outputFile,'w')
+    holdHeader = ""
+    nevents=0
+    for file in listOfFiles:
+       cmd = "grep /event "+file+" | wc -l"
+       nevents+=int(subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True))
+
+    for file in listOfFiles:
+       inHeader = True
+       header = ""
+       print "*** Starting file ",file
+       for line in open(file,"r"):
+##        Reading first event signals that we are done with all the header information
+##        Using this approach means the script will properly handle any metadata stored
+##        at the beginning of the file.  Note:  aside from the number of events, no metadata
+##        is updated after the first header is read (eg the random number seed recorded will be
+##        that of the first file.
+          if("<event" in line and inHeader):
+             inHeader = False
+             if(len(holdHeader)<1):
+                holdHeader = header
+                output.write(header)
+##        each input file ends with "</LesHouchesEvents>".  We don't want to write this out until all
+##        the files have been read.  The elif below writes out all the events.
+          elif(not inHeader and not ("</LesHouchesEvents>" in line)):
+              output.write(line)
+          if(inHeader):
+##           Format for storing number of events different in MG and Powheg 
+             if("nevents" in line):
+##              MG5 format is "n = nevents"
+                tmp = line.split("=")
+                line = line.replace(tmp[0],str(nevents))
+             elif("numevts" in line):
+##              Powheg format is numevts n
+                tmp = line.split(" ")
+                nnn = str(nevents)
+                line = line.replace(tmp[1],nnn)
+             header+=line
+    output.write("</LesHouchesEvents>")
+    output.close()
+
+
 def mk_symlink(srcfile, dstfile):
     "Make a symlink safely"
     if dstfile:
@@ -493,13 +580,42 @@ if eventsFile or datFile:
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
-    inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+#    inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
     if datFile:
+#        inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+        inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
         realDatFile = find_unique_file('*%s*.dat' % inputroot)
         mk_symlink(realDatFile, datFile)
     if eventsFile:
-        realEventsFile = find_unique_file('*%s.*.ev*ts' % inputroot)
-        mk_symlink(realEventsFile, eventsFile)
+#        realEventsFile = find_unique_file('*%s.*.ev*ts' % inputroot)
+#        mk_symlink(realEventsFile, eventsFile)
+        myinputfiles = runArgs.inputGeneratorFile
+        genInputFiles = myinputfiles.split(',')
+        numberOfFiles = len(genInputFiles)
+        # if there is a single file, make a symlink.  If multiple files, merge them into one output eventsFile
+        if(numberOfFiles<2):
+#           inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+           inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
+           realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
+           mk_symlink(realEventsFile, eventsFile)
+        else:
+           allFiles = []
+           for file in genInputFiles:
+#             Since we can have multiple files from the same task, inputroot must include more of the filename
+#             to make it unique
+#              input0 = os.path.basename(file).split("._")[0]
+#              input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
+#              inputroot = input0+"._"+input1
+              inputroot = os.path.basename(file).split(".tar.")[0]
+#              print "inputroot ",inputroot
+              realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
+#             The only input format where merging is permitted is LHE
+              with open(realEventsFile, 'r') as f:
+                 first_line = f.readline()
+                 if(not ("LesHouche" in first_line)):
+                    raise RuntimeError("%s is NOT a LesHouche file" % realEventsFile)
+                 allFiles.append(realEventsFile)
+           merge_lhe_files(allFiles,eventsFile)
 else:
     if hasattr(runArgs, "inputGeneratorFile") and runArgs.inputGeneratorFile != "NONE":
         raise RuntimeError("inputGeneratorFile arg specified for %s, but generators %s do not require an input file" %
