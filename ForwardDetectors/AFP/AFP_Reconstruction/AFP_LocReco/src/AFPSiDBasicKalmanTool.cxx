@@ -104,7 +104,7 @@ StatusCode AFPSiDBasicKalmanTool::initialize()
   }
   else {
     // set default matrix if not defined in job options
-    const float planesZDist = 10;
+    const float planesZDist = 9.;
 
     const float pixelSizeX = 0.05;
     m_aposterioriCov[0][0] = pixelSizeX * pixelSizeX / 3.;
