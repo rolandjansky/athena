@@ -51,10 +51,11 @@ rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
 # and the same for Known Noisy and MNB FEBs
-rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
-rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF)
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF)
+if rec.doESD() or rec.doRDOTrigger():
+   rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
+   rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF)
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF)
 
 
 if not larCondFlags.LoadElecCalib.is_locked():

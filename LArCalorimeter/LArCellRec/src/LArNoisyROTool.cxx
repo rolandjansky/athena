@@ -21,7 +21,10 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
+  m_calo_id(0), m_onlineID(0) , 
+  m_badFEBsTool(0), m_badMNBFEBsTool(0), 
+  m_invocation_counter(0),
+  m_SaturatedCellTightCutEvents(0),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
@@ -97,8 +100,8 @@ StatusCode LArNoisyROTool::initialize() {
   CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
   ATH_CHECK( m_cablingService.retrieve() );
-  ATH_CHECK( m_badFEBsTool.retrieve() );
-  ATH_CHECK( m_badMNBFEBsTool.retrieve() );
+  if(m_badFEBsTool) ATH_CHECK( m_badFEBsTool.retrieve() );
+  if(m_badMNBFEBsTool) ATH_CHECK( m_badMNBFEBsTool.retrieve() );
 
   //convert std::vector (jobO) to std::set (internal representation)
   //m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
@@ -129,7 +132,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   unsigned int NsaturatedTightCutFCALA = 0;
   unsigned int NsaturatedTightCutFCALC = 0;
 
-  if(m_knownBadFEBs.empty()){ // fill it from the tool
+  if(m_badFEBsTool && m_knownBadFEBs.empty()){ // fill it from the tool
          std::vector<HWIdentifier> badfebVec = m_badFEBsTool->missingFEBs();
          if(badfebVec.size() == 0) {
             ATH_MSG_ERROR("List of known Bad FEBs empty ? ");
@@ -139,7 +142,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
          }
          ATH_MSG_INFO("Number of known Bad FEBs: "<<m_knownBadFEBs.size());
   }       
-  if(m_knownMNBFEBs.empty()){ // fill it from the tool
+  if(m_badMNBFEBsTool && m_knownMNBFEBs.empty()){ // fill it from the tool
          std::vector<HWIdentifier> MNBfebVec = m_badMNBFEBsTool->missingFEBs();
          if(MNBfebVec.size() == 0) {
             ATH_MSG_ERROR("List of known MNB FEBs empty ? ");
