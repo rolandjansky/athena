@@ -185,24 +185,20 @@ StatusCode PixelMainMon::FillTrackMon(void)
       ///
       /// get the track state on surfaces (a vector, on element per surface) and loop over it
       ///
-      int nholes = summary->get(Trk::numberOfPixelHoles);
-      if (m_doHoleSearch && nholes>0) {
+      int npixholes = summary->get(Trk::numberOfPixelHoles);
+      if (m_doHoleSearch && npixholes>0) {
 	track = m_holeSearchTool->getTrackWithHoles(*track0);
       }
 
       ///
       /// Track Quality Cuts
       ///
-      bool passQualityCut = false;
-      bool passTightCut = false;
-      bool pass1hole2GeVTightCut = false;
+      bool passQualityCut          = ( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5); //residuals
+      bool passJOTrkTightCut       = m_trackSelTool->accept(*track0); 
+      bool passTightCut            = (passJOTrkTightCut && npixholes==0); //lorentz angle 
+      bool pass1hole1GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 1.0); //misshit ratios
+      bool pass1hole5GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 5.0); //eff vs lumi
 
-      if ( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
-
-      if ( m_trackSelTool->accept(*track0) )
-        {
-	  passTightCut = true;
-        }
       /*
       if ( ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
 	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
@@ -212,7 +208,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	   (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
 	passTightCut = true;
       }
-      */
       if ( measPerigee->pT()/1000.0 > 5.0 &&
 	   ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
 	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
@@ -220,9 +215,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	   (summary->get(Trk::numberOfPixelHoles) < 2 ) && 
 	   (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) && 
 	   (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
-	pass1hole2GeVTightCut = true;
+	pass1hole5GeVptTightCut = true;
       }
-
+      */
       ///
       /// TSOS Loop
       ///
@@ -279,7 +274,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
 
 	  if ( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID, m_pixelid);
-	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
+	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
 	}
          
 	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
@@ -287,7 +282,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  nOutlier = 1.0;
 
 	  if ( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID, m_pixelid);
-	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	}
           
 	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
@@ -295,10 +290,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  nHole = 1.0;
 
 	  if ( m_tsos_outliermap) m_tsos_outliermap->Fill(surfaceID, m_pixelid);
-	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	}
 
-	if (passQualityCut) {
+	if (pass1hole1GeVptTightCut) {
 	  if (m_tsos_holeratio_tmp) m_tsos_holeratio_tmp->Fill(surfaceID, m_pixelid, nHole);
 	  if (m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, nOutlier + nHole);
 	  if (m_doOnline) {
@@ -405,7 +400,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  m_ntracksPerEvent++;
 	}
 
-      if (m_doHoleSearch && !m_doOnline && nholes>0) delete track;
+      if (m_doHoleSearch && npixholes>0) delete track;
    } // end of track loop
 
    

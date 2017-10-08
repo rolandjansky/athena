@@ -106,7 +106,9 @@ if doHitsOnTrack:
   #InDetPixelMainsMonOnTrack.TrackSelectionTool = InDetTrackSelectionToolPixelMon
   InDetPixelMainsMonOnTrack.TrackSelectionTool.UseTrkTrackTools = True
   InDetPixelMainsMonOnTrack.TrackSelectionTool.CutLevel = "TightPrimary"
-  InDetPixelMainsMonOnTrack.TrackSelectionTool.minPt = 5000
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxNPixelHoles = 1
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxD0 = 2
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxZ0 = 150
   InDetPixelMainsMonOnTrack.TrackSelectionTool.TrackSummaryTool    = InDetTrackSummaryTool
   InDetPixelMainsMonOnTrack.TrackSelectionTool.Extrapolator        = InDetExtrapolator
   ##Other parameters                                                                                                                  
