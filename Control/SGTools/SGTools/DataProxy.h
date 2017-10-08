@@ -38,6 +38,7 @@ class IProxyDict;
 
 namespace SG {
   class T2pMap;
+class DataStore;
 
   class DataProxy : public IRegistry, public IRegisterTransient
   {
@@ -155,11 +156,6 @@ namespace SG {
     void reset (bool hard = false);
     void finalReset(); ///called by destructor
 
-    /// release or reset according to resetOnly flag
-    /// If FORCE is true, then always release.
-    /// See IResetable.h for HARD.
-    bool requestRelease(bool force, bool hard);
-
     /// am I valid?
     bool isValid() const;
 
@@ -237,8 +233,38 @@ namespace SG {
     IConverter* loader();
 
   private:
+    /// For access to requestRelease.
+    friend class SG::DataStore;
+
     DataProxy(const DataProxy&) = delete;
     DataProxy& operator=(const DataProxy&) = delete;
+
+
+    /**
+     * @brief Reset/release a proxy at the end of an event.
+     * @param force If true, force a release rather than a reset.
+     * @param hard Do a hard reset if true.
+     * @returns True if the caller should release the proxy.
+     *
+     * This is usually called at the end of an event.
+     * No locking is done, so there should be no other threads accessing
+     * this proxy.
+     *
+     * `Release' means that we want to remove the proxy from the store.
+     * `Reset' means that we keep the proxy, but remove the data object
+     * that it references.
+     * Each proxy has a flag saying whether it wants to do a release or a reset.
+     * This can be forced via the FORCE argument; this would typically be done
+     * when deleting the store.
+     * This function does not actually release the proxy.  If it returns
+     * true, the caller is expected to release the proxy.
+     *
+     * See AthenaKernel/IResetable.h for the meaning of HARD.
+     */
+    bool requestRelease(bool force, bool hard);
+
+    /// Drop the reference to the data object.
+    void resetRef();
 
     std::unique_ptr<TransientAddress> m_tAddress;
 
