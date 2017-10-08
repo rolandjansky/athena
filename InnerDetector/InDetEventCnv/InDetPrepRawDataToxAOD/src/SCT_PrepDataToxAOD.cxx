@@ -24,6 +24,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
+#define AUXDATA(OBJ, TYP, NAME) \
+  static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
+
 /////////////////////////////////////////////////////////////////////
 //
 //         Constructor with parameters:
@@ -209,14 +212,14 @@ StatusCode SCT_PrepDataToxAOD::execute()
 
       //Add SCT specific information
       const InDet::SiWidth cw = prd->width();
-      xprd->auxdata<int>("SiWidth") = (int)cw.colRow()[0];
-      xprd->auxdata<int>("hitsInThirdTimeBin") = (int)(prd->hitsInThirdTimeBin());
+      AUXDATA(xprd, int, SiWidth) = (int)cw.colRow()[0];
+      AUXDATA(xprd, int, hitsInThirdTimeBin) = (int)(prd->hitsInThirdTimeBin());
 
-      xprd->auxdata<int>("bec")          =   m_SCTHelper->barrel_ec(clusterId)   ;
-      xprd->auxdata<int>("layer")        =   m_SCTHelper->layer_disk(clusterId)  ;   
-      xprd->auxdata<int>("phi_module")   =   m_SCTHelper->phi_module(clusterId)  ;
-      xprd->auxdata<int>("eta_module")   =   m_SCTHelper->eta_module(clusterId)  ;
-      xprd->auxdata<int>("side")         =   m_SCTHelper->side(clusterId)        ;
+      AUXDATA(xprd, int, bec)          =   m_SCTHelper->barrel_ec(clusterId)   ;
+      AUXDATA(xprd, int, layer)        =   m_SCTHelper->layer_disk(clusterId)  ;   
+      AUXDATA(xprd, int, phi_module)   =   m_SCTHelper->phi_module(clusterId)  ;
+      AUXDATA(xprd, int, eta_module)   =   m_SCTHelper->eta_module(clusterId)  ;
+      AUXDATA(xprd, int, side)         =   m_SCTHelper->side(clusterId)        ;
    
       // Add the Detector element ID  --  not sure if needed as we have the informations above
       const InDetDD::SiDetectorElement* de = prd->detectorElement();
@@ -227,7 +230,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
           detElementId = detId.get_compact();
         }
       }
-      xprd->auxdata<uint64_t>("detectorElementID") = detElementId;
+      AUXDATA(xprd, uint64_t, detectorElementID) = detElementId;
    
       //Add details about the individual hits 
       if(m_writeRDOinformation)
@@ -244,7 +247,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
 	  for (auto i = range.first; i != range.second; ++i) {
 	    barcodes.push_back( i->second.barcode() );
 	  }
-	  xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
+	  AUXDATA(xprd,  std::vector<int> , truth_barcode) = barcodes;
 	}
       }
 
@@ -304,9 +307,9 @@ void SCT_PrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xp
       sdo_depositsEnergy.push_back( sdoDepEnergy );
     }
   }
-  xprd->auxdata< std::vector<int> >("sdo_words")  = sdo_word;
-  xprd->auxdata< std::vector< std::vector<int> > >("sdo_depositsBarcode")  = sdo_depositsBarcode;
-  xprd->auxdata< std::vector< std::vector<float> > >("sdo_depositsEnergy") = sdo_depositsEnergy;
+  AUXDATA(xprd,  std::vector<int> , sdo_words)  = sdo_word;
+  AUXDATA(xprd,  std::vector< std::vector<int> > , sdo_depositsBarcode)  = sdo_depositsBarcode;
+  AUXDATA(xprd,  std::vector< std::vector<float> > , sdo_depositsEnergy) = sdo_depositsEnergy;
 }
 
 
@@ -360,17 +363,17 @@ void  SCT_PrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation*
     }
   }
 
-  xprd->auxdata<std::vector<float> >("sihit_energyDeposit") = sihit_energyDeposit;
-  xprd->auxdata<std::vector<float> >("sihit_meanTime") = sihit_meanTime;
-  xprd->auxdata<std::vector<int> >("sihit_barcode") = sihit_barcode;
+  AUXDATA(xprd, std::vector<float> , sihit_energyDeposit) = sihit_energyDeposit;
+  AUXDATA(xprd, std::vector<float> , sihit_meanTime) = sihit_meanTime;
+  AUXDATA(xprd, std::vector<int> , sihit_barcode) = sihit_barcode;
   
-  xprd->auxdata<std::vector<float> >("sihit_startPosX") = sihit_startPosX;
-  xprd->auxdata<std::vector<float> >("sihit_startPosY") = sihit_startPosY;
-  xprd->auxdata<std::vector<float> >("sihit_startPosZ") = sihit_startPosZ;
+  AUXDATA(xprd, std::vector<float> , sihit_startPosX) = sihit_startPosX;
+  AUXDATA(xprd, std::vector<float> , sihit_startPosY) = sihit_startPosY;
+  AUXDATA(xprd, std::vector<float> , sihit_startPosZ) = sihit_startPosZ;
 
-  xprd->auxdata<std::vector<float> >("sihit_endPosX") = sihit_endPosX;
-  xprd->auxdata<std::vector<float> >("sihit_endPosY") = sihit_endPosY;
-  xprd->auxdata<std::vector<float> >("sihit_endPosZ") = sihit_endPosZ;
+  AUXDATA(xprd, std::vector<float> , sihit_endPosX) = sihit_endPosX;
+  AUXDATA(xprd, std::vector<float> , sihit_endPosY) = sihit_endPosY;
+  AUXDATA(xprd, std::vector<float> , sihit_endPosZ) = sihit_endPosZ;
 
 
 }
@@ -541,9 +544,9 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
     }
   }
   
-  xprd->auxdata< std::vector<int> >("rdo_strip") = strip;
-  xprd->auxdata< std::vector<int> >("rdo_timebin") = timebin;
-  xprd->auxdata< std::vector<int> >("rdo_groupsize") = groupsize;
+  AUXDATA(xprd,  std::vector<int> , rdo_strip) = strip;
+  AUXDATA(xprd,  std::vector<int> , rdo_timebin) = timebin;
+  AUXDATA(xprd,  std::vector<int> , rdo_groupsize) = groupsize;
   
 }
 
