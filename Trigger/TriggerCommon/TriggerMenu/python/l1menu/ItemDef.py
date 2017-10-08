@@ -821,6 +821,7 @@ class ItemDef:
         LVL1MenuItem('L1_MBTS_1_VTE4'     ).setLogic( MBTS_1  & Not(TE4) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTS_1_VTE5'     ).setLogic( MBTS_1  & Not(TE5) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTS_1_VTE10'     ).setLogic( MBTS_1  & Not(TE10) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTS_1_VTE70'     ).setLogic( MBTS_1  & Not(TE70) & physcond).setTriggerType(TT.minb)    # noqa: F821
         
         LVL1MenuItem('L1_MBTS_2_VTE2'     ).setLogic( MBTS_2  & Not(TE2) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTS_2_VTE3'     ).setLogic( MBTS_2  & Not(TE3) & physcond).setTriggerType(TT.minb)    # noqa: F821

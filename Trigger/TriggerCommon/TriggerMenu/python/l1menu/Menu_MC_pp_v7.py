@@ -563,6 +563,12 @@ def defineMenu():
         'L1_MBTSC10','L1_MBTSC12','L1_MBTSC14',
         # beam splashes
         "L1_MBTS_4_A", "L1_MBTS_4_C",
+        
+        #Overlay
+        "L1_MBTS_1_OVERLAY","L1_TE20_OVERLAY",
+        
+        #BeamSpot
+        "L1_MBTS_1_VTE70",
 
         #BGRP9
         'L1_MBTS_1_BGRP9','L1_MBTS_2_BGRP9',
@@ -1488,6 +1494,8 @@ def defineMenu():
         'L1_MBTS_2_VTE10':129,  
 
         'L1_2EM3_VTE70' : 474,
+        
+        'L1_MBTS_1_VTE70' : 477,
 
         # 3 x ZDC
         'L1_ZDC_A':419,
@@ -1498,6 +1506,10 @@ def defineMenu():
 
         'L1_LUCID_BGRP9' : 471,
         'L1_LUCID_BGRP11' : 472,
+        
+        #Overlay
+        'L1_MBTS_1_OVERLAY' : 445,
+        'L1_TE20_OVERLAY' : 455,
         
 #ATR-13743        'L1_ALFA_ELAST1'  : 424,
 #        'L1_ALFA_ELAST2'  : 425,
