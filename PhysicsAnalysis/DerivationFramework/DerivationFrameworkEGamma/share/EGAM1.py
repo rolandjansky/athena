@@ -11,10 +11,16 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
-DoCellReweighting = False
+DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+#override..
+#DoCellReweighting = False
 #DoCellReweighting = True
 
 
