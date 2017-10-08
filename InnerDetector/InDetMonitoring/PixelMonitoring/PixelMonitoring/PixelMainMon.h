@@ -449,6 +449,7 @@ private:
    TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::COUNT];
    TH1I_LW*              m_highNclusters_per_lumi;
    TH1F_LW*              m_cluster_ToT1d_mod[PixLayerIBL2D3DDBM::COUNT];
+   TH1F_LW*              m_cluster_ToT1d_corr[PixLayerIBL2D3DDBM::COUNT];
    TH1F_LW*              m_1cluster_ToT_mod[PixLayer::COUNT];
    TH1F_LW*              m_2cluster_ToT_mod[PixLayer::COUNT];
    TH1F_LW*              m_3cluster_ToT_mod[PixLayer::COUNT];

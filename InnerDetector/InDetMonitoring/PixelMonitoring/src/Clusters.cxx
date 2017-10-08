@@ -187,11 +187,18 @@ StatusCode PixelMainMon::BookClustersMon(void)
     }else if(m_doIBL){
       sc = clusterExpert.regHist(m_cluster_ToT1d_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_ibl_tot, min_ibl_tot, max_ibl_tot));
     }
- 
     hname = makeHistname(("Cluster_Q_"+m_modLabel_PixLayerIBL2D3DDBM[i]), false);
     htitles = makeHisttitle(("Charge, "+m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_Q+atext_nclu), false);
     sc = clusterExpert.regHist(m_cluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
+    
     if (m_doOnTrack) {
+      hname = makeHistname(("Cluster_ToTxCosAlpha_"+m_modLabel_PixLayerIBL2D3DDBM[i]), false);
+      htitles = makeHisttitle(("Cluster ToTxCosAlpha, "+m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_tot+atext_nclu), false);
+      if (i<PixLayer::kIBL) {
+	sc = clusterExpert.regHist(m_cluster_ToT1d_corr[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
+      } else if (m_doIBL) {
+	sc = clusterExpert.regHist(m_cluster_ToT1d_corr[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_ibl_tot, min_ibl_tot, max_ibl_tot));
+      }
       hname = makeHistname(("Cluster_QxCosAlpha_"+m_modLabel_PixLayerIBL2D3DDBM[i]), false);
       htitles = makeHisttitle(("Corrected charge, "+m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_Q+atext_nclu), false);
       sc = clusterExpert.regHist(m_cluster_Q_corr[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
@@ -552,6 +559,8 @@ StatusCode PixelMainMon::FillClustersMon(void)
 	  if (pixlayeribl2d3ddbm!=99 && m_cluster_Q_mod[pixlayeribl2d3ddbm])            m_cluster_Q_mod[pixlayeribl2d3ddbm]->Fill(cluster.totalCharge());
 	  if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_Q_mod[pixlayerdbm])         m_cluster_Q_mod[pixlayerdbm]->Fill(cluster.totalCharge());
 	  if (m_doOnTrack) {
+	    if (pixlayeribl2d3ddbm!=99 && m_cluster_ToT1d_corr[pixlayeribl2d3ddbm])     m_cluster_ToT1d_corr[pixlayeribl2d3ddbm]->Fill(cluster.totalToT()*cosalpha);
+	    if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_ToT1d_corr[pixlayerdbm])  m_cluster_ToT1d_corr[pixlayerdbm]->Fill(cluster.totalToT()*cosalpha);
 	    if (pixlayeribl2d3ddbm!=99 && m_cluster_Q_corr[pixlayeribl2d3ddbm])         m_cluster_Q_corr[pixlayeribl2d3ddbm]->Fill(cluster.totalCharge()*cosalpha);
 	    if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_Q_corr[pixlayerdbm])      m_cluster_Q_corr[pixlayerdbm]->Fill(cluster.totalCharge()*cosalpha);
 	  }
