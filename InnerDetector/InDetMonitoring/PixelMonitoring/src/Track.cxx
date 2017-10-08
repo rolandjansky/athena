@@ -110,14 +110,15 @@ StatusCode PixelMainMon::BookTrackMon(void)
     sc = m_tsos_outliermap->regHist(trackHistos);
   }
 
+  m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio", ("Holes per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  sc = m_tsos_holeratio_tmp->regHist(trackHistos);
+  m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  sc = m_misshits_ratio_tmp->regHist(trackHistos);
+  
   if (m_doOnline) {
-    m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_tsos_holeratio_tmp->regHist(trackHistos);
-    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio_mon", ("Holes per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_tsos_holeratio_mon->regHist(trackHistos);
-    m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_misshits_ratio_tmp->regHist(trackHistos);
-    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio_mon", ("Hole+Outlier per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
   
@@ -185,7 +186,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
       /// get the track state on surfaces (a vector, on element per surface) and loop over it
       ///
       int nholes = summary->get(Trk::numberOfPixelHoles);
-      if (m_doHoleSearch && !m_doOnline && nholes>0) {
+      if (m_doHoleSearch && nholes>0) {
 	track = m_holeSearchTool->getTrackWithHoles(*track0);
       }
 
@@ -297,12 +298,12 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	}
 
-	if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID,m_pixelid,nHole);
 	if (passQualityCut) {
-	  if (nOutlier + nHole > 0.) {
-	    if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,1.0);
-	  } else {
-	    if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,0.0);
+	  if (m_tsos_holeratio_tmp) m_tsos_holeratio_tmp->Fill(surfaceID, m_pixelid, nHole);
+	  if (m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, nOutlier + nHole);
+	  if (m_doOnline) {
+	    if (m_tsos_holeratio_mon) m_tsos_holeratio_mon->Fill(surfaceID, m_pixelid, nHole);
+	    if (m_misshits_ratio_mon) m_misshits_ratio_mon->Fill(surfaceID, m_pixelid, nOutlier + nHole);
 	  }
 	}
 
@@ -423,8 +424,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
    if (m_doOnline) {
       if (m_doRefresh5min) {
-         if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp.get());
-         if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp.get());
+	if (m_tsos_holeratio_mon) m_tsos_holeratio_mon->Reset();
+	if (m_misshits_ratio_mon) m_misshits_ratio_mon->Reset();
       }
    }
 
