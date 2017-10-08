@@ -3105,6 +3105,10 @@ def setupMenu():
         ['beamspot_activeTE_trkfast_peb_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         ['beamspot_allTE_trkfast_peb_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         ['beamspot_trkFS_trkfast_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        
+        ['beamspot_activeTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_trkFS_trkfast_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
 
         ]   
 
@@ -3149,6 +3153,11 @@ def setupMenu():
         ['mb_sptrk_L1VTE4',   'L1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_L1VTE5',   'L1_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_L1VTE10',   'L1_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+        
+        #overlay
+        ['mb_sp_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['mb_sptrk_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+
 
 	#leading track for low-mu run
 	['mb_sptrk_pt4_L1MBTS_1',                     'L1_MBTS_1', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
@@ -3645,6 +3654,9 @@ def setupMenu():
         ['idcalib_trk16_fwd',       'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         ['idcalib_trk29_central',   'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         ['idcalib_trk29_fwd',       'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+        
+        ['idcalib_trk9_central_L1MBTS_1_VTE70',    'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+        ['idcalib_trk9_fwd_L1MBTS_1_VTE70',        'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
 
         ['conej40_larpebj',  'L1_J20',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['conej165_larpebj', 'L1_J100',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1], 
@@ -3780,6 +3792,10 @@ def setupMenu():
         #['noalg_mb_L1TE50',  'L1_TE50', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         #['noalg_mb_L1TE60',  'L1_TE60', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_mb_L1TE70',  'L1_TE70', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        
+        #data min-bias overlay
+	    ['noalg_L1TE20_OVERLAY',   'L1_TE20_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+	    ['noalg_L1MBTS_1_OVERLAY',   'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 
         #['noalg_mb_L1TE5.0ETA24',  'L1_TE5.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         #['noalg_mb_L1TE10.0ETA24',  'L1_TE10.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
