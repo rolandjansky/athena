@@ -46,7 +46,7 @@
 #ifndef SiSpacePointFormation_SI_POINT_FINDER_H
 #define SiSpacePointFormation_SI_POINT_FINDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthContainers/DataVector.h"
@@ -60,7 +60,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-
+#include "TrkSpacePoint/SpacePointContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class Event;
@@ -82,7 +82,15 @@ namespace InDet {
 
   class SiElementPropertiesTable;
 
-  class SiTrackerSpacePointFinder:public AthAlgorithm {
+  class SiTrackerSpacePointFinder:public AthReentrantAlgorithm {
+
+  struct SPFCache{//This is a temporary object to aid reentrant coding
+     Amg::Vector3D vertex;
+     const EventContext& ctx;
+     const SCT_ClusterContainer* SCTCContainer;
+     SPFCache(const EventContext& inctx) : ctx(inctx), SCTCContainer(nullptr) { }
+  };
+
   public:
     
     SiTrackerSpacePointFinder(const std::string& name,
@@ -90,11 +98,11 @@ namespace InDet {
     
     ~SiTrackerSpacePointFinder();
     
-    StatusCode initialize();
+    StatusCode initialize() override;
     
-    StatusCode execute();
+    StatusCode execute_r (const EventContext& ctx) const override;
 
-    StatusCode finalize();
+    StatusCode finalize() override;
 
   private:
     // methods
@@ -106,25 +114,20 @@ namespace InDet {
 
     void addSCT_SpacePoints
       (const SCT_ClusterCollection* next, 
-       SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection); 
+       SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1,
-       const IdentifierHash& id2, double minDiff, double maxDiff,
-       SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection); 
+       const IdentifierHash id2, double minDiff, double maxDiff,
+       SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1, 
-     const IdentifierHash& id2, double min1, double max1,
-     double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection);
+     const IdentifierHash id2, double min1, double max1,
+     double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const;
     
 
     // data members
-//    std::string m_SCT_ClustersName;
-//    std::string m_PixelsClustersName;
-//    std::string m_spacePointsSCTName;
-//    std::string m_spacePointsPixelName;
-//    std::string m_spacePointsOverlapName;
     SG::ReadHandleKey<SCT_ClusterContainer>  m_Sct_clcontainerKey;
     SG::ReadHandleKey<PixelClusterContainer> m_Pixel_clcontainerKey;
     bool m_selectPixels;
@@ -147,20 +150,22 @@ namespace InDet {
     float m_xVertex;
     float m_yVertex;
     float m_zVertex;
-    Amg::Vector3D m_vertex;
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; 
 
-    int m_numberOfEvents;
+    mutable std::atomic<int> m_numberOfEvents;
+    mutable std::atomic<int> m_numberOfPixel;
+    mutable std::atomic<int> m_numberOfSCT;
     const InDetDD::SCT_DetectorManager* m_manager; 
     // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused
     const SCT_ID* m_idHelper;
     const PixelID* m_idHelperPixel;
-    SiElementPropertiesTable* m_properties;
+    static const SiElementPropertiesTable* s_properties;
     
     SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainer_SCTKey;
     SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainerPixelKey;
     SG::WriteHandleKey<SpacePointOverlapCollection> m_spacepointoverlapCollectionKey;
-
+    SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_SCTKey;
+    SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_PixKey;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
   };
 

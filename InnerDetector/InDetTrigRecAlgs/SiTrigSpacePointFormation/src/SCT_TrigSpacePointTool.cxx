@@ -173,7 +173,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 
     IdentifierHash thisHash = m_idHelper->wafer_hash(thisID);
 
-    std::vector<IdentifierHash>* 
+    const std::vector<IdentifierHash>* 
       others(m_properties->neighbours(thisHash));
     if (others==0 || others->empty() ) return;
     std::vector<IdentifierHash>::const_iterator otherHash = others->begin();

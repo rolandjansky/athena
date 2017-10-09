@@ -34,7 +34,7 @@ public:
 
     ~SiElementProperties();
 
-    std::vector<IdentifierHash>*	neighbours (void);
+    const std::vector<IdentifierHash>*	neighbours (void);
     float				halfWidth (void);
     
 private:
@@ -49,7 +49,7 @@ private:
 
 
 //--------------------------------------------------------------------------
-inline std::vector<IdentifierHash>*
+inline const std::vector<IdentifierHash>*
 SiElementProperties::neighbours()
 {
     return &m_neighbours;
