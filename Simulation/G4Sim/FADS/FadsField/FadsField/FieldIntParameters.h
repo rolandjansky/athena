@@ -74,68 +74,68 @@ class FieldIntParameters
   //
 
  protected:
-  static G4double default_kineticEnergyThreshold;
-  static G4double default_maxLengthForConstField;
-  static G4double default_missDistance;
-  static G4double default_typicalLongStep;
-  static G4double default_tolerableBiasError;
-  static G4double default_tolerableIntegrationError;
-  static G4double default_expectedNumBoundaries;
-  static G4double default_expectedTrackLength;
+  static G4double s_default_kineticEnergyThreshold;
+  static G4double s_default_maxLengthForConstField;
+  static G4double s_default_missDistance;
+  static G4double s_default_typicalLongStep;
+  static G4double s_default_tolerableBiasError;
+  static G4double s_default_tolerableIntegrationError;
+  static G4double s_default_expectedNumBoundaries;
+  static G4double s_default_expectedTrackLength;
 
-  G4double current_kineticEnergyThreshold;
+  G4double m_current_kineticEnergyThreshold;
   // in the following parameters
   //   idx=0 for e+/e- track below E-threshold
   //   idx=1 for e+/e- track above E-threshold 
   //      and all other charged track except mu+/mu-
   //      of any kinetic energy
   //   idx=2 for mu+/mu- track of any kinetic energy
-  G4double current_maxLengthForConstField[3];
-  G4double current_missDistance[3];
-  G4double current_typicalLongStep[3];
-  G4double current_tolerableBiasError[3];
-  G4double current_tolerableIntegrationError[3];
-  G4double current_expectedNumBoundaries[3];
-  G4double current_expectedTrackLength[3];
+  G4double m_current_maxLengthForConstField[3];
+  G4double m_current_missDistance[3];
+  G4double m_current_typicalLongStep[3];
+  G4double m_current_tolerableBiasError[3];
+  G4double m_current_tolerableIntegrationError[3];
+  G4double m_current_expectedNumBoundaries[3];
+  G4double m_current_expectedTrackLength[3];
 
  public:
   inline static G4double GetDefault_kineticEnergyThreshold()
-  { return default_kineticEnergyThreshold; }
+  { return s_default_kineticEnergyThreshold; }
   inline static void SetDefault_kineticEnergyThreshold(G4double val)
-  { default_kineticEnergyThreshold= val; }
+  { s_default_kineticEnergyThreshold= val; }
   inline static G4double GetDefault_maxLengthForConstField()
-  { return default_maxLengthForConstField; }
+  { return s_default_maxLengthForConstField; }
   inline static void SetDefault_maxLengthForConstField(G4double val)
-  { default_maxLengthForConstField= val; }
+  { s_default_maxLengthForConstField= val; }
   inline static G4double GetDefault_missDistance()
-  { return default_missDistance; }
+  { return s_default_missDistance; }
   inline static void SetDefault_missDistance(G4double val)
-  { default_missDistance = val; }
+  { s_default_missDistance = val; }
   inline static G4double GetDefault_typicalLongStep()
-  { return default_typicalLongStep; }
+  { return s_default_typicalLongStep; }
   inline static void SetDefault_typicalLongStep(G4double val)
-  { default_typicalLongStep = val; }
+  { s_default_typicalLongStep = val; }
   inline static G4double GetDefault_tolerableBiasError()
-  { return default_tolerableBiasError; }
+  { return s_default_tolerableBiasError; }
   inline static void SetDefault_tolerableBiasError(G4double val)
-  { default_tolerableBiasError = val; }
+  { s_default_tolerableBiasError = val; }
   inline static G4double GetDefault_tolerableIntegrationError()
-  { return default_tolerableIntegrationError; }
+  { return s_default_tolerableIntegrationError; }
   inline static void SetDefault_tolerableIntegrationError(G4double val)
-  { default_tolerableIntegrationError = val; }
+  { s_default_tolerableIntegrationError = val; }
   inline static G4double GetDefault_expectedNumBoundaries()
-  { return default_expectedNumBoundaries; }
+  { return s_default_expectedNumBoundaries; }
   inline static void SetDefault_expectedNumBoundaries(G4double val)
-  { default_expectedNumBoundaries = val; }
+  { s_default_expectedNumBoundaries = val; }
   inline static G4double GetDefault_expectedTrackLength()
-  { return default_expectedTrackLength; }
+  { return s_default_expectedTrackLength; }
   inline static void SetDefault_expectedTrackLength(G4double val)
-  { default_expectedTrackLength = val; }
+  { s_default_expectedTrackLength = val; }
 
   inline G4double GetCurrent_kineticEnergyThreshold() const
-  { return current_kineticEnergyThreshold; }
+  { return m_current_kineticEnergyThreshold; }
   inline void SetCurrent_kineticEnergyThreshold(G4double val)
-  { current_kineticEnergyThreshold= val; }
+  { m_current_kineticEnergyThreshold= val; }
   // in the following parameters
   //   idx=0 for e+/e- track below E-threshold
   //   idx=1 for e+/e- track above E-threshold 
@@ -143,44 +143,44 @@ class FieldIntParameters
   //      of any kinetic energy
   //   idx=2 for mu+/mu- track of any kinetic energy
   inline G4double GetCurrent_maxLengthForConstField(G4int idx) const
-  { return current_maxLengthForConstField[idx]; }
+  { return m_current_maxLengthForConstField[idx]; }
   inline void SetCurrent_maxLengthForConstField(G4int idx,G4double val)
-  { current_maxLengthForConstField[idx]= val; }
+  { m_current_maxLengthForConstField[idx]= val; }
   inline G4double GetCurrent_missDistance(G4int idx) const
-  { return current_missDistance[idx]; }
+  { return m_current_missDistance[idx]; }
   inline void SetCurrent_missDistance(G4int idx,G4double val)
-  { current_missDistance[idx] = val; }
+  { m_current_missDistance[idx] = val; }
   inline G4double GetCurrent_typicalLongStep(G4int idx) const
-  { return current_typicalLongStep[idx]; }
+  { return m_current_typicalLongStep[idx]; }
   inline void SetCurrent_typicalLongStep(G4int idx,G4double val)
-  { current_typicalLongStep[idx] = val; }
+  { m_current_typicalLongStep[idx] = val; }
   inline G4double GetCurrent_tolerableBiasError(G4int idx) const
-  { return current_tolerableBiasError[idx]; }
+  { return m_current_tolerableBiasError[idx]; }
   inline void SetCurrent_tolerableBiasError(G4int idx,G4double val)
-  { current_tolerableBiasError[idx] = val; }
+  { m_current_tolerableBiasError[idx] = val; }
   inline G4double GetCurrent_tolerableIntegrationError(G4int idx) const
-  { return current_tolerableIntegrationError[idx]; }
+  { return m_current_tolerableIntegrationError[idx]; }
   inline void SetCurrent_tolerableIntegrationError(G4int idx,G4double val)
-  { current_tolerableIntegrationError[idx] = val; }
+  { m_current_tolerableIntegrationError[idx] = val; }
   inline G4double GetCurrent_expectedNumBoundaries(G4int idx) const
-  { return current_expectedNumBoundaries[idx]; }
+  { return m_current_expectedNumBoundaries[idx]; }
   inline void SetCurrent_expectedNumBoundaries(G4int idx,G4double val)
-  { current_expectedNumBoundaries[idx] = val; }
+  { m_current_expectedNumBoundaries[idx] = val; }
   inline G4double GetCurrent_expectedTrackLength(G4int idx) const
-  { return current_expectedTrackLength[idx]; }
+  { return m_current_expectedTrackLength[idx]; }
   inline void SetCurrent_expectedTrackLength(G4int idx,G4double val)
-  { current_expectedTrackLength[idx] = val; }
+  { m_current_expectedTrackLength[idx] = val; }
 
  private:
-  G4int nLongStep[3];
-  G4int nShortStep[3];
-  G4int idx;
+  G4int m_nLongStep[3];
+  G4int m_nShortStep[3];
+  G4int m_idx;
 
  public:
   inline void LongStep() 
-  { nLongStep[idx]++; }
+  { m_nLongStep[m_idx]++; }
   inline void ShortStep()
-  { nShortStep[idx]++; }
+  { m_nShortStep[m_idx]++; }
   
 };
 

@@ -15,12 +15,12 @@ namespace FADS {
 // abstract base class for implementing a templated stepper factory
 class EqOfMotionFactoryBase {
 public:
-	EqOfMotionFactoryBase(std::string n):EqOfMotionName(n) {}
+	EqOfMotionFactoryBase(std::string n):m_EqOfMotionName(n) {}
 	virtual G4Mag_EqRhs* Build()=0;
-	std::string GetName() const {return EqOfMotionName;}
-	void SetName(std::string n) {EqOfMotionName=n;}
+	std::string GetName() const {return m_EqOfMotionName;}
+	void SetName(std::string n) {m_EqOfMotionName=n;}
 protected:
-	std::string EqOfMotionName;
+	std::string m_EqOfMotionName;
 };
 
 }	// end namespace
