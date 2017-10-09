@@ -193,31 +193,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
       ///
       /// Track Quality Cuts
       ///
-      bool passQualityCut          = ( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5); //residuals
       bool passJOTrkTightCut       = m_trackSelTool->accept(*track0); 
       bool passTightCut            = (passJOTrkTightCut && npixholes==0); //lorentz angle 
       bool pass1hole1GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 1.0); //misshit ratios
       bool pass1hole5GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 5.0); //eff vs lumi
 
-      /*
-      if ( ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
-	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
-	   (summary->get(Trk::numberOfNextToInnermostPixelLayerHits)+summary->get(Trk::numberOfInnermostPixelLayerHits ) > 0 ) &&
-	   (summary->get(Trk::numberOfPixelHoles) == 0 ) && 
-	   (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) && 
-	   (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
-	passTightCut = true;
-      }
-      if ( measPerigee->pT()/1000.0 > 5.0 &&
-	   ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
-	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
-	   (summary->get(Trk::numberOfNextToInnermostPixelLayerHits)+summary->get(Trk::numberOfInnermostPixelLayerHits ) > 0 ) &&
-	   (summary->get(Trk::numberOfPixelHoles) < 2 ) && 
-	   (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) && 
-	   (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
-	pass1hole5GeVptTightCut = true;
-      }
-      */
       ///
       /// TSOS Loop
       ///
