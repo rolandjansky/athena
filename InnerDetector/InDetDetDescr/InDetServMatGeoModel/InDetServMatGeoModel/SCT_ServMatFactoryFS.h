@@ -22,7 +22,7 @@ class SCT_ServMatFactoryFS   {
   
   // Constructor:
   SCT_ServMatFactoryFS(StoreGateSvc  *pDetStore,
-		       ServiceHandle<IRDBAccessSvc> pRDBAccess);  
+		       ServiceHandle<IRDBAccessSvc>& pRDBAccess);  
   // Destructor:
   ~SCT_ServMatFactoryFS();
   

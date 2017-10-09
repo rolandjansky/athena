@@ -23,7 +23,7 @@ class SCT_ServMatFactoryDC2   {
   
   // Constructor:
   SCT_ServMatFactoryDC2(StoreGateSvc  *pDetStore,
-			ServiceHandle<IRDBAccessSvc> pRDBAccess);  
+			ServiceHandle<IRDBAccessSvc>& pRDBAccess);  
   // Destructor:
   ~SCT_ServMatFactoryDC2();
   

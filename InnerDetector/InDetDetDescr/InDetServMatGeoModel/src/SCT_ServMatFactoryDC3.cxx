@@ -72,7 +72,9 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 					-phiWid/2.,phiWid);
   const GeoShape* railGap2=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap ,
 					-phiWid/2.+M_PI,phiWid);
-
+  // In case they don't get used.
+  railGap1->ref();
+  railGap2->ref();
   
   // Build SCT services in Endcap.
   // (Code taken from TRT_GeoModel)
@@ -204,9 +206,12 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     // In AGE the radiation length is specified and from that the density is
     // calculated assuming the material is C. I do the same here for now but
     // will eventually define all the materials.
-    double fractionRL = (*inel)[ii]->getFloat("MATER");
     const GeoMaterial* cylMat;
-    if (fractionRL > 0.999) { 
+    double fractionRL = (*inel)[ii]->getFloat("MATER");
+    std::string trtMaterialName = (*inel)[ii]->getString("RADL");
+    if( trtMaterialName != "std::Carbon"){
+      cylMat = materialManager()->getMaterial(trtMaterialName);
+    } else if (fractionRL > 0.999) { 
       // In this case a fixed material is used called Services which is the same
       // as trt::PatchOut
       cylMat = materialManager()->getMaterial("trt::PatchOut");
@@ -223,11 +228,6 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 			      (*inel)[ii]->getFloat("RMAX2")*CLHEP::cm); 
     }
 
-    std::string trtMaterialName = (*inel)[ii]->getString("RADL");
-    if( trtMaterialName != "std::Carbon"){
-      cylMat = materialManager()->getMaterial(trtMaterialName);
-    }
-
     const GeoLogVol* ServLog = new GeoLogVol(logName,serviceTube,cylMat);
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
     double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*CLHEP::cm+epsilon;
@@ -242,7 +242,8 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     mother->add(ServPhys);
   }
 
-  
+  railGap1->unref();
+  railGap2->unref();
 }
 
 

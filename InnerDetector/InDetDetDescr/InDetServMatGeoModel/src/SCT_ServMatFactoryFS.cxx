@@ -33,7 +33,7 @@
 #include <sstream>
 #include <iostream>
 
-SCT_ServMatFactoryFS::SCT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+SCT_ServMatFactoryFS::SCT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
   m_materialManager(0),
