@@ -77,6 +77,7 @@ void SCT_RawDataContainerCnv_p3::transToPers(const SCT_RDO_Container* transCont,
       for (unsigned int i = 0; i < collection.size(); ++i) {
 	InDetRawData_p2* pchan = &(persCont->m_rawdata[i + chanBegin]);
 	const SCT1_RawData* chan = dynamic_cast<const SCT1_RawData*>(collection[i]);
+        if (0 == chan) throw std::runtime_error("SCT_RawDataContainerCnv_p3::transToPers: *** UNABLE TO DYNAMIC CAST TO SCT1_RawData");
 	chan1Cnv.transToPers(chan, pchan, log);
       }            
     } else if (m_type == 3) {

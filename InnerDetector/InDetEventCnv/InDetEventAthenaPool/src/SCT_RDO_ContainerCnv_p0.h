@@ -17,7 +17,7 @@ typedef  DataVector<InDetRawDataCollection< SCT1_RawData > >  SCT_RDO_Container_
 
 class MsgStream;
 class SCT_RDO_ContainerCnv_p0  : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, SCT_RDO_Container_p0> {
-   const SCT_ID*  m_sctId;
+   const SCT_ID*  m_sctId{nullptr};
 public:
   virtual void   persToTrans(const SCT_RDO_Container_p0*, SCT_RDO_Container*, MsgStream&) {
     // everything is done in createTransient()
