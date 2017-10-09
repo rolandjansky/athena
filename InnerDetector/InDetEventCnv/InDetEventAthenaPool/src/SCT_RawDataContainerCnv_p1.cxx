@@ -68,14 +68,18 @@ void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont,
            for (unsigned int i = 0; i < collection.size(); ++i) {
                InDetRawData_p1* pchan = &(persCont->m_rawdata[i + chanBegin]);
                const SCT1_RawData* chan = dynamic_cast<const SCT1_RawData*>(collection[i]);
-               chan1Cnv.transToPers(chan, pchan, log);
+               if (chan) {
+                   chan1Cnv.transToPers(chan, pchan, log);
+               } 
            }            
         } else if (m_type == 3) {
            persCont->m_sct3data.resize(chanEnd);
            for (unsigned int i = 0; i < collection.size(); ++i) {
                SCT3_RawData_p1* pchan = &(persCont->m_sct3data[i + chanBegin]);
                const SCT3_RawData* chan = dynamic_cast<const SCT3_RawData*>(collection[i]);
-               chan3Cnv.transToPers(chan, pchan, log);
+               if (chan) {
+                   chan3Cnv.transToPers(chan, pchan, log);
+               }
            }            
         }
     }
