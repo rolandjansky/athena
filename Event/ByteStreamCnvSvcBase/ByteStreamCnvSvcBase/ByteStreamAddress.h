@@ -7,6 +7,7 @@
 
 // Framework include files
 #include "GaudiKernel/GenericAddress.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <stdint.h>
 #include <vector>
@@ -37,12 +38,25 @@ public:
    // @brief Add a rob id
    void add(uint32_t robid);
 
+   // @brief Add event id
+   void setEventContext(const EventContext& eid);
+
    // @brief access the ROB fragment IDs
    const std::vector<uint32_t>& getRobIDs() const;
+
+   // @brief get event id
+   const EventContext& getEventContext() const;
 
 private:
    // @brief it holds a vector of rob ids
    std::vector<uint32_t> m_robIDs;
+   EventContext m_eid;
 };
+
+inline void ByteStreamAddress::setEventContext(const EventContext& eid) 
+{ m_eid = eid; }
+
+inline const EventContext& ByteStreamAddress::getEventContext() const
+{ return m_eid; }
 
 #endif
