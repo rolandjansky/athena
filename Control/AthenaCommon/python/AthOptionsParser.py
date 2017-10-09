@@ -420,7 +420,10 @@ def parse(chk_tcmalloc=True):
             #and for each use glob to expand path
             files = []
             for fe in arg.split(","):
-                files += glob(fe)
+                #glob, if it fails to find any file, then add string explicitly
+                _files = glob(fe)
+                if len(_files)==0: files += [fe]
+                else: files += _files
             jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(files)
 
         elif opt in("--evtMax",):
