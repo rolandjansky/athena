@@ -160,30 +160,30 @@ StatusCode RPC_RegionSelectorTable::createTable() {
 
     for (int dbz=1; dbz<=ndbz; dbz++) {
         
-      const MuonGM::RpcReadoutElement* _rpcold = NULL;
+      const MuonGM::RpcReadoutElement* rpcold = NULL;
 	    int ndbp = Set.NPhimodules(dbz);
 	  
 	    for (int dbp=1; dbp<=ndbp; dbp++) {
 
-        const MuonGM::RpcReadoutElement* _rpc = Set.readoutElement(dbz, dbp);
+        const MuonGM::RpcReadoutElement* rpc = Set.readoutElement(dbz, dbp);
 		
-        if ( _rpc != _rpcold ) {
+        if ( rpc != rpcold ) {
           
           // here a new module
           nmodules ++;
-          _rpcold = _rpc;
+          rpcold = rpc;
 
-          Amg::Vector3D rpcPos = _rpc->center();
-          double zminMod = rpcPos.z()-0.5*_rpc->getZsize();
-          double zmaxMod = rpcPos.z()+0.5*_rpc->getZsize();
+          Amg::Vector3D rpcPos = rpc->center();
+          double zminMod = rpcPos.z()-0.5*rpc->getZsize();
+          double zmaxMod = rpcPos.z()+0.5*rpc->getZsize();
 
           //double rcen = std::sqrt(rpcPos.r()*rpcPos.r()-rpcPos.z()*rpcPos.z());
           double rcen = std::sqrt(rpcPos.mag()*rpcPos.mag()-rpcPos.z()*rpcPos.z());
   
-          double rminMod = rcen-0.5*_rpc->getRsize();
-          double rmaxMod = rcen+0.5*_rpc->getRsize();
+          double rminMod = rcen-0.5*rpc->getRsize();
+          double rmaxMod = rcen+0.5*rpc->getRsize();
 
-          double dphi = atan2(_rpc->getSsize()/2.,rpcPos.perp());
+          double dphi = atan2(rpc->getSsize()/2.,rpcPos.perp());
           double pminMod = rpcPos.phi() - dphi;
           double pmaxMod = rpcPos.phi() + dphi;
           
