@@ -1339,6 +1339,19 @@ class WriteDAOD_EXOT21Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT21Stream)
 listAODtoDPD.append(WriteDAOD_EXOT21Stream.StreamName)
 
+class WriteDAOD_EXOT22Stream(JobProperty):
+    """EXOT22 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT22'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT22.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT22Stream)
+listAODtoDPD.append(WriteDAOD_EXOT22Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
