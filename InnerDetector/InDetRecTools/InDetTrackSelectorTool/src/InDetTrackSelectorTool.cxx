@@ -29,6 +29,7 @@ InDetTrackSelectorTool::InDetTrackSelectorTool(const std::string & t, const std:
   , m_numberOfPixelHits(2)
   , m_numberOfBLayerHits(1)
   , m_extrapolator("Trk::Extrapolator")
+  , m_trackSumToolAvailable(false) 
 {
   declareInterface<ITrackSelectorTool>(this);
   declareProperty("minPt",                    m_minPt);
