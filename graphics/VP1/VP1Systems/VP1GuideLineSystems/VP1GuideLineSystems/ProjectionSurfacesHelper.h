@@ -53,20 +53,20 @@ public slots:
 
 private:
 
-  ProjectionSurfacesHelper( const double& surfacethickness,
-			    const double& barrel_inner_radius,
-			    const double& barrel_outer_radius,
-			    const double& barrel_posneg_z,
-			    const double& endcap_surface_z,
-			    const double& endcap_surface_length,
-			    const double& endcap_inner_radius,
-			    const double& endcap_outer_radius,
-			    const double& endcap_zasr_disttobarrelcyl,
-			    const double& endcap_zasr_squeezefact,
+  ProjectionSurfacesHelper( double surfacethickness,
+			    double barrel_inner_radius,
+			    double barrel_outer_radius,
+			    double barrel_posneg_z,
+			    double endcap_surface_z,
+			    double endcap_surface_length,
+			    double endcap_inner_radius,
+			    double endcap_outer_radius,
+			    double endcap_zasr_disttobarrelcyl,
+			    double endcap_zasr_squeezefact,
 			    SoMaterial*, SoSeparator * attachsep, QObject * parent, IVP1System*sys );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 
