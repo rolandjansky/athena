@@ -5255,6 +5255,10 @@ chain_list=[
     'zdcpeb_L1ZDC_AND', 
     'zdcpeb_L1ZDC_A_C',
     'timeburner',
+    'mb_sp_L1MBTS_1_OVERLAY',
+    'mb_sptrk_L1MBTS_1_OVERLAY',
+    'noalg_L1MBTS_1_OVERLAY',
+    'noalg_L1TE20_OVERLAY',
     ]
 Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################

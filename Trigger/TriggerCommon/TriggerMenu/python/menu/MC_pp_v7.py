@@ -2434,6 +2434,8 @@ ps_calibmon_list=[
     'idcalib_trk29_fwd',
     'idcalib_trk9_central',
     'idcalib_trk9_fwd',
+    'idcalib_trk9_central_L1MBTS_1_VTE70',
+    'idcalib_trk9_fwd_L1MBTS_1_VTE70',
     'j40_L1ZB',
     'j0_perf_ds1_L1All',
     'l1calocalib',
@@ -2571,7 +2573,10 @@ ps_beamspot_list=[
     'beamspot_activeTE_trkfast_peb_L1J15',
     'beamspot_allTE_trkfast_peb_L13J15',
     'beamspot_trkFS_trkfast_L13J15',
-    'beamspot_activeTE_trkfast_peb_L13J15'
+    'beamspot_activeTE_trkfast_peb_L13J15',
+    'beamspot_activeTE_trkfast_peb_L1MBTS_1_VTE70',
+    'beamspot_allTE_trkfast_peb_L1MBTS_1_VTE70',
+    'beamspot_trkFS_trkfast_L1MBTS_1_VTE70'
     ]
 ps_fwdphys_list=[
     'lhcfpeb',
@@ -2996,6 +3001,10 @@ ps_minb_list=[
     'noalg_mb_L1ZDC_C',
     'noalg_mb_L1ZDC_AND',
     'noalg_mb_L1ZDC_A_C',
+    'mb_sp_L1MBTS_1_OVERLAY',
+    'mb_sptrk_L1MBTS_1_OVERLAY',
+    'noalg_L1MBTS_1_OVERLAY',
+    'noalg_L1TE20_OVERLAY',
     ]
 
 ps_rerun_list = [
