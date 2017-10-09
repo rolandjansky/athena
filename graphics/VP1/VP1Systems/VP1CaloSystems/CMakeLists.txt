@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
    TileCalorimeter/TileDetDescr
    TileCalorimeter/TileEvent
    TileCalorimeter/TileIdentifier
+   graphics/VP1/VP1Systems/VP1UtilitySystems
    graphics/VP1/VP1HEPVis
    graphics/VP1/VP1Utils )
 
@@ -34,7 +35,7 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets )
-find_package( Qwt )
+#find_package( Qwt )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
