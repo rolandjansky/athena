@@ -13,7 +13,7 @@ LArSymConditionsAlg<MC_t,SYM_t>::LArSymConditionsAlg(const std::string& name, IS
   m_condSvc("CondSvc",name)
 {
   declareProperty("ReadKey",m_readKey);
-  declareProperty("ReadKey",m_mcSymKey);
+  declareProperty("MCSymKey",m_mcSymKey);
   declareProperty("WriteKey",m_writeKey);
 }
 
