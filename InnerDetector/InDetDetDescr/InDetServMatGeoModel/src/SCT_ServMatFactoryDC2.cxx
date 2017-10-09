@@ -31,7 +31,7 @@
 
 #include <sstream>
 
-SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
   m_materialManager(0),
