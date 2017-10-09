@@ -195,8 +195,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
       ///
       bool passJOTrkTightCut       = m_trackSelTool->accept(*track0); 
       bool passTightCut            = (passJOTrkTightCut && npixholes==0); //lorentz angle 
-      bool pass1hole1GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 1.0); //misshit ratios
-      bool pass1hole5GeVptTightCut = (passJOTrkTightCut && measPerigee->pT()/1000.0 > 5.0); //eff vs lumi
+      bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT()/1000.0 > 1.0) ); //misshit ratios
+      bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT()/1000.0 > 5.0) ); //eff vs lumi
 
       ///
       /// TSOS Loop
