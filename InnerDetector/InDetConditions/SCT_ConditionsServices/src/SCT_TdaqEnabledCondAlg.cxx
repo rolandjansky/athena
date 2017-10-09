@@ -92,6 +92,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object");
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -121,6 +122,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     if(writeCdo->getGoodRods().size()>s_NRODS) {
       ATH_MSG_ERROR("The number of rods declared as good appears to be greater than the permissible number of rods ("<<s_NRODS<<")");
       writeCdo->setFilled(false);
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
     
@@ -147,6 +149,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
     if(!readHandle.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
   }

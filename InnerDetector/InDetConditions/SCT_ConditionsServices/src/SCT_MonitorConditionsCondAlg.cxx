@@ -59,9 +59,6 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
     return StatusCode::SUCCESS;
   }
 
-  // Construct the output Cond Object and fill it in
-  SCT_MonitorConditionsCondData* writeCdo{new SCT_MonitorConditionsCondData()};
-
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* readCdo{*readHandle};
@@ -70,6 +67,16 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
+
+  // Define validity of the output cond obbject
+  EventIDRange rangeW;
+  if(not readHandle.range(rangeW)) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+    return StatusCode::FAILURE;
+  }
+
+  // Construct the output Cond Object and fill it in
+  SCT_MonitorConditionsCondData* writeCdo{new SCT_MonitorConditionsCondData()};
 
   // Fill Write Cond Handle
   static const unsigned int defectListIndex{7};
@@ -82,12 +89,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
     }
   }
 
-  // Define validity of the output cond obbject and record it
-  EventIDRange rangeW;
-  if(not readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Record validity of the output cond obbject
   if(writeHandle.record(rangeW, writeCdo).isFailure()) {
     ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key()
                   << " with EventRange " << rangeW
