@@ -36,7 +36,8 @@ class LArRampSym: virtual public ILArRamp {
 CLASS_DEF( LArRampSym,226012704,1)
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF(  CondCont<LArRampSym> ,121227424 , 1 )
+CLASS_DEF( CondCont<LArRampSym> ,121227424 , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<LArRampSym>, CondContBase );
+SG_BASE( LArRampSym, ILArRamp );
 #endif 
