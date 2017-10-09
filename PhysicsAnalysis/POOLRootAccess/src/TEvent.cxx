@@ -49,6 +49,7 @@ TEvent::~TEvent() {
 TEvent::TEvent(const std::string& name ) : TEvent( kPOOLAccess , name ) { }
 
 TEvent::TEvent(EReadMode mode, const std::string& name) : 
+   m_evtProcessor (nullptr),
    m_joSvc("JobOptionsSvc","TEvent"+name),
    m_evtLoop("AthenaEventLoopMgr/"+name+"_EventLoopMgr","TEvent"+name),
    m_evtSelect("EventSelectorAthenaPool/"+name+"_EventSelector","TEvent"+name),
@@ -190,7 +191,10 @@ int TEvent::getEntry( long entry ) {
    if(entry==0 || entry != m_curEntry+1) m_evtLoop->seek(entry); //need to seek on first read or if not reading next event
    //ensure our storegate is the active store
    setActive();
-   StatusCode out = dynamic_cast<IEventProcessor*>(&*m_evtLoop)->nextEvent(entry+1);
+   if (m_evtProcessor == nullptr) {
+     m_evtProcessor = dynamic_cast<IEventProcessor*>(&*m_evtLoop);
+   }
+   StatusCode out = m_evtProcessor->nextEvent(entry+1);
    m_curEntry = entry;
    return (out.isSuccess()) ? 0 : -1;
 }
