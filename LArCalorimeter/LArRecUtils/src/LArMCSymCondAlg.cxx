@@ -43,8 +43,6 @@ StatusCode LArMCSymCondAlg::initialize() {
 StatusCode LArMCSymCondAlg::execute() {
     
 
-  ATH_MSG_DEBUG("executing");
-
   SG::WriteCondHandle<LArMCSym> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
@@ -152,6 +150,7 @@ StatusCode LArMCSymCondAlg::execute() {
 
 
   std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,caloCellID,
+							     std::move(oflHashtoSymOnl),
 							     std::move(oflHashtoSymOnl));
 
 

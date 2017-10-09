@@ -20,6 +20,7 @@
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
+#include "../LArMCSymCondAlg.h"
 
 DECLARE_TOOL_FACTORY( LArADC2MeVTool )
 DECLARE_TOOL_FACTORY( LArAutoCorrNoiseTool )
@@ -58,6 +59,7 @@ DECLARE_ALGORITHM_FACTORY( LArCondAlgfSamplSC)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVFlat)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVSC)
 DECLARE_ALGORITHM_FACTORY( LArOnOffMappingAlg)
+DECLARE_ALGORITHM_FACTORY( LArMCSymCondAlg)
 DECLARE_ALGORITHM_FACTORY( LArRampSymCondAlg )
 
 

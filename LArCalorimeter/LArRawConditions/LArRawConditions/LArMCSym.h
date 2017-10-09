@@ -20,7 +20,9 @@ class LArMCSym {
   LArMCSym() = delete;
   LArMCSym(const LArOnlineID* onlId, 
 	   const CaloCell_ID* caloId,
-	   std::vector<HWIdentifier>&& oflHashtoSymOnl); 
+	   std::vector<HWIdentifier>&& oflHashtoSymOnl,
+	   std::vector<HWIdentifier>&& onlHashtoSymOnl
+	   ); 
    
   HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
     const IdentifierHash h=m_caloCellID->calo_cell_hash(notSymOffId);

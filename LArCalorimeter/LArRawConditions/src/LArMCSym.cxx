@@ -7,8 +7,10 @@
 
 LArMCSym::LArMCSym(const LArOnlineID* onlId, 
 		   const CaloCell_ID* caloId,
-		   std::vector<HWIdentifier>&& oflHashtoSymOnl) :
+		   std::vector<HWIdentifier>&& oflHashtoSymOnl,
+		   std::vector<HWIdentifier>&& onlHashtoSymOnl) :
   m_onlineID(onlId),
   m_caloCellID(caloId),
-  m_oflHashtoSymOnl(oflHashtoSymOnl) 
+  m_oflHashtoSymOnl(oflHashtoSymOnl), 
+  m_onlHashtoSymOnl(onlHashtoSymOnl)
 {}
