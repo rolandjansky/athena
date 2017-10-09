@@ -39,6 +39,8 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
   m_SiSpacePointMakerToolName("InDet::SiSpacePointMakerTool"),
   m_manager(0),
   m_idHelper(0),
+  m_properties{nullptr},
+  m_Sct_clcontainer{nullptr},
   m_SiSpacePointMakerTool(0),
   m_allClusters(false),       // process all clusters without limits.
   m_overlap(false),           // process overlaps of SCT wafers.

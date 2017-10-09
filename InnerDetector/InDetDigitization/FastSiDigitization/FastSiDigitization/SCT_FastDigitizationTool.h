@@ -133,7 +133,6 @@ private:
   TimedHitCollection<SiHit>* m_thpcsi;
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
-  bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
   IntegerProperty  m_vetoThisBarcode;
 
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
