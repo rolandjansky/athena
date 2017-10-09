@@ -42,27 +42,84 @@
 
 #include "PathResolver/PathResolver.h"
 
-#define USE_SPACEPOINT_IN_NEWTRACKING
-
 using namespace DEdx;
 
-namespace {
+//namespace {
+//
+//class ClusterDirectionInfo {
+//public:
+//  ClusterDirectionInfo(double p, double e, double c, double pe, double ee)
+//  : phi(p), eta(e), DEDX(c), dphi(pe), deta(ee){};
+//
+//public:
+//  double phi;
+//  double eta;
+//  double DEDX;
+//  double dphi;
+//  double deta;
+//};
+//}
 
-class PixelCluster {
+class ClusterInfo { 
 public:
-  PixelCluster(double p, double e, double c, double pe, double ee)
-  : phi(p), eta(e), DEDX(c), dphi(pe), deta(ee){};
+  ClusterInfo(const InDet::PixelCluster* cluster, const xAOD::Vertex* vertex){
+    m_cluster = cluster;
 
-public:
-  double phi;
-  double eta;
-  double DEDX;
-  double dphi;
-  double deta;
+    m_dir.SetX(cluster->globalPosition().x() - vertex->x());
+    m_dir.SetY(cluster->globalPosition().y() - vertex->y());
+    m_dir.SetZ(cluster->globalPosition().z() - vertex->z());
+
+    //m_dedx        = dEdxCluster(cluster, vertex, &m_cosalpha, &m_charge);
+    m_isFake      = cluster->isFake();
+    m_isAmbiguous = cluster->isAmbiguous();
+    m_isSplit     = cluster->isSplit();
+
+    auto Rsq      = m_dir.X() * m_dir.X() + m_dir.Y() * m_dir.Y();
+    auto Zsq      = m_dir.Z() * m_dir.Z();
+    auto rphiUnc  = sqrt(cluster->localCovariance()(Amg::x, Amg::x));
+    auto zUnc     = sqrt(cluster->localCovariance()(Amg::y, Amg::y));
+    auto covRpv   = vertex->covariancePosition()(Amg::x, Amg::x) * sin(m_dir.Phi()) * sin(m_dir.Phi())
+                  + vertex->covariancePosition()(Amg::x, Amg::y) * sin(m_dir.Phi()) * cos(m_dir.Phi()) * 2
+                  + vertex->covariancePosition()(Amg::y, Amg::y) * cos(m_dir.Phi()) * cos(m_dir.Phi()); // Vertex error along r
+    auto covZpv   = vertex->covariancePosition()(Amg::z, Amg::z); // Vertex error along z
+    auto dRsq     = covRpv + rphiUnc * rphiUnc;
+    auto dZsq     = covZpv + zUnc * zUnc;
+    m_err_eta     = 1 / sqrt( Rsq + Zsq ) * sqrt( Zsq / Rsq * dRsq + dZsq);
+    m_err_phi     = sqrt(dRsq / Rsq);
+  }
+
+  void SetdEdx(float dedx){ m_dedx = dedx;};
+
+  void SetIsUsed(bool IsUsed){ m_isUsed = IsUsed;}
+
+  double Eta(){ return m_dir.Eta();};
+  double Phi(){ return m_dir.Phi();};
+  float dEta(){ return m_err_eta;};
+  float dPhi(){ return m_err_phi;};
+  float dEdx(){ return m_dedx;};
+
+
+  bool IsFake     (){ return m_isFake;};
+  bool IsAmbiguous(){ return m_isAmbiguous;};
+  bool IsSplit    (){ return m_isSplit;};
+  bool IsUsed     (){ return m_isUsed;};
+
+private:
+  const InDet::PixelCluster* m_cluster; // maybe not nesessary.
+  TVector3 m_dir;
+  //float m_cosalpha   ;
+  //float m_charge     ;
+  float m_dedx       ;
+  float m_rphiUnc    ;
+  float m_zUnc       ;
+  bool  m_isFake     ;
+  bool  m_isAmbiguous;
+  bool  m_isSplit    ;
+  bool  m_isUsed     ;
+
+  float m_err_eta    ;
+  float m_err_phi    ;
 };
-}
-
-double CalDeltaR(double, double, double, double);
 
 PixelStubletsMakerAlg::PixelStubletsMakerAlg(const std::string &name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
@@ -83,6 +140,9 @@ PixelStubletsMakerAlg::PixelStubletsMakerAlg(const std::string &name, ISvcLocato
 
   declareProperty("AssociationTool"       ,m_assoTool              );
   declareProperty("UseAssociationTool"    ,m_useassoTool = false   );
+
+  declareProperty("UseSpacePointAsCluster",m_useSpacePointAsCluster = true   );
+  declareProperty("CreateDetailInformation",m_createDetailInformation = true   );//Later this should be set false;
   
 }
 
@@ -149,13 +209,25 @@ StatusCode PixelStubletsMakerAlg::finalize() {
 }
 
 StatusCode PixelStubletsMakerAlg::execute() {
+  if( m_useSpacePointAsCluster ) {
+    return execute_core<SpacePointContainer>();
+  } else {
+    return execute_core<InDet::PixelClusterContainer>();
+  }
+  return StatusCode::FAILURE;
+}
+
+template<class ClusterContainerType>
+StatusCode PixelStubletsMakerAlg::execute_core() {
   // Output tracks record
   xAOD::TrackParticleContainer *tpc = new xAOD::TrackParticleContainer();
+  //xAOD::NeutralParticleContainer *tpc = new xAOD::NeturalParticleContainer();
   if (evtStore()->record(tpc, m_outputContainerName).isFailure()) {
     ATH_MSG_ERROR("Couldn't record " << m_outputContainerName);
     return StatusCode::FAILURE;
   }
   xAOD::TrackParticleAuxContainer *tpc_aux = new xAOD::TrackParticleAuxContainer();
+  //xAOD::NeutralParticleAuxContainer *tpc_aux = new xAOD::NeutralParticleAuxContainer();
   if (evtStore()->record(tpc_aux, m_outputContainerName + "Aux.").isFailure()) {
     ATH_MSG_ERROR("Couldn't record " << m_outputContainerName << "Aux.");
     return StatusCode::FAILURE;
@@ -180,152 +252,75 @@ StatusCode PixelStubletsMakerAlg::execute() {
     for (size_t iVertex = 0; iVertex < vertexContainer->size(); ++iVertex) {
       // use the first vertex in this test code
       if (vertexContainer->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
-        if (vertex != nullptr) {
-          ATH_MSG_ERROR("there are more than two primary vertices");
-          abort();
-        }
         vertex = vertexContainer->at(iVertex);
+        break;
       }
     }
     if (!vertex) return StatusCode::SUCCESS;
   }
 
   // Cluster
-#ifdef USE_SPACEPOINT_IN_NEWTRACKING
-  const SpacePointContainer *clusterContainer = 0;
-  if (StatusCode::SUCCESS != evtStore()->retrieve(clusterContainer, "PixelSpacePoints") || !clusterContainer) {
+  const ClusterContainerType *clusterContainer = 0;
+  std::string clusterContainerName = "";
+  if( m_useSpacePointAsCluster ) {
+    clusterContainerName = "PixelSpacePoints";
+  }else{
+    clusterContainerName = "PixelClusters";
+  }
+  if (StatusCode::SUCCESS != evtStore()->retrieve(clusterContainer, clusterContainerName) || !clusterContainer) {
     ATH_MSG_WARNING("Could not retrieve clusters");
     return StatusCode::SUCCESS;
   }
-#else
-  const InDet::PixelClusterContainer *clusterContainer = 0;
-  if (StatusCode::SUCCESS != evtStore()->retrieve(clusterContainer, "PixelClusters") || !clusterContainer) {
-    ATH_MSG_WARNING("Could not retrieve clusters");
-    return StatusCode::SUCCESS;
-  }
-#endif
   //if (clusterContainer->size()) ATH_MSG_INFO("# of clusters = " << clusterContainer->size());
 
   // Get Cluster Information
-  std::vector<int> becVec; // 0:barrel, +-2:endcap, +-4:DBM
-  std::vector<int> layerVec;
-  std::vector<int> etamoduleVec;
-  std::vector<int> phimoduleVec;
-  std::vector<double> posXVec;
-  std::vector<double> posYVec;
-  std::vector<double> posZVec;
-  std::vector<double> dEdxVec;
-  std::vector<double> chargeVec;
-  std::vector<double> cosAlphaVec;
-  std::vector<double> rphiUncVec;
-  std::vector<double> zUncVec;
-  std::vector<bool>   isFakeVec;
-  std::vector<bool>   isAmbiguousVec;
-  std::vector<bool>   isSplitVec;
-  std::vector<bool>   isUsedVec;
-#ifdef USE_SPACEPOINT_IN_NEWTRACKING
-  for (const auto &spc : *clusterContainer) {
+  std::map<std::pair<int, int>, std::vector<ClusterInfo> > clusterLayerMap;
+  for (const auto &clusters : *clusterContainer) {
     // skip empty collections
-    if (spc->empty()) continue;
-    for (auto &sp : *spc) {
-      auto cluster = (InDet::PixelCluster*)sp->clusterList().first;
-#else
-  for (const auto &clusterCollection : *clusterContainer) {
-    // skip empty collections
-    if (clusterCollection->empty()) continue;
-    for (auto &cluster : *clusterCollection) {
-#endif
+    if (clusters->empty()) continue;
+
+    for (auto &clus : *clusters) {
+      auto cluster = GetPixelCluster(clus);
       Identifier clusterId = cluster->identify();
-      becVec.push_back(m_pixelid->barrel_ec(clusterId));
-      layerVec.push_back(m_pixelid->layer_disk(clusterId));
-      etamoduleVec.push_back(m_pixelid->eta_module(clusterId));
-      phimoduleVec.push_back(m_pixelid->phi_module(clusterId));
-      posXVec.push_back(cluster->globalPosition().x());
-      posYVec.push_back(cluster->globalPosition().y());
-      posZVec.push_back(cluster->globalPosition().z());
-      double cosalpha;
-      float charge;
-      dEdxVec.push_back(dEdxCluster(cluster, vertex, &cosalpha, &charge));
-      chargeVec.push_back(charge);
-      cosAlphaVec.push_back(cosalpha);
-      rphiUncVec.push_back(sqrt(cluster->localCovariance()(Amg::x, Amg::x)));
-      zUncVec.push_back(sqrt(cluster->localCovariance()(Amg::y, Amg::y)));
-      isFakeVec.push_back(cluster->isFake());
-      isAmbiguousVec.push_back(cluster->isAmbiguous());
-      isSplitVec.push_back(cluster->isSplit());
-#ifdef USE_SPACEPOINT_IN_NEWTRACKING
-      isUsedVec.push_back(m_useassoTool? m_assoTool->isUsed(*cluster): false);
-#else
-      isUsedVec.push_back(false);
-#endif
+
+      bool IsUsed = false;
+      if(m_useassoTool){
+        IsUsed = m_assoTool->isUsed(*cluster);
+      }
+
+      auto clusterInfo = ClusterInfo( cluster, vertex);
+      float cosalpha, charge;
+      clusterInfo.SetdEdx(dEdxCluster( cluster, vertex, &cosalpha, &charge));
+      clusterInfo.SetIsUsed(IsUsed);
+      // barrel_ec(clusterId) : 0:barrel, +-2:endcap, +-4:DBM
+      auto beclayer = std::pair<int, int>( m_pixelid->barrel_ec(clusterId), m_pixelid->layer_disk(clusterId) );
+      if ( clusterLayerMap.find(beclayer) == clusterLayerMap.end() ) clusterLayerMap.insert(make_pair(beclayer, std::vector<ClusterInfo>()));
+      clusterLayerMap.at(beclayer).emplace_back( clusterInfo );
     }
   }
   
-  ATH_MSG_INFO(" # of prds = "<<dEdxVec.size());
+  //ATH_MSG_INFO(" # of prds = "<<dEdxVec.size());
 
   // Track reconstruction
-  std::vector<PixelCluster> firstLayerClusters;
-  std::vector<PixelCluster> secondLayerClusters;
-  std::vector<PixelCluster> thirdLayerClusters;
-  std::vector<PixelCluster> fourthLayerClusters;
-
-  // const double R1 = 33.25;  // mm
-  // const double R2 = 50.50;  // mm
-
-  //const double dZ0 = 50.0e-3;  // Primary Vertex
-  //const double dX0 = 11.0e-3;  // Primary Vertex
-  //const double dZ1 = 60.4e-3;  // IBL
-  //const double dX1 = 9.62e-3;  // IBL
-  //const double dZ2 = 109.7e-3; // B-Layer
-  //const double dX2 = 12.4e-3;  // B-Layer
-  //const double dZ3 = 0;
-  //const double dX3 = 0;
-  //const double dZ4 = 0;
-  //const double dX4 = 0;
+  std::vector<ClusterInfo> firstLayerClusters;
+  std::vector<ClusterInfo> secondLayerClusters;
+  std::vector<ClusterInfo> thirdLayerClusters;
+  std::vector<ClusterInfo> fourthLayerClusters;
 
   // Select large dE/dx clusters
   TVector3 dir;
-  for (unsigned int iCluster = 0; iCluster < dEdxVec.size(); iCluster++) {
-    if (becVec[iCluster] != 0) continue; // Reject clusters at end-cap
-    if (dEdxVec[iCluster] < m_dEdxThreshold) continue;
+  for (auto clusterLayer : clusterLayerMap){
+    if (clusterLayer.first.first != 0) continue; // Reject clusters at end-cap
+    for (auto cluster : clusterLayer.second){
+      if (cluster.dEdx() < m_dEdxThreshold) continue;
 
-    dir.SetX(posXVec[iCluster] - vertex->x());
-    dir.SetY(posYVec[iCluster] - vertex->y());
-    dir.SetZ(posZVec[iCluster] - vertex->z());
-    auto Rsq = dir.X() * dir.X() + dir.Y() * dir.Y();
-    auto Zsq = dir.Z() * dir.Z();
-    auto errX = rphiUncVec[iCluster];
-    auto errZ = zUncVec[iCluster];
-    auto covXpv = vertex->covariancePosition()(Amg::x, Amg::x) * sin(dir.Phi()) * sin(dir.Phi())
-                + vertex->covariancePosition()(Amg::x, Amg::y) * sin(dir.Phi()) * cos(dir.Phi()) * 2
-                + vertex->covariancePosition()(Amg::y, Amg::y) * cos(dir.Phi()) * cos(dir.Phi());
-    auto covZpv = vertex->covariancePosition()(Amg::z, Amg::z);
-    //std::cout<<"PV error xx: "<<vertex->covariancePosition()(Amg::x, Amg::x)<<std::endl;
-    //std::cout<<"PV error xy: "<<vertex->covariancePosition()(Amg::x, Amg::y)<<std::endl;
-    //std::cout<<"PV error yy: "<<vertex->covariancePosition()(Amg::y, Amg::y)<<std::endl;
-    //std::cout<<"PV error zz: "<<vertex->covariancePosition()(Amg::z, Amg::z)<<std::endl;
-    //std::cout<<"phi        : "<<dir.Phi()<<std::endl;
-    //std::cout<<"errXpv     : "<<sqrt(covXpv)<<std::endl;
-    //std::cout<<"errZpv     : "<<sqrt(covZpv)<<std::endl;
-    double dRsq = covXpv + errX * errX;
-    double dZsq = covZpv + errZ * errZ;
-    double dEta = 1 / sqrt( Rsq + Zsq ) * sqrt( Zsq / Rsq * dRsq + dZsq);
-    double dPhi = sqrt(dRsq / Rsq);
-    switch (layerVec[iCluster]) {
-      case 0:
-        firstLayerClusters.push_back(PixelCluster(dir.Phi(), -log(tan(dir.Theta() / 2)), dEdxVec[iCluster], dPhi, dEta));
-        break;
-      case 1:
-        secondLayerClusters.push_back(PixelCluster(dir.Phi(), -log(tan(dir.Theta() / 2)), dEdxVec[iCluster], dPhi, dEta));
-        break;
-      case 2:
-        thirdLayerClusters.push_back(PixelCluster(dir.Phi(), -log(tan(dir.Theta() / 2)), dEdxVec[iCluster], dPhi, dEta));
-        break;
-      case 3:
-        fourthLayerClusters.push_back(PixelCluster(dir.Phi(), -log(tan(dir.Theta() / 2)), dEdxVec[iCluster], dPhi, dEta));
-        break;
-      default:
-        break;
+      switch (clusterLayer.first.second) {
+        case 0: firstLayerClusters .push_back(cluster); break;
+        case 1: secondLayerClusters.push_back(cluster); break;
+        case 2: thirdLayerClusters .push_back(cluster); break;
+        case 3: fourthLayerClusters.push_back(cluster); break;
+      }
+
     }
   }
   ATH_MSG_INFO(" # of clusters at first  layer = " << firstLayerClusters.size());
@@ -350,8 +345,8 @@ StatusCode PixelStubletsMakerAlg::execute() {
   SG::AuxElement::Decorator< double > dec_trackChisqNdfEtaVec("trackChisqNdfEtaVec");
   SG::AuxElement::Decorator< double > dec_trackDEDX1Vec("trackDEDX1Vec");
   SG::AuxElement::Decorator< double > dec_trackDEDX2Vec("trackDEDX2Vec");
-  SG::AuxElement::Decorator< double > dec_trackClusID1Vec("trackClusID1Vec");
-  SG::AuxElement::Decorator< double > dec_trackClusID2Vec("trackClusID2Vec");
+  //SG::AuxElement::Decorator< double > dec_trackClusID1Vec("trackClusID1Vec");
+  //SG::AuxElement::Decorator< double > dec_trackClusID2Vec("trackClusID2Vec");
 
   SG::AuxElement::Decorator< int > dec_trackIsFakeVec("trackIsFakeVec");
   SG::AuxElement::Decorator< int > dec_trackIsAmbiguousVec("trackIsAmbiguousVec");
@@ -380,95 +375,97 @@ StatusCode PixelStubletsMakerAlg::execute() {
   SG::AuxElement::Decorator< int > dec_trackHitL3dR020Vec("trackHitL3dR020Vec");
   SG::AuxElement::Decorator< int > dec_trackHitL3dR040Vec("trackHitL3dR040Vec");
 
-  for (size_t icls1 = 0; icls1< firstLayerClusters.size(); icls1++){
-    auto cls1 = firstLayerClusters.at(icls1);
-    for (size_t icls2 = 0; icls2< secondLayerClusters.size(); icls2++){
-      auto cls2 = secondLayerClusters.at(icls2);
+  for ( auto cls1 : firstLayerClusters){
+    for ( auto cls2 : secondLayerClusters){
+      //
+      // ChiSquire calculation
+      // Now track paramter errors are not propabated to the residual
+      // This should be implemented
+      //
+
       // phi
-      w1          = 1 / (cls1.dphi * cls1.dphi);
-      w2          = 1 / (cls2.dphi * cls2.dphi);
-      phi         = (w1 * cls1.phi + w2 * cls2.phi) / (w1 + w2);
+      w1          = 1 / (cls1.dPhi() * cls1.dPhi());
+      w2          = 1 / (cls2.dPhi() * cls2.dPhi());
+      phi         = (w1 * cls1.Phi() + w2 * cls2.Phi()) / (w1 + w2);
       phiUncert   = 1 / sqrt(w1 + w2);
-      chisqNdfPhi = ((cls1.phi - phi) * (cls1.phi - phi) * w1 +
-                     (cls2.phi - phi) * (cls2.phi - phi) * w2) /
-                    2;
+      chisqNdfPhi = ((cls1.Phi() - phi) * (cls1.Phi() - phi) * w1 +
+                     (cls2.Phi() - phi) * (cls2.Phi() - phi) * w2 ) / 2;
       if (chisqNdfPhi > m_chisqThresholdPhi) continue;
 
       // eta
-      w1          = 1 / (cls1.deta * cls1.deta);
-      w2          = 1 / (cls2.deta * cls2.deta);
-      eta         = (w1 * cls1.eta + w2 * cls2.eta) / (w1 + w2);
+      w1          = 1 / (cls1.dEta() * cls1.dEta());
+      w2          = 1 / (cls2.dEta() * cls2.dEta());
+      eta         = (w1 * cls1.Eta() + w2 * cls2.Eta()) / (w1 + w2);
       etaUncert   = 1 / sqrt(w1 + w2);
-      chisqNdfEta = ((cls1.eta - eta) * (cls1.eta - eta) * w1 +
-                     (cls2.eta - eta) * (cls2.eta - eta) * w2) /
-                    2;
+      chisqNdfEta = ((cls1.Eta() - eta) * (cls1.Eta() - eta) * w1 +
+                     (cls2.Eta() - eta) * (cls2.Eta() - eta) * w2) / 2;
       if (chisqNdfEta > m_chisqThresholdEta) continue;
 
-      // count the number of clusters near the tracks
-      int iHitdR001[4] = {0};
-      int iHitdR010[4] = {0};
-      int iHitdR020[4] = {0};
-      int iHitdR040[4] = {0};
-      for (auto ihit : firstLayerClusters) {
-        double dR = CalDeltaR(phi, ihit.phi, eta, ihit.eta);
-        if (dR < 0.01) iHitdR001[0]++;
-        if (dR < 0.10) iHitdR010[0]++;
-        if (dR < 0.20) iHitdR020[0]++;
-        if (dR < 0.40) iHitdR040[0]++;
-      }  // for L0
-      for (auto ihit : secondLayerClusters) {
-        double dR = CalDeltaR(phi, ihit.phi, eta, ihit.eta);
-        if (dR < 0.01) iHitdR001[1]++;
-        if (dR < 0.10) iHitdR010[1]++;
-        if (dR < 0.20) iHitdR020[1]++;
-        if (dR < 0.40) iHitdR040[1]++;
-      }  // for L1
-      for (auto ihit : thirdLayerClusters) {
-        double dR = CalDeltaR(phi, ihit.phi, eta, ihit.eta);
-        if (dR < 0.01) iHitdR001[2]++;
-        if (dR < 0.10) iHitdR010[2]++;
-        if (dR < 0.20) iHitdR020[2]++;
-        if (dR < 0.40) iHitdR040[2]++;
-      }  // for L2
-      for (auto ihit : fourthLayerClusters) {
-        double dR = CalDeltaR(phi, ihit.phi, eta, ihit.eta);
-        if (dR < 0.01) iHitdR001[3]++;
-        if (dR < 0.10) iHitdR010[3]++;
-        if (dR < 0.20) iHitdR020[3]++;
-        if (dR < 0.40) iHitdR040[3]++;
-      }  // for L3
-      
-      //=== Check Nearest clusters from tracks ===//
       auto chisqNdfPhiThird = 999.;
       auto chisqNdfEtaThird = 999.;
       auto chisqNdfPhiFourth = 999.;
       auto chisqNdfEtaFourth = 999.;
-      auto chisqNdfPhiTmp   = 999.;
-      auto chisqNdfEtaTmp   = 999.;
-      auto wtmp             = 0.;
-      for (size_t icls = 0; icls< thirdLayerClusters.size(); icls++){
-        auto cls = thirdLayerClusters.at(icls);
-        // phi
-        wtmp = 1 / (cls.dphi * cls.dphi);
-        chisqNdfPhiTmp = (cls.phi - phi) * (cls.phi - phi) * wtmp;
-        if (chisqNdfPhiTmp < chisqNdfPhiThird) chisqNdfPhiThird = chisqNdfPhiTmp;
+      int iHitdR001[4] = {0};
+      int iHitdR010[4] = {0};
+      int iHitdR020[4] = {0};
+      int iHitdR040[4] = {0};
+      if(m_createDetailInformation){
+        // count the number of clusters near the tracks
+        for (auto c : firstLayerClusters) {
+          double dR = CalDeltaR(phi, c.Phi(), eta, c.Eta());
+          if (dR < 0.01) iHitdR001[0]++;
+          if (dR < 0.10) iHitdR010[0]++;
+          if (dR < 0.20) iHitdR020[0]++;
+          if (dR < 0.40) iHitdR040[0]++;
+        }  // for IBL
+        for (auto c : secondLayerClusters) {
+          double dR = CalDeltaR(phi, c.Phi(), eta, c.Eta());
+          if (dR < 0.01) iHitdR001[1]++;
+          if (dR < 0.10) iHitdR010[1]++;
+          if (dR < 0.20) iHitdR020[1]++;
+          if (dR < 0.40) iHitdR040[1]++;
+        }  // for B-Layer
+        for (auto c : thirdLayerClusters) {
+          double dR = CalDeltaR(phi, c.Phi(), eta, c.Eta());
+          if (dR < 0.01) iHitdR001[2]++;
+          if (dR < 0.10) iHitdR010[2]++;
+          if (dR < 0.20) iHitdR020[2]++;
+          if (dR < 0.40) iHitdR040[2]++;
+        }  // for Layer-1
+        for (auto c : fourthLayerClusters) {
+          double dR = CalDeltaR(phi, c.Phi(), eta, c.Eta());
+          if (dR < 0.01) iHitdR001[3]++;
+          if (dR < 0.10) iHitdR010[3]++;
+          if (dR < 0.20) iHitdR020[3]++;
+          if (dR < 0.40) iHitdR040[3]++;
+        }  // for Layer-2
+        
+        //=== Check Nearest clusters from tracks ===//
+        auto chisqNdfPhiTmp   = 999.;
+        auto chisqNdfEtaTmp   = 999.;
+        auto wtmp             = 0.;
+        for ( auto cls : thirdLayerClusters){
+          // phi
+          wtmp = 1 / (cls.dPhi() * cls.dPhi());
+          chisqNdfPhiTmp = (cls.Phi() - phi) * (cls.Phi() - phi) * wtmp;
+          if (chisqNdfPhiTmp < chisqNdfPhiThird) chisqNdfPhiThird = chisqNdfPhiTmp;
 
-        // eta
-        wtmp = 1 / (cls.deta * cls.deta);
-        chisqNdfEtaTmp = (cls.eta - eta) * (cls.eta - eta) * wtmp;
-        if (chisqNdfEtaTmp < chisqNdfEtaThird) chisqNdfEtaThird = chisqNdfEtaTmp;
-      }
-      for (size_t icls = 0; icls< fourthLayerClusters.size(); icls++){
-        auto cls = fourthLayerClusters.at(icls);
-        // phi
-        wtmp = 1 / (cls.dphi * cls.dphi);
-        chisqNdfPhiTmp = (cls.phi - phi) * (cls.phi - phi) * wtmp;
-        if (chisqNdfPhiTmp < chisqNdfPhiFourth) chisqNdfPhiFourth = chisqNdfPhiTmp;
+          // eta
+          wtmp = 1 / (cls.dEta() * cls.dEta());
+          chisqNdfEtaTmp = (cls.Eta() - eta) * (cls.Eta() - eta) * wtmp;
+          if (chisqNdfEtaTmp < chisqNdfEtaThird) chisqNdfEtaThird = chisqNdfEtaTmp;
+        }
+        for ( auto cls : fourthLayerClusters){
+          // phi
+          wtmp = 1 / (cls.dPhi() * cls.dPhi());
+          chisqNdfPhiTmp = (cls.Phi() - phi) * (cls.Phi() - phi) * wtmp;
+          if (chisqNdfPhiTmp < chisqNdfPhiFourth) chisqNdfPhiFourth = chisqNdfPhiTmp;
 
-        // eta
-        wtmp = 1 / (cls.deta * cls.deta);
-        chisqNdfEtaTmp = (cls.eta - eta) * (cls.eta - eta) * wtmp;
-        if (chisqNdfEtaTmp < chisqNdfEtaFourth) chisqNdfEtaFourth = chisqNdfEtaTmp;
+          // eta
+          wtmp = 1 / (cls.dEta() * cls.dEta());
+          chisqNdfEtaTmp = (cls.Eta() - eta) * (cls.Eta() - eta) * wtmp;
+          if (chisqNdfEtaTmp < chisqNdfEtaFourth) chisqNdfEtaFourth = chisqNdfEtaTmp;
+        }
       }
 
 
@@ -494,15 +491,15 @@ StatusCode PixelStubletsMakerAlg::execute() {
       dec_trackEtaUncertVec(*tpc->back()) = etaUncert;
       dec_trackChisqNdfPhiVec(*tpc->back()) = chisqNdfPhi;
       dec_trackChisqNdfEtaVec(*tpc->back()) = chisqNdfEta;
-      dec_trackDEDX1Vec(*tpc->back()) = cls1.DEDX;
-      dec_trackDEDX2Vec(*tpc->back()) = cls2.DEDX;
-      dec_trackClusID1Vec(*tpc->back()) = icls1;
-      dec_trackClusID2Vec(*tpc->back()) = icls2;
+      dec_trackDEDX1Vec(*tpc->back()) = cls1.dEdx();
+      dec_trackDEDX2Vec(*tpc->back()) = cls2.dEdx();
+      //dec_trackClusID1Vec(*tpc->back()) = icls1;
+      //dec_trackClusID2Vec(*tpc->back()) = icls2;
 
-      dec_trackIsFakeVec(*tpc->back())      = isFakeVec.at(icls1) + isFakeVec.at(icls2);
-      dec_trackIsAmbiguousVec(*tpc->back()) = isAmbiguousVec.at(icls1) + isAmbiguousVec.at(icls2);
-      dec_trackIsSplitVec(*tpc->back())     = isSplitVec.at(icls1) + isSplitVec.at(icls2);
-      dec_trackIsUsedVec(*tpc->back())      = isUsedVec.at(icls1) + isUsedVec.at(icls2);
+      dec_trackIsFakeVec(*tpc->back())      = cls1.IsFake()      + cls2.IsFake()     ;
+      dec_trackIsAmbiguousVec(*tpc->back()) = cls1.IsAmbiguous() + cls2.IsAmbiguous();
+      dec_trackIsSplitVec(*tpc->back())     = cls1.IsSplit()     + cls2.IsSplit()    ;
+      dec_trackIsUsedVec(*tpc->back())      = cls1.IsUsed()      + cls2.IsUsed()     ;
 
       dec_trackChisqNdfPhiThirdVec(*tpc->back()) = chisqNdfPhiThird;
       dec_trackChisqNdfEtaThirdVec(*tpc->back()) = chisqNdfEtaThird;
@@ -536,7 +533,7 @@ StatusCode PixelStubletsMakerAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-float PixelStubletsMakerAlg::dEdxCluster(const InDet::PixelCluster *cluster, const xAOD::Vertex *vertex, double *cosalpha, float *charge) {
+float PixelStubletsMakerAlg::dEdxCluster(const InDet::PixelCluster *cluster, const xAOD::Vertex *vertex, float *cosalpha, float *charge) {
   // ------------------------------------------------------------------------------------
   // Loop over pixel hits on track, and calculate dE/dx:
   // ------------------------------------------------------------------------------------
@@ -706,8 +703,15 @@ StatusCode PixelStubletsMakerAlg::SetNormal(TVector3 &norm, int bec, int layer, 
   return StatusCode::SUCCESS;
 }
 
-double CalDeltaR(double phi1, double phi2, double eta1, double eta2) {
+double PixelStubletsMakerAlg::CalDeltaR(double phi1, double phi2, double eta1, double eta2) {
   double deltaphi = (TMath::Abs(phi1 - phi2) > TMath::Pi()) ? 2.0 * TMath::Pi() - TMath::Abs(phi1 - phi2) : TMath::Abs(phi1 - phi2);
   double deltaeta = TMath::Abs(eta1 - eta2);
   return TMath::Sqrt(deltaphi * deltaphi + deltaeta * deltaeta);
+}
+
+inline InDet::PixelCluster* PixelStubletsMakerAlg::GetPixelCluster(Trk::SpacePoint* sp){
+  return (InDet::PixelCluster*)sp->clusterList().first;
+}
+inline InDet::PixelCluster* PixelStubletsMakerAlg::GetPixelCluster(InDet::PixelCluster* cluster){ 
+  return cluster;
 }

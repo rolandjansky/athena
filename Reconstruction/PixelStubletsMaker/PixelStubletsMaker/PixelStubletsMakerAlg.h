@@ -12,6 +12,7 @@
 #include "TrkToolInterfaces/IPixelToTPIDTool.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODTracking/Vertex.h"
+#include "TrkSpacePoint/SpacePoint.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -34,6 +35,7 @@ namespace Trk {
 class Track;
 class ITrackParticleCreatorTool;
 class IPRD_AssociationTool;
+class SpacePoint;
 }
 namespace InDet {
 class PixelCluster;
@@ -46,12 +48,18 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   StatusCode execute();
+  template<class ClusterContainerType> StatusCode execute_core();
 
 protected:
   //  float dEdx(const Trk::Track& track);
-  float dEdxCluster(const InDet::PixelCluster *cluster, const xAOD::Vertex *vertex, double *cosalpha, float *charge);
+  float dEdxCluster(const InDet::PixelCluster *cluster, const xAOD::Vertex *vertex, float *cosalpha, float *charge);
   StatusCode update(IOVSVC_CALLBACK_ARGS);
   StatusCode SetNormal(TVector3 &norm, int bec, int layer, int phimodule);
+
+  double CalDeltaR(double phi1, double phi2, double eta1, double eta2);
+
+  inline InDet::PixelCluster* GetPixelCluster(Trk::SpacePoint* sp);
+  inline InDet::PixelCluster* GetPixelCluster(InDet::PixelCluster* cluster);
 
 private:
   /// ToolHandle to particle creator
@@ -77,6 +85,12 @@ private:
 
   bool m_useassoTool;
   ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool;
+
+  // Switch input pixel cluster types
+  // true  => use PixelSpacePoints : need this when using useassoTool
+  // false => use PixelClusters    : use this when PixelSpacePoints are not available.
+  bool m_useSpacePointAsCluster;
+  bool m_createDetailInformation;
 //   TFile *m_outFile;
 //   TTree *m_outTree;
 //   int m_run;
