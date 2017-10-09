@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-find_package( Qt5 COMPONENTS Core Gui  Widgets )
+find_package( Qt5 COMPONENTS Core Gui  Widgets PrintSupport)
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -33,6 +33,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 atlas_add_library( VP1UtilitySystems VP1UtilitySystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1UtilitySystems
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
-                   LINK_LIBRARIES VP1Base GL
+                   LINK_LIBRARIES VP1Base GL Qt5::PrintSupport
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${COIN3D_LIBRARIES} QatDataAnalysis QatPlotWidgets QatPlotting )
 
