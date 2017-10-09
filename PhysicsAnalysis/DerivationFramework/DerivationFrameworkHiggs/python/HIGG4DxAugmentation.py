@@ -57,7 +57,8 @@ def setup(HIGG4DxName, ToolSvc):
         HIGG4DxTauPVTrkSelectionTool = DerivationFramework__TauPVTrkSelectionTool( name = "HIGG4DxTauPVTrkSelectionTool",
                                                                                    #minPt = 15000,
                                                                                    #m_maxDeltaR = 0.2,
-                                                                                   UseTrueTracks = DFisMC,
+#                                                                                   UseTrueTracks = DFisMC,
+                                                                                   UseTrueTracks = False,  # TauTruthTrackMatchingTool not working ATM. Needs protection against thinned truth info in the xAOD
                                                                                    TauContainerName = "TauJets",
                                                                                    TauPVTracksContainerName = "TauPVTracks")
         ToolSvc += HIGG4DxTauPVTrkSelectionTool
