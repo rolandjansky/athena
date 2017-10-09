@@ -20,7 +20,7 @@ namespace InDet
    class SCT_ClusterOnTrack_p1
    {
   public:
-     SCT_ClusterOnTrack_p1() {}
+     SCT_ClusterOnTrack_p1(): m_positionAlongStrip{0.} {}
 
      // base SiClusterOnTrack_p1, inheriting from RIO_OnTrack_p1
      TPObjRef			m_RIO;
