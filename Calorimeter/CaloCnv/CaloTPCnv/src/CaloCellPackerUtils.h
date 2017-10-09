@@ -7,7 +7,7 @@
 // $Id: CaloCellPackerUtils.h,v 1.1 2007-11-08 18:14:20 ssnyder Exp $
 
 /**
- * @file CaloTools/CaloCellPackerUtils.h
+ * @file CaloCellPackerUtils.h
  * @author scott snyder
  * @date Nov 2007
  * @brief Utilities for compacting calorimeter cells.
@@ -170,7 +170,7 @@ private:
 } // namespace CaloCellPackerUtils
 
 
-#include "CaloTools/CaloCellPackerUtils.icc"
+#include "CaloCellPackerUtils.icc"
 
 
 #endif // not CALOCELLPACKERUTILS_H

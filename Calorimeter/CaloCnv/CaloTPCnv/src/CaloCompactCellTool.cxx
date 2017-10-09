@@ -15,55 +15,36 @@
 // old versions in CVS
 //-----------------------------------------------------------------------
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
 
 #include "AthAllocators/DataPool.h"
-#include "CaloTools/CaloCompactCellTool.h"
+#include "CaloCompactCellTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloTools/CaloCellPacker_400_500.h"
+#include "CaloCellPacker_400_500.h"
 
-CaloCompactCellTool::CaloCompactCellTool(const std::string& type,
-					 const std::string& name,
-					 const IInterface* parent)
-  : AthAlgTool(type,name,parent)
-{
-declareInterface< ICaloCompactCellTool >( this );
-}
-
-CaloCompactCellTool::~CaloCompactCellTool()
-{ }
-
-StatusCode CaloCompactCellTool::initialize()
-{
-  declareInterface<ICaloCompactCellTool>(this);
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CaloCompactCellTool::finalize()
-{
-  return StatusCode::SUCCESS;
-}
+CaloCompactCellTool::CaloCompactCellTool() {}
 
 StatusCode CaloCompactCellTool::getTransient
 (const CaloCompactCellContainer & theCompactContainer,
  CaloCellContainer * theCellContainer)
 {
   const std::vector<CaloCompactCellContainer::value_type> theHeader = theCompactContainer.getHeader();
-  ATH_MSG_DEBUG( " getTransient:    using version: "<<theHeader[1]  );
+  //ATH_MSG_DEBUG( " getTransient:    using version: "<<theHeader[1]  );
 
   DataPool<LArCell> larCellsP(220000);//initialize for the default value will resize latter to full size
   DataPool<TileCell> tileCellsP(13000);
 
   switch (theHeader[1]) {
 
-  case ICaloCompactCellTool::VERSION_400:
-  case ICaloCompactCellTool::VERSION_500:
-  case ICaloCompactCellTool::VERSION_501:
-  case ICaloCompactCellTool::VERSION_502:
-  case ICaloCompactCellTool::VERSION_503:
-  case ICaloCompactCellTool::VERSION_504:
+  case VERSION_400:
+  case VERSION_500:
+  case VERSION_501:
+  case VERSION_502:
+  case VERSION_503:
+  case VERSION_504:
     {
       CaloCellPacker_400_500 packer;
       packer.unpack (theCompactContainer, theHeader, *theCellContainer,
@@ -72,8 +53,9 @@ StatusCode CaloCompactCellTool::getTransient
     break;
 
   default:
-    ATH_MSG_FATAL( " unknown version " << theHeader[1]
-                   << " requested for unpacking the CaloCompactCellContainer" );
+    MsgStream msg(Athena::getMessageSvc(), "CaloCompactCellTool");
+    msg << " unknown version " << theHeader[1]
+	<< " requested for unpacking the CaloCompactCellContainer" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -86,19 +68,19 @@ StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContai
  CaloCompactCellContainer * theCompactContainer,
  int theVersion )
 {
-  ATH_MSG_DEBUG( "CaloCell container contains " << theCellContainer.size() << " cells. Write compact Ver: " << theVersion  );
+  //ATH_MSG_DEBUG( "CaloCell container contains " << theCellContainer.size() << " cells. Write compact Ver: " << theVersion  );
 
-  if (theVersion == ICaloCompactCellTool::VERSION_LATEST)
-    theVersion = ICaloCompactCellTool::VERSION_504;
+  if (theVersion == VERSION_LATEST)
+    theVersion = VERSION_504;
 
  switch (theVersion ) {
 
- case ICaloCompactCellTool::VERSION_400:
- case ICaloCompactCellTool::VERSION_500:
- case ICaloCompactCellTool::VERSION_501:
- case ICaloCompactCellTool::VERSION_502:
- case ICaloCompactCellTool::VERSION_503:
- case ICaloCompactCellTool::VERSION_504:
+ case VERSION_400:
+ case VERSION_500:
+ case VERSION_501:
+ case VERSION_502:
+ case VERSION_503:
+ case VERSION_504:
    {
      CaloCellPacker_400_500 packer;
 
@@ -107,8 +89,9 @@ StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContai
    break;
 
   default:
-    ATH_MSG_FATAL( " unknown version " << theVersion
-                   << " requested for packing the CaloCellContainer"  );
+    MsgStream msg(Athena::getMessageSvc(), "CaloCompactCellTool");
+    msg << " unknown version " << theVersion
+	<< " requested for packing the CaloCellContainer" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

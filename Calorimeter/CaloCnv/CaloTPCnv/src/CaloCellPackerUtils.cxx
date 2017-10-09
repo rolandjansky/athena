@@ -11,7 +11,7 @@
  */
 
 
-#include "CaloTools/CaloCellPackerUtils.h"
+#include "CaloCellPackerUtils.h"
 #include <cassert>
 
 

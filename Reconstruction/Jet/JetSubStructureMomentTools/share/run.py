@@ -295,10 +295,6 @@ if 1:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolStream( "StreamXAOD", "xAOD.root" )
 
-# compactify calo cell
-from CaloTools.CaloToolsConf import CaloCompactCellTool
-svcMgr.ToolSvc += CaloCompactCellTool()
-
 # Set up its contents:
 xaodStream.AddItem( "xAOD::JetContainer_v1#*" )
 xaodStream.AddItem( "xAOD::JetAuxContainer_v1#*" )

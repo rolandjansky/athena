@@ -13,7 +13,7 @@
 #undef NDEBUG
 
 
-#include "CaloTools/CaloCellPackerUtils.h"
+#include "../src/CaloCellPackerUtils.h"
 #include <cassert>
 #include <cmath>
 #include <cstdio>

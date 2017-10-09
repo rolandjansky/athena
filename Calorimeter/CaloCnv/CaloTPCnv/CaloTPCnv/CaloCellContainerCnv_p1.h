@@ -10,8 +10,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaPoolCnvSvc/ITPConverter.h"
+#include <memory>
 
-class ICaloCompactCellTool;
 class CaloCellContainer;
 class CaloCompactCellContainer;
 
@@ -51,9 +51,6 @@ public:
   */
   virtual const std::type_info& persistentTInfo() const;
 
-private:
-  ICaloCompactCellTool* m_compactCellTool;
-  void init();
 };
 
 

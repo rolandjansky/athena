@@ -13,9 +13,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 
-// Athena
-#include "CaloInterface/ICaloCompactCellTool.h"
-
 CaloCellContainerCnv::CaloCellContainerCnv(ISvcLocator* svcloc)
   : CaloCellContainerCnvBase::T_AthenaPoolCustomCnv(svcloc),
     m_p1_guid("91B7AAA5-E302-4666-A4F6-7B331240AF23")
