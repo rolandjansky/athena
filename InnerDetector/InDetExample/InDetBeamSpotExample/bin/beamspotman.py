@@ -618,10 +618,11 @@ if cmd=='queryT0' and len(args)==3:
     if 'ESD' in options.filter:
         t0TaskName = '%s.recon.ESD.%s.beamspotproc.task' % (dsname,tags)
     else:
-        if "_m" in tags:
+        if any(t[0] == 'm' for t in tags.split('_')):
           t0TaskName = '%s.merge.AOD.%s.beamspotproc.task' % (dsname,tags)
-        else: 
+        else:
           t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
+
     print 'Querying Tier-0 database for task',t0TaskName,'...'
     oracle = getT0DbConnection()
     cur = oracle.cursor()
@@ -808,11 +809,16 @@ if cmd=='runMonJobs' and len(args)<3:
         bstag = cooltags.split()[0]
 
         filter = 'AOD'
-        t0dsname = '%s.merge.AOD.%s%%' % (dsname,datatag)  # For running over AOD
+        if any(t[0] == 'm' for t in fulldatatag.split('_')):
+            t0dsname = '%s.merge.AOD.%s%%' % (dsname, datatag)
+        else:
+            t0dsname = '%s.recon.AOD.%s%%' % (dsname, datatag)
+
         c = getJobConfig('.',dsname,taskName)
         if 'ESD' in c['inputfiles'][0]:
             filter = 'ESD'
-            t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
+            t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
+
         print '\nRunning monitoring job for run %s:' % runnr
 
         submitjob=True
@@ -1472,14 +1478,21 @@ if cmd=='runBCIDJobs' and len(args)<3:
         ptag = dsname.split('.')[0]
         stream = dsname.split('.')[2]
         taskName = t['TASKNAME']
+        fulldatatag = taskName.split('.')[-1].split('_')[0]
         datatag = taskName.split('.')[-1].split('_')[0]
         bcidTaskName = 'BCID.%s.%s' % (taskName,datatag)
+
         filter = 'AOD'
-        t0dsname = '%s.merge.AOD.%s%%' % (dsname,datatag)  # For running over AOD
+        if any(t[0] == 'm' for t in fulldatatag.split('_')):
+            t0dsname = '%s.merge.%s.%s%%' % (dsname, filter, datatag)
+        else:
+            t0dsname = '%s.recon.%s.%s%%' % (dsname, filter, datatag)
+
         c = getJobConfig('.',dsname,taskName)
         if 'ESD' in c['inputfiles'][0]:
             filter = 'ESD'
-            t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
+            t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
+
         print '\nRunning BCID job for run %s:' % runnr
 
         print '... Querying T0 database for replication of %s' % t0dsname
