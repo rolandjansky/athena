@@ -346,7 +346,7 @@ namespace xAOD {
    /// @param proxy The proxy to take posession of. Not used for anything
    ///              useful.
    ///
-   StatusCode TEvent::addToStore( CLID clid, SG::DataProxy* proxy ) {
+   StatusCode TEvent::addToStore( CLID /*clid*/, SG::DataProxy* proxy ) {
 
       // Warn the user that the function got called:
       static bool warningPrinted = false;
@@ -357,13 +357,9 @@ namespace xAOD {
          warningPrinted = true;
       }
 
-      // Hold on to the proxy with some non-existent, hopefully unique key:
-      const ::TString uniqueKey = ::TString::Format( "NonExistentKey_%lu",
-                                                     m_branches.size() );
       BranchInfo bi;
       bi.m_proxy.reset( proxy );
-      m_branches.insert( std::make_pair( stringToKey( uniqueKey.Data(),
-                                                      clid ),
+      m_branches.insert( std::make_pair( proxy->sgkey(),
                                          std::move( bi ) ) );
 
       // Return gracefully:
