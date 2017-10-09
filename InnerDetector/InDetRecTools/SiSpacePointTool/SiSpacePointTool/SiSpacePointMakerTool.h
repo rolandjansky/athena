@@ -47,38 +47,36 @@ namespace InDet{
 		// Convert clusters to space points
 		Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, 
 		  const Amg::Vector3D& vertexVec,
-		  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
+		  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double stripLengthGapTolerance) const;
 
 		void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
 		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
 		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointCollection* spacepointCollection);
+		  SpacePointCollection* spacepointCollection) const;
 
 		void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, 
-		  SpacePointCollection* spacepointCollection);
+		  SpacePointCollection* spacepointCollection) const;
 
 		void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
 		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
 		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointOverlapCollection* spacepointOverlapCollection);
+		  SpacePointOverlapCollection* spacepointOverlapCollection) const;
 
 		void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
 		  const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, 
 		  double max2, bool allClusters, const Amg::Vector3D& vertexVec , 
 		  const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointOverlapCollection* spacepointOverlapCollection);
+		  SpacePointOverlapCollection* spacepointOverlapCollection) const;
 
 	private:
 		double m_stripLengthTolerance;
 		double m_SCTgapParameter;
-		double m_stripLengthGapTolerance;
 
 		// option to use closest approach of SCT strips as position for SpacePoint 
 		bool m_usePerpProj;
 
-		std::vector<Trk::SpacePoint*> m_tmpSpacePoints;
 		const SCT_ID* m_idHelper; 
-		double offset(const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
+		double offset(const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double&) const;
 
   };
 }

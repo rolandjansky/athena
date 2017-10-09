@@ -22,6 +22,9 @@
 #include "TrkSpacePoint/SpacePointCollection.h"
 //#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 
+
+typedef EventContainers::IdentifiableCache< SpacePointCollection > SpacePointCache;
+
 class SpacePointContainer 
 : public IdentifiableContainer<SpacePointCollection>{
 
@@ -33,6 +36,8 @@ public:
   // Constructor with parameters:
   SpacePointContainer(unsigned int max);
   
+  SpacePointContainer(SpacePointCache*);
+
   // Destructor:
   virtual ~SpacePointContainer();
 
@@ -83,5 +88,9 @@ private:
 
 #include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF(SpacePointContainer,1273119430,1)
+
+
+CLASS_DEF( SpacePointCache , 198940329 , 1 )
+
 
 #endif // TRKSPACEPOINT_SPACEPOINTCONTAINER_H
