@@ -17,6 +17,7 @@
 #include "DerivationFrameworkInDet/EGammaPrepRawDataThinning.h"
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
+#include "DerivationFrameworkInDet/TCCTrackParticleThinning.h"
 
 using namespace DerivationFramework;
 
@@ -38,6 +39,7 @@ DECLARE_TOOL_FACTORY( EGammaTracksThinning )
 DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
 DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
 DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
+DECLARE_TOOL_FACTORY( TCCTrackParticleThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackToVertexWrapper )
@@ -58,5 +60,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( EGammaPrepRawDataThinning )
    DECLARE_TOOL( TrackMeasurementThinning )
    DECLARE_TOOL( EventInfoPixelDecorator )
+   DECLARE_TOOL( TCCTrackParticleThinning )
 }
 

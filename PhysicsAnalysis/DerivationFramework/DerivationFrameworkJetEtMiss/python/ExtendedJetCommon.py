@@ -22,6 +22,10 @@ def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False)
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+                   
+def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+    addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################              
 # Jet helpers for ungroomed jets (removed in xAOD reduction)
@@ -39,6 +43,9 @@ from JetRec.JetRecStandard import jtm
 
 def addAntiKt10LCTopoJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "LCTopo", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist)
+    
+def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
+    addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
     btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
@@ -95,6 +102,8 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
         addAntiKt10TruthWZJets(sequence,outputlist)
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
+    if "AntiKt10TrackCaloClusterJets" in jetlist:
+        addAntiKt10TrackCaloClusterJets(sequence,outputlist)
 
 ##################################################################              
 # Jet helpers for adding low-pt jets needed for calibration
