@@ -23,6 +23,7 @@
 #include "SGTools/CurrentEventStore.h"
 #include "CxxUtils/checker_macros.h"
 #include <unordered_map>
+#include <mutex>
 
 
 namespace SGTest {
@@ -49,7 +50,7 @@ struct TestStoreRemapHash
 };
 
 
-class ATLAS_NOT_THREAD_SAFE TestStore
+class TestStore
   : virtual public IProxyDict
 {
 public:
@@ -82,26 +83,27 @@ public:
                                        const std::string& key,
                                        bool allowMods,
                                        bool returnExisting) override;
-  SG::DataProxy* record1 (const void* p, DataObject* obj,
-                          CLID clid, const std::string& key);
 
 
   template <class T>
   void record (const T* p, const std::string& key)
   {
-    DataObject* obj = SG::asStorable<T>(const_cast<T*>(p));
+    lock_t lock (m_mutex);
+    T* p_nc ATLAS_THREAD_SAFE = const_cast<T*>(p);
+    DataObject* obj = SG::asStorable<T>(p_nc);
     CLID clid = ClassID_traits<T>::ID();
-    record1 (p, obj, clid, key);
+    record1 (lock, p, obj, clid, key);
   }
 
 
   template <class T>
   void record (std::unique_ptr<T> up, const std::string& key)
   {
+    lock_t lock (m_mutex);
     T* p = up.get();
     DataObject* obj = SG::asStorable<T>(std::move (up));
     CLID clid = ClassID_traits<T>::ID();
-    record1 (p, obj, clid, key);
+    record1 (lock, p, obj, clid, key);
   }
 
 
@@ -130,7 +132,7 @@ public:
   typedef std::unordered_map<TestStoreRemap, TestStoreRemap, TestStoreRemapHash> remap_t;
   remap_t m_remap;
 
-  SG::StringPool m_stringPool;
+  mutable SG::StringPool m_stringPool ATLAS_THREAD_SAFE;
 
   std::vector<IResetable*> m_boundHandles;
 
@@ -138,7 +140,16 @@ public:
   bool m_failUpdatedObject = false;
 
   // Log failed calls to proxy(CLID, std::string).
-  mutable std::vector<std::pair<CLID, std::string> > m_missedProxies;
+  mutable std::vector<std::pair<CLID, std::string> > m_missedProxies ATLAS_THREAD_SAFE;
+
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_mutex;
+
+  SG::DataProxy* proxy(lock_t&, const void* const pTransient) const;
+  SG::DataProxy* proxy(lock_t&, const CLID& id, const std::string& key) const;
+  SG::DataProxy* record1 (lock_t&, const void* p, DataObject* obj,
+                          CLID clid, const std::string& key);
 };
 
 
