@@ -126,6 +126,7 @@
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
 + InnerDetector/InDetConditions/Pixel.*
 + InnerDetector/InDetConditions/SiPropertiesSvc
++ InnerDetector/InDetConditions/SiLorentzAngleSvc
 + InnerDetector/InDetConditions/.*_ConditionsData
 + InnerDetector/InDetConditions/.*_ConditionsServices
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
@@ -279,6 +280,7 @@
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoAlgs/CaloRingerAlgs
 + Reconstruction/RecoAlgs/IsolationAlgs
++ Reconstruction/RecoAlgs/TrackParticleAssociationAlgs
 + Reconstruction/RecoEvent/ParticleCaloExtension
 + Reconstruction/RecoTools/CaloClusterMatching
 + Reconstruction/RecoTools/CaloRingerTools
@@ -289,6 +291,9 @@
 + Reconstruction/RecoTools/TrackToCalo
 + Reconstruction/tauEvent
 + Reconstruction/tauRec.*
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecAlgs
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools
 + Reconstruction/TrackParticleTPCnv
 + Reconstruction/RecTPCnv
 + Reconstruction/RecAthenaPool
