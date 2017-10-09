@@ -30,17 +30,17 @@ private:
   /** List of PFBaseAlgTool, which will be executed by this algorithm */
   ToolHandleArray<IPFBaseTool> m_IPFBaseTools;
   
-  /** ReadHandle for the eflowRecTrackContainer to be read in */
-  SG::ReadHandle<eflowRecTrackContainer> m_eflowRecTracksReadHandle;
+  /** ReadHandleKey for the eflowRecTrackContainer to be read in */
+  SG::ReadHandleKey<eflowRecTrackContainer> m_eflowRecTracksReadHandleKey{this,"eflowRecTracksInputName","eflowRecTracks","ReadHandleKey for the eflowRecTrackContainer to be read in"};
 
-  /** ReadHandle for the eflowRecClusterContainer to be read in */
-  SG::ReadHandle<eflowRecClusterContainer> m_eflowRecClustersReadHandle;
+  /** ReadHandleKey for the eflowRecClusterContainer to be read in */
+  SG::ReadHandleKey<eflowRecClusterContainer> m_eflowRecClustersReadHandleKey{this,"eflowRecClustersInputName","eflowRecClusters","ReadHandleKey for the eflowRecClusterContainer to be read in"};
 
-  /** WriteHandle for CaloClusterContainer to be written out */
-  SG::WriteHandle<xAOD::CaloClusterContainer> m_caloClustersWriteHandle;
+  /** WriteHandleKey for CaloClusterContainer to be written out */
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClustersWriteHandleKey{this,"PFCaloClustersOutputName","PFCaloCluster","WriteHandleKey for CaloClusterContainer to be written out"};
 
-  /** WriteHandle for eflowCaloObjectContainer to be written out */
-  SG::WriteHandle<eflowCaloObjectContainer> m_eflowCaloObjectsWriteHandle;
+  /** WriteHandleKey for eflowCaloObjectContainer to be written out */
+  SG::WriteHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectsWriteHandleKey{this,"eflowCaloObjectsOutputName","eflowCaloObjects","WriteHandleKey for eflowCaloObjectContainer to be written out"};
   
   /** Funciton to print out list of tools if in VERBOSE mode */
   void printTools();

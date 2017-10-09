@@ -13,6 +13,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
+DetFlags.detdescr.Muon_setOn()
 DetFlags.detdescr.ID_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc

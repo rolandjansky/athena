@@ -5,21 +5,8 @@
 
 
 PFTrackSelector::PFTrackSelector(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
-  m_tracksReadHandle("InDetTrackParticles"),
-  m_electronsReadHandle("eflowRec_selectedElectrons"),
-  m_muonsReadHandle("eflowRec_selectedMuons"),
-  m_eflowRecTracksWriteHandle("eflowRecTracks"),
-  m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool",this),
-  m_upperTrackPtCut(100.0)
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("tracksName", m_tracksReadHandle);
-  declareProperty("electronsName", m_electronsReadHandle);  
-  declareProperty("muonsName",  m_muonsReadHandle);
-  declareProperty("eflowRecTracksOutputName",  m_eflowRecTracksWriteHandle);
-  declareProperty("trackExtrapolatorTool", m_theTrackExtrapolatorTool, "AlgTool to use for track extrapolation");
-  declareProperty("trackSelectionTool", m_trackSelectorTool);
-  declareProperty("upperTrackPtCut",m_upperTrackPtCut);
 }
 
 StatusCode PFTrackSelector::initialize(){
@@ -27,11 +14,11 @@ StatusCode PFTrackSelector::initialize(){
   ATH_CHECK(m_theTrackExtrapolatorTool.retrieve());  
   ATH_CHECK(m_trackSelectorTool.retrieve());
 
-  ATH_CHECK(m_tracksReadHandle.initialize());
-  ATH_CHECK(m_electronsReadHandle.initialize());
-  ATH_CHECK(m_muonsReadHandle.initialize());
+  ATH_CHECK(m_tracksReadHandleKey.initialize());
+  ATH_CHECK(m_electronsReadHandleKey.initialize());
+  ATH_CHECK(m_muonsReadHandleKey.initialize());
 
-  ATH_CHECK(m_eflowRecTracksWriteHandle.initialize());
+  ATH_CHECK(m_eflowRecTracksWriteHandleKey.initialize());
   
   return StatusCode::SUCCESS;
 
@@ -39,17 +26,19 @@ StatusCode PFTrackSelector::initialize(){
 
 StatusCode PFTrackSelector::execute(){
 
-  ATH_CHECK(m_eflowRecTracksWriteHandle.record(std::make_unique<eflowRecTrackContainer>()));
+  SG::WriteHandle<eflowRecTrackContainer> eflowRecTracksWriteHandle(m_eflowRecTracksWriteHandleKey);  
+  ATH_CHECK(eflowRecTracksWriteHandle.record(std::make_unique<eflowRecTrackContainer>()));
 
   /* Verify the read handle has a valid pointer, and if not return */
-  if (!m_tracksReadHandle.isValid()){
-    ATH_MSG_WARNING("Can not retrieve xAOD::TrackParticleContainer with name: " << m_tracksReadHandle.key());
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracksReadHandle(m_tracksReadHandleKey);
+  if (!tracksReadHandle.isValid()){
+    ATH_MSG_WARNING("Can not retrieve xAOD::TrackParticleContainer with name: " << tracksReadHandle.key());
     return StatusCode::FAILURE;
   }
 
   /* Do the track selection for tracks to be used in all of the following steps: */
   int trackIndex = 0;
-  for (auto thisTrack : *m_tracksReadHandle){
+  for (auto thisTrack : *tracksReadHandle){
 
     if (!thisTrack){
       ATH_MSG_WARNING("Have invalid pointer to xAOD::TrackParticle");
@@ -69,14 +58,14 @@ StatusCode PFTrackSelector::execute(){
     
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
-      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_tracksReadHandle, trackIndex), m_theTrackExtrapolatorTool);
+      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*tracksReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
-      m_eflowRecTracksWriteHandle->push_back(std::move(thisEFRecTrack));
+      eflowRecTracksWriteHandle->push_back(std::move(thisEFRecTrack));
     }
     trackIndex++;
   }
 
-  std::sort(m_eflowRecTracksWriteHandle->begin(), m_eflowRecTracksWriteHandle->end(), eflowRecTrack::SortDescendingPt());
+  std::sort(eflowRecTracksWriteHandle->begin(), eflowRecTracksWriteHandle->end(), eflowRecTrack::SortDescendingPt());
 
   return StatusCode::SUCCESS;
 }
@@ -90,9 +79,10 @@ bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
 
 bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 
-  if (m_electronsReadHandle.isValid()){
+  SG::ReadHandle<xAOD::ElectronContainer> electronsReadHandle(m_electronsReadHandleKey);
+  if (electronsReadHandle.isValid()){
 
-    for (auto thisElectron : *m_electronsReadHandle){
+    for (auto thisElectron : *electronsReadHandle){
 
       if (thisElectron){
 	unsigned int nTrack = thisElectron->nTrackParticles();
@@ -111,7 +101,7 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
       else ATH_MSG_WARNING("Electron is a NULL pointer");
     }//electron loop    
   }
-  else ATH_MSG_WARNING("Invalid ReadHandle for electrons with key: " << m_electronsReadHandle.key());
+  else ATH_MSG_WARNING("Invalid ReadHandle for electrons with key: " << electronsReadHandle.key());
 
   return false;
 
@@ -119,9 +109,10 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 
 bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
 
-  if (m_muonsReadHandle.isValid()){
+  SG::ReadHandle<xAOD::MuonContainer> muonsReadHandle(m_muonsReadHandleKey);
+  if (muonsReadHandle.isValid()){
 
-    for (auto theMuon : *m_muonsReadHandle){      
+    for (auto theMuon : *muonsReadHandle){      
       if (theMuon){
 	const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->inDetTrackParticleLink();
 	if (theLink.isValid()){
@@ -137,7 +128,7 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
       else ATH_MSG_WARNING("This muon is a NULL pointer");
     }//muon loop
   }
-  else ATH_MSG_WARNING("Invalid ReadHandle for muons with key: " << m_muonsReadHandle.key());
+  else ATH_MSG_WARNING("Invalid ReadHandle for muons with key: " << muonsReadHandle.key());
 
   return false;
 }

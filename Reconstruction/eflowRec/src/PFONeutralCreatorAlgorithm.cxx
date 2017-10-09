@@ -14,7 +14,7 @@ StatusCode PFONeutralCreatorAlgorithm::initialize(){
 
   ATH_CHECK(m_eflowCaloObjectContainerReadHandleKey.initialize());
   ATH_CHECK(m_neutralPFOContainerWriteHandleKey.initialize());
-  if (m_LCMode) ATH_CHECK(m_neutralPFOContainerWriteHandleKey_nonModified.initialize());
+  ATH_CHECK(m_neutralPFOContainerWriteHandleKey_nonModified.initialize());
   return StatusCode::SUCCESS;
   
 }
