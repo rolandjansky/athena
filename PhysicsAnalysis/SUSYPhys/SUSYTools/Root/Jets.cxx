@@ -20,8 +20,8 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "METUtilities/METHelpers.h"
 
@@ -79,12 +79,6 @@ namespace ST {
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
       jets=copy;
     }
-
-    // ghost associate the muons to the jets (needed by MET muon-jet OR later)
-    ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
-    const xAOD::MuonContainer* muons(nullptr);
-    ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
-    met::addGhostMuonsToJets(*muons, *copy);
 
     // Update the jets
     for (const auto& jet : *copy) {

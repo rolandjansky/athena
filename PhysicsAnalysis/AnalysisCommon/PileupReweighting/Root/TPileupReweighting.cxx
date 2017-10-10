@@ -48,31 +48,24 @@ CP::TPileupReweighting::TPileupReweighting(const char* name) :
    m_countingMode(true),m_unrepresentedDataAction(0),m_isInitialized(false),m_lumiVectorIsLoaded(false),
    m_dataScaleFactorX(1.),m_dataScaleFactorY(1.),
    m_mcScaleFactorX(1.),m_mcScaleFactorY(1.),
-   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false),m_lumicalcRunNumberOffset(0), m_emptyHistogram(0), m_random3(0), m_ignoreBadChannels(false)
+   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false),m_lumicalcRunNumberOffset(0), m_emptyHistogram(), m_random3(), m_ignoreBadChannels(false)
 {
-   m_random3 = new TRandom3(0);
+   m_random3.reset( new TRandom3(0) );
    m_random3->SetSeed(1);
 
    //create the global period 
-   m_periods[-1] = new Period(-1,0,9999999,0/* the global default channel*/);
+   m_periodList.emplace_back( -1,0,9999999,0/* the global default channel*/ );
+   m_periods[ -1 ] = &( m_periodList.back() );
 
    //MC12ab merger by default
    //RemapPeriod(195848,195847);
 }
 
-
-
-//=============================================================================
-// Destructor
-//=============================================================================
-CP::TPileupReweighting::~TPileupReweighting() {
-   delete m_random3; 
-}
-
 void CP::TPileupReweighting::RemapPeriod(Int_t periodNumber1, Int_t periodNumber2) {
    //check if periodNumber2 exists
    if(m_periods.find(periodNumber2)==m_periods.end()) {
-      m_periods[periodNumber2] = new Period(periodNumber2,0,0,GetDefaultChannel(-1)/*m_periods[-1]->defaultChannel*/);
+      m_periodList.emplace_back( periodNumber2, 0, 0, GetDefaultChannel(-1) );
+      m_periods[periodNumber2] = &( m_periodList.back() );
    }
    m_periods[periodNumber1] = m_periods[periodNumber2];
 }
@@ -80,7 +73,8 @@ void CP::TPileupReweighting::RemapPeriod(Int_t periodNumber1, Int_t periodNumber
 void CP::TPileupReweighting::SetDefaultChannel(Int_t channel, Int_t periodNumber) {
    //check if periodNumber2 exists
    if(m_periods.find(periodNumber)==m_periods.end()) {
-      m_periods[periodNumber] = new Period(periodNumber,0,0,channel);
+      m_periodList.emplace_back( periodNumber, 0, 0, channel );
+      m_periods[periodNumber] = &( m_periodList.back() );
    } else {
       m_periods[periodNumber]->SetDefaultChannel(channel); 
    }
@@ -88,9 +82,12 @@ void CP::TPileupReweighting::SetDefaultChannel(Int_t channel, Int_t periodNumber
 
 
 Int_t CP::TPileupReweighting::SetBinning(Int_t nbinsx, Double_t* xbins, Int_t nbinsy, Double_t* ybins) {
-   if(m_emptyHistogram) { delete m_emptyHistogram; }
-   if(nbinsy>0) m_emptyHistogram = new TH2D("default","default",nbinsx,xbins,nbinsy,ybins);
-   else m_emptyHistogram = new TH1D("default","default",nbinsx,xbins);
+   if( nbinsy > 0 ) {
+      m_emptyHistogram.reset( new TH2D( "default", "default", nbinsx, xbins,
+                                        nbinsy, ybins ) );
+   } else {
+      m_emptyHistogram.reset( new TH1D( "default", "default", nbinsx, xbins ) );
+   }
    m_emptyHistogram->SetDirectory(0);
    return 0;
 }
@@ -104,8 +101,7 @@ Int_t CP::TPileupReweighting::SetUniformBinning(Int_t nbinsx, Double_t xlow, Dou
 }
 Int_t CP::TPileupReweighting::SetBinning(TH1* hist) {
    if(!hist) return -1;
-   if(m_emptyHistogram) { delete m_emptyHistogram; }
-   m_emptyHistogram = dynamic_cast<TH1*>(hist->Clone("default"));
+   m_emptyHistogram.reset( dynamic_cast< TH1* >( hist->Clone( "default" ) ) );
    if (m_emptyHistogram)
      m_emptyHistogram->SetDirectory(0);
    return 0;
@@ -131,7 +127,7 @@ Double_t CP::TPileupReweighting::GetIntegratedLumi(const TString& trigger) {
       CalculatePrescaledLuminosityHistograms(trigger);
    }
    
-   auto h = m_triggerObjs[trigger]->triggerHists[-1][m_triggerObjs[trigger]->getBits(this)];
+   auto& h = m_triggerObjs[trigger]->triggerHists[-1][m_triggerObjs[trigger]->getBits(this)];
    
    return h->Integral(0,h->GetNbinsX()+1)/1E6;
 }
@@ -308,6 +304,7 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       }
       SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
+      return 0;
    }
    Error("UsePeriodConfig","Unrecognized period config");
    return -1;
@@ -324,7 +321,9 @@ Int_t CP::TPileupReweighting::AddPeriod(Int_t periodNumber, UInt_t start, UInt_t
    }
 
    if(m_periods.find(periodNumber)==m_periods.end()) {
-      m_periods[periodNumber] = new Period(periodNumber,start,end,GetDefaultChannel(-1));
+      m_periodList.emplace_back( periodNumber, start, end,
+                                 GetDefaultChannel( -1 ) );
+      m_periods[periodNumber] = &( m_periodList.back() );
       return periodNumber;
    }
 
@@ -350,13 +349,17 @@ Int_t CP::TPileupReweighting::AddPeriod(Int_t periodNumber, UInt_t start, UInt_t
 
    if(p->subPeriods.size()==0) {
       while(m_periods.find(m_nextPeriodNumber) != m_periods.end()) m_nextPeriodNumber++;
-      m_periods[m_nextPeriodNumber] = new Period(m_nextPeriodNumber,p->start,p->end,p->defaultChannel);
+      m_periodList.emplace_back( m_nextPeriodNumber, p->start, p->end,
+                                 p->defaultChannel );
+      m_periods[m_nextPeriodNumber] = &( m_periodList.back() );
       p->subPeriods.push_back(m_periods[m_nextPeriodNumber]);
       p->start = 0; p->end=0;
    }
 
    while(m_periods.find(m_nextPeriodNumber) != m_periods.end()) m_nextPeriodNumber++;
-   m_periods[m_nextPeriodNumber] = new Period(m_nextPeriodNumber,start,end, p->defaultChannel);
+   m_periodList.emplace_back( m_nextPeriodNumber, start, end,
+                              p->defaultChannel );
+   m_periods[m_nextPeriodNumber] = &( m_periodList.back() );
    p->subPeriods.push_back(m_periods[m_nextPeriodNumber]);
 
    return m_nextPeriodNumber;
@@ -375,7 +378,8 @@ Int_t CP::TPileupReweighting::GetFirstFoundPeriodNumber(UInt_t runNumber) {
 }
 
 
-TH1* CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber) {
+std::unique_ptr< TH1 >
+CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber) {
 
    TString s("pileup");
    if(channelNumber>=0) {
@@ -390,7 +394,7 @@ TH1* CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelN
       throw std::runtime_error("Throwing 47: There is no binning info - use SetBinning/SetUniformBinning or load a prw config file (This usually means you need to call AddConfigFile BEFORE AddLumiCalcFile)");
    }
 
-   TH1* out = dynamic_cast<TH1*>(m_emptyHistogram->Clone(s));
+   std::unique_ptr< TH1 > out( dynamic_cast<TH1*>(m_emptyHistogram->Clone(s)) );
    if (out) {
      out->SetTitle(s);
      out->SetDirectory(0); //take ownership
@@ -595,7 +599,10 @@ void CP::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
    bool isMC=true;
    //should have the standard structure 
    Int_t channel = 0; UInt_t runNbr = 0; 
-   std::vector<UInt_t>* pStarts = 0;std::vector<UInt_t>* pEnds = 0;
+   auto pStarts = std::make_unique< std::vector< UInt_t > >();
+   auto pStartsPtr = pStarts.get();
+   auto pEnds = std::make_unique< std::vector< UInt_t > >();
+   auto pEndsPtr = pEnds.get();
    Char_t histName[150];
    Char_t customName[150];
    Bool_t isDefaultForRunNumber(false); bool hasDefaultsBranch=false;
@@ -615,10 +622,10 @@ void CP::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
       Error("AddDistributionTree","Could not find RunNumber branch in TTree");throw std::runtime_error("Throwing 18");
    }
    if(isMC) {
-      if(tree->SetBranchAddress("PeriodStarts",&pStarts)!=0) {
+      if(tree->SetBranchAddress("PeriodStarts",&pStartsPtr)!=0) {
          Error("AddDistributionTree","Could not find PeriodStarts branch in TTree");throw std::runtime_error("Throwing 18");
       }
-      if(tree->SetBranchAddress("PeriodEnds",&pEnds)!=0) {
+      if(tree->SetBranchAddress("PeriodEnds",&pEndsPtr)!=0) {
          Error("AddDistributionTree","Could not find PeriodEnds branch in TTree");throw std::runtime_error("Throwing 18");
       }
       if(tree->FindBranch("IsDefaultForRunNumber")!=0) {
@@ -693,27 +700,27 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
    }
    
 
-   TH1*& inputHist = (channelNumber<0) ? m_runs[runNumber].inputHists["None"] : m_periods[runNumber]->inputHists[channelNumber];
+   auto& inputHist = (channelNumber<0) ? m_runs[runNumber].inputHists["None"] : m_periods[runNumber]->inputHists[channelNumber];
 
    if(!inputHist) {
       //if no emptyHistogram specified, we will use this histogram as the structure for the empty;
       if(!m_emptyHistogram) {
          //check if the input histogram is a TH1D or not. We like TH1D, not yucky TH1F
          if(strcmp(hist->IsA()->GetName(),"TH1D")==0 || strcmp(hist->IsA()->GetName(),"TH2D")==0) {
-            m_emptyHistogram = dynamic_cast<TH1*>(hist->Clone("default"));
+            m_emptyHistogram.reset( dynamic_cast<TH1*>(hist->Clone("default")) );
          } else {
             //check dimensionality
             if(hist->GetDimension()==1) {
                std::vector<Double_t> binsX;
                for(int i=0;i<=hist->GetNbinsX();i++) binsX.push_back(hist->GetXaxis()->GetBinLowEdge(i+1));
                TH1D tmpHist("tmpHist","tmpHist",binsX.size()-1,&binsX[0]);
-               m_emptyHistogram = dynamic_cast<TH1*>(tmpHist.Clone("default"));
+               m_emptyHistogram.reset( dynamic_cast<TH1*>(tmpHist.Clone("default")) );
             } else if(hist->GetDimension()==2) {
                std::vector<Double_t> binsX;std::vector<Double_t> binsY;
                for(int i=0;i<=hist->GetNbinsX();i++) binsX.push_back(hist->GetXaxis()->GetBinLowEdge(i+1));
                for(int i=0;i<=hist->GetNbinsY();i++) binsY.push_back(hist->GetYaxis()->GetBinLowEdge(i+1));
                TH2D tmpHist("tmpHist","tmpHist",binsX.size()-1,&binsX[0],binsY.size()-1,&binsY[0]);
-               m_emptyHistogram = dynamic_cast<TH1*>(tmpHist.Clone("default"));
+               m_emptyHistogram.reset( dynamic_cast<TH1*>(tmpHist.Clone("default")) );
             } else {
                Error("AddDistribution","Unknown input histogram dimensionality: %d",hist->GetDimension());
                throw std::runtime_error("Throwing 98");
@@ -910,7 +917,6 @@ Bool_t CP::TPileupReweighting::RemoveChannel(int chanNum) {
          if(itr->first!=chanNum) ++itr;
          else {
             found=true;
-            if(itr->second) delete itr->second; //delete the hist 
             itr = period.second->inputHists.erase(itr);
          }
       }
@@ -958,7 +964,7 @@ Int_t CP::TPileupReweighting::Initialize() {
    //count up the unrepresented data, indexed by channel 
    for(auto& run : m_runs) {
       if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
-      TH1* hist = run.second.inputHists["None"];
+      TH1* hist = run.second.inputHists["None"].get();
       Int_t bin,binx,biny;
       for(biny=1; biny<=hist->GetNbinsY(); biny++) {
          for(binx=1; binx<=hist->GetNbinsX(); binx++) {
@@ -1009,7 +1015,7 @@ Int_t CP::TPileupReweighting::Initialize() {
          unrepDataByChannel[-1] = 0;
          for(auto& run : m_runs) {
             if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
-            TH1* hist = run.second.inputHists["None"];
+            TH1* hist = run.second.inputHists["None"].get();
             Int_t bin,binx,biny;
             for(biny=1; biny<=hist->GetNbinsY(); biny++) {
                for(binx=1; binx<=hist->GetNbinsX(); binx++) {
@@ -1036,18 +1042,18 @@ Int_t CP::TPileupReweighting::Initialize() {
 
 
    //need a CompositeTrigger to hold the unprescaled lumi hists ...
-   m_triggerObjs["None"] = new CompositeTrigger;
+   m_triggerObjs["None"] = std::make_unique< CompositeTrigger >();
 
    //go through all periods, use inputHists to populate the primary and secondary dists, and fill sumOfWeights and numberOfEntries
    for(auto period : m_periods) {
       if(period.first != period.second->id) continue; //skips remappings 
       for(auto& inputHist : period.second->inputHists) {
          int channel = inputHist.first;
-         TH1* hist = inputHist.second;
+         TH1* hist = inputHist.second.get();
          period.second->sumOfWeights[channel] += hist->GetSumOfWeights();
          period.second->numberOfEntries[channel] += hist->GetEntries();
          if(hist->GetDimension()==1) {
-            period.second->primaryHists[channel] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,channel));
+            period.second->primaryHists[channel] = CloneEmptyHistogram(period.first,channel);
             period.second->primaryHists[channel]->Add(hist);
          }
       }
@@ -1057,7 +1063,7 @@ Int_t CP::TPileupReweighting::Initialize() {
          if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
          //add to list of runNumbers for this period 
          period.second->runNumbers.push_back(run.first);
-         TH1* hist = run.second.inputHists["None"];
+         TH1* hist = run.second.inputHists["None"].get();
 
          //sweep over bins, checking for unrepresented data and acting accordingly 
          Int_t bin,binx,biny;
@@ -1106,19 +1112,26 @@ Int_t CP::TPileupReweighting::Initialize() {
          //create the period's 'data' hist if necessary 
          if( hist->GetDimension()==1 ) {
               if(!period.second->primaryHists[-1] )  {
-                  period.second->primaryHists[-1] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,-1));
+                  period.second->primaryHists[-1] = CloneEmptyHistogram(period.first,-1);
                   //period.second->triggerHists["None"] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,-1)); //this will remain unnormalized, unlike the 'primaryHist'
-                  m_triggerObjs["None"]->triggerHists[period.second->id][0] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,-1)); //this will remain unnormalized, unlike the 'primaryHist'
+                  
+                  //this will remain unnormalized, unlike the 'primaryHist'
+                  m_triggerObjs["None"]->triggerHists[period.second->id][0] =
+                     CloneEmptyHistogram( period. first, -1 );
                }
          }
          else if( hist->GetDimension()==2 ) {
             if(!period.second->secondaryHists[-1] ) {
-               period.second->secondaryHists[-1] =  dynamic_cast<TH2D*>(CloneEmptyHistogram(period.first,-1));
-               period.second->primaryHists[-1] = period.second->secondaryHists[-1]->ProjectionX(); period.second->primaryHists[-1]->SetDirectory(0);
+               auto h = CloneEmptyHistogram(period.first,-1);
+               period.second->secondaryHists[-1].reset( dynamic_cast< TH2* >( h.release() ) );
+               period.second->primaryHists[-1].reset(
+                  period.second->secondaryHists[-1]->ProjectionX() );
+               period.second->primaryHists[-1]->SetDirectory(0);
                period.second->primaryHists[-1]->Reset();
                //period.second->triggerHists["None"] = static_cast<TH1D*>(period.second->primaryHists[-1]->Clone("triggerHist"));
                //period.second->triggerHists["None"]->SetDirectory(0);
-               m_triggerObjs["None"]->triggerHists[period.second->id][0] = static_cast<TH1D*>(period.second->primaryHists[-1]->Clone("triggerHist"));
+               m_triggerObjs["None"]->triggerHists[period.second->id][0].reset(
+                  static_cast<TH1*>(period.second->primaryHists[-1]->Clone("triggerHist")) );
                m_triggerObjs["None"]->triggerHists[period.second->id][0]->SetDirectory(0);
             }
             
@@ -1135,7 +1148,7 @@ Int_t CP::TPileupReweighting::Initialize() {
    double ignoredData(0);
    for(auto& run : m_runs) {
       bool covered(false);
-      TH1* hist = run.second.inputHists["None"];
+      TH1* hist = run.second.inputHists["None"].get();
       for(auto& period : m_periods) {
          if(!period.second->contains(run.first)) continue;
          if(period.first!=-1) covered=true; //don't count the global period
@@ -1199,14 +1212,11 @@ Int_t CP::TPileupReweighting::Initialize() {
    //now that all the distributions are built. Normalize them all 
    for(auto period : m_periods) {
       if(period.first != period.second->id) continue;
-      for(auto pHist : period.second->primaryHists) {
-         normalizeHistogram(pHist.second);
+      for(auto& pHist : period.second->primaryHists) {
+         normalizeHistogram(pHist.second.get());
       }
-      for(auto pHist : period.second->secondaryHists) {
-         normalizeHistogram(pHist.second);
-      }
-      for(auto pHist : period.second->inputHists) {
-         delete pHist.second;
+      for(auto& pHist : period.second->secondaryHists) {
+         normalizeHistogram(pHist.second.get());
       }
       period.second->inputHists.clear();
    }
@@ -1391,7 +1401,7 @@ Bool_t CP::TPileupReweighting::IsUnrepresentedData(Int_t runNumber, Float_t x, F
 //this method builds a file get can be friended to a TTree with a prw-hash branch
 Bool_t CP::TPileupReweighting::MakeWeightTree(TString channelNumbers, TString outFile, TString hashBranch, TString weightBranch) {
    if(!m_isInitialized) { Info("MakeWeightTree","Initializing the subtool.."); Initialize(); }
-   TH1* hist = m_emptyHistogram;
+   TH1* hist = m_emptyHistogram.get();
    if(!hist) {
       Error("MakeWeightTree","Tool not configured properly ... please report this!");
       throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
@@ -1440,7 +1450,7 @@ Bool_t CP::TPileupReweighting::MakeWeightTree(TString channelNumbers, TString ou
 
 ULong64_t CP::TPileupReweighting::GetPRWHash(Int_t periodNumber, Int_t channelNumber, Float_t x, Float_t y) {
    if(!m_isInitialized) { Info("GetPRWHash","Initializing the subtool.."); Initialize(); }
-   TH1* hist = m_emptyHistogram;
+   TH1* hist = m_emptyHistogram.get();
    if(!hist) {
       Error("GetPRWHash","Tool not configured properly ... please report this!");
       throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
@@ -1462,7 +1472,7 @@ Float_t CP::TPileupReweighting::GetCombinedWeight(Int_t periodNumber, Int_t chan
       throw std::runtime_error("Throwing 2: You cannot get a weight when in config file generating mode. Please use FillWeight method");
    }
    //decide how many dimensions this weight has - use the emptyHistogram to tell... 
-   TH1* hist = m_emptyHistogram;
+   TH1* hist = m_emptyHistogram.get();
    if(!hist) {
       Error("GetCombinedWeight","Tool not configured properly ... please report this!");
       throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
@@ -1602,22 +1612,22 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    
    auto dItr = tobj->second->triggerHists[p->id].find(tbits);
    
-   TH1D* denomHist = 0;
+   TH1* denomHist = 0;
    if(dItr == tobj->second->triggerHists[p->id].end()) {
       //possible that the tbits for this event have not been encountered before, so just redo the calculation ...
-      calculateHistograms(tobj->second);
+      calculateHistograms(tobj->second.get());
    
-      denomHist = tobj->second->triggerHists[p->id][tbits];
+      denomHist = tobj->second->triggerHists[p->id][tbits].get();
       if(denomHist==0) {
         Error("GetDataWeight","Could not find trigger %s in period %d with bits %ld",trigger.Data(),p->id, tbits);
         throw std::runtime_error("GetDataWeight: Could not find trigger 2");
       }
    } else {
-    denomHist = dItr->second;
+      denomHist = dItr->second.get();
    }
 
    
-   TH1D* numerHist = m_triggerObjs["None"]->triggerHists[p->id][0];
+   TH1* numerHist = m_triggerObjs["None"]->triggerHists[p->id][0].get();
    if(numerHist==0) {
       Error("GetDataWeight","Could not find unprescaled trigger in period %d",p->id);
       throw std::runtime_error("GetDataWeight: Could not find unprescaled trigger. Please AddLumiCalc with a 'None' trigger");
@@ -1685,11 +1695,11 @@ Int_t CP::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w
          //need to create my period histogram 
          p->inputHists[channelNumber] = CloneEmptyHistogram(runNumber,channelNumber);
       }
-      hist = p->inputHists[channelNumber];
+      hist = p->inputHists[channelNumber].get();
    } else {
       Run& r = m_runs[runNumber];
-      if(r.inputHists["None"]==0) r.inputHists["None"]=CloneEmptyHistogram(runNumber,channelNumber);
-      hist = r.inputHists["None"];
+      if( ! r.inputHists["None"]) r.inputHists["None"]=CloneEmptyHistogram(runNumber,channelNumber);
+      hist = r.inputHists["None"].get();
    }
 
    if(!hist) {
@@ -1731,10 +1741,13 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
 
    outFile->cd();
 
-   TTree *outTreeMC=0;
-   TTree *outTreeData=0;
-   Int_t channel = 0;UInt_t runNumber = 0; 
-   std::vector<UInt_t>* pStarts = 0;std::vector<UInt_t>* pEnds = 0;
+   std::unique_ptr< TTree > outTreeMC;
+   std::unique_ptr< TTree > outTreeData;
+   Int_t channel = 0; UInt_t runNumber = 0; 
+   auto pStarts = std::make_unique< std::vector< UInt_t > >();
+   auto pStartsPtr = pStarts.get();
+   auto pEnds = std::make_unique< std::vector< UInt_t > >();
+   auto pEndsPtr = pEnds.get();
    Char_t histName[150];
 
 
@@ -1743,7 +1756,8 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
       if(period.first != period.second->id) continue; //skips redirects 
       if(period.first<0) continue; //avoid the global run number
       runNumber = period.first;
-      pStarts = new std::vector<UInt_t>;pEnds = new std::vector<UInt_t>;
+      pStarts->clear();
+      pEnds->clear();
       if(period.second->subPeriods.size()==0) { 
          pStarts->push_back(period.second->start); pEnds->push_back(period.second->end); 
       }
@@ -1752,23 +1766,22 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
             pStarts->push_back(subp->start); pEnds->push_back(subp->end);
          }
       }
-      for(auto inHist : period.second->inputHists) {
+      for(auto& inHist : period.second->inputHists) {
          channel = inHist.first;
-         TH1* hist = inHist.second;
+         TH1* hist = inHist.second.get();
          strncpy(histName,hist->GetName(),sizeof(histName)-1);
          hist->Write();
 
          if(!outTreeMC) {
-            outTreeMC = new TTree("MCPileupReweighting","MCPileupReweighting");
+            outTreeMC.reset( new TTree("MCPileupReweighting","MCPileupReweighting") );
             outTreeMC->Branch("Channel",&channel);
             outTreeMC->Branch("RunNumber",&runNumber);
-            outTreeMC->Branch("PeriodStarts",&pStarts);
-            outTreeMC->Branch("PeriodEnds",&pEnds);
+            outTreeMC->Branch("PeriodStarts",&pStartsPtr);
+            outTreeMC->Branch("PeriodEnds",&pEndsPtr);
             outTreeMC->Branch("HistName",&histName,"HistName/C");
          }
          outTreeMC->Fill();
       }
-      delete pStarts; delete pEnds;
    }
 
    //loop over data 
@@ -1776,11 +1789,11 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
       runNumber = run.first;
       if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
 
-      TH1* hist = run.second.inputHists["None"];
+      TH1* hist = run.second.inputHists["None"].get();
       strncpy(histName,hist->GetName(),sizeof(histName)-1);
       hist->Write();
       if(!outTreeData) {
-         outTreeData = new TTree("DataPileupReweighting","DataPileupReweighting");
+         outTreeData.reset( new TTree("DataPileupReweighting","DataPileupReweighting") );
          outTreeData->Branch("RunNumber",&runNumber);
          outTreeData->Branch("HistName",&histName,"HistName/C");
       }
@@ -1789,9 +1802,12 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
 
 
    //write the non-zero ttrees 
-   if(outTreeMC) {outTreeMC->Write();delete outTreeMC;outTreeMC=0;}
-   if(outTreeData) {outTreeData->Write();delete outTreeData;outTreeData=0;}
-
+   if( outTreeMC ) {
+      outTreeMC->Write();
+   }
+   if( outTreeData ) {
+      outTreeData->Write();
+   }
 
    Info("WriteToFile", "Successfully generated config file: %s",outFile->GetName());
    Info("WriteToFile", "Happy Reweighting :-)");
@@ -1869,21 +1885,23 @@ Int_t CP::TPileupReweighting::Merge(TCollection *coll) {
          if(period.first != period.second->id) continue;
          for(auto& iHist : period.second->inputHists) {
             if(GetInputHistogram(period.first,iHist.first)==0) {
-               m_periods[period.first]->inputHists[iHist.first] = dynamic_cast<TH1*>(iHist.second->Clone(iHist.second->GetName()));
+               m_periods[period.first]->inputHists[iHist.first].reset(
+                  dynamic_cast<TH1*>(iHist.second->Clone(iHist.second->GetName())) );
                m_periods[period.first]->inputHists[iHist.first]->SetDirectory(0);
             } else {
-               GetInputHistogram(period.first,iHist.first)->Add(iHist.second);
+               GetInputHistogram(period.first,iHist.first)->Add(iHist.second.get());
             }
          }
       }
       //also must remember to merge the runs too (where the data is held)
       for(auto& run : vobj->m_runs) {
          for(auto& iHist : run.second.inputHists) {
-            if(m_runs[run.first].inputHists[iHist.first]==0) {
-               m_runs[run.first].inputHists[iHist.first] = dynamic_cast<TH1*>(iHist.second->Clone(iHist.second->GetName()));
+            if( ! m_runs[run.first].inputHists[iHist.first] ) {
+               m_runs[run.first].inputHists[iHist.first].reset(
+                  dynamic_cast<TH1*>( iHist.second->Clone(iHist.second->GetName())) );
                m_runs[run.first].inputHists[iHist.first]->SetDirectory(0);
             } else {
-               m_runs[run.first].inputHists[iHist.first]->Add(iHist.second);
+               m_runs[run.first].inputHists[iHist.first]->Add(iHist.second.get());
             }
          }
       }
@@ -1897,8 +1915,8 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
    //check if this is a composite trigger (user has provided OR of triggers that are passed before prescale)
    
    TString triggerCopy = trigger; triggerCopy.ReplaceAll(" ",""); triggerCopy.ReplaceAll("&&","&");triggerCopy.ReplaceAll("||","|");
-   CompositeTrigger* t = makeTrigger(triggerCopy);
-   if(t==0) {
+   auto t = makeTrigger(triggerCopy);
+   if( ! t ) {
       Error("GetDataWeight","Error parsing composite trigger set: %s",trigger.Data());
       throw std::runtime_error("Could not parse composite trigger");
    }
@@ -1909,10 +1927,10 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
 
    t->subTriggers = subTriggers; //cache the vector of triggers
    
-   calculateHistograms(t);
+   calculateHistograms(t.get());
    
    //save trigger object
-   m_triggerObjs[trigger] = t;
+   m_triggerObjs[trigger] = std::move( t );
 
 }
 
@@ -2035,9 +2053,9 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
                 
                 
                 
-                std::map<long,TH1D*>& triggerHists = t->triggerHists[p.second->id];
+                auto& triggerHists = t->triggerHists[p.second->id];
                 if(triggerHists.find(tbits) == triggerHists.end()) {
-                    triggerHists[tbits] = dynamic_cast<TH1D*>(CloneEmptyHistogram(p.first,-1));
+                    triggerHists[tbits] = CloneEmptyHistogram(p.first,-1);
                     if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d,%ld]",t->val.Data(),p.first, tbits);
                 }
                   //check if we were about to fill a bad bin ... if we are, we either skipp the fill (unrep action=1) or redirect (unrep action=3)
@@ -2064,81 +2082,147 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
 
 }
 
-CP::TPileupReweighting::CompositeTrigger* CP::TPileupReweighting::makeTrigger(const TString& s) {
-   if(m_debugging) Info("makeTrigger","Doing %s",s.Data());
-   //find the first operand
-   TString oper1; CompositeTrigger* cOper1 = 0;
-   if(s.BeginsWith("(")) {
-      //find closing bracket
+std::unique_ptr<CP::TPileupReweighting::CompositeTrigger>
+CP::TPileupReweighting::makeTrigger(const TString& s) {
+
+   if( m_debugging ) {
+      Info( "makeTrigger", "Doing %s", s.Data() );
+   }
+
+   // Find the first operand
+   TString oper1;
+   std::unique_ptr< CompositeTrigger > cOper1;
+   if( s.BeginsWith( "(" ) ) {
+      // Find closing bracket
       int bCounter=1; int i=1;
-      while(bCounter!=0 && i<=s.Length()) {
-         if(s(i)=='(') bCounter++;
-         else if(s(i)==')') bCounter--;
+      while( ( bCounter != 0 ) && ( i <= s.Length() ) ) {
+         if( s( i ) == '(' ) {
+            bCounter++;
+         } else if( s( i ) == ')' ) {
+            bCounter--;
+         }
          i++;
       }
-      if(bCounter!=0) { Error("makeTrigger","Missing closing bracket"); return 0; }
-      oper1 = s(1,i-2);
-      if(i==s.Length()+1) return makeTrigger(oper1); //meainingless brackets, just return evaluation
-      else {cOper1 = makeTrigger(oper1); if(cOper1==0) return 0; }
+      if( bCounter != 0 ) {
+         Error( "makeTrigger", "Missing closing bracket" );
+         return std::unique_ptr< CompositeTrigger >();
+      }
+      oper1 = s( 1, i - 2 );
+      if( i == s.Length() + 1 ) {
+         return makeTrigger( oper1 ); //meainingless brackets, just return evaluation
+      } else {
+         cOper1 = makeTrigger( oper1 );
+         if( ! cOper1 ) {
+            return 0;
+         }
+      }
    }
-   //find the second operand. Do this by finding the first operation at this level. if cannot find, then just set val
+
+   // Find the second operand. Do this by finding the first operation at
+   // this level. If cannot find, then just set val
    int i=0;int bCounter=0; int op=0;
-   while(i<=s.Length()) {
-      if(s(i)=='(') bCounter++;
-      else if(s(i)==')') bCounter--;
-      else if(s(i)=='&' && bCounter==0) { op=2; break;}
-      else if(s(i)=='|' && bCounter==0) { op=1; break;}
+   while( i <= s.Length() ) {
+      if( s( i ) == '(' ) {
+         bCounter++;
+      } else if( s( i ) == ')' ) {
+         bCounter--;
+      } else if( ( s( i ) == '&' ) && ( bCounter == 0 ) ) {
+         op = 2;
+         break;
+      } else if( ( s( i ) == '|' ) && ( bCounter == 0 ) ) {
+         op = 1;
+         break;
+      }
       i++;
    }
 
 
-   if(op==0) {
-      if(m_lumicalcFiles.find(s)==m_lumicalcFiles.end()) {
-         Error("GetDataWeight","Could not find subTrigger %s",s.Data());
-         return 0;
+   if( op == 0 ) {
+      if( m_lumicalcFiles.find( s ) == m_lumicalcFiles.end() ) {
+         Error( "GetDataWeight", "Could not find subTrigger %s", s.Data() );
+         return std::unique_ptr< CompositeTrigger >();
       }
-      if(cOper1) return cOper1; 
-      CompositeTrigger* out = new CompositeTrigger;
-      out->op=op;out->val = s; return out; //just a value trigger
+      if( cOper1 ) {
+         return cOper1;
+      }
+      auto out = std::make_unique< CompositeTrigger >();
+      out->op = op;
+      out->val = s;
+      return out; //just a value trigger
    }
 
-   CompositeTrigger* out = new CompositeTrigger;
-   out->op=op;
+   auto out = std::make_unique< CompositeTrigger >();
+   out->op = op;
 
-   if(op==1) { //an OR 
-      if(cOper1) out->trig1=cOper1;  
-      else {oper1=s(0,i); out->trig1=makeTrigger(oper1); if(out->trig1==0) { delete out; return 0; } }
-      TString oper2 = s(i+1,s.Length()); out->trig2 = makeTrigger(oper2); if(out->trig2==0) { delete out; return 0; } 
+   if( op == 1 ) { //an OR 
+      if( cOper1 ) {
+         out->trig1 = std::move( cOper1 );
+      } else {
+         oper1 = s( 0, i );
+         out->trig1 = makeTrigger( oper1 );
+         if( ! out->trig1 ) {
+            return std::unique_ptr< CompositeTrigger >();
+         }
+      }
+      TString oper2 = s( i + 1, s.Length() );
+      out->trig2 = makeTrigger( oper2 );
+      if( ! out->trig2 ) {
+         return std::unique_ptr< CompositeTrigger >();
+      }
       return out;
    }
 
-   //got here, must be an AND keep going until we hit an OR at this level, then make all that the first operand (delete cOper if necessary)
-   int j=i;bCounter=0;
-   while(j<=s.Length()) {
-      if(s(j)=='(') bCounter++;
-      else if(s(j)==')') bCounter--;
-      else if(s(j)=='|' && bCounter==0) { op=1; break;}
+   // Got here, must be an AND keep going until we hit an OR at this level,
+   // then make all that the first operand (delete cOper if necessary)
+   int j = i;
+   bCounter = 0;
+   while( j <= s.Length() ) {
+      if( s( j ) == '(' ) {
+         bCounter++;
+      } else if( s( j )== ')' ) {
+         bCounter--;
+      } else if( ( s( j ) == '|' ) && ( bCounter == 0 ) ) {
+         op=1;
+         break;
+      }
       j++;
    }
-   if(j==s.Length()+1 && op==2) { //no more OR found, set oper2 to remainder 
-      if(cOper1) out->trig1=cOper1;  
-      else {oper1=s(0,i); out->trig1=makeTrigger(oper1); }
-      TString oper2 = s(i+1,s.Length()); if(m_debugging) Info("makeTrigger","Found & %s %s",oper1.Data(),oper2.Data());
-      out->trig2 = makeTrigger(oper2); if(out->trig2==0) { delete out; return 0; } 
+   if( ( j == s.Length() + 1 ) && ( op == 2 ) ) { //no more OR found, set oper2 to remainder 
+      if( cOper1 ) {
+         out->trig1 = std::move( cOper1 );
+      } else {
+         oper1 = s( 0, i );
+         out->trig1 = makeTrigger( oper1 );
+      }
+      TString oper2 = s( i + 1, s.Length() );
+      if( m_debugging ) {
+         Info( "makeTrigger", "Found & %s %s", oper1.Data(), oper2.Data() );
+      }
+      out->trig2 = makeTrigger( oper2 );
+      if( ! out->trig2 ) {
+         return std::unique_ptr< CompositeTrigger >();
+      }
       return out;
-   } else if(op==1) {   //found an OR, set oper1 to everything up to this 
-      
-      oper1 = s(0,j); TString oper2 = s(j+1,s.Length()); if(m_debugging) Info("makeTrigger","Found & then | %s %s",oper1.Data(),oper2.Data());
-      if(cOper1) delete cOper1;
-      out->op=op; //updates to an OR
-      out->trig1=makeTrigger(oper1); if(out->trig1==0) { delete out; return 0; }
-      out->trig2=makeTrigger(oper2); if(out->trig2==0) { delete out; return 0; } 
+   } else if( op ==1 ) {   //found an OR, set oper1 to everything up to this 
+
+      oper1 = s( 0, j );
+      TString oper2 = s( j + 1, s.Length() );
+      if( m_debugging ) {
+         Info( "makeTrigger", "Found & then | %s %s", oper1.Data(),
+               oper2.Data() );
+      }
+      out->op = op; //updates to an OR
+      out->trig1 = makeTrigger( oper1 );
+      if( ! out->trig1 ) {
+         return std::unique_ptr< CompositeTrigger >();
+      }
+      out->trig2 = makeTrigger( oper2 );
+      if( ! out->trig2 ) {
+         return std::unique_ptr< CompositeTrigger >();
+      }
       return out;
    }
-   Error("makeTrigger","Should never have got here!, but did with %s", s.Data());
-   delete out;
-   return 0;
+   Error( "makeTrigger", "Should never have got here!, but did with %s",
+          s.Data() );
+   return std::unique_ptr< CompositeTrigger >();
 }
-
-
-

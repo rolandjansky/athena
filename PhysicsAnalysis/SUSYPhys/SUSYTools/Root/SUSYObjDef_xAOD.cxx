@@ -17,8 +17,8 @@
 #include "PathResolver/PathResolver.h"
 
 // Including all the abstract interfaces - for systematics functions
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
 #include "JetResolution/IJERTool.h"
@@ -170,7 +170,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
     m_tauRecalcOLR(false),
-    m_tauNoAODFixCheck(true),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -183,6 +182,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
+    m_orDoEleJet(true),
+    m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
     m_orDoMuBjet(true),
@@ -201,7 +202,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orMuJetInnerDR(-999),
     m_orDoMuonJetGhostAssociation(true),
     m_orRemoveCaloMuons(true),
-    m_orApplyJVT(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
     m_orDoFatjets(false),
@@ -307,6 +307,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //Overlap Removal
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
+  declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
   declareProperty( "DoMuBjetOR",    m_orDoMuBjet );
@@ -326,7 +328,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetPtRatio", m_orMuJetPtRatio);
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
-  declareProperty( "ORApplyJVT", m_orApplyJVT);
   declareProperty( "ORInputLabel", m_orInputLabel);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
@@ -418,7 +419,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauMVACalibration", m_tauMVACalib);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
-  declareProperty( "TauIgnoreAODFixCheck", m_tauNoAODFixCheck);
   declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
 
   //Leptons
@@ -531,11 +531,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
-  el_id_support.push_back("VeryLooseLLH");
-  el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH"); 
-  el_id_support.push_back("MediumLLH"); 
-  el_id_support.push_back("TightLLH");
+  el_id_support.push_back("VeryLooseLLH_rel20p7");
+  el_id_support.push_back("LooseLLH_Rel20p7");
+  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("TightLLH_Rel20p7");
   
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
@@ -712,12 +712,15 @@ std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile
 void SUSYObjDef_xAOD::configFromFile(bool& property, const std::string& propname, TEnv& rEnv,
                                      bool defaultValue)
 {
-  if(m_bool_prop_set.find(m_conf_to_prop[propname])!= m_bool_prop_set.end()){
+  if(m_bool_prop_set.find(m_conf_to_prop[propname])!=m_bool_prop_set.end()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), (int) defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -727,10 +730,13 @@ void SUSYObjDef_xAOD::configFromFile(double& property, const std::string& propna
   // ignore if already configured
   if (property > -90.) { 
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -740,10 +746,13 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
   // ignore if already configured
   if (property > -90){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -753,6 +762,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   // ignore if already configured
   if (!property.empty()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
@@ -771,6 +781,8 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   }
 
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -790,18 +802,23 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
     m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
   }
   
   if (m_muId == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("Muon.Id", 1);
     m_muId = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property Muon.Id with value " << m_muId);
-
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Muon.Id") );
   }
   if (m_muIdBaseline == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("MuonBaseline.Id", 1);
     m_muIdBaseline = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property MuonBaseline.Id with value " << m_muIdBaseline);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("MuonBaseline.Id") );
   }
 
   //load config file to Properties map  (only booleans for now)
@@ -826,6 +843,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoMuonJetGhostAssociation"] = "ORDoMuonJetGhostAssociation";
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
+  m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
   m_conf_to_prop["OR.MuBjet"] = "DoMuBjetOR";
@@ -833,7 +852,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoFatJets"] = "DoFatJetOR";
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
-  m_conf_to_prop["OR.ApplyJVT"] = "ORApplyJVT";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
  
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
@@ -851,7 +869,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
-  m_conf_to_prop["Tau.IgnoreAODFixCheck"] = "TauIgnoreAODFixCheck";
   m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
   //
 
@@ -918,7 +935,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
-  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, true);
   configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
@@ -956,6 +972,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoMuonJetGhostAssociation, "OR.DoMuonJetGhostAssociation", rEnv, true);
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
+  configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
   configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
@@ -964,7 +982,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);
   configFromFile(m_orRemoveCaloMuons, "OR.RemoveCaloMuons", rEnv, true);
-  configFromFile(m_orApplyJVT, "OR.ApplyJVT", rEnv, true);
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
@@ -996,6 +1013,15 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
+
+  // By now rEnv should be empty!
+  if (rEnv.GetTable() && rEnv.GetTable()->GetSize()>0){
+    ATH_MSG_ERROR("Found " << rEnv.GetTable()->GetSize() << " unparsed environment options:");
+    rEnv.Print();
+    ATH_MSG_ERROR("Please fix your configuration!");
+    return StatusCode::FAILURE;
+  }
+
 
   //** validate configuration
   ATH_CHECK( validConfig(m_strictConfigCheck) );

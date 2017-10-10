@@ -19,8 +19,8 @@
 #include "TopConfiguration/TopConfig.h"
 
 // Flavor tagging include(s):
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 // Need a pointer for excluded systematic functions
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 

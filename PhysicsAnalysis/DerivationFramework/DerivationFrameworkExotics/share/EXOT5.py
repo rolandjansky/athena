@@ -310,7 +310,13 @@ triggers = [
     'HLT_g140_loose',
     'HLT_g160_loose',
     'HLT_g120_tight',
-    'HLT_noalg_L1J400'
+    'HLT_noalg_L1J400',
+    # new triggers for 2017
+    'HLT_xe90_pufit_L1XE50',
+    'HLT_xe100_pufit_L1XE55',
+    'HLT_xe100_pufit_L1XE50',
+    'HLT_xe110_pufit_L1XE55',
+    'HLT_xe110_pufit_L1XE50',
     ]
 expression = ' || '.join(triggers)
 

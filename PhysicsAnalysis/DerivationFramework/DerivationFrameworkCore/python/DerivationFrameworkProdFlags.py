@@ -623,18 +623,18 @@ listAODtoDPD.append(WriteDAOD_HIGG8D1Stream.StreamName)
 # Defined by the STDM group
 #################################
 
-class WriteDAOD_STDM1Stream (JobProperty):
-    """STDM jet slim"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_STDM1'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkSM/STDM1.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM1Stream)
-listAODtoDPD.append(WriteDAOD_STDM1Stream.StreamName)
+#class WriteDAOD_STDM1Stream (JobProperty):
+#    """STDM jet slim"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_STDM1'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkSM/STDM1.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM1Stream)
+#listAODtoDPD.append(WriteDAOD_STDM1Stream.StreamName)
 
 class WriteDAOD_STDM2Stream (JobProperty):
     """STDM photon skim/slim"""
@@ -907,18 +907,18 @@ class WriteDAOD_SUSY8Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY8Stream)
 listAODtoDPD.append(WriteDAOD_SUSY8Stream.StreamName)
 
-class WriteDAOD_SUSY9Stream(JobProperty):
-    """SUSY9 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_SUSY9'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkSUSY/SUSY9.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY9Stream)
-listAODtoDPD.append(WriteDAOD_SUSY9Stream.StreamName)
+#class WriteDAOD_SUSY9Stream(JobProperty):
+#    """SUSY9 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_SUSY9'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkSUSY/SUSY9.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY9Stream)
+#listAODtoDPD.append(WriteDAOD_SUSY9Stream.StreamName)
 
 class WriteDAOD_SUSY10Stream(JobProperty):
     """SUSY10 derivation"""
@@ -1684,18 +1684,18 @@ class WriteDAOD_FTAG4Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG4Stream)
 listAODtoDPD.append(WriteDAOD_FTAG4Stream.StreamName)
 
-class WriteDAOD_FTAG5Stream (JobProperty):
-     """FTAG5 derivation"""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamDAOD_FTAG5'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG5.py"
-     pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
-listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
+#class WriteDAOD_FTAG5Stream (JobProperty):
+#     """FTAG5 derivation"""
+#     statusOn = True
+#     allowedTypes = ['bool']
+#     StoredValue = False
+#     StreamName = 'StreamDAOD_FTAG5'
+#     FileName = ''
+#     isVirtual = False
+#     DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG5.py"
+#     pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
+#listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
 
 ######################################
 # Defined by the B-physics group

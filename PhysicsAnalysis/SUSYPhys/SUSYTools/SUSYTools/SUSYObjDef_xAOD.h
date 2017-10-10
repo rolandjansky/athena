@@ -525,7 +525,6 @@ namespace ST {
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
     bool m_tauRecalcOLR;
-    bool m_tauNoAODFixCheck;
 
     double m_jetPt;
     double m_jetEta;
@@ -539,8 +538,11 @@ namespace ST {
 
     std::string m_JMScalib;
 
+    /// Overlap removal options
     bool m_orDoTau;
     bool m_orDoPhoton;
+    bool m_orDoEleJet;
+    bool m_orDoMuonJet;
     bool m_orDoBjet;
     bool m_orDoElBjet;
     bool m_orDoMuBjet;
@@ -559,7 +561,6 @@ namespace ST {
     double m_orMuJetInnerDR;
     bool m_orDoMuonJetGhostAssociation;
     bool m_orRemoveCaloMuons;
-    bool m_orApplyJVT;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
 

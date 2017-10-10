@@ -1,12 +1,9 @@
 <lcgdict>
    <class name="CP::MuonEfficiencyScaleFactors" />
-   <class name="CP::IMuonEfficiencyScaleFactors" />
    <class name="ToolHandle<CP::IMuonEfficiencyScaleFactors>" />
 
    <class name="CP::MuonTriggerScaleFactors" />
-   <class name="CP::IMuonTriggerScaleFactors" />
    <class name="ToolHandle<CP::IMuonTriggerScaleFactors>" />
-
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

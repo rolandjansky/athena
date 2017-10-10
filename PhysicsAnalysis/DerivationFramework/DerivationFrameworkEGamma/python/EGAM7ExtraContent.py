@@ -94,13 +94,4 @@ ExtraContainersElectrons=["Electrons",
                           "egammaClusters"]
 
 # for trigger studies
-ExtraContainersTrigger = [
-        "HLT_xAOD__ElectronContainer_egamma_Electrons",
-         #L2Calo collections
-        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
-        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
-        # to access information about EF clusters and tracks
-        "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
-        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
-        # For trigger matching
-        "HLT_xAOD__TrigPassBitsContainer_passbits"]
+ExtraContainersTrigger = []

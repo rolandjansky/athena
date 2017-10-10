@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
@@ -52,7 +52,8 @@ int main() {
   // uncomment this to use the Run-1 style cone labelling (parton based, inclusive) instead of the Run-2 default (hadron based, exclusive)
   // tool->setProperty("OldConeFlavourLabel", true);
   // uncomment this if the "Envelope" systematics model is to be used instead of the eigenvector variations
-  // tool->setProperty("SystematicsStrategy", "Envelope");
+  // code = tool->setProperty("SystematicsStrategy", "Envelope");
+  // if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool SystematicsStrategy property" << std::endl;
   // A successful initialisation ought to be checked for
   code = tool->initialize();
   if (code != StatusCode::SUCCESS) {
@@ -72,7 +73,7 @@ int main() {
   bool retval = true;
 
   std::cout << "Creating a jet" << std::endl;
-  xAOD::JetFourMom_t p4(25000.,0.7,0.3,1000.);
+  xAOD::JetFourMom_t p4(50000.,0.7,0.3,1000.);
 
   xAOD::Jet * jet = new xAOD::Jet();
   jet->makePrivateStore();

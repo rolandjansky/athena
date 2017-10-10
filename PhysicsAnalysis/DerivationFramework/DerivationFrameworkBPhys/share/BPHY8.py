@@ -74,7 +74,7 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
 BPHY8cf.mcBsmumu          = [300203,300306,300307,300402,300426,300430,300432,300433,300434,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300999,300404,300405,300406,300437]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300997,300999,300404,300405,300406,300437]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
 BPHY8cf.mcBhh             = [300431]
@@ -156,6 +156,18 @@ else:
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
+        BPHY8cf.McstYear                  = "Data16";
+        BPHY8cf.McstRelease               = "_READ_"
+        BPHY8cf.McstStatComb              = True
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+#
+# data 17
+# w.w., 2017-10-07 for now the Data16 tag as there  is no Data17
+# tag for McstYear in the MuonCalibrationAndSmearingTool yet.
+# TODO: Revise once Data17 tag becomes available.
+    if BPHY8cf.projectTag.startswith("data17"):
         BPHY8cf.McstYear                  = "Data16";
         BPHY8cf.McstRelease               = "_READ_"
         BPHY8cf.McstStatComb              = True

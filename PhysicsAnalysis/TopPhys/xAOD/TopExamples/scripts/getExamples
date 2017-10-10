@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
 import os
+import ROOT
+from PathResolver import PathResolver
 
 output = os.getcwd() + '/grid'
 if len(sys.argv) == 2:
@@ -13,13 +15,25 @@ elif len(sys.argv) > 2:
     print sys.argv[0], '<directory>'
     sys.exit()
 
-print 'copying scripts to', output
-start = os.getenv('ROOTCOREBIN') + '/user_scripts/TopExamples/*.py'
-#print start
+# We cannot use a wildcard anymore as everything is stored in /bin/
+list_of_scripts = ["01SubmitToGrid.py", 
+                   "02DownloadFromGrid.py",           
+                   "03LocalAnalysis.py",
+                   "04Plot.py",          
+                   "10AmiYield.py",
+                   "11CrossSection.py", 
+                   "DerivationTags.py",
+                   "Data_rel21.py",                 
+                   "MC16_TOPQ1.py",
+                   ]
 
+print 'Using PathResolver to copy scripts to', output
 if not os.path.exists(output):
     os.makedirs(output)
 
-cmd = 'cp ' + start + ' ' + output
-#print cmd
-os.system(cmd)
+for script in list_of_scripts:
+    full_path = ROOT.PathResolver.find_file(script, "PATH")
+    print "Copying",full_path
+    cmd = "cp %s %s"%(full_path, output)
+    os.system(cmd)
+                                            

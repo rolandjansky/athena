@@ -6,6 +6,9 @@
 #ifndef PILEUPREWEIGHTING_PILEUPREWEIGHTINGTOOL_H
 #define PILEUPREWEIGHTING_PILEUPREWEIGHTINGTOOL_H
 
+// System include(s):
+#include <memory>
+
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 
@@ -133,7 +136,10 @@ namespace CP {
    private:
       std::string m_configStream;
       bool m_inConfigMode;
-      CP::TPileupReweighting *m_upTool, *m_downTool; //systematic variation instances for the reweighting
+
+      // Systematic variation instances for the reweighting
+      std::unique_ptr< CP::TPileupReweighting > m_upTool;
+      std::unique_ptr< CP::TPileupReweighting > m_downTool;
 
       double m_upVariation; double m_downVariation;
       CP::SystematicVariation m_systUp, m_systDown;
@@ -149,6 +155,9 @@ namespace CP {
       std::map<int, bool> m_doneConfigs;
 
       bool m_noWeightsMode;
+
+      ///< Default weight tool in standalone mode
+      std::unique_ptr< IWeightTool > m_defaultWeightTool;
 
       ToolHandle<IWeightTool> m_weightTool;
       ToolHandle<IGoodRunsListSelectionTool> m_grlTool;

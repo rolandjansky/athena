@@ -439,40 +439,6 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 
-
-# # Tau Truth matching
-# if DerivationFrameworkIsMonteCarlo:
-#     TauTruthWrapperTools5d3 = []
-#     from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-#     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-#     from RecExConfig.ObjKeyStore import objKeyStore
-#     # Tau Truth making and matching
-#     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-#     TauTruthClassifier5d3 = MCTruthClassifier(name = "TauTruthClassifier5d3",
-#                                                    ParticleCaloExtensionTool="")
-#     ToolSvc += TauTruthClassifier5d3
-#     # Build the truth taus
-#     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-#     TruthTauTool5d3 = DerivationFramework__TruthCollectionMakerTau(name             = "TruthTauTool5d3",
-#                                                                  NewCollectionName       = "TruthTaus",
-#                                                                  MCTruthClassifier       = TauTruthClassifier5d3)
-#     ToolSvc += TruthTauTool5d3
-#     TauTruthWrapperTools5d3.append(TruthTauTool5d3)
-#     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
-#         TauTruthMatchingTool5d3 = TauAnalysisTools__TauTruthMatchingTool(name="TauTruthMatchingTool5d3")
-#         ToolSvc += TauTruthMatchingTool5d3
-#         TauTruthMatchingWrapper5d3 = DerivationFramework__TauTruthMatchingWrapper( name = "TauTruthMatchingWrapper5d3",
-#                                                                                         TauTruthMatchingTool = TauTruthMatchingTool5d3,
-#                                                                                         TauContainerName     = "TauJets")
-#         ToolSvc += TauTruthMatchingWrapper5d3
-#         print TauTruthMatchingWrapper5d3
-#         TauTruthWrapperTools5d3 += [TauTruthMatchingWrapper5d3] 
-#     higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
-#         "HIGG5D3Kernel_aug",
-#         AugmentationTools = TauTruthWrapperTools5d3
-#         )
-
-
 DerivationFrameworkJob += higg5d3Seq
 
 

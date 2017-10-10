@@ -437,15 +437,17 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
   // Since we use this for jet selection we also need it for data
   const std::string jvt_tool_name = "JetJvtEfficiencyTool";
   const std::string JVT_SFFile =
-      (m_config->sgKeyJets()=="AntiKt4LCTopoJets")?
-      "JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root":
-      "JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root";// default is EM jets
+    (m_config->sgKeyJets()=="AntiKt4LCTopoJets")?
+    "JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root":      // LC jets
+    (m_config->useParticleFlowJets())?
+    "JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root": // pflow jets
+    "JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root";      // default is EM jets
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);
   } else {
     CP::JetJvtEfficiency* jetJvtTool = new CP::JetJvtEfficiency(jvt_tool_name);
-    // Medium WP default for EM or LC jets; special WP for PFlow jets
-    top::check(jetJvtTool->setProperty("WorkingPoint", (m_config->useParticleFlowJets())?"PFlow":"Medium"),
+    // Medium WP default for EM or LC jets or PFlow jets (no longer special option)
+    top::check(jetJvtTool->setProperty("WorkingPoint", "Medium"),
                 "Failed to set JVT WP");
     top::check(jetJvtTool->setProperty("SFFile", JVT_SFFile),
                 "Failed to set JVT SFFile name");

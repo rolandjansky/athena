@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODJet
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+  PhysicsAnalysis/Intefaces/FTagAnalysisInterfaces
   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
   PRIVATE
   Tools/PathResolver
@@ -36,13 +37,13 @@ atlas_add_library( xAODBTaggingEfficiencyLib
   PUBLIC_HEADERS xAODBTaggingEfficiency
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBTagging xAODJet
-  PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver )
+  PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver FTagAnalysisInterfacesLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( xAODBTaggingEfficiency
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES xAODJet CalibrationDataInterfaceLib AthenaBaseComps
-      GaudiKernel PathResolver xAODBTaggingEfficiencyLib )
+      GaudiKernel PathResolver xAODBTaggingEfficiencyLib FTagAnalysisInterfacesLib )
 endif()
 
 atlas_add_dictionary( xAODBTaggingEfficiencyDict

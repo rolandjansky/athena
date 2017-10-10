@@ -107,6 +107,15 @@ triggers+=['HLT_e14_etcut_e5_lhtight_nod0_Jpsiee']
 triggers+=['HLT_e14_lhtight_e4_etcut_Jpsiee']
 triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee']
 
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED']
+triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7']
+triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7']
+triggers+=['HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12']
+triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12']
+
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
@@ -218,8 +227,8 @@ EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
-# if globalflags.DataSource()!='geant4':
-#     EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+if globalflags.DataSource()!='geant4':
+    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
@@ -230,7 +239,3 @@ for tool in EGAM2_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM2SlimmingHelper
 EGAM2SlimmingHelper.AppendContentToStream(EGAM2Stream)
-
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM2Stream)

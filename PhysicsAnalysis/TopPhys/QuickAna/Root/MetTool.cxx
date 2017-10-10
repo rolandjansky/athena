@@ -391,7 +391,7 @@ namespace ana
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,true,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,true,true,false,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true,"Loose") )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,false) )
 

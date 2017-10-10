@@ -34,7 +34,7 @@ public:
   float m_maxDeltaR;
   float m_alpha;
   float m_maxEta;
-
+  float m_maxRapForRhoComputation;
 };
 
 #endif

@@ -25,7 +25,7 @@ namespace CP {
         return nullptr;
     }
 
-    PtDependentSystHandler::PtDependentSystHandler(HistHandler* HistHandler) :
+    PtDependentSystHandler::PtDependentSystHandler(HistHandler_Ptr HistHandler) :
                     m_Handler(HistHandler),
                     m_SystWeight(0) {
 
@@ -45,10 +45,9 @@ namespace CP {
         m_SystWeight = SystWeight;
     }
     bool PtDependentSystHandler::initialize() {
-        return m_Handler != nullptr;
+        return m_Handler.get() != nullptr;
     }
     PtDependentSystHandler::~PtDependentSystHandler() {
-        if (m_Handler) delete m_Handler;
     }
 
     std::string BadMuonVetoSystHandler::GetNextProperty(std::string &sstr) {
@@ -97,7 +96,7 @@ namespace CP {
             if (!HighRange_str.empty()) {
                 highRange = atof(HighRange_str.c_str()) / 10.;
             }
-            m_SystPolynomials.insert(std::pair<Ranges, TF1*>(Ranges(lowRange, highRange), TF));
+            m_SystPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
         }
 
     }
@@ -141,10 +140,8 @@ namespace CP {
         return true;
     }
     BadMuonVetoSystHandler::~BadMuonVetoSystHandler() {
-        for (auto& Syst : m_SystPolynomials) {
-            if (Syst.second) delete Syst.second;
-        }
     }
+
     CP::CorrectionCode BadMuonVetoSystHandler::FindAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const {
         if (!m_SecondVar) {
             Error("BadMuonVetoSystHandler()", "Something went wrong with the initialization");
@@ -152,7 +149,7 @@ namespace CP {
         }
         for (const auto& BinnedPoly : m_SystPolynomials) {
             if (BinnedPoly.first.first <= (this->*m_SecondVar)(mu) && (this->*m_SecondVar)(mu) < BinnedPoly.first.second) {
-                Poly = BinnedPoly.second;
+                Poly = BinnedPoly.second.get();
                 return CorrectionCode::Ok;
             }
         }

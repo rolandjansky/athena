@@ -8,7 +8,7 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 
 
 // KLFitter include(s):

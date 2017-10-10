@@ -206,7 +206,7 @@ StatusCode DerivationFramework::CellReweight::addBranches() const
 	std::string temp_bin;
 	std::map<std::string,TH1F *>::const_iterator temp_ratio;
 	//loop all Lr1 Lr2 Cells to obtain Lr reweighted energy to fix energy with extra ratio
-	std::vector<float>  Lr2_e_old(11,0.), Lr1_e_all(80,0.);
+	std::vector<float>  Lr2_e_old(11,0.), Lr1_e_all(120,0.);
 	std::vector<float>  Lr1_eta, Lr1_eta_all, Lr2_eta,  Lr1_e_old;
 	std::vector<int> Lr2_Eta_index, Lr1_Eta_index;
 	if (egcCloneLr2){										

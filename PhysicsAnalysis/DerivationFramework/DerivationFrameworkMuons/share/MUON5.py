@@ -71,22 +71,8 @@ augmentationTools = []
 #======================================================================
 
 if is_MC:
-    from TauAnalysisTools.TauAnalysisToolsConf             import TauAnalysisTools__TauTruthMatchingTool
-    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-
-    # Tau truth matching tool
-    MUON5TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name           = "MUON5TauTruthMatchingTool",
-                                                                       WriteTruthTaus = True)
-    ToolSvc += MUON5TauTruthMatchingTool
+    from DerivationFrameworkTau.TauTruthCommon import *
     
-    # Tau truth matching wrapper
-    MUON5TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper(name                 = "MUON51TauTruthMatchingWrapper",
-                                                                                TauTruthMatchingTool = MUON5TauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")   	
-    ToolSvc += MUON5TauTruthMatchingWrapper
-
-    augmentationTools.append(MUON5TauTruthMatchingWrapper)
-
 #======================================================================
 # TAU OVERLAPPING ELECTRON LLH DECORATORS 
 #======================================================================

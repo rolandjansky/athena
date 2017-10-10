@@ -47,13 +47,14 @@ SUSY18ThinningHelper.AppendToStream( SUSY18Stream )
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
+# B.M.: likely not used
 # TrackParticles directly
-SUSY18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY18TPThinningTool",
-                                                                  ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
-                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY18TPThinningTool
-thinningTools.append(SUSY18TPThinningTool)
+#SUSY18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY18TPThinningTool",
+#                                                                  ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
+#                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
+#                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY18TPThinningTool
+#thinningTools.append(SUSY18TPThinningTool)
 
 # TrackParticles associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
@@ -288,21 +289,23 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  OutputJets["SUSY18"] = []
-  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
-  replaceAODReducedJets(reducedJetList, SeqSUSY18, "SUSY18")
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#
+#  OutputJets["SUSY18"] = []
+#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#
+#  replaceAODReducedJets(reducedJetList, SeqSUSY18, "SUSY18")
 
 
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
+# now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
+  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

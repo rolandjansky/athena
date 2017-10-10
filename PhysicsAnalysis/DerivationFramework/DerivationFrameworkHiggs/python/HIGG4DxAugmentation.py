@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #################################################
-# Common code used for the HIGG4 augmentation  	#
-# Z.Zinonos					#
-# zenon@cern.ch					#
-# Nov 2015					#
+# Common code used for the HIGG4 augmentation          #
+# Z.Zinonos                                        #
+# zenon@cern.ch                                        #
+# Nov 2015                                        #
 #################################################
 
 from AthenaCommon.GlobalFlags import globalflags
@@ -57,7 +57,8 @@ def setup(HIGG4DxName, ToolSvc):
         HIGG4DxTauPVTrkSelectionTool = DerivationFramework__TauPVTrkSelectionTool( name = "HIGG4DxTauPVTrkSelectionTool",
                                                                                    #minPt = 15000,
                                                                                    #m_maxDeltaR = 0.2,
-                                                                                   UseTrueTracks = DFisMC,
+#                                                                                   UseTrueTracks = DFisMC,
+                                                                                   UseTrueTracks = False,  # TauTruthTrackMatchingTool not working ATM. Needs protection against thinned truth info in the xAOD
                                                                                    TauContainerName = "TauJets",
                                                                                    TauPVTracksContainerName = "TauPVTracks")
         ToolSvc += HIGG4DxTauPVTrkSelectionTool
@@ -74,21 +75,8 @@ def setup(HIGG4DxName, ToolSvc):
         augmentationTools.append(HIGG4DxTauPVRefittingTool)
 
     if DFisMC:
-   	# Tau truth matching 
-        from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-        HIGG4DxTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG4DxTauTruthMatchingTool",
-                                                                             WriteTruthTaus = True)
-        
-        ToolSvc += HIGG4DxTauTruthMatchingTool
-
-   	# Tau truth matching wrapper 
-        from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-        HIGG4DxTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG4DxTauTruthMatchingWrapper",
-                                                                                TauTruthMatchingTool = HIGG4DxTauTruthMatchingTool)
-        
-        ToolSvc += HIGG4DxTauTruthMatchingWrapper
-        augmentationTools.append(HIGG4DxTauTruthMatchingWrapper)
-
+        # Tau truth matching - using the tau tools
+        from DerivationFrameworkTau.TauTruthCommon import *
 
     #Tau Overlapping Electron LLH Decorator
     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauOverlappingElectronLLHDecorator

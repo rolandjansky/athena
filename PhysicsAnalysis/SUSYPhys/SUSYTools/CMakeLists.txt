@@ -56,9 +56,9 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetCPInterfaces
    Reconstruction/Jet/JetCalibTools
@@ -94,7 +94,7 @@ atlas_add_library( SUSYToolsLib
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
    IsolationCorrectionsLib JetSelectorToolsLib
-   xAODBTaggingEfficiencyLib TauAnalysisToolsLib
+   FTagAnalysisInterfacesLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
    PathResolver TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
@@ -126,7 +126,7 @@ atlas_add_executable( SUSYToolsTester
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
    xAODEgamma xAODTau xAODTruth xAODJet xAODCaloEvent xAODCore xAODMissingET
-   xAODBTaggingEfficiencyLib xAODBase TauAnalysisToolsLib GoodRunsListsLib
+   FTagAnalysisInterfacesLib xAODBase TauAnalysisToolsLib GoodRunsListsLib
    PileupReweightingLib PATInterfaces PathResolver METUtilitiesLib xAODCutFlow
    SUSYToolsLib ${extra_libs} )
 
@@ -148,27 +148,34 @@ if( XAOD_STANDALONE )
    atlas_add_test( gt_SUSYTools_xs_loader
       SOURCES test/gt_SUSYTools_xs_loader.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} SampleHandler )
-
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} SampleHandler
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    atlas_add_test( ut_SUSYTools_test_xs_files
       SOURCES test/ut_SUSYTools_test_xs_files.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} SampleHandler )
-
    atlas_add_test( ut_SUSYTools_config_checker
-      SCRIPT test/ut_SUSYTools_config_checker.py )
+      SCRIPT test/ut_SUSYTools_config_checker.py
+      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s")
    atlas_add_test( ut_SUSYTools_wp_checker
-      SCRIPT test/ut_SUSYTools_wp_checker.py )
+      SCRIPT test/ut_SUSYTools_wp_checker.py
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|^MAKEFLAGS=|^MAKELEVEL=|^MFLAGS=|^Ran [0-9]+ tests in [0-9.]+s")
    # This test takes a bit longer, but it's worth it
    set_tests_properties( SUSYTools_ut_SUSYTools_wp_checker_ctest PROPERTIES TIMEOUT 600)
    atlas_add_test( ut_SUSYToolsTester_atlfast
-      SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
+      SOURCES test/ut_SUSYToolsTester_atlfast.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|^MAKEFLAGS=|^MAKELEVEL=|^MFLAGS=")
    atlas_add_test( ut_SUSYToolsTester_data
-      SOURCES test/ut_SUSYToolsTester_data.cxx )
+      SOURCES test/ut_SUSYToolsTester_data.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|^MAKEFLAGS=|^MAKELEVEL=|^MFLAGS=")
+   # Needs just a little extra time to be sure we get 100% success
+   set_tests_properties( SUSYTools_ut_SUSYToolsTester_data_ctest PROPERTIES TIMEOUT 180)
    atlas_add_test( ut_SUSYToolsTester_mc
-      SOURCES test/ut_SUSYToolsTester_mc.cxx )
+      SOURCES test/ut_SUSYToolsTester_mc.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|^MAKEFLAGS=|^MAKELEVEL=|^MFLAGS=")
    atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
-      SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx )
+      SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|^MAKEFLAGS=|^MAKELEVEL=|^MFLAGS=")
 endif()
 
 # Install files from the package:
