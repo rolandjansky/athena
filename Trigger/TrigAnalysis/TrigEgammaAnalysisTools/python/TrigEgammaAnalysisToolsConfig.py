@@ -246,7 +246,7 @@ def getEventSelectionTool():
           SelectionJpsi=False,
           SelectionFakes=False,
           SelectionMC=False,
-          ForceTrigAtachment=True,
+          ForceTrigAttachment=True,
           DetailedDataLevel=0, # 0 = VerySlim, 1 = Slim and 2 = Full
           # Asg selectors to decorate my final skimmed ntuple.
           EFCaloElectronLikelihoodSelector=EFCaloLikelihoodSelectorList,
