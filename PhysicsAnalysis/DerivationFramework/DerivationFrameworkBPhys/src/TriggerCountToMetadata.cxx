@@ -22,7 +22,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TH1D.h"
 #include "xAODMetaData/FileMetaData.h"
-#include "xAODCore/AuxInfoBase.h"
+#include "xAODMetaData/FileMetaDataAuxInfo.h"
 
 #include <memory>
 
@@ -65,7 +65,7 @@ namespace DerivationFramework {
 	  if(! m_outputMetaStore->contains< xAOD::FileMetaData >( mdFolderKey ) ){
 		  //Produce the output folder if it doesn't exist already
 		  std::unique_ptr<xAOD::FileMetaData> fm(new xAOD::FileMetaData());
-		  std::unique_ptr<xAOD::AuxInfoBase> fmAux(new xAOD::AuxInfoBase());
+		  std::unique_ptr<xAOD::FileMetaDataAuxInfo> fmAux(new xAOD::FileMetaDataAuxInfo());
 
 		  fm->setStore( fmAux.get() );
 
