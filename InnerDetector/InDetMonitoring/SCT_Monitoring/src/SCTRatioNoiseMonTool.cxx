@@ -30,7 +30,6 @@
 
 // conditions stuff
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH2I.h"
