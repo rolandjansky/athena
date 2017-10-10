@@ -324,12 +324,13 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       }// isolation tool ok for ID
     }// EF Muon Loop
 
+    const size_t noutputMuons = muonContainer->size();
     HLT::ErrorCode hltStatus = attachFeature(TEout, muonContainer.release() , m_muonContName);
     if(hltStatus!=HLT::OK) {
       msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endmsg;
       return hltStatus;
     } else {
-      ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << muonContainer->size() );
+      ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << noutputMuons );
     } 
     
   } // If EFID loop to run
