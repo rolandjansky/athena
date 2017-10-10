@@ -66,7 +66,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("TPTrigger",m_tp=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateTP,this);
     declareProperty("isEMResultNames",m_isemname,"isEM");
     declareProperty("LHResultNames",m_lhname,"LH");
-    declareProperty("ForceTrigAtachment", m_forceTrigAttachment=false);
+    declareProperty("ForceTrigAttachment", m_forceTrigAttachment=false);
 
     m_storeGate = nullptr;
     m_histsvc = nullptr;
