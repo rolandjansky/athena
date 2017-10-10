@@ -17,9 +17,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for DetailedTrackTruthVector.
-pool::Guid DetailedTrackTruthCollectionCnv::p0_guid("8F573396-F26F-47FD-B05C-549E9D5C77E1");
-pool::Guid DetailedTrackTruthCollectionCnv::p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
-pool::Guid DetailedTrackTruthCollectionCnv::p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
+pool::Guid DetailedTrackTruthCollectionCnv::s_p0_guid("8F573396-F26F-47FD-B05C-549E9D5C77E1");
+pool::Guid DetailedTrackTruthCollectionCnv::s_p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
+pool::Guid DetailedTrackTruthCollectionCnv::s_p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
 
 //================================================================
 DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
@@ -43,14 +43,14 @@ DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient()
   MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv" );
   DetailedTrackTruthCollection *trans(0);
   
-  if (compareClassGuid(p2_guid)) {
+  if (compareClassGuid(s_p2_guid)) {
     trans = new DetailedTrackTruthCollection();
     log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p2. GUID="<<m_classID.toString()<<endmsg;
     Trk::DetailedTrackTruthCollection_p2* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p2>();
     m_converter_p2.persToTrans(pers, trans, log);
     delete pers;
   }
-  else if (compareClassGuid(p1_guid)) {
+  else if (compareClassGuid(s_p1_guid)) {
     trans = new DetailedTrackTruthCollection();
     log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Trk::DetailedTrackTruthCollection_p1* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p1>();
