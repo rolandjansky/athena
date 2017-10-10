@@ -636,31 +636,31 @@ StatusCode LArNoisyROMon::fillHistograms()
     }
   }
 
-  // Event found noisy by weighted Std method
-  uint8_t BadFEB_WPartitions = noisyRO->BadFEB_WFlaggedPartitions();
-  if ( BadFEB_WPartitions != 0) 
-  {
-    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMECAMask) != 0 ) 
-    {
-      m_EMECA.h_NoisyWEvent->Fill(LBN);
-      if ( ! burstveto ) m_EMECA.h_NoisyWEventTimeVeto->Fill(LBN);
-    }
-    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMBAMask) != 0 ) 
-    {
-      m_BarrelA.h_NoisyWEvent->Fill(LBN);
-      if ( ! burstveto ) m_BarrelA.h_NoisyWEventTimeVeto->Fill(LBN);
-    }
-    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMBCMask) != 0 )
-    { 
-      m_BarrelC.h_NoisyWEvent->Fill(LBN);
-      if ( ! burstveto ) m_BarrelC.h_NoisyWEventTimeVeto->Fill(LBN);
-    }
-    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMECCMask) != 0 )
-    {
-      m_EMECC.h_NoisyWEvent->Fill(LBN);
-      if ( ! burstveto ) m_EMECC.h_NoisyWEventTimeVeto->Fill(LBN);
-    }
-  }
+//  // Event found noisy by weighted Std method
+//  uint8_t BadFEB_WPartitions = noisyRO->BadFEB_WFlaggedPartitions();
+//  if ( BadFEB_WPartitions != 0) 
+//  {
+//    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMECAMask) != 0 ) 
+//    {
+//      m_EMECA.h_NoisyWEvent->Fill(LBN);
+//      if ( ! burstveto ) m_EMECA.h_NoisyWEventTimeVeto->Fill(LBN);
+//    }
+//    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMBAMask) != 0 ) 
+//    {
+//      m_BarrelA.h_NoisyWEvent->Fill(LBN);
+//      if ( ! burstveto ) m_BarrelA.h_NoisyWEventTimeVeto->Fill(LBN);
+//    }
+//    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMBCMask) != 0 )
+//    { 
+//      m_BarrelC.h_NoisyWEvent->Fill(LBN);
+//      if ( ! burstveto ) m_BarrelC.h_NoisyWEventTimeVeto->Fill(LBN);
+//    }
+//    if ( (BadFEB_WPartitions & LArNoisyROSummary::EMECCMask) != 0 )
+//    {
+//      m_EMECC.h_NoisyWEvent->Fill(LBN);
+//      if ( ! burstveto ) m_EMECC.h_NoisyWEventTimeVeto->Fill(LBN);
+//    }
+//  }
     
   return sc;
 }
@@ -792,14 +792,14 @@ StatusCode LArNoisyROMon::procHistograms()
       Divide(m_EMECC.h_MNBLooseEventFrac,m_EMECC.h_MNBLooseEvent,m_h_LBN);
       m_EMECC.h_MNBLooseEventFrac->SetEntries(m_eventCounter);
 
-      Divide(m_BarrelA.h_NoisyWEventFrac,m_BarrelA.h_NoisyWEvent,m_h_LBN);
-      m_BarrelA.h_NoisyWEventFrac->SetEntries(m_eventCounter);
-      Divide(m_BarrelC.h_NoisyWEventFrac,m_BarrelC.h_NoisyWEvent,m_h_LBN);
-      m_BarrelC.h_NoisyWEventFrac->SetEntries(m_eventCounter);
-      Divide(m_EMECA.h_NoisyWEventFrac,m_EMECA.h_NoisyWEvent,m_h_LBN);
-      m_EMECA.h_NoisyWEventFrac->SetEntries(m_eventCounter);
-      Divide(m_EMECC.h_NoisyWEventFrac,m_EMECC.h_NoisyWEvent,m_h_LBN);
-      m_EMECC.h_NoisyWEventFrac->SetEntries(m_eventCounter);
+//      Divide(m_BarrelA.h_NoisyWEventFrac,m_BarrelA.h_NoisyWEvent,m_h_LBN);
+//      m_BarrelA.h_NoisyWEventFrac->SetEntries(m_eventCounter);
+//      Divide(m_BarrelC.h_NoisyWEventFrac,m_BarrelC.h_NoisyWEvent,m_h_LBN);
+//      m_BarrelC.h_NoisyWEventFrac->SetEntries(m_eventCounter);
+//      Divide(m_EMECA.h_NoisyWEventFrac,m_EMECA.h_NoisyWEvent,m_h_LBN);
+//      m_EMECA.h_NoisyWEventFrac->SetEntries(m_eventCounter);
+//      Divide(m_EMECC.h_NoisyWEventFrac,m_EMECC.h_NoisyWEvent,m_h_LBN);
+//      m_EMECC.h_NoisyWEventFrac->SetEntries(m_eventCounter);
     
       Divide(m_BarrelA.h_NoisyEventTimeVetoFrac,m_BarrelA.h_NoisyEventTimeVeto,m_h_LBN);
       m_BarrelA.h_NoisyEventTimeVetoFrac->SetEntries(m_eventCounter);
@@ -837,184 +837,117 @@ StatusCode LArNoisyROMon::procHistograms()
       Divide(m_EMECC.h_MNBLooseEventTimeVetoFrac,m_EMECC.h_MNBLooseEventTimeVeto,m_h_LBN);
       m_EMECC.h_MNBLooseEventTimeVetoFrac->SetEntries(m_eventCounter);
     
-      Divide(m_BarrelA.h_NoisyWEventTimeVetoFrac,m_BarrelA.h_NoisyWEventTimeVeto,m_h_LBN);
-      m_BarrelA.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
-      Divide(m_BarrelC.h_NoisyWEventTimeVetoFrac,m_BarrelC.h_NoisyWEventTimeVeto,m_h_LBN);
-      m_BarrelC.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
-      Divide(m_EMECA.h_NoisyWEventTimeVetoFrac,m_EMECA.h_NoisyWEventTimeVeto,m_h_LBN);
-      m_EMECA.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
-      Divide(m_EMECC.h_NoisyWEventTimeVetoFrac,m_EMECC.h_NoisyWEventTimeVeto,m_h_LBN);
-      m_EMECC.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
+//      Divide(m_BarrelA.h_NoisyWEventTimeVetoFrac,m_BarrelA.h_NoisyWEventTimeVeto,m_h_LBN);
+//      m_BarrelA.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
+//      Divide(m_BarrelC.h_NoisyWEventTimeVetoFrac,m_BarrelC.h_NoisyWEventTimeVeto,m_h_LBN);
+//      m_BarrelC.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
+//      Divide(m_EMECA.h_NoisyWEventTimeVetoFrac,m_EMECA.h_NoisyWEventTimeVeto,m_h_LBN);
+//      m_EMECA.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
+//      Divide(m_EMECC.h_NoisyWEventTimeVetoFrac,m_EMECC.h_NoisyWEventTimeVeto,m_h_LBN);
+//      m_EMECC.h_NoisyWEventTimeVetoFrac->SetEntries(m_eventCounter);
     
     }//end if m_eventCounter>0
   }
   
   if ( endOfRunFlag() ) {
-    // delete temposary histograms
     if ( m_h_LBN ) {
-//      LWHist::safeDelete(m_h_LBN); 
-//      m_h_LBN = NULL;
       m_h_LBN->Reset(); 
     }
     if ( m_BarrelA.h_NoisyEvent ) {
-//      LWHist::safeDelete(m_BarrelA.h_NoisyEvent); 
-//      m_BarrelA.h_NoisyEvent = NULL;
       m_BarrelA.h_NoisyEvent->Reset();
     }
     if ( m_BarrelC.h_NoisyEvent ) {
-//      LWHist::safeDelete(m_BarrelC.h_NoisyEvent); 
-//      m_BarrelC.h_NoisyEvent = NULL;
       m_BarrelC.h_NoisyEvent->Reset();
     }
     if ( m_EMECA.h_NoisyEvent ) {
-//      LWHist::safeDelete(m_EMECA.h_NoisyEvent); 
-//      m_EMECA.h_NoisyEvent = NULL;
       m_EMECA.h_NoisyEvent->Reset();
     }
     if ( m_EMECC.h_NoisyEvent ) {
-//      LWHist::safeDelete(m_EMECC.h_NoisyEvent); 
-//      m_EMECC.h_NoisyEvent = NULL;
       m_EMECC.h_NoisyEvent->Reset();
     }
     if ( m_BarrelA.h_NoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelA.h_NoisyEventTimeVeto); 
-//      m_BarrelA.h_NoisyEventTimeVeto = NULL;
       m_BarrelA.h_NoisyEventTimeVeto->Reset();
     }
     if ( m_BarrelC.h_NoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelC.h_NoisyEventTimeVeto); 
-//      m_BarrelC.h_NoisyEventTimeVeto = NULL;
       m_BarrelC.h_NoisyEventTimeVeto->Reset();
     }
     if ( m_EMECA.h_NoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECA.h_NoisyEventTimeVeto); 
-//      m_EMECA.h_NoisyEventTimeVeto = NULL;
       m_EMECA.h_NoisyEventTimeVeto->Reset();
     }
     if ( m_EMECC.h_NoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECC.h_NoisyEventTimeVeto); 
-//      m_EMECC.h_NoisyEventTimeVeto = NULL;
       m_EMECC.h_NoisyEventTimeVeto->Reset();
     }
     if ( m_BarrelA.h_MNBTightEvent ) {
-//      LWHist::safeDelete(m_BarrelA.h_MNBTightEvent); 
-//      m_BarrelA.h_MNBTightEvent = NULL;
       m_BarrelA.h_MNBTightEvent->Reset();
     }
     if ( m_BarrelC.h_MNBTightEvent ) {
-//      LWHist::safeDelete(m_BarrelC.h_MNBTightEvent); 
-//      m_BarrelC.h_MNBTightEvent = NULL;
       m_BarrelC.h_MNBTightEvent->Reset();
     }
     if ( m_EMECA.h_MNBTightEvent ) {
-//      LWHist::safeDelete(m_EMECA.h_MNBTightEvent); 
-//      m_EMECA.h_MNBTightEvent = NULL;
       m_EMECA.h_MNBTightEvent->Reset();
     }
     if ( m_EMECC.h_MNBTightEvent ) {
-//      LWHist::safeDelete(m_EMECC.h_MNBTightEvent); 
-//      m_EMECC.h_MNBTightEvent = NULL;
       m_EMECC.h_MNBTightEvent->Reset();
     }
     if ( m_BarrelA.h_MNBTightEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelA.h_MNBTightEventTimeVeto); 
-//      m_BarrelA.h_MNBTightEventTimeVeto = NULL;
       m_BarrelA.h_MNBTightEventTimeVeto->Reset();
     }
     if ( m_BarrelC.h_MNBTightEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelC.h_MNBTightEventTimeVeto); 
-//      m_BarrelC.h_MNBTightEventTimeVeto = NULL;
       m_BarrelC.h_MNBTightEventTimeVeto->Reset();
     }
     if ( m_EMECA.h_MNBTightEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECA.h_MNBTightEventTimeVeto); 
-//      m_EMECA.h_MNBTightEventTimeVeto = NULL;
       m_EMECA.h_MNBTightEventTimeVeto->Reset();
     }
     if ( m_EMECC.h_MNBTightEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECC.h_MNBTightEventTimeVeto); 
-//      m_EMECC.h_MNBTightEventTimeVeto = NULL;
       m_EMECC.h_MNBTightEventTimeVeto->Reset();
     }
 
     if ( m_BarrelA.h_MNBLooseEvent ) {
-//      LWHist::safeDelete(m_BarrelA.h_MNBLooseEvent); 
-//      m_BarrelA.h_MNBLooseEvent = NULL;
       m_BarrelA.h_MNBLooseEvent->Reset();
     }
     if ( m_BarrelC.h_MNBLooseEvent ) {
-//      LWHist::safeDelete(m_BarrelC.h_MNBLooseEvent); 
-//      m_BarrelC.h_MNBLooseEvent = NULL;
       m_BarrelC.h_MNBLooseEvent->Reset();
     }
     if ( m_EMECA.h_MNBLooseEvent ) {
-//      LWHist::safeDelete(m_EMECA.h_MNBLooseEvent); 
-//      m_EMECA.h_MNBLooseEvent = NULL;
       m_EMECA.h_MNBLooseEvent->Reset();
     }
     if ( m_EMECC.h_MNBLooseEvent ) {
-//      LWHist::safeDelete(m_EMECC.h_MNBLooseEvent); 
-//      m_EMECC.h_MNBLooseEvent = NULL;
       m_EMECC.h_MNBLooseEvent->Reset();
     }
     if ( m_BarrelA.h_MNBLooseEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelA.h_MNBLooseEventTimeVeto); 
-//      m_BarrelA.h_MNBLooseEventTimeVeto = NULL;
       m_BarrelA.h_MNBLooseEventTimeVeto->Reset();
     }
     if ( m_BarrelC.h_MNBLooseEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelC.h_MNBLooseEventTimeVeto); 
-//      m_BarrelC.h_MNBLooseEventTimeVeto = NULL;
       m_BarrelC.h_MNBLooseEventTimeVeto->Reset();
     }
     if ( m_EMECA.h_MNBLooseEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECA.h_MNBLooseEventTimeVeto); 
-//      m_EMECA.h_MNBLooseEventTimeVeto = NULL;
       m_EMECA.h_MNBLooseEventTimeVeto->Reset();
     }
     if ( m_EMECC.h_MNBLooseEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECC.h_MNBLooseEventTimeVeto); 
-//      m_EMECC.h_MNBLooseEventTimeVeto = NULL;
       m_EMECC.h_MNBLooseEventTimeVeto->Reset();
     }
     if ( m_BarrelA.h_SaturatedNoisyEvent ) {
-//      LWHist::safeDelete(m_BarrelA.h_SaturatedNoisyEvent); 
-//      m_BarrelA.h_SaturatedNoisyEvent = NULL;
       m_BarrelA.h_SaturatedNoisyEvent->Reset();
     }
     if ( m_BarrelC.h_SaturatedNoisyEvent ) {
-//      LWHist::safeDelete(m_BarrelC.h_SaturatedNoisyEvent); 
-//      m_BarrelC.h_SaturatedNoisyEvent = NULL;
       m_BarrelC.h_SaturatedNoisyEvent->Reset();
     }
     if ( m_EMECA.h_SaturatedNoisyEvent ) {
-//      LWHist::safeDelete(m_EMECA.h_SaturatedNoisyEvent); 
-//      m_EMECA.h_SaturatedNoisyEvent = NULL;
       m_EMECA.h_SaturatedNoisyEvent->Reset();
     }
     if ( m_EMECC.h_SaturatedNoisyEvent ) {
-//      LWHist::safeDelete(m_EMECC.h_SaturatedNoisyEvent); 
-//      m_EMECC.h_SaturatedNoisyEvent = NULL;
       m_EMECC.h_SaturatedNoisyEvent->Reset();
     }
     if ( m_BarrelA.h_SaturatedNoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelA.h_SaturatedNoisyEventTimeVeto); 
-//      m_BarrelA.h_SaturatedNoisyEventTimeVeto = NULL;
       m_BarrelA.h_SaturatedNoisyEventTimeVeto->Reset();
     }
     if ( m_BarrelC.h_SaturatedNoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_BarrelC.h_SaturatedNoisyEventTimeVeto); 
-//      m_BarrelC.h_SaturatedNoisyEventTimeVeto = NULL;
       m_BarrelC.h_SaturatedNoisyEventTimeVeto->Reset();
     }
     if ( m_EMECA.h_SaturatedNoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECA.h_SaturatedNoisyEventTimeVeto); 
-//      m_EMECA.h_SaturatedNoisyEventTimeVeto = NULL;
       m_EMECA.h_SaturatedNoisyEventTimeVeto->Reset();
     }
     if ( m_EMECC.h_SaturatedNoisyEventTimeVeto ) {
-//      LWHist::safeDelete(m_EMECC.h_SaturatedNoisyEventTimeVeto); 
-//      m_EMECC.h_SaturatedNoisyEventTimeVeto = NULL;
       m_EMECC.h_SaturatedNoisyEventTimeVeto->Reset();
     }
   }  
@@ -1205,14 +1138,14 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_MNBLooseEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBLooseEvent->GetXaxis()->SetTitle("Luminosity Block");
 
-  // Fraction of events found noisy per LB - Weighted flag
-  hName = "NoisyWEvent_"+name;
-  partition.h_NoisyWEventFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO_StdOpt", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
-  partition.h_NoisyWEventFrac->GetXaxis()->SetTitle("Luminosity Block");
-  groupfracbin.regHist(partition.h_NoisyWEventFrac).ignore();  
-  hName = "temp_NoisyWEvent_"+name;
-  partition.h_NoisyWEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
-  partition.h_NoisyWEvent->GetXaxis()->SetTitle("Luminosity Block");
+//  // Fraction of events found noisy per LB - Weighted flag
+//  hName = "NoisyWEvent_"+name;
+//  partition.h_NoisyWEventFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO_StdOpt", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+//  groupfracbin.regHist(partition.h_NoisyWEventFrac).ignore();  
+//  hName = "temp_NoisyWEvent_"+name;
+//  partition.h_NoisyWEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEvent->GetXaxis()->SetTitle("Luminosity Block");
   
   // Fraction of events found noisy per LB after time veto - Std flag
   hName = "NoisyEvent_TimeVeto_"+name;
@@ -1256,15 +1189,15 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_MNBLooseEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBLooseEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
 
-  // Fraction of events found noisy per LB after time veto - Weighted flag
-  hName = "NoisyWEvent_TimeVeto_"+name;
-  partition.h_NoisyWEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as RNB-StandardOpt not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
-  partition.h_NoisyWEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
-  groupfracbin.regHist(partition.h_NoisyWEventTimeVetoFrac).ignore();
-  
-  hName = "temp_NoisyWEvent_TimeVeto_"+name;
-  partition.h_NoisyWEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
-  partition.h_NoisyWEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+//  // Fraction of events found noisy per LB after time veto - Weighted flag
+//  hName = "NoisyWEvent_TimeVeto_"+name;
+//  partition.h_NoisyWEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as RNB-StandardOpt not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+//  groupfracbin.regHist(partition.h_NoisyWEventTimeVetoFrac).ignore();
+//  
+//  hName = "temp_NoisyWEvent_TimeVeto_"+name;
+//  partition.h_NoisyWEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
   
   if ( m_doTrigger ) 
   {
@@ -1340,8 +1273,8 @@ StatusCode LArNoisyROMon::finalize()
      LWHist::safeDelete(part->h_NoisyEvent); 
      part->h_NoisyEvent = nullptr;
      
-     LWHist::safeDelete(part->h_NoisyWEvent); 
-     part->h_NoisyWEvent = nullptr;
+//     LWHist::safeDelete(part->h_NoisyWEvent); 
+//     part->h_NoisyWEvent = nullptr;
 
      LWHist::safeDelete(part->h_NoisyEventTimeVeto); 
      part->h_NoisyEventTimeVeto = nullptr;
@@ -1364,8 +1297,8 @@ StatusCode LArNoisyROMon::finalize()
      LWHist::safeDelete(part->h_SaturatedNoisyEventTimeVeto); 
      part->h_SaturatedNoisyEventTimeVeto = nullptr;
 
-     LWHist::safeDelete(part->h_NoisyWEventTimeVeto);
-     part->h_NoisyWEventTimeVeto=nullptr;
+//     LWHist::safeDelete(part->h_NoisyWEventTimeVeto);
+//     part->h_NoisyWEventTimeVeto=nullptr;
   }
 
 
