@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FASTSIDIGITIZATION_SISMEAREDDIGITIZATION_H
-#define FASTSIDIGITIZATION_SISMEAREDDIGITIZATION_H
+#ifndef SIDIGITIZATION_SISMEAREDDIGITIZATION_H
+#define SIDIGITIZATION_SISMEAREDDIGITIZATION_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -27,4 +27,4 @@ class SiSmearedDigitization : public AthAlgorithm {
   ToolHandle<ISiSmearedDigitizationTool> m_smearTool;
 };
 
-#endif // FASTSIDIGITIZATION_SISMEAREDDIGITIZATION_H
+#endif // SIDIGITIZATION_SISMEAREDDIGITIZATION_H

@@ -22,8 +22,7 @@
 #include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "boost/shared_ptr.hpp"
 #include <string>
@@ -102,8 +101,8 @@ public:
   virtual StatusCode initialize();
   StatusCode prepareEvent( unsigned int );
   StatusCode processBunchXing( int bunchXing,
-                               SubEventIterator bSubEvents,
-                               SubEventIterator eSubEvents );
+                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
   StatusCode mergeEvent();
   StatusCode processAllSubEvents();
   StatusCode createAndStoreRIOs();
@@ -114,6 +113,7 @@ private:
   //  void addSDO(const DiodeCollectionPtr& collection);
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
+  bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift );
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
@@ -135,6 +135,7 @@ private:
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
   bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
   IntegerProperty  m_vetoThisBarcode;
+  
 
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   SCT_detElement_RIO_map* m_sctClusterMap;
@@ -149,7 +150,9 @@ private:
   bool m_sctAnalogStripClustering; //!< not being done in ATLAS: analog strip clustering
   int m_sctErrorStrategy;         //!< error strategy for the  ClusterMaker
   bool m_sctRotateEC;
-
+ 
+  bool m_mergeCluster; //!< enable the merging of neighbour SCT clusters >  
+  double m_DiffusionShift;
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
 
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,

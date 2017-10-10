@@ -27,6 +27,12 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 
+// Gaudi includes
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/SmartDataPtr.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
 // DataHandle
 #include "StoreGate/DataHandle.h"
 
@@ -49,6 +55,22 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h"
+
+//Package For New Tracking:
+// Amg includes
+#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+// Trk includes
+
+#include "TrkDigEvent/RectangularSegmentation.h"
+#include "TrkDigEvent/TrapezoidSegmentation.h"
+
+#include "TrkDigEvent/DigitizationCell.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/SurfaceCollection.h"
+
 
 using namespace InDetDD;
 using namespace InDet;
@@ -87,13 +109,19 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixSmearLandau(true),
   m_siDeltaPhiCut(0),
   m_siDeltaEtaCut(0),
-  m_pixMinimalPathCut(0.0 * Gaudi::Units::micrometer),
+  //m_pixMinimalPathCut(0.0 * Gaudi::Units::micrometer),
+  m_pixMinimalPathCut(0.02),// Optimized choice of threshold
   m_pixPathLengthTotConv(125.),
   m_pixModuleDistortion(true), // default: false
   m_pixDistortionTool("PixelDistortionsTool/PixelDistortionsTool"),
   m_pixErrorStrategy(2),
+  m_mergeCluster(true),
+  m_splitClusters(0),
+  m_acceptDiagonalClusters(1),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
-  m_ambiguitiesMap(0)
+  m_ambiguitiesMap(0),
+  m_digitizationStepper("Trk::PlanarModuleStepper"),
+  m_DiffusionShift(0.004)
 {
   declareInterface<IPixelFastDigitizationTool>(this);
   declareProperty("RndmSvc"                        , m_rndmSvc,                  "Random Number Service used in Pixel digitization" );
@@ -119,6 +147,8 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixelClusterAmbiguitiesMapName" , m_pixelClusterAmbiguitiesMapName);
   declareProperty("HardScatterSplittingMode"       , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty( "ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
+  declareProperty("DigitizationStepper",     m_digitizationStepper);
+  declareProperty("DiffusionShif", m_DiffusionShift);
 }
 
 PixelFastDigitizationTool::~PixelFastDigitizationTool() {
@@ -132,7 +162,8 @@ StatusCode PixelFastDigitizationTool::initialize()
 {
 
   ATH_MSG_DEBUG ( "PixelDigitizationTool::initialize()" );
-
+   
+  
   //locate the AtRndmGenSvc and initialize our local ptr
   if (!m_rndmSvc.retrieve().isSuccess())
     {
@@ -198,8 +229,7 @@ StatusCode PixelFastDigitizationTool::initialize()
   } else {
     ATH_MSG_DEBUG ( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
   }
-
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -216,8 +246,8 @@ StatusCode PixelFastDigitizationTool::prepareEvent(unsigned int)
 
 
 StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
-                                                       SubEventIterator bSubEvents,
-                                                       SubEventIterator eSubEvents)
+                                                       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                                                       PileUpEventInfo::SubEvent::const_iterator eSubEvents)
 {
 
   m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
@@ -225,9 +255,9 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
-  SubEventIterator iEvt(bSubEvents);
+  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
+    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
     PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
     const SiHitCollection* seHitColl(NULL);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
@@ -405,7 +435,22 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
     ATH_MSG_DEBUG( "[ hitproc ] PixelClusterContainer symlinked to SiClusterContainer in StoreGate" );
   }
 
+  // truth info
+  m_pixPrdTruth = new PRD_MultiTruthCollection;
 
+  if ((evtStore()->contains<PRD_MultiTruthCollection>(m_prdTruthNamePixel))){
+    if((evtStore()->retrieve(m_pixPrdTruth, m_prdTruthNamePixel)).isFailure()){
+      ATH_MSG_FATAL("Could not retrieve collection " << m_prdTruthNamePixel);
+      return StatusCode::FAILURE;
+    }
+  }else{
+    if((evtStore()->record(m_pixPrdTruth, m_prdTruthNamePixel)).isFailure()){
+      ATH_MSG_FATAL("Could not record collection " << m_prdTruthNamePixel);
+      return StatusCode::FAILURE;
+    }
+  }
+
+  m_ambiguitiesMap =new PixelGangedClusterAmbiguities();
 
   if (m_thpcsi != 0) {
     if(digitize().isFailure()) {
@@ -433,6 +478,17 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
     ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
   }
 
+    if ((evtStore()->setConst(m_pixelClusterContainer)).isFailure()) {
+    ATH_MSG_ERROR("[ ---- ] Could not set Pixel ROT container ");
+  }
+  ATH_MSG_DEBUG ("Ambiguities map has " << m_ambiguitiesMap->size() << " elements" );
+  StatusCode sc = evtStore()->record(m_ambiguitiesMap,m_pixelClusterAmbiguitiesMapName,false);
+  if (sc.isFailure()){
+    ATH_MSG_FATAL ( "PixelClusterAmbiguitiesMap could not be recorded in StoreGate !" );
+    return StatusCode::FAILURE;
+  }else{
+    ATH_MSG_DEBUG ( "PixelClusterAmbiguitiesMap recorded in StoreGate" );
+  }
 
 
 
@@ -455,6 +511,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
 
+    //std::cout<<"Next Detector element  "<<std::endl;
     int nnn = 0;
 
     std::vector<int> trkNo;
@@ -466,7 +523,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       TimedHitPtr<SiHit> hit(*i++);
 
-
+     
       const int barrelEC = hit->getBarrelEndcap();
       const int layerDisk = hit->getLayerDisk();
       const int phiModule = hit->getPhiModule();
@@ -476,6 +533,16 @@ StatusCode PixelFastDigitizationTool::digitize()
       if (!hitSiDetElement) {ATH_MSG_ERROR( " could not get detector element "); continue;}
 
       if (!(hitSiDetElement->isPixel())) {continue;}
+      
+      double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
+      
+      //Avoid to store pixels with 0 ToT
+      if (m_pixMinimalPathCut > pixMinimalPathCut) {
+	pixMinimalPathCut=m_pixMinimalPathCut; }
+      
+      
+     // std::cout<<"Next Hit  "<<std::endl;
+      std::vector<HepMcParticleLink> hit_vector; //Store the hits in merged cluster
 
       const IdentifierHash waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
 
@@ -484,8 +551,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       const Identifier hitId = hitSiDetElement->identify();
       //const IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
-
-
 
 
       bool isRep = false;
@@ -508,511 +573,224 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       localStartPosition = hitSiDetElement->hitLocalToLocal3D(localStartPosition);
       localEndPosition = hitSiDetElement->hitLocalToLocal3D(localEndPosition);
+      
+      
+      //New function to tune the cluster size
+      bool diffusion = Diffuse(localStartPosition, localEndPosition, m_DiffusionShift);
 
-      const double localEntryX = localStartPosition.x();
-      const double localEntryY = localStartPosition.y();
-      const double localEntryZ = localStartPosition.z();
-      const double localExitX = localEndPosition.x();
-      const double localExitY = localEndPosition.y();
-      const double localExitZ = localEndPosition.z();
+      const Amg::Vector3D localDirection(localEndPosition.x()-localStartPosition.x(), localEndPosition.y()-localStartPosition.y(), localEndPosition.z()-localStartPosition.z());
+      
+      Amg::Vector3D entryPoint(localStartPosition.x(),localStartPosition.y(),localStartPosition.z());
+      Amg::Vector3D exitPoint(localEndPosition.x(),localEndPosition.y(),localEndPosition.z());
 
-      const double thickness = hitSiDetElement->thickness();
-
-      const Amg::Vector2D localEntry(localEntryX,localEntryY);
-      const Amg::Vector2D localExit(localExitX,localExitY);
-      const Amg::Vector3D localExit3D(localExitX,localExitY,localExitZ);
-
-      // the pixel positions and other needed stuff for the geometrical clustering
-      std::vector<Amg::Vector2D>        pixelPositions;
-      std::vector<Identifier>           rdoList;
-      std::vector<int>                  totList;
-      std::map<Identifier, double>      surfaceChargeWeights;
-
-      // Pixel Design needed -------------------------------------------------------------
-      const InDetDD::PixelModuleDesign* design
-        (dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design()));
-
-      if (!design) {
-        ATH_MSG_DEBUG ( "Could not get design"<< design) ;
-        continue;
-      }
-
-
-      const Amg::Vector3D localDirection(localExitX-localEntryX, localExitY-localEntryY, localExitZ-localEntryZ);
-      // path length statistics
-      double pathGeom     = localDirection.mag();    // geometrical path length
-      double pathStep     = 0.;                         // path calculated through stepping
-      double pathDrift    = 0.;                         // path calculated through drift charge
-      double pathUsed     = 0.;                         // path used (contains smearing & cut if applied)
-
-      const double distX = localExitX-localEntryX;
-      const double distY = localExitY-localEntryY;
-      const double distZ = localExitZ-localEntryZ;
-      // relational slope
-      const double slopeYX = distY/distX;
-      const double slopeXZ = distX/distZ;
-      //double slopeZX = distZ/distX;
-      // signs of stepping
-      const int signX = distX > 0. ? 1 : -1 ;
-      const int signY = distY > 0. ? 1 : -1 ;
-      const int signZ = distZ > 0. ? 1 : -1 ;
-
-      // get the identifier of the entry and the exit
+      const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design()));
+      
+      const Amg::Vector2D localEntry(localStartPosition.x(),localStartPosition.y());
+      const Amg::Vector2D localExit(localEndPosition.x(),localEndPosition.y());
+      
       Identifier entryId = hitSiDetElement->identifierOfPosition(localEntry);
       Identifier exitId  = hitSiDetElement->identifierOfPosition(localExit);
-      // now get the cellIds and check whether they're valid
+      
       InDetDD::SiCellId entryCellId = hitSiDetElement->cellIdFromIdentifier(entryId);
       InDetDD::SiCellId exitCellId = hitSiDetElement->cellIdFromIdentifier(exitId);
-      // entry / exit validity
-      const bool entryValid = entryCellId.isValid();
-      const bool exitValid  = exitCellId.isValid();
+      
+//       std::cout<<"Entry index eta e phi "<<entryCellId.etaIndex()<<" "<<entryCellId.phiIndex()<<std::endl;
+//       std::cout<<"Exit index eta e phi "<<exitCellId.etaIndex()<<" "<<exitCellId.phiIndex()<<std::endl;
+      
+      double halfthickness = hitSiDetElement->thickness()/2.;
+      
+      bool EntryValid(entryCellId.isValid());
+      bool ExitValid(exitCellId.isValid());
+      
+      if (!EntryValid || !ExitValid) 
+      { 
+	//If entry or exit aren't valid search for the valid entry/exit of the hit as Intersection with the module
+	
+	//std::cout<<"Valid ? "<<halfthickness<<" "<<localStartPosition.z()<<" "<<localEndPosition.z()<<std::endl;
+	if ( !EntryValid && !ExitValid) continue;
+	//std::cout<<"Yes "<<std::endl;
+	
+	Amg::Vector3D Point = EntryValid ? entryPoint : exitPoint ;
+	
+	Amg::Vector3D Intersection =  CalculateIntersection(Point, localDirection, Amg::Vector2D(design->width() * 0.5,design->length() * 0.5),halfthickness);
+	
+	if( Intersection == Amg::Vector3D(0.,0.,0.))
+	{
+	  ATH_MSG_WARNING("ATTENTION THE INTERSECTION COORDINATE IS OUT OF THE MODULE");
+	  continue;
+	}
+	
+	//std::cout<<"Intersection "<<Intersection<<std::endl;
+	const Amg::Vector2D Intersection_2d(Intersection.x(),Intersection.y());
+	Identifier Intersection_2dId = hitSiDetElement->identifierOfPosition(Intersection_2d);
+	
+	InDetDD::SiCellId Intersection_2dCellId = hitSiDetElement->cellIdFromIdentifier(Intersection_2dId);
+	
+	//std::cout<<"Intersection "<<Intersection_2dCellId.etaIndex()<<" "<<Intersection_2dCellId.phiIndex()<<std::endl;
+	
+	if(!Intersection_2dCellId.isValid()) continue;
+	
+	if(EntryValid) 
+	  exitPoint = Intersection;
+	else
+	  entryPoint = Intersection;
+	
+	
+      }
+       
+      
 
-      // the intersecetion id and cellId of it
-      const double par = -localEntryZ/(localExitZ-localEntryZ);
-      const double interX = localEntryX + par*(localExitX-localEntryX);
-      const double interY = localEntryY + par*(localExitY-localEntryY);
-      // double interX = 0.5*(localEntryX+localExitX);
-      // double interY = 0.5*(localEntryY+localExitY);
-      const Amg::Vector2D intersection(interX,interY);
-      const Identifier intersectionId            =  hitSiDetElement->identifierOfPosition(intersection);
-      const InDetDD::SiCellId intersectionCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
+      Trk::DigitizationModule * m_digitizationModule = buildDetectorModule(hitSiDetElement);
+      if(!m_digitizationModule){
+	ATH_MSG_FATAL( " could not get build detector module "); 
+	return StatusCode::FAILURE;
+      }
+      
+      // Getting the steps in the sensor
+      std::vector<Trk::DigitizationStep> digitizationSteps = m_digitizationStepper->cellSteps(*m_digitizationModule,entryPoint,exitPoint);
 
-      // the delta ranges
-      int deltaRawPhi = 0;
-      // apply the lorentz correction
-      const double tanLorAng = m_pixTanLorentzAngleScalor*hitSiDetElement->getTanLorentzAnglePhi();
-      const int lorentzDirection = tanLorAng > 0. ? 1 : -1;
-      // shift parameters
-      const double shift = hitSiDetElement->getLorentzCorrection();
-      // validation filling
-
-      // lorenz angle effects : offset goes against the lorentzAngle
-      const double xLoffset  = -lorentzDirection*thickness*tanLorAng;
-
-      // --------------------------------------------------------------------------------------
-      // fast exit: skip non-valid entry && exit
-      if ((!entryValid && !exitValid)){
-        continue;
-        // fast exit 1 - sub % lorentz effect, don't care about that
-      } else if ( ( ( entryCellId == exitCellId && entryCellId.isValid())  || (distX*distX < 10e-5) ) && (fabs(tanLorAng) < 0.01) ) {
-        // get the current position
-        const Amg::Vector2D currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(intersectionCellId);
-        // fast exit 2 - single hit / or diffused, drifted second hit in next phi pixel
-        pixelPositions.push_back(currentCenterPosition);
-        // the weight is the full step
-        pathGeom  = localDirection.mag();
-        surfaceChargeWeights[intersectionId] = pathGeom;
-        // the current diode parameters
-        const InDetDD::SiDiodesParameters currentDiodeParameters = design->parameters(intersectionCellId);
-        // the currentPitchY
-        //double currentPitchY = currentDiodeParameters.width().xEta();
-      } else {
-        // the entry and exit index in phi
-        const int entryPhiIndex = entryCellId.phiIndex();
-        const int exitPhiIndex  = exitCellId.phiIndex();
-        // the exit index for stopping the loop
-        const int exitEtaIndex = exitCellId.etaIndex();
-        // get the maximum number of rows
-        const int numberOfDiodesPhi = design->rows();
-        const int numberOfDiodesEta = design->columns();
-        // needed for a veto later on
-        deltaRawPhi = exitPhiIndex-entryPhiIndex;
-        // relational slopes
-        const double slopeXY = distX/distY;
-        const double slopeZX = distZ/distX;
-        // raw (i.e. before cut) pixel sizes
-        int phiIndexMaxRaw = -10000;
-        int phiIndexMinRaw =  10000;
-        int etaIndexMaxRaw = -10000;
-        int etaIndexMinRaw =  10000;
-        // ============================== the clusteristiaon core ========================================================
-        // there are two independent loops
-        // (a) the geometrical steps through the pixels : labelled current
-        Identifier          currentId       = entryId;
-        InDetDD::SiCellId   currentCellId   = entryCellId;
-        Amg::Vector2D currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
-        Amg::Vector3D currentPosition3D(interX-0.5*distX,interY-0.5*distY,-signZ*0.5*thickness);
-        double              currentStepX    = 0.;
-        double              currentStepY    = 0.;
-        double              currentPitchX   = 0.;
-        double              currentPitchY   = 0.;
-        Amg::Vector3D       currentStep3D(0.,0.,0.);
-        Amg::Vector2D       currentCenterStep(0.,0.);
-        // check for non-valid entry diode ... this needs to be reset then
-        if (!entryValid){
-          // find out where to go - we know that at least the exit is valid
-          const bool outsidePhi = exitPhiIndex <= 2 || exitPhiIndex >= numberOfDiodesPhi-2;
-          // now make the step to the border
-          double stepExitX = 0.;
-          double stepExitY = 0.;
-          double stepExitZ = 0.;
-          // calculate the sensitive border parameters
-          if (outsidePhi){
-            // get the last valid phi border
-            const int phiExitIndex   = exitPhiIndex <= 2 ? 0 : numberOfDiodesPhi-1;
-            const InDetDD::SiCellId  phiExitId(phiExitIndex,0);
-            const Amg::Vector2D phiExitCenter = hitSiDetElement->rawLocalPositionOfCell(phiExitId);
-            const double xExitPosition = phiExitCenter.x()-signX*0.5*hitSiDetElement->phiPitch();
-            // fill the step parameters
-            stepExitX = xExitPosition-localEntryX;
-            stepExitY = stepExitX*slopeYX;
-            stepExitZ = stepExitX*slopeZX;
-          } else {
-            // get the last valid eta border
-            const int etaExitIndex = exitEtaIndex <= 2 ? 0 : numberOfDiodesEta-1;
-            const InDetDD::SiCellId  etaExitId(0,etaExitIndex);
-            const Amg::Vector2D etaExitCenter = hitSiDetElement->rawLocalPositionOfCell(etaExitId);
-            const InDetDD::SiDiodesParameters eixtDiodeParameters = design->parameters(etaExitId);
-            const double exitPitchY    = eixtDiodeParameters.width().xEta();
-            const double yExitPosition = etaExitCenter.y()-signY*0.5*exitPitchY;
-            // fill the step parameters
-            stepExitY = yExitPosition-localEntryY;
-            stepExitX = stepExitY*slopeXY;
-            stepExitZ = stepExitX*slopeZX;
-          }
-          // get to the first valid pixel
-          const Amg::Vector3D  stepExitToFirstValid(stepExitX,stepExitY,stepExitZ);
-          currentPosition3D += stepExitToFirstValid;
-          pathStep += stepExitToFirstValid.mag();
-          // the necessary step into the pixel for the resetting of start parameters
-          // for simplicity step twice the phiPitch it's safe !
-          const Amg::Vector2D positionInFirstValid(currentPosition3D.x()+signX*0.5*hitSiDetElement->phiPitch(),
-                                             currentPosition3D.y()+signY*0.5*hitSiDetElement->phiPitch());
-          // reset the entry parameters to the first valid pixel
-          currentId       = hitSiDetElement->identifierOfPosition(positionInFirstValid);
-          currentCellId   = hitSiDetElement->cellIdFromIdentifier(currentId);
-          currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
-
-        }
-
-        // (b) the collection of pixels due to surface charge
-        //     there is a critical break in (b) when the track is above the lorentz angle plane
-        //      however, there are tracks that will never go above that plane (i.e. tan(track) > tan(lorentz))
-        // the lorentz plane setp
-        double         lplaneStepX = 0.;
-        double         lplaneStepY = 0.;
-        Amg::Vector3D  lplaneIntersection(0.,0.,0.);
-        Amg::Vector3D  driftPrePosition3D(currentPosition3D);
-        Amg::Vector3D  driftPostPosition3D(currentPosition3D);
-        // (c) simple cache for pure geometrical clustering
-        Identifier     lastId  = currentId;
-
-        int n = 0;
-        for ( ; ; ){
-          int estimatedDirection = 0;
-          // break the loop
-          if (!exitValid && !currentCellId.isValid()) break;
-          // these are numerical instabilities
-          if (pathStep > pathGeom) break;
-          // current phi/eta indices
-          const int currentPhiIndex = currentCellId.phiIndex();
-          const int currentEtaIndex = currentCellId.etaIndex();
-          // cache it
-          phiIndexMinRaw = currentPhiIndex < phiIndexMinRaw ?  currentPhiIndex : phiIndexMinRaw;
-          phiIndexMaxRaw = currentPhiIndex > phiIndexMaxRaw ?  currentPhiIndex : phiIndexMaxRaw;
-          etaIndexMinRaw = currentEtaIndex < etaIndexMinRaw ?  currentEtaIndex : etaIndexMinRaw;
-          etaIndexMaxRaw = currentEtaIndex > etaIndexMaxRaw ?  currentEtaIndex : etaIndexMaxRaw;
-          // find out if this is the last step
-          const bool lastInPhi = (currentPhiIndex == exitPhiIndex);
-          const bool lastInEta = (currentEtaIndex == exitEtaIndex);
-          const bool lastPixel = lastInPhi && lastInEta;
-          // diode parameters for the phi/eta pitch
-          const InDetDD::SiDiodesParameters currentDiodeParameters = design->parameters(currentCellId);
-          currentPitchX = currentDiodeParameters.width().xPhi();
-          currentPitchY = currentDiodeParameters.width().xEta();
-          // calculate the potential step in X and Y
-          const double stepInX  = lastInPhi ? localExitX-currentPosition3D.x() :
-            0.5*currentPitchX+signX*(currentCenterPosition.x()-currentPosition3D.x());
-          const double stepInY         = lastInEta ? localExitY - currentPosition3D.y() :
-            0.5*currentPitchY+signY*(currentCenterPosition.y()-currentPosition3D.y());
-          // check whether the direction needs to be estimated first
-          if (!estimatedDirection){
-            // some magic here to find out whether an xstep of y step needs to be applied
-            const double endY    =  currentPosition3D.y() + signX*stepInX*slopeYX;
-            const double cornerYpos = currentCenterPosition.y() + (0.5*currentPitchY);
-            const double cornerYneg = currentCenterPosition.y() - (0.5*currentPitchY);
-            // stay within the y boundaries while performing the x step
-            if (endY > cornerYneg && endY < cornerYpos && deltaRawPhi) estimatedDirection = 1;
-            else estimatedDirection = 2;
-          }
-          // record for the full validation
-          // (a) steps through the pixels
-          // the next & previous pixel borders are needed (next is w.r.t to the track direction)
-          std::vector<double> lorentzLinePositions;
-          const int trackDir = slopeXZ > 0 ? 1 : -1;
-          lorentzLinePositions.reserve(3);
-          // the both pixel borders left/right
-          lorentzLinePositions.push_back(currentCenterPosition.x() + trackDir*0.5*currentPitchX);
-          lorentzLinePositions.push_back(currentCenterPosition.x() - trackDir*0.5*currentPitchX);
-          // the third line is possible -> it is due to xOffset > pitchX
-          if (xLoffset*xLoffset > currentPitchX*currentPitchX)
-            lorentzLinePositions.push_back(currentCenterPosition.x() + lorentzDirection*1.5*currentPitchX);
-
-          // intersect the effective lorentz plane if the intersection is not valid anymore
-          bool        lplaneInterInCurrent = false;
-          double      lorentzPlaneHalfX  = 0.;
-          Amg::Vector3D  lplaneCandidate(0.,0.,0.);
-          std::vector<double>::iterator lorentzLinePosIter = lorentzLinePositions.begin();
-          // find the intersection solutions for the three cases
-          int lplaneDirection = 100; // solve the intersection case first
-          // test left and right lorentz planes of this pixel
-          for ( ; lorentzLinePosIter != lorentzLinePositions.end(); ++lorentzLinePosIter){
-            // first - do the intersection : the readout side is respected by the hit depth direction
-            const Trk::LineIntersection2D intersectLorentzPlane(localEntryX,-0.5*signZ*thickness,localExitX,0.5*signZ*thickness,
-                                                          (*lorentzLinePosIter)+xLoffset,-0.5*hitDepth*thickness,
-                                                          (*lorentzLinePosIter),0.5*hitDepth*thickness);
-            // avoid repeating intersections
-            const double formerPlaneStepZ = intersectLorentzPlane.interY-lplaneIntersection.z();
-            if (formerPlaneStepZ*formerPlaneStepZ < 10e-5){
-              lplaneInterInCurrent = false;
-              continue; // jumps to the new lorentz intersection candidate
-            }
-            // is the intersection within the z thickness ?
-            lplaneInterInCurrent = intersectLorentzPlane.interY > -0.5*thickness
-              && intersectLorentzPlane.interY < 0.5*thickness;
-            // the step in z from the former plane intersection
-            // only go on if it is worth it
-            // (a) it has to be within z boundaries
-            if (lplaneInterInCurrent){
-              // record: the half position of the loretnz plane - for estimation to be under/over
-              lorentzPlaneHalfX = (*lorentzLinePosIter)+0.5*xLoffset;
-              // plane step parameters
-              lplaneStepX = intersectLorentzPlane.interX-localEntryX;
-              lplaneStepY = lplaneStepX*slopeYX;
-              // todo -> break condition if you are hitting the same intersection
-              lplaneCandidate = Amg::Vector3D(intersectLorentzPlane.interX,
-                                              localEntryY+lplaneStepY,
-                                              intersectLorentzPlane.interY);
-              // check in y, the x direction is only needed to find out the drift direction
-              const double distToNextLineY = currentCenterPosition.y() + 0.5*currentPitchY - lplaneCandidate.y();
-              const double distToPrevLineY = currentCenterPosition.y() - 0.5*currentPitchY - lplaneCandidate.y();
-              lplaneInterInCurrent = (distToNextLineY*distToPrevLineY) < 0.;
-              // we have an intersection candidate - needs to be resolved for +1/-1
-              lplaneDirection = lplaneInterInCurrent ? 0 : lplaneDirection;
-              if (lplaneInterInCurrent) break;
-            }
-          }
-          // now assign it (if valid)
-          if (lplaneInterInCurrent) lplaneIntersection = lplaneCandidate;
-          ATH_MSG_VERBOSE( "[ cluster - pix ] Lorentz plane intersection x/y/z = "
-                           << lplaneCandidate.x() << ", "
-                           << lplaneCandidate.y() << ", "
-                           << lplaneCandidate.z() );
-
-          // now solve for 1 / -1 if needed
-          if (lplaneDirection) {
-            // check the z position of the track at this stage
-            const double trackZatlplaneHalfX = (lorentzPlaneHalfX-localEntryX)*slopeXZ - 0.5*thickness;
-            lplaneDirection = trackZatlplaneHalfX < 0. ? -1 : 1;
-          }
-          // record the lorentz plane intersections
-          // perform the x step -------------------------------------------------------------------
-          if (estimatedDirection==1) {
-            ATH_MSG_VERBOSE( "[ cluster - pix ] Perform a step in x, direction: " << signX );
-            // calculate the 2D weight
-            currentStepX = signX*stepInX;
-            currentStepY = signX*stepInX*slopeYX;
-            // recalculate if necessary
-            currentCenterStep = Amg::Vector2D(signX*currentPitchX,0.);
-            // perform the y step -------------------------------------------------------------------
-          } else if (estimatedDirection==2){
-            ATH_MSG_VERBOSE( "[ cluster - pix ] Perform a step in y, direction: " << signY );
-            // the magic numbers are for the long strip positions
-            double nextPitchY = currentPitchY;
-            // new eta index
-            const int nextEtaIndex = currentEtaIndex+signY;
-            // check on range
-            if (nextEtaIndex >= 0 && nextEtaIndex < numberOfDiodesEta){
-              const InDetDD::SiCellId nextCellId(currentPhiIndex,nextEtaIndex);
-              const InDetDD::SiDiodesParameters nextDiodeParameters = design->parameters(nextCellId);
-              nextPitchY = nextDiodeParameters.width().xEta();
-            }
-            // calculate the 2D weight
-            currentStepX = signY*stepInY*slopeXY;
-            currentStepY = signY*stepInY;
-            // recalculate if necessary
-            currentCenterStep = Amg::Vector2D(0.,signY*(0.5*currentPitchY+0.5*nextPitchY));
-          }
-          // the step to the pixel border
-          currentStep3D = lastPixel ?
-            Amg::Vector3D(localExitX-currentPosition3D.x(),
-                          localExitY-currentPosition3D.y(),
-                          0.5*signZ*thickness-currentPosition3D.z()) :
-            Amg::Vector3D(currentStepX,currentStepY,currentStepX*slopeZX);
-          // update the current values for the next step
-          currentCenterPosition += currentCenterStep;
-          currentId              = hitSiDetElement->identifierOfPosition(currentCenterPosition);
-          currentCellId          = hitSiDetElement->cellIdFromIdentifier(currentId);
-          // The new current Position && the path length for monitoring
-          pathStep          += currentStep3D.mag();
-          currentPosition3D += currentStep3D;
-          // set the drift positions
-          driftPostPosition3D = lplaneInterInCurrent ? lplaneIntersection : currentPosition3D;
-          // ---------- the surface charge is emulated -------------------------------------------------------
-          if (m_pixEmulateSurfaceCharge){
-            // loop to catch lpintersection in last step
-            const int currentDrifts = (lastPixel && lplaneInterInCurrent) ? 2 : 1;
-            for (int idrift = 0; idrift < currentDrifts; ++idrift){
-              // const assignment for fast access, take intersection solution first, then cell exit
-              const Amg::Vector3D& currentDriftPrePosition  = idrift ? driftPostPosition3D : driftPrePosition3D;
-              const Amg::Vector3D& currentDriftPostPosition = idrift ? localExit3D : driftPostPosition3D;
-              // get the center of the step and drift it to the surface
-              const Amg::Vector3D driftStepCenter = 0.5*(currentDriftPrePosition+currentDriftPostPosition);
-              // respect the reaout side through the hit dept direction
-              const double driftZtoSurface     = 0.5*hitDepth*thickness-driftStepCenter.z();
-              const Amg::Vector2D driftAtSurface(driftStepCenter.x() + tanLorAng*driftZtoSurface,
-                                           driftStepCenter.y());
-              const Identifier surfaceChargeId = hitSiDetElement->identifierOfPosition(driftAtSurface);
-              if (surfaceChargeId.is_valid()){
-                // check if the pixel has already got some charge
-                if (surfaceChargeWeights.find(surfaceChargeId) == surfaceChargeWeights.end())
-                  surfaceChargeWeights[surfaceChargeId] = (currentDriftPostPosition-currentDriftPrePosition).mag();
-                else
-                  surfaceChargeWeights[surfaceChargeId] += (currentDriftPostPosition-currentDriftPrePosition).mag();
-              }
-            } // end of last step intersection check
-          } else // ---------- purely geometrical clustering w/o surface charge ---------------------------
-            surfaceChargeWeights[lastId] = currentStep3D.mag();
-          // next pre is current post && lastId is currentId
-          driftPrePosition3D = driftPostPosition3D;
-          lastId = currentId;
-          // -------------------------------------------------------------------------------------------------
-          if (lastPixel )
-            break;
-          if (currentPosition3D.z() > 0.5*thickness)
-            break;
-
-          n += 1;
-          if (n > 100) {
-            ATH_MSG_WARNING ( "PixelFastDigitizationTool::digitize() n > 100 - bailing out!!" );
-            break;
-          }
-
-        } // end of clusterisation core  =========================================================================
-
-      } // end of n-dimensional cluster
-
-
-      // create the cluster parameters
+      
+      
+      // the pixel positions and other needed stuff for the geometrical clustering
+      InDet::PixelCluster* pixelCluster = 0;
       Amg::Vector2D       clusterPosition(0.,0.);
-      bool                isGanged = false;
-      bool                hasBorderPixel = false; // check if pixel at border has been hit
-      Identifier gangedChargeId;
-      double chargeWeightG = 0;
-      InDetDD::SiCellId chargeCellIdG;
-
-      int gangedTot;
-      std::vector<Identifier> rdoListGanged;
-      std::vector<int> totListGanged;
-      // for the validation
-      int phiIndexMax = -10000;
-      int phiIndexMin =  10000;
-      int etaIndexMax = -10000;
-      int etaIndexMin =  10000;
-
-      std::map<Identifier,double>::iterator weightIter =  surfaceChargeWeights.begin();
-      for ( ; weightIter != surfaceChargeWeights.end(); ++weightIter){
-        // map content
-        Identifier chargeId = weightIter->first;
-        InDetDD::SiCellId chargeCellId =  hitSiDetElement->cellIdFromIdentifier(chargeId);
-        double chargeWeight = weightIter->second;
-        pathDrift += chargeWeight;
-        // treshold & pixel position
-        Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
-        // verbose output
-        ATH_MSG_VERBOSE("[ cluster - pix] Adding " << chargeCenterPosition.x() << ", " << chargeCenterPosition.y()
-                        << " with weight :" << chargeWeight);
-
-        // two options fro charge smearing: landau / gauss
+      
+      std::vector<Identifier>           rdoList;
+      std::vector<int>                  totList;
+      std::vector<int>                  PixelIndicesX;
+      std::vector<int>                  PixelIndicesY;
+      
+      bool   isGanged = false;
+      int lvl1a = 0;
+      
+      double m_accumulatedPathLength=0.;
+      double m_clusterRecoX = 0.;
+      double m_clusterRecoY = 0.;
+      std::vector < double > paths;
+     
+       //ATTENTION index max e min da rdo + manager
+      int phiIndexMax = -999999;
+      int phiIndexMin = 1000000;
+      int etaIndexMax = -999999;
+      int etaIndexMin = 1000000;
+      
+      
+      for (auto& dStep : digitizationSteps){
+	
+	double pathlenght = dStep.stepLength;
+	 // two options fro charge smearing: landau / gauss
         if ( m_pixSmearPathLength > 0. ) {
           // create the smdar parameter
           double sPar = m_pixSmearLandau ?
             m_pixSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
             m_pixSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
-          chargeWeight *=  (1.+sPar);
+          pathlenght *=  (1.+sPar);
         }
+	
+	
+	if (pathlenght < pixMinimalPathCut) continue;
+	
+	// position on the diode map
+	Trk::DigitizationCell cell(dStep.stepCell.first,dStep.stepCell.second);
+	Amg::Vector2D PositionOnModule = m_digitizationModule->segmentation().cellPosition(cell);
+	InDetDD::SiCellId diode = hitSiDetElement->cellIdOfPosition(PositionOnModule);
+	
+	
+	if (!diode.isValid()) 
+	  continue;
+	
+	Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(diode);
+	
+	//ATTENTION passaggio inutile? SiCellId -> Identifier?
+	const Identifier rdoId            =  hitSiDetElement->identifierOfPosition(chargeCenterPosition);
+	clusterPosition += pathlenght * chargeCenterPosition;
 
-        // check the treshold for the minimal path cut
-        bool aboveThreshold = chargeWeight > m_pixMinimalPathCut;
-        // record for validation
-        if (!aboveThreshold) continue;
-        // phi/ eta index
-        int chargePhiIndex = chargeCellId.phiIndex();
-        int chargeEtaIndex = chargeCellId.etaIndex();
-        // set max min
-        phiIndexMin = chargePhiIndex < phiIndexMin ?  chargePhiIndex : phiIndexMin;
-        phiIndexMax = chargePhiIndex > phiIndexMax ?  chargePhiIndex : phiIndexMax;
-        etaIndexMin = chargeEtaIndex < etaIndexMin ?  chargeEtaIndex : etaIndexMin;
-        etaIndexMax = chargeEtaIndex > etaIndexMax ?  chargeEtaIndex : etaIndexMax;
-        // get number of columns per circuit
-        int numberOfCircuitsEta = design->columnsPerCircuit();
-        // check if the cluster has a border pixel
-        hasBorderPixel = hasBorderPixel ? hasBorderPixel : (!(chargeEtaIndex % numberOfCircuitsEta) || !((chargeEtaIndex+1) % numberOfCircuitsEta));
-        // update the cluster Position
-        clusterPosition += chargeWeight * chargeCenterPosition;
-        pathUsed += chargeWeight;
+	int currentEtaIndex = diode.etaIndex();
+	int currentPhiIndex = diode.phiIndex();
+	if(currentEtaIndex > etaIndexMax) etaIndexMax = currentEtaIndex;
+	if(currentEtaIndex < etaIndexMin) etaIndexMin = currentEtaIndex;
+	if(currentPhiIndex > phiIndexMax) phiIndexMax = currentPhiIndex;
+	if(currentPhiIndex < phiIndexMin) phiIndexMin = currentPhiIndex;
+	
+	//std::cout<<"Index Step "<<currentEtaIndex<<" "<<currentPhiIndex<<std::endl;
+	
         // record - positions, rdoList and totList
-        pixelPositions.push_back(chargeCenterPosition);
-        rdoList.push_back(chargeId);
-        totList.push_back(int(chargeWeight*m_pixPathLengthTotConv));
-
-        isGanged = isGanged ? isGanged : (hitSiDetElement->numberOfConnectedCells(chargeCellId) > 1);
-        bool pixGanged = (hitSiDetElement->numberOfConnectedCells(chargeCellId) > 1);
-        if (pixGanged) {gangedChargeId = chargeId; gangedTot = int(chargeWeight*m_pixPathLengthTotConv);           rdoListGanged.push_back(gangedChargeId);
-            totListGanged.push_back(gangedTot); chargeWeightG = chargeWeight; chargeCellIdG = hitSiDetElement->gangedCell(chargeCellId);}
-
-
+	m_accumulatedPathLength += pathlenght;
+        //Fail
+	rdoList.push_back(rdoId);
+        totList.push_back(int(pathlenght*m_pixPathLengthTotConv));
+	//std::cout<<"path lenght "<<pathlenght<<std::endl;
+	
       }
 
+      delete m_digitizationModule;
+      
       // the col/row
-      m_siDeltaPhiCut = phiIndexMax-phiIndexMin+1;
-      m_siDeltaEtaCut = etaIndexMax-etaIndexMin+1;
+      int m_siDeltaPhiCut = phiIndexMax-phiIndexMin+1;
+      int m_siDeltaEtaCut = etaIndexMax-etaIndexMin+1;
 
+      int totalToT=0;
+	for (unsigned int i=0; i<totList.size() ; i++){
+	  totalToT+=totList[i];
+	 
+       }
       // bail out if 0 pixel or path length problem
-      if (!rdoList.size() || pathUsed < m_pixMinimalPathCut) {
-        continue;
+      if (!rdoList.size() || m_accumulatedPathLength < pixMinimalPathCut || totalToT == 0) {
+        if (totalToT == 0 && rdoList.size() > 0 ) ATH_MSG_WARNING("The total ToT of the cluster is 0, this should never happen");
+	continue;
       }
-
+     
       // weight the cluster position
-      clusterPosition *= 1./pathUsed;
+      clusterPosition *= 1./m_accumulatedPathLength;
       Identifier clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
-      int lvl1a = 0; // needs to be checked with Pixel experts
 
 
       // merging clusters
 
       bool merged = false;
-
-      for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();) {
-        //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
-        Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
-        InDet::PixelCluster* currentCluster = clusIter->second;
-        std::vector<Identifier> currentRdoList = currentCluster->rdoList();
-        bool areNb = false;
-        for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
-          areNb = this->areNeighbours(currentRdoList, *rdoIter, const_cast<InDetDD::SiDetectorElement*>(hitSiDetElement),*m_pixel_ID);
-          if (areNb) { break; }
-        }
-        if (areNb) {
-            std::vector<int> currentTotList = currentCluster->totList();
-            rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
-            totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
-            Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
-            float c1 = (float)currentRdoList.size();
-            float c2 = (float)rdoList.size();
-            clusterPosition = (clusterPosition*c2 + currentClusterPosition*c1)/((c1 + c2));
-            clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
-            merged = true;
-            PixelDetElClusterMap.erase(clusIter);
-            delete currentCluster;
-           //break; //commenting out this break statement allows for multiple existing clusters to be merged.
-        }
+      if(m_mergeCluster){ // merge to the current cluster "near" cluster in the cluster map, in the current detector element
+	
+	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();) {
+	  //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
+	  Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
+	  InDet::PixelCluster* currentCluster = clusIter->second;
+	  std::vector<Identifier> currentRdoList = currentCluster->rdoList();
+	  bool areNb = false;
+	  for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
+	    areNb = this->areNeighbours(currentRdoList, *rdoIter, const_cast<InDetDD::SiDetectorElement*>(hitSiDetElement),*m_pixel_ID);
+	    if (areNb) { break; }
+	  }
+	  if (areNb) {
+	    std::vector<int> currentTotList = currentCluster->totList();
+	    rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
+	    totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
+	    Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
+	    float c1 = (float)currentRdoList.size();
+	    float c2 = (float)rdoList.size();
+	    clusterPosition = (clusterPosition*c2 + currentClusterPosition*c1)/((c1 + c2));
+	    clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
+	    merged = true;
+	    PixelDetElClusterMap.erase(clusIter);
+	    
+	    //Store HepMcParticleLink connected to the cluster removed from the collection
+	    std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_pixPrdTruth->equal_range(currentCluster->identify());	    
+	    for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+	    {
+	      hit_vector.push_back(this_hit->second);
+	    }
+	    //Delete all the occurency of the currentCluster from the multi map
+	    if (saved_hit.first != saved_hit.second) m_pixPrdTruth->erase(currentCluster->identify());
+	    delete currentCluster;
+	    //break; //commenting out this break statement allows for multiple existing clusters to be merged.
+	  }
+	}
       }
-
+      
       bool not_valid = false;
       for (unsigned int entry=0; entry < rdoList.size(); entry++) {
         if (!(rdoList[entry].is_valid())) { not_valid = true; break;}
       }
+      
       if (not_valid) continue;
 
       if(merged) {
@@ -1032,83 +810,30 @@ StatusCode PixelFastDigitizationTool::digitize()
         m_siDeltaEtaCut = (etaIndexMax-etaIndexMin)+1;
       }
 
-      Amg::Vector2D gangedChargeCenterPosition(0.,0.);
-      Amg::Vector2D gangedClusterPosition(0.,0.);
-
-      bool prodGanged = true;
-      if (isGanged && prodGanged && !merged) {
-
-        gangedChargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeCellIdG);
-        gangedClusterPosition += chargeWeightG * gangedChargeCenterPosition;
-
-        gangedClusterPosition *= 1./pathUsed;
-        Identifier gangedClusterId = hitSiDetElement->identifierOfPosition(gangedClusterPosition);
-        double etaWidth = design->widthFromColumnRange(etaIndexMin, etaIndexMax);
-        double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
-
-        InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
-                                                     Amg::Vector2D(phiWidth,etaWidth) );
-        int lvl1a = 0; // needs to be checked with Pixel experts
-
-        InDet::PixelCluster* pixelClusterGanged = 0;
-
-        pixelClusterGanged = m_clusterMaker->pixelCluster(gangedClusterId,
-                                                          gangedClusterPosition,
-                                                          rdoListGanged,
-                                                          lvl1a,
-                                                          totListGanged,
-                                                          *siWidth,
-                                                          hitSiDetElement,
-                                                          true,
-                                                          m_pixErrorStrategy,
-                                                          *m_pixel_ID);
-
-
-        prodGanged = false;
-
-        pixelClusterGanged->setGangedPixel(isGanged);
-        if(!(pixelClusterGanged->identify().is_valid())) {
-          delete pixelClusterGanged;
-          continue;
-        }
-
-        if (! (m_pixel_ID->is_pixel(pixelClusterGanged->identify()))) {delete pixelClusterGanged; continue;}
-
-//        if ((pixelClusterGanged->identify()) == 0xfffff4402fffffffULL) continue;
-
-        (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelClusterGanged));
-        //Ganged = true;
-
-
-      }
-
-
       // ---------------------------------------------------------------------------------------------
       //  PART 2: Cluster && ROT creation
-      //
-      InDet::PixelCluster* pixelCluster = 0;
-      // from InDetReadoutGeometry: width from eta
-      double etaWidth = design->widthFromColumnRange(etaIndexMin, etaIndexMax);
-      // from InDetReadoutGeometry : width from phi
-      double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
-
-      InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
-                                                   Amg::Vector2D(phiWidth,etaWidth) );
-      // correct shift implied by the scaling of the Lorentz angle
-      double newshift = 0.5*thickness*tanLorAng;
-      double corr = ( shift - newshift );
+      
+   
+      //ATTENTION      
+//       // correct shift implied by the scaling of the Lorentz angle
+//       double newshift = 0.5*thickness*tanLorAng;
+//       double corr = ( shift - newshift );
       // 2a) Cluster creation ------------------------------------
       if (m_pixUseClusterMaker){
-        // correct for the shift that will be applied in the cluster maker
-        // (only if surface charge emulation was switched off )
-        if (!m_pixEmulateSurfaceCharge && shift*shift > 0.)
-          clusterPosition -= Amg::Vector2D(shift,0.);
-        // safe to compare m_pixTanLorentzAngleScalor with 1. since it is set not calculated
-        else if (m_pixTanLorentzAngleScalor != 1. && shift*shift > 0.)
-          clusterPosition += Amg::Vector2D(corr,0.);
-        // use the distortion tool
-        if (m_pixModuleDistortion &&  hitSiDetElement->isBarrel() )
-          clusterPosition = m_pixDistortionTool->correctSimulation(hitSiDetElement->identify(), clusterPosition, localDirection);
+	
+	
+	//ATTENTION this can be enabled, take a look to localDirection
+//         if (m_pixModuleDistortion &&  hitSiDetElement->isBarrel() )
+//           clusterPosition = m_pixDistortionTool->correctSimulation(hitSiDetElement->identify(), clusterPosition, localDirection);
+
+   
+	// from InDetReadoutGeometry: width from eta
+	double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+	// from InDetReadoutGeometry : width from phi
+	double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+	
+	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+                                                   Amg::Vector2D(phiWidth,etaWidth));
 
         // use the cluster maker from the offline software
         pixelCluster = m_clusterMaker->pixelCluster(clusterId,
@@ -1122,33 +847,10 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                     m_pixErrorStrategy,
                                                     *m_pixel_ID);
         if (isGanged)  pixelCluster->setGangedPixel(isGanged);
-      } else if (m_pixPhiError.size() && m_pixEtaError.size()) {
-        // create your own cluster
-        // you need to correct for the lorentz drift -- only if surface charge emulation was switched on
-        double appliedShift = m_pixEmulateSurfaceCharge ? m_pixTanLorentzAngleScalor*shift : (1.-m_pixTanLorentzAngleScalor)*shift;
-        Amg::Vector2D*  lcorrectedPosition = new Amg::Vector2D(clusterPosition.x()+appliedShift,clusterPosition.y());
-        // create the parameterised error
-        double sigmaPhi = m_siDeltaPhiCut-1 < int(m_pixPhiError.size()) ?
-          m_pixPhiError[m_siDeltaPhiCut-1] : m_pixPhiError[m_pixPhiError.size()-1];
-        double sigmaEta = m_siDeltaEtaCut-1 < int(m_pixEtaError.size()) ?
-          m_pixEtaError[m_siDeltaEtaCut-1] : m_pixEtaError[m_pixEtaError.size()-1];
-        // covariance matrix && error description
-        AmgSymMatrix(2) covariance;
-        covariance.setIdentity();
-        covariance(Trk::locX,Trk::locX) = sigmaPhi*sigmaPhi;
-        covariance(Trk::locY,Trk::locY) = sigmaEta*sigmaEta;
-        Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
-        // create the cluster
-        pixelCluster = new InDet::PixelCluster(clusterId,
-                                               *lcorrectedPosition,
-                                               rdoList,
-                                               lvl1a,
-                                               totList,
-                                               *siWidth,
-                                               hitSiDetElement,
-                                               clusterErr);
-        //if (isGanged)  pixelCluster->setGangedPixel(isGanged); //FIXME is this needed here?
-      } else {
+
+        delete siWidth; 	
+	
+      }  else {
         ATH_MSG_WARNING("[ cluster - pix ] No pixels errors provided, but configured to use them.");
         ATH_MSG_WARNING("                  -> No pixels cluster will be created.");
         continue;
@@ -1163,7 +865,8 @@ StatusCode PixelFastDigitizationTool::digitize()
       if (! (m_pixel_ID->is_pixel(pixelCluster->identify()))) {delete pixelCluster; continue;}
 
       (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelCluster));
-
+ 
+      
       if (hit->particleLink().isValid()){
         const int barcode( hit->particleLink().barcode());
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
@@ -1173,9 +876,18 @@ StatusCode PixelFastDigitizationTool::digitize()
       }else{
         ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << pixelCluster << " and link = " << hit->particleLink());
       }
+      
+      //Add all hit that was connected to the cluster
+      for(HepMcParticleLink p: hit_vector){
+	
+	 m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), p ));
+      }
 
+
+      hit_vector.clear();
     } // end hit while
-
+     
+    
     (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
 
 
@@ -1267,9 +979,7 @@ bool PixelFastDigitizationTool::areNeighbours
  const PixelID& pixelID) const
 {
 
-  int m_splitClusters = 0;
-  int m_acceptDiagonalClusters = 1;
-
+ 
   std::vector<Identifier>::const_iterator groupBegin = group.begin();
   std::vector<Identifier>::const_iterator groupEnd = group.end();
 
@@ -1331,4 +1041,123 @@ bool PixelFastDigitizationTool::areNeighbours
   }
 
   return match;
+}
+
+Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const InDetDD::SiDetectorElement* hitSiDetElement ) const {
+  
+  const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design()));
+  
+  if (!design) {
+    ATH_MSG_DEBUG ( "Could not get design"<< design) ;
+    return nullptr;
+  }
+  
+    //Read from the SiDetectorElement information to build the digitization module 
+    const double halfThickness = hitSiDetElement->thickness() * 0.5;
+    const double halfWidth     = design->width() * 0.5;
+    const double halfLenght    = design->length() * 0.5;
+    
+    int binsX = design->rows();
+    int binsY = design->columns();
+    double numberOfChip = design->numberOfCircuits();
+    
+    InDetDD::SiCellId cell(0,binsY/2);
+    float LongPitch  =design->parameters(cell).width().xEta();
+    //std::cout<<"numberOfChip "<<numberOfChip<<" LongPitch "<<LongPitch<<std::endl;
+
+    ATH_MSG_VERBOSE("Retrieving infos: halfThickness = " << halfThickness << " --- halfWidth = " << halfWidth << " --- halfLenght = " << halfLenght );
+    ATH_MSG_VERBOSE("Retrieving infos: binsX = " << binsX << " --- binsY = " << binsY << " --- numberOfChip = " << numberOfChip);
+    
+    int readoutDirection = design->readoutSide();
+    
+    //bool m_useLorentzAngle = (hitSiDetElement->getLorentzCorrection() == 0.);
+    bool m_useLorentzAngle = true;
+    float lorentzAngle   = m_useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(hitSiDetElement->getTanLorentzAngle()) : 0.; 
+
+    // added for degugging
+    
+    // std::cout << "barrel_ec  = " << m_detID->barrel_ec(hitSiDetElement->identify())
+    //           << " --  layer_disk = " << m_detID->layer_disk(hitSiDetElement->identify())
+    //           << " --  eta_module = " << m_detID->eta_module(hitSiDetElement->identify()) 
+    //           << " --  lorentzAngle = " << lorentzAngle
+    // 	      << " --  lorentzCorrection = " << shift
+    // 	      << " --  readoutDirection = " << readoutDirection << std::endl;
+    // std::cout << "element->hitDepthDirection() = " << hitSiDetElement->hitDepthDirection()
+    // 	      << " --  element->hitPhiDirection() = " << hitSiDetElement->hitPhiDirection() << std::endl;
+    
+    // rectangle bounds 
+    std::shared_ptr<const Trk::RectangleBounds> rectangleBounds(new Trk::RectangleBounds(halfWidth,halfLenght));    
+    ATH_MSG_VERBOSE("Initialized rectangle Bounds");
+    // create the segmentation
+    std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(rectangleBounds,(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
+    // build the module
+    ATH_MSG_VERBOSE("Initialized rectangleSegmentation");
+    Trk::DigitizationModule * m_digitizationModule = new Trk::DigitizationModule(rectangleSegmentation, 
+										 halfThickness,
+										 readoutDirection,
+										 lorentzAngle);
+    ATH_MSG_VERBOSE("Building Rectangle Segmentation with dimensions (halfX, halfY) = (" << halfWidth << ", " << halfLenght << ")");
+    
+    // success return
+    return m_digitizationModule;   
+}
+
+
+Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(Amg::Vector3D Point, Amg::Vector3D Direction, Amg::Vector2D PlaneBorder, double halfthickness) const
+{  
+  Amg::Vector3D Intersection(0.,0.,0.);
+  
+  //Using parameter definition of a line in 3d z=z_point + direction_z t
+  std::vector<double> parameters;
+   parameters.push_back((PlaneBorder.x() - Point.x())/Direction.x());
+   parameters.push_back((-PlaneBorder.x() - Point.x())/Direction.x());
+   parameters.push_back((PlaneBorder.y() - Point.y())/Direction.y());
+   parameters.push_back((-PlaneBorder.y() - Point.y())/Direction.y());
+  
+  for(double parameter: parameters)
+  {
+    double z =  Point.z() + Direction.z() * parameter;
+//     std::cout<<"z "<<z<<std::endl;
+    if( fabs(z) > halfthickness )
+      continue;
+    
+    
+    double x = Point.x() + Direction.x() * parameter;
+    double y = Point.y() + Direction.y() * parameter;
+//     std::cout<<"x "<<x<<std::endl;
+//     std::cout<<"y "<<y<<std::endl;
+    
+    if(fabs(x) > PlaneBorder.x() || fabs(y) > PlaneBorder.y())
+      continue;
+    
+    
+    Intersection = Amg::Vector3D(x,y,z);
+    break;
+    
+  }
+  
+  return Intersection;
+}
+
+bool PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift){
+
+  double localEntryX = localEntry.x();
+  double localEntryY = localEntry.y();
+  double localExitX = localExit.x();
+  double localExitY = localExit.y();  
+
+  double signX = localExitX>localEntryX ? 1:-1 ;
+  double signY = localExitY>localEntryY ? 1:-1 ;
+  
+  localEntryX += shift*signX*(-1);
+  localExitX += shift*signX;
+  localEntryY += shift*signY*(-1);
+  localExitY += shift*signY; 
+  
+  localEntry.setX(localEntryX);
+  localEntry.setY(localEntryY);
+  localExit.setX(localExitX);
+  localExit.setY(localExitY);
+
+  return true;
 }

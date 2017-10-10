@@ -3,30 +3,37 @@
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
 def FastPixel_FirstXing():
-    FirstXing = -50
+#    FirstXing = 0
+    FirstXing = 0
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.estimatedLuminosity()> 0.5e33:
-        FirstXing = -25
+        #FirstXing = -25        
+        FirstXing = 0
     return FirstXing
 # The latest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
 def FastPixel_LastXing():
-    LastXing = 100
+#    LastXing = 100
+    LastXing = 0
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.estimatedLuminosity()> 0.5e33:
         if jobproperties.Beam.bunchSpacing.get_Value() > 50 :
-            LastXing = 75
+        #    LastXing = 75
+            LastXing = 0
         else :
-            LastXing = 25
+            LastXing = 0
+#            LastXing = 25
     return LastXing
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast SCT Digitization code.
 def FastSCT_FirstXing():
-    return -50
+    return 0
+#    return -50
 # The latest bunch crossing time for which interactions will be sent
 # to the Fast SCT Digitization code.
 def FastSCT_LastXing():
-    return 25
+    return 0
+#    return 25
 
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
@@ -141,6 +148,7 @@ def PixelFastDigitizationToolHS(name="PixelFastDigitizationToolHS", **kwargs):
 def PixelFastDigitizationToolPU(name="PixelFastDigitizationToolPU", **kwargs):
     kwargs.setdefault("PixelClusterContainerName", "Pixel_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMap_PU")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
@@ -149,6 +157,7 @@ def PixelFastDigitizationToolSplitNoMergePU(name="PixelFastDigitizationToolSplit
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("PixelClusterContainerName", "PixelFast_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMap_PU")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
@@ -195,3 +204,21 @@ def getFastSCTRange(name="FastSCTRange" , **kwargs):
     kwargs.setdefault('ItemList', ["SiHitCollection#SCT_Hits"] )
     from AthenaCommon import CfgMgr
     return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+######################################################################################
+def PixelSmearedDigitizationTool(name="PixelSmearedDigitizationTool", **kwargs):
+    # Import Digitization job properties
+    from Digitization.DigitizationFlags import digitizationFlags
+    # set the random service, stream name
+    streamName = kwargs.setdefault("RndmEngine", "FastPixelDigitization")
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
+    # set rndm seeds
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
+        digitizationFlags.rndmSeedList.addSeed(streamName, 10513239, 492615104 )
+    
+    kwargs.setdefault("InputObjectName", "PixelHits")
+    kwargs.setdefault("ClusterContainerName", "PixelClusters")
+    kwargs.setdefault("PRD_MultiTruthName", "PRD_MultiTruthPixel")
+    
+    from AthenaCommon import CfgMgr
+    return CfgMgr.SiSmearedDigitizationTool(name,**kwargs)

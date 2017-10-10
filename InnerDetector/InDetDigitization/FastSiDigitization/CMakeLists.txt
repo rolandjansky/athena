@@ -4,7 +4,6 @@
 
 # Declare the package name:
 atlas_subdir( FastSiDigitization )
-
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
@@ -36,7 +35,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkExtrapolation/TrkExUtils )
+                          Tracking/TrkExtrapolation/TrkExUtils
+                          Tracking/TrkDigitization/TrkDigEvent
+                          Tracking/TrkDigitization/TrkDigInterfaces
+                          Tracking/TrkDigitization/GeoPrimitives )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
