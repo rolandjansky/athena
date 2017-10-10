@@ -203,6 +203,8 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   TrigMuonEFCBMonVars m_monVars;
 
+  std::vector<float> TEST_vec; // &&&&& Adding in vector of floats to write new test histogram out
+
   TrigMuonEFMonVars m_TMEF_monVars;
   TrigMuGirlMonVars   m_TrigMuGirl_monVars;
   TrigMuonCaloTagMonVars m_TrigCaloTag_monVars;
