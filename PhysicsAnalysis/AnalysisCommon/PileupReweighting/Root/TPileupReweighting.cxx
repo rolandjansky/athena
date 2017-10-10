@@ -774,7 +774,7 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
    TFile* rootFile = TFile::Open( fileName, "READ" );
    if ( rootFile->IsZombie() ) {
       Error("AddConfigFile","Could not open file: %s",fileName.Data());
-      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName.Data();
       throw std::runtime_error(toThrow);
    } else {
       //try to get the the known TTrees 
@@ -854,7 +854,7 @@ Int_t CP::TPileupReweighting::AddConfigFile(const TString& fileName) {
    TFile* rootFile = TFile::Open( fileName, "READ" );
    if ( rootFile->IsZombie() ) {
       Error("AddConfigFile","Could not open file: %s",fileName.Data());
-      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName.Data();
       throw std::runtime_error(toThrow);
    } else {
       //try to get the the known TTrees 
@@ -1954,7 +1954,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
         TFile* rootFile = TFile::Open( fileName, "READ" );
         if ( rootFile->IsZombie() ) {
           Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
-          std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+          std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName.Data();
           throw std::runtime_error(toThrow);
         } else {
           //try to get the the known TTrees 
@@ -1999,7 +1999,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
     TFile* rootFile = TFile::Open( fileName, "READ" );
     if ( rootFile->IsZombie() ) {
         Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
-        std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+        std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName.Data();
         throw std::runtime_error(toThrow);
     } else {
         //try to get the the known TTrees 
