@@ -197,7 +197,8 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
+				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
@@ -213,7 +214,7 @@ JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"])
+addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 
