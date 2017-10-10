@@ -1108,7 +1108,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
    
   hName  = "MNBTightFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB Tight (>17 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Tight (>17 chan with Q>4000) - "+name+" (only vetoed events)";
   partition.h_MNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_MNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_MNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1122,7 +1122,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
       
   hName  = "MNBLooseFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB Loose (>5 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Loose (>5 chan with Q>4000) - "+name+" (only vetoed events)";
   partition.h_MNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_MNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_MNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1136,7 +1136,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
 
   hName  = "CandidateMNBTightFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB Tight Candidate (>17 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Tight (>17 chan with Q>4000) - "+name;
   partition.h_CandidateMNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_CandidateMNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_CandidateMNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1150,7 +1150,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
       
   hName  = "CandidateMNBLooseFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB Loose Candidate (>5 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Loose (>5 chan with Q>4000) - "+name;
   partition.h_CandidateMNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_CandidateMNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_CandidateMNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1163,9 +1163,10 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
     group.regHist(partition.h_CandidateMNBLooseFEBPerEvt).ignore();
   }
 
-  // Fraction of events found noisy per LB - Std flag
+  // Fraction of events found noisy per LB - Regular Noise Burst(RNB) Standard flag
   hName = "NoisyEvent_"+name;
-  partition.h_NoisyEventFrac = TH1F_LW::create(hName.c_str(),"Yield of events flagged as LArNoisyRO_Std", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as RNB-Standard";
+  partition.h_NoisyEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_NoisyEventFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_NoisyEventFrac).ignore();  
   // Histogram below is temporary. Normalized at the end of run to produce the above histograms
@@ -1173,9 +1174,10 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_NoisyEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_NoisyEvent->GetXaxis()->SetTitle("Luminosity Block");
 
-  // Fraction of events found noisy per LB - Std flag
+  // Fraction of events found noisy per LB - RNB-Saturated flag
   hName = "SaturatedNoisyEvent_"+name;
-  partition.h_SaturatedNoisyEventFrac = TH1F_LW::create(hName.c_str(),"Yield of events flagged as LArNoisyRO Saturated", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as RNB-Saturated "+name;
+  partition.h_SaturatedNoisyEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_SaturatedNoisyEventFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_SaturatedNoisyEventFrac).ignore();  
   // Histogram below is temporary. Normalized at the end of run to produce the above histograms
@@ -1184,7 +1186,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_SaturatedNoisyEvent->GetXaxis()->SetTitle("Luminosity Block");
 
   hName = "MNBTightEvent_"+name;
-  partition.h_MNBTightEventFrac = TH1F_LW::create(hName.c_str(),"Yield of events flagged as LArMNBTight", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as MNB-Tight - "+name;
+  partition.h_MNBTightEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBTightEventFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_MNBTightEventFrac).ignore();  
   // Histogram below is temporary. Normalized at the end of run to produce the above histograms
@@ -1193,7 +1196,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_MNBTightEvent->GetXaxis()->SetTitle("Luminosity Block");
 
   hName = "MNBLooseEvent_"+name;
-  partition.h_MNBLooseEventFrac = TH1F_LW::create(hName.c_str(),"Yield of events flagged as LArMNBLoose", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as MNB-Loose"+name;
+  partition.h_MNBLooseEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBLooseEventFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_MNBLooseEventFrac).ignore();  
   // Histogram below is temporary. Normalized at the end of run to produce the above histograms
@@ -1212,7 +1216,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   
   // Fraction of events found noisy per LB after time veto - Std flag
   hName = "NoisyEvent_TimeVeto_"+name;
-  partition.h_NoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO_Std not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as RNB-Standard not vetoed by time window - "+name;
+  partition.h_NoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_NoisyEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_NoisyEventTimeVetoFrac).ignore();
 
@@ -1222,7 +1227,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
 
   // Fraction of events found noisy per LB after time veto - Sat flag
   hName = "SaturatedNoisyEvent_TimeVeto_"+name;
-  partition.h_SaturatedNoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO Sat not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as RNB-Saturated not vetoed by time window - "+ name;
+  partition.h_SaturatedNoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_SaturatedNoisyEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_SaturatedNoisyEventTimeVetoFrac).ignore();
 
@@ -1231,7 +1237,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_SaturatedNoisyEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
 
   hName = "MNBTightEvent_TimeVeto_"+name;
-  partition.h_MNBTightEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArMNBTight not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle =  "Yield of events flagged as MNB-Tight not vetoed by time window" + name;
+  partition.h_MNBTightEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBTightEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_MNBTightEventTimeVetoFrac).ignore();
     
@@ -1240,7 +1247,8 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   partition.h_MNBTightEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
 
   hName = "MNBLooseEvent_TimeVeto_"+name;
-  partition.h_MNBLooseEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArMNBLoose not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  hTitle = "Yield of events flagged as MNB-Loose not vetoed by time window" + name;
+  partition.h_MNBLooseEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_MNBLooseEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_MNBLooseEventTimeVetoFrac).ignore();
     
@@ -1250,7 +1258,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
 
   // Fraction of events found noisy per LB after time veto - Weighted flag
   hName = "NoisyWEvent_TimeVeto_"+name;
-  partition.h_NoisyWEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO_StdOpt not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_NoisyWEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as RNB-StandardOpt not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
   partition.h_NoisyWEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
   groupfracbin.regHist(partition.h_NoisyWEventTimeVetoFrac).ignore();
   
