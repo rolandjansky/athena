@@ -41,7 +41,6 @@ namespace DerivationFramework {
     declareProperty("JetCalibTool",   m_jetCalibTool);
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
-    //declareProperty("JetJvtEfficiencyTool",     m_jetJvtEfficiencyTool);
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
