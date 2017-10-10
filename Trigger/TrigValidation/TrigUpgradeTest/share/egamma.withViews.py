@@ -205,6 +205,8 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       ClustersName            = "PixelTrigClusters",
                                                       isRoI_Seeded            = True)
 
+InDetPixelClusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.Pixel_ClusterKey
+
 #
 # --- SCT_ClusteringTool (public)
 #
@@ -226,7 +228,7 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
                                                     isRoI_Seeded            = True )
 
-
+InDetSCT_Clusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.SCT_ClusterKey
 
 #Space points and FTF
 
@@ -246,6 +248,8 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                   ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
 
+InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = topSequence.InDetCacheCreatorTrigViews.SpacePointCacheSCT
+InDetSiTrackerSpacePointFinder.SpacePointCachePix = topSequence.InDetCacheCreatorTrigViews.SpacePointCachePix
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
