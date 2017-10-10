@@ -106,10 +106,6 @@ private:
   };
 
   TH1I_LW* m_h_NoisyFEB=nullptr;
-  TH1F_LW* m_h_SaturatedTightFrac=nullptr;
-  TH1I_LW* m_h_SaturatedTight=nullptr;
-  TH1I_LW* m_h_SaturatedTightTimeVeto=nullptr;
-  TH1F_LW* m_h_SaturatedTightTimeVetoFrac=nullptr;
   TH1I_LW* m_h_LBN=nullptr;
 
   
