@@ -17,7 +17,8 @@ from AthenaCommon.GlobalFlags import globalflags
 DFisMC = (globalflags.DataSource()=='geant4')
 
 if DFisMC:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
     #Template Higgs cross section tool for DFHiggs
     from DerivationFrameworkHiggs.TruthCategories import *
 

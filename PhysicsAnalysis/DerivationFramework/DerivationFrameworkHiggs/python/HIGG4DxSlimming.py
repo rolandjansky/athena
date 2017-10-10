@@ -151,7 +151,8 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     #derivation truth
     if DFisMC:
 
-        from DerivationFrameworkMCTruth.MCTruthCommon import *
+        from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+        addStandardTruthContents()
 
         HIGG4DxSlimmingHelper.StaticContent = ["xAOD::TruthParticleContainer#TruthMuons",
                                                "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",

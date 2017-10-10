@@ -13,7 +13,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 
 augTools = []
 if DerivationFrameworkIsMonteCarlo:
-   from DerivationFrameworkMCTruth.MCTruthCommon import *
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   addStandardTruthContents()
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
    EXOT7Classifier = MCTruthClassifier( name                      = "EXOT7Classifier",

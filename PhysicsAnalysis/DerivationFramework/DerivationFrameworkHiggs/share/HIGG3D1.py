@@ -238,7 +238,8 @@ if globalflags.DataSource()=='geant4':
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
 
     # Add special truth containers
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
     HIGG3D1SlimmingHelper.StaticContent = [ "xAOD::TruthParticleContainer#TruthMuons",
                                             "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
                                             "xAOD::TruthParticleContainer#TruthElectrons",

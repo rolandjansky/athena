@@ -17,7 +17,8 @@ from AthenaCommon.GlobalFlags import globalflags
 DFisMC = (globalflags.DataSource()=='geant4')
 
 if DFisMC:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 print "Hello, my name is {} and I am running on {}".format(DAOD_StreamID, 'MC' if DFisMC else 'Data')
 

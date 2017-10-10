@@ -4,7 +4,8 @@
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth here
-from DerivationFrameworkMCTruth.MCTruthCommon import * 
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+addStandardTruthContents()
 
 # Flag to distinguish EVNT/xAOD input
 # isEVNT = False
