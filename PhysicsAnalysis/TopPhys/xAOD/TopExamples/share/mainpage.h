@@ -32,7 +32,7 @@
  * keeping.  To get them (for analysis) you need to do:
  * 
  * @code 
- * $ROOTCOREBIN/user_scripts/TopExamples/getExamples
+ * getExamples
  * @endcode
  *
  * This will make a directory called grid which contains the scripts you can edit and run

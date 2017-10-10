@@ -393,7 +393,8 @@ if __name__ == '__main__':
 
 def checkForShowerAlgorithm(Samples):
     noShowerDatasets = []
-    tdp = analysis.TopDataPreparation(os.getenv('ROOTCOREBIN') + '/data/TopDataPreparation/XSection-MC15-13TeV.data')
+    tdpFile = ROOT.PathResolver.find_file("TopDataPreparation/XSection-MC15-13TeV.data", "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    tdp = analysis.TopDataPreparation(tdpFile)
     for TopSample in availableDatasets.values():
         for List in Samples:
             SublistSamples = List.datasets
