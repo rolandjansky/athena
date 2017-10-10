@@ -21,7 +21,7 @@
 #ifndef RAPIDJSON_ERROR_ERROR_H__
 #define RAPIDJSON_ERROR_ERROR_H__
 
-/*! \file error.h */
+/*! \file AthenaMP/src/memory-monitor/rapidjson/error/error.h */
 
 /*! \defgroup RAPIDJSON_ERRORS RapidJSON error handling */
 

@@ -21,7 +21,7 @@
 #include "Utility.h"
 
 /**
- * @file Timer.h
+ * @file TrigCostRootAnalysis/Timer.h
  *
  * A simple class to keep track of time useage
  *

@@ -4,7 +4,7 @@
 
 #ifndef ATHENAKERNEL_CLASS_DEF_H
 #define ATHENAKERNEL_CLASS_DEF_H
-/** @file CLASS_DEF.h
+/** @file AthenaKernel/CLASS_DEF.h
  *  @brief macros to associate a CLID to a type
  *
  *  @author Paolo Calafiura <pcalafiura@lbl.gov>

@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##
-# @file DCubeValid.py
+# @file DCubeClient/python/DCubeValid.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @date Apr 21st, 2008
 # @brief implementation of DCubeValid class

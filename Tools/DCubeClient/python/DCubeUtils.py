@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ## 
-# @file DCubeUtils.py
+# @file DCubeClient/python/DCubeUtils.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief Utility classes for DCubeApp
 #
