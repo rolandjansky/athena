@@ -851,7 +851,7 @@ float* egammaMVACalib::getAddress(const TString & input_name)
     std::string formulae_string = "";
     for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
          it2 != m_formulae.end(); ++it2) {
-      formulae_string += std::string(" ") + it2->first + std::string(" ");
+      formulae_string += std::string(" ") + it2->first.Data() + std::string(" ");
     }
     ATH_MSG_FATAL("getAddress , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");
@@ -866,7 +866,7 @@ void egammaMVACalib::setExternal(const TString & input_name)
     std::string formulae_string = "";
     for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
          it2 != m_formulae.end(); ++it2) {
-      formulae_string += std::string(" ") + it2->first + std::string(" ");
+      formulae_string += std::string(" ") + it2->first.Data() + std::string(" ");
     }
     ATH_MSG_FATAL("setExternal , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");
