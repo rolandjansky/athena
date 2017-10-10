@@ -21,6 +21,10 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    print "HIGG1D1.py Applying MCTruthCommon"
+
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
@@ -262,11 +266,11 @@ svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 
-HIGG1D1Stream.AddItem("xAOD::VertexContainer#HggPrimaryVertices")
-HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#HggPrimaryVerticesAux.")
+#HIGG1D1Stream.AddItem("xAOD::VertexContainer#HggPrimaryVertices")
+#HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#HggPrimaryVerticesAux.")
 HIGG1D1Stream.AddItem("xAOD::EventShape#*")
 HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
-#HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer'}
+HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::VertexAuxContainer'}
 
 HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
@@ -276,10 +280,11 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
+                                          "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
+HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
 
 HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
