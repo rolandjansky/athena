@@ -106,23 +106,7 @@ private:
   };
 
   TH1I_LW* m_h_NoisyFEB=nullptr;
-  TH1F_LW* m_h_NoisyEventFrac=nullptr;
-  TH1F_LW* m_h_NoisyEventTimeVetoFrac=nullptr;
-  TH1I_LW* m_h_MNBTightFEB=nullptr;
-  TH1F_LW* m_h_MNBTightEventFrac=nullptr;
-  TH1F_LW* m_h_MNBTightEventTimeVetoFrac=nullptr;
-  TH1I_LW* m_h_MNBLooseFEB=nullptr;
-  TH1F_LW* m_h_MNBLooseEventFrac=nullptr;
-  TH1F_LW* m_h_MNBLooseEventTimeVetoFrac=nullptr;
-  TH1I_LW* m_h_CandidateMNBTightFEB=nullptr;
-  TH1I_LW* m_h_CandidateMNBLooseFEB=nullptr;
   TH1F_LW* m_h_SaturatedTightFrac=nullptr;
-  TH1I_LW* m_h_NoisyEvent=nullptr;
-  TH1I_LW* m_h_NoisyEventTimeVeto=nullptr;
-  TH1I_LW* m_h_MNBTightEvent=nullptr;
-  TH1I_LW* m_h_MNBTightEventTimeVeto=nullptr;
-  TH1I_LW* m_h_MNBLooseEvent=nullptr;
-  TH1I_LW* m_h_MNBLooseEventTimeVeto=nullptr;
   TH1I_LW* m_h_SaturatedTight=nullptr;
   TH1I_LW* m_h_SaturatedTightTimeVeto=nullptr;
   TH1F_LW* m_h_SaturatedTightTimeVetoFrac=nullptr;
