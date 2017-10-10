@@ -257,8 +257,7 @@ def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
     ecTool = EventCleaningTool('EventCleaningTool')
-    ecTool.JvtDecorator = "DFCommonJets_passJvt"
-    ecTool.OrDecorator = "DFCommonJets_passOR"
+    ecTool.JetCleanPrefix = "DFCommonJets_"
     algClean = EventCleaningTestAlg('EventCleaningTestAlg',
                             EventCleaningTool=ecTool,
                             JetCollectionName="AntiKt4EMTopoJets")

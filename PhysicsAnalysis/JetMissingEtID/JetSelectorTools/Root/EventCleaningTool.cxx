@@ -49,7 +49,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   declareProperty( "EtaCut" , m_eta = 4.5 );
   declareProperty( "JvtDecorator" , m_jvt = "passJvt" );
   declareProperty( "OrDecorator" , m_or = "passOR" );
-  declareProperty( "JetCleanPrefix", m_prefix = "DFCommonJets" );
+  declareProperty( "JetCleanPrefix", m_prefix = "" );
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
 }
 
@@ -91,9 +91,9 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
 
-	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "_jetClean_" + m_cleaningLevel);
-	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_or);
-	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_jvt);	
+	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "jetClean_" + m_cleaningLevel);
+	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_prefix+m_or);
+	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_prefix+m_jvt);	
 	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
 
 	for (auto thisJet : *jets){  //loop over decorated jet collection 
