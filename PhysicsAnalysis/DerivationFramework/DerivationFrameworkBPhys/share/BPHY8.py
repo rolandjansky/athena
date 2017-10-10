@@ -1304,7 +1304,7 @@ BPHY8Stream.AcceptAlgs(["BPHY8Kernel"])
 # Additional metadata output
 BPHY8Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
                               BPHY8cf.DerivationName,
-                              "xAOD::AuxInfoBase#%s*Aux." %
+                              "xAOD::FileMetaDataAuxInfo#%s*Aux." %
                               BPHY8cf.DerivationName] )
 
 #====================================================================

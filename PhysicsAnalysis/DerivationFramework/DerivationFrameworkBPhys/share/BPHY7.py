@@ -166,7 +166,7 @@ ToolSvc += BPHY7TriggerCountToMetadata
 # Additional metadata output
 BPHY7Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
  	                              BPHY7TriggerCountToMetadata.FolderName,
- 	                              "xAOD::AuxInfoBase#%s*Aux." %
+ 	                              "xAOD::FileMetaDataAuxInfo#%s*Aux." %
  	                              BPHY7TriggerCountToMetadata.FolderName] )
 
 #BPHY7Stream.AddMetaDataItem([ "TH1D#%s*" %BPHY7TriggerCountToMetadata.HistogramName ] )
