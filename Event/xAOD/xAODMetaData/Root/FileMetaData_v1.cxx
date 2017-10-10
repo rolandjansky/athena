@@ -54,14 +54,10 @@ namespace xAOD {
             // here...
             continue;
          }
+
+         // Only compare the string and float properties for now:
          if( ( *ti != typeid( std::string ) ) &&
              ( *ti != typeid( float ) ) ) {
-            // We just ignore every other type. Still, this is strange, let's
-            // warn the user about it.
-            std::cerr << "xAOD::FileMetaData::operator==  WARNING  Unsupported "
-                      << "variable (\"" << reg.getName( auxid ) << "\"/"
-                      << SG::normalizedTypeinfoName( *ti )
-                      << ") encountered" << std::endl;
             continue;
          }
 
@@ -95,56 +91,6 @@ namespace xAOD {
             std::abort();
          }
       }
-
-      /*
-      // Compare the string properties:
-      std::array< MetaDataType, 8 > stringTypes{ { productionRelease, amiTag,
-         AODFixVersion, AODCalibVersion, dataType, geometryVersion,
-         conditionsTag, beamType } };
-      for( MetaDataType type : stringTypes ) {
-         // (Try to) Retrieve the properties:
-         std::string val1, val2;
-         const bool found1 = this->value( type, val1 );
-         const bool found2 = rhs.value( type, val2 );
-         // If both of them failed, then let's continue. If both of them are
-         // missing this variable, that's fine.
-         if( ( ! found1 ) && ( ! found2 ) ) {
-            continue;
-         }
-         // If the variable is only available on one of them, then we already
-         // have a difference. Although this point could be fine-tuned later on.
-         if( ( found1 && ( ! found2 ) ) || ( ( ! found1 ) && found2 ) ) {
-            return false;
-         }
-         // If both values were found, then let's compare them:
-         if( val1 != val2 ) {
-            return false;
-         }
-      }
-
-      // Compare the float propery/properties:
-      std::array< MetaDataType, 1 > floatTypes{ { beamEnergy } };
-      for( MetaDataType type : floatTypes ) {
-         // (Try to) Retrieve the properties:
-         float val1 = 0.0, val2 = 0.0;
-         const bool found1 = this->value( type, val1 );
-         const bool found2 = rhs.value( type, val2 );
-         // If both of them failed, then let's continue. If both of them are
-         // missing this variable, that's fine.
-         if( ( ! found1 ) && ( ! found2 ) ) {
-            continue;
-         }
-         // If the variable is only available on one of them, then we already
-         // have a difference. Although this point could be fine-tuned later on.
-         if( ( found1 && ( ! found2 ) ) || ( ( ! found1 ) && found2 ) ) {
-            return false;
-         }
-         // If both values were found, then let's compare them:
-         if( std::abs( val1 - val2 ) > 0.001 ) {
-            return false;
-         }
-      }
-      */
 
       // The two objects were found to be equivalent:
       return true;
