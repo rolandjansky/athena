@@ -341,7 +341,7 @@ namespace EL {
     gangaCmd << gangaTrfCmd(trfDef, *this);
     gangaCmd << endl;
 
-    outDSs.push_back(std::string(outDS));	
+    outDSs.push_back(std::string(outDS.Data()));	
   }
 
   string taskName = location;
@@ -578,7 +578,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
 	jobDownloadDir + "/" + (*sample)->name() + "/" + unitName;	
       const string findCmd 
 	= "find " + unitDir + " -name \"*.hist-output.root*\" |  tr '\n' ' '";
-      filesToMerge += gSystem->GetFromPipe(findCmd.c_str());		
+      filesToMerge += gSystem->GetFromPipe(findCmd.c_str()).Data();		
     }
     if (transformCompleted) nTotalTransformsCompleted++;
     if (nUnits == 0) transformCompleted = false;
