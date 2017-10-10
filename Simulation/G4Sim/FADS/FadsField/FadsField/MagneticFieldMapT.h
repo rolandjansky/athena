@@ -18,51 +18,51 @@ namespace FADS {
 template <class T> class MagneticFieldMapT: public MagneticFieldMap {
 
 private:
-  MagneticFieldMap *g;
-  std::map<std::string, MagneticFieldMap *, std::less<std::string> > fMaps;
+  MagneticFieldMap *m_g;
+  std::map<std::string, MagneticFieldMap *, std::less<std::string> > m_fMaps;
 
 public:
-  MagneticFieldMapT(std::string n): MagneticFieldMap(n),g(0)
+  MagneticFieldMapT(std::string n): MagneticFieldMap(n),m_g(0)
   {
     FieldManager::GetFieldManager()->RegisterMagneticField(this);
   }
 
-  ~MagneticFieldMapT() {if (g) delete g;}
+  ~MagneticFieldMapT() {if (m_g) delete m_g;}
 
   MagneticFieldMap* Create() {
     //std::cout<<" This is "<<GetName()<<std::endl;
-    if (g) return g;
-    g=new T;
-    return g;       
+    if (m_g) return m_g;
+    m_g=new T;
+    return m_g;       
   }
 
   MagneticFieldMap* Create(std::string n) {
     //std::cout<<" This is "<<GetName()<<" field name "<<n<<std::endl;
     //std::cout<<" building the map ";
-    if (fMaps.find(n) != fMaps.end() )
-      return fMaps[n];
+    if (m_fMaps.find(n) != m_fMaps.end() )
+      return m_fMaps[n];
     else
     {
       //std::cout<<" Map not found in the list: building it ";
-      fMaps[n]=new T(n);
-      if (g==0) g=fMaps[n];
-      //std::cout<<fMaps[n]<<std::endl;
-      return fMaps[n];
+      m_fMaps[n]=new T(n);
+      if (m_g==0) m_g=m_fMaps[n];
+      //std::cout<<m_fMaps[n]<<std::endl;
+      return m_fMaps[n];
     }     
   }
 
   void Initialize() {
-    if (g) g->Initialize();
+    if (m_g) m_g->Initialize();
   }
 
   void Terminate() {
-    g->Terminate();
-    delete g;
-    g=0;
+    m_g->Terminate();
+    delete m_g;
+    m_g=0;
   }   
 
   void FieldValue(const double *xyzPos, double *xyzField) const {
-    if (g) g->FieldValue(xyzPos, xyzField);
+    if (m_g) m_g->FieldValue(xyzPos, xyzField);
     else
       for (int i=0;i<3;i++) xyzField[i] = 0.;
   }

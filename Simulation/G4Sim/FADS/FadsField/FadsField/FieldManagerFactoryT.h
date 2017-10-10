@@ -11,14 +11,14 @@ namespace FADS {
 
 template <class T> class FieldManagerFactoryT:public FieldManagerFactory {
 public:
-	FieldManagerFactoryT(std::string n):FieldManagerFactory(n),theFactory(0) {}
+	FieldManagerFactoryT(std::string n):FieldManagerFactory(n),m_theFactory(0) {}
 	FadsFieldManager *CreateFieldManager(std::string n)
 	{	
-		if (!theFactory) theFactory=new T(n);
-		return theFactory;
+		if (!m_theFactory) m_theFactory=new T(n);
+		return m_theFactory;
 	}
 private:
-	T* theFactory;
+	T* m_theFactory;
 };
 
 }
