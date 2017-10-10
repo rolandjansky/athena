@@ -186,7 +186,6 @@ HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
 basePath = '/HLT/Egamma'
 #Configure the TrigEgammaPlotTool
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavTPAnalysisTool, TrigEgammaPlotTool, EfficiencyTool, DistTool, ResolutionTool
-from TrigEgammaAnalysisTools.TrigEgammaProbelist           import monitoringTP_electron_extra,  triggerTags
 from TrigEgammaAnalysisTools.TrigEgammaProbelist           import monitoring_mam, monitoring_electron, monitoring_photon 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist           import probeListLowMidPtSupportingTriggers, probeListHighPtSupportingTriggers
 

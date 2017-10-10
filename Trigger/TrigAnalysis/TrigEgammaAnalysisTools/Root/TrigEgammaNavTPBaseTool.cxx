@@ -46,7 +46,7 @@ TrigEgammaNavTPBaseTool( const std::string& myname )
   declareProperty("ForceProbePid", m_forceProbePid=false); // new
   declareProperty("OppositeCharge",m_oppositeCharge=true);
   declareProperty("OfflineTagMinEt",m_tagMinEt=25);
-  //declareProperty("OfflineProbeMinEt",m_probeMinEt=4);
+  declareProperty("OfflineProbeMinEt",m_probeMinEt=4);
   declareProperty("TagTriggerList", m_tagTrigList);
   declareProperty("TriggerList",m_trigInputList);
   declareProperty("CategoryList",m_categories);
