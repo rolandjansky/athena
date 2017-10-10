@@ -67,8 +67,8 @@ class lockable_list(list):
 
 ###This Include builds some Truth Information needed by the smart slimming list
 if globalflags.DataSource()=='geant4':
-	from DerivationFrameworkMCTruth.MCTruthCommon import *
-
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 def buildNamesAndTypes():
         from RecExConfig.InputFilePeeker import inputFileSummary
