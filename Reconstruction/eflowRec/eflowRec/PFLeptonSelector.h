@@ -28,22 +28,22 @@ public:
 private:
 
   /** Select electrons to use */
-  StatusCode selectElectrons();
+  StatusCode selectElectrons(SG::WriteHandle<xAOD::ElectronContainer>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** store the cells of the electrons */
-  void storeElectronCells(const xAOD::Egamma& electron);
+  void storeElectronCells(const xAOD::Egamma& electron, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** select  muons to use */
-  StatusCode selectMuons();
+  StatusCode selectMuons(SG::WriteHandle<xAOD::MuonContainer>& selectedMuonsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** store the cells of the muons */
-  void storeMuonCells(const xAOD::Muon& muon);
+  void storeMuonCells(const xAOD::Muon& muon, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** puts set of lepton cells into the lepton container */
-  void storeLeptonCells(const xAOD::CaloCluster& theCluster);
+  void storeLeptonCells(const xAOD::CaloCluster& theCluster, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle);
 
   /** Put lepton containers and list of lepton cells into Storegate */
-  StatusCode recordLeptonContainers();
+  StatusCode recordLeptonContainers(SG::WriteHandle<xAOD::ElectronContainer>& selectedElectronsWriteHandle, SG::WriteHandle<xAOD::MuonContainer>& selectedMuonsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle );
   
   /** ReadHandle for the ElectronContainer to be used as input */
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsReadHandleKey{this,"inputElectronsName","Electrons","ReadHandle for the ElectronContainer to be used as input"};

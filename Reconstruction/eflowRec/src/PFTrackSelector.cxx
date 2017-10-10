@@ -45,7 +45,7 @@ StatusCode PFTrackSelector::execute(){
       continue;	
     }
 
-    ATH_MSG_DEBUG("Have track with pt, eta and phi of " << thisTrack->pt() << ", " << thisTrack->eta() << " and " << thisTrack->phi());
+    ATH_MSG_DEBUG("Have track with E, pt, eta and phi of " << thisTrack->e() << ", " << thisTrack->pt() << ", " << thisTrack->eta() << " and " << thisTrack->phi());
     
     bool rejectTrack(!selectTrack(*thisTrack));
 
@@ -114,6 +114,7 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
 
     for (auto theMuon : *muonsReadHandle){      
       if (theMuon){
+	ATH_MSG_DEBUG("Considering muon in isMuon with e,pt, eta and phi of " << theMuon->e() << ", " << theMuon->pt() << ", " << theMuon->eta() << " and " << theMuon->phi());
 	const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->inDetTrackParticleLink();
 	if (theLink.isValid()){
 	  const xAOD::TrackParticle* ID_track = *theLink;
