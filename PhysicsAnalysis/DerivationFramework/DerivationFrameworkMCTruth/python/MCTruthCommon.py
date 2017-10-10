@@ -52,9 +52,8 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
         # WZ Truth Jets - handle dressed and non-dressed cases
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        if decorationDressing is None:
-            addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-        else:
+        addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        if decorationDressing is not None:
             addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
         #Large R jets
@@ -165,7 +164,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                                                              AugmentationTools = augmentationToolsList
                                                              )
 
-def schedulePostJetMCTruthAugmentations(kernel=None):
+def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     # These augmentations *require* truth jets in order to behave properly
     # Ensure that we are adding it to something
     if kernel is None:
@@ -178,6 +177,12 @@ def schedulePostJetMCTruthAugmentations(kernel=None):
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
     augmentationToolsList = [ DFCommonTruthGenFilter,
                               DFCommonTruthQGLabelTool]
+    if decorationDressing is not None:
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
+        DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
+                                                                  JetCollection = "AntiKt4TruthDressedWZJets")
+        ToolSvc += DFCommonTruthDressedWZQGLabelTool
+        augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -196,7 +201,7 @@ def addStandardTruthContents(kernel=None,
     addTruthJets(kernel, decorationDressing)
     addTruthMET(kernel)
     # Tools that must come after jets
-    schedulePostJetMCTruthAugmentations(kernel)
+    schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
 
 # Add taus and their downstream particles (immediate and further decay products) in a special collection
 def addTausAndDownstreamParticles(kernel=None):
