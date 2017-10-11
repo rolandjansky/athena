@@ -89,7 +89,9 @@ public:
    ///The last example assumes the 'MyTool' class has declared a ToolHandle("SubTool/PrivateToolHandleName",this)
    ///and 'SubTool' class has an integer property called 'SubToolIntegerProperty' declared
 
-   template<typename W> static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const W& value, bool override=true) {
+  template<class W, typename = typename std::enable_if<!std::is_base_of<GaudiHandleBase,W>::value && 
+						       !std::is_base_of<GaudiHandleArrayBase,W>::value>::type> 
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const W& value, bool override=true) {
       
       std::string fullName = toolHandle.parentName() + "." + toolHandle.name();
       std::string thePropertyName(property);
