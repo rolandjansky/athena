@@ -123,16 +123,6 @@ class Factory:
     kw['name'] = name
     return self.__class__(self.iclass, **dict(self.defaults, **kw) )
 
-  def copyPublic(self, name, **kw):
-    "copy(self, name, **kw) --> return a new instance of the factory as a puclic tool with new name and defaults"
-
-    deflt = dict(self.defaults, **kw)
-
-    deflt['name'] = name
-    deflt['doAdd'] = True
-
-    return PublicToolFactory(self.iclass, **deflt )
-  
   def __call__(self, name = '', **kw ):
     """Call preInit functions, instantiate tool (alg), call postInit functions and add
        to ToolSvc (TopSequence)"""
@@ -205,6 +195,17 @@ class ToolFactory( Factory ):
   def add(self, obj):
       factoriesInfo("Tool with name ==> %s  will not be added in ToolSvc, use PublicToolFactory for public tools" %  obj.getFullName() )
       pass
+
+  def copyPublic(self, name, **kw):
+    "copy(self, name, **kw) --> return a new instance of the factory as a puclic tool with new name and defaults"
+
+    deflt = dict(self.defaults, **kw)
+
+    deflt['name'] = name
+    deflt['doAdd'] = True
+
+    return PublicToolFactory(self.iclass, **deflt )
+
 
 class PublicToolFactory( Factory ):
   """ToolFactory: to instantiate tools. Adds in ToolSvc (public tools). See Factory"""
