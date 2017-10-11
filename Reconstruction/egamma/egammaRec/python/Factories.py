@@ -77,7 +77,7 @@ class Factory:
   """Factory: base class of ToolFactory and AlgFactory.
   Allows to "lazy" instantiate tools (algs) and add them to ToolSvc (TopSequence) if needed.
   Allows to set properties in the c-tor , including other factories,tools and also define preInit/postInit methods.
-  The end result is that the configuration can be defined/formed/composted before the actual instantiation  
+  The end result is that the configuration can be defined/formed/composed before the actual instantiation  
   which happens when needed, i.e at demand  via () (__call__())  method.
   
   # Definition
