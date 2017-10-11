@@ -160,6 +160,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
+addDefaultTrimmedJets(jetm3Seq,"JETM3")
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -187,6 +188,7 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
 					]
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
