@@ -68,9 +68,10 @@ StatusCode EMShowerBuilder::initialize()
   // initialize method
   //
 
-  ATH_MSG_DEBUG(" Initializing EMShowerBuilder");;
+  ATH_MSG_DEBUG(" Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
  
-  ATH_CHECK(m_cellsKey.initialize(m_UseShowerShapeTool || m_UseCaloIsoTool));
+  ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) && 
+				  m_cellsKey.key() != ""));
 
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
   //check calo number specified
@@ -207,7 +208,7 @@ StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg){
 StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll)
 { 
   // 
-  // execute method as used by Offline reconstruction
+  // execute method as used by online reconstruction
   // 
   
   ATH_MSG_DEBUG("Executing recoExecute");
