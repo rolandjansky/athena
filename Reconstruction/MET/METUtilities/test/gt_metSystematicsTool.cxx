@@ -77,6 +77,7 @@ namespace met {
     ASSERT_TRUE(tool.m_jet_systRpt_pt_eta      ==nullptr);
   }
 
+  /* Commented out to remove crash in test logs. There is currently no R21 Track MET systematics. They should be available in about and month, and we can uncomment this code
   TEST_F( METSystTest,  TestJetTrkHistosFilled ){
     ASSERT_TRUE(tool.setProperty("ConfigJetTrkFile" ,"JetTrackSyst.config"));
     ASSERT_TRUE(tool.initialize().isSuccess());
@@ -86,7 +87,7 @@ namespace met {
     ASSERT_TRUE(tool.m_resoperp_pthard_njet_mu !=nullptr);
     ASSERT_TRUE(tool.m_jet_systRpt_pt_eta      !=nullptr);
   }
-
+  */
   TEST_F( METSystTest,  TestNoCollection ){
     ASSERT_TRUE(tool.initialize().isSuccess());
     MissingET softMET("softMet", MissingETBase::Source::softEvent());

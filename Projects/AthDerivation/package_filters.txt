@@ -10,6 +10,7 @@
 + AtlasGeometryCommon/SubDetectorEnvelopes
 
 # Calorimeter package(s):
++ Calorimeter/CaloBadChannelTool
 + Calorimeter/CaloCalibHitRec
 + Calorimeter/CaloClusterCorrection
 + Calorimeter/CaloCnv/CaloAthenaPool
@@ -59,6 +60,7 @@
 + Database/PersistentDataModel.*
 + Database/RegistrationServices
 + Database/TPTools
++ Database/AthenaRoot/.*
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
@@ -110,6 +112,7 @@
 
 # Generator package(s):
 + Generators/GenAnalysisTools/TruthHelper
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 + Generators/TruthConverters
@@ -123,6 +126,7 @@
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
 + InnerDetector/InDetConditions/Pixel.*
 + InnerDetector/InDetConditions/SiPropertiesSvc
++ InnerDetector/InDetConditions/SiLorentzAngleSvc
 + InnerDetector/InDetConditions/.*_ConditionsData
 + InnerDetector/InDetConditions/.*_ConditionsServices
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
@@ -140,6 +144,7 @@
 + InnerDetector/InDetValidation/InDetPhysValMonitoring
 
 # LAr package(s):
++ LArCalorimeter/LArBadChannelTool
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
@@ -197,6 +202,7 @@
 + PhysicsAnalysis/AnalysisCommon/Particle.*
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
@@ -237,6 +243,7 @@
 + Reconstruction/AODFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
++ Reconstruction/egamma/egammaCaloTools
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
@@ -244,6 +251,8 @@
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRec
 + Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaTools
++ Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
 - Reconstruction/Jet/JetMonitoring
@@ -255,6 +264,7 @@
 + Reconstruction/MET/METUtilities
 + Reconstruction/MuonIdentification/.*Interfaces
 + Reconstruction/MuonIdentification/ICaloTrkMuIdTools
++ Reconstruction/MuonIdentification/CaloTrkMuIdTools
 + Reconstruction/MuonIdentification/MuidEvent
 + Reconstruction/MuonIdentification/muonEvent
 + Reconstruction/MuonIdentification/MuonCombinedBaseTools
@@ -271,6 +281,7 @@
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoAlgs/CaloRingerAlgs
 + Reconstruction/RecoAlgs/IsolationAlgs
++ Reconstruction/RecoAlgs/TrackParticleAssociationAlgs
 + Reconstruction/RecoEvent/ParticleCaloExtension
 + Reconstruction/RecoTools/CaloClusterMatching
 + Reconstruction/RecoTools/CaloRingerTools
@@ -281,7 +292,13 @@
 + Reconstruction/RecoTools/TrackToCalo
 + Reconstruction/tauEvent
 + Reconstruction/tauRec.*
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecAlgs
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
++ Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools
 + Reconstruction/TrackParticleTPCnv
++ Reconstruction/RecTPCnv
++ Reconstruction/RecAthenaPool
++ Reconstruction/MissingETEvent
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
@@ -301,6 +318,7 @@
 + TileCalorimeter/TileTrackingGeometry
 
 # Tool package(s):
++ Tools/ART
 + Tools/LWHists
 + Tools/PathResolver
 + Tools/Py.*
@@ -353,9 +371,7 @@
 + Trigger/TrigEvent/TrigNavigation
 + Trigger/TrigEvent/TrigParticle
 + Trigger/TrigEvent/TrigRoiConversion
-+ Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigEvent/TrigSteeringEventAthenaPool
-+ Trigger/TrigEvent/TrigSteeringEventTPCnv
 + Trigger/TrigEvent/TrigStorageDefinitions
 + Trigger/TrigFTK/FTK_RecExample
 + Trigger/TrigFTK/TrigFTK_RawData

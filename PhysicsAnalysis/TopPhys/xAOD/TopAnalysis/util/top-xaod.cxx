@@ -61,6 +61,9 @@
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 
+// Path resolver
+#include "PathResolver/PathResolver.h"
+
 /**
  * @file The main executable.
  *
@@ -201,15 +204,18 @@ int main(int argc, char** argv) {
             topConfig -> setDSID(DSID);
 
             // now need to get and set the parton shower generator from TopDataPrep
-            SampleXsection tdp;
-            const char* const rc = getenv("ROOTCOREBIN");
-            std::string filename = std::string(rc) + "/data/TopDataPreparation/XSection-MC15-13TeV.data";
+            SampleXsection tdp;	   
+	    // Package/filename - XS file we want to use                                                           
+	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+	    // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
+	    std::string fullpath = PathResolverFindCalibFile(tdp_filename);
+	    if (!tdp.readFromFile(fullpath.c_str())) {
+	      std::cout << "ERROR::TopDataPreparation - could not read file \n";
+	      std::cout << tdp_filename << "\n";
+	      exit(1);
+	    }
+	    std::cout << "SampleXsection::Found " << fullpath << std::endl;
 
-            if (!tdp.readFromFile(filename.c_str())) {
-              std::cout << "ERROR::TopDataPreparation - could not read file \n";
-              std::cout << filename << "\n";
-              exit(1);
-            }
 
             int ShowerIndex = tdp.getShoweringIndex(DSID);
             std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;

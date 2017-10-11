@@ -1,5 +1,5 @@
-from AthenaCommon.CfgGetter import getPublicTool
-ckvptool = getPublicTool("CrabKissingVertexPositioner")
+from AthenaCommon.CfgGetter import getPrivateTool
+ckvptool = getPrivateTool("CrabKissingVertexPositioner")
 # all lengths are in mm
 ckvptool.BunchShape = "GAUSS" # GAUSS or FLAT
 ckvptool.BunchLength = 150.

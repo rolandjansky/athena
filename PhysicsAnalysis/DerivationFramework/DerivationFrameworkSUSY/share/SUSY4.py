@@ -40,17 +40,16 @@ SUSY4ThinningHelper.AppendToStream( SUSY4Stream )
 # THINNING TOOLS 
 #====================================================================
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
+# B.M.: likely not used
 # TrackParticles directly
-SUSY4TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY4TPThinningTool",
-                                                                 ThinningService         = SUSY4ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY4TPThinningTool
-thinningTools.append(SUSY4TPThinningTool)
+#SUSY4TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY4TPThinningTool",
+#                                                                 ThinningService         = SUSY4ThinningHelper.ThinningSvc(),
+#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
+#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY4TPThinningTool
+#thinningTools.append(SUSY4TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -229,8 +228,9 @@ SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel(
 OutputJets["SUSY4"] = []
 
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY4, "SUSY4")
@@ -261,21 +261,10 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY4)
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY4GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY4GenFilt)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

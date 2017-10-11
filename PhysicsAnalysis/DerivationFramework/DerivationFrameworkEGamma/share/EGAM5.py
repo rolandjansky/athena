@@ -105,6 +105,126 @@ triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35']
 triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
 triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
 
+# added for 2017
+# triggers += ['HLT_e60_etcut']
+# triggers += ['HLT_e60_etcut_L1EM24VHIM']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_j15_perf_xe60_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xe60_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_xe30_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_j15_perf_xe60_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_xe60_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_xs30_xe30_mt35']
+# triggers += ['HLT_e60_lhloose_nod0']
+# triggers += ['HLT_e60_lhloose_nod0_L1EM24VHIM']
+# triggers += ['HLT_e60_lhloose_nod0_L1EM24VHIM_xe60noL1']
+# triggers += ['HLT_e60_lhloose_nod0_xe60noL1']
+# triggers += ['HLT_e60_lhmedium_nod0']
+# triggers += ['HLT_e60_lhmedium_nod0_L1EM24VHI']
+# triggers += ['HLT_e60_lhmedium_nod0_L1EM24VHIM']
+# triggers += ['HLT_e60_lhvloose_nod0']
+# triggers += ['HLT_e60_medium']
+# triggers += ['HLT_e60_medium_L1EM24VHI']
+# triggers += ['HLT_e60_medium_L1EM24VHIM']
+# triggers += ['HLT_e70_etcut']
+# triggers += ['HLT_e70_etcut_L1EM24VHIM']
+# triggers += ['HLT_e70_lhloose_nod0']
+# triggers += ['HLT_e70_lhloose_nod0_L1EM24VHIM']
+# triggers += ['HLT_e70_lhloose_nod0_L1EM24VHIM_xe70noL1']
+# triggers += ['HLT_e70_lhloose_nod0_xe70noL1']
+# triggers += ['HLT_e70_lhvloose_nod0']
+# triggers += ['HLT_e70_lhvloose_nod0_L1EM24VHIM']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_j15_perf_xe50_6dphi15_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xs30_xe30_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_j15_perf_xe60_6dphi15_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xe50_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_xe30_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xe60_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_j15_perf_xe60_6dphi15_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xs30_xe30_mt35']
+# triggers += ['HLT_e60_etcut_trkcut_L1EM24VHIM_xe60_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_j15_perf_xe50_6dphi15_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xs30_xe30_mt35']
+# triggers += ['HLT_e50_etcut_trkcut_L1EM24VHIM_xe50_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_xe30_mt35_L1_EM20_XS30']
+# triggers += ['HLT_e24_etcut_trkcut_xs30_xe30_mt35_L1_22_XS30']
+# triggers += ['HLT_26_etcut_trkcut_xs30_xe30_mt35_L1_EM20_XS30']
+# triggers += ['HLT_26_etcut_trkcut_xs30_xe30_mt35_L1_22_XS30']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1_EM12_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1_EM12_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_xe30_mt35_L1_EM12_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1_EM12_XS20']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1_EM15_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1_EM15_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1_EM15_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1_EM15_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1_EM15_XS30']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_xe30_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_xe30_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+# triggers += ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM18_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e20_etcut_trkcut_xs30_xe30_mt35_L1EM18_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+# triggers += ['HLT_e13_etcut_trkcut_L1EM12']
+# triggers += ['HLT_e13_etcut_trkcut_xs15_mt25']
+# triggers += ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25']
+# triggers += ['HLT_e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25']
+# triggers += ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25']
+# triggers += ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_xe30_mt35']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
+# triggers += ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_L1EM15']
+# triggers += ['HLT_e18_etcut_trkcut_xs20_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_xe30_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
+# triggers += ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
+# triggers += ['HLT_j80_xe80']
+# triggers += ['HLT_xe80_tc_lcw_L1XE50']
+# triggers += ['HLT_xe90_mht_L1XE50']
+# triggers += ['HLT_xe90_tc_lcw_wEFMu_L1XE50']
+# triggers += ['HLT_xe90_mht_wEFMu_L1XE50']
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM5_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                   = "EGAM5_TriggerSkimmingTool",
                                                                         TriggerListOR          = triggers)
@@ -151,6 +271,17 @@ ToolSvc += EGAM5_ThirdSkimmingTool
 print "EGAM5 offline skimming tool:", EGAM5_ThirdSkimmingTool
 
 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+EGAM5_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM5_SkimmingTool", FilterList=[EGAM5_TriggerSkimmingTool,EGAM5_OfflineSkimmingTool,EGAM5_ThirdSkimmingTool] )
+ToolSvc+=EGAM5_SkimmingTool
+
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
+
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
@@ -162,10 +293,9 @@ cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM5_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
-#====================================================================                                                                                                    
-# Max Cell sum decoration tool                                                                                                                                                  
-#====================================================================                                                                                                           
-
+#====================================================================                 
+# Max Cell sum decoration tool
+#====================================================================
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
 EGAM5_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM5_MaxCellDecoratorTool",
                                                                     SGKey_electrons         = "Electrons",
@@ -174,18 +304,38 @@ EGAM5_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
 ToolSvc += EGAM5_MaxCellDecoratorTool
 
 
+
+#================
+# THINNING TOOLS
+#================
+thinningTools=[]
+# TO BE ADDED
+
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam5Seq = CfgMgr.AthSequencer("EGAM5Sequence")
+DerivationFrameworkJob += egam5Seq
+
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-EGAM5SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM5SkimmingTool", FilterList=[EGAM5_TriggerSkimmingTool,EGAM5_OfflineSkimmingTool,EGAM5_ThirdSkimmingTool] )
-ToolSvc+=EGAM5SkimmingTool
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
-                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM5SkimmingTool]
-                                                                       )
+egam5Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
+                                                         AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM5_SkimmingTool]
+                                                         )
+
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam5Seq,"EGAM5")
 
 
 #====================================================================
@@ -237,8 +387,4 @@ for tool in EGAM5_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)
-
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM5Stream)
 

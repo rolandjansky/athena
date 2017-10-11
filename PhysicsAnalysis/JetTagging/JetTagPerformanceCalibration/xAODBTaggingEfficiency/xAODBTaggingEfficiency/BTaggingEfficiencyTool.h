@@ -11,7 +11,7 @@
 #ifndef CPBTAGGINGEFFICIENCYTOOL_H
 #define CPBTAGGINGEFFICIENCYTOOL_H
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 
 #include "xAODBTagging/BTagging.h"
 

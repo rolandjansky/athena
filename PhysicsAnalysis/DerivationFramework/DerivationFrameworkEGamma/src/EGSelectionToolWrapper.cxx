@@ -91,13 +91,13 @@ namespace DerivationFramework {
 	// apply the shower shape corrections
 	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
 	if (type==xAOD::Type::Electron) {
-	    const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(*pItr);
+	    const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(*pItr);
 	    xAOD::Electron* el = 0;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
 	    pCopy = el;
 	}
 	else {
-	    const xAOD::Photon* eg = dynamic_cast<const xAOD::Photon*>(*pItr);
+	    const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*pItr);
 	    xAOD::Photon* ph = 0;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
 	    pCopy = ph;

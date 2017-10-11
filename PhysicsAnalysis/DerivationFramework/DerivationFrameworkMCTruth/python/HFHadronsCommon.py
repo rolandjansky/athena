@@ -78,12 +78,23 @@ DSIDList=[
   410520,
   410521,
   410522,
+  410523,
+  410524,
   410525,
   410526,
   410527,
   410528,
   410529,
   410530,
+  410531,
+  410532,
+  410533,
+  410534,
+  410535,
+  410536,
+  410537,
+  410568,
+  410569,
   301528,
   301529,
   301530,
@@ -132,7 +143,15 @@ DSIDList=[
 
 import PyUtils.AthFile as af
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+
+# Peek at the file -- this depends on what kind of file we have
+from RecExConfig.ObjKeyStore import objKeyStore
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    f = af.fopen(athenaCommonFlags.FilesInput()[0])
+elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+    f = af.fopen(athenaCommonFlags.FilesInput()[0])        
+else:
+    f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
 if len(f.mc_channel_number) > 0:
   if(int(f.mc_channel_number[0]) in DSIDList):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier

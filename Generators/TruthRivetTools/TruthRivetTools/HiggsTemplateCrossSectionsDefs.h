@@ -132,38 +132,38 @@ namespace HTXS {
     };
     
     template <class category>
-      inline HTXS::HiggsClassification Rivet2Root(category const &htxs_cat_rivet){
-      HTXS::HiggsClassification cat;
-      cat.prodMode = htxs_cat_rivet.prodMode;
-      cat.errorCode = htxs_cat_rivet.errorCode;
-      cat.higgs = MakeTLV(htxs_cat_rivet.higgs);
-      cat.V = MakeTLV(htxs_cat_rivet.V);
-      cat.p4decay_higgs = MakeTLV(htxs_cat_rivet.p4decay_higgs);
-      cat.p4decay_V = MakeTLV(htxs_cat_rivet.p4decay_V);
-      cat.jets25 = MakeTLVs(htxs_cat_rivet.jets25);
-      cat.jets30 = MakeTLVs(htxs_cat_rivet.jets30);
-      cat.stage0_cat = htxs_cat_rivet.stage0_cat;
-      cat.stage1_cat_pTjet25GeV = htxs_cat_rivet.stage1_cat_pTjet25GeV;
-      cat.stage1_cat_pTjet30GeV = htxs_cat_rivet.stage1_cat_pTjet30GeV;
+      inline HiggsClassification* Rivet2Root(category const &htxs_cat_rivet){
+      HTXS::HiggsClassification* cat = new HTXS::HiggsClassification;
+      cat->prodMode = htxs_cat_rivet.prodMode;
+      cat->errorCode = htxs_cat_rivet.errorCode;
+      cat->higgs = MakeTLV(htxs_cat_rivet.higgs);
+      cat->V = MakeTLV(htxs_cat_rivet.V);
+      cat->p4decay_higgs = MakeTLV(htxs_cat_rivet.p4decay_higgs);
+      cat->p4decay_V = MakeTLV(htxs_cat_rivet.p4decay_V);
+      cat->jets25 = MakeTLVs(htxs_cat_rivet.jets25);
+      cat->jets30 = MakeTLVs(htxs_cat_rivet.jets30);
+      cat->stage0_cat = htxs_cat_rivet.stage0_cat;
+      cat->stage1_cat_pTjet25GeV = htxs_cat_rivet.stage1_cat_pTjet25GeV;
+      cat->stage1_cat_pTjet30GeV = htxs_cat_rivet.stage1_cat_pTjet30GeV;
       return cat;    
     }
     
 
     
     inline int HTXSstage1_to_HTXSstage1FineIndex(HTXS::Stage1::Category stage1, 
-						 HiggsProdMode prodMode, tH_type tH) {
+                                                 HiggsProdMode prodMode, tH_type tH) {
 
       if(stage1==HTXS::Stage1::Category::UNKNOWN) return 0;
       int P = (int)(stage1 / 100);
       int F = (int)(stage1 % 100);
       // 1.a spit tH categories
       if (prodMode==HiggsProdMode::TH) {
-	// check that tH splitting is valid for Stage-1 FineIndex
-	// else return unknown category
-	if(tH==tH_type::noTH) return 0;
-	// check if forward tH
-	int fwdH = F==0?0:1;
-	return (49 + 2*(tH-1) +fwdH);
+        // check that tH splitting is valid for Stage-1 FineIndex
+        // else return unknown category
+        if(tH==tH_type::noTH) return 0;
+        // check if forward tH
+        int fwdH = F==0?0:1;
+        return (49 + 2*(tH-1) +fwdH);
       }
       // 1.b QQ2HQQ --> split into VBF, WH, ZH -> HQQ
       // offset vector 1: input is the Higgs prodMode 
@@ -178,10 +178,10 @@ namespace HTXS {
     }
 
     inline int HTXSstage1_to_HTXSstage1FineIndex(const HiggsClassification &stxs, 
-						 tH_type tH=noTH, bool jets_pT25 = false) {
+                                                 tH_type tH=noTH, bool jets_pT25 = false) {
       HTXS::Stage1::Category stage1 = 
-	jets_pT25==false?stxs.stage1_cat_pTjet30GeV:
-	stxs.stage1_cat_pTjet25GeV;
+        jets_pT25==false?stxs.stage1_cat_pTjet30GeV:
+        stxs.stage1_cat_pTjet25GeV;
       return HTXSstage1_to_HTXSstage1FineIndex(stage1,stxs.prodMode,tH);
     }
     

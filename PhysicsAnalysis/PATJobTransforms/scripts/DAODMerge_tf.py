@@ -46,13 +46,18 @@ def getTransform():
     addDAODMergerSubsteps(executorSet)
 
     trf = transform(executor = executorSet)
-    
+
+    addMyArguments(trf.parser)
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
     addCommonRecTrfArgs(trf.parser)
     addDAODArguments(trf.parser)
     return trf
 
+def addMyArguments(parser):
+    parser.defineArgGroup('Merge', 'Merge strategy options')
+    parser.add_argument('--fastPoolMerge', type=trfArgClasses.argFactory(trfArgClasses.argBool), metavar="BOOL",
+                        help='Hybrid POOL merging switch (default False)', group='Merge')
 
 if __name__ == '__main__':
     main()

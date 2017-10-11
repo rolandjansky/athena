@@ -24,6 +24,7 @@
 #include <EventLoop/Global.h>
 
 #include <vector>
+#include <AnaAlgorithm/Global.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
@@ -91,6 +92,7 @@ namespace EL
     algsIter algsBegin () const;
     algsIter algsEnd () const;
     void algsAdd (Algorithm *alg_swallow);
+    void algsAdd (const AnaAlgorithmConfig& config);
 
 
     /// \brief add a clone of the given algorithm
@@ -408,7 +410,8 @@ namespace EL
     /// Append a command before the main executable is called
     /// This is useful is you want to execute the command e.g. within shifter.
     static const std::string optBatchSlurmWrapperExec;
-
+    /// This overrides the asetup command if you need to use a custom one
+    static const std::string optBatchSetupCommand;
 
 
     //

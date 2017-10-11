@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file CxxUtils/test/copy_bounded_test.cxx
  * @author sss
@@ -13,8 +12,6 @@
 
 #undef NDEBUG
 
-// Disable this test entirely for the xAOD standalone builds:
-#ifndef XAOD_STANDALONE
 
 #include "CxxUtils/copy_bounded.h"
 #include "boost/foreach.hpp"
@@ -132,16 +129,9 @@ void test1()
   test1a<std::vector<int>, arange>::test();
 }
 
-#else
-
-void test1() {}
-
-#endif // not XAOD_STANDALONE
 
 int main()
 {
   test1();
   return 0;
 }
-
-

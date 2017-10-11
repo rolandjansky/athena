@@ -1,7 +1,6 @@
 <lcgdict>
 
   <!-- Tools in this package -->
-  <class name="CP::IMuonCalibrationAndSmearingTool" />
   <class name="CP::MuonCalibrationAndSmearingTool" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->

@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodeventformat_eventformat_test.cxx 629218 2014-11-18 17:38:06Z krasznaa $
-
 // System include(s):
 #include <iostream>
 

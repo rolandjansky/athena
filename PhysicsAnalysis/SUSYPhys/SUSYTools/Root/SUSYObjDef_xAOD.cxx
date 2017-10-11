@@ -5,19 +5,20 @@
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-#include "xAODBase/IParticleHelpers.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "xAODPrimitives/IsolationType.h"
-#include "FourMomUtils/xAODP4Helpers.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "AthContainers/ConstDataVector.h"
+// For making the systematics list and looping through it
 #include "PATInterfaces/SystematicsUtil.h"
+#include "PATInterfaces/SystematicRegistry.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+// Need path resolver for initialize()
+#include "PathResolver/PathResolver.h"
+
+// Including all the abstract interfaces - for systematics functions
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
 #include "JetResolution/IJERTool.h"
@@ -25,31 +26,31 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
-#include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/ITauToolBase.h"
 
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -59,24 +60,19 @@
 #include "METInterface/IMETSystematicsTool.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+// Required to use some functions (see header explanation)
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
 
-// Tool interfaces
 #include "PATInterfaces/IWeightTool.h"
-//
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-//
-#include "PathResolver/PathResolver.h"
-//
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
-// Helpers
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/split.hpp>
+// For configuration -- TEnv uses THashList
 #include "THashList.h"
-//#include <boost/tokenizer.hpp>
+
+// system includes
+#include <fstream>
 
 namespace ST {
 
@@ -94,7 +90,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noElId(false),
     m_force_noMuId(false),
     m_doTTVAsf(true),
-    m_muNoTRT(false),
     m_jesNPset(-99),
     m_useBtagging(false),
     m_debug(false),
@@ -175,7 +170,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
     m_tauRecalcOLR(false),
-    m_tauNoAODFixCheck(true),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -188,6 +182,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
+    m_orDoEleJet(true),
+    m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
     m_orDoMuBjet(true),
@@ -206,7 +202,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orMuJetInnerDR(-999),
     m_orDoMuonJetGhostAssociation(true),
     m_orRemoveCaloMuons(true),
-    m_orApplyJVT(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
     m_orDoFatjets(false),
@@ -235,8 +230,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     //
-    m_WTaggerTool(0),
-    m_ZTaggerTool(0),
+    m_WTaggerTool(""),
+    m_ZTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -246,8 +241,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muonEfficiencyBMHighPtSFTool(""),
     m_muonTTVAEfficiencySFTool(""),
     m_muonIsolationSFTool(""),
-    m_muonTriggerSFTool2015(""),
-    m_muonTriggerSFTool2016(""),
+    m_muonTriggerSFTool(""),
     //
     m_elecEfficiencySFTool_reco(""),
     m_elecEfficiencySFTool_id(""),
@@ -313,6 +307,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //Overlap Removal
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
+  declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
   declareProperty( "DoMuBjetOR",    m_orDoMuBjet );
@@ -332,7 +328,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetPtRatio", m_orMuJetPtRatio);
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
-  declareProperty( "ORApplyJVT", m_orApplyJVT);
   declareProperty( "ORInputLabel", m_orInputLabel);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
@@ -403,7 +398,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonRequireHighPtCuts",  m_murequirepassedHighPtCuts);
   declareProperty( "MuonForceNoId", m_force_noMuId );
   declareProperty( "MuonTTVASF", m_doTTVAsf );
-  declareProperty( "MuonDisableTRT", m_muNoTRT );
 
   //PHOTONS
   declareProperty( "PhotonBaselinePt", m_photonBaselinePt);
@@ -425,7 +419,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauMVACalibration", m_tauMVACalib);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
-  declareProperty( "TauIgnoreAODFixCheck", m_tauNoAODFixCheck);
   declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
 
   //Leptons
@@ -477,8 +470,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
-  m_muonTriggerSFTool2015.declarePropertyFor( this, "MuonTriggerScaleFactorsTool2015", "The MuonTriggerSFTool for 2015" );
-  m_muonTriggerSFTool2016.declarePropertyFor( this, "MuonTriggerScaleFactorsTool2016", "The MuonTriggerSFTool for 2016");
+  m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
   m_elecEfficiencySFTool_trig_singleLep.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_singleLep", "The ElectronEfficiencyCorrectionTool for single-e triggers" );
@@ -539,11 +531,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
-  el_id_support.push_back("VeryLooseLLH");
-  el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH"); 
-  el_id_support.push_back("MediumLLH"); 
-  el_id_support.push_back("TightLLH");
+  el_id_support.push_back("VeryLooseLLH_rel20p7");
+  el_id_support.push_back("LooseLLH_Rel20p7");
+  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("TightLLH_Rel20p7");
   
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
@@ -720,12 +712,15 @@ std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile
 void SUSYObjDef_xAOD::configFromFile(bool& property, const std::string& propname, TEnv& rEnv,
                                      bool defaultValue)
 {
-  if(m_bool_prop_set.find(m_conf_to_prop[propname])!= m_bool_prop_set.end()){
+  if(m_bool_prop_set.find(m_conf_to_prop[propname])!=m_bool_prop_set.end()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), (int) defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -735,10 +730,13 @@ void SUSYObjDef_xAOD::configFromFile(double& property, const std::string& propna
   // ignore if already configured
   if (property > -90.) { 
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -748,10 +746,13 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
   // ignore if already configured
   if (property > -90){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -761,6 +762,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   // ignore if already configured
   if (!property.empty()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
@@ -779,6 +781,8 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   }
 
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -798,18 +802,23 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
     m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
   }
   
   if (m_muId == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("Muon.Id", 1);
     m_muId = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property Muon.Id with value " << m_muId);
-
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Muon.Id") );
   }
   if (m_muIdBaseline == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("MuonBaseline.Id", 1);
     m_muIdBaseline = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property MuonBaseline.Id with value " << m_muIdBaseline);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("MuonBaseline.Id") );
   }
 
   //load config file to Properties map  (only booleans for now)
@@ -820,7 +829,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
   m_conf_to_prop["Muon.ForceNoId"] = "MuonForceNoId";
   m_conf_to_prop["Muon.TTVASF"] = "MuonTTVASF";
-  m_conf_to_prop["Muon.DisableTRT"] = "MuonDisableTRT";
   m_conf_to_prop["Muon.passedHighPt"] = "MuonRequireHighPtCuts";
   m_conf_to_prop["PhotonBaseline.CrackVeto"] = "PhotonBaselineCrackVeto";
   m_conf_to_prop["Photon.CrackVeto"] = "PhotonCrackVeto";
@@ -835,6 +843,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoMuonJetGhostAssociation"] = "ORDoMuonJetGhostAssociation";
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
+  m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
   m_conf_to_prop["OR.MuBjet"] = "DoMuBjetOR";
@@ -842,7 +852,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoFatJets"] = "DoFatJetOR";
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
-  m_conf_to_prop["OR.ApplyJVT"] = "ORApplyJVT";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
  
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
@@ -860,7 +869,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
-  m_conf_to_prop["Tau.IgnoreAODFixCheck"] = "TauIgnoreAODFixCheck";
   m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
   //
 
@@ -890,7 +898,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
   configFromFile(m_force_noMuId, "Muon.ForceNoId", rEnv, false);
   configFromFile(m_doTTVAsf, "Muon.TTVASF", rEnv, true);
-  configFromFile(m_muNoTRT, "Muon.DisableTRT", rEnv, false);
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
@@ -928,7 +935,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
-  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, true);
   configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
@@ -938,8 +944,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
-  configFromFile(m_WtagWP, "Jet.WtaggerWP", rEnv, "medium");
-  configFromFile(m_ZtagWP, "Jet.ZtaggerWP", rEnv, "medium");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
@@ -966,6 +972,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoMuonJetGhostAssociation, "OR.DoMuonJetGhostAssociation", rEnv, true);
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
+  configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
   configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
@@ -974,7 +982,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);
   configFromFile(m_orRemoveCaloMuons, "OR.RemoveCaloMuons", rEnv, true);
-  configFromFile(m_orApplyJVT, "OR.ApplyJVT", rEnv, true);
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
@@ -1006,6 +1013,15 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
+
+  // By now rEnv should be empty!
+  if (rEnv.GetTable() && rEnv.GetTable()->GetSize()>0){
+    ATH_MSG_ERROR("Found " << rEnv.GetTable()->GetSize() << " unparsed environment options:");
+    rEnv.Print();
+    ATH_MSG_ERROR("Please fix your configuration!");
+    return StatusCode::FAILURE;
+  }
+
 
   //** validate configuration
   ATH_CHECK( validConfig(m_strictConfigCheck) );
@@ -1426,22 +1442,13 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("MuonIsolationScaleFactors configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_muonTriggerSFTool2015.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
+  if (!m_muonTriggerSFTool.empty()) {
+    CP::SystematicCode ret  = m_muonTriggerSFTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("MuonTriggerScaleFactors (2015) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_muonTriggerSFTool2016.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("MuonTriggerScaleFactors (2016) configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("MuonTriggerScaleFactors configured for systematic var. " << systConfig.name() );
     }
   }
   if (!m_elecEfficiencySFTool_reco.empty()) {
@@ -1776,15 +1783,8 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Muon::Isolation);
     }
   }
-  if (!m_muonTriggerSFTool2015.empty()) {
-    if ( m_muonTriggerSFTool2015->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Muon;
-      sysInfo.affectedWeights.insert(ST::Weights::Muon::Trigger);
-    }
-  }
-  if (!m_muonTriggerSFTool2016.empty()) {
-    if ( m_muonTriggerSFTool2016->isAffectedBySystematic(sys) ) {
+  if (!m_muonTriggerSFTool.empty()) {
+    if ( m_muonTriggerSFTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Muon;
       sysInfo.affectedWeights.insert(ST::Weights::Muon::Trigger);
@@ -2142,11 +2142,11 @@ float SUSYObjDef_xAOD::GetDataWeight(const std::string& trig) {
   return m_prwTool->getDataWeight( *evtInfo, trig );
 }
 
-float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing() {
+float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF) {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  return m_prwTool->getCorrectedMu( *evtInfo );
+  return m_prwTool->getCorrectedMu( *evtInfo, includeDataSF );
 }
 
 double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {
@@ -2203,41 +2203,6 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   return 2017;
 }
 
-StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
-
-  //as suggested by MCP
-  int rn_2015 = 282625; // period 2015 J
-  int rn_2016 = 300345; // period 2016 B
-  
-  if(run_number!=0){
-    rn_2015 = run_number;
-    rn_2016 = run_number;
-  }
-
-  // In release 21, we can only set the run number for the SF tool that is applicable
-  if (treatAsYear(run_number)==2015 && m_muonTriggerSFTool2015->setRunNumber(rn_2015)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
-  if (treatAsYear(run_number)==2016 && m_muonTriggerSFTool2016->setRunNumber(rn_2016)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
-
-  return StatusCode::SUCCESS;
-}
-
-/* Remove? Let's see if someone still use these... /CO
-bool SUSYObjDef_xAOD::passTSTCleaning(xAOD::MissingETContainer &met){
-
-  return passTSTCleaning(met[m_outMETTerm]->met(), met["PVSoftTrk"]->met(), met[m_outMETTerm]->phi(), met["PVSoftTrk"]->phi());
-}
-
-bool SUSYObjDef_xAOD::passTSTCleaning(float MET, float TST, float MET_phi, float TST_phi){
-  // Note: both MET and TST are assumed to be in MeV!
-  if( TST < 100e3) return true;
-  if( MET > 0.)
-    if( (TST/MET) < 0.4) return true;
-  if(fabs(TVector2::Phi_mpi_pi( TST_phi - MET_phi )) > 0.8) return true;
-  return false;
-}
-*/
-
-
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 
 #ifdef XAOD_STANDALONE
@@ -2245,15 +2210,6 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   // so that they don't get re-used if we set up another SUSYTools
   // instance, e.g. when processing two datasets in one EventLoop
   // job
-
-  if(m_WTaggerTool){
-    delete m_WTaggerTool;
-    m_WTaggerTool=0;
-  }
-  if(m_ZTaggerTool){
-    delete m_ZTaggerTool;
-    m_ZTaggerTool=0;
-  }
   if (!m_trigDecTool.empty()){
     if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
       // Ignore both of these so that we are safe if others have cleaned up

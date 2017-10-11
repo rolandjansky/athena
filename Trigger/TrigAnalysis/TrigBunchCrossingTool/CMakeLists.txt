@@ -13,6 +13,7 @@ if( XAOD_STANDALONE )
       Control/AthToolSupport/AsgTools
       Trigger/TrigAnalysis/TrigAnalysisInterfaces
       PRIVATE
+      Control/xAODRootAccess
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODTrigger
       Trigger/TrigConfiguration/TrigConfInterfaces
@@ -78,6 +79,20 @@ atlas_add_test( ut_web_bunch_tool_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
    TrigConfL1Data )
+
+if( XAOD_STANDALONE )
+
+   atlas_add_test( ut_trigconf_bunch_tool_test
+      SOURCES test/ut_trigconf_bunch_tool_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess TrigBunchCrossingTool )
+
+   atlas_add_test( ut_web_xaod_bunch_tool_test
+      SOURCES test/ut_web_xaod_bunch_tool_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess TrigBunchCrossingTool )
+
+endif()
 
 # Install files from the package:
 atlas_install_headers( TrigBunchCrossingTool )

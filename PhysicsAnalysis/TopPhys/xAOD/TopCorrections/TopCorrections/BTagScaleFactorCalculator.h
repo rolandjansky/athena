@@ -27,8 +27,8 @@
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 // Forward declaration(s):
 namespace top{

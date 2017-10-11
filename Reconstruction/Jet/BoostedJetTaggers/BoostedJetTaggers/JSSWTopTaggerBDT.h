@@ -75,9 +75,12 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     std::string m_tmvaConfigFilePath;
 
     // variables for TMVA
+    mutable float m_mass; // combinedmass
+    mutable float m_pt;   // calibrated pT, corrected by combined mass
     mutable float m_ECF1;
     mutable float m_ECF2;
     mutable float m_ECF3;
+    mutable float m_e3;   // ECF3/ECF1**3
     mutable float m_D2;
     mutable float m_C2;
     mutable float m_Tau1_wta;

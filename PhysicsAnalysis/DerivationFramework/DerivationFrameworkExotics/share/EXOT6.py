@@ -19,29 +19,12 @@ from DerivationFrameworkTau.TauTruthCommon import *
 if DerivationFrameworkIsMonteCarlo:
    from DerivationFrameworkMCTruth.MCTruthCommon import *
 
-
 #====================================================================
 # THINNING TOOL 
 #====================================================================
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+
+# Track thinning   
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# MET/Jet tracks
-#met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-#EXOT6MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT6MetTPThinningTool",
-#                                                                ThinningService         = "EXOT6ThinningSvc",
-#                                                                SelectionString         = met_thinning_expression,
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT6MetTPThinningTool
-#
-#EXOT6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT6JetTPThinningTool",
-#                                                                ThinningService         = "EXOT6ThinningSvc",
-#                                                                JetKey                  = "AntiKt4LCTopoJets",
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT6JetTPThinningTool
-
-
-
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT6TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT6TPThinningTool",
                                                                  ThinningService         = "EXOT6ThinningSvc",
@@ -65,6 +48,7 @@ EXOT6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6ElectronTPThinningTool
 
+# Tracks associated with Photons
 EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6PhotonTPThinningTool",
                                                                                         ThinningService         = "EXOT6ThinningSvc",
                                                                                         SGKey             	= "Photons",
@@ -91,7 +75,6 @@ EXOT6CaloClusterThinning  = DerivationFramework__CaloClusterThinning (  name    
                                                                         TopoClCollectionSGKey     = "CaloCalTopoClusters",
                                                                       )
 ToolSvc  += EXOT6CaloClusterThinning
-
 
 #====================================================================
 # SKIMMING TOOL 
@@ -148,7 +131,6 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot6Seq,"EXOT6")
 
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -181,7 +163,5 @@ EXOT6SlimmingHelper.AllVariables = EXOT6AllVariablesContent
 
 # Adding extra missing variables from the smart slimming
 EXOT6SlimmingHelper.ExtraVariables = EXOT6ExtraVariables
-
 EXOT6SlimmingHelper.StaticContent = EXOT6UnslimmedContent
-
 EXOT6SlimmingHelper.AppendContentToStream(EXOT6Stream)

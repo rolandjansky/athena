@@ -56,7 +56,8 @@ namespace
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
-  const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
+//  const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
+  const char *jesFile = "JES_MC16Recommendation_Aug2017.config";
   const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #endif
 }

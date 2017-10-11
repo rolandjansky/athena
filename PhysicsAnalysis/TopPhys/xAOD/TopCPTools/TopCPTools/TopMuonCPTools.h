@@ -16,10 +16,10 @@
 #include "AsgTools/AnaToolHandle.h"
 
 // Muon include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 namespace top {
 
@@ -47,6 +47,8 @@ class MuonCPTools final : public asg::AsgTool {
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2015;
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2016;
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2016;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_R21;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_R21;
 
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;

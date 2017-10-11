@@ -30,8 +30,8 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 // Forward declaration(s):
 namespace top {
@@ -156,7 +156,10 @@ class MuonScaleFactorCalculator final : public asg::AsgTool {
   
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2016;
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2016;
-  
+
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_R21;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_R21;
+
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolIso;

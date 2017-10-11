@@ -151,10 +151,6 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
 # PFlow augmentation
 applyPFOAugmentation(jetm3Seq)
 
-#=======================================
-# SCHEDULE SMALL-R JETS WITH LOW PT CUT
-#=======================================
-
 OutputJets["JETM3"] = []
 
 #=======================================
@@ -165,35 +161,11 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
 
-from JetRec.JetRecStandard import jtm
-#EMTopo
-lowptjetalg = None
-if "jetalgAntiKt4EMTopoLowPtJets" in DFJetAlgs.keys():
-    lowptjetalg = DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"]
-else:
-    jtm.addJetFinder("AntiKt4EMTopoLowPtJets", "AntiKt", 0.4, "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-    lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMTopoLowPtJets", Tools = [jtm.AntiKt4EMTopoLowPtJets])
-    DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"] = lowptjetalg;
-jetm3Seq += lowptjetalg
-OutputJets["JETM3"].append("AntiKt4EMTopoLowPtJets")
-#LCTopo
-if "jetalgAntiKt4LCTopoLowPtJets" in DFJetAlgs.keys():
-    lowptjetalg = DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"]
-else:
-    jtm.addJetFinder("AntiKt4LCTopoLowPtJets", "AntiKt", 0.4, "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-    lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4LCTopoLowPtJets", Tools = [jtm.AntiKt4LCTopoLowPtJets])
-    DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"] = lowptjetalg;
-jetm3Seq += lowptjetalg
-OutputJets["JETM3"].append("AntiKt4LCTopoLowPtJets")
-#EMPFlow
-#if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
-#    lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
-#else:
-#    jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
-#    lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
-#    DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
-#jetm3Seq += lowptjetalg
-#OutputJets["JETM3"].append("AntiKt4EMPFlowLowPtJets")
+#=======================================
+# SCHEDULE SMALL-R JETS WITH LOW PT CUT
+#=======================================
+
+addAntiKt4LowPtJets(jetm3Seq,"JETM3")
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
@@ -225,7 +197,8 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
+				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
@@ -241,7 +214,7 @@ JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"])
+addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 

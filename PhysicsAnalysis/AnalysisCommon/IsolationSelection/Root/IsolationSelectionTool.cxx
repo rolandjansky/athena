@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <xAODPrimitives/IsolationType.h>
@@ -29,12 +29,15 @@ namespace CP {
                 m_Interp(nullptr),
                 m_TwikiLoc("https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationSelectionTool#List_of_current_official_working") {
         declareProperty("CalibFileName", m_calibFileName = "IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root", "The config file to use");
-        declareProperty("MuonWP", m_muWPname = "Undefined", "Working point for muon");
-        declareProperty("ElectronWP", m_elWPname = "Undefined", "Working point for electron");
-        declareProperty("PhotonWP", m_phWPname = "Undefined", "Working point for photon");
-        declareProperty("MuonKey", m_muWPKey = "/Muons/DFCommonGoodMuon/mu_cutValues_", "path of the cut map for muon");
-        declareProperty("ElectronKey", m_elWPKey = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for electron");
-        declareProperty("PhotonKey", m_phWPKey = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for photon");
+        declareProperty("MuonWP",       m_muWPname = "Undefined" , "Working point for muon");
+ 	declareProperty("ElectronWP",   m_elWPname = "Undefined" , "Working point for electron");
+ 	declareProperty("PhotonWP",     m_phWPname = "Undefined" , "Working point for photon");
+	declareProperty("MuonWPVec",    m_muWPvec                , "Vector of working points for muon");
+ 	declareProperty("ElectronWPVec",m_elWPvec                , "Vector of working points for electron");
+ 	declareProperty("PhotonWPVec",  m_phWPvec                , "Vector of working points for photon");
+	declareProperty("MuonKey",      m_muWPKey  = "/Muons/DFCommonGoodMuon/mu_cutValues_", "path of the cut map for muon");
+	declareProperty("ElectronKey",  m_elWPKey  = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for electron");
+	declareProperty("PhotonKey",    m_phWPKey  = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for photon");
 
         declareProperty("doCutInterpolationMuon", m_doInterpM = false, "flag to perform cut interpolation, muon");
         declareProperty("doCutInterpolationElec", m_doInterpE = true, "flag to perform cut interpolation, electron");
@@ -116,6 +119,9 @@ namespace CP {
         if (m_phWPname != "Undefined") ATH_CHECK(addPhotonWP(m_phWPname));
         if (m_elWPname != "Undefined") ATH_CHECK(addElectronWP(m_elWPname));
         if (m_muWPname != "Undefined") ATH_CHECK(addMuonWP(m_muWPname));
+	for (auto c: m_muWPvec) ATH_CHECK(addMuonWP(c));
+	for (auto c: m_elWPvec) ATH_CHECK(addElectronWP(c));
+	for (auto c: m_phWPvec) ATH_CHECK(addPhotonWP(c));
 
         /// Return gracefully:
         return StatusCode::SUCCESS;
@@ -191,6 +197,11 @@ namespace CP {
         } else if (muWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+        } else if (muWPname == "FixedCutTight") {
+            wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06", xAOD::Iso::ptvarcone30, "0.06*x"));
+            wp->addCut(new IsolationConditionFormula("topoetcone20R0p06", xAOD::Iso::topoetcone20, "0.06*x"));
+        } else if (muWPname == "FixedCutHighPtTrackOnly") {
+            wp->addCut(new IsolationConditionFormula("ptcone20_1p25", xAOD::Iso::ptcone20, "1.25E03"));  //units are MeV!
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
@@ -224,7 +235,7 @@ namespace CP {
         } else if (phWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("PhFixedCut_calo20", xAOD::Iso::topoetcone20, "0.065*x"));
             wp->addCut(new IsolationConditionFormula("PhFixedCut_track20", xAOD::Iso::ptcone20, "0.05*x"));
-        } else {
+	} else {
             ATH_MSG_ERROR("Unknown photon isolation WP: " << phWPname);
             delete wp;
             return StatusCode::FAILURE;
@@ -274,8 +285,13 @@ namespace CP {
         } else if (elWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("FixedCutLoose_track", xAOD::Iso::ptvarcone20, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("FixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
-        } else {
-            ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
+	}else if(elWPname == "FixedCutHighPtCaloOnly"){
+	    wp->addCut(new IsolationConditionFormula("topoetcone20_3p5",    xAOD::Iso::topoetcone20, "3.5E03")); //units are MeV!
+	}else if(elWPname == "FixedCutTrackCone40"){
+	    wp->addCut(new IsolationConditionFormula("FixedCutTC40_track",  xAOD::Iso::ptvarcone40,  "0.06*x"));
+	    wp->addCut(new IsolationConditionFormula("FixedCutTC40_calo",   xAOD::Iso::topoetcone20, "0.11*x"));
+	} else {
+	  ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
             delete wp;
             return StatusCode::FAILURE;
         }

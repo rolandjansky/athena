@@ -45,6 +45,7 @@ namespace DerivationFramework{
           || m_DSID == 410233 //first attempt for aMC@NLO+H7
           || (m_DSID>=410525 && m_DSID<=410530) //New Powheg+H7 samples
           || (m_DSID>=407037 && m_DSID<=407040) //Powheg+Hpp MET/HT sliced
+          || m_DSID ==410536 || m_DSID == 410537 
           || m_DSID == 410245 //aMC@NLO+H++ , ttbb
           ){
       m_GenUsed=HerwigPP;
@@ -56,9 +57,11 @@ namespace DerivationFramework{
     else if( m_DSID==410006 //Powheg+P8 old main31
           || m_DSID==410500 //Powheg+P8 new main31, hdamp=mt
           || (m_DSID>=410501 && m_DSID<=410508) //Powheg+P8 new main31, hdamp=1.5m // Boosted samples are included 410507 410508
-          || (m_DSID>=410511 && m_DSID<=410522) //Powheg+P8 new main31, hdamp=1.5mt, radiation systematics
+          || (m_DSID>=410511 && m_DSID<=410524) //Powheg+P8 new main31, hdamp=1.5mt, radiation systematics
+          || (m_DSID>=410531 && m_DSID<=410535) //Powheg+P8 allhad samples 
           || m_DSID==410159 || m_DSID==410160 //aMC@NLO+P8, old settings
           || (m_DSID>=410225 && m_DSID<=410227) || m_DSID==410274 || m_DSID==410275 //aMC@NLO+P8, new settings
+          || m_DSID==410568 || m_DSID==410569 // nonallhad boosted c-filtered
           || m_DSID==410244 //aMC@NLO+P8, ttbb
            ){
       m_GenUsed=Pythia8;

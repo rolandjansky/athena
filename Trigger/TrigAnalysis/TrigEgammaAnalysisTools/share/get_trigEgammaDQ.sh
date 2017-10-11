@@ -42,13 +42,12 @@ echo $run $data $stream $refrun
 source /afs/cern.ch/project/eos/installation/atlas/etc/setup.sh
 
 BASE=/eos/atlas/atlastier0/rucio/${data}/${stream}/00${run}
-EOSPATH=/afs/cern.ch/project/eos/installation/pro/bin
 echo $BASE 
 #echo eos ls ${BASE} | grep HIST.x
 #echo eos ls ${BASE} | grep HIST.f
 
-DIR1=`$EOSPATH/eos.select ls ${BASE} | grep HIST.x`
-DIR2=`$EOSPATH/eos.select ls ${BASE} | grep HIST.f`
+DIR1=`eos ls ${BASE} | grep HIST.x`
+DIR2=`eos ls ${BASE} | grep HIST.f`
 #DIR1=`eos ls ${BASE} | grep HIST.x`
 #DIR2=`eos ls ${BASE} | grep HIST.f`
 echo "Found $DIR1 $DIR2"
@@ -56,14 +55,14 @@ echo "Found $DIR1 $DIR2"
 if [ -n "$DIR1" ]; then
     echo "TRY $BASE $DIR1"
     echo "${BASE}/${DIR1}" 
-    FILETOCOPY1=`$EOSPATH/eos.select ls ${BASE}/${DIR1} | grep HIST`
+    FILETOCOPY1=`eos ls ${BASE}/${DIR1} | grep HIST`
     echo $FILETOCOPY1
     echo "TEST ${BASE}/${DIR1}/${FILETOCOPY1}"
     xrdcp ${BASE}/${DIR1}/${FILETOCOPY1} .
 else
     echo "TRY $BASE $DIR2"
     echo "${BASE}/${DIR2}" 
-    FILETOCOPY1=`$EOSPATH/eos.select ls ${BASE}/${DIR2} | grep HIST`
+    FILETOCOPY1=`eos ls ${BASE}/${DIR2} | grep HIST`
     echo $FILETOCOPY1
     echo "TEST ${BASE}/${DIR2}/${FILETOCOPY1}"
     xrdcp ${BASE}/${DIR2}/${FILETOCOPY1} .

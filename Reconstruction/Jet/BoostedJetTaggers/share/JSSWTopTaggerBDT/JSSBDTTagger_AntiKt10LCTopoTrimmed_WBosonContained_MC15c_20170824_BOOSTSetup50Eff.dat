@@ -1,0 +1,29 @@
+####################################################################################
+# Title :
+# BDT W Boson Tagger Config
+#
+# Author :
+# Samuel Meehan <samuel.meeha@cern.ch>
+#
+# Description :
+# This configuration selects fully contained W boson jets using a selection on the BDT
+# score and a selection of mComb>40 GeV which is the same used in the training.  Note that no
+# additional tuned selection on jet mass is performed.  The selection on the BDT score is tuned
+# to give a flat signal efficiency as a function of jet pT of 50%
+#
+####################################################################################
+
+TaggerType: WBoson
+
+DecorationName: BDTTaggerScoreWBoson
+
+CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
+#CalibArea: Local
+
+TMVAConfigFile: TMVAClassification_BDTG.W2q_NvarM_pT200to2000GeV.01062017.weights.xml
+
+MassCutLow: 40.0
+
+MassCutHigh: 999999999.0
+
+ScoreCut: (0.602628)*pow(x,0)+(0.000442521)*pow(x,1)+(-3.2003e-08)*pow(x,2)+(-2.02385e-10)*pow(x,3)+(7.1829e-14)*pow(x,4)

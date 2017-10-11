@@ -62,11 +62,15 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    if(!options.castBool(Job::optBatchSharedFileSystem,true)) 
+    // name of tarball being made (this needs to match BatchDriver.cxx)
+    const std::string tarballName("AnalysisPackage.tar.gz");
+
+    if(!options.castBool(Job::optBatchSharedFileSystem,true))
     {
-      int status=gSystem->CopyFile("RootCore.par",(location+"/submit/RootCore.par").c_str());
+      const std::string newLocation = location + "/submit/" + tarballName;
+      int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
       if(status != 0)
-	RCU_THROW_MSG ("failed to copy RootCore.par");
+      RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
     }
 
     {
@@ -77,11 +81,11 @@ namespace EL
       file << "output                  = submit/log-$(Process).out\n";
       file << "error                   = submit/log-$(Process).err\n";
       file << "initialdir              = " << location << "\n";
-      if(!options.castBool(Job::optBatchSharedFileSystem,true)) 
+      if(!options.castBool(Job::optBatchSharedFileSystem,true))
 	{ // Transfer data with non-shared file-systems
 	  file << "should_transfer_files   = YES\n";
 	  file << "when_to_transfer_output = ON_EXIT\n";
-	  file << "transfer_input_files    = submit/RootCore.par, submit/segments, submit/config.root\n";
+	  file << "transfer_input_files    = submit/" << tarballName << ", submit/segments, submit/config.root\n";
 	  file << "transfer_output_files   = fetch\n";
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}

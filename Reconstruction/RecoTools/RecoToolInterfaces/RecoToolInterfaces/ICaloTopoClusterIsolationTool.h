@@ -39,7 +39,7 @@ namespace xAOD {
     virtual bool caloTopoClusterIsolation(CaloIsolation& result, const IParticle& tp, 
 					  const std::vector<Iso::IsolationType>& cones, 
 					  CaloCorrection corrections, 
-					  const CaloClusterContainer* container = 0 ) = 0;
+					  const CaloClusterContainer* container = 0 ) const = 0;
 
     /**ICaloTopoClusterIsolationTool interface for calculating cluster isolation variables and decorating the particle: 
        The tool expects the cones to be order in decreasing order (topetcone40 -> topoetcone20)

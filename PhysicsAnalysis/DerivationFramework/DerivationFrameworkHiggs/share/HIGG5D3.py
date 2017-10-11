@@ -6,6 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkInDet.InDetCommon import *
 # from DerivationFrameworkJetEtMiss.JetMomentFix import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -66,11 +67,21 @@ HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream)
 
 
 # MET/Jet tracks
+thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+HIGG5D3TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "HIGG5D3TPThinningTool",
+                                                                  ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
+                                                                  SelectionString         = thinning_expression,
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += HIGG5D3TPThinningTool
+thinningTools.append(HIGG5D3TPThinningTool)
+
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG5D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D3JetTPThinningTool",
                                                                 ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                #SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
                                                                 ApplyAnd                = True)
 ToolSvc += HIGG5D3JetTPThinningTool
 thinningTools.append(HIGG5D3JetTPThinningTool)
@@ -103,27 +114,6 @@ HIGG5D3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
                                                                                       BestMatchOnly           = True)
 ToolSvc += HIGG5D3PhotonTPThinningTool
 thinningTools.append(HIGG5D3PhotonTPThinningTool)
-
-# Tracks associated with taus
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-HIGG5D3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                  = "HIGG5D3TauTPThinningTool",
-                                                                          ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                          TauKey                  = "TauJets",
-                                                                          ConeSize                = 0.6,
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG5D3TauTPThinningTool
-thinningTools.append(HIGG5D3TauTPThinningTool)
-
-
-# calo cluster thinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG5D3TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG5D3TauCCThinningTool",
-                                                                    ThinningService       = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                    SGKey                 = "TauJets",
-                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
-ToolSvc += HIGG5D3TauCCThinningTool
-thinningTools.append(HIGG5D3TauCCThinningTool)
-
 
 #====================================================================
 # Skimming Tool
@@ -245,114 +235,57 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
 #                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-700",
 #                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490"]
 
-beamEnergy = jobproperties.Beam.energy()
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG5VBF
-if (beamEnergy < 4.1e+06): # 8 TeV - Run1
-    if (is_MC): 
-        HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
-                                                                        JetContainerKey         = "AntiKt4EMTopoJets",
-                                                                        # jet multiplicity requirement 2b + 2j
-                                                                        ReqNAllJets             = True,
-                                                                        NumberOfAllJets         = 4,
-                                                                        AllJetPtCut             = 40.*Units.GeV,
-                                                                        AllJetEtaCut            = 4.9,
-                                                                        # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
-                                                                        ReqNCentralJets         = True,
-                                                                        NumberOfCentralJets     = 2,
-                                                                        CentralJetPtCut         = 40.*Units.GeV,
-                                                                        CentralJetEtaCut        = 2.6,
-                                                                        # trigger requirement
-                                                                        ReqTrigger              = False,
-                                                                        Triggers                = [],
-                                                                        # Mjj requirement
-                                                                        ReqVBFMjj               = True,
-                                                                        MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
-                                                                        DoDebug                 = False,
-                                                                        #photon requirement (p. rose)
-                                                                        PhotonContainerKey      = "Photons",
-                                                                        ReqPhoton               = True,
-                                                                        PhotonPtCut             = 15.*Units.GeV,
-                                                                        CentralPhotonEtaCut     = 2.6)
-
-    else :
-        HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
-                                                                        JetContainerKey         = "AntiKt4EMTopoJets",
-                                                                        # jet multiplicity requirement 2b + 2j
-                                                                        ReqNAllJets             = True,
-                                                                        NumberOfAllJets         = 4,
-                                                                        AllJetPtCut             = 40.*Units.GeV,
-                                                                        AllJetEtaCut            = 4.9,
-                                                                        # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
-                                                                        ReqNCentralJets         = True,
-                                                                        NumberOfCentralJets     = 2,
-                                                                        CentralJetPtCut         = 40.*Units.GeV,
-                                                                        CentralJetEtaCut        = 2.6,
-                                                                        # trigger requirement
-                                                                        ReqTrigger              = True,
-                                                                        #Triggers                = ["EF_2b35_loose_4j35_a4tchad","EF_b35_medium_j35_a4tchad_vbf_3L1J15_FJ15","EF_b35_medium_j35_a4tchad_vbf_2L1FJ15", "EF_g20_loose"],
-                                                                        Triggers                = ["HLT_2b35_loose_4j35_a4tchad","HLT_b35_medium_j35_a4tchad_vbf_3L1J15_FJ15","HLT_b35_medium_j35_a4tchad_vbf_2L1FJ15", "HLT_g20_loose"],
-                                                                        # Mjj requirement
-                                                                        ReqVBFMjj               = True,
-                                                                        MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
-                                                                        DoDebug                 = False,
-                                                                        
-                                                                        #photon requirement (p. rose)
-                                                                        PhotonContainerKey      = "Photons",
-                                                                        ReqPhoton               = True,
-                                                                        PhotonPtCut             = 20.*Units.GeV,
-                                                                        CentralPhotonEtaCut     = 2.6)
-
-if (beamEnergy > 6.0e+06): # 13 TeV - Run2
-    if (is_MC):
-        HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
-                                                                        JetContainerKey         = "AntiKt4EMTopoJets",
-                                                                        # jet multiplicity requirement 2b + 2j
-                                                                        ReqNAllJets             = False,
-                                                                        NumberOfAllJets         = 4,
-                                                                        AllJetPtCut             = 40.*Units.GeV,
-                                                                        AllJetEtaCut            = 4.9,
-                                                                        # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
-                                                                        ReqNCentralJets         = True,
-                                                                        NumberOfCentralJets     = 2,
-                                                                        CentralJetPtCut         = 15.*Units.GeV,  # to be adjusted according to b-jet trigger pT threshold
-                                                                        CentralJetEtaCut        = 2.6,
-                                                                        # trigger requirement
-                                                                        ReqTrigger              = True,
-                                                                        Triggers                = Run2MCTriggers,
-                                                                        # Mjj requirement
-                                                                        ReqVBFMjj               = False,
-                                                                        MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
-                                                                        DoDebug                 = False,
-                                                                        #photon requirement (p. rose)
-                                                                        PhotonContainerKey      = "Photons",
-                                                                        ReqPhoton               = False,
-                                                                        PhotonPtCut             = 20.*Units.GeV,
-                                                                        CentralPhotonEtaCut     = 2.6)
-    else:
-        HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
-                                                                        JetContainerKey         = "AntiKt4EMTopoJets",
-                                                                        # jet multiplicity requirement 2b + 2j
-                                                                        ReqNAllJets             = False,
-                                                                        NumberOfAllJets         = 4,
-                                                                        AllJetPtCut             = 40.*Units.GeV,
-                                                                        AllJetEtaCut            = 4.9,
-                                                                        # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
-                                                                        ReqNCentralJets         = True,
-                                                                        NumberOfCentralJets     = 2,
-                                                                        CentralJetPtCut         = 15.*Units.GeV,  # to be adjusted according to b-jet trigger pT threshold
-                                                                        CentralJetEtaCut        = 2.6,
-                                                                        # trigger requirement
-                                                                        ReqTrigger              = True,
-                                                                        Triggers                = Run2DataTriggers,
-                                                                        # Mjj requirement
-                                                                        ReqVBFMjj               = False,
-                                                                        MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
-                                                                        DoDebug                 = False,
-                                                                        #photon requirement (p. rose)
-                                                                        PhotonContainerKey      = "Photons",
-                                                                        ReqPhoton               = False,
-                                                                        PhotonPtCut             = 20.*Units.GeV,
-                                                                        CentralPhotonEtaCut     = 2.6)        
+if (is_MC):
+    HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
+                                                                    JetContainerKey         = "AntiKt4EMTopoJets",
+                                                                    # jet multiplicity requirement 2b + 2j
+                                                                    ReqNAllJets             = False,
+                                                                    NumberOfAllJets         = 4,
+                                                                    AllJetPtCut             = 40.*Units.GeV,
+                                                                    AllJetEtaCut            = 4.9,
+                                                                    # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
+                                                                    ReqNCentralJets         = True,
+                                                                    NumberOfCentralJets     = 2,
+                                                                    CentralJetPtCut         = 15.*Units.GeV,  # to be adjusted according to b-jet trigger pT threshold
+                                                                    CentralJetEtaCut        = 2.6,
+                                                                    # trigger requirement
+                                                                    ReqTrigger              = True,
+                                                                    Triggers                = Run2MCTriggers,
+                                                                    # Mjj requirement
+                                                                    ReqVBFMjj               = False,
+                                                                    MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
+                                                                    DoDebug                 = False,
+                                                                    #photon requirement (p. rose)
+                                                                    PhotonContainerKey      = "Photons",
+                                                                    ReqPhoton               = False,
+                                                                    PhotonPtCut             = 20.*Units.GeV,
+                                                                    CentralPhotonEtaCut     = 2.6)
+else:
+    HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
+                                                                    JetContainerKey         = "AntiKt4EMTopoJets",
+                                                                    # jet multiplicity requirement 2b + 2j
+                                                                    ReqNAllJets             = False,
+                                                                    NumberOfAllJets         = 4,
+                                                                    AllJetPtCut             = 40.*Units.GeV,
+                                                                    AllJetEtaCut            = 4.9,
+                                                                    # jet multiplicity requirement in track fiducial volume (for b-tagged jet)
+                                                                    ReqNCentralJets         = True,
+                                                                    NumberOfCentralJets     = 2,
+                                                                    CentralJetPtCut         = 15.*Units.GeV,  # to be adjusted according to b-jet trigger pT threshold
+                                                                    CentralJetEtaCut        = 2.6,
+                                                                    # trigger requirement
+                                                                    ReqTrigger              = True,
+                                                                    Triggers                = Run2DataTriggers,
+                                                                    # Mjj requirement
+                                                                    ReqVBFMjj               = False,
+                                                                    MjjCut                  = 200.*Units.GeV, # used to control event rate (and according to trigger threshold in Run2)
+                                                                    DoDebug                 = False,
+                                                                    #photon requirement (p. rose)
+                                                                    PhotonContainerKey      = "Photons",
+                                                                    ReqPhoton               = False,
+                                                                    PhotonPtCut             = 20.*Units.GeV,
+                                                                    CentralPhotonEtaCut     = 2.6)        
 
 ToolSvc += HIGG5D3SkimmingTool
 
@@ -389,40 +322,21 @@ if not "HIGG5D3Jets" in OutputJets:
     #AntiKt4PV0TrackJets
     addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
     OutputJets["HIGG5D3Jets"].append("AntiKt4PV0TrackJets")
-    #AntiKt10LCTopoJets
-    addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-    OutputJets["HIGG5D3Jets"].append("AntiKt10LCTopoJets")
 
 #====================================================================
 # Special jets
 #====================================================================
 # if not "HIGG5D3Jets" in OutputJets:
-    # OutputJets["HIGG5D3Jets"] = ["AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
-
     if jetFlags.useTruth:
       #AntiKt4TruthJets
       addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
       OutputJets["HIGG5D3Jets"].append("AntiKt4TruthJets")
-      #AntiKt4TruthWZJets
-      addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-      OutputJets["HIGG5D3Jets"].append("AntiKt4TruthWZJets")
-      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthWZJets")
-      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthJets")
-      # OutputJets["HIGG5D3Jets"].append("CamKt12TruthJets")
-      addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-
-    # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
     ThinningTools = thinningTools
     )
 
-
-# applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d3Seq)
-# applyJetCalibration_OTFJets("AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=higg5d3Seq)
 
 #===================================================================
 # Run b-tagging
@@ -437,40 +351,6 @@ FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKt2PV0TrackJets"], 
 # import the JetTagNonPromptLepton config and add to the private sequence 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
-
-
-
-# # Tau Truth matching
-# if DerivationFrameworkIsMonteCarlo:
-#     TauTruthWrapperTools5d3 = []
-#     from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-#     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-#     from RecExConfig.ObjKeyStore import objKeyStore
-#     # Tau Truth making and matching
-#     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-#     TauTruthClassifier5d3 = MCTruthClassifier(name = "TauTruthClassifier5d3",
-#                                                    ParticleCaloExtensionTool="")
-#     ToolSvc += TauTruthClassifier5d3
-#     # Build the truth taus
-#     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-#     TruthTauTool5d3 = DerivationFramework__TruthCollectionMakerTau(name             = "TruthTauTool5d3",
-#                                                                  NewCollectionName       = "TruthTaus",
-#                                                                  MCTruthClassifier       = TauTruthClassifier5d3)
-#     ToolSvc += TruthTauTool5d3
-#     TauTruthWrapperTools5d3.append(TruthTauTool5d3)
-#     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
-#         TauTruthMatchingTool5d3 = TauAnalysisTools__TauTruthMatchingTool(name="TauTruthMatchingTool5d3")
-#         ToolSvc += TauTruthMatchingTool5d3
-#         TauTruthMatchingWrapper5d3 = DerivationFramework__TauTruthMatchingWrapper( name = "TauTruthMatchingWrapper5d3",
-#                                                                                         TauTruthMatchingTool = TauTruthMatchingTool5d3,
-#                                                                                         TauContainerName     = "TauJets")
-#         ToolSvc += TauTruthMatchingWrapper5d3
-#         print TauTruthMatchingWrapper5d3
-#         TauTruthWrapperTools5d3 += [TauTruthMatchingWrapper5d3] 
-#     higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
-#         "HIGG5D3Kernel_aug",
-#         AugmentationTools = TauTruthWrapperTools5d3
-#         )
 
 
 DerivationFrameworkJob += higg5d3Seq
@@ -493,13 +373,9 @@ HIGG5D3SlimmingHelper = SlimmingHelper("HIGG5D3SlimmingHelper")
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
-                                           "TauJets",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4LCTopo",
                                            "AntiKt4EMTopoJets",
-                                           "AntiKt4LCTopoJets",
                                            "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4LCTopo",
+                                           "BTagging_AntiKt2Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
 
@@ -513,13 +389,9 @@ HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForD
 # Add the jet containers to the stream
 addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"])
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D3SlimmingHelper,["AntiKt4LCTopo","Track"])
+addMETOutputs(HIGG5D3SlimmingHelper,["AntiKt4EMTopo"])
 
-#HIGG5D3SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeEGammaTriggerContent = True
-#HIGG5D3SlimmingHelper.IncludeBPhysTriggerContent = True
-#HIGG5D3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-#HIGG5D3SlimmingHelper.IncludeEtMissTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeJetTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeBJetTriggerContent = True
 

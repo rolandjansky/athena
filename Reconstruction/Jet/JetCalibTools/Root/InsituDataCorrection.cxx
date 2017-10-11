@@ -6,17 +6,17 @@
 #include "PathResolver/PathResolver.h"
 
 InsituDataCorrection::InsituDataCorrection()
-  : asg::AsgTool( "InsituDataCorrection::InsituDataCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("InsituDataCorrection::InsituDataCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_insituCorr(NULL), m_insituCorr_ResidualMCbased(NULL)
 { }
 

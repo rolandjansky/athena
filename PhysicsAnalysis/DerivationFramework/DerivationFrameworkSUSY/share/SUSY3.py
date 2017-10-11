@@ -1,5 +1,5 @@
 #********************************************************************
-# SUSY3.py once called SUSY_tau
+# SUSY3.py
 # reductionConf flag SUSY3 in Reco_tf.py   
 #********************************************************************
 
@@ -50,17 +50,15 @@ SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3Thinn
 # THINNING TOOLS 
 #====================================================================
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 # TrackParticles directly
-SUSY3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY3TPThinningTool",
-                                                                 ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY3TPThinningTool
-thinningTools.append(SUSY3TPThinningTool)
+#SUSY3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY3TPThinningTool",
+#                                                                 ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
+#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
+#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY3TPThinningTool
+#thinningTools.append(SUSY3TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -188,33 +186,23 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  OutputJets["SUSY3"] = []
-  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
-  replaceAODReducedJets(reducedJetList, SeqSUSY3, "SUSY3")
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#
+#  OutputJets["SUSY3"] = []
+#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#
+#  replaceAODReducedJets(reducedJetList, SeqSUSY3, "SUSY3")
 
 
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
+# now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY3GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY3GenFilt)
-
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
+  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

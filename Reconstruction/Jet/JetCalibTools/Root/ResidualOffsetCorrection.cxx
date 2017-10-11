@@ -6,19 +6,19 @@
 #include "PathResolver/PathResolver.h"
 
 ResidualOffsetCorrection::ResidualOffsetCorrection()
-  : asg::AsgTool( "ResidualOffsetCorrection::ResidualOffsetCorrection" ),
+  : JetCalibrationToolBase( "ResidualOffsetCorrection::ResidualOffsetCorrection" ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
 ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name)
-  : asg::AsgTool( name ),
+  : JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
 ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev)
-  : asg::AsgTool( name ),
+  : JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_isData(isData),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }

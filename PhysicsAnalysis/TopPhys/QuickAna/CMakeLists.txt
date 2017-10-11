@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 780993 2016-10-28 13:22:53Z krasznaa $
 
 # The name of the package:
 atlas_subdir( QuickAna )
@@ -42,6 +41,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelper
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
    PhysicsAnalysis/MuonID/MuonsIDAnalysis/MuonEfficiencyCorrections
@@ -93,7 +93,7 @@ atlas_add_library( QuickAnaLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    CxxUtils EventPrimitives xAODBase xAODTracking PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib
+   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib EgammaAnalysisHelpersLib
    IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
@@ -110,7 +110,7 @@ endif()
 
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
-   foreach( exec quickana_basic quickana_multi_wp quickana_output
+   foreach( exec quickana_basic quickana_multi_wp quickana_event_data_filler quickana_output
          quickana_systematics quickana_test_or quickana_truth )
       atlas_add_executable( ${exec}
          util/${exec}.cxx
@@ -161,8 +161,7 @@ foreach( test inc_AnaToolCorrect inc_AnaToolSelect inc_AnaToolWeight
 endforeach()
 
 if( XAOD_STANDALONE )
-   foreach( test ut_MessageCheck ut_OutputToolXAOD ut_event_data_filler
-         ut_xaod_truth )
+   foreach( test ut_MessageCheck ut_OutputToolXAOD ut_xaod_truth )
       atlas_add_test( ${test}
          SOURCES test/${test}.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -171,6 +170,7 @@ if( XAOD_STANDALONE )
          QuickAnaLib )
    endforeach()
 
+   atlas_add_test( ut_event_data_filler SCRIPT test/ut_event_data_filler.sh )
    atlas_add_test( ut_eventloop_example SCRIPT test/ut_eventloop_example.sh )
    atlas_add_test( ut_python SCRIPT test/ut_python.py )
    atlas_add_test( ut_python_no_qa SCRIPT test/ut_python_no_qa.py )
@@ -199,3 +199,4 @@ endif()
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.conf )
+atlas_install_scripts( scripts/* )

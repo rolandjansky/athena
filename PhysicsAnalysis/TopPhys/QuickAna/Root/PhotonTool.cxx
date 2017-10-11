@@ -10,6 +10,7 @@
 
 #include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
 #include <ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h>
+#include <ElectronPhotonSelectorTools/egammaPIDdefs.h>
 #include <QuickAna/AnaToolRetrieve.h>
 #include <QuickAna/DefinitionArgs.h>
 #include <QuickAna/DefinitionMaker.h>
@@ -23,7 +24,7 @@
 #include <xAODTracking/TrackParticlexAODHelpers.h>
 
 // Helper for object quality
-#include <ElectronPhotonSelectorTools/PhotonSelectorHelpers.h>
+#include <EgammaAnalysisHelpers/PhotonHelpers.h>
 
 // The photon tools are apparently lazy?
 #include <PathResolver/PathResolver.h>
@@ -66,6 +67,7 @@ namespace ana
     // Initialize Fudge Tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_fudgeMCTool, ElectronPhotonShowerShapeFudgeTool));
     ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 21)); // 21 == MC15
+    ATH_CHECK (m_fudgeMCTool.setProperty("FFCalibFile", "ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root")); //only for rel21 
     ATH_CHECK (m_fudgeMCTool.initialize());
 
     // Initialize isolation correction tool
@@ -168,7 +170,7 @@ namespace ana
                             (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous) );
 
     // Photon cleaning from the same TWiki
-    cut_cleaning.setPassedIf( PhotonSelectorHelpers::passOQquality( &photon ) );
+    cut_cleaning.setPassedIf( PhotonHelpers::passOQquality( &photon ) );
 
     // Using MC15/R20 selections
     // Explicit check that the photon is not in the crack

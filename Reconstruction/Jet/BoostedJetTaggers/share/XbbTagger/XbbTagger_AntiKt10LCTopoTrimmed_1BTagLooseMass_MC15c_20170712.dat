@@ -1,0 +1,24 @@
+####################################################################################
+# Title :
+# boosted Xbb tagger Config File
+#
+# Author :
+# Felix Mueller <fmueller@cern.ch>
+# Eric Takasugi <eric.hayato.takasugi@cern.ch>
+#
+# Description :
+# The boosted Xbb tagger is based on the following properties of the fat jet:
+# - a mass window, using combined mass and muon-in-jet correction
+# - b-tagging from ghost-associated track-jets
+#
+# Working Point Descriptions :
+# - mass window defined from 80% interval
+# - single b-tagging using MV2c10
+# - only valid with combined mass calibration
+####################################################################################
+
+NumBTags                1
+BTagCut                 0.3706
+JetMassMin              -6193.58/x-0.00892688*x+120.222
+JetMassMax              3567.14/x+0.00761098*x+129.963
+MuonCorrectionScheme    Combined

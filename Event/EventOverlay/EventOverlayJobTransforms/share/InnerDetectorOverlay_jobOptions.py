@@ -2,7 +2,7 @@ include.block ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon import CfgMgr, CfgGetter
+from AthenaCommon import CfgGetter
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
@@ -101,3 +101,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
        include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
     job += indetovl
+    
+    if DetFlags.overlay.Truth_on():
+        from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+        sdoovl = InDetSDOOverlay()
+        sdoovl.do_Pixel = DetFlags.overlay.pixel_on()
+        sdoovl.do_Pixel_background = not isRealData
+        sdoovl.do_SCT = DetFlags.overlay.SCT_on()
+        sdoovl.do_SCT_background = not isRealData
+        sdoovl.do_TRT = DetFlags.overlay.TRT_on()
+        sdoovl.do_TRT_background = not isRealData
+
+        job += sdoovl

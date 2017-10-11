@@ -24,9 +24,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
-enum HFORType{
-  isBB = 0, isCC = 1, isC = 2, isLight = 3, kill = 4, noType = 5
-};
+#include "PMGAnalysisInterfaces/HFORTypes.h"
 
 class HFOR_Truth
 {

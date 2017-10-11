@@ -11,13 +11,15 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-# from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
 import AthenaCommon.SystemOfUnits as Units
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
-# from DerivationFrameworkCore.LHE3WeightMetadata import *
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SET UP STREAM
@@ -168,9 +170,6 @@ else:
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
 
-from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D1.py globalflags.DataSource()", globalflags.DataSource()
-
 if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D1TruthThinningTool
     thinningTools.append(HIGG2D1TruthThinningTool)
@@ -258,17 +257,6 @@ higg2d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D1Kernel",
                                                            SkimmingTools = [SkimmingToolHIGG2D1],
                                                            ThinningTools = thinningTools, 
                                                            AugmentationTools = augmentationTools)
-
-#====================================================================
-# Standard jets
-#====================================================================
-
-if not "HIGG2D1Jets" in OutputJets:
-    OutputJets["HIGG2D1Jets"] = []
-    reducedJetList = []
-    if jetFlags.useTruth:
-        reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
-    replaceAODReducedJets(reducedJetList, higg2d1Seq, "HIGG2D1Jets")
 
 DerivationFrameworkJob += higg2d1Seq
 

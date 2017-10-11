@@ -1,4 +1,4 @@
-#********************************************************************
+#*****************************************************************
 # SUSY11.py
 # reductionConf flag SUSY11 in Reco_tf.py (jet smearing)
 #********************************************************************
@@ -41,16 +41,15 @@ SUSY11ThinningHelper.AppendToStream( SUSY11Stream )
 # THINNING TOOL
 #====================================================================\
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
-SUSY11TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY11TPThinningTool",
-								 ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
-								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
-								 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY11TPThinningTool
-thinningTools.append(SUSY11TPThinningTool)
+# B.M.: likely not used
+#SUSY11TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY11TPThinningTool",
+#								 ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
+#								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
+#								 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY11TPThinningTool
+#thinningTools.append(SUSY11TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -147,32 +146,22 @@ SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  OutputJets["SUSY11"] = []
-  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
-  replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#
+#  OutputJets["SUSY11"] = []
+#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#
+#  replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
 
 
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY11GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY11GenFilt)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

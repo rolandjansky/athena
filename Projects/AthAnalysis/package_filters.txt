@@ -24,6 +24,12 @@
 + Event/xAOD/xAODTriggerCnv
 + Event/xAOD/xAODTrackingCnv
 + Event/xAOD/xAODEventFormatCnv
++ Event/xAOD/xAODCoreCnv
+
+# Just for AthAnalysis, also include xAODTruthCnv
+# This is for EVNT support (allows otf conversion to xAOD-format)
++ Event/xAOD/xAODTruthCnv
+
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 
@@ -41,6 +47,7 @@
 + MuonSpectrometer/MuonIdHelpers
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/EventUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
@@ -48,17 +55,18 @@
 + PhysicsAnalysis/AnalysisCommon/PMGTools
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
-+ Physicsanalysis/D3PDTools/SampleHandler
++ PhysicsAnalysis/D3PDTools/SampleHandler
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 - PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-+ PhysicsAnalysis/JetPhys/SemileptonicCorr
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
 + PhysicsAnalysis/MCTruthClassifier
@@ -78,6 +86,7 @@
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
++ Reconstruction/Jet/BoostedJetTaggers
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
@@ -87,6 +96,7 @@
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
 + Tools/PathResolver
++ Tools/ART
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
@@ -102,6 +112,8 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
 
 ### Here follows the Athena-specific parts of the analysis release
 
@@ -125,6 +137,10 @@
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
+
+#scripts package contains useful commands like get_files
++ Tools/Scripts
+
 + Tools/PyUtils
 # Pycmt is pulled in by PyUtils, which is pulled in by athena.py
 + Tools/PyCmt
@@ -157,12 +173,16 @@
 
 # EVNT support :
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 
 # Needed for CutFlowSvc when using filter algs
 + Event/EventBookkeeperTools
 + Event/EventBookkeeperMetaData
+
+# LumiBlockComps for the LumiBlockMetaDataTool
++ LumiBlock/LumiBlockComps
 
 # Other extras (would very much like to eliminate!) :
 + Event/EventInfo.*
@@ -172,6 +192,5 @@
 + DetectorDescription/Identifier
 # + Calorimeter/CaloIdentifier
 + DetectorDescription/GeoModel/GeoModelInterfaces
-
 # Don't build anything else:
 - .*

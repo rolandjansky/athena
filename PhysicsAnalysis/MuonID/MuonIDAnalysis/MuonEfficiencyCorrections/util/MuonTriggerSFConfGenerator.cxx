@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     std::string quality = "Medium"; // HighPt, Tight, Loose may also be used here 
     TDirectory* qualityDirectory = file->GetDirectory(quality.c_str());
     if (!qualityDirectory) {
-        Error(" Directory for quality %s is missing", quality.c_str());
+        Error("MuonTriggerSFConfGenerator", " Directory for quality %s is missing", quality.c_str());
         return 1;
     }
     TKey* periodKey;

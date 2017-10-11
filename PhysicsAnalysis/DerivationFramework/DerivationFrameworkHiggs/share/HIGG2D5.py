@@ -12,11 +12,13 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-# from DerivationFrameworkCore.WeightMetadata import *
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
-# from DerivationFrameworkCore.LHE3WeightMetadata import *
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SET UP STREAM
@@ -426,9 +428,6 @@ else:
                                                                       WriteStatus3                 = False,
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
-
-from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D5.py globalflags.DataSource()", globalflags.DataSource()
 
 if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D5TruthThinningTool

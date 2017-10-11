@@ -27,7 +27,7 @@
 
 
 GlobalSequentialCorrection::GlobalSequentialCorrection()
-  : asg::AsgTool( "GlobalSequentialCorrection::GlobalSequentialCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("GlobalSequentialCorrection::GlobalSequentialCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
@@ -36,7 +36,7 @@ GlobalSequentialCorrection::GlobalSequentialCorrection()
 { }
 
 GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
@@ -45,7 +45,7 @@ GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
 { }
 
 GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_binSize(0.1), m_depth(0),
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),

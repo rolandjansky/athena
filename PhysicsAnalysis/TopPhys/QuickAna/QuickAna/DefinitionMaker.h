@@ -23,11 +23,10 @@
 
 #include <QuickAna/Global.h>
 
+#include <AsgTools/StatusCode.h>
 #include <functional>
 #include <string>
 #include <vector>
-
-class StatusCode;
 
 namespace ana
 {

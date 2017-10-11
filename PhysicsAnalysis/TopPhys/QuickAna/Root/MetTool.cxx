@@ -72,7 +72,7 @@ namespace ana
     declareProperty("DoJVTCut", m_doJVTCut=true);
     declareProperty("DoTrackMet", m_doTrackMET=false);
     declareProperty("DoSetMuonJetEMScale", m_doMuJetEMScale=false);
-    declareProperty("JetSelection", m_jetSelection="Default");
+    declareProperty("JetSelection", m_jetSelection="Tight");
     declareProperty("ORCaloTaggedMuons", m_doORCaloTaggedMuons=true);
     declareProperty("JetUniqueFrac", m_uniqueFrac=-1.);
     declareProperty("JetUniqueCut", m_jetCut=-1.);
@@ -364,7 +364,7 @@ namespace ana
                           const bool doTrackMet=false,
                           const bool doORCaloTaggedMuons=true,
                           const bool doMuJetEMScale=false,
-                          const std::string& jetSelection="Default",
+                          const std::string& jetSelection="Tight",
                           const double uniqueFrac=-1.,
                           const double jetCut=-1.)
   {
@@ -391,7 +391,7 @@ namespace ana
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,true,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,true,true,false,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true,"Loose") )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,false) )
 

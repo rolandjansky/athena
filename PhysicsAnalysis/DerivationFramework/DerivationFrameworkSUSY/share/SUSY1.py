@@ -42,16 +42,15 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 # THINNING TOOL 
 #====================================================================\
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
-SUSY1TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY1TPThinningTool",
-								 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
-								 SelectionString	 = "InDetTrackParticles.pt > 5*GeV",
-								 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY1TPThinningTool
-thinningTools.append(SUSY1TPThinningTool)
+# B.M.: likely not used
+#SUSY1TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY1TPThinningTool",
+#								 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+#								 SelectionString	 = "InDetTrackParticles.pt > 5*GeV",
+#								 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY1TPThinningTool
+#thinningTools.append(SUSY1TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -286,8 +285,9 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 OutputJets["SUSY1"] = []
 
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets flavour tagging not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY1, "SUSY1")
@@ -299,21 +299,10 @@ addDefaultTrimmedJets(SeqSUSY1, "SUSY1")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY1GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY1GenFilt)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================
@@ -339,7 +328,8 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons", "MET_Reference_An
 SUSY1SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4PV0TrackJets", "MET_Track"]
 SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 				      "Photons.author.Loose.Tight",
-				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi", # TODO: .DFCommonJets_Jvt",
+				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing",
+                                      # TODO: .DFCommonJets_Jvt",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 				      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",

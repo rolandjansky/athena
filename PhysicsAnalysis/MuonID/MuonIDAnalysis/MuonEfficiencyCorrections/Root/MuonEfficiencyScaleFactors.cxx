@@ -11,6 +11,7 @@
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
+#include "MuonEfficiencyCorrections/EffiCollection.h"
 
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
@@ -18,22 +19,19 @@
 #include "PathResolver/PathResolver.h"
 
 namespace CP {
-
-//    static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-03-17";
+    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
 
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
                 m_wp("Medium"),
                 m_sf_sets(),
-                m_current_sf(0),
+                m_current_sf(),
                 m_custom_dir(),
                 m_custom_file_Combined(),
                 m_custom_file_Calo(),
                 m_custom_file_HighEta(),
                 m_custom_file_LowPt(),
                 m_custom_file_LowPtCalo(),
-                m_version_string(),
-                m_sys_string(),
                 m_filtered_sys_sets(),
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
@@ -41,23 +39,23 @@ namespace CP {
                 m_sf_replica_decoration_name(),
                 m_eff_replica_decoration_name(),
                 m_mc_eff_replica_decoration_name(),
-                m_calibration_version("170410_Moriond"),
+                m_calibration_version("170916_Rel21PreRec"),
                 m_lowpt_threshold(15.e3),
-                m_effDec(0),
-                m_MCeffDec(0),
-                m_sfDec(0),
-                m_sfrDec(0),
-                m_effrDec(0),
-                m_MCeffrDec(0),
+                m_effDec(),
+                m_MCeffDec(),
+                m_sfDec(),
+                m_sfrDec(),
+                m_effrDec(),
+                m_MCeffrDec(),
                 m_affectingSys(),
-                m_Sys1Down(nullptr),
-                m_Sys1Up(nullptr),
-                m_Stat1Down(nullptr),
-                m_Stat1Up(nullptr),
-                m_LowPtSys1Down(nullptr),
-                m_LowPtSys1Up(nullptr),
-                m_LowPtStat1Down(nullptr),
-                m_LowPtStat1Up(nullptr),
+                m_Sys1Down(),
+                m_Sys1Up(),
+                m_Stat1Down(),
+                m_Stat1Up(),
+                m_LowPtSys1Down(),
+                m_LowPtSys1Up(),
+                m_LowPtStat1Down(),
+                m_LowPtStat1Up(),
                 m_init(false),
                 m_seperateSystBins(false),
                 m_Type(CP::MuonEfficiencyType::Undefined) {
@@ -85,25 +83,6 @@ namespace CP {
     }
 
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
-        // remember to clean up afterwards...
-        for (auto& it : m_sf_sets) {
-            if (it.second) delete it.second;
-        }
-        if (m_effDec) delete m_effDec;
-        if (m_sfDec) delete m_sfDec;
-        if (m_MCeffDec) delete m_MCeffDec;
-        if (m_sfrDec) delete m_sfrDec;
-        if (m_effrDec) delete m_effrDec;
-        if (m_MCeffrDec) delete m_MCeffrDec;
-
-        if (m_Sys1Down) delete m_Sys1Down;
-        if (m_Sys1Up) delete m_Sys1Up;
-        if (m_Stat1Down) delete m_Stat1Down;
-        if (m_Stat1Up) delete m_Stat1Up;
-        if (m_LowPtSys1Down) delete m_LowPtSys1Down;
-        if (m_LowPtSys1Up) delete m_LowPtSys1Up;
-        if (m_LowPtStat1Down) delete m_LowPtStat1Down;
-        if (m_LowPtStat1Up) delete m_LowPtStat1Up;
     }
 
     StatusCode MuonEfficiencyScaleFactors::initialize() {
@@ -177,35 +156,30 @@ namespace CP {
     }
     void MuonEfficiencyScaleFactors::SetupCheckSystematicSets() {
         if (!m_Sys1Down) {
-            m_Sys1Down = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1) });
-            m_Sys1Up = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1) });
-            m_Stat1Down = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", -1) });
-            m_Stat1Up = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", 1) });
+            m_Sys1Down = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1) }));
+            m_Sys1Up = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1) }));
+            m_Stat1Down = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", -1) }));
+            m_Stat1Up = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", 1) }));
         }
         if (!m_LowPtSys1Down && (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0)) {
-            m_LowPtSys1Down = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", -1) });
-            m_LowPtSys1Up = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1) });
-            m_LowPtStat1Down = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", -1) });
-            m_LowPtStat1Up = new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", 1) });
+            m_LowPtSys1Down = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", -1) }));
+            m_LowPtSys1Up = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1) }));
+            m_LowPtStat1Down = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", -1) }));
+            m_LowPtStat1Up = std::unique_ptr < CP::SystematicSet > (new SystematicSet(std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", 1) }));
         }
     }
-    StatusCode MuonEfficiencyScaleFactors::CreateDecorator(SG::AuxElement::Decorator<float>* &Dec, std::string &DecName, const std::string& defaultName) {
-        if (Dec) delete Dec;
+    StatusCode MuonEfficiencyScaleFactors::CreateDecorator(std::unique_ptr<MuonEfficiencyScaleFactors::FloatDecorator> &Dec, std::string &DecName, const std::string& defaultName) {
         if (DecName.empty()) DecName = (m_Type == CP::MuonEfficiencyType::Reco) ? defaultName : EfficiencyTypeName(m_Type) + defaultName;
         ATH_MSG_INFO(defaultName << " decoration_name is " << DecName);
         ATH_CHECK(IsDecoratorNameUnique(DecName));
-        Dec = new SG::AuxElement::Decorator<float>(DecName);
+        Dec = std::unique_ptr < FloatDecorator > (new FloatDecorator(DecName));
         return StatusCode::SUCCESS;
     }
-    StatusCode MuonEfficiencyScaleFactors::CreateVecDecorator(SG::AuxElement::Decorator<std::vector<float>>* &Dec, std::string &DecName, const std::string& defaultName) {
-        if (Dec) {
-            delete Dec;
-            Dec = 0;
-        }
+    StatusCode MuonEfficiencyScaleFactors::CreateVecDecorator(std::unique_ptr<MuonEfficiencyScaleFactors::FloatVectorDecorator> &Dec, std::string &DecName, const std::string& defaultName) {
         if (DecName.empty()) DecName = (m_Type == CP::MuonEfficiencyType::Reco) ? defaultName : EfficiencyTypeName(m_Type) + defaultName;
         ATH_MSG_INFO(defaultName << " decoration_name is " << DecName);
         ATH_CHECK(IsDecoratorNameUnique(DecName));
-        Dec = new SG::AuxElement::Decorator<std::vector<float>>(DecName);
+        Dec = std::unique_ptr < FloatVectorDecorator > (new FloatVectorDecorator(DecName));
         return StatusCode::SUCCESS;
     }
 
@@ -229,15 +203,14 @@ namespace CP {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
             return info->runNumber();
         }
-        static SG::AuxElement::ConstAccessor<unsigned int> dec_rnd("RandomRunNumber");
-        if (!dec_rnd.isAvailable(*info)) {
+        if (!acc_rnd.isAvailable(*info)) {
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
             return 999999;
-        } else if (dec_rnd(*info) == 0) {
+        } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
             return 999999;
         }
-        return dec_rnd(*info);
+        return acc_rnd(*info);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info) const {
         if (!m_init) {
@@ -250,7 +223,7 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float sf = 0;
         CorrectionCode result = getEfficiencyScaleFactor(mu, sf, info);
-// Decorate the muon
+        // Decorate the muon
         if (m_sfDec) (*m_sfDec)(mu) = sf;
         return result;
     }
@@ -414,16 +387,16 @@ namespace CP {
         // delete already existing SF sets first
         if (m_sf_sets.find(sysType) != m_sf_sets.end()) {
             ATH_MSG_WARNING("Deleting SF map for MuonEfficiencySystType=" << (int) (sysType));
-            delete m_sf_sets[sysType];
+            m_sf_sets[sysType].reset();
         }
         EffiCollection* ec = nullptr;
         if (!m_seperateSystBins || IsSystVariation(sysType) || sysType == MuonEfficiencySystType::Nominal) {
-            ec = new EffiCollection(filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
+            ec = new EffiCollection(this,filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
         } else {
             //Parse nominal EffiCollection as fallback for all bins except for the current syst bin
-            ec = new EffiCollection(m_sf_sets.at(MuonEfficiencySystType::Nominal), filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
+            ec = new EffiCollection(m_sf_sets.at(MuonEfficiencySystType::Nominal).get(), this, filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
         }
-        m_sf_sets.insert(std::make_pair(sysType, ec));
+        m_sf_sets.insert(std::make_pair(sysType, EffiCollection_Ptr(ec)));
 
         return ec->CheckConsistency();
 
@@ -533,7 +506,7 @@ namespace CP {
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
         }
-        boost::unordered_map<MuonEfficiencySystType, EffiCollection*>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
+        boost::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->second;
             if (m_seperateSystBins && currentBinNumber != 0) {
@@ -561,15 +534,13 @@ namespace CP {
     void MuonEfficiencyScaleFactors::CopyInformation(const MuonEfficiencyScaleFactors & toCopy) {
         m_wp = toCopy.m_wp;
         m_sf_sets = toCopy.m_sf_sets;
-        m_current_sf = nullptr;
+        m_current_sf.reset();
         m_custom_dir = toCopy.m_custom_dir;
         m_custom_file_Combined = toCopy.m_custom_file_Combined;
         m_custom_file_Calo = toCopy.m_custom_file_Calo;
         m_custom_file_HighEta = toCopy.m_custom_file_HighEta;
         m_custom_file_LowPt = toCopy.m_custom_file_LowPt;
         m_custom_file_LowPtCalo = toCopy.m_custom_file_LowPtCalo;
-        m_version_string = toCopy.m_version_string;
-        m_sys_string = toCopy.m_sys_string;
         m_filtered_sys_sets = toCopy.m_filtered_sys_sets;
         m_efficiency_decoration_name_data = toCopy.m_efficiency_decoration_name_data;
         m_efficiency_decoration_name_mc = toCopy.m_efficiency_decoration_name_mc;
@@ -579,14 +550,14 @@ namespace CP {
         m_mc_eff_replica_decoration_name = toCopy.m_mc_eff_replica_decoration_name;
         m_calibration_version = toCopy.m_calibration_version;
         m_lowpt_threshold = toCopy.m_lowpt_threshold;
-        m_Sys1Down = nullptr;
-        m_Sys1Up = nullptr;
-        m_Stat1Down = nullptr;
-        m_Stat1Up = nullptr;
-        m_LowPtSys1Down = nullptr;
-        m_LowPtSys1Up = nullptr;
-        m_LowPtStat1Up = nullptr;
-        m_current_sf = nullptr;
+        m_Sys1Down.reset();
+        m_Sys1Up.reset();
+        m_Stat1Down.reset();
+        m_Stat1Up.reset();
+        m_LowPtSys1Down.reset();
+        m_LowPtSys1Up.reset();
+        m_LowPtStat1Up.reset();
+        m_current_sf.reset();
         m_init = false;
         m_seperateSystBins = false;
         m_Type = toCopy.m_Type;
@@ -619,8 +590,8 @@ namespace CP {
         ATH_MSG_ERROR("The given systematic " << systConfig.name() << " is not an unfolded one. Return  unknown bin ");
         return "unknown bin";
     }
-    int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const{
-        if (!m_init){
+    int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
+        if (!m_init) {
             ATH_MSG_ERROR("The tool is not initialized yet");
             return -1;
 

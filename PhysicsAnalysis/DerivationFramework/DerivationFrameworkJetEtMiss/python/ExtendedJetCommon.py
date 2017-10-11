@@ -13,16 +13,18 @@ from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
 ##################################################################
+# Jet helpers for large-radius groomed jets
+##################################################################              
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="groomed",
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################              
-# Add AntiKt jets                                                               
+# Jet helpers for ungroomed jets (removed in xAOD reduction)
 ##################################################################              
 
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -94,6 +96,20 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
 
+##################################################################              
+# Jet helpers for adding low-pt jets needed for calibration
+##################################################################              
+
+
+def addAntiKt4LowPtJets(sequence,outputlist):
+    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
+    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
+    # Commented for now because of problems with underlying PFlow collections
+    # addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+    #                 mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist="ar:pflow")
+
 ##################################################################
 
 def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
@@ -144,7 +160,7 @@ def applyJetCalibration(jetalg,algname,sequence):
     else:
         isdata=False
 
-        configdict = {'AntiKt4EMTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
+        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_Aug2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt4LCTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
@@ -162,9 +178,12 @@ def applyJetCalibration(jetalg,algname,sequence):
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
-        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo']:
-            calibseq+='_Insitu'
-            isdata=True
+        # As of 11 Sept 2017, the in situ calibration for R21
+        # is not yet ready.
+        # When this is available, it should be reenabled -- for PFlow as well.
+        # if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo']:
+        #     calibseq+='_Insitu'
+        #     isdata=True
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,

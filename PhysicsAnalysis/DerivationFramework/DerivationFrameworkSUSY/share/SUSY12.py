@@ -48,24 +48,13 @@ SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
 # MET/Jet tracks -> no longer needed, 11.05.2015
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
-SUSY12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY12TPThinningTool",
-                                 ThinningService     = SUSY12ThinningHelper.ThinningSvc(),
-                                 SelectionString     = "InDetTrackParticles.pt > 10*GeV",  # TODO: Check with 5 geV
-                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY12TPThinningTool
-thinningTools.append(SUSY12TPThinningTool)
-
-# MET/Jet tracks
-#TODO: is the thinning required?
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY12MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY12MetTPThinningTool",
-                                                                ThinningService         = SUSY12ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY12MetTPThinningTool
-thinningTools.append(SUSY12MetTPThinningTool)
+# B.M.: likely not used
+#SUSY12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY12TPThinningTool",
+#                                 ThinningService     = SUSY12ThinningHelper.ThinningSvc(),
+#                                 SelectionString     = "InDetTrackParticles.pt > 10*GeV",  # TODO: Check with 5 geV
+#                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY12TPThinningTool
+#thinningTools.append(SUSY12TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -299,8 +288,9 @@ SeqSUSY12 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 OutputJets["SUSY12"] = []
 reducedJetList = [ "AntiKt4PV0TrackJets" ]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY12, "SUSY12")
@@ -309,21 +299,10 @@ replaceAODReducedJets(reducedJetList, SeqSUSY12, "SUSY12")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY12GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY12GenFilt)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

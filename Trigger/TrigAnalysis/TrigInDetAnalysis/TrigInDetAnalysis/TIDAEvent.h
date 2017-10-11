@@ -37,15 +37,15 @@ public:
   virtual ~Event();
 
   /// accessors
-  void run_number(unsigned  r)    { m_run_number     = r; }  
-  void event_number(unsigned e)   { m_event_number   = e; }  
+  void run_number(unsigned  r)              { m_run_number     = r; }  
+  void event_number(unsigned long long e)   { m_event_number   = e; }  
   void lumi_block(unsigned lb)    { m_lumi_block     = lb; }  
   void time_stamp(unsigned t)     { m_time_stamp     = t; }  
   void bunch_crossing_id(unsigned b) { m_bunch_crossing_id = b; }  
 	void mu(double m) { m_mu = m;}
 
-  unsigned run_number()     const { return m_run_number;   } 
-  unsigned event_number()   const { return m_event_number; }  
+  unsigned run_number()               const { return m_run_number;   } 
+  unsigned long long event_number()   const { return m_event_number; }  
   unsigned lumi_block()     const { return m_lumi_block;   }  
   unsigned time_stamp()     const { return m_time_stamp;   }  
   unsigned bunch_crossing_id() const { return m_bunch_crossing_id;  }  
@@ -104,7 +104,7 @@ public:
 private:
  
   unsigned m_run_number; 
-  unsigned m_event_number;  
+  unsigned long long m_event_number;  
   unsigned m_lumi_block;
   unsigned m_time_stamp;
 
@@ -116,7 +116,7 @@ private:
 
   std::vector<TIDA::Vertex> m_vertices;
   
-  ClassDef(TIDA::Event,3)
+  ClassDef(TIDA::Event,4)
 
 };
 

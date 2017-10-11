@@ -180,7 +180,7 @@ std::cout << "acc:  "<< LHacc << std::endl;
 
       // std::cout << "Electron " << i << std::endl;
       std::cout << "xAOD/raw pt = " << el->pt() << ", eta: "
-                <<abs(el->eta()) <<" , "  << el->caloCluster()->etaBE(2) << std::endl;
+                <<std::abs(el->eta()) <<" , "  << el->caloCluster()->etaBE(2) << std::endl;
 
       Info (APP_NAME,"Electron #%d", i);
 

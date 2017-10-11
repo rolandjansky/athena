@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////// -*- C++ -*- /////////////////////////////
 // ParticleSortingTool.h
 // Header file for class ParticleSortingTool
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -23,6 +23,7 @@
 // EDM inlcudes
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 
@@ -47,10 +48,10 @@ public:
   virtual ~ParticleSortingTool();
 
   /// Athena algtool's initialize
-  virtual StatusCode  initialize();
+  virtual StatusCode  initialize() override;
 
   /// Athena algtool's finalize
-  virtual StatusCode  finalize();
+  virtual StatusCode  finalize() override;
 
 
   /// Implement the method from the ISkimmingTool interface
@@ -63,6 +64,10 @@ private:
 
   /// Helper method that implements the call to the right sort function
   StatusCode doSort( xAOD::IParticleContainer* cont ) const;
+
+  /// Helper method to sort a ConstDataVector
+  template<class CONTAINERTYPE>
+  StatusCode doSortConst( ConstDataVector<CONTAINERTYPE>* cont ) const;
 
   /// The method to compare the particle's pt
   bool comparePt( const xAOD::IParticle* partA, const xAOD::IParticle* partB ) const;
@@ -124,5 +129,56 @@ inline bool ParticleSortingTool::compareDouble( double a, double b ) const
   if ( m_sortID < 0 ) { return CxxUtils::fpcompare::greater(a,b); }
   else { return CxxUtils::fpcompare::less(a,b); }
 }
+
+
+template<class CONTAINERTYPE>
+StatusCode ParticleSortingTool::doSortConst( ConstDataVector<CONTAINERTYPE>* cont ) const
+{
+  if ( !cont ) {
+    ATH_MSG_ERROR("No ConstDataVector to be sorted");
+    return StatusCode::FAILURE;
+  }
+  // Actually do the sorting, using a C++11 lambda function construct
+  // to be able to use the member function here
+  if ( abs(m_sortID) == 1 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->comparePt(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 2 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareEta(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 3 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->comparePhi(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 4 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareMass(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 5 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareEnergy(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 6 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareRapidity(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 7 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareAuxData(a,b);
+                } );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
 
 #endif //> !EVENTUTILS_PARTICLESORTINGTOOL_H

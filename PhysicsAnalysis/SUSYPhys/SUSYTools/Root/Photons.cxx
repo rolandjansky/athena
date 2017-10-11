@@ -11,18 +11,18 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
 // Helper for object quality
-#include "ElectronPhotonSelectorTools/PhotonSelectorHelpers.h"
+#include "EgammaAnalysisHelpers/PhotonHelpers.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -134,8 +134,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     return StatusCode::SUCCESS;
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
-  if ( (!m_photonAllowLate && !PhotonSelectorHelpers::passOQquality(&input)) ||
-       ( m_photonAllowLate && !PhotonSelectorHelpers::passOQqualitydelayed(&input)) ){
+  if ( (!m_photonAllowLate && !PhotonHelpers::passOQquality(&input)) ||
+       ( m_photonAllowLate && !PhotonHelpers::passOQqualityDelayed(&input)) ){
     return StatusCode::SUCCESS;
   }
 
@@ -297,8 +297,6 @@ double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons
   }
 
   return sf;
-
 }
-
 
 }

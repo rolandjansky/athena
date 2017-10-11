@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////// -*- C++ -*- /////////////////////////////
 // AddVarAlg.cxx
 // Implementation file for class AddVarAlg
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -29,7 +29,7 @@
 ////////////////
 AddVarAlg::AddVarAlg( const std::string& name,
                       ISvcLocator* pSvcLocator ) :
-  ::AthFilterAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
   m_tool("AddVarTool/AddVarTool", this),
   m_setInCollKey(false),

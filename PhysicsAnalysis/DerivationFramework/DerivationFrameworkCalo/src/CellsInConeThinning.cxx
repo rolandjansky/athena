@@ -13,8 +13,8 @@
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 
-#include "DerivationFrameworkCalo/CellsInCone.h"
 #include "DerivationFrameworkCalo/CellsInConeThinning.h"
+#include "DerivationFrameworkCalo/CellsInCone.h"
 
 DerivationFramework::CellsInConeThinning::CellsInConeThinning(const std::string& type, 
 							      const std::string& name, 

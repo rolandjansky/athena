@@ -65,9 +65,10 @@ public:
      * @param event The top::Event which has had object selection and overlap
      * removal (if requested) applied to it.
      */
-    virtual void saveEvent(const top::Event& event);
-    virtual void calculateEvent(const top::Event& event);
-    virtual void fillEvent(const top::Event& event);
+     virtual void saveEvent(const top::Event& event); // calls the three next functions
+     virtual void cleanEvent(); // (re-)initialise all relevant variables to default (dummy) values
+     virtual void calculateEvent(const top::Event& event); // calculate the relevant variables
+     virtual void fillEvent(const top::Event& event); // calls tree->Fill
 
     /**
      * @breif Run for every event
@@ -77,9 +78,10 @@ public:
      *   PDF info
      *   TopPartons
      */
-    virtual void saveTruthEvent();
-    virtual void calculateTruthEvent();
-    virtual void fillTruthEvent();
+     virtual void saveTruthEvent(); // calls the three next functions
+     virtual void cleanTruthEvent(); // (re-)initialise all relevant variables to default (dummy) values
+     virtual void calculateTruthEvent(); // calculate the relevant variables
+     virtual void fillTruthEvent(); // calls tree->Fill
 
     /*!
      * @brief Store the particle level event's content in the particle level
@@ -92,9 +94,10 @@ public:
      * @param plEvent The particle level event whose data content will be
      * written to the output.
      */
-    virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent);
-    virtual void calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent);
-    virtual void fillParticleLevelEvent();
+     virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+     virtual void cleanParticleLevelEvent(); // (re-)initialise all relevant variables to default (dummy) values
+     virtual void calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant variables
+     virtual void fillParticleLevelEvent(); // calls tree->Fill
 
     /*!
      * @brief Store the upgrade event's content in the upgrade
@@ -107,9 +110,10 @@ public:
      * @param upgradeEvent The upgrade event whose data content will be
      * written to the output.
      */
-    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent);
-    virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent);
-    virtual void fillUpgradeEvent();
+     virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+     virtual void cleanUpgradeEvent(); // (re-)initialise all relevant variables to default (dummy) values
+     virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant variables
+     virtual void fillUpgradeEvent(); // calls tree->Fill
 
     /**
      * @brief Not used by the flat ntuple code yet, but needed by the xAOD code.
@@ -241,6 +245,13 @@ private:
 
     /// branch filters - cf ANALYSISTO-61
     std::vector<top::TreeManager::BranchFilter> m_branchFilters;
+
+    /// remove "FT_EFF_" and spaces in named systematics
+    std::string betterBtagNamedSyst (const std::string WP);
+
+    /////////////////////////////////////
+    /// Definition of event variables
+    /////////////////////////////////////
 
     ///Decisions on if the event passed / failed a particular selection.
     std::vector<int> m_selectionDecisions;
@@ -381,7 +392,7 @@ private:
     float m_weight_jvt_up = 0.0;
     float m_weight_jvt_down = 0.0;
 
-    // Sherpa 2.2 weight 
+    // Sherpa 2.2 weight
     float m_weight_sherpa_22_vjets = 0.;
 
     // eigen variations affecting b-jets [WP]
@@ -407,9 +418,6 @@ private:
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_bTagSF_named_down;
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_trackjet_bTagSF_named_up;
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_trackjet_bTagSF_named_down;
-
-    // remove "FT_EFF_" and spaces in named systematics
-    std::string betterBtagNamedSyst (const std::string WP);
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
     /// m_fakesMM_weights[selection][configuration]
@@ -492,6 +500,23 @@ private:
     std::vector<char>  m_jet_isTrueHS;
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    // R21 b-tagging
+    std::vector<float> m_jet_MV2c10mu;
+    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_DL1;
+    std::vector<float> m_jet_DL1mu;
+    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_MV2cl100;
+    std::vector<float> m_jet_MV2c100;
+    std::vector<float> m_jet_DL1_pu;
+    std::vector<float> m_jet_DL1_pc;
+    std::vector<float> m_jet_DL1_pb;
+    std::vector<float> m_jet_DL1mu_pu;
+    std::vector<float> m_jet_DL1mu_pc;
+    std::vector<float> m_jet_DL1mu_pb;
+    std::vector<float> m_jet_DL1rnn_pu;
+    std::vector<float> m_jet_DL1rnn_pc;
+    std::vector<float> m_jet_DL1rnn_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -679,7 +704,7 @@ private:
     std::vector<float> m_PDFinfo_Q;
     std::vector<float> m_PDFinfo_XF1;
     std::vector<float> m_PDFinfo_XF2;
-    
+
     //the on-the-fly computed generator weights
     //there is one vector of float per entry in the trutheventcontainer (which should have only 1 entry)
     std::vector<float> m_mc_generator_weights;
@@ -714,7 +739,464 @@ private:
     std::unordered_map<std::string,int*> m_extraTruthVars_int;
     std::unordered_map<std::string,float*> m_extraTruthVars_float;
 
-    ClassDef(top::EventSaverFlatNtuple, 0);
+protected:
+  /////////////////////////////////////
+  /// const getters for the event variables
+  /////////////////////////////////////
+
+  ///Decisions on if the event passed / failed a particular selection.
+  const std::vector<int>& selectionDecisions() const { return m_selectionDecisions;}
+
+  ///Decisions on if the event passed / failed a particular trigger.
+  const std::unordered_map<std::string, char>& triggerDecisions() const { return m_triggerDecisions;}
+
+  ///Pre-scale of the trigger menu for each event.
+  const std::unordered_map<std::string, float>& triggerPrescales() const { return m_triggerPrescales;}
+
+  //Store output PDF weights from LHAPDF
+  const std::unordered_map<std::string, std::vector<float> >& PDF_eventWeights() const { return m_PDF_eventWeights;}
+
+  //some event weights
+  const float& weight_mc() const { return m_weight_mc;}
+  const float& weight_pileup() const { return m_weight_pileup;}
+
+  ///-- Pileup SF systematics --///
+  const float& weight_pileup_UP() const { return m_weight_pileup_UP;}
+  const float& weight_pileup_DOWN() const { return m_weight_pileup_DOWN;}
+
+  ///-- Lepton SF --///
+  const float& weight_leptonSF() const { return m_weight_leptonSF;}
+
+  ///-- Lepton SF - electron SF systematics --///
+  const float& weight_leptonSF_EL_SF_Trigger_UP() const { return m_weight_leptonSF_EL_SF_Trigger_UP;}
+  const float& weight_leptonSF_EL_SF_Trigger_DOWN() const { return m_weight_leptonSF_EL_SF_Trigger_DOWN;}
+  const float& weight_leptonSF_EL_SF_Reco_UP() const { return m_weight_leptonSF_EL_SF_Reco_UP;}
+  const float& weight_leptonSF_EL_SF_Reco_DOWN() const { return m_weight_leptonSF_EL_SF_Reco_DOWN;}
+  const float& weight_leptonSF_EL_SF_ID_UP() const { return m_weight_leptonSF_EL_SF_ID_UP;}
+  const float& weight_leptonSF_EL_SF_ID_DOWN() const { return m_weight_leptonSF_EL_SF_ID_DOWN;}
+  const float& weight_leptonSF_EL_SF_Isol_UP() const { return m_weight_leptonSF_EL_SF_Isol_UP;}
+  const float& weight_leptonSF_EL_SF_Isol_DOWN() const { return m_weight_leptonSF_EL_SF_Isol_DOWN;}
+
+  ///-- Lepton SF - muon SF systematics --///
+  const float& weight_leptonSF_MU_SF_Trigger_STAT_UP() const { return m_weight_leptonSF_MU_SF_Trigger_STAT_UP;}
+  const float& weight_leptonSF_MU_SF_Trigger_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN;}
+  const float& weight_leptonSF_MU_SF_Trigger_SYST_UP() const { return m_weight_leptonSF_MU_SF_Trigger_SYST_UP;}
+  const float& weight_leptonSF_MU_SF_Trigger_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN;}
+  // Muon ID SF systematics (regular)
+  const float& weight_leptonSF_MU_SF_ID_STAT_UP() const { return m_weight_leptonSF_MU_SF_ID_STAT_UP;}
+  const float& weight_leptonSF_MU_SF_ID_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_ID_STAT_DOWN;}
+  const float& weight_leptonSF_MU_SF_ID_SYST_UP() const { return m_weight_leptonSF_MU_SF_ID_SYST_UP;}
+  const float& weight_leptonSF_MU_SF_ID_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_ID_SYST_DOWN;}
+  // Muon ID SF systematics (low pT)
+  const float& weight_leptonSF_MU_SF_ID_STAT_LOWPT_UP() const { return m_weight_leptonSF_MU_SF_ID_STAT_LOWPT_UP;}
+  const float& weight_leptonSF_MU_SF_ID_STAT_LOWPT_DOWN() const { return m_weight_leptonSF_MU_SF_ID_STAT_LOWPT_DOWN;}
+  const float& weight_leptonSF_MU_SF_ID_SYST_LOWPT_UP() const { return m_weight_leptonSF_MU_SF_ID_SYST_LOWPT_UP;}
+  const float& weight_leptonSF_MU_SF_ID_SYST_LOWPT_DOWN() const { return m_weight_leptonSF_MU_SF_ID_SYST_LOWPT_DOWN;}
+  // Muon isolation SF systematics
+  const float& weight_leptonSF_MU_SF_Isol_STAT_UP() const { return m_weight_leptonSF_MU_SF_Isol_STAT_UP;}
+  const float& weight_leptonSF_MU_SF_Isol_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_Isol_STAT_DOWN;}
+  const float& weight_leptonSF_MU_SF_Isol_SYST_UP() const { return m_weight_leptonSF_MU_SF_Isol_SYST_UP;}
+  const float& weight_leptonSF_MU_SF_Isol_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_Isol_SYST_DOWN;}
+  const float& weight_leptonSF_MU_SF_TTVA_STAT_UP() const { return m_weight_leptonSF_MU_SF_TTVA_STAT_UP;}
+  const float& weight_leptonSF_MU_SF_TTVA_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;}
+  const float& weight_leptonSF_MU_SF_TTVA_SYST_UP() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_UP;}
+  const float& weight_leptonSF_MU_SF_TTVA_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;}
+
+  ///-- individual components for lepton SF --///
+  const float& weight_indiv_SF_EL_Trigger() const { return m_weight_indiv_SF_EL_Trigger;}
+  const float& weight_indiv_SF_EL_Trigger_UP() const { return m_weight_indiv_SF_EL_Trigger_UP;}
+  const float& weight_indiv_SF_EL_Trigger_DOWN() const { return m_weight_indiv_SF_EL_Trigger_DOWN;}
+  const float& weight_indiv_SF_EL_Reco() const { return m_weight_indiv_SF_EL_Reco;}
+  const float& weight_indiv_SF_EL_Reco_UP() const { return m_weight_indiv_SF_EL_Reco_UP;}
+  const float& weight_indiv_SF_EL_Reco_DOWN() const { return m_weight_indiv_SF_EL_Reco_DOWN;}
+  const float& weight_indiv_SF_EL_ID() const { return m_weight_indiv_SF_EL_ID;}
+  const float& weight_indiv_SF_EL_ID_UP() const { return m_weight_indiv_SF_EL_ID_UP;}
+  const float& weight_indiv_SF_EL_ID_DOWN() const { return m_weight_indiv_SF_EL_ID_DOWN;}
+  const float& weight_indiv_SF_EL_Isol() const { return m_weight_indiv_SF_EL_Isol;}
+  const float& weight_indiv_SF_EL_Isol_UP() const { return m_weight_indiv_SF_EL_Isol_UP;}
+  const float& weight_indiv_SF_EL_Isol_DOWN() const { return m_weight_indiv_SF_EL_Isol_DOWN;}
+  const float& weight_indiv_SF_EL_ChargeID() const { return m_weight_indiv_SF_EL_ChargeID;}
+  const float& weight_indiv_SF_EL_ChargeID_UP() const { return m_weight_indiv_SF_EL_ChargeID_UP;}
+  const float& weight_indiv_SF_EL_ChargeID_DOWN() const { return m_weight_indiv_SF_EL_ChargeID_DOWN;}
+  const float& weight_indiv_SF_EL_ChargeMisID() const { return m_weight_indiv_SF_EL_ChargeMisID;}
+  const float& weight_indiv_SF_EL_ChargeMisID_STAT_UP() const { return m_weight_indiv_SF_EL_ChargeMisID_STAT_UP;}
+  const float& weight_indiv_SF_EL_ChargeMisID_STAT_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;}
+  const float& weight_indiv_SF_EL_ChargeMisID_SYST_UP() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;}
+  const float& weight_indiv_SF_EL_ChargeMisID_SYST_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_Trigger() const { return m_weight_indiv_SF_MU_Trigger;}
+  const float& weight_indiv_SF_MU_Trigger_STAT_UP() const { return m_weight_indiv_SF_MU_Trigger_STAT_UP;}
+  const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const { return m_weight_indiv_SF_MU_Trigger_STAT_DOWN;}
+  const float& weight_indiv_SF_MU_Trigger_SYST_UP() const { return m_weight_indiv_SF_MU_Trigger_SYST_UP;}
+  const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const { return m_weight_indiv_SF_MU_Trigger_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_ID() const { return m_weight_indiv_SF_MU_ID;}
+  // Muon ID SF systematics (regular)
+  const float& weight_indiv_SF_MU_ID_STAT_UP() const { return m_weight_indiv_SF_MU_ID_STAT_UP;}
+  const float& weight_indiv_SF_MU_ID_STAT_DOWN() const { return m_weight_indiv_SF_MU_ID_STAT_DOWN;}
+  const float& weight_indiv_SF_MU_ID_SYST_UP() const { return m_weight_indiv_SF_MU_ID_SYST_UP;}
+  const float& weight_indiv_SF_MU_ID_SYST_DOWN() const { return m_weight_indiv_SF_MU_ID_SYST_DOWN;}
+  // Muon ID SF systematics (low pt)
+  const float& weight_indiv_SF_MU_ID_STAT_LOWPT_UP() const { return m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP;}
+  const float& weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN() const { return m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN;}
+  const float& weight_indiv_SF_MU_ID_SYST_LOWPT_UP() const { return m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP;}
+  const float& weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN() const { return m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN;}
+  // Muon isolation systematics
+  const float& weight_indiv_SF_MU_Isol() const { return m_weight_indiv_SF_MU_Isol;}
+  const float& weight_indiv_SF_MU_Isol_SYST_UP() const { return m_weight_indiv_SF_MU_Isol_SYST_UP;}
+  const float& weight_indiv_SF_MU_Isol_SYST_DOWN() const { return m_weight_indiv_SF_MU_Isol_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_Isol_STAT_UP() const { return m_weight_indiv_SF_MU_Isol_STAT_UP;}
+  const float& weight_indiv_SF_MU_Isol_STAT_DOWN() const { return m_weight_indiv_SF_MU_Isol_STAT_DOWN;}
+  const float& weight_indiv_SF_MU_TTVA() const { return m_weight_indiv_SF_MU_TTVA;}
+  const float& weight_indiv_SF_MU_TTVA_SYST_UP() const { return m_weight_indiv_SF_MU_TTVA_SYST_UP;}
+  const float& weight_indiv_SF_MU_TTVA_SYST_DOWN() const { return m_weight_indiv_SF_MU_TTVA_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_TTVA_STAT_UP() const { return m_weight_indiv_SF_MU_TTVA_STAT_UP;}
+  const float& weight_indiv_SF_MU_TTVA_STAT_DOWN() const { return m_weight_indiv_SF_MU_TTVA_STAT_DOWN;}
+
+  // Taus
+  const float& weight_tauSF() const { return m_weight_tauSF;}
+  const float& weight_tauSF_ELEOLR_UP() const { return m_weight_tauSF_ELEOLR_UP;}
+  const float& weight_tauSF_ELEOLR_DOWN() const { return m_weight_tauSF_ELEOLR_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN;}
+  const float& weight_tauSF_JETID_UP() const { return m_weight_tauSF_JETID_UP;}
+  const float& weight_tauSF_JETID_DOWN() const { return m_weight_tauSF_JETID_DOWN;}
+  const float& weight_tauSF_JETID_HIGHPT_UP() const { return m_weight_tauSF_JETID_HIGHPT_UP;}
+  const float& weight_tauSF_JETID_HIGHPT_DOWN() const { return m_weight_tauSF_JETID_HIGHPT_DOWN;}
+  const float& weight_tauSF_RECO_UP() const { return m_weight_tauSF_RECO_UP;}
+  const float& weight_tauSF_RECO_DOWN() const { return m_weight_tauSF_RECO_DOWN;}
+  const float& weight_tauSF_RECO_HIGHPT_UP() const { return m_weight_tauSF_RECO_HIGHPT_UP;}
+  const float& weight_tauSF_RECO_HIGHPT_DOWN() const { return m_weight_tauSF_RECO_HIGHPT_DOWN;}
+
+  // Photons
+  const float& weight_photonSF () const { return m_weight_photonSF ;}
+  const float& weight_photonSF_ID_UP () const { return m_weight_photonSF_ID_UP ;}
+  const float& weight_photonSF_ID_DOWN () const { return m_weight_photonSF_ID_DOWN ;}
+  const float& weight_photonSF_effIso () const { return m_weight_photonSF_effIso ;}
+  const float& weight_photonSF_effLowPtIso_UP () const { return m_weight_photonSF_effLowPtIso_UP ;}
+  const float& weight_photonSF_effLowPtIso_DOWN () const { return m_weight_photonSF_effLowPtIso_DOWN ;}
+  const float& weight_photonSF_effTrkIso_UP () const { return m_weight_photonSF_effTrkIso_UP ;}
+  const float& weight_photonSF_effTrkIso_DOWN () const { return m_weight_photonSF_effTrkIso_DOWN ;}
+  const float& weight_photonSF_isoDDonoff_UP () const { return m_weight_photonSF_isoDDonoff_UP ;}
+  const float& weight_photonSF_isoDDonoff_DOWN () const { return m_weight_photonSF_isoDDonoff_DOWN ;}
+
+  // nominal b-tagging SF [WP]
+  const std::unordered_map<std::string, float>& weight_bTagSF() const { return m_weight_bTagSF;}
+  const std::unordered_map<std::string, float>& weight_trackjet_bTagSF() const { return m_weight_trackjet_bTagSF;}
+
+  // JVT (c++11 initialization for fun)
+  const float& weight_jvt () const { return m_weight_jvt ;}
+  const float& weight_jvt_up () const { return m_weight_jvt_up ;}
+  const float& weight_jvt_down () const { return m_weight_jvt_down ;}
+
+  // Sherpa 2.2 weight
+  const float& weight_sherpa_22_vjets () const { return m_weight_sherpa_22_vjets ;}
+
+  // eigen variations affecting b-jets [WP]
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_B_up() const { return m_weight_bTagSF_eigen_B_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_B_down() const { return m_weight_bTagSF_eigen_B_down;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_B_up() const { return m_weight_trackjet_bTagSF_eigen_B_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_B_down() const { return m_weight_trackjet_bTagSF_eigen_B_down;}
+  // eigen variations affecting c-jets [WP]
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_C_up() const { return m_weight_bTagSF_eigen_C_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_C_down() const { return m_weight_bTagSF_eigen_C_down;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_C_up() const { return m_weight_trackjet_bTagSF_eigen_C_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_C_down() const { return m_weight_trackjet_bTagSF_eigen_C_down;}
+  // eigen variations affecting light jets [WP]
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_Light_up() const { return m_weight_bTagSF_eigen_Light_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_Light_down() const { return m_weight_bTagSF_eigen_Light_down;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_Light_up() const { return m_weight_trackjet_bTagSF_eigen_Light_up;}
+  const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_Light_down() const { return m_weight_trackjet_bTagSF_eigen_Light_down;}
+  // named systematics [WP][name]
+  const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_bTagSF_named_up() const { return m_weight_bTagSF_named_up;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_bTagSF_named_down() const { return m_weight_bTagSF_named_down;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_trackjet_bTagSF_named_up() const { return m_weight_trackjet_bTagSF_named_up;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_trackjet_bTagSF_named_down() const { return m_weight_trackjet_bTagSF_named_down;}
+
+  ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
+  /// m_fakesMM_weights[selection][configuration]
+  const std::unordered_map<std::string,std::unordered_map<std::string, float>>& fakesMM_weights() const { return m_fakesMM_weights;}
+
+  /// Weights for bootstrapping
+  const std::vector<int>& weight_poisson() const { return m_weight_poisson;}
+
+  //event info
+  const unsigned long long& eventNumber() const { return m_eventNumber;}
+  const unsigned int& runNumber() const { return m_runNumber;}
+  const unsigned int& randomRunNumber() const { return m_randomRunNumber;}
+  const unsigned int& mcChannelNumber() const { return m_mcChannelNumber;}
+  const float& mu_original() const { return m_mu_original;}
+  const float& mu() const { return m_mu;}
+
+  // non-collision background flag - usage: https://twiki.cern.ch/twiki/bin/view/Atlas/NonCollisionBackgroundsRunTwo#Recommend_cuts_tools_and_procedu
+  const unsigned int& backgroundFlags() const { return m_backgroundFlags;}
+
+  // hasBadMuon flag - see: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/MuonSelectionTool#is_BadMuon_Flag_Event_Veto
+  const unsigned int& hasBadMuon() const { return m_hasBadMuon;}
+
+  //electrons
+  const std::vector<float>& el_pt() const { return m_el_pt;}
+  const std::vector<float>& el_eta() const { return m_el_eta;}
+  const std::vector<float>& el_cl_eta() const { return m_el_cl_eta;}
+  const std::vector<float>& el_phi() const { return m_el_phi;}
+  const std::vector<float>& el_e() const { return m_el_e;}
+  const std::vector<float>& el_charge() const { return m_el_charge;}
+  const std::vector<float>& el_topoetcone20() const { return m_el_topoetcone20;}
+  const std::vector<float>& el_ptvarcone20() const { return m_el_ptvarcone20;}
+  const std::vector<char>& el_isTight() const { return m_el_isTight;}
+  const std::vector<char>& el_CF() const { return m_el_CF;} // pass charge ID selector (has no charge flip)
+  const std::unordered_map<std::string, std::vector<char> >& el_trigMatched() const { return m_el_trigMatched;}
+  const std::vector<float>& el_d0sig() const { return m_el_d0sig;}
+  const std::vector<float>& el_delta_z0_sintheta() const { return m_el_delta_z0_sintheta;}
+  const std::vector<int>& el_true_type() const { return m_el_true_type;}
+  const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
+  const std::vector<int>& el_true_typebkg() const { return m_el_true_typebkg;}
+  const std::vector<int>& el_true_originbkg() const { return m_el_true_originbkg;}
+
+  //muons
+  const std::vector<float>& mu_pt() const { return m_mu_pt;}
+  const std::vector<float>& mu_eta() const { return m_mu_eta;}
+  const std::vector<float>& mu_phi() const { return m_mu_phi;}
+  const std::vector<float>& mu_e() const { return m_mu_e;}
+  const std::vector<float>& mu_charge() const { return m_mu_charge;}
+  const std::vector<float>& mu_topoetcone20() const { return m_mu_topoetcone20;}
+  const std::vector<float>& mu_ptvarcone30() const { return m_mu_ptvarcone30;}
+  const std::vector<char>& mu_isTight() const { return m_mu_isTight;}
+  const std::unordered_map<std::string, std::vector<char> >& mu_trigMatched() const { return m_mu_trigMatched;}
+  const std::vector<float>& mu_d0sig() const { return m_mu_d0sig;}
+  const std::vector<float>& mu_delta_z0_sintheta() const { return m_mu_delta_z0_sintheta;}
+  const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
+  const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
+
+  //photons
+  const std::vector<float>& ph_pt() const { return m_ph_pt;}
+  const std::vector<float>& ph_eta() const { return m_ph_eta;}
+  const std::vector<float>& ph_phi() const { return m_ph_phi;}
+  const std::vector<float>& ph_e() const { return m_ph_e;}
+  const std::vector<float>& ph_iso() const { return m_ph_iso;}
+
+  //taus
+  const std::vector<float>& tau_pt() const { return m_tau_pt;}
+  const std::vector<float>& tau_eta() const { return m_tau_eta;}
+  const std::vector<float>& tau_phi() const { return m_tau_phi;}
+  const std::vector<float>& tau_charge() const { return m_tau_charge;}
+
+  //jets
+  const std::vector<float>& jet_pt() const { return m_jet_pt;}
+  const std::vector<float>& jet_eta() const { return m_jet_eta;}
+  const std::vector<float>& jet_phi() const { return m_jet_phi;}
+  const std::vector<float>& jet_e() const { return m_jet_e;}
+  const std::vector<float>& jet_mv2c00() const { return m_jet_mv2c00;}
+  const std::vector<float>& jet_mv2c10() const { return m_jet_mv2c10;}
+  const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
+  const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
+  const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
+  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
+  const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
+  const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
+  const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
+  const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
+  const std::vector<int>& jet_tagWeightBin() const { return m_jet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
+  const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
+  const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
+
+  //large-R jets
+  const std::vector<float>& ljet_pt() const { return m_ljet_pt;}
+  const std::vector<float>& ljet_eta() const { return m_ljet_eta;}
+  const std::vector<float>& ljet_phi() const { return m_ljet_phi;}
+  const std::vector<float>& ljet_e() const { return m_ljet_e;}
+  const std::vector<float>& ljet_m() const { return m_ljet_m;}
+  const std::vector<float>& ljet_sd12() const { return m_ljet_sd12;}
+  const std::vector<char>& ljet_isTopTagged_50() const { return m_ljet_isTopTagged_50;}
+  const std::vector<char>& ljet_isTopTagged_80() const { return m_ljet_isTopTagged_80;}
+  const std::vector<char>& ljet_isWTagged_80() const { return m_ljet_isWTagged_80;}
+  const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
+  const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
+  const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+
+  //track jets
+  const std::vector<float>& tjet_pt() const { return m_tjet_pt;}
+  const std::vector<float>& tjet_eta() const { return m_tjet_eta;}
+  const std::vector<float>& tjet_phi() const { return m_tjet_phi;}
+  const std::vector<float>& tjet_e() const { return m_tjet_e;}
+  const std::vector<float>& tjet_mv2c00() const { return m_tjet_mv2c00;}
+  const std::vector<float>& tjet_mv2c10() const { return m_tjet_mv2c10;}
+  const std::vector<float>& tjet_mv2c20() const { return m_tjet_mv2c20;}
+  const std::unordered_map<std::string, std::vector<char>>& tjet_isbtagged() const { return m_tjet_isbtagged;}//one vector per jet per WP
+  const std::vector<int>& tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+
+  //re-clustered jets
+  // -> need unordered map for systematics
+  const bool& makeRCJets() const { return m_makeRCJets;} // making re-clustered jets
+  const bool& makeVarRCJets() const { return m_makeVarRCJets;} // making VarRC jets
+  const std::string& RCJetContainer() const { return m_RCJetContainer;} // name for RC jets container in TStore
+  const std::vector<std::string>& VarRCJetRho() const { return m_VarRCJetRho;}
+  const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
+  const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
+  const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
+  const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
+  const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
+  const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme
+  const std::unordered_map<std::size_t, JetReclusteringTool*>& jetReclusteringTool() const { return m_jetReclusteringTool;}
+  const std::map<std::string,std::vector<float>>& VarRCjetBranches() const { return m_VarRCjetBranches;}
+  const std::map<std::string,std::vector<std::vector<float>>>& VarRCjetsubBranches() const { return m_VarRCjetsubBranches;}
+  const std::vector<int>& rcjet_nsub() const { return m_rcjet_nsub;}
+  const std::vector<float>& rcjet_pt() const { return m_rcjet_pt;}
+  const std::vector<float>& rcjet_eta() const { return m_rcjet_eta;}
+  const std::vector<float>& rcjet_phi() const { return m_rcjet_phi;}
+  const std::vector<float>& rcjet_e() const { return m_rcjet_e;}
+  const std::vector<float>& rcjet_d12() const { return m_rcjet_d12;}
+  const std::vector<float>& rcjet_d23() const { return m_rcjet_d23;}
+  const std::vector<std::vector<float> >& rcjetsub_pt() const { return m_rcjetsub_pt;}
+  const std::vector<std::vector<float> >& rcjetsub_eta() const { return m_rcjetsub_eta;}
+  const std::vector<std::vector<float> >& rcjetsub_phi() const { return m_rcjetsub_phi;}
+  const std::vector<std::vector<float> >& rcjetsub_e() const { return m_rcjetsub_e;}
+  const std::vector<std::vector<float> >& rcjetsub_mv2c10() const { return m_rcjetsub_mv2c10;}
+
+  //met
+  const float& met_met() const { return m_met_met;}
+  const float& met_phi() const { return m_met_phi;}
+
+  ///KLFitter
+  const short& klfitter_selected() const { return m_klfitter_selected;}
+  /// Error flags
+  const std::vector<short>& klfitter_minuitDidNotConverge() const { return m_klfitter_minuitDidNotConverge;}
+  const std::vector<short>& klfitter_fitAbortedDueToNaN() const { return m_klfitter_fitAbortedDueToNaN;}
+  const std::vector<short>& klfitter_atLeastOneFitParameterAtItsLimit() const { return m_klfitter_atLeastOneFitParameterAtItsLimit;}
+  const std::vector<short>& klfitter_invalidTransferFunctionAtConvergence() const { return m_klfitter_invalidTransferFunctionAtConvergence;}
+  /// Global result
+  const std::vector<unsigned int>& klfitter_bestPermutation() const { return m_klfitter_bestPermutation;}
+  const std::vector<float>& klfitter_logLikelihood() const { return m_klfitter_logLikelihood;}
+  const std::vector<float>& klfitter_eventProbability() const { return m_klfitter_eventProbability;}
+  const std::vector<std::vector<double>>& klfitter_parameters() const { return m_klfitter_parameters;}
+  const std::vector<std::vector<double>>& klfitter_parameterErrors() const { return m_klfitter_parameterErrors;}
+  /// Model
+  const std::vector<float>& klfitter_model_bhad_pt() const { return m_klfitter_model_bhad_pt;}
+  const std::vector<float>& klfitter_model_bhad_eta() const { return m_klfitter_model_bhad_eta;}
+  const std::vector<float>& klfitter_model_bhad_phi() const { return m_klfitter_model_bhad_phi;}
+  const std::vector<float>& klfitter_model_bhad_E() const { return m_klfitter_model_bhad_E;}
+  const std::vector<unsigned int>& klfitter_model_bhad_jetIndex() const { return m_klfitter_model_bhad_jetIndex;}
+  const std::vector<float>& klfitter_model_blep_pt() const { return m_klfitter_model_blep_pt;}
+  const std::vector<float>& klfitter_model_blep_eta() const { return m_klfitter_model_blep_eta;}
+  const std::vector<float>& klfitter_model_blep_phi() const { return m_klfitter_model_blep_phi;}
+  const std::vector<float>& klfitter_model_blep_E() const { return m_klfitter_model_blep_E;}
+  const std::vector<unsigned int>& klfitter_model_blep_jetIndex() const { return m_klfitter_model_blep_jetIndex;}
+  const std::vector<float>& klfitter_model_lq1_pt() const { return m_klfitter_model_lq1_pt;}
+  const std::vector<float>& klfitter_model_lq1_eta() const { return m_klfitter_model_lq1_eta;}
+  const std::vector<float>& klfitter_model_lq1_phi() const { return m_klfitter_model_lq1_phi;}
+  const std::vector<float>& klfitter_model_lq1_E() const { return m_klfitter_model_lq1_E;}
+  const std::vector<unsigned int>& klfitter_model_lq1_jetIndex() const { return m_klfitter_model_lq1_jetIndex;}
+  const std::vector<float>& klfitter_model_lq2_pt() const { return m_klfitter_model_lq2_pt;}
+  const std::vector<float>& klfitter_model_lq2_eta() const { return m_klfitter_model_lq2_eta;}
+  const std::vector<float>& klfitter_model_lq2_phi() const { return m_klfitter_model_lq2_phi;}
+  const std::vector<float>& klfitter_model_lq2_E() const { return m_klfitter_model_lq2_E;}
+  const std::vector<unsigned int>& klfitter_model_lq2_jetIndex() const { return m_klfitter_model_lq2_jetIndex;}
+  const std::vector<float>& klfitter_model_Higgs_b1_pt() const { return m_klfitter_model_Higgs_b1_pt;}
+  const std::vector<float>& klfitter_model_Higgs_b1_eta() const { return m_klfitter_model_Higgs_b1_eta;}
+  const std::vector<float>& klfitter_model_Higgs_b1_phi() const { return m_klfitter_model_Higgs_b1_phi;}
+  const std::vector<float>& klfitter_model_Higgs_b1_E() const { return m_klfitter_model_Higgs_b1_E;}
+  const std::vector<unsigned int>& klfitter_model_Higgs_b1_jetIndex() const { return m_klfitter_model_Higgs_b1_jetIndex;}
+  const std::vector<float>& klfitter_model_Higgs_b2_pt() const { return m_klfitter_model_Higgs_b2_pt;}
+  const std::vector<float>& klfitter_model_Higgs_b2_eta() const { return m_klfitter_model_Higgs_b2_eta;}
+  const std::vector<float>& klfitter_model_Higgs_b2_phi() const { return m_klfitter_model_Higgs_b2_phi;}
+  const std::vector<float>& klfitter_model_Higgs_b2_E() const { return m_klfitter_model_Higgs_b2_E;}
+  const std::vector<unsigned int>& klfitter_model_Higgs_b2_jetIndex() const { return m_klfitter_model_Higgs_b2_jetIndex;}
+  const std::vector<float>& klfitter_model_lep_pt() const { return m_klfitter_model_lep_pt;}
+  const std::vector<float>& klfitter_model_lep_eta() const { return m_klfitter_model_lep_eta;}
+  const std::vector<float>& klfitter_model_lep_phi() const { return m_klfitter_model_lep_phi;}
+  const std::vector<float>& klfitter_model_lep_E() const { return m_klfitter_model_lep_E;}
+  const std::vector<float>& klfitter_model_nu_pt() const { return m_klfitter_model_nu_pt;}
+  const std::vector<float>& klfitter_model_nu_eta() const { return m_klfitter_model_nu_eta;}
+  const std::vector<float>& klfitter_model_nu_phi() const { return m_klfitter_model_nu_phi;}
+  const std::vector<float>& klfitter_model_nu_E() const { return m_klfitter_model_nu_E;}
+  // calculated KLFitter variables for best perm
+  const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
+  const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}
+  const float& klfitter_bestPerm_topLep_phi() const { return m_klfitter_bestPerm_topLep_phi;}
+  const float& klfitter_bestPerm_topLep_E() const { return m_klfitter_bestPerm_topLep_E;}
+  const float& klfitter_bestPerm_topLep_m() const { return m_klfitter_bestPerm_topLep_m;}
+  const float& klfitter_bestPerm_topHad_pt() const { return m_klfitter_bestPerm_topHad_pt;}
+  const float& klfitter_bestPerm_topHad_eta() const { return m_klfitter_bestPerm_topHad_eta;}
+  const float& klfitter_bestPerm_topHad_phi() const { return m_klfitter_bestPerm_topHad_phi;}
+  const float& klfitter_bestPerm_topHad_E() const { return m_klfitter_bestPerm_topHad_E;}
+  const float& klfitter_bestPerm_topHad_m() const { return m_klfitter_bestPerm_topHad_m;}
+  const float& klfitter_bestPerm_ttbar_pt() const { return m_klfitter_bestPerm_ttbar_pt;}
+  const float& klfitter_bestPerm_ttbar_eta() const { return m_klfitter_bestPerm_ttbar_eta;}
+  const float& klfitter_bestPerm_ttbar_phi() const { return m_klfitter_bestPerm_ttbar_phi;}
+  const float& klfitter_bestPerm_ttbar_E() const { return m_klfitter_bestPerm_ttbar_E;}
+  const float& klfitter_bestPerm_ttbar_m() const { return m_klfitter_bestPerm_ttbar_m;}
+  // PseudoTop variables
+  const float& PseudoTop_Reco_ttbar_pt() const { return m_PseudoTop_Reco_ttbar_pt;}
+  const float& PseudoTop_Reco_ttbar_eta() const { return m_PseudoTop_Reco_ttbar_eta;}
+  const float& PseudoTop_Reco_ttbar_phi() const { return m_PseudoTop_Reco_ttbar_phi;}
+  const float& PseudoTop_Reco_ttbar_m() const { return m_PseudoTop_Reco_ttbar_m;}
+  const float& PseudoTop_Reco_top_had_pt() const { return m_PseudoTop_Reco_top_had_pt;}
+  const float& PseudoTop_Reco_top_had_eta() const { return m_PseudoTop_Reco_top_had_eta;}
+  const float& PseudoTop_Reco_top_had_phi() const { return m_PseudoTop_Reco_top_had_phi;}
+  const float& PseudoTop_Reco_top_had_m() const { return m_PseudoTop_Reco_top_had_m;}
+  const float& PseudoTop_Reco_top_lep_pt() const { return m_PseudoTop_Reco_top_lep_pt;}
+  const float& PseudoTop_Reco_top_lep_eta() const { return m_PseudoTop_Reco_top_lep_eta;}
+  const float& PseudoTop_Reco_top_lep_phi() const { return m_PseudoTop_Reco_top_lep_phi;}
+  const float& PseudoTop_Reco_top_lep_m() const { return m_PseudoTop_Reco_top_lep_m;}
+  const float& PseudoTop_Particle_ttbar_pt() const { return m_PseudoTop_Particle_ttbar_pt;}
+  const float& PseudoTop_Particle_ttbar_eta() const { return m_PseudoTop_Particle_ttbar_eta;}
+  const float& PseudoTop_Particle_ttbar_phi() const { return m_PseudoTop_Particle_ttbar_phi;}
+  const float& PseudoTop_Particle_ttbar_m() const { return m_PseudoTop_Particle_ttbar_m;}
+  const float& PseudoTop_Particle_top_had_pt() const { return m_PseudoTop_Particle_top_had_pt;}
+  const float& PseudoTop_Particle_top_had_eta() const { return m_PseudoTop_Particle_top_had_eta;}
+  const float& PseudoTop_Particle_top_had_phi() const { return m_PseudoTop_Particle_top_had_phi;}
+  const float& PseudoTop_Particle_top_had_m() const { return m_PseudoTop_Particle_top_had_m;}
+  const float& PseudoTop_Particle_top_lep_pt() const { return m_PseudoTop_Particle_top_lep_pt;}
+  const float& PseudoTop_Particle_top_lep_eta() const { return m_PseudoTop_Particle_top_lep_eta;}
+  const float& PseudoTop_Particle_top_lep_phi() const { return m_PseudoTop_Particle_top_lep_phi;}
+  const float& PseudoTop_Particle_top_lep_m() const { return m_PseudoTop_Particle_top_lep_m;}
+
+  //MC
+  const std::vector<float>& mc_pt() const { return m_mc_pt;}
+  const std::vector<float>& mc_eta() const { return m_mc_eta;}
+  const std::vector<float>& mc_phi() const { return m_mc_phi;}
+  const std::vector<float>& mc_e() const { return m_mc_e;}
+  const std::vector<int>& mc_pdgId() const { return m_mc_pdgId;}
+
+  //PDFInfo
+  const std::vector<float>& PDFinfo_X1() const { return m_PDFinfo_X1;}
+  const std::vector<float>& PDFinfo_X2() const { return m_PDFinfo_X2;}
+  const std::vector<int>& PDFinfo_PDGID1() const { return m_PDFinfo_PDGID1;}
+  const std::vector<int>& PDFinfo_PDGID2() const { return m_PDFinfo_PDGID2;}
+  const std::vector<float>& PDFinfo_Q() const { return m_PDFinfo_Q;}
+  const std::vector<float>& PDFinfo_XF1() const { return m_PDFinfo_XF1;}
+  const std::vector<float>& PDFinfo_XF2() const { return m_PDFinfo_XF2;}
+
+  //the on-the-fly computed generator weights
+  //there is one vector of float per entry in the trutheventcontainer (which should have only 1 entry)
+  const std::vector<float>& mc_generator_weights() const { return m_mc_generator_weights;}
+
+  //Extra variables for Particle Level (bare lepton kinematics and b-Hadron
+  //tagging information).
+  const std::vector<float>& el_pt_bare() const { return m_el_pt_bare;}
+  const std::vector<float>& el_eta_bare() const { return m_el_eta_bare;}
+  const std::vector<float>& el_phi_bare() const { return m_el_phi_bare;}
+  const std::vector<float>& el_e_bare() const { return m_el_e_bare;}
+  const std::vector<float>& mu_pt_bare() const { return m_mu_pt_bare;}
+  const std::vector<float>& mu_eta_bare() const { return m_mu_eta_bare;}
+  const std::vector<float>& mu_phi_bare() const { return m_mu_phi_bare;}
+  const std::vector<float>& mu_e_bare() const { return m_mu_e_bare;}
+  const std::vector<int>& jet_Ghosts_BHadron_Final_Count() const { return m_jet_Ghosts_BHadron_Final_Count;}
+  const std::vector<int>& jet_Ghosts_CHadron_Final_Count() const { return m_jet_Ghosts_CHadron_Final_Count;}
+  const std::vector<int>& ljet_Ghosts_BHadron_Final_Count() const { return m_ljet_Ghosts_BHadron_Final_Count;}
+  const std::vector<int>& ljet_Ghosts_CHadron_Final_Count() const { return m_ljet_Ghosts_CHadron_Final_Count;}
+  const std::vector<std::vector<int>>& rcjetsub_Ghosts_BHadron_Final_Count() const { return m_rcjetsub_Ghosts_BHadron_Final_Count;}
+  const std::vector<std::vector<int>>& rcjetsub_Ghosts_CHadron_Final_Count() const { return m_rcjetsub_Ghosts_CHadron_Final_Count;}
+
+  // for rc jets at particle level
+  const std::unique_ptr<ParticleLevelRCJetObjectLoader>& rcjet_particle() const { return m_rcjet_particle;}
+  const std::string& RCJetContainerParticle() const { return m_RCJetContainerParticle;} // name for RC jets container
+
+  // Truth tree inserted variables
+  // This can be expanded as required
+  // This is just a first pass at doing this sort of thing
+  const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
+
+  ClassDef(top::EventSaverFlatNtuple, 0);
 };
 
 }

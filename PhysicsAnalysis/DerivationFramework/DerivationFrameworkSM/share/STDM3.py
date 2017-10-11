@@ -47,7 +47,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 STDM3ThinningHelper = ThinningHelper( "STDM3ThinningHelper" )
 
 #trigger navigation content
-STDM3ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+STDM3ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_2g10_loose_mu20'
 STDM3ThinningHelper.AppendToStream( STDM3Stream )
 
 #===================== 
@@ -60,9 +60,9 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
                                                                         ThinningService         = STDM3ThinningHelper.ThinningSvc(),
                                                                         JetKey                  = "AntiKt4EMTopoJets",
-#                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
+                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        ApplyAnd                = False)
 ToolSvc += STDM3JetTPThinningTool
 thinningTools.append(STDM3JetTPThinningTool)
 
@@ -157,7 +157,6 @@ if isMC:
                                                                     ParticlesKey            = "STDMTruthPhotons",
                                                                     ParticleSelectionString = STDMphotonthinningexpr)
 
-    
     ToolSvc += STDM3TruthLepTool
     ToolSvc += STDM3TruthBosTool
     ToolSvc += STDM3TruthThinning
@@ -190,7 +189,8 @@ offlineexpression = " || ".join([muonOnlySelection,electronOnlySelection,electro
 
 diElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_2e12_lhvloose_L12EM10VH || HLT_2e17_lhvloose_nod0)'
 diMuonTriggerRequirement='(HLT_2mu10 || HLT_2mu14 || HLT_mu24_mu8noL1 || HLT_mu22_mu8noL1 || HLT_mu20_mu8noL1)'
-triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+')'
+lggTriggerRequirement = '( HLT_e20_lhmedium_nod0_2g10_loose || HLT_e20_lhmedium_nod0_2g10_loose_L1EM15VH_3EM8VH || HLT_e24_lhmedium_nod0_2g12_loose || HLT_e24_lhmedium_nod0_2g12_medium || HLT_2g10_loose_mu20)'
+triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+"||"+ lggTriggerRequirement+')'
 
 expression = triggerRequirement+' || '+offlineexpression
 
@@ -217,13 +217,8 @@ STDM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM3Kernel",
                                                               ThinningTools = thinningTools)
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM3Jets" in OutputJets.keys():
-    OutputJets["STDM3Jets"] = STDMHelpers.STDMRecalcJets(STDM3Sequence, "STDM3", isMC)
-
-# FIX TRUTH JETS
-if isMC:
-    replaceBuggyAntiKt4TruthWZJets(STDM3Sequence,"STDM3")
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, STDM3Sequence, "STDM3Jets")
 
 # FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
@@ -275,10 +270,21 @@ STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxA
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+
 if isMC:
     STDM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM3SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM3SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM3SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM3SlimmingHelper,["STDM3","STDM3Jets"])
 

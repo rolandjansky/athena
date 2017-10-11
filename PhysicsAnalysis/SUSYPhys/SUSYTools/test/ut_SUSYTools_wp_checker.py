@@ -6,7 +6,7 @@ import unittest
 import ROOT
 ROOT.gROOT.SetBatch()
 
-import math, string, os, sys
+import string, os, sys
 import subprocess
 
 
@@ -32,6 +32,7 @@ def writeConfig(myConfig):
 # SUSYTools configuration file
 ##################################################
 EleBaseline.Pt: 10000.
+EleBaseline.Eta: 2.47
 EleBaseline.Id: ${ELE_ID_Base}
 EleBaseline.CrackVeto: false
 #
@@ -46,6 +47,7 @@ Ele.z0: 0.5
 Ele.CFT: None
 #
 MuonBaseline.Pt: 10000.
+MuonBaseline.Eta: 2.7
 MuonBaseline.Id: ${MU_ID_Base} # Medium
 #
 Muon.Pt: 25000.
@@ -72,6 +74,7 @@ Photon.Iso: ${PH_ISO}
 Tau.Pt: 20000.
 Tau.Eta: 2.5
 Tau.Id: Medium
+Tau.IDRedecorate: False
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
@@ -86,8 +89,11 @@ FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: None 
-Jet.WtaggerWP: medium
-Jet.ZtaggerWP: medium
+# 80% efficiency working points 
+Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+# JMS Calibration (None, Extrap, Frozen)
+Jet.JMSCalib: None
 #
 BadJet.Cut: LooseBad
 #
@@ -99,7 +105,7 @@ Btag.WP: ${BTAG_WP}
 Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
 #
 # set the -999. to positive number to override default
-OR.DoBoostedElectron: false
+OR.DoBoostedElectron: true
 OR.BoostedElectronC1: -999.
 OR.BoostedElectronC2: -999.
 OR.BoostedElectronMaxConeSize: -999.
@@ -113,10 +119,11 @@ OR.DoPhoton: false
 OR.Bjet: true
 OR.ElBjet: true
 OR.MuBjet: true
+OR.TauBjet: false
+OR.MuJetApplyRelPt: false
 OR.MuJetPtRatio: -999.
 OR.MuJetTrkPtRatio: -999.
 OR.RemoveCaloMuons: true
-OR.ApplyJVT: true
 OR.MuJetInnerDR: -999.
 OR.BtagWP: FixedCutBEff_85
 #
@@ -140,7 +147,6 @@ MET.DoMuonJetOR: 1
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
-PRW.DefaultChannel: -1
 PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
@@ -174,13 +180,13 @@ class TestSUSYTools(unittest.TestCase):
 
     theSample = os.environ['ASG_TEST_FILE_MC']
 
-    theTest = 'SUSYToolsTester %s 10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
+    theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
     #guess the MC campaign for the prw file if needed
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
 
     #Working points
-    EL_ID_WP  = ['MediumLLH','TightLLH'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
+    EL_ID_WP  = ['MediumLLH_Rel20p7','TightLLH_Rel20p7'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
     EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
     MU_ID_WP  = ['1'] 
     MU_ISO_WP = ['GradientLoose']
@@ -190,8 +196,8 @@ class TestSUSYTools(unittest.TestCase):
     #...
     
     #default settings
-    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
-                     'el_id'      : 'TightLLH',
+    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH_Rel20p7',
+                     'el_id'      : 'TightLLH_Rel20p7',
                      'el_iso'     : 'GradientLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
@@ -262,13 +268,13 @@ class TestSUSYTools(unittest.TestCase):
             ## check for errors in output
             self.assertFalse('ERROR' in out)
 
-
+        # Make sure the output doesn't get stepped on by something else
+        sys.stdout.flush()
         #os.remove(self.theConfig)
-        
 
     #Test Electron WPs
     def test_EL_WPs(self):
-        self.run_WPs('el_id_base', ['LooseAndBLayerLLH']) #self.EL_ID_WP)
+        self.run_WPs('el_id_base', ['LooseAndBLayerLLH_Rel20p7']) #self.EL_ID_WP)
         self.run_WPs('el_id', self.EL_ID_WP)
         self.run_WPs('el_iso', self.EL_ISO_WP)
 
@@ -288,7 +294,6 @@ class TestSUSYTools(unittest.TestCase):
     def test_BTAG_WPs(self):
         self.run_WPs('btag_wp', self.BTAG_WP)
 
-
     #Print non-supported configurations
     def test_printNS(self):
         if len(self.failConfs)>0:
@@ -296,7 +301,6 @@ class TestSUSYTools(unittest.TestCase):
             for fc in self.failConfs:
                 print '-'*80
                 print fc
-
 
 
 

@@ -6,7 +6,8 @@ atlas_subdir( TopConfiguration None )
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
 			  xAODCore
-                          PATInterfaces)
+			  Tools/PathResolver
+                          PATInterfaces )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -25,7 +26,8 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
                    TopConfiguration/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopConfiguration
                    LINK_LIBRARIES xAODCore
-		                  PATInterfaces
+		   		  PATInterfaces
+				  PathResolver
                                   ${ROOT_LIBRARIES}
 				  ${Boost_LIBRARIES} 
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
@@ -35,5 +37,5 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
 atlas_install_data( share/* )
 
 # Install the python modules from the package
-atlas_install_python_modules( python/*.py )
+atlas_install_scripts( python/AodMetaDataReader.py )
 

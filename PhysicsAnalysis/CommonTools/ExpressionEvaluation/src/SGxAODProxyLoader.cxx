@@ -106,7 +106,6 @@ namespace ExpressionParsing {
     m_elementProxyLoader->setData(metElement);
   }
 
-
   // End helper classes
 
 
@@ -157,6 +156,7 @@ namespace ExpressionParsing {
 
     // End specific workarounds
 
+    TRY_VECTOR(xAOD::TruthParticleContainer);
     TRY_VECTOR(xAOD::ElectronContainer);
     TRY_VECTOR(xAOD::PhotonContainer);
     TRY_VECTOR(xAOD::MuonContainer);
@@ -164,7 +164,6 @@ namespace ExpressionParsing {
     TRY_VECTOR(xAOD::TrackParticleContainer);
     TRY_VECTOR(xAOD::VertexContainer);
     TRY_VECTOR(xAOD::CaloClusterContainer);
-    TRY_VECTOR(xAOD::TruthParticleContainer);
     TRY_VECTOR(xAOD::TruthEventContainer);
     TRY_VECTOR(xAOD::TruthVertexContainer);
     TRY_VECTOR(xAOD::TauJetContainer);

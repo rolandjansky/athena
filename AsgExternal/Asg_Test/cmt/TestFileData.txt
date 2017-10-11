@@ -1,1 +1,1 @@
-/afs/cern.ch/atlas/project/PAT/xAODs/r9264/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1
+/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/DAOD_PHYSVAL/data16_13TeV.00311321.physics_Main.DAOD_PHYSVAL.r9264_AthDerivation-21.2.1.0.root

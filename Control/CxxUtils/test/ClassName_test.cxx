@@ -32,6 +32,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "Foo");
+    assert (cn.isConst() == false);
   }
 
   {
@@ -39,6 +40,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "const Foo");
+    assert (cn.isConst() == true);
   }
 
   {
@@ -46,6 +48,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "const Foo");
+    assert (cn.isConst() == true);
   }
 
   {
@@ -53,6 +56,7 @@ void test1()
     assert (cn.name() == "Fee");
     assert (cn.qualifiedName() == "Foo::Bar::Fee");
     assert (cn.fullName() == "Foo::Bar::Fee");
+    assert (cn.isConst() == false);
   }
 
 
@@ -61,6 +65,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "Foo<Bar>");
+    assert (cn.isConst() == false);
   }
 
   {
@@ -68,6 +73,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "Foo<Bar,Fee>");
+    assert (cn.isConst() == false);
   }
 
   {
@@ -75,6 +81,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "Foo<const Bar,Fee>");
+    assert (cn.isConst() == false);
   }
 
   {
@@ -82,6 +89,7 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "Foo");
     assert (cn.fullName() == "const Foo<const Bar,Fee>");
+    assert (cn.isConst() == true);
   }
 
   {
@@ -89,6 +97,21 @@ void test1()
     assert (cn.name() == "Foo");
     assert (cn.qualifiedName() == "A::B<C>::Foo");
     assert (cn.fullName() == "A::B<C>::Foo<Bar,D<E> >");
+    assert (cn.isConst() == false);
+  }
+
+  {
+    ClassName cn ("A<S<T> const>");
+    assert (cn.name() == "A");
+    assert (cn.qualifiedName() == "A");
+    assert (cn.fullName() == "A<const S<T> >");
+    assert (cn.isConst() == false);
+  }
+
+  {
+    ClassName cn ("const std::foo");
+    assert (cn.name() == "foo");
+    assert (cn.qualifiedName() == "std::foo");
   }
 
   EXPECT_EXCEPTION (ClassName::ExcBadClassName, ClassName cn ("A>B"));
@@ -141,6 +164,9 @@ void test_match()
   assert (!ClassName ("A::B<int>").match (pat4, matches));
   assert (ClassName ("A::B<const int>").match (pat4, matches));
   assert (matches["T"].fullName() == "int");
+
+  ClassName pat5 ("A<$T>");
+  assert (ClassName ("const A<int>").match (pat5, matches));
 }
 
 
@@ -205,6 +231,9 @@ void test_rules()
 
   assert (rules.apply ("std::vector<Foo, std::allocator<Foo> >") ==
           "std::vector<Bar>");
+
+  assert (rules.apply ("const std::vector<Foo, std::allocator<Foo> >") ==
+          "const std::vector<Bar>");
 }
 
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+
 def useSmartSlimmingIfSupported(itemPairs, smAllVarlist, addItemList, ContainerNamesAndTypes):
     for i in itemPairs:
         cname = i.split('#')[-1]
@@ -17,15 +19,10 @@ def getMUON0TriggerContainers():
 'xAOD::L2CombinedMuonContainer#HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo':'xAOD::L2CombinedMuonAuxContainer#HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfoAux.',
 'xAOD::L2IsoMuonContainer#HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfo':'xAOD::L2IsoMuonAuxContainer#HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfoAux.',
 'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfoAux.',
-'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuTagIMO_EF':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuTagIMO_EFAux.',
-'xAOD::MuonContainer#HLT_xAOD__MuonContainer_eMuonEFInfo':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_eMuonEFInfoAux.',
+'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo_FullScan':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfo_FullScanAux.',
 'xAOD::MuonRoIContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuon':'xAOD::MuonRoIAuxContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuonAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticlesAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticlesAux.',
-'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuTagIMO_EF_CombTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuTagIMO_EF_CombTrackParticlesAux.',
-'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuTagIMO_EF_ExtrapTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuTagIMO_EF_ExtrapTrackParticlesAux.',
-'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_CombTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_CombTrackParticlesAux.',
-'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_ExtrapTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_eMuonEFInfo_ExtrapTrackParticlesAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_MuonIso_EFID':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_MuonIso_EFIDAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTFAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFID':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux.',
@@ -36,20 +33,29 @@ def getMUON0TriggerContainers():
 class MuonsDxAODStreamConfigurer:
     commonItems = []
     MUON0OnlyItems = ["CosmicMuonCollection#HLT_CosmicMuons", "MuonCaloEnergyContainer#MuonCaloEnergyCollection"]
-    MUON1OnlyItems = ['CaloClusterCellLinkContainer#MuonClusterCollection_links', 'CaloCellContainer#AODCellContainer']
+#     MUON1OnlyItems = ['CaloClusterCellLinkContainer#MuonClusterCollection_links', 'CaloCellContainer#AODCellContainer']
+    MUON1OnlyItems = [] ## will be done in MUON1
     MUON2OnlyItems = []
     MUON3OnlyItems = []
 
     MUON0OnlyItems += ['xAOD::TrigNavigation#*','xAOD::TrigNavigationAuxInfo#*'] ## be careful, they could go to smart slimming...
 
     ### samrt slimming containers
-    comSmSlList = []
-    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets'], 'MUON2':['AntiKt4LCTopoJets'], 'MUON3':[]}
+    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles"]
+    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON2':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON3':[]}
 
     ### all varaible containers
-    commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles"]
+#     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
+    commonAllVarList = ["Muons", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles","MSOnlyExtrapolatedMuonTrackParticles"]
     MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons'] # slow muons
     MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
+    MUON2OnlyAllVar = ['PrimaryVertices']
+    MUON3OnlyAllVar = ['PrimaryVertices']
+    MUON4OnlyAllVar = ['PrimaryVertices']
+
+#     if globalflags.DataSource()=='geant4':
+    if DerivationFrameworkIsMonteCarlo:
+        MUON1OnlyAllVar += ['AntiKt4TruthJets']
 
 #     useSmartSlimmingIfSupported(getMUON0TriggerContainers(), MUON0OnlyAllVar, MUON0OnlyItems)
     allVarContainer = {'MUON0':MUON0OnlyAllVar, 'MUON1':MUON1OnlyAllVar, 'MUON2':[], 'MUON3':[]}
@@ -66,6 +72,25 @@ class MuonsDxAODStreamConfigurer:
 
     checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers(), 'MUON3':getMUON0TriggerContainers()}
 
+    ### Extra variables
+    ### Eventshape for pileup subtraction in isolation
+    eventShapeVars = ['TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoForwardEventShape.DensitySigma.Density.DensityArea']
+
+    extraVariables = {'MUON1':eventShapeVars, 'MUON2':eventShapeVars}
+
+    ### For FSR check
+    extraVariables['MUON1'].append('Photons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON1'].append('Electrons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON1'].append('InDetTrackParticles.deltaphi_0.deltatheta_0.sigmadeltaphi_0.sigmadeltatheta_0.deltaphi_1.deltatheta_1.sigmadeltaphi_1.sigmadeltatheta_1')
+
+    ### PV slimming for size reduction
+    pvExtra = 'PrimaryVertices.numberDoF.chiSquared.sumPt2.x.y.z'
+    extraVariables['MUON1'].append(pvExtra)
+    extraVariables['MUON0'] = [pvExtra]
+
     ### get final lists
     for s in Items: Items[s]+=commonItems
     for s in allVarContainer: allVarContainer[s]+=commonAllVarList
@@ -80,7 +105,7 @@ class MuonsDxAODStreamConfigurer:
         useSmartSlimmingIfSupported(self.checkContainers.get(configKey, []),self.allVarContainer[configKey], self.Items[configKey], SlHelper.NamesAndTypes)
         SlHelper.AllVariables = self.allVarContainer[configKey]
 #         SlHelper.StaticContent = self.Items[configKey]
-#         SlHelper.ExtraVariables = self.extraVariables.get(configKey, [])
+        SlHelper.ExtraVariables = self.extraVariables.get(configKey, [])
         SlHelper.IncludeMuonTriggerContent = self.UseTriggerContent.get(configKey, True)
         SlHelper.AppendContentToStream(stream)
 
@@ -92,7 +117,7 @@ class MuonsDxAODStreamConfigurer:
         print 'Add Items:'
         for i in self.Items: print i,'=',self.Items[i]
         print 'Smart slimming:'
-        for i in self.smSlContainer: print i,'=',self.smSlContainer[i]
+        for i in self.smSlContainer and (not i in self.allVarContainer): print i,'=',self.smSlContainer[i]
         print 'Keep all varaibles:'
         for i in self.allVarContainer: print i,'=',self.allVarContainer[i]
         print 'Keep trigger content:'

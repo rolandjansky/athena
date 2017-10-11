@@ -131,6 +131,7 @@ class TrigEgammaPlotTool
           void bookExpertResolutionHistos(const std::string dir);
           void bookExpertL2CaloResolutionHistos(const std::string dir);
           void bookAbsResolutionHistos(const std::string dir);
+          void bookRnnDistributionHistos(const std::string dir);
           void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
   };
 #endif

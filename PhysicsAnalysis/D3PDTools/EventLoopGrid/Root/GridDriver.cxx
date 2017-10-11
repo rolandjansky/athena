@@ -276,7 +276,7 @@ namespace EL {
     iJob++;
 
     //If SampleGrid, loop over childs if SampleComposite
-    inDS = (*sample)->getMetaString("nc_grid", (*sample)->name());
+    inDS = (*sample)->meta()->castString("nc_grid", (*sample)->name(), SH::MetaObject::CAST_NOCAST_DEFAULT);
       
     // Determine outDS name
     if (not outputSampleName.empty()) 
@@ -299,7 +299,7 @@ namespace EL {
       int i2 = outDS.Index("%", i1+1);
       TString metaName = outDS(i1+4, i2-i1-4);
       outDS.ReplaceAll("%in:"+metaName+"%", 
-		       (*sample)->getMetaString(std::string(metaName.Data())));	  
+		       (*sample)->meta()->castString(std::string(metaName.Data()), "", SH::MetaObject::CAST_NOCAST_DEFAULT));
     }
     outDS.ReplaceAll("/", "");
     if (!outDS.BeginsWith(Form("user.%s", nickname.c_str()))) {
@@ -330,7 +330,7 @@ namespace EL {
     trfDef.inputSdBox = 
       extFile + (extFile.empty() ? "" : ",") + jobDefFile + "," + runShFile;
     trfDef.inputFiles = 
-      (*sample)->getMetaString("nc_grid_filter", "*.root*");
+      (*sample)->meta()->castString("nc_grid_filter", "*.root*", SH::MetaObject::CAST_NOCAST_DEFAULT);
     trfDef.outputFiles = outputfilenames;    
     trfDef.downloadDir = downloadDir;
     trfDef.downloadMask = "hist-output.root";
@@ -341,7 +341,7 @@ namespace EL {
     gangaCmd << gangaTrfCmd(trfDef, *this);
     gangaCmd << endl;
 
-    outDSs.push_back(std::string(outDS));	
+    outDSs.push_back(std::string(outDS.Data()));	
   }
 
   string taskName = location;
@@ -428,13 +428,13 @@ namespace EL {
     for (EL::Job::outputIter out=job.outputBegin();
 	 out != job.outputEnd(); ++out) {
       SH::SampleGrid * mysample = new SH::SampleGrid((*sample)->name());
-      mysample->setMetaString("nc_grid", sampleOutDs);
-      mysample->setMetaString("nc_grid_filter", "*" + out->label() + ".root*");
+      mysample->meta()->setString("nc_grid", sampleOutDs);
+      mysample->meta()->setString("nc_grid_filter", "*" + out->label() + ".root*");
       outMap[out->label()].add(mysample);
     }
     SH::SampleGrid * mysample=new SH::SampleGrid((*sample)->name());
-    mysample->setMetaString("nc_grid", sampleOutDs);
-    mysample->setMetaString("nc_grid_filter", "hist-output.root");
+    mysample->meta()->setString("nc_grid", sampleOutDs);
+    mysample->meta()->setString("nc_grid_filter", "hist-output.root");
     //mysample->setMetaDouble("norigfiles", nFilesInInputDS);
     outMap["hist"].add(mysample);                	          
   }
@@ -578,7 +578,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
 	jobDownloadDir + "/" + (*sample)->name() + "/" + unitName;	
       const string findCmd 
 	= "find " + unitDir + " -name \"*.hist-output.root*\" |  tr '\n' ' '";
-      filesToMerge += gSystem->GetFromPipe(findCmd.c_str());		
+      filesToMerge += gSystem->GetFromPipe(findCmd.c_str()).Data();		
     }
     if (transformCompleted) nTotalTransformsCompleted++;
     if (nUnits == 0) transformCompleted = false;
@@ -1215,7 +1215,7 @@ SH::SampleGrid* EL::GridDriver::createSampleFromDQ2(const std::string& dataset)
   while((pos=name.find("/", pos)) != std::string::npos) 
     name.replace(pos++, 1, "_");
   SH::SampleGrid * mysample=new SH::SampleGrid(name);
-  mysample->setMetaString("nc_grid", dataset);
-  mysample->setMetaString("nc_grid_filter", "*");          
+  mysample->meta()->setString("nc_grid", dataset);
+  mysample->meta()->setString("nc_grid_filter", "*");          
   return mysample;
 }

@@ -1,0 +1,9 @@
+<lcgdict>
+  <!-- Requested dictionary generation -->
+  <class name="IEvgenOTFTopUpSvc" />
+  <class name="IHepMCWeightSvc" />
+  <class name="IPDFReweightTool" />
+  <class name="ITruthSelector" />
+  <class name="IxAODtoHepMCTool" />
+  <class name="IHiggsTruthCategoryTool" />
+</lcgdict>

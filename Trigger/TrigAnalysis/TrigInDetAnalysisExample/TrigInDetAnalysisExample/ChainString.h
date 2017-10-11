@@ -62,11 +62,11 @@ public:
     return "";
   }
 
-  std::vector<std::string> values() const { return mvalues; }
-  std::vector<std::string>   keys() const { return   mkeys; }
+  const std::vector<std::string>& values() const { return mvalues; }
+  const std::vector<std::string>&   keys() const { return   mkeys; }
 
-  std::string pre()  const { return mraw.substr( 0, mraw.find(":post") ); }
-  std::string post() const { return mpost; }
+  std::string         pre() const { return mraw.substr( 0, mraw.find(":post") ); }
+  const std::string& post() const { return mpost; }
 
   size_t postcount() const { return mpostcount; }
 

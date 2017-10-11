@@ -6,23 +6,8 @@
 #ifndef __IASGDEADHVCELLREMOVALTOOL__
 #define __IASGDEADHVCELLREMOVALTOOL__
 
-#include "AsgTools/IAsgTool.h"
-#include "xAODEgamma/EgammaFwd.h"
-
-class IAsgDeadHVCellRemovalTool : virtual public asg::IAsgTool
-{
-  ASG_TOOL_INTERFACE(IAsgDeadHVCellRemovalTool)
-public:
-
-  /**Virtual Destructor*/
-  virtual ~IAsgDeadHVCellRemovalTool() {};
-
-  virtual bool accept( const xAOD::Egamma* part ) const = 0;
-
-  virtual bool accept( const xAOD::Egamma& part ) const = 0;
-
-}; 
-// End: class definition
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
+#pragma message "In the process of moving the Interface part under PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces"
 
 #endif
 

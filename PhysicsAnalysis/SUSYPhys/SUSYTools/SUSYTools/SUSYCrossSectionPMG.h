@@ -5,16 +5,17 @@
 #ifndef __SUSYCROSSSECTIONPMG__
 #define __SUSYCROSSSECTIONPMG__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+// Function arguments
 #include <string>
-#include <map>
-#include <stdlib.h>
 
-//For PMG centralized tool's wrapper
-#include "PMGTools/PMGCrossSectionTool.h"
-#include <stdlib.h>
+// For PMG centralized tool's wrapper tool handles
+#include "AsgTools/AnaToolHandle.h"
+// Lots of function inlining!
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
+
+namespace PMGTools {
+  class IPMGCrossSectionTool;
+}
 
 namespace SUSY
 {
@@ -26,23 +27,21 @@ public:
 
   void loadFile(const std::string&);
 
-  //PMG tool
-  PMGTools::PMGCrossSectionTool pmgxs;
+  float xsectTimesEff(int id) const { return m_pmgxs->getSampleXsection(id); };
+  float rawxsect(int id) const { return m_pmgxs->getAMIXsection(id); };
+  float kfactor(int id) const { return m_pmgxs->getKfactor(id); };
 
-  float xsectTimesEff(int id) const { return pmgxs.getSampleXsection(id); };
-  float rawxsect(int id) const { return pmgxs.getAMIXsection(id); };
-  float kfactor(int id) const { return pmgxs.getKfactor(id); };
-
-  float efficiency(int id/*, int proc = 0*/) const { return pmgxs.getFilterEff(id); }
+  float efficiency(int id/*, int proc = 0*/) const { return m_pmgxs->getFilterEff(id); }
   float rel_uncertainty(int /*id*/, int /*proc = 0*/) const { return -1; };
   float sumweight(int /*id, int proc = 0*/) const { return -1; };
 
   // invalid ID return "" string
-  std::string name(int id) const { return pmgxs.getSampleName(id); }
+  std::string name(int id) const { return m_pmgxs->getSampleName(id); }
 
-  // Allow iteration over all samples, denying modification of private data
-  //private:
-  //  bool m_extended;
+private:
+
+  //PMG tool
+  asg::AnaToolHandle<PMGTools::IPMGCrossSectionTool> m_pmgxs;
 
 };
 

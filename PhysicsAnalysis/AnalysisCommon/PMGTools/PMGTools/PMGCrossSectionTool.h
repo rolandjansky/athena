@@ -14,7 +14,7 @@
 #include "AsgTools/AsgTool.h"
 
 // Interface include(s):
-#include "PMGTools/IPMGCrossSectionTool.h"
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
 
 /// Tool providing sample cross-sections and k-factors etc
 ///

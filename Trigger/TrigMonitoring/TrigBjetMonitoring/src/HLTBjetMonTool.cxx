@@ -672,7 +672,7 @@ StatusCode HLTBjetMonTool::book(){
     const xAOD::VertexContainer* offlinepvFTK = 0;
     if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) {
       ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
-      ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepvFTK->size());
+      ATH_MSG_DEBUG("RETRIEVED OFFLINE FTK PV  - size: " << offlinepvFTK->size());
       if ( offlinepvFTK->size() ) {
 	EofflinepvFTK = true;
 	offlinepvzFTK = offlinepvFTK->front()->z();
@@ -711,29 +711,37 @@ StatusCode HLTBjetMonTool::book(){
       HistExt = "_"+trigItem;
       ATH_MSG_DEBUG(" HistDir " << HistDir << " HistExt " << HistExt );
       // Set container names (2016/03/03) see TrigBtagEmulation.cxx
-      // Non split input chaines
+      // Set keys
+      // HLT non split input chaines
       std::string m_jetKey = "";
       std::string m_priVtxKey = "EFHistoPrmVtx";
       std::string m_trackKey  = "";
-      // Split input chaines
+      // HLT split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
 	m_jetKey = "SplitJet";
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
+      // FTK input chains: John Baines and Julie Hart 
       std::size_t found1 = trigItem.find("FTK");
       if (found1!=std::string::npos) {
-	std::size_t found2 = trigItem.find("Refit");
+	m_priVtxKey = "HLT_PrimVertexFTK";
+	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+	std::size_t found2 = trigItem.find("FTKRefit");
         if (found2!=std::string::npos) {
-          m_priVtxKey = "HLT_PrimVertexFTKRefit";
           m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
         }//found2
-	else {
-          m_priVtxKey = "HLT_PrimVertexFTK";
-          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
-        }//else
+	std::size_t found3 = trigItem.find("FTKVtx");
+        if (found3!=std::string::npos) {
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+        }//found3
       }//found1
+      // gsc input chains: Ruch Gupta 2017/08/02 
+      std::size_t found4 = trigItem.find("gsc");
+      if (found4!=std::string::npos) {
+	m_jetKey = "GSCJet";
+      } // if found4
       ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey );
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
@@ -764,7 +772,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
 	if ( not onlinepvs.empty() ) {
 	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
+	  ATH_MSG_DEBUG("   for VertexContainer: " << m_priVtxKey << " nVert: " << onlinepv->size());
 	  if( not onlinepv->empty()) {
             if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
@@ -792,7 +800,7 @@ StatusCode HLTBjetMonTool::book(){
 	  ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
 	  if ( not onlinepvsd.empty() ) {
 	    const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
-	    ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
+	    ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
 	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 		if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
@@ -807,7 +815,7 @@ StatusCode HLTBjetMonTool::book(){
 	  continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
 	} // if DummyVtx
 
-	ATH_MSG_DEBUG(" PV histograms are stored successfully !");
+	ATH_MSG_DEBUG(" PV histograms are investigated ");
 
 	// Get online jet
 	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(m_jetKey);

@@ -324,6 +324,19 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
+  template<>
+  StatusCode FuncAccessor<std::bitset<xAOD::NumberOfTrackRecoInfo>,
+			  &xAOD::TrackParticle::patternRecoInfo>
+  ::access ( const Trk::Track& trk,
+	     const Trk::TrackParameters*,
+	     const Trk::TrackSummary* )
+  {
+  
+    const Trk::TrackInfo& trkInfo = trk.info();
+    m_value = trkInfo.patternRecognition();
+    return StatusCode::SUCCESS;
+  }
+
 } // namespace InDet
 
 #endif // XAOD_ANALYSIS

@@ -9,5 +9,6 @@
 #define XAODTAU_XAODTAU_CDICT_H
 
 #include "xAODTau/TauDefs.h"
+#include "xAODTau/DiTauDefs.h"
 
 #endif

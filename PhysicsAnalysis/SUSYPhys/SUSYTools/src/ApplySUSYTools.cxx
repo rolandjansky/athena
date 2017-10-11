@@ -8,57 +8,59 @@
 // Author: Frank Paige <paige@bnl.gov>
 ///////////////////////////////////////////////////////////////////
 
+// Class header file
 #include "ApplySUSYTools.h"
-#include "SUSYTools/SUSYObjDef_xAOD.h"
+
+// Tools and services used here
 #include "AthenaKernel/IThinningSvc.h"
 
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/MuonAuxContainer.h"
-#include "xAODPrimitives/IsolationType.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODJet/JetAuxContainer.h"
-#include "xAODJet/JetAttributes.h"
-#include "xAODJet/JetTypes.h"
-#include "xAODBTagging/BTagging.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
-// For the forcing of the tau truth container build
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+// Various typedefs and enums used in the code
+#include "xAODJet/JetAttributes.h"
+#include "xAODJet/JetTypes.h"
+#include "xAODPrimitives/IsolationType.h"
 
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
+
+// Shallow copies for jet passing
 #include "xAODCore/ShallowCopy.h"
+
+// Decorators
 #include "AthContainers/AuxElement.h"
-#include "AsgTools/AsgMetadataTool.h"
-#include "xAODBase/IParticleHelpers.h"
+
+// Cut book keeper objects
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 // Needed for systematics
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicSet.h"
-//#include "PATInterfaces/SystematicList.h"
-#include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicVariation.h"
 
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
+// For finding calibration files
 #include "PathResolver/PathResolver.h"
+
+// For environment setup
+#include "TEnv.h"
+
+// For the setOriginalObjectLink function
+#include "xAODBase/IParticleHelpers.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 namespace ST {
 
@@ -111,8 +113,7 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   m_PhotonsName("Photons"),
   m_configFile("SUSYTools/SUSYTools_Default.conf"),
   m_objTool("SUSYObjDef_xAOD/dummy"),
-  m_tauTruthTool("TauTruthMatchingTool/dummy"),
-  //m_tauTruthBuilderTool("BuildTruthTaus/dummy"),
+  m_tauTruthTool(""),
   m_thinningSvc("ThinningSvc/ThinningSvc", name)
 {
 
@@ -141,11 +142,12 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
 
   declareProperty("IsData", m_isData);
   declareProperty("MaxCount", m_maxCount);
-  declareProperty("SUSYObjTool",  m_objTool);
-  declareProperty("TauTruthMatchingTool", m_tauTruthTool);
-  //declareProperty("BuildTruthTaus", m_tauTruthBuilderTool);
   declareProperty("ThinningSvc",m_thinningSvc);
   //declareProperty("", );
+
+  // asg Tool Handles must be dealt with differently
+  m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
+  m_objTool.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
 }
 
 /////////////
@@ -187,9 +189,8 @@ StatusCode ApplySUSYTools::initialize()
   // Need truth matching for tau CP tools
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
-    CHECK( m_tauTruthTool.retrieve() );
-    //ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthBuilderTool");
-    //CHECK( m_tauTruthBuilderTool.retrieve() );
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    ATH_CHECK( m_tauTruthTool.retrieve() );
   }
 
   // Systematics
@@ -761,7 +762,6 @@ StatusCode ApplySUSYTools::execute()
   if( !m_isData  && 
   !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") ){
     // If there are no taus, then we need to force the building of the container
-    //if (0==p_TauJets->size()) CHECK( m_tauTruthBuilderTool->retrieveTruthTaus() );
     if (0==p_TauJets->size()) CHECK( m_tauTruthTool->retrieveTruthTaus() );
 
     for(const auto& tau : *p_TauJets){

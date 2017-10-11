@@ -32,6 +32,7 @@ namespace CP {
     declareProperty( "SctCutOff", m_SctCutOff = false );
     declareProperty( "PixCutOff", m_PixCutOff = false );
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
+    declareProperty( "UseAllAuthors", m_useAllAuthors = false );
     //
     m_tightWP_lowPt_rhoCuts = 0;
     m_tightWP_lowPt_qOverPCuts = 0;
@@ -99,6 +100,7 @@ namespace CP {
     if ( m_PixCutOff ) ATH_MSG_WARNING( "!! SWITCHING PIXEL REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SiHolesCutOff ) ATH_MSG_WARNING( "!! SWITCHING SILICON HOLES REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
+    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable as currently missing in many derivations; LowPtEfficiency working point will always return false, but this is expected at the moment. Have a look here: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionToolR21#New_LowPtEfficiency_working_poin");
 
     // Set up the TAccept object:
     m_accept.addCut( "Eta",
@@ -112,6 +114,10 @@ namespace CP {
     // Sanity check
     if(m_quality>5 ){
       ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5! (0=Tight, 1=Medium, 2=Loose, 3=Veryloose, 4=HighPt, 5=LowPtEfficiency)" );
+      return StatusCode::FAILURE;
+    }
+    if(m_quality==5 && !m_useAllAuthors){
+      ATH_MSG_ERROR("Cannot use lowPt working point if allAuthors is not available!");
       return StatusCode::FAILURE;
     }
 
@@ -229,8 +235,10 @@ namespace CP {
 
     // Passes quality requirements 
     xAOD::Muon::Quality thisMu_quality = getQuality(mu);
-    bool thisMu_highpt = passedHighPtCuts(mu);
-    bool thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
+    bool thisMu_highpt=false;
+    thisMu_highpt = passedHighPtCuts(mu);
+    bool thisMu_lowptE=false;
+    thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
     ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
     if(m_quality<4 && thisMu_quality > m_quality){
       return m_accept;
@@ -533,7 +541,7 @@ namespace CP {
       // ::
       if( m_quality==4 ) { 
 	// recipe for high-pt selection
-	IsBadMuon = ( qOverPerr_ME*1000. > sqrt( pow(8*fabs(qOverP_ME*1000)/(metrack->pt()/1000),2) + pow(0.07*fabs(qOverP_ME*1000),2) + pow(0.0005*sin(metrack->theta()),2) ) );
+	IsBadMuon = !passedErrorCutCB(mu);
       } else {
 	// recipe for other WP
 	double IdCbRatio = fabs( (qOverPerr_ID/qOverP_ID) / (qOverPerr_CB/qOverP_CB) );
@@ -552,6 +560,8 @@ namespace CP {
   }
 
   bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
+
+    if(!m_useAllAuthors) return false; //no allAuthors, always fail the WP
 
     // requiring combined muons
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
@@ -587,10 +597,13 @@ namespace CP {
       return false;
     }
 
-    // reject MuGirl muon if not found also by MuTagIMO 
-    if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
-      return false;
+    // reject MuGirl muon if not found also by MuTagIMO
+    if(m_useAllAuthors){
+      if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
+	return false;
+      }
     }
+    else return false;
 
     // apply some loose quality requirements 
     float momentumBalanceSignificance(0.), scatteringCurvatureSignificance(0.), scatteringNeighbourSignificance(0.);
@@ -647,7 +660,7 @@ namespace CP {
 
     //::: Require 3 (good) station muons
     if( nprecisionLayers < 3 ) return false;
-    if( nGoodPrecLayers < 3 ) return false;
+    //if( nGoodPrecLayers < 3 ) return false; // postponed (further studies needed)
 
     //::: Apply MS Chamber Vetoes
     // Given according to their eta-phi locations in the muon spectrometer
@@ -697,12 +710,14 @@ namespace CP {
 	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) 
 	     ) {
 	  // Muon falls in the BEE eta-phi region: asking for 4 good precision layers
-	  if( nGoodPrecLayers < 4 ) return false;
+	  //if( nGoodPrecLayers < 4 ) return false; // postponed (further studies needed) 
+	  if( nprecisionLayers < 4 ) return false;
 	}  
       }
       if( fabs(etaCB)>1.4 ) {
 	// Veto residual 3-station muons in BEE region due to MS eta/phi resolution effects
-	if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
+	//if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false; // postponed (further studies needed)
+	if( nprecisionLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
       }
     } else {
       ATH_MSG_WARNING( "passedHighPtCuts - MS or CB track missing in muon! Failing High-pT selection..." );
@@ -750,6 +765,46 @@ namespace CP {
     else return false;
 
     return true;
+  }
+
+  bool MuonSelectionTool::passedErrorCutCB( const xAOD::Muon& mu ) const {
+    // ::
+    if( mu.muonType() != xAOD::Muon::Combined ) return false;
+    // :: 
+    float fabs_eta = fabs(mu.eta());
+    float p0(8.0), p1(0.034), p2(0.00011);
+    if( fabs_eta>1.05 && fabs_eta<1.3 ) {
+      p1=0.036;
+      p2=0.00012;
+    } else if( fabs_eta>1.3 && fabs_eta<1.7 ) {
+      p1=0.051;
+      p2=0.00014;
+    } else if( fabs_eta>1.7 && fabs_eta<2.0 ) {
+      p1=0.042;
+      p2=0.00010;
+    } else if( fabs_eta>2.0) {
+      p1=0.034;
+      p2=0.00013;
+    }
+    // :: 
+    bool passErrorCutCB = false;
+    const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
+    if( cbtrack ) {
+      // ::
+      double pt_CB = (cbtrack->pt() / 1000. < 5000.) ? cbtrack->pt() / 1000. : 5000.; // GeV
+      double qOverP_CB = cbtrack->qOverP();
+      double qOverPerr_CB = sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
+      // sigma represents the average expected error at the muon's pt/eta 
+      double sigma = sqrt( pow(p0/pt_CB,2) + pow(p1,2) + pow(p2*pt_CB,2) );
+      // cuttting at 1.8*sigma for pt <=1 TeV, then linearly tightening untill 1*sigma is reached at pt >= 5TeV. 
+      double coefficient = (pt_CB > 1000.) ? (2.0-0.0002*pt_CB) : 1.8;
+      // ::
+      if( fabs(qOverPerr_CB/qOverP_CB) < coefficient*sigma ) {
+        passErrorCutCB = true;
+      }
+    }
+    // :: 
+    return passErrorCutCB;
   }
 
   bool MuonSelectionTool::passedMuonCuts( const xAOD::Muon& mu ) const {

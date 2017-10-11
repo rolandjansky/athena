@@ -72,7 +72,7 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
     // Update the jet substructure variables for each jet to use in DNN
     std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
 
-    // Update the jet constituents for this jet to use in DNN.
+    // Update the jet constituents for this jet to use in DNN
     std::map<std::string,double> getJetConstituents(const xAOD::Jet& jet) const;
 
     StatusCode finalize();

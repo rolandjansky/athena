@@ -41,7 +41,6 @@
 using namespace std;
 
 int main( int argc, char* argv[] ) {
-
   bool do_it_the_right_way = false;
   //::: The application's name:
   const char* APP_NAME = argv[ 0 ];
@@ -108,8 +107,8 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  corrTool.msg().setLevel( MSG::VERBOSE);
-  //corrTool.msg().setLevel( MSG::INFO);
+  //corrTool.msg().setLevel( MSG::VERBOSE);
+  corrTool.msg().setLevel( MSG::INFO);
   //corrTool.msg().setLevel( MSG::WARNING);
   //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
@@ -117,12 +116,11 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty( "Year", "Data16" );
   //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
-  //corrTool.setProperty("MinCombPt",300.00); 
   corrTool.setProperty("SagittaCorr",true); 
-  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_06_02_17"); 
+  //corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
+  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_25_07_17");
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
-  //corrTool.setProperty("FilesPath","/afs/cern.ch/work/g/gabarone/public/TestSingleMuon/Run/test_itk/");
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
   
@@ -295,7 +293,6 @@ int main( int argc, char* argv[] ) {
           delete mu;
         }
         else {
-          //if( muon->type() == 0 ) continue;
           if( !corrTool.applyCorrection( *muon ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
@@ -310,7 +307,6 @@ int main( int argc, char* argv[] ) {
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
-        //break; 
       }
       //}
     }

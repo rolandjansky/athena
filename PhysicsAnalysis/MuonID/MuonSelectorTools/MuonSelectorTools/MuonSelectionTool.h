@@ -16,7 +16,7 @@
 #include "TSystem.h" // Replace with PathResolver   
 
 // Local include(s):
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace CP {
 
@@ -97,6 +97,9 @@ namespace CP {
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
 
+      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
+      bool passedErrorCutCB(const xAOD::Muon&) const;
+
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
       bool isBadMuon(const xAOD::Muon&) const;
 
@@ -132,6 +135,7 @@ namespace CP {
      bool m_PixCutOff;
      bool m_SiHolesCutOff;
      bool m_TurnOffMomCorr;
+     bool m_useAllAuthors;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );

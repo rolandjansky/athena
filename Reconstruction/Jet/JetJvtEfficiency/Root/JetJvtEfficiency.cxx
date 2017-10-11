@@ -83,7 +83,7 @@ StatusCode JetJvtEfficiency::initialize(){
 
   h_EffHist->SetDirectory(0);
 
-  if (!addAffectingSystematic(JvtEfficiencyUp,true) || !addAffectingSystematic(JvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyDown,true)) {
+  if (!addAffectingSystematic(JvtEfficiencyUp,true) || !addAffectingSystematic(JvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyUp,true)) {
     ATH_MSG_ERROR("failed to set up Jvt systematics");
     return StatusCode::FAILURE;
   }

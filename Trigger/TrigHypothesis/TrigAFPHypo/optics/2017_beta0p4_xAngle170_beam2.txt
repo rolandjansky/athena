@@ -1,17 +1,17 @@
-# x_IP_init 0
-# y_IP_init 0
-# z_IP_init 0
-# sx_IP_init 0
-# sy_IP_init -0.00017
-# NominalEnergy 6500
-# MinPolDeg 3
-# MaxPolDeg 5
-# DetPosition 205.217
-# OpticsDir FPTracker_twiss/R2_2017_13TeV_beta040_-170murad_ATS/
-# DetPosXAcc 1e-07
-# DetPosYAcc 1e-07
-# DetAngXAcc 1e-08
-# DetAngYAcc 1e-08
+# m_xPositionInitIP 0
+# m_yPositionInitIP 0
+# m_zPositionInitIP 0
+# m_xSlopeInitIP 0
+# m_ySlopeInitIP -0.00017
+# m_nominalEnergy 6500
+# m_minimumPolynomialDegree 3
+# m_maximumPolynomialDegree 5
+# m_detectorPosition 205.217
+# m_opticsDir FPTracker_twiss/R2_2017_13TeV_beta040_-170murad_ATS/
+# m_xPositionAccuracy 1e-07
+# m_yPositionAccuracy 1e-07
+# m_xAngleAccuracy 1e-08
+# m_yAngleAccuracy 1e-08
 @
 5 2.1573242032984919196e-07 -0.11923847458148756351 -0.14073629090733069669 -0.16290642683239389688 -0.16354976503278711997 -0.31518839305929424732 
 3 -3.7548048878491990799 -3.8930826789663957044 -0.1515328278802194617 21.869784400653948353 

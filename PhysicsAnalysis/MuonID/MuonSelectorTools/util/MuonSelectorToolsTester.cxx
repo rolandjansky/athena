@@ -150,7 +150,7 @@ int main( int argc, char* argv[] ) {
 
 	Info( APP_NAME, "Muon pT:             %g ", std::abs((*mu_itr)->pt())/1000.);
 	Info( APP_NAME, "Muon eta:            %g ", std::abs((*mu_itr)->eta()));
-	Info( APP_NAME, "Muon muonType:       %d ", std::abs((*mu_itr)->muonType()));
+	Info( APP_NAME, "Muon muonType:       %d ", (*mu_itr)->muonType());
 	// Info( APP_NAME, "Muon phi:            %g ", std::abs((*mu_itr)->phi()));
 	// Info( APP_NAME, "Muon charge:         %g ", (*mu_itr)->charge());
 	if((*mu_itr)->charge() > 0)

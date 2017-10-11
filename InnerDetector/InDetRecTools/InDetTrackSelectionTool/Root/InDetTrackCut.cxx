@@ -1047,6 +1047,34 @@ bool InDet::PtDependentSctHitsCut::result() const
   return true;
 }
 
+// ---------------- TrackPatternRecoInfoCut ----------------
+InDet::TrackPatternRecoInfoCut::TrackPatternRecoInfoCut(InDet::InDetTrackSelectionTool* tool, const std::vector<int>& allowedTrackPatterns)
+  : InDet::TrackCut(tool)
+  , m_trackPatternMask(0)
+  , m_tpBitsetAccessor(nullptr)
+{
+  for ( int tp : allowedTrackPatterns ) {
+    m_trackPatternMask |= (1 << tp);
+  }
+}
+
+StatusCode InDet::TrackPatternRecoInfoCut::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+  ATH_CHECK( getAccessor("trkPattern", m_tpBitsetAccessor) );
+  return StatusCode::SUCCESS;
+}
+
+bool InDet::TrackPatternRecoInfoCut::result() const
+{
+  if (!m_tpBitsetAccessor) {
+    ATH_MSG_WARNING( "Track pattern accessor not valid. Track will not pass." );
+    return false;
+  }
+  std::bitset<xAOD::NumberOfTrackRecoInfo> tpBitset = m_tpBitsetAccessor->getValue();
+  tpBitset &= m_trackPatternMask;
+  return tpBitset.any();
+}
 
 #ifndef XAOD_ANALYSIS
 // ---------------- MinSiHitsModTopBottomCut ----------------

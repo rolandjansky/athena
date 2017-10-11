@@ -12,7 +12,9 @@
 #ifndef MUONEFFICIENCYSCALEFACTORS_H_
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+
+
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
@@ -21,11 +23,12 @@
 #include <AsgTools/AsgTool.h>
 
 #include <string>
+#include <memory>
 
 #include <boost/unordered_map.hpp>
 
 namespace CP {
-    class MuonEfficiencyScaleFactors: public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
+    class MuonEfficiencyScaleFactors: virtual public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
 
         public:
             MuonEfficiencyScaleFactors(const std::string& name);
@@ -80,7 +83,14 @@ namespace CP {
             MuonEfficiencyScaleFactors & operator =(const MuonEfficiencyScaleFactors & tocopy);
 
         private:
+            typedef SG::AuxElement::Decorator<float> FloatDecorator;
+            typedef SG::AuxElement::Decorator<std::vector<float> > FloatVectorDecorator;
+            typedef std::shared_ptr<EffiCollection> EffiCollection_Ptr;
+           
+            
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
+            
+            
             /// load the SF histos
             bool LoadEffiSet(MuonEfficiencySystType sysType);
             bool LoadInputs();
@@ -98,16 +108,17 @@ namespace CP {
             //Some util functions
             void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
             //These are functions needed during initialization
-            StatusCode CreateDecorator(SG::AuxElement::Decorator<float>* &Dec, std::string &DecName, const std::string& defaultName);
-            StatusCode CreateVecDecorator(SG::AuxElement::Decorator<std::vector<float>>* &Dec, std::string &DecName, const std::string& defaultName);
+            StatusCode CreateDecorator(std::unique_ptr<FloatDecorator> &Dec,  std::string& DecName, const std::string& defaultName);
+            StatusCode CreateVecDecorator(std::unique_ptr<FloatVectorDecorator> &Dec, std::string& DecName, const std::string& defaultName);
+           
             StatusCode IsDecoratorNameUnique(std::string &name);
             SystematicSet SetupSystematics(bool doUnfolded = false) const;
             void SetupCheckSystematicSets();
             /// the working point to operate on
             std::string m_wp;
-            boost::unordered_map<MuonEfficiencySystType, EffiCollection*> m_sf_sets;
+            boost::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr> m_sf_sets;
 
-            EffiCollection *m_current_sf;
+            EffiCollection_Ptr m_current_sf;
 
             std::string m_custom_dir;
             std::string m_custom_file_Combined;
@@ -115,10 +126,6 @@ namespace CP {
             std::string m_custom_file_HighEta;
             std::string m_custom_file_LowPt;
             std::string m_custom_file_LowPtCalo;
-
-            // info to apply to the muon when in audit mode
-            std::string m_version_string;
-            std::string m_sys_string;
 
             std::map<CP::SystematicSet, CP::SystematicSet> m_filtered_sys_sets;
 
@@ -135,25 +142,28 @@ namespace CP {
             // threshold below which low-pt SF (i.e. from JPsi) should be used
             double m_lowpt_threshold;
             // decorators to quickly apply the eff and SF
-            SG::AuxElement::Decorator<float>* m_effDec;
-            SG::AuxElement::Decorator<float>* m_MCeffDec;
-            SG::AuxElement::Decorator<float>* m_sfDec;
+            
+            
+            
+            std::unique_ptr<FloatDecorator> m_effDec;
+            std::unique_ptr<FloatDecorator> m_MCeffDec;
+            std::unique_ptr<FloatDecorator> m_sfDec;
 
-            SG::AuxElement::Decorator<std::vector<float> >* m_sfrDec;
-            SG::AuxElement::Decorator<std::vector<float> >* m_effrDec;
-            SG::AuxElement::Decorator<std::vector<float> >* m_MCeffrDec;
+            std::unique_ptr<FloatVectorDecorator> m_sfrDec;
+            std::unique_ptr<FloatVectorDecorator> m_effrDec;
+            std::unique_ptr<FloatVectorDecorator> m_MCeffrDec;
 
             CP::SystematicSet m_affectingSys;
 
             // need CP::SystematicSets as members to retrieve MuonEfficiencySystType each event
-            CP::SystematicSet* m_Sys1Down;
-            CP::SystematicSet* m_Sys1Up;
-            CP::SystematicSet* m_Stat1Down;
-            CP::SystematicSet* m_Stat1Up;
-            CP::SystematicSet* m_LowPtSys1Down;
-            CP::SystematicSet* m_LowPtSys1Up;
-            CP::SystematicSet* m_LowPtStat1Down;
-            CP::SystematicSet* m_LowPtStat1Up;
+            std::unique_ptr<CP::SystematicSet> m_Sys1Down;
+            std::unique_ptr<CP::SystematicSet> m_Sys1Up;
+            std::unique_ptr<CP::SystematicSet> m_Stat1Down;
+            std::unique_ptr<CP::SystematicSet> m_Stat1Up;
+            std::unique_ptr<CP::SystematicSet> m_LowPtSys1Down;
+            std::unique_ptr<CP::SystematicSet> m_LowPtSys1Up;
+            std::unique_ptr<CP::SystematicSet> m_LowPtStat1Down;
+            std::unique_ptr<CP::SystematicSet> m_LowPtStat1Up;
 
             bool m_init;
             bool m_seperateSystBins;

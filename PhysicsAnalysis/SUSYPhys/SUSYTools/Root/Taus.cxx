@@ -9,12 +9,7 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 #include "xAODBase/IParticleHelpers.h"
-//#include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "xAODPrimitives/IsolationType.h"
-//#include "FourMomUtils/xAODP4Helpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
-//#include "AthContainers/ConstDataVector.h"
-//#include "PATInterfaces/SystematicsUtil.h"
 
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
@@ -22,7 +17,11 @@
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
-#include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/ITauToolBase.h"
+
+// For mu information
+#include "xAODEventInfo/EventInfo.h"
+
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -255,6 +254,12 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
     trigIdx = std::distance(tau_trig_support.begin(), itpos);
   }
 
+  // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!
+  // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst
+  if (!IsTrigMatched({&tau},trigExpr)){
+    ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
+    return eff;
+  }
 
   CP::CorrectionCode ret = CP::CorrectionCode::Ok;
   switch(trigIdx){

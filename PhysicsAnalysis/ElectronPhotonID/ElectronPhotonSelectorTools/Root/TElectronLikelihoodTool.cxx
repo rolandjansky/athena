@@ -14,6 +14,9 @@
 #include "TFile.h"                      // for TFile
 #include "TH1.h"                        // for TH1F
 #include "TString.h"                    // for TString
+
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
+
 /** 
     Author : Kurt Brendlinger <kurb@sas.upenn.edu>
     Please see TElectronLikelihoodTool.h for usage.
@@ -51,6 +54,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_cutPosition_NPixel(-9),
   m_cutPosition_NBlayer(-9),
   m_cutPosition_conversion(-9),
+  m_cutPosition_ambiguity(-9),
   m_cutPosition_LH(-9),
   m_cutPositionTrackA0(-9),
   m_cutPositionTrackMatchEta(-9),
@@ -202,6 +206,11 @@ int Root::TElectronLikelihoodTool::initialize()
   m_cutPosition_conversion = m_accept.addCut( "conversion", "pass conversion" );
   if ( m_cutPosition_conversion < 0 ) {sc = 0;}
 
+ // Ambiguity
+  m_cutPosition_ambiguity = m_accept.addCut( "ambiguity", "pass ambiguity" );
+  if ( m_cutPosition_ambiguity < 0 ) {sc = 0;}
+
+
   // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
   if ( m_cutPosition_LH < 0 ) {sc = 0;}
@@ -285,6 +294,7 @@ int Root::TElectronLikelihoodTool::initialize()
 		<< "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
 		<< "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
 		<< "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
+		<< "\n - (bool)CutAmbiguity (yes/no)                  : " << (CutAmbiguity.size() ? "yes" : "no")
 		<< "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
 		<< "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
 		<< "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
@@ -381,7 +391,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
                                                             double eta, double eT,
                                                             int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
                                                             bool passBLayerRequirement,
-                                                            int convBit, double d0, double deltaEta, double deltaphires, 
+                                                            int convBit, uint8_t ambiguityBit, double d0, double deltaEta, double deltaphires, 
                                                             double wstot, double EoverP, double ip
                                                             ) const
 {
@@ -394,6 +404,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
   vars.nPixHitsPlusDeadSensors = nPixHitsPlusDeadSensors;
   vars.passBLayerRequirement   = passBLayerRequirement;
   vars.convBit                 = convBit;
+  vars.ambiguityBit            = ambiguityBit;
   vars.d0                      = d0;
   vars.deltaEta                = deltaEta;
   vars.deltaphires             = deltaphires;
@@ -416,6 +427,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passNPixel(true);
   bool passNBlayer(true);
   bool passConversion(true);
+  bool passAmbiguity(true);
   bool passLH(true);
   bool passTrackA0(true);
   bool passDeltaEta(true);
@@ -445,6 +457,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
 
 
+
   // Return if the kinematic requirements are not fulfilled
   m_accept.setCutResult( m_cutPosition_kinematic, passKine );
   if ( !passKine ){ return m_accept; }
@@ -454,7 +467,17 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
     passConversion = false;
   }
-
+  
+  // ambiguity bit
+  if (CutAmbiguity.size()) {
+    if ( !ElectronSelectorHelpers::passAmbiguity((xAOD::AmbiguityTool::AmbiguityType)vars_struct.ambiguityBit,
+						CutAmbiguity[etabin])
+	 ) {
+      ATH_MSG_DEBUG("Likelihood macro: ambiguity Bit Failed." );
+      passAmbiguity = false;
+    }
+  }
+  
   // blayer cut
   if (CutBL.size() ) {
     if(CutBL[etabin] == 1 && !vars_struct.passBLayerRequirement) {
@@ -462,7 +485,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       passNBlayer = false;
     }
   }  
-  
+
   // pixel cut
   if (CutPi.size()){
     if (vars_struct.nPixHitsPlusDeadSensors < CutPi[etabin]){
@@ -565,6 +588,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   m_accept.setCutResult( m_cutPosition_NPixel, passNPixel );
   m_accept.setCutResult( m_cutPosition_NBlayer, passNBlayer );
   m_accept.setCutResult( m_cutPosition_conversion, passConversion );
+  m_accept.setCutResult( m_cutPosition_ambiguity, passAmbiguity );
   m_accept.setCutResult( m_cutPosition_LH, passLH );  
   m_accept.setCutResult( m_cutPositionTrackA0, passTrackA0 );  
   m_accept.setCutResult( m_cutPositionTrackMatchEta, passDeltaEta );  

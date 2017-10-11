@@ -235,7 +235,7 @@ StatusCode HFORSelectionTool::setSampleType()  {
   //while  mcChannelNumber is 0 in Truth derivations
   m_sampleRunNumber = eventInfo->mcChannelNumber() ;
   if (m_sampleRunNumber == 0 ) {
-    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION << "mcChannelNumber is 0, falling back to runNumber" ) ;
+    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION << "mcChannelNumber is 0, falling back to runNumber: " << eventInfo->runNumber() ) ;
     m_sampleRunNumber = eventInfo->runNumber() ;
   }
 
@@ -246,9 +246,9 @@ StatusCode HFORSelectionTool::setSampleType()  {
   m_sampleName = m_hforTruth.getSampleName() ;
 
   if (m_sampleType == HFORType::noType) {
-    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION <<
+    ATH_MSG_INFO(BOOST_CURRENT_FUNCTION <<
                     ": This MC (Run " << m_sampleRunNumber <<
-                    " ) is not an mc15 Alpgen+Pythia6 sample - this tool is useless ") ;
+                    " ) is not an mc15 Alpgen+Pythia6 sample - this tool will not do anything") ;
   }
   else {
     ATH_MSG_INFO(BOOST_CURRENT_FUNCTION <<
@@ -268,7 +268,12 @@ StatusCode HFORSelectionTool::setSampleType()  {
 // Getter to access the sample type
 //==============================================================================
 HFORType HFORSelectionTool::getSampleType() {
-  if (! m_isConfigured) setSampleType() ;
+  if (! m_isConfigured){
+    if (setSampleType().isFailure()) {
+      ATH_MSG_ERROR("Did not configure correctly - results could be incorrect");
+    }
+    m_isConfigured = true;
+  }
   //Return an enum object with the type of the sample
   return m_sampleType ;
 }
@@ -278,8 +283,13 @@ HFORType HFORSelectionTool::getSampleType() {
 // Getter to access the sample name
 //==============================================================================
 std::string HFORSelectionTool::getSampleName() {
-  if (! m_isConfigured) setSampleType() ;
-  //Return a string with the type of the sample (bb, cc, c, light or unknown)
+  if (! m_isConfigured){
+    if (setSampleType().isFailure()) {
+      ATH_MSG_ERROR("Did not configure correctly - results could be incorrect");
+    }
+    m_isConfigured = true;
+  }
+//Return a string with the type of the sample (bb, cc, c, light or unknown)
   return m_sampleName ;
 }
 //==============================================================================

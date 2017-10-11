@@ -597,7 +597,7 @@ namespace HTTxAOD {
               dummy = toppt;
             }
           }else {
-            deltatop = abs(m_TopMass - topcandidate.m());
+            deltatop = std::abs(m_TopMass - topcandidate.m());
             if(deltatop < dummy) {
               isBestCandidate  = true ;
               ATH_MSG_DEBUG("We have a good DeltaM candidate! masscut passed "<< tmp_masscut_passed << "  m="<<  topcandidate.m() << "  deltatop="<< deltatop );
@@ -1133,7 +1133,7 @@ namespace HTTxAOD {
     setSJNDCalibPtEtaBins(binningVersion);
     // information about configured HTT setup
     ATH_MSG_DEBUG("Using def-like HTT with 3D sub-jet calibration scaled by: ");
-    for( uint i = 0; i < m_ScaleFactor_JES_EtaPT.size(); i++ ){
+    for( size_t i = 0; i < m_ScaleFactor_JES_EtaPT.size(); i++ ){
       ATH_MSG_DEBUG(m_ScaleFactor_JES_EtaPT[i] << " for " << m_ScaleFactor_JES_ptmin[i]/1e3 << " < pT < " << m_ScaleFactor_JES_ptmax[i]/1e3 << " GeV ");
     }
 
@@ -1304,9 +1304,9 @@ namespace HTTxAOD {
     result.m13=(top_subs[0]+top_subs[2]).m();
     result.m23=(top_subs[1]+top_subs[2]).m();
 
-    double dm12=abs(result.m12-m_WMass);
-    double dm13=abs(result.m13-m_WMass);
-    double dm23=abs(result.m23-m_WMass);
+    double dm12=std::abs(result.m12-m_WMass);
+    double dm13=std::abs(result.m13-m_WMass);
+    double dm23=std::abs(result.m23-m_WMass);
     double dm_min=std::min(dm12,std::min(dm13,dm23));
     if(dm_min==dm23){
       result.b=0;

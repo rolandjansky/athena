@@ -47,16 +47,15 @@ SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 # THINNING TOOL 
 #====================================================================
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
-SUSY10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY10TPThinningTool",
-								 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
-								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
-								 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY10TPThinningTool
-thinningTools.append(SUSY10TPThinningTool)
+# B.M.: likely not used
+#SUSY10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY10TPThinningTool",
+#								 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
+#								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
+#								 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY10TPThinningTool
+#thinningTools.append(SUSY10TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -210,8 +209,9 @@ SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 OutputJets["SUSY10"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets is not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY10, "SUSY10")
@@ -223,21 +223,10 @@ addDefaultTrimmedJets(SeqSUSY10, "SUSY10")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY10GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY10GenFilt)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================

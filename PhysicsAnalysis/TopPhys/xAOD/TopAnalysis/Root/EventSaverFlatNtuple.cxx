@@ -129,7 +129,7 @@ namespace top {
 
         m_mu_original(0.),
         m_mu(0.),
-        
+
         m_backgroundFlags(0),
 	m_hasBadMuon(0),
 	m_makeRCJets(false),
@@ -210,12 +210,12 @@ namespace top {
 	      top::check(m_VarRC[name]->setProperty( "config" , config ) , "Failed to set config property of VarRCJetMC15");
 	      top::check(m_VarRC[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
 	      top::check(m_VarRC[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");  
+	      top::check(m_VarRC[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
 	      top::check(m_VarRC[name]->initialize(),"Failed to initialize VarRCJetMC15");
             } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
 	  } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
 	} // end make VarRC jets
-   
+
 
         //make a tree for each systematic
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
@@ -253,7 +253,7 @@ namespace top {
             m_truthTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
             if (m_config->isMC() && m_config->doPileupReweighting()) m_truthTreeManager->makeOutputVariable(m_randomRunNumber, "randomRunNumber");
             m_truthTreeManager->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
-	    
+
             // Only if you really really want it - this is BIG
             if (m_config->useTruthParticles() && m_config->doTruthBlockInfo() ) {
                 m_truthTreeManager->makeOutputVariable(m_mc_pt, "mc_pt");
@@ -319,7 +319,7 @@ namespace top {
                     }
                 }
             }
-	    
+
         }
 
         //loop over systematics and attach variables
@@ -561,7 +561,7 @@ namespace top {
 		  }
 		}
             }
-	    
+
 	    /// Bootstrapping poisson weights
 	    if (m_config->saveBootstrapWeights()){
 	      systematicTree->makeOutputVariable(m_weight_poisson, "weight_poisson");
@@ -662,6 +662,26 @@ namespace top {
                   if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
                   else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
                 }
+		// R21 - new b-tagging variables
+		if(m_config->getReleaseSeries() == 25){
+		  systematicTree->makeOutputVariable(m_jet_MV2c10mu, "jet_MV2c10mu");
+		  systematicTree->makeOutputVariable(m_jet_MV2c10rnn, "jet_MV2c10rnn");
+		  systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu, "jet_DL1mu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
+		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
+		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
+		}
+
             }
 
             //large-R jets
@@ -673,7 +693,7 @@ namespace top {
                 systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
                 systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
                 systematicTree->makeOutputVariable(m_ljet_isTopTagged_50, "ljet_isTopTagged_50");
-                systematicTree->makeOutputVariable(m_ljet_isTopTagged_80, "ljet_isTopTagged_80"); 
+                systematicTree->makeOutputVariable(m_ljet_isTopTagged_80, "ljet_isTopTagged_80");
                 systematicTree->makeOutputVariable(m_ljet_isWTagged_80, "ljet_isWTagged_80");
                 systematicTree->makeOutputVariable(m_ljet_isWTagged_50, "ljet_isWTagged_50");
                 systematicTree->makeOutputVariable(m_ljet_isZTagged_80, "ljet_isZTagged_80");
@@ -738,107 +758,114 @@ namespace top {
             systematicTree->makeOutputVariable(m_met_phi, "met_phi");
 
             if (m_config->doKLFitter()) {
-                systematicTree->makeOutputVariable(m_klfitter_selected,"klfitter_selected");
-                systematicTree->makeOutputVariable(m_klfitter_minuitDidNotConverge,"klfitter_minuitDidNotConverge");
-                systematicTree->makeOutputVariable(m_klfitter_fitAbortedDueToNaN,"klfitter_fitAbortedDueToNaN");
-                systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
-                systematicTree->makeOutputVariable(m_klfitter_invalidTransferFunctionAtConvergence,"klfitter_invalidTransferFunctionAtConvergence");
 
                 /// Global result
-                systematicTree->makeOutputVariable(m_klfitter_bestPermutation,"klfitter_bestPermutation");
                 systematicTree->makeOutputVariable(m_klfitter_logLikelihood,"klfitter_logLikelihood");
                 systematicTree->makeOutputVariable(m_klfitter_eventProbability,"klfitter_eventProbability");
-                systematicTree->makeOutputVariable(m_klfitter_parameters,"klfitter_parameters");
-                systematicTree->makeOutputVariable(m_klfitter_parameterErrors,"klfitter_parameterErrors");
+                systematicTree->makeOutputVariable(m_klfitter_selected,"klfitter_selected");
 
-                /// Model
-                systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt,"klfitter_model_bhad_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta,"klfitter_model_bhad_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi,"klfitter_model_bhad_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_bhad_E,"klfitter_model_bhad_E");
-                systematicTree->makeOutputVariable(m_klfitter_model_bhad_jetIndex,"klfitter_model_bhad_jetIndex");
+                // If FULL information is requested
+                if( m_config->KLFitterOutput() == "FULL"){
+                  /// Debugging information
+                  systematicTree->makeOutputVariable(m_klfitter_minuitDidNotConverge,"klfitter_minuitDidNotConverge");
+                  systematicTree->makeOutputVariable(m_klfitter_fitAbortedDueToNaN,"klfitter_fitAbortedDueToNaN");
+                  systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
+                  systematicTree->makeOutputVariable(m_klfitter_invalidTransferFunctionAtConvergence,"klfitter_invalidTransferFunctionAtConvergence");
+                  /// Global
+                  systematicTree->makeOutputVariable(m_klfitter_parameters,"klfitter_parameters");
+                  systematicTree->makeOutputVariable(m_klfitter_parameterErrors,"klfitter_parameterErrors");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPermutation,"klfitter_bestPermutation");
+                }
 
-                systematicTree->makeOutputVariable(m_klfitter_model_blep_pt,"klfitter_model_blep_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_blep_eta,"klfitter_model_blep_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_blep_phi,"klfitter_model_blep_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_blep_E,"klfitter_model_blep_E");
-                systematicTree->makeOutputVariable(m_klfitter_model_blep_jetIndex,"klfitter_model_blep_jetIndex");
+                if( m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY" ) {
+                  /// Model
+                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt,"klfitter_model_bhad_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta,"klfitter_model_bhad_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi,"klfitter_model_bhad_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_E,"klfitter_model_bhad_E");
+                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_jetIndex,"klfitter_model_bhad_jetIndex");
 
-                systematicTree->makeOutputVariable(m_klfitter_model_lq1_pt,"klfitter_model_lq1_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq1_eta,"klfitter_model_lq1_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq1_phi,"klfitter_model_lq1_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq1_E,"klfitter_model_lq1_E");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq1_jetIndex,"klfitter_model_lq1_jetIndex");
+                  systematicTree->makeOutputVariable(m_klfitter_model_blep_pt,"klfitter_model_blep_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_blep_eta,"klfitter_model_blep_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_blep_phi,"klfitter_model_blep_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_blep_E,"klfitter_model_blep_E");
+                  systematicTree->makeOutputVariable(m_klfitter_model_blep_jetIndex,"klfitter_model_blep_jetIndex");
 
-                systematicTree->makeOutputVariable(m_klfitter_model_lq2_pt,"klfitter_model_lq2_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq2_eta,"klfitter_model_lq2_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq2_phi,"klfitter_model_lq2_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq2_E,"klfitter_model_lq2_E");
-                systematicTree->makeOutputVariable(m_klfitter_model_lq2_jetIndex,"klfitter_model_lq2_jetIndex");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_pt,"klfitter_model_lq1_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_eta,"klfitter_model_lq1_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_phi,"klfitter_model_lq1_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_E,"klfitter_model_lq1_E");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_jetIndex,"klfitter_model_lq1_jetIndex");
 
-		if(m_config->KLFitterLH() == "ttH"){
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_pt,"klfitter_model_lq2_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_eta,"klfitter_model_lq2_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_phi,"klfitter_model_lq2_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_E,"klfitter_model_lq2_E");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_jetIndex,"klfitter_model_lq2_jetIndex");
 
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_pt,"klfitter_model_Higgs_b1_pt");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_eta,"klfitter_model_Higgs_b1_eta");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_phi,"klfitter_model_Higgs_b1_phi");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_E,"klfitter_model_Higgs_b1_E");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_jetIndex,"klfitter_model_Higgs_b1_jetIndex");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lep_pt,"klfitter_model_lep_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lep_eta,"klfitter_model_lep_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lep_phi,"klfitter_model_lep_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_lep_E,"klfitter_model_lep_E");
 
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_pt,"klfitter_model_Higgs_b2_pt");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_eta,"klfitter_model_Higgs_b2_eta");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_phi,"klfitter_model_Higgs_b2_phi");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_E,"klfitter_model_Higgs_b2_E");
-		  systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_jetIndex,"klfitter_model_Higgs_b2_jetIndex");
+                  systematicTree->makeOutputVariable(m_klfitter_model_nu_pt,"klfitter_model_nu_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_model_nu_eta,"klfitter_model_nu_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
 
-		}
+                  if(m_config->KLFitterLH() == "ttH"){
 
-                systematicTree->makeOutputVariable(m_klfitter_model_lep_pt,"klfitter_model_lep_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_lep_eta,"klfitter_model_lep_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_lep_phi,"klfitter_model_lep_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_lep_E,"klfitter_model_lep_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_pt,"klfitter_model_Higgs_b1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_eta,"klfitter_model_Higgs_b1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_phi,"klfitter_model_Higgs_b1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_E,"klfitter_model_Higgs_b1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_jetIndex,"klfitter_model_Higgs_b1_jetIndex");
 
-                systematicTree->makeOutputVariable(m_klfitter_model_nu_pt,"klfitter_model_nu_pt");
-                systematicTree->makeOutputVariable(m_klfitter_model_nu_eta,"klfitter_model_nu_eta");
-                systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
-                systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_pt,"klfitter_model_Higgs_b2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_eta,"klfitter_model_Higgs_b2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_phi,"klfitter_model_Higgs_b2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_E,"klfitter_model_Higgs_b2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_jetIndex,"klfitter_model_Higgs_b2_jetIndex");
+                  }
+                }
 
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt,"klfitter_bestPerm_topLep_pt");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta,"klfitter_bestPerm_topLep_eta");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi,"klfitter_bestPerm_topLep_phi");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_E,"klfitter_bestPerm_topLep_E");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_m,"klfitter_bestPerm_topLep_m");
+                if( m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "FITTEDTOPS_ONLY" ){
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt,"klfitter_bestPerm_topLep_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta,"klfitter_bestPerm_topLep_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi,"klfitter_bestPerm_topLep_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_E,"klfitter_bestPerm_topLep_E");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_m,"klfitter_bestPerm_topLep_m");
 
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_pt,"klfitter_bestPerm_topHad_pt");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_eta,"klfitter_bestPerm_topHad_eta");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_phi,"klfitter_bestPerm_topHad_phi");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_E,"klfitter_bestPerm_topHad_E");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_m,"klfitter_bestPerm_topHad_m");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_pt,"klfitter_bestPerm_topHad_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_eta,"klfitter_bestPerm_topHad_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_phi,"klfitter_bestPerm_topHad_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_E,"klfitter_bestPerm_topHad_E");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_m,"klfitter_bestPerm_topHad_m");
 
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_pt,"klfitter_bestPerm_ttbar_pt");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_eta,"klfitter_bestPerm_ttbar_eta");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_phi,"klfitter_bestPerm_ttbar_phi");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_E,"klfitter_bestPerm_ttbar_E");
-                systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_m,"klfitter_bestPerm_ttbar_m");
-
-
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_pt,"klfitter_bestPerm_ttbar_pt");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_eta,"klfitter_bestPerm_ttbar_eta");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_phi,"klfitter_bestPerm_ttbar_phi");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_E,"klfitter_bestPerm_ttbar_E");
+                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_m,"klfitter_bestPerm_ttbar_m");
+                }
             }
 
             if (m_config->doPseudoTop()) {
 
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_pt,    "PseudoTop_Reco_ttbar_pt");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_eta,   "PseudoTop_Reco_ttbar_eta");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_phi,   "PseudoTop_Reco_ttbar_phi");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_m,     "PseudoTop_Reco_ttbar_m");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_pt,  "PseudoTop_Reco_top_had_pt");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_eta, "PseudoTop_Reco_top_had_eta");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_phi, "PseudoTop_Reco_top_had_phi");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_m,   "PseudoTop_Reco_top_had_m");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_pt,  "PseudoTop_Reco_top_lep_pt");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_eta, "PseudoTop_Reco_top_lep_eta");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_phi, "PseudoTop_Reco_top_lep_phi");
-	      systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_m,   "PseudoTop_Reco_top_lep_m");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_pt,    "PseudoTop_Reco_ttbar_pt");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_eta,   "PseudoTop_Reco_ttbar_eta");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_phi,   "PseudoTop_Reco_ttbar_phi");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_ttbar_m,     "PseudoTop_Reco_ttbar_m");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_pt,  "PseudoTop_Reco_top_had_pt");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_eta, "PseudoTop_Reco_top_had_eta");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_phi, "PseudoTop_Reco_top_had_phi");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_had_m,   "PseudoTop_Reco_top_had_m");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_pt,  "PseudoTop_Reco_top_lep_pt");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_eta, "PseudoTop_Reco_top_lep_eta");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_phi, "PseudoTop_Reco_top_lep_phi");
+              systematicTree->makeOutputVariable(m_PseudoTop_Reco_top_lep_m,   "PseudoTop_Reco_top_lep_m");
 
-	    }
+            }
 
             //extra branches telling you if the event passed / failed a selection
             int index(0);
@@ -1095,7 +1122,7 @@ namespace top {
 
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_BHadron_Final_Count, "jet_nGhosts_bHadron");
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_CHadron_Final_Count, "jet_nGhosts_cHadron");
-       
+
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
        m_upgradeTreeManager->makeOutputVariable(m_met_phi, "met_phi");
@@ -1124,8 +1151,16 @@ namespace top {
       // record the event?
       if (m_config->saveOnlySelectedEvents() && !event.m_saveEvent)
           return;
+      this -> cleanEvent();
       this -> calculateEvent(event);
       this -> fillEvent(event);
+    }
+
+    void EventSaverFlatNtuple::cleanEvent() {
+      /* Doing nothing for now, but we should put here the (re-)initialisation to dummy values
+       * of all variables later calculated in calculateEvent(const top::Event& event)
+       * For example all weights set to 1, all vectors cleaned, all kinematic or angular variables set to -99999.
+       */
     }
 
     void EventSaverFlatNtuple::calculateEvent(const top::Event& event) {
@@ -1267,8 +1302,8 @@ namespace top {
                 ATH_MSG_DEBUG("Muon Trigger SF = "<<m_weight_indiv_SF_MU_Trigger<<" + "<< m_weight_indiv_SF_MU_Trigger_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_Trigger_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_Trigger_SYST_UP<<" - "<< m_weight_indiv_SF_MU_Trigger_SYST_DOWN);
 
                 ATH_MSG_DEBUG("Muon ID SF = "<<m_weight_indiv_SF_MU_ID<<" + "<< m_weight_indiv_SF_MU_ID_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_ID_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_ID_SYST_UP<<" - "<< m_weight_indiv_SF_MU_ID_SYST_DOWN);
-                
-                
+
+
                 if (m_config->useTaus()) {
                   // Tau-electron overlap removal
                   m_weight_tauSF_ELEOLR_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP);
@@ -1341,13 +1376,12 @@ namespace top {
                   }
                 }
             }
-
-	    /// Bootstrapping poisson weights
-	    if(m_config->saveBootstrapWeights()){
-	      m_weight_poisson = event.m_info->auxdataConst<std::vector<int> >("weight_poisson");
-	    }
-
         }
+
+	/// Bootstrapping poisson weights - Moved to run for MC and data
+	if(m_config->saveBootstrapWeights()){
+	  m_weight_poisson = event.m_info->auxdataConst<std::vector<int> >("weight_poisson");
+	}
 
         ///-- weights for matrix-method fakes estimate --///
         if (!m_config->isMC() && m_config->doFakesMMWeights()) {
@@ -1593,6 +1627,25 @@ namespace top {
             m_jet_ip3dsv1.resize(event.m_jets.size());
             m_jet_jvt.resize(event.m_jets.size());
             m_jet_passfjvt.resize(event.m_jets.size());
+	    // R21 b-tagging
+	    if(m_config->getReleaseSeries() == 25){
+	      m_jet_MV2c10mu.resize(event.m_jets.size());
+	      m_jet_MV2c10rnn.resize(event.m_jets.size());
+	      m_jet_DL1.resize(event.m_jets.size());
+	      m_jet_DL1mu.resize(event.m_jets.size());
+	      m_jet_DL1rnn.resize(event.m_jets.size());
+	      m_jet_MV2cl100.resize(event.m_jets.size());
+	      m_jet_MV2c100.resize(event.m_jets.size());
+	      m_jet_DL1_pu.resize(event.m_jets.size());
+	      m_jet_DL1_pc.resize(event.m_jets.size());
+	      m_jet_DL1_pb.resize(event.m_jets.size());
+	      m_jet_DL1mu_pu.resize(event.m_jets.size());
+	      m_jet_DL1mu_pc.resize(event.m_jets.size());
+	      m_jet_DL1mu_pb.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
+	    }
             if (m_config->isMC()) {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
@@ -1608,9 +1661,12 @@ namespace top {
                 m_jet_phi[i] = jetPtr->phi();
                 m_jet_e[i] = jetPtr->e();
                 double SV1IP3 = -999;
-                const xAOD::BTagging* btag(nullptr);
-                btag = jetPtr->btagging();
-                if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
+		// In R21, list of b-tagging variables is changing and this is outdated
+		const xAOD::BTagging* btag(nullptr);
+		btag = jetPtr->btagging();
+		if(m_config->getReleaseSeries() == 24){
+		  if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
+		}
                 m_jet_ip3dsv1[i] = SV1IP3;
                 if (m_config->isMC()) {
                   m_jet_truthflav[i] = -99;
@@ -1659,6 +1715,75 @@ namespace top {
                 if (jetPtr->isAvailable<char>("passFJVT")) {
                     m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
                 }
+
+		// BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
+		#if ROOTCORE_RELEASE_SERIES >= 25
+		if(m_config->getReleaseSeries() == 25){
+		  m_jet_MV2c10mu[i] = -999;
+		  m_jet_MV2c10rnn[i] = -999;
+		  // Cannot currently calculate DLX from the EDM, so only store weight components
+		  m_jet_DL1[i] = -999;
+		  m_jet_DL1mu[i] = -999;
+		  m_jet_DL1rnn[i] = -999;
+		  m_jet_MV2cl100[i] = -999;
+		  m_jet_MV2c100[i] = -999;
+		  m_jet_DL1_pu[i] = -999;
+		  m_jet_DL1_pc[i] = -999;
+		  m_jet_DL1_pb[i] = -999;
+		  m_jet_DL1mu_pu[i] = -999;
+		  m_jet_DL1mu_pc[i] = -999;
+		  m_jet_DL1mu_pb[i] = -999;
+		  m_jet_DL1rnn_pu[i] = -999;
+                  m_jet_DL1rnn_pc[i] = -999;
+		  m_jet_DL1rnn_pb[i] = -999;
+
+		  if(btag){
+		    // MVX
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10mu", mvx);
+		    m_jet_MV2c10mu[i] = mvx;
+		    
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10rnn", mvx);
+		    m_jet_MV2c10rnn[i] = mvx;
+		    
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2cl100", mvx);
+                    m_jet_MV2cl100[i] = mvx;
+
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2c100", mvx);
+                    m_jet_MV2c100[i] = mvx;
+		    
+		    // DL1
+		    double _pu, _pc, _pb = -999;
+
+		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+		    // so just providing the DL1rnn weights to construct tagger offline
+		    btag->pu("DL1rnn",_pu);
+		    btag->pb("DL1rnn",_pb);
+                    btag->pc("DL1rnn",_pc);
+		    m_jet_DL1rnn_pu[i] = _pu;
+                    m_jet_DL1rnn_pc[i] = _pc;
+                    m_jet_DL1rnn_pb[i] = _pb;		    
+		    // DL1mu - as above
+		    btag->pu("DL1mu",_pu);
+                    btag->pb("DL1mu",_pb);
+                    btag->pc("DL1mu",_pc);
+		    m_jet_DL1mu_pu[i] = _pu;
+		    m_jet_DL1mu_pc[i] = _pc;
+		    m_jet_DL1mu_pb[i] = _pb;
+		    // DL1 - as above
+		    btag->pu("DL1",_pu);
+                    btag->pb("DL1",_pb);
+                    btag->pc("DL1",_pc);
+		    m_jet_DL1_pu[i] = _pu;
+		    m_jet_DL1_pc[i] = _pc;
+		    m_jet_DL1_pb[i] = _pb;
+		    
+		  }
+		} // getReleaseSeries == 25
+                #endif // ROOTCORE_RELEASE_SERIES
 
                 ++i;
             }
@@ -1767,17 +1892,29 @@ namespace top {
 	  // Initialize the vectors to be saved as branches
 	  unsigned int sizeOfRCjets(rc_jets->size());
 
-	  m_rcjet_pt.resize(sizeOfRCjets,-999.);
-	  m_rcjet_eta.resize(sizeOfRCjets,-999.);
-	  m_rcjet_phi.resize(sizeOfRCjets,-999.);
-	  m_rcjet_e.resize(sizeOfRCjets,-999.);
-	  m_rcjet_d12.resize(sizeOfRCjets,-999.);
-	  m_rcjet_d23.resize(sizeOfRCjets,-999.);
-	  m_rcjetsub_pt.resize(sizeOfRCjets, std::vector<float>());
-	  m_rcjetsub_eta.resize(sizeOfRCjets, std::vector<float>());
-	  m_rcjetsub_phi.resize(sizeOfRCjets, std::vector<float>());
-	  m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
-	  m_rcjetsub_mv2c10.resize(sizeOfRCjets, std::vector<float>());
+    m_rcjet_pt.clear();
+    m_rcjet_eta.clear();
+    m_rcjet_phi.clear();
+    m_rcjet_e.clear();
+    m_rcjet_d12.clear();
+    m_rcjet_d23.clear();
+    m_rcjetsub_pt.clear();
+    m_rcjetsub_eta.clear();
+    m_rcjetsub_phi.clear();
+    m_rcjetsub_e.clear();
+    m_rcjetsub_mv2c10.clear();
+
+    m_rcjet_pt.resize(sizeOfRCjets,-999.);
+    m_rcjet_eta.resize(sizeOfRCjets,-999.);
+    m_rcjet_phi.resize(sizeOfRCjets,-999.);
+    m_rcjet_e.resize(sizeOfRCjets,-999.);
+    m_rcjet_d12.resize(sizeOfRCjets,-999.);
+    m_rcjet_d23.resize(sizeOfRCjets,-999.);
+    m_rcjetsub_pt.resize(sizeOfRCjets, std::vector<float>());
+    m_rcjetsub_eta.resize(sizeOfRCjets, std::vector<float>());
+    m_rcjetsub_phi.resize(sizeOfRCjets, std::vector<float>());
+    m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
+    m_rcjetsub_mv2c10.resize(sizeOfRCjets, std::vector<float>());
 
 	  unsigned int i = 0;
 	  for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
@@ -1808,7 +1945,7 @@ namespace top {
 	      btag   = subjet->btagging();
 
 	      double mvx10(-999.);  // b-tagging mv2c10
-	      
+
 	      if (btag){
 		btag->MVx_discriminant("MV2c10",mvx10);
 	      }
@@ -1824,7 +1961,7 @@ namespace top {
             } // end for-loop over subjets
             ++i;
 	  } // end for-loop over re-clustered jets
-    
+
 	  m_rcjet_pt.resize(i);
 	  m_rcjet_eta.resize(i);
 	  m_rcjet_phi.resize(i);
@@ -1891,7 +2028,7 @@ namespace top {
 
 		m_VarRCjetBranches[VarRC+"_"+name+"_d12"][i] = (VarRCSplit12.isAvailable(*rc_jet)) ? VarRCSplit12(*rc_jet) : -999.;
 		m_VarRCjetBranches[VarRC+"_"+name+"_d23"][i] = (VarRCSplit23.isAvailable(*rc_jet)) ? VarRCSplit23(*rc_jet) : -999.;
-		
+
 		// loop over subjets
                 const xAOD::Jet* subjet(nullptr);
 		const xAOD::BTagging* btag(nullptr);
@@ -2123,7 +2260,7 @@ namespace top {
                     m_klfitter_bestPerm_ttbar_E    = ttbar.E();
                     m_klfitter_bestPerm_ttbar_m    = ttbar.M();
                 }
-		
+
 
             }
 
@@ -2134,8 +2271,17 @@ namespace top {
 	  const xAOD::PseudoTopResultContainer* pseudoTopResultContainer(nullptr);
 	  const xAOD::PseudoTopResult* pseudoTopResult(nullptr);
 
-	  if (evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTop(event.m_hashValue))) {
-	    top::check(evtStore()->retrieve(pseudoTopResultContainer, m_config->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+          if ( (!event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTop(event.m_hashValue))) ||
+               ( event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTopLoose(event.m_hashValue))) )
+          {
+            if (!event.m_isLoose)
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
+            else
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTopLoose(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
 
 	    pseudoTopResult = pseudoTopResultContainer->at(0);
 
@@ -2157,7 +2303,7 @@ namespace top {
 
 	  }
 	}
- 
+
     }
 
     void EventSaverFlatNtuple::fillEvent(const top::Event& event) {
@@ -2167,8 +2313,16 @@ namespace top {
 
 
     void EventSaverFlatNtuple::saveTruthEvent() {
-       this -> calculateTruthEvent();
-       this -> fillTruthEvent();
+      this -> cleanTruthEvent();
+      this -> calculateTruthEvent();
+      this -> fillTruthEvent();
+    }
+
+    void EventSaverFlatNtuple::cleanTruthEvent() {
+      /* Doing nothing for now, but we should put here the (re-)initialisation to dummy values
+      * of all variables later calculated in cleanTruthEvent()
+      * For example all weights set to 1, all vectors cleaned, all kinematic or angular variables set to -99999.
+      */
     }
 
     void EventSaverFlatNtuple::calculateTruthEvent() {
@@ -2282,15 +2436,23 @@ namespace top {
         if ( ! m_config->isMC() ){
             return;
         }
+        this -> cleanParticleLevelEvent();
         this -> calculateParticleLevelEvent(plEvent);
         this -> fillParticleLevelEvent();
+    }
+
+    void EventSaverFlatNtuple::cleanParticleLevelEvent() {
+      /* Doing nothing for now, but we should put here the (re-)initialisation to dummy values
+      * of all variables later calculated in calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent)
+      * For example all weights set to 1, all vectors cleaned, all kinematic or angular variables set to -99999.
+      */
     }
 
     void EventSaverFlatNtuple::calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent) {
         for ( auto & selectionDecision : m_particleLevel_SelectionDecisions ){
             selectionDecision.second = plEvent.m_selectionDecisions[ selectionDecision.first ];
         }
-        
+
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
         top::check( evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth event container" );
@@ -2446,19 +2608,32 @@ namespace top {
             top::check(m_rcjet_particle->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
 
             // Get the name of the container of re-clustered jets
-            std::string m_RCJetContainerParticle = m_rcjet_particle->rcjetContainerName();
+            m_RCJetContainerParticle = m_rcjet_particle->rcjetContainerName();
 
             // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
             const xAOD::JetContainer* rc_jets_particle(nullptr);
             top::check(evtStore()->retrieve(rc_jets_particle,m_RCJetContainerParticle),"Failed to retrieve particle RC JetContainer");
-            
+
             // re-clustered jet substructure
             static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
             static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
-            
+
             // Initialize the vectors to be saved as branches
             unsigned int sizeOfRCjets(rc_jets_particle->size());
-            
+
+            m_rcjet_pt.clear();
+            m_rcjet_eta.clear();
+            m_rcjet_phi.clear();
+            m_rcjet_e.clear();
+            m_rcjet_d12.clear();
+            m_rcjet_d23.clear();
+            m_rcjetsub_pt.clear();
+            m_rcjetsub_eta.clear();
+            m_rcjetsub_phi.clear();
+            m_rcjetsub_e.clear();
+            m_rcjetsub_Ghosts_BHadron_Final_Count.clear();
+            m_rcjetsub_Ghosts_CHadron_Final_Count.clear();
+
             m_rcjet_pt.resize(sizeOfRCjets,-999.);
             m_rcjet_eta.resize(sizeOfRCjets,-999.);
             m_rcjet_phi.resize(sizeOfRCjets,-999.);
@@ -2471,32 +2646,32 @@ namespace top {
             m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
-            
+
             unsigned int i = 0;
             std::vector<int> rc_particle_selected_jets;
             rc_particle_selected_jets.clear();
-            
+
             for (xAOD::JetContainer::const_iterator jet_itr = rc_jets_particle->begin(); jet_itr != rc_jets_particle->end(); ++jet_itr) {
                 const xAOD::Jet* rc_jet = *jet_itr;
                 if (!m_rcjet_particle->passSelection(*rc_jet))
                     continue;
-                
+
                 rc_particle_selected_jets.push_back(rc_jet->index());
-                
+
                 m_rcjet_pt[i]   = rc_jet->pt();
                 m_rcjet_eta[i]  = rc_jet->eta();
                 m_rcjet_phi[i]  = rc_jet->phi();
                 m_rcjet_e[i]    = rc_jet->e();
-                
+
                 m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
                 m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
-                
+
                 // loop over subjets
                 m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
                 m_rcjetsub_eta[i].clear();
                 m_rcjetsub_phi[i].clear();
                 m_rcjetsub_e[i].clear();
-                
+
                 const xAOD::Jet* subjet(nullptr);
                 for(auto rc_jet_subjet : rc_jet->getConstituents()){
                     subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
@@ -2509,6 +2684,21 @@ namespace top {
                 } // end for-loop over subjets
                 ++i;
             } // end for-loop over re-clustered jets
+	    // we resized earlier to the size of rc_jets_particle container, but then only stored a sub-set
+	    // so have to resize again to shrink to correct size incase some jets were not stored
+            m_rcjet_pt.resize(i,-999);
+            m_rcjet_eta.resize(i,-999.);
+            m_rcjet_phi.resize(i,-999.);
+            m_rcjet_e.resize(i,-999.);
+            m_rcjet_d12.resize(i,-999.);
+            m_rcjet_d23.resize(i,-999.);
+            m_rcjetsub_pt.resize(i, std::vector<float>());
+            m_rcjetsub_eta.resize(i, std::vector<float>());
+            m_rcjetsub_phi.resize(i, std::vector<float>());
+            m_rcjetsub_e.resize(i, std::vector<float>());
+            m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
+            m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
+
         }
 
         //met
@@ -2571,20 +2761,28 @@ namespace top {
     }
 
     void EventSaverFlatNtuple::saveUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent){
-        // Quick return if upgrade is disabled.
-        if ( not m_config->HLLHC() ){
-            return;
-        }
-        // No need to attempt to write out anything for non-MC data.
-        if ( ! m_config->isMC() ){
-            return;
-        }
-       this -> calculateUpgradeEvent(upgradeEvent);
-       this -> fillUpgradeEvent();
+      // Quick return if upgrade is disabled.
+      if ( not m_config->HLLHC() ){
+        return;
+      }
+      // No need to attempt to write out anything for non-MC data.
+      if ( ! m_config->isMC() ){
+        return;
+      }
+      this -> cleanUpgradeEvent();
+      this -> calculateUpgradeEvent(upgradeEvent);
+      this -> fillUpgradeEvent();
+    }
+
+    void EventSaverFlatNtuple::cleanUpgradeEvent() {
+      /* Doing nothing for now, but we should put here the (re-)initialisation to dummy values
+      * of all variables later calculated in calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent)
+      * For example all weights set to 1, all vectors cleaned, all kinematic or angular variables set to -99999.
+      */
     }
 
     void EventSaverFlatNtuple::calculateUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent) {
-        
+
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
         top::check( evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth event container" );
@@ -2607,7 +2805,7 @@ namespace top {
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
-       
+
        for (const auto  elPtr : * upgradeEvent.m_electrons) {
          m_el_pt[i] = elPtr->pt();
          m_el_eta[i] = elPtr->eta();
@@ -2624,7 +2822,7 @@ namespace top {
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
-       
+
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
          m_mu_eta[i] = muPtr->eta();
@@ -2661,14 +2859,14 @@ namespace top {
            m_jet_Ghosts_BHadron_Final_Count[i] = 0;
            m_jet_Ghosts_CHadron_Final_Count[i] = 0;
          }
-           
+
          ++i;
        }
-       
+
        // MET
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
-       
+
     }
 
     void EventSaverFlatNtuple::fillUpgradeEvent() {

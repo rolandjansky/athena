@@ -6,23 +6,23 @@
 atlas_subdir( xAODEventFormat )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODCore )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Event/xAOD/xAODCore )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# Component(s) in the package:
+# The main library:
 atlas_add_library( xAODEventFormat
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODEventFormat
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODCore
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   xAODEventFormat/*.h xAODEventFormat/versions/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODEventFormat
+   LINK_LIBRARIES xAODCore )
 
+# The dictionary:
 atlas_add_dictionary( xAODEventFormatDict
-                      xAODEventFormat/xAODEventFormatDict.h
-                      xAODEventFormat/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEventFormat )
+   xAODEventFormat/xAODEventFormatDict.h
+   xAODEventFormat/selection.xml
+   LINK_LIBRARIES xAODEventFormat )
 
+# The unit test:
+atlas_add_test( ut_xaodeventformat_eventformat_test
+   SOURCES test/ut_xaodeventformat_eventformat_test.cxx
+   LINK_LIBRARIES xAODEventFormat )

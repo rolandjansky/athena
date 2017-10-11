@@ -14,33 +14,35 @@
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAOD_H
 #define SUSYTOOLS_SUSYOBJDEF_XAOD_H
 
-// Framework include(s):
+// Framework include(s) - base class
 #include "AsgTools/AsgMetadataTool.h"
 
+// Interface class
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
-///////////////////////// -*- C++ -*- /////////////////////////////
+// Includes for systematics
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 
-#include "AsgTools/ToolHandle.h"
-#include <AsgTools/AnaToolHandle.h>
-//#include "AsgTools/SetProperty.h"
+// Tool handles
+#include "AsgTools/AnaToolHandle.h"
+
+// Configuration
 #include "TEnv.h"
 
-#include "AssociationUtils/ToolBox.h"
-#include "AssociationUtils/IOverlapTool.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
-#include "JetSubStructureUtils/BosonTag.h"
-
+// Map for config file names
 #include <map>
+// Set for properties
 #include <set>
-#include <iterator>
-#include <functional>
+// Various uses in function arguments and parameters
+#include <string>
+#include <vector>
 
 // Tool interfaces
+// Toolbox, which holds the tools
+#include "AssociationUtils/ToolBox.h"
 
 class IJetCalibrationTool;
 class IJERTool;
@@ -76,7 +78,7 @@ namespace CP {
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
   class IPileupReweightingTool;
-  //  class IJetJvtEfficiency;
+  class IJetJvtEfficiency;
 }
 
 namespace TauAnalysisTools {
@@ -87,16 +89,17 @@ namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
 
-class TauWPDecorator; 
+class ITauToolBase;
 
 namespace ORUtils {
-  class IOverlapRemovalTool;
+  class IOverlapTool;
 }
 
 namespace TrigConf {
   class ITrigConfigTool;
 }
 namespace Trig {
+  // Need the TrigDecisionTool directly for getChainGroup, features, and GetPreScale
   class TrigDecisionTool;
   class IMatchingTool;
   class FeatureContainer;
@@ -124,8 +127,8 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can 
     //  only override finalize in athena.  To clean up, delete me.
 
-    bool isData() const {return m_dataSource == Data;}
-    bool isAtlfast() const {return m_dataSource == AtlfastII;}
+    bool isData() const override final {return m_dataSource == Data;}
+    bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
@@ -166,12 +169,6 @@ namespace ST {
 			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
 
-    StatusCode setRunNumber(const int run_number) override final;
-
-    //bool passTSTCleaning(xAOD::MissingETContainer& met);
-
-    //static bool passTSTCleaning(float MET, float TST, float MET_phi, float TST_phi);
-
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
     bool IsBadJet(const xAOD::Jet& input) const override final;
@@ -195,8 +192,6 @@ namespace ST {
 
     bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) const override final;
 
-    //rel20 0.77 eff value (22/6/15) from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks#MV2c20_tagger_AntiKt4EMTopoJets
-    //assumes JVT>0.64 working point
     bool IsBJet(const xAOD::Jet& input) const override final;
 
     bool IsTruthBJet(const xAOD::Jet& input) const override final;
@@ -216,7 +211,6 @@ namespace ST {
     float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) override final;
 
     double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata = false ) override final;
-    //    double GetMuonTriggerEfficiencySF(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
     double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) override final;
 
@@ -294,7 +288,7 @@ namespace ST {
 
     float GetDataWeight(const std::string&) override final;
 
-    float GetCorrectedAverageInteractionsPerCrossing() override final;
+    float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) override final;
 
     double GetSumOfWeights(int channel) override final;
 
@@ -311,9 +305,6 @@ namespace ST {
 
     StatusCode NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons = nullptr, const xAOD::MuonContainer *muons = nullptr) const override final;
 
-// ZM - not implemented?
-//    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
-
     CP::SystematicCode resetSystematics() override final;
 
     const CP::SystematicSet& currentSystematic() const;
@@ -325,13 +316,9 @@ namespace ST {
     bool isPrompt(const xAOD::IParticle* part) const override final;
 
     StatusCode FindSusyHP(int& pdgid1, int& pdgid2) const;
-
     StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false) const override final;
-
-    static bool FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
-
     StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const override final;
-
+    static bool FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
     static bool FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2);
 
     //trigger helpers
@@ -425,7 +412,6 @@ namespace ST {
     bool m_force_noElId;
     bool m_force_noMuId;
     bool m_doTTVAsf;
-    bool m_muNoTRT;
 
     int m_jesNPset;
     bool m_useBtagging;
@@ -539,7 +525,6 @@ namespace ST {
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
     bool m_tauRecalcOLR;
-    bool m_tauNoAODFixCheck;
 
     double m_jetPt;
     double m_jetEta;
@@ -553,8 +538,11 @@ namespace ST {
 
     std::string m_JMScalib;
 
+    /// Overlap removal options
     bool m_orDoTau;
     bool m_orDoPhoton;
+    bool m_orDoEleJet;
+    bool m_orDoMuonJet;
     bool m_orDoBjet;
     bool m_orDoElBjet;
     bool m_orDoMuBjet;
@@ -573,7 +561,6 @@ namespace ST {
     double m_orMuJetInnerDR;
     bool m_orDoMuonJetGhostAssociation;
     bool m_orRemoveCaloMuons;
-    bool m_orApplyJVT;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
 
@@ -596,7 +583,6 @@ namespace ST {
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
-    //std::string m_currentSyst;
 
     std::string m_EG_corrModel;
     bool m_applyJVTCut;
@@ -614,11 +600,10 @@ namespace ST {
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     
-    std::string m_WtagWP;
-    std::string m_ZtagWP;
-
-    JetSubStructureUtils::BosonTag* m_WTaggerTool;
-    JetSubStructureUtils::BosonTag* m_ZTaggerTool;
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
+    asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
+    asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
@@ -629,8 +614,7 @@ namespace ST {
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyBMHighPtSFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonTTVAEfficiencySFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonIsolationSFTool;
-    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool2015;
-    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool2016;
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool;
     //
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_reco;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_id;
@@ -667,7 +651,7 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
-    asg::AnaToolHandle<TauWPDecorator> m_tauWPdecorator;
+    asg::AnaToolHandle<ITauToolBase> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
@@ -701,11 +685,8 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
-  //    const static SG::AuxElement::Decorator<char> dec_passBaseID("passBaseID");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
-  // const static SG::AuxElement::Decorator<double> dec_trigscalefact("trigscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
-
   // const accessors for reading decorations that we set
   const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects

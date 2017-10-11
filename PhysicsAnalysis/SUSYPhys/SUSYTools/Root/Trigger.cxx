@@ -10,7 +10,7 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Conditions.h"
 
@@ -40,11 +40,14 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) cons
   else{
     rn = GetRunNumber(); //it takes care of dealing with data and MC
   }
+  
+  int year = treatAsYear(rn);
 
-  if(rn < 290000)                        return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
-  else if(rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
-  else if(rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
-  else if(rn >= 303943 )                 return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
+  if (year == 2015)                                      return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
+  else if(year == 2016 && rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
+  else if(year == 2016 && rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
+  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
+  else if(year == 2017)                                  return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // no need for j400_OR things
 
   return false; 
 }
@@ -56,11 +59,12 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName, bool j400_
 
   // First check if we're affected by the L1_XE50 bug
   bool L1_XE50 = m_trigDecTool->isPassed("L1_XE50");
+  bool L1_XE55 = m_trigDecTool->isPassed("L1_XE55");
   bool HLT_noalg_L1J400 = m_trigDecTool->isPassed("HLT_noalg_L1J400");
   if (!L1_XE50 && j400_OR && HLT_noalg_L1J400) {
     return m_emulateHLT(triggerName);
   }
-  else if (L1_XE50) {
+  else if (L1_XE50 || L1_XE55) {
     // See if the TDT knows about this
     if (m_isTrigInTDT(triggerName) ) return m_trigDecTool->isPassed(triggerName);
     else return m_emulateHLT(triggerName);
@@ -331,8 +335,8 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
-	token15 = trigExpr.substr(0, pos);
-	token16 = trigExpr.erase(0, pos + del16.length());
+        token15 = trigExpr.substr(0, pos);
+        token16 = trigExpr.erase(0, pos + del16.length());
       }
     }
 
@@ -346,15 +350,6 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
-
-    // std::cout << "\n2015 triggers" << std::endl;
-    // for(auto& chain : trigs15)
-    //   std::cout << "    " << chain << std::endl;
-
-    // std::cout << "\n2016 triggers" << std::endl;
-    // for(auto& chain : trigs16)
-    //   std::cout << "    " << chain << std::endl;
-
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const

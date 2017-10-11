@@ -27,5 +27,5 @@ def ForwardElectronIsEMTightSelectorConfigMC15(theTool) :
     #
     # PHOTON tight cuts, with updated using *MC15*
     #
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20170711/ForwardElectronIsEMTightSelectorCutDefs.conf"
 

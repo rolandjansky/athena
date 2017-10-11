@@ -151,16 +151,16 @@ int main(int argc, char* argv[]) {
             CP::MuonTriggerScaleFactors* tool = new CP::MuonTriggerScaleFactors("TrigSF_" + qualities[i] + "_" + binnings[j]);
             ASG_CHECK_SA(APP_NAME, tool->setProperty("MuonQuality", qualities[i]));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("Binning", binnings[j]));
-            ASG_CHECK_SA(APP_NAME, tool->setProperty("Year", year)); 
-            ASG_CHECK_SA(APP_NAME, tool->setProperty("MC", mc)); 
+            //ASG_CHECK_SA(APP_NAME, tool->setProperty("Year", year)); 
+            //ASG_CHECK_SA(APP_NAME, tool->setProperty("MC", mc)); 
             ASG_CHECK_SA(APP_NAME, tool->setProperty("filename", customFileName));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("CustomInputFolder", customInputFolder));
             ASG_CHECK_SA(APP_NAME, tool->initialize());
-            CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
-            if (result != CP::CorrectionCode::Ok){
-                Error(APP_NAME, "Could not set run number");
-                return 1;
-            }
+            //CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
+            //if (result != CP::CorrectionCode::Ok){
+            //    Error(APP_NAME, "Could not set run number");
+            //    return 1;
+            //}
             tools.push_back(tool);
         }
         triggerSFTools.push_back(tools);
@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
                         Int_t threshold = 0;
                         CP::CorrectionCode result = getThreshold(threshold, trigger);
                         if (result != CP::CorrectionCode::Ok) {
-                            Error("Could not extract threshold for trigger %s", trigger.c_str());
+                            Error("MuonTriggerSFRootCoreTest", "Could not extract threshold for trigger %s", trigger.c_str());
                             return 1;
                         }
                         bool displayWarning = false;

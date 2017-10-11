@@ -13,5 +13,6 @@
 #include "IsolationSelection/IsolationConditionHist.h"
 #include "IsolationSelection/IsolationWP.h"
 #include "IsolationSelection/Interp3D.h"
-
+#include "IsolationSelection/IsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 #endif // IsolationSelectionDict_H

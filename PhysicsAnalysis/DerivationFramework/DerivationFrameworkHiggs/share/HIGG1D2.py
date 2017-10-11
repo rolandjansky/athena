@@ -18,6 +18,10 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+if DerivationFrameworkIsMonteCarlo:
+	from DerivationFrameworkMCTruth.MCTruthCommon import *
+	print "HIGG1D1.py Applying MCTruthCommon"
+
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
@@ -76,7 +80,7 @@ print HIGG1D2_MuMuMassTool
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
-expression = '(count(abs(DFCommonPhotons_eta)<2.5 && DFCommonPhotons_et>9.5*GeV)>=1 && (count(HIGG1D2_DiElectronMass > 40.0*GeV)>=1 || count(HIGG1D2_DiMuonMass > 40.0*GeV)>=1))'
+expression = '(count(abs(DFCommonPhotons_eta)<2.5 && DFCommonPhotons_et>9.5*GeV)>=1 && (count(HIGG1D2_DiElectronMass > 40.0*GeV)>=1 || count(HIGG1D2_DiMuonMass > 40.0*GeV)>=1)) || (count(DFCommonPhotons_et>500*GeV && abs(DFCommonPhotons_eta)<2.4 && Photons.DFCommonPhotonsIsEMLoose)>=1)'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG1D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG1D2SkimmingTool",
                                                                expression = expression)
@@ -186,6 +190,10 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG1D2TruthThinningTool)
 print "HIGG1D2.py thinningTools", thinningTools
 
+# Create private sequence
+# The name of the kernel  must be unique to this derivation
+HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -197,6 +205,21 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D2K
                                                                        SkimmingTools = [HIGG1D2SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                       )
+
+
+# Before any custom jet reconstruction, it's good to set up the output list
+OutputJets["HIGG1D2Jets"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
+
+DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
 # SET UP STREAM   
@@ -213,13 +236,14 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D2ThinningSvc", outStreams=[evtStream] )
 
- #====================================================================
+
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D2SlimmingHelper = SlimmingHelper("HIGG1D2SlimmingHelper")
-HIGG1D2Stream.AddItem("xAOD::EventShape_v1#*")
-HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo_v1#*")
+HIGG1D2Stream.AddItem("xAOD::EventShape#*")
+HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
@@ -230,13 +254,13 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
+HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthElectrons","TruthPhotons","TruthMuons","TruthBoson","TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
 
 HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType.etcone20.ptconecoreTrackPtrCorrection",
                                         "MuonClusterCollection.eta_sampl.phi_sampl",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JVFCorr.JvtRpt.ConstituentScale",
+                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",

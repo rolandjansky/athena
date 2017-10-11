@@ -116,25 +116,20 @@ if globalflags.DataSource() == 'geant4':
         )
     ToolSvc += EXOT14MCThinningTool
 
-
-
 ToolSvc += CfgMgr.JetCalibrationTool("m_JESTool",
                                      IsData = (globalflags.DataSource() == 'data'), # "data" or "geant4"
-#                                     ConfigFile = "JES_Full2012dataset_Preliminary_MC14.config",
-                                     ConfigFile = "JES_2015dataset_recommendation_Feb2016.config",
-                                     CalibSequence = "EtaJES",
+                                     ConfigFile = "JES_MC16Recommendation_Aug2017.config",
+                                     CalibSequence = "JetArea_Residual_EtaJES_GSC",
                                      JetCollection = "AntiKt4EMTopo")
-
-
 
 lepton_triggers = ["HLT_e24_lhmedium_L1EM20VHI", "HLT_e24_medium_L1EM20VHI", "HLT_e24_tight_iloose",
                    "HLT_e24_lhmedium_L1EM20VH", "HLT_e60_lhmedium", "HLT_e120_lhloose",
                    "HLT_e26_tight_iloose", "HLT_e140_lhloose",
                    "HLT_e24_lhtight_nod0_ivarloose", "HLT_e60_lhmedium_nod0", "HLT_e60_medium",
-                   "HLT_e140_lhloose_nod0", "HLT_e300_etcut",                   
-                   "HLT_2e17_lhvloose", "HLT_2e12_lhlvoose_L12EM10VH", "HLT_2e15_lhvloose_L12EM13VH",
+                   "HLT_e140_lhloose_nod0", "HLT_e300_etcut",
+                   "HLT_2e17_lhvloose", "HLT_2e12_lhlvoose_L12EM10VH", "HLT_2e15_lhvloose_L12EM13VH","HLT_2e15_lhvloose_nod0_L12EM13VH",
                    "HLT_2e12_lhloose_L12EM10VH", "HLT_2e17_lhvloose_nod0",
-                   "HLT_mu20_iloose_L1MU15", "HLT_mu24_iloose_L1MU15", "HLT_mu24_iloose",
+                   "HLT_mu20_iloose_L1MU15", "HLT_mu24_iloose_L1MU15", "HLT_mu24_iloose","HLT_mu24_ivarloose","HLT_mu24_ivarloose_L1MU15","HLT_mu24_ivarmedium",
                    "HLT_mu20_mu8noL1", "HLT_mu22_mu8noL1",
                    "HLT_mu24_imedium", "HLT_mu40", "HLT_mu50", "HLT_mu60_0eta105_msonly",
                    "HLT_mu26_iloose", "HLT_mu26_imedium",
@@ -157,7 +152,7 @@ EXOT14SkimmingTool = DerivationFramework__SkimmingToolEXOT14(
                                                 ReqireLArError = False,
                                                 RequireTrigger = True,
                                                 RequireJetPts = True,
-                                                RequireJetsDEta = True,
+                                                RequireJetsDEta = False,
                                                 RequireDiJetMass = False,
                                                 RequireJetsDPhi = False,
                                                 DiJetsMass = 5e5,
@@ -243,4 +238,3 @@ EXOT14SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT14SlimmingHelper.IncludeEtMissTriggerContent = True
 
 EXOT14SlimmingHelper.AppendContentToStream(EXOT14Stream)
-

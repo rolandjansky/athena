@@ -30,7 +30,7 @@ using namespace asg::msgUserCode;  //messaging
 #include "TSystem.h"
 
 //specific includes for this test
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
 int main( int argc, char* argv[] ) {

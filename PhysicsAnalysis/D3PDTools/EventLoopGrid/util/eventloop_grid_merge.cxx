@@ -51,8 +51,8 @@ int main (int argc, char **argv)
     if (std::regex_match(output, std::regex(os->label() + "\\.root.*")) ||
 	std::regex_match(output, std::regex(".*\\." + os->label() + "\\.root.*")))
     {
-      type = os->options()->getString(EL::OutputStream::optType);
-      mergeCmd = os->options()->getString(EL::OutputStream::optMergeCmd);
+      type = os->options()->castString(EL::OutputStream::optType, "", SH::MetaObject::CAST_NOCAST_DEFAULT);
+      mergeCmd = os->options()->castString(EL::OutputStream::optMergeCmd, "", SH::MetaObject::CAST_NOCAST_DEFAULT);
       break;
     }
   }

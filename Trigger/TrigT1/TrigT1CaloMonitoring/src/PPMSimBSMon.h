@@ -19,12 +19,16 @@
 #include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 class TH2F_LW;
 class TH2I_LW;
+
+class L1CaloCondSvc;
+class L1CaloRunParametersContainer;
 
 // ============================================================================
 namespace LVL1 {
@@ -35,6 +39,9 @@ class TriggerTower;
 class IL1TriggerTowerTool;
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
+
+
+
 // ============================================================================
 
 /** Cross-check of PPM LUT data with simulation.
@@ -124,6 +131,8 @@ public:
 private:
 
   typedef std::vector<int> ErrorVector;
+
+  StatusCode retrieveConditions();
   
   /// Fill error event number histogram
   void  fillEventSample(int crate, int module);
@@ -137,7 +146,13 @@ private:
   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
-      
+
+  /// L1Calo conditions                                                                               
+  ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+
+  /// Database container
+  L1CaloRunParametersContainer* m_runParametersContainer;
+
   /// Root directory name
   std::string m_rootDir;
 

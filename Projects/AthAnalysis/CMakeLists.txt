@@ -1,4 +1,3 @@
-
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -24,7 +23,11 @@ find_package( Gaudi REQUIRED )
 
 # additional externals
 find_package( Xrootd )
+find_package( GSL )
 
+# AIDA dependency, because Gaudi needs it
+# Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
+find_package( AIDA )
 
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )

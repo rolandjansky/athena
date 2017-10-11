@@ -48,4 +48,5 @@ TRUTH0Stream.AddItem( "xAOD::TruthVertexContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
+# Keep the metadata of course!
 TRUTH0Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

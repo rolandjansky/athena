@@ -12,9 +12,6 @@
  *  1 14/03/16  First Version              J. Bossio (jbossios@cern.ch) * 
 \************************************************************************/
 
-// This will only run in RootCore
-#ifdef ROOTCORE
-
 // System include(s):
 #include <memory>
 
@@ -29,22 +26,22 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
-#include "xAODRootAccess/tools/Message.h"
-#include "xAODRootAccess/tools/ReturnCheck.h"
+#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/MessageCheck.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/ShallowCopy.h"
 
 //JetCalibrationTool
-#include "JetMomentTools/JetVertexTaggerTool.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetInterface/IJetUpdateJvt.h"
+#include "JetInterface/IJetModifier.h"
 
 void usage() {
   std::cout << "Running options:" << std::endl;
   std::cout << "	--help : To get the help you're reading" << std::endl;
   std::cout << "	--jetColl= : Specify the jet collection" << std::endl;
   std::cout << "	--sample= : Specify input xAOD" << std::endl;
+  std::cout << "	--nevents= : Specify maximum number of events to run" << std::endl;
   std::cout << "        Example: Example --jetColl=AntiKt4EMTopo --sample=xAOD.root" << std::endl;
 }
 
@@ -53,12 +50,15 @@ void usage() {
 //---------------
 
 int main(int argc, char* argv[]){
+  using namespace asg::msgUserCode;
+  ANA_CHECK_SET_TYPE (int)
 
   //---------------------------------------------
   // Declaring input variables with default values
   //---------------------------------------------
   std::string sample = "";
   std::string jetColl = "";
+  Long64_t nevents = -1;
 
   //---------------------------
   // Decoding the user settings
@@ -83,6 +83,8 @@ int main(int argc, char* argv[]){
     if ( opt.find("--sample=")   != std::string::npos ) sample = v[1];
     
     if ( opt.find("--jetColl=")   != std::string::npos ) jetColl = v[1];
+
+    if ( opt.find("--nevents=")   != std::string::npos ) nevents = atoi(v[1].c_str());
     
   }//End: Loop over input options
 
@@ -96,41 +98,31 @@ int main(int argc, char* argv[]){
   }
 
   // Set up the job for xAOD access:
-  static const char* APP_NAME = "JetJvtTools_Example";
-  RETURN_CHECK( APP_NAME, xAOD::Init() );
  
   //--------------------
   // Opening input file
   //--------------------
   std::unique_ptr< TFile > ifile( TFile::Open( sample.c_str(), "READ" ) );
-
   // Create a TEvent object.
+  ANA_CHECK( xAOD::Init() );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
-  RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
-
-  // Create a transient object store. Needed for the tools.
-  xAOD::TStore store;
+  ANA_CHECK( event.readFrom( ifile.get() ) );
 
   //----------------------------------
   // Initialization of JetJvtTools
   //----------------------------------
-  const std::string name_JetJvtTool = "JetJvt_Example";
-  const std::string name_JetfJvtTool = "JetfJvt_Example";
 
-  // Call the constructor
-  JetVertexTaggerTool jvtTool(name_JetJvtTool.c_str());
-  JetForwardJvtTool fjvtTool(name_JetfJvtTool.c_str());
-  RETURN_CHECK(APP_NAME,
-               jvtTool.setProperty("JVTFileName",
-                                              "JetMomentTools/JVTlikelihood_20140805.root"));
-
-  // Initialize the tool
-  if(!(jvtTool.initialize().isSuccess())){
-    std::cout << "Initialization of JetJvtTools failed, exiting" << std::endl;
+  // Create the tools
+  asg::AnaToolHandle<IJetUpdateJvt> jvtTool("JetVertexTaggerTool/JetJvt_Example");
+  asg::AnaToolHandle<IJetModifier> fjvtTool("JetForwardJvtTool/JetfJvt_Example");
+  
+  // Initialize the tools
+  if(!(jvtTool.retrieve().isSuccess())){
+    std::cout << "Initialization of JetVertexTaggerTool failed, exiting" << std::endl;
     return 0;
   }
-  if(!(fjvtTool.initialize().isSuccess())){
-    std::cout << "Initialization of JetJvtTools failed, exiting" << std::endl;
+  if(!(fjvtTool.retrieve().isSuccess())){
+    std::cout << "Initialization of JetForwardJvtTool failed, exiting" << std::endl;
     return 0;
   }
 
@@ -138,7 +130,7 @@ int main(int argc, char* argv[]){
   // Loop over events
   //------------------
 
-  const Long64_t nevents = event.getEntries();
+  if(nevents<0) {nevents = event.getEntries();}
   for(Long64_t ievent = 0;  ievent < nevents; ++ievent){
 
      // Load the event:
@@ -152,25 +144,29 @@ int main(int argc, char* argv[]){
 
     // Retrieve jet container
     const xAOD::JetContainer* jets = 0;
-    RETURN_CHECK( APP_NAME, event.retrieve( jets, jetColl + "Jets" ) );
+    ANA_CHECK( event.retrieve( jets, jetColl + "Jets" ) );
+    std::cout << "Retrieved jets" << std::endl;
 
     // Shallow copy 
     auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
+    std::cout << "Copied jets" << std::endl;
 
     // Iterate over the shallow copy
     for( xAOD::Jet* jet : *( jets_shallowCopy.first ) ) {
-      jvtTool.updateJvt( *jet );
+      std::cout << "On jet " << jet->index() << std::endl;
+      // Here, we just apply a dummy calibration.
+      // You should use JetCalibTools to apply the recommended calibration
+      jet->setJetP4( xAOD::JetFourMom_t(jet->pt()*1.6, jet->eta(), jet->phi(), jet->m()) );
+      std::cout << "  uncorrected JVT: " << jet->getAttribute<float>("Jvt") << std::endl;
+      std::cout << "  corrected JVT: " << jvtTool->updateJvt( *jet ) << std::endl;
       // Do something
     }
-    fjvtTool.modify(*( jets_shallowCopy.first ));
+    fjvtTool->modify(*( jets_shallowCopy.first ));
     delete jets_shallowCopy.first;
     delete jets_shallowCopy.second;
-  
   }//END: Loop over events
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   return 0;
 }
-
-#endif

@@ -5,15 +5,10 @@
 #ifndef __SUSYCROSSSECTION__
 #define __SUSYCROSSSECTION__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+// Member variables
+#include <cstdlib>
 #include <string>
 #include <map>
-#include <stdlib.h>
-
-//#include <ext/hash_map>
-//namespace std { using namespace __gnu_cxx; }
 
 namespace SUSY
 {

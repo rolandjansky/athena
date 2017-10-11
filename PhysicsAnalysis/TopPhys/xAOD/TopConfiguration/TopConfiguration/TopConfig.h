@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 808115 2017-07-11 17:40:10Z tpelzer $
+// $Id: TopConfig.h 809688 2017-08-23 16:14:15Z iconnell $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -12,8 +12,8 @@
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
  *
- * $Revision: 808115 $
- * $Date: 2017-07-11 18:40:10 +0100 (Tue, 11 Jul 2017) $
+ * $Revision: 809688 $
+ * $Date: 2017-08-23 17:14:15 +0100 (Wed, 23 Aug 2017) $
  *
  *
  **/
@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
+#include <utility>
 
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
@@ -249,6 +250,7 @@ class TopConfig final {
   inline bool doKLFitter() const {return m_doKLFitter;}
   inline void setKLFitter(){if(!m_configFixed){m_doKLFitter = true;}}
   inline const std::string& KLFitterTransferFunctionsPath() const {return m_KLFitterTransferFunctionsPath;}
+  inline const std::string& KLFitterOutput() const {return m_KLFitterOutput;}
   inline const std::string& KLFitterJetSelectionMode() const {return m_KLFitterJetSelectionMode;}
   inline const std::string& KLFitterBTaggingMethod() const {return m_KLFitterBTaggingMethod;}
   inline const std::string& KLFitterLH() const {return m_KLFitterLH;}
@@ -383,6 +385,8 @@ class TopConfig final {
   // PseudoTop
   const std::string& sgKeyPseudoTop( const std::size_t hash ) const;
   const std::string& sgKeyPseudoTop( const std::string ) const;
+  const std::string& sgKeyPseudoTopLoose( const std::size_t hash ) const;
+  const std::string& sgKeyPseudoTopLoose( const std::string ) const;
 
   // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
   // Jet Ghost-Track Systematics
@@ -692,8 +696,8 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
-  // B-tagging WPs requested by user
-  const std::vector<std::string> bTagWP() const { return m_chosen_btaggingWP;}
+  // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
+  const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}  
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   const std::string bTagSystsExcludedFromEV() const { return m_bTagSystsExcludedFromEV;}
 
@@ -842,6 +846,11 @@ class TopConfig final {
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
 
+  // Switch to use event-level jet cleaning tool for studies
+  inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
+  inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
+
+
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -965,6 +974,7 @@ class TopConfig final {
   // KLFitter
   bool m_doKLFitter;
   std::string m_KLFitterTransferFunctionsPath;
+  std::string m_KLFitterOutput;
   std::string m_KLFitterJetSelectionMode;
   std::string m_KLFitterBTaggingMethod;
   std::string m_KLFitterLH;
@@ -1167,8 +1177,8 @@ class TopConfig final {
   // Options for upgrade studies
   bool m_HLLHC;
 
-  // B-tagging WPs requested by the user
-  std::vector< std::string > m_chosen_btaggingWP = { };
+  // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
+  std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   std::string m_bTagSystsExcludedFromEV = "";
   
@@ -1367,6 +1377,7 @@ class TopConfig final {
   // PseudoTop
   std::string m_sgKeyPseudoTop;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapPseudoTop;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapPseudoTopLoose;
 
   // Map from systematic hash to CP::SystematicSet
   std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapJetGhostTrack;
@@ -1389,6 +1400,10 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
+  
+  // Switch to use event-level jet cleaning tool for testing
+  bool m_useEventLevelJetCleaningTool;
+
 
 };
 }  // namespace top

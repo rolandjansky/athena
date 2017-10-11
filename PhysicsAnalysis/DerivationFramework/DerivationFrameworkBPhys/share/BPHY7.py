@@ -45,6 +45,7 @@
 
 # Set to True to deactivate thinning and skimming, and only keep augmentations (to generate a sample with full xAOD plus all the extra)
 onlyAugmentations = False
+thinTruth = False
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
@@ -74,6 +75,104 @@ BPHY7Stream.AcceptAlgs(["BPHY7Kernel2"])
 include("DerivationFrameworkBPhys/configureVertexing.py")
 BPHY7_VertexTools = BPHYVertexTools("BPHY7")
 
+
+#====================================================================
+# TriggerCounting for Kernel1 #Added by Matteo
+#====================================================================
+#List of trigggers to be counted (high Sig-eff*Lumi ones are in)
+triggersToMetadata= ["HLT_2mu10",
+                     "HLT_2mu10_bJpsimumu",
+                     "HLT_2mu10_bJpsimumu_delayed",
+                     "HLT_2mu10_l2msonly",
+                     "HLT_2mu10_nomucomb",
+                     "HLT_2mu14",
+                     "HLT_2mu14_nomucomb",
+                     "HLT_2mu4",
+                     "HLT_2mu4_bBmumuxv2",
+                     "HLT_2mu4_bDimu_noinvm_novtx_ss",
+                     "HLT_2mu6",
+                     "HLT_2mu6_10invm30_pt2_z10",
+                     "HLT_2mu6_bBmumu",
+                     "HLT_2mu6_bBmumux_Taumumux",
+                     "HLT_2mu6_bBmumuxv2",
+                     "HLT_2mu6_bBmumuxv2_delayed",
+                     "HLT_2mu6_bDimu_noinvm_novtx_ss",
+                     "HLT_2mu6_bJpsimumu",
+                     "HLT_2mu6_bJpsimumu_delayed",
+                     "HLT_2mu6_bJpsimumu_Lxy0_delayed",
+                     "HLT_2mu6_nomucomb_bPhi",
+                     "HLT_2mu6_nomucomb_bPhi",
+                     "HLT_2mu6_nomucomb_mu4_nomucomb_bTau_L12MU6_3MU4",
+                     "HLT_3mu4",
+                     "HLT_3mu4_bDimu",
+                     "HLT_3mu4_bDimu2700",
+                     "HLT_3mu4_bTau",
+                     "HLT_3mu4_l2msonly",
+                     "HLT_3mu4_nomucomb_bTau",
+                     "HLT_3mu4_nomucomb_delayed",
+                     "HLT_3mu6",
+                     "HLT_3mu6_bTau",
+                     "HLT_3mu6_msonly",
+                     "HLT_mu10_mu6_bBmumux_BcmumuDsloose_delayed",
+                     "HLT_mu10_mu6_bBmumux_Taumumux",
+                     "HLT_mu10_mu6_bBmumux_Taumumux_noL2",
+                     "HLT_mu10_mu6_bBmumuxv2",
+                     "HLT_mu10_mu6_bBmumuxv2_delayed",
+                     "HLT_mu10_mu6_bJpsimumu",
+                     "HLT_mu10_mu6_bJpsimumu_Lxy0",
+                     "HLT_mu10_mu6_bJpsimumu_Lxy0_delayed",
+                     "HLT_mu10_mu6_bUpsimumu",
+                     "HLT_mu11_2mu4noL1_nscan03_L1MU11_2MU6",
+                     "HLT_mu11_L1MU10_2mu4noL1_nscan03_L1MU10_2MU6",
+                     "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6",
+                     "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6_bTau",
+                     "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6",
+                     "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau",
+                     "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau_delayed",
+                     "HLT_mu18_2mu4noL1",
+                     "HLT_mu18_mu8noL1",
+                     "HLT_mu20_2mu4noL1",
+                     "HLT_mu20_l2idonly_mu6noL1_nscan03",
+                     "HLT_mu20_l2idonly_mu6noL1_nscan03_bTau",
+                     "HLT_mu20_msonly_mu6noL1_msonly_nscan05",
+                     "HLT_mu20_mu8noL1",
+                     "HLT_mu20_nomucomb_mu6noL1_nscan03",
+                     "HLT_mu20_nomucomb_mu6noL1_nscan03_bTau",
+                     "HLT_mu22_2mu4noL1",
+                     "HLT_mu22_mu8noL1",
+                     "HLT_mu24_2mu4noL1",
+                     "HLT_mu24_imedium",
+                     "HLT_mu24_mu8noL1",
+                     "HLT_mu26_ivarmedium",
+                     "HLT_mu26i",
+                     "HLT_mu50",
+                     "HLT_mu6_2mu4",
+                     "HLT_mu6_2mu4_bJpsi_delayed",
+                     "HLT_mu6_2mu4_bTau_noL2",
+                     "HLT_mu6_l2msonly_2mu4_l2msonly_L1MU6_3MU4",
+                     "HLT_mu6_mu4_bBmumuxv2",
+                     "HLT_mu6_mu4_bBmumuxv2_delayed",
+                     "HLT_mu6_mu4_bDimu_noinvm_novtx_ss",
+                     "HLT_mu6_nomucomb_2mu4_nomucomb_bTau_L1MU6_3MU4",
+                     "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4" ]
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
+BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata( name = "BPHY7TriggerCount",
+                                                                     TriggerList = triggersToMetadata,
+                                                                     FolderName = "BPHY7" )
+
+ToolSvc += BPHY7TriggerCountToMetadata
+
+# Additional metadata output
+BPHY7Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
+ 	                              BPHY7TriggerCountToMetadata.FolderName,
+ 	                              "xAOD::AuxInfoBase#%s*Aux." %
+ 	                              BPHY7TriggerCountToMetadata.FolderName] )
+
+#BPHY7Stream.AddMetaDataItem([ "TH1D#%s*" %BPHY7TriggerCountToMetadata.HistogramName ] )
+
+
+
 #====================================================================
 # PRESELECTION for Kernel1 #Added by Matteo
 #====================================================================
@@ -84,79 +183,69 @@ BPHY7_VertexTools = BPHYVertexTools("BPHY7")
 
 #To inhibit triggers one can remove this tool from Kernel1 (look for "BPHY7TriggerSkim")
 #This list is used for the trigger thinning tool
-triggerList = ["HLT_mu11_L1MU10_2mu4noL1_nscan03_L1MU10_2MU6",
-        "HLT_mu11_2mu4noL1_nscan03_L1MU11_2MU6",
-        "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6",
-        "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6_bTau",
-        "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU",
-        "HLT_mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU_bTau",
-        "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6",
-        "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau",
-        "HLT_mu11_nomucomb_mu6noL1_nscan03_L1LFV-MU_bTau",
-        "HLT_mu20_msonly_mu6noL1_msonly_nscan05",
-        "HLT_mu20_nomucomb_mu6noL1_nscan03",
-       	"HLT_mu20_nomucomb_mu6noL1_nscan03_bTau",
-        "HLT_mu20_l2idonly_mu6noL1_nscan03",
-        "HLT_mu20_l2idonly_mu6noL1_nscan03_bTau",
-    	"HLT_2mu10",
-    	"HLT_2mu10_l2msonly",
-    	"HLT_2mu10_nomucomb",
-    	"HLT_2mu14",
-	"HLT_mu50",
-    	"HLT_2mu14_l2msonly",
-    	"HLT_2mu14_nomucomb",
-    	"HLT_3mu4",
-    	"HLT_3mu4_bTau",
-    	"HLT_3mu4_l2msonly",
-    	"HLT_3mu4_nomucomb",
-    	"HLT_2mu6_l2msonly_mu4_l2msonly_L12MU6_3MU4",
-    	"HLT_2mu6_mu4_bTau_noL2",
-    	"HLT_2mu6_nomucomb_mu4_nomucomb_L12MU6_3MU4",
- 	"HLT_2mu6_nomucomb_mu4_nomucomb_bTau_L12MU6_3MU4",
-    	"HLT_mu6_2mu4",
-    	"HLT_mu6_2mu4_bTau",
-    	"HLT_mu6_2mu4_bTau_noL2",
-    	"HLT_mu6_l2msonly_2mu4_l2msonly_L1MU6_3MU4",
-    	"HLT_mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4",
- 	"HLT_mu6_nomucomb_2mu4_nomucomb_bTau_L1MU6_3MU4",
-    	"HLT_3mu6",
-    	"HLT_3mu6_bTau",
-    	"HLT_3mu6_msonly",
-    	"HLT_3mu6_nomucomb",
-    	"HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu18",
-    	"HLT_mu14",
-    	"HLT_mu24",
-	"HLT_mu24_L1MU15",
-    	"HLT_2mu4",
-	"HLT_2mu6",
-	"HLT_mu20_L1MU15",
-    	"HLT_mu18_2mu4noL1",
-    	"HLT_mu18_nomucomb_2mu4noL1",
-    	"HLT_mu20_2mu4noL1",
-    	"HLT_mu20_l2idonly_2mu4noL1",
-    	"HLT_mu20_nomucomb_2mu4noL1",
-    	"HLT_mu18_mu8noL1",
-    	"HLT_mu18_nomucomb_mu8noL1",
- 	"HLT_mu20_mu8noL1",
-	"HLT_mu20_l2idonly_2mu4noL1",
-	"HLT_mu20_nomucomb_mu8noL1",
- 	"HLT_mu22_mu8noL1",
-	"HLT_mu22_l2idonly_2mu4noL1",
-	"HLT_mu22_nomucomb_mu8noL1",
-	"HLT_mu22_2mu4noL1",
-	"HLT_mu22_nomucomb_2mu4noL1",
+triggerList = [ "HLT_2mu10",
+		    	"HLT_2mu10_l2msonly",
+		    	"HLT_2mu10_nomucomb",
+		    	"HLT_2mu14",
+			    "HLT_mu50",
+		    	"HLT_2mu14_l2msonly",
+		    	"HLT_2mu14_nomucomb",
+		    	"HLT_2mu6_l2msonly_mu4_l2msonly_L12MU6_3MU4",
+		    	"HLT_2mu6_nomucomb_mu4_nomucomb_L12MU6_3MU4",
+		    	"HLT_mu6_2mu4",
+		    	"HLT_mu6_l2msonly_2mu4_l2msonly_L1MU6_3MU4",
+		    	"HLT_mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4",
+		    	"HLT_3mu6",
+		    	"HLT_3mu6_msonly",
+		    	"HLT_3mu6_nomucomb",
+		    	"HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu18",
+		    	"HLT_mu14",
+		    	"HLT_mu24",
+			    "HLT_mu24_L1MU15",
+		    	"HLT_2mu4",
+			    "HLT_2mu6",
+			    "HLT_mu20_L1MU15",
+		    	"HLT_mu18_2mu4noL1",
+		    	"HLT_mu18_nomucomb_2mu4noL1",
+		    	"HLT_mu20_2mu4noL1",
+		    	"HLT_mu20_l2idonly_2mu4noL1",
+		    	"HLT_mu20_nomucomb_2mu4noL1",
+		    	"HLT_mu18_mu8noL1",
+		    	"HLT_mu18_nomucomb_mu8noL1",
+		 	    "HLT_mu20_mu8noL1",
+			    "HLT_mu20_l2idonly_2mu4noL1",
+			    "HLT_mu20_nomucomb_mu8noL1",
+		 	    "HLT_mu22_mu8noL1",
+			    "HLT_mu22_l2idonly_2mu4noL1",
+			    "HLT_mu22_nomucomb_mu8noL1",
+			    "HLT_mu22_2mu4noL1",
+			    "HLT_mu22_nomucomb_2mu4noL1",
+				"HLT_mu20_2mu4noL1", "HLT_mu20_mu8noL1",
+				"HLT_mu14_tau25_medium1_tracktwo",
+				"HLT_mu14_tau35_medium1_tracktwo",
+				"HLT_mu14_tau25_medium1_tracktwo_xe50",
+				"HLT_mu14_tau35_medium1_tracktwo_L1TAU20",
+		     	"HLT_mu24_mu8noL1", #Triggers with high Lumi*Efficiency values (missing in the wildcards)
+		        "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4", 
+		     	"HLT_2mu6_bBmumuxv2_delayed", 
+		     	"HLT_2mu4_bDimu_noinvm_novtx_ss", 
+				"HLT_2mu6_bDimu_noinvm_novtx_ss", 
+				"HLT_mu24_2mu4noL1", 
+		 		"HLT_mu10_mu6_bUpsimumu", 
+		   		"HLT_mu10_mu6_bBmumuxv2", 
+				"HLT_mu10_mu6_bJpsimumu", 
+                "HLT_mu6_mu4_bBmumuxv2_delayed", 
+                "HLT_2mu6_10invm30_pt2_z10", 
+                "HLT_2mu6_nomucomb_bPhi",
+                "HLT_mu6_mu4_bDimu_noinvm_novtx_ss",
+                "HLT_mu11_mu6_bDimu2700",
 
-	"HLT_mu20_2mu4noL1", "HLT_mu20_mu8noL1",
-
-	"HLT_mu14_tau25_medium1_tracktwo",
-	"HLT_mu14_tau35_medium1_tracktwo",
-	"HLT_mu14_tau25_medium1_tracktwo_xe50",
-	"HLT_mu14_tau35_medium1_tracktwo_L1TAU20",
-
-	"HLT_.*mu.*imedium.*",	# Trigger with looser isolation selection 
-	"HLT_.*mu.*iloose.*",
-	"HLT_.*bTau.*",		# Our tau triggers
-	"HLT_.*nscan.*"  ]	# Narrow scan triggers
+                "HLT_.*mu11_mu6.*", # Lazy addition to keep the latest of interest
+                "HLT_.*3mu4.*",
+				"HLT_.*mu.*imedium.*",	# Trigger with looser isolation selection 
+				"HLT_.*mu.*iloose.*",
+				"HLT_.*bTau.*",		# Our tau triggers
+				"HLT_.*nscan.*"  ]	# Narrow scan triggers
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 BPHY7TriggerSkim = DerivationFramework__TriggerSkimmingTool( name = "BPHY7TriggerSkim",
                                                                      TriggerListOR = triggerList,
@@ -520,20 +609,6 @@ if isSimulation:
     from DerivationFrameworkTau.TauTruthCommon import *
 #also added the TruthTau containers to the output
 
-
-
-from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-
-# Truth matching
-DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
-ToolSvc += DFCommonTauTruthMatchingTool
-DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
-										OutputLevel          = ERROR,
-                                                                                TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")
-ToolSvc += DFCommonTauTruthMatchingWrapper
-
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -551,10 +626,10 @@ BPHY7AugmentationTools = [BPHY7DiMuon_SelectAndWrite, BPHY7DiMuon_Decorator, BPH
 Kernel1Tools = [BPHY7TriggerSkim]
 
 if isSimulation:
-    BPHY7ThinningTools.append(BPHY7TruthThinTool)
-    BPHY7ThinningTools.append(BPHY7TruthMetTool)
-#    Kernel1Tools = []		# do not select triggers for MC
     BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
+    if thinTruth:
+       BPHY7ThinningTools.append(BPHY7TruthThinTool)
+       BPHY7ThinningTools.append(BPHY7TruthMetTool)
 
 #The sequence object. Is in principle just a wrapper which allows to run two kernels in sequence
 BPHY7_Sequence = CfgMgr.AthSequencer("BPHY7_Sequence")
@@ -575,7 +650,7 @@ if onlyAugmentations:
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY7Kernel1",
-  # AugmentationTools = [BPHY7DiMuon_SelectAndWrite, BPHY7DiMuon_Decorator] ,
+   AugmentationTools = [BPHY7TriggerCountToMetadata] ,
    SkimmingTools     = Kernel1Tools
 
    )

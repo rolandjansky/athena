@@ -172,7 +172,7 @@ namespace InDet {
 
     std::vector< Double_t > m_vecPtCutoffsForSctHitsCut; //!< Above each of these pT levels a new SCT hits + dead sensors will be applied
     std::vector< Int_t > m_vecMinNSctHitsAbovePt; //!< the minimum SCT hits above each pt level
-
+    std::vector< Int_t > m_allowedTrackPattern; //!< if set, lists all allowed TrackPatternRecoInfo
     /// Object used to store the last decision
     mutable Root::TAccept m_accept; //!< Object that stores detailed selection information
 

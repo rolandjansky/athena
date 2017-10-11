@@ -123,6 +123,8 @@ def askAmi(query, property = 'totalEvents'):
           argument += ' -project=mc14_001'
         elif data.find('mc15') > -1:
           argument += ' -project=mc15_001'
+        elif data.find('mc16') > -1:
+           argument += ' -project=mc16_001'
 
   maxTries = 3
 
@@ -169,9 +171,9 @@ def askAmi(query, property = 'totalEvents'):
                if field.attributes['name'].value == 'logicalDatasetName':
                   retName = field.firstChild.nodeValue
 
-            if field.attributes['name'].value == property:
-               if field.firstChild != None:
-                  retNev = field.firstChild.nodeValue
+               if field.attributes['name'].value == property:
+                  if field.firstChild != None:
+                     retNev = field.firstChild.nodeValue
 
             #print retName, retNev
             final[retName] = retNev

@@ -3,7 +3,6 @@
 
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-
 from JetRec.JetRecConf import JetAlgorithm
 
 #===================================================================
@@ -160,7 +159,11 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
             print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
         else:
             print "   Create JetRecTool", VRJetRecToolName
-            jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions) 
+            #can only run trackjetdrlabeler with truth labels, so MC only
+            if globalflags.DataSource()!='data': 
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
+            else:
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions)
 
         from JetRec.JetRecConf import JetAlgorithm
         jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])
