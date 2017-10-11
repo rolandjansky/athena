@@ -317,6 +317,9 @@ triggers = [
     'HLT_xe100_pufit_L1XE50',
     'HLT_xe110_pufit_L1XE55',
     'HLT_xe110_pufit_L1XE50',
+    'HLT_e300_etcut',
+    'HLT_g300_etcut',
+    'HLT_mu60_0eta105_msonly',
     ]
 expression = ' || '.join(triggers)
 
