@@ -106,6 +106,12 @@ StatusCode DerivationFramework::CellReweight::initialize() {
 
 StatusCode DerivationFramework::CellReweight::addBranches() const
 {  
+
+  if (evtStore()->contains<CaloConstCellContainer>(m_newCellName.c_str())) {
+    ATH_MSG_WARNING("The cell container " << m_newCellName << " is already present in the event, no action will be taken. If this is not intended, modify your code to use a different container name.");
+    return StatusCode::SUCCESS;
+  }
+
   std::unique_ptr<CaloConstCellContainer> NewCells = CxxUtils::make_unique<CaloConstCellContainer>(static_cast<SG::OwnershipPolicy>(static_cast<int>(SG::OWN_ELEMENTS)));
   const CaloCellContainer* cellCont(0);
   if (evtStore()->retrieve(cellCont,m_cellContainerName).isFailure())
@@ -222,7 +228,7 @@ StatusCode DerivationFramework::CellReweight::addBranches() const
 	      ncelll2++;
 	    }		
 	  }
-	ATH_MSG_DEBUG ("Lr2 Reweighted cell number:" << ncelll2 );
+	  ATH_MSG_DEBUG ("Lr2 Reweighted cell number:" << ncelll2 );
 	  if( ncelll2 == 0 ) {
 	    egamma->auxdecor<int>(Form("%dx%dClusterExist", neta_Lr2, nphi_Lr2))= 0;
 	    delete egcCloneLr2;
@@ -444,18 +450,18 @@ StatusCode DerivationFramework::CellReweight::addBranches() const
       
     }
   }
-
-	auto first_cell = cellCont->begin();
-	auto last_cell = cellCont->end();
-	for (;first_cell != last_cell; ++first_cell) {	
-		CaloCell* tcell = (*first_cell)->clone();		
-		if(notInContainer[tcell->caloDDE()->calo_hash()]){
-			notInContainer[tcell->caloDDE()->calo_hash()] = false;
-			NewCells->push_back(tcell);
-        	}
-		else
-			delete tcell;
-		}
+  
+  auto first_cell = cellCont->begin();
+  auto last_cell = cellCont->end();
+  for (;first_cell != last_cell; ++first_cell) {	
+    CaloCell* tcell = (*first_cell)->clone();		
+    if(notInContainer[tcell->caloDDE()->calo_hash()]){
+      notInContainer[tcell->caloDDE()->calo_hash()] = false;
+      NewCells->push_back(tcell);
+    }
+    else
+      delete tcell;
+  }
   ATH_CHECK(m_tool2->process(NewCells.get()));
   ATH_CHECK(evtStore()->record( std::move(NewCells),m_newCellName.c_str()));
   return StatusCode::SUCCESS;
