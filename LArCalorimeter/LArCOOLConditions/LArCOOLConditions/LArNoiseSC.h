@@ -35,10 +35,9 @@ private:
   //static const float errorcode;
 
 };
-
-CLASS_DEF( LArNoiseSC ,234451881 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArNoiseSC,ILArNoise);
+CLASS_DEF( LArNoiseSC ,234451881 , 1 )
 CLASS_DEF( CondCont<LArNoiseSC> , 89903463 , 1 )
 
 #endif 

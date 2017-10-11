@@ -43,8 +43,8 @@ public:
   
 };
 
-CLASS_DEF( LArPedestalSC,17770864,1  )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArPedestalSC,ILArPedestal);
+CLASS_DEF( LArPedestalSC,17770864,1  )
 CLASS_DEF( CondCont<LArPedestalSC> , 219458938 , 1 )
 #endif 

@@ -92,10 +92,9 @@ class LArOFCFlat: public ILArOFC, public LArCondFlatBase {
   unsigned m_nSamples;
 };  
   
-
-CLASS_DEF( LArOFCFlat, 20294702, 1) 
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArOFCFlat,ILArOFC);
+CLASS_DEF( LArOFCFlat, 20294702, 1) 
 CLASS_DEF( CondCont<LArOFCFlat> , 117247562 , 1 )
  
 
