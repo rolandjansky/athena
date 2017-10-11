@@ -1,149 +1,451 @@
 #====================================================================
-# MUON2.py for Jpsi->mumu tag&probe
-# This requires the reductionConf flag MUON2 in Reco_tf.py   
+# MUON2.py
+# Bs>J/psiKK 
+# It requires the reductionConf flag MUON2 in Reco_tf.py   
 #====================================================================
 
-# Set up common services and job object.
+# Set up common services and job object. 
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkMuons.MuonsCommon import *
-# from DerivationFrameworkJetEtMiss.METCommon import *
-import AthenaCommon.SystemOfUnits as Units
-if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
-  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import IDTrackCaloDepositsDecoratorTool
-  DecoTool = IDTrackCaloDepositsDecoratorTool("IDTrackCaloDepositsDecoratorTool")
-  if hasattr(DecoTool, "TrackDepositInCaloTool"):
-    if not hasattr(ToolSvc,"TrkDepositInCaloTool"):
-        from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import TrackDepositInCaloTool
-        TrkDepositInCaloTool = TrackDepositInCaloTool("TrkDepositInCaloTool")
-        TrkDepositInCaloTool.CaloCellContainerName = "AODCellContainer"
-        ToolSvc += TrkDepositInCaloTool
-    DecoTool.TrackDepositInCaloTool = ToolSvc.TrkDepositInCaloTool
 
-    ToolSvc += DecoTool
+isSimulation = False
+if globalflags.DataSource()=='geant4':
+    isSimulation = True
+
+print isSimulation
+
 
 #====================================================================
-# AUGMENTATION TOOLS
+# AUGMENTATION TOOLS 
 #====================================================================
-# enum    MuonType {
-#   Combined, MuonStandAlone, SegmentTagged, CaloTagged,
-#   SiliconAssociatedForwardMuon
-# }
-# isolation cuts: check xAODPrimitives/xAODPrimitives/IsolationType.h for definitions
-orTriggers_run1 = ['EF_mu6_Trk_Jpsi_loose','EF_2mu4T_Jpsimumu_IDTrkNoCut','EF_mu4Tmu6_Jpsimumu_IDTrkNoCut']
-orTriggers_run2 = ['HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose']
-andTriggers_run1 = ['EF_mu24i_tight', 'EF_mu24i_tight_MuonEF', 'EF_mu24i_tight_MG', 'EF_mu24i_tight_l2muonSA']
-andTriggers_run2 = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
-orTriggers = orTriggers_run2
-andTriggers = andTriggers_run2
-# andTriggers = []
-brPrefix = 'MUON2'
-from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
-MUON2AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON2AugmentTool1",
-                                                           IDTrackCaloDepoDecoTool = ToolSvc.IDTrackCaloDepositsDecoratorTool,
-                                                           OrTrigs = orTriggers,
-                                                           AndTrigs = andTriggers,
-                                                           Mu1PtMin = 4*Units.GeV,
-                                                           Mu1AbsEtaMax = 2.5,
-                                                           Mu1Types = [0],
-                                                           Mu1Trigs = [],
-                                                           Mu1IsoCuts = {},
-                                                           Mu2PtMin = 2.5*Units.GeV,
-                                                           Mu2AbsEtaMax = 9999.,
-                                                           Mu2Types = [],
-                                                           Mu2Trigs = [],
-                                                           Mu2IsoCuts = {},
-                                                           UseTrackProbe = True, # bool
-                                                           TrackContainerKey = 'InDetTrackParticles', # str
-                                                           OppositeCharge = False,
-                                                           InvariantMassLow = 2.0*Units.GeV,
-                                                           InvariantMassHigh = 4.8*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
-                                                           BranchPrefix = brPrefix
-                                                           )
+## 1/ setup vertexing tools and services
+#include( "JpsiUpsilonTools/configureServices.py" )
 
-ToolSvc += MUON2AugmentTool1
-print MUON2AugmentTool1
+include("DerivationFrameworkBPhys/configureVertexing.py")
+MUON2_VertexTools = BPHYVertexTools("MUON2")
 
 
-from DerivationFrameworkMuons.TrackIsolationDecorator import MUON2IDTrackDecorator as MUON2AugmentTool2
-ToolSvc += MUON2AugmentTool2
-print MUON2AugmentTool2
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__AugOriginalCounts
+MUON2_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
+   name = "MUON2_AugOriginalCounts",
+   VertexContainer = "PrimaryVertices",
+   TrackContainer = "InDetTrackParticles" )
+ToolSvc += MUON2_AugOriginalCounts
 
-from DerivationFrameworkMuons.TrackIsolationDecorator import MUON2MSTrackDecorator as MUON2AugmentTool3
-ToolSvc += MUON2AugmentTool3
-print MUON2AugmentTool3
 
-#====================================================================
-# SKIMMING
-#====================================================================
-# expression = 'EventInfo.eventTypeBitmask==1||'+brPrefix+'DIMU_pass>0'
-expression = brPrefix+'DIMU_pass>0'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-MUON2SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool( name = "MUON2SkimmingTool1",
-                                                                         expression = expression)
-ToolSvc += MUON2SkimmingTool1
+#--------------------------------------------------------------------
+## 2/ setup JpsiFinder tool
+##    These are general tools independent of DerivationFramework that do the 
+##    actual vertex fitting and some pre-selection.
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
+MUON2JpsiFinder = Analysis__JpsiFinder(name                         = "MUON2JpsiFinder",
+                                        OutputLevel                 = INFO,
+                                        muAndMu                     = True,
+                                        muAndTrack                  = False,
+                                        TrackAndTrack               = False,
+                                        assumeDiMuons               = True, 
+                                        invMassUpper                = 3600.0,
+                                        invMassLower                = 2600.0,
+                                        Chi2Cut                     = 30.,
+                                        oppChargesOnly	            = True,
+                                        combOnly		            = True,
+                                        atLeastOneComb              = False,
+                                        useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
+                                        muonCollectionKey           = "Muons",
+                                        TrackParticleCollection     = "InDetTrackParticles",
+                                        V0VertexFitterTool          = MUON2_VertexTools.TrkV0Fitter,             # V0 vertex fitter
+                                        useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
+                                        TrkVertexFitterTool         = MUON2_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
+                                        TrackSelectorTool           = MUON2_VertexTools.InDetTrackSelectorTool,
+                                        ConversionFinderHelperTool  = MUON2_VertexTools.InDetConversionHelper,
+                                        VertexPointEstimator        = MUON2_VertexTools.VtxPointEstimator,
+                                        useMCPCuts                  = False)
+ToolSvc += MUON2JpsiFinder
+print      MUON2JpsiFinder
 
-#====================================================================
-# THINNING
-#====================================================================
-# keep tracks marked in augmentation
-thinning_expression = brPrefix+"DIMU_trkStatus>0"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-MUON2ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON2ThinningTool1",
-                                                                ThinningService         = "MUON2ThinningSvc",
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
-ToolSvc += MUON2ThinningTool1
+#--------------------------------------------------------------------
+## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
+##    These Augmentation tools add output vertex collection(s) into the StoreGate and add basic 
+##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
+##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
+##    Reco tool is the JpsiFinder mass window is wide enough.
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
+MUON2JpsiSelectAndWrite = DerivationFramework__Reco_mumu(name                 = "MUON2JpsiSelectAndWrite",
+                                                       JpsiFinder             = MUON2JpsiFinder,
+                                                       OutputVtxContainerName = "MUON2JpsiCandidates",
+                                                       PVContainerName        = "PrimaryVertices",
+                                                       RefPVContainerName     = "SHOULDNOTBEUSED",
+                                                       DoVertexType           =1)
+ToolSvc += MUON2JpsiSelectAndWrite
+print MUON2JpsiSelectAndWrite
 
-# keep tracks around muons
-thinning_expression2 = ""
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
+
+## a/ augment and select Jpsi->mumu candidates
+MUON2_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
+  name                  = "MUON2_Select_Jpsi2mumu",
+  HypothesisName        = "Jpsi",
+  InputVtxContainerName = "MUON2JpsiCandidates",
+  VtxMassHypo           = 3096.916,
+  MassMin               = 2000.0,
+  MassMax               = 3600.0,
+  Chi2Max               = 200,
+  DoVertexType =1)
+
+  
+ToolSvc += MUON2_Select_Jpsi2mumu
+print      MUON2_Select_Jpsi2mumu
+
+
+
+
+## 4/ setup a new vertexing tool (necessary due to use of mass constraint) 
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+BsKKVertexFit = Trk__TrkVKalVrtFitter(
+                                         name                = "BsKKVertexFit",
+                                         Extrapolator        = MUON2_VertexTools.InDetExtrapolator,
+                                         FirstMeasuredPoint  = True,
+                                         MakeExtendedVertex  = True)
+ToolSvc += BsKKVertexFit
+print      BsKKVertexFit
+
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+BplKplVertexFit = Trk__TrkVKalVrtFitter(
+                                         name                = "BplKplVertexFit",
+                                         Extrapolator        = MUON2_VertexTools.InDetExtrapolator,
+                                         FirstMeasuredPoint  = True,
+                                         MakeExtendedVertex  = True)
+ToolSvc += BplKplVertexFit
+print      BplKplVertexFit
+
+
+## 5/ setup the Jpsi+2 track finder
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
+MUON2BsJpsiKK = Analysis__JpsiPlus2Tracks(name = "MUON2BsJpsiKK",
+                                        OutputLevel = DEBUG,
+kaonkaonHypothesis			= True,
+pionpionHypothesis                      = False,
+kaonpionHypothesis                      = False,
+trkThresholdPt			        = 800.0,
+trkMaxEta				    = 3.0,
+BMassUpper				    = 5800.0,
+BMassLower				    = 5000.0,
+#DiTrackMassUpper = 1019.445 + 100.,
+#DiTrackMassLower = 1019.445 - 100.,
+Chi2Cut                     = 20.0,
+TrkQuadrupletMassUpper      = 6000.0,
+TrkQuadrupletMassLower      = 4800.0,
+JpsiContainerKey		    = "MUON2JpsiCandidates",
+TrackParticleCollection     = "InDetTrackParticles",
+MuonsUsedInJpsi			    = "Muons",
+ExcludeJpsiMuonsOnly        = True,
+ExcludeCrossJpsiTracks      = False,
+TrkVertexFitterTool		    = BsKKVertexFit,
+TrackSelectorTool		    = MUON2_VertexTools.InDetTrackSelectorTool,
+UseMassConstraint		    = True)
+
+ToolSvc += MUON2BsJpsiKK
+print      MUON2BsJpsiKK    
+
+## 5a/ setup the Jpsi+1 track finder
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus1Track
+MUON2BplJpsiKpl = Analysis__JpsiPlus1Track(name = "MUON2BplJpsiKpl",
+OutputLevel             = INFO,#DEBUG,
+pionHypothesis			= True,
+kaonHypothesis			= True,
+trkThresholdPt			= 750.0,
+trkMaxEta			= 3.0,
+BThresholdPt			= 4000.0,
+BMassUpper			= 7000.0,
+BMassLower			= 4500.0,
+Chi2Cut                         = 60.0,
+TrkTrippletMassUpper            = 8000,
+TrkTrippletMassLower            = 4000,
+JpsiContainerKey		= "MUON2JpsiCandidates",
+TrackParticleCollection         = "InDetTrackParticles",
+MuonsUsedInJpsi			= "Muons",
+TrkVertexFitterTool		= BplKplVertexFit,
+TrackSelectorTool		= MUON2_VertexTools.InDetTrackSelectorTool,
+UseMassConstraint		= True)
+        
+ToolSvc += MUON2BplJpsiKpl
+print      MUON2BplJpsiKpl    
+
+
+## 6/ setup the combined augmentation/skimming tool for the Bpm
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
+MUON2BsKKSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name                 = "MUON2BsKKSelectAndWrite",
+                                                           Jpsi2PlusTrackName       = MUON2BsJpsiKK,
+                                                           OutputVtxContainerName   = "BsJpsiKKCandidates",
+                                                           PVContainerName          = "PrimaryVertices",
+                                                           RefPVContainerName       = "MUON2RefittedPrimaryVertices",
+                                                           RefitPV                  = True,
+                                                           MaxPVrefit               = 10000, DoVertexType = 7)
+ToolSvc += MUON2BsKKSelectAndWrite 
+print      MUON2BsKKSelectAndWrite
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrk
+MUON2BplKplSelectAndWrite = DerivationFramework__Reco_dimuTrk(name				     	= "MUON2BplKplSelectAndWrite",
+															  Jpsi1PlusTrackName	    =  MUON2BplJpsiKpl,
+															  OutputVtxContainerName 	= "BpmJpsiKpmCandidates",
+                                                              PVContainerName           = "PrimaryVertices",
+                                                              RefPVContainerName        = "MUON2RefBplJpsiKplPrimaryVertices",                                                              
+                                                              RefitPV                   = True,
+                                                              MaxPVrefit                = 10000 )
+ToolSvc += MUON2BplKplSelectAndWrite
+print      MUON2BplKplSelectAndWrite
+
+
+## b/ augment and select Bs->JpsiKK candidates
+MUON2_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
+  name                       = "MUON2_Select_Bs2JpsiKK",
+  HypothesisName             = "Bs",
+  InputVtxContainerName      = "BsJpsiKKCandidates",
+  TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
+  VtxMassHypo                = 5366.3,
+  MassMin                    = 5000.0,
+  MassMax                    = 5800.0,
+  Chi2Max                    = 200)
+
+ToolSvc += MUON2_Select_Bs2JpsiKK
+print      MUON2_Select_Bs2JpsiKK
+
+MUON2_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
+  name                       = "MUON2_Select_Bpl2JpsiKpl",
+  HypothesisName             = "Bplus",
+  InputVtxContainerName      = "BpmJpsiKpmCandidates",
+  TrkMasses                  = [105.658, 105.658, 493.677],
+  VtxMassHypo                = 5279.26,
+  MassMin                    = 5279.26 - 500,
+  MassMax                    = 5279.26 + 500,
+  Chi2Max                    = MUON2BplJpsiKpl.Chi2Cut)
+
+ToolSvc += MUON2_Select_Bpl2JpsiKpl
+print      MUON2_Select_Bpl2JpsiKpl
+
+MUON2_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
+  name                       = "MUON2_Select_Bpl2JpsiPi",
+  HypothesisName             = "Bc",
+  InputVtxContainerName      = "BpmJpsiKpmCandidates",
+  TrkMasses                  = [105.658, 105.658, 139.570],
+  VtxMassHypo                = 6275.1,
+  MassMin                    = 6275.1 - 500,
+  MassMax                    = 6275.1 + 500,
+  Chi2Max                    = MUON2BplJpsiKpl.Chi2Cut)
+
+ToolSvc += MUON2_Select_Bpl2JpsiPi
+print      MUON2_Select_Bpl2JpsiPi
+
+#expression = "count(BpmJpsiKpmCandidates.passed_Bplus) > 0"
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+#MUON2_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectEvent",
+#                                                                expression = expression)
+#ToolSvc += MUON2_SelectEvent
+#print MUON2_SelectEvent
+
+
+#from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__SelectEvent
+
+if not isSimulation: #Only Skim Data
+   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+   MUON2_SelectBsJpsiKKEvent = DerivationFramework__xAODStringSkimmingTool(
+     name = "MUON2_SelectBsJpsiKKEvent",
+     expression = "count(BsJpsiKKCandidates.passed_Bs > 0) > 0")
+                                                    
+   ToolSvc += MUON2_SelectBsJpsiKKEvent
+   print MUON2_SelectBsJpsiKKEvent
+
+   MUON2_SelectBplJpsiKplEvent = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectBplJpsiKplEvent",
+                                                                    expression = "count(BpmJpsiKpmCandidates.passed_Bplus>0) > 0")
+   ToolSvc += MUON2_SelectBplJpsiKplEvent
+   print      MUON2_SelectBplJpsiKplEvent
+
+   MUON2_SelectBplJpsiKplEventBc = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectBplJpsiKplEventBc",
+                                                                    expression = "count(BpmJpsiKpmCandidates.passed_Bc>0) > 0")
+   ToolSvc += MUON2_SelectBplJpsiKplEventBc
+   print      MUON2_SelectBplJpsiKplEventBc
+   
+   #====================================================================
+   # Make event selection based on an OR of the input skimming tools
+   #====================================================================
+   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+   MUON2SkimmingOR = CfgMgr.DerivationFramework__FilterCombinationOR("MUON2SkimmingOR",
+                                                                     FilterList = [MUON2_SelectBsJpsiKKEvent, MUON2_SelectBplJpsiKplEvent, MUON2_SelectBplJpsiKplEventBc])
+   ToolSvc += MUON2SkimmingOR
+   print      MUON2SkimmingOR
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
+MUON2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
+  name                       = "MUON2_thinningTool_Tracks",
+  ThinningService            = "MUON2ThinningSvc",
+  TrackParticleContainerName = "InDetTrackParticles",
+  VertexContainerNames       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
+  PassFlags                  = ["passed_Bs", "passed_Bplus", "passed_Bc"] )
+
+ToolSvc += MUON2_thinningTool_Tracks
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
+MUON2_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
+  name                       = "MUON2_thinningTool_PV",
+  ThinningService            = "MUON2ThinningSvc",
+  CandidateCollections       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
+  KeepPVTracks  =True
+ )
+
+ToolSvc += MUON2_thinningTool_PV
+
+
+## b) thinning out tracks that are not attached to muons. The final thinning decision is based on the OR operation
+##    between decision from this and the previous tools.
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-MUON2ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON2ThinningTool2",
-                                                                    ThinningService         = "MUON2ThinningSvc",
-                                                                    MuonKey                 = "Muons",
-                                                                    SelectionString         = thinning_expression2,
-                                                                    ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
-                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += MUON2ThinningTool2
+MUON2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON2MuonTPThinningTool",
+                                                                         ThinningService         = "MUON2ThinningSvc",
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += MUON2MuonTPThinningTool
 
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-    DerivationFrameworkJob += MUONSeq
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+MUON2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(  
+    name                    = "MUON2ElectronTPThinningTool",
+    ThinningService         = "MUON2ThinningSvc",
+    SGKey                   = "Electrons",
+    GSFTrackParticlesKey = "GSFTrackParticles",        
+    InDetTrackParticlesKey  = "InDetTrackParticles",
+    SelectionString = "",
+    BestMatchOnly = True,
+    ConeSize = 0.3,
+    ApplyAnd = False)
 
-    #if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-    #    import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-    #    MUONSeq += Config.GetDecoratePromptLeptonAlgs()
+ToolSvc+=MUON2ElectronTPThinningTool
+#====================================================================
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
+#====================================================================
 
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
-#====================================================================
+thiningCollection = [] 
+print thiningCollection
+
+from DerivationFrameworkJetEtMiss.JetCommon import *
+bphy5Seq = CfgMgr.AthSequencer("MUON2Sequence")
+DerivationFrameworkJob += bphy5Seq
+
+# The name of the kernel (MUON2Kernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON2Kernel",
-                                                                       AugmentationTools = [MUON2AugmentTool1, MUON2AugmentTool2, MUON2AugmentTool3],
-                                                                       SkimmingTools = [MUON2SkimmingTool1],
-                                                                       ThinningTools = [MUON2ThinningTool1, MUON2ThinningTool2]
+bphy5Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON2Kernel",
+                                                                       AugmentationTools = [MUON2JpsiSelectAndWrite,  MUON2_Select_Jpsi2mumu,
+                                                                                            MUON2BsKKSelectAndWrite,  MUON2_Select_Bs2JpsiKK,
+                                                                                            MUON2BplKplSelectAndWrite,MUON2_Select_Bpl2JpsiKpl, MUON2_Select_Bpl2JpsiPi,
+                                                                                            MUON2_AugOriginalCounts],
+                                                                       #Only skim if not MC
+                                                                       SkimmingTools     = [MUON2SkimmingOR] if not isSimulation else [],
+                                                                       ThinningTools     = thiningCollection
+                                                                       
                                                                        )
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-streamName = derivationFlags.WriteDAOD_MUON2Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_MUON2Stream )
-MUON2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+streamName   = derivationFlags.WriteDAOD_MUON2Stream.StreamName
+fileName     = buildFileName( derivationFlags.WriteDAOD_MUON2Stream )
+MUON2Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 MUON2Stream.AcceptAlgs(["MUON2Kernel"])
+
 # Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON2ThinningSvc", outStreams=[evtStream] )
+
+MUON2ThinningSvc = createThinningSvc( svcName="MUON2ThinningSvc", outStreams=[evtStream] )
+svcMgr += MUON2ThinningSvc
+
 #====================================================================
-# Add the containers to the output stream - slimming done here
+# Slimming 
 #====================================================================
-from DerivationFrameworkMuons.StreamConfig import MuonsDxAODStreamConfigurer as conf
-conf.Config(MUON2Stream, 'MUON2')
+
+# Added by ASC
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+MUON2SlimmingHelper = SlimmingHelper("MUON2SlimmingHelper")
+AllVariables  = []
+StaticContent = []
+
+# Needed for trigger objects
+MUON2SlimmingHelper.IncludeMuonTriggerContent  = TRUE
+MUON2SlimmingHelper.IncludeBPhysTriggerContent = TRUE
+
+## primary vertices
+AllVariables  += ["PrimaryVertices"]
+StaticContent += ["xAOD::VertexContainer#MUON2RefittedPrimaryVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#MUON2RefittedPrimaryVerticesAux."]
+StaticContent += ["xAOD::VertexContainer#MUON2RefBplJpsiKplPrimaryVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#MUON2RefBplJpsiKplPrimaryVerticesAux."]
+
+
+
+## ID track particles
+AllVariables += ["InDetTrackParticles"]
+
+## combined / extrapolated muon track particles 
+## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
+##        are store in InDetTrackParticles collection)
+AllVariables += ["CombinedMuonTrackParticles"]
+AllVariables += ["ExtrapolatedMuonTrackParticles"]
+
+## muon container
+AllVariables += ["Muons"] 
+
+
+## Jpsi candidates 
+StaticContent += ["xAOD::VertexContainer#%s"        %                 MUON2JpsiSelectAndWrite.OutputVtxContainerName]
+## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % MUON2JpsiSelectAndWrite.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        %                 MUON2BsKKSelectAndWrite.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % MUON2BsKKSelectAndWrite.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        %                 MUON2BplKplSelectAndWrite.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % MUON2BplKplSelectAndWrite.OutputVtxContainerName]
+
+
+# Tagging information (in addition to that already requested by usual algorithms)
+#AllVariables += ["Electrons"] 
+AllVariables += ["GSFTrackParticles", "Electrons" , "Photons", "MuonSpectrometerTrackParticles" ]
+tagJetCollections = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4PV0TrackJets']
+
+AllVariables += [ "Kt4LCTopoOriginEventShape", "Kt4EMTopoOriginEventShape" ]
+SmartVar = [] #[ tagJetCollections ]
+
+
+
+
+for jet_collection in tagJetCollections:
+    AllVariables   += [jet_collection]
+    AllVariables   += ["BTagging_%s"       % (jet_collection[:-4]) ]
+    AllVariables   += ["BTagging_%sJFVtx"  % (jet_collection[:-4]) ]
+    AllVariables   += ["BTagging_%sSecVtx" % (jet_collection[:-4]) ]
+
+#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=bphy5Seq, outputGroup="MUON2")
+
+
+# Added by ASC
+# Truth information for MC only
+if isSimulation:
+    AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles", "egammaTruthParticles" ]
+    AllVariables += ["AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=bphy5Seq, outputGroup="MUON2")
+#    addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=bphy5Seq, outputGroup="MUON2")
+    tagJetCollections += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets"  ]
+
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+replaceAODReducedJets(tagJetCollections, bphy5Seq  ,  "MUON2" )
+
+
+AllVariables = list(set(AllVariables)) # remove duplicates
+
+MUON2SlimmingHelper.AllVariables = AllVariables
+MUON2SlimmingHelper.StaticContent = StaticContent
+MUON2SlimmingHelper.SmartCollections = SmartVar
+
+MUON2SlimmingHelper.AppendContentToStream(MUON2Stream)
+
+

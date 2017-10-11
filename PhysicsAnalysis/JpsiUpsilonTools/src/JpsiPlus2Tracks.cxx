@@ -81,6 +81,7 @@ namespace Analysis {
     m_jpsiMassLower(0.0),
     m_TrkParticleCollection("InDetTrackParticles"),
     m_MuonsUsedInJpsi("NONE"),
+    m_excludeJpsiMuonsOnly(false),
     m_excludeCrossJpsiTracks(true),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_trkSelector("InDet::TrackSelectorTool"),
@@ -112,6 +113,7 @@ namespace Analysis {
         declareProperty("JpsiMassLower",m_jpsiMassLower);
         declareProperty("TrackParticleCollection",m_TrkParticleCollection);
         declareProperty("MuonsUsedInJpsi",m_MuonsUsedInJpsi);
+        declareProperty("ExcludeJpsiMuonsOnly",m_excludeJpsiMuonsOnly);
         declareProperty("ExcludeCrossJpsiTracks",m_excludeCrossJpsiTracks); //Essential when trying to make vertices out of multiple muons (set to false)
         declareProperty("TrkVertexFitterTool",m_iVertexFitter);
         declareProperty("TrackSelectorTool",m_trkSelector);
@@ -203,7 +205,7 @@ namespace Analysis {
             const xAOD::TrackParticle* tp (*trkPBItr);
             if ( tp->pt()<m_trkThresholdPt ) continue;
             if ( fabs(tp->eta())>m_trkMaxEta ) continue;
-            if (importedMuonCollection!=NULL) {
+            if (importedMuonCollection!=NULL && !m_excludeJpsiMuonsOnly) {
                 if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
             }
             if ( m_trkSelector->decision(*tp, NULL) ) theIDTracksAfterSelection.push_back(tp);
@@ -268,10 +270,27 @@ namespace Analysis {
                 jpsiTracks[1] = jpsiTP2;
             }
 
+            std::vector<const xAOD::TrackParticle*> ThisjpsiTracks;
+            ThisjpsiTracks.push_back(jpsiTP1);
+            ThisjpsiTracks.push_back(jpsiTP2);
+            ATH_MSG_DEBUG("Number of tracks associated with jpsi: " << ThisjpsiTracks.size());
 
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
                 if (JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+
+                if (m_excludeJpsiMuonsOnly) {
+                  bool linkedMuonTrk1 = false;
+                  for(auto muon : *importedMuonCollection){
+                    if(muon->inDetTrackParticleLink().cachedElement() == *trkItr1) linkedMuonTrk1 = true;
+                  }
+                  if (linkedMuonTrk1) ATH_MSG_DEBUG("This id track 1 is muon track!");
+   
+                  if (JpsiUpsilonCommon::isContainedIn(*trkItr1,ThisjpsiTracks)) {
+                    if (linkedMuonTrk1) ATH_MSG_DEBUG("ID track 1 removed: id track is selected to build Jpsi!");
+                    continue; // remove tracks which were used to build J/psi
+                  }
+                }
                 
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
@@ -280,6 +299,18 @@ namespace Analysis {
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
                     if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+
+                    if (m_excludeJpsiMuonsOnly) {
+                      bool linkedMuonTrk2 = false;
+                      for(auto muon : *importedMuonCollection){
+                        if(muon->inDetTrackParticleLink().cachedElement() == *trkItr2) linkedMuonTrk2 = true;
+                      }
+                      if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
+                      if (JpsiUpsilonCommon::isContainedIn(*trkItr2,ThisjpsiTracks)) {
+                        if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
+                        continue; // remove tracks which were used to build J/psi
+                      }
+                    }
                     
                     // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                     if(m_trkDeltaZ>0 &&

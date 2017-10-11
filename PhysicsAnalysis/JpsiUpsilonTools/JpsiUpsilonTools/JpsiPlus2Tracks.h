@@ -103,6 +103,7 @@ namespace Analysis {
         double m_finalDiTrackMassLower;
         double m_finalDiTrackPt;          // pT of the hadronic track after fit
         double m_trkDeltaZ;               // DeltaZ between the JPsi vertex and hadronic tracks Z0
+        bool m_excludeJpsiMuonsOnly;
         // (to reduce the pileup contribution before vertexing)
         
     };
