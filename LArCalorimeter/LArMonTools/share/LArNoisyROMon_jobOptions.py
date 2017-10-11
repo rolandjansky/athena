@@ -20,6 +20,8 @@ theLArNoisyROMon = LArNoisyROMon(name="LArNoisyROMon")
 theLArNoisyROMon.IsOnline = OnlineMode
 theLArNoisyROMon.ProcessNEvents= EventBlockSize
 theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
+theLArNoisyROMon.MNBLooseFEBDefStr =  '(>'+str(larNoisyROFlags.MNBLooseCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
+theLArNoisyROMon.MNBTightFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTightCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
 theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() #LArNoisyROFEBCutHelper()
 
 from RecExConfig.RecFlags import rec

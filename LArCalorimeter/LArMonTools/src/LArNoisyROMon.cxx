@@ -27,7 +27,9 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
   m_NoiseTimeTree(NULL), m_CandidateMNBTree(NULL), m_eventCounter(0), m_LArOnlineIDHelper(NULL), m_strHelper(NULL), m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"), m_EF_NoiseBurst_Triggers(), m_L1_NoiseBurst_Triggers()
 {
   declareProperty("IsOnline",       m_IsOnline=false);
-  declareProperty("NoisyFEBDefStr", m_NoisyFEBDefStr="");
+  declareProperty("NoisyFEBDefStr", m_NoisyFEBDefStr="(unknown)");
+  declareProperty("MNBTightFEBDefStr", m_MNBTightFEBDefStr="(unknown)");
+  declareProperty("MNBLooseFEBDefStr", m_MNBLooseFEBDefStr="(unknown)");
   declareProperty("BadFEBCut",  m_BadFEBCut=999999);
   declareProperty("doTrigger",       m_doTrigger=true);
   declareProperty("EFNoiseBurstTriggers",m_EF_NoiseBurst_Triggers);
@@ -282,12 +284,10 @@ StatusCode LArNoisyROMon::fillHistograms()
 
   // Loop on all FEBs noisy in MNB-tight definition
   // And fill the 2D maps of fraction of fraction of noisy events
-  // Only for events found MNB-Tight noisy first (i.e at least one FEB defined as suspicious)
-  unsigned int NbMNBTightFEB = 0;
+  // Fill two histograms with veto cut and all events
   for (size_t i = 0; i<mnbtightFEB.size(); i++)
   {
     //std::cout << "MNBTight FEB " <<  noisyFEB[i].get_compact() << std::endl;
-    NbMNBTightFEB++;
     const HWIdentifier& febid = mnbtightFEB[i];
     HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int FT = m_LArOnlineIDHelper->feedthrough(id);
@@ -298,11 +298,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+	  m_BarrelC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMBCMask) != 0) 
             m_BarrelC.h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+	  m_BarrelC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMBCMask) != 0) 
             m_BarrelC.h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -311,11 +313,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+	  m_BarrelA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMBAMask) != 0)
             m_BarrelA.h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+	  m_BarrelA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMBAMask) != 0)
             m_BarrelA.h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -327,11 +331,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+	  m_EMECC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMECCMask) != 0)
             m_EMECC.h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+	  m_EMECC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMECCMask) != 0)
             m_EMECC.h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -340,11 +346,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         { 
+	  m_EMECA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMECAMask) != 0)
             m_EMECA.h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+	  m_EMECA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBTightFlaggedPartitions() & LArNoisyROSummary::EMECAMask) != 0)
             m_EMECA.h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -354,12 +362,10 @@ StatusCode LArNoisyROMon::fillHistograms()
 
   // Loop on all FEBs noisy in MNB-loose definition
   // And fill the 2D maps of fraction of fraction of noisy events
-  // Only for events found MNB-Loose noisy first (i.e at least one FEB defined as suspicious)
-  unsigned int NbMNBLooseFEB = 0;
+  // Fill two histograms with veto cut and all events
   for (size_t i = 0; i<mnblooseFEB.size(); i++)
   {
     //std::cout << "MNBLoose FEB " <<  noisyFEB[i].get_compact() << std::endl;
-    NbMNBLooseFEB++;
     const HWIdentifier& febid = mnblooseFEB[i];
     HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int FT = m_LArOnlineIDHelper->feedthrough(id);
@@ -370,11 +376,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+	  m_BarrelC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMBCMask) != 0) 
             m_BarrelC.h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+          m_BarrelC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);	  
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMBCMask) != 0) 
             m_BarrelC.h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -383,11 +391,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+          m_BarrelA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMBAMask) != 0)
             m_BarrelA.h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+          m_BarrelA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMBAMask) != 0)
             m_BarrelA.h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -399,11 +409,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+          m_EMECC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMECCMask) != 0)
             m_EMECC.h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+          m_EMECC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMECCMask) != 0)
             m_EMECC.h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -412,11 +424,13 @@ StatusCode LArNoisyROMon::fillHistograms()
       {
         if (m_IsOnline)
         {
+          m_EMECA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMECAMask) != 0)
             m_EMECA.h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
         else
         {
+          m_EMECA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
           if((noisyRO->MNBLooseFlaggedPartitions() & LArNoisyROSummary::EMECAMask) != 0)
             m_EMECA.h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
         }
@@ -424,97 +438,98 @@ StatusCode LArNoisyROMon::fillHistograms()
     }
   }
 
-  // Loop on all FEBs noisy in MNB-tight definition
-  // And fill the 2D maps of fraction of fraction of noisy events
-  // Done for all events/FEBs (i.e no filtering at all on suspicious FEBs)
-  for (size_t i = 0; i<mnbtightFEB.size(); i++)
-  {
-    //std::cout << "CandidateMNBTight FEB " <<  noisyFEB[i].get_compact() << std::endl;
-    const HWIdentifier& febid = mnbtightFEB[i];
-    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    int FT = m_LArOnlineIDHelper->feedthrough(id);
-    int slot = m_LArOnlineIDHelper->slot(id);
-    if ( m_LArOnlineIDHelper->isEMBchannel(id) )
-    {
-      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
-      {
-        if (m_IsOnline)
-          m_BarrelC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_BarrelC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-      else
-      {
-        if (m_IsOnline)
-          m_BarrelA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_BarrelA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-    }
-    if ( m_LArOnlineIDHelper->isEMECchannel(id) )
-    {
-      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
-      {
-        if (m_IsOnline)
-          m_EMECC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_EMECC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-      else
-      {
-        if (m_IsOnline)
-          m_EMECA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_EMECA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-    }
-  }
-
-  // Loop on all FEBs noisy in MNB-loose definition
-  // And fill the 2D maps of fraction of fraction of noisy events
-  // Done for all events/FEBs (i.e no filtering at all on suspicious FEBs)
-  for (size_t i = 0; i<mnblooseFEB.size(); i++)
-  {
-    //std::cout << "CandidateMNBLoose FEB " <<  noisyFEB[i].get_compact() << std::endl;
-    const HWIdentifier& febid = mnblooseFEB[i];
-    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    int FT = m_LArOnlineIDHelper->feedthrough(id);
-    int slot = m_LArOnlineIDHelper->slot(id);
-    if ( m_LArOnlineIDHelper->isEMBchannel(id) )
-    {
-      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
-      {
-        if (m_IsOnline)
-          m_BarrelC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_BarrelC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-      else
-      {
-        if (m_IsOnline)
-          m_BarrelA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_BarrelA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-    }
-    if ( m_LArOnlineIDHelper->isEMECchannel(id) )
-    {
-      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
-      {
-        if (m_IsOnline)
-          m_EMECC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_EMECC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-      else
-      {
-        if (m_IsOnline)
-          m_EMECA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-        else
-          m_EMECA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-      }
-    }
-  }
+  // Line below removed as HIST now filled above
+//  // Loop on all FEBs noisy in MNB-tight definition
+//  // And fill the 2D maps of fraction of fraction of noisy events
+//  // Done for all events/FEBs (i.e no filtering at all on suspicious FEBs)
+//  for (size_t i = 0; i<mnbtightFEB.size(); i++)
+//  {
+//    //std::cout << "CandidateMNBTight FEB " <<  noisyFEB[i].get_compact() << std::endl;
+//    const HWIdentifier& febid = mnbtightFEB[i];
+//    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+//    int FT = m_LArOnlineIDHelper->feedthrough(id);
+//    int slot = m_LArOnlineIDHelper->slot(id);
+//    if ( m_LArOnlineIDHelper->isEMBchannel(id) )
+//    {
+//      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
+//      {
+//        if (m_IsOnline)
+//          m_BarrelC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_BarrelC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//      else
+//      {
+//        if (m_IsOnline)
+//          m_BarrelA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_BarrelA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//    }
+//    if ( m_LArOnlineIDHelper->isEMECchannel(id) )
+//    {
+//      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
+//      {
+//        if (m_IsOnline)
+//          m_EMECC.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_EMECC.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//      else
+//      {
+//        if (m_IsOnline)
+//          m_EMECA.h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_EMECA.h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//    }
+//  }
+//
+//  // Loop on all FEBs noisy in MNB-loose definition
+//  // And fill the 2D maps of fraction of fraction of noisy events
+//  // Done for all events/FEBs (i.e no filtering at all on suspicious FEBs)
+//  for (size_t i = 0; i<mnblooseFEB.size(); i++)
+//  {
+//    //std::cout << "CandidateMNBLoose FEB " <<  noisyFEB[i].get_compact() << std::endl;
+//    const HWIdentifier& febid = mnblooseFEB[i];
+//    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+//    int FT = m_LArOnlineIDHelper->feedthrough(id);
+//    int slot = m_LArOnlineIDHelper->slot(id);
+//    if ( m_LArOnlineIDHelper->isEMBchannel(id) )
+//    {
+//      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
+//      {
+//        if (m_IsOnline)
+//          m_BarrelC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_BarrelC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//      else
+//      {
+//        if (m_IsOnline)
+//          m_BarrelA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_BarrelA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//    }
+//    if ( m_LArOnlineIDHelper->isEMECchannel(id) )
+//    {
+//      if ( m_LArOnlineIDHelper->pos_neg(id) == 0 )
+//      {
+//        if (m_IsOnline)
+//          m_EMECC.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_EMECC.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//      else
+//      {
+//        if (m_IsOnline)
+//          m_EMECA.h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//        else
+//          m_EMECA.h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
+//      }
+//    }
+//  }
 
   // End of 2D map of FEB found as noisy (in any definition : Std, MNB-Tight or MNB-Loose)
   // Now fill 1D histograms of fraction of events found as noisy vetoed or not
@@ -1041,7 +1056,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
    
   hName  = "MNBTightFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB-Tight (>17 chan with Q>4000) - "+name+" (only vetoed events)";
+  hTitle = "Yield of events with FEB MNB-Tight " + m_MNBTightFEBDefStr+ " - "+name+" (only vetoed events)";
   partition.h_MNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_MNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_MNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1055,7 +1070,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
       
   hName  = "MNBLooseFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB-Loose (>5 chan with Q>4000) - "+name+" (only vetoed events)";
+  hTitle = "Yield of events with FEB MNB-Loose " + m_MNBLooseFEBDefStr + " - "+name+" (only vetoed events)";
   partition.h_MNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_MNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_MNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1069,7 +1084,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
 
   hName  = "CandidateMNBTightFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB-Tight (>17 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Tight "+ m_MNBTightFEBDefStr+ " - "+name;
   partition.h_CandidateMNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_CandidateMNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_CandidateMNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
@@ -1083,7 +1098,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
       
   hName  = "CandidateMNBLooseFEBFracPerEvt_"+name;
-  hTitle = "Yield of events with FEB MNB-Loose (>5 chan with Q>4000) - "+name;
+  hTitle = "Yield of events with FEB MNB-Loose " + m_MNBLooseFEBDefStr + " - "+name;
   partition.h_CandidateMNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   partition.h_CandidateMNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
   partition.h_CandidateMNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");

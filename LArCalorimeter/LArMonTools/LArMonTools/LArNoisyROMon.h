@@ -76,12 +76,12 @@ private:
     TH1F_LW* h_SaturatedNoisyEventFrac=nullptr;
     TH1F_LW* h_MNBTightEventFrac=nullptr;
     TH1F_LW* h_MNBLooseEventFrac=nullptr;
-    TH1F_LW* h_NoisyWEventFrac=nullptr;
+    //    TH1F_LW* h_NoisyWEventFrac=nullptr;
     TH1F_LW* h_NoisyEventTimeVetoFrac=nullptr;
     TH1F_LW* h_SaturatedNoisyEventTimeVetoFrac=nullptr;
     TH1F_LW* h_MNBTightEventTimeVetoFrac=nullptr;
     TH1F_LW* h_MNBLooseEventTimeVetoFrac=nullptr;
-    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
+    //    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
     TH1I_LW* h_NoisyEventTrigger=nullptr;
     TH1I_LW* h_NoisyEventTriggerL1=nullptr;
     
@@ -97,12 +97,12 @@ private:
     TH1I_LW* h_SaturatedNoisyEvent=nullptr;
     TH1I_LW* h_MNBTightEvent=nullptr;
     TH1I_LW* h_MNBLooseEvent=nullptr;
-    TH1I_LW* h_NoisyWEvent=nullptr;
+    //    TH1I_LW* h_NoisyWEvent=nullptr;
     TH1I_LW* h_NoisyEventTimeVeto=nullptr;
     TH1I_LW* h_SaturatedNoisyEventTimeVeto=nullptr;
     TH1I_LW* h_MNBTightEventTimeVeto=nullptr;
     TH1I_LW* h_MNBLooseEventTimeVeto=nullptr;
-    TH1I_LW* h_NoisyWEventTimeVeto=nullptr;
+    //TH1I_LW* h_NoisyWEventTimeVeto=nullptr;
   };
 
   TH1I_LW* m_h_NoisyFEB=nullptr;
@@ -131,6 +131,8 @@ private:
 
   
   std::string m_NoisyFEBDefStr;
+  std::string m_MNBTightFEBDefStr;
+  std::string m_MNBLooseFEBDefStr;
   unsigned int m_BadFEBCut;
 
   std::vector<std::string> m_EF_NoiseBurst_Triggers;
