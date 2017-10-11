@@ -34,10 +34,10 @@ public:
 		    const IInterface* parent );
 
   // Standard Destructor
-  virtual ~SCT_SLHC_DetectorTool();
+  virtual ~SCT_SLHC_DetectorTool() override final;
 
-  virtual StatusCode create( StoreGateSvc* detStore );
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode create() override final;
+  virtual StatusCode clear() override final;
 
 private:
   std::string m_detectorName;

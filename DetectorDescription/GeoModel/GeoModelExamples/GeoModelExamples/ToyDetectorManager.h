@@ -2,29 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//## begin module.CLHEP::cm preserve=no
-//	  %X% %Q% %Z% %W%
-//## end module.CLHEP::cm
-
-//## begin module.cp preserve=no
-//	Detector Description classes
-//	Joe Boudreau
-//	University of Pittsburgh
-//
-//	Summer 2002
-//## end module.cp
-
-//## Module: ToyDetectorManager; Pseudo Package specification
-//## Subsystem: GeoModelExamples
-//## Source file: L:\GEO\GeoModelExamples\ToyDetectorManager.h
-
-
 #ifndef ToyDetectorManager_h
 #define ToyDetectorManager_h 1
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
-#include "GeoModelExamples/CentralScrutinizer.h"
-#include "GeoModelExamples/ForwardScrutinizer.h"
+
+class CentralScrutinizer;
+class ForwardScrutinizer;
 
 class ToyDetectorManager : public GeoVDetectorManager  {
 

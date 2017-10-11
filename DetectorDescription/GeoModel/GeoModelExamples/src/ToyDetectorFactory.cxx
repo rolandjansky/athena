@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeoModelExamples/ToyDetectorFactory.h"
-#include "GeoModelExamples/CentralScrutinizer.h"  
+#include "ToyDetectorFactory.h"
+#include "CentralScrutinizer.h"  
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoBox.h"  

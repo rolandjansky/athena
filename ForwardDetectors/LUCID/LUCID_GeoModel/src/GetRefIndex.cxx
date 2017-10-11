@@ -10,8 +10,8 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "LUCID_GeoModel/LUCID_DetectorFactory.h"
-#include "LUCID_GeoModel/GetRefIndex.h"
+#include "LUCID_DetectorFactory.h"
+#include "GetRefIndex.h"
 
 double GetRefIndexGas(double lambda, double pressure, double temperature) {
     

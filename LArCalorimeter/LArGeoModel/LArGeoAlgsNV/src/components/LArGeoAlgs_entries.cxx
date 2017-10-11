@@ -1,8 +1,3 @@
-#include "LArGeoAlgsNV/LArDetectorToolNV.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../LArDetectorToolNV.h"
 
 DECLARE_TOOL_FACTORY(LArDetectorToolNV)
-
-DECLARE_FACTORY_ENTRIES(LArGeoAlgsNV) {
-    DECLARE_ALGTOOL  ( LArDetectorToolNV )
-}
