@@ -5,7 +5,7 @@
 /**
  * @class LArNoisyROMon
  * @author Laurent Duflot <duflot at lal.in2p3.fr>
- *
+ * 2017 : major upgrade/rewriting by B.Trocme (LPSC Grenoble)
  */
 
 #ifndef LArNoisyROMon_h
@@ -15,15 +15,18 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TTree.h"
 
+#include "Identifier/HWIdentifier.h"
+#include "LArIdentifier/LArOnlineID.h"
 
 #include <string>
+#include <array>
 
 class TH1I_LW;
 class TH1F_LW;
 class TH2F_LW;
 class LWHist2D;
 class LWHist1D;
-class LArOnlineID;
+//class LArOnlineID;
 class LArOnlineIDStrHelper;
 
 class LArNoisyROMon: public ManagedMonitorToolBase
@@ -41,6 +44,8 @@ public:
   StatusCode fillHistograms();
   StatusCode checkHists(bool fromFinalize);
   StatusCode procHistograms();
+
+  size_t partitionNumber(const HWIdentifier);
   
 private:
   
@@ -123,7 +128,9 @@ private:
   bool m_doTrigger;
   unsigned int m_eventCounter;
 
-  partitionHistos m_BarrelA, m_BarrelC, m_EMECA, m_EMECC;
+  //  partitionHistos m_BarrelA, m_BarrelC, m_EMECA, m_EMECC;
+  std::vector<partitionHistos> m_partHistos;
+
 
   const LArOnlineID* m_LArOnlineIDHelper;
   LArOnlineIDStrHelper* m_strHelper;
@@ -142,5 +149,23 @@ private:
   std::string m_inputKey;
 };
 
+inline size_t LArNoisyROMon::partitionNumber(const HWIdentifier hwid) {
+
+  int pn=m_LArOnlineIDHelper->pos_neg(hwid);
+  if (m_LArOnlineIDHelper->isEMECchannel(hwid)) {
+    if (pn) 
+      return 0; //positive EMECA side
+    else
+      return 3; //negative EMECC side
+  }
+  if (m_LArOnlineIDHelper->isEMBchannel(hwid)) {
+    if (pn) 
+      return 1; //positive EMBA side
+    else
+      return 2; //negative EMBC side
+  }
+
+  return 4;//Anything else
+}
 
 #endif
