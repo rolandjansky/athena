@@ -23,6 +23,7 @@
 
 class TH1I_LW;
 class TH1F_LW;
+class TH2I_LW;
 class TH2F_LW;
 class LWHist2D;
 class LWHist1D;
@@ -87,6 +88,7 @@ private:
     TH1F_LW* h_MNBTightEventTimeVetoFrac=nullptr;
     TH1F_LW* h_MNBLooseEventTimeVetoFrac=nullptr;
     //    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
+    TH2I_LW* h_MNBKnownFEB=nullptr;
     TH1I_LW* h_NoisyEventTrigger=nullptr;
     TH1I_LW* h_NoisyEventTriggerL1=nullptr;
     
@@ -140,6 +142,7 @@ private:
   std::string m_NoisyFEBDefStr;
   std::string m_MNBTightFEBDefStr;
   std::string m_MNBLooseFEBDefStr;
+  std::vector<unsigned int> m_knownMNBFEBs;
   unsigned int m_BadFEBCut;
 
   std::vector<std::string> m_EF_NoiseBurst_Triggers;

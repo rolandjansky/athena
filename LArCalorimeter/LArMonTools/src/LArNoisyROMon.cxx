@@ -12,6 +12,7 @@
 
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2I_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "TBranch.h"
 
@@ -31,6 +32,7 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
   declareProperty("MNBTightFEBDefStr", m_MNBTightFEBDefStr="(unknown)");
   declareProperty("MNBLooseFEBDefStr", m_MNBLooseFEBDefStr="(unknown)");
   declareProperty("BadFEBCut",  m_BadFEBCut=999999);
+  declareProperty("KnownMNBFEBs",   m_knownMNBFEBs={});
   declareProperty("doTrigger",       m_doTrigger=true);
   declareProperty("EFNoiseBurstTriggers",m_EF_NoiseBurst_Triggers);
   declareProperty("L1NoiseBurstTriggers",m_L1_NoiseBurst_Triggers);
@@ -111,13 +113,25 @@ StatusCode LArNoisyROMon::bookHistograms()
     bookPartitionHistos(m_partHistos[3],"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
 
     
-    // Book general histograms
+    // Book general histograms - Number of RNB noisy FEBs
     hTitle = "Number of noisy FEB "+m_NoisyFEBDefStr+ " per event";
     m_h_NoisyFEB = TH1I_LW::create("NoisyFEB", hTitle.c_str(), 50,0.,50.);
     m_h_NoisyFEB->GetXaxis()->SetTitle("# of noisy FEB");
     overall.regHist(m_h_NoisyFEB).ignore();
+    
+    m_h_LBN = TH1I_LW::create("LBN", "Event counter per LB", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);    
 
-    m_h_LBN = TH1I_LW::create("LBN", "LBN ", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);    
+    // Fill Suspicious MNB FEBs
+    for (uint i=0;i<m_knownMNBFEBs.size();i++){
+      const HWIdentifier& febid = HWIdentifier(m_knownMNBFEBs[i]);
+      HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+      int FT = m_LArOnlineIDHelper->feedthrough(id);
+      int slot = m_LArOnlineIDHelper->slot(id);
+      int partition = partitionNumber(febid);
+      m_partHistos[partition].h_MNBKnownFEB->Fill(slot,FT);
+    }
+
+
     }
 
     m_NoiseTimeTree = new TTree("LArNoise","LAr noisy events");
@@ -521,6 +535,14 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   }
 
   // 2D FEB maps (x : slot / y : FT) with z: fraction of events for which the FEB is noisy or mini-noisy.
+  hName  = "MNBKnownFEB_"+name;
+  hTitle = "Suspicious MNB FEBs - "+name;
+  partition.h_MNBKnownFEB = TH2I_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_MNBKnownFEB->GetXaxis()->SetTitle("Slot");
+  partition.h_MNBKnownFEB->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_MNBKnownFEB).ignore();
+  
+
   hName  = "NoisyFEBFracPerEvt_"+name;
   hTitle = "Yield of events with FEB noisy "+m_NoisyFEBDefStr+" - "+name;
   partition.h_NoisyFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
