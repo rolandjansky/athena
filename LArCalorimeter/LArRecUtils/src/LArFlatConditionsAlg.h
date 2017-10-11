@@ -40,8 +40,8 @@ class LArFlatConditionsAlg: public AthAlgorithm {
 //#include "LArCOOLConditions/LArHVScaleCorrFlat.h"
 //typedef LArFlatConditionsAlg<LArHVScaleCorrFlat> LArFlatCondAlgHVScale;
 
-//#include "LArCOOLConditions/LArPedestalFlat.h"
-//typedef LArFlatConditionsAlg<LArPedestalFlat> LArFlatCondAlgPedestal;
+#include "LArCOOLConditions/LArPedestalFlat.h"
+typedef LArFlatConditionsAlg<LArPedestalFlat> LArCondAlgPedestalFlat;
 
 
 #include "LArCOOLConditions/LArAutoCorrSC.h"
