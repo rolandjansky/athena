@@ -40,3 +40,4 @@ WATCH_LIST['PhysicsAnalysis/SUSYPhys'] = set(['zmarshal','szambito', 'ykeisuke']
 WATCH_LIST['MuonMomentumCorrections'] =set(['gabarone'])
 WATCH_LIST['DerivationFrameworkDataPrep'] = set(['zmarshal'])
 WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins'])
+WATCH_LIST['PyJobTransforms'] = set(['mavogel'])
