@@ -57,7 +57,7 @@ echo "art-result: $?"
 echo "################################"
 echo "Test AthenaTrigESD_HLTMonitoring"
 export HLTMON_LOG=${JOB_LOG%%.*}.HLTMonitoring.${JOB_LOG#*.}
-athena.py -c 'fileList=["ESD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_HLTMonitoring.py | tee ${HLTMON_LOG}
+athena.py -c 'fileList=["ESD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigESD_HLTMonitoring.py | tee ${HLTMON_LOG}
 echo "art-result: $?"
 echo "Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${HLTMON_LOG}
@@ -74,10 +74,7 @@ fi
 echo "#######################################"
 echo "Test AthenaTrigAODtoAOD_TrigNavSlimming"
 export SLIM_LOG=${JOB_LOG%%.*}.TrigNavSlimming.${JOB_LOG#*.}
-# I should be the last test because of this
-mv AOD.pool.root AODSlimmingInput.pool.root
-athena.py -c 'TestType="RSegamma";useCONDBR2=False;jp.AthenaCommonFlags.PoolAODInput=["AODSlimmingInput.pool.root"]' \
--b TrigAnalysisTest/testAthenaTrigAODtoAOD_TrigNavSlimming.py | tee ${SLIM_LOG}
+athena.py -c 'TestType="RSegamma";useCONDBR2=False;' -b TrigAnalysisTest/testAthenaTrigAODtoAOD_TrigNavSlimming.py | tee ${SLIM_LOG}
 echo "art-result: $?"
 echo "Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG}
@@ -92,5 +89,3 @@ if [ -f AOD.pool.root ]; then
 else 
   echo "No AOD.pool.root to check"
 fi
-
-echo "Finished TrigAnalysisTest post processing"
