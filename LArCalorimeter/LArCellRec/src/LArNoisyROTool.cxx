@@ -183,16 +183,14 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     m_SaturatedCellTightCutEvents++;
   }
 
-//  // Noisy preamp removed as no used currently
-//  // Kept here just in case we may want to revive it
-//  // are there any bad FEB or preamp ?
-//  for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
-//    ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
-//    if ( it->second.badChannels() > m_BadChanPerFEB ) {
-//      noisyRO->add_noisy_feb(HWIdentifier(it->first));
-//      if (m_printSummary) m_badFEB_counters[it->first]++;
-//      //BadFEBCount++;
-//    }
+  // are there any bad FEB or preamp ?
+  for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
+    ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
+    if ( it->second.badChannels() > m_BadChanPerFEB ) {
+      noisyRO->add_noisy_feb(HWIdentifier(it->first));
+      if (m_printSummary) m_badFEB_counters[it->first]++;
+      //BadFEBCount++;
+    }
 
     // Tight MNBs
     if ( it->second.badChannels() > m_MNBTightCut ){
@@ -204,6 +202,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
        noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
     }
  
+//  // Noisy preamp removed as no used currently
+//  // Kept here just in case we may want to revive it
 //    const unsigned int* PAcounters = it->second.PAcounters();
 //    for ( size_t i = 0; i < 32; i++ ) {
 //      if ( PAcounters[i] > m_BadChanPerPA ) {
