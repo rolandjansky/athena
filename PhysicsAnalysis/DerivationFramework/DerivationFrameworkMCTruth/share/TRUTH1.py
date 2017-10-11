@@ -49,8 +49,9 @@ TRUTH1SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
                                            'TrimmedAntiKt10TruthJets':'xAOD::JetContainer','TrimmedAntiKt10TruthJetsAux':'xAOD::JetAuxContainer'
                                           }
 TRUTH1SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
-TRUTH1SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
+TRUTH1SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal",
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta"]
+
 TRUTH1SlimmingHelper.AppendContentToStream(TRUTH1Stream)
 # Add the event info, in its entirety
 TRUTH1Stream.AddItem("xAOD::EventInfo#McEventInfo")

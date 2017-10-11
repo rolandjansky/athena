@@ -138,6 +138,9 @@
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
 
+#scripts package contains useful commands like get_files
++ Tools/Scripts
+
 + Tools/PyUtils
 # Pycmt is pulled in by PyUtils, which is pulled in by athena.py
 + Tools/PyCmt

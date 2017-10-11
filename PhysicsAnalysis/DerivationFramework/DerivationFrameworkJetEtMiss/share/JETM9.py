@@ -126,7 +126,15 @@ JETM9SlimmingHelper.ExtraVariables = ["TruthVertices.z"]
 JETM9SlimmingHelper.IncludeJetTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM9SlimmingHelper,["JETM9"])
+SmartListJets = [
+    "AntiKt2LCTopoJets",
+    "AntiKt3LCTopoJets",
+    "AntiKt5LCTopoJets",
+    "AntiKt6LCTopoJets",
+    "AntiKt7LCTopoJets",
+    "AntiKt8LCTopoJets"
+    ]
+addJetOutputs(JETM9SlimmingHelper,["JETM9"],SmartListJets)
 JETM9SlimmingHelper.AppendContentToStream(JETM9Stream)
 JETM9Stream.RemoveItem("xAOD::TrigNavigation#*")
 JETM9Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")

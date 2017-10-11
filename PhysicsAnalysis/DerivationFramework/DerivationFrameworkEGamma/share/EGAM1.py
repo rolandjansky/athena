@@ -11,10 +11,16 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
-DoCellReweighting = False
+DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+#override..
+#DoCellReweighting = False
 #DoCellReweighting = True
 
 
@@ -423,13 +429,14 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 # EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+if globalflags.DataSource()!='geant4':
+    EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+
 if DoCellReweighting:
 # Add NewSwElectrons
     EGAM1SlimmingHelper.AppendToDictionary = {"NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
     EGAM1SlimmingHelper.AllVariables += ["NewSwElectrons"]
 
-if globalflags.DataSource()!='geant4':
-    EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM1SlimmingHelper.ExtraVariables += ExtraContentAllTruth
@@ -442,10 +449,6 @@ EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
-
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM1Stream)
 
 # Add Derived Egamma CellContainer
 from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning

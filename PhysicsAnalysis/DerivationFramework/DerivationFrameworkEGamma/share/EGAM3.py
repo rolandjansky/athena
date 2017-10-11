@@ -227,10 +227,6 @@ for tool in EGAM3_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)
 
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM3Stream)
-
 # Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
 EGAM3Stream.AddItem("CaloCellContainer#AODCellContainer")
 

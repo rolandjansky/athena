@@ -662,6 +662,26 @@ namespace top {
                   if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
                   else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
                 }
+		// R21 - new b-tagging variables
+		if(m_config->getReleaseSeries() == 25){
+		  systematicTree->makeOutputVariable(m_jet_MV2c10mu, "jet_MV2c10mu");
+		  systematicTree->makeOutputVariable(m_jet_MV2c10rnn, "jet_MV2c10rnn");
+		  systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu, "jet_DL1mu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
+		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
+		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
+		}
+
             }
 
             //large-R jets
@@ -1607,6 +1627,25 @@ namespace top {
             m_jet_ip3dsv1.resize(event.m_jets.size());
             m_jet_jvt.resize(event.m_jets.size());
             m_jet_passfjvt.resize(event.m_jets.size());
+	    // R21 b-tagging
+	    if(m_config->getReleaseSeries() == 25){
+	      m_jet_MV2c10mu.resize(event.m_jets.size());
+	      m_jet_MV2c10rnn.resize(event.m_jets.size());
+	      m_jet_DL1.resize(event.m_jets.size());
+	      m_jet_DL1mu.resize(event.m_jets.size());
+	      m_jet_DL1rnn.resize(event.m_jets.size());
+	      m_jet_MV2cl100.resize(event.m_jets.size());
+	      m_jet_MV2c100.resize(event.m_jets.size());
+	      m_jet_DL1_pu.resize(event.m_jets.size());
+	      m_jet_DL1_pc.resize(event.m_jets.size());
+	      m_jet_DL1_pb.resize(event.m_jets.size());
+	      m_jet_DL1mu_pu.resize(event.m_jets.size());
+	      m_jet_DL1mu_pc.resize(event.m_jets.size());
+	      m_jet_DL1mu_pb.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
+	    }
             if (m_config->isMC()) {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
@@ -1676,6 +1715,75 @@ namespace top {
                 if (jetPtr->isAvailable<char>("passFJVT")) {
                     m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
                 }
+
+		// BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
+		#if ROOTCORE_RELEASE_SERIES >= 25
+		if(m_config->getReleaseSeries() == 25){
+		  m_jet_MV2c10mu[i] = -999;
+		  m_jet_MV2c10rnn[i] = -999;
+		  // Cannot currently calculate DLX from the EDM, so only store weight components
+		  m_jet_DL1[i] = -999;
+		  m_jet_DL1mu[i] = -999;
+		  m_jet_DL1rnn[i] = -999;
+		  m_jet_MV2cl100[i] = -999;
+		  m_jet_MV2c100[i] = -999;
+		  m_jet_DL1_pu[i] = -999;
+		  m_jet_DL1_pc[i] = -999;
+		  m_jet_DL1_pb[i] = -999;
+		  m_jet_DL1mu_pu[i] = -999;
+		  m_jet_DL1mu_pc[i] = -999;
+		  m_jet_DL1mu_pb[i] = -999;
+		  m_jet_DL1rnn_pu[i] = -999;
+                  m_jet_DL1rnn_pc[i] = -999;
+		  m_jet_DL1rnn_pb[i] = -999;
+
+		  if(btag){
+		    // MVX
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10mu", mvx);
+		    m_jet_MV2c10mu[i] = mvx;
+		    
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10rnn", mvx);
+		    m_jet_MV2c10rnn[i] = mvx;
+		    
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2cl100", mvx);
+                    m_jet_MV2cl100[i] = mvx;
+
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2c100", mvx);
+                    m_jet_MV2c100[i] = mvx;
+		    
+		    // DL1
+		    double _pu, _pc, _pb = -999;
+
+		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+		    // so just providing the DL1rnn weights to construct tagger offline
+		    btag->pu("DL1rnn",_pu);
+		    btag->pb("DL1rnn",_pb);
+                    btag->pc("DL1rnn",_pc);
+		    m_jet_DL1rnn_pu[i] = _pu;
+                    m_jet_DL1rnn_pc[i] = _pc;
+                    m_jet_DL1rnn_pb[i] = _pb;		    
+		    // DL1mu - as above
+		    btag->pu("DL1mu",_pu);
+                    btag->pb("DL1mu",_pb);
+                    btag->pc("DL1mu",_pc);
+		    m_jet_DL1mu_pu[i] = _pu;
+		    m_jet_DL1mu_pc[i] = _pc;
+		    m_jet_DL1mu_pb[i] = _pb;
+		    // DL1 - as above
+		    btag->pu("DL1",_pu);
+                    btag->pb("DL1",_pb);
+                    btag->pc("DL1",_pc);
+		    m_jet_DL1_pu[i] = _pu;
+		    m_jet_DL1_pc[i] = _pc;
+		    m_jet_DL1_pb[i] = _pb;
+		    
+		  }
+		} // getReleaseSeries == 25
+                #endif // ROOTCORE_RELEASE_SERIES
 
                 ++i;
             }

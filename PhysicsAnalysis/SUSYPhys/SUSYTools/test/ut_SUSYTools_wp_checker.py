@@ -6,7 +6,7 @@ import unittest
 import ROOT
 ROOT.gROOT.SetBatch()
 
-import math, string, os, sys
+import string, os, sys
 import subprocess
 
 
@@ -268,9 +268,9 @@ class TestSUSYTools(unittest.TestCase):
             ## check for errors in output
             self.assertFalse('ERROR' in out)
 
-
+        # Make sure the output doesn't get stepped on by something else
+        sys.stdout.flush()
         #os.remove(self.theConfig)
-        
 
     #Test Electron WPs
     def test_EL_WPs(self):
@@ -294,7 +294,6 @@ class TestSUSYTools(unittest.TestCase):
     def test_BTAG_WPs(self):
         self.run_WPs('btag_wp', self.BTAG_WP)
 
-
     #Print non-supported configurations
     def test_printNS(self):
         if len(self.failConfs)>0:
@@ -302,7 +301,6 @@ class TestSUSYTools(unittest.TestCase):
             for fc in self.failConfs:
                 print '-'*80
                 print fc
-
 
 
 

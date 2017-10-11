@@ -46,17 +46,19 @@ namespace xAOD {
          // Reconstructed particle types
          // {
 
-         CaloCluster  = 1, ///< The object is a calorimeter cluster
-         Jet          = 2, ///< The object is a jet
-         ParticleFlow = 3, ///< The object is a particle-flow object
+         CaloCluster      = 1,  ///< The object is a calorimeter cluster
+         Jet              = 2,  ///< The object is a jet
+         ParticleFlow     = 3,  ///< The object is a particle-flow object
+                                
+         TrackParticle    = 4,  ///< The object is a charged track particle
+         NeutralParticle  = 5,  ///< The object is a neutral particle
 
-         TrackParticle   = 4, ///< The object is a charged track particle
-         NeutralParticle = 5, ///< The object is a neutral particle
+         Electron         = 6,  ///< The object is an electron
+         Photon           = 7,  ///< The object is a photon
+         Muon             = 8,  ///< The object is a muon
+         Tau              = 9,  ///< The object is a tau (jet)
+         TrackCaloCluster = 10, ///< The object is a track-calo-cluster
 
-         Electron = 6, ///< The object is an electron
-         Photon   = 7, ///< The object is a photon
-         Muon     = 8, ///< The object is a muon
-         Tau      = 9, ///< The object is a tau (jet)
 
          // }
 

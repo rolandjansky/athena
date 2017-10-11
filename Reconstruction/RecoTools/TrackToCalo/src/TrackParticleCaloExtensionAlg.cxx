@@ -3,7 +3,6 @@
 */
 
 #include "TrackParticleCaloExtensionAlg.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "xAODTracking/TrackParticleContainer.h"

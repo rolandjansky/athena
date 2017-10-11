@@ -56,6 +56,13 @@ atlas_add_component( JetRecTools
                      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES})
 endif()
 
+# need to have a dictionary compiled for JetRecTools
+atlas_add_dictionary( JetRecToolsDict
+   JetRecTools/JetRecToolsDict.h
+   JetRecTools/selection.xml
+   LINK_LIBRARIES JetRecToolsLib )
+
+
 # Install files from the package:
 atlas_install_headers( JetRecTools )
 atlas_install_python_modules( python/*.py )

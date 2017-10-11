@@ -388,7 +388,3 @@ for tool in EGAM5_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)
 
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM5Stream)
-

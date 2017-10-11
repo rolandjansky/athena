@@ -25,6 +25,10 @@ find_package( Gaudi REQUIRED )
 find_package( Xrootd )
 find_package( GSL )
 
+# AIDA dependency, because Gaudi needs it
+# Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
+find_package( AIDA )
+
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
 add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
