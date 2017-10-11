@@ -21,10 +21,10 @@ class TileDetectorTool : public GeoModelTool
 		   const std::string& name, 
 		   const IInterface* parent);
 
-  virtual ~TileDetectorTool();
+  virtual ~TileDetectorTool() override final;
   
-  virtual StatusCode create(StoreGateSvc* detStore);
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode create() override final;
+  virtual StatusCode clear() override final;
 
   bool isTestBeam() const { return m_testBeam; }
   bool isAddPlates() const { return m_addPlates; }
