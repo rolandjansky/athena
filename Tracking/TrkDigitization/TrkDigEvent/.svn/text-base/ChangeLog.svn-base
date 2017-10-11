@@ -1,0 +1,16 @@
+2016-11-16 Federica Fabbri < Federica.Fabbri -at- cern.ch >
+        * Added in Rectangular segmentation a new constructor to include variable binning along Y
+        * Change in createSegmenationSurfaces, the position of Y surfaces is taken directly from bin utility
+        * Tagged as TrkDigEvent-00-00-02
+
+2016-09-01 Andreas Salzburger < Andreas.Salzburger -at- cern.ch >
+        * Fixing lorentz angle apllication
+        * Tagged as TrkDigEvent-00-00-01
+
+2016-01-20 Noemi Calace < Noemi.Calace@cern.ch>
+	* Adding TrapezoidSegmentation
+	* Tagged as TrkDigEvent-00-00-00
+
+2016-01-12 Andreas Salzburger < Andreas.Salzburger -at- cern.ch >
+           * initial import
+           * TrkDigEvent-00-00-00
