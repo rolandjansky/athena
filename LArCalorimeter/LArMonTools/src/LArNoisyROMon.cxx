@@ -111,8 +111,8 @@ StatusCode LArNoisyROMon::bookHistograms()
     MonGroup GroupEMECFracBin(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "perBinEffPerCent" );
 //    bookPartitionHistos(m_EMECA,"EMECA",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
 //    bookPartitionHistos(m_EMECC,"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
-    bookPartitionHistos(m_partHistos[0],"EMECA",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
-    bookPartitionHistos(m_partHistos[3],"EMECC",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
+    bookPartitionHistos(m_partHistos[0],"EMECA",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
+    bookPartitionHistos(m_partHistos[3],"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
 
     
     // Book general histograms
@@ -1340,7 +1340,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
   {
     unsigned int siz = m_EF_NoiseBurst_Triggers.size();
     hName = "NoisyEventTrigger_"+name;
-    hTitle = "Trigger fired for noisy event - "+name;
+    hTitle = "Trigger fired for RNB flagged events - "+name;
     partition.h_NoisyEventTrigger = TH1I_LW::create(hName.c_str(), hTitle.c_str(), siz+1, 0.5, siz+1.5);
     LWHist::LWHistAxis* axis = partition.h_NoisyEventTrigger->GetXaxis();
     axis->SetTitle("Special trigger fired");
@@ -1354,7 +1354,7 @@ void LArNoisyROMon::bookPartitionHistos(partitionHistos& partition, const std::s
 
     siz = m_L1_NoiseBurst_Triggers.size();
     hName = "NoisyEventL1Term_"+name;
-    hTitle = "L1 term fired for noisy event - "+name;
+    hTitle = "L1 term fired for RNB flagged events - "+name;
     partition.h_NoisyEventTriggerL1 = TH1I_LW::create(hName.c_str(), hTitle.c_str(), siz+1, 0.5, siz+1.5);
     axis = partition.h_NoisyEventTriggerL1->GetXaxis();
     axis->SetTitle("L1 term fired");
