@@ -43,11 +43,7 @@ static const int invalidChipNumber(-1);
 // Constructor
 SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_badChannelIds{},
-  m_badModuleIds{},
-  m_badWaferIds{},
-  m_badLinks{},
-  m_badChips{},
+  m_data{},
   m_filled(false),
   m_detStore("DetectorStore", name),
   m_IOVSvc("IOVSvc", name),
@@ -75,7 +71,7 @@ StatusCode SCT_ConfigurationConditionsSvc::initialize(){
   const std::string moduleFolderName=determineFolder(coolModuleFolderName,coolModuleFolderName2);
   const std::string murFolderName=determineFolder(coolMurFolderName,coolMurFolderName2);
   //
-  if (m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData,this, m_dataChannel,channelFolderName).isFailure() or
+  if (m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData, this, m_dataChannel,channelFolderName).isFailure() or
       m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData, this, m_dataModule, moduleFolderName).isFailure() or
       m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData, this, m_dataMur, murFolderName).isFailure())
     return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
@@ -118,13 +114,13 @@ bool SCT_ConfigurationConditionsSvc::isGood(const Identifier & elementId, InDetC
 
   bool result(true);
   if (h == InDetConditions::SCT_STRIP) {
-    result = (m_badChannelIds.find(elementId) == m_badChannelIds.end());
+    result = (not m_data.isBadStripId(elementId));
     // If strip itself is not bad, check if it's in a bad module
     if (result and m_checkStripsInsideModules) result = !isStripInBadModule(elementId);
   } else if (h == InDetConditions::SCT_MODULE) {
-    result = (m_badModuleIds.find(elementId) == m_badModuleIds.end());
+    result = (not m_data.isBadModuleId(elementId));
   } else if (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT) {
-    result = (m_badWaferIds.find(elementId) == m_badWaferIds.end());
+    result = (not m_data.isBadWaferId(elementId));
   } else if (h == InDetConditions::SCT_CHIP) {
     result = isGoodChip(elementId);
   }
@@ -194,7 +190,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillData(int& /*i*/ , std::list<std::
     if(fillChannelData().isFailure()) return StatusCode::FAILURE;
   }
   // The bad channel list contains all the information
-  m_filled = (not m_badChannelIds.empty());
+  m_filled = (not m_data.getBadStripIds()->empty());
   return StatusCode::SUCCESS;
 }
 
@@ -231,8 +227,8 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   const uint_t mask3Index=run1?uint_t(MASK3_1):uint_t(MASK3_2);
   //
   // Clear previous information at callback
-  m_badChannelIds.clear();
-  m_badChips.clear();
+  m_data.clearBadStripIds();
+  m_data.clearBadChips();
   // Fill link status
   if (fillLinkStatus().isFailure()) return StatusCode::FAILURE;
   // Get Chip folder
@@ -258,19 +254,13 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
     m_pHelper->get_other_side(hash, oppWaferHash);
     const Identifier oppWaferId(m_pHelper->wafer_id(oppWaferHash));
 
-    bool isBadModule(m_badModuleIds.find(moduleId) != m_badModuleIds.end()); 
+    bool isBadModule(m_data.isBadModuleId(moduleId));
 
-    // Don't need to bother checking chips if the module is already bad
-    // Commented out until fully tested
-    //if (m_badModuleIds.find(moduleId) == m_badModuleIds.end()) continue;
     // Get link status 
     // Can maybe be smarter if both links are bad (but the module will probably be bad then)
-    bool link0ok(true), link1ok(true);
-    std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr =  m_badLinks.find(moduleId);
-    if (linkItr != m_badLinks.end()) {
-      link0ok = (*linkItr).second.first;
-      link1ok = (*linkItr).second.second;
-    }
+    std::pair<bool, bool> linkResults{badLinks(moduleId)};
+    bool link0ok{linkResults.first};
+    bool link1ok{linkResults.second};
     // Loop over chips within module
     CondAttrListVec::const_iterator channelItr(modItr);
     const CondAttrListVec::const_iterator channelEnd(modItr + nChips);
@@ -295,8 +285,8 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       if(id>=6 and id<12 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide1 = false;
     }
 
-    if(isBadSide0) m_badWaferIds.insert(waferId);
-    if(isBadSide1) m_badWaferIds.insert(oppWaferId);
+    if(isBadSide0) m_data.setBadWaferId(waferId);
+    if(isBadSide1) m_data.setBadWaferId(oppWaferId);
     
     // Check the module readout to look for bypassed chips, disabled links etc
     if (m_readoutTool->determineReadout(moduleId, chipsInMod, link0ok, link1ok).isFailure()) return StatusCode::FAILURE; 
@@ -313,7 +303,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
         for(const auto & thisBadStrip:badStripsVec){
           Identifier stripId(getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip));
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
-          if (stripId.is_valid()) m_badChannelIds.insert(stripId);
+          if (stripId.is_valid()) m_data.setBadStripId(stripId);
         }
       }
       // Bad chips (= all strips bad) bitpacked
@@ -328,7 +318,9 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
 
     }
     // Store chip status if not all good (==0)
-    if (chipStatusWord != 0) m_badChips[moduleId] = chipStatusWord;
+    if (chipStatusWord != 0) {
+      m_data.setBadChips(moduleId, chipStatusWord);
+    }
     // Clear up memory associated with chips    
     for (const auto & thisChip:chipsInMod){
       delete thisChip;
@@ -338,7 +330,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   // No longer need the conditions folder as stored locally
   m_IOVDbSvc->dropObject(channelFolderName,true); 
 
-  const unsigned int totalBad(m_badChannelIds.size());
+  const unsigned int totalBad(m_data.getBadStripIds()->size());
   msg(MSG:: INFO)<< "Total number of bad chips is " << nDisabledChips << endmsg;
   msg(MSG:: INFO)<< "Total number of bad chips not in bad modules is " << nDisabledChipsExclusive << endmsg;
   msg(MSG:: INFO)<< "Total number of bad strip identifiers is " << totalBad << endmsg;
@@ -354,8 +346,8 @@ StatusCode SCT_ConfigurationConditionsSvc::fillModuleData(){
   unsigned int totalNumberOfValidModules(0);
 
   // Clear previous information at callback
-  m_badModuleIds.clear();
-  m_badWaferIds.clear();
+  m_data.clearBadModuleIds();
+  m_data.clearBadWaferIds();
 
   // Get Module folder
   if (retrieveFolder(m_dataModule, moduleFolderName).isFailure()) {
@@ -388,14 +380,14 @@ StatusCode SCT_ConfigurationConditionsSvc::fillModuleData(){
     const short group=pModule->second[groupIndex].data<short>();
     if (group < 0) { 
       // Insert module/wafer ID into set of bad modules/wafers IDs
-      m_badModuleIds.insert(moduleId);
-      m_badWaferIds.insert(waferId);
-      m_badWaferIds.insert(oppWaferId);
+      m_data.setBadModuleId(moduleId);
+      m_data.setBadWaferId(waferId);
+      m_data.setBadWaferId(oppWaferId);
     }
   }  
   // No longer need the conditions folder as stored locally
   m_IOVDbSvc->dropObject(moduleFolderName,true); 
-  const unsigned int totalBad(m_badModuleIds.size());
+  const unsigned int totalBad(m_data.getBadModuleIds()->size());
   ATH_MSG_INFO( "Total number of module identifiers is " << totalNumberOfModules );
   ATH_MSG_INFO( "Total number of modules also found in the cabling is " << totalNumberOfValidModules );
   ATH_MSG_INFO( "Total number of bad module identifiers is " << totalBad );    
@@ -456,7 +448,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillLinkStatus() {
   const std::string murFolderName=determineFolder(coolMurFolderName,coolMurFolderName2);
   const bool run1(murFolderName==coolMurFolderName);
   // Clear previous information at call back
-  m_badLinks.clear();
+  m_data.clearBadLinks();
 
   // Get MUR folders for link info 
   if (retrieveFolder(m_dataMur, murFolderName).isFailure()) {
@@ -491,7 +483,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillLinkStatus() {
 
     // Store the modules with bad links, represented by badLink (enum in header) = 255 = 0xFF 
     if (link0 == badLink or link1 == badLink) {
-      m_badLinks[moduleId] = std::make_pair((link0!=badLink), (link1!=badLink));
+      m_data.setBadLinks(moduleId, (link0!=badLink), (link1!=badLink));
     }
   }
   // No longer need the conditions folder as stored locally
@@ -503,13 +495,13 @@ StatusCode SCT_ConfigurationConditionsSvc::fillLinkStatus() {
 // Check if a strip is within a bad module
 bool SCT_ConfigurationConditionsSvc::isStripInBadModule(const Identifier& stripId){
   const Identifier moduleId(m_pHelper->module_id(m_pHelper->wafer_id(stripId)));
-  return (m_badModuleIds.find(moduleId) != m_badModuleIds.end());
+  return m_data.isBadModuleId(moduleId);
 }
 
 // Check if a wafer is within a bad module
 bool SCT_ConfigurationConditionsSvc::isWaferInBadModule(const Identifier& waferId){
   Identifier moduleId(m_pHelper->module_id(waferId));
-  return (m_badModuleIds.find(moduleId) != m_badModuleIds.end());
+  return m_data.isBadModuleId(moduleId);
 }
 
 // Find the chip number containing a particular strip Identifier
@@ -536,18 +528,18 @@ void SCT_ConfigurationConditionsSvc::badStrips(const Identifier & moduleId,  std
   // Bad strips for a given module
   if (ignoreBadModules) {
     // Ignore strips in bad modules
-    if (m_badModuleIds.find(moduleId) != m_badModuleIds.end()) return;    
+    if (m_data.isBadModuleId(moduleId)) return;
   }
 
-  std::set<Identifier>::const_iterator chanItr(m_badChannelIds.begin());
-  std::set<Identifier>::const_iterator chanEnd(m_badChannelIds.end());
+  std::set<Identifier>::const_iterator chanItr(m_data.getBadStripIds()->begin());
+  std::set<Identifier>::const_iterator chanEnd(m_data.getBadStripIds()->end());
   for (; chanItr != chanEnd; ++chanItr) {
     if (ignoreBadChips) {
       // Ignore strips in bad chips
       int chip = getChip(*chanItr);
       if (chip!=invalidChipNumber){
-        std::map<Identifier, unsigned int>::const_iterator chipItr(m_badChips.find(moduleId));
-        if ((chipItr != m_badChips.end()) && ((*chipItr).second & (1 << chip)) != 0) continue;
+        unsigned int chipStatusWord{m_data.getBadChips(moduleId)};
+        if ((chipStatusWord & (1 << chip)) != 0) continue;
       }   
     }
     if (m_pHelper->module_id(m_pHelper->wafer_id((*chanItr))) == moduleId) strips.insert(*chanItr);
@@ -556,36 +548,35 @@ void SCT_ConfigurationConditionsSvc::badStrips(const Identifier & moduleId,  std
        
 std::pair<bool, bool> SCT_ConfigurationConditionsSvc::badLinks(const Identifier & moduleId) {
   // Bad links for a given module
-  std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(m_badLinks.find(moduleId));
-  return ((linkItr != m_badLinks.end()) ? (*linkItr).second : std::make_pair(true,true));
+  // Bad convetion is used. true is for good link and false is for bad link...
+  return m_data.areBadLinks(moduleId);
 }
 
 unsigned int SCT_ConfigurationConditionsSvc::badChips(const Identifier & moduleId) const {
   // Bad chips for a given module
-  std::map<Identifier, unsigned int>::const_iterator chipItr(m_badChips.find(moduleId));  
-  return ((chipItr != m_badChips.end()) ? (*chipItr).second : static_cast<unsigned int>(0));
+  return m_data.getBadChips(moduleId);
 }
 
 void 
 SCT_ConfigurationConditionsSvc::badStrips(std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) {
   if (ignoreBadModules == false && ignoreBadChips == false) {
-    std::copy(m_badChannelIds.begin(), m_badChannelIds.end(), std::inserter(strips,strips.begin()));
+    std::copy(m_data.getBadStripIds()->begin(), m_data.getBadStripIds()->end(), std::inserter(strips,strips.begin()));
     return;
   }
-  std::set<Identifier>::const_iterator chanItr(m_badChannelIds.begin());
-  std::set<Identifier>::const_iterator chanEnd(m_badChannelIds.end());
+  std::set<Identifier>::const_iterator chanItr(m_data.getBadStripIds()->begin());
+  std::set<Identifier>::const_iterator chanEnd(m_data.getBadStripIds()->end());
   for (; chanItr != chanEnd; ++chanItr) {
     Identifier moduleId(m_pHelper->module_id(m_pHelper->wafer_id(*chanItr)));
     // Ignore strips in bad modules
     if (ignoreBadModules) {
-      if (m_badModuleIds.find(moduleId) != m_badModuleIds.end()) continue;    
+      if (m_data.isBadModuleId(moduleId)) continue;
     }
     // Ignore strips in bad chips
     if (ignoreBadChips) {    
       int chip = getChip(*chanItr);
       if (chip !=invalidChipNumber){
-        std::map<Identifier, unsigned int>::const_iterator chipItr(m_badChips.find(moduleId));
-        if ((chipItr != m_badChips.end()) && ((*chipItr).second & (1 << chip)) != 0) continue;
+        unsigned int chipStatusWord{m_data.getBadChips(moduleId)};
+        if ((chipStatusWord & (1 << chip)) != 0) continue;
       }  
     }
     strips.insert(*chanItr);
