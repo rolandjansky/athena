@@ -3,22 +3,11 @@
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentElectrons=[
-    "Electrons.etcone20",
-    "Electrons.etcone30",
-    "Electrons.etcone40",
-    "Electrons.ptcone20",
-    "Electrons.ptcone30",
-    "Electrons.ptcone40",
     "Electrons.Loose",
     "Electrons.Medium",
     "Electrons.Tight",
-    "Electrons.DFCommonElectronsLHLoose",
-    "Electrons.DFCommonElectronsLHMedium",
-    "Electrons.DFCommonElectronsLHTight",
-    "Electrons.DFCommonElectronsML",
-    "Electrons.author",
-    "Electrons.OQ"
     ]
+
 ExtraElectronsTruth=[
     "Electrons.truthOrigin",
     "Electrons.truthType",
@@ -114,7 +103,8 @@ ExtraContainersTruth=["TruthEvents",
 
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
-                        "egammaClusters"
+                        "egammaClusters",
+                        "NewSwPhotons" # only if DoCellReweighting is ON                        
                         ]
 
 # for trigger studies

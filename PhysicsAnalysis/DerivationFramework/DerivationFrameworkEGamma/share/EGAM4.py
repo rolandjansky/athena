@@ -12,6 +12,21 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
+DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+#override if needed (do at your own risk..)
+#DoCellReweighting = False
+#DoCellReweighting = True
+
+# check if we run on data or MC (DataSource = geant4)
+from AthenaCommon.GlobalFlags import globalflags
+print "EGAM4 globalflags.DataSource(): ", globalflags.DataSource()
+if globalflags.DataSource()!='geant4':
+    DoCellReweighting = False
+
 
 #====================================================================
 # SKIMMING TOOLS
@@ -71,6 +86,53 @@ cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
+#====================================================================
+# Cell reweighter
+#====================================================================
+if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, EGammaReweightTool
+
+    # first, create the container with the new cells (after reweighting)
+    EGAM4_NewCellTool = NewCellTool("EGAM4_NewCellTool")
+    #                                OutputLevel = DEBUG)
+    #                                ReweightCellContainerName="NewCellContainer",
+    #                                SGKey_electrons = "Electrons", 
+    #                                SGKey_photons = "Photons")
+    print EGAM4_NewCellTool
+    ToolSvc += EGAM4_NewCellTool
+
+    # second, run a tool that creates the clusters and objects from these new cells
+    EGAM4_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM4_ClusterDecoratorTool")
+    #                                                          OutputClusterSGKey="EGammaSwClusterWithNewCells",
+    #                                                          OutputClusterLink="NewSwClusterLink",
+    #                                                          SGKey_caloCells = "NewCellContainer",
+    #                                                          SGKey_electrons = "Electrons", 
+    #                                                          SGKey_photons = "Photons")
+    print EGAM4_ClusterDecoratorTool
+    ToolSvc += EGAM4_ClusterDecoratorTool
+
+    # third, run a tool that creates the shower shapes with the new cells
+    from egammaTools.egammaToolsFactories import EMShowerBuilder
+    EGAM4_EMShowerBuilderTool = EMShowerBuilder("EGAM4_EMShowerBuilderTool", 
+                                                CellsName="NewCellContainer")
+    print EGAM4_EMShowerBuilderTool
+    ToolSvc += EGAM4_ClusterDecoratorTool
+
+    # fourth, decorate the new objects with their shower shapes computed from the new clusters
+    EGAM4_EGammaReweightTool = EGammaReweightTool("EGAM4_EGammaReweightTool",
+                                                  SGKey_electrons = "Electrons",
+                                                  SGKey_photons="Photons",
+                                                  NewCellContainerName="NewCellContainer",
+                                                  NewElectronContainer = "NewSwElectrons",
+                                                  NewPhotonContainer = "NewSwPhotons",
+                                                  EMShowerBuilderTool = EGAM4_EMShowerBuilderTool,
+                                                  ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
+                                                  CaloClusterLinkName="NewSwClusterLink")
+    #                                             OutputLevel=DEBUG)
+    print EGAM4_EGammaReweightTool
+    ToolSvc += EGAM4_EGammaReweightTool
+
+
 #================
 # THINNING TOOLS
 #================
@@ -89,9 +151,12 @@ DerivationFrameworkJob += egam4Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool]
+if DoCellReweighting:
+    augmentationTools += [EGAM4_NewCellTool, EGAM4_ClusterDecoratorTool, EGAM4_EGammaReweightTool]
+augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
 egam4Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
-                                                         #AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_CellDecoratorTool],
-                                                         AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool] +  EGAM4_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM4_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
@@ -145,6 +210,10 @@ EGAM4SlimmingHelper.SmartCollections = ["Electrons",
 # Add egamma trigger objects
 EGAM4SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM4SlimmingHelper.IncludeMuonTriggerContent = True
+
+# Append cell-reweighted collections to dictionary
+if DoCellReweighting:
+    EGAM4SlimmingHelper.AppendToDictionary = {"NewSwPhotons": "xAOD::PhotonContainer", "NewSwPhotonsAux": "xAOD::PhotonAuxContainer" }
 
 # Extra variables
 EGAM4SlimmingHelper.ExtraVariables = ExtraContentAll

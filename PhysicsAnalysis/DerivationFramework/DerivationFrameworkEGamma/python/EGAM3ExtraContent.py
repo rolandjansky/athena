@@ -3,22 +3,13 @@
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentElectrons=[
-    "Electrons.etcone20",
-    "Electrons.etcone30",
-    "Electrons.etcone40",
-    "Electrons.ptcone20",
-    "Electrons.ptcone30",
-    "Electrons.ptcone40",
     "Electrons.Loose",
     "Electrons.Medium",
-    "Electrons.Tight",
-    "Electrons.DFCommonElectronsLHLoose",
-    "Electrons.DFCommonElectronsLHMedium",
-    "Electrons.DFCommonElectronsLHTight",
-    "Electrons.DFCommonElectronsML",
-    "Electrons.author",
-    "Electrons.OQ"
+    "Electrons.Tight"
     ]
+
+# only if DoCellReweighting is ON
+ExtraContentElectrons += ["NewSwElectrons.trackParticleLinks.pt.eta.phi.m.caloClusterLinks.author.OQ.ethad1.ethad.f1.f3.f3core.e233.e237.e277.weta1.weta2.e2tsts1.fracs1.wtots1.emins1.emaxs1.etcone20.ptcone30.deltaEta1.deltaPhi1.deltaPhi2.deltaPhiRescaled2.deltaPhiFromLastMeasurement.Loose.Medium.Tight.LHLoose.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.charge.Reta.Rphi.Eratio.Rhad.Rhad1.DeltaE.DFCommonElectronsIsEMLoose.DFCommonElectronsIsEMMedium.DFCommonElectronsIsEMTight.topoetcone20ptCorrection.topoetcone30ptCorrection.topoetcone40ptCorrection.etcone20ptCorrection.etcone30ptCorrection.etcone40ptCorrection.ambiguityLink.truthParticleLink.truthOrigin.truthType.truthPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.firstEgMotherPdgId.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId.ambiguityType"]
 
 ExtraElectronsTruth=[
     "Electrons.truthOrigin",
@@ -106,6 +97,7 @@ ExtraContainersPhotons=["Photons",
                         "egammaClusters",
                         "ForwardElectrons",
                         "ForwardElectronClusters",
+                        "NewSwPhotons" # only if DoCellReweighting is ON
                         ]
 
 # for trigger studies

@@ -10,7 +10,7 @@
 
 from egammaRec.Factories import ToolFactory, getPropertyValue, FullNameWrapper
 from egammaRec import egammaKeys
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__GainDecorator, DerivationFramework__ClusterEnergyPerLayerDecorator, DerivationFramework__ClusterDecorator, DerivationFramework__CellReweight, DerivationFramework__ElectronReweight
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__GainDecorator, DerivationFramework__ClusterEnergyPerLayerDecorator, DerivationFramework__ClusterDecorator, DerivationFramework__CellReweight, DerivationFramework__EGammaReweight
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloFillRectangularCluster as CFRC
 from GaudiKernel.Constants import DEBUG
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
@@ -140,7 +140,7 @@ def configureClusterCorrectionsWithNewCells(swTool):
   from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
       etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
   from CaloRec.CaloRecMakers import _process_tools
- 
+
   clusterTypes = dict(
     Ele35='ele35', Ele55='ele55', Ele37='ele37',
     Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
@@ -172,6 +172,7 @@ egammaSwToolWithNewCells = ToolFactory( egammaToolsConf.egammaSwTool,
                                         postInit=[configureClusterCorrectionsWithNewCells])
 
 
+
 ##################
 # ClusterDecorator
 ##################
@@ -179,14 +180,17 @@ ClusterDecorator = ToolFactory( DerivationFramework__ClusterDecorator,
                                 ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),  
                                 SGKey_electrons = egammaKeys.outputElectronKey(),
                                 SGKey_photons = egammaKeys.outputPhotonKey(), 
-                                #  OutputClusterSGKey="swCluster",
+                                OutputClusterSGKey="EGammaSwCluster",
+                                OutputClusterLink="SwClusterLink",
                                 SGKey_caloCells = egammaKeys.caloCellKey() )
+
 
 ClusterDecoratorWithNewCells = ToolFactory( DerivationFramework__ClusterDecorator,
                                             ClusterCorrectionToolName = FullNameWrapper(egammaSwToolWithNewCells),  
                                             SGKey_electrons = egammaKeys.outputElectronKey(),
                                             SGKey_photons = egammaKeys.outputPhotonKey(), 
-                                            #  OutputClusterSGKey="swCluster",
+                                            OutputClusterSGKey="EGammaSwClusterWithNewCells",
+                                            OutputClusterLink="NewSwClusterLink",
                                             SGKey_caloCells = 'NewCellContainer' )
 
 
@@ -227,13 +231,14 @@ EMShowerBuilderTool = EMShowerBuilder("EMShowerBuilderTool", CellsName="NewCellC
 
 
 ######################
-# ElectronReweightTool
+# EGammaReweightTool
 ######################
-ElectronReweightTool = ToolFactory( DerivationFramework__ElectronReweight,
-                                    NewCellContainerName = "NewCellContainer",
-                                    SGKey_photons="Photons",
-                                    SGKey_electrons="Electrons",
-                                    EMShowerBuilderTool = EMShowerBuilderTool,
-                                    NewElectronContainer = "NewSwElectrons",
-                                    NewPhotonContainer = "NewSwPhotons"
-                                    )
+EGammaReweightTool = ToolFactory( DerivationFramework__EGammaReweight,
+                                  NewCellContainerName = "NewCellContainer",
+                                  SGKey_photons="Photons",
+                                  SGKey_electrons="Electrons",
+                                  EMShowerBuilderTool = EMShowerBuilderTool,
+                                  NewElectronContainer = "NewSwElectrons",
+                                  NewPhotonContainer = "NewSwPhotons",
+                                  CaloClusterLinkName="NewSwClusterLink"
+                                  )
