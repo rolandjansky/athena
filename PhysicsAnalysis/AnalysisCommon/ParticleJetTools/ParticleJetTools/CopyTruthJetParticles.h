@@ -78,7 +78,9 @@ private:
   std::string m_dressingName;
 
   /// Handle on MCTruthClassifier for finding prompt leptons
-  ToolHandle<IMCTruthClassifier> m_classif;
+  // Note that MCTruthClassifier is still thread hostile; it keeps internal states in its functions
+  // Need a mutable tool handle for now; in the future we hope to fix MCTruthClassifier and this can go
+  mutable ToolHandle<IMCTruthClassifier> m_classif;
 };
 
 

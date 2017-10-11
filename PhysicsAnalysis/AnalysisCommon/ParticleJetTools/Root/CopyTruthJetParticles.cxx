@@ -197,10 +197,10 @@ StatusCode CopyTruthJetParticles::initialize() {
   // datasets within an MC campaign.
   // So we use the less disruptive solution in Athena for now...
   if(m_barcodeFromMetadata>0){
-    bool found = false;
     // retrieve the value for the current sample from metadata
 #ifndef XAOD_STANDALONE
     // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
+    bool found = false;
     int barcodeOffset_tmp(0);
     ATH_MSG_DEBUG(" Look for barcode offset in  metadata ... ");
     try {
