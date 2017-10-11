@@ -270,14 +270,9 @@ namespace Analysis {
                 jpsiTracks[1] = jpsiTP2;
             }
 
-            std::vector<const xAOD::TrackParticle*> ThisjpsiTracks;
-            ThisjpsiTracks.push_back(jpsiTP1);
-            ThisjpsiTracks.push_back(jpsiTP2);
-            ATH_MSG_DEBUG("Number of tracks associated with jpsi: " << ThisjpsiTracks.size());
-
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
-                if (JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                 if (m_excludeJpsiMuonsOnly) {
                   bool linkedMuonTrk1 = false;
@@ -286,7 +281,7 @@ namespace Analysis {
                   }
                   if (linkedMuonTrk1) ATH_MSG_DEBUG("This id track 1 is muon track!");
    
-                  if (JpsiUpsilonCommon::isContainedIn(*trkItr1,ThisjpsiTracks)) {
+                  if (JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) {
                     if (linkedMuonTrk1) ATH_MSG_DEBUG("ID track 1 removed: id track is selected to build Jpsi!");
                     continue; // remove tracks which were used to build J/psi
                   }
@@ -298,7 +293,7 @@ namespace Analysis {
                     continue;
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
-                    if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                    if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                     if (m_excludeJpsiMuonsOnly) {
                       bool linkedMuonTrk2 = false;
@@ -306,7 +301,7 @@ namespace Analysis {
                         if(muon->inDetTrackParticleLink().cachedElement() == *trkItr2) linkedMuonTrk2 = true;
                       }
                       if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
-                      if (JpsiUpsilonCommon::isContainedIn(*trkItr2,ThisjpsiTracks)) {
+                      if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) {
                         if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
                         continue; // remove tracks which were used to build J/psi
                       }
