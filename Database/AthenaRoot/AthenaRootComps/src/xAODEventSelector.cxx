@@ -329,8 +329,7 @@ StatusCode xAODEventSelector::finalize()
 
   if(m_printPerfStats) {
     xAOD::PerfStats::instance().stop();
-    std::unique_ptr<xAOD::ReadStats> stats(new xAOD::ReadStats(xAOD::IOStats::instance().stats()));
-    stats->Print();
+    xAOD::IOStats::instance().stats().Print();
   }
   
 
