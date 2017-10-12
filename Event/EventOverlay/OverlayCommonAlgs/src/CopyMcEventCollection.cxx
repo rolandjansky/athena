@@ -30,7 +30,7 @@ CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocato
   m_storeGateData2("StoreGateSvc/OriginalEvent2_SG", name),
   m_cnvTool( "xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this )
 {
-  declareProperty("InfoType", m_infoType="McEventInfo");
+  declareProperty("InfoType", m_infoType="MyEvent");
   declareProperty("RealData", m_realdata=false);
   declareProperty("DataStore2", m_storeGateData2, "help");
   declareProperty("CheckEventNumbers", m_checkeventnumbers=true);
