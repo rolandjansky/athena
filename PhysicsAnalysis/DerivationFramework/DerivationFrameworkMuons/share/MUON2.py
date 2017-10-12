@@ -14,7 +14,6 @@ if globalflags.DataSource()=='geant4':
 
 print isSimulation
 
-
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -123,7 +122,7 @@ print      BplKplVertexFit
 ## 5/ setup the Jpsi+2 track finder
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
 MUON2BsJpsiKK = Analysis__JpsiPlus2Tracks(name = "MUON2BsJpsiKK",
-                                        OutputLevel = DEBUG,
+                                        OutputLevel = INFO,
 kaonkaonHypothesis			= True,
 pionpionHypothesis                      = False,
 kaonpionHypothesis                      = False,
