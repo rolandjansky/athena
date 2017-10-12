@@ -84,7 +84,7 @@ STDM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( na
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM5PhotonTPThinningTool
 
-thinningTools= [STDM5JetTPThinningTool,STDM5MuonTPThinningTool,STDM5ElectronTPThinningTool,STDM5TauTPThinningTool, STDM5PhotonTPThinningTool]
+thinningTools= [STDM5MuonTPThinningTool,STDM5ElectronTPThinningTool,STDM5TauTPThinningTool, STDM5PhotonTPThinningTool]
 
 if isMC:
     from DerivationFrameworkSM.STDMCommonTruthTools import *
