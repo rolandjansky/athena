@@ -179,7 +179,7 @@ class AlgFactory(object):
                 name = '"%s_%s"' %(factory, self.fex_params.fex_label)
                 outputcollectionlabel = "'%s'" % (self.fex_params.fex_label)
 
-         kwds = {
+        kwds = {
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
