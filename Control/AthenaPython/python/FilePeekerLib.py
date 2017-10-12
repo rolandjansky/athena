@@ -60,6 +60,7 @@ def _create_file_infos():
         'evt_type': [],
         'evt_number': [],
         'lumi_block': [],
+        'mc_channel_number': [],
         'beam_type':       ['N/A'], # XXX fixme
         'beam_energy':     ['N/A'], # XXX fixme
         'stream_tags': [],
@@ -372,6 +373,7 @@ class FilePeeker(PyAthena.Alg):
                 peeked_data['evt_type'] = evt_type.bit_mask
                 ddt = _get_detdescr_tags(evt_type)
                 peeked_data['det_descr_tags'] = ddt
+                peeked_data['mc_channel_number'] = [long(evt_type.mc_channel_number())]
                 
             def _make_item_list(item):
                 sgkey= item[1]
