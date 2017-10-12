@@ -94,7 +94,31 @@ void test3()
     }
 }
 
-// Check quadraticSumBW
+// test4: Check quadraticSumBW: compare against int sqrt (binary search implementation)
+///! Returns floor of square root of x
+///! from http://www.geeksforgeeks.org/square-root-of-an-integer/
+int floorSqrt(int x)
+{
+    // Base cases
+    if (x == 0 || x == 1)
+        return x;
+    // Do Binary Search for floor(sqrt(x))
+    int start = 1, end = x, ans;
+    while (start <= end) {
+        int mid = (start + end) / 2;
+        // If x is a perfect square
+        if (mid*mid == x)
+            return mid;
+        // Since we need floor, we update answer when mid*mid is
+        // smaller than x, and move closer to sqrt(x)
+        if (mid*mid < x) {
+            start = mid + 1;
+            ans = mid;
+        } else // If mid*mid is greater than x
+            end = mid - 1;
+    }
+    return ans;
+}
 void test4()
 {
     cout << "** test3: L1TopoSimulationUtils quadraticSumBW bitshift**\n";
@@ -119,7 +143,7 @@ void test4()
 
     for(const int v : values){
         cout<<"sum2("<<v<<", "<<v<<") :"
-            <<" std = "<<(v*v+v*v)
+            <<" std = "<<floorSqrt(v*v+v*v)
             <<" bw = "<<TSU::Kinematics::quadraticSumBW(v, v)
             <<endl;
     }
