@@ -14,7 +14,7 @@ namespace InDet
     class SCT_ClusterOnTrack_p2
     {
     public:
-        SCT_ClusterOnTrack_p2():m_isbroad(false)  {}
+    SCT_ClusterOnTrack_p2():m_id{0}, m_idDE{0}, m_isbroad(false), m_positionAlongStrip{0.} {}
 
 
         unsigned long long            m_id;

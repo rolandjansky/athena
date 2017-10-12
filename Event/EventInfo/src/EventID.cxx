@@ -3,7 +3,7 @@
 */
 
 /**
- * @file EventID.cxx
+ * @file EventInfo/src/EventID.cxx
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  * @author Paolo Calafiura <pcalafiura@lbl.gov>

@@ -3,9 +3,9 @@
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
-#include "TileGeoModel/TileDetectorFactory.h"
-#include "TileGeoModel/TileAtlasFactory.h"
-#include "TileGeoModel/TileTBFactory.h"
+#include "TileDetectorFactory.h"
+#include "TileAtlasFactory.h"
+#include "TileTBFactory.h"
 #include "TileDetDescr/TileDetDescrManager.h" 
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileConditions/TileCablingService.h"
@@ -50,7 +50,7 @@ TileDetectorTool::~TileDetectorTool()
 {
 }
 
-StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
+StatusCode TileDetectorTool::create()
 { 
   MsgStream log(msgSvc(), name()); 
   log << MSG::INFO <<" Entering TileDetectorTool::create()" << endmsg;
@@ -77,7 +77,7 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
   
   //Locate the top level experiment node
   DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")) 
+  if (StatusCode::SUCCESS != detStore()->retrieve(theExpt, "ATLAS")) 
   { 
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
@@ -98,7 +98,7 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
       m_useNewFactory = false;
     }
 
-    if (StatusCode::SUCCESS != initIds(detStore,m_manager,&log)) 
+    if (StatusCode::SUCCESS != initIds(detStore().operator->(),m_manager,&log)) 
     {
       log << MSG::ERROR << "Cannot initialize IdDict helpers" << endmsg;
       return (StatusCode::FAILURE); 
@@ -122,17 +122,17 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
     GeoPhysVol *world=&*theExpt->getPhysVol();
     if(m_testBeam)
     {
-      TileTBFactory theTileTBFactory(detStore,m_manager,m_addPlates,m_Ushape,&log);
+      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log);
       theTileTBFactory.create(world);
     }
     else if (m_useNewFactory)
     {
-      TileAtlasFactory theTileFactory(detStore,m_manager,m_addPlates,m_Ushape,&log,m_geometryConfig=="FULL");
+      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log,m_geometryConfig=="FULL");
       theTileFactory.create(world);
     }
     else
     {
-      TileDetectorFactory theTileFactory(detStore,m_manager,m_addPlates,m_Ushape,&log);
+      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log);
       theTileFactory.create(world);
     }
 
@@ -143,7 +143,7 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
      }
 
     // Register the TileDetDescrManager instance with the Transient Detector Store
-    if (StatusCode::SUCCESS != detStore->record(m_manager, m_manager->getName()))
+    if (StatusCode::SUCCESS != detStore()->record(m_manager, m_manager->getName()))
     {
       log << MSG::ERROR << "Could not record TileDetDescr manager in detector store" << endmsg; 
       return StatusCode::FAILURE;
@@ -161,9 +161,9 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
   return StatusCode::FAILURE;
 }
 
-StatusCode TileDetectorTool::clear(StoreGateSvc* detStore)
+StatusCode TileDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<TileDetDescrManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<TileDetDescrManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;

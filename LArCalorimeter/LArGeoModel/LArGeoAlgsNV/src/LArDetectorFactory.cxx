@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoAlgsNV/LArDetectorFactory.h"
+#include "LArDetectorFactory.h"
 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "LArGeoRAL/RAL.h"

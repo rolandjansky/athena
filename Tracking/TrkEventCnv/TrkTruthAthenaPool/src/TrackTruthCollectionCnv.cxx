@@ -17,9 +17,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for TrackTruthVector.
-pool::Guid TrackTruthCollectionCnv::p0_guid("8BC86D69-DBC4-4B34-8273-513D9BE771D5");
+pool::Guid TrackTruthCollectionCnv::s_p0_guid("8BC86D69-DBC4-4B34-8273-513D9BE771D5");
 
-pool::Guid TrackTruthCollectionCnv::p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A6090");
+pool::Guid TrackTruthCollectionCnv::s_p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A6090");
 
 
 //================================================================
@@ -41,13 +41,13 @@ TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "TrackTruthCollectionCnv" );
   std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
   
-  if (compareClassGuid(p1_guid)) {
+  if (compareClassGuid(s_p1_guid)) {
     log<<MSG::DEBUG<<"Read TrackTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Trk::TrackTruthCollection_p1* pers=poolReadObject<Trk::TrackTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
-  else if (compareClassGuid(p0_guid)) {
+  else if (compareClassGuid(s_p0_guid)) {
     log<<MSG::DEBUG<<"Read version p0 of TrackTruthCollection. GUID="<<m_classID.toString()<<endmsg;
     TrackTruthVector *pers = poolReadObject<TrackTruthVector>();
     m_converter_p0.persToTrans(pers, trans.get(), log);

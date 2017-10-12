@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileGeoModel/TileAtlasFactory.h"
+#include "TileAtlasFactory.h"
+#include "TileGeoSectionBuilder.h"
+#include "TileGeoCutBuilder.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileDetDescr/TileDetDescriptor.h"
-#include "TileGeoModel/TileGeoSectionBuilder.h"
-#include "TileGeoModel/TileGeoCutBuilder.h"
 
 #include "CaloIdentifier/TileID.h"
 

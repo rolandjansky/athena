@@ -316,19 +316,20 @@ def _getJetBuildTool(merge_param,
     if jetBuildTool is None:
         print 'adding new jet finder ', name
         try:
-            jetBuildTool = jtm.addJetFinder(name,
-                                            "AntiKt",
-                                            merge_param,
-                                            "mygetters",
-                                            "mymods",
-                                            # non-zero ghostArea: calcjet area
-                                            # for pileup subtraction.
-                                            ghostArea=0.01,
-                                            rndseed=1,
-                                            isTrigger=True,
-                                            ptmin=ptmin,
-                                            ptminFilter=ptminFilter
-                                            )
+            # jetBuildTool = jtm.addJetFinderTrigger(
+            jetBuildTool = jtm.addJetFinder(
+                name,
+                "AntiKt",
+                merge_param,
+                "mygetters",
+                "mymods",
+                # non-zero ghostArea: calcjet area
+                # for pileup subtraction.
+                ghostArea=0.01,
+                rndseed=1,
+                isTrigger=True,
+                ptmin=ptmin,
+                ptminFilter=ptminFilter)
             
             if not hasattr(jtm,"jbldTrigger"):
                 jtm.addJetBuilderWithArea(JetFromPseudojet("jbldTrigger",

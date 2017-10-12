@@ -45,7 +45,7 @@ public:
   virtual void* getDecoration (SG::auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) override { return 0; }
   virtual const SG::auxid_set_t& getAuxIDs() const override { std::abort(); }
   virtual void lock() override { m_locked = true; }
-  virtual void clearDecorations() override { }
+  virtual bool clearDecorations() override { return false; }
   virtual size_t size() const override { return 0; }
   virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 

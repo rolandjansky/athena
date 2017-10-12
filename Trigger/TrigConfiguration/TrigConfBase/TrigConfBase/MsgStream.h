@@ -7,7 +7,7 @@
 #ifndef TRIGCONFBASE_MSGSTREAM_H
 #define TRIGCONFBASE_MSGSTREAM_H 1
 /**
- * @file   MsgStream.h
+ * @file   TrigConfBase/MsgStream.h
  * @brief  MsgStream for DetCommon
  * @author Frank Winklmeier
  *

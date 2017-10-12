@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxVertex
                           graphics/JiveXML
                           PRIVATE
+                          Control/StoreGate
                           Control/DataModel
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetConditions/InDetBeamSpotService

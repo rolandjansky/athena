@@ -115,5 +115,7 @@ if jetFlags.eventShapeTools() == None:
 
 # Import the jet tool manager.
 from JetRec.JetRecStandardToolManager import jtm
+# Import the constituent tool manager
+from JetRecTools.JetRecToolsConfig import ctm
 
 jetlog.info( myname + "End." )

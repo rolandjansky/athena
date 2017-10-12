@@ -118,8 +118,10 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             InDet::SCT_Cluster* chan = dynamic_cast<InDet::SCT_Cluster*>(createTransFromPStore((CONV**)0, pchan, log ) );
-            chan->m_detEl = de;
-            (*coll)[ichan] = chan;
+            if (chan) {
+                chan->m_detEl = de;
+                (*coll)[ichan] = chan;
+            }
         }
         
         // register the rdo collection in IDC with hash - faster addCollection

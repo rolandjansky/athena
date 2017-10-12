@@ -43,7 +43,7 @@ public slots:
   void setRelativeAxisThickness(const double&);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

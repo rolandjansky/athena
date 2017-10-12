@@ -23,7 +23,7 @@
 #include "Utility.h"
 
 /**
- * @file Config.h
+ * @file TrigCostRootAnalysis/Config.h
  *
  * This singleton class allows for small pieces of data, such as configuration settings, to be globally
  * distributed to the application via a singleton configuration object.

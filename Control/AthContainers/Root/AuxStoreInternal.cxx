@@ -498,19 +498,26 @@ void AuxStoreInternal::lock()
  * Erase all decorations from the store, restoring the state to when
  * @c lock was called.  Be sure to clear the cache of the referencing
  * container!
+ *
+ * Returns true if there were any decorations that were cleared,
+ * false if the store did not contain any decorations.
  */
-void AuxStoreInternal::clearDecorations()
+bool AuxStoreInternal::clearDecorations()
 {
   guard_t guard (m_mutex);
+  bool anycleared = false;
   for (auxid_t id = 0; id < m_vecs.size(); id++) {
     if (m_isDecoration[id]) {
       m_isDecoration[id] = false;
       delete m_vecs[id];
       m_vecs[id] = 0;
       m_auxids.erase (id);
-      ++m_tick;
+      anycleared = true;
     }
   }
+  if (anycleared)
+    ++m_tick;
+  return anycleared;
 }
 
 

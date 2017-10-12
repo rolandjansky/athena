@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_GeoModel/TRTDetectorFactory_Full.h"
-#include "TRT_GeoModel/TRT_DetDescrDB_ParameterInterface.h"
+#include "TRTDetectorFactory_Full.h"
+#include "TRT_DetDescrDB_ParameterInterface.h"
 
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetReadoutGeometry/TRT_BarrelDescriptor.h"
@@ -17,7 +17,7 @@
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-#include "TRT_GeoModel/ArrayFunction.h"
+#include "ArrayFunction.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"

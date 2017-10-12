@@ -18,6 +18,14 @@
 #include "eflowRec/PFLeptonSelector.h"
 #include "eflowRec/PFTrackSelector.h"
 #include "eflowRec/PFClusterSelector.h"
+#include "eflowRec/PFAlgorithm.h"
+#include "eflowRec/PFCellLevelSubtractionTool.h"
+#include "eflowRec/PFRecoverSplitShowersTool.h"
+#include "eflowRec/PFMomentCalculatorTool.h"
+#include "eflowRec/PFClusterCollectionTool.h"
+#include "eflowRec/PFLCCalibTool.h"
+#include "eflowRec/PFOChargedCreatorAlgorithm.h"
+#include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( eflowBuilder )
@@ -29,6 +37,14 @@ DECLARE_ALGORITHM_FACTORY( eflowVertexInformationSetter )
 DECLARE_ALGORITHM_FACTORY( PFLeptonSelector )
 DECLARE_ALGORITHM_FACTORY( PFClusterSelector )
 DECLARE_ALGORITHM_FACTORY( PFTrackSelector )
+DECLARE_ALGORITHM_FACTORY( PFAlgorithm )
+DECLARE_ALGORITHM_FACTORY( PFOChargedCreatorAlgorithm )
+DECLARE_ALGORITHM_FACTORY( PFONeutralCreatorAlgorithm )
+DECLARE_TOOL_FACTORY( PFCellLevelSubtractionTool )
+DECLARE_TOOL_FACTORY( PFRecoverSplitShowersTool )
+DECLARE_TOOL_FACTORY( PFMomentCalculatorTool )
+DECLARE_TOOL_FACTORY( PFClusterCollectionTool )
+DECLARE_TOOL_FACTORY( PFLCCalibTool )
 DECLARE_TOOL_FACTORY( eflowRecoverSplitShowersTool )
 DECLARE_TOOL_FACTORY( eflowCellLevelSubtractionTool )
 DECLARE_TOOL_FACTORY( eflowLCCalibTool )
@@ -51,6 +67,14 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_ALGORITHM( PFLeptonSelector )
     DECLARE_ALGORITHM( PFClusterSelector )
     DECLARE_ALGORITHM( PFTrackSelector )
+    DECLARE_ALGORITHM( PFAlgorithm )
+    DECLARE_ALGORITHM( PFOChargedCreatorAlgorithm )
+    DECLARE_ALGORITHM( PFONeutralCreatorAlgorithm )
+    DECLARE_TOOL( PFCellLevelSubtractionTool )
+    DECLARE_TOOL( PFRecoverSplitShowersTool )
+    DECLARE_TOOL( PFMomentCalculatorTool )
+    DECLARE_TOOL( PFClusterCollectionTool )
+    DECLARE_TOOL( PFLCCalibTool )
     DECLARE_TOOL ( eflowRecoverSplitShowersTool )
     DECLARE_TOOL ( eflowCellLevelSubtractionTool )
     DECLARE_TOOL ( eflowMomentCalculatorTool )

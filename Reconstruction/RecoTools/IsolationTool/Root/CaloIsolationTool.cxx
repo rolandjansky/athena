@@ -1194,8 +1194,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       double emfrac = 1.;
       if (onlyEM) {
 	const xAOD::CaloCluster *ocl = cl->cluster(0);
-	double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
-	emfrac     = std::min(1.,eEM / cl->eEM());
+	if(ocl) {
+	  double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
+	  emfrac     = std::min(1.,eEM / cl->eEM());
+	}
       }
       et *= emfrac;
       

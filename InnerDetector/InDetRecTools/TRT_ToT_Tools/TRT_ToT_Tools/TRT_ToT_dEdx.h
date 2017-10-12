@@ -20,6 +20,10 @@
 //gas type selection
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
+
 /*
   Tool to calculate dE/dx variable for PID
   o Variable is based on ToT of hits
@@ -56,6 +60,7 @@ public:
   enum EToTEstimatorType {kToTLargerIsland,kToTHighOccupancy,kToTHighOccupancySmart};
 
 private:
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;  
   const InDetDD::TRT_DetectorManager* m_trtman;                         // ID TRT detector manager 

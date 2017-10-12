@@ -7,6 +7,10 @@
 #ifndef ROOTUTILS_PYROOTINSPECTOR_H
 #define ROOTUTILS_PYROOTINSPECTOR_H 1
 
+// Interacts with python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #ifdef _POSIX_C_SOURCE
 # undef _POSIX_C_SOURCE
 #endif

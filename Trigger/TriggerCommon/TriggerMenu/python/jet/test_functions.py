@@ -1,15 +1,15 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 """Excerciser functions for JetDef.py"""
+# from AthenaCommon.Include import include
 
 import getopt, sys, os
-from StdOutController import StdOutController
-import importlib
+# from StdOutController import StdOutController
+# import importlib
 
 from generateJetChainDefs import  generateChainDefs
 from exc2string import exc2string2 
-from AthenaCommon.Include import include
-from AthenaCommon.OldStyleConfig import  Service
+# from AthenaCommon.OldStyleConfig import  Service
 
 def _generate(d, silent):
 
@@ -159,9 +159,10 @@ if __name__ == '__main__':
             print 'Error, could not find a dicts name in ', fn
             sys.exit(0)
 
+    print 'running on %d dicts' % len(dicts)
     if do_all: run_triggerMenuXML_dicts(silent, dicts, printChains=True)
     if do_testdicts: run_test_dicts(silent, dicts)
     if do_topo: run_from_topo(silent, dicts)
         
-            
+    print 'done'
 

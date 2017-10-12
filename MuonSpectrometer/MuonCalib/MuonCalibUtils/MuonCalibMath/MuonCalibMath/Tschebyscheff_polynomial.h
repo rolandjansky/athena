@@ -30,9 +30,9 @@ This class is a monoton/singleton object.
   public:
     // Methods
     static Tschebyscheff_polynomial * get_Tschebyscheff_polynomial(void); //!< get a pointer to the Tschebyscheff polynomial
-    /** get the value of the Tschebyscheff polynomial of order m_order at 
+    /** get the value of the Tschebyscheff polynomial of order order at 
 	x (-1 <= x <= 1) */
-    inline double value(const unsigned int & m_order,
+    inline double value(const unsigned int & order,
 			const double & x) const;
   };
 

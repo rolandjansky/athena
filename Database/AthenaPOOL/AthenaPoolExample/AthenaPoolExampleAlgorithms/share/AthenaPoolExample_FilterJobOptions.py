@@ -111,11 +111,15 @@ svcMgr.MessageSvc.defaultLimit = 100000
 
 svcMgr.MetaDataSvc.OutputLevel = 2
 svcMgr.EventSelector.OutputLevel = 2
+svcMgr.EventSelector.HelperTools[0].OutputLevel = 3
 svcMgr.AthenaPoolAddressProviderSvc.OutputLevel = 2
 svcMgr.PoolSvc.OutputLevel = 2
 topSequence.ReadData.OutputLevel = 2
 Stream1.OutputLevel = 2
+Stream1.WritingTool.OutputLevel = 3
+Stream1.HelperTools[0].OutputLevel = 3
 RegStream1.OutputLevel = 2
+RegStream1.Tool.OutputLevel = 3
 
 #
 # End of job options file

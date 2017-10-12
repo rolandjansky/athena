@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ZDC_GeoM/ZDC_DetFactory.h"
+#include "ZDC_DetFactory.h"
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
@@ -38,16 +38,16 @@
 using namespace Genfun;
 using namespace GeoXF;
 
-ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : detectorManager(NULL) , detectorStore(detStore) {}
+ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : m_detectorManager(NULL) , m_detectorStore(detStore) {}
 
 ZDC_DetFactory::~ZDC_DetFactory() {}
 
 void ZDC_DetFactory::create(GeoPhysVol* world)
 {
-  detectorManager = new ZDC_DetManager();
+  m_detectorManager = new ZDC_DetManager();
 
   DataHandle<StoredMaterialManager> materialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) return;
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) return;
 
   //------------------------------------------------------------------------------------------------------------
   //List of materials
@@ -309,7 +309,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
   world->add(ShiftZ);
   world->add(Envelope_Physical[0]);
 
-  detectorManager->addTreeTop(Envelope_Physical[0]);
+  m_detectorManager->addTreeTop(Envelope_Physical[0]);
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
 					    << Envelope_Physical[0]->getAbsoluteName() 
@@ -324,14 +324,14 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
   world->add(ShiftZ);
   world->add(Envelope_Physical[1]);
 
-  detectorManager->addTreeTop(Envelope_Physical[1]);
+  m_detectorManager->addTreeTop(Envelope_Physical[1]);
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
 					    << Envelope_Physical[1]->getAbsoluteName() 
 					    << endmsg;
 }
 
-const ZDC_DetManager* ZDC_DetFactory::getDetectorManager() const { return detectorManager; }
+const ZDC_DetManager* ZDC_DetFactory::getDetectorManager() const { return m_detectorManager; }
 
 // if you change this function then also make changes in PixelSD::EndOfEvent
 // CHANGE Kmax=80 THERE, IF YOU WANT EACH PIXEL IN HMXY TO BE READ OUT SEPARATELY

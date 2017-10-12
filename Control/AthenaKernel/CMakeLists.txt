@@ -13,13 +13,14 @@ atlas_depends_on_subdirs(
    Control/DataModelRoot
    GaudiKernel
    PRIVATE
-   AtlasTest/TestTools )
+   AtlasTest/TestTools
+   )
 
 # External dependencies:
 find_package( Boost COMPONENTS program_options regex filesystem thread )
 find_package( ROOT COMPONENTS Core )
 find_package( UUID )
-
+find_package(CLHEP)
 # Only link agains the RT library on Linux:
 set( rt_library )
 if( UNIX AND NOT APPLE )
@@ -30,11 +31,11 @@ endif()
 atlas_add_library( AthenaKernel
    AthenaKernel/*.h AthenaKernel/*.icc src/*.cxx
    PUBLIC_HEADERS AthenaKernel
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} CxxUtils DataModelRoot
    GaudiKernel ${rt_library}
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES})
 
 atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/AthenaKernelDict.h

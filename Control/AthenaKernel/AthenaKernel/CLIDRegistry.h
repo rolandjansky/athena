@@ -4,7 +4,7 @@
 
 #ifndef ATHENAKERNEL_CLIDREGISTRY_H
 # define ATHENAKERNEL_CLIDREGISTRY_H
-/** @file CLIDRegistry.h
+/** @file AthenaKernel/CLIDRegistry.h
  * @brief  a static registry of CLID->typeName entries. NOT for general use.
  * Use ClassIDSvc instead.
  *

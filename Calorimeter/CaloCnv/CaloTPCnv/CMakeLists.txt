@@ -20,11 +20,13 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Calorimeter/CaloConditions
                           Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloInterface
+                          #Calorimeter/CaloInterface
                           Calorimeter/CaloUtils
                           Control/CxxUtils
                           Control/SGTools
-                          Event/EventKernel )
+                          Event/EventKernel
+			  LArCalorimeter/LArRecEvent 
+			  TileCalorimeter/TileEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,19 +38,19 @@ atlas_add_tpcnv_library( CaloTPCnv
                          PUBLIC_HEADERS CaloTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                          PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel LArRecEvent TileEvent )
 
 atlas_add_dictionary( CaloTPCnvDict
                       CaloTPCnv/CaloTPCnvDict.h
                       CaloTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv  LArRecEvent TileEvent)
 
 atlas_add_dictionary( OLD_CaloTPCnvDict
                       CaloTPCnv/CaloTPCnvDict.h
                       CaloTPCnv/OLD_selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv  LArRecEvent TileEvent)
 
 atlas_add_test( CaloCellLinkContainerCnv_p2_test
                 SOURCES
@@ -69,4 +71,18 @@ atlas_add_test( CaloClusterCellLinkContainerCnv_p1_test
                 test/CaloClusterCellLinkContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthAllocators AthLinks DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv )
+
+
+atlas_add_test( CaloCellPackerUtils_test
+   SOURCES test/CaloCellPackerUtils_test.cxx
+   LINK_LIBRARIES GaudiKernel )
+
+atlas_add_test( CaloCompactCellTool_test
+   SOURCES test/CaloCompactCellTool_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
+   AthenaKernel StoreGateLib GaudiKernel LArRecEvent TileEvent TestTools
+   IdDictParser CaloTPCnv
+   EXTRA_PATTERNS "SGAudSvc +INFO|^lar decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|^AtlasDetectorID::"
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

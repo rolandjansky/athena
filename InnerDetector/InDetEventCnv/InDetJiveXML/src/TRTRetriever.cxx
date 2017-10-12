@@ -6,13 +6,13 @@
 #include "StoreGate/DataHandle.h"
 #include "JiveXML/DataType.h"
 
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+
+// ReadHandle
+#include "StoreGate/ReadHandle.h"
 
 namespace JiveXML {
 
@@ -29,32 +29,32 @@ namespace JiveXML {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
+  }
 
-    //And the properties
-    declareProperty("TRTClusters"  , m_TRTDriftCircleCollName = "TRT_DriftCircles" );
-    declareProperty("TRT_TruthMap" , m_TRTTruthMapName = "PRD_MultiTruthTRT" );
-
+  StatusCode TRTRetriever::initialize() {
+    ATH_CHECK( geo.retrieve() );
+    ATH_CHECK( m_TRTDriftCircleCollKey.initialize() );
+    m_useTRTTruthMap = !m_TRTTruthMapKey.key().empty();
+    ATH_CHECK( m_TRTTruthMapKey.initialize(m_useTRTTruthMap) );
+    return StatusCode::SUCCESS;
   }
 
   StatusCode TRTRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
-
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
   
     //First try to retrieve the DriftCircleContainer
-    const InDet::TRT_DriftCircleContainer* DriftCircleContainer;
-    if ( evtStore()->retrieve(DriftCircleContainer, m_TRTDriftCircleCollName).isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrive TRT_DriftCircleContainer with name " << m_TRTDriftCircleCollName << endmsg;
+    SG::ReadHandle<InDet::TRT_DriftCircleContainer> DriftCircleContainer( m_TRTDriftCircleCollKey );
+    if ( !DriftCircleContainer.isValid() ) {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrive TRT_DriftCircleContainer with name " << m_TRTDriftCircleCollKey.key() << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
     //Also try to obtain the truth container
-    const PRD_MultiTruthCollection* TRTMultiTruthMap = NULL;
-    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_TRTTruthMapName) ){
-      if ( evtStore()->retrieve(TRTMultiTruthMap, m_TRTTruthMapName).isFailure() ){
-        //Only warn if this container is not available
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve PRD_MultiTruthCollection with name " << m_TRTTruthMapName << endmsg;
-      }
+    SG::ReadHandle<PRD_MultiTruthCollection> TRTMultiTruthMap( m_TRTTruthMapKey );
+    if ( m_useTRTTruthMap && !TRTMultiTruthMap.isValid() ){
+      //Only warn if this container is not available
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve PRD_MultiTruthCollection with name " << m_TRTTruthMapKey.key() << endmsg;
     }
 
     //Get total size of all all drift circles in all collections
@@ -150,7 +150,7 @@ namespace JiveXML {
         /**
          * Finally, get the associated truth particles, if there are
          */
-        if ( TRTMultiTruthMap == NULL ) continue ;
+        if ( !m_useTRTTruthMap || !TRTMultiTruthMap.isValid() ) continue;
 
         //Count number of barcodes we get
         int NBarcodes = 0;

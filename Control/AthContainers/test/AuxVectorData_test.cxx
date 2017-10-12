@@ -219,7 +219,8 @@ void test_decoration()
   assert (cb1.getData<int> (ityp3, 0) == 14);
   assert (cb1.getDecoration<int> (ityp3, 0) == 14);
 
-  b1.clearDecorations();
+  assert (b1.clearDecorations() == true);
+  assert (b1.clearDecorations() == false);
   assert (cb1.getData<int> (ityp1, 0) == 10);
   assert (cb1.getData<int> (ityp2, 0) == 11);
   EXPECT_EXCEPTION (SG::ExcBadAuxVar, cb1.getData<int> (ityp3, 0));
@@ -376,7 +377,7 @@ public:
   virtual const SG::auxid_set_t& getAuxIDs() const { std::abort(); }
   virtual void lock() { std::abort(); }
   virtual void lockDecoration (SG::auxid_t) { std::abort(); }
-  virtual void clearDecorations() { std::abort(); }
+  virtual bool clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
   virtual void* getData (SG::auxid_t, size_t, size_t) { std::abort(); }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { std::abort(); }

@@ -59,7 +59,7 @@ StatusCode SiSpacePointMakerTool::finalize() {
 //--------------------------------------------------------------------------
 Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluster& cluster1, 
   const InDet::SiCluster& cluster2, const Amg::Vector3D& vertexVec, 
-  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2){
+  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double stripLengthGapTolerance) const {
 // -ME fixme- const InDetDD::SCT_DetectorManager *m_manager, const SCT_ID* m_idHelper) {
 
   // Find intersection of a line through a cluster on one sct detector and
@@ -136,10 +136,10 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
       if      (fabs(            m             ) > limit) ok = false;
       else if (fabs((n=-(t.dot(qs)/r.dot(qs)))) > limit) ok = false;
  
-      if(!ok && m_stripLengthGapTolerance !=0.) {
+      if(!ok && stripLengthGapTolerance !=0.) {
 
  	double qm     = q.mag()                             ;
-	double limitn = limit+(m_stripLengthGapTolerance/qm);
+	double limitn = limit+(stripLengthGapTolerance/qm);
 
 	if(fabs(m) <= limitn)  {
 	  
@@ -180,9 +180,9 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
-  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, SpacePointCollection* spacepointCollection){
+  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, SpacePointCollection* spacepointCollection) const {
 
-  m_stripLengthGapTolerance = 0.; 
+  double stripLengthGapTolerance = 0.; 
 
   // Try all combinations of clusters for space points
   InDet::SCT_ClusterCollection::const_iterator
@@ -201,10 +201,8 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
     return;
   }
  
-  //Avoid over or under allocation by first putting spacepoints in
-  //m_tmpSpacePoints and then copying them to the spacepointCollection
-  //at the end.
-  m_tmpSpacePoints.clear();
+  //tmpSpacePoints changed to local variable to enable rentrancy
+  std::vector<Trk::SpacePoint*> tmpSpacePoints;
 
   for (; clusters1Next!=clusters1Finish; ++clusters1Next){   
     Amg::Vector2D locpos = (*clusters1Next)->localPosition();
@@ -222,7 +220,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
       break;
     } 
 
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
+    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2, stripLengthGapTolerance); min-=dm; max+=dm; }
    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
@@ -231,23 +229,22 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
       if ((min <= diff && diff <= max)||m_allClusters){
 	
 	Trk::SpacePoint* sp =
-	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2);
+	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
 	if (sp) {
-	  m_tmpSpacePoints.push_back(sp);
+	  tmpSpacePoints.push_back(sp);
 	}
       }
     }
   }
 
-  spacepointCollection->reserve(spacepointCollection->size() + m_tmpSpacePoints.size());
-  std::vector<Trk::SpacePoint*>::const_iterator it(m_tmpSpacePoints.begin()),itE(m_tmpSpacePoints.end());
+  spacepointCollection->reserve(spacepointCollection->size() + tmpSpacePoints.size());
+  std::vector<Trk::SpacePoint*>::const_iterator it(tmpSpacePoints.begin()),itE(tmpSpacePoints.end());
   for (;it!=itE;++it) spacepointCollection->push_back(*it);
-  m_tmpSpacePoints.clear();
 
 }
 
 //--------------------------------------------------------------------------
-void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, SpacePointCollection* spacepointCollection){
+void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, SpacePointCollection* spacepointCollection) const {
   IdentifierHash idHash = clusters->identifyHash(); 
   InDet::PixelClusterCollection::const_iterator clusStart = clusters->begin(); 
   InDet::PixelClusterCollection::const_iterator clusFinish = clusters->end(); 
@@ -268,9 +265,9 @@ void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClus
 void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
   const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-  SpacePointOverlapCollection* m_spacepointoverlapCollection){
+  SpacePointOverlapCollection* m_spacepointoverlapCollection) const {
 
-  m_stripLengthGapTolerance = 0.; 
+  double stripLengthGapTolerance = 0.; 
 
   // Require that (xPhi2 - xPhi1) lie in the range specified.
   // Used eta modules
@@ -304,7 +301,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
       msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
       break;
     } 
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
+    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2, stripLengthGapTolerance); min-=dm; max+=dm; }
    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
@@ -313,7 +310,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
       if ((min <= diff && diff <= max)||m_allClusters){
 	 
 	Trk::SpacePoint* sp =
-	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2);
+	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
 	if (sp) {
 	  m_spacepointoverlapCollection->push_back(sp);
 	}
@@ -328,9 +325,9 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
 void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, double max2, 
   bool m_allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-  SpacePointOverlapCollection* m_spacepointoverlapCollection){
+  SpacePointOverlapCollection* m_spacepointoverlapCollection) const {
 
-  m_stripLengthGapTolerance = 0.; if(m_SCTgapParameter!=0.) {min1-=20.;  max1+=20.;}
+  double stripLengthGapTolerance = 0.; if(m_SCTgapParameter!=0.) {min1-=20.;  max1+=20.;}
 
   // Clus1 must lie
   // within min1 and max1 and clus between min2 and max2. Used for phi
@@ -366,7 +363,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
 	break;
       }
  
-      if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min2-=dm; max2+=dm; }
+      if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2, stripLengthGapTolerance); min2-=dm; max2+=dm; }
 
       for (; clusters2Next != clusters2Finish; ++clusters2Next)
 	{
@@ -375,7 +372,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
 	  double xPhi2 = InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0).xPhi();
 	  if ((min2<= xPhi2 && xPhi2 <= max2)||m_allClusters){
 	    Trk::SpacePoint* sp 
-	      (makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2));
+	      (makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance));
 	    if (sp) {
 	      m_spacepointoverlapCollection->push_back(sp);
 	    }
@@ -392,7 +389,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   ///////////////////////////////////////////////////////////////////
 
   double SiSpacePointMakerTool::offset
-  (const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2)
+  (const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double &stripLengthGapTolerance) const
   {
     const Amg::Transform3D& T1  =  element1->transform();
     const Amg::Transform3D& T2  =  element2->transform();
@@ -406,7 +403,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
     
     if(fabs(T1(2,2)) > .7) d*=(r/fabs(T1(2,3))); // endcap d = d*R/Z
 
-    m_stripLengthGapTolerance = d; 
+    stripLengthGapTolerance = d; 
     return dm;
   }
 

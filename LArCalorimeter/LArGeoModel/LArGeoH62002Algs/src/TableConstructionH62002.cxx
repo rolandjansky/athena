@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62002Algs/TableConstructionH62002.h"
+#include "TableConstructionH62002.h"
 #include "LArGeoH6Cryostats/MWPCConstruction.h"
 
 #include "GeoModelKernel/GeoElement.h"  

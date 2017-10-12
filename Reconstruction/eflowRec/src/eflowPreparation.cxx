@@ -309,14 +309,19 @@ StatusCode eflowPreparation::makeTrackContainer() {
     const xAOD::TrackParticle* track = (*itTrackParticle);
     if (!track) continue; // TODO: Print a WARNING here!
 
+    ATH_MSG_DEBUG("Have track with E, pt, eta and phi of " << track->e() << ", " << track->pt() << ", " << track->eta() << " and " << track->phi());
+    
     bool rejectTrack((m_eflowMode == "FullMode") && !selectTrack(track));
 
     if (m_useLeptons) {
       bool isElectron = this->isElectron(track);
       bool isMuon = this->isMuon(track);
+      ATH_MSG_DEBUG("isElectron is " << isElectron << " and isMuon is " << isMuon);
       if (true == isElectron || true == isMuon) rejectTrack = true;
     }
 
+    ATH_MSG_DEBUG("rejectTrack is " << rejectTrack);
+    
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
       std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_trackReadHandle, trackIndex), m_theTrackExtrapolatorTool);
@@ -406,6 +411,7 @@ bool eflowPreparation::isMuon(const xAOD::TrackParticle* track){
     for (; firstMuon != lastMuon ; ++firstMuon){
       const xAOD::Muon* theMuon = *firstMuon;
       if (theMuon){
+	ATH_MSG_DEBUG("Considering muon in isMuon with e,pt, eta and phi of " << theMuon->e() << ", " << theMuon->pt() << ", " << theMuon->eta() << " and " << theMuon->phi());
 	const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->inDetTrackParticleLink();
 	if (theLink.isValid()){
 	  const xAOD::TrackParticle* ID_track = *theLink;

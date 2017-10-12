@@ -47,7 +47,7 @@ class TFile;
 #define UNUSED(expr) do {(void) (expr);} while (0)
 
 /**
- * @file Utility.h
+ * @file TrigCostRootAnalysis/Utility.h
  *
  * Place for handy utility functions
  *

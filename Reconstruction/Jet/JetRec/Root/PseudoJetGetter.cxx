@@ -29,6 +29,8 @@ PseudoJetGetter::PseudoJetGetter(const std::string& name)
 
 StatusCode PseudoJetGetter::initialize() {
   ATH_MSG_DEBUG("Initializing...");
+  // PJG needs to know if this is the basic EMTopo cluster collection
+  // in order to change the cluster signal state.
   if ( m_label == "EMTopo") m_emtopo = true;
   PseudoJetGetterRegistry::add(this);
   print();
