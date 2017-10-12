@@ -40,7 +40,5 @@ CLASS_DEF( LArHVScaleCorrSC ,9991567 , 1 )
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArHVScaleCorrSC> , 123730893 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArHVScaleCorrSC>, CondContBase );
 
 #endif 

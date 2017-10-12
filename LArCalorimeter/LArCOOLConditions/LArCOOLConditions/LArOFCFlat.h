@@ -97,8 +97,6 @@ CLASS_DEF( LArOFCFlat, 20294702, 1)
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArOFCFlat> , 117247562 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArOFCFlat>, CondContBase );
  
 
 #endif 

@@ -34,8 +34,6 @@ CLASS_DEF( LArAutoCorrSC , 219258685, 1 )
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArAutoCorrSC> , 169266589 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArAutoCorrSC>, CondContBase );
 
 
 #endif 

@@ -40,7 +40,5 @@ CLASS_DEF( LArMinBiasSC ,156198230 , 1 )
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArMinBiasSC> , 98956242 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArMinBiasSC>, CondContBase );
 
 #endif 

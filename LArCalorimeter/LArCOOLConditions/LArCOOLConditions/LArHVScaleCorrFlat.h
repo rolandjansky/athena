@@ -36,8 +36,6 @@ CLASS_DEF( LArHVScaleCorrFlat , 245481026 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont< LArHVScaleCorrFlat> , 11793039 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont< LArHVScaleCorrFlat>, CondContBase );
 
 
 #endif 

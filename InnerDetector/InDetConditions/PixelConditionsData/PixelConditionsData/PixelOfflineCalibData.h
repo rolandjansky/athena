@@ -15,7 +15,6 @@
 #include "PixelConditionsData/PixelChargeInterpolationParameters.h"
 
 #include "AthenaKernel/CondCont.h"
-#include "SGTools/BaseInfo.h"
 
 
 /** @class PixelOfflineCalibData 
@@ -135,7 +134,6 @@ delete m_clusterontrackerrordata;
 CLASS_DEF(PixelCalib::PixelOfflineCalibData, 209342487, 1)
 CLASS_DEF(CondCont<PixelCalib::PixelOfflineCalibData> , 213651723 , 1)
 
-SG_BASE( CondCont<PixelCalib::PixelOfflineCalibData> , CondContBase );
 
 #endif 
 

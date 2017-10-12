@@ -73,7 +73,5 @@ CLASS_DEF( LArShapeSC , 125125776 , 1 )
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArShapeSC> , 70096552 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArShapeSC>, CondContBase );
 
 #endif 

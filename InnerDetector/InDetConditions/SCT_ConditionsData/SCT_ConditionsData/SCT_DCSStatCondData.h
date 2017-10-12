@@ -46,7 +46,5 @@ CLASS_DEF( SCT_DCSStatCondData , 254074432 , 1 )
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<SCT_DCSStatCondData> , 162792902 , 1 )
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_DCSStatCondData>, CondContBase );
 
 #endif // SCT_DCSSTATCONDDATA_H

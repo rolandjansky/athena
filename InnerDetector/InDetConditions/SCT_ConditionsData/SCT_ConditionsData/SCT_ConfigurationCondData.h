@@ -89,7 +89,5 @@ CLASS_DEF( SCT_ConfigurationCondData , 115061956 , 1 )
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<SCT_ConfigurationCondData> , 23220694 , 1 )
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_ConfigurationCondData>, CondContBase );
 
 #endif // SCT_CONFIGURATIONDATA_H
