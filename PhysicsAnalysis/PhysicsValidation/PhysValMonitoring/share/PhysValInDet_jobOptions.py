@@ -4,6 +4,7 @@ decoration = InDetPhysValMonitoring.InDetPhysValDecoration.addDecoratorIfNeeded(
 # add ID physics validation monitoring tool
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringTool import InDetPhysValMonitoringTool
+from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
 
 indet_mon_tool = InDetPhysValMonitoringTool.InDetPhysValMonitoringTool()
 ToolSvc += [indet_mon_tool] 
