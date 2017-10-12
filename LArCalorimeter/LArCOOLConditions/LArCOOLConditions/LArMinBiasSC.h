@@ -35,10 +35,9 @@ private:
   //static const float errorcode;
 
 };
-
-CLASS_DEF( LArMinBiasSC ,156198230 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArMinBiasSC,ILArMinBias);
+CLASS_DEF( LArMinBiasSC ,156198230 , 1 )
 CLASS_DEF( CondCont<LArMinBiasSC> , 98956242 , 1 )
 
 #endif 

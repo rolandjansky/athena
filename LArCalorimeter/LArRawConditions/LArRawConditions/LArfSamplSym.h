@@ -41,12 +41,10 @@ class LArfSamplSym: virtual public ILArfSampl {
 };
 
 #include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF( LArfSamplSym,169816659,1)
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArfSamplSym, ILArfSampl);
 CLASS_DEF( CondCont<LArfSamplSym> ,75658929 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArfSamplSym>, CondContBase );
-SG_BASE( LArfSamplSym, SG_VIRTUAL( ILArfSampl ) );
+
 
 #endif 

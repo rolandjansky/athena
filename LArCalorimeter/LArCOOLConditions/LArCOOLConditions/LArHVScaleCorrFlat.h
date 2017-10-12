@@ -32,10 +32,8 @@ public:
   
 };
 
-CLASS_DEF( LArHVScaleCorrFlat , 245481026 , 1 )
-
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArHVScaleCorrFlag,ILArHVSCaleCorr);
+CLASS_DEF( LArHVScaleCorrFlat , 245481026 , 1 )
 CLASS_DEF( CondCont< LArHVScaleCorrFlat> , 11793039 , 1 )
-
-
 #endif 
