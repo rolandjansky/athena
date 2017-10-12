@@ -20,7 +20,8 @@
 #define LARPEDESTALS2NTUPLE_H
 
 #include "LArCalibTools/LArCond2NtupleBase.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArPedestal.h"
 
 class LArPedestals2Ntuple : public LArCond2NtupleBase
 {
@@ -30,10 +31,11 @@ class LArPedestals2Ntuple : public LArCond2NtupleBase
 
   //standard algorithm methods
   virtual StatusCode stop();
+  StatusCode initialize();
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
 
-  std::string m_contKey;
+  SG::ReadCondHandleKey<ILArPedestal> m_pedKey;
 };
 
 #endif
