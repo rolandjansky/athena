@@ -158,7 +158,7 @@ if( XAOD_STANDALONE )
    #  build path (for nightlies and CI builds)
    atlas_add_test( ut_SUSYTools_config_checker
       SCRIPT test/ut_SUSYTools_config_checker.py
-      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|AnalysisBase/build/AnalysisBase/x86_64-slc6-gcc62-opt")
+      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|Analysis.*/build/Analysis.*/x86_64-slc6-gcc62-opt")
    # Additional veto lines: more timing, local conf file this thing is writing
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py
