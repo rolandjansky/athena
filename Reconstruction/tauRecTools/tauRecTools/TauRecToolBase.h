@@ -60,7 +60,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   void setTauEventData(TauEventData* data);
   TauEventData* tauEventData();
   const TauEventData* tauEventData() const;
-
+  
   bool inTrigger() const;
 
  protected:
