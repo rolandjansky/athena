@@ -93,7 +93,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute() {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{attrList->first};
     CondAttrListCollection::AttributeList payload{attrList->second};
-    if (payload.exists(param)) {
+    if (payload.exists(param) and not payload[param].isNull()) {
       float val{payload[param].data<float>()};
       writeCdo->setValue(channelNumber, val);
     } else {
