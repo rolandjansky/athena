@@ -28,11 +28,9 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
   m_pBadModules{nullptr},
   m_pModulesHV{nullptr},
   m_pModulesTemp0{nullptr},
-  m_pModulesTemp1{nullptr},
   m_condKeyState{"SCT_DCSStatCondData"},
   m_condKeyHV{"SCT_DCSHVCondData"},
   m_condKeyTemp0{"SCT_DCSTemp0CondData"},
-  m_condKeyTemp1{"SCT_DCSTemp1CondData"},
   m_pHelper{nullptr},
   m_folderPrefix{"/SCT/DCS"}
 { 
@@ -111,7 +109,6 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   ATH_CHECK(m_condKeyState.initialize());
   ATH_CHECK(m_condKeyHV.initialize());
   ATH_CHECK(m_condKeyTemp0.initialize());
-  ATH_CHECK(m_condKeyTemp1.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -300,19 +297,6 @@ SCT_DCSConditionsSvc::getCondDataTemp0() const {
       return false;
     }
     m_pModulesTemp0 = *condData;
-  }
-  return true;
-}
-
-bool
-SCT_DCSConditionsSvc::getCondDataTemp1() const {
-  if (!m_pModulesTemp1) {
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp1};
-    if ((not condData.isValid()) or !(*condData)) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp1.key());
-      return false;
-    }
-    m_pModulesTemp1 = *condData;
   }
   return true;
 }
