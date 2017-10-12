@@ -33,5 +33,8 @@ class LArHVScaleCorrComplete: public ILArHVScaleCorr ,
   void set(const HWIdentifier& CellID, const float vDAC2uA);
 
 };
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArHVScaleCorrComplete,ILArHVScaleCorr);
 CLASS_DEF( LArHVScaleCorrComplete, 220593802,1)
+CLASS_DEF( CondCont<LArHVScaleCorrComplete> , 84955454 , 1 )
 #endif 
