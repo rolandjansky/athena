@@ -28,7 +28,7 @@ class SCT_DCSConditionsTempCondAlg : public AthAlgorithm
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey;
+  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey[2];
 
   ServiceHandle<ICondSvc> m_condSvc;
 
