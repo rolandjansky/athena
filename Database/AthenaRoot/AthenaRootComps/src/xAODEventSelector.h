@@ -234,6 +234,8 @@ class xAODEventSelector :
 
   bool m_readMetadataWithPool = false; //interacts with PoolSvc to create collections, needed by MetaDataSvc
 
+  bool m_printPerfStats = false; //should we monitor the touched input branches?
+
 #ifndef XAOD_ANALYSIS
   //these are here just for compatibility with RecExCommon ... we were trying to use this selector in recexcommon jobs for a bit
   bool m_backNavigation=false;
