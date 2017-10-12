@@ -44,6 +44,10 @@ typedef LArSymConditionsAlg<LArRampMC,LArRampSym> LArRampSymCondAlg;
 typedef LArSymConditionsAlg<LAruA2MeVMC,LAruA2MeVSym> LAruA2MeVSymCondAlg;
 
 
+#include "LArRawConditions/LArDAC2uAMC.h"
+#include "LArRawConditions/LArDAC2uASym.h"
+typedef LArSymConditionsAlg<LArDAC2uAMC,LArDAC2uASym> LArDAC2uASymCondAlg;
+
 #include "LArRawConditions/LArfSamplMC.h"
 #include "LArRawConditions/LArfSamplSym.h"
 typedef LArSymConditionsAlg<LArfSamplMC,LArfSamplSym> LArfSamplSymCondAlg;
