@@ -39,6 +39,13 @@ class LArSymConditionsAlg: public AthAlgorithm {
 #include "LArRawConditions/LArRampSym.h"
 typedef LArSymConditionsAlg<LArRampMC,LArRampSym> LArRampSymCondAlg; 
 
+#include "LArRawConditions/LAruA2MeVMC.h"
+#include "LArRawConditions/LAruA2MeVSym.h"
+typedef LArSymConditionsAlg<LAruA2MeVMC,LAruA2MeVSym> LAruA2MeVSymCondAlg;
 
+
+#include "LArRawConditions/LArfSamplMC.h"
+#include "LArRawConditions/LArfSamplSym.h"
+typedef LArSymConditionsAlg<LArfSamplMC,LArfSamplSym> LArfSamplSymCondAlg;
 
 #endif
