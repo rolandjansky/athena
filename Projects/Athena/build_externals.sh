@@ -119,9 +119,11 @@ fi
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
 # Check out AthenaExternals from the right branch/tag:
-${scriptsdir}/checkout_atlasexternals.sh \
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{ ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
-    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
+    -s ${BUILDDIR}/src/AthenaExternals 2>&1 || touch $error_stamp ; } | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
+test -f $error_stamp && { echo "ERROR: checkout_atlasexternals.sh FAILED. EXIT(1)" >&2 ; exit 1; }
 
 # Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
@@ -140,9 +142,11 @@ platform=$(cd ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/Insta
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 
 # Check out Gaudi from the right branch/tag:
-${scriptsdir}/checkout_Gaudi.sh \
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{ ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
+    -s ${BUILDDIR}/src/GAUDI 2>&1 || touch $error_stamp ; } | tee ${BUILDDIR}/src/checkout.GAUDI.log
+test -f $error_stamp && { echo "ERROR: checkout_atlasexternals.sh FAILED. EXIT(1)" >&2 ; exit 1; }
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
