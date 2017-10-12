@@ -23,10 +23,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdint>
-<<<<<<< HEAD
 #include <exception>
-=======
->>>>>>> 6d0bfb87f1... Initial skeleton of unit tests for L1TopoSimulationUtils
 
 using std::cout;
 using std::endl;
@@ -50,7 +47,6 @@ void test1()
     }
 }
 
-<<<<<<< HEAD
 // Check KF correction values
 void test2()
 {
@@ -99,16 +95,11 @@ void test3()
 }
 
 
-=======
->>>>>>> 6d0bfb87f1... Initial skeleton of unit tests for L1TopoSimulationUtils
 
 int main()
 {
   test1();
-<<<<<<< HEAD
   test2();
   test3();
-=======
->>>>>>> 6d0bfb87f1... Initial skeleton of unit tests for L1TopoSimulationUtils
   return 0;
 }
