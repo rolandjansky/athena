@@ -256,6 +256,23 @@ DVMultiJetTriggerFilter = skimtool( name = "DVMultiJetTriggerFilter",
                                   )
 ToolSvc += DVMultiJetTriggerFilter
 
+DV2JetFilterTool = skimtool( name = "DV2JetFilterTool",
+                                 expression = DVSelectionString(primRPVLLDESDM.DV_2JetFilterFlags, jetContainer),
+                                        )
+ToolSvc += DV2JetFilterTool
+
+DV3JetFilterTool = skimtool( name = "DV3JetFilterTool",
+                                 expression = DVSelectionString(primRPVLLDESDM.DV_3JetFilterFlags, jetContainer),
+                                        )
+ToolSvc += DV3JetFilterTool
+
+
+DV3JetFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV3JetFinalFilter",
+                                                               FilterList=[DV3JetFilterTool,DV2JetFilterTool],
+#                                                              OutputLevel=DEBUG
+                                                               )
+ToolSvc+=DV3JetFinalFilter
+
 DV4JetFilterTool = skimtool( name = "DV4JetFilterTool",
                                  expression = DVSelectionString(primRPVLLDESDM.DV_4JetFilterFlags, jetContainer),
                                         )
@@ -282,7 +299,7 @@ ToolSvc += DV7JetFilterTool
 
 
 DV_multiJet_offlineJetFilter = DerivationFramework__FilterCombinationOR( name = "DV_multiJet_offlineJetFilter",
-                                                                        FilterList=[DV4JetFilterTool,DV5JetFilterTool,DV6JetFilterTool,DV7JetFilterTool],
+                                                                        FilterList=[DV3JetFinalFilter,DV4JetFilterTool,DV5JetFilterTool,DV6JetFilterTool,DV7JetFilterTool],
 ##                                                                        OutputLevel=DEBUG
                                                                         )
 ToolSvc += DV_multiJet_offlineJetFilter
