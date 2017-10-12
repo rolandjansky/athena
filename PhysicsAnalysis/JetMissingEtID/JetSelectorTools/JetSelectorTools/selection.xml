@@ -1,6 +1,7 @@
 <lcgdict>
   <!-- Jet cleaning tools -->
   <class name="JetCleaningTool" />
+  <class name="EventCleaningTool" />
   <class name="JetAttributeSelector" />
   <class name="JetAttributeRatioSelector" />
   <class name="JetAbsAttributeSelector" />
