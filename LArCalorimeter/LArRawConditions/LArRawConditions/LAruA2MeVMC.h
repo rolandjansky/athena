@@ -42,6 +42,9 @@ class LAruA2MeVMC: public LAruA2MeVComplete {
   
  private: 
 
+  ToolHandle<ILArMCSymTool> m_larmcsym;
+
+
 };
 
 #include "AthenaKernel/CondCont.h"
