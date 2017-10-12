@@ -483,9 +483,10 @@ class Configuration:
           options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
-          options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
-          options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
-          options.setdefault('BTagSVName', self._OutputFilesSVname)
+          options.setdefault('JetCollectionName', jetcol + "Jets")
+          options.setdefault('BTaggingCollectionName', self.getOutputFilesPrefix() + jetcol)
+          #options.setdefault('BTagJFVtxCollectionName', self._OutputFilesJFVxname)
+          #options.setdefault('BTagSVCollectionName', self._OutputFilesSVname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
           jetbtaggertool = JetBTaggerTool(**options)
           # Setup the associator tool
@@ -1363,19 +1364,24 @@ class Configuration:
       ToolSvc += tool
       return tool
 
-  def setupSecVtxTool(self, name, ToolSvc, Verbose = False, options={}):
+  def setupSecVtxTool(self, name, JetCollection, ToolSvc, Verbose = False, options={}):
       """Adds a SecVtxTool instance and registers it.
 
       input: name:               The tool's name.
+             JetCollection	 The name of the jet collections.
              ToolSvc:            The ToolSvc instance.
              Verbose:            Whether to print detailed information about the tool.
              options:            Python dictionary of options to be passed to the SecVtxTool.
       output: The tool."""
+      jetcol = JetCollection
       options = dict(options)
       options.setdefault('SecVtxFinderList', [])
       options.setdefault('SecVtxFinderTrackNameList', [])
       options.setdefault('SecVtxFinderxAODBaseNameList', [])
       options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
+      options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
+      options.setdefault('BTagJFVtxCollectionName', self.getOutputFilesPrefix() + jetcol + self._OutputFilesJFVxname)
+      options.setdefault('BTagSVCollectionName', self.getOutputFilesPrefix() + jetcol + self._OutputFilesSVname)
       options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
       options['name'] = name
       from BTagging.BTaggingConf import Analysis__BTagSecVertexing
@@ -1401,7 +1407,7 @@ class Configuration:
       options = dict(options)
       # Setup a removal tool for it
       options.setdefault('storeSecondaryVerticesInJet', BTaggingFlags.writeSecondaryVertices)
-      thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), ToolSvc, Verbose)
+      thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
       self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
       #options['BTagSecVertexingTool'] = thisSecVtxTool # MOVED TO JETBTAGGERTOOL
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool

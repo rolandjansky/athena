@@ -28,6 +28,8 @@ namespace InDet {
 #include "xAODBTagging/BTagVertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace Trk{
 
@@ -51,7 +53,8 @@ namespace Analysis
           virtual ~BTagSecVertexing();
 
           virtual StatusCode initialize() override;
-          virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*, const xAOD::Vertex* vtx=0) const override;
+          virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*, const xAOD::Vertex* vtx=0) const override; //Kept for TrigBtagFex.cxx
+          virtual StatusCode BTagSecVtx_exec(jetcollection_t* theJets, btagcollection_t*) const override;
           virtual StatusCode finalize() override;
 
 
@@ -67,7 +70,10 @@ namespace Analysis
          std::vector<std::string> m_secVertexFinderTrackNameList;
          std::vector<std::string> m_secVertexFinderBaseNameList;
 
-         std::string m_vxPrimaryName;
+         std::string m_vxPrimaryName; //Input ReadHandle
+         SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Primary vertex Collection"};
+         SG::WriteHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", ""};
+         SG::WriteHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", ""};
 
   }; // End class
 

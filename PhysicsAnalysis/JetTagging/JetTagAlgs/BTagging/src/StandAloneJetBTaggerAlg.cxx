@@ -27,12 +27,10 @@ namespace Analysis {
 StandAloneJetBTaggerAlg::StandAloneJetBTaggerAlg(const std::string& n, ISvcLocator *p) : 
   AthAlgorithm(n,p),
   //m_BTagName(""),
-  m_JetCollectionName(""),
   m_suffix(""),
   m_JetBTaggerTool("Analysis::JetBTaggerTool")
 {
   declareProperty( "JetBTaggerTool", m_JetBTaggerTool);
-  declareProperty( "JetCollectionName", m_JetCollectionName );
   declareProperty( "outputCollectionSuffix", m_suffix );
 }
 
@@ -51,13 +49,56 @@ StatusCode StandAloneJetBTaggerAlg::initialize() {
   } else {
     ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_JetBTaggerTool);
   }
+
+  // This will check that the properties were initialized properly
+  // by job configuration.
+  ATH_CHECK( m_JetCollectionName.initialize() );
+  ATH_CHECK( m_BTaggingCollectionName.initialize() );
  
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode StandAloneJetBTaggerAlg::execute() {
-  // Check if there are Jet collection to tag
+  SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName);
+  if (!h_JetCollectionName.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve jet container with key " << m_JetCollectionName.key()  );
+        return StatusCode::FAILURE;
+    }
+  // Should work only with AntiKtEMTopoJets collection, only this collection is b-tagged during reconstruction
+  //xAOD::JetContainer* jets = h_JetCollectionName
+  //auto rec = xAOD::shallowCopyContainer (*jetsAOD);
+  auto rec = xAOD::shallowCopyContainer (*h_JetCollectionName);
+  int ret = m_JetBTaggerTool->modify(*rec.first);
+  delete rec.first;
+  delete rec.second;
+  if (!ret) {
+    ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+  }
+
+  //std::string BTagName("BTagging_");
+  //BTagName += m_JetCollectionName.key();
+  //BTagName.erase(BTagName.length()-4);
+  //BTagName += m_suffix;
+  //m_BTaggingCollectionName.assign(BTagName);
+  //ATH_MSG_INFO( " BTaggingCollectionName " << m_BTaggingCollectionName.key()  );
+  //m_BTaggingCollectionName.key() = std::string("BTagging_") + m_JetCollectionName.key();
+  //no PV0 in BTagging Collection name
+  /*std::size_t start_position_PV0 = m_BTaggingCollectionName.key().find("PV0");
+  if (start_position_PV0!=std::string::npos) {
+    m_BTaggingCollectionName.key().erase(start_position_PV0, 3);
+  }*/
+  // Try to get the BTaggingContainer and write it on SG
+  //SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
+  //xAOD::BTaggingContainer * bTaggingContainer = std::make_unique<xAOD::BTaggingContainer>(0);
+  //xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(rec.first->btagging());
+  //xAOD::BTaggingContainer * bTaggingContainer = std::make_unique<xAOD::BTaggingContainer>(tagInfo);
+
+  //ATH_CHECK( h_BTaggingCollectionName.record(std::move(bTaggingContainer)) );
+
+
+
+/*  // Check if there are Jet collection to tag
   if (evtStore()->contains<xAOD::JetContainer > ( m_JetCollectionName )) {
       std::string BTaggingCollectionName = std::string("BTagging_") + m_JetCollectionName;
       BTaggingCollectionName.erase(BTaggingCollectionName.length()-4);
@@ -104,7 +145,7 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
   else {
     ATH_MSG_VERBOSE("#BTAG# No Jet container " << m_JetCollectionName << " in store, no re-tagging");
   }
-  
+*/  
   return 1;
 
 }
