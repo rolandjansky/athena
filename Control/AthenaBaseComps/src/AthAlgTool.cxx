@@ -162,9 +162,9 @@ AthAlgTool::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-      msg().setLevel( iprop->value() );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-      msg().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 
