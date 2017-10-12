@@ -12,7 +12,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
 namespace Analysis{
 
@@ -33,7 +36,8 @@ class  StandAloneJetBTaggerAlg:
 
   private:
   
-    std::string m_JetCollectionName;
+    SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", ""};
+    SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", ""};
     std::string m_suffix;
 
     ToolHandle< IJetBTaggerTool > m_JetBTaggerTool; 

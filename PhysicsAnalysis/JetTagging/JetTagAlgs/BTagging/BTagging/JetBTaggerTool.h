@@ -15,6 +15,9 @@
 #include "BTagging/IJetBTaggerTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 namespace Analysis{
@@ -40,10 +43,13 @@ class  JetBTaggerTool:
 
 
  private:
-  
-  std::string m_BTagName;
-  std::string m_BTagSVName; 
-  std::string m_BTagJFVtxName; 
+
+  SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName { this, "JetCollectionName", "", ""};
+  SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", ""} ;
+
+  //std::string m_BTagName;
+  //std::string m_BTagSVName;
+  //std::string m_BTagJFVtxName;
 
   // FIXME: mutable
   mutable ToolHandle< IBTagTool > m_bTagTool; 

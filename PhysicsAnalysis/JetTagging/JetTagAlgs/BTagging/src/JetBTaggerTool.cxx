@@ -19,6 +19,7 @@
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
+#include "TRandom.h"
 
 #include <iostream>
 #include <string>
@@ -28,9 +29,6 @@ namespace Analysis {
 
 JetBTaggerTool::JetBTaggerTool(const std::string& n) : 
   asg::AsgTool(n),
-  m_BTagName(""),
-  m_BTagSVName(""),
-  m_BTagJFVtxName(""),
   m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
   m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
   m_PtRescalingTool("Analysis::BTagJetPtScaling"),
@@ -40,10 +38,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
 {
 
   declareProperty( "BTagTool", m_bTagTool);
-  declareProperty( "BTagName", m_BTagName );
   declareProperty( "BTagTrackAssocTool", m_BTagTrackAssocTool);
-  declareProperty( "BTagSVName", m_BTagSVName );
-  declareProperty( "BTagJFVtxName", m_BTagJFVtxName );
   declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
   declareProperty( "BTagAugmentation", m_augment, "switch to decide whether to merely extend the BTagging information as opposed to re-tagging from scratch");
   declareProperty( "BTagJetPtRescale", m_PtRescale, "switch to decide whether to carry out jet pt rescaling (to use calorimeter jet tunings for track jets)");
@@ -57,6 +52,10 @@ JetBTaggerTool::~JetBTaggerTool()
 
 
 StatusCode JetBTaggerTool::initialize() {
+  // This will check that the properties were initialized properly
+  // by job configuration.
+  ATH_CHECK( m_JetCollectionName.initialize() );
+  ATH_CHECK( m_BTaggingCollectionName.initialize() );
 
   /// retrieve the track association tool
   if ( !m_BTagTrackAssocTool.empty() ) {
@@ -116,20 +115,26 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   }
   else {
     ATH_MSG_VERBOSE("#BTAG#  Nb jets in JetContainer: "<< jets.size());
+    ATH_MSG_INFO("#BTAG#  Nb jets in JetContainer: "<< jets.size());
   }
 
   //Create a xAOD::BTaggingContainer in any case (must be done) 
-  std::string bTaggingContName = m_BTagName;
+  std::string bTaggingContName = m_BTaggingCollectionName.key();
+  ATH_MSG_INFO("#BTAG#  Container name: "<< bTaggingContName);
+
+  /* Record the BTagging  output container */
+  SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
+  ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
+  					std::make_unique<xAOD::BTaggingAuxContainer>()) ); 
  
   std::vector<xAOD::BTagging *> btagsList;
-  xAOD::BTaggingContainer * bTaggingContainer(0);
-  // xAOD::BTaggingAuxContainer * bTaggingAuxContainer(0);
+  //xAOD::BTaggingContainer * bTaggingContainer(0);
 
   // Keep track (on an event by event basis; not sure whether this is really necessary) of whether Flavour
   // Tagging information exists already or not, as in that case it needs to be overwritten rather than created.
   bool retag = false;
   
-  if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
+  /*if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
     //BTaggingContainer in SG - overwrite it (copying BTagging objects if in "augmentation" mode)
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " in store, re-tagging scenario");
     retag = true;
@@ -155,14 +160,15 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     bTaggingContainer->setStore(bTaggingAuxContainer);
     CHECK( evtStore()->record(bTaggingContainer, bTaggingContName) );
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
-  }
+  }*/
+
 
   // The SV need to be remade in case of re-tagging, or simply used if b-tagging information is merely to be extended.
   // If the SV container does not exist it is created.
   // It is conceivable that they do not exist but also don't need to be created anymore (e.g. if
   // the container was slimmed away but is also not needed anymore), but we will ignore this case.
-  std::string bTagSecVertexContName = bTaggingContName + m_BTagSVName;
-  xAOD::VertexContainer *bTagSecVertexContainer(0);
+  //std::string bTagSecVertexContName = bTaggingContName + m_BTagSVCollectionName.key();
+  /*xAOD::VertexContainer *bTagSecVertexContainer(0);
   xAOD::ShallowAuxContainer* bTagSVShallowAuxContainer(0);
   bool reuse_SVContainer = false;
   if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
@@ -190,11 +196,11 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
     CHECK( evtStore()->record(bTagSecVertexContainer, bTagSecVertexContName) );
     ATH_MSG_VERBOSE("#BTAG# SV Vertex container " << bTagSecVertexContName << " recorded in store");
-  }
+  }*/
 
   // JFVertex container: the logic here is the same as for the "ordinary" SV container.
-  std::string bTagJFVertexContName = bTaggingContName + m_BTagJFVtxName;
-  xAOD::BTagVertexContainer *bTagJFVertexContainer(0);
+  //std::string bTagJFVertexContName = bTaggingContName + m_BTagJFVtxCollectionName.key();
+  /*xAOD::BTagVertexContainer *bTagJFVertexContainer(0);
   xAOD::ShallowAuxContainer* bTagJFVShallowAuxContainer(0);
   bool reuse_JFVContainer = false;
   if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
@@ -222,45 +228,62 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
     CHECK( evtStore()->record(bTagJFVertexContainer, bTagJFVertexContName) );
     ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " recorded in store");
-  }
+  }*/
 
   // Since the secondary vertex reconstruction deals with the "ordinary" SV and JetFitter SV simultaneously,
   // they should always be handled together. Since the logic above allows for differences between the two,
   // these are at least flagged explicitly here.
-  if ((reuse_SVContainer && ! reuse_JFVContainer) || (! reuse_SVContainer && reuse_JFVContainer)) {
+/*  if ((reuse_SVContainer && ! reuse_JFVContainer) || (! reuse_SVContainer && reuse_JFVContainer)) {
     ATH_MSG_WARNING("#BTAG# Inconsistent results obtained for SV and JetFitter vertex containers will lead to inconsistent ElementLinks to SV/JFV in output");
   }
-
-  
+*/
+   
+  ATH_MSG_INFO("MANU before creating BTagging object");
   std::vector<xAOD::Jet*> jetsList;
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
   if (m_magFieldSvc->solenoidOn()) {
     // In case of augmentation, fill the btagsList vector here (so as not to complicate the downstream logic)
-    if (m_augment) {
+    /*if (m_augment) {
       for (auto bt : *bTaggingContainer) btagsList.push_back(bt);
-    }
-    unsigned int ibtag = 0;
+    }*/
+    //unsigned int ibtag = 0;
     for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
       xAOD::Jet& jetToTag = ( **it );
       jetsList.push_back(&jetToTag);
       // In case of augmentation, the BTagging object has been copied and added to btagsList already.
-      xAOD::BTagging* newBTag = 0;
+      /*xAOD::BTagging* newBTag = 0;
       if (m_augment) {
 	newBTag = btagsList[ibtag++];
-      } else {
-	newBTag = new xAOD::BTagging();
+      } else {*/
+        std::unique_ptr<xAOD::BTagging> newBTagMT  = std::make_unique<xAOD::BTagging>();
+        h_BTaggingCollectionName->push_back(std::move(newBTagMT));
+	//newBTag = new xAOD::BTagging();
+        //bTaggingContainer = new xAOD::BTaggingContainer();
+	//bTaggingContainer->push_back(newBTag);
+	xAOD::BTagging * mylastBTag = h_BTaggingCollectionName->back();
+        //ATH_MSG_INFO("MANU before test SetV0");
+        //double sv0_significance3D = gRandom->Gaus(0.,1);
+        //mylastBTag->setSV0_significance3D(sv0_significance3D);
+        //newBTagMT->setSV0_significance3D(sv0_significance3D);
+        //ATH_MSG_INFO("MANU before test DL1");
+        //mylastBTag->setVariable<double>("DL1","pu",1.1);
+        ATH_MSG_INFO("MANU before test int");
+        mylastBTag->auxdata<int >("TestINT") =1;
+        ATH_MSG_INFO("MANU after test int");
+
+	//newBTag = new xAOD::BTagging();
 	//Push the BTagging object in the container and in the temporary vector
-	bTaggingContainer->push_back(newBTag);
-	btagsList.push_back(newBTag);
-      }
-      if (!retag) {
+	//bTaggingContainer->push_back(newBTag);
+	btagsList.push_back(mylastBTag);
+      //}
+      /*if (!retag) {
         //Create an element link to be passed to the tagged Jet.
         //Nothing done in case of re-tagging, assuming the same order is used
         ElementLink< xAOD::BTaggingContainer> linkBTagger;
         linkBTagger.toContainedElement(*bTaggingContainer, newBTag);
         jetToTag.setBTaggingLink(linkBTagger);
-      }
+      }*/
     } //end loop JetContainer
   }
   else { //Solenoid OFF
@@ -301,6 +324,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     } 
   } 
   
+  
   // if (!m_augment) {
   // We don't want to redo the track-jet association in case of augmentation; however, since
   // in the release-20 production the muon-jet association wasn't switched on and it is needed at
@@ -309,36 +333,38 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   StatusCode jetIsAssociated;
   if (!m_BTagTrackAssocTool.empty()) {
     ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
-    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList);
+    ATH_MSG_INFO("#BTAG# Track association tool is not empty");
+    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, &btagsList);
+    if ( jetIsAssociated.isFailure() ) {
+      ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
+      return StatusCode::FAILURE;
+    }
   }
   else {
     ATH_MSG_WARNING("#BTAG# Empty track association tool ");
   }
-  if ( jetIsAssociated.isFailure() ) {
-    ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
-    return StatusCode::FAILURE;
-  }
   // }
 
+  // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
+  //if (! (reuse_SVContainer || m_augment)) {
+  StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(&jetsList, &btagsList);
+  if (SV.isFailure()) {
+    ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
+  } 
+ 
   std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
   std::vector<xAOD::Jet *>::iterator itJetB = jetsList.begin();
   std::vector<xAOD::Jet *>::iterator itJetE = jetsList.end();
   for (std::vector<xAOD::Jet *>::iterator it = itJetB ; it != itJetE; ++it,++itBTag) {
     xAOD::Jet& jetToTag = ( **it );
-    // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
-    if (! (reuse_SVContainer || m_augment)) {
-      StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(jetToTag, *itBTag, bTagSecVertexContainer, bTagJFVertexContainer);
-      if (SV.isFailure()) {
-	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
-      }
-    }
     StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag );
     if (sc.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
+    ATH_MSG_INFO("#BTAG# Track association tool is not empty 3");
   }
 
-   if (reuse_SVContainer) { //is a shallow copy
+/*   if (reuse_SVContainer) { //is a shallow copy
      delete bTagSecVertexContainer;
      delete bTagSVShallowAuxContainer;
    }
@@ -347,7 +373,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
      delete bTagJFVertexContainer;
      delete bTagJFVShallowAuxContainer;
    }
-
+*/
    if (m_PtRescale) { // is a shallow copy
      delete jetShallowAuxContainer;
      delete jetShallowContainer;

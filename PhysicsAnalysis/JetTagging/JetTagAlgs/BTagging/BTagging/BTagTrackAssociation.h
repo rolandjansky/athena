@@ -7,7 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "BTagging/IBTagTrackAssociation.h"
+#include "xAODMuon/MuonContainer.h"
 
 #include <string>
 
@@ -26,7 +28,8 @@ namespace Analysis
 
           virtual StatusCode initialize() override;
           virtual StatusCode finalize() override;
-	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const override;
+	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const override; //Kept for TrigBtagFex.cxx
+	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, btagcollection_t*) const override;
 
       private:
           bool m_BTagAssociation;
@@ -45,9 +48,13 @@ namespace Analysis
           std::vector<std::string> m_MuonToJetAssocNameList;
 
           std::vector<std::string> m_TrackContainerNameList;
+          //only one track container for test
+          SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackContainerName {this, "TrackContainerName", "InDetTrackParticles", ""};
           std::vector<std::string> m_ElectronContainerNameList;
           std::vector<std::string> m_PhotonContainerNameList;
           std::vector<std::string> m_MuonContainerNameList;
+          //only one muon container for test
+          SG::ReadHandleKey<xAOD::MuonContainer > m_MuonContainerName {this, "MuonContainerName", "Muons", ""};
 
           std::vector<std::string> m_TracksToTagList;
 
