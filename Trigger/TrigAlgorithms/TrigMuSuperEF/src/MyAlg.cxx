@@ -43,9 +43,9 @@ HLT::ErrorCode MyAlg::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
   TrigConf::HLTTriggerElement::getLabel( inputTE->getId(), teInLabel );
   TrigConf::HLTTriggerElement::getLabel( TEout->getId(), teOutLabel );
 
-  ATH_MSG_DEBUG("testphrase  MyAlgExecute() chain Trigger Event input ID=" << inputTE->getId() << " Trigger Event output ID=" << TEout->getId() << " Lnput Label=" << teInLabel << " Output Label=" << teOutLabel);
+  std::cout<<"testphrase"<<std::endl;
 
-  
+  ATH_MSG_DEBUG("testphrase MyAlgExecute() chain Trigger Event input ID=" << inputTE->getId() << " Trigger Event output ID=" << TEout->getId() << " Input Label=" << teInLabel << " Output Label=" << teOutLabel);
 
   return HLT::OK;
 

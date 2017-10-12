@@ -35,6 +35,9 @@ from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
 from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+
+from TrigMuSuperEF.TrigMuSuperEFConf import MyAlg #I guess you need to point to the correct algorithm package for the import here because the menu is not within that package
+
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):
 #-----------------------------------
@@ -1219,7 +1222,12 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_CB_ROI']]
       self.EFsequenceList += [['EF_CB_ROI',
                                 [theTrigMuonEFCombinerMultiHypoConfig],
-                               'EF_CB_FS']]
+                               'EF_CB_FS']] #Can I leave this the same? - no
+      # testphrase
+      self.EFsequenceList += [['EF_CB_FS',
+                               [MyAlg],
+                               '']]
+
 
     ########### Signatures ###########
       
@@ -1231,6 +1239,7 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_FStracksMuon']] ]
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
+#      self.EFsignatureList += [ [['EF_CB_FS_ma']] ] # testphrase I', not sure if I can just make this up and declare it here, we'll find out
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
 
     ########### TE renaming ##########
@@ -1248,7 +1257,9 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
         'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
+ #       'EF_CB_FS_ma': mergeRemovingOverlap('EF_CB_FS_ma_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
         'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
+
 
       }
 
