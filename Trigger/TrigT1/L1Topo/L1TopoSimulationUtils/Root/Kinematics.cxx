@@ -56,33 +56,29 @@ unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const T
 }
 
 unsigned long TSU::Kinematics::quadraticSumBW(int i1, int i2){
-  long a = i1*i1 + i2*i2;
+    unsigned long int iu1 = i1;
+    unsigned long int iu2 = i2;
+    unsigned long int a = iu1*iu1 + iu2*iu2; // the sum of two int*2 will fit in an unsigned long int
 
-  unsigned long result=0;
-  long left=0,right=0,r=0;
-  long sign = 0;
+    unsigned long int result=0;
+    unsigned long int left=0, right=0, r=0;
+    unsigned long int sign=0;
   
-  //long input = a;
-  int halflength = 16; //max 16
-  long bitmask = 0b11111111111111111111111111111111; //32 bits
-  bitmask >>= (32-halflength*2);
+    unsigned long int halflength = 16; //max 16
+    unsigned long int bitmask = 0b11111111111111111111111111111111; //32 bits
+    bitmask >>= (32 - halflength*2);
   
-  for(int i = 0; i < halflength; i++){ //16-->4
-    right = 1 + (sign<<1) + (result<<2);
-
-    left = (r<<2) + (a >> 2*halflength-2);
-    a <<= 2;
-    a = a & bitmask;
-
-    if(sign) r = left + right;
-    else r = left - right;
-     
-    sign = (r & (1 << (halflength+1) ))  > 0;
-    result <<= 1;
-    if(!sign) result += 1;
-  }
- 
-  return result;
+    for(unsigned long int i = 0; i < halflength; i++){ //16-->4
+        right = 1 + (sign<<1) + (result<<2);
+        left = (r<<2) + (a >> (2*halflength-2));
+        a <<= 2;
+        a = a & bitmask;
+        r = sign ? (left + right) : (left - right);
+        sign = ((r & (1 << (halflength+1) ))  > 0) ? 1 : 0;
+        result <<= 1;
+        if(sign==0) result += 1;
+    }
+    return result;
 }
 
 /*------------------------------------------ NON-BITWISE --------------------------------------------------*/

@@ -20,6 +20,8 @@
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Kinematics.h"
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include <iostream>
 #include <cassert>
 #include <cstdint>
@@ -94,36 +96,41 @@ void test3()
     }
 }
 
-// test4: Check quadraticSumBW: compare against int sqrt (binary search implementation)
-///! Returns floor of square root of x
-///! from http://www.geeksforgeeks.org/square-root-of-an-integer/
+// test4: Check quadraticSumBW: compare against a "traditional" (binary search) int sqrt implementation
+/**
+   @brief Returns floor of square root of x
+
+   from http://www.geeksforgeeks.org/square-root-of-an-integer/
+*/
 int floorSqrt(int x)
 {
     // Base cases
     if (x == 0 || x == 1)
         return x;
+    else if(x<0)
+        throw std::invalid_argument("cannot compute sqrt of negative value "+std::to_string(x));
     // Do Binary Search for floor(sqrt(x))
-    int start = 1, end = x, ans;
+    unsigned long int start = 1, end = x, ans;
+    unsigned long int ux = x;
     while (start <= end) {
-        int mid = (start + end) / 2;
+        unsigned long int mid = (start + end) / 2;
         // If x is a perfect square
-        if (mid*mid == x)
+        if (mid*mid == ux)
             return mid;
         // Since we need floor, we update answer when mid*mid is
         // smaller than x, and move closer to sqrt(x)
-        if (mid*mid < x) {
+        if (mid*mid < ux) {
             start = mid + 1;
             ans = mid;
         } else // If mid*mid is greater than x
             end = mid - 1;
     }
-    return ans;
+    return boost::numeric_cast<int>(ans);
 }
 void test4()
 {
-    cout << "** test3: L1TopoSimulationUtils quadraticSumBW bitshift**\n";
-
-    const std::vector<int> values = {0b0, // 0 through 16 bits
+    cout << "** test4: L1TopoSimulationUtils quadraticSumBW bitshift**\n";
+    const std::vector<int> values = {0b0, // 0 through 32767=2^(15) (16 bits)
                                      0b1,
                                      0b11,
                                      0b111,
@@ -138,15 +145,18 @@ void test4()
                                      0b111111111111,
                                      0b1111111111111,
                                      0b11111111111111,
-                                     0b111111111111111,
-                                     0b1111111111111111};
-
+                                     0b111111111111111};
+    unsigned int iBits=0;
     for(const int v : values){
-        cout<<"sum2("<<v<<", "<<v<<") :"
-            <<" std = "<<floorSqrt(v*v+v*v)
+        const unsigned int uv = v;
+        cout<<"["<<iBits<<"]"
+            <<" sum2("<<v<<", "<<v<<") :"
+            <<" std = "<<floorSqrt(uv*uv+uv*uv)
             <<" bw = "<<TSU::Kinematics::quadraticSumBW(v, v)
             <<endl;
+        iBits++;
     }
+    // TODO : return a sensible value (fail when diff observed)
 }
 
 

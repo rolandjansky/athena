@@ -21,6 +21,16 @@ namespace TSU {
 
 	static unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+     /**
+        @brief compute the sum in quadrature of two ints
+
+        This function includes an implementation of the int sqr using...
+        TODO explain left-right implementation trick
+
+        That is the same way in which the sqrt int is implemented in firmware:
+            processor/sources/common/libraries/L1TopoFunctions.vhd
+            --> function sqrt(d : UNSIGNED) return UNSIGNED
+      */
 	static unsigned long quadraticSumBW(int i1, int i2);
 
 	static unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
