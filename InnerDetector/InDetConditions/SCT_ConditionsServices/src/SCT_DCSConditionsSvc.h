@@ -96,11 +96,9 @@ private:
   mutable const SCT_DCSStatCondData* m_pBadModules;
   mutable const SCT_DCSFloatCondData* m_pModulesHV;
   mutable const SCT_DCSFloatCondData* m_pModulesTemp0;
-  mutable const SCT_DCSFloatCondData* m_pModulesTemp1;
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp1;
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
@@ -111,7 +109,6 @@ private:
   bool getCondDataState() const;
   bool getCondDataHV() const;
   bool getCondDataTemp0() const;
-  bool getCondDataTemp1() const;
 };
 
 #endif // SCT_DCSConditionsSvc_h 
