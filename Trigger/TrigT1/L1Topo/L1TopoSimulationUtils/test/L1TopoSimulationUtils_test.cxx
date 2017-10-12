@@ -94,6 +94,37 @@ void test3()
     }
 }
 
+// Check quadraticSumBW
+void test4()
+{
+    cout << "** test3: L1TopoSimulationUtils quadraticSumBW bitshift**\n";
+
+    const std::vector<int> values = {0b0, // 0 through 16 bits
+                                     0b1,
+                                     0b11,
+                                     0b111,
+                                     0b1111,
+                                     0b11111,
+                                     0b111111,
+                                     0b1111111,
+                                     0b11111111,
+                                     0b111111111,
+                                     0b1111111111,
+                                     0b11111111111,
+                                     0b111111111111,
+                                     0b1111111111111,
+                                     0b11111111111111,
+                                     0b111111111111111,
+                                     0b1111111111111111};
+
+    for(const int v : values){
+        cout<<"sum2("<<v<<", "<<v<<") :"
+            <<" std = "<<(v*v+v*v)
+            <<" bw = "<<TSU::Kinematics::quadraticSumBW(v, v)
+            <<endl;
+    }
+}
+
 
 
 int main()
@@ -101,5 +132,6 @@ int main()
   test1();
   test2();
   test3();
+  test4();
   return 0;
 }
