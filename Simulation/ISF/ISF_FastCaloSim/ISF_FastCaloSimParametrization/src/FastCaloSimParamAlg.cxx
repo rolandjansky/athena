@@ -189,8 +189,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
       while (it2 != (it->second)->end()) {
         if (((*it1)->diff2(**it2) < dsame) && std::fabs((*it1)->time() - (*it2)->time()) < tsame ) {
           **it1 += **it2;
-          delete *it2;
-          it2 = (it->second)->erase(it2);
+          it2 = (it->second)->erase(it2); // also calls delete on the pointer (because the DataVector owns its elements)
           continue;
         }
         ++it2;
@@ -200,16 +199,14 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
   }
   // Merge them back into a single list
   ATH_MSG_VERBOSE("Copying back");
-  for (const auto& step: *stepinfo) {
-    delete step;
-  }
-  stepinfo->clear(); // Memory Leak here!!
+  stepinfo->clear(); // also calls delete on all the removed elements (because the DataVector owns its elements)
   for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it) {
     for (const auto& step: *(it->second)) {
-      stepinfo->push_back(step); // NB Passing ownership
+      auto&& stepCopy = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfo>(*step);
+      stepinfo->push_back( stepCopy.release() );
     }
     // Tidy up temporary FCS_StepInfoCollections as we go
-    it->second->clear();
+    it->second->clear(); // also calls delete on all the removed elements (because the DataVector owns its elements)
     delete (it->second);
   }
   double total_energy2(0.);
@@ -227,8 +224,7 @@ StatusCode FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfo
       continue;
     }
     ++nInvalid;
-    delete (*stepIter);
-    stepIter = stepinfo->erase(stepIter);
+    stepIter = stepinfo->erase(stepIter); // also calls delete on the pointer (because the DataVector owns its elements)
   }
   ATH_MSG_DEBUG("Removed "<<nInvalid<<" StepInfo objects. New collection size: "<<stepinfo->size());
   return StatusCode::SUCCESS;
@@ -241,8 +237,7 @@ StatusCode FastCaloSimParamAlg::truncate(ISF_FCS_Parametrization::FCS_StepInfoCo
     ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator stepIter = stepinfo->begin();
     while (stepIter != stepinfo->end()) {
       if ((m_truncate>=2)&&((*stepIter)->time()>1000)) {
-        delete (*stepIter);
-        stepIter = stepinfo->erase(stepIter);
+        stepIter = stepinfo->erase(stepIter); // also calls delete on the pointer (because the DataVector owns its elements)
         continue;
       }
       ++stepIter;
