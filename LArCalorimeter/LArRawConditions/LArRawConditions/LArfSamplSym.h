@@ -30,6 +30,8 @@ class LArfSamplSym: virtual public ILArfSampl {
   virtual const float& FSAMPL(const HWIdentifier&  CellID) const override;
   
   virtual const float& FSAMPL(const Identifier&  CellID) const override;
+
+  static float dummy;
     
  private: 
   
@@ -42,7 +44,6 @@ class LArfSamplSym: virtual public ILArfSampl {
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CONDCONT_BASE(LArfSamplSym, ILArfSampl);
-CLASS_DEF( LArfSamplSym, 169816659, 1)
 CLASS_DEF( CondCont<LArfSamplSym> ,75658929 , 1 )
 
 

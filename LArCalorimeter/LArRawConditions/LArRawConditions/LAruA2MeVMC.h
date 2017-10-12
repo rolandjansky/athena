@@ -6,18 +6,42 @@
 #define LARRAWCONDITIONS_LARUA2MEVMC_H
 
 #include "LArRawConditions/LAruA2MeVComplete.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <vector>
+
+class LArCablingService ;
+class ILArMCSymTool;
+
+/** Implementation of the interface ILAruA2MeV for MC
+ *  Derives from LAruA2MeVComplete, and implements the phi-z symmetry
+ *
+ * @author S. Laplace
+ * @version  0-0-1 , 02/02/2004
+ *
+ * History:
+ *  - 08/02/2004, S. Laplace: new online ID
+ */
+
 
 class LAruA2MeVMC: public LAruA2MeVComplete {
-  /** Empty shell around LAruA2MeVComplete
-   * Kept for bw compatibility since LAruA2MeV is stored as such in COOL  
-   * The MT-complaint object is LAruA2MeVSym
-   */
   
- public:
+ public: 
+  
   LAruA2MeVMC();
+  
   virtual ~LAruA2MeVMC();
-   
+  virtual StatusCode initialize() ;
+  
+  // retrieving uA2MeV using online ID
+  
+  virtual const float& UA2MEV(const HWIdentifier&  CellID) const ;
+  
+  virtual const float& UA2MEV(const Identifier&  CellID) const;
+  
+  
  private: 
+
 };
 
 #include "AthenaKernel/CondCont.h"
