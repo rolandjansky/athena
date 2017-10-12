@@ -14,6 +14,7 @@ globalflags.DetGeo = 'atlas'
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Muon_setOn()
+DetFlags.detdescr.ID_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
@@ -83,7 +84,8 @@ svcMgr += CondSvc()
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
 # Input file
-dataFile="/eos/atlas/atlascerngroupdisk/phys-rig/MC15Samples/ESD/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
+dataFile="/data/hodgkinson/scratchFiles/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
+#dataFile="/eos/atlas/atlascerngroupdisk/phys-rig/MC15Samples/ESD/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile]
@@ -145,35 +147,10 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
 #PFlow
 
-from eflowRec.eflowRecConf import PFLeptonSelector
-PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
-topSequence += PFLeptonSelector
-
-from eflowRec.eflowRecConf import PFTrackSelector
-PFTrackSelector=PFTrackSelector("PFTrackSelector")
-
-from eflowRec.eflowRecConf import eflowTrackCaloDummyExtensionTool
-TrackCaloExtensionTool=eflowTrackCaloDummyExtensionTool()
-
-PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
-
-from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-TrackSelectionTool = InDet__InDetTrackSelectionTool()
-
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += TrackSelectionTool
-
-TrackSelectionTool.CutLevel = "TightPrimary"
-TrackSelectionTool.minPt = 500.0 
-
-PFTrackSelector.trackSelectionTool = TrackSelectionTool
-
-topSequence += PFTrackSelector
-
-from eflowRec.eflowRecConf import PFClusterSelector
-PFClusterSelector=PFClusterSelector("PFClusterSelector")
-
-topSequence += PFClusterSelector
+include("eflowRec/PFlowMTConfig.py")
+#We are using an ESD file as input and so must change the names of the containers we create, because overwrite is not allowed in AthenaMT
+topSequence.PFOChargedCreatorAlgorithm.PFOOutputName="JetETMissChargedParticleFlowObjectsV2"
+topSequence.PFONeutralCreatorAlgorithm.PFOOutputName="JetETMissNeutralParticleFlowObjectsV2"
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
@@ -183,12 +160,18 @@ StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjectsV2"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsV2Aux."]
+
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissNeutralParticleFlowObjectsV2"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsV2Aux."]
+
 print StreamESD.ItemList
 
 #---------------------------------------------------------------------------------#
 # MT-specific code
 if nThreads >=1 :
-   include ( "PFlowHiveDeps.py" )
+   include ( "eflowRec/PFlowHiveDeps.py" )
 
 print "==========================================================================================\n"
 
