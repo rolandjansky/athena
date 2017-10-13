@@ -6,7 +6,7 @@
  * @file SCT_MajorityConditionsSvc.h
  * header file for service 
  * @author gwilliam@mail.cern.ch
-**/
+ **/
 
 #ifndef SCT_MajorityConditionsSvc_h
 #define SCT_MajorityConditionsSvc_h
@@ -37,20 +37,20 @@ class StatusCode;
  * Service which reports on whether the majority of the SCT (or component) is in LV/HV on state with 
  * at least a fraction (default 0.9) of the HV in that state
  * 
-**/
+ **/
 
-class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc, virtual public AthService{
+class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc, virtual public AthService {
   friend class SvcFactory<SCT_MajorityConditionsSvc>;
-public:
 
+ public:
   //@name Service methods
   //@{
-  SCT_MajorityConditionsSvc( const std::string & name, ISvcLocator* svc);
-  virtual ~SCT_MajorityConditionsSvc(){}
+  SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* svc);
+  virtual ~SCT_MajorityConditionsSvc() {}
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  static const InterfaceID & interfaceID();
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  static const InterfaceID& interfaceID();
   //@}
   
   /**Is the detector good?*/
@@ -60,18 +60,18 @@ public:
   virtual bool                             isGood(int bec);
   
   /**Manually get the data in the structure before proceding*/
-  virtual StatusCode                       fillData(){return StatusCode::FAILURE;}
+  virtual StatusCode                       fillData() { return StatusCode::FAILURE; }
   
   /**Fill data from an IOVDbSvc callback*/
-  virtual StatusCode                       fillData(int& i , std::list<std::string>& l);
+  virtual StatusCode                       fillData(int& i, std::list<std::string>& l);
   
   /**Are the data available?*/
   virtual bool                             filled() const;
   
   /**Can the data be filled during the initialize phase?*/
-  virtual bool                             canFillDuringInitialize(){ return false; }
+  virtual bool                             canFillDuringInitialize() { return false; }
 
-private:
+ private:
   bool                                     m_filled;                        //!< Had the data been filled?
   ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
   ServiceHandle<IIOVSvc>                   m_IOVSvc;                        //!< Handle on the IOV service
@@ -83,10 +83,17 @@ private:
   
 
   /** Retreive a given folder from the DB*/
-  StatusCode                               retrieveFolder(const DataHandle<CondAttrListCollection> &pDataVec, const std::string & folderName);
+  StatusCode                               retrieveFolder(const DataHandle<CondAttrListCollection>& pDataVec, const std::string& folderName);
 
   enum {HighAndLowVoltageOK=17, // 17 = 0x11 -> majority state for both LV and HV.
-	OVERALL=110, BARREL=111, ECA=114, ECC=115};
+	OVERALL=110,
+        BARREL=111,
+        ECA=114,
+        ECC=115,
+        N_REGIONS=4,
+        INDEX_HVfraction=1,
+        INDEX_MajorityState=3
+  };
 };
 
-#endif
+#endif // SCT_MajorityConditionsSvc_h
