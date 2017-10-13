@@ -99,7 +99,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # Now run the actual CMake configuration:
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-        ${AthenaSrcDir}  | tee cmake_config.log
+        ${AthenaSrcDir}  2>&1 | tee cmake_config.log
 fi
 
 # for nightly builds we want to get as far as we can
