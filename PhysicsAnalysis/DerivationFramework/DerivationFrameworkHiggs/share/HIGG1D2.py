@@ -245,6 +245,8 @@ HIGG1D2SlimmingHelper = SlimmingHelper("HIGG1D2SlimmingHelper")
 HIGG1D2Stream.AddItem("xAOD::EventShape#*")
 HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
+HIGG1D2SlimmingHelper.AppendToDictionary = {'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+
 HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
@@ -254,7 +256,7 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthElectrons","TruthPhotons","TruthMuons","TruthBoson","TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
+HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthElectrons","TruthPhotons","TruthMuons","TruthBoson","TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
 
 HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType.etcone20.ptconecoreTrackPtrCorrection",
                                         "MuonClusterCollection.eta_sampl.phi_sampl",
