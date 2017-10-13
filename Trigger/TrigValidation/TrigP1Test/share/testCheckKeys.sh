@@ -55,7 +55,7 @@ get_files -xmls LVL1config.dtd
 #upload the first key
 echo "upload the first key"
 
-cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 
 echo $cmd1
@@ -86,7 +86,7 @@ hlt__setup2=ef_Default_setup_rerun.xml
 #upload the second key
 echo "upload the second key"
 
-cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 echo $cmd2 "&> uploadSMK2.log"
 eval $cmd2 &> uploadSMK2.log
