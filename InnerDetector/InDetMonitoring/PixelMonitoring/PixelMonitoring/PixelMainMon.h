@@ -17,7 +17,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "TrkTrack/TrackCollection.h"
-//#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
@@ -45,9 +44,7 @@ class TProfile;
 class TProfile2D;
 class TProfile_LW;
 class TProfile2D_LW;
-namespace InDetDD {
-class PixelDetectorManager;
-}
+namespace InDetDD { class PixelDetectorManager; }
 namespace InDet {
 class PixelCluster;
 class IInDetTrackSelectionTool;
@@ -55,7 +52,6 @@ class IInDetTrackSelectionTool;
 namespace Trk {
 class SpacePoint;
 class ITrackHoleSearchTool;
-//class ITrackSummaryTool;
 }  // namespace Trk
 class IPixelCablingSvc;
 class SpacePointContainer;
@@ -69,177 +65,100 @@ typedef Trk::SpacePoint SpacePoint;
 
 class ErrorCategory {
  public:
-  enum ErrorCategoryID { kSync = 0,
-                         kTrunc,
-                         kOpt,
-                         kSeu,
-                         kTout,
-                         COUNT };
+  enum ErrorCategoryID {kSync = 0, kTrunc, kOpt, kSeu, kTout, COUNT};
 };
 
 class ErrorCategoryMODROD {
  public:
-  enum ErrorCategoryMODRODID { kSyncMod = 0,
-                               kSyncROD,
-                               kTruncMod,
-                               kTruncROD,
-                               kOpt,
-                               kSeu,
-                               kTout,
-                               COUNT };
+  enum ErrorCategoryMODRODID {kSyncMod = 0, kSyncROD, kTruncMod, kTruncROD, kOpt, kSeu, kTout, COUNT};
 };
 
 class PixLayerIBL2D3D {
  public:
-  enum PixLayerIBL2D3DID { kECA = 0,
-                           kECC,
-                           kB0,
-                           kB1,
-                           kB2,
-                           kIBL,
-                           kIBL2D,
-                           kIBL3D,
-                           COUNT };
+  enum PixLayerIBL2D3DID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, kIBL2D, kIBL3D, COUNT};
 };
 
 class PixLayer {
  public:
-  enum PixLayerID { kECA = 0,
-                    kECC,
-                    kB0,
-                    kB1,
-                    kB2,
-                    kIBL,
-                    COUNT };
+  enum PixLayerID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, COUNT};
 };
 
 class PixLayerDisk {
  public:
-  enum PixLayerDiskID { kECA0 = 0,
-                        kECA1,
-                        kECA2,
-                        kECC0,
-                        kECC1,
-                        kECC2,
-                        kB0,
-                        kB1,
-                        kB2,
-                        kIBL,
-                        COUNT };
+  enum PixLayerDiskID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kIBL, COUNT};
 };
 
 class IBLStave {
  public:
-  enum IBLStaveID { kS01 = 0,
-                    kS02,
-                    kS03,
-                    kS04,
-                    kS05,
-                    kS06,
-                    kS07,
-                    kS08,
-                    kS09,
-                    kS10,
-                    kS11,
-                    kS12,
-                    kS13,
-                    kS14,
-                    COUNT };
+  enum IBLStaveID {kS01 = 0, kS02, kS03, kS04, kS05, kS06, kS07, kS08, kS09, kS10, kS11, kS12, kS13, kS14, COUNT};
 };
 
 class PixLayerDBM {
  public:
-  enum PixLayerDBMID { kECA = 0,
-                       kECC,
-                       kB0,
-                       kB1,
-                       kB2,
-                       kDBMA,
-                       kDBMC,
-                       kIBL,
-                       COUNT };
+  enum PixLayerDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
 };
 
 class PixLayerIBL2D3DDBM {
  public:
-  enum PixLayerIBL2D3DDBMID { kECA = 0,
-                              kECC,
-                              kB0,
-                              kB1,
-                              kB2,
-                              kDBMA,
-                              kDBMC,
-                              kIBL,
-                              kIBL2D,
-                              kIBL3D,
-                              COUNT };
+  enum PixLayerIBL2D3DDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
 };
 
 class PixelMainMon : public ManagedMonitorToolBase {
  public:
-  PixelMainMon(const std::string& type,
-               const std::string& name,
-               const IInterface* parent);
+  PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~PixelMainMon();
   virtual StatusCode initialize();      //!< Runs once at the start of the code.  Sets up services etc.
   virtual StatusCode bookHistograms();  //!< Runs at the start of every event.  Books some histograms if one of the function parameters is true
   virtual StatusCode fillHistograms();  //!< Runs at every event, bulk of the code is inside here.  Fills the histograms.
   virtual StatusCode procHistograms();  //!
 
-  /** Convert the module ID in the job options.
-   * Input is a string in the form "L0_B11_S2_M5A"
-   * Output uses an int with each bit corisponding to part of the offline identifier.
-   */
-  int GetPixLayerID(int ec, int ld, bool ibl);
-  int GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
-  int GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
-  int GetPixLayerIDDBM(int ec, int ld, bool ibl);
-  int GetPixLayerDiskID(int ec, int ld, bool ibl);
-  int GetPhiID(Identifier& id, const PixelID* pixID);
-  int GetEtaID(Identifier& id, const PixelID* pixID, bool doIBL, bool doIBL2D3D);
-  void TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
-  void TH2FSetBinScaled(TH2F_LW* mon, TH2F_LW* tmp, int nevent);
-  void FillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
-  void FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
-  int ParseDetailsString(std::string& detailsMod);
-  bool OnTrack(Identifier id, bool isCluster);
-  bool OnTrack(Identifier id, double& cosalpha);
+  int getPixLayerID(int ec, int ld, bool ibl);
+  int getPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
+  int getPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
+  int getPixLayerIDDBM(int ec, int ld, bool ibl);
+  int getPixLayerDiskID(int ec, int ld, bool ibl);
+  void th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
+  void fillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
+  void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
+  int parseDetailsString(std::string& detailsMod);
+  bool isOnTrack(Identifier id, bool isCluster);
+  bool isOnTrack(Identifier id, double& cosalpha);
   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
   int getErrorState(int bit, bool isibl);
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
-  bool GetFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
+  bool getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
 
-  StatusCode BookClustersMon(void);
-  StatusCode BookClustersLumiBlockMon(void);
-  StatusCode FillClustersMon(void);
-  StatusCode ProcClustersMon(void);
+  StatusCode bookClustersMon(void);
+  StatusCode bookClustersLumiBlockMon(void);
+  StatusCode fillClustersMon(void);
+  StatusCode procClustersMon(void);
 
-  StatusCode BookHitsMon(void);
-  StatusCode BookHitsLumiBlockMon(void);
-  StatusCode FillHitsMon(void);
-  StatusCode ProcHitsMon(void);
+  StatusCode bookHitsMon(void);
+  StatusCode bookHitsLumiBlockMon(void);
+  StatusCode fillHitsMon(void);
+  StatusCode procHitsMon(void);
 
-  StatusCode BookStatusMon(void);
-  StatusCode BookStatusLumiBlockMon(void);
-  StatusCode FillStatusMon(void);
-  StatusCode ProcStatusMon(void);
+  StatusCode bookStatusMon(void);
+  StatusCode bookStatusLumiBlockMon(void);
+  StatusCode fillStatusMon(void);
+  StatusCode procStatusMon(void);
 
-  StatusCode BookTrackMon(void);
-  StatusCode BookTrackLumiBlockMon(void);
-  StatusCode FillTrackMon(void);
-  StatusCode ProcTrackMon(void);
+  StatusCode bookTrackMon(void);
+  StatusCode bookTrackLumiBlockMon(void);
+  StatusCode fillTrackMon(void);
+  StatusCode procTrackMon(void);
 
-  StatusCode BookRODErrorMon(void);
-  StatusCode BookRODErrorLumiBlockMon(void);
-  StatusCode FillRODErrorMon(void);
+  StatusCode bookRODErrorMon(void);
+  StatusCode bookRODErrorLumiBlockMon(void);
+  StatusCode fillRODErrorMon(void);
 
-  StatusCode BookSpacePointMon(void);
-  StatusCode FillSpacePointMon(void);
+  StatusCode bookSpacePointMon(void);
+  StatusCode fillSpacePointMon(void);
 
-  StatusCode BookPixelDCSMon(void);
-  StatusCode FillPixelDCSMon(void);
-  StatusCode ProcPixelDCSMon(void);
+  StatusCode bookPixelDCSMon(void);
+  StatusCode fillPixelDCSMon(void);
+  StatusCode procPixelDCSMon(void);
 
  private:
   ServiceHandle<IInDetConditionsSvc> m_pixelCondSummarySvc;
@@ -250,17 +169,12 @@ class PixelMainMon : public ManagedMonitorToolBase {
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
   ToolHandle<ILuminosityTool> m_lumiTool;
 
-  //IPixelByteStreamErrorsSvc* m_ErrorSvc;
-
-  //ActiveStoreSvc* m_activeStore;
-  //StoreGateSvc* m_StoreGate;
-  //StoreGateSvc* m_detStore;
-  const PixelID* m_pixelid;  // Pixel ID helper
+  const PixelID* m_pixelid;
   uint64_t m_event;
   uint64_t m_event2;
 
   time_t m_startTime;
-  bool m_majorityDisabled;  //check for each event, true if >50% modules disabled
+  bool m_majorityDisabled;  // check for each event, true if >50% modules disabled
 
   int m_lbRange;
   int m_bcidRange;
@@ -283,38 +197,41 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::vector<Identifier> m_RDOIDs;
   std::vector<std::pair<Identifier, double> > m_ClusterIDs;
 
-  const DataHandle<PixelRDO_Container> m_rdocontainer;  //container for pixel RDO
-  //PixelRODErrorCollection* m_error_summary;//container for pixel ROD errors
-  const InDet::PixelClusterContainer* m_Pixel_clcontainer;  //container for cluster
-  const SpacePointContainer* m_Pixel_spcontainer;           //container for spacepoints
-  const TrackCollection* m_tracks;                          //container for tracks
+  const DataHandle<PixelRDO_Container> m_rdocontainer;
+  const InDet::PixelClusterContainer* m_Pixel_clcontainer;
+  const SpacePointContainer* m_Pixel_spcontainer;
+  const TrackCollection* m_tracks;
 
-  std::string m_Pixel_RDOName;  //storegate container names
+  std::string m_Pixel_RDOName;
   std::string m_detector_error_name;
   std::string m_Pixel_SpacePointsName;
   std::string m_Pixel_SiClustersName;
   std::string m_TracksName;
-  std::string m_error_summary;  //commissioning
+  std::string m_error_summary;
 
   std::string m_histTitleExt;
 
   std::string m_modLabel_PixLayerIBL2D3D[PixLayerIBL2D3D::COUNT] = {
-      "ECA", "ECC", "B0", "B1", "B2",
-      "IBL", "IBL2D", "IBL3D"};
+    "ECA", "ECC", "B0", "B1", "B2",
+    "IBL", "IBL2D", "IBL3D"
+  };
   std::string m_modLabel_PixLayerDBM[PixLayerDBM::COUNT] = {
-      "ECA", "ECC",
-      "B0", "B1", "B2",
-      "DBMA", "DBMC", "IBL"};
+    "ECA", "ECC",
+    "B0",   "B1",   "B2",
+    "DBMA", "DBMC", "IBL"
+  };
   std::string m_modLabel_PixLayerIBL2D3DDBM[PixLayerIBL2D3DDBM::COUNT] = {
-      "ECA", "ECC",
-      "B0", "B1", "B2",
-      "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"};
+    "ECA", "ECC",
+    "B0",   "B1",   "B2",
+    "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"
+  };
   std::string m_modLabel_PixLayerDisk[PixLayerDisk::COUNT] = {
-      "ECA0", "ECA1", "ECA2",
-      "ECC0", "ECC1", "ECC2",
-      "B0", "B1", "B2", "IBL"};
+    "ECA0", "ECA1", "ECA2",
+    "ECC0", "ECC1", "ECC2",
+    "B0",   "B1",   "B2", "IBL"
+  };
 
-  bool m_doRDO;  //storegate type flags from jobOptions
+  bool m_doRDO;
   bool m_doRODError;
   bool m_doCluster;
   bool m_doSpacePoint;
@@ -334,15 +251,15 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doPixelOccupancy;
   bool m_doDetails;
   bool m_doTiming;
-  bool m_doLumiBlock;  //store module status, error etc for each lumiblock
+  bool m_doLumiBlock;
   bool m_doRefresh;
   bool m_doRefresh5min;
   bool m_isFirstBook;
   bool m_doOfflineAnalysis;
 
-  bool m_doHeavyIonMon;  //modifications for heavy ion monitoring
+  bool m_doHeavyIonMon;
 
-  std::string m_DetailsMod1;  //other inputs from job options
+  std::string m_DetailsMod1;
   std::string m_DetailsMod2;
   std::string m_DetailsMod3;
   std::string m_DetailsMod4;
@@ -371,19 +288,13 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   //////////////////////Histograms///////////////////////////
 
-  ///
-  /// Event Info
-  ///
-
+  // event info
   TH1F_LW* m_events_per_lumi;
   TProfile_LW* m_mu_vs_bcid;
   TProfile_LW* m_mu_vs_lumi;
-  TH2F_LW* m_storegate_errors;  //Reconstruction (storegate) Error Monitoring
+  TH2F_LW* m_storegate_errors;
 
-  ///
-  /// Hitmap  histograms
-  ///
-  /// the number of hits
+  // number of hits
   TProfile_LW* m_hits_per_lumi;
   TH1I_LW* m_num_hits;
   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_mon;
@@ -392,7 +303,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_hits_per_lumi_mod[PixLayer::COUNT];
   TH1F_LW* m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-  /// hit occupancy
+
+  // hit occupancy
   TProfile_LW* m_avgocc_per_lumi;
   TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -411,14 +323,16 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile* m_occupancy_time3;
   TH1F_LW* m_occupancy_summary_mod[PixLayer::COUNT];
   TH3F* m_nFEswithHits_mod[PixLayer::COUNT];
-  /// hit tot
+
+  // hit tot
   TH1F_LW* m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
   TH2F_LW* m_hit_ToT_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_hit_ToT_tmp_mod[PixLayer::COUNT];
   TH1F_LW* m_hit_ToT_Mon_mod[PixLayer::COUNT];
   TProfile2D_LW* m_ToT_etaphi_mod[PixLayer::COUNT];
   TProfile_LW* m_hit_ToTMean_mod[PixLayer::COUNT];
-  /// timing
+
+  // timing
   TH1I_LW* m_Lvl1ID_PIX;
   TH1I_LW* m_Lvl1ID_IBL;
   TH1F_LW* m_Atlas_BCID;
@@ -432,16 +346,18 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1I_LW* m_diff_ROD_vs_Module_BCID_mod[PixLayer::COUNT];
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_diff_mod_ATLAS_per_LB;
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
-  /// Quick status
+
+  // quick status
   TH2F_LW* m_nhits_L0_B11_S2_C6;
   TProfile2D_LW* m_occupancy_L0_B11_S2_C6;
 
-  /// module histo
+  // module histograms
   std::unique_ptr<PixelMonModules1D> m_hit_num_mod;
   std::unique_ptr<PixelMonModulesProf> m_hiteff_mod;
   std::unique_ptr<PixelMonModules1D> m_FE_chip_hit_summary;
   std::unique_ptr<PixelMonModules2D> m_pixel_occupancy;
-  /// details
+
+  // detailed histograms
   TH1F_LW* m_Details_mod1_num_hits;
   TH1F_LW* m_Details_mod2_num_hits;
   TH1F_LW* m_Details_mod3_num_hits;
@@ -455,32 +371,28 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1F_LW* m_Details_mod3_ToT;
   TH1F_LW* m_Details_mod4_ToT;
 
-  //-----------------
-  // track histograms
-  //-----------------
-  /// Track quality
+  // track quality
   TH1F_LW* m_track_res_phi;
   TH1F_LW* m_track_pull_phi;
   TH1F_LW* m_track_res_eta;
   TH1F_LW* m_track_pull_eta;
   TH1F_LW* m_track_chi2;
-  /// The number of tracks
   TProfile_LW* m_tracksPerEvt_per_lumi;
   TProfile_LW* m_tracksPerEvtPerMu_per_lumi;
-  /// track state on surface
+
+  // track state on surface
   std::unique_ptr<PixelMon2DMapsLW> m_tsos_hitmap;
   std::unique_ptr<PixelMon2DMapsLW> m_tsos_holemap;
   std::unique_ptr<PixelMon2DMapsLW> m_tsos_outliermap;
-  //std::unique_ptr<PixelMon2DProfilesLW> m_tsos_measratio;
-  //std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio;
-  std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio;
   std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio_tmp;
   std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio_mon;
   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_tmp;
   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_mon;
-  /// hit efficiency
+
+  // hit efficiency
   TProfile_LW* m_hiteff_incl_mod[PixLayerDisk::COUNT];
-  /// Lorentz Angle
+
+  // lorentz angle
   TProfile2D_LW* m_LorentzAngle_IBL;
   TProfile2D_LW* m_LorentzAngle_IBL2D;
   TProfile2D_LW* m_LorentzAngle_IBL3D;
@@ -488,13 +400,11 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_LorentzAngle_B1;
   TProfile2D_LW* m_LorentzAngle_B2;
 
-  /// cluster size
+  // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];
 
-  ///
-  /// Cluster histograms
-  ///
+  // cluster histograms
   TProfile_LW* m_clusters_per_lumi;
   TProfile_LW* m_clusters_per_lumi_mod[PixLayer::COUNT];
   TProfile_LW* m_clusters_row_width_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -555,13 +465,12 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_cluster_LVL1A_mod;
   std::unique_ptr<PixelMon2DProfilesLW> m_clus_LVL1A_sizenot1;
   TProfile_LW* m_clustersOnOffTrack_per_lumi;
-  /// Quick status
+
+  // quick status
   TH2F_LW* m_clusters_onTrack_L0_B11_S2_C6;
   TH2F_LW* m_clusters_offTrack_L0_B11_S2_C6;
 
-  ///
-  ///Status histograms
-  ///
+  // status histograms
   std::unique_ptr<PixelMonModules1D> m_Status_modules;
   std::unique_ptr<PixelMon2DProfilesLW> m_status;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_mon;
@@ -572,9 +481,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_disabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_baddisabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
-  ///
-  /// ROD Error histograms
-  ///
+  // ROD error histograms
   static const int kNumErrorBits{32};
   static const int kNumErrorStates{16};
   static const int kNumErrorStatesIBL{27};
@@ -609,9 +516,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_errors_RODSync_mod;
   std::unique_ptr<PixelMon2DMapsLW> m_errors_ModSync_mod;
 
-  ///
-  /// SP Histograms
-  ///
+  // space-point histograms
   TH1I_LW* m_num_spacepoints;
   TH1I_LW* m_num_spacepoints_low;
   TH1F_LW* m_spHit_x;
@@ -622,8 +527,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH2F_LW* m_spHit_xy;
   TH2F_LW* m_spHit_rz;
 
-  //Histograms stored for certain number of LB at a time
-  std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy_LB;  //cluster occupancy (shows module status)
+  std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy_LB;  // cluster occupancy (shows module status)
   std::unique_ptr<PixelMonModules1D> m_cluster_ToT_mod_LB;
   std::unique_ptr<PixelMonModules1D> m_cluster_num_mod_LB;
   std::unique_ptr<PixelMonModules1D> m_hit_num_mod_LB;
@@ -633,102 +537,65 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1F_LW* m_cluster_ToT_LB;
   TH1I_LW* m_num_clusters_LB;
 
-  //---------------------
   // DCS Monitoring
-  //---------------------
-
-  //// Basic histograms ////
-  // TEMPERATURE
   TProfile2D_LW* m_hist_moduleTemperatureEtaPhi;
   TH2F_LW* m_hist_moduleTemperature2Dscatter[IBLStave::COUNT];
   TProfile_LW* m_hist_moduleTemperatureLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_moduleTemperature;
   TProfile2D_LW* m_hist_LB_moduleGroup_moduleTemperature[IBLStave::COUNT];
-  // HV
   TProfile2D_LW* m_hist_HVoltageEtaPhi;
   TH2F_LW* m_hist_HVoltage2Dscatter[IBLStave::COUNT];
   TProfile_LW* m_hist_HVoltageLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_HVoltage;
   TProfile2D_LW* m_hist_LB_moduleGroup_HVoltage[IBLStave::COUNT];
-  // PIPES Inlet
-  //TProfile2D_LW* m_hist_Pipes_inletEtaPhi;
   TH2F_LW* m_hist_Pipes_inlet2Dscatter;
   TProfile_LW* m_hist_Pipes_inletLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_coolingPipeInlet;
-  //TProfile2D_LW* m_hist_LB_moduleGroup_coolingPipeInlet[IBLStave::COUNT];
-  // PIPES Outlet
-  //TProfile2D_LW* m_hist_Pipes_outletEtaPhi;
   TH2F_LW* m_hist_Pipes_outlet2Dscatter;
   TProfile_LW* m_hist_Pipes_outletLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_coolingPipeOutlet;
-  //TProfile2D_LW* m_hist_LB_moduleGroup_coolingPipeOutlet[IBLStave::COUNT];
-  // LV
   TProfile2D_LW* m_hist_LVoltageEtaPhi;
   TH2F_LW* m_hist_LVoltage2Dscatter[IBLStave::COUNT];
   TProfile_LW* m_hist_LVoltageLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_LVoltage;
   TProfile2D_LW* m_hist_LB_moduleGroup_LVoltage[IBLStave::COUNT];
-  // LV CURRENT
   TProfile2D_LW* m_hist_LVcurrentEtaPhi;
   TH2F_LW* m_hist_LVcurrent2Dscatter[IBLStave::COUNT];
   TProfile_LW* m_hist_LVcurrentLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_LVcurrent;
   TProfile2D_LW* m_hist_LB_moduleGroup_LVcurrent[IBLStave::COUNT];
-  // HVCURRENT
   TProfile2D_LW* m_hist_HVcurrentEtaPhi;
   TH2F_LW* m_hist_HVcurrent2Dscatter[IBLStave::COUNT];
   TProfile_LW* m_hist_HVcurrentLB[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_HVcurrent;
   TProfile2D_LW* m_hist_LB_moduleGroup_HVcurrent[IBLStave::COUNT];
-  // FSMSTATE
-  //TProfile2D_LW* m_hist_FSMstateEtaPhi;
-  //TH2F_LW* m_hist_FSMstateEtaPhi;
   TH2F* m_hist_FSMstateEtaPhi;
   TH2F_LW* m_hist_FSMstate2Dscatter[IBLStave::COUNT];
-  //TProfile_LW* m_hist_FSMstateLB[IBLStave::COUNT];
   TH2F_LW* m_hist_FSMstateLB[IBLStave::COUNT];
-  //TProfile2D_LW* m_hist_LB_staveID_FSMstate;
-  //TH2F_LW* m_hist_LB_staveID_FSMstate;
   TH2F* m_hist_LB_staveID_FSMstate;
-  //TProfile2D_LW* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
-  //TProfile2D* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
   TH2F* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
-  // FSMSTATUS
-  //TProfile2D_LW* m_hist_FSMstatusEtaPhi;
-  //TH2F_LW* m_hist_FSMstatusEtaPhi;
   TH2F* m_hist_FSMstatusEtaPhi;
   TH2F_LW* m_hist_FSMstatus2Dscatter[IBLStave::COUNT];
-  //TProfile_LW* m_hist_FSMstatusLB[IBLStave::COUNT];
   TH2F_LW* m_hist_FSMstatusLB[IBLStave::COUNT];
-  //TProfile2D_LW* m_hist_LB_staveID_FSMstatus;
-  //TH2F_LW* m_hist_LB_staveID_FSMstatus;
   TH2F* m_hist_LB_staveID_FSMstatus;
-  //TProfile2D_LW* m_hist_LB_moduleGroup_FSMstatus[IBLStave::COUNT];
   TH2F* m_hist_LB_moduleGroup_FSMstatus[IBLStave::COUNT];
-  // PLANTS
 
-  //// Combination histograms ////
-  // dT := module temperature - cooling pipe outlet
+  // Combination histograms
   TProfile2D_LW* m_hist_dTEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_dT[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_dT;
-  // LV Power consumption
   TProfile2D_LW* m_hist_LVPowerConsumptionEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_LVPowerConsumption[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_LVPowerConsumption;
-  // HV Power consumption
   TProfile2D_LW* m_hist_HVPowerConsumptionEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_HVPowerConsumption[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_HVPowerConsumption;
-  // LV+HV Power consumption
   TProfile2D_LW* m_hist_LVHVPowerConsumptionEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_LVHVPowerConsumption[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_LVHVPowerConsumption;
-  // effective FLEX temperature = dT * 0.6 + cooling pipe outlet
   TProfile2D_LW* m_hist_effFLEXtempEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_effFLEXtemp[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_effFLEXtemp;
-  // thermal figure of merit (/size) = dT/Power consumption
   TProfile2D_LW* m_hist_thermalFigureMeritEtaPhi;
   TProfile2D_LW* m_hist_LB_moduleGroup_thermalFigureMerit[IBLStave::COUNT];
   TProfile2D_LW* m_hist_LB_staveID_thermalFigureMerit;
@@ -736,7 +603,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::vector<std::string> m_atrcollist;
   std::map<std::string, std::vector<std::string> > m_elementsMap;
   int m_currentLumiBlockNumber;
-  //typedef struct dcsDataHolder
+
   class dcsDataHolder {
    public:
     dcsDataHolder() : m_values(new std::map<int, std::map<int, float>*>),
@@ -774,15 +641,33 @@ class PixelMainMon : public ManagedMonitorToolBase {
                             m_fsm_status(new std::map<int, std::map<int, float>*>),
                             m_moduleMap(new std::map<std::string, int>){};
     ~moduleDcsDataHolder() {
-      for (auto lbmap : *m_tempModule) delete lbmap.second;
-      for (auto lbmap : *m_tempInlet) delete lbmap.second;
-      for (auto lbmap : *m_tempOutlet) delete lbmap.second;
-      for (auto lbmap : *m_hv_voltage) delete lbmap.second;
-      for (auto lbmap : *m_lv_voltage) delete lbmap.second;
-      for (auto lbmap : *m_hv_current) delete lbmap.second;
-      for (auto lbmap : *m_lv_current) delete lbmap.second;
-      for (auto lbmap : *m_fsm_state) delete lbmap.second;
-      for (auto lbmap : *m_fsm_status) delete lbmap.second;
+      for (auto lbmap : *m_tempModule) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempInlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempOutlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_state) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_status) {
+        delete lbmap.second;
+      }
       delete m_tempModule;
       delete m_tempInlet;
       delete m_tempOutlet;

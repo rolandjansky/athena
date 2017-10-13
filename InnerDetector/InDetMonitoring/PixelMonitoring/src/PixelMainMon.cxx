@@ -12,16 +12,9 @@
 
 #include "PixelMonitoring/PixelMainMon.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-//#include "TrkParameters/MeasuredAtaPlane.h"
-//#include "TrkParameters/MeasuredPerigee.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
-#include "TrkTrack/TrackCollection.h"
-//#include "StoreGate/StoreGateSvc.h"
-//#include "StoreGate/StoreGate.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -30,20 +23,20 @@
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkTrack/TrackCollection.h"
 
 #include <stdint.h>
-#include <cstdlib>  // kazuki
-#include <fstream>  // kazuki
-#include <map>      // kazuki
+#include <cstdlib>
+#include <fstream>
+#include <map>
 #include <sstream>
 #include <vector>
 
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/StatusCode.h"
-//#include "Identifier/Identifier.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -59,28 +52,26 @@
 #include "PixelMonitoring/PixelMonModules.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 
-//////////////////////////////////////////////////////////////////////////////
-
-PixelMainMon::PixelMainMon(const std::string& type,
-                           const std::string& name,
-                           const IInterface* parent) : ManagedMonitorToolBase(type, name, parent),
-                                                       m_pixelCondSummarySvc("PixelConditionsSummarySvc", name),
-                                                       m_ErrorSvc("PixelByteStreamErrorsSvc", name),
-                                                       m_pixelCableSvc("PixelCablingSvc", name),
-                                                       m_IBLParameterSvc("IBLParameterSvc", name),
-                                                       m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-                                                       m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-                                                       m_lumiTool("LuminosityTool"),
-                                                       m_moduleTemperature(new dcsDataHolder()),
-                                                       m_coolingPipeTemperatureInlet(new dcsDataHolder()),
-                                                       m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
-                                                       m_HV(new dcsDataHolder()),
-                                                       m_HV_current(new dcsDataHolder()),
-                                                       m_LV_voltage(new dcsDataHolder()),
-                                                       m_LV_current(new dcsDataHolder()),
-                                                       m_FSM_state(new dcsDataHolder()),
-                                                       m_FSM_status(new dcsDataHolder()),
-                                                       m_moduleDCSDataHolder(new moduleDcsDataHolder()) {  //all job options flags go here
+PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent) :
+    ManagedMonitorToolBase(type, name, parent),
+    m_pixelCondSummarySvc("PixelConditionsSummarySvc", name),
+    m_ErrorSvc("PixelByteStreamErrorsSvc", name),
+    m_pixelCableSvc("PixelCablingSvc", name),
+    m_IBLParameterSvc("IBLParameterSvc", name),
+    m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+    m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
+    m_lumiTool("LuminosityTool"),
+    m_moduleTemperature(new dcsDataHolder()),
+    m_coolingPipeTemperatureInlet(new dcsDataHolder()),
+    m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
+    m_HV(new dcsDataHolder()),
+    m_HV_current(new dcsDataHolder()),
+    m_LV_voltage(new dcsDataHolder()),
+    m_LV_current(new dcsDataHolder()),
+    m_FSM_state(new dcsDataHolder()),
+    m_FSM_status(new dcsDataHolder()),
+    m_moduleDCSDataHolder(new moduleDcsDataHolder()) {
+  // all job options flags go here
   declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
   declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
@@ -88,13 +79,13 @@ PixelMainMon::PixelMainMon(const std::string& type,
   declareProperty("TrackSelectionTool", m_trackSelTool);
   declareProperty("LuminosityTool", m_lumiTool);
 
-  declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  //storegate container names
+  declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
   declareProperty("RODErrorName", m_detector_error_name = "pixel_error_summary");
   declareProperty("SpacePointName", m_Pixel_SpacePointsName = "PixelSpacePoints");
   declareProperty("ClusterName", m_Pixel_SiClustersName = "PixelClusters");
   declareProperty("TrackName", m_TracksName = "Pixel_Cosmic_Tracks");
 
-  declareProperty("onTrack", m_doOnTrack = false);  //using inner detector tracks
+  declareProperty("onTrack", m_doOnTrack = false);  // use inner detector tracks
   declareProperty("do2DMaps", m_do2DMaps = false);
   declareProperty("doModules", m_doModules = false);
   declareProperty("doOffline", m_doOffline = false);
@@ -105,9 +96,10 @@ PixelMainMon::PixelMainMon(const std::string& type,
   declareProperty("doDetails", m_doDetails = false);
   declareProperty("doTiming", m_doTiming = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
-  declareProperty("doOfflineAnalysis", m_doOfflineAnalysis = false);  // !!! if true using a lot of memory to be absolutely avoided for monitoring
+  declareProperty("doOfflineAnalysis", m_doOfflineAnalysis = false);  // uses a lot of memory (to be absolutely avoided for monitoring!)
 
-  declareProperty("doRDO", m_doRDO = false);  //flags to turn on/off parts of the code
+  // flags to turn on/off parts of the code
+  declareProperty("doRDO", m_doRDO = false);
   declareProperty("doErrors", m_doRODError = false);
   declareProperty("doSpacePoint", m_doSpacePoint = false);
   declareProperty("doCluster", m_doCluster = false);
@@ -115,12 +107,10 @@ PixelMainMon::PixelMainMon(const std::string& type,
   declareProperty("doHoleSearch", m_doHoleSearch = false);
   declareProperty("doStatus", m_doStatus = false);
   declareProperty("doDCS", m_doDCS = false);
-
   declareProperty("doHeavyIonMon", m_doHeavyIonMon = false);
 
   declareProperty("doIBL", m_doIBL = false);
   declareProperty("doESD", m_doESD = false);
-
   declareProperty("DetailsMod1", m_DetailsMod1 = "");
   declareProperty("DetailsMod2", m_DetailsMod2 = "");
   declareProperty("DetailsMod3", m_DetailsMod3 = "");
@@ -156,27 +146,23 @@ PixelMainMon::PixelMainMon(const std::string& type,
   m_Pixel_spcontainer = 0;
   m_tracks = 0;
 
-  ///
-  /// Initalize all pointers for histograms
-  ///
-  ///
-  /// Event info
-  ///
+  // Initalize all pointers for histograms
+
+  // Event info
   m_events_per_lumi = 0;
   m_mu_vs_bcid = 0;
   m_mu_vs_lumi = 0;
   m_storegate_errors = 0;
-  ///
-  /// Hits
-  ///
-  /// number of hits
+
+  // number of hits
   m_hits_per_lumi = 0;
   m_num_hits = 0;
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
   memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
-  /// hit occupancy
+
+  // hit occupancy
   m_avgocc_per_lumi = 0;
   m_avgocc_ratioIBLB0_per_lumi = 0;
   memset(m_avgocc_per_lumi_mod, 0, sizeof(m_avgocc_per_lumi_mod));
@@ -190,14 +176,16 @@ PixelMainMon::PixelMainMon(const std::string& type,
   m_occupancy_time3 = 0;
   memset(m_occupancy_summary_mod, 0, sizeof(m_occupancy_summary_mod));
   memset(m_nFEswithHits_mod, 0, sizeof(m_nFEswithHits_mod));
-  /// hit tot
+
+  // hit tot
   memset(m_hit_ToT, 0, sizeof(m_hit_ToT));
   memset(m_hit_ToT_per_lumi_mod, 0, sizeof(m_hit_ToT_per_lumi_mod));
   memset(m_hit_ToT_tmp_mod, 0, sizeof(m_hit_ToT_tmp_mod));
   memset(m_hit_ToT_Mon_mod, 0, sizeof(m_hit_ToT_Mon_mod));
   memset(m_ToT_etaphi_mod, 0, sizeof(m_ToT_etaphi_mod));
   memset(m_hit_ToTMean_mod, 0, sizeof(m_hit_ToTMean_mod));
-  /// timing
+
+  // timing
   m_Lvl1ID_PIX = 0;
   m_Lvl1ID_IBL = 0;
   m_Atlas_BCID = 0;
@@ -209,10 +197,12 @@ PixelMainMon::PixelMainMon(const std::string& type,
   memset(m_Lvl1A_10min_mod, 0, sizeof(m_Lvl1A_10min_mod));
   memset(m_Lvl1ID_diff_mod_ATLAS_mod, 0, sizeof(m_Lvl1ID_diff_mod_ATLAS_mod));
   memset(m_diff_ROD_vs_Module_BCID_mod, 0, sizeof(m_diff_ROD_vs_Module_BCID_mod));
-  /// Quick status
+
+  // quick status
   m_nhits_L0_B11_S2_C6 = 0;
   m_occupancy_L0_B11_S2_C6 = 0;
-  /// details
+
+  // details
   m_Details_mod1_num_hits = 0;
   m_Details_mod2_num_hits = 0;
   m_Details_mod3_num_hits = 0;
@@ -225,34 +215,32 @@ PixelMainMon::PixelMainMon(const std::string& type,
   m_Details_mod2_ToT = 0;
   m_Details_mod3_ToT = 0;
   m_Details_mod4_ToT = 0;
-  ///
-  /// track histograms
-  ///
-  /// track quality
+
+  // track quality
   m_track_res_phi = 0;
   m_track_pull_phi = 0;
   m_track_res_eta = 0;
   m_track_pull_eta = 0;
   m_track_chi2 = 0;
-  /// the number of tracks
+
+  // the number of tracks
   m_tracksPerEvt_per_lumi = 0;
   m_tracksPerEvtPerMu_per_lumi = 0;
-  /// track state on surface
-  /// hit efficiency
   memset(m_hiteff_incl_mod, 0, sizeof(m_hiteff_incl_mod));
-  /// Lorentz Angle
+
+  // Lorentz Angle
   m_LorentzAngle_IBL = 0;
   m_LorentzAngle_IBL2D = 0;
   m_LorentzAngle_IBL3D = 0;
   m_LorentzAngle_B0 = 0;
   m_LorentzAngle_B1 = 0;
   m_LorentzAngle_B2 = 0;
-  /// cluster size
+
+  // cluster size
   memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
   memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
-  ///
-  /// Cluster histograms
-  ///
+
+  // cluster histograms
   m_clusters_per_lumi = 0;
   memset(m_clusters_per_lumi_mod, 0, sizeof(m_clusters_per_lumi_mod));
   memset(m_clusters_col_width_per_lumi_mod, 0, sizeof(m_clusters_col_width_per_lumi_mod));
@@ -296,19 +284,18 @@ PixelMainMon::PixelMainMon(const std::string& type,
   memset(m_cluster_occupancy_summary_mod, 0, sizeof(m_cluster_occupancy_summary_mod));
   m_cluster_LVL1A_mod = 0;
   m_clustersOnOffTrack_per_lumi = 0;
-  /// Quick status
+
+  // quick status
   m_clusters_onTrack_L0_B11_S2_C6 = 0;
   m_clusters_offTrack_L0_B11_S2_C6 = 0;
-  ///
-  /// Status
-  ///
+
+  // module status
   m_disabledModules_per_lumi_PIX = 0;
   memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));
   memset(m_disabledModules_per_lumi_mod, 0, sizeof(m_disabledModules_per_lumi_mod));
   memset(m_baddisabledModules_per_lumi_mod, 0, sizeof(m_baddisabledModules_per_lumi_mod));
-  ///
-  /// Errors
-  ///
+
+  // errors
   memset(m_errhist_errcat_avg, 0, sizeof(m_errhist_errcat_avg));
   memset(m_errhist_tot_LB, 0, sizeof(m_errhist_tot_LB));
   m_errhist_syncerr_LB_pix = 0;
@@ -324,9 +311,8 @@ PixelMainMon::PixelMainMon(const std::string& type,
   m_errhist_expert_servrec_ibl_unweighted = 0;
   m_errhist_expert_servrec_ibl_weighted = 0;
   m_errhist_expert_servrec_ibl_count = 0;
-  ///
-  /// Space Point
-  ///
+
+  // space point
   m_num_spacepoints = 0;
   m_num_spacepoints_low = 0;
   m_spHit_x = 0;
@@ -336,88 +322,77 @@ PixelMainMon::PixelMainMon(const std::string& type,
   m_spHit_phi = 0;
   m_spHit_xy = 0;
   m_spHit_rz = 0;
-  ///
-  /// Per 20 LB
-  ///
+
   m_num_hits_LB = 0;
   memset(m_hit_ToT_LB_mod, 0, sizeof(m_hit_ToT_LB_mod));
   m_cluster_ToT_LB = 0;
   m_num_clusters_LB = 0;
-  ///
-  /// DCS Monitorning
-  ///
-  /// TEMPERATURE
+
+  // DCS monitoring
   m_hist_moduleTemperatureEtaPhi = 0;
   memset(m_hist_moduleTemperature2Dscatter, 0, sizeof(m_hist_moduleTemperature2Dscatter));
   memset(m_hist_moduleTemperatureLB, 0, sizeof(m_hist_moduleTemperatureLB));
   m_hist_LB_staveID_moduleTemperature = 0;
   memset(m_hist_LB_moduleGroup_moduleTemperature, 0, sizeof(m_hist_LB_moduleGroup_moduleTemperature));
-  /// HV
   m_hist_HVoltageEtaPhi = 0;
   memset(m_hist_HVoltage2Dscatter, 0, sizeof(m_hist_HVoltage2Dscatter));
   memset(m_hist_HVoltageLB, 0, sizeof(m_hist_HVoltageLB));
   m_hist_LB_staveID_HVoltage = 0;
   memset(m_hist_LB_moduleGroup_HVoltage, 0, sizeof(m_hist_LB_moduleGroup_HVoltage));
-  /// PIPES Inlet
-  //m_hist_Pipes_inletEtaPhi = 0;
   memset(m_hist_Pipes_inletLB, 0, sizeof(m_hist_Pipes_inletLB));
   m_hist_Pipes_inlet2Dscatter = 0;
   m_hist_LB_staveID_coolingPipeInlet = 0;
-  /// PIPES Outlet
-  //m_hist_Pipes_outletEtaPhi = 0;
   memset(m_hist_Pipes_outletLB, 0, sizeof(m_hist_Pipes_outletLB));
   m_hist_Pipes_outlet2Dscatter = 0;
   m_hist_LB_staveID_coolingPipeOutlet = 0;
-  /// LV
+
   m_hist_LVoltageEtaPhi = 0;
   memset(m_hist_LVoltage2Dscatter, 0, sizeof(m_hist_LVoltage2Dscatter));
   m_hist_LB_staveID_LVoltage = 0;
   memset(m_hist_LB_moduleGroup_LVoltage, 0, sizeof(m_hist_LB_moduleGroup_LVoltage));
-  /// LV current
+
   m_hist_LVcurrentEtaPhi = 0;
   memset(m_hist_LVcurrent2Dscatter, 0, sizeof(m_hist_LVcurrent2Dscatter));
   m_hist_LB_staveID_LVcurrent = 0;
   memset(m_hist_LVcurrentLB, 0, sizeof(m_hist_LVcurrentLB));
   memset(m_hist_LB_moduleGroup_LVcurrent, 0, sizeof(m_hist_LB_moduleGroup_LVcurrent));
-  /// HV current
+
   m_hist_HVcurrentEtaPhi = 0;
   memset(m_hist_HVcurrent2Dscatter, 0, sizeof(m_hist_HVcurrent2Dscatter));
   memset(m_hist_HVcurrentLB, 0, sizeof(m_hist_HVcurrentLB));
   m_hist_LB_staveID_HVcurrent = 0;
   memset(m_hist_LB_moduleGroup_HVcurrent, 0, sizeof(m_hist_LB_moduleGroup_HVcurrent));
-  /// FSM state
+
   m_hist_FSMstateEtaPhi = 0;
   memset(m_hist_FSMstate2Dscatter, 0, sizeof(m_hist_FSMstate2Dscatter));
   memset(m_hist_FSMstateLB, 0, sizeof(m_hist_FSMstateLB));
   m_hist_LB_staveID_FSMstate = 0;
   memset(m_hist_LB_moduleGroup_FSMstate, 0, sizeof(m_hist_LB_moduleGroup_FSMstate));
-  /// FSM status
+
   m_hist_FSMstatusEtaPhi = 0;
   memset(m_hist_FSMstatus2Dscatter, 0, sizeof(m_hist_FSMstatus2Dscatter));
   memset(m_hist_FSMstatusLB, 0, sizeof(m_hist_FSMstatusLB));
   m_hist_LB_staveID_FSMstatus = 0;
   memset(m_hist_LB_moduleGroup_FSMstatus, 0, sizeof(m_hist_LB_moduleGroup_FSMstatus));
-  /// dT
+
   m_hist_dTEtaPhi = 0;
   m_hist_LB_staveID_dT = 0;
   memset(m_hist_LB_moduleGroup_dT, 0, sizeof(m_hist_LB_moduleGroup_dT));  // dT := module temp - cooling pipe outlet
-  /// LV Power Consumption
+
+  // power consumption
   m_hist_LVPowerConsumptionEtaPhi = 0;
   m_hist_LB_staveID_LVPowerConsumption = 0;
   memset(m_hist_LB_moduleGroup_LVPowerConsumption, 0, sizeof(m_hist_LB_moduleGroup_LVPowerConsumption));
-  /// HV Popwer Consumtion
   m_hist_HVPowerConsumptionEtaPhi = 0;
   m_hist_LB_staveID_HVPowerConsumption = 0;
   memset(m_hist_LB_moduleGroup_HVPowerConsumption, 0, sizeof(m_hist_LB_moduleGroup_HVPowerConsumption));
-  /// LV+HV Power Consumption
   m_hist_LVHVPowerConsumptionEtaPhi = 0;
   m_hist_LB_staveID_LVHVPowerConsumption = 0;
   memset(m_hist_LB_moduleGroup_LVHVPowerConsumption, 0, sizeof(m_hist_LB_moduleGroup_LVHVPowerConsumption));
-  /// effective FLEX temp
+
   m_hist_effFLEXtempEtaPhi = 0;
   m_hist_LB_staveID_effFLEXtemp = 0;
   memset(m_hist_LB_moduleGroup_effFLEXtemp, 0, sizeof(m_hist_LB_moduleGroup_effFLEXtemp));
-  /// thermal figure of merit
   m_hist_thermalFigureMeritEtaPhi = 0;
   m_hist_LB_staveID_thermalFigureMerit = 0;
   memset(m_hist_LB_moduleGroup_thermalFigureMerit, 0, sizeof(m_hist_LB_moduleGroup_thermalFigureMerit));
@@ -438,16 +413,13 @@ PixelMainMon::~PixelMainMon() {
 
 StatusCode PixelMainMon::initialize() {
   ATH_CHECK(ManagedMonitorToolBase::initialize());
-  time(&m_startTime);  //mark time for start of run
-  //m_idHelper = new AtlasDetectorID; // not need "new"
+  time(&m_startTime);  // mark time for start of run
 
   // Retrieve tools
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-
-  // Get the dictionary manager from the detector store
 
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
@@ -507,14 +479,13 @@ StatusCode PixelMainMon::initialize() {
 
   if (!m_doDCS) return StatusCode::SUCCESS;
 
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));  // module
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/HV"));           // readout unit
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATE"));     // readout unit
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATUS"));    // readout unit
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/PIPES"));        // IBL stave
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/HVCURRENT"));    // IBL readout unit
-  //m_atrcollist.push_back(std::string("/PIXEL/DCS/PLANTS"));      // 1
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/LV"));  // IBL readout unit
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/HV"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATE"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATUS"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/PIPES"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/HVCURRENT"));
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/LV"));
   m_currentLumiBlockNumber = 0;
 
   std::string modMapFileName = PathResolver::find_file("PixelDQMonitoring/wincc2cool.csv", "CALIBPATH");
@@ -609,11 +580,6 @@ StatusCode PixelMainMon::initialize() {
 }
 
 StatusCode PixelMainMon::bookHistograms() {
-  // m_isNewRun = newRun;
-  // m_isNewLumiBlock = newLumiBlock;
-  // m_newLowStatInterval = newLowStatInterval;
-  //m_doOnline = true;
-
   const EventInfo* thisEventInfo;
   if (evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
@@ -659,61 +625,51 @@ StatusCode PixelMainMon::bookHistograms() {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doDCS       " << m_doDCS << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doTrack     " << m_doTrack << endmsg;
 
-  ///
-  /// Book histograms
-  ///
-
+  // Book histograms
   if (m_doLumiBlock) {
     if (m_doRDO) {
-      if (BookHitsLumiBlockMon().isFailure()) {
+      if (bookHitsLumiBlockMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book lowStat histograms" << endmsg;
       }
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking RDO for lowStat" << endmsg;
     }
     if (m_doRODError) {
-      if (BookRODErrorLumiBlockMon().isFailure()) {
+      if (bookRODErrorLumiBlockMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book lowStat histograms" << endmsg;
       }
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking ROD Error for lowStat" << endmsg;
     }
     if (m_doCluster) {
-      if (BookClustersLumiBlockMon().isFailure()) {
+      if (bookClustersLumiBlockMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book lowStat histograms" << endmsg;
       }
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking Cluster for lowStat" << endmsg;
     }
     if (m_doStatus) {
-      if (BookStatusLumiBlockMon().isFailure()) {
+      if (bookStatusLumiBlockMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book lowStat histograms" << endmsg;
       }
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking Status for lowStat" << endmsg;
     }
   }
 
-  if (m_doRDO) {  // only RAWtoESD
-    ///
-    /// Mu vs LB (BCID)
-    ///
+  if (m_doRDO) {
     std::string path_hits = "Pixel/Hits";
     if (m_doOnTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
-    MonGroup hitsHistos(this, path_hits.c_str(), run, ATTRIB_MANAGED);  //declare a group of histograms
+    MonGroup hitsHistos(this, path_hits.c_str(), run, ATTRIB_MANAGED);  // declare a group of histograms
     StatusCode sc;
     sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>", m_bcidRange, -0.5, -0.5 + (1.0 * m_bcidRange)));
     sc = hitsHistos.regHist(m_mu_vs_lumi = TProfile_LW::create("Interactions_vs_lumi", "<Interactions> vs LB;lumi block;<#Interactions/event>", m_lbRange, -0.5, -0.5 + (1.0 * m_lbRange)));
     sc = hitsHistos.regHist(m_events_per_lumi = TH1F_LW::create("Events_per_lumi", "nEvents vs LB;lumi block;#events", m_lbRange, -0.5, -0.5 + (1.0 * m_lbRange)));
-    ///
-    /// Storegate errors
-    ///
+
     std::string path = "Pixel/Errors";
     if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
     MonGroup errorHistos(this, path.c_str(), run, ATTRIB_MANAGED);  //declare a group of histograms
     sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors", ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6, 0.5, 6.5, 5, 0.5, 5.5));
-    if (sc.isFailure())
+    if (sc.isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
+    }
 
-    ///
-    ///Set lables and style for error histogram
-    ///
     m_storegate_errors->SetOption("colz");
     const char* xlabel[6] = {"RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS"};
     for (int i = 0; i < 6; i++) {
@@ -725,47 +681,45 @@ StatusCode PixelMainMon::bookHistograms() {
     }
   }
 
-  ///
-  /// Initialize histograms
-  ///
+  // Initialize histograms
   if (m_doTrack) {
-    if (BookTrackMon().isFailure()) {
+    if (bookTrackMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking Track" << endmsg;
   }
   if (m_doRDO) {
-    if (BookHitsMon().isFailure()) {
+    if (bookHitsMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking RDO" << endmsg;
   }
   if (m_doRODError) {
-    if (BookRODErrorMon().isFailure()) {
+    if (bookRODErrorMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking ROD Error" << endmsg;
   }
   if (m_doSpacePoint) {
-    if (BookSpacePointMon().isFailure()) {
+    if (bookSpacePointMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking SP" << endmsg;
   }
   if (m_doCluster) {
-    if (BookClustersMon().isFailure()) {
+    if (bookClustersMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking Cluster" << endmsg;
   }
   if (m_doStatus) {
-    if (BookStatusMon().isFailure()) {
+    if (bookStatusMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking Status" << endmsg;
   }
   if (m_doDCS) {
-    if (BookPixelDCSMon().isFailure()) {
+    if (bookPixelDCSMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done booking DCS" << endmsg;
@@ -774,11 +728,8 @@ StatusCode PixelMainMon::bookHistograms() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-StatusCode PixelMainMon::fillHistograms()  //get called twice per event
-{
-  //Get required services, we want to repeat as little as possible in the function calls
+StatusCode PixelMainMon::fillHistograms() {
+  // Get required services, we want to repeat as little as possible in the function calls
   // Part 1: Get the messaging service, print where you are
 
   m_event++;
@@ -790,22 +741,19 @@ StatusCode PixelMainMon::fillHistograms()  //get called twice per event
   } else {
     m_currentTime = thisEventInfo->event_ID()->time_stamp();
     m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
-    //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endmsg;
     unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
     unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
-    /// for 100 sec
+    // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
       m_nRefresh = currentdiff;
-      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endmsg;
     } else {
       m_doRefresh = false;
     }
-    /// for 5min
+    // for 5min
     if (currentdiff5min > m_nRefresh5min) {
       m_doRefresh5min = true;
       m_nRefresh5min = currentdiff5min;
-      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endmsg;
     } else {
       m_doRefresh5min = false;
     }
@@ -823,9 +771,9 @@ StatusCode PixelMainMon::fillHistograms()  //get called twice per event
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
 
-    int pixlayeribl2d3d = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    int pixlayeribl2d3d = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
     if (pixlayeribl2d3d == PixLayer::kIBL) {
-      pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+      pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
     if (pixlayeribl2d3d == 99) continue;
     if (m_pixelCondSummarySvc->isActive(id_hash) == true) {
@@ -838,88 +786,87 @@ StatusCode PixelMainMon::fillHistograms()  //get called twice per event
   m_nActive_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3D::kIBL2D] + m_nActive_mod[PixLayerIBL2D3D::kIBL3D];
   m_nGood_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3D::kIBL2D] + m_nGood_mod[PixLayerIBL2D3D::kIBL3D];
 
-  ////////////////////////////////////////////////////////////////
-  // Fill methods go here
-  ////////////////////////////////////////////////////////////////
-
-  ///
-  /// Event Info
-  ///
-  if (m_doRDO) {  // only RAWtoESD
+  // event info
+  if (m_doRDO) {
     if (m_mu_vs_bcid) m_mu_vs_bcid->Fill(m_currentBCID, thisEventInfo->actualInteractionsPerCrossing());
     if (m_mu_vs_lumi) m_mu_vs_lumi->Fill(m_manager->lumiBlockNumber(), thisEventInfo->actualInteractionsPerCrossing());
     if (m_events_per_lumi) m_events_per_lumi->Fill(m_manager->lumiBlockNumber());
   }
 
-  ///
-  /// Pixel Info
-  ///
-  if (m_doStatus) {  //fill status histograms first, to check number of disabled modules
-    if (FillStatusMon().isFailure()) {
+  // pixel info
+  if (m_doStatus) {
+    if (fillStatusMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   }
 
-  /// Hits
+  // hits
   if (m_doRDO) {
     if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
-      if (FillHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+      if (fillHitsMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) {
+          msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+        }
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(1., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(1., 1.);
   }
 
-  //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
   if (m_doRODError) {
-    if (FillRODErrorMon().isFailure()) {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+    if (fillRODErrorMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) {
+        msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+      }
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(5., 1.);
   }
 
-  /// Track
+  // track
   if (m_doTrack) {
     if (evtStore()->contains<TrackCollection>(m_TracksName)) {
-      if (FillTrackMon().isFailure()) {
+      if (fillTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(4., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
   }
 
-  /// Cluster
+  // cluster
   if (m_doCluster) {
     if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)) {
-      if (FillClustersMon().isFailure()) {
+      if (fillClustersMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(3., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(3., 1.);
   }
 
-  /// Space Point
+  // space point
   if (m_doSpacePoint) {
     if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)) {
-      if (FillSpacePointMon().isFailure()) {
+      if (fillSpacePointMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(2., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(2., 1.);
   }
 
-  /// DCS
+  // DCS
   if (m_doDCS) {
-    if (FillPixelDCSMon().isFailure()) {
+    if (fillPixelDCSMon().isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
@@ -929,38 +876,33 @@ StatusCode PixelMainMon::fillHistograms()  //get called twice per event
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
 StatusCode PixelMainMon::procHistograms() {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "finalize()" << endmsg;
-
-  if (endOfLumiBlockFlag()) {
-    m_LBendTime = m_currentTime;
-  }
+  if (endOfLumiBlockFlag()) m_LBendTime = m_currentTime;
 
   if (!m_doOnline && endOfRunFlag()) {
     if (m_doRDO) {
-      if (ProcHitsMon().isFailure()) {
+      if (procHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
     if (m_doCluster) {
-      if (ProcClustersMon().isFailure()) {
+      if (procClustersMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
     if (m_doStatus) {
-      if (ProcStatusMon().isFailure()) {
+      if (procStatusMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
     if (m_doDCS) {
-      if (ProcPixelDCSMon().isFailure()) {
+      if (procPixelDCSMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
     if (m_doTrack) {
-      if (ProcTrackMon().isFailure()) {
+      if (procTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
