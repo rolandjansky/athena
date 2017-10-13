@@ -232,5 +232,6 @@ for tool in EGAM4_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM4SlimmingHelper
 EGAM4SlimmingHelper.AppendContentToStream(EGAM4Stream)
 
-# Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
+#Add full CellContainer
 EGAM4Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM4Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")

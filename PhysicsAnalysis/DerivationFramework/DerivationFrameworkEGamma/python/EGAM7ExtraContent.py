@@ -94,4 +94,21 @@ ExtraContainersElectrons=["Electrons",
                           "egammaClusters"]
 
 # for trigger studies
-ExtraContainersTrigger = []
+ExtraContainersTrigger=[
+        "HLT_xAOD__ElectronContainer_egamma_Electrons",
+        "HLT_xAOD__PhotonContainer_egamma_Photons",    
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
+        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
+        "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
+        "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex",
+        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
+        "HLT_xAOD__TrigPassBitsContainer_passbits",
+        "LVL1EmTauRoIs",
+        "HLT_TrigRoiDescriptorCollection_initialRoI",
+        "HLT_xAOD__RoiDescriptorStore_initialRoI"
+        ]
+
+ExtraContainersTriggerDataOnly=[ 
+        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
+        ]
+

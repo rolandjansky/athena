@@ -63,7 +63,14 @@ triggers += ['HLT_g160_loose']
 triggers += ['HLT_g160_loose_L1EM24VHIM']
 triggers += ['HLT_g180_loose']
 triggers += ['HLT_g180_loose_L1EM24VHIM']
-
+triggers += ['HLT_g35_loose_L1EM15']
+triggers += ['HLT_g40_loose_L1EM15']
+triggers += ['HLT_g45_loose_L1EM15']
+triggers += ['HLT_g50_loose_L1EM15']
+triggers += ['HLT_g70_loose']
+triggers += ['HLT_g80_loose']
+triggers += ['HLT_g140_loose']
+triggers += ['HLT_g200_loose']
 
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
@@ -233,7 +240,3 @@ for tool in EGAM9_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM9SlimmingHelper
 EGAM9SlimmingHelper.AppendContentToStream(EGAM9Stream)
-
-# Add AODCellContainer (thinned)
-EGAM9Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-EGAM9Stream.AddItem("CaloCellContainer#DFEGAMCellContainer")

@@ -364,5 +364,9 @@ EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)
 #addMETOutputs(EGAM6Stream)
 
 # Add Derived Egamma CellContainer
-from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
-CellCommonThinning(EGAM6Stream)
+# from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
+# CellCommonThinning(EGAM6Stream)
+
+#Add full CellContainer
+EGAM6Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM6Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")

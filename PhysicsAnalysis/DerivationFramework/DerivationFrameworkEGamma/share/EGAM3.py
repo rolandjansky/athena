@@ -299,6 +299,7 @@ for tool in EGAM3_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)
 
-# Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
+#Add full CellContainer
 EGAM3Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM3Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
 
