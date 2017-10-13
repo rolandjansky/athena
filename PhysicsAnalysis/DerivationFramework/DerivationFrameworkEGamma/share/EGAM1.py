@@ -460,8 +460,13 @@ EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 
 # Add Derived Egamma CellContainer
-from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
-CellCommonThinning(EGAM1Stream)
+# from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
+# CellCommonThinning(EGAM1Stream)
+
+#Add full CellContainer
+EGAM1Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM1Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
+
 
 
 
