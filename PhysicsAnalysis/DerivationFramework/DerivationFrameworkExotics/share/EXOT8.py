@@ -258,9 +258,9 @@ exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", Thinning
 streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
 fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 EXOT8Stream.AddItem("xAOD::JetContainer_v1#*")
 EXOT8Stream.AddItem("xAOD::JetAuxContainer_v1#*")
+EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 
 
 # Thinning
@@ -288,6 +288,7 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
                                       "AntiKt4EMTopoJets.TrackSumPt",
+                                      "AntiKt4EMTopoJets.scalSumPtTrk500",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMTopo.SV1_normdist",
                                       "BTagging_AntiKt4EMTopo.SV1_masssvx",
@@ -329,8 +330,10 @@ EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
+    "AntiKt4EMTopoJets.scalSumPtTrk500"
 ]
+
 
 if globalflags.DataSource()=="geant4":
     EXOT8SlimmingHelper.StaticContent += [
