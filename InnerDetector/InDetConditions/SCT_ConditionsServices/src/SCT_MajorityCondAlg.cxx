@@ -3,22 +3,14 @@
 */
 
 #include "SCT_MajorityCondAlg.h"
-
-#include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/SCT_OnlineId.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/EventIDRange.h"
-
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
-using namespace SCT_ConditionsServices;
 
 SCT_MajorityCondAlg::SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_readKey{"/SCT/DCS/MAJ"}
   , m_writeKey{"SCT_MajorityCondData"}
   , m_condSvc{"CondSvc", name}
-  , m_cablingSvc{"SCT_CablingSvc", name}
 {
   declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
@@ -34,8 +26,6 @@ StatusCode SCT_MajorityCondAlg::initialize()
 
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
-  // SCT cabling service
-  ATH_CHECK( m_cablingSvc.retrieve() );
 
   // Read Cond Handle
   ATH_CHECK( m_readKey.initialize() );
@@ -97,22 +87,28 @@ StatusCode SCT_MajorityCondAlg::execute()
     CondAttrListCollection::ChanNum channelNumber{(*majItr).first};
     CondAttrListCollection::AttributeList payload{(*majItr).second};
     // Possible components
-    if ((channelNumber == OVERALL) or (channelNumber == BARREL) or (channelNumber == ECA) or (channelNumber == ECC)) {
+    if ((channelNumber == SCT_ConditionsServices::OVERALL) or 
+        (channelNumber == SCT_ConditionsServices::BARREL) or 
+        (channelNumber == SCT_ConditionsServices::ECA) or 
+        (channelNumber == SCT_ConditionsServices::ECC)) {
       // Reset default to true at callback
       bool majorityState{true};
 
       // Majority state
-      if (not payload[INDEX_MajorityState].isNull()) {
-	ATH_MSG_DEBUG("Majority state for " << channelNumber << " = " << payload[INDEX_MajorityState].data<int>());
-	majorityState = (payload[INDEX_MajorityState].data<int>() == HighAndLowVoltageOK);
+      if (not payload[SCT_ConditionsServices::INDEX_MajorityState].isNull()) {
+	ATH_MSG_DEBUG("Majority state for " << channelNumber << " = " <<
+                      payload[SCT_ConditionsServices::INDEX_MajorityState].data<int>());
+	majorityState = (payload[SCT_ConditionsServices::INDEX_MajorityState].data<int>()
+                         == SCT_ConditionsServices::HighAndLowVoltageOK);
       }
       writeCdo->setMajorityState(channelNumber, majorityState);
 
       // HV fraction in majority state (>50% by definition) IF majority state is HV and LV on
       float hvFraction{1.};
-      if (majorityState and (not payload[INDEX_HVfraction].isNull())) {
-	ATH_MSG_DEBUG("Majority HV fraction for " << channelNumber << " = " << payload[INDEX_HVfraction].data<float>());
-	hvFraction = payload[INDEX_HVfraction].data<float>();
+      if (majorityState and (not payload[SCT_ConditionsServices::INDEX_HVfraction].isNull())) {
+	ATH_MSG_DEBUG("Majority HV fraction for " << channelNumber << " = " <<
+                      payload[SCT_ConditionsServices::INDEX_HVfraction].data<float>());
+	hvFraction = payload[SCT_ConditionsServices::INDEX_HVfraction].data<float>();
 	numFilled++;
       }
       writeCdo->setHVFraction(channelNumber, hvFraction);
@@ -124,7 +120,7 @@ StatusCode SCT_MajorityCondAlg::execute()
 
   // Has data been filled?
   // Four regions (OVERALL, BARREL, ECA, ECC) are needed.
-  writeCdo->setFilled(numFilled==N_REGIONS);
+  writeCdo->setFilled(numFilled==SCT_ConditionsServices::N_REGIONS);
 
   // Record the out output Cond Object
   if(writeHandle.record(rangeW, writeCdo).isFailure()) {

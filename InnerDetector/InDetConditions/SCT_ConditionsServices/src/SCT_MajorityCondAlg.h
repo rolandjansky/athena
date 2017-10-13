@@ -10,10 +10,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_MajorityCondData.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 class SCT_MajorityCondAlg : public AthAlgorithm 
 {  
@@ -28,7 +25,6 @@ class SCT_MajorityCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
   SG::WriteCondHandleKey<SCT_MajorityCondData> m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc; 
-  ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
 };
 
 #endif // SCT_MAJORITYCONDALG
