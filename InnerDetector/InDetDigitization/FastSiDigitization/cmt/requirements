@@ -16,6 +16,8 @@ use  InDetPrepRawData                   InDetPrepRawData-*              InnerDet
 use  InDetReadoutGeometry               InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 use  InDetSimData                       InDetSimData-*                  InnerDetector/InDetRawEvent
 use  InDetSimEvent                      InDetSimEvent-*                 InnerDetector
+use  ISF_FatrasDetDescrModel            ISF_FatrasDetDescrModel-*       Simulation/ISF/ISF_Fatras
+use  ISF_FatrasEvent                    ISF_FatrasEvent-*               Simulation/ISF/ISF_Fatras
 use  PileUpTools                        PileUpTools-*                   Control
 use  PixelConditionsTools               PixelConditionsTools-*          InnerDetector/InDetConditions
 use  SiClusterizationTool               SiClusterizationTool-*          InnerDetector/InDetRecTools
@@ -23,9 +25,7 @@ use  SiPropertiesSvc                    SiPropertiesSvc-*               InnerDet
 use  StoreGate                          StoreGate-*                     Control
 use  TrkEventTPCnv                      TrkEventTPCnv-*                 Tracking/TrkEventCnv
 use  TrkTruthData                       TrkTruthData-*                  Tracking/TrkEvent
-use  TrkDigEvent                        TrkDigEvent-*                   Tracking/TrkDigitization
-use  TrkDigInterfaces                   TrkDigInterfaces-*              Tracking/TrkDigitization
-
+use  xAODEventInfo                      xAODEventInfo-*                 Event/xAOD
 
 #
 # Setup component library
@@ -47,8 +47,8 @@ use  GeneratorObjects                   GeneratorObjects-*              Generato
 use  Identifier                         Identifier-*                    DetectorDescription
 use  InDetIdentifier                    InDetIdentifier-*               InnerDetector/InDetDetDescr
 use  StoreGate                          StoreGate-*                     Control
+use  TrkGeometry                        TrkGeometry-*                   Tracking/TrkDetDescr
 use  TrkExUtils                         TrkExUtils-*                    Tracking/TrkExtrapolation
 use  TrkSurfaces                        TrkSurfaces-*                   Tracking/TrkDetDescr
-use  GeoPrimitives                      GeoPrimitives-*                 DetectorDescription
-use  TrkSurfaces                        TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkDetDescrInterfaces              TrkDetDescrInterfaces-*         Tracking/TrkDetDescr
 end_private

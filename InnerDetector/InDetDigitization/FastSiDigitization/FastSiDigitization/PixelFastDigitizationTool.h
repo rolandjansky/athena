@@ -23,7 +23,8 @@
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "FastSiDigitization/IPixelFastDigitizationTool.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -44,9 +45,6 @@
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 
-//New digi
-#include "TrkDigEvent/DigitizationModule.h"
-#include "TrkDigInterfaces/IModuleStepper.h"
 
 
 class PixelID;
@@ -83,14 +81,13 @@ public:
   StatusCode initialize();
   StatusCode prepareEvent(unsigned int);
   StatusCode processBunchXing( int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode processAllSubEvents();
   StatusCode mergeEvent();
   StatusCode digitize();
   StatusCode createAndStoreRIOs();
 
- 
 
 
 private:
@@ -120,7 +117,7 @@ private:
   Pixel_detElement_RIO_map* m_pixelClusterMap;
 
   std::string                           m_prdTruthNamePixel;
-  PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for Pixel measurements
+  PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for SCT measurements
 
   //  ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;   //!< Handle to pixel conditions service
 
@@ -144,14 +141,9 @@ private:
   std::vector<double>                   m_pixPhiError;              //!< phi error when not using the ClusterMaker
   std::vector<double>                   m_pixEtaError;              //!< eta error when not using the ClusterMaker
   int                                   m_pixErrorStrategy;         //!< error strategy for the  ClusterMaker
-  double                                m_DiffusionShift; //Shift of the track to improve cluster size description
-  
-  bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
-  bool m_splitClusters; //!< merging parameter used to define two clusters as neighbour >  
-  bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >  
+
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
-   
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
@@ -160,13 +152,8 @@ private:
   PixelFastDigitizationTool(const PixelFastDigitizationTool&);
 
   PixelFastDigitizationTool& operator=(const PixelFastDigitizationTool&);
-  
-  ToolHandle<Trk::IModuleStepper>       m_digitizationStepper;
-  
-  Trk::DigitizationModule * buildDetectorModule(const InDetDD::SiDetectorElement* ) const;
 
- Amg::Vector3D CalculateIntersection(Amg::Vector3D Point, Amg::Vector3D Direction, Amg::Vector2D PlaneBorder, double halfthickness) const;
- bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift );
+
   //   void addSDO( const DiodeCollectionPtr& collection );
 
 

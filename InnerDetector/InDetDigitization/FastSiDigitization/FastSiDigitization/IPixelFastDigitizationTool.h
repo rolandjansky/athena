@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDIGITIZATION_IPIXELFASTDIGITIZATIONTOOL_H
-#define PIXELDIGITIZATION_IPIXELFASTDIGITIZATIONTOOL_H
+#ifndef FASTSIDIGITIZATION_IPIXELFASTDIGITIZATIONTOOL_H
+#define FASTSIDIGITIZATION_IPIXELFASTDIGITIZATIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
@@ -28,4 +28,4 @@ inline const InterfaceID& IPixelFastDigitizationTool::interfaceID()
   return IID_IPixelFastDigitizationTool;
 }
 
-#endif // IPIXELFASTDIGITIZATIONTOOL_H
+#endif // FASTSIDIGITIZATION_IPIXELFASTDIGITIZATIONTOOL_H
