@@ -135,9 +135,6 @@ StatusCode PixelMainMon::BookTrackMon(void) {
 StatusCode PixelMainMon::FillTrackMon(void) {
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
-  ///
-  /// Retrieve and Check Store Gate Error
-  ///
   StatusCode sc;
   sc = evtStore()->retrieve(m_tracks, m_TracksName);
   if (sc.isFailure()) {

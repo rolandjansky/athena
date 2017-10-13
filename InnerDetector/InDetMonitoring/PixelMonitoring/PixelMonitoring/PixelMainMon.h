@@ -58,11 +58,9 @@ class ITrackHoleSearchTool;
 //class ITrackSummaryTool;
 }  // namespace Trk
 class IPixelCablingSvc;
-//class ILuminosityTool;
 class SpacePointContainer;
 class IPixelByteStreamErrorsSvc;
 class IInDetConditionsSvc;
-//class StoreGateSvc;
 class PixelRDORawData;
 
 typedef InDet::PixelCluster PixelCluster;

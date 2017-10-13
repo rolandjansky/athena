@@ -8,9 +8,6 @@
 // functions which do each individual job. One function to book and fill each
 // storegate type for each environment.
 // For example, filling cluster histograms for Details modules.
-//
-// Written by: Nathan Triplett (nathan.triplett@cern.ch), Cecile Lapoire (cecile.lapoire@cern.ch)
-// Maintained by: Louise Skinnari (louise.skinnari@cern.ch)
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PixelMonitoring/PixelMainMon.h"
@@ -41,6 +38,8 @@
 #include <sstream>
 #include <vector>
 
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/StatusCode.h"
 //#include "Identifier/Identifier.h"
 #include "EventInfo/EventID.h"
