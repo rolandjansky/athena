@@ -23,15 +23,17 @@
 using namespace SCT_ConditionsServices;
 
 // Static folder name
-const std::string SCT_MajorityConditionsSvc::s_coolMajorityFolderName{"/SCT/DCS/MAJ"};
+// const std::string SCT_MajorityConditionsSvc::s_coolMajorityFolderName{"/SCT/DCS/MAJ"};
 
 // Constructor
 SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   m_detStore{"DetectorStore", name},
-  m_IOVSvc{"IOVSvc", name},
   m_overall{false},
-  m_majorityFraction{0.9} {
+  m_majorityFraction{0.9},
+  m_condData{nullptr},
+  m_condKey{std::string{"SCT_MajorityCondData"}}
+ {
   declareProperty("UseOverall", m_overall);
   declareProperty("MajorityFraction", m_majorityFraction);
 }
@@ -46,17 +48,8 @@ StatusCode SCT_MajorityConditionsSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // Retrieve IOV service
-  if (m_IOVSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve IOVSvc");
-    return StatusCode::FAILURE;
-  }
-
-  // Register callbacks for folders 
-  if (m_detStore->regFcn(&SCT_MajorityConditionsSvc::fillData, this, m_dataMajority, s_coolMajorityFolderName).isFailure()) {
-    ATH_MSG_ERROR("Failed to register callback");
-    return StatusCode::FAILURE;
-  }
+  // Read Cond Handle Key
+  ATH_CHECK(m_condKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -83,28 +76,34 @@ StatusCode SCT_MajorityConditionsSvc::queryInterface(const InterfaceID& riid, vo
 
 // Is the detector good?
 bool SCT_MajorityConditionsSvc::isGood() {
+  if(not getCondData()) return false;
+
   if (m_overall) {
-    return (m_data.getMajorityState(OVERALL) and (m_data.getHVFraction(OVERALL) > m_majorityFraction));
+    return (m_condData->getMajorityState(OVERALL) and (m_condData->getHVFraction(OVERALL) > m_majorityFraction));
   } else {
-    return ((m_data.getMajorityState(BARREL) and m_data.getMajorityState(ECA) and m_data.getMajorityState(ECC)) and
-	    (m_data.getHVFraction(BARREL) > m_majorityFraction) and
-            (m_data.getHVFraction(ECA)    > m_majorityFraction) and
-            (m_data.getHVFraction(ECC)    > m_majorityFraction));
+    return ((m_condData->getMajorityState(BARREL) and 
+             m_condData->getMajorityState(ECA)    and 
+             m_condData->getMajorityState(ECC))                      and
+	    (m_condData->getHVFraction(BARREL) > m_majorityFraction) and
+            (m_condData->getHVFraction(ECA)    > m_majorityFraction) and
+            (m_condData->getHVFraction(ECC)    > m_majorityFraction));
   }
 }
 
 // Is a barrel/endcap good?
 bool SCT_MajorityConditionsSvc::isGood(int bec) {
+  if(not getCondData()) return false;
+
   bool result{true};
 
   // Check numbering
 
   if (bec == bec_BARREL) {
-    result = (m_data.getMajorityState(BARREL) and (m_data.getHVFraction(BARREL) > m_majorityFraction));
+    result = (m_condData->getMajorityState(BARREL) and (m_condData->getHVFraction(BARREL) > m_majorityFraction));
   } else if (bec == bec_ECC) { 
-    result = (m_data.getMajorityState(ECC)    and (m_data.getHVFraction(ECC)    > m_majorityFraction));
+    result = (m_condData->getMajorityState(ECC)    and (m_condData->getHVFraction(ECC)    > m_majorityFraction));
   } else if (bec == bec_ECA) {
-    result = (m_data.getMajorityState(ECA)    and (m_data.getHVFraction(ECA)    > m_majorityFraction));
+    result = (m_condData->getMajorityState(ECA)    and (m_condData->getHVFraction(ECA)    > m_majorityFraction));
   } else {
     ATH_MSG_WARNING("Unrecognised BEC " << bec);
   }
@@ -112,77 +111,20 @@ bool SCT_MajorityConditionsSvc::isGood(int bec) {
   return result;
 }
 
-
-// Callback funtion (with arguments required by IovDbSvc) to fill channel, module and link info
-StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/, std::list<std::string>& /*l*/) {
-  int numFilled{0};
-
-  // Get Majority folder
-  if (retrieveFolder(m_dataMajority, s_coolMajorityFolderName).isFailure()) {
-    ATH_MSG_FATAL("Could not fill majority data");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("fillMajorityData: IOV callback resulted in a Chip CondAttrListCollection of size " << m_dataMajority->size());
-  }
-
-  CondAttrListCollection::const_iterator majItr{m_dataMajority->begin()};
-  CondAttrListCollection::const_iterator majEnd{m_dataMajority->end()};
-   
-  for (;majItr != majEnd; ++majItr) {
-    // A CondAttrListCollection is a map of ChanNum and AttributeList
-    CondAttrListCollection::ChanNum channelNumber{(*majItr).first};
-    CondAttrListCollection::AttributeList payload{(*majItr).second};
-    
-    // Possible components
-    if ((channelNumber == OVERALL) or (channelNumber == BARREL) or (channelNumber == ECA) or (channelNumber == ECC)) {
-      // Reset default to true at callback
-      bool majorityState{true};
-
-      // Majority state
-      if (not payload[INDEX_MajorityState].isNull()) {
-	ATH_MSG_DEBUG("Majority state for " << channelNumber << " = " << payload[INDEX_MajorityState].data<int>());
-	majorityState = (payload[INDEX_MajorityState].data<int>() == HighAndLowVoltageOK);
-      }
-      m_data.setMajorityState(channelNumber, majorityState);
-
-      // HV fraction in majority state (>50% by definition) IF majority state is HV and LV on
-      float hvFraction{1.};
-      if (majorityState and (not payload[INDEX_HVfraction].isNull())) {
-	ATH_MSG_DEBUG("Majority HV fraction for " << channelNumber << " = " << payload[INDEX_HVfraction].data<float>());
-	hvFraction = payload[INDEX_HVfraction].data<float>();
-	numFilled++;
-      }
-      m_data.setHVFraction(channelNumber, hvFraction);
-
-    } else {
-      ATH_MSG_WARNING("Unexpected channel number " << channelNumber);
-    }
-  }
-
-  // Has data been filled
-  m_data.setFilled(numFilled==N_REGIONS);
-
-  return StatusCode::SUCCESS;
-}
-
 // Is the information filled?
 bool SCT_MajorityConditionsSvc::filled() const {
-  return m_data.isFilled();
+  if(not getCondData()) return false;
+  return m_condData->isFilled();
 }
 
-// Get a DB folder
-StatusCode SCT_MajorityConditionsSvc::retrieveFolder(const DataHandle<CondAttrListCollection>& pDataVec, const std::string& folderName) {
-  if (not m_detStore) {
-    ATH_MSG_FATAL("The detector store pointer is NULL");
-    return StatusCode::FAILURE;
+bool SCT_MajorityConditionsSvc::getCondData() const {
+  if(!m_condData) {
+    SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey};
+    if((not condData.isValid()) or !(*condData)) {
+      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+      return false;
+    }
+    m_condData = *condData;
   }
-  if (m_detStore->retrieve(pDataVec, folderName).isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve AttrListCollection for " << folderName);
-    return StatusCode::FAILURE;
-  }
-  if (0 == pDataVec->size()) {
-    ATH_MSG_FATAL("This folder's data set appears to be empty: " << folderName);
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
+  return true;
 }

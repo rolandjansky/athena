@@ -22,12 +22,13 @@
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 
-#include "AthenaKernel/IIOVSvc.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h"
 
 #include "SCT_ConditionsData/SCT_MajorityCondData.h"
+
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -65,7 +66,9 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   virtual StatusCode                       fillData() { return StatusCode::FAILURE; }
   
   /**Fill data from an IOVDbSvc callback*/
-  virtual StatusCode                       fillData(int& i, std::list<std::string>& l);
+  virtual StatusCode                       fillData(int& /*i*/, std::list<std::string>& /*l*/) { 
+    return StatusCode::FAILURE; 
+  };
   
   /**Are the data available?*/
   virtual bool                             filled() const;
@@ -75,15 +78,14 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
 
  private:
   ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
-  ServiceHandle<IIOVSvc>                   m_IOVSvc;                        //!< Handle on the IOV service
-  const DataHandle<CondAttrListCollection> m_dataMajority;                  //!< Handle for majority data
-  SCT_MajorityCondData                     m_data;                          //!< Store majority state and HV fraction information
+
+
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
-  static const std::string                 s_coolMajorityFolderName;        //!< Majority folder name in COOL
 
-  /** Retreive a given folder from the DB*/
-  StatusCode                               retrieveFolder(const DataHandle<CondAttrListCollection>& pDataVec, const std::string& folderName);
+  mutable const SCT_MajorityCondData *m_condData;
+  SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey;
+  bool getCondData() const;
 };
 
 #endif // SCT_MajorityConditionsSvc_h
