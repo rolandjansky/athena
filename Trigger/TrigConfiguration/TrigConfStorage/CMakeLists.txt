@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore MathMore Hist RIO pthread )
 find_package( tdaq-common )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
