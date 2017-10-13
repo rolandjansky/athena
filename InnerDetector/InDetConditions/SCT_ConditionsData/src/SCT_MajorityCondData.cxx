@@ -41,6 +41,7 @@ bool SCT_MajorityCondData::getMajorityState(const int& region) const
 void SCT_MajorityCondData::clearMajorityStates()
 {
   m_majorityState.clear();
+  setFilled(false);
 }
 
 //----------------------------------------------------------------------
@@ -64,4 +65,19 @@ float SCT_MajorityCondData::getHVFraction(const int& region) const
 void SCT_MajorityCondData::clearHVFractions()
 {
   m_hvFraction.clear();
+  setFilled(false);
+}
+
+//----------------------------------------------------------------------
+// Set filled variable
+void SCT_MajorityCondData::setFilled(const bool& filled)
+{
+  m_filled = filled;
+}
+
+//----------------------------------------------------------------------
+// Set filled variable
+bool SCT_MajorityCondData::isFilled() const
+{
+  return m_filled;
 }

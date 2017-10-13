@@ -28,7 +28,6 @@ const std::string SCT_MajorityConditionsSvc::s_coolMajorityFolderName{"/SCT/DCS/
 // Constructor
 SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
-  m_filled{false},
   m_detStore{"DetectorStore", name},
   m_IOVSvc{"IOVSvc", name},
   m_overall{false},
@@ -161,14 +160,14 @@ StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/, std::list<std::string
   }
 
   // Has data been filled
-  m_filled = (numFilled==N_REGIONS ? true : false);
+  m_data.setFilled(numFilled==N_REGIONS);
 
   return StatusCode::SUCCESS;
 }
 
 // Is the information filled?
 bool SCT_MajorityConditionsSvc::filled() const {
-  return m_filled;
+  return m_data.isFilled();
 }
 
 // Get a DB folder

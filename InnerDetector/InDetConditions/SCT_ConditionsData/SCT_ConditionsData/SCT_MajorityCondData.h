@@ -37,11 +37,18 @@ public:
   // Clear HV fractions
   void clearHVFractions();
 
+  // Set filled variable
+  void setFilled(const bool& filled);
+  // Get filled variable
+  bool isFilled() const;
+
 private:
   // Map to store majority state
   std::map<int, bool> m_majorityState;
   // Map to store HV fraction
   std::map<int, float> m_hvFraction;
+  // Flag to check data are filled or not
+  bool m_filled;
 };
 
 CLASS_DEF( SCT_MajorityCondData , 131714728 , 1 )

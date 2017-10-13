@@ -42,6 +42,7 @@
 #include "../SCT_SensorsTestAlg.h"
 
 #include "../SCT_MajorityConditionsSvc.h"
+#include "../SCT_MajorityCondAlg.h"
 #include "../SCT_MajorityConditionsTestAlg.h"
 
 #include "../SCT_CachedSummarySvc.h"
@@ -72,6 +73,7 @@ DECLARE_ALGORITHM_FACTORY(SCT_SiliconConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ReadoutTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_LinkMaskingTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConfigurationConditionsTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_MajorityCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MajorityConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsParameterTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_SensorsTestAlg)
@@ -139,6 +141,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ReadoutTestAlg )
   DECLARE_ALGORITHM( SCT_LinkMaskingTestAlg )
   DECLARE_ALGORITHM( SCT_ConfigurationConditionsTestAlg )
+  DECLARE_ALGORITHM( SCT_MajorityCondAlg )
   DECLARE_ALGORITHM( SCT_MajorityConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsParameterTestAlg )
   DECLARE_ALGORITHM( SCT_SensorsTestAlg )

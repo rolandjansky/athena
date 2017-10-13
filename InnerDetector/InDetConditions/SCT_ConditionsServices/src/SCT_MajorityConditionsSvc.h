@@ -74,7 +74,6 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   virtual bool                             canFillDuringInitialize() { return false; }
 
  private:
-  bool                                     m_filled;                        //!< Had the data been filled?
   ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
   ServiceHandle<IIOVSvc>                   m_IOVSvc;                        //!< Handle on the IOV service
   const DataHandle<CondAttrListCollection> m_dataMajority;                  //!< Handle for majority data
