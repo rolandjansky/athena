@@ -8,7 +8,7 @@
 #include "DerivationFrameworkCalo/ClusterTrueEnergyDecorator.h"
 #include "DerivationFrameworkCalo/ClusterDecorator.h"
 #include "DerivationFrameworkCalo/CellReweight.h"
-#include "DerivationFrameworkCalo/ElectronReweight.h"
+#include "DerivationFrameworkCalo/EGammaReweight.h"
 
 using namespace DerivationFramework;
  
@@ -20,7 +20,7 @@ DECLARE_TOOL_FACTORY( MaxCellDecorator )
 DECLARE_TOOL_FACTORY( ClusterEnergyPerLayerDecorator )
 DECLARE_TOOL_FACTORY( ClusterTrueEnergyDecorator )
 DECLARE_TOOL_FACTORY( ClusterDecorator )
-DECLARE_TOOL_FACTORY( ElectronReweight )
+DECLARE_TOOL_FACTORY( EGammaReweight )
 DECLARE_TOOL_FACTORY( CellReweight )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkCalo ) {
@@ -32,7 +32,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkCalo ) {
    DECLARE_TOOL( ClusterEnergyPerLayerDecorator )
    DECLARE_TOOL( ClusterTrueEnergyDecorator )
    DECLARE_TOOL( ClusterDecorator )  
-   DECLARE_TOOL( ElectronReweight )   
+   DECLARE_TOOL( EGammaReweight )   
    DECLARE_TOOL( CellReweight )   
 }
  

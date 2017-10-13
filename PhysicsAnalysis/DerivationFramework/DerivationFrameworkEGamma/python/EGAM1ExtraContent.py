@@ -92,7 +92,9 @@ ExtraContainersTruth=["TruthEvents",
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
                           "egammaClusters",
-                          "CaloCalTopoClusters"]
+                          "CaloCalTopoClusters",
+                          "NewSwElectrons" # only if DoCellReweighting is ON
+                          ]
 
 # for trigger studies
 ExtraContainersTrigger=[
