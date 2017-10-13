@@ -151,7 +151,7 @@ StatusCode LArMCSymCondAlg::execute() {
 
   std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,caloCellID,
 							     std::move(oflHashtoSymOnl),
-							     std::move(oflHashtoSymOnl));
+							     std::move(onlHashtoSymOnl));
 
 
   
