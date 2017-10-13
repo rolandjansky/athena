@@ -20,6 +20,7 @@
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
+#include "../LArFebRodMappingAlg.h"
 
 DECLARE_TOOL_FACTORY( LArADC2MeVTool )
 DECLARE_TOOL_FACTORY( LArAutoCorrNoiseTool )
@@ -59,35 +60,5 @@ DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVFlat)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVSC)
 DECLARE_ALGORITHM_FACTORY( LArOnOffMappingAlg)
 DECLARE_ALGORITHM_FACTORY( LArCalibLineMappingAlg)
+DECLARE_ALGORITHM_FACTORY( LArFebRodMappingAlg)
 
-
-
-/*
-DECLARE_FACTORY_ENTRIES(LArRecUtils) {
-	DECLARE_TOOL( LArADC2MeVTool )
-	DECLARE_TOOL( LArAutoCorrNoiseTool )
-	DECLARE_TOOL( LArAutoCorrTotalTool )
-	DECLARE_TOOL( LArCellFakeProbElectronics )
-	  //	DECLARE_TOOL( LArCellFakeProbHV )
-	DECLARE_TOOL( LArHVCorrTool )
-	  //	DECLARE_TOOL( LArHVGeometryTool )
-	DECLARE_TOOL( LArOFCTool )
-	DECLARE_TOOL( LArOFPeakRecoTool )
-	DECLARE_TOOL( LArParabolaPeakRecoTool )
-	DECLARE_TOOL( LArShapePeakRecoTool )
-        DECLARE_TOOL( LArTowerBuilderTool )
-        DECLARE_TOOL( LArFCalTowerBuilderTool )
-	DECLARE_TOOL(LArFEBConfigReader)
-	DECLARE_SERVICE( LArFlatConditionSvc )
-	DECLARE_ALGORITHM( LArFCalTowerBuilderToolTestAlg )
-  DECLARE_TOOL( LArHVScaleRetriever )
-
-	  DECLARE_ALGORITHM( LArFlatCondAlgHVScale)
-	  DECLARE_ALGORITHM( LArFlatCondAlgPedestal)
-	  
-}
-*/
-
-
-//needed for LArCellCorrection, which is the base class of LArG3Escale; 
-//LArG3Escale is declared as a factory in LArCellRec
