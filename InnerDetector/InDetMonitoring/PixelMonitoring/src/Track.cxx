@@ -33,6 +33,7 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "PixelMonitoring/Components.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
@@ -52,15 +53,6 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
   MonGroup trackHistos(this, path.c_str(), run, ATTRIB_MANAGED);  //declare a group of track histograms
 
-  std::string modlabel[9];
-  modlabel[0] = "ECA";
-  modlabel[1] = "ECC";
-  modlabel[2] = "B0";
-  modlabel[3] = "B1";
-  modlabel[4] = "B2";
-  modlabel[5] = "IBL";
-  modlabel[6] = "IBL2D";
-  modlabel[7] = "IBL3D";
   std::string hname;
   std::string htitles;
 
@@ -111,35 +103,17 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     m_tsos_outliermap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_outliermap->regHist(trackHistos);
   }
-  if (m_doOnline) {
-    m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_tsos_holeratio_tmp->regHist(trackHistos);
-    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_tsos_holeratio_mon->regHist(trackHistos);
-    m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_misshits_ratio_tmp->regHist(trackHistos);
-    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    sc = m_misshits_ratio_mon->regHist(trackHistos);
-  }
 
-  if (m_doModules && !m_doOnTrack) {  // tbc essentially code weren't used since doModules was enabled only for AllHits; to keep it disabled also now !m_doOnTrack switch was added
-    m_tsos_hiteff_vs_lumi = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("TSOS_HitEfficiency", ("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
-    sc = m_tsos_hiteff_vs_lumi->regHist(this, (path + "/Modules_TSOSHitEff").c_str(), run);
-    if (!m_doOnline) {
-      sc = trackHistos.regHist(m_clustot_lowpt = TH1F_LW::create("m_clustot_lowpt", ("Cluster ToT vs Track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_clustot_highpt = TH1F_LW::create("m_clustot_highpt", ("Cluster ToT vs Track pT (pT>=10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_1hitclustot_lowpt = TH1F_LW::create("m_1hitclustot_lowpt", ("1-Hit cluster ToT vs track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_1hitclustot_highpt = TH1F_LW::create("m_1hitclustot_highpt", ("1-Hit cluster ToT vs track pT (pT>=10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_2hitclustot_lowpt = TH1F_LW::create("m_2hitclustot_lowpt", ("2-Hit cluster ToT vs track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_2hitclustot_highpt = TH1F_LW::create("m_2hitclustot_highpt", ("2-Hit cluster ToT vs track pT (pT>=10GeV)" + m_histTitleExt + " Track pT; Cluster ToT (on track)").c_str(), 250, 0, 250));
-      sc = trackHistos.regHist(m_clustot_vs_pt = TH2F_LW::create("m_clustot_vs_pt", ("Cluster ToT vs Track pT" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(), 10, 0, 50, 250, 0, 250));
-      sc = trackHistos.regHist(m_track_chi2_bcl1 = TH1F_LW::create("m_Pixel_track_chi2_bcl1", ("track chi2 with 1 1-hit, low-ToT cluster" + m_histTitleExt + "; #chi^{ 2}/DoF;").c_str(), 50, -0., 10.));
-      sc = trackHistos.regHist(m_track_chi2_bcl0 = TH1F_LW::create("m_Pixel_track_chi2_bcl0", ("track chi2 with 0 1-hit, low-ToT clusters" + m_histTitleExt + "; #chi^ {2}/DoF;").c_str(), 50, -0., 10.));
-      sc = trackHistos.regHist(m_track_chi2_bclgt1 = TH1F_LW::create("m_Pixel_track_chi2_bclgt1", ("track chi2 with >1 1-hit, low-ToT cluster" + m_histTitleExt + "; # chi^{2}/DoF;").c_str(), 50, -0., 10.));
-      sc = trackHistos.regHist(m_track_chi2_bcl1_highpt = TH1F_LW::create("m_Pixel_track_chi2_bcl1_highpt", ("track chi2 with 1 1-hit, low-ToT cluster (pT>=10GeV)" + m_histTitleExt + "; #chi^{2}/DoF;").c_str(), 50, -0., 10.));
-      sc = trackHistos.regHist(m_track_chi2_bcl0_highpt = TH1F_LW::create("m_Pixel_track_chi2_bcl0_highpt", ("track chi2 with 0 1-hit, low-ToT clusters (pT>=10GeV)" + m_histTitleExt + "; #chi^{2}/DoF;").c_str(), 50, -0., 10.));
-      sc = trackHistos.regHist(m_track_chi2_bclgt1_highpt = TH1F_LW::create("m_Pixel_track_chi2_bclgt1_highpt", ("track chi2 with >1 1-hit, low-ToT cluster (pT>=10GeV)" + m_histTitleExt + "; #chi^{2}/DoF;").c_str(), 50, -0., 10.));
-    }
+  m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio", ("Holes per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  sc = m_tsos_holeratio_tmp->regHist(trackHistos);
+  m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  sc = m_misshits_ratio_tmp->regHist(trackHistos);
+
+  if (m_doOnline) {
+    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio_mon", ("Holes per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    sc = m_tsos_holeratio_mon->regHist(trackHistos);
+    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio_mon", ("Hole+Outlier per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
 
   for (int i = 0; i < PixLayerDisk::COUNT; i++) {
@@ -173,79 +147,47 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     m_ClusterIDs.clear();
   }
 
-  for (int i = 0; i < (int)m_tracks->size(); i++) {
-    const Trk::Track *track0 = (*m_tracks)[i];
-    if (track0 == 0) {
-      ATH_MSG_ERROR("no valid pointer to track!!!");
-      break;
-    }
-
-    int nholes = -1;
-    int nbadclus = 0;
-    int ngoodclus = 0;
-    bool passQualityCut = false;
-    bool passTightCut = false;
-    bool pass1hole2GeVTightCut = false;
-
-    const Trk::TrackParameters *trkParameters = 0;
-    const Trk::TrackSummary *summary = track0->trackSummary();
-    const Trk::Perigee *measPerigee = dynamic_cast<const Trk::Perigee *>(track0->perigeeParameters());
-
-    if (summary) {
-      if (summary->get(Trk::numberOfPixelHits) == 0) continue;
-    } else {
-      ATH_MSG_INFO("No Track Summary Found");
+  TrackCollection::const_iterator itrack = m_tracks->begin();
+  TrackCollection::const_iterator itrack_end = m_tracks->end();
+  for (; itrack != itrack_end; ++itrack) {
+    const Trk::Track *track0 = (*itrack);
+    if (track0 == 0 || track0->perigeeParameters() == 0 || track0->trackSummary() == 0 || track0->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+      ATH_MSG_DEBUG("Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
 
+    const Trk::TrackSummary *summary = track0->trackSummary();
+    const Trk::Perigee *measPerigee = dynamic_cast<const Trk::Perigee *>(track0->perigeeParameters());
     const Trk::Track *track = track0;
 
-    nholes = summary->get(Trk::numberOfPixelHoles);
-    if (m_doHoleSearch && !m_doOnline && nholes > 0) {
+    int npixholes = summary->get(Trk::numberOfPixelHoles);
+    if (m_doHoleSearch && npixholes > 0) {
       track = m_holeSearchTool->getTrackWithHoles(*track0);
     }
 
-    if (measPerigee->pT() / 1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
-
-    if (((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) >= 9) ||
-         (fabs(measPerigee->eta()) > 1.65 && summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) >= 11)) &&
-        (summary->get(Trk::numberOfNextToInnermostPixelLayerHits) + summary->get(Trk::numberOfInnermostPixelLayerHits) > 0) &&
-        (summary->get(Trk::numberOfPixelHoles) == 0) &&
-        (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) &&
-        (fabs(measPerigee->parameters()[Trk::z0]) < 150.0)) {
-      passTightCut = true;
-    }
-
-    if (measPerigee->pT() / 1000.0 > 5.0 &&
-        ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) >= 9) ||
-         (fabs(measPerigee->eta()) > 1.65 && summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) >= 11)) &&
-        (summary->get(Trk::numberOfNextToInnermostPixelLayerHits) + summary->get(Trk::numberOfInnermostPixelLayerHits) > 0) &&
-        (summary->get(Trk::numberOfPixelHoles) < 2) &&
-        (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) &&
-        (fabs(measPerigee->parameters()[Trk::z0]) < 150.0)) {
-      pass1hole2GeVTightCut = true;
-    }
+    bool passJOTrkTightCut = m_trackSelTool->accept(*track0);
+    bool passTightCut = (passJOTrkTightCut && npixholes == 0);                                 // lorentz angle
+    bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
+    bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator = trackStates->begin(); trackStateOnSurfaceIterator != trackStates->end(); trackStateOnSurfaceIterator++) {
       // Change the track state on 1 surface into the cluster it represents
-      Identifier clusID;
       Identifier surfaceID;
       IdentifierHash id_hash;
       const InDet::SiClusterOnTrack *clus = 0;
       const InDetDD::SiDetectorElement *side = 0;
-      const Trk::MeasurementBase *mesb = (*trackStateOnSurfaceIterator)->measurementOnTrack();
 
+      const Trk::MeasurementBase *mesb = (*trackStateOnSurfaceIterator)->measurementOnTrack();
       const Trk::RIO_OnTrack *hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack *>(mesb) : 0;
+      if (mesb && !hit) continue;  // skip pseudomeasurements etc.
 
       float nOutlier = 0.;
       float nHole = 0.;
       float npixHitsInCluster = 0;
       float rowWidthOfCluster = 0;
-      float totalToTOfCluster = 0;
       bool passClusterSelection = false;
 
-      if (mesb && !hit) continue;  // skip pseudomeasurements etc.
       if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
         surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
         side = dynamic_cast<const InDetDD::SiDetectorElement *>(mesb->associatedSurface().associatedDetectorElement());
@@ -254,7 +196,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
           ATH_MSG_INFO("pointer of TSOS to track parameters or associated surface is null");
           continue;
         }
-        surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();  //check ptr
+        surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
       }
 
       if (!m_idHelper->is_pixel(surfaceID)) continue;
@@ -271,53 +213,43 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
         clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
-        if (clus) clusID = clus->identify();
 
         if (m_tsos_hitmap) m_tsos_hitmap->fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 1., surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
+        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
       }
 
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
         clus = dynamic_cast<const InDet::SiClusterOnTrack *>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-        if (clus) clusID = clus->identify();
         nOutlier = 1.0;
 
         if (m_tsos_holemap) m_tsos_holemap->fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
+        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
         clus = dynamic_cast<const InDet::SiClusterOnTrack *>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-        if (clus) clusID = clus->identify();
         nHole = 1.0;
 
         if (m_tsos_outliermap) m_tsos_outliermap->fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
+        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
-      if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->fill(surfaceID, m_pixelid, nHole);
-      if (passQualityCut) {
-        if (nOutlier + nHole > 0.) {
-          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->fill(surfaceID, m_pixelid, 1.0);
-        } else {
-          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->fill(surfaceID, m_pixelid, 0.0);
+      if (pass1hole1GeVptTightCut) {
+        if (m_tsos_holeratio_tmp) m_tsos_holeratio_tmp->fill(surfaceID, m_pixelid, nHole);
+        if (m_misshits_ratio_tmp) m_misshits_ratio_tmp->fill(surfaceID, m_pixelid, nOutlier + nHole);
+        if (m_doOnline) {
+          if (m_tsos_holeratio_mon) m_tsos_holeratio_mon->fill(surfaceID, m_pixelid, nHole);
+          if (m_misshits_ratio_mon) m_misshits_ratio_mon->fill(surfaceID, m_pixelid, nOutlier + nHole);
         }
       }
 
-      if (!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) continue;
-      if (!clus) continue;
+      if (!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement) || !clus) continue;
+
       const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
       if (!RawDataClus) continue;
       if (!RawDataClus->detectorElement()->isPixel()) continue;
 
       nPixelHits++;  //add another pixel hit
-      for (unsigned int loopSize = 0; loopSize < RawDataClus->rdoList().size(); loopSize++) {
-        if (m_doOnTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
-      }
-      if (m_doOnTrack) m_ClusterIDs.push_back(clus->identify());
 
       const InDet::PixelCluster *pixelCluster = dynamic_cast<const InDet::PixelCluster *>(RawDataClus);
       if (pixelCluster) {
@@ -330,40 +262,9 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
         npixHitsInCluster = pixelCluster->rdoList().size();
         rowWidthOfCluster = pixelCluster->width().colRow().x();
-        totalToTOfCluster = pixelCluster->totalToT();
-
-        if (npixHitsInCluster == 1 && totalToTOfCluster < 8) {
-          nbadclus++;
-        } else {
-          ngoodclus++;
-        }
-
-        if (m_doModules && !m_doOnline) {  // indirectly disabled
-          if (measPerigee) {
-            float pt = measPerigee->pT() / 1000.0;
-            if (m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt, totalToTOfCluster);
-            if (pt < 10) {
-              if (m_clustot_lowpt) m_clustot_lowpt->Fill(totalToTOfCluster);
-              if (npixHitsInCluster == 1) {
-                if (m_1hitclustot_lowpt) m_1hitclustot_lowpt->Fill(totalToTOfCluster);
-              }
-              if (npixHitsInCluster == 2) {
-                if (m_2hitclustot_lowpt) m_2hitclustot_lowpt->Fill(totalToTOfCluster);
-              }
-            } else {
-              if (m_clustot_highpt) m_clustot_highpt->Fill(totalToTOfCluster);
-              if (npixHitsInCluster == 1) {
-                if (m_1hitclustot_highpt) m_1hitclustot_highpt->Fill(totalToTOfCluster);
-              }
-              if (npixHitsInCluster == 2) {
-                if (m_2hitclustot_highpt) m_2hitclustot_highpt->Fill(totalToTOfCluster);
-              }
-            }
-          }
-        }
       }
 
-      trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
+      const Trk::TrackParameters *trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
       const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane *>(trkParameters);
       if (trackAtPlane) {
         const Amg::Vector2D localpos = trackAtPlane->localPosition();
@@ -399,51 +300,42 @@ StatusCode PixelMainMon::fillTrackMon(void) {
           if (pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
           if (pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
         }
+
+        // Fill containers, which hold id's of hits and clusters on track _and_ incident angle information for later normalization
+        double mytrack_mag = mytrack.mag();
+        double cosalpha = 0.;
+        if (mytrack_mag != 0) cosalpha = fabs(trknormcomp / mytrack_mag);
+        if (m_doOnTrack) {
+          for (unsigned int loopSize = 0; loopSize < RawDataClus->rdoList().size(); loopSize++) {
+            m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+          }
+          m_ClusterIDs.push_back(std::make_pair(clus->identify(), cosalpha));
+        }
       }
     }  // end of TSOS loop
 
-    if (m_doModules && !m_doOnline) {  // indirectly disabled
-      float pt = measPerigee->pT() / 1000.0;
-      if (nbadclus == 1) {
-        if (m_track_chi2_bcl1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-      }
-      if (nbadclus == 0) {
-        if (m_track_chi2_bcl0 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-      }
-      if (nbadclus > 1) {
-        if (m_track_chi2_bclgt1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-      }
-      if (pt >= 10) {
-        if (nbadclus == 1) {
-          if (m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-        }
-        if (nbadclus == 0) {
-          if (m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-        }
-        if (nbadclus > 1) {
-          if (m_track_chi2_bclgt1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-        }
-      }
-    }
-
+    if (m_track_chi2 && track0->fitQuality()->numberDoF() != 0) m_track_chi2->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
     if (nPixelHits > 0) {
       m_ntracksPerEvent++;
     }
 
-    if (m_doHoleSearch && !m_doOnline && nholes > 0) delete track;
+    if (m_doHoleSearch && npixholes > 0) delete track;
   }  // end of track loop
 
+  // Fill histograms per event
   if (m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), m_ntracksPerEvent);
 
   if (m_doOnTrack) {
     sort(m_RDOIDs.begin(), m_RDOIDs.end());
-    sort(m_ClusterIDs.begin(), m_ClusterIDs.end());
+    sort(m_ClusterIDs.begin(), m_ClusterIDs.end(), [](const std::pair<Identifier, double> &left, const std::pair<Identifier, double> &right) {
+      return left.first < right.first;
+    });
   }
 
   if (m_doOnline) {
     if (m_doRefresh5min) {
-      if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->fill2DMon(m_tsos_holeratio_tmp.get());
-      if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->fill2DMon(m_misshits_ratio_tmp.get());
+      if (m_tsos_holeratio_mon) m_tsos_holeratio_mon->reset();
+      if (m_misshits_ratio_mon) m_misshits_ratio_mon->reset();
     }
   }
 
@@ -451,13 +343,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 }
 
 StatusCode PixelMainMon::procTrackMon(void) {
-  double lengthLB = 0;
-  lengthLB = m_LBendTime - m_LBstartTime;
-  if (lengthLB <= 0) {
-    ATH_MSG_INFO("Luminosity block has length <= 0 sec, cannot calculate track rate.");
-    return StatusCode::SUCCESS;
-  }
-
   for (int i = 0; i < PixLayerDisk::COUNT; i++) {
     if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
     if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
