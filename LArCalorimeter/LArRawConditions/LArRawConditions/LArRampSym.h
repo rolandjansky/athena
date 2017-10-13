@@ -11,7 +11,7 @@ class LArMCSym;
 class LArRampMC;
 class LArRampComplete;
 
-class LArRampSym: virtual public ILArRamp {
+class LArRampSym: public ILArRamp {
   
  public:
 
@@ -33,11 +33,9 @@ class LArRampSym: virtual public ILArRamp {
 };
 
 #include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF( LArRampSym,226012704,1)
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArRampSym,ILArRamp);
+CLASS_DEF( LArRampSym,226012704,1)
 CLASS_DEF( CondCont<LArRampSym> ,121227424 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArRampSym>, CondContBase );
-SG_BASE( LArRampSym, ILArRamp );
+
 #endif 

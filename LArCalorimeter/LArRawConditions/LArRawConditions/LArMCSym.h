@@ -55,10 +55,7 @@ class LArMCSym {
 
 #include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( LArMCSym , 33771274 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF(  CondCont<LArMCSym> ,159334782 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArMCSym>, CondContBase );
 
 #endif 
