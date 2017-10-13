@@ -98,6 +98,18 @@ EXOT8TruthTool = DerivationFramework__MenuTruthThinning(name                    
 if globalflags.DataSource()=="geant4":
     ToolSvc += EXOT8TruthTool
     thinningTools.append(EXOT8TruthTool)
+
+#====================================================================
+# AUGMENTATION TOOLS
+#====================================================================
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
+BJetRegressionVariables = DerivationFramework__TrackToVertexWrapper(name = "BJetRegressionVariables",
+                                                                    ContainerName = "AntiKt4EMTopoJets"
+                                                                    AssociatedTracks = "GhostTrack",
+                                                                    MinTrackPtCuts = {500, 1000})
+
+ToolSvc += BJetRegressionVariables
+augmentationTools.append(BJetRegressionVariables)
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -235,6 +247,7 @@ applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
 exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel_skim",SkimmingTools = [EXOT8SkimmingTool])
 exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools)
+exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", AugmentationTools = augmentationTools)
 
 #========================================================================================================================================
 # Set up Stream
