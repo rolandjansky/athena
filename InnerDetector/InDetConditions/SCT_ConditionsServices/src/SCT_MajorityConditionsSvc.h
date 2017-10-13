@@ -15,10 +15,6 @@
 #include <string>
 #include <list>
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
-
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 
@@ -77,12 +73,10 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   virtual bool                             canFillDuringInitialize() { return false; }
 
  private:
-  ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
-
-
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
 
+  // For the output of SCT_MajorityCondAlg
   mutable const SCT_MajorityCondData *m_condData;
   SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey;
   bool getCondData() const;

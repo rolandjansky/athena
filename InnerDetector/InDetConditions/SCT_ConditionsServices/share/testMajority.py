@@ -65,12 +65,14 @@ ServiceMgr += CondSvc()
 from AthenaCommon.AlgSequence import AthSequencer 
 condSeq = AthSequencer("AthCondSeq")
 
+#--- For Conditions algorithm for Athena MT (start)
 from IOVSvc.IOVSvcConf import CondInputLoader 
 condSeq += CondInputLoader("CondInputLoader", OutputLevel=2)
 import StoreGate.StoreGateConf as StoreGateConf 
 ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
 condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg", OutputLevel=2) 
+#--- For Conditions algorithm for Athena MT (end)
 
 #--------------------------------------------------------------
 # Load alg

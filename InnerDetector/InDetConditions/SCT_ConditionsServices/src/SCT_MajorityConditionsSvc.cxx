@@ -4,20 +4,9 @@
 
 #include "SCT_MajorityConditionsSvc.h"
 
-// STL includes
-#include <algorithm>
-#include <iostream>
-
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 
-// Athena includes
-#include "StoreGate/StoreGateSvc.h"
-#include "Identifier/IdentifierHash.h"
-
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 
 using namespace SCT_ConditionsServices;
@@ -28,7 +17,6 @@ using namespace SCT_ConditionsServices;
 // Constructor
 SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
-  m_detStore{"DetectorStore", name},
   m_overall{false},
   m_majorityFraction{0.9},
   m_condData{nullptr},
@@ -41,12 +29,6 @@ SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, IS
 // Initialize
 StatusCode SCT_MajorityConditionsSvc::initialize() {
   ATH_MSG_INFO("Initializing SCT_MajorityConditionsSvc");
-
-  // Retrieve detector store
-  if (m_detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Detector service  not found !");
-    return StatusCode::FAILURE;
-  }
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
