@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "LArRawConditions/LArDAC2uASym.h"
 #include "LArRawConditions/LArDAC2uAComplete.h"
 #include "LArRawConditions/LArDAC2uAMC.h"

@@ -52,4 +52,15 @@ typedef LArSymConditionsAlg<LArDAC2uAMC,LArDAC2uASym> LArDAC2uASymCondAlg;
 #include "LArRawConditions/LArfSamplSym.h"
 typedef LArSymConditionsAlg<LArfSamplMC,LArfSamplSym> LArfSamplSymCondAlg;
 
+
+
+#include "LArRawConditions/LArMinBiasMC.h"
+#include "LArRawConditions/LArMinBiasSym.h"
+typedef LArSymConditionsAlg<LArMinBiasMC,LArMinBiasSym> LArMinBiasSymCondAlg;
+
+#include "LArRawConditions/LArNoiseMC.h"
+#include "LArRawConditions/LArNoiseSym.h"
+typedef LArSymConditionsAlg<LArNoiseMC,LArNoiseSym> LArNoiseSymCondAlg;
+
+
 #endif

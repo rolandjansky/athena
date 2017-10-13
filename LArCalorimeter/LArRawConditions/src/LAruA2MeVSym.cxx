@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "LArRawConditions/LAruA2MeVSym.h"
 #include "LArRawConditions/LAruA2MeVComplete.h"
 #include "LArRawConditions/LAruA2MeVMC.h"

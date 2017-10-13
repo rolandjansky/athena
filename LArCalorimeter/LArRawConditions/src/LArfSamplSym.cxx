@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #include "LArRawConditions/LArfSamplSym.h"
 #include "LArRawConditions/LArfSamplComplete.h"
 #include "LArRawConditions/LArfSamplMC.h"
