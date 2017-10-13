@@ -42,7 +42,7 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
                                    "data17_comm","data17_13TeV","data17_900GeV","data17_1beam"
                                    ])
 
-KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi"])
+KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi","data17_hi"])
 
 KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip","data16_hip","data16_hip5TeV","data16_hip8TeV"])
 
@@ -454,7 +454,8 @@ def ConfigureBeamEnergy():
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
                     #beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
                     # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
-                    beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208))
+                    #beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208)) - lowered to 6.37 to match s_NN = 5.02 for earlier Pb-p runs.
+                    beamEnergy=2721000. # 2.72 TeV for Xe-Xe (=6.5 TeV * (Z=54/A=129))
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
                     return
