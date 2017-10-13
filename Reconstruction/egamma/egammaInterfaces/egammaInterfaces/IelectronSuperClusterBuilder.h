@@ -13,8 +13,11 @@ MODIFIED :
 */
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IAlgTool.h"
+//Fwd declarations
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
-static const InterfaceID IID_IelectronSuperClusterBuilder("IelectronSuperClusterBuilder", 1, 0);
+static const InterfaceID IID_IelectronSuperClusterBuilder("IelectronSuperClusterBuilder", 1, 1);
 
 class IelectronSuperClusterBuilder : virtual public IAlgTool
 {
@@ -28,6 +31,10 @@ class IelectronSuperClusterBuilder : virtual public IAlgTool
   virtual StatusCode initialize() = 0;
   virtual StatusCode finalize()   = 0;
   virtual StatusCode execute()    = 0; 
+  // Execute for HLT. Works the same as offline execute but with prepared containers and no StoreGate interaction.
+  virtual StatusCode hltExecute(const EgammaRecContainer *egammaRecs,
+                                EgammaRecContainer *newEgammaRecs,
+                                xAOD::CaloClusterContainer *outputClusterContainer) = 0;
 };
 
 inline const InterfaceID& IelectronSuperClusterBuilder::interfaceID()
