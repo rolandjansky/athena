@@ -168,6 +168,8 @@ PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 PP="$PP"'|DEBUG Calling destructor'
 
+PP="$PP"'|INFO TopAlg list empty.'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
