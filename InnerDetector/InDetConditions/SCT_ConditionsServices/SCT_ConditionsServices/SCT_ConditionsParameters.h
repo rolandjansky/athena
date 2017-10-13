@@ -25,6 +25,7 @@ namespace SCT_ConditionsServices{
                           N_REGIONS=4,
                           INDEX_HVfraction=1,
                           INDEX_MajorityState=3};
+  enum Bec{bec_ECC=-2, bec_BARREL=0, bec_ECA=+2};
   enum ParameterIndex{AVG_THRESHOLD, N_PARAMETERS, INVALID_PARAMETER};
   static const std::string parameterNames[]{"average threshold per module side","number of parameters"};
 }

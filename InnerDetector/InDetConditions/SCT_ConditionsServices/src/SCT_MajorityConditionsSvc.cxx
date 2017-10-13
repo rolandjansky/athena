@@ -85,12 +85,12 @@ StatusCode SCT_MajorityConditionsSvc::queryInterface(const InterfaceID& riid, vo
 // Is the detector good?
 bool SCT_MajorityConditionsSvc::isGood() {
   if (m_overall) {
-    return (m_majorityState[OVERALL] and (m_hvFraction[OVERALL] > m_majorityFraction));
+    return (m_data.getMajorityState(OVERALL) and (m_data.getHVFraction(OVERALL) > m_majorityFraction));
   } else {
-    return ((m_majorityState[BARREL] and m_majorityState[ECA] and m_majorityState[ECC]) and
-	    (m_hvFraction[BARREL] > m_majorityFraction) and
-            (m_hvFraction[ECA]    > m_majorityFraction) and
-            (m_hvFraction[ECC]    > m_majorityFraction));
+    return ((m_data.getMajorityState(BARREL) and m_data.getMajorityState(ECA) and m_data.getMajorityState(ECC)) and
+	    (m_data.getHVFraction(BARREL) > m_majorityFraction) and
+            (m_data.getHVFraction(ECA)    > m_majorityFraction) and
+            (m_data.getHVFraction(ECC)    > m_majorityFraction));
   }
 }
 
@@ -100,12 +100,12 @@ bool SCT_MajorityConditionsSvc::isGood(int bec) {
 
   // Check numbering
 
-  if (bec == 0) {
-    result = (m_majorityState[BARREL] and (m_hvFraction[BARREL] > m_majorityFraction));
-  } else if (bec == -2) { 
-    result = (m_majorityState[ECC]    and (m_hvFraction[ECC]    > m_majorityFraction));
-  } else if (bec == +2) {
-    result = (m_majorityState[ECA]    and (m_hvFraction[ECA]    > m_majorityFraction));
+  if (bec == bec_BARREL) {
+    result = (m_data.getMajorityState(BARREL) and (m_data.getHVFraction(BARREL) > m_majorityFraction));
+  } else if (bec == bec_ECC) { 
+    result = (m_data.getMajorityState(ECC)    and (m_data.getHVFraction(ECC)    > m_majorityFraction));
+  } else if (bec == bec_ECA) {
+    result = (m_data.getMajorityState(ECA)    and (m_data.getHVFraction(ECA)    > m_majorityFraction));
   } else {
     ATH_MSG_WARNING("Unrecognised BEC " << bec);
   }
@@ -137,21 +137,23 @@ StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/, std::list<std::string
     // Possible components
     if ((channelNumber == OVERALL) or (channelNumber == BARREL) or (channelNumber == ECA) or (channelNumber == ECC)) {
       // Reset default to true at callback
-      m_majorityState[channelNumber] = true;
-      m_hvFraction[channelNumber]    = 1.;
+      bool majorityState{true};
 
       // Majority state
       if (not payload[INDEX_MajorityState].isNull()) {
 	ATH_MSG_DEBUG("Majority state for " << channelNumber << " = " << payload[INDEX_MajorityState].data<int>());
-	m_majorityState[channelNumber] = (payload[INDEX_MajorityState].data<int>() == HighAndLowVoltageOK);
+	majorityState = (payload[INDEX_MajorityState].data<int>() == HighAndLowVoltageOK);
       }
+      m_data.setMajorityState(channelNumber, majorityState);
 
       // HV fraction in majority state (>50% by definition) IF majority state is HV and LV on
-      if (m_majorityState[channelNumber] and (not payload[INDEX_HVfraction].isNull())) {
+      float hvFraction{1.};
+      if (majorityState and (not payload[INDEX_HVfraction].isNull())) {
 	ATH_MSG_DEBUG("Majority HV fraction for " << channelNumber << " = " << payload[INDEX_HVfraction].data<float>());
-	m_hvFraction[channelNumber] = payload[INDEX_HVfraction].data<float>();
+	hvFraction = payload[INDEX_HVfraction].data<float>();
 	numFilled++;
       }
+      m_data.setHVFraction(channelNumber, hvFraction);
 
     } else {
       ATH_MSG_WARNING("Unexpected channel number " << channelNumber);

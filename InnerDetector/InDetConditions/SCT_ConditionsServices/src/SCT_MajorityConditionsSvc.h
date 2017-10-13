@@ -27,6 +27,8 @@
 
 #include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h"
 
+#include "SCT_ConditionsData/SCT_MajorityCondData.h"
+
 // Forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
@@ -76,8 +78,7 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
   ServiceHandle<IIOVSvc>                   m_IOVSvc;                        //!< Handle on the IOV service
   const DataHandle<CondAttrListCollection> m_dataMajority;                  //!< Handle for majority data
-  std::map<int, int>                       m_majorityState;                 //!< Map to store majority state 
-  std::map<int, float>                     m_hvFraction;                    //!< Map to store HV fraction
+  SCT_MajorityCondData                     m_data;                          //!< Store majority state and HV fraction information
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
   static const std::string                 s_coolMajorityFolderName;        //!< Majority folder name in COOL
