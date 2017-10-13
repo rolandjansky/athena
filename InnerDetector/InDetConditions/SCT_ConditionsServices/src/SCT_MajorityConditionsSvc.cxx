@@ -18,12 +18,12 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 
-// Note, up till Friday 23rd Oct the conditions update was too frequent (every 10 sec).
-// Shouldn't use for data before this.
+using namespace SCT_ConditionsServices;
 
-// Static folder names 
-static const std::string coolMajorityFolderName{"/SCT/DCS/MAJ"};
+// Static folder name
+const std::string SCT_MajorityConditionsSvc::s_coolMajorityFolderName{"/SCT/DCS/MAJ"};
 
 // Constructor
 SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -54,7 +54,7 @@ StatusCode SCT_MajorityConditionsSvc::initialize() {
   }
 
   // Register callbacks for folders 
-  if (m_detStore->regFcn(&SCT_MajorityConditionsSvc::fillData, this, m_dataMajority, coolMajorityFolderName).isFailure()) {
+  if (m_detStore->regFcn(&SCT_MajorityConditionsSvc::fillData, this, m_dataMajority, s_coolMajorityFolderName).isFailure()) {
     ATH_MSG_ERROR("Failed to register callback");
     return StatusCode::FAILURE;
   }
@@ -119,7 +119,7 @@ StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/, std::list<std::string
   int numFilled{0};
 
   // Get Majority folder
-  if (retrieveFolder(m_dataMajority, coolMajorityFolderName).isFailure()) {
+  if (retrieveFolder(m_dataMajority, s_coolMajorityFolderName).isFailure()) {
     ATH_MSG_FATAL("Could not fill majority data");
     return StatusCode::FAILURE;
   } else {

@@ -80,20 +80,10 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   std::map<int, float>                     m_hvFraction;                    //!< Map to store HV fraction
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
-  
+  static const std::string                 s_coolMajorityFolderName;        //!< Majority folder name in COOL
 
   /** Retreive a given folder from the DB*/
   StatusCode                               retrieveFolder(const DataHandle<CondAttrListCollection>& pDataVec, const std::string& folderName);
-
-  enum {HighAndLowVoltageOK=17, // 17 = 0x11 -> majority state for both LV and HV.
-	OVERALL=110,
-        BARREL=111,
-        ECA=114,
-        ECC=115,
-        N_REGIONS=4,
-        INDEX_HVfraction=1,
-        INDEX_MajorityState=3
-  };
 };
 
 #endif // SCT_MajorityConditionsSvc_h
