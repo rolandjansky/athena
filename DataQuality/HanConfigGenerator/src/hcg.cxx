@@ -68,6 +68,8 @@ bool allhists = true;
 
 std::string base     = "HLT";
 
+std::vector<std::string> subdirs;
+
 std::string outref = "";
 
 std::string algorithm = "HLT_Histogram_Not_Empty&GatherData";
@@ -783,9 +785,7 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
   
 
   if ( found_dir ) {
-
-    if ( basedir=="HLT" ) np->path( basedir );
- 
+    if ( basedir==base )  np->path( basedir );
     node* np_ = addnode( np, fulldir, td );
     np = np_;
   }
@@ -1013,28 +1013,27 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
       TFile* fnew = new TFile( outref.c_str(), "recreate" );
       fnew->cd();
 
-      TDirectory*  base = gDirectory;
+      TDirectory*  based = gDirectory;
 
       if ( mapped.size() != savedhistos.size() ) mapped = savedhistos;
 
       for ( unsigned ih=0 ; ih<savedhistos.size() ; ih++ ) { 
 	
-	std::vector<std::string> dirs = split( mapped[ih], "/" );
+	std::vector<std::string> ldirs = split( mapped[ih], "/" );
 
-	for ( unsigned jh=0 ; jh<dirs.size()-1 ; jh++ ) { 
-	  /// std::cerr << "\t" << dirs[jh] << std::endl;
-	  TDirectory* renedir = gDirectory->GetDirectory( dirs[jh].c_str() );
-	  if ( renedir==0 ) gDirectory->mkdir( dirs[jh].c_str() );
-	  gDirectory->cd( dirs[jh].c_str() );
+	for ( unsigned jh=0 ; jh<ldirs.size()-1 ; jh++ ) { 
+	  TDirectory* renedir = gDirectory->GetDirectory( ldirs[jh].c_str() );
+	  if ( renedir==0 ) gDirectory->mkdir( ldirs[jh].c_str() );
+	  gDirectory->cd( ldirs[jh].c_str() );
 	}
 	
 	TH1* href  = (TH1*)fptr[i]->Get( savedhistos[ih].c_str() );
 	if ( href ) {
 	  //	  std::cerr << ih << " " << savedhistos[ih] << " 0x" << href << std::endl;
-	  href->Write( dirs.back().c_str() );
+	  href->Write( ldirs.back().c_str() );
 	}
 
-	base->cd();
+	based->cd();
       }
 
 
@@ -1140,8 +1139,6 @@ int main(int argc, char** argv) {
   
   std::string dir = "";
 
-  std::vector<std::string> subdirs;
-
   std::string              wildcardfile;
 
 
@@ -1158,6 +1155,7 @@ int main(int argc, char** argv) {
 
   int offset = 1;
 
+  bool basechanged = false;
 
   for ( int i=1 ; i<argc ; i++ ) { 
 
@@ -1202,7 +1200,8 @@ int main(int argc, char** argv) {
 	  do { 
 	    subdirs.push_back( chop( tdir, "/" ) );
 	  } 
-	  while ( tdir.size() ); 
+	  while ( tdir.size() );
+	  if ( !basechanged && subdirs.size() ) base = subdirs[0];
       }
       else  return usage( std::cerr, argc, argv );
     } 
@@ -1245,7 +1244,10 @@ int main(int argc, char** argv) {
       else  return usage( std::cerr, argc, argv );
     } 
     else if ( argvi=="-b" || argvi=="--base" ) {
-      if ( ++i<argc-offset ) base = argv[i] ;
+      if ( ++i<argc-offset ) { 
+	base = argv[i] ;
+	basechanged = true;
+      }
       else  return usage( std::cerr, argc, argv );
     } 
     else if ( argvi=="-a" || argvi=="--algorithm" ) {

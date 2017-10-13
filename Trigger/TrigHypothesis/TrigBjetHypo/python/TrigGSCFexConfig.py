@@ -19,39 +19,41 @@ JetConfigSetupStatus = True
 # johns hack
 from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
 
-def getGSCFexInstance( instance ):
-    return GSCFex( instance=instance, name="EFGSCFex_EFID" )
+def getGSCFexInstance( instance, version, algo ):
+    if instance=="EF" :
+        return GSCFex( instance=instance, version=version, algo=algo, name="EFGSCFex_"+algo )
 
-def getGSCFexSplitInstance( instance):
-    return GSCFexSplit( instance=instance, name=instance+"GSCFexSplit_EFIF" )
+def getGSCFexSplitInstance( instance, version, algo):
+    return GSCFexSplit( instance=instance, version=version, algo=algo, name=instance+"GSCFexSplit_"+algo )
 
-def getGSCFexFTKInstance( instance ):
-    return GSCFexSplit( instance=instance, name=instance+"GSCFexFTK_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
+def getGSCFexFTKInstance( instance, version, algo):
+    return GSCFexFTK( instance=instance, version=version, algo=algo, name=instance+"GSCFexFTK_"+algo )
 
-def getGSCFexFTKRefitInstance( instance):
-    return GSCFexSplit( instance=instance, name=instance+"GSCFexFTKRefit_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig")
+def getGSCFexFTKRefitInstance( instance, version, algo):
+    return GSCFexFTKRefit( instance=instance, version=version, algo=algo, name=instance+"GSCFexFTKRefit_"+algo )
 
-def getGSCFexFTKVtxInstance( instance ):
-    return GSCFexSplit( instance=instance, name=instance+"GSCFexFTKVtx_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig")
-                        
+def getGSCFexFTKVtxInstance( instance, version, algo):
+    return GSCFexFTKVtx( instance=instance, version=version, algo=algo, name=instance+"GSCFexFTKVtx_"+algo )
 
 class GSCFex (TrigGSCFex):
     __slots__ = []
     
-    def __init__(self, instance, name):
+    def __init__(self, instance, version, algo, name):
         super( GSCFex, self ).__init__( name )
         
         mlog = logging.getLogger('BtagHypoConfig.py')
         
         AllowedInstances = ["EF"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
         
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
+            return None
         
         self.JetKey = ""       
         self.PriVtxKey = "EFHistoPrmVtx"
@@ -78,29 +80,37 @@ class GSCFex (TrigGSCFex):
         #self.AthenaMonTools = [ time  ]                    #uncommented here
 
 
-#
+###########################################
 # For split configuration
-#
+###########################################
+
 class GSCFexSplit (TrigGSCFex):
     __slots__ = []
     
-    def __init__(self, instance, name, PriVtxKey="xPrimVx", TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig"):
+    def __init__(self, instance, version, algo, name):
         super( GSCFexSplit, self ).__init__( name )
         
         mlog = logging.getLogger('BtagHypoConfig.py')
         
         AllowedInstances = ["EF", "MuJetChain"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
+            return None
+        
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
             return None
 
         self.JetKey = "SplitJet"
         if instance=="MuJetChain" :
             self.JetKey = "FarawayJet"
+            instance = "EF"
         
-        self.PriVtxKey = PriVtxKey
-        self.TrackKey  = TrackKey
+        self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
@@ -142,3 +152,176 @@ class GSCFexSplit (TrigGSCFex):
         self.AthenaMonTools = [ time, validation, online ]   #commented here
         #self.AthenaMonTools = [ time ]                      #uncommented here
 
+
+###########################################
+# For FTK configuration
+###########################################
+
+class GSCFexFTK (TrigGSCFex):
+    __slots__ = []
+    
+    def __init__(self, instance, version, algo, name):
+        super( GSCFexFTK, self ).__init__( name )
+        
+        mlog = logging.getLogger('BtagHypoConfig.py')
+        
+        AllowedInstances = ["EF", "MuJetChain"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
+        
+        if instance not in AllowedInstances :
+            mlog.error("Instance "+instance+" is not supported!")
+            return None
+        
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
+            return None
+
+        self.JetKey = "SplitJet"
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
+        
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
+        
+        # IMPORT OFFLINE TOOLS
+        self.setupOfflineTools = True
+        if self.setupOfflineTools :
+            # Will set up GSC here
+            pass
+            #if BTagConfigSetupStatus == None :
+            #    self.setupOfflineTools = False
+            #else :
+            #    self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+            #    self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+            #    self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+            #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
+                
+        # MONITORING
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
+        time.TimerHistLimits = [0,2]
+        
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
+
+
+###########################################
+# For FTKRefit configuration
+###########################################
+
+class GSCFexFTKRefit (TrigGSCFex):
+    __slots__ = []
+    
+    def __init__(self, instance, version, algo, name):
+        super( GSCFexFTKRefit, self ).__init__( name )
+        
+        mlog = logging.getLogger('BtagHypoConfig.py')
+        
+        AllowedInstances = ["EF", "MuJetChain"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
+        
+        if instance not in AllowedInstances :
+            mlog.error("Instance "+instance+" is not supported!")
+            return None
+        
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
+            return None
+
+        self.JetKey = "SplitJet"
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
+        
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig"
+        
+        # IMPORT OFFLINE TOOLS
+        self.setupOfflineTools = True
+        if self.setupOfflineTools :
+            # Will set up GSC here
+            pass
+            #if BTagConfigSetupStatus == None :
+            #    self.setupOfflineTools = False
+            #else :
+            #    self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+            #    self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+            #    self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+            #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
+                
+        # MONITORING
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
+        time.TimerHistLimits = [0,2]
+        
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
+
+
+###########################################
+# For FTKVtx configuration
+###########################################
+
+class GSCFexFTKVtx (TrigGSCFex):
+    __slots__ = []
+    
+    def __init__(self, instance, version, algo, name):
+        super( GSCFexFTKVtx, self ).__init__( name )
+        
+        mlog = logging.getLogger('BtagHypoConfig.py')
+        
+        AllowedInstances = ["EF", "MuJetChain"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
+        
+        if instance not in AllowedInstances :
+            mlog.error("Instance "+instance+" is not supported!")
+            return None
+        
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
+            return None
+
+        self.JetKey = "SplitJet"
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
+        
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+        
+        # IMPORT OFFLINE TOOLS
+        self.setupOfflineTools = True
+        if self.setupOfflineTools :
+            # Will set up GSC here
+            pass
+            #if BTagConfigSetupStatus == None :
+            #    self.setupOfflineTools = False
+            #else :
+            #    self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+            #    self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+            #    self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+            #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
+                
+        # MONITORING
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
+        time.TimerHistLimits = [0,2]
+        
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
