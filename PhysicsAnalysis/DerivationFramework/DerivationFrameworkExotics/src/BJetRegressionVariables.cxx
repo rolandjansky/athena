@@ -18,10 +18,14 @@ namespace DerivationFramework {
     m_assocTracksName(""),
     m_minTrackPt()
   {
+    declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ContainerName", m_containerName);
     declareProperty("AssociatedTracks", m_assocTracksName);
     declareProperty("MinTrackPtCuts", m_minTrackPt);
   }
+
+  BJetRegressionVariables::~BJetRegressionVariables(){
+ }
  
   StatusCode BJetRegressionVariables::initialize()
   {
@@ -60,27 +64,15 @@ namespace DerivationFramework {
       ATH_MSG_ERROR ("Couldn't retrieve Jets with key: " << m_containerName );
       return StatusCode::FAILURE;
     }
-    
     for(xAOD::JetContainer::const_iterator jetItr = jets->begin(); jetItr!=jets->end(); ++jetItr){
       std::vector<const xAOD::TrackParticle*> tracks;
       bool havetracks = (*jetItr)->getAssociatedObjects(m_assocTracksName, tracks);
       if ( ! havetracks ) ATH_MSG_WARNING("Associated tracks not found");
-      ATH_MSG_DEBUG("Successfully retrieved track particles");
-      
+      ATH_MSG_DEBUG("Successfully retrieved track particles.");
       for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
 	const float minPt = m_minTrackPt[iCut];
 	BJetRegressionVariables::TrackMomentStruct moments = getSumTrackPt(minPt,tracks);
 	const std::string baseName = getMomentBaseName(minPt);
-
-	std::cout<<"####################################################################################################################"<<std::endl;
-	std::cout<<"####################################################################################################################"<<std::endl;
-	std::cout<<"####################################################################################################################"<<std::endl;
-	std::cout<<"iCut: "<< iCut<<" scal: "<<moments.scalSumPtTrk<<" vec: "<<moments.vecSumPtTrk<<std::endl;
-	std::cout<<"####################################################################################################################"<<std::endl;
-	std::cout<<"####################################################################################################################"<<std::endl;
-	std::cout<<"####################################################################################################################"<<std::endl;
-
-       
 	SG::AuxElement::Decorator< float > scalSumPtTrk("scalSumPtTrk"+baseName);
 	SG::AuxElement::Decorator< float > vecSumPtTrk("vecSumPtTrk"+baseName);
 	scalSumPtTrk( **jetItr )   = moments.vecSumPtTrk;

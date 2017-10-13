@@ -102,14 +102,16 @@ if globalflags.DataSource()=="geant4":
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
+augmentationTools = []
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
-BJetRegressionVariables = DerivationFramework__TrackToVertexWrapper(name = "BJetRegressionVariables",
-                                                                    ContainerName = "AntiKt4EMTopoJets"
-                                                                    AssociatedTracks = "GhostTrack",
-                                                                    MinTrackPtCuts = {500, 1000})
+EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
+                                                                            ContainerName = "AntiKt4EMTopoJets",
+                                                                            AssociatedTracks = "GhostTrack",
+                                                                            MinTrackPtCuts = [500, 1000])
 
-ToolSvc += BJetRegressionVariables
-augmentationTools.append(BJetRegressionVariables)
+ToolSvc += EXOT8BJetRegressionVariables
+augmentationTools.append(EXOT8BJetRegressionVariables)
+print EXOT8BJetRegressionVariables
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -246,8 +248,9 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo", exot8Seq)
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
 exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel_skim",SkimmingTools = [EXOT8SkimmingTool])
-exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools)
-exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", AugmentationTools = augmentationTools)
+exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools,
+                                                                        AugmentationTools = augmentationTools)
+
 
 #========================================================================================================================================
 # Set up Stream
@@ -256,6 +259,9 @@ streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
 fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
+EXOT8Stream.AddItem("xAOD::JetContainer_v1#*")
+EXOT8Stream.AddItem("xAOD::JetAuxContainer_v1#*")
+
 
 # Thinning
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
@@ -279,12 +285,14 @@ EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
 
 EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge", 
                                       "Muons.charge", 
-                                      "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass", 
+                                      "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
+                                      "AntiKt4EMTopoJets.TrackSumPt",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMTopo.SV1_normdist",
                                       "BTagging_AntiKt4EMTopo.SV1_masssvx",
                                       "BTagging_AntiKt2Track.JetVertexCharge_discriminant",
+                                      
                                       ]
 
 EXOT8SlimmingHelper.AllVariables   = ["TruthParticles",

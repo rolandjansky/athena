@@ -30,6 +30,8 @@ namespace DerivationFramework {
   class BJetRegressionVariables : public AthAlgTool, public IAugmentationTool {
   public:
     BJetRegressionVariables(const std::string& t, const std::string& n, const IInterface* p);
+
+    ~BJetRegressionVariables();
      
     StatusCode initialize();
     StatusCode finalize();
