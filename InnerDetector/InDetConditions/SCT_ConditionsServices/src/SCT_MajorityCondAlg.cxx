@@ -90,8 +90,8 @@ StatusCode SCT_MajorityCondAlg::execute()
   // Construct the output Cond Object and fill it in
   SCT_MajorityCondData* writeCdo{new SCT_MajorityCondData()};
 
-  CondAttrListCollection::const_iterator majItr{m_dataMajority->begin()};
-  CondAttrListCollection::const_iterator majEnd{m_dataMajority->end()};
+  CondAttrListCollection::const_iterator majItr{readCdo->begin()};
+  CondAttrListCollection::const_iterator majEnd{readCdo->end()};
   for (;majItr != majEnd; ++majItr) {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{(*majItr).first};
