@@ -91,7 +91,7 @@ MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
 MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
 MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
 MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool
+PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
 
 PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
 
