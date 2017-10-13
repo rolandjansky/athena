@@ -75,7 +75,7 @@ if [ "$FORCE" = "1" ]; then
 fi
 
 # Create some directories:
-mkdir -p ${BUILDDIR}/install
+mkdir -p ${BUILDDIR}/{src,install}
 
 # Set some environment variables that the builds use internally:
 export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
@@ -95,10 +95,12 @@ fi
 # Read in the tag/branch to use for AnalysisBaseExternals:
 AnalysisBaseExternalsVersion=$(awk '/^AnalysisBaseExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
+set -o pipefail
+
 # Check out AnalysisBaseExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AnalysisBaseExternalsVersion} \
-    -s ${BUILDDIR}/src/AnalysisBaseExternals
+    -s ${BUILDDIR}/src/AnalysisBaseExternals 2>&1  | tee ${BUILDDIR}/src/checkout.AnalysisBaseExternals.log
 
 # Build AnalysisBaseExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AnalysisBaseExternals
