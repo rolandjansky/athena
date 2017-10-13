@@ -17,7 +17,7 @@
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-
+#include "./VHKASupport.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -152,15 +152,17 @@ StatusCode AthAlgorithm::sysInitialize()
 {
   ATH_CHECK( Algorithm::sysInitialize() );
 
-  for (SG::VarHandleKeyArray* a : m_vhka) {
-    for (SG::VarHandleKey* k : a->keys()) {
-      this->declare (*k);
-      k->setOwner(this);
-    }
+  for ( SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
+
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
+}
+
+void AthAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
 }
 
 
@@ -176,12 +178,7 @@ std::vector<Gaudi::DataHandle*> AthAlgorithm::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = Algorithm::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-        v.push_back (k);
-      }
-    }
+    VHKASupport::insertInput( m_vhka, v );
   }
 
   return v;
@@ -199,13 +196,8 @@ std::vector<Gaudi::DataHandle*> AthAlgorithm::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = Algorithm::outputHandles();
 
-  if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-        v.push_back (k);
-      }
-    }
+  if (!m_varHandleArraysDeclared) {    
+    VHKASupport::insertOutput( m_vhka, v );
   }
 
   return v;

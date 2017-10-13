@@ -3,7 +3,7 @@
 */
 
 /**
- * @file CaloPhiRange.h
+ * @file CaloGeoHelpers/CaloPhiRange.h
  *
  * @brief CaloPhiRange class declaration
  *

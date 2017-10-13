@@ -48,15 +48,14 @@ public:
   StatusCode update( IOVSVC_CALLBACK_ARGS );
   const DetStatusMap* getStatusMap() const;
 
-  StoreGateSvc* p_evtstore;
-  StoreGateSvc* p_detstore;
+  ServiceHandle<StoreGateSvc> m_detStore;
 
-  std::string par_conddbfolder;
+  std::string m_par_conddbfolder;
   // detstatus parameters given as pairs of values in separate params
-  std::vector<std::string> par_detname;
-  std::vector<int> par_detreq;
+  std::vector<std::string> m_par_detname;
+  std::vector<int> m_par_detreq;
   // detstatus parameters given as a single string
-  std::string par_detreqs;
+  std::string m_par_detreqs;
   // resulting actual list of pairs used
   std::vector<std::string> m_detname;
   std::vector<int> m_detreq;

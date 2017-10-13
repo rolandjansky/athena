@@ -25,37 +25,37 @@ public:
 VP1VertexSystem::VP1VertexSystem()
   : IVP13DSystemSimple ( "Vertex","Vertex system",
 			 "Thomas.Kittelmann@cern.ch, Andreas.Wildauer@cern.ch" ),
-    d(new Imp)
+    m_d(new Imp)
 {
-  d->controller = 0;
+  m_d->controller = 0;
 }
 
 //____________________________________________________________________
 VP1VertexSystem::~VP1VertexSystem()
 {
-  delete d;
+  delete m_d;
 }
 
 //_____________________________________________________________________________________
 void VP1VertexSystem::systemerase ( )
 {
   //Save present states and then clear all event data and related gui elements.
-  d->controller->collWidget()->clear();
-  d->tracksFromVertices.clear();
+  m_d->controller->collWidget()->clear();
+  m_d->tracksFromVertices.clear();
 }
 
 //_____________________________________________________________________________________
 void VP1VertexSystem::buildEventSceneGraph ( StoreGateSvc*, SoSeparator *root )
 {
-  root->addChild(d->controller->drawOptions());
+  root->addChild(m_d->controller->drawOptions());
 
   QList<VP1StdCollection*> cols;
   //Create collection list based on contents of event store:
-  cols << VP1VertexCollection::createCollections(d->controller);
-  cols << VP1TruthVertexCollection::createCollections(d->controller);
+  cols << VP1VertexCollection::createCollections(m_d->controller);
+  cols << VP1TruthVertexCollection::createCollections(m_d->controller);
 
   //Populate gui (also applies states):
-  d->controller->collWidget()->setCollections(cols);
+  m_d->controller->collWidget()->setCollections(cols);
 
   //Add collections to event scenegraph:
   foreach (VP1StdCollection* col,cols){
@@ -67,7 +67,7 @@ void VP1VertexSystem::buildEventSceneGraph ( StoreGateSvc*, SoSeparator *root )
 //  QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > tmpList; // fill and emit
 //  
 //  std::map<const VP1StdCollection*,QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > >::const_iterator 
-//  it=d->tracksFromVertices.begin(), itEnd=d->tracksFromVertices.end();
+//  it=m_d->tracksFromVertices.begin(), itEnd=m_d->tracksFromVertices.end();
 //  
 //  for ( ;it!=itEnd; it++){
 //    tmpList+=it->second;
@@ -81,8 +81,8 @@ void VP1VertexSystem::buildEventSceneGraph ( StoreGateSvc*, SoSeparator *root )
 //_____________________________________________________________________________________
 QWidget * VP1VertexSystem::buildController()
 {
-  d->controller = new VertexSysController(this);
-  return d->controller;
+  m_d->controller = new VertexSysController(this);
+  return m_d->controller;
 }
 
 //_____________________________________________________________________________________
@@ -90,7 +90,7 @@ void VP1VertexSystem::userPickedNode(SoNode*, SoPath * pickedPath) {
 
   //Find in which collection an object was picked:
   VP1StdCollection* pickedCol(0);
-  foreach (VP1StdCollection* col,d->controller->collWidget()->collections<VP1StdCollection>()) {
+  foreach (VP1StdCollection* col,m_d->controller->collWidget()->collections<VP1StdCollection>()) {
     if (col->visible()&&pickedPath->containsNode(col->collSep())) {
       pickedCol = col;
       break;
@@ -121,8 +121,8 @@ QByteArray VP1VertexSystem::saveState()
   ensureBuildController();
   VP1Serialise serialise(1/*version*/,this);
   serialise.save(IVP13DSystemSimple::saveState());
-  serialise.save(d->controller->saveSettings());//Version 1+
-  serialise.save(d->controller->collWidget());
+  serialise.save(m_d->controller->saveSettings());//Version 1+
+  serialise.save(m_d->controller->collWidget());
   serialise.disableUnsavedChecks();//We do the testing in the controller
   return serialise.result();
 }
@@ -138,8 +138,8 @@ void VP1VertexSystem::restoreFromState(QByteArray ba)
   ensureBuildController();
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
   if (state.version()>=1)
-    d->controller->restoreSettings(state.restoreByteArray());
-  state.restore(d->controller->collWidget());
+    m_d->controller->restoreSettings(state.restoreByteArray());
+  state.restore(m_d->controller->collWidget());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 }
@@ -149,11 +149,11 @@ void VP1VertexSystem::updateVertexToTracks(QList< std::pair<const SoMaterial*, Q
   messageVerbose(" updateVertexToTracks with "+QString::number(newTracksFromVertices.size())+" vertices.");
   const VP1StdCollection* coll = static_cast<const VP1StdCollection*> (QObject::sender());
   if (!coll) return;
-  d->tracksFromVertices[coll]=newTracksFromVertices;
+  m_d->tracksFromVertices[coll]=newTracksFromVertices;
   QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > tmpList; // fill and emit
   
   std::map<const VP1StdCollection*,QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > >::const_iterator 
-    it=d->tracksFromVertices.begin(), itEnd=d->tracksFromVertices.end();
+    it=m_d->tracksFromVertices.begin(), itEnd=m_d->tracksFromVertices.end();
   
   for ( ;it!=itEnd; it++){
     tmpList+=it->second;

@@ -4,7 +4,6 @@
 
 // ***************************************************************************
 // -----------------------------------------
-// Copyright (C) 2004 by ATLAS Collaboration
 //
 
 #ifndef CALOTRACKINGGEOMETRY_CALOSURFACEHELPER_H

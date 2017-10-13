@@ -20,7 +20,7 @@ class TrigJpsi
 public:
     
     TrigJpsi();
-    TrigJpsi(const CombinedMuonFeature* m_jpsimuon1, const CombinedMuonFeature* m_jpsimuon2 );
+    TrigJpsi(const CombinedMuonFeature* jpsimuon1, const CombinedMuonFeature* jpsimuon2 );
     ~TrigJpsi();
   
     double mass() const { return m_hlvJ.m(); }
@@ -28,7 +28,7 @@ public:
     double phi() const  { return m_hlvJ.phi(); }
     double et() const   { return m_hlvJ.perp(); }
     const CombinedMuonFeature* getDaughter(const int i) const ;
-    void setDaughters(const CombinedMuonFeature* m_jpsimuon1, const CombinedMuonFeature* m_jpsimuon2);
+    void setDaughters(const CombinedMuonFeature* jpsimuon1, const CombinedMuonFeature* jpsimuon2);
 
 private:
 

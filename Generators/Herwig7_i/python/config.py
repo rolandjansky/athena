@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-## \file config.py
+## \file Herwig7_i/python/config.py
 ## \brief Python functions that are usable in the Herwig 7 jobOptions
 ## \author Daniel Rauch (daniel.rauch@desy.de)
 ##

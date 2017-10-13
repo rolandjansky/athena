@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
-## @file   Utils.py
+## @file   TriggerRelease/python/Utils.py
 ## @brief  Utilities for TriggerRelease
 ## @author Frank Winklmeier
 ## $Id: Utils.py,v 1.1 2008-08-20 13:07:06 fwinkl Exp $

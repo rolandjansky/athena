@@ -7,7 +7,7 @@
  * @file AthenaServices/src/RCUSvc.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2016
- * @brief 
+ * @brief Service to allow cleaning up RCU objects at the EndEvent.
  */
 
 
@@ -24,7 +24,7 @@ namespace Athena {
  */
 RCUSvc::RCUSvc (const std::string& name, ISvcLocator* svc)
   : extends<AthService, IRCUSvc, IIncidentListener> (name, svc),
-  m_hiveWhiteBoardSvc ("SG::HiveMgrSvc", name),
+  m_hiveWhiteBoardSvc ("EventDataSvc", name),
   m_incidentSvc ("IncidentSvc", name)
 {
   declareProperty ("HiveWhiteBoardSvc", m_hiveWhiteBoardSvc);
@@ -51,7 +51,13 @@ StatusCode RCUSvc::initialize()
  */
 size_t RCUSvc::getNumSlots() const
 {
-  return m_hiveWhiteBoardSvc->getNumberOfStores();
+  // In non-MT mode, `EventDataSvc' does not have an IHiveWhiteBoard interface.
+  // Fall back to one slot in that case.
+  const SmartIF<IHiveWhiteBoard> wb (m_hiveWhiteBoardSvc.get());
+  if (wb) {
+    return wb->getNumberOfStores();
+  }
+  return 1;
 }
 
 

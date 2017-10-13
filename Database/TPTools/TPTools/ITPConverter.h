@@ -7,7 +7,7 @@
 #ifndef ATHENAPOOLCNVSVC_ITPConverter_H
 #define ATHENAPOOLCNVSVC_ITPConverter_H 1
 
-/** @file ITPConverter.h
+/** @file TPTools/ITPConverter.h
  *  @brief Defines the base ITPConverter class interface for all TP
  *  converters.  Also defines TPConverterTypeMap utility class, used
  *  by the top-level converters.

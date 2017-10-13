@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubeOptParser.py
+# @file DCubeClient/python/DCubeOptParser.py
 # @author Krzysztof Danile Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubeOptParser
 

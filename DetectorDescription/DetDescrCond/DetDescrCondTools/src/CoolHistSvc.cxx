@@ -29,12 +29,12 @@
 
 CoolHistSvc::CoolHistSvc(const std::string& name, ISvcLocator* svc):
   AthService(name,svc),
-  par_maxfiles(3),
+  m_par_maxfiles(3),
   p_detstore(0),
   m_poolsvc(0)
 {
   // declare properties
-  declareProperty("MaxFiles",par_maxfiles);
+  declareProperty("MaxFiles",m_par_maxfiles);
 }
 
 CoolHistSvc::~CoolHistSvc() {}
@@ -313,7 +313,7 @@ TFile* CoolHistSvc::getFile(const std::string& sguid) {
   lookup.lookupPFN(guid,mypfn);
   if (mypfn.hasNext()) {
     // check not about to exceed max number of open files, close if needed
-    if (m_filemap.size()>=par_maxfiles) closeFiles();
+    if (m_filemap.size()>=m_par_maxfiles) closeFiles();
     const std::string pfname=mypfn.Next().pfname();
     ATH_MSG_INFO("Opening "+pfname+" for read");
     // now try to open file

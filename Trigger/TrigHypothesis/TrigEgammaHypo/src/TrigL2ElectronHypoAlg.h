@@ -27,12 +27,9 @@ class TrigL2ElectronHypoAlg
 
   virtual ~TrigL2ElectronHypoAlg(); 
 
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute_r(const EventContext& context) const override;
 
-  //TrigL2ElectronHypoAlg &operator=(const TrigL2ElectronHypoAlg &alg); 
-
-  StatusCode  initialize() override;
-  StatusCode  execute_r(const EventContext& context) const override;
-  StatusCode  finalize() override;
  
  private: 
   TrigL2ElectronHypoAlg();
@@ -46,9 +43,7 @@ class TrigL2ElectronHypoAlg
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
 
-
-
 }; 
-
+DECLARE_ALGORITHM_FACTORY( TrigL2ElectronHypoAlg )
 
 #endif //> !TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALG_H

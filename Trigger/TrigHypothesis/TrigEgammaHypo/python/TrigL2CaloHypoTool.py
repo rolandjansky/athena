@@ -1,34 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import re
-__pattern = "e(?P<threshold>\d+)"
-__cpattern = re.compile( __pattern )
+_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
+_cpattern = re.compile( _pattern )
 
 from AthenaCommon.SystemOfUnits import GeV
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoTool
-def TrigL2CaloHypoToolFromName( name ):
-    """ decode the name ( chain ) and figure out the threshold and selection from it """
 
-    assert name.startswith( "HLT_e" ), "Not a single electron chain"+name+" can't handle it yet"
-    bname = name.split('_')
-    m = __cpattern.match( bname[1] )
-    assert m, "The chain name part 1 "+name+" does not match pattern "+__pattern
 
-    # print m.groups()
-    threshold = int( m.group( "threshold" ) )
-    sel = bname[2]
-    
- #   print "configuring threshold " , threshold , " slection " , sel
+
+def _IncTool(name, threshold, sel):
+
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolInc    
+    #print "configuring threshold " , threshold , " slection " , sel
 
     from TrigL2CaloHypoCutDefs import L2CaloCutMaps    
     possibleSel = L2CaloCutMaps( threshold ).MapsHADETthr.keys()
     
 
-    tool = TrigL2CaloHypoTool( name ) 
+    tool = TrigL2CaloHypoToolInc( name ) 
     tool.AcceptAll = False
     tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    print "monitoring", TriggerFlags.enableMonitoring()
+    #print "monitoring", TriggerFlags.enableMonitoring()
 
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
@@ -115,11 +108,50 @@ def TrigL2CaloHypoToolFromName( name ):
     for prop in "ETthr HADETthr CARCOREthr CARCOREthr F1thr F3thr WSTOTthr WETA2thr HADETthr HADETthr ET2thr".split():
         propLen = len( getattr( tool, prop ) ) 
         assert propLen == etaBinsLen , "In " + name + " " + prop + " has length " + str( propLen ) + " which is different from EtaBins which has length " + str( etaBinsLen )
-        
 
-            
-            #    assert  __l( EtaBins, tool.ETthr, tool.HADETthr, tool.CARCOREthr, tool.CARCOREthr ) , "All list properties should have equal length ( as EtaBins )"
+        #    assert  _l( EtaBins, tool.ETthr, tool.HADETthr, tool.CARCOREthr, tool.CARCOREthr ) , "All list properties should have equal length ( as EtaBins )"
     #print tool
+    return tool
+
+
+def _MultTool(name):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolMult
+    return TrigL2CaloHypoToolMult( name )
+
+
+def decodeThreshold( threshold ):
+    """ decodes the thresholds of the form e10, 2e10, e10e15, ... """
+    print "decoding ", threshold
+    if threshold[0].isdigit(): # is if the from NeX, return as list [X,X,X...N times...]
+        assert threshold[1] == 'e', "Two digit multiplicity not supported"
+        return [ threshold[2:] ] * int( threshold[0] )
+
+    if threshold.count('e') > 1: # is of the form eXeYeZ, return as [X, Y, Z]
+        return threshold.strip('e').split('e')
+
+    # inclusive, return as 1 element list
+    return [ threshold[1:] ] 
+
+def TrigL2CaloHypoToolFromName( name ):
+    from AthenaCommon.Constants import DEBUG
+    """ decode the name ( chain ) and figure out the threshold and selection from it """
+    #print "Configuring ", name
+    bname = name.split('_')
+    threshold = bname[1]
+    sel = bname[2]
+
+    dt = decodeThreshold( threshold )
+    assert len(dt) >= 1, "Threshold "+ threshold +" not decoded properly"
+
+    if len( dt ) > 1:
+        tool = _MultTool(name) 
+        for cutNumber, th in enumerate( dt ):
+            print "cut and threshold ", cutNumber, th
+            tool.SubTools += [ _IncTool( name+"_"+str(cutNumber), th, sel ) ]
+        for t in tool.SubTools:
+            t.OutputLevel=DEBUG
+    else:
+        tool = _IncTool( name, dt[0], sel )
     return tool
 
 if __name__ == "__main__":    
@@ -127,16 +159,33 @@ if __name__ == "__main__":
     TriggerFlags.enableMonitoring=['Validation']
     t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut" )
     assert t, "cant configure NoCut"    
-    print t
+    #print t
+
     t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut" )
     assert t, "cant configure EtCut"
-    print t
+    #print t
+
     t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight" )
     assert t, "cant configure rel selection - tight"
-    print t    
+    #print t    
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e0_perf" )
+    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf" )
     assert t, "cant configure rel selection - perf"
-    print t    
+    #print t    
+
+    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut" )
+    assert t, "cant configure symmetric selection"
+    assert len(t.SubTools) == 2, "Sub-tools not configured"
+    #print t    
+
+    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut" )
+    assert t, "cant configure symmetric selection"
+    assert len(t.SubTools) == 3, "Sub-tools not configured"
+
+
+    t = TrigL2CaloHypoToolFromName( "HLT_e5e3_etcut" )
+    assert t, "cant configure asymmetric selection"
+    assert len(t.SubTools) == 2, "Sub-tools not configured"
+    #print t    
 
     print ( "\n\nALL OK\n\n" )

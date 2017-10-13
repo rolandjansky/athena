@@ -414,8 +414,8 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     double y1, z1, y2, z2;
     z1 = z_min-15;
     z2 = z_max+15;
-    y1 = track.m_x2()*z1+track.b_x2();
-    y2 = track.m_x2()*z2+track.b_x2();
+    y1 = track.a_x2()*z1+track.b_x2();
+    y2 = track.a_x2()*z2+track.b_x2();
     
     TLine* line = new TLine(y1, z1, y2, z2);
     line->SetLineWidth(2);
@@ -434,8 +434,8 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     MTStraightLine track_refit(segment.position(),segment.direction(),
                                           Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
 
-    y1 = track_refit.m_x2()*z1+track_refit.b_x2();
-    y2 = track_refit.m_x2()*z2+track_refit.b_x2();
+    y1 = track_refit.a_x2()*z1+track_refit.b_x2();
+    y2 = track_refit.a_x2()*z2+track_refit.b_x2();
        
     TLine* line_refit = new TLine(y1, z1, y2, z2);
     line_refit->SetLineWidth(2);

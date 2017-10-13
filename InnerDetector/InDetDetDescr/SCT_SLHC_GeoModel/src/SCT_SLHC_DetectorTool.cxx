@@ -58,7 +58,7 @@ SCT_SLHC_DetectorTool::~SCT_SLHC_DetectorTool()
 }
 
 // Create the Geometry via the factory corresponding to this tool
-StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){ 
+StatusCode SCT_SLHC_DetectorTool::create(){ 
 
   StatusCode result = StatusCode::SUCCESS;
 
@@ -136,7 +136,7 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
       m_manager = 0;
       // Locate the top level experiment node  
       GeoModelExperiment * theExpt; 
-      if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")){ 
+      if (StatusCode::SUCCESS != detStore()->retrieve(theExpt, "ATLAS")){ 
 	msg(MSG::ERROR) 
 	  << "Could not find GeoModelExperiment ATLAS" 
 	  << endmsg; 
@@ -152,14 +152,14 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
 
       // Pass athena services to factory, etc
       m_athenaComps = new InDetDDSLHC::SCT_GeoModelAthenaComps;
-      m_athenaComps->setDetStore(detStore);
+      m_athenaComps->setDetStore(detStore().operator->());
       m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
       m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
       m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
       m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
 
       const SCT_ID* idHelper;
-      if (detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
+      if (detStore()->retrieve(idHelper, "SCT_ID").isFailure()) {
 	msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
 	return StatusCode::FAILURE;
       } else {
@@ -208,7 +208,7 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
     
       // Get the manager from the factory and store it in the detector store.
       msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endmsg;
-      result = detStore->record(m_manager, m_manager->getName());
+      result = detStore()->record(m_manager, m_manager->getName());
       if (result.isFailure() ) {
 	msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
@@ -216,7 +216,7 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
       theExpt->addManager(m_manager);
       // Create a symLink to the SiDetectorManager base class
       const SiDetectorManager * siDetManager = m_manager;
-      result = detStore->symLink(m_manager, siDetManager);
+      result = detStore()->symLink(m_manager, siDetManager);
       if(result.isFailure()){
 	msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and "
 			<<"SiDetectorManager" << endmsg;
@@ -244,9 +244,9 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
 }
 
 StatusCode 
-SCT_SLHC_DetectorTool::clear(StoreGateSvc* detStore)
+SCT_SLHC_DetectorTool::clear()
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
   if(_proxy) {
     _proxy->reset();
     m_manager = 0;

@@ -11,11 +11,10 @@
 using namespace TrigCompositeUtils;
 
 TrigL2ElectronHypoTool::TrigL2ElectronHypoTool( const std::string& type, 
-		    const std::string& name, 
-		    const IInterface* parent ) :
-  AthAlgTool( type, name, parent ),
-  m_decisionId( HLT::Identifier::fromToolName( name ) )
-{}
+						const std::string& name, 
+						const IInterface* parent ) 
+  : AthAlgTool( type, name, parent ),
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
 StatusCode TrigL2ElectronHypoTool::initialize()  {
   
@@ -34,7 +33,6 @@ StatusCode TrigL2ElectronHypoTool::initialize()  {
   std::vector<size_t> sizes( {m_trackPt.size(), m_caloTrackDEta.size(), m_caloTrackDPhi.size(), m_caloTrackdEoverPLow.size(), m_caloTrackdEoverPHigh.size(), m_trtRatio.size() } );
 
 
-
   if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes.begin(), sizes.end() )  ) {
     ATH_MSG_ERROR( "Missconfiguration, cut properties listed above ( when DEBUG ) have different dimensions shortest: " <<  *std::min_element( sizes.begin(), sizes.end() ) << " longest " << *std::max_element( sizes.begin(), sizes.end() ) );
     return StatusCode::FAILURE;
@@ -46,12 +44,8 @@ StatusCode TrigL2ElectronHypoTool::initialize()  {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2ElectronHypoTool::finalize()  {
-  return StatusCode::SUCCESS;
-}
 
-TrigL2ElectronHypoTool::~TrigL2ElectronHypoTool()
-{}
+TrigL2ElectronHypoTool::~TrigL2ElectronHypoTool() {}
 
 bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
 						   size_t cutIndex ) const {
@@ -90,7 +84,7 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
   float NStrawHits  = ( float )( electron->nTRTHiThresholdHits() );
   float TRTHitRatio = NStrawHits == 0 ? 1e10 : NTRHits/NStrawHits;
 
-  ATH_MSG_VERBOSE("Cut index " << cutIndex );
+  ATH_MSG_VERBOSE( "Cut index " << cutIndex );
   if ( ptCalo < m_trackPt[cutIndex] ){ 
     ATH_MSG_VERBOSE( "Fails pt cut" << ptCalo << " < " << m_trackPt[cutIndex] );
     return  false;
@@ -123,12 +117,12 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
     return  false;
   }
   cutCounter++;
-  ATH_MSG_DEBUG("Passed selection");
+  ATH_MSG_DEBUG( "Passed selection" );
   return  true;
 
 }
 
-StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<Input>& input ) const {
+StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<ElectronInfo>& input ) const {
     for ( auto i: input ) {
       if ( m_respectPreviousDecision 
 	   and ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue; // the decision was negative or not even made in previous stage
@@ -142,7 +136,7 @@ StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<Input>& input
 }
 
 
-StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<Input>& input, const std::set<size_t>& passing ) const {
+StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<ElectronInfo>& input, const std::set<size_t>& passing ) const {
 
   for ( auto idx: passing ) 
     addDecisionID( m_decisionId.numeric(), input[idx].decision );
@@ -150,19 +144,19 @@ StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<Input>& input, const
 }
 
 
-StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& input ) const {
+StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<ElectronInfo>& input ) const {
   HLT::Index2DVec passingSelection( m_multiplicity );
   
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
-    size_t elIndex = 0;
+    size_t elIndex{ 0 };
     for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter, ++elIndex ) {
-      if ( m_respectPreviousDecision 
-	   and ( elIter->previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue;
-
-      if ( decideOnSingleObject( elIter->electron, cutIndex ) ) 
-	passingSelection[cutIndex].push_back( elIndex );
+      if ( passed( m_decisionId.numeric(), elIter->previousDecisionIDs ) ) {	
+	if ( decideOnSingleObject( elIter->electron, cutIndex ) ) {
+	  passingSelection[cutIndex].push_back( elIndex );
+	}
+      }
     }
-    // checking if by chance noe of the objects passed the single obj selection, if so there will be no valid combination and we can skip
+    // checking if by chance none of the objects passed the single obj selection, if so there will be no valid combination and we can skip
     if ( passingSelection[cutIndex].empty() ) {
       ATH_MSG_DEBUG( "No object passed selection " << cutIndex << " rejecting" );
       return StatusCode::SUCCESS;
@@ -193,7 +187,7 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
   return markPassing( input, passingIndices );
 }
 
-StatusCode TrigL2ElectronHypoTool::decide(  std::vector<Input>& input )  const{
+StatusCode TrigL2ElectronHypoTool::decide(  std::vector<ElectronInfo>& input )  const {
   // handle the simplest and most common case ( multiplicity == 1 ) in easiest possible manner
   if ( m_trackPt.size() == 1 ) {
     return inclusiveSelection( input );

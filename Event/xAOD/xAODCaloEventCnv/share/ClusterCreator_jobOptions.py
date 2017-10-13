@@ -23,10 +23,6 @@ theJob+=ClusterDumper("TopoDumper",ContainerName="CaloCalTopoCluster",FileName="
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolStream( "StreamXAOD", "xAOD.pool.root" )
 
-# compactify calo cell
-from CaloTools.CaloToolsConf import CaloCompactCellTool
-svcMgr.ToolSvc += CaloCompactCellTool()
-
 # Set up its contents:
 xaodStream.AddItem( "xAOD::CaloClusterContainer_v1#*" )
 xaodStream.AddItem( "xAOD::CaloClusterAuxContainer_v1#*" )

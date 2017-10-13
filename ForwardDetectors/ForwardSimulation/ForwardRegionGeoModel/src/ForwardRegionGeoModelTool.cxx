@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ForwardRegionGeoModel/ForwardRegionGeoModelTool.h"
-#include "ForwardRegionGeoModel/ForwardRegionGeoModelFactory.h"
+#include "ForwardRegionGeoModelTool.h"
+#include "ForwardRegionGeoModelFactory.h"
 #include "ForwardRegionGeoModel/ForwardRegionGeoModelManager.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -59,14 +59,14 @@ ForwardRegionGeoModelTool::~ForwardRegionGeoModelTool()
  ** Create the Detector Node corresponding to this tool
  **/
 StatusCode
-ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
+ForwardRegionGeoModelTool::create()
 { 
   MsgStream log(msgSvc(), name()); 
   // 
   // Locate the top level experiment node 
   // 
   DataHandle<GeoModelExperiment> theExpt;
-  StatusCode sc = detStore->retrieve( theExpt, "ATLAS" );
+  StatusCode sc = detStore()->retrieve( theExpt, "ATLAS" );
   if (StatusCode::SUCCESS != sc) {
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
@@ -74,7 +74,7 @@ ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
     return (StatusCode::FAILURE); 
   } 
 
-  ForwardRegionGeoModelFactory theFactory(detStore, &m_Config);
+  ForwardRegionGeoModelFactory theFactory(detStore().operator->(), &m_Config);
   if ( 0 == m_detector ) {
     // Create the DetectorNode instance
     try {   
@@ -90,7 +90,7 @@ ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
     }
     // Register the DetectorNode instance with the Transient Detector Store
     theExpt->addManager(theFactory.getDetectorManager());
-    sc = detStore->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
+    sc = detStore()->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
     if (StatusCode::SUCCESS != sc) {
       log << MSG::ERROR
           << "Could not register DetectorNode"

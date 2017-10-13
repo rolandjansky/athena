@@ -845,10 +845,6 @@ if doWriteESD:
     include ( "TBEventAthenaPool/TBEventAthenaPool_joboptions.py")
     
     # for LAr or Tile since Calo Cell converter is there
-    # this DLL contain CaloCompactCellTool
-    #theApp.Dlls += [ "CaloTools" ]
-    from CaloTools.CaloToolsConf import CaloCompactCellTool
-    svcMgr.ToolSvc += CaloCompactCellTool()
     include ( "LArAthenaPool/LArAthenaPool_joboptions.py")
     include( "InDetEventAthenaPool/InDetEventAthenaPool_joboptions.py" )
     include( "TrkEventAthenaPool/TrkEventAthenaPool_joboptions.py" )
@@ -867,7 +863,6 @@ if doWriteESD:
     #Stream1.ItemList+=["McEventCollection#*"]
     include ( "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPoolItemList_joboptions.py")
     include ("CaloAthenaPool/CaloAthenaPool_joboptions.py")
-    #ToolSvc.CaloCompactCellTool.WriteCompactCell=True
     #Calo/LAr
 
     if doLAr:

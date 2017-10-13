@@ -122,10 +122,17 @@ class InDetHoleSearchTool(object) :
 
       @checkKWArgs
       def __init__(self, **kwargs) :
-          from AthenaCommon.AppMgr import ToolSvc
+          from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+          # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
+          # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
+          # @TODO find a better to solution to get the correct service for the current job.
+          SctSummarySvc = "InDetSCT_ConditionsSummarySvc"
+          if not hasattr(ServiceMgr, SctSummarySvc):
+              SctSummarySvc = "SCT_ConditionsSummarySvc"
           super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
                                                                                                  name         = self.__class__.__name__,
                                                                                                  Extrapolator = ToolSvc.InDetExtrapolator,
+                                                                                                 SctSummarySvc = SctSummarySvc,
                                                                                                  usePixel     = True,
                                                                                                  useSCT       = True,
                                                                                                  # OutputLevel  = 1,
@@ -375,19 +382,6 @@ def addExtraMonitoring() :
            mon_manager = topSequence.getChildren()[mon_index]
            from InDetPhysValMonitoring.InDetPhysValMonitoringTool import InDetPhysValMonitoringTool
 
-           from InDetRecExample.InDetKeys import InDetKeys
-           # for backward compatibility check whether DBM has been added already
-           if InDetPhysValFlags.doValidateTightPrimaryTracks() :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolTightPrimary ) ]
-
-           if InDetPhysValFlags.doValidateGSFTracks() :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolGSF ) ]
-
-           from InDetRecExample.InDetKeys import InDetKeys
-           # for backward compatibility check whether DBM has been added already
-           if InDetPhysValFlags.doValidateDBMTracks() and hasattr(InDetKeys,'DBMTrackParticles') :
-              mon_manager.AthenaMonTools += [ toolFactory(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolDBM ) ]
-
   except ImportError :
     import sys,traceback
     exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -453,10 +447,6 @@ def addDecoratorIfNeeded() :
    # the monitoring manager exists already.
    from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    InDetPhysValFlags.init()
-   if InDetPhysValFlags.doValidateGSFTracks() or InDetPhysValFlags.doValidateDBMTracks() or InDetPhysValFlags.doValidateTightPrimaryTracks():
-       from RecExConfig.RecFlags import rec
-       rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValDecoration import addExtraMonitoring;addExtraMonitoring();']
 
    # from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    # print 'DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
-

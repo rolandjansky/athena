@@ -26,23 +26,23 @@ public:
   //    StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
     
   // Standard Destructor
-  virtual ~MuonDetectorTool();
+  virtual ~MuonDetectorTool() override final;
 
   //initialize - needed to retrieve the alignment Tool 
   StatusCode initialize();
 
     
   //register call back to condition data 
-  virtual StatusCode registerCallback( StoreGateSvc* );
+  virtual StatusCode registerCallback() override final;
 
   //align 
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override final;
 
   // build the geometry 
-  virtual StatusCode create( StoreGateSvc* detStore );
+  virtual StatusCode create() override final;
 
   // Dereference tree tops and drop readout objects
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode clear() override final;
 
   // incident svc handle
   virtual void handle(const Incident&);

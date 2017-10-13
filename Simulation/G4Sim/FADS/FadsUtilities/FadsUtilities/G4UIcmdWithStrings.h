@@ -27,7 +27,7 @@ public: // with description
       	G4bool omittable,G4bool currentAsDefault=false); 
     	void SetDefaultValue(std::vector<std::string> defVal);
 private:
-	int ncommands;  
+	int m_ncommands;  
 };
 
 }	// end namespace

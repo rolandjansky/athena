@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
 #include "TrigBjetHypo/TrigBtagFex.h"
@@ -28,22 +27,3 @@ DECLARE_ALGORITHM_FACTORY( TrigFarawayJetFinderAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigBjetHypoAlg )
 DECLARE_TOOL_FACTORY( TrigBjetHypoTool )
 
-
-DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) { 
-
-    DECLARE_ALGORITHM( TrigBjetHypo )
-    DECLARE_ALGORITHM( TrigBjetFex )
-    DECLARE_ALGORITHM( TrigBtagFex )
-    DECLARE_ALGORITHM( TrigGSCFex )
-    DECLARE_ALGORITHM( TrigLeptonJetFexAllTE )
-    DECLARE_ALGORITHM( TrigLeptonJetMatchAllTE )
-    DECLARE_ALGORITHM( TrigEFBjetSequenceAllTE )
-    DECLARE_ALGORITHM( TrigJetSplitterAllTE )
-    DECLARE_ALGORITHM( TrigSuperRoiBuilderAllTE )
-    DECLARE_ALGORITHM( TrigBjetEtHypo )
-    DECLARE_ALGORITHM( TrigFarawayJetFinderAllTE )
-    DECLARE_ALGORITHM( TrigBjetHypoAlg )
-    DECLARE_TOOL( TrigBjetHypoTool )
-
-
-}

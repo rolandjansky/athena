@@ -63,11 +63,6 @@ public:
   virtual SG::DataProxy* retrieveProxy(const CLID& id, const std::string& key,
 				       IProxyRegistry& storeToModify) override;
 
- ///create a list of transient Addresses:
-  StatusCode addAddresses(IProxyRegistry& dataStore,
-			  IAddressProvider* iap,
-			  TAdList& tad);
-
   ///create a new Proxy, overriding CLID and/or key
   SG::DataProxy* addAddress(IProxyRegistry& storeToModify, 
 			    SG::TransientAddress* tad);
@@ -106,14 +101,9 @@ private:
    * @brief Add lists of TADs to the store.
    * @param store Store to which to add.
    * @param tList List of TADs from all providers.
-   * @param Iterators giving the end of the TADs for each provider.
-   *
-   * The TADs for provider index i are given by the iterator range
-   * posvec[i-1]..posvec[i] (using tList.begin() for the start for i==0).
    */
   StatusCode addAddresses(IProxyRegistry& store, 
-                          TAdList& tList,
-                          const std::vector<TAdList::iterator>& posvec);
+                          TAdList& tList);
 
   
   /// property: the services declared as providers

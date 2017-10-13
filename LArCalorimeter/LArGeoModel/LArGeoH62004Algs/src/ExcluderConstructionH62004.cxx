@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62004Algs/ExcluderConstructionH62004.h"
+#include "ExcluderConstructionH62004.h"
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"

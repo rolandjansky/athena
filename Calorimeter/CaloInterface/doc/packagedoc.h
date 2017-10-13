@@ -18,7 +18,6 @@ reconstruction
   - ICaloBadChannelTool  : obsolete
   - ICaloCellMakerTool   : interface for cell making and correcting tools
   - ICaloCellSelector    : interface for generic cell selection tool
-  - ICaloCompactCellTool : interface for cell compactification tool
   - ICaloHVGeometryTool  : obsolete (for old HV correction)
   - ICaloHVScaleTool     : obsolete (for old HV corrections)
   - ICaloMBAverageTool.h : interface to get average energy per cell from pileup (in simulation)

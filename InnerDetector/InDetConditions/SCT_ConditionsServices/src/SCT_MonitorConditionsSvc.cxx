@@ -42,6 +42,7 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc(const std::string& name,ISvcL
   m_nhits_noisychip{64},
   m_nhits_noisywafer{384},
   m_nhits_noisymodule{768},
+  m_filled{false},
   m_pHelper{nullptr},
   m_currentDefectList{""},
   m_condData{nullptr},

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoTBEC/LArDetectorToolTBEC.h"
-#include "LArGeoTBEC/LArDetectorFactoryTBEC.h" 
+#include "LArDetectorToolTBEC.h"
+#include "LArDetectorFactoryTBEC.h" 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -25,7 +25,7 @@ LArDetectorToolTBEC::~LArDetectorToolTBEC()
 {
 }
 
-StatusCode LArDetectorToolTBEC::create(StoreGateSvc* detStore)
+StatusCode LArDetectorToolTBEC::create()
 { 
   MsgStream log(msgSvc(), name()); 
 
@@ -49,7 +49,7 @@ StatusCode LArDetectorToolTBEC::create(StoreGateSvc* detStore)
 
   // Locate the top level experiment node 
   DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) 
   { 
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
@@ -69,7 +69,7 @@ StatusCode LArDetectorToolTBEC::create(StoreGateSvc* detStore)
     GeoPhysVol *world=&*theExpt->getPhysVol();
     theLArFactory.create(world);
 
-    if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName())) 
+    if (StatusCode::SUCCESS != detStore()->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName())) 
       { 
 	log << MSG::ERROR << "Could not record" << endmsg; 
 	return (StatusCode::FAILURE); 

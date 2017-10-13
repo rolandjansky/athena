@@ -105,6 +105,7 @@ from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestReadCInfo, \
      DMTest__xAODTestRead, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \
@@ -114,7 +115,8 @@ from DataModelTestDataRead.DataModelTestDataReadConf import \
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          WriteKey = 'copy_cvec')
-
+topSequence += DMTest__xAODTestReadCInfo ('xAODTestReadCInfo',
+                                          WriteKey = 'copy_cinfo')
 topSequence += DMTest__xAODTestRead ('xAODTestRead',
                                      WritePrefix = 'copy_')
 topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView',

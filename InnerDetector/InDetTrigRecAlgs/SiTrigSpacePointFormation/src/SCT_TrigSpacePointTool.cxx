@@ -39,6 +39,8 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
   m_SiSpacePointMakerToolName("InDet::SiSpacePointMakerTool"),
   m_manager(0),
   m_idHelper(0),
+  m_properties{nullptr},
+  m_Sct_clcontainer{nullptr},
   m_SiSpacePointMakerTool(0),
   m_allClusters(false),       // process all clusters without limits.
   m_overlap(false),           // process overlaps of SCT wafers.
@@ -171,7 +173,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 
     IdentifierHash thisHash = m_idHelper->wafer_hash(thisID);
 
-    std::vector<IdentifierHash>* 
+    const std::vector<IdentifierHash>* 
       others(m_properties->neighbours(thisHash));
     if (others==0 || others->empty() ) return;
     std::vector<IdentifierHash>::const_iterator otherHash = others->begin();

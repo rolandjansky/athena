@@ -96,9 +96,9 @@ void MDT_Response::InitdEdxTable()
 	40.636,40.636,40.636,40.636,40.636,40.636,40.636,40.636};	
 	
 	for( int ik = 0; ik < 96; ++ik ) {
-		gammaFactorVec.push_back( gammaFactor[ik] );
-		numberOfClustersPerCmVec.push_back( numberOfClustersPerCm[ik] );
-    }
+		m_gammaFactorVec.push_back( gammaFactor[ik] );
+		m_numberOfClustersPerCmVec.push_back( numberOfClustersPerCm[ik] );
+        }
 }
 
 
@@ -201,18 +201,18 @@ void MDT_Response::DoStepping(double ParticleCharge,double ParticleGamma)
 	int km=0;
 	int kmm=0;
 	if(ParticleGamma<0.90852E+06){
-		while(ParticleGamma>gammaFactorVec.at(km)){
+		while(ParticleGamma>m_gammaFactorVec.at(km)){
 			++km;
 		}
 		int mm=km-1;	
 		if(km!=0){
-		    double deltagamma=fabs(gammaFactorVec.at(km)-gammaFactorVec.at(mm))/2.;
+		    double deltagamma=fabs(m_gammaFactorVec.at(km)-m_gammaFactorVec.at(mm))/2.;
 			kmm=km-1;
-			if(ParticleGamma > (gammaFactorVec.at(mm)+deltagamma)){
+			if(ParticleGamma > (m_gammaFactorVec.at(mm)+deltagamma)){
 				kmm=km;
 			}
 		}
-		correctedClusterDensity=(8.5/40.636)*(numberOfClustersPerCmVec.at(kmm));
+		correctedClusterDensity=(8.5/40.636)*(m_numberOfClustersPerCmVec.at(kmm));
 	}else{
 		correctedClusterDensity=8.5;
 	}

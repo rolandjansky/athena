@@ -43,16 +43,20 @@ theApp.EvtMax = 20
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestReadCInfo, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \
      DMTest__xAODTestRead
 
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
+topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo")
 topSequence += DMTest__xAODTestRead ("xAODTestRead")
 topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView')
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec")
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
                                          CVecKey = 'scopy_cvec')
+topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo_scopy",
+                                          CInfoKey = 'scopy_cinfo')
 topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
                                      ReadPrefix = 'scopy_')
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_scopy",

@@ -243,6 +243,8 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Set the 4-vector of the xAOD::PFO */
     myEflowObject->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
 
+    ATH_MSG_DEBUG("Created charged PFO with E, pt, eta and phi of " << myEflowObject->e() << ", " << myEflowObject->pt() << ", " << myEflowObject->eta() << " and " << myEflowObject->phi());
+    
     /* Add the amount of energy the track was expected to deposit in the calorimeter - this is needed to calculate the charged weight in the jet finding */
     xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
     myEflowObject->setAttribute<float>(myAttribute_tracksExpectedEnergyDeposit,efRecTrack->getEExpect() );
@@ -323,6 +325,8 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     }
 
+    ATH_MSG_DEBUG("Created neutral PFO with E, pt, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->pt() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi());
+    
     thisEflowObject->setCharge(0);
 
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
@@ -478,7 +482,7 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
     thisEflowObject->setAttribute(myAttribute_TIMING, clusterTiming);
 
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
+    //if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
 
   }
 }

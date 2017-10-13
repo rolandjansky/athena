@@ -284,11 +284,14 @@ namespace xAOD {
    }
 
    /// Clear all decorations.
-   void ShallowAuxContainer::clearDecorations()
+   bool ShallowAuxContainer::clearDecorations()
    { 
      guard_t guard (m_mutex);
-     m_store->clearDecorations();
-     ++m_tick;
+     bool ret = m_store->clearDecorations();
+     if (ret) {
+       ++m_tick;
+     }
+     return ret;
    }
 
 

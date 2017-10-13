@@ -436,32 +436,38 @@ namespace xAOD {
       return;
    }
 
-   void TAuxStore::clearDecorations() {
+   bool TAuxStore::clearDecorations() {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex1 );
 
       // Clear the transient decorations:
+      bool anycleared = false;
       if( m_transientStore ) {
-         // Remove all the transient IDs:
-         for( auto auxid : m_transientStore->getAuxIDs() ) {
-            m_auxIDs.erase( auxid );
-         }
+         const SG::auxid_set_t& old_id_set = m_transientStore->getAuxIDs();
+         std::vector<SG::auxid_t> old_ids(old_id_set.begin(), old_id_set.end());
+
          // Clear the decorations from the transient store:
-         m_transientStore->clearDecorations();
-         // Now add back whatever was left in the transient store:
-         for( auto auxid : m_transientStore->getAuxIDs() ) {
-            m_auxIDs.insert( auxid );
+         anycleared = m_transientStore->clearDecorations();
+
+         // Now remove ids that were cleared.
+         if (anycleared) {
+           const SG::auxid_set_t& cur_id_set = m_transientStore->getAuxIDs();
+           for (SG::auxid_t id : old_ids) {
+             if (cur_id_set.find(id) == cur_id_set.end()) {
+               m_auxIDs.erase (id);
+             }
+           }
+           // Remember that we changed the set:
+           ++m_tick;
          }
-         // Remember that we changed the set:
-         ++m_tick;
       }
 
       // The decorations which are going into the output file, are here to stay.
       // Removing their IDs from the internal set would just cause more problems
       // in my mind than just leaving them be.
 
-      return;
+      return anycleared;
    }
 
    /// Lock a decoration.

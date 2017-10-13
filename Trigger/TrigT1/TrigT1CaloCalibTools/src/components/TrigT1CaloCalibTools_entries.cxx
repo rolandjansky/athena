@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
 #include "TrigT1CaloCalibTools/L1CaloFcal23Cells2RxMappingTool.h"
@@ -20,16 +19,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( LVL1 , L1CaloxAODOfflineTriggerTowerTools )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework , TriggerTowerThinningAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( LVL1 , L1CaloTriggerTowerDecoratorAlg )
 
-DECLARE_FACTORY_ENTRIES( TrigT1CaloCalibTools )
-{
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloTTIdTools )
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloFcal23Cells2RxMappingTool )
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloCells2TriggerTowers )
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloLArTowerEnergy )
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloOfflineTriggerTowerTools )
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloMonitoringCaloTool ) 
-  DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloxAODOfflineTriggerTowerTools )
-  DECLARE_NAMESPACE_TOOL( DerivationFramework ,TriggerTowerThinningAlg )
-  DECLARE_NAMESPACE_ALGORITHM( LVL1 , L1CaloTriggerTowerDecoratorAlg )  
-
-}

@@ -57,12 +57,12 @@ class StraightPatRec : public IMdtPatRecFitter {
 public:
 // Constructors //
 	StraightPatRec(void) {
-		m_init();
+		init();
 		}
 	///< Default constructor: road width for pattern recognition = 0.5 mm.
 
 	StraightPatRec(const double & r_road_width) {
-		m_init(r_road_width);
+		init(r_road_width);
 		}
 	///< Constructor: user-defined road width for pattern recognition.
 
@@ -157,10 +157,10 @@ private:
 	mutable int m_nb_track_hits; // number of track hits in the final 
 	                                // track
 	mutable double m_chi2; // chi^2 of the final track
-	double m_m_x1, m_b_x1; // slope and intercept in the x1-x3 plane
-	double m_m_x2, m_b_x2; // slope and intercept in the x2-x3 plane
-	double m_m_x1_err, m_b_x1_err; // errors on m_x1 and b_x1
-	double m_m_x2_err, m_b_x2_err; // errors on m_x2 and b_x2
+	double m_a_x1, m_b_x1; // slope and intercept in the x1-x3 plane
+	double m_a_x2, m_b_x2; // slope and intercept in the x2-x3 plane
+	double m_a_x1_err, m_b_x1_err; // errors on a_x1 and b_x1
+	double m_a_x2_err, m_b_x2_err; // errors on a_x2 and b_x2
 	mutable MTStraightLine m_track; // final track
 
 	bool m_fix_selection;
@@ -175,9 +175,9 @@ private:
 //	FourCasesFitter m_nfitter;
 
 // initialization methods //
-	void m_init(void);
+	void init(void);
 	                        // default initialization:  road width = 0.5 CLHEP::mm
-	void m_init(const double & r_road_width);
+	void init(const double & r_road_width);
 	                        // initialization with user-defined road width
 
 // auxiliary methods //

@@ -11,8 +11,8 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 
-#include "ALFA_GeoModel/ALFA_DetectorTool.h"
-#include "ALFA_GeoModel/ALFA_DetectorFactory.h" 
+#include "ALFA_DetectorTool.h"
+#include "ALFA_DetectorFactory.h" 
 #include "ALFA_GeoModel/ALFA_DetectorManager.h" 
 
 using namespace std;
@@ -129,7 +129,7 @@ ALFA_DetectorTool::~ALFA_DetectorTool()
 }
 
 
-StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
+StatusCode ALFA_DetectorTool::create()
 { 
   MsgStream log(msgSvc(), name()); 
   
@@ -141,7 +141,7 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
 
   // Retrieve GeoModel Experiment
   GeoModelExperiment * theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) 
   { 
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return StatusCode::FAILURE; 
@@ -183,7 +183,7 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
 
 	// Construct Factory
 	//ALFA_DetectorFactory theALFA_Factory(detStore,raccess,&m_Config);
-	m_pALFADetectorFactory=new ALFA_DetectorFactory(detStore,raccess,&m_Config);
+    m_pALFADetectorFactory=new ALFA_DetectorFactory(detStore().operator->(),raccess,&m_Config);
 
 	// Build geometry
 	//theALFA_Factory.create(world);
@@ -193,7 +193,7 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
 	//theExpt->addManager(theALFA_Factory.getDetectorManager());
 	//sc = detStore->record(theALFA_Factory.getDetectorManager(), theALFA_Factory.getDetectorManager()->getName());
 	theExpt->addManager(m_pALFADetectorFactory->getDetectorManager());
-	sc = detStore->record(m_pALFADetectorFactory->getDetectorManager(), m_pALFADetectorFactory->getDetectorManager()->getName());
+	sc = detStore()->record(m_pALFADetectorFactory->getDetectorManager(), m_pALFADetectorFactory->getDetectorManager()->getName());
     
     if (sc.isFailure()) 
     {
@@ -206,14 +206,14 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
   return StatusCode::FAILURE;
 }
 
-StatusCode ALFA_DetectorTool::registerCallback(StoreGateSvc* detStore)
+StatusCode ALFA_DetectorTool::registerCallback()
 {
 
 	StatusCode sc=StatusCode::FAILURE;
 
 	if(((eMetrologyType)m_Config.GeometryConfig.eRPMetrologyGeoType)==EMT_SWCORRECTIONS){
 		const DataHandle<CondAttrListCollection> DataPtr;
-		sc=detStore->regFcn(&IGeoModelTool::align,dynamic_cast<IGeoModelTool*>(this), DataPtr, COOLFOLDER_DETSWCORR, true);
+		sc=detStore()->regFcn(&IGeoModelTool::align,dynamic_cast<IGeoModelTool*>(this), DataPtr, COOLFOLDER_DETSWCORR, true);
 		if(sc!=StatusCode::SUCCESS){
 		  msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<COOLFOLDER_DETSWCORR <<"'" << endmsg;
 		}

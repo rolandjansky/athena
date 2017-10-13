@@ -16,6 +16,9 @@ namespace btagvar {
   static const char* IP2     = "ip2";
   static const char* IP2_C   = "ip2_c";
   static const char* IP2_CU  = "ip2_cu";
+  static const char* IP2_NAN     = "ip2_nan";
+  static const char* IP2_C_NAN   = "ip2_c_nan";
+  static const char* IP2_CU_NAN  = "ip2_cu_nan";
 
   static const char* IP3D_PU = "ip3d_pu";
   static const char* IP3D_PB = "ip3d_pb";
@@ -23,6 +26,9 @@ namespace btagvar {
   static const char* IP3     = "ip3";
   static const char* IP3_C   = "ip3_c";
   static const char* IP3_CU  = "ip3_cu";
+  static const char* IP3_NAN     = "ip3_nan";
+  static const char* IP3_C_NAN   = "ip3_c_nan";
+  static const char* IP3_CU_NAN  = "ip3_cu_nan";
 
   static const char* SV0_EFRC   = "sv0_efc";
   static const char* SV0_NTRKV  = "sv0_ntrkv";
@@ -46,6 +52,9 @@ namespace btagvar {
   static const char* SV1       = "sv1";
   static const char* SV1_C     = "sv1_c";
   static const char* SV1_CU    = "sv1_cu";
+  static const char* SV1_NAN       = "sv1_nan";
+  static const char* SV1_C_NAN     = "sv1_c_nan";
+  static const char* SV1_CU_NAN    = "sv1_cu_nan";
 
   static const char* JF_NVTX   = "jf_nvtx";
   static const char* JF_NVTX1T = "jf_nvtx1t";

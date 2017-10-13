@@ -66,7 +66,9 @@ class GaudiEnvironment : public ::testing::Environment {
         // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoSvc needs
         IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*queit*/ , true /*createIf*/);
         StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*> (i_svc);
-        StatusCode sc = detStore->record(pHelper, "SCT_ID");
+        if (detStore) {
+            StatusCode sc = detStore->record(pHelper, "SCT_ID");
+        }
     }
 };
 

@@ -55,7 +55,7 @@ public:
 //____________________________________________________________________
 VP1Letters::VP1Letters(SoMaterial * mat,SoSeparator * attachsep,
 		       IVP1System * sys,QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1Letters"), d(new Imp(this,mat,attachsep))
+  : QObject(parent), VP1HelperClassBase(sys,"VP1Letters"), m_d(new Imp(this,mat,attachsep))
 {
 }
 
@@ -63,15 +63,15 @@ VP1Letters::VP1Letters(SoMaterial * mat,SoSeparator * attachsep,
 VP1Letters::~VP1Letters()
 {
   setShown(false);
-  if (d->sep)
-    d->sep->unref();
-  if (d->transA)
-    d->transA->unref();
-  if (d->transC)
-    d->transC->unref();
-  d->material->unref();
-  d->attachSep->unref();
-  delete d;
+  if (m_d->sep)
+    m_d->sep->unref();
+  if (m_d->transA)
+    m_d->transA->unref();
+  if (m_d->transC)
+    m_d->transC->unref();
+  m_d->material->unref();
+  m_d->attachSep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -251,16 +251,16 @@ void VP1Letters::Imp::updateFields()
 void VP1Letters::setShown(bool b)
 {
   messageVerbose("Signal received: setShown("+str(b)+")");
-  if (d->shown==b)
+  if (m_d->shown==b)
     return;
-  d->shown=b;
-  if (d->shown) {
-    d->updateFields();
-    if (d->attachSep->findChild(d->sep)<0)
-      d->attachSep->addChild(d->sep);
+  m_d->shown=b;
+  if (m_d->shown) {
+    m_d->updateFields();
+    if (m_d->attachSep->findChild(m_d->sep)<0)
+      m_d->attachSep->addChild(m_d->sep);
   } else {
-    if (d->sep&&d->attachSep->findChild(d->sep)>=0)
-      d->attachSep->removeChild(d->sep);
+    if (m_d->sep&&m_d->attachSep->findChild(m_d->sep)>=0)
+      m_d->attachSep->removeChild(m_d->sep);
   }
 }
 
@@ -268,20 +268,20 @@ void VP1Letters::setShown(bool b)
 void VP1Letters::setZPos(const double&p)
 {
   messageVerbose("Signal received: setZPos("+str(p)+")");
-  if (d->zpos==p)
+  if (m_d->zpos==p)
     return;
-  d->zpos=p;
-  if (d->shown)
-    d->updateFields();
+  m_d->zpos=p;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 //____________________________________________________________________
 void VP1Letters::setVerticalPosition(const double&p)
 {
   messageVerbose("Signal received: setVerticalPosition("+str(p)+")");
-  if (d->vertpos==p)
+  if (m_d->vertpos==p)
     return;
-  d->vertpos=p;
-  if (d->shown)
-    d->updateFields();
+  m_d->vertpos=p;
+  if (m_d->shown)
+    m_d->updateFields();
 }

@@ -15,44 +15,44 @@
 namespace MuonCalib {
 
 MuonCalibMuCTPIBranch::MuonCalibMuCTPIBranch(std::string branchName) : 
-  m_branchName(branchName), branchesInit(false), m_first(true), index(0) {
+  m_branchName(branchName), m_branchesInit(false), m_first(true), m_index(0) {
 }
 
 bool  MuonCalibMuCTPIBranch::fillBranch(const LVL1::RecMuonRoI& hit, unsigned int roiBCID) {
   // check if branches where initialized
-  if( !branchesInit ) {
+  if( !m_branchesInit ) {
     //  std::cout << "MuonCalibMuCTPIBranch::fillBranch  ERROR <branches where not initialized>"
     //	<<  std::endl;
     return false;    
   }
 
   // check if index not out of range 
-  if( index >= blockSize || index < 0 ) {
+  if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
       //std::cout << "MuonCalibMuCTPIBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //  <<  index << std::endl;
+      //  <<  m_index << std::endl;
       m_first = false;
     }
     return false;
   }
 
-  roiWord[index]         = hit.roiWord();
-  bcID[index]            = roiBCID;
-  sysID[index]           = hit.sysID();
-  subsysID[index]        = hit.subsysID();
-  sectorID[index]        = hit.sectorID();
-  thresholdNumber[index] = hit.getThresholdNumber();
-  thresholdValue[index]  = hit.getThresholdValue();
-  roINumber[index]       = hit.getRoINumber();
-  overlap[index]         = hit.getOverlap();
-  firstCandidate[index]  = hit.firstCandidate();
-  sectorOverflow[index]  = hit.sectorOverflow();
-  padOverflow[index]     = hit.padOverflow();
-  phi[index]             = hit.phi();
-  eta[index]             = hit.eta();
+  m_roiWord[m_index]         = hit.roiWord();
+  m_bcID[m_index]            = roiBCID;
+  m_sysID[m_index]           = hit.sysID();
+  m_subsysID[m_index]        = hit.subsysID();
+  m_sectorID[m_index]        = hit.sectorID();
+  m_thresholdNumber[m_index] = hit.getThresholdNumber();
+  m_thresholdValue[m_index]  = hit.getThresholdValue();
+  m_roINumber[m_index]       = hit.getRoINumber();
+  m_overlap[m_index]         = hit.getOverlap();
+  m_firstCandidate[m_index]  = hit.firstCandidate();
+  m_sectorOverflow[m_index]  = hit.sectorOverflow();
+  m_padOverflow[m_index]     = hit.padOverflow();
+  m_phi[m_index]             = hit.phi();
+  m_eta[m_index]             = hit.eta();
     
   // increment hit index
-  ++index;
+  ++m_index;
   
   return true;
 }  //end MuonCalibMuCTPIBranch::fillBranch
@@ -71,28 +71,28 @@ bool  MuonCalibMuCTPIBranch::createBranch(TTree* tree) {
   std::string index_name ="nHits";
 
   // create a branch for every data member
-  branchCreator.createBranch( tree, index_name, &index, "/I");
+  branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
   // all entries of same size, the number of hits in the event
   std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
   // create the branches
-  branchCreator.createBranch( tree, "roiWord",          &roiWord,          array_size + "/I" );
-  branchCreator.createBranch( tree, "bcID",             &bcID,             array_size + "/I" );
-  branchCreator.createBranch( tree, "sysID",            &sysID,            array_size + "/I" );
-  branchCreator.createBranch( tree, "subsysID",         &subsysID,         array_size + "/I" );
-  branchCreator.createBranch( tree, "sectorID",         &sectorID,         array_size + "/I" );
-  branchCreator.createBranch( tree, "thresholdNumber",  &thresholdNumber,  array_size + "/I" );
-  branchCreator.createBranch( tree, "thresholdValue",   &thresholdValue,   array_size + "/I" );
-  branchCreator.createBranch( tree, "roINumber",        &roINumber,        array_size + "/I" );
-  branchCreator.createBranch( tree, "overlap",          &overlap,          array_size + "/I" );
-  branchCreator.createBranch( tree, "firstCandidate",   &firstCandidate,   array_size + "/I" );
-  branchCreator.createBranch( tree, "sectorOverflow",   &sectorOverflow,   array_size + "/I" );
-  branchCreator.createBranch( tree, "padOverflow",      &padOverflow,      array_size + "/I" );
-  branchCreator.createBranch( tree, "phi",              &phi,              array_size + "/F" );
-  branchCreator.createBranch( tree, "eta",              &eta,              array_size + "/F" );
+  branchCreator.createBranch( tree, "roiWord",          &m_roiWord,          array_size + "/I" );
+  branchCreator.createBranch( tree, "bcID",             &m_bcID,             array_size + "/I" );
+  branchCreator.createBranch( tree, "sysID",            &m_sysID,            array_size + "/I" );
+  branchCreator.createBranch( tree, "subsysID",         &m_subsysID,         array_size + "/I" );
+  branchCreator.createBranch( tree, "sectorID",         &m_sectorID,         array_size + "/I" );
+  branchCreator.createBranch( tree, "thresholdNumber",  &m_thresholdNumber,  array_size + "/I" );
+  branchCreator.createBranch( tree, "thresholdValue",   &m_thresholdValue,   array_size + "/I" );
+  branchCreator.createBranch( tree, "roINumber",        &m_roINumber,        array_size + "/I" );
+  branchCreator.createBranch( tree, "overlap",          &m_overlap,          array_size + "/I" );
+  branchCreator.createBranch( tree, "firstCandidate",   &m_firstCandidate,   array_size + "/I" );
+  branchCreator.createBranch( tree, "sectorOverflow",   &m_sectorOverflow,   array_size + "/I" );
+  branchCreator.createBranch( tree, "padOverflow",      &m_padOverflow,      array_size + "/I" );
+  branchCreator.createBranch( tree, "phi",              &m_phi,              array_size + "/F" );
+  branchCreator.createBranch( tree, "eta",              &m_eta,              array_size + "/F" );
   
-  branchesInit = true;
+  m_branchesInit = true;
   
   // reset branch
   reset();

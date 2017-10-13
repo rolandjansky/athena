@@ -22,12 +22,11 @@ defaultInputKey = {
    'PFlowJet'  :'AntiKt4EMPFlowJets',
    'Muon'      :'Muons',
    'Soft'      :'',
-   'ClusColl'  :'CaloCalTopoClusters',
-   'TrkColl'   :'InDetTrackParticles',
+   'Clusters'  :'CaloCalTopoClusters',
+   'Tracks'    :'InDetTrackParticles',
+   'PFlowObj'  :'CHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
-   'LCOCClusColl':'LCOriginTopoClusters',
-   'EMOCClusColl':'EMOriginTopoClusters',
    }
 
 prefix = 'METAssocConfig:   '
@@ -42,13 +41,18 @@ class AssocConfig:
 
 def getAssociator(config,suffix,doPFlow=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
-                  doOriginCorrClus=True):
+                  modConstKey="",
+                  modClusColls={}):
     tool = None
 
     import cppyy
     try: cppyy.loadDictionary('METReconstructionDict')
     except: pass
 
+    doModClus = (modConstKey!="" and not doPFlow)
+    if doModClus:
+        modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
+        modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
     from AthenaCommon.AppMgr import ToolSvc
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -70,32 +74,27 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
-        if doOriginCorrClus:
-            tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
-            tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
+        if doModClus:
+            tool.LCModClusterKey = modLCClus
+            tool.EMModClusterKey = modEMClus
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
     if doPFlow:
-        pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        ToolSvc += pfotool
-        tool.PFOTool = pfotool
-        pfoweighttool = CfgMgr.CP__WeightPFOTool('MET_PFOWeightTool_'+suffix)
-        ToolSvc += pfoweighttool
-        tool.PFOWeightTool = pfoweighttool
         tool.PFlow = True
+        tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
-        tool.UseModifiedClus = doOriginCorrClus
+        tool.UseModifiedClus = doModClus
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        if doOriginCorrClus:
-            tool.ClusColl = defaultInputKey['LCOCClusColl']
-            if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
-        tool.TrkColl = defaultInputKey['TrkColl']
     else:
         tool.InputCollection = config.inputKey
+    if doModClus:
+        tool.ClusColl = modLCClus
+        if 'EMTopo' in suffix: tool.ClusColl = modEMClus
+    tool.TrkColl = defaultInputKey['Tracks']
 
     from METReconstruction.METRecoFlags import metFlags
     tool.UseTracks = metFlags.UseTracks()
@@ -133,7 +132,8 @@ class METAssocConfig:
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
-                                           doOriginCorrClus=self.doOriginCorrClus)
+                                           modConstKey=self.modConstKey,
+                                           modClusColls=self.modClusColls)
                 from METReconstruction.METRecoFlags import metFlags
                 if config.objType == 'Soft' and metFlags.DecorateSoftConst:
                     print "activate soft term decoration"
@@ -144,14 +144,27 @@ class METAssocConfig:
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
-                 trksel=None,doOriginCorrClus=False):
+                 trksel=None,
+                 modConstKey="",
+                 modClusColls={}
+                 ):
+        # Set some sensible defaults
+        modConstKey_tmp = modConstKey
+        modClusColls_tmp = modClusColls
+        if doPFlow:
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
+        else:
+            if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
+            if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
+                                                           'EMOriginCorrClusters':'EMOriginTopoClusters'}
         if doTruth:
             print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
         else:
             print prefix, 'Creating MET Assoc config \''+suffix+'\''
         self.suffix = suffix
-        self.doPFlow = doPFlow
-        self.doOriginCorrClus=doOriginCorrClus
+        self.doPFlow = doPFlow                
+        self.modConstKey=modConstKey_tmp
+        self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
         from AthenaCommon.AppMgr import ToolSvc
         if trksel:
@@ -171,7 +184,8 @@ class METAssocConfig:
             ToolSvc += self.trkisotool
 
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
-                                                          saveOnlyRequestedCorrections=True)
+                                                          saveOnlyRequestedCorrections=True,
+                                                          addCaloExtensionDecoration=False)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 
@@ -191,7 +205,7 @@ def getMETAssocTool(topconfig):
     else:
         tcstate = clusterSigStates['LocHad']
         if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
-        if topconfig.doOriginCorrClus:
+        if topconfig.modConstKey!="":
             tcstate = clusterSigStates['Mod']
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,

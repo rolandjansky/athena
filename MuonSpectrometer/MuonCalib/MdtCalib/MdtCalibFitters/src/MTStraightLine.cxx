@@ -27,11 +27,11 @@ using namespace MuonCalib;
 
 //*****************************************************************************
 
-//:::::::::::::::::::
-//:: METHOD m_init ::
-//:::::::::::::::::::
+//:::::::::::::::::
+//:: METHOD init ::
+//:::::::::::::::::
 
-void MTStraightLine::m_init(void) {
+void MTStraightLine::init(void) {
 
 	m_position = Amg::Vector3D(0.0, 0.0, 0.0);
 	m_direction = Amg::Vector3D(0.0, 0.0, 0.0);
@@ -45,13 +45,13 @@ void MTStraightLine::m_init(void) {
 //*****************************************************************************
 
 //::::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD m_init(const Amg::Vector3D &, ...) ::
+//:: METHOD init(const Amg::Vector3D &, ...) ::
 //::::::::::::::::::::::::::::::::::::::::::::
 
-void MTStraightLine::m_init(const Amg::Vector3D & r_position,
-				const Amg::Vector3D & r_direction,
-				const Amg::Vector3D & r_position_error,
-				const Amg::Vector3D & r_direction_error) {
+void MTStraightLine::init(const Amg::Vector3D & r_position,
+                          const Amg::Vector3D & r_direction,
+                          const Amg::Vector3D & r_position_error,
+                          const Amg::Vector3D & r_direction_error) {
 
 	m_position = r_position;
 	m_direction = r_direction;
@@ -64,20 +64,20 @@ void MTStraightLine::m_init(const Amg::Vector3D & r_position,
 
 //*****************************************************************************
 
-//:::::::::::::::::::
-//:: METHOD m_init ::
-//:::::::::::::::::::
+//:::::::::::::::::
+//:: METHOD init ::
+//:::::::::::::::::
 
-void MTStraightLine::m_init(const double & r_m_x1,
+void MTStraightLine::init(const double & r_a_x1,
 		const double & r_b_x1,
-		const double & r_m_x2, const double & r_b_x2,
-		const double & r_m_x1_err, const double & r_b_x1_err,
-		const double & r_m_x2_err, const double & r_b_x2_err) {
+		const double & r_a_x2, const double & r_b_x2,
+		const double & r_a_x1_err, const double & r_b_x1_err,
+		const double & r_a_x2_err, const double & r_b_x2_err) {
 
 	m_position = Amg::Vector3D(r_b_x1, r_b_x2, 0.0);
-	m_direction = Amg::Vector3D(r_m_x1, r_m_x2, 1.0);
+	m_direction = Amg::Vector3D(r_a_x1, r_a_x2, 1.0);
 	m_position_error = Amg::Vector3D(r_b_x1_err, r_b_x2_err, 0.0);
-	m_direction_error = Amg::Vector3D(r_m_x1_err, r_m_x2_err, 1.0);
+	m_direction_error = Amg::Vector3D(r_a_x1_err, r_a_x2_err, 1.0);
 
 	return;
 
@@ -134,10 +134,10 @@ Amg::Vector3D MTStraightLine::directionError(void) const {
 //*****************************************************************************
 
 //:::::::::::::::::
-//:: METHOD m_x1 ::
+//:: METHOD a_x1 ::
 //:::::::::::::::::
 
-double MTStraightLine::m_x1(void) const {
+double MTStraightLine::a_x1(void) const {
 
 	if (m_direction.z() == 0.0) {
 		return 0.0;
@@ -150,17 +150,17 @@ double MTStraightLine::m_x1(void) const {
 //*****************************************************************************
 
 //:::::::::::::::::::::::
-//:: METHOD m_x1_error ::
+//:: METHOD a_x1_error ::
 //:::::::::::::::::::::::
 
-double MTStraightLine::m_x1_error(void) const {
+double MTStraightLine::a_x1_error(void) const {
 
 	if (m_direction.z()==0) {
 		return 0.0;
 	}
 
 	return sqrt(std::pow(m_direction_error.x()/m_direction_error.z(), 2)
-		+std::pow(m_direction_error.y()*m_x1()/m_direction_error.z(), 2));
+		+std::pow(m_direction_error.y()*a_x1()/m_direction_error.z(), 2));
 
 }
 
@@ -177,7 +177,7 @@ double MTStraightLine::b_x1(void) const {
 			  << "b_x1 not uniquely defined." << std::endl;
 		return m_position.x();
 	}
-	return (m_position.x()-m_position.z()*m_x1());
+	return (m_position.x()-m_position.z()*a_x1());
 					
 }
 
@@ -190,18 +190,18 @@ double MTStraightLine::b_x1(void) const {
 double MTStraightLine::b_x1_error(void) const {
 
 	return sqrt(std::pow(m_position_error.x(), 2)+
-			std::pow(m_x1()*m_position_error.z(), 2)+
-			std::pow(m_position.z()*m_x1_error(),2));
+			std::pow(a_x1()*m_position_error.z(), 2)+
+			std::pow(m_position.z()*a_x1_error(),2));
 
 }
 
 //*****************************************************************************
 
 //:::::::::::::::::
-//:: METHOD m_x2 ::
+//:: METHOD a_x2 ::
 //:::::::::::::::::
 
-double MTStraightLine::m_x2(void) const {
+double MTStraightLine::a_x2(void) const {
 
 	if (m_direction.z() == 0.0) {
 		return 0.0;
@@ -213,17 +213,17 @@ double MTStraightLine::m_x2(void) const {
 //*****************************************************************************
 
 //:::::::::::::::::::::::
-//:: METHOD m_x2_error ::
+//:: METHOD a_x2_error ::
 //:::::::::::::::::::::::
 
-double MTStraightLine::m_x2_error(void) const {
+double MTStraightLine::a_x2_error(void) const {
 
 	if (m_direction.z()==0) {
 		return 0.0;
 	}
 
 	return sqrt(std::pow(m_direction_error.y()/m_direction_error.z(), 2)
-		+std::pow(m_direction_error.y()*m_x2()/m_direction_error.z(), 2));
+		+std::pow(m_direction_error.y()*a_x2()/m_direction_error.z(), 2));
 
 }
 
@@ -240,7 +240,7 @@ double MTStraightLine::b_x2(void) const {
 			  << "b_x2 not uniquely defined." << std::endl;
 		return m_position.x();
 	}
-	return (m_position.y()-m_position.z()*m_x2());
+	return (m_position.y()-m_position.z()*a_x2());
 
 }
 
@@ -253,8 +253,8 @@ double MTStraightLine::b_x2(void) const {
 double MTStraightLine::b_x2_error(void) const {
 
 	return sqrt(std::pow(m_position_error.y(), 2)+
-			std::pow(m_x2()*m_position_error.z(), 2)+
-			std::pow(m_position.z()*m_x2_error(),2));
+			std::pow(a_x2()*m_position_error.z(), 2)+
+			std::pow(m_position.z()*a_x2_error(),2));
 
 }
 

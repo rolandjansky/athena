@@ -28,7 +28,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "StoreGate/DataHandle.h"
-
+#include "StoreGate/ReadHandle.h"
 
 // constructor
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p)
@@ -142,7 +142,9 @@ StatusCode TRT_ToT_dEdx::initialize()
     ATH_MSG_WARNING ( "Cannot register callback for /TRT/Calib/ToT/ToTValue " );
   }
 
- 
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   //|-TRTStrawSummarySvc     = ServiceHandle('InDetTRTStrawStatusSummarySvc')
   sc = m_TRTStrawSummarySvc.retrieve();
   if (StatusCode::SUCCESS!= sc ){
@@ -754,8 +756,14 @@ bool TRT_ToT_dEdx::isData() const {
   if (m_isDataSet) {
     return m_isData;
   } else {
-    const xAOD::EventInfo* eventInfo = 0;
-    ATH_CHECK( evtStore()->retrieve( eventInfo) );
+   
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+    StatusCode sc;
+    if (eventInfo.isValid()){
+      sc =StatusCode::SUCCESS;
+    }else{ 
+      sc = StatusCode::FAILURE;}
+    ATH_CHECK(sc);
 
     // check if data or MC 
     m_isData = true;
@@ -777,8 +785,14 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
   double nVtx=-1.;
 
   // Event information 
-  const xAOD::EventInfo* eventInfo = 0;
-  ATH_CHECK( evtStore()->retrieve( eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  StatusCode sc;
+  if (eventInfo.isValid()){
+    sc =StatusCode::SUCCESS;
+  }else{
+    sc = StatusCode::FAILURE;}
+  ATH_CHECK(sc);
+
   
   //    Average interactions per crossing for the current BCID
   double mu = -1.;
@@ -1046,8 +1060,8 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
 
   if(gasType==kUnset)
     {
-      ATH_MSG_WARNING("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_WARNING("getProb():: Now gasTypeInStraw sets to kXenon.");
+      ATH_MSG_DEBUG("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
+      ATH_MSG_DEBUG("getProb():: Now gasTypeInStraw sets to kXenon.");
       gasType = kXenon;
     }
 
@@ -1118,8 +1132,8 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
 
   if(gasType==kUnset)
     {
-      ATH_MSG_WARNING("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_WARNING("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
+      ATH_MSG_DEBUG("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
+      ATH_MSG_DEBUG("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
       gasType = kXenon;
     }
 

@@ -18,31 +18,31 @@
 BeamCondSvc::BeamCondSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
   p_detstore("DetectorStore",name),
-  par_usedb(true),
-  par_status(1),
-  par_posx(0.),
-  par_posy(0.),
-  par_posz(0.),
-  par_sigx(0.015),
-  par_sigy(0.015),
-  par_sigz(53.),
-  par_sigxy(0.),
-  par_tiltx(0.),
-  par_tilty(0.),
+  m_par_usedb(true),
+  m_par_status(1),
+  m_par_posx(0.),
+  m_par_posy(0.),
+  m_par_posz(0.),
+  m_par_sigx(0.015),
+  m_par_sigy(0.015),
+  m_par_sigz(53.),
+  m_par_sigxy(0.),
+  m_par_tiltx(0.),
+  m_par_tilty(0.),
   m_status(0)
 {
   // declare properties
-  declareProperty("useDB",par_usedb);
-  declareProperty("status",par_status);
-  declareProperty("posX",par_posx);
-  declareProperty("posY",par_posy);
-  declareProperty("posZ",par_posz);
-  declareProperty("sigmaX",par_sigx);
-  declareProperty("sigmaY",par_sigy);
-  declareProperty("sigmaZ",par_sigz);
-  declareProperty("sigmaXY",par_sigxy);
-  declareProperty("tiltX",par_tiltx);
-  declareProperty("tiltY",par_tilty);
+  declareProperty("useDB",m_par_usedb);
+  declareProperty("status",m_par_status);
+  declareProperty("posX",m_par_posx);
+  declareProperty("posY",m_par_posy);
+  declareProperty("posZ",m_par_posz);
+  declareProperty("sigmaX",m_par_sigx);
+  declareProperty("sigmaY",m_par_sigy);
+  declareProperty("sigmaZ",m_par_sigz);
+  declareProperty("sigmaXY",m_par_sigxy);
+  declareProperty("tiltX",m_par_tiltx);
+  declareProperty("tiltY",m_par_tilty);
 }
 
 BeamCondSvc::~BeamCondSvc() {}
@@ -74,9 +74,9 @@ StatusCode BeamCondSvc::initialize()
     return StatusCode::FAILURE;
   }
   // always init cache to joboption values in case CondDB read fails
-  initCache(par_status,par_posx,par_posy,par_posz,par_sigx,par_sigy,par_sigz,
-	      par_sigxy,par_tiltx,par_tilty);
-  if (par_usedb) {
+  initCache(m_par_status,m_par_posx,m_par_posy,m_par_posz,m_par_sigx,m_par_sigy,m_par_sigz,
+	      m_par_sigxy,m_par_tiltx,m_par_tilty);
+  if (m_par_usedb) {
     // register callback function for cache updates
     const DataHandle<AthenaAttributeList> aptr;
     if (StatusCode::SUCCESS==p_detstore->regFcn(&BeamCondSvc::update,this,
@@ -88,11 +88,11 @@ StatusCode BeamCondSvc::initialize()
   } else {
     msg(MSG::INFO) << 
      "Default beamspot parameters will be used (from jobopt) " << 
-      endmsg << "Beamspot status " << par_status << 
-      endmsg << "Beamspot position  (" << par_posx << "," << par_posy << "," <<
-      par_posz << ")" << endmsg << "RMS size (" << par_sigx << "," << par_sigy
-	<< "," << par_sigz << ")" << endmsg << "Tilt xz yz/radian (" << 
-      par_tiltx << "," << par_tilty << ")" << endmsg;
+      endmsg << "Beamspot status " << m_par_status << 
+      endmsg << "Beamspot position  (" << m_par_posx << "," << m_par_posy << "," <<
+      m_par_posz << ")" << endmsg << "RMS size (" << m_par_sigx << "," << m_par_sigy
+	<< "," << m_par_sigz << ")" << endmsg << "Tilt xz yz/radian (" << 
+      m_par_tiltx << "," << m_par_tilty << ")" << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -155,16 +155,16 @@ bool BeamCondSvc::fillRec() const {
 			"Attribute list specification is empty!" << endmsg;
   AthenaAttributeList* alist=new AthenaAttributeList(*aspec);
   // set status to 1 for now - for future use
-  (*alist)["status"].setValue(par_status);
-  (*alist)["posX"].setValue(par_posx);
-  (*alist)["posY"].setValue(par_posy);
-  (*alist)["posZ"].setValue(par_posz);
-  (*alist)["sigmaX"].setValue(par_sigx);
-  (*alist)["sigmaY"].setValue(par_sigy);
-  (*alist)["sigmaZ"].setValue(par_sigz);
-  (*alist)["tiltX"].setValue(par_tiltx);
-  (*alist)["tiltY"].setValue(par_tilty);
-  (*alist)["sigmaXY"].setValue(par_sigxy);
+  (*alist)["status"].setValue(m_par_status);
+  (*alist)["posX"].setValue(m_par_posx);
+  (*alist)["posY"].setValue(m_par_posy);
+  (*alist)["posZ"].setValue(m_par_posz);
+  (*alist)["sigmaX"].setValue(m_par_sigx);
+  (*alist)["sigmaY"].setValue(m_par_sigy);
+  (*alist)["sigmaZ"].setValue(m_par_sigz);
+  (*alist)["tiltX"].setValue(m_par_tiltx);
+  (*alist)["tiltY"].setValue(m_par_tilty);
+  (*alist)["sigmaXY"].setValue(m_par_sigxy);
   // record Beampos object in TDS
   if (StatusCode::SUCCESS==p_detstore->record(alist, INDET_BEAMPOS )) {
     if (msgLvl(MSG::INFO)) msg() << "Recorded Beampos object in TDS" << endmsg;
