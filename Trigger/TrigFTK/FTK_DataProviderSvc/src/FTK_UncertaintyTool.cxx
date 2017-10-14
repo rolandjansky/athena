@@ -15,7 +15,7 @@
 // e-mail: John.Alison@cern.ch
 //
 ////////////////////////////////////////////////////////////////////////////////
-
+// Edited by Jason
 #include <cmath>
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
