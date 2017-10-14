@@ -183,7 +183,7 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //
   // Flag to run on new ftk error parameters
   //
-  bool m_newftk;
+  bool m_ftknew;
 };
 
 
