@@ -24,9 +24,6 @@ class EVetoPlots: public PlotBase {
     TH1* m_pt_eleBDTloose;
     TH1* m_pt_eleBDTmed; 
     TH1* m_pt_eleBDTtight;
-    TH1* m_pt_eleBDTlooseHighPt;
-    TH1* m_pt_eleBDTmedHighPt; 
-    TH1* m_pt_eleBDTtightHighPt;
     
   private:
     void initializePlots();

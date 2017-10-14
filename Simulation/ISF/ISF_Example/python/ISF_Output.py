@@ -70,7 +70,7 @@ def getHITSStreamItemList():
     ## TimingAlg
     hitsItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
 
-    if simFlags.RecordStepInfo.get_Value():
+    if 'G4UA::FastCaloSimParamActionTool' in simFlags.OptionalUserActionList.get_Value()['Step']:
         hitsItemList +=["ISF_FCS_Parametrization::FCS_StepInfoCollection#MergedEventSteps"]
 
     ## add xAOD::TrackParticles output collection Parametric Simulation
