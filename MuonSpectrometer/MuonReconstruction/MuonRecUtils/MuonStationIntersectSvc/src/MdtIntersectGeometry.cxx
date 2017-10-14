@@ -244,7 +244,7 @@ namespace Muon{
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
             bool tubefound = false;
-            for(unsigned int kk=0; kk < nGrandchildren; kk++) {
+            for(int kk=0; kk < nGrandchildren; kk++) {
                auto idOfChildVol = cv->getIdOfChildVol(kk);
                int tubegeo = idOfChildVol % 100;
                int layergeo = ( idOfChildVol - tubegeo ) / 100;
