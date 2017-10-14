@@ -65,7 +65,7 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //
   void LoadConstants      ();
   void LoadConstants_NoIBL();
-
+  void LoadConstants_newftk();
  private:
 
   //
@@ -180,6 +180,10 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //
   bool m_noIBL;
 
+  //
+  // Flag to run on new ftk error parameters
+  //
+  bool m_newftk;
 };
 
 
