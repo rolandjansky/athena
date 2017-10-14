@@ -52,11 +52,6 @@ class doValidateGSFTracks(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-class doValidateLooseTracks(InDetPhysValFlagsJobProperty):
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class doValidateTightPrimaryTracks(InDetPhysValFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -122,8 +117,7 @@ jobproperties.add_Container(InDetPhysValJobProperties)
 _list_InDetPhysValJobProperties = [
     Enabled,
     doValidateDBMTracks,
-    doValidateGSFTracks,    
-    doValidateLooseTracks,
+    doValidateGSFTracks,
     doValidateTightPrimaryTracks,
     doValidateTracksInJets
 ]
