@@ -72,6 +72,7 @@ fi
 
 # Stop on errors from here on out:
 set -e
+set -o pipefail
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -119,11 +120,9 @@ fi
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
 # Check out AthenaExternals from the right branch/tag:
-error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
-{ ${scriptsdir}/checkout_atlasexternals.sh \
+${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
-    -s ${BUILDDIR}/src/AthenaExternals 2>&1 || touch $error_stamp ; } | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
-test -f $error_stamp && { echo "ERROR: checkout_atlasexternals.sh FAILED. EXIT(1)" >&2 ; exit 1; }
+    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
 
 # Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
@@ -142,11 +141,9 @@ platform=$(cd ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/Insta
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 
 # Check out Gaudi from the right branch/tag:
-error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
-{ ${scriptsdir}/checkout_Gaudi.sh \
+${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI 2>&1 || touch $error_stamp ; } | tee ${BUILDDIR}/src/checkout.GAUDI.log
-test -f $error_stamp && { echo "ERROR: checkout_atlasexternals.sh FAILED. EXIT(1)" >&2 ; exit 1; }
+    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
