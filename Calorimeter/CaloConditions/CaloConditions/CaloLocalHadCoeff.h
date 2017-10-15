@@ -309,4 +309,6 @@ CLASS_DEF( CondCont<CaloLocalHadCoeff> , 82862607 , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<CaloLocalHadCoeff>, CondContBase );
 
+REGISTER_CC( CaloLocalHadCoeff  )
+
 #endif
