@@ -238,6 +238,7 @@ reducedJetList = [
                   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D1Seq)
 
 DerivationFrameworkJob += HIGG1D1Seq
 #====================================================================
@@ -282,10 +283,11 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
+                                          "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","BTagging_AntiKt4EMPFlow","CaloCalTopoClusters","HggPrimaryVertices"]
+HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
 
 HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
