@@ -133,6 +133,7 @@ if isMC:
 #====================================================================
 
 triggers = [
+            # Standard large-R jet support triggers (bootstrap, etc)
             "HLT_j260_a10_lcw_L1J75",
             "HLT_j260_a10_lcw_nojcalib_L1J75",
             "HLT_j260_a10_nojcalib_L1J75",
@@ -140,26 +141,45 @@ triggers = [
             "HLT_j260_a10_lcw_sub_L1J75",
             "HLT_j300_a10_sub_L1J75",
             "HLT_j300_a10_lcw_L1J75",
+            "HLT_j300_a10_lcw_sub_L1SC85",
+            "HLT_j300_a10_lcw_L1SC85",
+            # Standard large-R jet primary triggers
+            "HLT_j360_a10_lcw_sub_L1J100", # lowest unprescaled, 2015
             "HLT_j360_a10_lcw_L1J100",
             "HLT_j380_a10_lcw_L1J100",
             "HLT_j400_a10_lcw_L1J100",
-            "HLT_j420_a10_lcw_L1J100",
+            "HLT_j420_a10_lcw_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10_lcw_L1J100",
             "HLT_j460_a10_sub_L1J100",
             "HLT_j460_a10_lcw_L1J100",
+            "HLT_j460_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
             "HLT_j460_a10_nojcalib_L1J100",
             "HLT_j460_a10_lcw_nojcalib_L1J100",
             "HLT_j460_a10_lcw_sub_L1J100",
-            "HLT_j300_a10_lcw_sub_L1SC85",
-            "HLT_j300_a10_lcw_L1SC85",
+            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jet primary triggers (new 2017 nominal)
+            "HLT_j460_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jets, with 1xmass cuts (substructure-enriched triggers)
+            "HLT_j420_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j440_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j420_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j440_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jets, with 2xmass cuts (substructure-enriched triggers)
+            "HLT_2j330_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_2j330_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 and 2.0e34 menus)
+            # Reclustered large-R jet support triggers
             "HLT_j260_a10r_L1J75",
             "HLT_j300_a10r_L1J75",
-            "HLT_j360_a10r_L1J100",
+            # Reclustered large-R jet primary triggers
+            "HLT_j360_a10r_L1J100", # lowest unprescaled, 2015 - TRIGGER HAD A BUG IN 2015
             "HLT_j380_a10r_L1J100",
             "HLT_j400_a10r_L1J100",
-            "HLT_j420_a10r_L1J100",
+            "HLT_j420_a10r_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10r_L1J100",
-            "HLT_j460_a10r_L1J100",
+            "HLT_j460_a10r_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # HT triggers
             "HLT_ht850_L1J75",
             "HLT_ht850_L1J100",
             "HLT_ht850",
