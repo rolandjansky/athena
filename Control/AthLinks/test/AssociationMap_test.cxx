@@ -6,7 +6,8 @@
 
 #include "AthLinks/AssociationMap.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <vector>
 
@@ -82,10 +83,8 @@ public:
 CLASS_DEF( TTAss, 67890, 1 )
 
 
-int main() 
+void test1 (SGTest::TestStore& store)
 {
-  initTestStore();
-
   std::cout << " *** AssociationMap test in progress: " << std::endl;
 
   std::cout << "Build fake data and associations:" << std::endl;
@@ -277,5 +276,13 @@ int main()
   assert( tCont->size()-1 == ttMap->size( myTrack ) );
 
   assert( tCont->size()-1 == ttMap->size() );
+}
+
+
+int main ATLAS_NOT_THREAD_SAFE () 
+{
+  initTestStore();
+  test1 (store);
+
   return 0;
 }

@@ -546,7 +546,7 @@ bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
   IndexingPolicy::reverseLookup (data, element, index);
   bool ret = Base::toIndexedElement (&data, classID(), index, sg);
   if (ret)
-    this->setCachedElement (element);
+    this->storeCachedElement (element);
   return ret;
 }
 
@@ -573,7 +573,7 @@ bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
   IndexingPolicy::reverseLookup (data, element, index);
   bool ret = Base::toIndexedElement (&data, classID(), index, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
   if (ret)
-    this->setCachedElement (element);
+    this->storeCachedElement (element);
   return ret;
 }
 
@@ -595,7 +595,7 @@ bool ElementLink<STORABLE>::setElement(ElementType element)
 {
   if (!this->isDefaultIndex() || this->hasCachedElement())
     return false;
-  this->setCachedElement (element);
+  this->storeCachedElement (element);
   const STORABLE* ptr = this->getDataPtr();
   if (ptr) {
     index_type index = this->index();
