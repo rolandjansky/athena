@@ -90,6 +90,8 @@ public: // Non-static members
    StatusCode rootOpenAction(FILEMGR_CALLBACK_ARGS);
 
 private:
+   /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
+   StatusCode addProxyToInputMetaDataStore(const std::string& tokenStr);
    /// Initialize input metadata store - can be called directly or via BeginInputFile incident
    StatusCode initInputMetaDataStore(const std::string& fileName);
 
