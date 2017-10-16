@@ -30,14 +30,14 @@ public:
 
 //____________________________________________________________________
 PRDHandle_SpacePoint::PRDHandle_SpacePoint(PRDCollHandle_SpacePoints* ch,const Trk::SpacePoint* sp)
-  : PRDHandleBase(ch), m_sp(sp), d(new Imp)
+  : PRDHandleBase(ch), m_sp(sp), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 PRDHandle_SpacePoint::~PRDHandle_SpacePoint()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

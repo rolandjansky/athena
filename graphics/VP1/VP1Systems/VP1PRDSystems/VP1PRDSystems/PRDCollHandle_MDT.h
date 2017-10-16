@@ -54,7 +54,7 @@ private:
 
   class Imp;
   //  friend class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //Here for inlines:
   bool m_highLightMasked;

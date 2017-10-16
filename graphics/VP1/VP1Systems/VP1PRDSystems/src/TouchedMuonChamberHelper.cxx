@@ -34,16 +34,16 @@ public:
 
 //____________________________________________________________________
 TouchedMuonChamberHelper::TouchedMuonChamberHelper( QObject * parent )
-  : QObject(parent), d(new Imp)
+  : QObject(parent), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updatesnotcheduled = true;
+  m_d->theclass = this;
+  m_d->updatesnotcheduled = true;
 }
 
 //____________________________________________________________________
 TouchedMuonChamberHelper::~TouchedMuonChamberHelper()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -58,64 +58,64 @@ inline void TouchedMuonChamberHelper::Imp::ensureScheduleUpdate()
 //____________________________________________________________________
 void TouchedMuonChamberHelper::incrementNumberOfObjectsForPV(const GeoPVConstLink& chamberPV)
 {
-  std::map<GeoPVConstLink,unsigned>::iterator it(d->pv2count.find(chamberPV));
-  if (it==d->pv2count.end()) {
-    d->pv2count[chamberPV] = 1;
-    d->ensureScheduleUpdate();//First object in chamber
+  std::map<GeoPVConstLink,unsigned>::iterator it(m_d->pv2count.find(chamberPV));
+  if (it==m_d->pv2count.end()) {
+    m_d->pv2count[chamberPV] = 1;
+    m_d->ensureScheduleUpdate();//First object in chamber
     return;
   }
   ++(it->second);
-  if (d->updatesnotcheduled&&it->second==1)
-    d->ensureScheduleUpdate();//First object in chamber
+  if (m_d->updatesnotcheduled&&it->second==1)
+    m_d->ensureScheduleUpdate();//First object in chamber
 }
 
 //____________________________________________________________________
 void TouchedMuonChamberHelper::decrementNumberOfObjectsForPV(const GeoPVConstLink& chamberPV)
 {
-  std::map<GeoPVConstLink,unsigned>::iterator it(d->pv2count.find(chamberPV));
-  if (it==d->pv2count.end()||it->second==0) {
+  std::map<GeoPVConstLink,unsigned>::iterator it(m_d->pv2count.find(chamberPV));
+  if (it==m_d->pv2count.end()||it->second==0) {
     std::cout<<" TouchedMuonChamberHelper::decrementNumberOfObjectsForPV Error: Asked to decrement to negative values!"<<std::endl;
     return;
   }
   --(it->second);
-  if (d->updatesnotcheduled&&it->second==0)
-    d->ensureScheduleUpdate();//Last object in chamber
+  if (m_d->updatesnotcheduled&&it->second==0)
+    m_d->ensureScheduleUpdate();//Last object in chamber
 }
 
 //____________________________________________________________________
 bool TouchedMuonChamberHelper::isTouchedByTrack(const GeoPVConstLink& chamberPV)
 {
-  return (d->touchedByTracksSet.find(chamberPV)!=d->touchedByTracksSet.end());
+  return (m_d->touchedByTracksSet.find(chamberPV)!=m_d->touchedByTracksSet.end());
 }
 
 //____________________________________________________________________
 void TouchedMuonChamberHelper::checkForChangeInTouchedChambers()
 {
-  d->updatesnotcheduled = true;
+  m_d->updatesnotcheduled = true;
 
   std::set<GeoPVConstLink> touchedchambers;
-  std::map<GeoPVConstLink,unsigned>::const_iterator it(d->pv2count.begin()),itE(d->pv2count.end());
+  std::map<GeoPVConstLink,unsigned>::const_iterator it(m_d->pv2count.begin()),itE(m_d->pv2count.end());
   for (;it!=itE;++it) {
     if (it->second>0)
       touchedchambers.insert(it->first);
   }
 
-  if (d->lastEmittedSet!=touchedchambers) {
-    d->lastEmittedSet = touchedchambers;
+  if (m_d->lastEmittedSet!=touchedchambers) {
+    m_d->lastEmittedSet = touchedchambers;
     emit touchedMuonChambersChanged(touchedchambers);
   }
 }
 
 void TouchedMuonChamberHelper::updateTouchedByTracks(const std::set<GeoPVConstLink>& set){
   // std::cout<<"TouchedMuonChamberHelper::updateTouchedByTracks - set is this big: "<<set.size()<<std::endl;
-  d->touchedByTracksSet=set;
+  m_d->touchedByTracksSet=set;
   emit muonChambersTouchedByTracksChanged();
 }
 
 //____________________________________________________________________
 void TouchedMuonChamberHelper::eraseEventData()
 {
-  d->pv2count.clear();
-  d->touchedByTracksSet.clear();
+  m_d->pv2count.clear();
+  m_d->touchedByTracksSet.clear();
   checkForChangeInTouchedChambers();
 }
