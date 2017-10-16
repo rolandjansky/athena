@@ -1,6 +1,7 @@
 <lcgdict>
 
   <class name="HepMcParticleLink_p1" />
+  <class name="HepMcParticleLink_p2" />
 
 
   <class name="McEventCollection_p4" id="C517102A-94DE-407C-B07F-09BD81F6172E" />
