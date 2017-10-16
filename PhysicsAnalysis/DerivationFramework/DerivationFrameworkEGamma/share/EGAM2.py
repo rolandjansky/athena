@@ -227,8 +227,8 @@ EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
-# if globalflags.DataSource()!='geant4':
-#     EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+if globalflags.DataSource()!='geant4':
+    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
@@ -239,7 +239,3 @@ for tool in EGAM2_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM2SlimmingHelper
 EGAM2SlimmingHelper.AppendContentToStream(EGAM2Stream)
-
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM2Stream)

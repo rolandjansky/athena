@@ -160,6 +160,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
+addDefaultTrimmedJets(jetm3Seq,"JETM3")
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -187,6 +188,7 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
 					]
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
@@ -197,7 +199,8 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
+				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
@@ -213,7 +216,7 @@ JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"])
+addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 

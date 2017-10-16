@@ -218,7 +218,7 @@ namespace ORUtils
       ATH_MSG_WARNING("Failed to retrieve " << contName);
     }
     // No PV found. We cannot execute the OR recommendations.
-    ATH_MSG_FATAL("No primary vertex in the PrimaryVertices container!");
+    ATH_MSG_WARNING("No primary vertex in the PrimaryVertices container!");
     return nullptr;
   }
 

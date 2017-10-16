@@ -39,6 +39,7 @@ StatusCode OverlapRemovalTestAlg::initialize()
 {
   ATH_MSG_INFO("Initialize");
 
+	
   // Try to retrieve the tool
   ATH_CHECK( m_orTool.retrieve() );
 

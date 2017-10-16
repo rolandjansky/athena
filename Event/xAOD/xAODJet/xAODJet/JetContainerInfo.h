@@ -65,6 +65,7 @@ namespace xAOD {
       Jet,
       LCTopoOrigin,
       EMTopoOrigin,
+      TrackCaloCluster,
       Other = 100,
       Uncategorized= 1000
     };

@@ -53,6 +53,7 @@ mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
+mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11455791._000001.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = "--preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
@@ -97,7 +98,10 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): generateText(formatName,dataLabel,dataFile,False,False)
-      if (makeMCDAODs): generateText(formatName,mcLabel,mcFile,False,True)
+      if (makeMCDAODs):
+         if formatName=="BPHY8":
+            generateText(formatName,mcLabel,mcFileBPHY8,False,True)      
+         else (makeMCDAODs): generateText(formatName,mcLabel,mcFile,False,True)
 
 if (makeTruthDAODs):
    for formatName in truthFormatList:

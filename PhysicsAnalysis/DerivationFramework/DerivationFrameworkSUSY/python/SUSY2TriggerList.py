@@ -84,5 +84,12 @@ triggersNavThin = [
   "HLT_e26_lhtight_nod0_ivarloose",
   "HLT_e24_lhtight_nod0_ivarloose",
   "HLT_e24_lhmedium_nod0_L1EM20VH",
-  "HLT_e120_lhloose"
+  "HLT_e120_lhloose",
+  "HLT_e300_etcut",
+  "HLT_2e17_lhvloose_nod0_L12EM15VHI",
+  "HLT_2e24_lhvloose_nod0",
+  "HLT_e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH",
+  "HLT_e26_lhmedium_nod0_mu8noL1",
+  "HLT_e12_lhloose_nod0_2mu10",
+  "HLT_2e12_lhloose_nod0_mu10"
 ]

@@ -1,5 +1,6 @@
 #********************************************************************
 # EGAM1.py
+# Z->ee reduction for central electrons - for electron ID and calibration
 # reductionConf flag EGAM1 in Reco_tf.py
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
@@ -11,10 +12,17 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
+# this could also go in egammaDFFlags
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
-DoCellReweighting = False
+DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+#override if needed (do at your own risk..)
+#DoCellReweighting = False
 #DoCellReweighting = True
 
 
@@ -192,39 +200,47 @@ ToolSvc += EGAM1_MaxCellDecoratorTool
 # Cell reweighter
 #====================================================================
 if DoCellReweighting:
-    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, ElectronReweightTool
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, EGammaReweightTool
 
     # first, create the container with the new cells (after reweighting)
-    EGAM1_NewCellTool = NewCellTool(ReweightCellContainerName="NewCellContainer",SGKey_electrons = "Electrons", SGKey_photons = "")
+    EGAM1_NewCellTool = NewCellTool("EGAM1_NewCellTool")
+    #                                    OutputLevel = DEBUG)
+    #                                    ReweightCellContainerName="NewCellContainer",
+    #                                    SGKey_electrons = "Electrons", 
+    #                                    SGKey_photons = "Photons")
     print EGAM1_NewCellTool
     ToolSvc += EGAM1_NewCellTool
 
-    #EGAM1_egammaSwToolWithNewCells = egammaSwToolWithNewCell("EGAM1_egammaSwToolWithNewCells")
-    #print EGAM1_NewCellTool
-    #ToolSvc += EGAM1_NewCellTool
-
     # second, run a tool that creates the clusters and objects from these new cells
-    EGAM1_ClusterDecoratorTool = ClusterDecoratorWithNewCells(SGKey_caloCells = "NewCellContainer", SGKey_electrons = "Electrons")
+    EGAM1_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM1_ClusterDecoratorTool")
+    #                                                          OutputClusterSGKey="EGammaSwClusterWithNewCells",
+    #                                                          OutputClusterLink="NewSwClusterLink",
+    #                                                          SGKey_caloCells = "NewCellContainer", 
+    #                                                          SGKey_electrons = "Electrons",
+    #                                                          SGKey_photons = "Photons")
     print EGAM1_ClusterDecoratorTool
     ToolSvc += EGAM1_ClusterDecoratorTool
 
-    # third, run a tool that creates the shower shapes with the new cells
+    # third, schedule a tool that will be invoked by the EGammaReweightTool to create on-the-fly the shower shapes with the new cells
     from egammaTools.egammaToolsFactories import EMShowerBuilder
-    EGAM1_EMShowerBuilderTool = EMShowerBuilder("EGAM1_EMShowerBuilderTool", CellsName="NewCellContainer")
+    EGAM1_EMShowerBuilderTool = EMShowerBuilder("EGAM1_EMShowerBuilderTool", 
+                                                CellsName="NewCellContainer")
     print EGAM1_EMShowerBuilderTool
     ToolSvc += EGAM1_ClusterDecoratorTool
 
     # fourth, decorate the new objects with their shower shapes computed from the new clusters
-    EGAM1_ElectronReweightTool = ElectronReweightTool(SGKey_electrons = "Electrons",
-                                                      SGKey_photons="",
-                                                      NewCellContainerName="NewCellContainer",
-                                                      NewElectronContainer = "NewSwElectrons",
-                                                      NewPhotonContainer = "",
-                                                      EMShowerBuilderTool = EGAM1_EMShowerBuilderTool,
-                                                      ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
-                                                      OutputLevel=DEBUG)
-    print EGAM1_ElectronReweightTool
-    ToolSvc += EGAM1_ElectronReweightTool
+    EGAM1_EGammaReweightTool = EGammaReweightTool("EGAM1_EGammaReweightTool",
+                                                  SGKey_electrons = "Electrons",
+                                                  SGKey_photons="Photons",
+                                                  NewCellContainerName="NewCellContainer",
+                                                  NewElectronContainer = "NewSwElectrons",
+                                                  NewPhotonContainer = "NewSwPhotons",
+                                                  EMShowerBuilderTool = EGAM1_EMShowerBuilderTool,
+                                                  ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
+                                                  CaloClusterLinkName="NewSwClusterLink")
+    #                                             OutputLevel=DEBUG)
+    print EGAM1_EGammaReweightTool
+    ToolSvc += EGAM1_EGammaReweightTool
 
 
 #====================================================================
@@ -345,7 +361,7 @@ DerivationFrameworkJob += egam1Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 augmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool]
 if DoCellReweighting:
-    augmentationTools += [EGAM1_NewCellTool, EGAM1_ClusterDecoratorTool, EGAM1_ElectronReweightTool]
+    augmentationTools += [EGAM1_NewCellTool, EGAM1_ClusterDecoratorTool, EGAM1_EGammaReweightTool]
 augmentationTools += EGAM1_ClusterEnergyPerLayerDecorators
 print "EGAM1 augmentationTools", augmentationTools
 egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
@@ -385,7 +401,7 @@ EGAM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
 
 
-#Special lines for thinning
+# Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
@@ -416,6 +432,10 @@ EGAM1SlimmingHelper.SmartCollections = [
 # Add egamma trigger objects
 EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
 
+# Append cell-reweighted collections to dictionary
+if DoCellReweighting:
+    EGAM1SlimmingHelper.AppendToDictionary = {"NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
+
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 
@@ -423,11 +443,6 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 # EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
-if DoCellReweighting:
-# Add NewSwElectrons
-    EGAM1SlimmingHelper.AppendToDictionary = {"NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
-    EGAM1SlimmingHelper.AllVariables += ["NewSwElectrons"]
-
 if globalflags.DataSource()!='geant4':
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
@@ -438,18 +453,20 @@ if globalflags.DataSource()=='geant4':
 for tool in EGAM1_ClusterEnergyPerLayerDecorators:
     EGAM1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
+# Add energy density variables
 EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM1Stream)
-
 # Add Derived Egamma CellContainer
-from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
-CellCommonThinning(EGAM1Stream)
+# from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
+# CellCommonThinning(EGAM1Stream)
+
+#Add full CellContainer
+EGAM1Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM1Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
+
 
 
 
