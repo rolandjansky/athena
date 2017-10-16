@@ -5,13 +5,18 @@
     <!--MuonSimEvent-->
     <class name="Muon::CSCSimHitCollection_p1" id="E45CD293-4599-41BE-8B65-945A18F41AB7"/>
     <class name="Muon::CSCSimHitCollection_p2" id="7E5A120C-E64F-4519-A24B-B485A58724BF"/>
+    <class name="Muon::CSCSimHitCollection_p3" id="6BFFE81C-C99E-43D9-B06F-1A998C3B3E40"/>
     <class name="Muon::RPCSimHitCollection_p1" id="C4C57487-41DC-4706-9604-721D76F0AA52"/>
     <class name="Muon::RPCSimHitCollection_p2" id="1B611C70-CC6F-42AE-9F6D-7DA6A9A22546"/>
+    <class name="Muon::RPCSimHitCollection_p3" id="B48E5E17-FB26-4BC0-A0E2-5324925EAE2F"/>
     <class name="Muon::TGCSimHitCollection_p1" id="BD569381-2489-4402-BBD3-91EE8C009F26"/>
     <class name="Muon::TGCSimHitCollection_p2" id="710241EE-D5F7-4CB6-A1D7-6E80D040E637"/>
     <class name="Muon::TGCSimHitCollection_p3" id="BACD19A8-4737-4857-A22D-B9DF833A0A80"/>
+    <class name="Muon::TGCSimHitCollection_p4" id="F8F77562-BBD9-45DB-A276-6A21018EA7FA"/>
     <class name="Muon::MDTSimHitCollection_p1" id="EA781971-65C5-4B30-9D22-EEFB764BA0B3"/>
     <class name="Muon::MDTSimHitCollection_p2" id="92880B97-75BB-4C5D-8183-577338059FCC"/>
+    <class name="Muon::MDTSimHitCollection_p3" id="0E9EEEE2-304F-44B8-B1DF-E75297183A02"/>
     <class name="Muon::GenericMuonSimHitCollection_p1" id="C2D5D558-2671-11E1-AAFA-001E4F3E5646"/>
+    <class name="Muon::GenericMuonSimHitCollection_p2" id="3760C0D8-C7EA-42C7-925A-E841196F2138"/>
     
 </lcgdict>
