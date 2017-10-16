@@ -24,6 +24,8 @@
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
 
+#include <sstream>
+
 //________________________________________________________________________________
 MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::AthService(name, pSvcLocator),
 	m_inputDataStore("StoreGateSvc/InputMetaDataStore", name),
@@ -91,6 +93,7 @@ StatusCode MetaDataSvc::initialize() {
    incsvc->addListener(this, "EndInputFile", 10);
    incsvc->addListener(this, "EndTagFile", 10);
    incsvc->addListener(this, "LastInputFile", 10);
+   incsvc->addListener(this, "ShmProxy", 90);
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -291,6 +294,23 @@ void MetaDataSvc::handle(const Incident& inc) {
       if (!m_metaDataTools.release().isSuccess()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
+   } else if (inc.type() == "ShmProxy") {
+      if (!m_clearedInputDataStore) {
+         if (!m_inputDataStore->clearStore().isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+         }
+         m_clearedInputDataStore = true;
+      }
+static bool first = true;
+if (first) {
+first = false;
+         if (!m_outputDataStore->clearStore().isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
+         }
+}
+      if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
+         ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
+      }
    }
 }
 //__________________________________________________________________________
@@ -336,10 +356,80 @@ StatusCode MetaDataSvc::io_reinit() {
 		   last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attched MetadDataTool: " << (*iter)->name());
    }
+/*
+   if (!m_outputDataStore->clearStore().isSuccess()) {
+      ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+   }
+*/
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::rootOpenAction(FILEMGR_CALLBACK_ARGS) {
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr) {
+   std::string className = tokenStr.substr(tokenStr.find("[CLID=") + 6);
+   className = className.substr(0, className.find(']'));
+   std::string contName = tokenStr.substr(tokenStr.find("[CONT=") + 6);
+   contName = contName.substr(0, contName.find(']'));
+   std::size_t pos1 = contName.find('(');
+   std::string keyName = contName.substr(pos1 + 1, contName.size() - pos1 - 2);
+   std::string numName = tokenStr.substr(tokenStr.find("[NUM=") + 5);
+   numName = numName.substr(0, numName.find(']'));
+   unsigned long num = 0;
+   std::istringstream iss(numName);
+   iss >> num;
+   CLID clid = 0; //FIXME: Find better pers Guid to trans Clid
+   const std::string par[2] = { "SHM" , className };
+   const unsigned long ipar[2] = { num , 0 };
+   IOpaqueAddress* opqAddr = nullptr;
+
+   if (className == "11DF1B8C-0DEE-4687-80D7-E74B520ACBB4") { clid = 167728019;
+      bool foundTool = false;
+      for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
+         if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo_" + keyName) foundTool = true;
+      }
+      if (!foundTool) {
+         ToolHandle<IAlgTool> copyTool("CopyEventStreamInfo/CopyEventStreamInfo_" + keyName); //FIXME: Make tools configurable
+         m_metaDataTools.push_back(copyTool);
+         if (!copyTool.retrieve().isSuccess()) {
+            ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/CopyEventStreamInfo_" + keyName);
+         }
+      }
+   }
+   else if (className == "6C2DE6DF-6D52-43F6-B435-9F29812F40C0") clid = 1316383046;
+   else if (className == "0EFE2D2C-9E78-441D-9A87-9EE2B908AC81") clid = 243004407;
+   else if (className == "AA55120B-11CF-44A3-B1E4-A5AB062207B7") clid = 1107011239;
+   else if (className == "B8614CC5-8696-4170-8CCC-496DA7671246") clid = 1212409402;
+   else if (className == "F2F90B2F-B879-43B8-AF9B-0F843E299A87") { clid = 1234982351;
+      bool foundTool = false;
+      for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
+         if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
+      }
+      if (!foundTool) {
+         ToolHandle<IAlgTool> bookkeeperTool("BookkeeperTool/SHM_BookkeeperTool");
+         m_metaDataTools.push_back(bookkeeperTool);
+         if (!bookkeeperTool.retrieve().isSuccess()) {
+            ATH_MSG_FATAL("Cannot get BookkeeperTool/SHM_BookkeeperTool");
+         }
+      }
+   }
+   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") clid = 1147935274;
+
+   if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
+      ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
+      return(StatusCode::FAILURE);
+   }
+   if (m_inputDataStore->recordAddress(keyName, opqAddr).isFailure()) {
+      delete opqAddr; opqAddr = nullptr;
+      ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create proxy for " << tokenStr);
+      return(StatusCode::FAILURE);
+   }
+   if (m_inputDataStore->accessData(clid, keyName) == nullptr) {
+      ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
+      return(StatusCode::FAILURE);
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

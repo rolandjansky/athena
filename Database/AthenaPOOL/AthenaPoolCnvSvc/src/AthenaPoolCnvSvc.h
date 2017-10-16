@@ -251,6 +251,8 @@ private: // properties
   mutable CallMutex m_i_mut;
   mutable CallMutex m_o_mut;
 #endif
+   /// For SharedWriter to use MetadataSvc to merge data placed in a certain container
+   StringProperty  m_metadataContainerProp;
 };
 
 #endif
