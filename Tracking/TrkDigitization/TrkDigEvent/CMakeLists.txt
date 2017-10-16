@@ -8,11 +8,13 @@ atlas_subdir( TrkDigEvent )
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkDetDescr/TrkDetDescrUtils )
+                          Tracking/TrkDetDescr/TrkDetDescrUtils 
+			  )
 
 # Component(s) in the package:
 atlas_add_library( TrkDigEvent
                      src/*.cxx
+		     PUBLIC_HEADERS TrkDigEvent
                      LINK_LIBRARIES GeoPrimitives TrkDetDescrUtils TrkSurfaces )
 # Install files from the package:
 atlas_install_headers( TrkDigEvent )
