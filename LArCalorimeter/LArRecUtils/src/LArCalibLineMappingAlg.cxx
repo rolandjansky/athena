@@ -34,7 +34,7 @@ StatusCode LArCalibLineMappingAlg::initialize() {
   ATH_CHECK( m_readKey.initialize() );
   ATH_CHECK( m_writeKey.initialize() );
   // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey, m_writeKey.dbKey()).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
