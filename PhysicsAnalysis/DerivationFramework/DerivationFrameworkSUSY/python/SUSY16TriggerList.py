@@ -48,16 +48,19 @@ triggersMET = [
 'HLT_xe120_wEFMu',      
 'HLT_xe130_mht_L1XE50',
 'HLT_xe140_mht_L1XE50',
-'HLT_noalg_L1J400'
+'HLT_noalg_L1J400',
 # 2017
+'HLT_xe90_pufit_L1XE50',
+'HLT_xe100_pufit_L1XE50',
+'HLT_xe100_pufit_L1XE55',
 'HLT_xe110_pufit_L1XE50',
-'HLT_xe120_pufit_L1XE50',
 'HLT_xe110_pufit_L1XE55',
 'HLT_xe110_pufit_L1XE60',
+'HLT_xe120_pufit_L1XE50',
 'HLT_xe120_pufit_L1XE55',
-'HLT_xe120_pufit_L1XE60'
-'HLT_noalg_L1J420'
-'HLT_noalg_L1J450'
+'HLT_xe120_pufit_L1XE60',
+'HLT_noalg_L1J420',
+'HLT_noalg_L1J450',
 ]
 
 triggersSoftMuon = [
