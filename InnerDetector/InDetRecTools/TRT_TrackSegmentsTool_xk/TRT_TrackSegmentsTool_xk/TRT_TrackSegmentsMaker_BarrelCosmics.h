@@ -28,6 +28,8 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 class MsgStream;
 
 
@@ -114,12 +116,13 @@ namespace InDet{
       
       std::vector< Amg::Vector3D >             m_listHitCenter ;
 	  
-      std::string                              m_driftCirclesName ; //!< Container with TRT clusters
+
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer>     m_driftCirclesName{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve Drift Circles"} ;  //!< Container with TRT clusters
       std::string                              m_TRTManagerName ; //!< Name of TRT det. manager 	  
 	  
       const TRT_ID*                            m_trtid       ; 
-      const InDet::TRT_DriftCircleContainer*   m_trtcontainer; //!< TRTs   container
 
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRTDriftCircleCollection","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container
       ToolHandle<Trk::IPRD_AssociationTool>    m_assoTool    ; // Track-PRD association tool
       bool                                     m_useAssoTool ;
 

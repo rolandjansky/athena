@@ -3,7 +3,7 @@
 */
 
 /**
- * @file Config.h
+ * @file TrigPSC/Config.h
  * @author Frank Winklmeier, Ricardo Abreu
  *
  * @brief PSC Configuration type

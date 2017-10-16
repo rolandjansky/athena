@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubeApp.py
+# @file DCubeClient/python/DCubeApp.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief implementation of DozerApp and test_DozerApp classes
 import sys,os

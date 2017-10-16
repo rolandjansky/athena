@@ -55,7 +55,7 @@ CLASS_DEF(CondCont<D>, 932847547, 0)
 EventIDBase runlbn (int run, int lbn)
 {
   return EventIDBase (run,
-                      EventIDBase::UNDEFNUM,  // event
+                      EventIDBase::UNDEFEVT,  // event
                       EventIDBase::UNDEFNUM,  // timestamp
                       EventIDBase::UNDEFNUM,  // timestamp ns
                       lbn);
@@ -65,13 +65,13 @@ EventIDBase runlbn (int run, int lbn)
 EventIDBase timestamp (int t)
 {
   return EventIDBase (EventIDBase::UNDEFNUM,  // run
-                      EventIDBase::UNDEFNUM,  // event
+                      EventIDBase::UNDEFEVT,  // event
                       t);
 }
 
 
 const EventIDRange r1 (runlbn (10, 15), runlbn (10, 20));
-const EventIDRange r2 (runlbn (20, 17), runlbn (EventIDBase::UNDEFNUM/2, EventIDBase::UNDEFNUM));
+const EventIDRange r2 (runlbn (20, 17), runlbn (EventIDBase::UNDEFNUM/2, EventIDBase::UNDEFNUM/2));
 const EventIDRange r3 (timestamp (123), timestamp (456));
 
 
@@ -103,10 +103,13 @@ RE: [0]\n");
   std::ostringstream exp2;
   exp2 << "id: ('key')  proxy: 0\n"
        << "clock: [1]\n"
-       << "{[4294967295,4294967295,123:0] - [4294967295,4294967295,456:0]} " << ptrs[2] << "\n"
+       << "{[4294967295,t:123] - [4294967295,t:456]} " << ptrs[2] << "\n"
        << "RE: [2]\n"
-       << "{[20,4294967295,l:17] - [2147483647,4294967295]} " << ptrs[1] << "\n"
-       << "{[10,4294967295,l:15] - [10,4294967295,l:20]} " << ptrs[0] << "\n";
+       << "{[20,l:17] - [2147483647,l:2147483647]} " << ptrs[1] << "\n"
+       << "{[10,l:15] - [10,l:20]} " << ptrs[0] << "\n";
+
+  //  std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
+
   assert (ss2.str() == exp2.str());
 
   auto t4 = std::make_unique<T> (4);

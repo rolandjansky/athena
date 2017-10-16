@@ -25,6 +25,8 @@
 
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 class MsgStream;
 
 class TF1;
@@ -113,13 +115,13 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
 
-      std::string                              m_trtname     ; //!< Container with TRT clusters
       std::string                              m_multiTruthCollectionTRTName; //!< Name of TRT TruthCollection
       bool                                     m_phaseMode   ; //!< Switch to destinguish between phase calculation and full reco
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
       const InDetDD::TRT_DetectorManager*      m_trtmanager  ; //!< TRT DetectorManager
       const TRT_ID*                            m_trtid       ; 
-      const InDet::TRT_DriftCircleContainer*   m_trtcontainer; //!< TRTs   container
+
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerD   ; //!< RI0_onTrack creator with drift information
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerN   ; //!< RI0_onTrack creator without drift information
       ToolHandle<Trk::IPRD_AssociationTool>    m_assoTool    ; // Track-PRD association tool

@@ -12,7 +12,7 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibHole_E.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"

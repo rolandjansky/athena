@@ -28,7 +28,7 @@ class ZDC_DetManager : public GeoVDetectorManager
   
   mutable Athena::MsgStreamMember m_msg;
 
-  std::vector<PVLink> volume;
+  std::vector<PVLink> m_volume;
 };
 
 #ifndef GAUDI_NEUTRAL

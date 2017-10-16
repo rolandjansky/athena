@@ -4,6 +4,8 @@
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq") 
 
 #---------------------------------------------------------------------------------#
 # MT-specific code
@@ -55,7 +57,7 @@ topSequence+=xAODMaker__EventInfoCnvAlg()
 # NEW Conditions access infrastructure
 #
 from IOVSvc.IOVSvcConf import CondInputLoader
-topSequence += CondInputLoader( "CondInputLoader", OutputLevel=DEBUG,  )
+condSeq += CondInputLoader( "CondInputLoader", OutputLevel=DEBUG )
 
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")

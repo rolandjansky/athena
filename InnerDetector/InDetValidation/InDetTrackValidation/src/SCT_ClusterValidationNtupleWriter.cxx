@@ -42,6 +42,7 @@ using CLHEP::GeV;
 
 InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator):
         AthAlgorithm(name,pSvcLocator),
+        m_sctid{nullptr},
         m_riocontainer(0),
 	m_eventInfoKey(std::string("EventInfo")),
         //m_inputTrackCollection("Tracks")
@@ -61,6 +62,12 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
         m_fillBSErrs(true),
 	m_doHitsOnTracks(false),
         m_nt(0),
+        m_runNumber{0},
+        m_eventNumber{0},
+        m_lumiBlock{0},
+        m_timeStamp{0},
+        m_bunchCrossing{0},
+        m_nRIOs{0},
         m_rioLoc1(0),
         m_rioSurfaceX(0),
         m_rioSurfaceY(0),
@@ -94,6 +101,7 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
 	m_sct_tbin(0),
 	m_sct_rodid(0),
 	m_sct_channel(0),
+        m_totalNumErrors{0},
 	m_scterr_bec(0),
 	m_scterr_layer(0),
 	m_scterr_eta(0),

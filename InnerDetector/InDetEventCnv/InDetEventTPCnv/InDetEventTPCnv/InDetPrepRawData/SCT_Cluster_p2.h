@@ -21,7 +21,7 @@ namespace InDet
       // type used for channel id differences
       typedef  short rdo_diff_type;
 
-      SCT_Cluster_p2() {}
+    SCT_Cluster_p2(): m_localPos{0.}, m_mat00{0.}, m_mat01{0.}, m_mat11{0.} {}
 
       // replace this:
       std::vector<rdo_diff_type >	        m_rdoList;

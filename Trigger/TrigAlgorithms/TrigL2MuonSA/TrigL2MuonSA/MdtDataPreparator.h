@@ -115,6 +115,8 @@ namespace TrigL2MuonSA {
 					  TrigL2MuonSA::MdtHits& mdtHits,
 					  const TrigL2MuonSA::MuonRoad& muonRoad);
 
+    void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+
   private:
 
     // Reference to StoreGateSvc;
@@ -151,6 +153,9 @@ namespace TrigL2MuonSA {
 
     bool m_use_mdtcsm;
     bool m_use_RoIBasedDataAccess;
+    bool m_BMGpresent;
+    int  m_BMGid;
+    std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
 
   };
 

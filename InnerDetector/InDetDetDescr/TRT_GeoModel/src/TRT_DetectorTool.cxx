@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_GeoModel/TRT_DetectorTool.h"
-#include "TRT_GeoModel/TRTDetectorFactory_Full.h" 
+#include "TRT_DetectorTool.h"
+#include "TRTDetectorFactory_Full.h" 
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -65,7 +65,7 @@ TRT_DetectorTool::~TRT_DetectorTool()
 
 //////////////  Create the Detector Node corresponding to this tool //////////////
 //
-StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
+StatusCode TRT_DetectorTool::create()
 { 
   //MsgStream log(msgSvc(), name()); 
   //msg(MSG::INFO) << " hello " << endmsg;
@@ -180,7 +180,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 
   // Pass athena services to factory, etc
   m_athenaComps = new InDetDD::AthenaComps("TRT_GeoModel");
-  m_athenaComps->setDetStore(detStore);
+  m_athenaComps->setDetStore(detStore().operator->());
   m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
@@ -190,7 +190,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
   // Locate the top level experiment node 
   // 
   GeoModelExperiment * theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     msg(MSG::ERROR) 
 	<< "Could not find GeoModelExperiment ATLAS" 
 	<< endmsg; 
@@ -218,7 +218,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
     if (m_manager) {
       theExpt->addManager(m_manager);
       
-      sc = detStore->record(m_manager,m_manager->getName());
+      sc = detStore()->record(m_manager,m_manager->getName());
       if (sc.isFailure() ) {
 	msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
@@ -233,7 +233,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 
 
 StatusCode 
-TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
+TRT_DetectorTool::registerCallback()
 {
 
   MsgStream log(msgSvc(), name());
@@ -247,10 +247,10 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     // Regular alignment new shema   
     {
       std::string folderName = "/TRT/AlignL1/TRT";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(folderName)) {
         msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
         const DataHandle<CondAttrListCollection> calc;
-        StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+        StatusCode trttmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
         // We don't expect this to fail as we have already checked that the detstore contains the object. 
         if (trttmp.isFailure()) {
           msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
@@ -263,10 +263,10 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
       }
 
       folderName = "/TRT/AlignL2";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
         const DataHandle<AlignableTransformContainer> atc;
-        StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+        StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
         if(sctmp.isFailure()) {
           msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
         } else {
@@ -284,10 +284,10 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     // Regular alignment
     {
       std::string folderName = "/TRT/Align";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
@@ -303,10 +303,10 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     // Fine alignment
     {
       std::string folderName = "/TRT/Calib/DX";
-      if (detStore->contains<TRTCond::StrawDxContainer>(folderName)) {
+      if (detStore()->contains<TRTCond::StrawDxContainer>(folderName)) {
         msg(MSG::DEBUG) << "Registering callback on StrawDxContainer with folder " << folderName << endmsg;
         const DataHandle<TRTCond::StrawDxContainer> sdc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), sdc, folderName);
+	StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), sdc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on StrawDxContainer with folder " << folderName <<endmsg;
@@ -327,9 +327,9 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
   return sc;
 }
 
-StatusCode TRT_DetectorTool::clear(StoreGateSvc* detStore)
+StatusCode TRT_DetectorTool::clear()
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<InDetDD::TRT_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits<InDetDD::TRT_DetectorManager>::ID(),m_manager->getName());
   if(_proxy) {
     _proxy->reset();
     m_manager = 0;

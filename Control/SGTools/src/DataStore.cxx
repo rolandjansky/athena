@@ -84,6 +84,7 @@ void DataStore::clearStore(bool force, bool hard, MsgStream* pmlog)
 	pmlog->flush(); //make sure this is printed now
       }
       if (iter->second->requestRelease(force, hard)) { //request proxy deletion
+        iter->second->release();
 	//proxy was released, remove map entry
         sgkey_t sgkey = m_pool.stringToKey (iter->first, m.first);
         m_keyMap.erase (sgkey);

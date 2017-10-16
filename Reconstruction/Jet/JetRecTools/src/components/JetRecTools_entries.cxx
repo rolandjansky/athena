@@ -8,12 +8,11 @@
 #include "JetRecTools/PFlowPseudoJetGetter.h"
 #include "JetRecTools/JetConstituentModSequence.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
-#include "JetRecTools/CaloClusterConstituentsWeight.h"
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
 #include "JetRecTools/ClusterAtEMScaleTool.h"
-#include "JetRecTools/ClusterTimeCutTool.h"
+#include "JetRecTools/ConstitTimeCutTool.h"
 #include "JetRecTools/ConstituentSubtractorTool.h"
 #include "JetRecTools/JetInputElRemovalTool.h"
 #include "JetRecTools/CorrectPFOTool.h"
@@ -27,12 +26,11 @@ DECLARE_TOOL_FACTORY(TrackPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PFlowPseudoJetGetter)
 DECLARE_TOOL_FACTORY(JetConstituentModSequence)
 DECLARE_TOOL_FACTORY(JetConstituentModifierBase)
-DECLARE_TOOL_FACTORY(CaloClusterConstituentsWeight)
 DECLARE_TOOL_FACTORY(CaloClusterConstituentsOrigin)
 DECLARE_TOOL_FACTORY(SoftKillerWeightTool)
 DECLARE_TOOL_FACTORY( VoronoiWeightTool )
 DECLARE_TOOL_FACTORY( ClusterAtEMScaleTool )
-DECLARE_TOOL_FACTORY( ClusterTimeCutTool )
+DECLARE_TOOL_FACTORY( ConstitTimeCutTool )
 DECLARE_TOOL_FACTORY( ConstituentSubtractorTool )
 DECLARE_TOOL_FACTORY( JetInputElRemovalTool )
 DECLARE_TOOL_FACTORY( CorrectPFOTool )
@@ -47,13 +45,12 @@ DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL(PFlowPseudoJetGetter)
   DECLARE_TOOL(JetConstituentModSequence)
   DECLARE_TOOL(JetConstituentModifierBase)
-  DECLARE_TOOL(CaloClusterConstituentsWeight)
   DECLARE_TOOL(CaloClusterConstituentsOrigin)
   DECLARE_TOOL(SoftKillerWeightTool)
   DECLARE_TOOL( ConstituentSubtractorTool )
   DECLARE_TOOL( VoronoiWeightTool )
   DECLARE_TOOL( ClusterAtEMScaleTool )
-  DECLARE_TOOL( ClusterTimeCutTool )
+  DECLARE_TOOL( ConstitTimeCutTool )
   DECLARE_TOOL( JetInputElRemovalTool )
   DECLARE_TOOL( CorrectPFOTool )
   DECLARE_TOOL( ChargedHadronSubtractionTool )

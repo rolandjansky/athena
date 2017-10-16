@@ -1,5 +1,0 @@
-0x804ef68->0x804f238 use count 1 content 0
-0x804ef70->0x804f258 use count 1 content 1
-0x804ef78->0x804f278 use count 5 content 2
-0x804ef80->0x804f278 use count 5 content 2
-*** DataPtr_test OK ***

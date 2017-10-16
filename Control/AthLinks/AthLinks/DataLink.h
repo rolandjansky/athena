@@ -6,7 +6,7 @@
 
 // $Id: DataLink.h 783590 2016-11-11 00:38:09Z ssnyder $
 /**
- * @file DataLink.h
+ * @file AthLinks/DataLink.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Nov, 2013
  * @brief Object reference supporting deferred reading from StoreGate.

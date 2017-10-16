@@ -71,12 +71,12 @@ class QuasianalyticLineReconstruction : public IMdtPatRecFitter {
 public:
 // Constructors //
 	QuasianalyticLineReconstruction(void) {
-		m_init();
+		init();
 		}
 	///< Default constructor: road width for pattern recognition = 0.5 mm.
 
 	QuasianalyticLineReconstruction(const double & r_road_width) {
-		m_init(r_road_width);
+		init(r_road_width);
 		}
 	///< Constructor: user-defined road width for pattern recognition.
 
@@ -165,7 +165,7 @@ private:
 	mutable int m_nb_track_hits; // number of track hits in the final 
 	                                // track
 	mutable double m_chi2; // chi^2 of the final track
-	double m_m_x1, m_b_x1; // slope and intercept in the x1-x3 plane
+	double m_a_x1, m_b_x1; // slope and intercept in the x1-x3 plane
 	mutable MTStraightLine m_track; // final track
 
 // parameters for the adjustment of the track reconstruction //
@@ -183,9 +183,9 @@ private:
 	std::vector<MTStraightLine> m_candidate; // track candidates
 
 // initialization methods //
-	void m_init(void);
+	void init(void);
 	                        // default initialization:  road width = 0.5 CLHEP::mm
-	void m_init(const double & r_road_width);
+	void init(const double & r_road_width);
 	                        // initialization with user-defined road width
 
 // auxiliary methods //
@@ -202,7 +202,7 @@ private:
 	      // r_sigma22: sigma(r_r2)^2,
 	      // r_case = 1, 2, 3, 4: select one of the four cases of a tangent
 
-	MTStraightLine m_track_candidate(
+	MTStraightLine track_candidate(
 				const IndexSet & r_index_set,
 				const int & r_k_cand,
 				const int & r_l_cand,

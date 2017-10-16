@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include "LUCID_GeoModel/GetAbsLength.h"
+#include "GetAbsLength.h"
 
 namespace {
 

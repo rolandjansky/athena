@@ -66,13 +66,14 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                         bool allowMods,
                                         bool returnExisting)
 {
+  lock_t lock (m_mutex);
   const void* raw_ptr = obj.get();
   if (DataBucketBase* bucket = dynamic_cast<DataBucketBase*> (obj.get())) {
     raw_ptr = bucket->object();
   }
 
   CLID clid = obj->clID();
-  SG::DataProxy* proxy = this->proxy (clid, key);
+  SG::DataProxy* proxy = this->proxy (lock, clid, key);
   if (proxy) {
     if (returnExisting)
       return proxy;
@@ -80,9 +81,9 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
       return nullptr;
   }
 
-  proxy = this->proxy (raw_ptr);
+  proxy = this->proxy (lock, raw_ptr);
   if (proxy) {
-    sgkey_t sgkey = stringToKey (key, obj->clID());
+    sgkey_t sgkey = m_stringPool.stringToKey (key, obj->clID());
     if (!returnExisting)
       return nullptr;
     if (obj->clID() == proxy->clID()) {
@@ -104,7 +105,7 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     return nullptr;
   }
   
-  proxy = record1 (raw_ptr, obj.get(), clid, key);
+  proxy = record1 (lock, raw_ptr, obj.get(), clid, key);
   if (!allowMods)
     proxy->setConst();
   return proxy;
@@ -114,6 +115,7 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 StatusCode TestStore::updatedObject (CLID /*id*/,
                                      const std::string& key)
 {
+  lock_t lock (m_mutex);
   m_updated.push_back (key);
   if (m_failUpdatedObject)
     return StatusCode::FAILURE;
@@ -129,6 +131,14 @@ const std::string& TestStore::name() const
 
 
 SG::DataProxy* TestStore::proxy(const void* const pTransient) const
+{
+  lock_t lock (m_mutex);
+  return proxy (lock, pTransient);
+}
+
+
+SG::DataProxy*
+TestStore::proxy(lock_t&, const void* const pTransient) const
 { 
   tmap_t::const_iterator i = m_tmap.find (pTransient);
   if (i != m_tmap.end())
@@ -139,7 +149,15 @@ SG::DataProxy* TestStore::proxy(const void* const pTransient) const
 
 SG::DataProxy* TestStore::proxy(const CLID& id, const std::string& key) const
 {
-  sgkey_t sgkey = const_cast<TestStore*>(this)->stringToKey (key, id);
+  lock_t lock (m_mutex);
+  return proxy (lock, id, key);
+}
+
+
+SG::DataProxy*
+TestStore::proxy(lock_t&, const CLID& id, const std::string& key) const
+{
+  sgkey_t sgkey = m_stringPool.stringToKey (key, id);
   kmap_t::const_iterator i = m_kmap.find (sgkey);
   if (i != m_kmap.end())
     return i->second;
@@ -150,6 +168,7 @@ SG::DataProxy* TestStore::proxy(const CLID& id, const std::string& key) const
 
 SG::DataProxy* TestStore::proxy_exact (SG::sgkey_t sgkey) const 
 {
+  lock_t lock (m_mutex);
   kmap_t::const_iterator i = m_kmap.find (sgkey);
   if (i != m_kmap.end())
     return i->second;
@@ -159,12 +178,14 @@ SG::DataProxy* TestStore::proxy_exact (SG::sgkey_t sgkey) const
 
 sgkey_t TestStore::stringToKey (const std::string& str, CLID clid)
 {
+  lock_t lock (m_mutex);
   return m_stringPool.stringToKey (str, clid);
 }
 
 
 const std::string* TestStore::keyToString (sgkey_t key, CLID& clid) const
 {
+  lock_t lock (m_mutex);
   return m_stringPool.keyToString (key, clid);
 }
 
@@ -172,6 +193,7 @@ const std::string* TestStore::keyToString (sgkey_t key, CLID& clid) const
 bool TestStore::tryELRemap (sgkey_t sgkey_in, size_t index_in,
                             sgkey_t& sgkey_out, size_t& index_out)
 {
+  lock_t lock (m_mutex);
   remap_t::iterator i = m_remap.find (TestStoreRemap (sgkey_in, index_in));
   if (i == m_remap.end()) return false;
   sgkey_out = i->second.key;
@@ -182,6 +204,7 @@ bool TestStore::tryELRemap (sgkey_t sgkey_in, size_t index_in,
 
 StatusCode TestStore::addToStore (CLID /*id*/, SG::DataProxy* proxy)
 {
+  lock_t lock (m_mutex);
   proxy->setStore (this);
   m_kmap[proxy->sgkey()] = proxy;
   proxy->addRef();
@@ -191,12 +214,14 @@ StatusCode TestStore::addToStore (CLID /*id*/, SG::DataProxy* proxy)
 
 void TestStore::boundHandle (IResetable* handle)
 {
+  lock_t lock (m_mutex);
   m_boundHandles.push_back (handle);
 }
 
 
 void TestStore::unboundHandle (IResetable* handle)
 {
+  lock_t lock (m_mutex);
   std::vector<IResetable*>::iterator it =
     std::find (m_boundHandles.begin(), m_boundHandles.end(), handle);
   if (it != m_boundHandles.end())
@@ -204,10 +229,10 @@ void TestStore::unboundHandle (IResetable* handle)
 }
 
 
-SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
+SG::DataProxy* TestStore::record1 (lock_t&, const void* p, DataObject* obj,
                                    CLID clid, const std::string& key)
 {
-  sgkey_t sgkey = stringToKey (key, clid);
+  sgkey_t sgkey = m_stringPool.stringToKey (key, clid);
   if (m_kmap.find (sgkey) != m_kmap.end()) {
     SG::DataProxy* dp = m_kmap[sgkey];
     dp->setObject (obj);
@@ -232,6 +257,7 @@ SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
 void TestStore::remap (sgkey_t sgkey_in, sgkey_t sgkey_out,
                        size_t index_in, size_t index_out)
 {
+  lock_t lock (m_mutex);
   m_remap[TestStoreRemap(sgkey_in, index_in)] =
     TestStoreRemap(sgkey_out, index_out);
 }
@@ -240,7 +266,8 @@ void TestStore::remap (sgkey_t sgkey_in, sgkey_t sgkey_out,
 void TestStore::alias (SG::DataProxy* proxy,
                        const std::string& newKey)
 {
-  sgkey_t sgkey = stringToKey (newKey, proxy->clID());
+  lock_t lock (m_mutex);
+  sgkey_t sgkey = m_stringPool.stringToKey (newKey, proxy->clID());
   m_kmap[sgkey] = proxy;
   proxy->addRef();
   proxy->setAlias (newKey);

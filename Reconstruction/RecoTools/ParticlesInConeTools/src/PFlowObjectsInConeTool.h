@@ -13,16 +13,10 @@
 #include "IParticlesLookUpTable.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
-#include "GaudiKernel/IIncidentListener.h"
- 
-class IIncidentSvc;
-namespace CP {
-  class IRetrievePFOTool;
-}
  
 namespace xAOD {
 
-  class PFlowObjectsInConeTool: public AthAlgTool, virtual public IPFlowObjectsInConeTool, virtual public IIncidentListener {
+  class PFlowObjectsInConeTool: public AthAlgTool, virtual public IPFlowObjectsInConeTool {
   public:
     /** constructor */
     PFlowObjectsInConeTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -31,34 +25,30 @@ namespace xAOD {
     ~PFlowObjectsInConeTool(void); 
   
     /** initialize */
-    StatusCode initialize();
+    StatusCode initialize() override;
 
     /** finalize */
-    StatusCode finalize();
+    StatusCode finalize() override;
 
     /**IPFlowObjectsInConeTool interface */    
-    bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output );
+    bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) const override;
 
-    /** incident to clear cache at end of the event */
-    void handle(const Incident& inc);
+    typedef IParticlesLookUpTable<PFO> LookUpTable;
 
   private:
 
     /** to retrieve pflow objects */
-    ToolHandle<CP::IRetrievePFOTool> m_retrievePFOTool; 
-    std::string m_PFlowType;
-    std::string m_NeutralScale;
-    const PFOContainer* retrievePFOContainer() const;
-    const PFOContainer* m_pflowObjects;
-    
-    /** look-up table */
-    IParticlesLookUpTable<PFO> m_lookUpTable;
 
-    /** incident service */
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;
+    std::string m_pfokey;
+    const PFOContainer* retrievePFOContainer() const;
+    
+    // init look-up table
+    const LookUpTable* getTable() const;
   };
 
 }	// end of namespace
+
+CLASS_DEF( xAOD::PFlowObjectsInConeTool::LookUpTable, 209511245, 1 )
 
 #endif
 

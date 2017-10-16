@@ -200,6 +200,7 @@ CLASS_DEF( CondCont<CondAttrListCollection>, 1223307417  , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<CondAttrListCollection>, CondContBase );
 
+REGISTER_CC( CondAttrListCollection )
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>

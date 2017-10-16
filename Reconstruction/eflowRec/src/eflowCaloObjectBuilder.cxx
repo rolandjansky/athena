@@ -124,6 +124,14 @@ StatusCode eflowCaloObjectBuilder::execute(){
                           const_cast<eflowRecClusterContainer*>(recClusterContainer));
   }
 
+  for (auto thisEFTrack : *recTrackContainer){
+    ATH_MSG_DEBUG("This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", " << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and " << thisEFTrack->getTrack()->phi());
+  }
+
+  for (auto thisEFCluster : *recClusterContainer){
+    ATH_MSG_DEBUG("This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi());
+  }
+  
   return StatusCode::SUCCESS;
 
 }

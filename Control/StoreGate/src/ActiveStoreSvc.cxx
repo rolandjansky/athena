@@ -44,8 +44,10 @@ StatusCode ActiveStoreSvc::initialize()    {
 ///set the active store pointer: used by the event loop mgrs
 void ActiveStoreSvc::setStore(StoreGateSvc* s)
 {
-  p_activeStore = s;
-  s->makeCurrent();
+  if (p_activeStore != s) {
+    p_activeStore = s;
+    s->makeCurrent();
+  }
 }
 
 

@@ -62,7 +62,7 @@ InDetServMatTool::~InDetServMatTool()
 /**
  ** Create the Detector Node corresponding to this tool
  **/
-StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
+StatusCode InDetServMatTool::create()
 { 
 
   if (m_devVersion) {
@@ -74,7 +74,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   // Locate the top level experiment node 
   // 
   GeoModelExperiment * theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     msg(MSG::ERROR) 
         << "Could not find GeoModelExperiment ATLAS" 
         << endmsg; 
@@ -138,7 +138,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 
   // Pass athena services to factory, etc
   m_athenaComps = new InDetServMatAthenaComps;
-  m_athenaComps->setDetStore(detStore);
+  m_athenaComps->setDetStore(detStore().operator->());
   m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
@@ -170,7 +170,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
       GeoPhysVol *world=&*theExpt->getPhysVol();
       if(m_forFrozenShowers) {
 	if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory FS " << endmsg;
-	InDetServMatFactoryFS theIDSM(detStore,m_rdbAccessSvc);
+	InDetServMatFactoryFS theIDSM(detStore().operator->(),m_rdbAccessSvc);
 	theIDSM.create(world);
 	m_manager=theIDSM.getDetectorManager();
       } else {
@@ -178,7 +178,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 	  if (versionName.empty() || versionName == "DC2") {
 	    // DC2 and Rome
 	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory DC2 " << endmsg;
-	    InDetServMatFactoryDC2 theIDSM(detStore, m_rdbAccessSvc);
+	    InDetServMatFactoryDC2 theIDSM(detStore().operator->(), m_rdbAccessSvc);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
 	  } else if (versionName == "DC3") {
@@ -221,7 +221,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   }
   if (m_manager) {
     theExpt->addManager(m_manager);
-    CHECK( detStore->record (m_manager, m_manager->getName()) );
+    CHECK( detStore()->record (m_manager, m_manager->getName()) );
   } else {
     msg(MSG::FATAL) << "Could not create InDetServMatManager!" << endmsg;
     return StatusCode::FAILURE;     
@@ -229,9 +229,9 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   return result;
 }
 
-StatusCode InDetServMatTool::clear(StoreGateSvc* detStore)
+StatusCode InDetServMatTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<InDetDD::InDetServMatManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::InDetServMatManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;

@@ -1,8 +1,3 @@
-#include "LArGeoTBEC/LArDetectorToolTBEC.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../LArDetectorToolTBEC.h"
 
 DECLARE_TOOL_FACTORY(LArDetectorToolTBEC)
-
-DECLARE_FACTORY_ENTRIES(LArGeoTBEC) {
-    DECLARE_ALGTOOL  ( LArDetectorToolTBEC )
-}

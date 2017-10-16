@@ -45,6 +45,7 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
+
 class AthAlgTool : 
   public ::AlgTool,
   public ::AthMessaging
@@ -322,6 +323,9 @@ protected:
   void msg_update_handler(Property& outputLevel);
   /// callback to add storeName to ExtraInputs/Outputs data deps
   void extraDeps_update_handler(Property&);
+
+  /// remove all handles from I/O resolution
+  void renounceArray( SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

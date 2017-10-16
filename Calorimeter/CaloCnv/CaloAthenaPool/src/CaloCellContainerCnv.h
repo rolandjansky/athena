@@ -15,7 +15,6 @@ typedef T_AthenaPoolCustomCnv<CaloCellContainer, CaloCompactCellContainer> CaloC
 typedef CaloCompactCellContainer CaloCellContainerPERS;
 
 class CaloDetDescrManager;
-class ICaloCompactCellTool;
 class CaloCellContainer;
 class CaloCompactCellContainerCnv;
 

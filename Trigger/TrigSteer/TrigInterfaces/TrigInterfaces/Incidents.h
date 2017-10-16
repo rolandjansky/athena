@@ -6,7 +6,7 @@
 #define TRIGINTERFACES_INCIDENTS_H
 
 /**
- * @file   Incidents.h
+ * @file   TrigInterfaces/Incidents.h
  * @brief  Incident classes used in HLT
  * @author Frank Winklmeier
  *

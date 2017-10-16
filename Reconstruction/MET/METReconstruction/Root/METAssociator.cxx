@@ -30,8 +30,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 // Tool interface headers
-#include "PFlowUtils/IRetrievePFOTool.h"
-#include "PFlowUtils/IWeightPFOTool.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
@@ -60,18 +58,16 @@ namespace met {
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
-    declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
+    declareProperty( "PFlowColl",          m_pfcoll      = "CHSParticleFlowObjects" );
+    declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
-    declareProperty( "WeightCPFO",         m_weight_charged_pfo = true           );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
-    declareProperty( "PFOTool",            m_pfotool                             );
-    declareProperty( "PFOWeightTool",      m_pfoweighttool                       );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
     declareProperty( "IgnoreJetConst",     m_skipconst = false                   );
-    declareProperty( "ForwardColl",        m_forcoll   = ""                      );
+    declareProperty( "ForwardColl",        m_forcoll   = ""                       );
     declareProperty( "ForwardDef",         m_foreta    = 2.5                     );
     declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 30e+3               );
     declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 30e+3               );
@@ -92,10 +88,6 @@ namespace met {
     ATH_CHECK( m_trkseltool.retrieve() );
     ATH_CHECK(m_trkIsolationTool.retrieve());
     ATH_CHECK(m_caloIsolationTool.retrieve());
-    if(m_pflow) {
-      ATH_CHECK( m_pfotool.retrieve() );
-      ATH_CHECK( m_pfoweighttool.retrieve() );
-    }
 
     if(m_clcoll == "CaloCalTopoClusters") {
       if(m_useModifiedClus) {
@@ -108,9 +100,17 @@ namespace met {
       if(m_useModifiedClus) {
 	ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
       } else {
-	ATH_MSG_INFO("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
+	ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
 	return StatusCode::FAILURE;
       }
+    }
+
+    if(m_pfcoll == "JetETMissParticleFlowObjects") {
+      ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcoll << "\".");
+      ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcoll << "\".");
     }
 
     return StatusCode::SUCCESS;
@@ -128,9 +128,7 @@ namespace met {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
     }
-    if(m_pflow &&
-       !m_useTracks
-       ){
+    if(m_pflow && !m_useTracks ){
       ATH_MSG_WARNING("Attempting to build PFlow without a track collection.");
       return StatusCode::FAILURE;
     }
@@ -174,19 +172,21 @@ namespace met {
       }
     }
 
-    const VertexContainer *vxCont = 0;
     if( !m_useTracks){
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
     }else{
+      const VertexContainer *vxCont = 0;
       if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
 	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
 	//this is actually really bad.  If it's empty that's okay
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
       for(const auto& vx : *vxCont) {
+	ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
 	if(vx->vertexType()==VxType::PriVtx)
 	  {constits.pv = vx; break;}
       }
@@ -197,20 +197,13 @@ namespace met {
       }
 
       constits.trkCont=0;
+      ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
       ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
 
       if(m_pflow) {
+	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
 	constits.pfoCont = 0;
-	if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
-	  ATH_CHECK(evtStore()->retrieve(constits.pfoCont,"EtmissParticleFlowObjects"));
-	} else {
-	  constits.pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	  ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(constits.pfoCont),"EtmissParticleFlowObjects"));
-	}
-	if(!constits.pfoCont) {
-	  ATH_MSG_WARNING("Unable to retrieve input pfo container");
-	  return StatusCode::FAILURE;
-	}//pfoCont check
+	ATH_CHECK( evtStore()->retrieve(constits.pfoCont, m_pfcoll ) );
       }//pflow
     }//retrieve track/pfo containers
 
@@ -285,14 +278,6 @@ namespace met {
     if (!vx) return false;//in events with no pv, we will just reject all tracks, and therefore build only the calo MET
     const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
     return accept;
-  }
-
-
-  bool METAssociator::acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const
-  {
-    if(!pv) return false; /*reject pfo for events with no pv*/
-    if(fabs((trk->z0() - pv->z()+trk->vz())*sin(trk->theta())) > 2) return false;
-    return true;
   }
 
 

@@ -28,10 +28,10 @@ class InDetServMatTool : public GeoModelTool {
   // Standard Constructor
   InDetServMatTool( const std::string& type, const std::string& name, const IInterface* parent );
   // Standard Destructor
-  virtual ~InDetServMatTool();
+  virtual ~InDetServMatTool() override final;
   
-  virtual StatusCode create( StoreGateSvc* detStore );
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode create() override final;
+  virtual StatusCode clear() override final;
 
  private:
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;

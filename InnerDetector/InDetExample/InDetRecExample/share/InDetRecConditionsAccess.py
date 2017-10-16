@@ -6,11 +6,12 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
-if globalflags.isOverlay():
+if globalflags.isOverlay() and isData :
   if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    if isData:
-      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+    eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+  else :
+    eventInfoKey = "McEventInfo"
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
@@ -268,12 +269,14 @@ if DetFlags.haveRIO.SCT_on():
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ModuleVetoSvc
 
-    # Load bytestream errors service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-    InDetSCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "InDetSCT_ByteStreamErrorsSvc")
-    ServiceMgr += InDetSCT_ByteStreamErrorsSvc
+    # Load bytestream errors service (use default instance without "InDet")
+    # @TODO find a better to solution to get the correct service for the current job.
+    if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
+        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
+        ServiceMgr += SCT_ByteStreamErrorsSvc
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ByteStreamErrorsSvc
+        print ServiceMgr.SCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
         if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
@@ -317,7 +320,7 @@ if DetFlags.haveRIO.SCT_on():
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc",
                                                             "InDetSCT_TdaqEnabledSvc"]
         if not athenaCommonFlags.isOnline():
@@ -334,7 +337,7 @@ if DetFlags.haveRIO.SCT_on():
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             "InDetSCT_MonitorConditionsSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc"]
 
 

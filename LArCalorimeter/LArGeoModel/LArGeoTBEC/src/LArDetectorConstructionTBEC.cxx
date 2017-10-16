@@ -4,8 +4,8 @@
 
 // LArDetectorConstructionTBEC
 
-#include "LArGeoTBEC/LArDetectorConstructionTBEC.h"
-#include "LArGeoTBEC/CryostatConstructionTBEC.h"
+#include "LArDetectorConstructionTBEC.h"
+#include "CryostatConstructionTBEC.h"
 #include "LArGeoEndcap/EMECConstruction.h"
 #include "LArGeoEndcap/EndcapPresamplerConstruction.h"
 

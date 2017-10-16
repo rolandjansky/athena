@@ -19,6 +19,12 @@ SpacePointContainer::SpacePointContainer(unsigned int max) :
 {
 }
 
+// Constructor with parameters:
+SpacePointContainer::SpacePointContainer(SpacePointCache *cache) :
+  IdentifiableContainer<SpacePointCollection>(cache)
+{
+}
+
 // Destructor:
 SpacePointContainer::~SpacePointContainer()
 {

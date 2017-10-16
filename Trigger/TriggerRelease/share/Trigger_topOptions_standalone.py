@@ -120,9 +120,6 @@ if TriggerFlags.doCalo():
     if globalflags.DataSource()=='data':
         include("TrigT2CaloCommon/CaloCellMasking.py")
 
-    from CaloTools.CaloToolsConf import CaloCompactCellTool
-    svcMgr.ToolSvc += CaloCompactCellTool()
-    
 if TriggerFlags.doMuon():
     # load services needed for converters
     import MuonCnvExample.MuonCablingConfig

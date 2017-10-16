@@ -13,7 +13,9 @@ from AthenaCommon.AppMgr import ServiceMgr
 #ServiceMgr.MessageSvc.OutputLevel = VERBOSE
 
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = [infile]
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = [infile]
+ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -61,7 +63,7 @@ jtm.addJetFinder("MyAntiKt4TruthJets",  "AntiKt", 0.4,  "truth",   "truth",
 ############################################################################################
 #Reconstruct PF jets with standard tools (PFlowPseudoJetGetter, etc) for comparison
 
-jtm.addJetFinder("MyAntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow_ungroomed", ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+jtm.addJetFinder("MyAntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow_reduced", "pflow_ungroomed", ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 #Use a sequence and PseudoJetGetter to reconstruct PF jets
@@ -75,6 +77,11 @@ jtm += PseudoJetGetter(
   SkipNegativeEnergy = True,
   )
 
+import cppyy
+try: cppyy.loadDictionary('xAODBaseDict')
+except: pass
+from ROOT import xAOD
+
 #this tool does much of the PFO manipulations in PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import CorrectPFOTool
 correctPFOTool = CorrectPFOTool("correctPFOTool",
@@ -84,12 +91,13 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
                                 UseChargedWeights = True,
                                 UseVertices = True,
                                 UseTrackToVertexTool = False,
+                                InputType = xAOD.Type.ParticleFlow
                                 )
 ToolSvc += correctPFOTool
 
 #This tool removes charged hadrons not matched to the primary vertex
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
-CHSTool = ChargedHadronSubtractionTool("CHSTool")
+CHSTool = ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow)
 ToolSvc += CHSTool
 
 #run the above tools to modify PFO
@@ -97,17 +105,16 @@ from JetRecTools.JetRecToolsConf import JetConstituentModSequence
 PFSequence = JetConstituentModSequence("PFSequence",
                                        InputContainer = "JetETMiss",
                                        OutputContainer = "My",   #"ParticleFlowObjects" will be appended later
-                                       InputType = "ParticleFlow",
+                                       InputType = xAOD.Type.ParticleFlow,
                                        Modifiers = [correctPFOTool,CHSTool],
                                        SaveAsShallow = False,
                                        )
 ToolSvc += PFSequence
 
-from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myGetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)  #use PFJetter instead of default PFlowPseudoJetGetter
+myGetters=listReplace(jtm.gettersMap["empflow_reduced"],jtm.empflowget,jtm.PFGetter)  #use PFJetter instead of default PFlowPseudoJetGetter
 from JetRec.JetRecStandardToolManager import filterout
-pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers) #width tool causes a problem for some reason
-jtm.addJetFinder("MyAntiKt4EMPFlowJets2", "AntiKt", 0.4, myGetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
+#pflow_ungroomed_modifiers=filterout(['width'],jtm.modifiersMap["pflow_ungroomed"]) #width tool causes a problem for some reason
+jtm.addJetFinder("MyAntiKt4EMPFlowJets2", "AntiKt", 0.4, myGetters, "pflow_ungroomed", ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
 

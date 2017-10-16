@@ -26,14 +26,9 @@ if recAlgs.doEFlow() :
   doPFlow = True
 
   # tool to collect pflow objects in cone
-  from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-  pfoTool = RetrievePFOTool();
-  ToolSvc += pfoTool
-
   from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
   PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
-                                       name = "PFlowObjectsInConeTool",
-                                       RetrievePFOTool = pfoTool)
+                                       name = "PFlowObjectsInConeTool")
 
   from AthenaCommon.BeamFlags import jobproperties
   useVertices = True
@@ -41,18 +36,15 @@ if recAlgs.doEFlow() :
     useVertices = False
   
   from JetRec.JetRecStandard import jtm
+  #from JetRec.JetRecConf import PseudoJetGetter
   from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
+
   jtm += PFlowPseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
-    OutputContainer    = "PseudoJetEMNPFlow",
-    RetrievePFOTool    = jtm.pflowretriever,
-    InputIsEM          = True,
-    CalibratePFO       = False,
+    InputContainer = "CHSNeutralParticleFlowObjects",
+    OutputContainer = "PseudoJetEMNPFlow",
     SkipNegativeEnergy = True,
-    UseNeutral         = True,
-    UseCharged         = False,
-    UseVertices        = useVertices
     )
 
 # tool to collect topo clusters in cone

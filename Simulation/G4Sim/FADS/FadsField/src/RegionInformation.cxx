@@ -7,7 +7,7 @@
 namespace FADS {
 
 RegionInformation::RegionInformation()
-:fieldIntPara(0)
+:m_fieldIntPara(0)
 {;}
 
 RegionInformation::~RegionInformation()

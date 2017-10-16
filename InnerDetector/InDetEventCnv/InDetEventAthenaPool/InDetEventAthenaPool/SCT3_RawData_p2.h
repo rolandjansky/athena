@@ -14,7 +14,7 @@
 
 class SCT3_RawData_p2 {
  public:
-  SCT3_RawData_p2()  {};
+  SCT3_RawData_p2(): m_rdoId{0}, m_word{0} {};
 // List of Cnv classes that convert this into Rdo objects
   friend class SCT3_RawDataCnv_p2;
   // private:

@@ -51,24 +51,24 @@ using namespace std;
 
 //*****************************************************************************
 
-//:::::::::::::::::::
-//:: METHOD m_init ::
-//:::::::::::::::::::
+//:::::::::::::::::
+//:: METHOD init ::
+//:::::::::::::::::
 
-void QuasianalyticLineReconstruction::m_init(void) {
+void QuasianalyticLineReconstruction::init(void) {
 
-	m_init(0.5*CLHEP::mm); // default road width = 0.5 CLHEP::mm
+	init(0.5*CLHEP::mm); // default road width = 0.5 CLHEP::mm
 	return;
 
 }
 
 //*****************************************************************************
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD m_init(const double & r_road_width) ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::
+//:: METHOD init(const double & r_road_width) ::
+//::::::::::::::::::::::::::::::::::::::::::::::
 
-void QuasianalyticLineReconstruction::m_init(const double & r_road_width) {
+void QuasianalyticLineReconstruction::init(const double & r_road_width) {
 
 //:::::::::::::::
 //:: VARIABLES ::
@@ -107,7 +107,7 @@ void QuasianalyticLineReconstruction::m_init(const double & r_road_width) {
 //:: USER-DEFINED VALUES)                                             ::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-	m_m_x1 = 1.0; m_b_x1 = 0.0;
+	m_a_x1 = 1.0; m_b_x1 = 0.0;
 
 	return;
 
@@ -213,8 +213,8 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 		direction[2] = 1.0e-99;
 		tang = MTStraightLine(p1, direction, null_vec, null_vec);	
 	}
-	mx1 = tang.m_x1(); bx2 = tang.b_x1();
-	mx2 = tang.m_x2(); bx2 = tang.b_x2();
+	mx1 = tang.a_x1(); bx2 = tang.b_x1();
+	mx2 = tang.a_x2(); bx2 = tang.b_x2();
 	tang = MTStraightLine(mx1, bx1, mx2, bx2,1.0, 1.0, 
 			sqrt(r_sigma12+r_sigma22)/fabs(p2.z()-p1.z()),
 			sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
@@ -229,11 +229,11 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 
 //*****************************************************************************
 
-//::::::::::::::::::::::::::::::
-//:: METHOD m_track_candidate ::
-//::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::
+//:: METHOD track_candidate ::
+//::::::::::::::::::::::::::::
 
-MTStraightLine QuasianalyticLineReconstruction::m_track_candidate(
+MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 				const IndexSet & r_index_set,
 				const int & r_k_cand,
 				const int & r_l_cand,
@@ -278,12 +278,12 @@ MTStraightLine QuasianalyticLineReconstruction::m_track_candidate(
 	u = (aux_track.directionVector()).unit();
 
 // store the parameters of this tangent //
-	mx1.push_back(aux_track.m_x1());
-	mx1_err.push_back(aux_track.m_x1_error());
+	mx1.push_back(aux_track.a_x1());
+	mx1_err.push_back(aux_track.a_x1_error());
 	bx1.push_back(aux_track.b_x1());
 	bx1_err.push_back(aux_track.b_x1_error());
-	mx2.push_back(aux_track.m_x2());
-	mx2_err.push_back(aux_track.m_x2_error());
+	mx2.push_back(aux_track.a_x2());
+	mx2_err.push_back(aux_track.a_x2_error());
 	bx2.push_back(aux_track.b_x2());
 	bx2_err.push_back(aux_track.b_x2_error());
 
@@ -390,9 +390,9 @@ MTStraightLine QuasianalyticLineReconstruction::m_track_candidate(
 			tang = MTStraightLine(p1, direction,
 							null_vec, null_vec);
 		}
-		mx1.push_back(tang.m_x1());
+		mx1.push_back(tang.a_x1());
 		bx1.push_back(tang.b_x1());
-		mx2.push_back(tang.m_x2());
+		mx2.push_back(tang.a_x2());
 		bx2.push_back(tang.b_x2());
 
 		mx1_err.push_back(1.0);
@@ -815,7 +815,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 			continue;
 		}
 
-		aux_track = m_track_candidate(index_set[ca],
+		aux_track = track_candidate(index_set[ca],
 					k_cand[ca], l_cand[ca], 
 					cand_case[ca], w, r, sigma2, aux_chi2);
 		if (nb_HOTs[ca]>=max_cand_HOTs) {
@@ -835,7 +835,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 
    // make the segment in rphi as the initial segment //
 	aux_pos = Amg::Vector3D(initial_track.b_x1(), m_track.b_x2(), 0);
-	aux_dir = Amg::Vector3D(initial_track.m_x1(), m_track.m_x2(), 1.0);
+	aux_dir = Amg::Vector3D(initial_track.a_x1(), m_track.a_x2(), 1.0);
 	m_track = MTStraightLine(aux_pos, aux_dir, null, null);
 
 // 5th step: update the segment//
@@ -867,17 +867,17 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					dir,
 					Amg::Vector3D(0.0, 0.0, 0.0),
 					Amg::Vector3D(0.0, 0.0, 0.0));
-			double m_err(m_track.m_x2_error());
+			double a_err(m_track.a_x2_error());
 			double b_err(m_track.b_x2_error());
 			m_track = MTStraightLine(0.0, 0.0,
-						aux_line.m_x2(),
+						aux_line.a_x2(),
 						aux_line.b_x2(),
 						0.0, 0.0,
-						m_err, b_err);
+						a_err, b_err);
 			aux_pos = Amg::Vector3D(initial_track.b_x1(),
 							m_track.b_x2(), 0);
-			aux_dir = Amg::Vector3D(initial_track.m_x1(),
-							m_track.m_x2(), 1.0);
+			aux_dir = Amg::Vector3D(initial_track.a_x1(),
+							m_track.a_x2(), 1.0);
 			m_track = MTStraightLine(aux_pos, aux_dir, null, null);
 	// recompute chi^2 because of different convention in DCSLFitter //
 			m_chi2 = 0.0;
@@ -918,7 +918,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		MTStraightLine aux_line(pos, xhat, null, null);
 // 		double dist(fabs(m_track.signDistFrom(aux_line))); // track distance
 		double dist(m_track.signDistFrom(aux_line)); // track distance
-		double dist_err(sqrt(std::pow(pos.z()*m_track.m_x2_error(), 2)+
+		double dist_err(sqrt(std::pow(pos.z()*m_track.a_x2_error(), 2)+
 				std::pow(m_track.b_x2_error(), 2)));
 				// approximate error of the track distance
 		hit.setDistanceToTrack(dist, dist_err);

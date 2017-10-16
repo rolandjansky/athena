@@ -13,24 +13,15 @@
 
 #include "xAODTestRead.h"
 #include "DataModelTestDataCommon/CVec.h"
-//#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
-#include "DataModelTestDataCommon/CInfoAuxContainer.h"
-//#include "DataModelTestDataRead/HVec.h"
-//#include "DataModelTestDataRead/H.h"
-//#include "DataModelTestDataRead/HAuxContainer.h"
-//#include "DataModelTestDataRead/HView.h"
 #include "DataModelTestDataRead/GVec.h"
 #include "DataModelTestDataRead/G.h"
 #include "DataModelTestDataRead/GAuxContainer.h"
 #include "AthContainers/AuxTypeRegistry.h"
-#include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/StrFormat.h"
-#include "CxxUtils/make_unique.h"
 #include <memory>
 
 
@@ -69,51 +60,16 @@ StatusCode xAODTestRead::execute()
   ++m_count;
   std::cout << m_count << "\n";
 
-  static C::Accessor<int> anInt2 ("anInt2");
-  static C::Accessor<int> anInt10 ("anInt10");
-  static C::Accessor<int> dInt1 ("dInt1");
-  static C::Accessor<unsigned int> dpInt1 ("dpInt1");
-  static C::Accessor<std::vector<float> > dpvFloat ("dpvFloat");
-  static C::Accessor<int> dInt100 ("dInt100");
-  static C::Accessor<int> dInt150 ("dInt150");
-  static C::Accessor<int> dInt200 ("dInt200");
-  static C::Accessor<int> dInt250 ("dInt250");
-  static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
+  static const C::Accessor<int> anInt2 ("anInt2");
+  static const C::Accessor<int> anInt10 ("anInt10");
+  static const C::Accessor<int> dInt1 ("dInt1");
+  static const C::Accessor<int> dInt100 ("dInt100");
+  static const C::Accessor<int> dInt150 ("dInt150");
+  static const C::Accessor<int> dInt200 ("dInt200");
 
   // Ordering of auxid is not reliable.  Sort by name.
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   std::vector<std::string> names;
-
-  const C* cinfo = 0;
-  CHECK( evtStore()->retrieve (cinfo, m_readPrefix + "cinfo") );
-
-  names.clear();
-  for (SG::auxid_t auxid : cinfo->getAuxIDs())
-    names.push_back (r.getName(auxid));
-  std::sort (names.begin(), names.end());
-  std::cout << "cinfo aux items: ";
-  for (const std::string& n : names)
-    std::cout << n << " ";
-  std::cout << "\n";
-
-  std::cout << "cinfo "
-            << " anInt1 " << cinfo->anInt()
-            << " aFloat: " << cinfo->aFloat()
-            << " anInt2: " << anInt2(*cinfo)
-            << " dInt1: " << dInt1(*cinfo)
-            << " cEL: " << cEL(*cinfo).dataID()
-            << "[" << cEL(*cinfo).index() << "]";
-  if (dInt100.isAvailable(*cinfo))
-    std::cout << " dInt100: " << dInt100(*cinfo);
-  if (dInt150.isAvailable(*cinfo))
-    std::cout << " dInt150: " << dInt150(*cinfo);
-  if (dInt200.isAvailable(*cinfo))
-    std::cout << " dInt200: " << dInt200(*cinfo);
-  if (dInt250.isAvailable(*cinfo))
-    std::cout << " dInt250: " << dInt250(*cinfo);
-  if (anInt10.isAvailable(*cinfo))
-    std::cout << " anInt10: " << anInt10(*cinfo);
-  std::cout << "\n";
 
   const CVec* ctrig = 0;
   CHECK( evtStore()->retrieve (ctrig, m_readPrefix + "ctrig") );
@@ -164,16 +120,8 @@ StatusCode xAODTestRead::execute()
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.
     bool LOCKED = false;
-    auto cnew = CxxUtils::make_unique<C>();
-    auto info_store = CxxUtils::make_unique<CInfoAuxContainer>();
-    cnew->setStore (info_store.get());
-    *cnew = *cinfo;
-
-    CHECK (evtStore()->record (std::move(cnew), m_writePrefix + "cinfo", LOCKED));
-    CHECK (evtStore()->record (std::move(info_store), m_writePrefix + "cinfoAux.", LOCKED));
-
-    auto ctrignew = CxxUtils::make_unique<CVec>();
-    auto trig_store = CxxUtils::make_unique<CTrigAuxContainer>();
+    auto ctrignew = std::make_unique<CVec>();
+    auto trig_store = std::make_unique<CTrigAuxContainer>();
     ctrignew->setStore (trig_store.get());
     for (size_t i = 0; i < ctrig->size(); i++) {
       ctrignew->push_back (new C);
@@ -183,8 +131,8 @@ StatusCode xAODTestRead::execute()
     CHECK (evtStore()->record (std::move(trig_store), m_writePrefix + "ctrigAux.", LOCKED));
 
     if (gvec) {
-      auto gvecnew = CxxUtils::make_unique<GVec>();
-      auto gstore = CxxUtils::make_unique<GAuxContainer>();
+      auto gvecnew = std::make_unique<GVec>();
+      auto gstore = std::make_unique<GAuxContainer>();
       gvecnew->setStore (gstore.get());
       for (size_t i = 0; i < gvec->size(); i++) {
         gvecnew->push_back (new G);
@@ -223,8 +171,8 @@ StatusCode xAODTestRead::read_cvec_with_data() const
     // Passing this as the third arg of record will make the object const.
     bool LOCKED = false;
 
-    auto vecnew = CxxUtils::make_unique<CVecWithData>();
-    auto store = CxxUtils::make_unique<CAuxContainer>();
+    auto vecnew = std::make_unique<CVecWithData>();
+    auto store = std::make_unique<CAuxContainer>();
     vecnew->setStore (store.get());
     for (size_t i = 0; i < vec->size(); i++) {
       vecnew->push_back (new C);
@@ -262,7 +210,7 @@ StatusCode xAODTestRead::read_cview() const
 
   if (!m_writePrefix.empty()) {
     bool LOCKED = false;
-    CHECK (evtStore()->record (CxxUtils::make_unique<CView> (*cview),
+    CHECK (evtStore()->record (std::make_unique<CView> (*cview),
                                m_writePrefix + "cview", LOCKED));
   }
 

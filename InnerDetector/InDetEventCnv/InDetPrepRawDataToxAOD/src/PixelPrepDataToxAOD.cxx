@@ -35,6 +35,9 @@
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 
+#define AUXDATA(OBJ, TYP, NAME) \
+  static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
+
 /////////////////////////////////////////////////////////////////////
 //
 //         Constructor with parameters:
@@ -185,31 +188,31 @@ StatusCode PixelPrepDataToxAOD::execute()
       xprd->setRdoIdentifierList(rdoIdentifierList);
 
       //Add pixel cluster properties
-      xprd->auxdata<int>("bec")          =   m_PixelHelper->barrel_ec(clusterId)   ;
-      xprd->auxdata<int>("layer")        =   m_PixelHelper->layer_disk(clusterId)  ;   
-      xprd->auxdata<int>("phi_module")   =   m_PixelHelper->phi_module(clusterId)  ;
-      xprd->auxdata<int>("eta_module")   =   m_PixelHelper->eta_module(clusterId)  ;
+      AUXDATA(xprd,int,bec)          =   m_PixelHelper->barrel_ec(clusterId)   ;
+      AUXDATA(xprd,int,layer)        =   m_PixelHelper->layer_disk(clusterId)  ;   
+      AUXDATA(xprd,int,phi_module)   =   m_PixelHelper->phi_module(clusterId)  ;
+      AUXDATA(xprd,int,eta_module)   =   m_PixelHelper->eta_module(clusterId)  ;
          
-      //xprd->auxdata<int>("col")         =  m_PixelHelper->eta_index(clusterId);
-      //xprd->auxdata<int>("row")         =  m_PixelHelper->phi_index(clusterId);
-      xprd->auxdata<int>("eta_pixel_index")         =  m_PixelHelper->eta_index(clusterId);
-      xprd->auxdata<int>("phi_pixel_index")         =  m_PixelHelper->phi_index(clusterId);
+      //AUXDATA(xprd,int,col)         =  m_PixelHelper->eta_index(clusterId);
+      //AUXDATA(xprd,int,row)         =  m_PixelHelper->phi_index(clusterId);
+      AUXDATA(xprd,int,eta_pixel_index)         =  m_PixelHelper->eta_index(clusterId);
+      AUXDATA(xprd,int,phi_pixel_index)         =  m_PixelHelper->phi_index(clusterId);
    
 
       const InDet::SiWidth cw = prd->width();
-      xprd->auxdata<int>("sizePhi") = (int)cw.colRow()[0];
-      xprd->auxdata<int>("sizeZ")   = (int)cw.colRow()[1];
-      xprd->auxdata<int>("nRDO")    = (int)prd->rdoList().size();
+      AUXDATA(xprd,int,sizePhi) = (int)cw.colRow()[0];
+      AUXDATA(xprd,int,sizeZ)   = (int)cw.colRow()[1];
+      AUXDATA(xprd,int,nRDO)    = (int)prd->rdoList().size();
    
-      xprd->auxdata<float>("charge")  =  prd->totalCharge(); 
-      xprd->auxdata<int>("ToT")       =  prd->totalToT(); 
-      xprd->auxdata<int>("LVL1A")     =  prd->LVL1A(); 
+      AUXDATA(xprd,float,charge)  =  prd->totalCharge(); 
+      AUXDATA(xprd,int,ToT)       =  prd->totalToT(); 
+      AUXDATA(xprd,int,LVL1A)     =  prd->LVL1A(); 
    
-      xprd->auxdata<char>("isFake")      =  (char)prd->isFake(); 
-      xprd->auxdata<char>("gangedPixel") =  (char)prd->gangedPixel(); 
-      xprd->auxdata<int>("isSplit")      =  (int)prd->isSplit(); 
-      xprd->auxdata<float>("splitProbability1")  =  prd->splitProbability1(); 
-      xprd->auxdata<float>("splitProbability2")  =  prd->splitProbability2(); 
+      AUXDATA(xprd,char,isFake)      =  (char)prd->isFake(); 
+      AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel(); 
+      AUXDATA(xprd,int,isSplit)      =  (int)prd->isSplit(); 
+      AUXDATA(xprd,float,splitProbability1)  =  prd->splitProbability1(); 
+      AUXDATA(xprd,float,splitProbability2)  =  prd->splitProbability2(); 
 
       // Need to add something to Add the NN splitting information
       if(m_writeNNinformation)addNNInformation( xprd,  prd, 7, 7);
@@ -217,13 +220,13 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Add information for each contributing hit
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
-        xprd->auxdata<int>("isBSError") = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
-        xprd->auxdata<std::string>("DCSState") = (std::string)m_pixelDCSSvc->getFSMState(moduleHash);
+        AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
+        AUXDATA(xprd,std::string,DCSState) = (std::string)m_pixelDCSSvc->getFSMState(moduleHash);
 
-        xprd->auxdata<float>("BiasVoltage") = (float)m_lorentzAngleSvc->getBiasVoltage(moduleHash);
-        xprd->auxdata<float>("Temperature") = (float)m_lorentzAngleSvc->getTemperature(moduleHash);
-        xprd->auxdata<float>("DepletionVoltage") = (float)m_lorentzAngleSvc->getDepletionVoltage(moduleHash);
-        xprd->auxdata<float>("LorentzShift") = (float)m_lorentzAngleSvc->getLorentzShift(moduleHash);
+        AUXDATA(xprd,float,BiasVoltage) = (float)m_lorentzAngleSvc->getBiasVoltage(moduleHash);
+        AUXDATA(xprd,float,Temperature) = (float)m_lorentzAngleSvc->getTemperature(moduleHash);
+        AUXDATA(xprd,float,DepletionVoltage) = (float)m_lorentzAngleSvc->getDepletionVoltage(moduleHash);
+        AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleSvc->getLorentzShift(moduleHash);
 
         addRdoInformation(xprd,  prd);
       } 
@@ -238,7 +241,7 @@ StatusCode PixelPrepDataToxAOD::execute()
           detElementId = detId.get_compact();
         }
       }
-      xprd->auxdata<uint64_t>("detectorElementID") = detElementId;
+      AUXDATA(xprd,uint64_t,detectorElementID) = detElementId;
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
       if (m_useTruthInfo) {
@@ -248,7 +251,7 @@ StatusCode PixelPrepDataToxAOD::execute()
         for (auto i = range.first; i != range.second; ++i) {
 	  barcodes.push_back( i->second.barcode() );
         }
-        xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
+        AUXDATA(xprd,std::vector<int>, truth_barcode) = barcodes;
       }
       
       std::vector< std::vector< int > > sdo_tracks;
@@ -280,26 +283,31 @@ StatusCode PixelPrepDataToxAOD::execute()
     }
   }
 
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
-      (*clusItr)->auxdata<char>("broken") = false;
+  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ ) {
+      AUXDATA(*clusItr,char,broken) = false;
+  }
 
+  static const SG::AuxElement::Accessor<int> acc_layer ("layer");
+  static const SG::AuxElement::Accessor<int> acc_phi_module ("phi_module");
+  static const SG::AuxElement::Accessor<int> acc_eta_module ("eta_module");
+  static const SG::AuxElement::Accessor<std::vector<int> > acc_sihit_barcode ("sihit_barcode");
   for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
   {
       auto pixelCluster = *clusItr;
-      int layer = pixelCluster->auxdata< int >("layer");
-      std::vector<int> barcodes = pixelCluster->auxdata< std::vector< int > >("sihit_barcode");
+      int layer = acc_layer(*pixelCluster);
+      std::vector<int> barcodes = acc_sihit_barcode(*pixelCluster);
 
       for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
       {
 	  auto pixelCluster2 = *clusItr2;
-	  if ( pixelCluster2->auxdata< int >("layer") != layer )
+	  if ( acc_layer(*pixelCluster2) != layer )
 	      continue;
-	  if ( pixelCluster->auxdata< int >("eta_module") != pixelCluster2->auxdata< int >("eta_module") )
+	  if ( acc_eta_module(*pixelCluster) != acc_eta_module(*pixelCluster2) )
 	      continue;
-	  if ( pixelCluster->auxdata< int >("phi_module") != pixelCluster2->auxdata< int >("phi_module") )
+	  if ( acc_phi_module(*pixelCluster) != acc_phi_module(*pixelCluster2) )
 	      continue;
 
-	  std::vector<int> barcodes2 = pixelCluster2->auxdata< std::vector< int > >("sihit_barcode");
+	  std::vector<int> barcodes2 = acc_sihit_barcode(*pixelCluster2);
 	  
 	  bool broken = false;
 	  for ( auto bc : barcodes )
@@ -309,8 +317,9 @@ StatusCode PixelPrepDataToxAOD::execute()
 		  if ( bc2 == bc )
 		  {
 		      broken = true;
-		      pixelCluster->auxdata<char>("broken")  = true;
-		      pixelCluster2->auxdata<char>("broken") = true;
+                      static const SG::AuxElement::Accessor<char> acc_broken ("broken");
+		      acc_broken(*pixelCluster)  = true;
+		      acc_broken(*pixelCluster2) = true;
 		      break;
 		  }
 	      }
@@ -356,9 +365,9 @@ std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::
       sdo_depositsEnergy.push_back( sdoDepEnergy );
     }
   }
-  xprd->auxdata< std::vector<int> >("sdo_words")  = sdo_word;
-  xprd->auxdata< std::vector< std::vector<int> > >("sdo_depositsBarcode")  = sdo_depositsBarcode;
-  xprd->auxdata< std::vector< std::vector<float> > >("sdo_depositsEnergy") = sdo_depositsEnergy;
+  AUXDATA(xprd,std::vector<int>,sdo_words)  = sdo_word;
+  AUXDATA(xprd,std::vector< std::vector<int> >,sdo_depositsBarcode)  = sdo_depositsBarcode;
+  AUXDATA(xprd,std::vector< std::vector<float> >,sdo_depositsEnergy) = sdo_depositsEnergy;
   
   return sdo_depositsBarcode;
 }
@@ -414,18 +423,18 @@ void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation
     }
   }
 
-  xprd->auxdata<std::vector<float> >("sihit_energyDeposit") = sihit_energyDeposit;
-  xprd->auxdata<std::vector<float> >("sihit_meanTime") = sihit_meanTime;
-  xprd->auxdata<std::vector<int> >("sihit_barcode") = sihit_barcode;
-  xprd->auxdata<std::vector<int> >("sihit_pdgid") = sihit_pdgid;
+  AUXDATA(xprd,std::vector<float>,sihit_energyDeposit) = sihit_energyDeposit;
+  AUXDATA(xprd,std::vector<float>,sihit_meanTime) = sihit_meanTime;
+  AUXDATA(xprd,std::vector<int>,sihit_barcode) = sihit_barcode;
+  AUXDATA(xprd,std::vector<int>,sihit_pdgid) = sihit_pdgid;
   
-  xprd->auxdata<std::vector<float> >("sihit_startPosX") = sihit_startPosX;
-  xprd->auxdata<std::vector<float> >("sihit_startPosY") = sihit_startPosY;
-  xprd->auxdata<std::vector<float> >("sihit_startPosZ") = sihit_startPosZ;
+  AUXDATA(xprd,std::vector<float>,sihit_startPosX) = sihit_startPosX;
+  AUXDATA(xprd,std::vector<float>,sihit_startPosY) = sihit_startPosY;
+  AUXDATA(xprd,std::vector<float>,sihit_startPosZ) = sihit_startPosZ;
 
-  xprd->auxdata<std::vector<float> >("sihit_endPosX") = sihit_endPosX;
-  xprd->auxdata<std::vector<float> >("sihit_endPosY") = sihit_endPosY;
-  xprd->auxdata<std::vector<float> >("sihit_endPosZ") = sihit_endPosZ;
+  AUXDATA(xprd,std::vector<float>,sihit_endPosX) = sihit_endPosX;
+  AUXDATA(xprd,std::vector<float>,sihit_endPosY) = sihit_endPosY;
+  AUXDATA(xprd,std::vector<float>,sihit_endPosZ) = sihit_endPosZ;
 
 
 }
@@ -633,16 +642,16 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   }//end iteration on rdos
 
 
-  // xprd->auxdata< std::vector<int> >("rdo_row")  = rowList;
-  // xprd->auxdata< std::vector<int> >("rdo_col")  = colList;
-  xprd->auxdata< std::vector<int> >("rdo_phi_pixel_index")  = phiIndexList;
-  xprd->auxdata< std::vector<int> >("rdo_eta_pixel_index")  = etaIndexList;
-  xprd->auxdata< std::vector<float> >("rdo_charge")  = chList;
-  xprd->auxdata< std::vector<int> >("rdo_tot")  = totList;
+  // AUXDATA(xprd, std::vector<int>, rdo_row)  = rowList;
+  // AUXDATA(xprd, std::vector<int>, rdo_col)  = colList;
+  AUXDATA(xprd, std::vector<int>,rdo_phi_pixel_index)  = phiIndexList;
+  AUXDATA(xprd, std::vector<int>,rdo_eta_pixel_index)  = etaIndexList;
+  AUXDATA(xprd, std::vector<float>,rdo_charge)  = chList;
+  AUXDATA(xprd, std::vector<int>,rdo_tot)  = totList;
   
-  xprd->auxdata< std::vector<float> >("rdo_Cterm") = CTerm;
-  xprd->auxdata< std::vector<float> >("rdo_Aterm") = ATerm;
-  xprd->auxdata< std::vector<float> >("rdo_Eterm") = ETerm;
+  AUXDATA(xprd, std::vector<float>,rdo_Cterm) = CTerm;
+  AUXDATA(xprd, std::vector<float>,rdo_Aterm) = ATerm;
+  AUXDATA(xprd, std::vector<float>,rdo_Eterm) = ETerm;
 
 }
 
@@ -840,22 +849,22 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
   ATH_MSG_VERBOSE( "... and saved  " );
   // Add information to xAOD
-  xprd->auxdata< int >("NN_sizeX") = sizeX;
-  xprd->auxdata< int >("NN_sizeY") = sizeY;
+  AUXDATA(xprd, int, NN_sizeX) = sizeX;
+  AUXDATA(xprd, int, NN_sizeY) = sizeY;
 
-  xprd->auxdata< float >("NN_phiBS") = angle;
-  xprd->auxdata< float >("NN_thetaBS") = boweta;
+  AUXDATA(xprd, float, NN_phiBS) = angle;
+  AUXDATA(xprd, float, NN_thetaBS) = boweta;
 
-  xprd->auxdata< std::vector<float> >("NN_matrixOfToT")      = vectorOfToT;
-  xprd->auxdata< std::vector<float> >("NN_matrixOfCharge")   = vectorOfCharge;
-  xprd->auxdata< std::vector<float> >("NN_vectorOfPitchesY") = vectorOfPitchesY;
+  AUXDATA(xprd, std::vector<float>, NN_matrixOfToT)      = vectorOfToT;
+  AUXDATA(xprd, std::vector<float>, NN_matrixOfCharge)   = vectorOfCharge;
+  AUXDATA(xprd, std::vector<float>, NN_vectorOfPitchesY) = vectorOfPitchesY;
   
   
-  xprd->auxdata< int >("NN_etaPixelIndexWeightedPosition") = etaPixelIndexWeightedPosition;
-  xprd->auxdata< int >("NN_phiPixelIndexWeightedPosition") = phiPixelIndexWeightedPosition;
+  AUXDATA(xprd, int, NN_etaPixelIndexWeightedPosition) = etaPixelIndexWeightedPosition;
+  AUXDATA(xprd, int, NN_phiPixelIndexWeightedPosition) = phiPixelIndexWeightedPosition;
 
-  xprd->auxdata< float >("NN_localEtaPixelIndexWeightedPosition") = localEtaPixelIndexWeightedPosition;
-  xprd->auxdata< float >("NN_localPhiPixelIndexWeightedPosition") = localPhiPixelIndexWeightedPosition;
+  AUXDATA(xprd, float, NN_localEtaPixelIndexWeightedPosition) = localEtaPixelIndexWeightedPosition;
+  AUXDATA(xprd, float, NN_localPhiPixelIndexWeightedPosition) = localPhiPixelIndexWeightedPosition;
 
   ATH_MSG_VERBOSE( "NN training Written" );
 }
@@ -1006,27 +1015,27 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
   }
 
 
-  xprd->auxdata< std::vector<float> >("NN_positionsX") = positionsX;
-  xprd->auxdata< std::vector<float> >("NN_positionsY") = positionsY;
+  AUXDATA(xprd, std::vector<float>, NN_positionsX) = positionsX;
+  AUXDATA(xprd, std::vector<float>, NN_positionsY) = positionsY;
 
-  xprd->auxdata< std::vector<float> >("NN_positions_indexX") = positions_indexX;
-  xprd->auxdata< std::vector<float> >("NN_positions_indexY") = positions_indexY;
+  AUXDATA(xprd, std::vector<float>, NN_positions_indexX) = positions_indexX;
+  AUXDATA(xprd, std::vector<float>, NN_positions_indexY) = positions_indexY;
 
-  xprd->auxdata< std::vector<float> >("NN_theta")     = theta;
-  xprd->auxdata< std::vector<float> >("NN_phi")       = phi;
+  AUXDATA(xprd, std::vector<float>, NN_theta)     = theta;
+  AUXDATA(xprd, std::vector<float>, NN_phi)       = phi;
 
-  xprd->auxdata< std::vector<int> >("NN_barcode")     = barcode;
-  xprd->auxdata< std::vector<int> >("NN_pdgid")       = pdgid;
-  xprd->auxdata< std::vector<float> >("NN_energyDep") = chargeDep;
-  xprd->auxdata< std::vector<float> >("NN_trueP")     = truep;
+  AUXDATA(xprd, std::vector<int>, NN_barcode)     = barcode;
+  AUXDATA(xprd, std::vector<int>, NN_pdgid)       = pdgid;
+  AUXDATA(xprd, std::vector<float>, NN_energyDep) = chargeDep;
+  AUXDATA(xprd, std::vector<float>, NN_trueP)     = truep;
 
-  xprd->auxdata< std::vector<int> >("NN_motherBarcode") = motherBarcode;
-  xprd->auxdata< std::vector<int> >("NN_motherPdgid")   = motherPdgid;
+  AUXDATA(xprd, std::vector<int>, NN_motherBarcode) = motherBarcode;
+  AUXDATA(xprd, std::vector<int>, NN_motherPdgid)   = motherPdgid;
  
 
-  xprd->auxdata< std::vector<float> >("NN_pathlengthX") = pathlengthX;
-  xprd->auxdata< std::vector<float> >("NN_pathlengthY") = pathlengthY;
-  xprd->auxdata< std::vector<float> >("NN_pathlengthZ") = pathlengthZ;
+  AUXDATA(xprd, std::vector<float>, NN_pathlengthX) = pathlengthX;
+  AUXDATA(xprd, std::vector<float>, NN_pathlengthY) = pathlengthY;
+  AUXDATA(xprd, std::vector<float>, NN_pathlengthZ) = pathlengthZ;
 
 
 }

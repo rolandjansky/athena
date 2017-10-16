@@ -5,52 +5,23 @@
 #include "CaloTPCnv/CaloCellContainerCnv_p1.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
-#include "CaloInterface/ICaloCompactCellTool.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "CaloCompactCellTool.h"
 
-CaloCellContainerCnv_p1::CaloCellContainerCnv_p1 () {
-  m_compactCellTool = nullptr;
-  init();
-}
-
-void CaloCellContainerCnv_p1::init(){
-
-	if ( !m_compactCellTool ) {
-		IToolSvc* toolSvc;
-		ISvcLocator *svcLocator = Gaudi::svcLocator();
-		StatusCode sc = svcLocator->service("ToolSvc", toolSvc);
-		if (sc.isFailure()) {
-	  		std::cout << "CaloCellContainerCnv_p1: Could not get ToolSvc." << std::endl;
-			return;
-		}
-
-		sc = toolSvc->retrieveTool("CaloCompactCellTool", m_compactCellTool);
-		if (sc.isFailure()) {
-			std::cout << "CaloCellContainerCnv_p1: Could not get CaloCompactCellTool." << std::endl;
-			m_compactCellTool = nullptr;
-			return;
-		}
-	}
-return;
-}
+CaloCellContainerCnv_p1::CaloCellContainerCnv_p1 () {}
 
 void CaloCellContainerCnv_p1::persToTrans(const CaloCompactCellContainer* pers, CaloCellContainer* trans) {
   trans->clear();
-  if(m_compactCellTool){
-  	StatusCode sc = m_compactCellTool->getTransient(*pers, trans);
-  	if (sc.isFailure())  std::cout << " CaloCellContainerCnv_p1: Could not get transient" << std::endl;
-  }
+  CaloCompactCellTool compactCellTool;
+  StatusCode sc = compactCellTool.getTransient(*pers, trans);
+  if (sc.isFailure())  std::cout << " CaloCellContainerCnv_p1: Could not get transient" << std::endl;
 }
 
 
 
 void CaloCellContainerCnv_p1::transToPers(const CaloCellContainer* trans, CaloCompactCellContainer* pers)  {
-  	if(m_compactCellTool){
-		StatusCode sc = m_compactCellTool->getPersistent(*trans,pers,ICaloCompactCellTool::VERSION_LATEST);
-		if (sc.isFailure()) std::cout << " CaloCellContainerCnv_p1: Could not get persistent" << std::endl;
-	}
+  CaloCompactCellTool compactCellTool;
+  StatusCode sc = compactCellTool.getPersistent(*trans,pers,CaloCompactCellTool::VERSION_LATEST);
+  if (sc.isFailure()) std::cout << " CaloCellContainerCnv_p1: Could not get persistent" << std::endl;
 }
 
 

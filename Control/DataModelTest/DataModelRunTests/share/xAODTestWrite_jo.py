@@ -38,12 +38,12 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestDecor
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteHVec, \
      DMTest__xAODTestWriteCView, \
-     DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestWriteCVecConst, \
      DMTest__xAODTestWrite, \
      DMTest__xAODTestWriteSymlinks

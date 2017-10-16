@@ -76,6 +76,7 @@ class DetCondCFloat {
 CLASS_DEF(DetCondCFloat,247459965,1)
 CLASS_DEF( CondCont<DetCondCFloat> , 85257013 , 1 )
 SG_BASE( CondCont<DetCondCFloat>, CondContBase );
+REGISTER_CC( DetCondCFloat )
 
 // inline functions for DetCondCFloat
 

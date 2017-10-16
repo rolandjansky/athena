@@ -34,8 +34,6 @@ public:
   double width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const;
 
 private:
-  ToolHandle<CP::IWeightPFOTool> m_weightpfoEM;
-  ToolHandle<CP::IWeightPFOTool> m_weightpfoLC;
 };
 
 #endif

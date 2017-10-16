@@ -3,7 +3,7 @@
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
-#include "LArGeoH62004Algs/FCALConstructionH62004.h"
+#include "FCALConstructionH62004.h"
 
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoMaterial.h"

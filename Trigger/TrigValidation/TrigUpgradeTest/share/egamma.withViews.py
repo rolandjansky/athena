@@ -48,7 +48,7 @@ theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
-from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 
@@ -326,8 +326,26 @@ else:
 
 
 # CF construction
+
+
+
 step0 = parOR("step0", [ egammaCaloStep ] )
 step1 = parOR("step1", [ egammaIDStep ] )
-steps = seqAND("HLTSteps", [ step0, step1 ]  )
-topSequence += steps
+
+from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
+summary.L1Decision = "HLTChains"
+summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
+summary.OutputLevel = DEBUG
+
+steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
+
+mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
+mon.L1Decision = "HLTChains"
+mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
+mon.HLTSummary = "MonitoringSummary"
+mon.OutputLevel = DEBUG
+
+hltTop = seqOR( "hltTop", [ steps, mon] )
+topSequence += hltTop
   

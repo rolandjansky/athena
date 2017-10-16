@@ -192,8 +192,6 @@ include( "InDetRecExample/InDetRecCabling.py" )
 DetFlags.detdescr.Calo_setOn()
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
-from CaloTools.CaloToolsConf import CaloCompactCellTool
-svcMgr.ToolSvc += CaloCompactCellTool()
 from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
 svcMgr.ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
 

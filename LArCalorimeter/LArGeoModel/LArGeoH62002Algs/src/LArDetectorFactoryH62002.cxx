@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62002Algs/LArDetectorFactoryH62002.h"
+#include "LArDetectorFactoryH62002.h"
+#include "HECConstructionH62002.h"
+#include "TableConstructionH62002.h"
+#include "FrontBeamConstructionH62002.h"
+#include "ExcluderConstruction.h"
 #include "LArGeoH6Cryostats/H6CryostatConstruction.h"
-#include "LArGeoH62002Algs/HECConstructionH62002.h"
-#include "LArGeoH62002Algs/TableConstructionH62002.h"
-#include "LArGeoH62002Algs/FrontBeamConstructionH62002.h"
-#include "LArGeoH62002Algs/ExcluderConstruction.h"
 #include "LArGeoH6Cryostats/WallsConstruction.h"
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"

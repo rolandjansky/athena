@@ -28,7 +28,7 @@ class SCT_ClusterContainerCnv_p1 : public T_AthenaPoolTPCnvBase< InDet::SCT_Clus
  public:
    typedef InDet::InDetPRD_Container_p1 PERS; 
    typedef InDet::SCT_ClusterContainer TRANS;
-   SCT_ClusterContainerCnv_p1(): m_isInitialized(0) {}
+   SCT_ClusterContainerCnv_p1(): m_sctId{nullptr}, m_storeGate{nullptr}, m_sctMgr{nullptr}, m_isInitialized(0) {}
    virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
    virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
    virtual InDet::SCT_ClusterContainer* createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log);

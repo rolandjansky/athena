@@ -33,7 +33,7 @@ namespace xAOD {
        @param[in] output    output vector to be filled
        @return true if the calculation was successfull
      */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) = 0;
+    virtual bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) const = 0;
   };
 
   inline const InterfaceID& IPFlowObjectsInConeTool::interfaceID() { 
