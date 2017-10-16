@@ -25,8 +25,18 @@
 
 import os
 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from IOVSvc.IOVSvcConf import CondSvc
 from IOVSvc.IOVSvcConf import CondInputLoader
+from AthenaCommon.AlgSequence import AthSequencer
+import StoreGate.StoreGateConf as StoreGateConf
+
 condInputLoader = CondInputLoader( "CondInputLoader")
+condSeq = AthSequencer("AthCondSeq")
+
+svcMgr += CondSvc()
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+condSeq += condInputLoader
 
 class CondDB:
     "Class to hold configuration information for Athena conditions DB access"
