@@ -1752,6 +1752,7 @@ def setupMenu():
         #['2e5_lhloose_nod0_bBeex_L1JPSI-1M5',     'L1_JPSI-1M5',      ['L1_EM3','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         #['e9_lhloose_nod0_e4_etcute5_lhloose_nod0_bBeex_L1JPSI-1M5-EM7', 'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_etcut_e4_etcut_bBeex',                'L1_EM7_2EM3',      ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['2e5_cut12_bBeex',            'L1_JPSI-1M5-EM7_J12_MU6',      ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
 
         
