@@ -9,6 +9,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p1.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p2.h"
+#include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p3.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 namespace Trk { class PRD_MultiTruthCollection_p2; }
@@ -28,9 +29,11 @@ protected:
 private:
   PRD_MultiTruthCollectionCnv_p1 m_converter_p1;
   PRD_MultiTruthCollectionCnv_p2 m_converter_p2;
+  PRD_MultiTruthCollectionCnv_p3 m_converter_p3;
   static pool::Guid s_p0_guid;
   static pool::Guid s_p1_guid;
   static pool::Guid s_p2_guid;
+  static pool::Guid s_p3_guid;
 };
 
 #endif/*CALOATHENAPOOL_CALOCELLLINKCONTAINERCNV_H*/
