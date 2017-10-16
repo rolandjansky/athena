@@ -49,11 +49,52 @@ triggersMET = [
 'HLT_xe130_mht_L1XE50',
 'HLT_xe140_mht_L1XE50',
 'HLT_noalg_L1J400'
+# 2017
+'HLT_xe110_pufit_L1XE50',
+'HLT_xe120_pufit_L1XE50',
+'HLT_xe110_pufit_L1XE55',
+'HLT_xe110_pufit_L1XE60',
+'HLT_xe120_pufit_L1XE55',
+'HLT_xe120_pufit_L1XE60'
+'HLT_noalg_L1J420'
+'HLT_noalg_L1J450'
 ]
 
 triggersSoftMuon = [
+# 2016
 'HLT_2mu4_j85_xe50_mht',
-'HLT_mu4_j125_xe90_mht'
+'HLT_mu4_j125_xe90_mht',
+# 2017
+'HLT_2mu4_invm1_j20_xe40_pufit_2dphi10_L12MU4_J20_XE30_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J20_XE30_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J20_XE40_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J40_XE50',
+'HLT_2mu4_invm1_j20_xe80_pufit_2dphi10_L12MU4_J40_XE50',
+'HLT_mu4_j90_xe90_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30',
+'HLT_mu4_j90_xe90_pufit_2dphi10_L1MU4_XE60',
+'HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_XE60',
+'HLT_2e5_lhvloose_nod0_j40_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_2e5_lhvloose_nod0_j40_xe70_pufit_2dphi10_L1XE60'
+'HLT_2e5_lhmedium_nod0_j40_xe80_pufit_2dphi10_L1XE60',
+'HLT_2e5_lhloose_nod0_j40_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhvloose_nod0_mu4_j30_xe40_pufit_2dphi10_L1MU4_J30_XE40_DPHI-J20s2XE30',
+'HLT_e5_lhloose_nod0_j50_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhloose_nod0_mu4_j30_xe40_pufit_2dphi10_L1MU4_J30_XE40_DPHI-J20s2XE30',
+'HLT_e5_lhmedium_nod0_j50_xe80_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhmedium_nod0_mu4_j30_xe65_pufit_2dphi10_L1MU4_XE60',
+'HLT_e5_lhloose_nod0_j40_xe70_pufit_2dphi10_L1XE60',
+'HLT_e5_lhmedium_nod0_j40_xe80_pufit_2dphi10_L1XE60',
+'HLT_e5_lhmedium_nod0_j50_xe90_pufit_2dphi10_L1J40_XE50_DPHI_J20s2XE50',
+# MC16
+'HLT_mu4_j100_xe60mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_mu4_xe60mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_2mu4_xe40mht_L12MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_e5_lhmedium_nod0_mu4_xe40_mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_2e5_lhmedium_nod0_j50_xe80_mht_L1J40_XE50_DPHI-J20sXE50',
+# trimuon for low-MET analysis
+'HLT_3mu4',
+'HLT_3mu6',
+'HLT_3mu6_msonly',
 ]
 
 triggersSoftMuonEmulation = [

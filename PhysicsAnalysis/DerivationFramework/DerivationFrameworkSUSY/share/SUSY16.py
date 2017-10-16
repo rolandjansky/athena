@@ -42,15 +42,6 @@ SUSY16ThinningHelper.AppendToStream( SUSY16Stream )
 # THINNING TOOLS 
 #====================================================================
 
-# B.M.: likely not used
-# TrackParticles directly
-#SUSY16TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY16TPThinningTool",
-#                                                                  ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
-#                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY16TPThinningTool
-#thinningTools.append(SUSY16TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY16MuonTPThinningTool",
@@ -146,10 +137,10 @@ if DerivationFrameworkIsMonteCarlo:
                                                                      WriteBSMProducts             = True,
                                                                      WriteTopAndDecays            = True,
                                                                      WriteEverything              = False,
-                                                                     WriteAllLeptons              = False,
+                                                                     WriteAllLeptons              = True,
                                                                      WriteLeptonsNotFromHadrons   = False,
                                                                      WriteStatus3                 = False,
-                                                                     WriteFirstN                  = -1,
+                                                                     WriteFirstN                  = 10,
                                                                      PreserveAncestors            = True,
                                                                      PreserveGeneratorDescendants = False,
                                                                      SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
@@ -252,16 +243,47 @@ SUSY16_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name       
                                                                      )
 ToolSvc += SUSY16_MaxCellDecoratorTool
 
-# Calo Clusters associated with Electrons
-SUSY16ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "SUSY16ElectronCCThinningTool",
-                                                                        ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
-                                                                        SGKey                   = "Electrons",
-                                                                        CaloClCollectionSGKey   = "egammaClusters",
-                                                                        TopoClCollectionSGKey   = "",
-                                                                        #SelectionString         = "Electrons.pt > 15*GeV",
-                                                                        #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
-                                                                        ConeSize                = 0)
-ToolSvc += SUSY16ElectronCCThinningTool
+# May want to add this in at some point for isolated-track selection studies?
+if False:
+    #====================================================================
+    # ISOLATION TOOL 
+    #====================================================================
+    #Track selection
+    from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
+    TrackIsoTool = xAOD__TrackIsolationTool("TrackIsoTool")
+    TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 3.
+    TrackIsoTool.TrackSelectionTool.minPt= 1000.
+    TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
+    ToolSvc += TrackIsoTool
+
+    TrackIsoTool500 = xAOD__TrackIsolationTool("TrackIsoTool500")
+    TrackIsoTool500.TrackSelectionTool.maxZ0SinTheta= 3.
+    TrackIsoTool500.TrackSelectionTool.minPt= 500.
+    TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
+    ToolSvc += TrackIsoTool500
+
+    from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
+    import ROOT, PyCintex
+    PyCintex.loadDictionary('xAODCoreRflxDict')
+    PyCintex.loadDictionary('xAODPrimitivesDict')
+    isoPar = ROOT.xAOD.Iso
+    Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
+                                                                    TrackIsolationTool = TrackIsoTool,
+                                                                    TargetContainer = "InDetTrackParticles",
+                                                                    ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                    Prefix = 'TrkIsoPt1000_'
+                                                                   )
+    Pt500IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt500IsoTrackDecorator",
+                                                                    TrackIsolationTool = TrackIsoTool500,
+                                                                    TargetContainer = "InDetTrackParticles",
+                                                                    ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                    Prefix = 'TrkIsoPt500_'
+                                                                   )
+    ToolSvc += Pt1000IsoTrackDecorator
+    ToolSvc += Pt500IsoTrackDecorator
+
+    AugmentationTools.append(Pt1000IsoTrackDecorator)
+    AugmentationTools.append(Pt500IsoTrackDecorator)
 
 
 #=======================================
