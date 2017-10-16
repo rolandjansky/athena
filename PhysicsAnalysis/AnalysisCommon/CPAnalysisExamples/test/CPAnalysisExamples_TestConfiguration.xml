@@ -4,8 +4,8 @@
 <unifiedTestConfiguration>
 
 <atn>
-   <TEST name="xAODSkimTest" type="athena" suite="ASGTests">
-      <options_atn>CPAnalysisExamples/skimxAODJobOptions.py</options_atn>
+   <TEST name="xAODSkimTest" type="script" suite="ASGTests">
+      <options_atn>skip_if_libraryMissing.sh CPAnalysisExamples athena.py CPAnalysisExamples/skimxAODJobOptions.py</options_atn>
       <timelimit>10</timelimit>
       <author> Will Buttinger </author>
       <mailto> will@cern.ch </mailto>
