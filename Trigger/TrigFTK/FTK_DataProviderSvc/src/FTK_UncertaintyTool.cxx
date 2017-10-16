@@ -49,7 +49,7 @@ StatusCode FTK_UncertaintyTool::initialize() {
     LoadConstants_NoIBL();
   else
     if(m_ftknew)
-      LoadConstants_newftk();
+      LoadConstants_ftknew();
     else
       LoadConstants();
 
@@ -418,7 +418,7 @@ void FTK_UncertaintyTool::LoadConstants_NoIBL()
 
 
 
-void FTK_UncertaintyTool::LoadConstants_newftk()
+void FTK_UncertaintyTool::LoadConstants_ftknew()
 {
   //////////////////////////////////////////////////
   // constants for tracks with an Inner B Layer hit.
