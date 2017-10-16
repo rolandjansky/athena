@@ -65,7 +65,7 @@ namespace InDet{
 	 const InDet::SiClusterContainer*                    ,
 	 const InDet::SiClusterContainer*                    ,
 	 const Trk::TrackParameters                          &,
-	 std::list<const InDet::SiCluster*>                  &,
+	 std::vector<const InDet::SiCluster*>                  &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
 	 bool                                                &);
 
@@ -75,7 +75,7 @@ namespace InDet{
 	 const Trk::TrackParameters                              &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>    &,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 std::list<const InDet::SiCluster*>                      &);
+	 std::vector<const InDet::SiCluster*>                      &);
       
       bool globalPositionsToClusters
  	(const InDet::SiClusterContainer*                        ,
@@ -83,7 +83,7 @@ namespace InDet{
 	 const std::list<Amg::Vector3D>                          &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>    &,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 std::list<const InDet::SiCluster*>                      &); 
+	 std::vector<const InDet::SiCluster*>                      &); 
 
       bool backwardExtension(int);
       bool forwardExtension (bool,int);
@@ -91,7 +91,7 @@ namespace InDet{
       bool backwardSmoother (bool);
       bool isLastPixel      (); 
       const Trk::TrackParameters* firstTrackParameters();
-      void getClusters(std::list<const InDet::SiCluster*>&);
+      void getClusters(std::vector<const InDet::SiCluster*>&);
 
       DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface();
       DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface(int);
