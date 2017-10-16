@@ -172,19 +172,19 @@ namespace DerivationFramework {
             else {return;}
             
             // Get children particles and self-call
-	    int  nChildren = decayVtx->nOutgoingParticles();
+            int  nChildren = decayVtx->nOutgoingParticles();
             bool saveVertex = false;
             for (int i=0; i<nChildren; ++i) {
               if (decayVtx->outgoingParticle(i)==nullptr) continue;
-	      descendants(decayVtx->outgoingParticle(i),particleMask,vertexMask,encounteredBarcodes,includeGeant);
-	      saveVertex = saveVertex || includeGeant || !(decayVtx->outgoingParticle(i)->barcode()>g4BarcodeOffset);
-	    }
+              descendants(decayVtx->outgoingParticle(i),particleMask,vertexMask,encounteredBarcodes,includeGeant);
+              saveVertex = saveVertex || includeGeant || !(decayVtx->outgoingParticle(i)->barcode()>g4BarcodeOffset);
+            }
 
             // Save the decay vertex
-	    if ( saveVertex ) {
-	      int vtxIndex = decayVtx->index();
-	      vertexMask[vtxIndex] = true;
-	    }
+            if ( saveVertex ) {
+              int vtxIndex = decayVtx->index();
+              vertexMask[vtxIndex] = true;
+            }
             return;
         }
         

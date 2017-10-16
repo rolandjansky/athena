@@ -23,7 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM

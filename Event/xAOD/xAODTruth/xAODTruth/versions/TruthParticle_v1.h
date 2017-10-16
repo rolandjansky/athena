@@ -333,7 +333,7 @@ namespace xAOD {
       /// @param parameter The polarion parameter that we are interested in
       /// @return The value of the polarization parameter requested
       ///
-      float polarizationPatameter( PolParam parameter ) const;
+      float polarizationParameter( PolParam parameter ) const;
 
       /// Single container for full polarization information
       ///

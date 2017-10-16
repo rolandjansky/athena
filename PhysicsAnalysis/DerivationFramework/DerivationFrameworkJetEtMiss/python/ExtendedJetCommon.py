@@ -77,6 +77,10 @@ def addAntiKt10TruthWZJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
+def addAntiKt4TruthDressedWZJets(sequence,outputlist):
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+
 def replaceAODReducedJets(jetlist,sequence,outputlist):
     extjetlog.info( "Replacing AOD-reduced jet collections: {0}".format(",".join(jetlist)))
     if "AntiKt2PV0TrackJets" in jetlist:

@@ -11,8 +11,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkTau.TauTruthCommon import *
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 
 #====================================================================
