@@ -41,7 +41,7 @@ atlas_add_library( xAODTruthCnvLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( xAODTruthCnv
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthLinks AthenaBaseComps StoreGate EventInfo xAODTruth
+      LINK_LIBRARIES AthLinks AthenaBaseComps StoreGateLib EventInfo xAODTruth
       GaudiKernel GeneratorObjects xAODTruthCnvLib )
 endif()
 
