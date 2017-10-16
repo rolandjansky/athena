@@ -269,7 +269,7 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalTestAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = 'isBJet'
-    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
+    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel,doMuons=False)
     algOR = OverlapRemovalTestAlg('OverlapRemovalTestAlg',
 			    OverlapLabel=outputLabel,
                             OverlapRemovalTool=orTool,
