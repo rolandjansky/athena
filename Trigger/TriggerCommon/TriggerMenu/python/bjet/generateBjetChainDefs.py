@@ -125,11 +125,17 @@ def generateChainDefs(chainDict):
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
     isMuDr       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dr") == -1)
     isMuDz       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dz") == -1)
-    
+    isSingleJet  = ( (len(chainDict['chainParts']) == 1) and (int(chainDict['chainParts'][0]['multiplicity']) == 1))
+
     #
     # Only run the All TE on split chains
     #
     doAllTEConfig = isSplitChain
+
+    #
+    # Do not need to run AllTE on single jet chains
+    #
+    if isSingleJet: doAllTEConfig = False
 
     #
     #  New AllTE config currently supported on new mv2c10 taggers
