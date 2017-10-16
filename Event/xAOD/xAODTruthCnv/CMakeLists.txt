@@ -45,6 +45,11 @@ if( NOT XAOD_STANDALONE )
       GaudiKernel GeneratorObjects xAODTruthCnvLib )
 endif()
 
+atlas_add_dictionary( xAODTruthCnvDict
+   xAODTruthCnv/xAODTruthCnvDict.h
+   xAODTruthCnv/selection.xml
+   LINK_LIBRARIES xAODTruthCnvLib )
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
