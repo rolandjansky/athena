@@ -2,6 +2,6 @@
 
 AntiKt4TruthJetsCPContent = [
 "AntiKt4TruthJets",
-"AntiKt4TruthJetsAux.pt.eta.phi.m.ConeTruthLabelID.HadronConeExclTruthLabelID.HadronConeExclExtendedTruthLabelID.PartonTruthLabelID"
+"AntiKt4TruthJetsAux.pt.eta.phi.m.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor"
 ]
 
