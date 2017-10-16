@@ -20,11 +20,10 @@ class LArCalibLineMappingAlg: public AthAlgorithm {
 public:
 
   LArCalibLineMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArCalibLineMappingAlg();
+  virtual ~LArCalibLineMappingAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey;

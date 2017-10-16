@@ -22,9 +22,9 @@ public:
   LArFebRodMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~LArFebRodMappingAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+
 
  private:
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey;
