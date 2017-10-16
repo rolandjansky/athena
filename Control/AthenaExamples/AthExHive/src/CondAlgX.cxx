@@ -49,7 +49,7 @@ StatusCode CondAlgX::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_cs->regHandle(this, m_wchk, m_wchk.dbKey()).isFailure()) {
+  if (m_cs->regHandle(this, m_wchk).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey() 
                   << " with CondSvc");
     return StatusCode::FAILURE;
