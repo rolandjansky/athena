@@ -11,14 +11,14 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon			
    Control/DataModel
    Control/AthenaBaseComps
-	PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
+   PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    PhysicsAnalysis/JpsiUpsilonTools
    Event/xAOD/xAODTracking
    Event/xAOD/xAODBPhys
    Control/AthenaKernel
    Reconstruction/RecoTools/RecoToolInterfaces
    Event/EventPrimitives
-	PhysicsAnalysis/BPhys/BPhysTools
+   PhysicsAnalysis/BPhys/BPhysTools
    PRIVATE
    Event/xAOD/xAODBase
    Event/xAOD/xAODMetaData
@@ -31,21 +31,20 @@ atlas_depends_on_subdirs(
    Reconstruction/RecoTools/TrackToVertex
    Tracking/TrkEvent/TrkCaloExtension
    InnerDetector/InDetConditions/InDetBeamSpotService
-	InnerDetector/InDetRecTools/InDetTrackSelectionTool
-	Trigger/TrigAnalysis/TrigDecisionTool
-	)
+   InnerDetector/InDetRecTools/InDetTrackSelectionTool
+   Trigger/TrigAnalysis/TrigDecisionTool )
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkBPhysLib
    DerivationFrameworkBPhys/*.h src/*.cxx
    PUBLIC_HEADERS DerivationFrameworkBPhys
    LINK_LIBRARIES xAODMuon DataModel AthenaBaseComps JpsiUpsilonTools
-	xAODTracking xAODBPhysLib AthenaKernel RecoToolInterfaces EventPrimitives
-	BPhysToolsLib
+   xAODTracking xAODBPhysLib AthenaKernel RecoToolInterfaces EventPrimitives
+   BPhysToolsLib
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData TrkVertexAnalysisUtils
    xAODEventInfo AthenaPoolUtilities xAODPrimitives CaloEvent TrackToCalo
    TrackToVertex TrkCaloExtension InDetBeamSpotServiceLib
-	InDetTrackSelectionToolLib TrigDecisionTool )
+   InDetTrackSelectionToolLib TrigDecisionTool )
 
 atlas_add_component( DerivationFrameworkBPhys
    src/components/*.cxx
