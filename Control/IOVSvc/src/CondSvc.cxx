@@ -5,6 +5,7 @@
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/SvcFactory.h"
+#include "AthenaKernel/StoreID.h"
 
 //---------------------------------------------------------------------------
 
@@ -43,21 +44,21 @@ CondSvc::initialize() {
 }
 //---------------------------------------------------------------------------
 
-void
-CondSvc::dump() const {
+// void
+// CondSvc::dump() const {
 
-  std::ostringstream ost;
-  dump(ost);
+//   std::ostringstream ost;
+//   dump(ost);
 
-  info() << ost.str() << endmsg;
+//   info() << ost.str() << endmsg;
 
-}
+// }
 
 
 //---------------------------------------------------------------------------
 
 void
-CondSvc::dump(std::ostringstream& ost) const {
+CondSvc::dump(std::ostream& ost) const {
 
   std::lock_guard<std::mutex> lock(m_lock);
 
@@ -121,13 +122,12 @@ CondSvc::stop() {
 //---------------------------------------------------------------------------
 
 StatusCode 
-CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh, 
-                   const std::string& key) {
+CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
 
   std::lock_guard<std::mutex> lock(m_lock);
 
-  ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: " << dh.fullKey()
-                 << "  dBkey: " << key );
+  ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: "
+                 << dh.fullKey() );
 
   if (dh.mode() != Gaudi::DataHandle::Writer) {
     info() << dh.fullKey() << " is a ReadHandle. no need to register"
@@ -149,7 +149,7 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh,
     // FIXME : so why is it a set<IAlgorithm*> ??
   }
 
-  m_keyMap[key] = dh.fullKey();
+  //  m_keyMap[key] = dh.fullKey();
   m_condAlgs.insert(alg);
 
   m_condIDs.emplace( dh.fullKey() );
@@ -292,9 +292,17 @@ CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
 
   EventIDBase now(ctx.eventID());
 
-  CondContBase *cib;
-  if (m_sgs->retrieve(cib, id.key()).isSuccess()) {
-    return cib->valid(now);
+  // FIXME: this is ugly, but we need to strip out the name of the store.
+  std::string sk = id.key();
+  if (sk.find(StoreID::storeName(StoreID::CONDITION_STORE)) == 0) {
+    sk.erase(0,15);
+  }
+
+  if (m_sgs->contains<CondContBase>( sk ) ) {
+    CondContBase *cib;
+    if (m_sgs->retrieve(cib, sk).isSuccess()) {
+      return cib->valid(now);
+    }
   }
 
   return false;
@@ -311,6 +319,17 @@ CondSvc::isRegistered(const DataObjID& id) const {
 }
 
 //---------------------------------------------------------------------------
+
+
+bool
+CondSvc::isRegistered(IAlgorithm* ialg) const {
+
+  return (m_condAlgs.find(ialg) != m_condAlgs.end());
+
+}
+
+//---------------------------------------------------------------------------
+
 
 const DataObjIDColl&
 CondSvc::conditionIDs() const {

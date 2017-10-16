@@ -11,7 +11,7 @@
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
-#include "EventCommonTPCnv/Compressor.h"
+#include "AthenaPoolCnvSvc/Compressor.h"
 
 // CaloCalibrationHitContainerCnv_p3, used for T/P separation
 // author Ilija Vukotic

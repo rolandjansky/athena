@@ -284,6 +284,7 @@ private:
   bool m_doEvtHeartbeat;
 
   unsigned int m_flmbi, m_timeStampInt;
+  bool m_showTimeStamp;
 
   // from MinimalEventLoopMgr
 public:

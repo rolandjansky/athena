@@ -23,7 +23,7 @@
 #include "EventInfo/TagInfo.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkExInterfaces/IPropagator.h"
-
+#include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -33,9 +33,8 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   : AthAlgTool(t,n,p)                                                ,
     m_propTool     ("Trk::RungeKuttaPropagator"                  ),
     m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           ),
-    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels") 
+    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels")
 {
-  m_trtname     =  "TRT_DriftCircles";
   m_fieldmode   =      "MapSolenoid" ;
   m_pTmin       =                500.;
   m_sharedfrac  =                0.3 ;
@@ -58,14 +57,14 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareProperty("TrackExtensionTool"     ,m_extensionTool);
   declareProperty("MagneticFieldMode"      ,m_fieldmode    );
   declareProperty("TrtManagerLocation"     ,m_ntrtmanager  );
-  declareProperty("TRT_ClustersContainer"  ,m_trtname      ); 
   declareProperty("NumberAzimuthalChannel" ,m_nPhi         ); 
   declareProperty("NumberMomentumChannel"  ,m_nMom         ); 
   declareProperty("MinNumberDriftCircles"  ,m_clustersCut  );
   declareProperty("UseAssosiationTool"     ,m_useassoTool  ); 
   declareProperty("RemoveNoiseDriftCircles",m_removeNoise  );
   declareProperty("pTmin"                  ,m_pTmin        );
-  declareProperty("sharedFrac"             ,m_sharedfrac   ); 
+  declareProperty("sharedFrac"             ,m_sharedfrac   );
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -98,6 +97,11 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   // Initiate magnetic field properties
   //
   magneticFieldInit();
+
+  // Initialize ReadHandle
+  //
+  ATH_CHECK(m_trtname.initialize());
+  
 
   // Get propagator tool
   //
@@ -201,7 +205,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
   m_clusters     = 0;
   m_nlocal       = 0;
   m_nsegments    = 0;
-  m_trtcontainer = 0; 
   m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
   m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
   m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
@@ -211,13 +214,13 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
 
   // Get drift circles collection
   //
-  StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
-  if(s.isFailure() && m_outputlevel<=0) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
-  if(!m_trtcontainer) return;
 
+  if (not m_trtcontainer.isValid()) return;
   // Initiate extension tool
   //
   m_extensionTool->newEvent();
@@ -281,7 +284,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   m_clusters     = 0;
   m_nlocal       = 0;
   m_nsegments    = 0;
-  m_trtcontainer = 0; 
   m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
   m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
   m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
@@ -291,13 +293,13 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
   // Get drift cilrcles collection
   //
-  StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
-  if(s.isFailure() && m_outputlevel<=0) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
-  if(!m_trtcontainer) return;
 
+  if(not m_trtcontainer.isValid()) return;
   // Initiate extension tool
   //
   m_extensionTool->newEvent();
@@ -468,7 +470,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   int n  = 62-fieldmode[mode].size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
 
-  n     = 62-m_trtname.size();
+  n     = 62-m_trtname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
   n     = 62-m_propTool.type().size();
@@ -488,7 +490,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| Tool tracks extension   | "<<m_extensionTool.type()<<s7<<std::endl;    
   out<<"| Tool track-prd associa  | "<<m_assoTool     .type()<<s8<<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]       <<s3<<std::endl;
-  out<<"| TRT container           | "<<m_trtname             <<s4<<std::endl;
+  out<<"| TRT container           | "<<m_trtname.key().size()             <<s4<<std::endl;
   out<<"| Min. number straws      | "
      <<std::setw(12)<<m_clustersCut
      <<"                                                  |"<<std::endl;

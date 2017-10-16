@@ -213,8 +213,9 @@ class logFileReport(object):
 class athenaLogFileReport(logFileReport):
     ## @brief Class constructor
     #  @param logfile Logfile (or list of logfiles) to scan
+    #  @param substepName Name of the substep executor, that has requested this log scan
     #  @param msgLimit The number of messages in each category on which a
-    def __init__(self, logfile, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR'], ignoreList=None):
+    def __init__(self, logfile, substepName=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR'], ignoreList=None):
         if ignoreList:
             self._ignoreList = ignoreList
         else:
@@ -229,6 +230,7 @@ class athenaLogFileReport(logFileReport):
 
         self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
+        self._substepName = substepName
         self._msgLimit = msgLimit
 
         self.resetReport()
@@ -261,7 +263,6 @@ class athenaLogFileReport(logFileReport):
         self._dbbytes = 0
         self._dbtime  = 0.0
 
-
     def scanLogFile(self, resetReport=False):
         if resetReport:
             self.resetReport()
@@ -270,7 +271,7 @@ class athenaLogFileReport(logFileReport):
             msg.debug('Now scanning logfile {0}'.format(log))
             # N.B. Use the generator so that lines can be grabbed by subroutines, e.g., core dump svc reporter
             try:
-                myGen = trfUtils.lineByLine(log)
+                myGen = trfUtils.lineByLine(log, substepName=self._substepName)
             except IOError, e:
                 msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
                 # Return this as a small report
@@ -381,6 +382,7 @@ class athenaLogFileReport(logFileReport):
                     a = re.match(r'(\D+)(?P<bytes>\d+)(\D+)(?P<time>\d+[.]?\d*)(\D+)', fields['message'])
                     self._dbbytes += int(a.group('bytes'))
                     self._dbtime  += float(a.group('time'))
+
 
     ## Return data volume and time spend to retrieve information from the database
     def dbMonitor(self):

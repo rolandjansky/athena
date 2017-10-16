@@ -75,6 +75,8 @@ class DetCondCFloat {
 CLASS_DEF(DetCondCFloat,247459965,1)
 CLASS_DEF( CondCont<DetCondCFloat> , 85257013 , 1 )
 
+REGISTER_CC( DetCondCFloat )
+
 // inline functions for DetCondCFloat
 
 inline DetCondCFloat::DetCondCFloat() : m_size(0), m_tag("null") {}

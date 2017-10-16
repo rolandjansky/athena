@@ -6,11 +6,12 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
-if globalflags.isOverlay():
+if globalflags.isOverlay() and isData :
   if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    if isData:
-      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+    eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+  else :
+    eventInfoKey = "McEventInfo"
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")

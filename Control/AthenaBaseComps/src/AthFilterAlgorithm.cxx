@@ -96,7 +96,7 @@ AthFilterAlgorithm::sysInitialize()
 
 /// Set the filter passed flag to the specified state
 void
-AthFilterAlgorithm::setFilterPassed( bool state )
+AthFilterAlgorithm::setFilterPassed( bool state ) const
 {
   AthAlgorithm::setFilterPassed(state);
 

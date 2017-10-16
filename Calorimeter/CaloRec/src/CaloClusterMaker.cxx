@@ -89,23 +89,23 @@ CaloClusterMaker::~CaloClusterMaker()
 
 StatusCode CaloClusterMaker::initialize()
 {
-  //Retrieve maker tools
-  for (auto tool :  m_clusterMakerTools) {
-    StatusCode sc=tool.retrieve();
-    if (sc.isFailure())
-      ATH_MSG_ERROR("Failed to retrieve maker tool " << tool);
-    else
-      ATH_MSG_DEBUG("Successfully retrieved maker tool " << tool);
-  }//end loop over maker tools
 
+
+  if (m_clusterMakerTools.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve maker ToolHandleArray "
+                  << m_clusterMakerTools);
+  } else {
+    ATH_MSG_DEBUG("Successfully retrieved maker ToolHandleArray "
+                  << m_clusterMakerTools);
+  }
   
-  for (auto tool :  m_clusterCorrectionTools) {
-     StatusCode sc=tool.retrieve();
-    if (sc.isFailure())
-      ATH_MSG_ERROR("Failed to retrieve correction tool " << tool);
-    else
-      ATH_MSG_DEBUG("Successfully retrieved correction tool " << tool);
-  }//end loop over correction tools
+  if (m_clusterCorrectionTools.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve correction ToolHandleArray "
+                  << m_clusterCorrectionTools);
+  } else {
+    ATH_MSG_DEBUG("Successfully retrieved correction ToolHandleArray "
+                  << m_clusterCorrectionTools);
+  }
 
   if (m_chronoTools) {
     msg(MSG::INFO) << "Will use ChronoStatSvc to monitor ClusterMaker and ClusterCorrection tools" << endmsg;

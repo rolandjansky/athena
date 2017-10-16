@@ -11,7 +11,7 @@
  *
  */
 
-#include "EventCommonTPCnv/Compressor.h"
+#include "AthenaPoolCnvSvc/Compressor.h"
 using namespace std;
 
 // ---------- STANDARD

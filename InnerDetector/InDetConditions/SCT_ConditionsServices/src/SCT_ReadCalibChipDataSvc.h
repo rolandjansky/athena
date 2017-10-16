@@ -18,6 +18,11 @@
 #include "AthenaKernel/IIOVDbSvc.h" 
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
+#include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
+#include "SCT_ConditionsData/SCT_GainCalibData.h"
+#include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 
 // Include boost stuff
 #include "boost/array.hpp"
@@ -37,7 +42,6 @@ namespace coral{class AttributeList;}
 class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtual public AthService {
 
  public:
-  enum {CHIPS_PER_MODULE=12, NUMBER_OF_MODULES=4088, N_NPTGAIN=6, N_NOISEOCC=4};
   //----------Public Member Functions----------//
   // Structors
   SCT_ReadCalibChipDataSvc(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
@@ -76,7 +80,15 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NoiseOccupancy data wafer
 
  private:
-   
+  // Private enums
+  enum FolderType {NPTGAIN, NOISEOCC, UNKNOWN_FOLDER, N_FOLDERTYPES};
+
+  // Private methods
+  void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData);
+  void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData);
+  int nPtGainIndex(const std::string& dataName) const;
+  int noiseOccIndex(const std::string& dataName) const;
+
   //----------Private Attributes----------//
   ServiceHandle<StoreGateSvc>         m_storeGateSvc;      //!< Handle to StoreGate service
   ServiceHandle<StoreGateSvc>         m_detStoreSvc;       //!< Handle to detector store
@@ -91,16 +103,8 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   StringArrayProperty m_atrcollist;
 
   // Calib data maps
-  typedef boost::array<float, CHIPS_PER_MODULE> ModuleGain_t;
-  typedef boost::array<float, CHIPS_PER_MODULE> ModuleNoise_t;
-  //
-  typedef boost::array<ModuleGain_t, N_NPTGAIN> GainParameters_t;
-  typedef boost::array<ModuleNoise_t, N_NOISEOCC> NoiseOccParameters_t;
-  //
-  typedef boost::array< GainParameters_t, NUMBER_OF_MODULES> AllModulesGains_t;
-  typedef boost::array< NoiseOccParameters_t, NUMBER_OF_MODULES> AllModulesNoise_t;
-  AllModulesGains_t m_nPtGainData;
-  AllModulesNoise_t m_noiseOccData;
+  SCT_GainCalibData m_nPtGainData;
+  SCT_NoiseCalibData m_noiseOccData;
 
   // DataHandles for callback
   const DataHandle<CondAttrListCollection> m_coolGainData;
@@ -111,8 +115,13 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   float m_noiseLevel;
   BooleanProperty m_printCalibDataMaps; //!< Print the calib data maps?
 
-  void insertNptGainFolderData(GainParameters_t& theseCalibData, const coral::AttributeList& folderData);
-  void insertNoiseOccFolderData(NoiseOccParameters_t& theseCalibData, const coral::AttributeList& folderData);
+  // Static members
+  static const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> s_nPtGainDbParameterNames;
+  static const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> s_nPtGainParameterNames;
+  static const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> s_noiseOccDbParameterNames;
+  static const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> s_noiseOccParameterNames;
+  static const std::string s_nPtGainFolder;
+  static const std::string s_noiseOccFolder;
 };
 
 //---------------------------------------------------------------------- 
