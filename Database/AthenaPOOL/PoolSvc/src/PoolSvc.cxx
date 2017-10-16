@@ -137,12 +137,7 @@ StatusCode PoolSvc::initialize() {
 
    return setupPersistencySvc();
 }
-//__________________________________________________________________________
-StatusCode PoolSvc::reinit() {
-   ATH_MSG_INFO("Re-initializing " << name());
-   // Setup a catalog connection based on the value of $POOL_CATALOG
-   return(StatusCode::SUCCESS);
-}
+
 //__________________________________________________________________________
 StatusCode PoolSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
@@ -180,10 +175,7 @@ StatusCode PoolSvc::io_reinit() {
          m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
-   if (!setupPersistencySvc().isSuccess()) {
-      return(StatusCode::FAILURE);
-   }
-   return reinit();
+   return setupPersistencySvc();
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::setupPersistencySvc() {
@@ -285,7 +277,18 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   return(disconnect(IPoolSvc::kInputStream));
+   unsigned int streamId = 0;
+   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
+		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      ATH_MSG_DEBUG("Deleting PersSvc stream " << streamId);
+      delete *iter;
+   }
+   m_persistencySvcVec.clear();
+   if (m_catalog != nullptr) {
+      m_catalog->commit();
+      delete m_catalog; m_catalog = nullptr;
+   }
+   return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
