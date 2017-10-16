@@ -87,7 +87,7 @@ void test_addToStore ATLAS_NOT_THREAD_SAFE ()
   SG::StringPool::sgkey_t sgkey2b = pool.stringToKey ("dp2", 124);
   assert (store.proxy_exact (sgkey2b) == dp2);
   assert (store.proxy_exact (sgkey2a) == 0);
-  assert (dp2->sgkey() == sgkey2a);
+  assert (dp2->sgkey() == sgkey2b);
 }
 
 
