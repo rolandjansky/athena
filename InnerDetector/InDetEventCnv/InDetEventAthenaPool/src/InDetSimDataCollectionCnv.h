@@ -10,6 +10,7 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimDataCollectionCnv_p1.h"
 #include "InDetSimDataCollectionCnv_p2.h"
+#include "InDetSimDataCollectionCnv_p3.h"
 
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
