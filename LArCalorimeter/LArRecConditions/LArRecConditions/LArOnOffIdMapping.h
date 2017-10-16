@@ -120,7 +120,5 @@ inline HWIdentifier LArOnOffIdMapping::createSignalChannelID(const Identifier & 
 CLASS_DEF( LArOnOffIdMapping,148608605 , 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArOnOffIdMapping>, 155467877 , 0)
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArOnOffIdMapping>, CondContBase );
 
 #endif

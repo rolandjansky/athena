@@ -60,8 +60,6 @@ CLASS_DEF( ILArPedestal, 8122,1)
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILArPedestal>,161156680 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILArPedestal>, CondContBase );
 
 
 

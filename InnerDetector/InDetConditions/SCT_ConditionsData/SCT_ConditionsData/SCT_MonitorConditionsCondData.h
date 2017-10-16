@@ -46,7 +46,5 @@ CLASS_DEF( SCT_MonitorConditionsCondData , 153824898 , 1 )
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<SCT_MonitorConditionsCondData> , 30296880 , 1 )
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_MonitorConditionsCondData>, CondContBase );
 
 #endif // SCT_MONITORCONDITIONSCONDDATA_H
