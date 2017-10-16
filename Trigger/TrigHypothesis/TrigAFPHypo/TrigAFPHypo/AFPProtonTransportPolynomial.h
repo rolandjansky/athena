@@ -17,7 +17,7 @@ public:
   void setCoefficients(int n, double c0, double c1 = 0, double c2 = 0, double c3 = 0, double c4 = 0,
                        double c5 = 0, double c6 = 0, double c7 = 0, double c8 = 0, double c9 = 0);
 
-  /* 
+  /** 
    * This function of returns the sum of the polynomial 
    * coeficients of a given argument x
    */
