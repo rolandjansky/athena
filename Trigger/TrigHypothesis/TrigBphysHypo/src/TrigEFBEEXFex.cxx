@@ -101,10 +101,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("TrigBphysHelperTool", m_bphysHelperTool);
     declareProperty("VertexFitterTool", m_fitterSvc);
     
-<<<<<<< HEAD
     declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFBEEXFex" );
-=======
->>>>>>> 2b15135815... adding BeeX trigger
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     
     declareProperty("TrackCollection",m_input_trackCollectionKey="InDetTrigTrackingxAODCnv_Bphysics_IDTrig");
