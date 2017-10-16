@@ -10,10 +10,11 @@
 //-----------------------------------------------------------------------------
 #include "TrkTruthTPCnv/PRD_MultiTruthCollection_p1.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollection_p2.h"
+#include "TrkTruthTPCnv/PRD_MultiTruthCollection_p3.h"
 
 #include "TrkTruthTPCnv/TrackTruthCollection_p0.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p1.h"
-
+#include "TrkTruthTPCnv/TrackTruthCollection_p2.h"
 
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p0.h"
 #include "TrkTruthTPCnv/DetailedTrackTruth_p0.h"
@@ -28,6 +29,10 @@
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p2.h"
 #include "TrkTruthTPCnv/DetailedTrackTruth_p2.h"
 #include "TrkTrack/TrackCollection.h"
+
+#include "TrkTruthTPCnv/DetailedTrackTruthCollection_p3.h"
+#include "TrkTruthTPCnv/DetailedTrackTruth_p3.h"
+#include "TrkTruthTPCnv/TruthTrajectory_p2.h"
 
 namespace {
   // --->> genreflex: WARNING: Class std::pair<ElementLink<DataVector<Trk::Track>, DataProxyStorage<DataVector<Trk::Track> >,ForwardIndexingPolicy<DataVector<Trk::Track> > >,TrackTruth> in selection file ../i686-slc4-gcc34-opt/dict/TrkTruthTPCnv_selection.xml not generated.  Fixing that:
