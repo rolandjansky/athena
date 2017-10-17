@@ -69,11 +69,11 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
     # In this case, we simply use the helpers from ExtendedJetCommon
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets,addAntiKt4TruthWZJets,addAntiKt10TruthJets
     addAntiKt4TruthJets(kernel,"TRUTH") # Ignore the output list
-    if decorationDressing is None:
-        addAntiKt4TruthWZJets(kernel,"TRUTH")
-    else:
+    addAntiKt4TruthWZJets(kernel,"TRUTH")
+    if decorationDressing is not None:
+        from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
         addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
     addAntiKt10TruthJets(kernel,"TRUTH")
 
