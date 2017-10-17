@@ -18,7 +18,7 @@ namespace TrigL2MuonSA {
     
     void Clear()
 	{
-	  for(int i=0; i<10; i++) {
+	  for(int i=0; i<11; i++) {
 	    for(int j=0; j<2; j++) {
 	      zMin[i][j] = 0;
 	      zMax[i][j] = 0;
@@ -34,15 +34,15 @@ namespace TrigL2MuonSA {
 	};
       
   public:
-      double zMin[10][2];
-      double zMax[10][2];
-      double rMin[10][2];
-      double rMax[10][2];
-      double etaMin[10][2];
-      double etaMax[10][2];
-      double phiMin[10][2];
-      double phiMax[10][2];
-      int chamberType[10][2][2];
+      double zMin[11][2];
+      double zMax[11][2];
+      double rMin[11][2];
+      double rMax[11][2];
+      double etaMin[11][2];
+      double etaMax[11][2];
+      double phiMin[11][2];
+      double phiMax[11][2];
+      int chamberType[11][2][2];
   };
 
 // --------------------------------------------------------------------------------

@@ -13,23 +13,6 @@ class TrigBjetHypoMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=4, xmin=0.0, xmax=4.0,
                                              labels='CHI2:IP2D:IP3D:COMB') ]
 
-class TrigBjetHypoAllTEMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="TrigBjetHypoAllTEMonitoring"):
-        super(TrigBjetHypoAllTEMonitoring, self).__init__(name)
-         
-        self.Histograms = [ defineHistogram('CutCode', type='TH1F', title="Bjet HypoAllTE cut code",
-                                            xbins=10, xmin=-1.5, xmax=8.5,
-                                            labels='UnInitialzed:Fail:Accept:FailBS:TooFewTEs:TooManyTEs:NoBjets:NoBTagging:NoJet') ]
-
-        self.Histograms = [ defineHistogram('BSCode', type='TH1F', title="Bjet HypoAllTE BS code",
-                                            xbins=10, xmin=-1.5, xmax=8.5,
-                                            labels='UnInitialzed:ValidBS:BSInvalidReject:BSInValidAccept:NoBSInfo:DontUseBS') ]
-
-
-        self.Histograms = [ defineHistogram('nInputJets', type='TH1F', title="Bjet HypoAllTE nInputJets",
-                                            xbins=100, xmin=-0.5, xmax=99.5,
-                                            ) ]
-
 
 
 class TrigEFBjetHypoValidationMonitoring(TrigBjetHypoMonitoring):
@@ -43,20 +26,6 @@ class TrigEFBjetHypoValidationMonitoring(TrigBjetHypoMonitoring):
 class TrigEFBjetHypoOnlineMonitoring(TrigBjetHypoMonitoring):
     def __init__ (self, name="TrigEFBjetHypoOnlineMonitoring"):
         super(TrigEFBjetHypoOnlineMonitoring, self).__init__(name)
-
-        self.defineTarget("Online")
-
-
-class TrigEFBjetHypoAllTEValidationMonitoring(TrigBjetHypoAllTEMonitoring):
-    def __init__ (self, name="TrigEFBjetHypoAllTEValidationMonitoring"):
-        super(TrigEFBjetHypoAllTEValidationMonitoring, self).__init__(name)
-
-        self.defineTarget("Validation")
-
-
-class TrigEFBjetHypoAllTEOnlineMonitoring(TrigBjetHypoAllTEMonitoring):
-    def __init__ (self, name="TrigEFBjetHypoAllTEOnlineMonitoring"):
-        super(TrigEFBjetHypoAllTEOnlineMonitoring, self).__init__(name)
 
         self.defineTarget("Online")
 

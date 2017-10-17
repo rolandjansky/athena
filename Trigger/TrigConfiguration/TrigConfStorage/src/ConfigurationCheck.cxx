@@ -1779,6 +1779,70 @@ private:
 
 
 
+//////////////////////////////////////// CHECK ALL PEB CHAINS GO INTO A CALIBRATION STREAM ////////////////////////////////////////
+class PEBCalibCheck : public TrigConfTest {
+public:
+  PEBCalibCheck()
+    : TrigConfTest("PEBCalibrationStream", "All streams with PEB must be of type calibration or monitoring", WARNING),
+      m_nonCalibPEB("")
+  {}
+
+  virtual void execute(const Exc_t&) {
+    if ( ! m_hlt ) return;
+
+
+    // find all sequences using PEB with the corresponding output TE
+    std::set<std::string> teOutFromSeq;
+
+    for (const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
+      const std::vector<std::string>& algolist = seq->algorithms();
+
+      for( std::string algoname : algolist ){
+
+	if( algoname.find("TrigSubDetListWriter")!= std::string::npos || algoname.find("TrigROBListWriter")!= std::string::npos || algoname.find("ScoutingStreamWriter")!= std::string::npos){
+	  const std::string& tename = seq->outputTE()->name();
+
+	  if ( teOutFromSeq.count( tename ) == 0 ) {
+            teOutFromSeq.insert( tename);
+	  }
+
+	  //	  m_nonCalibPEB += algoname + ": " + tename + ", ";
+	}
+      }
+    }
+
+    //loop over chains comparing signature output TEs to PEB TEs
+    for(const HLTChain* ch : m_hlt->getHLTChainList()) {
+      for ( unsigned int s = 0; s < ch->signatureList().size(); s++ ) {
+	HLTSignature* sig = ch->signatureList()[s];
+	for ( unsigned int t = 0; t < sig->outputTEs().size(); ++t ) {
+	  if ( teOutFromSeq.count(sig->outputTEs()[t]->name()) != 0 ){
+
+	    for(const HLTStreamTag *s : ch->streams()) {
+
+	      //	      m_nonCalibPEB += ch->chain_name() + " stream type: " + s->type() + ", ";
+	      if ( s->type() != "calibration" && s->type() != "monitoring" )  m_nonCalibPEB += ch->chain_name() + ", stream: " + s->stream() + ", stream type: " + s->type() + ", ";
+	    }
+	  }
+
+	}
+      }
+    }
+
+    if(m_nonCalibPEB.size()>0) {
+      m_error = "Streams that use PEB but are not of type 'calibration':  " + m_nonCalibPEB;
+    }
+  }
+
+private:
+   std::string m_nonCalibPEB;
+};
+
+
+
+
+
+
 // set of tests
 ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFrame* hlt) {
   m_tests.push_back(new NumberOfCTPItemsTest());
@@ -1815,6 +1879,7 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   //m_tests.push_back(new SignaturesConnectedTest());
 
   m_tests.push_back(new MinTOBPtCheck());
+  m_tests.push_back(new PEBCalibCheck());
 
   std::vector<TrigConfTest*>::iterator testIt;
   for ( testIt = m_tests.begin(); 

@@ -846,8 +846,6 @@ class rerunLVL1(_modifier):
         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
 
-        topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
-
         # Add L1TopoSimulation if it was not already added, e.g. by L1TopoROBMonitor
         topSequenceAlgNames=[alg.getName() for alg in topSequence.getChildren()]
         if 'L1TopoSimulation' not in topSequenceAlgNames:
@@ -946,8 +944,6 @@ class rerunDMLVL1(_modifier):
          topSequence += L1Muctpi_on_RDO()
          topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
          topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
-
-         topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
 
          from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
          topSequence += DeriveSimulationInputs(do_MuCTPI_input=True,
