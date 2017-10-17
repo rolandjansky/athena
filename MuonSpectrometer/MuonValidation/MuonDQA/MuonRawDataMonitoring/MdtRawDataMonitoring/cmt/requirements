@@ -18,6 +18,7 @@ use     MuonIdHelpers           MuonIdHelpers-*         	MuonSpectrometer
 use     MuonPrepRawData		MuonPrepRawData-* 	        MuonSpectrometer/MuonReconstruction/MuonRecEvent 
 use 	EventInfo             	EventInfo-*             	Event
 use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
+use     MuonSelectorTools       MuonSelectorTools-*             PhysicsAnalysis/MuonID
 
 private
 use     GaudiInterface          GaudiInterface-*                External

@@ -16,8 +16,10 @@
 
 //Core Include
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes
+#include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MDTMonGroupStruct.h"
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
@@ -39,6 +41,7 @@ class MuonDQAHistList;
 
 namespace Muon {
   class MdtPrepData;
+  class MuonIdHelperTool;
 }
 
 //stl includes
@@ -112,12 +115,15 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   ActiveStoreSvc* m_activeStore;
 
   const MdtIdHelper* m_mdtIdHelper;  
+  ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 
   virtual StatusCode  bookMDTHistograms( MDTChamber* chamber, Identifier digcoll_id );//book chamber by chamber histos
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* );//fill chamber by chamber histos
   virtual StatusCode  bookMDTSummaryHistograms( bool newLumiBlock, bool newRun);//Those over barrel/encap layer etc.
-  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
+  //virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
+  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, std::set<std::string>, bool &isNoiseBurstCandidate);
   virtual StatusCode  bookMDTOverviewHistograms( bool newLumiBlock, bool newRun);
   virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms);//, const Muon::MdtPrepDataContainer* mdt_container );
@@ -295,6 +301,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
   TH2* mdtoccvslb[4][3];
   TH2* mdtoccvslb_by_crate[4][4];
+  TH2* mdtoccvslb_ontrack_by_crate[4][4];
+
   /////End from old BS
 
   ///////////For t0 calculations//////////
