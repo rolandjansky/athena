@@ -31,6 +31,8 @@ DerivationFramework::TruthDecayCollectionMaker::TruthDecayCollectionMaker(const 
     declareProperty("ParticlesKey", m_particlesKey);
     declareProperty("NewCollectionName", m_collectionName);
     declareProperty("PDGIDsToKeep", m_pdgIdsToKeep={}, "PDG IDs of particles to build the collection from");
+    declareProperty("KeepBHadrons", m_keepBHadrons=false, "Keep b-hadrons (easier than by PDG ID)");
+    declareProperty("KeepCHadrons", m_keepCHadrons=false, "Keep c-hadrons (easier than by PDG ID)");
 }
 
 // Destructor
@@ -52,8 +54,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
 
-    if (m_pdgIdsToKeep.size()==0) {
-        ATH_MSG_FATAL("No PDG IDs provided");
+    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepBHadrons) {
+        ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons -- what do you want?");
         return StatusCode::FAILURE;
     }
 
@@ -65,7 +67,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
 StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
 {
     // Retrieve truth collections
-    const xAOD::TruthParticleContainer* importedTruthParticles;
+    const xAOD::TruthParticleContainer* importedTruthParticles(nullptr);
     if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
         ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
         return StatusCode::FAILURE;
@@ -97,6 +99,10 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
                 addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles );
             } // Found a particle of interest!
         } // Loop over the PDG IDs we want to keep
+        if (m_keepBHadrons && part->isBottomHadron() ||
+            m_keepCHadrons && part->isCharmHadron()){
+            addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles );
+        }
     } // Loop over the initial truth particle collection
     return StatusCode::SUCCESS;
 }

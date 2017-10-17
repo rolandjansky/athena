@@ -30,6 +30,8 @@ namespace DerivationFramework {
 
     private:
       std::vector<int> m_pdgIdsToKeep; //!< List of PDG IDs to build this collection from
+      bool m_keepBHadrons; //!< Option to keep all b-hadrons (better than giving PDG IDs)
+      bool m_keepCHadrons; //!< Option to keep all c-hadrons (better than giving PDG IDs)
       std::string m_particlesKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
       // Helper functions for building up the decay product collections
