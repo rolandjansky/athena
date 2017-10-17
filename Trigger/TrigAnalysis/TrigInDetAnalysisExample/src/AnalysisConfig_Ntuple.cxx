@@ -656,9 +656,7 @@ void AnalysisConfig_Ntuple::loop() {
 		/// count the number of interactions of each sort
 		/// this is actually *very stupid*, there are a *lot*
 		/// of "processes" with *no* particles in them for some 
-		/// reason, whoever programed this f**cked up structure 
-		/// that needs this sort of fannying around to navigate 
-		/// through ***REMOVED***
+		/// reason.
 
 		//      DataVector<HepMC::GenEvent>::iterator 
 		McEventCollection::const_iterator evitr(mcevent->begin());
