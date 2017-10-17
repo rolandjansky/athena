@@ -48,7 +48,7 @@ class RT_Relation_DigiTool : public AthAlgTool,
   double m_effRadius;
   double m_maxRadius;
 
-  std::vector <Rt_relation *> rt;
+  std::vector <Rt_relation *> m_rt;
 
   Rndm::Numbers              m_flatDist;
 
@@ -64,7 +64,7 @@ double  RT_Relation_DigiTool::getDriftTime(double r)
   R_to_t_converter RTC;
 
   // Get the time value and return it
-  double time = RTC.convert(r, *rt[0]);
+  double time = RTC.convert(r, *m_rt[0]);
   if (time < 0) time = 0;
   return (time);
 }

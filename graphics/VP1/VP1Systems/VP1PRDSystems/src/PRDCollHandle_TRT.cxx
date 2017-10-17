@@ -44,25 +44,25 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_TRT::PRDCollHandle_TRT(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::TRT,cd,key), d(new Imp), m_highlightHT(false), m_project(false),m_appropriateProjections(InDetProjFlags::NoProjections)
+  : PRDCollHandleBase(PRDDetType::TRT,cd,key), m_d(new Imp), m_highlightHT(false), m_project(false),m_appropriateProjections(InDetProjFlags::NoProjections)
 {
-  d->trtdetmgr = 0;
-  d->idhelper = 0;
-  d->attempted_detmgrload = false;
-  d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
-  d->minToT = -0.5*3.125;
-  d->maxToT = 24.5*3.125;
-  d->minLE  = 0;
-  d->maxLE  = 23;
-  d->needToTCheck = false;
-  d->needLECheck  = false;
-  d->requireHT = false;
+  m_d->trtdetmgr = 0;
+  m_d->idhelper = 0;
+  m_d->attempted_detmgrload = false;
+  m_d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
+  m_d->minToT = -0.5*3.125;
+  m_d->maxToT = 24.5*3.125;
+  m_d->minLE  = 0;
+  m_d->maxLE  = 23;
+  m_d->needToTCheck = false;
+  m_d->needLECheck  = false;
+  m_d->requireHT = false;
 }
 
 //____________________________________________________________________
 PRDCollHandle_TRT::~PRDCollHandle_TRT()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -85,36 +85,36 @@ bool PRDCollHandle_TRT::cut(PRDHandleBase*handlebase)
   PRDHandle_TRT * handle = static_cast<PRDHandle_TRT*>(handlebase);
   assert(handle);
 
-  if (d->needToTCheck) {
+  if (m_d->needToTCheck) {
     const double ToT = handle->driftCircle()->timeOverThreshold();
-    if (ToT<d->minToT)
+    if (ToT<m_d->minToT)
       return false;
-    if (ToT>d->maxToT)
+    if (ToT>m_d->maxToT)
       return false;
   }
 
-  if (d->needLECheck) {
+  if (m_d->needLECheck) {
     const int LE = handle->driftCircle()->driftTimeBin();//returns 0..24. 24 means no LT bits.
     if (LE>=0&&LE<24) {
-      if (LE<d->minLE)
+      if (LE<m_d->minLE)
 	return false;
-      if (LE>d->maxLE)
+      if (LE>m_d->maxLE)
 	return false;
     }
   }
 
 
-  if (d->indetpartsflags!=PRDCommonFlags::All) {
+  if (m_d->indetpartsflags!=PRDCommonFlags::All) {
     if (handle->isBarrel()) {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::BarrelPositive):(d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::BarrelPositive):(m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
 	return false;
     } else {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::EndCapPositive):(d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::EndCapPositive):(m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
 	return false;
     }
   }
 
-  if (d->requireHT&&!handle->highLevel())
+  if (m_d->requireHT&&!handle->highLevel())
     return false;
 
   return true;
@@ -126,16 +126,16 @@ void PRDCollHandle_TRT::setPartsFlags(PRDCommonFlags::InDetPartsFlags flags ) {
   //PRDCollHandle_TRT::setPartsFlags and and PRDCollHandle_SpacePoints::setPartsFlags
   //Fixme: base decision to recheck on visibility also!
 
-  if (d->indetpartsflags==flags)
+  if (m_d->indetpartsflags==flags)
     return;
 
-  bool barrelPosChanged = (d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
-  bool barrelNegChanged = (d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
-  bool endcapPosChanged = (d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
-  bool endcapNegChanged = (d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
+  bool barrelPosChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
+  bool barrelNegChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
+  bool endcapPosChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
+  bool endcapNegChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
   bool barrelChanged = (barrelPosChanged || barrelNegChanged);
   bool endcapChanged = (endcapPosChanged || endcapNegChanged);
-  d->indetpartsflags=flags;
+  m_d->indetpartsflags=flags;
 
   largeChangesBegin();
   std::vector<PRDHandleBase*>::iterator it(getPrdHandles().begin()),itE(getPrdHandles().end());
@@ -156,11 +156,11 @@ void PRDCollHandle_TRT::setPartsFlags(PRDCommonFlags::InDetPartsFlags flags ) {
 void PRDCollHandle_TRT::setMinToT(unsigned nbins)
 {
   double newminToT = (nbins-0.5)*3.125;
-  if (d->minToT==newminToT)
+  if (m_d->minToT==newminToT)
     return;
-  bool cut_relaxed = (newminToT<d->minToT);
-  d->minToT=newminToT;
-  d->needToTCheck = (d->minToT>0.0||d->maxToT<24*3.125);
+  bool cut_relaxed = (newminToT<m_d->minToT);
+  m_d->minToT=newminToT;
+  m_d->needToTCheck = (m_d->minToT>0.0||m_d->maxToT<24*3.125);
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else
@@ -171,11 +171,11 @@ void PRDCollHandle_TRT::setMinToT(unsigned nbins)
 void PRDCollHandle_TRT::setMaxToT(unsigned nbins)
 {
   double newmaxToT = (nbins+0.5)*3.125;
-  if (d->maxToT==newmaxToT)
+  if (m_d->maxToT==newmaxToT)
     return;
-  bool cut_relaxed = (newmaxToT>d->maxToT);
-  d->maxToT=newmaxToT;
-  d->needToTCheck = (d->minToT>0.0||d->maxToT<24*3.125);
+  bool cut_relaxed = (newmaxToT>m_d->maxToT);
+  m_d->maxToT=newmaxToT;
+  m_d->needToTCheck = (m_d->minToT>0.0||m_d->maxToT<24*3.125);
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else
@@ -186,11 +186,11 @@ void PRDCollHandle_TRT::setMaxToT(unsigned nbins)
 void PRDCollHandle_TRT::setMinLE(unsigned i)
 {
   int newminLE = i-1;
-  if (d->minLE==newminLE)
+  if (m_d->minLE==newminLE)
     return;
-  bool cut_relaxed = (newminLE<d->minLE);
-  d->minLE=newminLE;
-  d->needLECheck = (d->minLE>0||d->maxLE<23);
+  bool cut_relaxed = (newminLE<m_d->minLE);
+  m_d->minLE=newminLE;
+  m_d->needLECheck = (m_d->minLE>0||m_d->maxLE<23);
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else
@@ -201,11 +201,11 @@ void PRDCollHandle_TRT::setMinLE(unsigned i)
 void PRDCollHandle_TRT::setMaxLE(unsigned i)
 {
   int newmaxLE = i-1;
-  if (d->maxLE==newmaxLE)
+  if (m_d->maxLE==newmaxLE)
     return;
-  bool cut_relaxed = (newmaxLE>d->maxLE);
-  d->maxLE=newmaxLE;
-  d->needLECheck = (d->minLE>0||d->maxLE<23);
+  bool cut_relaxed = (newmaxLE>m_d->maxLE);
+  m_d->maxLE=newmaxLE;
+  m_d->needLECheck = (m_d->minLE>0||m_d->maxLE<23);
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else
@@ -215,10 +215,10 @@ void PRDCollHandle_TRT::setMaxLE(unsigned i)
 //____________________________________________________________________
 void PRDCollHandle_TRT::setRequireHT(bool reqHT)
 {
-  if (d->requireHT==reqHT)
+  if (m_d->requireHT==reqHT)
     return;
-  d->requireHT=reqHT;
-  if (d->requireHT)
+  m_d->requireHT=reqHT;
+  if (m_d->requireHT)
     recheckCutStatusOfAllVisibleHandles();
   else
     recheckCutStatusOfAllNotVisibleHandles();

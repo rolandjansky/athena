@@ -11,8 +11,6 @@
 
 #include <vector>
 
-class LArCablingService ;
-
 /** This class implements the ILArRamp interface
  *
  * @author W. Lampl, S. Laplace
@@ -25,8 +23,8 @@ class LArCablingService ;
  *       - new online ID
  */
 
-class LArRampCompleteBase: 
-           public ILArRamp, public LArConditionsContainer<LArRampP1> 
+class LArRampCompleteBase: public ILArRamp, 
+  public LArConditionsContainer<LArRampP1> 
 {  
  public: 
   
@@ -72,7 +70,10 @@ class LArRampComplete: public LArRampCompleteBase {
 
 #ifndef __CINT__ 
 #include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArRampCompleteBase,ILArRamp);
 CLASS_DEF( LArRampComplete, 236941963,1)
+CLASS_DEF( CondCont<LArRampCompleteBase> , 209705886 , 1 )
 #endif
 
 #endif 

@@ -59,7 +59,7 @@ public:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   IVP13DSystem * m_3dsystem;
   HitsSoNodeManager * m_nodeManager;

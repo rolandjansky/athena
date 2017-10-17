@@ -56,6 +56,4 @@ CLASS_DEF( LArDSPThresholdsFlat, 194681315 ,1  )
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArDSPThresholdsFlat> , 148006985 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArDSPThresholdsFlat>, CondContBase );
 #endif 

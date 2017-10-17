@@ -29,13 +29,10 @@ class LArAutoCorrSC:
   virtual  AutoCorrRef_t autoCorr(const Identifier&  CellID, int gain) const;
   
 };
-
-CLASS_DEF( LArAutoCorrSC , 219258685, 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArAutoCorrSC,ILArAutoCorr);
+CLASS_DEF( LArAutoCorrSC , 219258685, 1 )
 CLASS_DEF( CondCont<LArAutoCorrSC> , 169266589 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArAutoCorrSC>, CondContBase );
 
 
 #endif 

@@ -32,12 +32,11 @@ class LArRampFlat:
 
 };
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArRampFlat,ILArRamp);
 CLASS_DEF( LArRampFlat , 228930547 , 1 )
 //ConditionsContainer clid for athenaMT
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArRampFlat> , 218808135 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArRampFlat>, CondContBase );
 
 
 #endif 
