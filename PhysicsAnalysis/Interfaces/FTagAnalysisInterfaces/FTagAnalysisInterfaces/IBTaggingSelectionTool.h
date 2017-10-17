@@ -39,7 +39,7 @@ class IBTaggingSelectionTool : virtual public asg::IAsgTool {
     virtual int getQuantile( double, double, double ) const = 0;
 
     virtual double getCutValue(double /* jet pt */) const = 0;
-    virtual double getTaggerWeight( const xAOD::Jet& jet ) const;
+    virtual double getTaggerWeight( const xAOD::Jet& jet ) const = 0;
 
   };
 #endif // CPIBTAGGINGSELECTIONTOOL_H

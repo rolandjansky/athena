@@ -160,7 +160,7 @@ const Root::TAccept& BTaggingSelectionTool::getTAccept() const {
   return m_accept;
 }
 
-double getTaggerWeight( const xAOD::Jet& jet ) const{
+double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
 
  double tagweight(-100.);
 
@@ -204,7 +204,7 @@ double getTaggerWeight( const xAOD::Jet& jet ) const{
   ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
   ATH_MSG_VERBOSE( "pu " <<  dl1_pu );
 
-  bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
+  bool valid_input = (!std::isnan(dl1_pu) && dl1_pb>0 && dl1_pc>0 && dl1_pu>0);
 
   if (!valid_input){
     ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
@@ -212,12 +212,16 @@ double getTaggerWeight( const xAOD::Jet& jet ) const{
   }
 
   if(m_OP.find("CTag") != string::npos){
-   tagweight = log( pc/(m_fraction*pb+(1.-m_fraction)*pu) );
+   tagweight = log( dl1_pc/(m_fraction*dl1_pb+(1.-m_fraction)*dl1_pu) );
   }else{
-   tagweight = log( pb/(m_fraction*pc+(1.-m_fraction)*pu) );
+   tagweight = log( dl1_pb/(m_fraction*dl1_pc+(1.-m_fraction)*dl1_pu) );
   }
    return tagweight;
   }
+
+  //if we got here the tagger name is not configured properly
+  ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
+  return tagweight;
 
 }
 
