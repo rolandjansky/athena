@@ -146,13 +146,13 @@ private:
 
   /** @brief Name of the truth event container **/
   SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey {this,
-      "TruthParticleContainerName", "", 
-      "Name of the truth particle container"};
+      "TruthEventContainerName", "", 
+      "Name of the truth event container"};
 
   /** @brief Name of the truth particle container **/
   SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticleContainerKey {this,
-      "TruthEventContainerName", "", 
-      "Name of the truth event container"};
+      "TruthParticleContainerName", "", 
+      "Name of the truth particle container"};
 
   /** @brief Name of the output egamma truth container **/
   SG::WriteHandleKey<xAOD::TruthParticleContainer> m_egammaTruthParticleContainerKey {this,
