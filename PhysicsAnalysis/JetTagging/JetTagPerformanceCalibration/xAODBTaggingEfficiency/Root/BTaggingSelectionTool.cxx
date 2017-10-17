@@ -171,7 +171,7 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
   return tagweight;
  }
 
- if ( m_taggerName.find("MV2") != string::npos ){
+ else if ( m_taggerName.find("MV2") != string::npos ){
 
 
     const xAOD::BTagging* btag = jet.btagging();
@@ -211,12 +211,8 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
     return tagweight;
   }
 
-  if(m_OP.find("CTag") != string::npos){
-   tagweight = log( dl1_pc/(m_fraction*dl1_pb+(1.-m_fraction)*dl1_pu) );
-  }else{
-   tagweight = log( dl1_pb/(m_fraction*dl1_pc+(1.-m_fraction)*dl1_pu) );
-  }
-   return tagweight;
+  return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu);
+
   }
 
   //if we got here the tagger name is not configured properly
@@ -224,6 +220,29 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
   return tagweight;
 
 }
+
+double BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu ) const {
+
+  double tagweight(-100.);
+  if( m_taggerName.find("DL1") != string::npos ){
+
+    if(m_OP.find("CTag") != string::npos){
+     tagweight = log( pc/(m_fraction*pb+(1.-m_fraction)*pu) );
+    }else{
+     tagweight = log( pb/(m_fraction*pc+(1.-m_fraction)*pu) );
+    }
+
+    return tagweight;
+  }else{
+     ATH_MSG_ERROR("this call to getTaggerWeight only works for DL1 taggers");
+
+  }
+  //if we got here the tagger name is not configured properly
+  ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
+  return tagweight;
+
+}
+
 
 
 const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::IParticle* p ) const {
@@ -291,7 +310,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     //for all other taggers, use the same method
     double tagger_weight(-100);
 
-    tagger_weight = getTaggerWeight( *jet );
+    tagger_weight = getTaggerWeight( jet );
 
     ATH_MSG_VERBOSE( m_taggerName << " : " <<  tagger_weight );
     return accept(pT, eta, tagger_weight);

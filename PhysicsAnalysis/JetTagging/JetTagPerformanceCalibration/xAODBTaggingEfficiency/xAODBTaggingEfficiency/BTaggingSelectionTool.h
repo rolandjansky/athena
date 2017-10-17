@@ -63,6 +63,7 @@ class BTaggingSelectionTool: public asg::AsgTool,
 
   virtual double getCutValue(double /* jet pt */) const;
   virtual double getTaggerWeight( const xAOD::Jet& jet ) const;
+  virtual double getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ ) const;
 
 private:
   /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging
