@@ -285,6 +285,12 @@ HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth
+    HIGG2D1SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer',
+                                                'TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBSM':'xAOD::TruthParticleContainer',
+                                                'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBoson':'xAOD::TruthParticleContainer',
+                                                'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 # Add MET_RefFinalFix
 addMETOutputs(HIGG2D1SlimmingHelper,["AntiKt4LCTopo","Track"])
