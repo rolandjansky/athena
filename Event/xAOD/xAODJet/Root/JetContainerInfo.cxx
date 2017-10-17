@@ -74,22 +74,22 @@ namespace xAOD {
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
-      nameToTypemap["LCTopo"] =             LCTopo;            
-      nameToTypemap["EMTopo"] =             EMTopo;            
+      nameToTypemap["LCTopo"] =             LCTopo;
+      nameToTypemap["EMTopo"] =             EMTopo;
       nameToTypemap["LCTopoOrigin"] =       LCTopoOrigin;
       nameToTypemap["EMTopoOrigin"] =       EMTopoOrigin;
-      nameToTypemap["TopoTower"] =          TopoTower;         
-      nameToTypemap["Tower"] =              Tower;             
-      nameToTypemap["Truth"] =              Truth;             
-      nameToTypemap["TruthWZ"] =            TruthWZ;             
-      nameToTypemap["Track"] =              Track;             
-      nameToTypemap["PFlow"] =              PFlow;             
-      nameToTypemap["LCPFlow"] =            LCPFlow;             
-      nameToTypemap["EMPFlow"] =            EMPFlow;             
-      nameToTypemap["EMCPFlow"] =           EMCPFlow;        
-      nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;        
+      nameToTypemap["TopoTower"] =          TopoTower;
+      nameToTypemap["Tower"] =              Tower;
+      nameToTypemap["Truth"] =              Truth;
+      nameToTypemap["TruthWZ"] =            TruthWZ;
+      nameToTypemap["TruthDressedWZ"] =     TruthDressedWZ;
+      nameToTypemap["Track"] =              Track;
+      nameToTypemap["PFlow"] =              PFlow;
+      nameToTypemap["LCPFlow"] =            LCPFlow;
+      nameToTypemap["EMPFlow"] =            EMPFlow;
+      nameToTypemap["EMCPFlow"] =           EMCPFlow;
+      nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;
       nameToTypemap[c_unCategorized] =      Uncategorized;
-
 
       std::map<std::string, Type>::iterator it = nameToTypemap.begin();
       std::map<std::string, Type>::iterator itE = nameToTypemap.end();

@@ -52,15 +52,18 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("FSRPhotonCone", m_photonCone);
 
   declareProperty("VetoPDG_IDs", m_vetoPDG_IDs, "List of PDG IDs (python list) to veto.  Will ignore these and all children of these.");
+
+  declareProperty("DressingDecorationName", m_dressingName="", "Name of the dressed photon decoration (if one should be used)");
+
 }
 
-bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
+bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
                                              std::vector<const xAOD::TruthParticle*>& promptLeptons,
                                              std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {
 
   // Check if this thing is a candidate to be in a truth jet
   //  First block is largely copied from isGenStable, which works on HepMC only
-  if (tp->barcode()>=barcodeOffset) return false; // Particle is from G4
+  if (tp->barcode()>=m_barcodeOffset) return false; // Particle is from G4
   int pdgid = tp->pdgId();
   if (pdgid==21 && tp->e()==0) return false; // Work around for an old generator bug
 
@@ -104,13 +107,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
     if(m_photonCone>0) {
       for(const auto& lep : promptLeptons) {
-  	double deltaR = tp->p4().DeltaR(lep->p4());
-  	// if photon within deltaR of lepton, remove along with lepton
-  	if( deltaR < m_photonCone ) {
-  	  ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
-		       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
-  	  return false;
-  	}
+          double deltaR = tp->p4().DeltaR(lep->p4());
+          // if photon within deltaR of lepton, remove along with lepton
+          if( deltaR < m_photonCone ) {
+            ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
+                       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
+            return false;
+          }
       }
     }
   }
@@ -120,6 +123,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     ParticleOrigin orig = getPartOrigin(tp, originMap);
     if (orig==Higgs || orig==HiggsMSSM) return false;
   }
+
+  // If we want to remove photons via the dressing decoration
+  if (!m_dressingName.empty()){
+    // Accessor for the dressing decoration above
+    const static SG::AuxElement::Accessor<char> dressAcc(m_dressingName);
+    if (pdgid==22 && dressAcc(*tp)) return false;
+  } // End of removal via dressing decoration
 
   // Pseudo-rapidity cut
   if(fabs(tp->eta())>m_maxAbsEta) return false;
@@ -138,7 +148,7 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
 }
 
 bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
-				      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+                                      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
 {
   ParticleOrigin orig = getPartOrigin(tp, originMap);
   switch(orig) {
@@ -167,17 +177,9 @@ bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
   return true;
 }
 
-// bool CopyTruthJetParticles::fromTau( const xAOD::TruthParticle* tp,
-// 				     std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
-// {
-//   ParticleOrigin orig = getPartOrigin(tp, originMap);
-//   if(orig==TauLep) return true;
-//   return false;
-// }
-
 
 MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const xAOD::TruthParticle* tp,
-									   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
+                                                                           std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
 {
   if(originMap.find(tp)==originMap.end()) {
     std::pair<ParticleType, ParticleOrigin> classification = m_classif->particleTruthClassifier( tp );
@@ -186,22 +188,19 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
   return originMap[tp];
 }
 
-int CopyTruthJetParticles::execute() const {
 
-  ATH_MSG_DEBUG("Executing " << name());
-
+StatusCode CopyTruthJetParticles::initialize() {
   //*******************************
   // retrieve barcode Offset for this event from metadata.
-  // We'd need a cleaner solution where this offset is set only at 
-  // each new file, but this requires some tool interface which does 
-  // not exist in RootCore yet. 
+  // We'd need a cleaner solution to set this offset only at
+  // each new file, but this setting should be common to all
+  // datasets within an MC campaign.
   // So we use the less disruptive solution in Athena for now...
-  int barcodeOffset = m_barcodeOffset;
   if(m_barcodeFromMetadata>0){
-    bool found = false;
     // retrieve the value for the current sample from metadata
 #ifndef XAOD_STANDALONE
     // Usage of metadata is only possible in Athena (not supported by dual-use tools yet)...
+    bool found = false;
     int barcodeOffset_tmp(0);
     ATH_MSG_DEBUG(" Look for barcode offset in  metadata ... ");
     try {
@@ -212,30 +211,52 @@ int CopyTruthJetParticles::execute() const {
     }
 
     if(found){
-      barcodeOffset = barcodeOffset_tmp;
-      ATH_MSG_DEBUG(" Retrieved from metadata :  "<< barcodeOffset);
+      // Found this in the metadata -- hurray!
+      ATH_MSG_DEBUG("Retrieved from metadata: "<<barcodeOffset_tmp<<" will override "<<m_barcodeOffset);
+      m_barcodeOffset = barcodeOffset_tmp;
     } else {
       if(m_barcodeFromMetadata==1) {
-        ATH_MSG_ERROR( "Can not retrieve metadata info  /Simulation/Parameters SimBarcodeOffset ");
-        return 1;
+        // Required that it come from metadata -- fail if this didn't work
+        ATH_MSG_ERROR("Can not retrieve metadata info  /Simulation/Parameters SimBarcodeOffset");
+        return StatusCode::FAILURE;
       }
       // m_barcodeFromMetadata == 2
-      ATH_MSG_DEBUG(" NOT Retrieved from metadata, use default   "<< barcodeOffset << " _ "<< m_barcodeOffset);
+      // Requested it from the metadata, with a fall-back
+      ATH_MSG_DEBUG("NOT Retrieved from metadata, use default "<<m_barcodeOffset);
     }
 #else // standalone :
-    ATH_MSG_ERROR(" Can't retrieve automatically the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
-    return 1;
+    if (m_barcodeFromMetadata==1) {
+      // Required it from the metadata -- fail if not in athena
+      ATH_MSG_ERROR("Can't retrieve automatically the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
+      return StatusCode::FAILURE;
+    } else {
+      // Requested it from the metadata -- fall back is the only option
+      ATH_MSG_WARNING("Can't retrieve automatically the truth barcode offset outside Athena.  Falling back to offset property: " << m_barcodeOffset);
+    }
 #endif
   }
+
+  // Ensure consistency in the photon dressing treatment
+  if (m_photonCone>0 && !m_dressingName.empty()){
+    ATH_MSG_ERROR("Requested both dR and decoration based photon dressing. This is unphysical; please choose one.");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+int CopyTruthJetParticles::execute() const {
+
+  ATH_MSG_DEBUG("Executing " << name());
 
   std::vector<const xAOD::TruthParticle*> promptLeptons;
   promptLeptons.reserve(10);
 
-  /// we recopy the CopyTruthParticles::execute() below, passing the barcodeOffset to the classify function.
-  //  we can not change m_barcodeOffset param since this is a const method.
+  /// we recopy the CopyTruthParticles::execute() below
 
   // Retrieve the xAOD truth objects
-  const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+  const xAOD::TruthEventContainer* xTruthEventContainer(nullptr);
   ASG_CHECK( evtStore()->retrieve( xTruthEventContainer, "TruthEvents"));
 
   // Make a new TruthParticleContainer and link it to StoreGate
@@ -257,7 +278,7 @@ int CopyTruthJetParticles::execute() const {
     if (tp->pt() < m_ptmin)
         continue;
 
-    if (classifyJetInput(tp, barcodeOffset, promptLeptons, originMap)) { // Modification w.r.t CopyTruthParticles : pass the barcodeoffset argument
+    if (classifyJetInput(tp, promptLeptons, originMap)) { // Modification w.r.t CopyTruthParticles : pass the barcodeoffset argument
       ipc->push_back(tp);
       numCopied += 1;
     }

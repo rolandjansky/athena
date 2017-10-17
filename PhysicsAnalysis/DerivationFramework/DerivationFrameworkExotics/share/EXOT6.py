@@ -17,7 +17,8 @@ augTools = []
 # using now TauTruthCommon, so we use a central Python setup and it is not imported twice
 from DerivationFrameworkTau.TauTruthCommon import *
 if DerivationFrameworkIsMonteCarlo:
-   from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # THINNING TOOL 

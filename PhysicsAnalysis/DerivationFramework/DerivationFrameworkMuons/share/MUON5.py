@@ -27,7 +27,8 @@ from AthenaCommon.GlobalFlags import globalflags
 is_MC = (globalflags.DataSource()=='geant4')
 
 if is_MC:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #======================================================================
 # SET UP STREAM   

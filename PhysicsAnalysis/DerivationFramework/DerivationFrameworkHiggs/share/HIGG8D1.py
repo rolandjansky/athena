@@ -13,10 +13,9 @@ from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
 if globalflags.DataSource()=='geant4':
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
     from DerivationFrameworkMCTruth.HFHadronsCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
-  
 
 # testing globalflags
 is_MC = (globalflags.DataSource()=='geant4')

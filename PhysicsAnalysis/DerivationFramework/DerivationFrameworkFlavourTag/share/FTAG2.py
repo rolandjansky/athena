@@ -12,8 +12,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data': from DerivationFrameworkMCTruth.MCTruthCommon import *
-
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm

@@ -11,8 +11,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-  
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+ 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY12Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_SUSY12Stream )

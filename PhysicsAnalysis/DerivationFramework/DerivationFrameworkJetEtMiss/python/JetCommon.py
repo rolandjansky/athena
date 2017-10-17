@@ -168,7 +168,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
         #finderArgs['ghostArea'] =0  ## Cannot afford ghost area calculation for variable-R jets (for now)
     
     # map the input to the jtm code for PseudoJetGetter
-    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', Truth='truth', TruthWZ='truthwz', PV0Track='pv0track')
+    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
+                      Truth='truth', TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', PV0Track='pv0track')
     # create the finder for the temporary collection.
     tmpFinderTool= jtm.addJetFinder(tmpName, jetalg, rsize, getterMap[inputtype] ,
                                     **finderArgs   # pass the prepared arguments
@@ -349,7 +350,8 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         #finderArgs.pop('modifiersin') # leave the default modifiers.
     
         # map the input to the jtm code for PseudoJetGetter
-        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', Truth='truth', TruthWZ='truthwz', PV0Track='pv0track')
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
+                          Truth='truth', TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', PV0Track='pv0track')
         # create the finder for the temporary collection.
         finderTool= jtm.addJetFinder(jetname, jetalg, rsize, getterMap[inputtype] ,
                                      **finderArgs   # pass the prepared arguments

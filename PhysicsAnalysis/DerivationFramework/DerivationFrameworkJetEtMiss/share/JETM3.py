@@ -1,6 +1,6 @@
 m#====================================================================
-# JETM3.py 
-# reductionConf flag JETM3 in Reco_tf.py   
+# JETM3.py
+# reductionConf flag JETM3 in Reco_tf.py
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -14,17 +14,17 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+electronTriggers = singleElTriggers+multiElTriggers
+muonTriggers = singleMuTriggers+multiMuTriggers
 
 orstr  = ' || '
 andstr = ' && '
@@ -43,7 +43,7 @@ JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3Sk
 ToolSvc += JETM3SkimmingTool
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_JETM3Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM3Stream )
@@ -60,7 +60,7 @@ JETM3ThinningHelper = ThinningHelper( "JETM3ThinningHelper" )
 JETM3ThinningHelper.AppendToStream( JETM3Stream )
 
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 thinningTools = []
 
@@ -119,9 +119,9 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5 && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
     truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                                                # Gluons
     truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                 # Photon
-    
+
     truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+'||'+truth_cond_Gluon+' || '+truth_cond_Photon+')'
-    
+
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM3TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM3TruthThinningTool",
                                                                         ThinningService        = JETM3ThinningHelper.ThinningSvc(),
@@ -129,9 +129,9 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,
                                                                         PreserveAncestors = True)
-    
+
     ToolSvc += JETM3TruthThinningTool
-    thinningTools.append(JETM3TruthThinningTool)    
+    thinningTools.append(JETM3TruthThinningTool)
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -141,7 +141,7 @@ jetm3Seq = CfgMgr.AthSequencer("JETM3Sequence")
 DerivationFrameworkJob += jetm3Seq
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

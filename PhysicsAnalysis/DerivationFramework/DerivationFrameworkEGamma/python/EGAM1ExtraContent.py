@@ -108,11 +108,11 @@ ExtraContainersTrigger=[
         "HLT_xAOD__TrigPassBitsContainer_passbits",
         "LVL1EmTauRoIs",
         "HLT_TrigRoiDescriptorCollection_initialRoI",
-        "HLT_xAOD__RoiDescriptorStore_initialRoI"
+        "HLT_xAOD__RoiDescriptorStore_initialRoI",
+        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
         ]
 
 ExtraContainersTriggerDataOnly=[ 
-        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
         ]
 
 ExtraVariablesEventShape=[

@@ -238,6 +238,7 @@ reducedJetList = [
                   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D1Seq)
 
 DerivationFrameworkJob += HIGG1D1Seq
 #====================================================================
@@ -270,7 +271,9 @@ HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 #HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#HggPrimaryVerticesAux.")
 HIGG1D1Stream.AddItem("xAOD::EventShape#*")
 HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
-HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::VertexAuxContainer'}
+HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::VertexAuxContainer',
+                                           'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
