@@ -19,7 +19,7 @@
 VP1TrackCaloChannel::VP1TrackCaloChannel()
   : IVP13DStandardChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1TrackCaloChannel,"TrackCalo"),
                 "This channel displays various systems related to Tracking and Calo.",
-                "Thomas.Kittelmann@cern.ch, Edward.moyse@cern.ch, Vakhtang.Tsulaia@cern.ch")
+                "Riccardo.Maria.Bianchi@cern.ch, Thomas.Kittelmann@cern.ch, Edward.moyse@cern.ch, Vakhtang.Tsulaia@cern.ch")
 {
 }
 

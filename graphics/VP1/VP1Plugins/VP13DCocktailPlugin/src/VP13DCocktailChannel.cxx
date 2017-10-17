@@ -45,7 +45,7 @@
 VP13DCocktailChannel::VP13DCocktailChannel()
   : IVP13DStandardChannelWidget(VP1CHANNELNAMEINPLUGIN(VP13DCocktailChannel,"3DCocktail"),
 				"This channel shows essentially all functional 3D systems.",
-				"Thomas.Kittelmann@cern.ch")
+				"Riccardo.Maria.Bianchi@cern.ch, Thomas.Kittelmann@cern.ch")
 {
 }
 

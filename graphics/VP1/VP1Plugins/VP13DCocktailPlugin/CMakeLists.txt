@@ -40,7 +40,7 @@ atlas_get_package_name( pkgName )
 
    
 # Build the library.
-atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc 
+atlas_add_library( ${pkgName} ${pkgName}/VP13DCocktail*.h src/VP13DCocktail*.cxx src/*.qrc 
    PUBLIC_HEADERS ${pkgName}
    INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS} ${QT5_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS tmpqt_extraheaders/  ${ROOT_INCLUDE_DIRS}
