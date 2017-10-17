@@ -80,8 +80,9 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
 # Helper for adding truth jet collections
 def addTruthJets(kernel=None, decorationDressing=None):
     # In case it's requested, set up the use of photon decorations from dressing code
-    if decorationDressing is not None:
-        # Ensure that we are adding it to something
+    from JetRec.JetRecStandardToolManager import jtm
+    if decorationDressing is not None and not hasattr(jtm,'truthpartdressedwz'):
+        # Ensure that we are adding it to something, and that we haven't run it already
         if kernel is None:
             from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
             kernel = DerivationFrameworkJob
@@ -139,6 +140,9 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonPreJetKernel'):
+        # Already there!  Carry on...
+        return
     # These augmentations do *not* require truth jets at all
     # If requested, add a decoration to photons that were used in the dressing
     if decorationDressing is not None:
@@ -172,7 +176,9 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-
+    if hasattr(kernel,'MCTruthCommonPostJetKernel'):
+        # Already there!  Carry on...
+        return
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
     from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
