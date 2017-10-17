@@ -36,7 +36,7 @@ fileName = buildFileName( derivationFlags.WriteDAOD_JETM11Stream )
 JETM11Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM11Stream.AcceptAlgs(['JETM11Kernel'])
 
-contentManager = METTriggerDerivationContentManager("JETM11", JETM11Stream)
+contentManager = METTriggerDerivationContentManager("JETM11", JETM11Stream, trackThreshold=10)
 
 # contentManager.thinningHelper.AppendToStream( JETM11Stream )
 for tool in contentManager.thinningTools:
@@ -56,4 +56,4 @@ jetm11Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM11Kernel',
                                                           SkimmingTools = [JETM11StringSkimmingTool, JETM11TriggerSkimmingTool],
                                                           ThinningTools = contentManager.thinningTools)
 
-# contentManager.slimmingHelper.AppendContentToStream(JETM11Stream)
+contentManager.slimmingHelper.AppendContentToStream(JETM11Stream)
