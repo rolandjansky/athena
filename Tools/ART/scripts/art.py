@@ -50,7 +50,7 @@ Arguments:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.0.4'
+__version__ = '0.0.7'
 
 import os
 import sys
@@ -117,7 +117,7 @@ def grid(script_directory, sequence_tag, **kwargs):
     try:
         nightly_release = os.environ['AtlasBuildBranch']
         project = os.environ['AtlasProject']
-        platform = os.environ['Athena_PLATFORM']
+        platform = os.environ[project + '_PLATFORM']
         nightly_tag = os.environ['AtlasBuildStamp']
     except KeyError, e:
         print "Environment variable not set", e
@@ -133,7 +133,7 @@ def run(script_directory, sequence_tag, **kwargs):
     try:
         nightly_release = os.environ['AtlasBuildBranch']
         project = os.environ['AtlasProject']
-        platform = os.environ['Athena_PLATFORM']
+        platform = os.environ[project + '_PLATFORM']
         nightly_tag = os.environ['AtlasBuildStamp']
     except KeyError, e:
         print "Environment variable not set", e
