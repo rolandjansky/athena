@@ -2144,6 +2144,7 @@ def setupMenu():
         # ATR-16163
         ['mu4_bJpsi_TrkPEB',            'L1_MU4',  [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu6_bJpsi_TrkPEB',            'L1_MU6',  [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu6_bJpsi_TrkPEBmon',         'L1_MU6',  [], [BPhysicsStream,'express'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu6_bJpsi_lowpt_TrkPEB',      'L1_MU6',  [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu10_bJpsi_TrkPEB',           'L1_MU10', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu14_bJpsi_TrkPEB',           'L1_MU10', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
