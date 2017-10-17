@@ -8,8 +8,9 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 
 class METTriggerDerivationContentManager(object):
-  def __init__(self, streamName, stream, jetAlgorithms = ["AntiKt4EMTopo", "AntiKt4EMPFlow"]):
+  def __init__(self, streamName, stream, jetAlgorithms = ["AntiKt4EMTopo", "AntiKt4EMPFlow"], trackThreshold = 10):
     self.streamName = streamName
+    self.trackThreshold = trackThreshold
     self.makeThinningTools(stream)
     self.makeSlimmingTools(stream, jetAlgorithms)
 
@@ -24,7 +25,7 @@ class METTriggerDerivationContentManager(object):
       DerivationFramework__TrackParticleThinning(
           streamName + "TPThinningTool",
           ThinningService        = self.thinningHelper.ThinningSvc(),
-          SelectionString        = "InDetTrackParticles.pt > 10*GeV",
+          SelectionString        = "InDetTrackParticles.pt > {0}*GeV".format(self.trackThreshold),
           InDetTrackParticlesKey = "InDetTrackParticles"),
       DerivationFramework__MuonTrackParticleThinning(
           streamName + "MuonTPThinningTool",
@@ -37,7 +38,7 @@ class METTriggerDerivationContentManager(object):
           SGKey                  = "Electrons",
           InDetTrackParticlesKey = "InDetTrackParticles"),
       DerivationFramework__EgammaTrackParticleThinning(
-          streamName + "ElectronTPThinningTool",
+          streamName + "PhotonTPThinningTool",
           ThinningService        = self.thinningHelper.ThinningSvc(),
           SGKey                  = "Photons",
           InDetTrackParticlesKey = "InDetTrackParticles"),
@@ -55,9 +56,9 @@ class METTriggerDerivationContentManager(object):
     hltJets = ["a4tclcwsubjesFS", "a4tclcwsubjesISFS", "a4tcemsubjesFS", "a4tcemsubjesISFS"]
     streamName = self.streamName
     self.slimmingHelper = SlimmingHelper(streamName + "SlimmingHelper")
-    self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["BTagging_{0}".format(a) for a in jetAlgorithms]
+    self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["BTagging_{0}".format(a) for a in jetAlgorithms] + ["MET_Reference_{0}".format(a) for a in jetAlgorithms]
     self.slimmingHelper.AllVariables = [
-      "CaloCalTopoClusters",
+      # "CaloCalTopoClusters",
       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
@@ -66,6 +67,4 @@ class METTriggerDerivationContentManager(object):
       "LVL1EnergySumRoI",
       "LVL1JetRoIs",
       "LVL1JetEtRoI"] + ["MET_Core_{0}".format(a) for a in jetAlgorithms] + ["METAssoc_{0}".format(a) for a in jetAlgorithms] + ["HLT_xAOD__JetContainer_{0}".format(j) for j in hltJets]
-    self.slimmingHelper.ExtraVariables = ["Muons.EnergyLoss.energyLossType"]
-    # self.slimmingHelper.ExtraVariables = ["HLT_xAOD__JetContainer_{0}.pt.eta.phi.m".format(j) for j in hltJets]
-    self.slimmingHelper.AppendContentToStream(stream)
+    # self.slimmingHelper.AppendContentToStream(stream)
