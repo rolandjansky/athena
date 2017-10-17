@@ -107,16 +107,6 @@ STDM2TPThinningTool = DerivationFramework__TrackParticleThinning( name          
                                                                 ApplyAnd                = False)
 ToolSvc += STDM2TPThinningTool
 
-# Tracks associated with Jets
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-STDM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name            = "STDM2JetTPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
-                                                                JetKey                  = "AntiKt4LCTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV",
-                                                                ApplyAnd                = False)
-ToolSvc += STDM2JetTPThinningTool
-
 # All Track within a cone DeltaR=0.6 around Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "STDM2ElectronTPThinningTool",

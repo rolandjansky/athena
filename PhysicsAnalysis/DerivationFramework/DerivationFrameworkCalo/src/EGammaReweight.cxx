@@ -3,7 +3,7 @@
 */
 
 // CellReweight includes
-#include "DerivationFrameworkCalo/ElectronReweight.h"
+#include "DerivationFrameworkCalo/EGammaReweight.h"
 #include "CaloClusterCorrection/CaloFillRectangularCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -22,7 +22,7 @@
 
 #define Decorate(var) egamma->auxdecor<float>((PreNm+#var).c_str()) = c_egamma->showerShapeValue(xAOD::EgammaParameters::var)
 //using namespace xAOD::EgammaParameters;
-DerivationFramework::ElectronReweight::ElectronReweight( const std::string& t,
+DerivationFramework::EGammaReweight::EGammaReweight( const std::string& t,
                           const std::string& n,
                           const IInterface* p) :
   AthAlgTool(t,n,p)
@@ -37,12 +37,13 @@ DerivationFramework::ElectronReweight::ElectronReweight( const std::string& t,
   declareProperty("DecorPrefix", PreNm = "EG_", "Decoration Prefix");
   declareProperty("NewElectronContainer", name_electron , "Name of new electron container");
   declareProperty("NewPhotonContainer", name_gamma , "Name of new photon container");
+  declareProperty("CaloClusterLinkName", m_CaloClusterLinkName, "Name of links to calorimeter clusters");
 }
 
-DerivationFramework::ElectronReweight::~ElectronReweight() {}
+DerivationFramework::EGammaReweight::~EGammaReweight() {}
 
 
-StatusCode DerivationFramework::ElectronReweight::initialize() {
+StatusCode DerivationFramework::EGammaReweight::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
   if(m_EMShowerBuilderTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve EMShowerBuilderTool");
@@ -62,19 +63,30 @@ StatusCode DerivationFramework::ElectronReweight::initialize() {
     return StatusCode::FAILURE;
   }
 
+  if(m_CaloClusterLinkName == ""){
+    ATH_MSG_FATAL("No name of the link to the calo cluster decoration provided");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode DerivationFramework::ElectronReweight::finalize() {
+StatusCode DerivationFramework::EGammaReweight::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode DerivationFramework::ElectronReweight::addBranches() const
+StatusCode DerivationFramework::EGammaReweight::addBranches() const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   
+  if (evtStore()->contains<xAOD::PhotonContainer>(name_gamma.c_str()) &&
+      evtStore()->contains<xAOD::ElectronContainer>(name_electron.c_str())) {
+    ATH_MSG_WARNING("The photon container " << name_gamma << " and the electron container " << name_electron << " are already present in the event, no action will be taken. If this is not intended, modify your code to use a different container name.");
+    return StatusCode::SUCCESS;
+  }
+
   const CaloCellContainer * newCells = nullptr;
   const CaloCellContainer * oldCells = nullptr;
   ATH_CHECK( evtStore()->retrieve(newCells, m_name_new) );
@@ -85,42 +97,42 @@ StatusCode DerivationFramework::ElectronReweight::addBranches() const
     const xAOD::EgammaContainer* egammas = nullptr;
     const xAOD::PhotonContainer* a = 0;
     const xAOD::ElectronContainer* b = 0;
-	xAOD::ElectronContainer *elcont = new xAOD::ElectronContainer();
-	xAOD::ElectronAuxContainer *elcontaux = new xAOD::ElectronAuxContainer();
-	xAOD::PhotonContainer *gammacont = new xAOD::PhotonContainer();
-	xAOD::PhotonAuxContainer *gammacontaux = new xAOD::PhotonAuxContainer();
-	elcont->setStore(elcontaux);
-	gammacont->setStore(gammacontaux);
+    xAOD::ElectronContainer *elcont = new xAOD::ElectronContainer();
+    xAOD::ElectronAuxContainer *elcontaux = new xAOD::ElectronAuxContainer();
+    xAOD::PhotonContainer *gammacont = new xAOD::PhotonContainer();
+    xAOD::PhotonAuxContainer *gammacontaux = new xAOD::PhotonAuxContainer();
+    elcont->setStore(elcontaux);
+    gammacont->setStore(gammacontaux);
     ATH_CHECK( evtStore()->retrieve(egammas, SGkey));
-	xAOD::EgammaContainer* egammasCopy;
+    xAOD::EgammaContainer* egammasCopy;
     if( (b = dynamic_cast<const xAOD::ElectronContainer*>(egammas)) ){
       for(auto el : *b)
         elcont->push_back(new xAOD::Electron(*el));
-        egammasCopy = elcont;
+      egammasCopy = elcont;
     }
     else if( (a = dynamic_cast<const xAOD::PhotonContainer*>(egammas)) ){
       for(auto gamma : *a)
         gammacont->push_back(new xAOD::Photon(*gamma));
-        egammasCopy = gammacont;
+      egammasCopy = gammacont;
     }
     else { ATH_MSG_ERROR("Egamma container " << SGkey << " is not photons or electrons!!??"); return StatusCode::FAILURE; }
     
     int nel = 0;
     for(auto c_egamma : *(egammasCopy)) {
-  ATH_MSG_DEBUG ("debug for elec "<<(egammas->at(nel))->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink"));
-      const std::vector<ElementLink< xAOD::CaloClusterContainer>>  temp_links{(egammas->at(nel))->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink")};
+      ATH_MSG_DEBUG ("debug for elec "<<(egammas->at(nel))->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_CaloClusterLinkName.c_str()));
+      const std::vector<ElementLink< xAOD::CaloClusterContainer>>  temp_links{(egammas->at(nel))->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_CaloClusterLinkName.c_str())};
       const std::vector<ElementLink< xAOD::CaloClusterContainer>>  temp_links_ori{(egammas->at(nel))->caloClusterLink()};
       c_egamma->setCaloClusterLinks(temp_links);
       
       if(c_egamma->caloCluster()) 
 	{
 	  CHECK(m_EMShowerBuilderTool->recoExecute(c_egamma,newCells));
-	  if(isDecor) DecorateElec(egammas->at(nel),c_egamma);
-	 ATH_MSG_DEBUG ("Eratio"<< (egammas->at(nel))->auxdecor<float>("EG_Eratio")  << " bf " << (egammas->at(nel))->showerShapeValue(xAOD::EgammaParameters::Eratio) <<" "<< c_egamma->showerShapeValue(xAOD::EgammaParameters::Eratio) );
-	 ATH_MSG_DEBUG ("weta2"<< (egammas->at(nel))->auxdecor<float>("EG_weta2")  << " bf " << (egammas->at(nel))->showerShapeValue(xAOD::EgammaParameters::weta2) <<" "<< c_egamma->showerShapeValue(xAOD::EgammaParameters::weta2) );
+	  if(isDecor) DecorateEGamma(egammas->at(nel),c_egamma);
+	  ATH_MSG_DEBUG ("Eratio"<< (egammas->at(nel))->auxdecor<float>("EG_Eratio")  << " bf " << (egammas->at(nel))->showerShapeValue(xAOD::EgammaParameters::Eratio) <<" "<< c_egamma->showerShapeValue(xAOD::EgammaParameters::Eratio) );
+	  ATH_MSG_DEBUG ("weta2"<< (egammas->at(nel))->auxdecor<float>("EG_weta2")  << " bf " << (egammas->at(nel))->showerShapeValue(xAOD::EgammaParameters::weta2) <<" "<< c_egamma->showerShapeValue(xAOD::EgammaParameters::weta2) );
 	}
       c_egamma->setCaloClusterLinks(temp_links_ori);	 // new cluster is not available in DAOD so still need to set back to original cluster 
-
+      
       nel++;
     }
     if(a) {  //Photon Container Exist
@@ -142,7 +154,7 @@ StatusCode DerivationFramework::ElectronReweight::addBranches() const
   return StatusCode::SUCCESS;
 }
 
-void DerivationFramework::ElectronReweight::DecorateElec(const xAOD::Egamma *egamma, xAOD::Egamma *c_egamma) const{
+void DerivationFramework::EGammaReweight::DecorateEGamma(const xAOD::Egamma *egamma, xAOD::Egamma *c_egamma) const{
   // GM: isn't there a better way to get the list of shower shapes for an egamma object and copy everything from c_egamma to egamma?
   Decorate(e011);      
   Decorate(e033);

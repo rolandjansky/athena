@@ -84,6 +84,10 @@ def addAntiKt10TruthWZJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
+def addAntiKt4TruthDressedWZJets(sequence,outputlist):
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+
 def replaceAODReducedJets(jetlist,sequence,outputlist):
     extjetlog.info( "Replacing AOD-reduced jet collections: {0}".format(",".join(jetlist)))
     if "AntiKt2PV0TrackJets" in jetlist:
@@ -268,4 +272,32 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
     extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+def applyOverlapRemoval(sequence=DerivationFrameworkJob):
+    #from AssociationUtils.AssociationUtilsConf import ORUtils__OverlapRemovalTool as OverlapRemovalTool
+    from AssociationUtils.config import recommended_tools
+    from AssociationUtils.AssociationUtilsConf import OverlapRemovalTestAlg
+    outputLabel = 'DFCommonJets_passOR'
+    bJetLabel = 'isBJet'
+    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel,doMuons=False)
+    algOR = OverlapRemovalTestAlg('OverlapRemovalTestAlg',
+			    OverlapLabel=outputLabel,
+                            OverlapRemovalTool=orTool,
+                            BJetLabel=bJetLabel)
+    sequence += algOR
+
+def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    ecTool = EventCleaningTool('EventCleaningTool')
+    ecTool.JetCleanPrefix = "DFCommonJets_"
+    algClean = EventCleaningTestAlg('EventCleaningTestAlg',
+                            EventCleaningTool=ecTool,
+                            JetCollectionName="AntiKt4EMTopoJets")
+    sequence += algClean
+
+
 ##################################################################
+applyJetCalibration_xAODColl("AntiKt4EMTopo")
+updateJVT_xAODColl("AntiKt4EMTopo")
+applyOverlapRemoval()
+eventClean_xAODColl("AntiKt4EMTopo")

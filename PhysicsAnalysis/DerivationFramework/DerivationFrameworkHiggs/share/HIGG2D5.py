@@ -13,7 +13,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 

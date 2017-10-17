@@ -10,6 +10,7 @@
 
 #include "JetAugmentationTool.h"
 #include "xAODCore/ShallowCopy.h"
+#include "JetJvtEfficiency/JetJvtEfficiency.h"
 
 namespace DerivationFramework {
 
@@ -24,7 +25,9 @@ namespace DerivationFramework {
     m_jetCalibTool(""),
     m_docalib(false),
     dec_jvt(0),
+    dec_passJvt(0),
     m_jvtTool(""),
+    m_jetJvtEfficiencyTool("CP::JetJvtEfficiency/JetJvtEfficiencyTool"),
     m_dojvt(false),
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
@@ -63,7 +66,8 @@ namespace DerivationFramework {
 	m_dojvt = true;
 
 	dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
-
+	dec_passJvt  = new SG::AuxElement::Decorator<char>(m_momentPrefix+"pass"+m_jvtMomentKey);
+  
 	if(!m_btagSelTools.empty()) {
 	  size_t ibtag(0);
 	  for(const auto& tool : m_btagSelTools) {
@@ -75,6 +79,11 @@ namespace DerivationFramework {
 	  }
 	}
       }
+    }
+
+    if(!m_jetJvtEfficiencyTool.empty()) {
+        CHECK(m_jetJvtEfficiencyTool.retrieve());
+        ATH_MSG_INFO("Jvt efficiency tool initialized \"" << m_momentPrefix+"pass"+m_jvtMomentKey << "\"");
     }
 
     if(!m_jetTrackSumMomentsTool.empty()) {
@@ -100,6 +109,7 @@ namespace DerivationFramework {
 
     if(m_dojvt) {
       delete dec_jvt;
+      delete dec_passJvt;
     }
 
     if(m_dobtag) {
@@ -148,7 +158,7 @@ namespace DerivationFramework {
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
-
+      
       if(m_docalib) {
 	// generate static decorators to avoid multiple lookups	
 	(*dec_calibpt)(jet_orig)  = jet->pt();
@@ -161,9 +171,10 @@ namespace DerivationFramework {
 	if(m_dojvt) {
 	  (*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
 	  ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
+	  bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
+          (*dec_passJvt)(jet_orig) = passJVT;
 
 	  if(m_dobtag) {
-	    bool passJVT = jet->pt()>50e3 || fabs(jet->eta())>2.4 || (*dec_jvt)(jet_orig)>0.64;
 	    size_t ibtag(0);
 	    for(const auto& tool : m_btagSelTools) {
 	      (*dec_btag[ibtag])(jet_orig) = jet->pt()>20e3 && fabs(jet->eta())<2.5 && passJVT && tool->accept(*jet);

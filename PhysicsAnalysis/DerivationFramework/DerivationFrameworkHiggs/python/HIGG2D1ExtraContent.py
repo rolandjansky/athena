@@ -27,4 +27,13 @@ HIGG2D1ExtraContainersTruth=[
     "TruthVertices",
     "AntiKt4TruthJets",
     "AntiKt4TruthWZJets",
-    "MuonTruthParticles"]
+    "MuonTruthParticles",
+    "TruthElectrons",
+    "TruthMuons",
+    "TruthTaus",
+    "TruthPhotons",
+    "TruthNeutrinos",
+    "TruthTop",
+    "TruthBSM",
+    "TruthBoson"
+    ]

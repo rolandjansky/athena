@@ -5,8 +5,6 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-# notes: 
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -14,8 +12,25 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
+# this could also go in egammaDFFlags
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
+
+DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+#override if needed (do at your own risk..)
+#DoCellReweighting = False
+#DoCellReweighting = True
+
+# check if we run on data or MC (DataSource = geant4)
+from AthenaCommon.GlobalFlags import globalflags
+print "EGAM3 globalflags.DataSource(): ", globalflags.DataSource()
+if globalflags.DataSource()!='geant4':
+    DoCellReweighting = False
+
 
 #====================================================================
 # SKIMMING TOOLS
@@ -127,6 +142,7 @@ print "EGAM3 skimming tool:", EGAM3_SkimmingTool
 # DECORATION TOOLS
 #====================================================================
 
+
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
@@ -136,6 +152,52 @@ ToolSvc += EGAM3_GainDecoratorTool
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
+#====================================================================
+# Cell reweighter
+#====================================================================
+if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, EGammaReweightTool
+
+    # first, create the container with the new cells (after reweighting)
+    EGAM3_NewCellTool = NewCellTool("EGAM3_NewCellTool")
+    #                                OutputLevel = DEBUG)
+    #                                ReweightCellContainerName="NewCellContainer",
+    #                                SGKey_electrons = "Electrons", 
+    #                                SGKey_photons = "Photons")
+    print EGAM3_NewCellTool
+    ToolSvc += EGAM3_NewCellTool
+
+    # second, run a tool that creates the clusters and objects from these new cells
+    EGAM3_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM3_ClusterDecoratorTool")
+    #                                                          OutputClusterSGKey="EGammaSwClusterWithNewCells",
+    #                                                          OutputClusterLink="NewSwClusterLink",
+    #                                                          SGKey_caloCells = "NewCellContainer",
+    #                                                          SGKey_electrons = "Electrons",
+    #                                                          SGKey_photons = "Photons")
+    print EGAM3_ClusterDecoratorTool
+    ToolSvc += EGAM3_ClusterDecoratorTool
+
+    # third, run a tool that creates the shower shapes with the new cells
+    from egammaTools.egammaToolsFactories import EMShowerBuilder
+    EGAM3_EMShowerBuilderTool = EMShowerBuilder("EGAM3_EMShowerBuilderTool", 
+                                                CellsName="NewCellContainer")
+    print EGAM3_EMShowerBuilderTool
+    ToolSvc += EGAM3_ClusterDecoratorTool
+
+    # fourth, decorate the new objects with their shower shapes computed from the new clusters
+    EGAM3_EGammaReweightTool = EGammaReweightTool("EGAM3_EGammaReweightTool",
+                                                  SGKey_electrons = "Electrons",
+                                                  SGKey_photons="Photons",
+                                                  NewCellContainerName="NewCellContainer",
+                                                  NewElectronContainer = "NewSwElectrons",
+                                                  NewPhotonContainer = "NewSwPhotons",
+                                                  EMShowerBuilderTool = EGAM3_EMShowerBuilderTool,
+                                                  ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
+                                                  CaloClusterLinkName="NewSwClusterLink")
+    #                                             OutputLevel=DEBUG)
+    print EGAM3_EGammaReweightTool
+    ToolSvc += EGAM3_EGammaReweightTool
 
 
 #================
@@ -156,8 +218,13 @@ DerivationFrameworkJob += egam3Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+augmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool]
+if DoCellReweighting:
+    augmentationTools += [EGAM3_NewCellTool, EGAM3_ClusterDecoratorTool, EGAM3_EGammaReweightTool]
+augmentationTools += EGAM3_ClusterEnergyPerLayerDecorators
+print "EGAM3 augmentationTools", augmentationTools
 egam3Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
-                                                         AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool] + EGAM3_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM3_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
@@ -182,7 +249,7 @@ EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # RequireAlgs = logical AND of filters
 EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
 
-#Special lines for thinning
+# Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
@@ -210,6 +277,11 @@ EGAM3SlimmingHelper.SmartCollections = ["Electrons",
 # Add egamma trigger objects
 EGAM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
+# Append cell-reweighted collections to dictionary
+if DoCellReweighting:
+    EGAM3SlimmingHelper.AppendToDictionary = {"NewSwPhotons": "xAOD::PhotonContainer", "NewSwPhotonsAux": "xAOD::PhotonAuxContainer", "NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
+
+
 # Extra variables
 EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
@@ -227,10 +299,7 @@ for tool in EGAM3_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)
 
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM3Stream)
-
-# Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
+#Add full CellContainer
 EGAM3Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM3Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
 

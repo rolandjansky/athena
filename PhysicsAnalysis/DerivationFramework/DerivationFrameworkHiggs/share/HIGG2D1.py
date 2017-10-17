@@ -12,7 +12,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
@@ -284,6 +285,12 @@ HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth
+    HIGG2D1SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer',
+                                                'TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBSM':'xAOD::TruthParticleContainer',
+                                                'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBoson':'xAOD::TruthParticleContainer',
+                                                'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 # Add MET_RefFinalFix
 addMETOutputs(HIGG2D1SlimmingHelper,["AntiKt4LCTopo","Track"])

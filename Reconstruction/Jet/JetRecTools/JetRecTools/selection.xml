@@ -1,0 +1,17 @@
+<lcgdict>
+<class name="CaloClusterConstituentsOrigin"/>
+<class name="CaloClusterConstituentsWeight"/>
+<class name="ClusterAtEMScaleTool"/>
+<class name="ConstituentSubtractorTool"/>
+<class name="JetConstituentModifierBase"/>
+<class name="JetConstituentModSequence"/>
+<class name="JetInputElRemovalTool"/>
+<class name="JetTrackSelectionTool"/>
+<class name="PFlowPseudoJetGetter"/>
+<class name="SimpleJetTrackSelectionTool"/>
+<class name="SoftKillerWeightTool"/>
+<class name="TrackPseudoJetGetter"/>
+<class name="TrackVertexAssociationTool"/>
+<class name="VoronoiWeightTool"/>
+
+</lcgdict>

@@ -198,6 +198,7 @@
 # Physics analysis package(s):
 + PhysicsAnalysis/AnalysisCommon/AODSelect
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
++ PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/Particle.*
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
@@ -295,6 +296,9 @@
 + Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
 + Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools
 + Reconstruction/TrackParticleTPCnv
++ Reconstruction/RecTPCnv
++ Reconstruction/RecAthenaPool
++ Reconstruction/MissingETEvent
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord

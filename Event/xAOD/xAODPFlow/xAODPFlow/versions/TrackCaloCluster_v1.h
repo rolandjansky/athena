@@ -1,4 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // $Id: TrackCaloCluster_v1.h $
 #ifndef XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H
 #define XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H

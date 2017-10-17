@@ -3,22 +3,11 @@
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentElectrons=[
-    "Electrons.etcone20",
-    "Electrons.etcone30",
-    "Electrons.etcone40",
-    "Electrons.ptcone20",
-    "Electrons.ptcone30",
-    "Electrons.ptcone40",
     "Electrons.Loose",
     "Electrons.Medium",
     "Electrons.Tight",
-    "Electrons.DFCommonElectronsLHLoose",
-    "Electrons.DFCommonElectronsLHMedium",
-    "Electrons.DFCommonElectronsLHTight",
-    "Electrons.DFCommonElectronsML",
-    "Electrons.author",
-    "Electrons.OQ"
     ]
+
 ExtraElectronsTruth=[
     "Electrons.truthOrigin",
     "Electrons.truthType",
@@ -114,27 +103,24 @@ ExtraContainersTruth=["TruthEvents",
 
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
-                        "egammaClusters"
+                        "egammaClusters",
+                        "NewSwPhotons" # only if DoCellReweighting is ON                        
                         ]
 
 # for trigger studies
 ExtraContainersTrigger=[
-	# to access the HLT egamma xAOD collections
 	"HLT_xAOD__ElectronContainer_egamma_Electrons",
 	"HLT_xAOD__PhotonContainer_egamma_Photons",
+        "HLT_xAOD__PhotonContainer_egamma_Iso_Photons",
 	"HLT_xAOD__TrigElectronContainer_L2ElectronFex",
 	"HLT_xAOD__TrigPhotonContainer_L2PhotonFex",
-	# to access information about EF clusters and tracks
 	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
 	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFID",
-	# for L1 studies
 	"LVL1EmTauRoIs",
 	"HLT_TrigPassBitsCollection_passbits",
 	"HLT_TrigPassFlagsCollection_passflags",
-	"HLT_TrigRoiDescriptorCollection_initialRoI",
-	# extra containers requested by e/gamma trigger (ATLEGAMDPD-36)
-        "HLT_xAOD__PhotonContainer_egamma_Iso_Photons"
-]
+	"HLT_TrigRoiDescriptorCollection_initialRoI"
+        ]
 
 ExtraContainersTriggerDataOnly=[
 	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",

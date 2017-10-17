@@ -27,6 +27,8 @@ EventCleaningTestAlg::EventCleaningTestAlg(const std::string& name,
                   "Input name of Jvt decorator");
   declareProperty("OrDecorator", m_or = "passOR",
                   "Input name of OR decorator");
+  declareProperty("EventCleanPrefix", m_prefix = "",
+                  "Input name of event cleaning decorator prefix");
   declareProperty("CleaningLevel", m_cleaningLevel = "LooseBad",
                   "Input cleaning level");
   declareProperty("JetCollectionName", m_collection = "AntiKt4EMTopoJets",
@@ -60,7 +62,7 @@ StatusCode EventCleaningTestAlg::execute()
   result = m_ecTool->acceptEvent(jets) ;
   
   //Decorate event
-  const static SG::AuxElement::Decorator<char> dec_eventClean("eventClean_" + m_cleaningLevel);
+  const static SG::AuxElement::Decorator<char> dec_eventClean(m_prefix+"eventClean_" + m_cleaningLevel);
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
   dec_eventClean(*eventInfo) = result; 

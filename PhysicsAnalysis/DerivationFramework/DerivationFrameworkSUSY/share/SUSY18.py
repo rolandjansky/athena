@@ -10,7 +10,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 

@@ -15,7 +15,8 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
-   from DerivationFrameworkMCTruth.MCTruthCommon import *
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   addStandardTruthContents()
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY10Stream.StreamName

@@ -776,8 +776,8 @@ namespace met {
     }
 
     ATH_MSG_INFO( "Searching for configFile: " << configfile);
-    ATH_MSG_INFO( "PWD: "        << gSystem->Getenv("PWD")  )  ;
-    ATH_MSG_INFO( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
+    ATH_MSG_DEBUG( "PWD: "        << gSystem->Getenv("PWD")  )  ;
+    ATH_MSG_DEBUG( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
 
     if(configpath.empty() || configfile.empty() ){
       ATH_MSG_ERROR( "Path Resolver couldn't find config file");

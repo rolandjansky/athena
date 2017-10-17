@@ -107,6 +107,14 @@ triggers += ['HLT_e120_lhvloose'                   ]
 triggers += ['HLT_e120_lhloose'                    ]
 triggers += ['HLT_e120_loose'                      ]
 triggers += ['HLT_e120_vloose'                     ]
+triggers += ['HLT_e140_etcut'                      ]
+triggers += ['HLT_e160_etcut'                      ]
+triggers += ['HLT_e180_etcut'                      ]
+triggers += ['HLT_e200_etcut'                      ]
+triggers += ['HLT_e250_etcut'                      ]
+triggers += ['HLT_e300_etcut'                      ]
+triggers += ['HLT_g250_etcut'                      ]
+triggers += ['HLT_g300_etcut'                      ]
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression
@@ -268,8 +276,8 @@ EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
-#if globalflags.DataSource()!='geant4':
-#    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+if globalflags.DataSource()!='geant4':
+    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
@@ -280,7 +288,3 @@ for tool in EGAM7_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM7SlimmingHelper
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)
-
-# Add AODCellContainer (thinned)
-EGAM7Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-EGAM7Stream.AddItem("CaloCellContainer#DFEGAMCellContainer")

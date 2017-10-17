@@ -19,6 +19,7 @@
 
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
 
@@ -49,7 +50,9 @@ namespace DerivationFramework {
 
     // JVT
     SG::AuxElement::Decorator<float>* dec_jvt;
+    SG::AuxElement::Decorator<char>* dec_passJvt;
     ToolHandle<IJetUpdateJvt> m_jvtTool;
+    ToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool; //!
     std::string m_jvtMomentKey;
     bool m_dojvt;
 

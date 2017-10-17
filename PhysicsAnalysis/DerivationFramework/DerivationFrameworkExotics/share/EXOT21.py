@@ -10,7 +10,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
 if globalflags.DataSource()=='geant4':
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM   
