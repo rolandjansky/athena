@@ -7,6 +7,9 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -260,13 +263,12 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
-    #from AssociationUtils.AssociationUtilsConf import ORUtils__OverlapRemovalTool as OverlapRemovalTool
     from AssociationUtils.config import recommended_tools
-    from AssociationUtils.AssociationUtilsConf import OverlapRemovalTestAlg
+    from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import OverlapRemovalECAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = 'isBJet'
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
-    algOR = OverlapRemovalTestAlg('OverlapRemovalTestAlg',
+    algOR = OverlapRemovalECAlg('OverlapRemovalECAlg',
 			    OverlapLabel=outputLabel,
                             OverlapRemovalTool=orTool,
                             BJetLabel=bJetLabel)
@@ -288,3 +290,5 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventClean_xAODColl("AntiKt4EMTopo")
+
+
