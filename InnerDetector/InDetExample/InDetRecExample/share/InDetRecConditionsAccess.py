@@ -240,8 +240,7 @@ if DetFlags.haveRIO.SCT_on():
 
     # Load calibration conditions service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc",
-                                                     EventInfoKey = eventInfoKey)
+    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
     ServiceMgr += InDetSCT_ReadCalibDataSvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ReadCalibDataSvc
