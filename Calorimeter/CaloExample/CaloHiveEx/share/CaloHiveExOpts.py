@@ -53,19 +53,8 @@ theApp.EvtMax = 20
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence+=xAODMaker__EventInfoCnvAlg()
 
-#---------------------------------------------------------------------------------#
-# NEW Conditions access infrastructure
-#
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader( "CondInputLoader", OutputLevel=DEBUG )
-
-import StoreGate.StoreGateConf as StoreGateConf
-svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc()
-# NEW Conditions access infrastructure
-#---------------------------------------------------------------------------------#
+# Configure MT Condition Data Access
+from IOVDbSvc.CondDB import conddb
 
 # Make sure PerfMon is off
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
