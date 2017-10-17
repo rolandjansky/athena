@@ -37,7 +37,7 @@ class ArtBuild(ArtBase):
         self.project = project
         self.platform = platform
         self.nightly_tag = nightly_tag
-        self.max_jobs = multiprocessing.cpu_count() if max_jobs <= 0 else int(max_jobs)
+        self.max_jobs = multiprocessing.cpu_count() if max_jobs <= 0 else max_jobs
         self.ci = ci
 
     def task_list(self, type, sequence_tag):
