@@ -56,11 +56,11 @@
                         <!-- Heavy Ion Collisions Reconstruction job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00287281_express_HICollisions_noHIST">
-                                <doc>RecoTrf noHIST on 2015 PbPb express stream (Run287281 LB124)</doc>
-                                <jobTransformJobName>Run00287281_express_HICollisions_noHIST</jobTransformJobName>
+                            <jobTransform userJobId="Run00287281_express_HICollisions_noBS">
+                                <doc>RecoTrf no BS constraint on 2015 PbPb express stream (Run287281 LB124)</doc>
+                                <jobTransformJobName>Run00287281_express_HICollisions_noBS</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --dropHIST --dropDAODs
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --preExec "'r2e:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useBeamConstraint.set_Value_and_Lock(False)'" --dropHIST --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -88,7 +88,7 @@
                             
                         </chainElement>
                         
-                        <!-- Heavy Ion HIP RAWtoALL Reconstruction on 2015 pPb 5 TeV HardProbes stream collisions job -->
+                        <!-- Heavy Ion HIP RAWtoALL Reconstruction on 2013 pPb 5 TeV HardProbes stream collisions job -->
                         <chainElement>
                             
                             <jobTransform userJobId="Run00218048_HardProbes_Collisions_HIPReco">
