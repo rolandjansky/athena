@@ -21,9 +21,10 @@ if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) 
     # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
     ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
-                                                             AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
-                                                             )
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
+                                                                AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
+                                                                 )
 # Add in some jets - global config if we are running on EVNT
 if dfInputIsEVNT:
     from JetRec.JetRecFlags import jetFlags
