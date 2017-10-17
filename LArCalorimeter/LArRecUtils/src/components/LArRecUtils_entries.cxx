@@ -19,6 +19,8 @@
 #include "../LArHVScaleRetriever.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
+#include "../LArCalibLineMappingAlg.h"
+#include "../LArFebRodMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
 
@@ -59,6 +61,8 @@ DECLARE_ALGORITHM_FACTORY( LArCondAlgfSamplSC)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVFlat)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVSC)
 DECLARE_ALGORITHM_FACTORY( LArOnOffMappingAlg)
+DECLARE_ALGORITHM_FACTORY( LArCalibLineMappingAlg)
+DECLARE_ALGORITHM_FACTORY( LArFebRodMappingAlg)
 DECLARE_ALGORITHM_FACTORY( LArMCSymCondAlg)
 
 DECLARE_ALGORITHM_FACTORY( LArRampSymCondAlg )
