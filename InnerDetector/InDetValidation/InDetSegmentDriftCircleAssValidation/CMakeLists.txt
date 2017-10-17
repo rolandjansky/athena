@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTruthData
                           PRIVATE
+                          Control/StoreGate
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkTrack )
