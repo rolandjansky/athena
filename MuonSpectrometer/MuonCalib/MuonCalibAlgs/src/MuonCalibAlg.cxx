@@ -954,13 +954,11 @@ namespace MuonCalib {
 	int nth_bit(0);
 	for(unsigned int i=0; i<bunch.getTAV().size(); i++)
 	  {
-	    //		std::cout<<"***REMOVED*** "<<i<<std::endl;
 	    MCeventInfo.setTriggerBit(nth_bit, bunch.getTAV().test(i));
 	    nth_bit++;
 	  }
 	for(unsigned int i=0; i<bunch.getTAP().size(); i++)
 	  {
-	    //		std::cout<<"***REMOVED*** "<<i<<std::endl;
 	    MCeventInfo.setTriggerBit(nth_bit, bunch.getTAP().test(i));
 	    nth_bit++;
 	  }

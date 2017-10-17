@@ -285,7 +285,7 @@ namespace InDet {
 	// it is always the last one
 	lastsurf = &tS.measurement(it)->associatedSurface();
       
-	// this ***REMOVED*** to find out it is endcap
+	// this is a rubbish way to find out it is endcap
 	if (fabs(tS.measurement(it)->associatedSurface().transform().rotation().col(2).z())<.5) {
 	  // increase counter and keep some information
 	  nendcap++;

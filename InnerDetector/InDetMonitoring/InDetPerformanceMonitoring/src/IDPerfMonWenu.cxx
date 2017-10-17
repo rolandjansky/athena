@@ -648,7 +648,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
 
-    // check isolation (BETA -- will switch to isolation tool when ***REMOVED***)
+    // check isolation 
     //float iso;
     //if(em->isolationValue(iso,xAOD::Iso::ptcone20)){
     //  if( (iso/em->pt()) > 0.12 )
