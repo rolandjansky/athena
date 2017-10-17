@@ -19,6 +19,7 @@ elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
 # If it isn't available, make a truth meta data object (will hold MC Event Weights)
 if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
     # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
+    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -182,6 +183,7 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
         DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthDressedWZJets")
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += DFCommonTruthDressedWZQGLabelTool
         augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -197,6 +199,7 @@ def addStandardTruthContents(kernel=None,
     schedulePreJetMCTruthAugmentations(kernel, decorationDressing)
     # Should photons that are dressed onto taus also be removed from truth jets?
     if includeTausInDressingPhotonRemoval:
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc.DFCommonTruthTauDressingTool.decorationName=decorationDressing
     # Jets and MET
     addTruthJets(kernel, decorationDressing)
