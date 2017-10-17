@@ -291,7 +291,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     //for all other taggers, use the same method
     double tagger_weight(-100);
 
-    tagger_weight = getTaggerWeight( jet );
+    tagger_weight = getTaggerWeight( *jet );
 
     ATH_MSG_VERBOSE( m_taggerName << " : " <<  tagger_weight );
     return accept(pT, eta, tagger_weight);
