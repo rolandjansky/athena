@@ -13,7 +13,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include <vector>
 #include <set>
@@ -277,7 +278,8 @@ const typename Index<CONT>::type& doindex (const CONT* cont, const IDX& idx)
 
 
 template <class CONT>
-void testit (const std::string& key,
+void testit (SGTest::TestStore& store,
+             const std::string& key,
              const CONT* cont,
              const std::string& key2,
              const CONT* cont2,
@@ -579,7 +581,7 @@ void testit (const std::string& key,
 }
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -597,14 +599,15 @@ void test1()
   foocont2->push_back (new Foo(14));
   store.record (foocont2, "foocont2");
 
-  testit<FooCont> ("foocont", foocont,
+  testit<FooCont> (store,
+                   "foocont", foocont,
                    "foocont2", foocont2,
                    1, 1, 2, 2, -1);
 }
 
 
 // Testing references to objects not in SG.
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -664,7 +667,7 @@ void test2()
 
 
 // toTransient, toPersistent
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
 
@@ -712,7 +715,7 @@ void test3()
 
 
 // test alt store
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
   
@@ -743,7 +746,7 @@ void test4()
 
 
 // dummy proxy creation
-void test5()
+void test5 (SGTest::TestStore& store)
 {
   std::cout << "test5\n";
 
@@ -765,7 +768,7 @@ void test5()
 
 
 // comparison ops
-void test6()
+void test6 (SGTest::TestStore& /*store*/)
 {
   std::cout << "test6\n";
 
@@ -810,7 +813,7 @@ public:
 
 
 // tests from ControlTest
-void test7()
+void test7 (SGTest::TestStore& store)
 {
   std::cout << "test7\n";
 
@@ -960,7 +963,7 @@ void test7()
 
 
 // Test for vector with non-pointer payload
-void test8()
+void test8 (SGTest::TestStore& store)
 {
   std::cout << "test8\n";
 
@@ -978,7 +981,8 @@ void test8()
   strvec2->push_back ("14");
   store.record (strvec2, "strvec2");
 
-  testit<StrVec> ("strvec", strvec,
+  testit<StrVec> (store,
+                  "strvec", strvec,
                   "strvec2", strvec2,
                   1, 1, 2, 2, -1);
 
@@ -988,7 +992,7 @@ void test8()
 
 
 // Test for set
-void test9()
+void test9 (SGTest::TestStore& store)
 {
   std::cout << "test9\n";
 
@@ -1006,7 +1010,8 @@ void test9()
   strset2->insert ("14");
   store.record (strset2, "strset2");
 
-  testit<StrSet> ("strset", strset,
+  testit<StrSet> (store,
+                  "strset", strset,
                   "strset2", strset2,
                   "1", "11", "2", "12", "");
 
@@ -1016,7 +1021,7 @@ void test9()
 
 
 // Test for map
-void test10()
+void test10 (SGTest::TestStore& store)
 {
   std::cout << "test10\n";
 
@@ -1034,14 +1039,15 @@ void test10()
   (*strmap2)["14"] = 14;
   store.record (strmap2, "strmap2");
 
-  testit<StrMap> ("strmap", strmap,
+  testit<StrMap> (store,
+                  "strmap", strmap,
                   "strmap2", strmap2,
                   "1", "11", "2", "12", "");
 }
 
 
 // Test for identcont
-void test11()
+void test11 (SGTest::TestStore& store)
 {
   std::cout << "test11\n";
 
@@ -1053,7 +1059,8 @@ void test11()
   imap2->fill ("b");
   store.record (imap2, "imap2");
 
-  testit<IdentTest> ("imap", imap,
+  testit<IdentTest> (store,
+                     "imap", imap,
                      "imap2", imap2,
                      IdentContIndex(1,1).hashAndIndex(),
                      IdentContIndex(1,1).hashAndIndex(),
@@ -1064,7 +1071,7 @@ void test11()
 
 
 // default store setting
-void test12()
+void test12 (SGTest::TestStore& store)
 {
   std::cout << "test12\n";
   TestStore store2;
@@ -1075,7 +1082,7 @@ void test12()
 
 
 // Converting ctor.
-void test13()
+void test13 (SGTest::TestStore& store)
 {
   std::cout << "test13\n";
 
@@ -1139,7 +1146,7 @@ void test13()
   baz->insert ("1");
   baz->insert ("2");
   baz->insert ("3");
-  
+
   ElementLink<BazCont> el11;
   el11.setElement (Baz ("bar1"));
   ElementLink<StrSet> el12 (el11);
@@ -1186,23 +1193,23 @@ void test13()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   initTestStore();
 
-  test1();
-  test2();
-  test3();
-  test4();
-  test5();
-  test6();
-  test7();
-  test8();
-  test9();
-  test10();
-  test11();
-  test12();
-  test13();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
+  test5 (store);
+  test6 (store);
+  test7 (store);
+  test8 (store);
+  test9 (store);
+  test10 (store);
+  test11 (store);
+  test12 (store);
+  test13 (store);
   return 0;
 }

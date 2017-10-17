@@ -18,7 +18,7 @@
 
 
 #include "ELFElt.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 

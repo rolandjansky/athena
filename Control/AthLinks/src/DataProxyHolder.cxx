@@ -25,7 +25,8 @@ namespace {
 
 
 /// Current input renaming map.
-const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap = nullptr;
+const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap ATLAS_THREAD_SAFE
+  = nullptr;
 
 
 }
@@ -223,7 +224,7 @@ DataProxyHolder::dataID() const
   if (dp)
     return dp->name();
 
-  static std::string dummy;
+  static const std::string dummy;
   return dummy;
 }
 
@@ -608,7 +609,7 @@ bool DataProxyHolder::operator== (const DataProxyHolder& other) const
  * @brief Set map used for performing input renaming in toTransient.
  * @param map The new map, or nullptr for no renmaing.
  */
-void DataProxyHolder::setInputRenameMap (const InputRenameRCU_t* map)
+void DataProxyHolder::setInputRenameMap ATLAS_NOT_THREAD_SAFE (const InputRenameRCU_t* map)
 {
   s_inputRenameMap = map;
 }
