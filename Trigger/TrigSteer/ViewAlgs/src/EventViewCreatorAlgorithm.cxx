@@ -76,7 +76,7 @@ StatusCode EventViewCreatorAlgorithm::execute()
     oneRoIColl->push_back( roiDescriptor );
 
     // make the view
-    viewVector->push_back( ViewHelper::makeView( name()+"_view", viewCounter++ ) );
+    viewVector->push_back( ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ) );
     contexts.emplace_back( ctx );
     contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
     

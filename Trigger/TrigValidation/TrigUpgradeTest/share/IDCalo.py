@@ -338,7 +338,8 @@ if TriggerFlags.doID:
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                    ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+                                                                    ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                    OutputLevel=INFO)
   
   
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
@@ -351,6 +352,8 @@ if TriggerFlags.doID:
     allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+    InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = topSequence.InDetCacheCreatorTrigViews.SpacePointCacheSCT
+    InDetSiTrackerSpacePointFinder.SpacePointCachePix = topSequence.InDetCacheCreatorTrigViews.SpacePointCachePix
   else:
     topSequence += InDetSiTrackerSpacePointFinder
     theFTF.RoIs = "EMRoIs"
