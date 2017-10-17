@@ -5,7 +5,7 @@ makeMCDAODs=False
 makeTruthDAODs=True
 makeTrains=False
 
-formatList = ['PHYSVAL', 
+formatList = [#'PHYSVAL', 
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5', 
               'HIGG1D1', 'HIGG1D2',  
               'HIGG2D1', 'HIGG2D2', 'HIGG2D4', 'HIGG2D5', 
