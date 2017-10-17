@@ -13,6 +13,7 @@ use AtlasROOT		AtlasROOT-*		External
 use AtlasPolicy		AtlasPolicy-*
 use AthenaBaseComps 	AthenaBaseComps-*	Control
 use xAODHIEvent		xAODHIEvent-*		Event/xAOD
+use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use HIEventUtils        HIEventUtils-*          PhysicsAnalysis/HeavyIonPhys
 

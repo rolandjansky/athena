@@ -54,6 +54,8 @@ CaloHitAnalysis::CaloHitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , h_calib_eEsc(0)
    , h_calib_eTot(0)
    , h_calib_eTotpartID(0)
+   , m_tileID(0)
+   , m_tileMgr(0)
    , m_cell_eta(0)
    , m_cell_phi(0)
    , m_cell_x(0)
@@ -74,8 +76,6 @@ CaloHitAnalysis::CaloHitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_calib_partID(0)
    , m_expert("off")
    , m_calib("off")
-   , m_tileID(0)
-   , m_tileMgr(0)
      
    , m_tree(0)
    , m_ntupleFileName("/CaloHitAnalysis/")

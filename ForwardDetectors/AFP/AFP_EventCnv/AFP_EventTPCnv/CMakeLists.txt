@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/AFP/AFP_DigiEv
                           ForwardDetectors/AFP/AFP_RecoEv/AFP_LocRecoEv
                           ForwardDetectors/AFP/AFP_SimEv
-                          ForwardDetectors/AFP_AFP_RawEv
+                          ForwardDetectors/AFP/AFP_RawEv
                           PRIVATE
                           DetectorDescription/Identifier
                           GaudiKernel )

@@ -6,4 +6,4 @@
 # forbidden.
 
 AthDerivationExternalsVersion = 1.0.17
-GaudiVersion = v27r1.012
+GaudiVersion = v27r1.014

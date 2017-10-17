@@ -29,7 +29,7 @@
 #include <cassert>
 
 
-#include "EventCommonTPCnv/Compressor.h"
+#include "AthenaPoolCnvSvc/Compressor.h"
 #include "CaloClusterContainerCnvTest_p7.icc"
 #include "CaloClusterContainerCnvTest_p6.icc"
 

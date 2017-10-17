@@ -11,6 +11,8 @@
 #include "../AFP_Monitoring/AFPTechnicalLayerMonitor.h"
 #include "../AFP_Monitoring/AFPTechnicalStationMonitor.h"
 
+#include "AFP_RawEv/AFP_SiRawData.h"
+
 
 const int AFPTechnicalStationMonitor::s_firstLayerIndex = 0;
 const int AFPTechnicalStationMonitor::s_secondLayerIndex = 1;
@@ -47,9 +49,9 @@ void AFPTechnicalStationMonitor::bookHistograms(AFPTechnicalMonitorTool* toolToS
 }
 
 
-void AFPTechnicalStationMonitor::fillHistograms(const AFP_RawData& hit)
+void AFPTechnicalStationMonitor::fillHistograms(const AFP_SiRawData& hit)
 {
-  switch (hit.Get_link()%4) {
+  switch (hit.link()%4) {
   case s_firstLayerIndex:
     m_firstLayer->fillHistograms(hit);
     break;
