@@ -21,9 +21,7 @@
 #include "AthenaKernel/CondCont.h"
 
 
-CONDCONT_BASE (DMTest::S2, DMTest::S1);
-
-CLASS_DEF (CondCont<DMTest::S2>, 243030042, 0)
+CONDCONT_DEF(DMTest::S2, 243030042, DMTest::S1);
 
 
 #endif // not DATAMODELTESTDATACOMMON_S2COND_H
