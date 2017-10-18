@@ -38,8 +38,8 @@ namespace PMGTools
 
   const std::vector<float>& PMGTruthWeightTool::getWeights() const {
     if (m_evtInfo == nullptr) {
-      ATH_MSG_ERROR("Cannot access MC weights as EventInfo could not be read.");
-      throw std::runtime_error(name() + ": Cannot access MC weights as EventInfo could not be read.");
+      ATH_MSG_ERROR("Cannot access MC weights as EventInfo could not be read. Maybe beginEvent() was not called?");
+      throw std::runtime_error(name() + ": Cannot access MC weights as EventInfo could not be read.  Maybe beginEvent() was not called?");
     }
 
     // Read weights from EventInfo: this should be identical to the TruthEvent
@@ -155,7 +155,9 @@ namespace PMGTools
     ATH_CHECK(evtStore()->retrieve(m_evtInfo, "EventInfo"));
     uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
 
-    // If metadata was successfully loaded and the McChannelNumber has changed then reload
+    // If metadata was successfully loaded and the McChannelNumber has changed then reload.
+    // As beginInputFile() sets m_mcChannelNumber to an impossible number,
+    // this will be triggered on the first event of each file.
     if (m_metaDataContainer != nullptr && (mcChannelNumber != m_mcChannelNumber)) {
       this->clearWeightCaches();
       for (auto truthMetaData : *m_metaDataContainer) {
@@ -170,7 +172,7 @@ namespace PMGTools
 
     // Validate weight caches against event information
     if (m_weightNames.size() != m_evtInfo->mcEventWeights().size()) {
-      ATH_MSG_ERROR("Found " << m_weightNames.size() << " in the metadata but this event has " << m_weightIndices.size());
+      ATH_MSG_ERROR("Expected " << m_weightNames.size() << " from the metadata but this event has " << m_weightIndices.size());
       return StatusCode::FAILURE;
     }
 
