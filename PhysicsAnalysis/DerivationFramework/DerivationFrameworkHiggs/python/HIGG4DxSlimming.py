@@ -46,7 +46,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                   "InDetTrackParticles",
                                                   "PrimaryVertices"]
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.SmartCollections += ["BTagging_AntiKt2Track"]
 
     #extra variables added to the smart slimming content
@@ -118,13 +118,13 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
 
     #extra containers
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AllVariables += ["LVL1JetRoIs"]
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AllVariables += ["AntiKt10LCTopoJets"]
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
        HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
 
     if DFisMC:
@@ -134,7 +134,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                "AntiKt4TruthJets",
                                                "AntiKt4TruthWZJets"]
 
-    if HIGG4DxName == 'HIGG4D3':
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AppendToDictionary = {
               "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
               "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
@@ -184,10 +184,14 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.IncludeJetTriggerContent = True
         HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
         HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
+    elif HIGG4DxName == "HIGG4D6":
+        HIGG4DxSlimmingHelper.IncludeJetTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
     else:
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         from DerivationFrameworkJetEtMiss.JetCommon import *
         addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName+"Jets"])
 

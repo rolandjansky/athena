@@ -85,6 +85,14 @@ def setup(HIGG4DxName, ToolSvc):
         else:
             monotau = '('+tau+' && '+trigger_main+')'
         skim_expression = monotau + "&&" + lepVeto
+    
+    elif HIGG4DxName == 'HIGG4D6':
+        ditaujet = '(count((DiTauJets.pt > 300.0*GeV)) >= 1)'
+        fatjet   = '(count((AntiKt10LCTopoJets.pt > 300.0*GeV)) >= 2)'
+        trigger_main = '( HLT_j360_a10r_L1J100 || HLT_j360_a10_lcw_L1J100 || HLT_j400_a10r_L1J100 || HLT_j400_a10_lcw_L1J100 || HLT_j420_a10_lcw_L1J100 || HLT_j420_a10r_L1J100 )'
+#        skim_expression = ditaujet + "&&" + fatjet + "&&" + trigger_main
+        skim_expression = ditaujet + "&&" + trigger_main   # no cut on fat jets for now. Need to figure out how to schedule it after the fat jets have been build.
+    
     else:
         assert False, "HIGG4DxSkimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 
