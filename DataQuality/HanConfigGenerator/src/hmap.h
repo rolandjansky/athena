@@ -6,59 +6,37 @@
 //                    
 //   @author M.Sutton
 // 
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
-//   Mon 31 July 2017 08:41:16 CEST sutt$
+//   Mon  6 Aug 2017 03:13:34 CEST sutt
 
 
-
-#ifndef  HMAP_H
-#define  HMAP_H
+#ifndef  HANCONFIGGENERATOR_HMAP_H
+#define  HANCONFIGGENERATOR_HMAP_H
 
 #include <iostream>
 #include <regex>
 
 
-
-/// helper class for storing a histogram name, parsed into 
-/// directories 
-
-class histogram_name : public std::string { 
-  
-public:
-
-  histogram_name( std::string s="" ) : std::string(s) { construct( s ); }
-  histogram_name( const char* s    ) : std::string(s) { construct( std::string(s) ); }
-  
-  std::vector<std::string>&       dirs()       { return mdirs; }
-  const std::vector<std::string>& dirs() const { return mdirs; }
-
-private:
-  
-  void construct( std::string s ) { 
-    std::string::size_type pos = s.find("/");
-    while ( pos!=std::string::npos ) { 
-      std::string s0 = chop( s, "/" );
-      mdirs.push_back(s0);
-      pos = s.find("/");
-    } 
-    mdirs.push_back(s);
-  } 
-
-protected:
-
-  std::vector<std::string> mdirs;
-
-};
-
-
+typedef std::string histogram_name;
 
 
 /// map class to allow setting of the algorithms 
 /// and descriptions
 
-class hmap_t : public std::map<histogram_name,std::string> { 
+class hmap_t : private std::map<histogram_name,std::string> { 
+
+public:
+
+  typedef std::map<histogram_name,std::string> map_type;
+
+  using map_type::value_type;
+  using map_type::insert;
+
+  using map_type::size;
+  using map_type::const_iterator;
+  using map_type::begin;
+  using map_type::end;
 
 public:
 
@@ -103,7 +81,7 @@ inline std::ostream& operator<<( std::ostream& s, const hmap_t& h ) {
 }
 
 
-#endif  // HMAP_H 
+#endif  // HANCONFIGGENERATOR_HMAP_H 
 
 
 

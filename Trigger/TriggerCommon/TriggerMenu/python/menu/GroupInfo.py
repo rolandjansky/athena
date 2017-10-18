@@ -20,6 +20,7 @@ AllowedGroups = ['Muon',
                  'ID',
                  'TauOverlay',
                  'ZeroBias',
+                 'MinBiasOverlay',
                  ]
 
 

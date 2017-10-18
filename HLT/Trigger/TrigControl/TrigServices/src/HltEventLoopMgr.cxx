@@ -1972,7 +1972,7 @@ void HltEventLoopMgr::bookHistograms()
   m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
   regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
 
-  // *-- HLT result size plot (Stream Physiscs Main)
+  // *-- HLT result size plot (Stream Physics Main)
   m_hist_Hlt_result_size_physics = 
     new TH1F ((m_histProp_Hlt_result_size_physics.value().title()).c_str(),
               (m_histProp_Hlt_result_size_physics.value().title() + ";words;entries").c_str(),
@@ -2005,7 +2005,7 @@ void HltEventLoopMgr::bookHistograms()
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
 
 
-  // *-- HLT result size profile plot for all stream types "physiscs"
+  // *-- HLT result size profile plot for all stream types "physics"
   m_hist_HltResultSizes_Stream_physics = new TProfile( "Average Hlt Result size for physics streams",
                                                        "Average Hlt Result size for physics streams;Stream Name;Average size in words",
                                                        1,
