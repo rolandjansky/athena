@@ -73,9 +73,9 @@ StatusCode ISF::SimKernelMT::execute() {
     simParticles.pop_back();
 
     ISFParticleContainer newSecondaries;
-    // TODO:
-    //auto* simSvc = identifySimulator(curParticle);
-    //auto& newSecondaries = simSvc->simulate( std::move(curParticle) );
+    // TODO (this is work in progress and these might be the next steps):
+    //auto& simSvc = identifySimulator(curParticle);
+    //auto& newSecondaries = simSvc.simulate( std::move(curParticle) );
 
     simParticles.splice( end(simParticles), std::move(newSecondaries) );
   }
