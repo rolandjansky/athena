@@ -234,7 +234,7 @@ public:
 
 RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
                                                   ISvcLocator* svcLoc ) :
-  AthService ( name,    svcLoc ),
+  extends ( name,    svcLoc ),
   m_dataStore( "StoreGateSvc/StoreGateSvc", name ),
   m_imetaStore( "StoreGateSvc/InputMetaDataStore", name ),
   m_ometaStore( "StoreGateSvc/MetaDataStore", name ),
@@ -425,29 +425,6 @@ StatusCode RootNtupleEventSelector::finalize()
     delete f;
   m_files.clear();
 
-  return StatusCode::SUCCESS;
-}
-
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-RootNtupleEventSelector::queryInterface( const InterfaceID& riid, 
-                                         void** ppvInterface )
-{
-  if ( IEvtSelector::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IEvtSelector*>(this);
-  } else if ( IEvtSelectorSeek::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
-  } else if ( IIoComponent::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IIoComponent*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
 

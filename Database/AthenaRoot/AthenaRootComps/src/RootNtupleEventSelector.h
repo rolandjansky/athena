@@ -41,12 +41,10 @@ namespace Athena {
 /** @brief Class implementing the GAUDI @c IEvtSelector interface using 
  *         ROOT @c TTree as a backend
  */
-class RootNtupleEventSelector : 
-    virtual public IEvtSelector,
-  virtual public IEvtSelectorSeek,
-  virtual public IAddressProvider,
-  virtual public IIoComponent, virtual public IIncidentListener,
-          public ::AthService
+class RootNtupleEventSelector :
+    public extends<AthService,
+                   IEvtSelector, IEvtSelectorSeek,
+                   IAddressProvider, IIoComponent, IIncidentListener>
 { 
   friend class Athena::RootNtupleEventContext;
 
@@ -66,8 +64,6 @@ class RootNtupleEventSelector :
   // Athena hooks
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface ) override;
   
   virtual void handle(const Incident& incident) override;
 
