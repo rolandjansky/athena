@@ -25,6 +25,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "SGTools/BaseInfo.h"
 
+#include "TClass.h"
+
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -258,6 +260,12 @@ CondInputLoader::start()
       }
       CondContBase* cb = 
         CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      if (cb == 0) {
+        // try to force a load of libraries using ROOT
+        TClass::GetClass (tp.c_str());
+        cb =
+          CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      }
       if (cb == 0) {
         ATH_MSG_ERROR("failed to create CondCont<" << tp
                       << "> clid=" << ditr->clid()

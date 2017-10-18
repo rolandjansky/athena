@@ -69,5 +69,6 @@ CLASS_DEF(AthenaAttributeList, 40774348, 0)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<AthenaAttributeList>, 211215482 , 0)
 
+REGISTER_CC( AthenaAttributeList );
 
 #endif // PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H
