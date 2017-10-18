@@ -12,6 +12,7 @@
 #include "AssociationUtils/TauAntiTauJetOverlapTool.h"
 
 #include "../OverlapRemovalTestAlg.h"
+#include "../OverlapRemovalGenUseAlg.h"
 #include "../ORToolBoxTestAlg.h"
 
 DECLARE_COMPONENT( ORUtils::OverlapRemovalTool )
@@ -28,4 +29,5 @@ DECLARE_COMPONENT( ORUtils::TauJetOverlapTool )
 DECLARE_COMPONENT( ORUtils::TauAntiTauJetOverlapTool )
 
 DECLARE_COMPONENT( OverlapRemovalTestAlg )
+DECLARE_COMPONENT( OverlapRemovalGenUseAlg )
 DECLARE_COMPONENT( ORToolBoxTestAlg )
