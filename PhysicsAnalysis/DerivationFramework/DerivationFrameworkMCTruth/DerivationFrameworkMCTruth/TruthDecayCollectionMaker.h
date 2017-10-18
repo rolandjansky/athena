@@ -32,11 +32,14 @@ namespace DerivationFramework {
       std::vector<int> m_pdgIdsToKeep; //!< List of PDG IDs to build this collection from
       std::string m_particlesKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
+      int m_generations; //!< Number of generations after the particle in question to keep
       // Helper functions for building up the decay product collections
       int addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
-                                  xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
+                                  xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
+                            const int generations=-1) const;
       int addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
-                                xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const;
+                                xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
+                          const int generations=-1) const;
   }; 
 }
 
