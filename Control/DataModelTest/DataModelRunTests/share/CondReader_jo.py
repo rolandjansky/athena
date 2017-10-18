@@ -39,9 +39,6 @@ svcMgr += CondSvc()
 from AthenaCommon.AlgSequence import AthSequencer 
 condSeq = AthSequencer("AthCondSeq") 
 
-from IOVSvc.IOVSvcConf import CondInputLoader 
-condSeq += CondInputLoader( "CondInputLoader") 
-
 import StoreGate.StoreGateConf as StoreGateConf 
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore") 
 
