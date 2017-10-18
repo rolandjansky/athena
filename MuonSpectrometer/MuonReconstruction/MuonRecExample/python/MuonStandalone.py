@@ -147,9 +147,10 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseTGCNextBC  = False,
                                                      doTGCClust = False,
                                                      doRPCClust = False) )
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
+
 
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
-        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
         
         if muonStandaloneFlags.doSegmentsOnly():
             return	                    
