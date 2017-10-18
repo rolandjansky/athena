@@ -153,4 +153,3 @@ ${scriptsdir}/build_Gaudi.sh \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthDerivationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
     -p AthDerivationExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
-
