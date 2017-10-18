@@ -25,6 +25,7 @@ muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : H
 
 l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 
+#print l1Decoder
 L1UnpackingSeq += l1Decoder
 
 TopHLTSeq += L1UnpackingSeq
