@@ -4,45 +4,53 @@
 
 #ifndef PIXELMON2DMAPSLW_H_
 #define PIXELMON2DMAPSLW_H_
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include <string.h>
+#include "PixelMonitoring/HolderTemplate.h"
 
+class string;
 class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+namespace PixMon { enum class HistConf; }
 
-// A helper class to remove a lot of the code duplication.
-// This is a collection of 5 2D histograms which make up the '2D mapsLW' used a lot of in the monitoring.
-// Each of the 2D mapsLW correspond to a detector region (B0, B1, B2, ECA, ECC).
-// This books and formats the histograms in the constructor. The fill method will take the identifier 
-// as the input and fill the correct histogram and bin. The histograms are also public so that they
-// can be formated/accessed like any other histograms in the monitoring.
+/**
+ * PixelMon2DMapsLW histogram holder class
+ *   --> Base type: 2D Maps (TH2F_LW)
+ *   --> Supports:  IBL
+ *                  IBL 2D/3D
+ *                  B0, B1, B2
+ *                  ECA/C
+ *                  DBMA/C
+ *
+ * Collection of 2D pixel component maps, based on the TH2F_LW histogram class.
+ * The initialisation of the components is controlled by the HistConf object.
+ * The fill method will take the identifier as the input and fill the correct
+ * histogram and bin. The histograms are also public so that they can be
+ * formatted/accessed like any other histograms in the monitoring.
+ */
+class PixelMon2DMapsLW : public PixMon::HolderTemplate<TH2F_LW> {
+ public:
+  //! Constructor for 2D map objects
+  PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
 
-class PixelMon2DMapsLW
-{
-   public:
-      PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
-      ~PixelMon2DMapsLW();
-      TH2F_LW* IBL;
-      TH2F_LW* IBL2D;
-      TH2F_LW* IBL3D;
-      TH2F_LW* B0;
-      TH2F_LW* B1;
-      TH2F_LW* B2;
-      TH2F_LW* A;
-      TH2F_LW* C;
-      TH2F_LW* DBMA;
-      TH2F_LW* DBMC;
-      void Fill(Identifier &id, const PixelID* pixID);
-      void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
-      void Fill2DMon(PixelMon2DMapsLW* oldmap);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
-private:
-      void formatHist();
-      const bool m_doIBL;
-      const bool m_errorHist;
-      const bool m_copy2DFEval;
+  /**
+   * Standard method to fill the histograms of this container.
+   *
+   * @param id: the identifier of the pixel unit
+   * @param pixID: instance of the class which translates the above ID
+   *        into readable info (e.g. eta/phi module index)
+   * @param weight: optional weighting factor
+   */
+  void fill(Identifier &id, const PixelID* pixID, float weight = 1.0);
+
+  //! Fill method which takes values from another map
+  void fill2DMon(PixelMon2DMapsLW* oldmap);
+
+  //! Formatting function for histograms (reimplemented from template)
+  virtual void formatHist() override;
+
+ protected:
+  friend class PixelMon2DProfilesLW;
 };
 
-#endif
+#endif  // PIXELMON2DMAPSLW_H_

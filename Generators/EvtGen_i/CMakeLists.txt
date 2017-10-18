@@ -44,6 +44,7 @@ atlas_add_library( EvtGen_iLib
                    src/EvtPythiaEngine.cxx
                    src/EvtInclusiveDecay.cxx
                    PUBLIC_HEADERS EvtGen_i
+                   DEFINITIONS -DEVTGEN_PYTHIA -DEVTGEN_PHOTOS -DEVTGEN_TAUOLA
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${PHOTOSPP_INCLUDE_DIRS} ${TAUOLAPP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EVTGEN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}

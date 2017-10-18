@@ -98,8 +98,30 @@ TileMuEventFilterTool = DerivationFramework__FilterCombinationAND(name="TileMuEv
 ToolSvc += TileMuEventFilterTool
 print TileMuEventFilterTool
 
+
+##======================================================================
+## Define the thinning for the DESDM_TILEMU output stream
+##======================================================================
+from PrimaryDPDMaker.PrimaryDPDMakerConf import DerivationFramework__CaloCellThinningTool
+TileMuCaloCellThinningTool = DerivationFramework__CaloCellThinningTool(name = "TileMuCaloCellThinningTool",
+                                                               ThinningService = "TileMuThinningToolSvc",
+                                                               CaloCellId = 3) # Tile Cells
+ToolSvc += TileMuCaloCellThinningTool
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+TileMuMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name = "TileMuMuonTPThinningTool",
+                                                                          ThinningService = "TileMuThinningToolSvc",
+                                                                          MuonKey = "Muons",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += TileMuMuonTPThinningTool
+
+
+##======================================================================
+##  CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
+##======================================================================
 desdTileMuonSequence += CfgMgr.DerivationFramework__DerivationKernel("TileMuKernel", 
-    SkimmingTools = [TileMuEventFilterTool])
+    SkimmingTools = [TileMuEventFilterTool],
+    ThinningTools = [TileMuCaloCellThinningTool, TileMuMuonTPThinningTool])
 
 ##======================================================================
 ## Define this Muon DPD output stream
@@ -121,6 +143,11 @@ if primDESDMTileMu.ApplySkimming():
     TileMuStream.AcceptAlgs(["TileMuKernel"])
     pass
 
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream(streamName)
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc(svcName="TileMuThinningToolSvc", outStreams=[evtStream])
+
 #-----------------------------------------------------------------------
 # Add the containers to the output stream
 #-----------------------------------------------------------------------
@@ -128,6 +155,8 @@ from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 ExcludeList=[]
 
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)
+
+trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 
 TileMuStream.AddItem(["xAOD::EventInfo#*"])
@@ -156,3 +185,12 @@ TileMuStream.AddItem(["CaloCellContainer#AllCalo"])
 
 TileMuStream.AddItem(["xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo"])
 TileMuStream.AddItem(["xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfoAux."])
+
+TileMuStream.AddItem(["xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles"])
+TileMuStream.AddItem(["xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux."+trackParticleAuxExclusions])
+TileMuStream.AddItem(["xAOD::TrackParticleContainer#CombinedMuonTrackParticles"])
+TileMuStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."+trackParticleAuxExclusions])
+TileMuStream.AddItem(["xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles"])
+TileMuStream.AddItem(["xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
+TileMuStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"]) 
+TileMuStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+trackParticleAuxExclusions])

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.icc 724348 2016-02-16 20:16:11Z krumnack $
+// $Id: ToolHandle.icc 804869 2017-05-15 20:14:34Z krumnack $
 #ifndef ASGTOOLS_TOOLHANDLE_ICC
 #define ASGTOOLS_TOOLHANDLE_ICC
 
@@ -20,13 +20,13 @@ ToolHandle< T >::ToolHandle( T* ptool )
 }
 
 template< class T >
-ToolHandle< T >::ToolHandle( const std::string& typeAndName, asg::IAsgTool* parent )
+ToolHandle< T >::ToolHandle( const std::string& typeAndName, INamedInterface* parent )
 : ToolHandleBase( typeAndName , parent ), m_ptool( 0 ) {
 
 }
 
 template< class T >
-T& ToolHandle< T >::operator*() const {
+T& ToolHandle< T >::operator*() {
 
    // Retrieve the tool pointer if necessary:
    if( ! m_ptool ) {
@@ -43,7 +43,41 @@ T& ToolHandle< T >::operator*() const {
 }
 
 template< class T >
-T* ToolHandle<T>::operator->() const {
+const T& ToolHandle< T >::operator*() const {
+
+   // Retrieve the tool pointer if necessary:
+   if( ! m_ptool ) {
+      m_ptool = asg::ToolStore::get< T >( name() );
+   }
+   // Check if we succeeded:
+   if( ! m_ptool ) {
+      throw std::runtime_error( "Couldn't find tool with name \"" +
+                                name() + "\"" );
+   }
+
+   // Return a reference to the tool:
+   return *m_ptool;
+}
+
+template< class T >
+T* ToolHandle<T>::operator->() {
+
+   // Retrieve the tool pointer if necessary:
+   if( ! m_ptool ) {
+      m_ptool = asg::ToolStore::get< T >( name() );
+   }
+   // Check if we succeeded:
+   if( ! m_ptool ) {
+      throw std::runtime_error( "Couldn't find tool with name \"" +
+                                name() + "\"" );
+   }
+
+   // Return the (possibly null-)pointer to the tool:
+   return m_ptool;
+}
+
+template< class T >
+const T* ToolHandle<T>::operator->() const {
 
    // Retrieve the tool pointer if necessary:
    if( ! m_ptool ) {
@@ -95,13 +129,32 @@ std::ostream& operator<<( std::ostream& out,
                           const ToolHandle< T >& handle ) {
 
    out << "ASG ToolHandle with name = \"" << handle.name() << "\", pointer = ";
-   T* ptool = nullptr;
+   const T* ptool = nullptr;
    if (handle.retrieve())
      ptool = handle.operator->();
    out << ptool;
 
    // Return the same stream object:
    return out;
+}
+
+namespace asg
+{
+  namespace detail
+  {
+    StatusCode packStringSingle (const std::string& value,
+				 std::string& result);
+
+    template<typename T> struct GetStringHelper;
+
+    template<typename T> struct GetStringHelper<ToolHandle<T> >
+    {
+      static StatusCode get (const ToolHandle<T>& value,
+			     std::string& result) {
+        return packStringSingle (value.typeAndName(), result);
+      }
+    };
+  }
 }
 
 #endif // ASGTOOLS_TOOLHANDLE_ICC

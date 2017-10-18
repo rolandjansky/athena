@@ -4,19 +4,25 @@ author Aaron Angerami <angerami@cern.ch>
 
 private
 use CxxUtils       	CxxUtils-*		Control
+use PathResolver  	PathResolver-*		Tools
+use xAODEventInfo	xAODEventInfo-*		Event/xAOD
 
 public
-use AsgTools            AsgTools-*              Control/AthToolSupport
-use GaudiInterface      GaudiInterface-*        External
 use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use PATCore		PATCore-*		PhysicsAnalysis/AnalysisCommon
 use xAODHIEvent         xAODHIEvent-*           Event/xAOD
 use xAODForward         xAODForward-*           Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
 use AtlasROOT           AtlasROOT-*             External
 use CaloGeoHelpers	CaloGeoHelpers-*	Calorimeter
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use xAODTrigL1Calo      xAODTrigL1Calo-*	Event/xAOD
 
 #library HIEventUtils *.cxx ../Root/*.cxx
 #apply_pattern installed_library
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
-
+apply_pattern declare_calib files="../data/cluster.geo.root"

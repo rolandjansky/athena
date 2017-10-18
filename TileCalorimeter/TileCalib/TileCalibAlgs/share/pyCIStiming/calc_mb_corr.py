@@ -1,10 +1,8 @@
 #!/bin/env python
 # Author: Michael Miller <miller@uchicago.edu>  
 
-
 import os, struct, sys
 import ROOT
-import PyCintex
 from aux_functions import *
 
 

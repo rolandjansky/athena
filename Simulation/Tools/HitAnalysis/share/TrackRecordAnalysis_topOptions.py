@@ -7,31 +7,31 @@ from PartPropSvc.PartPropSvcConf import PartPropSvc
 include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
 include("EventAthenaPool/EventAthenaPool_joboptions.py" )
 
+#Use these lines if the NSW is included in the simulation
+#from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+#GeoModelSvc = GeoModelSvc()
+#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
+
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob( "/tmp/" + os.environ['USER'] + "/" + "HITS*.root*" )
+athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"/"+"HITS*root*" )
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
 from HitAnalysis.HitAnalysisConf import TrackRecordAnalysis
-topSequence += TrackRecordAnalysis('TrackRecordCaloEntry') 
-topSequence.TrackRecordCaloEntry.CollectionName = 'CaloEntryLayer'
-topSequence.TrackRecordCaloEntry.NtupleFileName = '/TrackRecordAnalysis/'
-topSequence.TrackRecordCaloEntry.HistPath = '/TrackRecordAnalysis/'
+topSequence += TrackRecordAnalysis('TrackRecordCaloEntry')
+topSequence.TrackRecordCaloEntry.CollectionName='CaloEntryLayer'
+topSequence.TrackRecordCaloEntry.HistPath='/TrackRecordAnalysis/'
+topSequence += TrackRecordAnalysis('TrackRecordMuonEntry')
+topSequence.TrackRecordMuonEntry.CollectionName='MuonEntryLayer'
+topSequence.TrackRecordMuonEntry.HistPath='/TrackRecordAnalysis/'
+topSequence += TrackRecordAnalysis('TrackRecordMuonExit')
+topSequence.TrackRecordMuonExit.CollectionName='MuonExitLayer'
+topSequence.TrackRecordMuonExit.HistPath='/TrackRecordAnalysis/'
 
-topSequence += TrackRecordAnalysis('TrackRecordMuonEntry') 
-topSequence.TrackRecordMuonEntry.CollectionName = 'MuonEntryLayer'
-topSequence.TrackRecordMuonEntry.NtupleFileName = '/TrackRecordAnalysis/'
-topSequence.TrackRecordMuonEntry.HistPath = '/TrackRecordAnalysis/'
-
-topSequence += TrackRecordAnalysis('TrackRecordMuonExit') 
-topSequence.TrackRecordMuonExit.CollectionName = 'MuonExitLayer'
-topSequence.TrackRecordMuonExit.NtupleFileName = '/TrackRecordAnalysis/'
-topSequence.TrackRecordMuonExit.HistPath = '/TrackRecordAnalysis/'
 
 
 from GaudiSvc.GaudiSvcConf import THistSvc

@@ -9,6 +9,7 @@
 #define EIGEN_DONT_VECTORIZE
 #endif // __GCCXML__
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #endif // not INDETTRACKSELECTIONTOOL_INDETTRACKSELECTIONTOOLDICT_H

@@ -22,18 +22,6 @@ class RecoTauPlots: public PlotBase {
 
     Tau::ParamPlots m_oParamPlots;
 
-    //Here I try to include eflowRec substructure variables, from the Particle FLow Object (PFO), begining with basic charged and neutral PFO 4-vector.
-    TH1* m_eflowRec_charPFO_Pt;
-    TH1* m_eflowRec_charPFO_Eta;
-    TH1* m_eflowRec_charPFO_Phi;
-    TH1* m_eflowRec_charPFO_E;
-
-    TH1* m_eflowRec_neuPFO_Pt;
-    TH1* m_eflowRec_neuPFO_Eta;
-    TH1* m_eflowRec_neuPFO_Phi;
-    TH1* m_eflowRec_neuPFO_E;
-    TH1* m_eflowRec_neuPFO_bdtPi0Score;
-
     //Here I try to include CellBased substructure variables, from the Particle FLow Object (PFO), begining with basic charged and neutral PFO 4-vector.
     TH1* m_cellBased_charPFO_Pt;
     TH1* m_cellBased_charPFO_Eta;
@@ -62,22 +50,6 @@ class RecoTauPlots: public PlotBase {
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts;
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed;
     TH1* m_pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
-
-    TH1* m_pantau_eflowRecInput_isPanTauCandidate;
-    TH1* m_pantau_eflowRecInput_DecayMode;
-    TH1* m_pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n;
-    TH1* m_pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn;
-    TH1* m_pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn;
-    TH1* m_pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts;
-    TH1* m_pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts;
-    TH1* m_pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts;
-    TH1* m_pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM;
-    TH1* m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1;
-    TH1* m_pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2;
-    TH1* m_pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts;
-    TH1* m_pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts;
-    TH1* m_pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
-
 
     // BDT output
 

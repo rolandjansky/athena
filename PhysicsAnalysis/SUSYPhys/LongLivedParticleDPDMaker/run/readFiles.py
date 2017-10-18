@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# file to parse log files for rate compilation. Instructions are in compileRPVLLRates.py
-# receives two arguments -- output file + input directory containing log files to be parsed
+# file to parse log files for rate compilation
+# instructions can be found in compileRPVLLRates.py
+# receives two arguments: output file + input directory containing log files to be parsed
 
 from os import listdir
 from os.path import isfile, join

@@ -7,201 +7,167 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PixelMonitoring/PixelMon2DLumiProfiles.h"
+#include <string.h>
+#include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TProfile2D_LW.h"
-#include "GaudiKernel/StatusCode.h"     
-#include <string.h>
+#include "PixelMonitoring/Components.h"
 
-PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist) : m_doIBL(doIBL), m_errorHist(errorHist)
-{
-   const int lbRange = 3000;
-   if (m_doIBL && !m_errorHist) {
-      IBLlbp= TProfile2D_LW::create((name+"_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,280,-0.5,279.5);
-   }
-   B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,286,-0.5,285.5);
-   B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,494,-0.5,493.5);
-   B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,676,-0.5,675.5);
-   Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
-   Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
+PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config)
+    : HolderTemplate<TProfile2D_LW>(config) {
+  const int lbRange = 3000;
+  int num_modules;
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
+    num_modules = PixMon::kNumStavesIBL * (PixMon::kNumModulesIBL2D + PixMon::kNumModulesIBL3D);
+    m_histograms.at(0).reset(TProfile2D_LW::create((name + "_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
+    num_modules = PixMon::kNumStavesL0 * PixMon::kNumModulesBarrel;
+    m_histograms.at(3).reset(TProfile2D_LW::create((name + "_2D_Profile_B0").c_str(), (title + ", B0 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
+    num_modules = PixMon::kNumStavesL1 * PixMon::kNumModulesBarrel;
+    m_histograms.at(4).reset(TProfile2D_LW::create((name + "_2D_Profile_B1").c_str(), (title + ", B1 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
+    num_modules = PixMon::kNumStavesL2 * PixMon::kNumModulesBarrel;
+    m_histograms.at(5).reset(TProfile2D_LW::create((name + "_2D_Profile_B2").c_str(), (title + ", B2 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
+    num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+    m_histograms.at(6).reset(TProfile2D_LW::create((name + "_2D_Profile_ECA").c_str(), (title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
+    num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+    m_histograms.at(7).reset(TProfile2D_LW::create((name + "_2D_Profile_ECC").c_str(), (title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
+    num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+    m_histograms.at(8).reset(TProfile2D_LW::create((name + "_2D_Profile_DBMA").c_str(), (title + ", DBMA " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
+  if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
+    num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+    m_histograms.at(9).reset(TProfile2D_LW::create((name + "_2D_Profile_DBMC").c_str(), (title + ", DBMC " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                                   lbRange, -0.5, -0.5 + lbRange,
+                                                   num_modules, -0.5, -0.5 + num_modules));
+  }
 
-   formatHist();
+  setHistogramPointers();
+  formatHist();
 }
 
-PixelMon2DLumiProfiles::~PixelMon2DLumiProfiles()
-{
-   if (m_doIBL && !m_errorHist) {
-      LWHist::safeDelete(IBLlbp);
-   }
-   LWHist::safeDelete(B0lbp);
-   LWHist::safeDelete(B1lbp);
-   LWHist::safeDelete(B2lbp);
-   LWHist::safeDelete(Albp);
-   LWHist::safeDelete(Clbp);
+void PixelMon2DLumiProfiles::fill(double LB, Identifier& id, const PixelID* pixID, double weight) {
+  const int bec = pixID->barrel_ec(id);
+  const int pm = pixID->phi_module(id);
+  int ld = pixID->layer_disk(id);
+
+  if (bec == 2 && A) {
+    A->Fill(LB, ld * 48 + pm, weight);
+  } else if (bec == -2 && C) {
+    C->Fill(LB, ld * 48 + pm, weight);
+  } else if (bec == 4 && DBMA) {
+    DBMA->Fill(LB, ld * 4 + pm, weight);
+  } else if (bec == -4 && DBMC) {
+    DBMC->Fill(LB, ld * 4 + pm, weight);
+  } else if (bec == 0) {
+    if (m_doIBL) ld--;
+    const int em = pixID->eta_module(id) + 6;
+    if (ld == 0 && B0) {
+      B0->Fill(LB, em + 13 * pm, weight);
+    } else if (ld == 1 && B1) {
+      B1->Fill(LB, em + 13 * pm, weight);
+    } else if (ld == 2 && B2) {
+      B2->Fill(LB, em + 13 * pm, weight);
+    } else if (ld == -1 && IBL) {
+      IBL->Fill(LB, em + 4 + 20 * pm, weight);
+    }
+  }
 }
 
-void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID, double weight)
-{
-   const int bec = pixID->barrel_ec(id);
-   const int pm  = pixID->phi_module(id);
-   int ld = pixID->layer_disk(id);
-
-   if (bec == 2) {
-      Albp->Fill(LB, ld * 48 + pm, weight);
-   } else if (bec == -2) {
-      Clbp->Fill(LB, ld * 48 + pm, weight);
-   } else if (bec == 0) {
-      if (m_doIBL) ld--;
-      const int em = pixID->eta_module(id) + 6;
-      if (ld == 0) {
-         B0lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == 1) {
-         B1lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == 2) {
-         B2lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == -1 && !m_errorHist && m_doIBL) {
-         IBLlbp->Fill(LB, em + 4 + 20 * pm, weight);
+void PixelMon2DLumiProfiles::formatHist() {
+  std::string label;
+  unsigned int count = 1;
+  if (A && C) {
+    for (unsigned int j = 0; j < PixMon::kNumLayersDisk; ++j) {
+      for (unsigned int i = 0; i < PixMon::kNumModulesDisk; ++i) {
+        label = PixMon::LayersDisk.at(j) + "A_" + PixMon::ModulesECA.at(i);
+        A->GetYaxis()->SetBinLabel(count, label.c_str());
+        label = PixMon::LayersDisk.at(j) + "C_" + PixMon::ModulesECC.at(i);
+        C->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
       }
-   }
-}
-
-
-void PixelMon2DLumiProfiles::formatHist()
-{
-   const int ndisk = 3;
-   const int nphi  = 48;
-   const char *disk[ndisk] = { "D1", "D2", "D3" };
-   const int nmod = 13;
-   const int nmodIBL = 20;
-   const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
-   const char *modIBL[nmodIBL] = {
-      "M4_C8_2", "M4_C8_1", "M4_C7_2", "M4_C7_1", "M3_C6", "M3_C5", "M2_C4", "M1_C3", "M1_C2", "M1_C1",
-      "M1_A1", "M1_A2", "M2_A3", "M2_A4", "M3_A5", "M3_A6", "M4_A7_1", "M4_A7_2", "M4_A8_1", "M4_A8_2" };
-   char label[30];
-
-   const int nstaveb = 14;
-   const char *staveb[nstaveb] = {
-      "S01", "S02", "S03", "S04", "S05", "S06","S07",
-      "S08", "S09", "S10", "S11", "S12", "S13","S14"};
-   const int nstave0 = 22;
-   const char *stave0[nstave0] = {
-      "B11_S2", "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1",
-      "B03_S2", "B04_S1", "B04_S2", "B05_S1", "B05_S2", "B06_S1",
-      "B06_S2", "B07_S1", "B07_S2", "B08_S1", "B08_S2", "B09_S1",
-      "B09_S2","B10_S1", "B10_S2", "B11_S1" };
-   const int nstave1 = 38;
-   const char *stave1[nstave1] = {
-      "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2",
-      "B04_S1", "B04_S2", "B05_S1", "B05_S2", "B06_S1", "B06_S2",
-      "B07_S1", "B07_S2", "B08_S1", "B08_S2", "B09_S1", "B09_S2",
-      "B10_S1", "B10_S2", "B11_S1", "B11_S2", "B12_S1", "B12_S2",
-      "B13_S1", "B13_S2", "B14_S1", "B14_S2", "B15_S1", "B15_S2",
-      "B16_S1", "B16_S2", "B17_S1", "B17_S2", "B18_S1", "B18_S2",
-      "B19_S1", "B19_S2" };
-   const int nstave2 = 52;
-   const char *stave2[nstave2] = {          
-      "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2", "B04_S1",
-      "B04_S2", "B05_S1", "B05_S2", "B06_S1", "B06_S2", "B07_S1",
-      "B07_S2", "B08_S1", "B08_S2", "B09_S1", "B09_S2", "B10_S1",
-      "B10_S2", "B11_S1", "B11_S2", "B12_S1", "B12_S2", "B13_S1",
-      "B13_S2", "B14_S1", "B14_S2", "B15_S1", "B15_S2", "B16_S1",
-      "B16_S2", "B17_S1", "B17_S2", "B18_S1", "B18_S2", "B19_S1",
-      "B19_S2", "B20_S1", "B20_S2", "B21_S1", "B21_S2", "B22_S1",
-      "B22_S2", "B23_S1", "B23_S2", "B24_S1", "B24_S2", "B25_S1",
-      "B25_S2", "B26_S1", "B26_S2", "B01_S1" };
-   const char *nstaveA[nphi] = {
-      "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3", "B01_S2_M4", 
-      "B02_S1_M1", "B02_S1_M6", "B02_S1_M2", "B02_S1_M5", "B02_S1_M3", "B02_S1_M4", 
-      "B02_S2_M1", "B02_S2_M6", "B02_S2_M2", "B02_S2_M5", "B02_S2_M3", "B02_S2_M4", 
-      "B03_S1_M1", "B03_S1_M6", "B03_S1_M2", "B03_S1_M5", "B03_S1_M3", "B03_S1_M4", 
-      "B03_S2_M1", "B03_S2_M6", "B03_S2_M2", "B03_S2_M5", "B03_S2_M3", "B03_S2_M4", 
-      "B04_S1_M1", "B04_S1_M6", "B04_S1_M2", "B04_S1_M5", "B04_S1_M3", "B04_S1_M4", 
-      "B04_S2_M1", "B04_S2_M6", "B04_S2_M2", "B04_S2_M5", "B04_S2_M3", "B04_S2_M4", 
-      "B01_S1_M1", "B01_S1_M6", "B01_S1_M2", "B01_S1_M5", "B01_S1_M3", "B01_S1_M4"};
-   const char *nstaveC[nphi] = {
-      "B01_S2_M4", "B01_S2_M3", "B01_S2_M5", "B01_S2_M2", "B01_S2_M6", "B01_S2_M1", 
-      "B02_S1_M4", "B02_S1_M3", "B02_S1_M5", "B02_S1_M2", "B02_S1_M6", "B02_S1_M1", 
-      "B02_S2_M4", "B02_S2_M3", "B02_S2_M5", "B02_S2_M2", "B02_S2_M6", "B02_S2_M1", 
-      "B03_S1_M4", "B03_S1_M3", "B03_S1_M5", "B03_S1_M2", "B03_S1_M6", "B03_S1_M1", 
-      "B03_S2_M4", "B03_S2_M3", "B03_S2_M5", "B03_S2_M2", "B03_S2_M6", "B03_S2_M1", 
-      "B04_S1_M4", "B04_S1_M3", "B04_S1_M5", "B04_S1_M2", "B04_S1_M6", "B04_S1_M1", 
-      "B04_S2_M4", "B04_S2_M3", "B04_S2_M5", "B04_S2_M2", "B04_S2_M6", "B04_S2_M1", 
-      "B01_S1_M4", "B01_S1_M3", "B01_S1_M5", "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"};
-
-   int count = 1;
-   for (int j = 0; j < ndisk; j++) {
-      for (int i = 0; i < nphi; i++) {
-         sprintf(label, "%sA_%s", disk[j], nstaveA[i]);
-         Albp->GetYaxis()->SetBinLabel(count, label);
-         sprintf(label, "%sC_%s", disk[j], nstaveC[i]);
-         Clbp->GetYaxis()->SetBinLabel(count, label);
-         count++;
+    }
+    count = 1;
+  }
+  if (DBMA && DBMC) {
+    for (unsigned int j = 0; j < PixMon::kNumLayersDBM; ++j) {
+      for (unsigned int i = 0; i < PixMon::kNumModulesDBM; ++i) {
+        label = PixMon::LayersDBM.at(j) + "A_" + PixMon::ModulesDBM.at(i);
+        DBMA->GetYaxis()->SetBinLabel(count, label.c_str());
+        label = PixMon::LayersDBM.at(j) + "C_" + PixMon::ModulesDBM.at(i);
+        DBMC->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
       }
-   }
-   count = 1;
-   for (int i = 0; i < nstave0; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L0_%s_%s", stave0[i], mod[j]);
-         B0lbp->GetYaxis()->SetBinLabel(count, label); 
-         count++;
+    }
+    count = 1;
+  }
+  if (B0 && B1 && B2) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesL0; ++i) {
+      for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
+        label = "L0_" + PixMon::StavesL0.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+        B0->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
       }
-   }
-   count = 1;
-   for (int i = 0; i < nstave1; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L1_%s_%s", stave1[i], mod[j]);
-         B1lbp->GetYaxis()->SetBinLabel(count,label);
-         count++; 
+    }
+    count = 1;
+    for (unsigned int i = 0; i < PixMon::kNumStavesL1; ++i) {
+      for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
+        label = "L1_" + PixMon::StavesL1.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+        B1->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
       }
-   }
-   count = 1;
-   for (int i = 0; i < nstave2; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L2_%s_%s", stave2[i], mod[j]);
-         B2lbp->GetYaxis()->SetBinLabel(count, label);
-         count++;
-      } 
-   }
-   count = 1;
-   if (!m_errorHist && m_doIBL) {
-      for (int i = 0; i < nstaveb; i++) {
-	 for (int j = 0; j < nmodIBL; j++) {
-            sprintf(label, "IBL_%s_%s", staveb[i], modIBL[j]);
-            IBLlbp->GetYaxis()->SetBinLabel(count, label);
-            count++;
-	 }
+    }
+    count = 1;
+    for (unsigned int i = 0; i < PixMon::kNumStavesL2; ++i) {
+      for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
+        label = "L2_" + PixMon::StavesL2.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+        B2->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
       }
-   }
+    }
+    count = 1;
+  }
+  if (IBL) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
+      for (unsigned int j = 0; j < PixMon::kNumModulesIBL; ++j) {
+        label = "IBL_" + PixMon::StavesIBL.at(i) + "_" + PixMon::ModulesIBL.at(j);
+        IBL->GetYaxis()->SetBinLabel(count, label.c_str());
+        count++;
+      }
+    }
+  }
 
-   if (!m_errorHist && m_doIBL) {
-     IBLlbp->GetYaxis()->SetLabelSize(0.03);
-     IBLlbp->SetOption("colz");
-   }
-
-   //Make the text smaller
-   B0lbp->GetYaxis()->SetLabelSize(0.03);
-   B1lbp->GetYaxis()->SetLabelSize(0.03);
-   B2lbp->GetYaxis()->SetLabelSize(0.03);
-   Albp->GetYaxis()->SetLabelSize(0.02);
-   Clbp->GetYaxis()->SetLabelSize(0.02);
-   //put histograms in the easier to read colz format
-   B0lbp->SetOption("colz");
-   B1lbp->SetOption("colz");
-   B2lbp->SetOption("colz");
-   Albp->SetOption("colz");
-   Clbp->SetOption("colz");
-}
-
-StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &group)
-{
-   StatusCode sc = StatusCode::SUCCESS;
-   if (!m_errorHist && m_doIBL) {
-      if (group.regHist(IBLlbp).isFailure()) sc = StatusCode::FAILURE;
-   }
-   if (group.regHist(B0lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(B1lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(B2lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(Albp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(Clbp).isFailure()) sc = StatusCode::FAILURE;
-   
-   return sc;
+  for (auto& hist : m_histograms) {
+    if (!hist) continue;
+    if (hist.get() == A || hist.get() == C) {
+      hist->GetYaxis()->SetLabelSize(0.02);
+    } else {
+      hist->GetYaxis()->SetLabelSize(0.03);
+    }
+    hist->SetOption("colz");
+  }
 }

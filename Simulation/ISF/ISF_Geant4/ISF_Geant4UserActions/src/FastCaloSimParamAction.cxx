@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <map>
+#include <memory>
 #include <string>
 #include <stdlib.h>
 #include <string.h>
@@ -40,19 +41,19 @@
 namespace G4UA{
 
 
-  FastCaloSimParamAction::FastCaloSimParamAction(const Config& config):
-    m_config(config),
-    m_evtStore("StoreGateSvc/StoreGateSvc","FastCaloSimParamAction"),
-    m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction"),
-    m_current_calculator(nullptr),
-    m_current_calculator_Tile(nullptr),
-    m_current_solid(nullptr),
-    m_current_transform(nullptr),
-    m_lar_helper(nullptr),
-    m_lar_emID(nullptr),
-    m_calo_dd_man(nullptr),
-    m_eventSteps(nullptr),
-    m_ndetectors(0){
+  FastCaloSimParamAction::FastCaloSimParamAction(const Config& config)
+    : m_config(config)
+    , m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction")
+    , m_current_calculator(nullptr)
+    , m_current_calculator_Tile(nullptr)
+    , m_current_solid(nullptr)
+    , m_current_transform(nullptr)
+    , m_lar_helper(nullptr)
+    , m_lar_emID(nullptr)
+    , m_calo_dd_man(nullptr)
+    , m_eventSteps(m_config.stepInfoCollName)
+    , m_ndetectors(0)
+  {
 
 #ifdef _myDEBUG_
     G4cout << "############################################" << G4endl
@@ -114,22 +115,19 @@ namespace G4UA{
            << "############################################" << G4endl;
 
     return;
-
-
   }
 
-  void FastCaloSimParamAction::beginOfEvent(const G4Event*){
+  void FastCaloSimParamAction::beginOfEvent(const G4Event*)
+  {
 
     //G4cout << "############################################" << G4endl
     //     << "##  FastCaloSimParamAction - BeginOfEvent ##" << G4endl
     //     << "############################################" << G4endl;
 
-    if (m_current_transform == nullptr)
-      {
-        m_current_transform = new G4AffineTransform ();
-      }
-
-    m_eventSteps = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
+    if (m_current_transform == nullptr) {
+      m_current_transform = new G4AffineTransform ();
+    }
+    if (!m_eventSteps.isValid()) m_eventSteps = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfoCollection>();
     //G4cout << "############################################" << G4endl
     //     << "## FastCaloSimParamAction - BeginOfEvent2 ##" << G4endl
     //     << "############################################" << G4endl;
@@ -168,61 +166,10 @@ namespace G4UA{
       delete it.second;
     } // Vector of IDs in the map
     m_hit_map.clear();
-  
+
     if (m_eventSteps->size()==0) return; //don't need to play with it
     G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
 
-    //
-    // Put eventSteps into event store
-    //
-    std::string location("ZHEventSteps");
-    ISF_FCS_Parametrization::FCS_StepInfoCollection* test;
-    // std::cout <<"Check if already in StoreGate:"<<std::endl;
-    if (m_evtStore->contains<ISF_FCS_Parametrization::FCS_StepInfoCollection>(location))
-      {
-        StatusCode check = m_evtStore->retrieve(test,location);
-        if (check.isSuccess())
-          {
-            //std::cout <<"ZH, Already have in StoreGate : "<<test->size()<<std::endl;
-            //want to merge and overwrite!
-            for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator iter = m_eventSteps->begin();iter != m_eventSteps->end();iter++)
-              {
-                test->push_back((*iter));
-              }
-            //std::cout <<"Now have: "<<test->size()<<std::endl;
-            //      StatusCode sc = evtStore()->remove(
-            //check
-            check = m_evtStore->retrieve(test,location);
-            if (check.isSuccess())
-              {
-                std::cout <<"ZH, check in StoreGate : "<<test->size()<<std::endl;
-              }
-            /*
-              StatusCode sc = evtStore()->record( test, location); //want to overwrite? but current release doesn't have this method???
-              if( sc.isFailure() ) {
-              G4cout << "Error: Couldn't store EventSteps object in event store at location: " << location << G4endl;//
-              } else {
-
-              G4cout << "Info: Stored EventSteps object (size: " << test->size() << ")"
-              << " in event store at location: " << location << G4endl;
-              }
-            */
-          }
-        else
-          {
-            std::cout <<"ZH WTF ??"<<std::endl;
-          }
-      }
-    else
-      {
-        StatusCode sc = m_evtStore->record( m_eventSteps, location, true );
-        if( sc.isFailure() ) {
-          G4cout << "Error: Couldn't store EventSteps object in event store at location: " << location << G4endl;
-        } else {
-          G4cout << "Info: Stored EventSteps object (size: " << m_eventSteps->size() << ")"
-                 << " in event store at location: " << location << G4endl;
-        }
-      }
     return;
   }
 
@@ -352,10 +299,12 @@ namespace G4UA{
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Barrel::Presampler::Module")
           {
             m_current_calculator = &*m_config.calculator_EMBPS;
+            break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Endcap::Presampler::LiquidArgon")
           {
             m_current_calculator = &*m_config.calculator_EMEPS;
+            break;
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
@@ -451,13 +400,6 @@ namespace G4UA{
               G4ThreeVector subpoint1=position1*(1-fraction1) + position2*fraction1;
               G4ThreeVector subpoint2=position1*(1-fraction2) + position2*fraction2;
 
-              //G4StepPoint *startpoint = 0;
-              //startpoint = const_cast<G4StepPoint*>(aStep->GetPreStepPoint());
-              //startpoint->SetPosition(subpoint1);
-              //G4StepPoint *endpoint = 0;
-              //endpoint = const_cast<G4StepPoint*>(aStep->GetPostStepPoint());
-              //endpoint->SetPosition(subpoint2);
-
               G4StepPoint *startpoint = new G4StepPoint(*(aStep->GetPreStepPoint()));
               G4StepPoint *endpoint = new G4StepPoint(*(aStep->GetPostStepPoint()));
               startpoint->SetPosition(subpoint1);
@@ -465,9 +407,6 @@ namespace G4UA{
 
               //std::cout <<"ZH substep: "<<i<<" Pos: "<<subpoint1<<" "<<subpoint2<<std::endl;
               G4Step* newstep = new G4Step(*aStep);
-              //newstep = const_cast<G4Step*>(aStep);
-              if(newstep->GetPreStepPoint()) delete newstep->GetPreStepPoint();
-              if(newstep->GetPostStepPoint()) delete newstep->GetPostStepPoint();
               newstep->SetPreStepPoint(startpoint);
               newstep->SetPostStepPoint(endpoint);
               newstep->SetStepLength( (subpoint1-subpoint2).mag());
@@ -667,7 +606,10 @@ namespace G4UA{
         if (steps.size()>1)
           {
             //only when doing substeps, don't want to delete the original a4step
-            while(!steps.empty()) delete steps.back(), steps.pop_back();
+            for (std::vector<const G4Step*>::iterator it = steps.begin(); it!=steps.end(); ++it) {
+              delete *it;
+            }
+            steps.clear();
           }
       }
       ////////////////////////
@@ -695,7 +637,7 @@ namespace G4UA{
                 //std::cout <<"Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
                 //std::cout <<"E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
               }
-            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1); 
+            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             //Commented out version needs ISF_Event which is not yet in SVN..
             //      ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1,StepLength);
@@ -737,7 +679,7 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
   if (map_item==m_hit_map.end()){
     m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
     m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
-  } 
+  }
   else {
 
     // Get the appropriate merging limits
@@ -758,41 +700,54 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
     bool match = false;
     for (auto map_it : * map_item->second){
       // Time check is straightforward
-      if ( fabs(map_it->time()-l_time)>=tsame ) continue;
+      double delta_t = fabs(map_it->time()-l_time);
+      if ( delta_t >= tsame ) continue;
+
       // Distance check is less straightforward
       CLHEP::Hep3Vector a_diff = l_vec - map_it->position();
       double a_inv_length = 1./a_diff.mag();
-      if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
-        // 5mm in eta, 5mm in phi, no cut in r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
-        // 1mm in eta, 5mm in phi, 15mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 15 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=1) continue; // eta
-      } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
-        // 5mm in eta, 5mm in phi, 60mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 60 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EMB3){
-        // 5mm in eta, 5mm in phi, 8mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 8 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusLAr ) continue;
-      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusHEC ) continue;
-      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusTile ) continue;
-      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusFCAL ) continue;
-      } else {
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadius ) continue;
-      }
+      double delta_phi = fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag());
+      double delta_eta = fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag());
+      double delta_r = fabs(a_diff.dot( l_vec ) * a_inv_length);
+      double hit_diff2 = map_it->position().diff2( l_vec );
 
+      // Overall merging scheme
+      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+        // Customized merging scheme for LAr barrel and endcap, use only if we're not changing maxRadiusLAr value
+        if(m_config.m_maxRadiusLAr == 25){
+          if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
+            // PS default is 1mm in eta, 5mm in phi, no cut in r
+            if (delta_r >= m_config.m_maxrPS) continue;
+            if (delta_eta >= m_config.m_maxEtaPS) continue;
+            if (delta_phi >= m_config.m_maxPhiPS) continue;
+          } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
+            // EM1 default is 1mm in eta, 5mm in phi, 15mm in r
+            if (delta_r >= m_config.m_maxrEM1) continue;
+            if (delta_eta >= m_config.m_maxEtaEM1) continue;
+            if (delta_phi >= m_config.m_maxPhiEM1) continue;
+          } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
+            // EM2 default is 1mm in eta, 5mm in phi, 60mm in r
+            if (delta_r >= m_config.m_maxrEM2) continue;
+            if (delta_eta >= m_config.m_maxEtaEM2) continue;
+            if (delta_phi >= m_config.m_maxPhiEM2) continue;
+          } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EME3){
+            // EM3 default is 1mm in eta, 5mm in phi, 8mm in r
+            if (delta_r >= m_config.m_maxrEM3) continue;
+            if (delta_eta >= m_config.m_maxEtaEM3) continue;
+            if (delta_phi >= m_config.m_maxPhiEM3) continue;
+          }
+        } else{ // Merging schemes done by changing maxRadiusLAr
+            if ( hit_diff2 >= m_config.m_maxRadiusLAr ) continue;
+        }
+      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+        if ( hit_diff2 >= m_config.m_maxRadiusHEC ) continue;
+      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+        if ( hit_diff2 >= m_config.m_maxRadiusTile ) continue;
+      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+        if ( hit_diff2 >= m_config.m_maxRadiusFCAL ) continue;
+      } else {
+        if ( hit_diff2 >= m_config.m_maxRadius ) continue;
+      }
       // Found a match.  Make a temporary that will be deleted!
       ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
       *map_it += my_info;

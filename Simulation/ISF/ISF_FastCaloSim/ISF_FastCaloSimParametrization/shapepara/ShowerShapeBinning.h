@@ -27,6 +27,7 @@ public:
    bool CheckGradient();
 
    std::vector<float> Getxbins(TH1F *histo, int nbins);
+   std::tuple<int, double> GetBinUpEdge(TH1F* histo);
 
    std::tuple<float, float> GetUnitsmm(float eta_hits, float deta, float dphi, float cellr, float cellz);
 
@@ -77,6 +78,7 @@ private:
 
    // * for hits TTree
    int m_eventNumber;
+   bool m_newEvent;
    float m_energy;
    float m_etaHit;
    float m_phiHit;
@@ -108,6 +110,8 @@ private:
 
    // * histograms
 
+   double nevent = 0.;
+
    TH2F *halphadrE;
 
    TH1F *h_alpha;
@@ -117,6 +121,8 @@ private:
    TH2F *hHits;
    TH2F *hEnergyDensity;
    TH2F *hEnergy;
+   TH1F *hDrE;
+   TH1F *hDrEnergy;
 
 
    TH2F *hLnEnergy;
@@ -140,6 +146,7 @@ private:
    float m_rProb;
    float m_alphaBin;
    float m_rBin;
+   float m_LnrBin;
    float m_weight;
 
 
