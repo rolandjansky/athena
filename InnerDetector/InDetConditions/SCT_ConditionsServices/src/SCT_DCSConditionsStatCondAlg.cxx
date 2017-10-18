@@ -62,7 +62,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
     ATH_CHECK(m_readKeyState.initialize());
     // Write Cond Handle
     ATH_CHECK(m_writeKeyState.initialize());
-    if(m_condSvc->regHandle(this, m_writeKeyState, m_writeKeyState.dbKey()).isFailure()) {
+    if(m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
