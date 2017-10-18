@@ -32,6 +32,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_outputDataStore("StoreGateSvc/MetaDataStore", name),
 	m_addrCrtr("AthenaPoolCnvSvc", name),
 	m_fileMgr("FileMgr", name),
+	m_incSvc("IncidentSvc", name),
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_allowMetaDataStop(false) {
@@ -78,8 +79,7 @@ StatusCode MetaDataSvc::initialize() {
       return(StatusCode::FAILURE);
    }
    // Set to be listener for end of event
-   ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
-   if (!incsvc.retrieve().isSuccess()) {
+   if (!m_incSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get IncidentSvc.");
       return(StatusCode::FAILURE);
    }
@@ -87,13 +87,13 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
-   incsvc->addListener(this, "FirstInputFile", 90);
-   incsvc->addListener(this, "BeginTagFile", 90);
-   incsvc->addListener(this, "BeginInputFile", 90);
-   incsvc->addListener(this, "EndInputFile", 10);
-   incsvc->addListener(this, "EndTagFile", 10);
-   incsvc->addListener(this, "LastInputFile", 10);
-   incsvc->addListener(this, "ShmProxy", 90);
+   m_incSvc->addListener(this, "FirstInputFile", 90);
+   m_incSvc->addListener(this, "BeginTagFile", 90);
+   m_incSvc->addListener(this, "BeginInputFile", 90);
+   m_incSvc->addListener(this, "EndInputFile", 10);
+   m_incSvc->addListener(this, "EndTagFile", 10);
+   m_incSvc->addListener(this, "LastInputFile", 10);
+   m_incSvc->addListener(this, "ShmProxy", 90);
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -126,6 +126,10 @@ StatusCode MetaDataSvc::initialize() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::finalize() {
+   // Release IncidentService
+   if (!m_incSvc.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release IncidentService.");
+   }
    // Release FileMgr
    if (!m_fileMgr.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release FileMgr.");
@@ -170,13 +174,8 @@ StatusCode MetaDataSvc::stop() {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
    // Set to be listener for end of event
-   ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
-   if (!incsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IncidentSvc");
-      return(StatusCode::FAILURE);
-   }
    Incident metaDataStopIncident(name(), "MetaDataStop");
-   incsvc->fireIncident(metaDataStopIncident);
+   m_incSvc->fireIncident(metaDataStopIncident);
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -320,13 +319,8 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
    // Set to be listener for end of event
-   ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
-   if (!incsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IncidentSvc");
-      return(StatusCode::FAILURE);
-   }
    Incident metaDataStopIncident(name(), "MetaDataStop");
-   incsvc->fireIncident(metaDataStopIncident);
+   m_incSvc->fireIncident(metaDataStopIncident);
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
@@ -413,6 +407,14 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          if (!bookkeeperTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get BookkeeperTool/SHM_BookkeeperTool");
          }
+ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name());
+if (cfSvc.retrieve().isSuccess()) {
+m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
+m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
+m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
+m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
+cfSvc.release().ignore();
+}
       }
    }
    else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
