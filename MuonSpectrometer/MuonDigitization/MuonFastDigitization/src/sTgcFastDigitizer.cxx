@@ -45,6 +45,7 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
+  , m_sdoName("STGCfast_SDO")
   , m_timeWindowOffsetWire(0.)
   , m_timeWindowOffsetStrip(0.)
   , m_timeWindowWire(24.95) // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
@@ -59,6 +60,7 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy of incoming particle to produce a PRD"  );
   declareProperty("EnergyDepositThreshold", m_energyDepositThreshold = 0.00052,  "Minimal energy deposit to produce a PRD"  );
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
+  declareProperty("SDOname", m_sdoName = "sTGCfast_SDO"  );
 }
 
 sTgcFastDigitizer::~sTgcFastDigitizer()  {
@@ -67,28 +69,16 @@ sTgcFastDigitizer::~sTgcFastDigitizer()  {
 
 StatusCode sTgcFastDigitizer::initialize() {
 
-  if ( detStore()->retrieve( m_detManager ).isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
-  if( detStore()->retrieve( m_idHelper ).isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve sTgcIdHelper");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_detManager ) );
+  ATH_CHECK( detStore()->retrieve( m_idHelper ) );
+
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
   if (m_rndmEngine==0) {
     ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE;
   }
-  if( m_idHelperTool.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_idHelperTool);
-    return StatusCode::FAILURE;
-  }
-
-  if( m_muonClusterCreator.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_muonClusterCreator);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_muonClusterCreator.retrieve() );
 
   if( !readFileOfTimeJitter() ) return StatusCode::FAILURE; 
 
@@ -166,10 +156,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
 // Create and record the SDO container in StoreGate
   MuonSimDataCollection* sdoContainer = new MuonSimDataCollection();
-  if (evtStore()->record(sdoContainer,"STGC_SDO").isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record sTgc SDO collection in StoreGate" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->record(sdoContainer,m_sdoName) );
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
   
@@ -263,6 +250,7 @@ StatusCode sTgcFastDigitizer::execute() {
       Amg::Transform3D gToL = detEl->absTransform().inverse();
       Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
       Amg::Vector3D lpos = gToL*hpos;
+      // surface local position (that matters)
       Amg::Vector3D slpos = surf.transform().inverse()*hpos;
       
       // propagate sim hit position to surface
@@ -318,6 +306,7 @@ StatusCode sTgcFastDigitizer::execute() {
       slx = hit.localPosition().x();
       sly = hit.localPosition().y();
       slz = hit.localPosition().z();
+      // Local position wrt Det element (NOT to surface)
       dlx = lpos.x();
       dly = lpos.y();
       dlz = lpos.z();
@@ -482,6 +471,11 @@ StatusCode sTgcFastDigitizer::execute() {
 	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
 	}else{
 	  errX = design->channelWidth(posOnSurf,true)/sqrt(12);
+
+	  // Peter Kluit: inputPhiPitch is in degrees
+	  Amg::Vector3D lposPad(posOnSurf.x(),posOnSurf.y(),0.);
+	  double radius = (surf.transform()*lposPad).perp();
+	  errX = design->inputPhiPitch*M_PI/180.*radius/sqrt(12);
 	}
       }
       
@@ -510,6 +504,17 @@ StatusCode sTgcFastDigitizer::execute() {
         ipadeta = m_idHelper->padEta(id);
         ipadphi = m_idHelper->padPhi(id);
       }
+
+      ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
+      ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+
+      ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
+      ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
+
+      ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
+      ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
+
+      ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/errx);
 
 //       const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
 //       if( rot ){

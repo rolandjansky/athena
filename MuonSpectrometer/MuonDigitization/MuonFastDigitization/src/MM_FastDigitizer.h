@@ -126,6 +126,7 @@ class MM_FastDigitizer : public AthAlgorithm {
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   std::string m_rndmEngineName;// name of random engine
   std::string m_inputObjectName; // name of the input objects
+  std::string m_sdoName; // name of the output SDO collection
   bool   m_useTimeShift;
   double m_energyThreshold;
   bool   m_checkIds;
