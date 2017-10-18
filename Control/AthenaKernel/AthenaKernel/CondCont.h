@@ -432,7 +432,12 @@ private:
 #include "AthenaKernel/CondCont.icc"
 
 #include "AthenaKernel/CondContMaker.h"
-#define REGISTER_CC(T) static CondContainer::CondContMaker<T> maker_ ## T{};
+
+#define CONCATUNF_(x,y) x##y
+#define CONCATUNF(x,y) CONCATUNF_(x,y)
+#define UNIQUEVARNAME CONCATUNF(CONCATUNF(REGCCM_,__COUNTER__),__LINE__)
+
+#define REGISTER_CC(T) static CondContainer::CondContMaker<T> UNIQUEVARNAME {}
 
 #endif // not ATHENAKERNEL_CONDCONT_H
 

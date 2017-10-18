@@ -32,7 +32,6 @@ public:
   // from ICondSvc
 public:
   virtual StatusCode regHandle(IAlgorithm* alg, const Gaudi::DataHandle& id);
-  //                               const std::string& key);
 
   virtual bool getInvalidIDs(const EventContext&, DataObjIDColl& ids);
   virtual bool getValidIDs(const EventContext&, DataObjIDColl& ids);
@@ -86,6 +85,8 @@ private:
     
   };
 
+  StatusCode regHandle_i(IAlgorithm* alg, const Gaudi::DataHandle& id);
+
   ServiceHandle<StoreGateSvc> m_sgs;
 
   typedef std::set<IAlgorithm*, iAlgHasher> IAlgHashSet;
@@ -99,7 +100,8 @@ private:
 
   DataObjIDColl m_condIDs;
 
-  mutable std::mutex m_lock;
+  typedef std::mutex mutex_t;
+  mutable mutex_t m_lock;
 
 };
 
