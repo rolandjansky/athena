@@ -522,7 +522,7 @@ if isMC:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
    # Includes the GenFilterTool
    # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MergingHTMETSamplesttWt
-   addStandardTruthContents(exot4Seq)
+   addStandardTruthContents()
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
 
    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
