@@ -178,7 +178,7 @@ bool
 CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
   std::lock_guard<std::mutex> lock(m_lock);
 
-  EventIDBase now(ctx.eventID().run_number(), ctx.eventID().event_number());
+  EventIDBase now(ctx.eventID());
 
   std::ostringstream ost;
   ost << "getInvalidIDS " << ctx.eventID() 
