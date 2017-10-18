@@ -685,9 +685,9 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         self.cluster_calib = cluster_calib
         self.trkopt = trkopt
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-        
-        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt(
-            'iPseudoJetSelectorPositivePt')
+       
+        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
+             'iPseudoJetSelectorAll') 
         
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 

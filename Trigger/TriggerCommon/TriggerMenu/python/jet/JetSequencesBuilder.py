@@ -91,7 +91,6 @@ class JetSequencesBuilder(object):
                        'cmfs1': self.make_cmfs1,  # cell maker full scan
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
-                       'sk': self.make_sk,  # SoftKiller
                        'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
                        'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
@@ -159,7 +158,6 @@ class JetSequencesBuilder(object):
             ('tc','FS',False,'ftk'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
-            ('sktc','FS',False, 'notrk'): ['fs2','cmfs1','cmfs2','sk','jr'], # SoftKiller topoclusters, no need for EventDensity for rho*area subtraction
             ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False, 'notrk'): ['fs','hicm','hijr'],
             ('TT', 'FS', False, 'notrk'): ['tt', 'jt'],
@@ -288,7 +286,6 @@ class JetSequencesBuilder(object):
         [algs.extend(f()) for f in (self.alg_factory.energyDensityAlg,)]
 
         return AlgList(algs, alias=alias)
-
 
     def make_ftk(self):
         """Return FTK sequence"""
