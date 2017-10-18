@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Control/AthContainers
                           DetectorDescription/Identifier
+                          DetectorDescription/GeoPrimitives
                           Event/EventKernel
                           Event/EventPrimitives
                           Event/FourMom

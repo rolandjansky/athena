@@ -29,10 +29,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
+#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-
-class IEMExtrapolationTools;
+#include "StoreGate/ReadHandleKey.h"
 
 class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionBuilder
 {
@@ -48,21 +48,18 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   ~EMConversionBuilder();
 	
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode contExecute() { return StatusCode::FAILURE; }
-  virtual StatusCode contExecute(EgammaRecContainer& cont);
+  virtual StatusCode executeRec(egammaRec* egRec) override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* egRec);
+  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
   /** @brief execute method*/
-  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
-  /** @brief execute method*/
-  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
+  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override;
 
 private:
-
+  
   /** @brief Return true if vertex and cluster pass Pt and E/p cuts **/
   bool passPtAndEoverP(const xAOD::Vertex&, const xAOD::CaloCluster&) const;
   
@@ -71,33 +68,64 @@ private:
   
   // configuration:
   /** @brief Name of conversion container*/
-  std::string		m_conversionContainerName; 
-
-
-  /** @brief EMExtrapolationTools */
-  ToolHandle<IEMExtrapolationTools>  m_extrapolationTool;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_conversionContainerKey {this,
+      "ConversionContainerName", "PhotonConversionVertices",
+      "Name of the input conversion container"}; 
   
- /** @brief Ignore all conversion vertices that contain exclusively TRT-only tracks */
- bool m_rejectAllTRT;
- /** @brief minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices) */
- int m_minTRTHits;
- /** @brief minimum pT for single-track conversion vertices */
- float m_minPt_singleTrack;
- /** @brief minimum pT for TRT-only single-track conversion vertices */
- float m_minPt_singleTRT;
- /** @brief minimum pT for each track in TRT-only double-track conversion vertices */  
- float m_minTRTonlyTrackPt;
- /** @brief minimum sum pT for double track conversion vertices */
- float m_minSumPt_double;
- /** @brief minimum sum pT for double TRT track conversion vertices */
- float m_minSumPt_doubleTRT; 
- /** @brief maximum E/p for single track conversion vertices (E is not calibrated) */
- float m_maxEoverP_singleTrack;
- /** @brief Scale maxEoverP_singleTrack by 1+sf*Et(cluster)/GeV  **/
- float m_maxEoverP_singleTrack_EtSf;
- /** @brief "Maximum fraction of tube hits for vertices with TRT tracks  **/ 
- float m_maxTRTTubeHitFraction; 
+  /** @brief EMExtrapolationTools */
+  ToolHandle<IEMExtrapolationTools>  m_extrapolationTool {this,
+      "ExtrapolationTool", "EMExtrapolationTools", 
+      "Handle of the extrapolation tool"};
+  
+  /** @brief Ignore all conversion vertices that contain exclusively TRT-only tracks */
+  Gaudi::Property<bool> m_rejectAllTRT {this, "RejectAllTRTConversions", false,
+      "Ignore all conversion vertices containing exclusively TRT-only tracks"};
+  
+  /** @brief minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices) */
+  Gaudi::Property<int> m_minTRTHits {this, "minTRTHits", 0,
+      "minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices)"};
 
+  /** @brief minimum pT for single-track conversion vertices */
+  Gaudi::Property<float> m_minPt_singleTrack {this, 
+      "minPt_singleTrack", 0*CLHEP::GeV,
+      "minimum pT for single-track conversion vertices"};
+
+  /** @brief minimum pT for TRT-only single-track conversion vertices */
+  Gaudi::Property<float> m_minPt_singleTRT {this,
+      "minPt_singleTRT", 2*CLHEP::GeV,
+      "minimum pT for TRT-only single-track conversion vertices"};
+
+  /** @brief minimum pT for each track in TRT-only double-track conversion vertices */  
+  Gaudi::Property<float> m_minTRTonlyTrackPt {this,
+      "minTRTonlyTrackPt", 0*CLHEP::GeV,
+      "minimum pT for each track in TRT-only double-track conversion vertices"};
+
+  /** @brief minimum sum pT for double track conversion vertices */
+  Gaudi::Property<float> m_minSumPt_double {this,
+      "minSumPt_double", 0*CLHEP::GeV,
+      "minimum sum pT for double track conversion vertices"};
+
+  /** @brief minimum sum pT for double TRT track conversion vertices */
+  Gaudi::Property<float> m_minSumPt_doubleTRT {this,
+      "minSumPt_doubleTRT", 2*CLHEP::GeV,
+      "minimum sum pT for double TRT track conversion vertices"}; 
+
+  /** @brief maximum E/p for single track conversion vertices (E is not calibrated) */
+  Gaudi::Property<float> m_maxEoverP_singleTrack {this,
+      "maxEoverP_singleTrack", 10.,
+      "Maximum E/p for single track conversion vertices"};
+
+  /** @brief Scale maxEoverP_singleTrack by 1+sf*Et(cluster)/GeV  **/
+  Gaudi::Property<float> m_maxEoverP_singleTrack_EtSf {this,
+      "maxEoverP_singleTrack_EtSf", 0.01,  
+      "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV )"};
+
+  /** @brief "Maximum fraction of tube hits for vertices with TRT tracks  **/ 
+  Gaudi::Property<float> m_maxTRTTubeHitFraction {this,
+      "maxTRTTubeHitFraction", 999.,
+      "Maximum fraction of tube hits for vertices with TRT tracks"}; 
+  // for 21.0.X: minTRTPrecisionFraction cut applied InDetTRT_StandaloneScoringTool
+  
 };
 
 #endif

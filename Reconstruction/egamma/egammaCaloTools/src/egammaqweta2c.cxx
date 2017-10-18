@@ -54,16 +54,7 @@ StatusCode egammaqweta2c::finalize()
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////
-// ATHENA EXECUTE METHOD:
-
-// ==================================================================
-StatusCode egammaqweta2c::execute() 
-{
-  return StatusCode::SUCCESS;
-}
-
-float egammaqweta2c::Correct(float eta, float etacell, float weta2)
+float egammaqweta2c::Correct(float eta, float etacell, float weta2) const
 {
 
 //  float eta = cluster->eta(2);      // use second sampling
@@ -126,7 +117,7 @@ float egammaqweta2c::Correct(float eta, float etacell, float weta2)
 }
 
 // =====================================================================
-double egammaqweta2c::RelPosition(float eta, float etacell)
+double egammaqweta2c::RelPosition(float eta, float etacell) const
 {
 
 //  float eta = cluster->eta(2);      // use second sampling

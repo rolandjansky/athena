@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "StoreGate/ReadHandle.h"
 //  END OF HEADER FILES INCLUDE
 
 using CLHEP::GeV;
@@ -29,13 +30,8 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_badChannelTool("LArBadChanTool"),
-    m_larCablingSvc("LArCablingService"),
-    m_affectedTool("CaloAffectedTool"),
     m_emHelper(0),
-    m_cellcoll(0),
-    m_cellCentrId(0),
-    m_detStore(NULL)
+    m_cellCentrId(0)
 {
   //
   // constructor
@@ -44,19 +40,6 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   // declare interface
   declareInterface<IegammaBaseTool>(this);
 
-
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-  declareProperty("LArBadChannelTool",m_badChannelTool,"This is the larBadChannelTool");
-  declareProperty("affectedTool"    , m_affectedTool); 
-  declareProperty("CellsName",m_cellsName="AllCalo","Names of container which contain cells ");
-  declareProperty("QCellCut", m_QCellCut = 4000.);
-  declareProperty("QCellHECCut", m_QCellHECCut = 60000.);
-  declareProperty("QCellSporCut", m_QCellSporCut = 4000.);
-  declareProperty("LArQCut", m_LArQCut = 0.8);
-  declareProperty("TCut", m_TCut = 10.0);
-  declareProperty("TCutVsE", m_TCutVsE = 2.0);
-  declareProperty("RcellCut", m_RcellCut = 0.8);
   m_affRegVec = 0;
   m_calocellId = 0;
 }
@@ -78,18 +61,10 @@ StatusCode egammaOQFlagsBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing egammaOQFlagsBuilder");
  
+  ATH_CHECK(m_cellsKey.initialize());
+
   StatusCode sc;
   
-  // get DetectorStore service
-  //StoreGateSvc* detStore;
-  sc=service("DetectorStore",m_detStore);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "DetectorStore service not found !" << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found DetectorStore" << endmsg;
-  }
-
   // Get BadChannelTool
   sc=m_badChannelTool.retrieve();
   if (sc.isFailure()) {
@@ -120,7 +95,7 @@ StatusCode egammaOQFlagsBuilder::initialize()
   }
 
 
-  sc=m_detStore->retrieve(m_calocellId, "CaloCell_ID"); 
+  sc=detStore()->retrieve(m_calocellId, "CaloCell_ID"); 
   if(sc.isFailure()){
     msg(MSG::WARNING) <<  "Cannot retrieve online_id" << endmsg;
     return StatusCode::FAILURE;
@@ -128,7 +103,7 @@ StatusCode egammaOQFlagsBuilder::initialize()
     //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloCell_ID" << m_calocellId << " retrieved" << endmsg;
   }
   
-  sc=m_detStore->retrieve(m_emHelper); 
+  sc=detStore()->retrieve(m_emHelper); 
   if(sc.isFailure()){
     msg(MSG::WARNING) <<   "Cannot retrieve online_id" << endmsg;
     return StatusCode::FAILURE;
@@ -441,13 +416,14 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 
   //====================  Check the tile component  ==================================//
   //Get CaloCellContainer
-  StatusCode sc = evtStore()->retrieve(m_cellcoll, m_cellsName) ; 
-  if(sc.isFailure() || !m_cellcoll) {
-    ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
-    return sc;
+  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!cellcoll.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+    return StatusCode::FAILURE;
   }
   CaloCell_ID::SUBCALO HADCal = static_cast<CaloCell_ID::SUBCALO>(CaloCell_ID::TILE);
-  CaloCellList ccl(m_cellcoll,HADCal); 
+  CaloCellList ccl(cellcoll.cptr(),HADCal);
   double size = 0.12;
   //------------------------ TileBar0 --------------------------------//
   bool isbadtilebar0cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileBar0);

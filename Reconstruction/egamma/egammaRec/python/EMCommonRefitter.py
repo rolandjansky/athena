@@ -103,10 +103,6 @@ else :
 #
 #
 # Extrapolator to be used for tracking inside egamma i.e GSF , conversions
-# Set up AtlasExtrapolator
-if not hasattr(ToolSvc,'AtlasExtrapolator'):
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    ToolSvc += AtlasExtrapolator()
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
