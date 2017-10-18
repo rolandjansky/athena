@@ -20,14 +20,16 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
+find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
 atlas_add_library( IOVSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS IOVSvc
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests xAODEventInfo PersistentDataModel
-                   PRIVATE_LINK_LIBRARIES TestTools EventInfo )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools EventInfo )
 
 atlas_add_component( IOVSvc
                      src/components/*.cxx
