@@ -54,7 +54,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
 
-    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepBHadrons) {
+    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepCHadrons) {
         ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons -- what do you want?");
         return StatusCode::FAILURE;
     }
