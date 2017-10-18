@@ -100,6 +100,7 @@ private: // data
    ServiceHandle<StoreGateSvc> m_outputDataStore;
    ServiceHandle<IAddressCreator> m_addrCrtr;
    ServiceHandle<IFileMgr> m_fileMgr;
+   ServiceHandle<IIncidentSvc> m_incSvc;
 
    long m_storageType;
    bool m_clearedInputDataStore;
