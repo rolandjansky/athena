@@ -388,13 +388,13 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    if (className == "11DF1B8C-0DEE-4687-80D7-E74B520ACBB4") { clid = 167728019; // EventStreamInfo
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
-         if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo_" + keyName) foundTool = true;
+         if ((*iter)->name() == "ToolSvc.SHM_CopyEventStreamInfo") foundTool = true;
       }
       if (!foundTool) {
-         ToolHandle<IAlgTool> copyTool("CopyEventStreamInfo/CopyEventStreamInfo_" + keyName); //FIXME: Make tools configurable
+         ToolHandle<IAlgTool> copyTool("CopyEventStreamInfo/SHM_CopyEventStreamInfo");
          m_metaDataTools.push_back(copyTool);
          if (!copyTool.retrieve().isSuccess()) {
-            ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/CopyEventStreamInfo_" + keyName);
+            ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/SHM_CopyEventStreamInfo");
          }
       }
    }
