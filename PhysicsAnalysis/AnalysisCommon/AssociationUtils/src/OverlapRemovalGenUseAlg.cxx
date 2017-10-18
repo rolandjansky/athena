@@ -6,7 +6,7 @@
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalDefs.h"
-#include "OverlapRemovalECAlg.h"
+#include "OverlapRemovalGenUseAlg.h"
 
 namespace
 {
@@ -18,7 +18,7 @@ namespace
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
-OverlapRemovalECAlg::OverlapRemovalECAlg(const std::string& name,
+OverlapRemovalGenUseAlg::OverlapRemovalGenUseAlg(const std::string& name,
 		ISvcLocator* svcLoc)
 	: AthAlgorithm(name, svcLoc),
 	m_orTool("OverlapRemovalTool", this)
@@ -30,13 +30,26 @@ OverlapRemovalECAlg::OverlapRemovalECAlg(const std::string& name,
 			"Output label for the OverlapRemovalTool");
 	declareProperty("BJetLabel", m_bJetLabel="isBJet",
 			"Input label for b-tagged jets");
+	declareProperty("ElectronLabel", m_electronLabel="DFCommonElectronsLHLoose",
+			"Input label for passing electrons");
+	declareProperty("PhotonLabel", m_photonLabel="DFCommonPhotonsIsEMLoose",
+			"Input label for passing photons");
+	declareProperty("MuonLabel", m_muonLabel="DFCommonGoodMuon",
+			"Input label for passing muons");
+	declareProperty("TauLabel", m_tauLabel="DFCommonTausLoose",
+			"Input label for passing taus");
+	declareProperty("PtCut", m_ptCut = 20.0,
+			"Minimum pt for consideration");
+	declareProperty("EtaCut", m_etaCut = 4.5,
+			"Maximum eta for consideration");
+
 }
 
 
 //-----------------------------------------------------------------------------
 // Initialize
 //-----------------------------------------------------------------------------
-StatusCode OverlapRemovalECAlg::initialize()
+StatusCode OverlapRemovalGenUseAlg::initialize()
 {
 	ATH_MSG_INFO("Initialize");
 
@@ -49,7 +62,7 @@ StatusCode OverlapRemovalECAlg::initialize()
 //-----------------------------------------------------------------------------
 // Execute
 //-----------------------------------------------------------------------------
-StatusCode OverlapRemovalECAlg::execute()
+StatusCode OverlapRemovalGenUseAlg::execute()
 {
   // Electrons
   const xAOD::ElectronContainer* electrons = 0;
@@ -88,11 +101,11 @@ StatusCode OverlapRemovalECAlg::execute()
   else{
 	  // Reset all decorations to failing
 	  ATH_MSG_WARNING("No primary vertices found, cannot do overlap removal! Will return all fails."); 
-	  if(electrons) resetDecorations(*electrons);
-	  if(muons)     resetDecorations(*muons);
-	  if(jets)      resetDecorations(*jets);
-	  if(taus)      resetDecorations(*taus);
-	  if(photons)   resetDecorations(*photons);
+	  if(electrons) setDefaultDecorations(*electrons);
+	  if(muons)     setDefaultDecorations(*muons);
+	  if(jets)      setDefaultDecorations(*jets);
+	  if(taus)      setDefaultDecorations(*taus);
+	  if(photons)   setDefaultDecorations(*photons);
   }
 
   // Dump the objects
@@ -110,7 +123,7 @@ StatusCode OverlapRemovalECAlg::execute()
 // Reset output decoration
 //---------------------------------------------------------------------------
 	template<class ContainerType>
-void OverlapRemovalECAlg::resetDecorations(const ContainerType& container)
+void OverlapRemovalGenUseAlg::setDefaultDecorations(const ContainerType& container)
 {
 	static ort::inputDecorator_t defaultDec(m_overlapLabel);
 	for(auto obj : container){
@@ -123,7 +136,7 @@ void OverlapRemovalECAlg::resetDecorations(const ContainerType& container)
 // Apply selection to a container
 //-----------------------------------------------------------------------------
 	template<class ContainerType>
-void OverlapRemovalECAlg::applySelection(const ContainerType& container)
+void OverlapRemovalGenUseAlg::applySelection(const ContainerType& container)
 {
 	static ort::inputDecorator_t selDec(m_selectionLabel);
 	for(auto obj : container){
@@ -132,63 +145,69 @@ void OverlapRemovalECAlg::applySelection(const ContainerType& container)
 }
 //-----------------------------------------------------------------------------
 template<class ObjType>
-bool OverlapRemovalECAlg::selectObject(const ObjType& obj)
+bool OverlapRemovalGenUseAlg::selectObject(const ObjType& obj)
 {
-  if(obj.pt() < 10.*GeV) return false;
-  if(std::abs(obj.eta()) > 4.5) return false;
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
   return true;
 }
 //-----------------------------------------------------------------------------
 template<>
-bool OverlapRemovalECAlg::selectObject<xAOD::Jet>(const xAOD::Jet& jet)
+bool OverlapRemovalGenUseAlg::selectObject<xAOD::Jet>(const xAOD::Jet& obj)
 {
   // Label bjets
   static ort::inputDecorator_t bJetDec(m_bJetLabel);
-  bJetDec(jet) = false;
+  bJetDec(obj) = false;
   double mv2c10 = 0.;
-  auto btag = jet.btagging();
+  auto btag = obj.btagging();
   if(btag && btag->MVx_discriminant("MV2c10", mv2c10)){
-    if(mv2c10 > -0.1416) bJetDec(jet) = true;
+    if(mv2c10 > -0.1416) bJetDec(obj) = true;
   }
   else ATH_MSG_WARNING("BTag info unavailable!");
-  if(jet.pt() < 20.*GeV) return false;
-  if(std::abs(jet.eta()) > 4.5) return false;
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
   return true;
 }
 
 //-----------------------------------------------------------------------------
 template<>
-bool OverlapRemovalECAlg::selectObject<xAOD::Electron>(const xAOD::Electron& elec)
+bool OverlapRemovalGenUseAlg::selectObject<xAOD::Electron>(const xAOD::Electron& obj)
 {
-  const static SG::AuxElement::ConstAccessor<char> acc_ElectronPassLHLoose("DFCommonElectronsLHLoose");
-  if(!acc_ElectronPassLHLoose(elec)) return false;
+  const static SG::AuxElement::ConstAccessor<char> acc_ElectronPass(m_electronLabel);
+  if(m_electronLabel=="") return false;    //disable objects with empty labels
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
+  if(!acc_ElectronPass(obj)) return false;
   return true;
 }
 
 //-----------------------------------------------------------------------------
 template<>
-bool OverlapRemovalECAlg::selectObject<xAOD::Photon>(const xAOD::Photon& photon)
+bool OverlapRemovalGenUseAlg::selectObject<xAOD::Photon>(const xAOD::Photon& obj)
 {
-  const static SG::AuxElement::ConstAccessor<char> acc_PhotonPassIsEMLoose("DFCommonPhotonsIsEMLoose");
-  if(!acc_PhotonPassIsEMLoose(photon)) return false;
+  const static SG::AuxElement::ConstAccessor<char> acc_PhotonPass(m_photonLabel);
+  if(m_photonLabel=="") return false;    //disable objects with empty labels
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
+  if(!acc_PhotonPass(obj)) return false;
   return true;
 }
 
 //-----------------------------------------------------------------------------
 template<>
-bool OverlapRemovalECAlg::selectObject<xAOD::Muon>(const xAOD::Muon& mu)
+bool OverlapRemovalGenUseAlg::selectObject<xAOD::Muon>(const xAOD::Muon& obj)
 {
-  const static SG::AuxElement::ConstAccessor<char> acc_passMuon("DFCommonGoodMuon");
-  if(!acc_passMuon(mu)) return false;
+  const static SG::AuxElement::ConstAccessor<char> acc_MuonPass(m_muonLabel);
+  if(m_muonLabel=="") return false;    //disable objects with empty labels
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
+  if(!acc_MuonPass(obj)) return false;
   return true;
 }
 
 //-----------------------------------------------------------------------------
 template<>
-bool OverlapRemovalECAlg::selectObject<xAOD::TauJet>(const xAOD::TauJet& obj)
+bool OverlapRemovalGenUseAlg::selectObject<xAOD::TauJet>(const xAOD::TauJet& obj)
 {
-  const static SG::AuxElement::ConstAccessor<char> acc_passTau("DFCommonTausLoose");
-  if(!acc_passTau(obj)) return false;
+  const static SG::AuxElement::ConstAccessor<char> acc_TauPass(m_tauLabel);
+  if(m_tauLabel=="") return false;    //disable objects with empty labels
+  if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
+  if(!acc_TauPass(obj)) return false;
   return true;
 }
 
@@ -196,7 +215,7 @@ bool OverlapRemovalECAlg::selectObject<xAOD::TauJet>(const xAOD::TauJet& obj)
 //-----------------------------------------------------------------------------
 // Print object
 //-----------------------------------------------------------------------------
-void OverlapRemovalECAlg::printObjects(const xAOD::IParticleContainer& container,
+void OverlapRemovalGenUseAlg::printObjects(const xAOD::IParticleContainer& container,
                                          const std::string& type)
 {
   static ort::inputAccessor_t selectAcc(m_selectionLabel);

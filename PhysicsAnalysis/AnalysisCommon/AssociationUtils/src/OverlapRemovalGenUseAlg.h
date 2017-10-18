@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALECALG_H
-#define ASSOCIATIONUTILS_OVERLAPREMOVALECALG_H
+#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALGenUseALG_H
+#define ASSOCIATIONUTILS_OVERLAPREMOVALGenUseALG_H
 
 // Framework includes
 #include "GaudiKernel/ToolHandle.h"
@@ -19,13 +19,13 @@
 ///
 /// @author Julia Gonski <j.gonski@cern.ch>
 ///
-class OverlapRemovalECAlg : public AthAlgorithm
+class OverlapRemovalGenUseAlg : public AthAlgorithm
 {
 
   public:
 
     /// Standard algorithm constructor
-    OverlapRemovalECAlg(const std::string& name, ISvcLocator* svcLoc);
+    OverlapRemovalGenUseAlg(const std::string& name, ISvcLocator* svcLoc);
 
     /// Initialize the algorithm
     virtual StatusCode initialize();
@@ -41,7 +41,7 @@ class OverlapRemovalECAlg : public AthAlgorithm
 
     // Reset decorations to failing
     template<class ContainerType>
-    void resetDecorations(const ContainerType& container);
+    void setDefaultDecorations(const ContainerType& container);
     
     /// Simple object selection
     template<class ObjType>
@@ -58,6 +58,12 @@ class OverlapRemovalECAlg : public AthAlgorithm
     std::string m_selectionLabel;
     std::string m_overlapLabel;
     std::string m_bJetLabel;
+    std::string m_electronLabel;
+    std::string m_photonLabel;
+    std::string m_muonLabel;
+    std::string m_tauLabel;
+    double m_ptCut;
+    double m_etaCut;
 
 };
 

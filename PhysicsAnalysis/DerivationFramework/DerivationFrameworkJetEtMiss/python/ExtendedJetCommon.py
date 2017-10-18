@@ -268,11 +268,11 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
-    from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import OverlapRemovalECAlg
+    from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = 'isBJet'
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
-    algOR = OverlapRemovalECAlg('OverlapRemovalECAlg',
+    algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
                             OverlapRemovalTool=orTool,
                             BJetLabel=bJetLabel)
@@ -281,11 +281,13 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
 def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    prefix = "DFCommonJets_"
     ecTool = EventCleaningTool('EventCleaningTool')
-    ecTool.JetCleanPrefix = "DFCommonJets_"
+    ecTool.JetCleanPrefix = prefix
     algClean = EventCleaningTestAlg('EventCleaningTestAlg',
                             EventCleaningTool=ecTool,
-                            JetCollectionName="AntiKt4EMTopoJets")
+                            JetCollectionName="AntiKt4EMTopoJets",
+			    EventCleanPrefix=prefix)
     sequence += algClean
 
 
