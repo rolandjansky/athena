@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /*!
  * \class KLFitter::LikelihoodTopLeptonJets
  * \brief A class implementing a likelihood for the ttbar lepton+jets channel.
