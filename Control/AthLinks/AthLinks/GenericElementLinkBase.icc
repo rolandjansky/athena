@@ -36,7 +36,7 @@ inline
 bool
 GenericElementLinkBase<INDEXING_POLICY>::hasCachedElement() const
 {
-  return m_cacheValid;
+  return m_element.isValid();;
 }
 
 
@@ -131,7 +131,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::reset ()
 {
   m_proxy.clear();
   m_key = 0;
-  m_cacheValid = 0;
+  m_element.reset();
   INDEXING_POLICY::reset (m_index);
 }
 
@@ -152,7 +152,7 @@ bool
 GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_key, sg);
-  m_cacheValid = 0;
+  m_element.reset();
   return true;
 }
 
@@ -177,7 +177,7 @@ GenericElementLinkBase<INDEXING_POLICY>::toPersistent()
   if (isDefault()) return true;
   if (m_proxy.isDefault() || isDefaultIndex()) return false;
   if (m_proxy.toPersistent (m_key, m_index))
-    m_cacheValid = 0;
+    m_element.reset();
   return true;
 }
 
@@ -189,7 +189,6 @@ template <class INDEXING_POLICY>
 inline
 GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase()
   : m_key(0),
-    m_cacheValid(false),
     m_element()
 {
   INDEXING_POLICY::reset (m_index);
@@ -213,7 +212,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const index_type& elemID,
   IProxyDict* sg)
    : m_index (elemID),
-     m_cacheValid(false),
      m_element()
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
@@ -238,7 +236,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   IProxyDict* sg)
    : m_key (key),
     m_index (elemID),
-    m_cacheValid (false),
     m_element()
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -266,7 +263,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const ElementType& elt,
   IProxyDict* sg)
    : m_index (elemID),
-     m_cacheValid (true),
      m_element (elt)
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
@@ -295,7 +291,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   IProxyDict* sg)
    : m_key (key),
      m_index (elemID),
-     m_cacheValid (true),
      m_element (elt)
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -319,7 +314,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const index_type& elemID,
   IProxyDict* sg)
    : m_index (elemID),
-     m_cacheValid (false),
      m_element()
 {
   m_key = m_proxy.toStorableObject (obj, link_clid, sg);
@@ -342,7 +336,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
     : m_key (other.m_key),
       m_index (elemID),
       m_proxy (other.m_proxy),
-      m_cacheValid (false),
       m_element()
 {
 }
@@ -369,7 +362,6 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
     m_proxy (other.m_proxy,
              (typename FROM_TRAITS::Storable*)0,
              (typename TO_TRAITS::Storable*)0),
-    m_cacheValid (other.m_cacheValid),
     m_element (other.m_element)
 {
   // The TRAITS template args are redundant here with the indexing policy args,
@@ -457,7 +449,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::toIndexedElement
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_key = m_proxy.toStorableObject (obj, link_clid, sg);
     m_index = elemID;
-    m_cacheValid = false;
+    m_element.reset();
     return true;
   }
   return false;
@@ -485,7 +477,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
   m_index = elemID;
-  m_cacheValid = false;
+  m_element.reset();
 }
 
 
@@ -511,7 +503,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
   m_key = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
   m_index = elemID;
-  m_cacheValid = false;
+  m_element.reset();
 }
 
 
@@ -549,8 +541,20 @@ inline
 void
 GenericElementLinkBase<INDEXING_POLICY>::setCachedElement (const ElementType& elt) const
 {
-  m_element = elt;
-  m_cacheValid = true;
+  m_element.set (elt);
+}
+
+
+/**
+ * @brief Set the cached element stored in the link.
+ * @param elt New value for the cached element.
+ */
+template <class INDEXING_POLICY>
+inline
+void
+GenericElementLinkBase<INDEXING_POLICY>::storeCachedElement (const ElementType& elt)
+{
+  m_element.store (elt);
 }
 
 
@@ -566,8 +570,8 @@ inline
 bool
 GenericElementLinkBase<INDEXING_POLICY>::getCachedElement (ElementConstPointer& elt) const
 {
-  if (m_cacheValid) {
-    elt = &m_element;
+  if (m_element.isValid()) {
+    elt = m_element.ptr();
     return true;
   }
   return false;

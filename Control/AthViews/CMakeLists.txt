@@ -36,9 +36,9 @@ atlas_add_component( AthViewsDFlow
 
 
 atlas_add_test( ViewLinking_test 
-		INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+		INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
 		SOURCES test/ViewLinking_test.cxx 
-		LINK_LIBRARIES ${Boost_LIBRARIES}  ${TBB_LIBRARIES}
+		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
 
 # Install files from the package:

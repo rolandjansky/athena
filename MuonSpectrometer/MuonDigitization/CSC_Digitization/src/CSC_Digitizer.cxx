@@ -20,6 +20,8 @@
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
 
+using namespace MuonGM;
+
 // Constructors
 CSC_Digitizer::CSC_Digitizer(CscHitIdHelper * cscHitHelper,
 			     const MuonDetectorManager* muonMgr,

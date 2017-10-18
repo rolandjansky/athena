@@ -94,6 +94,12 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     
     thisPFO->setCharge(0);
 
+    //Set the CENTER_MAG moment. This has its own dedicated getter in the PFO EDM, and so is not dealt with by the generic addMoment function.
+    double center_mag = 0.0;
+    bool isRetrieved = cluster->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag );
+    if (true == isRetrieved) thisPFO->setCenterMag(center_mag);
+    else ATH_MSG_WARNING("Could not retreve CENTER_MAG from xAOD::CaloCluster");
+    
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
     if ( (m_LCMode && thisEfRecCluster->isTouchable()) || !m_LCMode) {
       this->addMoment(xAOD::CaloCluster::SECOND_R,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R,*cluster, *thisPFO);

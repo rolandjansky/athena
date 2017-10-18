@@ -28,8 +28,6 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-using namespace MuonGM;
-
 class PileUpMergeSvc;
 
 // Author: Ketevi A. Assamagan
@@ -103,7 +101,7 @@ public: //possibly these should be private?
 
   CscDigitContainer         * m_container;
 
-  const MuonDetectorManager * m_geoMgr;
+  const MuonGM::MuonDetectorManager * m_geoMgr;
   CSC_Digitizer             * m_cscDigitizer;
 
   const CscIdHelper         * m_cscIdHelper;

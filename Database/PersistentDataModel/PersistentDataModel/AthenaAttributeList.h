@@ -68,8 +68,6 @@ public:
 CLASS_DEF(AthenaAttributeList, 40774348, 0)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<AthenaAttributeList>, 211215482 , 0)
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<AthenaAttributeList>, CondContBase );
 
 
 #endif // PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H

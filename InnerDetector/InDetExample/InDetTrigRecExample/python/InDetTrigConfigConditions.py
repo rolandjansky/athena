@@ -432,8 +432,7 @@ class SCT_ConditionsServicesSetup:
         calibSvc = getattr(self.svcMgr, instanceName); 
       else:
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-        calibSvc = SCT_ReadCalibDataSvc(name = instanceName,
-                                        EventInfoKey = self.eventInfoKey)
+        calibSvc = SCT_ReadCalibDataSvc(name = instanceName)
         self.svcMgr += calibSvc
 
       self.summarySvc.ConditionsServices+=[instanceName]

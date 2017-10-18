@@ -53,39 +53,39 @@ public:
 //____________________________________________________________________
 SoSeparator* PRDHandleBase::sepSimple() const
 {
-  return d->sepSimple;
+  return m_d->sepSimple;
 }
 
 //____________________________________________________________________
 SoSeparator* PRDHandleBase::sepDetailed() const
 {
-  return d->sepDetailed;
+  return m_d->sepDetailed;
 }
 
 //____________________________________________________________________
 PRDHandleBase::PRDHandleBase(PRDCollHandleBase*colhandle)
-  : d(new Imp), m_common(colhandle->common()),m_visible(false)
+  : m_d(new Imp), m_common(colhandle->common()),m_visible(false)
 {
-  d->colhandle = colhandle;
-  d->sepDetailed = 0;
-  d->sepSimple = 0;
-  d->currentmaterial = 0;
-  d->sephelper_lod_detail = 0;
-  d->sephelper_lod_simple = 0;
+  m_d->colhandle = colhandle;
+  m_d->sepDetailed = 0;
+  m_d->sepSimple = 0;
+  m_d->currentmaterial = 0;
+  m_d->sephelper_lod_detail = 0;
+  m_d->sephelper_lod_simple = 0;
 }
 
 
 //____________________________________________________________________
 PRDHandleBase::~PRDHandleBase()
 {
-  if (d->sepDetailed)
-    d->sepDetailed->unref();
-  if (d->sepSimple)
-    d->sepSimple->unref();
-  if (d->currentmaterial)
-    d->currentmaterial->unref();
+  if (m_d->sepDetailed)
+    m_d->sepDetailed->unref();
+  if (m_d->sepSimple)
+    m_d->sepSimple->unref();
+  if (m_d->currentmaterial)
+    m_d->currentmaterial->unref();
 
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -163,24 +163,24 @@ void PRDHandleBase::updateMaterial()
   //clear the cache. Only if we are visible do we need to do a
   //detach->clear material->attach cycle to trigger attachment under new material.
 
-  if (!d->currentmaterial)
+  if (!m_d->currentmaterial)
     return;//We have no material cached and is thus not attached either.
   if (m_visible) {
     //See if the material changed. If it did, detach, update the material, attach again.
-    SoMaterial * newmat = d->determineMaterial(this);
+    SoMaterial * newmat = m_d->determineMaterial(this);
     newmat->ref();
-    if (newmat!=d->currentmaterial) {
-      d->detach3DObjects();
-      d->currentmaterial->unref();
-      d->currentmaterial = newmat;
-      d->attach3DObjects(this);
+    if (newmat!=m_d->currentmaterial) {
+      m_d->detach3DObjects();
+      m_d->currentmaterial->unref();
+      m_d->currentmaterial = newmat;
+      m_d->attach3DObjects(this);
     } else {
       newmat->unref();
     }
   } else {
     //Just clear material.
-    d->currentmaterial->unref();
-    d->currentmaterial = 0;
+    m_d->currentmaterial->unref();
+    m_d->currentmaterial = 0;
   }
 }
 
@@ -227,7 +227,7 @@ void PRDHandleBase::Imp::detach3DObjects()
 //____________________________________________________________________
 PRDCollHandleBase * PRDHandleBase::collHandle() const
 {
-  return d->colhandle;
+  return m_d->colhandle;
 }
 
 //____________________________________________________________________
@@ -238,18 +238,18 @@ void PRDHandleBase::setVisible(bool vis)
   //std::cout<<"Changing visible status from "<<m_visible<<" to "<<vis<<" for: "<<*getPRD()<<std::endl;
   m_visible=vis;
   if (vis) {
-    d->colhandle->incrementNShownHandles();
+    m_d->colhandle->incrementNShownHandles();
     if (inMuonChamber())
       common()->touchedMuonChamberHelper()->incrementNumberOfObjectsForPV(parentMuonChamberPV());
-    if (!d->sepSimple||!d->sepDetailed)
-      d->rebuild3DObjects(this);//The call to rebuild also fixes attached state.
+    if (!m_d->sepSimple||!m_d->sepDetailed)
+      m_d->rebuild3DObjects(this);//The call to rebuild also fixes attached state.
     else
-      d->attach3DObjects(this);
+      m_d->attach3DObjects(this);
   } else {
-    d->colhandle->decrementNShownHandles();
+    m_d->colhandle->decrementNShownHandles();
     if (inMuonChamber())
       common()->touchedMuonChamberHelper()->decrementNumberOfObjectsForPV(parentMuonChamberPV());
-    d->detach3DObjects();
+    m_d->detach3DObjects();
   }
 }
 
@@ -257,16 +257,16 @@ void PRDHandleBase::setVisible(bool vis)
 void PRDHandleBase::update3DObjects() {
   //Fixme: If selected we really need to redo selection updates!!!
   if (m_visible) {
-    d->rebuild3DObjects(this);
+    m_d->rebuild3DObjects(this);
   } else {
     //Simply clear the present 3D objects. They will only be recreated if/when the prd becomes visible again.
-    if (d->sepDetailed) {
-      d->sepDetailed->unref();
-      d->sepDetailed = 0;
+    if (m_d->sepDetailed) {
+      m_d->sepDetailed->unref();
+      m_d->sepDetailed = 0;
     }
-    if (d->sepSimple) {
-      d->sepSimple->unref();
-      d->sepSimple = 0;
+    if (m_d->sepSimple) {
+      m_d->sepSimple->unref();
+      m_d->sepSimple = 0;
     }
   }
 
@@ -324,11 +324,11 @@ Amg::Vector3D PRDHandleBase::center() const
 //____________________________________________________________________
 Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
 {  
-  if (d->sepDetailed&&d->sepDetailed->getNumChildren()>0) {
+  if (m_d->sepDetailed&&m_d->sepDetailed->getNumChildren()>0) {
     //For efficiency/consistency we simply copy the transform from the
     //inventor transformation (only loose slight precision in the
     //double->float->double conversions):
-    SoTransform * transform = static_cast<SoTransform*>(d->sepDetailed->getChild(0));
+    SoTransform * transform = static_cast<SoTransform*>(m_d->sepDetailed->getChild(0));
     const SbVec3f so_translation(transform->translation.getValue());
     float tx, ty, tz;
     transform->translation.getValue().getValue(tx,ty,tz);

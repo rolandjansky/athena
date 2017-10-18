@@ -15,10 +15,11 @@ namespace MuonCalib
 {      
 
 
-class IMdtCalibDBTool: virtual public IAlgTool, 
-                       virtual public IAddressProvider {
-  
+class IMdtCalibDBTool
+  : virtual public extend_interfaces<IAlgTool, IAddressProvider>
+{  
 public:
+  DeclareInterfaceID(IMdtCalibDBTool, 1, 0);
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS) = 0;

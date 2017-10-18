@@ -29,16 +29,16 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_SCT::PRDCollHandle_SCT(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::SCT,cd,key), d(new Imp)
+  : PRDCollHandleBase(PRDDetType::SCT,cd,key), m_d(new Imp)
 {
-  d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
-  d->excludeisolatedclusters = true;
+  m_d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
+  m_d->excludeisolatedclusters = true;
 }
 
 //____________________________________________________________________
 PRDCollHandle_SCT::~PRDCollHandle_SCT()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -59,14 +59,14 @@ void PRDCollHandle_SCT::postLoadInitialisation()
 {
   std::vector<PRDHandleBase*>::iterator it(getPrdHandles().begin()),itE(getPrdHandles().end());
   for (;it!=itE;++it)
-    d->touchedelements.insert(static_cast<PRDHandle_SCT*>(*it)->cluster()->detectorElement());
-  d->touchedelements.insert(0);//To always show clusters whose elements have no otherSide() pointer.
+    m_d->touchedelements.insert(static_cast<PRDHandle_SCT*>(*it)->cluster()->detectorElement());
+  m_d->touchedelements.insert(0);//To always show clusters whose elements have no otherSide() pointer.
 }
 
 //____________________________________________________________________
 void PRDCollHandle_SCT::eraseEventDataSpecific()
 {
-  d->touchedelements.clear();
+  m_d->touchedelements.clear();
 }
 
 //____________________________________________________________________
@@ -75,18 +75,18 @@ bool PRDCollHandle_SCT::cut(PRDHandleBase*handlebase)
   PRDHandle_SCT * handle = static_cast<PRDHandle_SCT*>(handlebase);
   assert(handle);
 
-  if (d->indetpartsflags!=PRDCommonFlags::All) {
+  if (m_d->indetpartsflags!=PRDCommonFlags::All) {
     if (handle->isBarrel()) {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::BarrelPositive):(d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::BarrelPositive):(m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
  	return false;
     } else {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::EndCapPositive):(d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::EndCapPositive):(m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
  	return false;
     }
   }
 
-  if (d->excludeisolatedclusters) {
-    if (!d->touchedelements.count(handle->cluster()->detectorElement()->otherSide()))
+  if (m_d->excludeisolatedclusters) {
+    if (!m_d->touchedelements.count(handle->cluster()->detectorElement()->otherSide()))
       return false;
   }
 
@@ -99,16 +99,16 @@ void PRDCollHandle_SCT::setPartsFlags(PRDCommonFlags::InDetPartsFlags flags ) {
   //PRDCollHandle_TRT::setPartsFlags and and PRDCollHandle_SpacePoints::setPartsFlags
   //Fixme: base decision to recheck on visibility also!
 
-  if (d->indetpartsflags==flags)
+  if (m_d->indetpartsflags==flags)
     return;
 
-  bool barrelPosChanged = (d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
-  bool barrelNegChanged = (d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
-  bool endcapPosChanged = (d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
-  bool endcapNegChanged = (d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
+  bool barrelPosChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
+  bool barrelNegChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
+  bool endcapPosChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
+  bool endcapNegChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
   bool barrelChanged = (barrelPosChanged || barrelNegChanged);
   bool endcapChanged = (endcapPosChanged || endcapNegChanged);
-  d->indetpartsflags=flags;
+  m_d->indetpartsflags=flags;
 
   largeChangesBegin();
   std::vector<PRDHandleBase*>::iterator it(getPrdHandles().begin()),itE(getPrdHandles().end());
@@ -129,9 +129,9 @@ void PRDCollHandle_SCT::setPartsFlags(PRDCommonFlags::InDetPartsFlags flags ) {
 //____________________________________________________________________
 void PRDCollHandle_SCT::setExcludeIsolatedClusters(bool excludeisolated)
 {
-  if (d->excludeisolatedclusters==excludeisolated)
+  if (m_d->excludeisolatedclusters==excludeisolated)
     return;
-  d->excludeisolatedclusters=excludeisolated;
+  m_d->excludeisolatedclusters=excludeisolated;
   if (excludeisolated)
     recheckCutStatusOfAllVisibleHandles();
   else

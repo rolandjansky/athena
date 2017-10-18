@@ -36,7 +36,8 @@ public:
 
   ///returns pointer to the active store as StoreGateSvc
   inline StoreGateSvc* activeStore() const {
-    return p_activeStore;
+    if (p_activeStore) return p_activeStore;
+    return activeStoreOOL();
   }
 
   ///dereference operator to access the active store
@@ -159,6 +160,7 @@ public:
   static const InterfaceID& interfaceID(); 
 
 private:
+  StoreGateSvc* activeStoreOOL() const;
   StoreGateSvc* p_activeStore;    
   std::string m_storeName; //< property: StoreGate instance name
 

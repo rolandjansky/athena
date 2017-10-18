@@ -14,9 +14,10 @@
 #include "AthLinks/DataLinkBase.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include <iostream>
 #include <cassert>
@@ -75,7 +76,7 @@ void* foocast (SG::DataProxy*)
 }
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -202,7 +203,7 @@ void test1()
 
 
 // toPersistent / toTransient
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -267,7 +268,7 @@ void test2()
 
 
 // alt store
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
 
@@ -279,7 +280,7 @@ void test3()
 
 
 // equality
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
@@ -307,7 +308,7 @@ void test4()
 
 
 // other
-void test5()
+void test5 (SGTest::TestStore&)
 {
   std::cout << "test5\n";
 
@@ -317,15 +318,15 @@ void test5()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   SGTest::initTestStore();
 
-  test1();
-  test2();
-  test3();
-  test4();
-  test5();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
+  test5 (store);
   return 0;
 }

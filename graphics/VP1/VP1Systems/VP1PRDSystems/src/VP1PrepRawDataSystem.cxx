@@ -204,25 +204,25 @@ public:
 VP1PrepRawDataSystem::VP1PrepRawDataSystem()
 : IVP13DSystemSimple("Hits",
                      "System showing tracking hits (PRD's)",
-                     "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), d(new Imp)
+                     "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->common = 0;
-  d->controller = 0;
-  d->idprojflags_pixel = InDetProjFlags::NoProjections;
-  d->idprojflags_sct = InDetProjFlags::NoProjections;
-  d->idprojflags_trt = InDetProjFlags::NoProjections;
-  d->appropriatemdtprojection = 0;
-  d->selNode_click = 0;
-  d->selNode_highlight = 0;
-  d->multisel_sep = 0;
+  m_d->theclass = this;
+  m_d->common = 0;
+  m_d->controller = 0;
+  m_d->idprojflags_pixel = InDetProjFlags::NoProjections;
+  m_d->idprojflags_sct = InDetProjFlags::NoProjections;
+  m_d->idprojflags_trt = InDetProjFlags::NoProjections;
+  m_d->appropriatemdtprojection = 0;
+  m_d->selNode_click = 0;
+  m_d->selNode_highlight = 0;
+  m_d->multisel_sep = 0;
   
 }
 
 //_____________________________________________________________________________________
 VP1PrepRawDataSystem::~VP1PrepRawDataSystem()
 {
-  delete d;
+  delete m_d;
 }
 
 //_____________________________________________________________________________________
@@ -231,19 +231,19 @@ void VP1PrepRawDataSystem::systemcreate(StoreGateSvc* /*detstore*/)
   messageVerbose("systemcreate");
   if (VP1JobConfigInfo::hasMuonGeometry()&&!VP1DetInfo::muonDetMgr())
     message("Error: Can't retrieve MuonDetectorManager. Expect reduced performance and functionality.");//Fixme: Only if any muon collections are present!
-  d->ensureInitCommonData();
+  m_d->ensureInitCommonData();
 }
 
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::systemuncreate()
 {
-  if (d->multisel_sep) {
-    d->multisel_sep->unref();
-    d->multisel_sep=0;
+  if (m_d->multisel_sep) {
+    m_d->multisel_sep->unref();
+    m_d->multisel_sep=0;
   }
   
-  delete d->common; d->common = 0;
-  d->controller = 0;
+  delete m_d->common; m_d->common = 0;
+  m_d->controller = 0;
 }
 
 //_____________________________________________________________________________________
@@ -253,20 +253,20 @@ void VP1PrepRawDataSystem::systemerase()
   
   deselectAll();
   
-  d->common->controller()->collWidget()->clear();
+  m_d->common->controller()->collWidget()->clear();
   
-  d->common->clearEventData();
+  m_d->common->clearEventData();
   
-  if (d->selNode_click) {
-    unregisterSelectionNode(d->selNode_click);
-    unregisterSelectionNode(d->selNode_highlight);
-    d->selNode_click->unref();
-    d->selNode_click=0;
-    d->selNode_highlight->unref();
-    d->selNode_highlight=0;
+  if (m_d->selNode_click) {
+    unregisterSelectionNode(m_d->selNode_click);
+    unregisterSelectionNode(m_d->selNode_highlight);
+    m_d->selNode_click->unref();
+    m_d->selNode_click=0;
+    m_d->selNode_highlight->unref();
+    m_d->selNode_highlight=0;
   }
   
-  d->clearMultiSelLine();
+  m_d->clearMultiSelLine();
   
 }
 
@@ -287,11 +287,11 @@ void VP1PrepRawDataSystem::buildEventSceneGraph(StoreGateSvc*, SoSeparator *root
   root->addChild(complexity);
   
   //   //Point sizes and line widths:
-  //   root->addChild(d->controller->prdDrawStyle());
+  //   root->addChild(m_d->controller->prdDrawStyle());
   
   //Create collection list based on contents of event store, inform
   //about projections, populate gui and apply states:
-  QList<PRDCollHandleBase*> cols = d->createCollections();
+  QList<PRDCollHandleBase*> cols = m_d->createCollections();
   
   //Inform about appropriate projects:
   foreach (PRDCollHandleBase* col,cols) {
@@ -300,48 +300,48 @@ void VP1PrepRawDataSystem::buildEventSceneGraph(StoreGateSvc*, SoSeparator *root
     
     PRDCollHandle_MDT* mdtcol = dynamic_cast<PRDCollHandle_MDT*>(col);
     if (mdtcol) {
-      mdtcol->setAppropriateProjection( d->appropriatemdtprojection );
+      mdtcol->setAppropriateProjection( m_d->appropriatemdtprojection );
       continue;
     }
     
     PRDCollHandle_TRT* trtcol = dynamic_cast<PRDCollHandle_TRT*>(col);
     if (trtcol) {
-      trtcol->setAppropriateProjection(d->idprojflags_trt);//NB: Add for pixel/sct as well once supported!
+      trtcol->setAppropriateProjection(m_d->idprojflags_trt);//NB: Add for pixel/sct as well once supported!
       continue;
     }
     
   }
   
-  d->controller->collWidget()->setCollections(cols);
+  m_d->controller->collWidget()->setCollections(cols);
   
   
   //Add collections to event scenegraph:
-  d->selNode_click = new SoCooperativeSelection;
-  d->selNode_click->ref();
-  d->selNode_highlight = new SoCooperativeSelection;
-  d->selNode_highlight->ref();
-  d->selNode_click->activePolicy = SoCooperativeSelection::ACTIVE;
-  d->selNode_highlight->activePolicy = SoCooperativeSelection::INERT;
-  d->selNode_click->policy = SoCooperativeSelection::SINGLE;
-  d->selNode_highlight->policy = SoCooperativeSelection::SINGLE;
+  m_d->selNode_click = new SoCooperativeSelection;
+  m_d->selNode_click->ref();
+  m_d->selNode_highlight = new SoCooperativeSelection;
+  m_d->selNode_highlight->ref();
+  m_d->selNode_click->activePolicy = SoCooperativeSelection::ACTIVE;
+  m_d->selNode_highlight->activePolicy = SoCooperativeSelection::INERT;
+  m_d->selNode_click->policy = SoCooperativeSelection::SINGLE;
+  m_d->selNode_highlight->policy = SoCooperativeSelection::SINGLE;
   
-  foreach (VP1StdCollection* col,d->controller->collWidget()->collections<VP1StdCollection>())
-  d->selNode_click->addChild(col->collSwitch());
-  d->selNode_highlight->addChild(d->selNode_click);
-  root->addChild(d->selNode_highlight);
+  foreach (VP1StdCollection* col,m_d->controller->collWidget()->collections<VP1StdCollection>())
+  m_d->selNode_click->addChild(col->collSwitch());
+  m_d->selNode_highlight->addChild(m_d->selNode_click);
+  root->addChild(m_d->selNode_highlight);
   
-  registerSelectionNode(d->selNode_click);
-  registerSelectionNode(d->selNode_highlight);
+  registerSelectionNode(m_d->selNode_click);
+  registerSelectionNode(m_d->selNode_highlight);
   
-  if (!d->multisel_sep) {
-    d->multisel_sep = new SoSeparator;
-    d->multisel_sep->ref();
+  if (!m_d->multisel_sep) {
+    m_d->multisel_sep = new SoSeparator;
+    m_d->multisel_sep->ref();
     SoPickStyle * ps = new SoPickStyle;
     ps->style= SoPickStyle::UNPICKABLE;
-    d->multisel_sep->addChild(ps);
-    d->multisel_sep->addChild(d->controller->getMultiSelectionLineMaterial());
+    m_d->multisel_sep->addChild(ps);
+    m_d->multisel_sep->addChild(m_d->controller->getMultiSelectionLineMaterial());
   }
-  root->addChild(d->multisel_sep);
+  root->addChild(m_d->multisel_sep);
   
   
   messageVerbose("buildEventSceneGraph done");
@@ -355,14 +355,14 @@ void VP1PrepRawDataSystem::deselectAll(SoCooperativeSelection* exception_sel)
   if (exception_sel)
     message("WARNING: The PRD system always deselects all registered nodes/");
   IVP13DSystemSimple::deselectAll(0);
-  d->currentlySelectedHandles.clear();
-  d->selectionChanged();
+  m_d->currentlySelectedHandles.clear();
+  m_d->selectionChanged();
 }
 
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::selectionVisualsChanged()
 {
-  d->selectionChanged();
+  m_d->selectionChanged();
 }
 
 //_____________________________________________________________________________________
@@ -383,7 +383,7 @@ void VP1PrepRawDataSystem::selectionModeChanged()
 void VP1PrepRawDataSystem::updateSelectionVisualsAndPossiblyEmitPRDList()
 {
   messageVerbose("updateSelectionVisualsAndPossiblyEmitPRDList");
-  d->selectionChanged();
+  m_d->selectionChanged();
 }
 
 //_____________________________________________________________________________________
@@ -395,10 +395,10 @@ void VP1PrepRawDataSystem::userPickedNode(SoNode*, SoPath *)
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::userSelectedSingleNode(SoCooperativeSelection* sel, SoNode*, SoPath*pickedPath)
 {
-  if (d->selNode_highlight==sel)
+  if (m_d->selNode_highlight==sel)
     return;
   messageVerbose("userSelectedSingleNode");
-  PRDHandleBase * handle = d->common->pickedPathToHandle(pickedPath);//This also pops the path, so that all shape nodes
+  PRDHandleBase * handle = m_d->common->pickedPathToHandle(pickedPath);//This also pops the path, so that all shape nodes
   //making up the whole shape will be highlighted
   sel->deselectAll();
   
@@ -408,40 +408,40 @@ void VP1PrepRawDataSystem::userSelectedSingleNode(SoCooperativeSelection* sel, S
     return;
   }
   
-  if (!d->controller->selectionModeMultiple()) {
-    if (d->currentlySelectedHandles.count()==1&&*(d->currentlySelectedHandles.begin())==handle)
+  if (!m_d->controller->selectionModeMultiple()) {
+    if (m_d->currentlySelectedHandles.count()==1&&*(m_d->currentlySelectedHandles.begin())==handle)
       return;
-    d->currentlySelectedHandles.clear();
-    d->currentlySelectedHandles<<handle;
-    if (handle->inMuonChamber()&&d->controller->muonOrientToChambersOnClick()) {
+    m_d->currentlySelectedHandles.clear();
+    m_d->currentlySelectedHandles<<handle;
+    if (handle->inMuonChamber()&&m_d->controller->muonOrientToChambersOnClick()) {
       messageVerbose("emits prdInMuonChamberSelected");
       emit prdInMuonChamberSelected(handle->parentMuonChamberPV());
-    } else if (d->controller->zoomOnClick()) {
+    } else if (m_d->controller->zoomOnClick()) {
       std::set<SoCamera*> cameras(getCameraList());
       std::set<SoCamera*>::iterator it,itE = cameras.end();
       for (it=cameras.begin();it!=itE;++it)
         VP1CameraHelper::animatedZoomToPath(*it,handle->collHandle()->collSep(),pickedPath,2.0,1.0);
     }
-    if (d->controller->printInfoOnClick()) {
+    if (m_d->controller->printInfoOnClick()) {
       foreach (QString line, handle->clicked())
       message(line);
     }
   } else {
-    if (d->currentlySelectedHandles.contains(handle)) {
-      d->currentlySelectedHandles.removeAll(handle);
+    if (m_d->currentlySelectedHandles.contains(handle)) {
+      m_d->currentlySelectedHandles.removeAll(handle);
     } else {
-      d->currentlySelectedHandles << handle;
+      m_d->currentlySelectedHandles << handle;
     }
   }
   
-  d->selectionChanged();
+  m_d->selectionChanged();
   
 }
 
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::userDeselectedSingleNode(SoCooperativeSelection* sel, SoNode*, SoPath*)
 {
-  if (d->selNode_highlight==sel)
+  if (m_d->selNode_highlight==sel)
     return;
   //  messageVerbose("userDeselectedSingleNode");
 }
@@ -449,7 +449,7 @@ void VP1PrepRawDataSystem::userDeselectedSingleNode(SoCooperativeSelection* sel,
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::userChangedSelection(SoCooperativeSelection*sel , QSet<SoNode*>, QSet<SoPath*>)
 {
-  if (d->selNode_highlight==sel)
+  if (m_d->selNode_highlight==sel)
     return;
   messageVerbose("userChangedSelection");
 }
@@ -458,9 +458,9 @@ void VP1PrepRawDataSystem::userChangedSelection(SoCooperativeSelection*sel , QSe
 void VP1PrepRawDataSystem::userClickedOnBgd()
 {
   messageVerbose("userClickedOnBgd");
-  if (!d->controller->selectionModeMultiple()) {
-    d->currentlySelectedHandles.clear();
-    d->selectionChanged();
+  if (!m_d->controller->selectionModeMultiple()) {
+    m_d->currentlySelectedHandles.clear();
+    m_d->selectionChanged();
   }
 }
 
@@ -469,21 +469,21 @@ void VP1PrepRawDataSystem::userClickedOnBgd()
 QWidget * VP1PrepRawDataSystem::buildController()
 {
   messageVerbose("buildController");
-  d->controller = new PRDSystemController(this);
+  m_d->controller = new PRDSystemController(this);
   
   messageVerbose("Passing ID projection settings on to collWidget");
   
-  connect(d->controller,SIGNAL(selectionModeMultipleChanged(bool)),this,SLOT(selectionModeChanged()));
-  connect(d->controller,SIGNAL(showSelectionLineChanged(bool)),this,SLOT(selectionVisualsChanged()));
-  connect(d->controller,SIGNAL(clearSelection()),this,SLOT(clearSelection()));
+  connect(m_d->controller,SIGNAL(selectionModeMultipleChanged(bool)),this,SLOT(selectionModeChanged()));
+  connect(m_d->controller,SIGNAL(showSelectionLineChanged(bool)),this,SLOT(selectionVisualsChanged()));
+  connect(m_d->controller,SIGNAL(clearSelection()),this,SLOT(clearSelection()));
   
-  connect(d->controller,SIGNAL(inDetPartsUsingProjectionsChanged(InDetProjFlags::DetTypeFlags)),
+  connect(m_d->controller,SIGNAL(inDetPartsUsingProjectionsChanged(InDetProjFlags::DetTypeFlags)),
           this,SLOT(emitUsedIDProjectionsChanged(InDetProjFlags::DetTypeFlags)));
-  InDetProjFlags::DetTypeFlags f = d->controller->inDetPartsUsingProjections();
+  InDetProjFlags::DetTypeFlags f = m_d->controller->inDetPartsUsingProjections();
   if ( f != InDetProjFlags::NoDet)
     emitUsedIDProjectionsChanged(f);//Fixme: Check that this is actually sufficiently late for the guideline sys!!!
   
-  return d->controller;
+  return m_d->controller;
 }
 
 //_____________________________________________________________________________________
@@ -494,8 +494,8 @@ QByteArray VP1PrepRawDataSystem::saveState() {
   
   ensureBuildController();
   
-  serialise.save(d->controller->saveSettings());
-  serialise.save(d->controller->collWidget());
+  serialise.save(m_d->controller->saveSettings());
+  serialise.save(m_d->controller->collWidget());
   
   serialise.disableUnsavedChecks();//We do the testing in the controller
   return serialise.result();
@@ -513,8 +513,8 @@ void VP1PrepRawDataSystem::restoreFromState(QByteArray ba) {
   
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
   
-  d->controller->restoreSettings(state.restoreByteArray());
-  state.restore(d->controller->collWidget());//We do the testing in the controller
+  m_d->controller->restoreSettings(state.restoreByteArray());
+  state.restore(m_d->controller->collWidget());//We do the testing in the controller
   
   state.disableUnrestoredChecks();//We do the testing in the controller
 }
@@ -522,20 +522,20 @@ void VP1PrepRawDataSystem::restoreFromState(QByteArray ba) {
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::visibleTracksChanged(const std::vector< std::pair<const Trk::Track*, const SoMaterial*> >& tracks)
 {
-  d->ensureInitCommonData();
-  if (!d->common)
+  m_d->ensureInitCommonData();
+  if (!m_d->common)
     return;//for signals received after uncreate
-  d->common->trackAndSegmentHelper()->visibleTracksChanged(tracks);
+  m_d->common->trackAndSegmentHelper()->visibleTracksChanged(tracks);
   selectionVisualsChanged();
 }
 
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::visibleSegmentsChanged(const std::vector< std::pair<const Trk::Segment*, const SoMaterial*> >& segments)
 {
-  d->ensureInitCommonData();
-  if (!d->common)
+  m_d->ensureInitCommonData();
+  if (!m_d->common)
     return;//for signals received after uncreate
-  d->common->trackAndSegmentHelper()->visibleSegmentsChanged(segments);
+  m_d->common->trackAndSegmentHelper()->visibleSegmentsChanged(segments);
   selectionVisualsChanged();
 }
 
@@ -556,13 +556,13 @@ void VP1PrepRawDataSystem::emitUsedIDProjectionsChanged(InDetProjFlags::DetTypeF
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::appropriateMDTProjectionsChanged(int iproj)
 {
-  if (d->appropriatemdtprojection==iproj)
+  if (m_d->appropriatemdtprojection==iproj)
     return;
-  d->appropriatemdtprojection = iproj;
-  if (!d->controller)
+  m_d->appropriatemdtprojection = iproj;
+  if (!m_d->controller)
     return;//applied upon creation of collections instead
-  foreach (PRDCollHandle_MDT* mdtcol,d->controller->collWidget()->collections<PRDCollHandle_MDT>())
-  mdtcol->setAppropriateProjection( d->appropriatemdtprojection );
+  foreach (PRDCollHandle_MDT* mdtcol,m_d->controller->collWidget()->collections<PRDCollHandle_MDT>())
+  mdtcol->setAppropriateProjection( m_d->appropriatemdtprojection );
   
 }
 
@@ -573,19 +573,19 @@ void VP1PrepRawDataSystem::setApplicableIDProjections( InDetProjFlags::InDetProj
 {
   messageVerbose("Signal received in setApplicableProjections (from "
                  +QString(sender()?sender()->objectName():"NULL sender")+")");
-  if (d->idprojflags_pixel==pixel&&d->idprojflags_sct==sct&&d->idprojflags_trt==trt) {
+  if (m_d->idprojflags_pixel==pixel&&m_d->idprojflags_sct==sct&&m_d->idprojflags_trt==trt) {
     return;
   }
   
-  d->idprojflags_pixel = pixel;
-  d->idprojflags_trt = trt;
-  d->idprojflags_sct = sct;
+  m_d->idprojflags_pixel = pixel;
+  m_d->idprojflags_trt = trt;
+  m_d->idprojflags_sct = sct;
   
-  if (!d->controller)
+  if (!m_d->controller)
     return;//applied upon creation of collections instead
   
-  foreach (PRDCollHandle_TRT* trtcol,d->controller->collWidget()->collections<PRDCollHandle_TRT>())
-  trtcol->setAppropriateProjection(d->idprojflags_trt);
+  foreach (PRDCollHandle_TRT* trtcol,m_d->controller->collWidget()->collections<PRDCollHandle_TRT>())
+  trtcol->setAppropriateProjection(m_d->idprojflags_trt);
   
   //NB: Add for pixel/sct as well once supported!
   
@@ -597,16 +597,16 @@ void VP1PrepRawDataSystem::muonChambersWithTracksChanged(const std::set<GeoPVCon
   messageVerbose("muonChambersWithTracksChanged : received "+str(chambers.size())+" chambers.");
   
   // //Update map of touched chamber lists:
-  // bool listChanged(d->sender2ChamberList.find(sender())!=d->sender2ChamberList.end()?
-  //                  (chambers != d->sender2ChamberList[sender()]):true);
-  // d->sender2ChamberList[sender()] = chambers;
+  // bool listChanged(m_d->sender2ChamberList.find(sender())!=m_d->sender2ChamberList.end()?
+  //                  (chambers != m_d->sender2ChamberList[sender()]):true);
+  // m_d->sender2ChamberList[sender()] = chambers;
   
   //Trigger update if list changed and in auto mode:
-  // if ( listChanged && d->controller->limitToActiveChambers() )
+  // if ( listChanged && m_d->controller->limitToActiveChambers() )
   //   message("Limittoactivechambers - not yet implemented");
-  d->ensureInitCommonData();
-  if (d->common && d->common->touchedMuonChamberHelper())
-    d->common->touchedMuonChamberHelper()->updateTouchedByTracks(chambers);
+  m_d->ensureInitCommonData();
+  if (m_d->common && m_d->common->touchedMuonChamberHelper())
+    m_d->common->touchedMuonChamberHelper()->updateTouchedByTracks(chambers);
   else 
     message("muonChambersWithTracksChanged - helpers not yet created!");
 }

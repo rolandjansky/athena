@@ -97,7 +97,10 @@ class LArShapeComplete: public ILArShape,
 
 };
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArShapeComplete,ILArShape);
 CLASS_DEF( LArShapeComplete, 249350685, 1 )
+CLASS_DEF( CondCont<LArShapeComplete> , 55610575 , 1 )
 
 inline
 LArShapeComplete::CONTAINER::ConstReference

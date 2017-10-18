@@ -81,7 +81,7 @@ namespace Trk
     AmgMatrix(3,3) vrt_cov = myVertex.covariancePosition();
     AmgMatrix(3,3) vrt_weight =  myVertex.covariancePosition().inverse().eval();
 
-    //need to recalculate the refitted covariance matrix of the tracks (yes, we don't have it yet***REMOVED***)
+    //need to recalculate the refitted covariance matrix of the tracks (yes, we don't have it yet)
     std::pair<AmgMatrix(3,3),AmgMatrix(3,3)> PosMomAndMomCovFirstTrack;
     std::pair<AmgMatrix(3,3),AmgMatrix(3,3)> PosMomAndMomCovSecondTrack;
 

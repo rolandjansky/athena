@@ -43,8 +43,6 @@ class LArADC2MeV {
 CLASS_DEF( LArADC2MeV, 87645297, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArADC2MeV>, 155872295, 0)
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArADC2MeV>, CondContBase );
 
 #endif
 

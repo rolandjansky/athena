@@ -42,6 +42,7 @@ class EventViewCreatorAlgorithm : public AthAlgorithm
     
     Gaudi::Property< std::string > m_algPoolName{ this, "AlgPoolName", "ViewAlgPool", "" };
     Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "Unspecified", "Name of EL to RoI object lined to the decision" };
+    Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may access StoreGate directly to retrieve data" };
 };
 
 #endif
