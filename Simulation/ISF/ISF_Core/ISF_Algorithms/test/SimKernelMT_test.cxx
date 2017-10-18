@@ -314,16 +314,6 @@ TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
 }
 
 
-//TEST_F(SimKernelMT_test, emptyInputEvgenCollection_expectSuccess) {
-//  auto inputEvgen = std::make_unique<McEventCollection>();
-//  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-//  inputEvgenHandle.record( std::move(inputEvgen) );
-//
-//  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-//  ASSERT_TRUE( m_alg->execute().isSuccess() );
-//}
-
-
 } // namespace ISFTesting
 
 
