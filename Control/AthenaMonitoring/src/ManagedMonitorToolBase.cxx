@@ -941,15 +941,9 @@ fillHists()
       
 
       if (m_manager->forkedProcess()) {
-	ATH_MSG_INFO("Child process: Resetting all LW Histograms");
-	//Here, reset all LWHIstograms
-	//std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;`
-	for (auto& mapIt : m_templateLWHistograms) {
-	  for (auto& vecIt : mapIt.second) {
-	    // Get handle to the histogram
-	    LWHist* h = vecIt.m_templateHist;
-	    h->Reset();
-	  }
+	ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
+	for (LWHist* h : m_lwhists) {
+	  h->Reset();
 	}
       }
    }//end if new RUN/LB/Block
