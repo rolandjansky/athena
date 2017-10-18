@@ -181,7 +181,7 @@ ToolSvc += SUSY16LeptonSkimmingTool
 
 # ------------------------------------------------------------
 # Trigger selection
-from DerivationFrameworkSUSY.SUSY16TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation
+from DerivationFrameworkSUSY.SUSY16TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation,triggersTriLep,triggersSingleLep,triggersDiLep
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
 
 
@@ -225,11 +225,42 @@ else:
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
-# Final skim selection, with trigger selection and lepton selection
-SUSY16SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool", 
-                                                               FilterList = [SUSY16LeptonSkimmingTool, 
-                                                                             SUSY16TriggerSkimmingTool])
-ToolSvc += SUSY16SkimmingTool
+# Final MET-based skim selection, with trigger selection and lepton selection
+SUSY16SkimmingTool_MET = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_MET", 
+                                                                   FilterList = [SUSY16LeptonSkimmingTool, 
+                                                                                 SUSY16TriggerSkimmingTool])
+ToolSvc += SUSY16SkimmingTool_MET
+
+# Trilepton final skim
+includeTrileptonEvents=False
+if includeTrileptonEvents:
+    # trilepton selection
+    trileptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 3)'
+    SUSY16TriLeptonSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY16LeptonSkimmingTool",
+                                                                               expression = '('+trileptonSelection+')')
+    ToolSvc += SUSY16TriLeptonSkimmingTool
+
+    # lepton-based triggers done separately, will use separate lepton multiplicity requirements for those
+    trileptrigReq=triggersSingleLep+triggersDiLep+triggersTriLep
+    SUSY16TriLepTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY16TriLepTriggerSkimmingTool",
+                                                                                TriggerListOR = trileptrigReq)
+    ToolSvc += SUSY16TriLepTriggerSkimmingTool
+
+    # Trilepton trigger+lepton selection
+    SUSY16SkimmingTool_TriLep = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_TriLep", 
+                                                                          FilterList = [SUSY16TriLeptonSkimmingTool, 
+                                                                                        SUSY16TriLepTriggerSkimmingTool])
+    ToolSvc += SUSY16SkimmingTool_TriLep
+
+    # and the final-final selection is an OR of the trilepton selection and the inclusive-MET selection:
+    SUSY16SkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16SkimmingTool", 
+                                                                  FilterList = [SUSY16SkimmingTool_MET, 
+                                                                                SUSY16SkimmingTool_TriLep])
+    ToolSvc += SUSY16SkimmingTool
+else:
+    # just using inclusive MET
+    SUSY16SkimmingTool = SUSY16SkimmingTool_MET
+
 # ------------------------------------------------------------
 
 #====================================================================
@@ -375,12 +406,12 @@ SUSY16SlimmingHelper.AllVariables = ["TruthParticles",
                                      "MET_Truth"]					
 SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl",
+                                      "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Photons.author.Loose.Tight",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
-                                      + ".PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased",
+                                      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m",
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
