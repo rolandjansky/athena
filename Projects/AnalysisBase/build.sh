@@ -102,8 +102,6 @@ cat ${BUILDDIR}/build_env.log
 mkdir -p ${BUILDDIR}/build/AnalysisBase
 cd ${BUILDDIR}/build/AnalysisBase
 
-# consider a pipe failed if ANY of the commands fails
-
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then
     # Remove the CMakeCache.txt file, to force CMake to find externals
