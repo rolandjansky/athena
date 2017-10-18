@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
   // IAppMgrUI* app = POOL::Init("POOLRootAccess/basixAOD.opts");
 
   // test the interface
-  ANA_MSG_INFO("Creating the PMGSherpa22VJetsWeightTool handle...");
-  asg::AnaToolHandle<IWeightTool> pmgTool("PMGSherpa22VJetsWeightTool");
+  ANA_MSG_INFO("Creating the PMGSherpa22VJetsWeightTool...");
+  asg::AnaToolHandle< IWeightTool > pmgTool("PMGTools::PMGSherpa22VJetsWeightTool/PMGSherpa22VJetsWeightTool");
   ANA_CHECK(pmgTool.setProperty("TruthJetContainer", "AntiKt4TruthWZJets"));  // default
   ANA_CHECK(pmgTool.initialize());
   // can make the subtool directly or via this cast
@@ -48,16 +48,14 @@ int main(int argc, char *argv[])
   PMGTools::PMGSherpa22VJetsWeightTool* sherpaTool = dynamic_cast<PMGTools::PMGSherpa22VJetsWeightTool*>(&*pmgTool);
 
   // Create the truth weight tool:
-  ANA_MSG_INFO("Creating the PMGTruthWeightTool tool...");
-  PMGTools::PMGTruthWeightTool truthWeightTool("PMGTruthWeightTool");
-  ANA_CHECK(truthWeightTool.setProperty("OutputLevel", MSG::INFO));
-  ANA_CHECK(truthWeightTool.sysInitialize()); // must call sysInitialize to get the callbacks registered properly for an AsgMetadataTool
-
-  // // Create the Sherpa weight tool
-  // ANA_MSG_INFO("Creating the PMGSherpa22VJetsWeightTool tool...");
-  // PMGTools::PMGSherpa22VJetsWeightTool sherpaTool("PMGSherpa22VJetsWeightTool");
-  // ANA_CHECK(sherpaTool->setProperty("TruthJetContainer", "AntiKt4TruthWZJets")); // default
-  // ANA_CHECK(sherpaTool->initialize());
+  // ... could create directly with
+  // ANA_MSG_INFO("Creating the PMGTruthWeightTool...");
+  // PMGTools::PMGTruthWeightTool truthWeightTool("PMGTruthWeightTool");
+  // ANA_CHECK(truthWeightTool.setProperty("OutputLevel", MSG::INFO));
+  // ANA_CHECK(truthWeightTool.sysInitialize()); // must call sysInitialize to get the callbacks registered properly for an AsgMetadataTool
+  // ... but better to do this through a ToolHandle
+  asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > truthWeightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
+  ANA_CHECK(truthWeightTool.initialize());
 
   // Open the input file:
   TString fileName = "$ASG_TEST_FILE_MC";
@@ -154,6 +152,11 @@ int main(int argc, char *argv[])
     // and test the interface itself
     reweight = sherpaTool->getWeight();
     if (debug) { std::cout << "correction from Interface" << reweight << std::endl; }
+
+    // Test the PMGTruthWeightTool interface
+    auto weightNames = truthWeightTool->getWeightNames();
+    auto weights = truthWeightTool->getWeights();
+    ANA_MSG_INFO("Event #" << i << ": found " << weights.size() << " weights and " << weightNames.size() << " weight names for this event");
 
   }
 

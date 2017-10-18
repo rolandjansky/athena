@@ -14,44 +14,29 @@
 #include "PMGTools/PMGTruthWeightTool.h"
 #include "PMGTools/PMGTruthWeightIndexRetriever.h"
 
+
 namespace PMGTools
 {
   PMGTruthWeightTool::PMGTruthWeightTool(const std::string& name) :
     asg::AsgMetadataTool(name),
     m_metaDataContainer(nullptr),
-    m_metaData(nullptr),
-    m_uninitialized(true),
     m_evtInfo(nullptr) {
     declareProperty("MetaObjectName", m_metaName = "TruthMetaData");
   }
 
 
   StatusCode PMGTruthWeightTool::initialize() {
-    ATH_MSG_DEBUG("Initialising...");
+    ATH_MSG_INFO("Initialising...");
     return StatusCode::SUCCESS;
   }
 
 
   const std::vector<std::string>& PMGTruthWeightTool::getWeightNames() const {
-    if (m_uninitialized) {
-      ATH_MSG_ERROR("Cannot access MC weight names. Tool is not properly initialized. Is the meta data already loaded?");
-      throw std::runtime_error(name() + ": Cannot access MC weight names. Tool is not properly initialized. Is the meta data already loaded?");
-    }
-
-    if (m_poolWeightNames.size()) {
-      return m_poolWeightNames;
-    }
-
-    return m_metaData->weightNames();
+    return m_weightNames;
   }
 
 
   const std::vector<float>& PMGTruthWeightTool::getWeights() const {
-    if (m_uninitialized) {
-      ATH_MSG_ERROR("Cannot access MC weights. Tool is not properly initialized.");
-      throw std::runtime_error(name() + ": Cannot access MC weights. Tool is not properly initialized.");
-    }
-
     if (m_evtInfo == nullptr) {
       ATH_MSG_ERROR("Cannot access MC weights as EventInfo could not be read.");
       throw std::runtime_error(name() + ": Cannot access MC weights as EventInfo could not be read.");
@@ -68,126 +53,128 @@ namespace PMGTools
 
 
   size_t PMGTruthWeightTool::getWeightIndex(const std::string& weightName) const {
-    auto sp = this->spawnTruthWeightIndexRetriever(weightName);
-
-    if (!sp) {
+    if (!this->hasWeight(weightName)) {
       ATH_MSG_ERROR("Requested weight \'" + weightName + "\' doesn't exist");
       return 0;
     }
 
-    return sp->getIndex();
+    return m_weightIndices.at(weightName);
   }
 
 
   bool PMGTruthWeightTool::hasWeight(const std::string& weightName) const {
-    const std::vector<std::string>& wns = getWeightNames();
-
-    return std::find(wns.begin(), wns.end(), weightName) != wns.end();
+    return (m_weightIndices.count(weightName) > 0);
   }
 
 
   StatusCode PMGTruthWeightTool::beginInputFile() {
-    ATH_MSG_DEBUG("Retrieving truth meta data from a new file");
-    m_metaDataContainer = nullptr;
-    m_poolWeightNames.clear();
+    // Retrieve weight names and indices
+    ATH_MSG_INFO("Retrieving truth meta data from a new file");
 
-    // Check whether metadata exists in the store
+    // Start by checking whether metadata exists in the store
+    m_metaDataContainer = nullptr;
     if (inputMetaStore()->contains<xAOD::TruthMetaDataContainer>(m_metaName)) {
+      ATH_MSG_DEBUG("Using xAOD::TruthMetaDataContainer");
       ATH_CHECK(inputMetaStore()->retrieve(m_metaDataContainer, m_metaName));
+      // Check for incorrectly stored McChannelNumber
+      m_hasInvalidMcChannel = true;
+      for (auto truthMetaData : *m_metaDataContainer) {
+        if (truthMetaData->mcChannelNumber() != 0) { m_hasInvalidMcChannel = false; }
+      }
+      if (m_hasInvalidMcChannel) {
+        ATH_MSG_WARNING("TruthMetaData McChannelNumber is invalid - assuming that channel 0 has the correct information.");
+      }
     } else {
 #ifdef XAOD_STANDALONE
-      // it's all over for AnalysisBase release
+      // AnalysisBase can only use the xAOD::TruthMetaDataContainer, so abort here
       throw std::runtime_error(name() + ": Cannot access xAOD::TruthMetaDataContainer named " + m_metaName);
       return StatusCode::FAILURE;
 #else
-      // for AthAnalysisBase release, one more try ... the POOL metadata!
-      // See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_read_the_truth_weight_nam
-      std::map<std::string, int> weightNamesMap;
-
-      if (AAH::retrieveMetadata("/Generation/Parameters", "HepMCWeightNames", weightNamesMap, inputMetaStore()).isFailure()) {
-        // ok now it really is all over
+      // Try to load the weight container using the POOL metadata
+      // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_read_the_truth_weight_nam
+      std::map<std::string, int> hepMCWeightNamesMap;
+      if (AAH::retrieveMetadata("/Generation/Parameters", "HepMCWeightNames", hepMCWeightNamesMap, inputMetaStore()).isFailure()) {
         throw std::runtime_error(name() + " : Cannot access metadata: " + m_metaName + " and failed to get names from IOVMetadata");
         return StatusCode::FAILURE;
       }
-
-      // Convert map into ordered vector
-      m_poolWeightNames.resize(weightNamesMap.size());
-      for (auto& w : weightNamesMap) {
-        m_poolWeightNames[w.second] = w.first;
-      }
-
-      // Now weightNames is a vector of weight names in the correct order => we are done here
-      return StatusCode::SUCCESS;
+      ATH_CHECK(this->loadMetaData(hepMCWeightNamesMap));
 #endif
     }
 
-    // Set the current MC channel number to a large number to force updating
-    // the meta data on the first event of the new file
+    // Set the current MC channel number to an impossible number to force
+    // the meta data to update on the first event of the new file
     m_mcChannelNumber = 999999999;
     return StatusCode::SUCCESS;
   }
 
 
-  StatusCode PMGTruthWeightTool::beginEvent() {
-    m_evtInfo = nullptr;
-    ATH_CHECK(evtStore()->retrieve(m_evtInfo, "EventInfo"));
-    uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
-
-    // If weights have already been read from metadata, use these
-    if (m_poolWeightNames.size()) {
-      m_uninitialized = false;
-      return StatusCode::SUCCESS;
+  StatusCode PMGTruthWeightTool::loadMetaData(const xAOD::TruthMetaData* truthMetaData) {
+    ATH_MSG_INFO("Loading meta data from xAOD TruthMetaData");
+    // Update cached weight data
+    this->clearWeightCaches();
+    for(std::size_t idx = 0; idx < truthMetaData->weightNames().size(); ++idx ) {
+      m_weightNames.push_back(truthMetaData->weightNames().at(idx));
+      m_weightIndices[truthMetaData->weightNames().at(idx)] = idx;
     }
+    return this->validateWeightCaches();
+  }
 
-    // If TruthMetaDataContainer cannot be found, return failure
-    if (!m_metaDataContainer) {
+
+  StatusCode PMGTruthWeightTool::loadMetaData(const std::map<std::string, int>& hepMCWeightNamesMap) {
+    ATH_MSG_INFO("Loading meta data from HepMC IOVMetaDataContainer");
+    this->clearWeightCaches();
+    // Convert map into ordered vector
+    for (auto& w : hepMCWeightNamesMap) {
+      m_weightNames.push_back(w.first);
+      m_weightIndices[w.first] = w.second;
+    }
+    return this->validateWeightCaches();
+  }
+
+
+  StatusCode PMGTruthWeightTool::validateWeightCaches() {
+    // Validate weight caches against one another
+    if (m_weightNames.size() != m_weightIndices.size()) {
+      ATH_MSG_ERROR("Found " << m_weightNames.size() << " but " << m_weightIndices.size() << " weight indices!");
       return StatusCode::FAILURE;
     }
-
-    // Update on new metadata
-    if (m_uninitialized || (mcChannelNumber != m_mcChannelNumber)) {
-      for (auto metaData : *m_metaDataContainer) {
-        if (metaData->mcChannelNumber() == mcChannelNumber) {
-          m_uninitialized = false;
-          m_mcChannelNumber = mcChannelNumber;
-          m_metaData = metaData;
-          this->onNewMetaData();
-          return StatusCode::SUCCESS;
-        }
-      }
-
-      ATH_MSG_ERROR("No matching TruthMetaData found");
-      return StatusCode::FAILURE;
-    }
-
+    ATH_MSG_INFO("Loaded information about " << m_weightNames.size() << " weights");
     return StatusCode::SUCCESS;
   }
 
 
-  void PMGTruthWeightTool::onNewMetaData() {
-    ATH_MSG_DEBUG("Updating all spawned index retrievers");
-    for (auto& indexRetriever : m_indexRetrievers) {
-      auto sp = indexRetriever.second.lock();
-      if (sp) {
-        sp->update(m_metaData);
-      }
-    }
+  void PMGTruthWeightTool::clearWeightCaches() {
+    m_weightNames.clear();
+    m_weightIndices.clear();
   }
 
 
-  std::shared_ptr<IPMGTruthWeightIndexRetriever> PMGTruthWeightTool::spawnTruthWeightIndexRetriever(std::string weightName) const {
-    auto sp = m_indexRetrievers[weightName].lock();
+  StatusCode PMGTruthWeightTool::beginEvent() {
+    // Load EventInfo from the event store
+    m_evtInfo = nullptr;
+    ATH_CHECK(evtStore()->retrieve(m_evtInfo, "EventInfo"));
+    uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
 
-    if (!sp) {
-      m_indexRetrievers[weightName] = sp = std::make_shared<PMGTruthWeightIndexRetriever>(weightName);
-      if (!m_metaData) {
-        sp->update(m_poolWeightNames);
-      } else {
-        sp->update(m_metaData);
+    // If metadata was successfully loaded and the McChannelNumber has changed then reload
+    if (m_metaDataContainer != nullptr && (mcChannelNumber != m_mcChannelNumber)) {
+      this->clearWeightCaches();
+      for (auto truthMetaData : *m_metaDataContainer) {
+        // Take the truthMetaData object with the correct channel number (or the one with channel 0 if metaData is invalid)
+        if (truthMetaData->mcChannelNumber() == mcChannelNumber ||
+            (m_hasInvalidMcChannel && (truthMetaData->mcChannelNumber() == 0))) {
+          ATH_CHECK(this->loadMetaData(truthMetaData));
+          m_mcChannelNumber = mcChannelNumber;
+        }
       }
     }
 
-    return sp;
+    // Validate weight caches against event information
+    if (m_weightNames.size() != m_evtInfo->mcEventWeights().size()) {
+      ATH_MSG_ERROR("Found " << m_weightNames.size() << " in the metadata but this event has " << m_weightIndices.size());
+      return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
   }
 
 } // namespace PMGTools
