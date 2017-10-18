@@ -315,8 +315,8 @@ def defineCPSGroups():
                                                    ],
 
                 'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose'],
-                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose' ,'mu6_bJpsi_TrkPEBmon'],
-                'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose'],
+                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose'],
+                'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose', 'mu10_bJpsi_TrkPEBmon'],
                 'RATE:CPS:HLT_mu14_bJpsi_Trk' : ['mu14_bJpsi_TrkPEB','mu14_bJpsi_Trkloose'],
 
 #        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
