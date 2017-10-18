@@ -34,13 +34,13 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODTruth
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
-   Event/xAOD/xAODTruth
    Tools/PathResolver
    ${extra_deps} )
 
@@ -66,7 +66,8 @@ atlas_add_dictionary( PMGToolsDict
    PMGTools/selection.xml
    LINK_LIBRARIES PMGToolsLib )
 
-## Executable(s) in the package:
+# Executable(s) in the package:
+#
 # ... for Athena/AthAnalysis
 if( NOT XAOD_STANDALONE )
    atlas_add_executable( MyPMGApp

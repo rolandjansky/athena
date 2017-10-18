@@ -12,7 +12,6 @@
 
 // Local include(s):
 #include "PMGTools/PMGTruthWeightTool.h"
-#include "PMGTools/PMGTruthWeightIndexRetriever.h"
 
 
 namespace PMGTools

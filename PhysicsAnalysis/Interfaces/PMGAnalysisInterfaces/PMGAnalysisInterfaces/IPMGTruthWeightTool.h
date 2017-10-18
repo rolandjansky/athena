@@ -6,15 +6,11 @@
 #define PMGTOOLS_IPMGTRUTHWEIGHTTOOL_H
 
 // STL include(s):
-#include <memory>
 #include <string>
 #include <vector>
 
 // EDM include(s):
 #include "AsgTools/IAsgTool.h"
-
-// Local include(s):
-#include "PMGAnalysisInterfaces/IPMGTruthWeightIndexRetriever.h"
 
 namespace PMGTools
 {
@@ -22,8 +18,7 @@ namespace PMGTools
   /// Meta Data from a truth record to interface the event
   /// weights
   ///
-  /// @author Tobias Bisanz <tobias.bisanz@cern.ch>
-  /// @author James Robinson <james.robinson@cern.ch>, rewrite for inclusion in PMGTools
+  /// @author James Robinson <james.robinson@cern.ch>
   ///
   class IPMGTruthWeightTool: public virtual asg::IAsgTool
   {
