@@ -385,7 +385,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
 
-   if (className == "11DF1B8C-0DEE-4687-80D7-E74B520ACBB4") { clid = 167728019;
+   if (className == "11DF1B8C-0DEE-4687-80D7-E74B520ACBB4") { clid = 167728019; // EventStreamInfo
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo_" + keyName) foundTool = true;
@@ -398,11 +398,11 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
       }
    }
-   else if (className == "6C2DE6DF-6D52-43F6-B435-9F29812F40C0") clid = 1316383046;
-   else if (className == "0EFE2D2C-9E78-441D-9A87-9EE2B908AC81") clid = 243004407;
-   else if (className == "AA55120B-11CF-44A3-B1E4-A5AB062207B7") clid = 1107011239;
-   else if (className == "B8614CC5-8696-4170-8CCC-496DA7671246") clid = 1212409402;
-   else if (className == "F2F90B2F-B879-43B8-AF9B-0F843E299A87") { clid = 1234982351;
+   else if (className == "6C2DE6DF-6D52-43F6-B435-9F29812F40C0") clid = 1316383046; // IOVMetaDataContainer
+   else if (className == "0EFE2D2C-9E78-441D-9A87-9EE2B908AC81") clid = 243004407;  // xAOD::EventFormat, FIXME: May need new copy tool
+   else if (className == "AA55120B-11CF-44A3-B1E4-A5AB062207B7") clid = 1107011239; // xAOD::TriggerMenuContainer
+   else if (className == "B8614CC5-8696-4170-8CCC-496DA7671246") clid = 1212409402; // xAOD::TriggerMenuAuxContainer
+   else if (className == "F2F90B2F-B879-43B8-AF9B-0F843E299A87") { clid = 1234982351; // xAOD::CutBookkeeperContainer
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
@@ -415,7 +415,9 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
       }
    }
-   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") clid = 1147935274;
+   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
+   else if (className == "C87E3828-4A7A-480A-95DE-0339539F6A0F") clid = 178309087;  // xAOD::FileMetaData
+   else if (className == "BEE2BECF-A936-4078-9FDD-AD703C9ADF9F") clid = 73252552;   // xAOD::FileMetaDataAuxInfo
 
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
