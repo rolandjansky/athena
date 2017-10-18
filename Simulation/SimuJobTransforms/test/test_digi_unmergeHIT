@@ -17,7 +17,10 @@ INPUTFILE=${TESTDATA}/mu_E50_eta0-25_${GEOMETRY}.hits.pool.root
 FILENAME=`basename ${INPUTFILE}`
 FILEBASE=${FILENAME%.hits.pool.root}
 INPUTFILE2=${FILEBASE}.3.hits.pool.root
-cp $INPUTFILE $INPUTFILE2
+# Copy the file.  We can't use cp here, since we need the copy to get
+# a new GUID.  Otherwise, we'll get errors about duplicate GUIDs
+# in the file catalog.
+mergePOOL -o $INPUTFILE2 -i $INPUTFILE
 INPUTLIST=$INPUTFILE,$INPUTFILE2
 RDOFILE=${FILEBASE}.unmerged.rdo.pool.root
 MINBIASFILE=NONE
