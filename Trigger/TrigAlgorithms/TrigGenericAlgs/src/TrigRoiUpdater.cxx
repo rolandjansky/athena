@@ -132,18 +132,8 @@ namespace PESA
 	break;
       }
     }
-<<<<<<< HEAD
     
     if (roi->composite()) {
-=======
-
-
-    if (roi->composite()){
-      if (m_requestPIXRobs || m_requestSCTRobs){
-	registerROBs(roi);
-      }
-
->>>>>>> 643cedbc7d289416cbd730c4fed6de7df1f8fbac
       ATH_MSG_DEBUG("Not touching a composite RoI");
       updateNeeded = false;
     }
