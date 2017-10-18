@@ -57,15 +57,25 @@ namespace xAODMaker {
       /// @}
 
    private:
+      /// @name Tool properties
+      /// @{
+
       /// The key of the truth metadata in the input file
       std::string m_inputKey;
       /// The key of the truth metadata for the output file
       std::string m_outputKey;
 
+      /// @}
+
+      /// @name Objects accummulating the merged metadata
+      /// @{
+
       /// The merged trigger menu container
       std::unique_ptr< xAOD::TruthMetaDataContainer > m_truthMeta;
       /// The merged trigger menu auxiliary container
       std::unique_ptr< xAOD::TruthMetaDataAuxContainer > m_truthMetaAux;
+
+      /// @}
 
    }; // class TruthMetaDataTool
 
