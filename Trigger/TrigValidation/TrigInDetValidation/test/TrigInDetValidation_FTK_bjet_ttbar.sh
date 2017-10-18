@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for FTK_bjet_ttbar
 # art-type: grid
 # art-output: HLTL2-plots

@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for mu_single_mu_larged0
 # art-type: grid
 # art-output: HLTEF-plots

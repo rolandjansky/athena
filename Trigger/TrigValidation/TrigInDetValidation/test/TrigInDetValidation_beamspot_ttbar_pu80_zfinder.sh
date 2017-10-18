@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for beamspot_ttbar_pu80_zfinder
 # art-type: grid
 # art-output: HLTL2-test-plots

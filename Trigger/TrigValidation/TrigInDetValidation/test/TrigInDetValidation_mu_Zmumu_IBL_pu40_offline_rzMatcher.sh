@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for mu_Zmumu_IBL_pu40_offline_rzMatcher
 # art-type: grid
 # art-output: HLTL2-plots

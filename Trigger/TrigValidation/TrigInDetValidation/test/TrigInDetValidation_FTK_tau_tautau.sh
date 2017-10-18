@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for FTK_tau_tautau
 # art-type: grid
 # art-output: HLTL2-plots

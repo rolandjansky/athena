@@ -88,7 +88,7 @@ for xmlfile in $FILES; do
  
     file=$(echo $_file | $SED 's/\.xml//g')
 
-    echo "#\!/bin/sh" > $outfile
+    echo "#!/bin/bash" > $outfile
     
     echo "# art-description: art job for $(echo $_file | sed 's|TrigInDetValidation_||g')" >> $outfile 
     echo "# art-type: grid"     >>  $outfile 

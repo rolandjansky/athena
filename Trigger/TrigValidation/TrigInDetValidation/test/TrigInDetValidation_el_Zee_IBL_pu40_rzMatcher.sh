@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for el_Zee_IBL_pu40_rzMatcher
 # art-type: grid
 # art-output: HLTEF-plots

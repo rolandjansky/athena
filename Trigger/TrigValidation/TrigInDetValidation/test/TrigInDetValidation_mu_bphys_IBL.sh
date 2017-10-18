@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for mu_bphys_IBL
 # art-type: grid
 # art-output: HLTL2-plots

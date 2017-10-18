@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for all_ttbar_pu40
 # art-type: grid
 # art-output: HLTEF-plots-electron

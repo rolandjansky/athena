@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for el_single_e_7-80_larged0_PU
 # art-type: grid
 # art-output: HLTEF-plots

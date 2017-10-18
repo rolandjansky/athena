@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for tau_IBL_pu46
 # art-type: grid
 # art-output: HLTEF-plots

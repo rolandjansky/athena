@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for minBias
 # art-type: grid
 # art-output: HLTEF-plots

@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for bjet_IBL_pu80
 # art-type: grid
 # art-output: HLTEF-plots

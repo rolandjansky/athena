@@ -1,4 +1,4 @@
-#\!/bin/sh
+#!/bin/bash
 # art-description: art job for el_ttbar_pu80
 # art-type: grid
 # art-output: HLTEF-plots
