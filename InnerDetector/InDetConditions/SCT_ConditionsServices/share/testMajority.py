@@ -65,15 +65,6 @@ ServiceMgr += CondSvc()
 from AthenaCommon.AlgSequence import AthSequencer 
 condSeq = AthSequencer("AthCondSeq")
 
-#--- For Conditions algorithm for Athena MT (start)
-from IOVSvc.IOVSvcConf import CondInputLoader 
-condSeq += CondInputLoader("CondInputLoader", OutputLevel=2)
-import StoreGate.StoreGateConf as StoreGateConf 
-ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
-condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg", OutputLevel=2) 
-#--- For Conditions algorithm for Athena MT (end)
-
 #--------------------------------------------------------------
 # Load alg
 #--------------------------------------------------------------
@@ -88,6 +79,11 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
+
+#--- For Conditions algorithm for Athena MT (start)
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
+condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg", OutputLevel=2)
+#--- For Conditions algorithm for Athena MT (end)
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
