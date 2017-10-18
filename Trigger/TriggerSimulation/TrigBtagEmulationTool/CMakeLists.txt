@@ -36,7 +36,7 @@ atlas_add_library( TrigBtagEmulationToolLib
 		   TrigBtagEmulationTool/ITrigBtagEmulationTool.h
 		   INTERFACE
 		   PUBLIC_HEADERS TrigBtagEmulationTool
-		   LINK_LIBRARIES GaudiKernel )		   
+		   LINK_LIBRARIES AsgTools )		   
 
 atlas_add_component( TrigBtagEmulationTool
                      src/*.cxx
@@ -46,7 +46,6 @@ atlas_add_component( TrigBtagEmulationTool
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers StoreGateLib AsgTools xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTrigger PATCoreLib ParticleJetToolsLib TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent BTaggingLib AthenaBaseComps EventPrimitives GaudiKernel)
 
 # Install files from the package:
-atlas_install_headers( TrigBtagEmulationTool )
 atlas_install_python_modules( python/TrigBtag*.py )
 atlas_install_joboptions( share/test*.py )
 atlas_install_data( data/*.txt )
