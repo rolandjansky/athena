@@ -7,8 +7,6 @@ EXOT3SmartContent = [
     "InDetTrackParticles",
     "PrimaryVertices", 
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo",
-    "AntiKt4LCTopoJets",
     "AntiKt4EMTopoJets",
     "BTagging_AntiKt4EMTopo",
     "BTagging_AntiKt2Track",
@@ -34,7 +32,6 @@ EXOT3AllVariablesContent = [
 
      ### JETS ###
      "AntiKt10LCTopoJets",
-     "AntiKt4LCTopoJets",
      "AntiKt4EMTopoJets",
      #"CamKt12LCTopoJets",#FIX #ATLJETMET-744
      "AntiKt2PV0TrackJets",
@@ -56,10 +53,6 @@ EXOT3AllVariablesContent = [
      "METAssoc_AntiKt4EMTopo",
      "MET_Core_AntiKt4EMTopo",
      "MET_Reference_AntiKt4EMTopo",
-
-     "METAssoc_AntiKt4LCTopo",
-     "MET_Core_AntiKt4LCTopo",
-     "MET_Reference_AntiKt4LCTopo",
 
      "egammaTopoSeededClusters",
 
