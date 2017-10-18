@@ -70,6 +70,7 @@ namespace Prompt
     void getLeptonVariables(const xAOD::IParticle* particle, Prompt::VarHolder &vars);
     void getMutualVariables(const xAOD::IParticle* particle, 
 			    const xAOD::Jet* jet,
+			    const xAOD::TrackParticle* track,
 			    Prompt::VarHolder &vars,
 			    float DRlj);
 
@@ -97,6 +98,8 @@ namespace Prompt
     typedef SG::AuxElement::ConstAccessor<float>                                             AccessFloat;
     typedef SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::VertexContainer> > > AccessVertex;
 
+    typedef std::pair<Prompt::Def::Var, double> LLRVarPair;
+
   private:
 
     // Properties:
@@ -105,6 +108,7 @@ namespace Prompt
     std::string                           m_configFileVersion;
     std::string                           m_configPathOverride;
     std::string                           m_methodTitleMVA;
+    std::string                           m_BDTName;
     std::string                           m_auxVarPrefix;
 
     std::vector<std::string>              m_stringIntVars;
@@ -139,6 +143,7 @@ namespace Prompt
     TStopwatch                            m_timerAll;
     TStopwatch                            m_timerExec;
     TStopwatch                            m_timerMuon;
+    TStopwatch                            m_timerTau;
     TStopwatch                            m_timerElec;
     TStopwatch                            m_timerJet;
   };

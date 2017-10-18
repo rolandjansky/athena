@@ -173,6 +173,49 @@ def getDecorate(lepton_name, track_jet_name):
     return alg
 
 ########################################################################################
+def getDecorateVeto(lepton_name, track_jet_name):
+
+    if lepton_name == 'Electrons':
+        part_type = 'Electron'
+    elif lepton_name == 'Muons':
+        part_type = 'Muon'
+    else:
+        raise Exception('DecoratePromptLeptonVeto - unknown lepton type: "%s"' %lepton_name)
+
+    BDT_name = 'PromptLeptonVeto'
+
+    if track_jet_name != 'AntiKt4PV0TrackJets':
+        raise Exception('Decorate%s - unknown track-jet collection: "%s"' %(BDT_name, track_jet_name))
+
+    alg = CfgMgr.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
+
+    alg.OutputLevel           = DEBUG
+    alg.LeptonContainerName   = lepton_name
+    alg.TrackJetContainerName = track_jet_name
+    #alg.ConfigFileVersion     = 'InputData-2016-11-02/%s/%s' %(part_type, BDT_name)
+    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)
+    alg.ConfigPathOverride    = '/afs/hep.man.ac.uk/u/rhysroberts/Public/r21-xml-test/%s/%s/TMVAClassification_%s.weights.xml' %(part_type, 
+                                                                                                                                 BDT_name, 
+                                                                                                                                 alg.MethodTitleMVA)   
+    alg.BDTName               = '%s' %BDT_name
+    alg.AuxVarPrefix          = 'PromptLeptonInput_'
+    alg.PrintTime             = False
+
+    alg.StringIntVars         = ['TrackJetNTrack']
+    alg.StringFloatVars       = ['rnnip',
+                                 'DL1mu',
+                                 'PtRel',
+                                 'PtFrac',
+                                 'DRlj',
+                                 'TopoEtCone30Rel',
+                                 'PtVarCone30Rel']
+
+    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+    print alg
+
+    return alg
+
+########################################################################################
 algSeq = CfgMgr.AthSequencer('AthAlgSeq')
 
 if 'TestPythonConfig' in dir():
@@ -181,10 +224,11 @@ if 'TestPythonConfig' in dir():
     algSeq += JetTagNonPromptLeptonConfig.GetDecoratePromptLeptonAlgs()
 
 else:
+    algSeq += getDecorateVeto('Electrons', 'AntiKt4PV0TrackJets')
+    algSeq += getDecorateVeto('Muons',     'AntiKt4PV0TrackJets')
+
     algSeq += getDecorateIso('Electrons', 'AntiKt4PV0TrackJets')
     algSeq += getDecorateIso('Muons',     'AntiKt4PV0TrackJets')
 
-    algSeq += getDecorateNoIso('Electrons', 'AntiKt4PV0TrackJets')
-    algSeq += getDecorateNoIso('Muons',     'AntiKt4PV0TrackJets')
 
 

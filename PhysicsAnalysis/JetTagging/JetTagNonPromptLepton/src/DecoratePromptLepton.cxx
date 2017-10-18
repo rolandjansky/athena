@@ -31,6 +31,7 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
   declareProperty("ConfigFileVersion",     m_configFileVersion);
   declareProperty("ConfigPathOverride",    m_configPathOverride);
   declareProperty("AuxVarPrefix",          m_auxVarPrefix);
+  declareProperty("BDTName",               m_BDTName);
   declareProperty("MethodTitleMVA",        m_methodTitleMVA = "BDT");
 
   declareProperty("StringIntVars",         m_stringIntVars);
@@ -254,7 +255,7 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
   //
   // Instantiate decorators
   //
-  m_decoratorBDT = new SG::AuxElement::Decorator<float>(m_auxVarPrefix + "TagWeight");
+  m_decoratorBDT = new SG::AuxElement::Decorator<float>(m_BDTName);
   m_decoratorDR  = new SG::AuxElement::Decorator<float>(m_auxVarPrefix + "DRlj");
 }
 
@@ -293,7 +294,10 @@ void Prompt::DecoratePromptLepton::decorateElectron(const xAOD::Electron* electr
     //
     getLeptonVariables(electron, vars);
 
-    getMutualVariables(electron, match.second, vars, match.first);
+    // Get mutual variables, passing track as argument 
+    // (different for electrons and muons and not available in IParticle form)
+    const xAOD::TrackParticle* track = electron->trackParticle();
+    getMutualVariables(electron, match.second, track, vars, match.first);
 
     //
     // Add variables to TMVA Reader
@@ -325,7 +329,7 @@ void Prompt::DecoratePromptLepton::decorateElectron(const xAOD::Electron* electr
     (*m_decoratorDR)(*electron) = float(-1.0);
   }
 
-  ATH_MSG_DEBUG("Electron BDT score: " << electron->auxdataConst<float>(m_auxVarPrefix+"TagWeight")
+  ATH_MSG_DEBUG("Electron BDT score: " << electron->auxdataConst<float>(m_BDTName)
 		<< "\n-----------------------------------------------------------------");
 
   if(m_printAuxVars) {
@@ -357,7 +361,10 @@ void Prompt::DecoratePromptLepton::decorateMuon(const xAOD::Muon* muon,
     //
     getLeptonVariables(muon, vars);
 
-    getMutualVariables(muon, match.second, vars, match.first);
+    // Get mutual variables, passing track as argument 
+    // (different for electrons and muons and not available in IParticle form)
+    const xAOD::TrackParticle* track = muon->primaryTrackParticle();
+    getMutualVariables(muon, match.second, track, vars, match.first);
 
     //
     // Add variables to TMVA Reader
@@ -389,7 +396,7 @@ void Prompt::DecoratePromptLepton::decorateMuon(const xAOD::Muon* muon,
     (*m_decoratorDR)(*muon) = float(-1.0);
   }
 
-  ATH_MSG_DEBUG("Muon BDT score: " << muon->auxdataConst<float>(m_auxVarPrefix+"TagWeight") 
+  ATH_MSG_DEBUG("Muon BDT score: " << muon->auxdataConst<float>(m_BDTName) 
 		<< "\n-----------------------------------------------------------------");
 
   if(m_printAuxVars) {
@@ -422,7 +429,8 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   //
   const int ntrack = jet->getConstituents().size();
 
-  int sv1_ntkv = -1;
+  int sv1_ntkv = 0;
+
   if(m_accessSV1Vertices->isAvailable(*btag)) {
     const std::vector<ElementLink<xAOD::VertexContainer > > SV1vertices = (*m_accessSV1Vertices)(*btag);
     if(SV1vertices.size() != 0) {     
@@ -433,7 +441,7 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
     ATH_MSG_WARNING("SV1 vertex container not found in auxiliary store");
   }  
 
-  int jf_ntrkv  = -1;
+  int jf_ntrkv  =  0;
   int tmpNvtx   = -1;
   int tmpNvtx1t = -1;
 
@@ -464,6 +472,23 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
 
   ip2    = btag->IP2D_loglikelihoodratio();
   ip3    = btag->IP3D_loglikelihoodratio();
+
+  //
+  // r21 LLR variables
+  //
+  std::vector<LLRVarPair> LLRVars = {std::make_pair(Prompt::Def::DL1mu, -100.0),
+				     std::make_pair(Prompt::Def::rnnip, -100.0)};
+
+  for(LLRVarPair &var: LLRVars) { 
+    if(!btag->loglikelihoodratio(Prompt::Def::AsStr(var.first), var.second)) {	
+      ATH_MSG_WARNING("Missing " << Prompt::Def::AsStr(var.first));
+    }
+
+    //
+    // Add LLR vars to VarHolder
+    //
+    vars.AddVar(var.first, var.second);
+  }
   
   //
   // Add vars to VarHolder
@@ -499,12 +524,14 @@ void Prompt::DecoratePromptLepton::getLeptonVariables(const xAOD::IParticle* par
 
   vars.AddVar(Prompt::Def::EtTopoCone20Rel, topoetcone20rel);  
   vars.AddVar(Prompt::Def::EtTopoCone30Rel, topoetcone30rel);  
+  vars.AddVar(Prompt::Def::TopoEtCone30Rel, topoetcone30rel);  
   vars.AddVar(Prompt::Def::PtVarCone30Rel,  ptvarcone30rel);  
 }
 
 //=============================================================================
 void Prompt::DecoratePromptLepton::getMutualVariables(const xAOD::IParticle* particle,
 						      const xAOD::Jet* jet, 
+						      const xAOD::TrackParticle* track,
 						      Prompt::VarHolder &vars,
 						      float DRlj)
 {
@@ -512,14 +539,26 @@ void Prompt::DecoratePromptLepton::getMutualVariables(const xAOD::IParticle* par
   // Add lepton - jet variables to VarHolder
   //
   float LepJetPtFrac = -99.;
+  float PtFrac       = -99.;
+  float PtRel        = -99.;
+ 
   if(particle->pt() > 0.0 && jet->pt() > 0.0) {
     LepJetPtFrac = particle->pt() / jet->pt();
+
+    if(track) {
+      PtFrac = track->pt() / jet->pt();
+    }
+
+    float angle = particle->p4().Vect().Angle(jet->p4().Vect());
+    PtRel = particle->pt() * std::sin(angle);
   }
 
   //
   // Add vars to VarHolder
   //
   vars.AddVar(Prompt::Def::LepJetPtFrac, LepJetPtFrac);
+  vars.AddVar(Prompt::Def::PtFrac,       PtFrac);
+  vars.AddVar(Prompt::Def::PtRel,        PtRel);
   vars.AddVar(Prompt::Def::DRlj,         DRlj);
 }
 
@@ -528,7 +567,7 @@ float Prompt::DecoratePromptLepton::accessIsolation(AccessFloat* isoAccessor,
 						    const xAOD::IParticle* particle)
 {
   float isolation = -99., isolationrel = -99.;
-
+  
   if(isoAccessor->isAvailable(*particle)) {
     isolation = (*isoAccessor)(*particle);
   }
@@ -613,6 +652,7 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
     (*m_decoratorBDT)(*particle) = static_cast<float>(m_TMVAReader->EvaluateMVA(m_methodTitleMVA));
   }
   else {
+    ATH_MSG_DEBUG("No nearby track jet, DR > 0.4");
     (*m_decoratorBDT)(*particle) = float(-1.1);
   }
 }
