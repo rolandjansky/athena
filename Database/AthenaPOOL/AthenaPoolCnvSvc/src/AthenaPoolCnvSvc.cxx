@@ -694,7 +694,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       if (own) { delete [] static_cast<const char*>(buffer); }
       buffer = nullptr;
       AuxDiscoverySvc auxDiscover;
-      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc),  placement->containerName()).isSuccess()) {
+      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc), placement->containerName()).isSuccess()) {
          ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
          return(nullptr);
       }
@@ -757,7 +757,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
          // Deserialize object
          obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
          AuxDiscoverySvc auxDiscover;
-         if (!auxDiscover.receiveStore(m_serializeSvc.get(), m_outputStreamingTool[m_streamServer].get(), obj, num).isSuccess()) {
+         if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
             ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
          }
          return;

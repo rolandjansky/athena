@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/PersistentDataModel
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODCutFlow
                           GaudiKernel
                           TestPolicy )
 
@@ -21,7 +22,7 @@ atlas_add_component( AthenaPoolTools
                      src/EventCount.cxx
                      src/RequireUniqueEvent.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel xAODCutFlow )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
