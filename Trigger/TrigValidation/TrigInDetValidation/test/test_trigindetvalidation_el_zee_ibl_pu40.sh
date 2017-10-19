@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_el_zee_ibl_pu40
+# art-description: art job for el_Zee_IBL_pu40
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -16,7 +16,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_el_zee_ibl_pu40
+export RTTJOBNAME=TrigInDetValidation_el_Zee_IBL_pu40
 
 get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000001.pool.root.1"];           EventMax=5000;runMergedChain=True'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py

@@ -60,11 +60,12 @@ COUNTER=0
 
 for xmlfile in $FILES; do  
 
-    _file=test_$(echo $(basename $xmlfile .xml) | tr '[:upper:]' '[:lower:]' )
-      
-#   echo "xmlfile $xmlfile  $_file"
+    _file=$(basename $xmlfile .xml)
 
-    outfile="$OUTDIR/$_file.sh"
+    file=test_$(echo $_file | tr '[:upper:]' '[:lower:]' )
+      
+
+    outfile="$OUTDIR/$file.sh"
  
 
     if [ -z $DATASET ]; then 
@@ -104,7 +105,7 @@ for xmlfile in $FILES; do
     echo "# art-output: *.root" >>  $outfile 
     echo "# art-output: *.log"  >>  $outfile 
     echo "" >>  $outfile 
-    echo "export RTTJOBNAME=$(basename $outfile .sh)" >> $outfile
+    echo "export RTTJOBNAME=$(basename $_file .sh)" >> $outfile
 
 
     chmod u+x $outfile

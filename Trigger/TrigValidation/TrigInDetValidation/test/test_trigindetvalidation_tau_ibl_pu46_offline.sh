@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_tau_ibl_pu46_offline
+# art-description: art job for tau_IBL_pu46_offline
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_tau_ibl_pu46_offline
+export RTTJOBNAME=TrigInDetValidation_tau_IBL_pu46_offline
 
 get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1"];           EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=15'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py

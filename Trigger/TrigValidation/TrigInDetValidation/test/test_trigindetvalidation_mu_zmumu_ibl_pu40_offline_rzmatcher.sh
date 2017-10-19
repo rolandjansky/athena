@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_mu_zmumu_ibl_pu40_offline_rzmatcher
+# art-description: art job for mu_Zmumu_IBL_pu40_offline_rzMatcher
 # art-type: grid
 # art-output: HLTL2-plots
 # art-output: HLTEF-plots
@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_mu_zmumu_ibl_pu40_offline_rzmatcher
+export RTTJOBNAME=TrigInDetValidation_mu_Zmumu_IBL_pu40_offline_rzMatcher
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1"];	    EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py

@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_el_ttbar_pu40
+# art-description: art job for el_ttbar_pu40
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -16,7 +16,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_el_ttbar_pu40
+export RTTJOBNAME=TrigInDetValidation_el_ttbar_pu40
 
 get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1"];           EventMax=8000;runMergedChain=True'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py

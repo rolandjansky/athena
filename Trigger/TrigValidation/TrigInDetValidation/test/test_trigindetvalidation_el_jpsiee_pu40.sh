@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_el_jpsiee_pu40
+# art-description: art job for el_Jpsiee_pu40
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_el_jpsiee_pu40
+export RTTJOBNAME=TrigInDetValidation_el_Jpsiee_pu40
 
 get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000006.pool.root.1"];           EventMax=10000;runMergedChain=True'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py

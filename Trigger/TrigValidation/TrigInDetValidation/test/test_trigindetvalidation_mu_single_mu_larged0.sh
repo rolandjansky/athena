@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_mu_single_mu_larged0
+# art-description: art job for mu_single_mu_larged0
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_mu_single_mu_larged0
+export RTTJOBNAME=TrigInDetValidation_mu_single_mu_larged0
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728/RDO.10240174._000001.pool.root.1"];            EventMax=15000;runMergedChain=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py

@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_el_single_e_7-80_larged0_pu
+# art-description: art job for el_single_e_7-80_larged0_PU
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTEF-plots-lowpt
@@ -16,7 +16,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_el_single_e_7-80_larged0_pu
+export RTTJOBNAME=TrigInDetValidation_el_single_e_7-80_larged0_PU
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772/RDO.09945414._000001.pool.root.1"];	    EventMax=15000;runMergedChain=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py

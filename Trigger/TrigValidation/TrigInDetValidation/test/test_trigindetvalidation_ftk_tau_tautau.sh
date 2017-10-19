@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_ftk_tau_tautau
+# art-description: art job for FTK_tau_tautau
 # art-type: grid
 # art-output: HLTL2-plots
 # art-output: HLTEF-plots
@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_ftk_tau_tautau
+export RTTJOBNAME=TrigInDetValidation_FTK_tau_tautau
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000002.RDO_FTK_ttbar.root"];	    EventMax=5000;runMergedChain=True;doFTK=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py

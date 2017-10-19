@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_ftk_mu_ttbar_offline
+# art-description: art job for FTK_mu_ttbar_offline
 # art-type: grid
 # art-output: HLTL2-plots
 # art-output: HLTEF-plots
@@ -16,7 +16,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_ftk_mu_ttbar_offline
+export RTTJOBNAME=TrigInDetValidation_FTK_mu_ttbar_offline
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1"];	    EventMax=5000;doIDNewTracking=True;runMergedChain=True;doFTK=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py

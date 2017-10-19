@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for test_trigindetvalidation_minbias_offline
+# art-description: art job for minBias_offline
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: times
@@ -13,7 +13,7 @@
 # art-output: *.root
 # art-output: *.log
 
-export RTTJOBNAME=test_trigindetvalidation_minbias_offline
+export RTTJOBNAME=TrigInDetValidation_minBias_offline
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice.py
 athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000057.pool.root.1"];	    EventMax=1000;doIDNewTracking=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice.py
