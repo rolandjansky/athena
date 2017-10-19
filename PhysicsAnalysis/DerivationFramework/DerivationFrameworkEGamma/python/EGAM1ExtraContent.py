@@ -92,31 +92,27 @@ ExtraContainersTruth=["TruthEvents",
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
                           "egammaClusters",
-                          "CaloCalTopoClusters"]
+                          "CaloCalTopoClusters",
+                          "NewSwElectrons" # only if DoCellReweighting is ON
+                          ]
 
 # for trigger studies
 ExtraContainersTrigger=[
-        # to access the HLT egamma xAOD collections
         "HLT_xAOD__ElectronContainer_egamma_Electrons",
         "HLT_xAOD__PhotonContainer_egamma_Photons",    
-         #L2Calo collections
         "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
         "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
-        # to access information about EF clusters and tracks
         "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
+        "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex",
         "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
-        # For trigger matching
         "HLT_xAOD__TrigPassBitsContainer_passbits",
-        # for L1 studies
         "LVL1EmTauRoIs",
-        "HLT_TrigRoiDescriptorCollection_initialRoI", #Athena
-        "HLT_xAOD__RoiDescriptorStore_initialRoI", #AthAnalysis
-        # 
-        "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex"
+        "HLT_TrigRoiDescriptorCollection_initialRoI",
+        "HLT_xAOD__RoiDescriptorStore_initialRoI",
+        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
         ]
 
 ExtraContainersTriggerDataOnly=[ 
-        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
         ]
 
 ExtraVariablesEventShape=[

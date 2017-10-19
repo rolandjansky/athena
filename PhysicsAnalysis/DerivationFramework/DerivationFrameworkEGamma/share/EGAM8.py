@@ -293,11 +293,3 @@ for tool in EGAM8_ClusterEnergyPerLayerDecorators:
 
 # This line must come after we have finished configuring EGAM8SlimmingHelper
 EGAM8SlimmingHelper.AppendContentToStream(EGAM8Stream)
-
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM8Stream)
-
-# Add Derived Egamma CellContainer
-from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
-CellCommonThinning(EGAM8Stream)

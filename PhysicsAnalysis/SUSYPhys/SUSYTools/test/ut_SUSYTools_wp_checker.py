@@ -6,7 +6,7 @@ import unittest
 import ROOT
 ROOT.gROOT.SetBatch()
 
-import math, string, os, sys
+import string, os, sys
 import subprocess
 
 
@@ -186,7 +186,7 @@ class TestSUSYTools(unittest.TestCase):
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
 
     #Working points
-    EL_ID_WP  = ['MediumLLH','TightLLH'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
+    EL_ID_WP  = ['MediumLLH_Rel20p7','TightLLH_Rel20p7'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
     EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
     MU_ID_WP  = ['1'] 
     MU_ISO_WP = ['GradientLoose']
@@ -196,8 +196,8 @@ class TestSUSYTools(unittest.TestCase):
     #...
     
     #default settings
-    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
-                     'el_id'      : 'TightLLH',
+    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH_Rel20p7',
+                     'el_id'      : 'TightLLH_Rel20p7',
                      'el_iso'     : 'GradientLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
@@ -268,13 +268,13 @@ class TestSUSYTools(unittest.TestCase):
             ## check for errors in output
             self.assertFalse('ERROR' in out)
 
-
+        # Make sure the output doesn't get stepped on by something else
+        sys.stdout.flush()
         #os.remove(self.theConfig)
-        
 
     #Test Electron WPs
     def test_EL_WPs(self):
-        self.run_WPs('el_id_base', ['LooseAndBLayerLLH']) #self.EL_ID_WP)
+        self.run_WPs('el_id_base', ['LooseAndBLayerLLH_Rel20p7']) #self.EL_ID_WP)
         self.run_WPs('el_id', self.EL_ID_WP)
         self.run_WPs('el_iso', self.EL_ISO_WP)
 
@@ -294,7 +294,6 @@ class TestSUSYTools(unittest.TestCase):
     def test_BTAG_WPs(self):
         self.run_WPs('btag_wp', self.BTAG_WP)
 
-
     #Print non-supported configurations
     def test_printNS(self):
         if len(self.failConfs)>0:
@@ -302,7 +301,6 @@ class TestSUSYTools(unittest.TestCase):
             for fc in self.failConfs:
                 print '-'*80
                 print fc
-
 
 
 

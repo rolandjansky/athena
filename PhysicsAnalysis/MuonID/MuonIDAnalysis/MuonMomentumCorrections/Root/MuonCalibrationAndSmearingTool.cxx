@@ -38,7 +38,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   declareProperty( "StatComb", m_useStatComb = false);  
   declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0); 
   declareProperty( "SagittaCorr", m_doSagittaCorrection = false); 
-  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_02_08_17");
+  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_25_07_17");
   declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
   declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
   declareProperty("sgItersCB",m_sgItersCB=11);
@@ -305,8 +305,19 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     else if (m_SagittaRelease.compare("sagittaBiasDataAll_06_02_17")==0){
       m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
     }
+
+    //::: R21 batch of corrections reduced uncertainty
+    else if (m_SagittaRelease.compare("sagittaBiasDataAll_02_08_17")==0){
+      m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
+    }
+
+    //::: R21 first batch of corrections reduced uncertainty
+    else if (m_SagittaRelease.compare("sagittaBiasDataAll_25_07_17")==0){
+      m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
+    }
+
     else {
-      ATH_MSG_INFO("Number of sagitta iterations set to 0");
+      ATH_MSG_WARNING("Unknown SagittaBiasRelease: Number of sagitta iterations set to 0");
       m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0);
     }
   
@@ -479,7 +490,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     m_phi = mu.phi();
     
     
-    ATH_MSG_VERBOSE("iter "<<iter<< " Muon info pt "<<m_ptcb<<" id "<<m_ptid<<" ms "<<m_ptms<<" eta "<<m_eta<<" phi "<<m_phi);
+    ATH_MSG_VERBOSE("iter "<<iter<< " Muon info pt "<<m_ptcb<<" id "<<m_ptid<<" ms "<<m_ptms<<" eta "<<m_eta<<" phi "<<m_phi<<" charge "<< m_charge);
     
 
     TLorentzVector lvCB; lvCB.SetPtEtaPhiM(m_ptcb,m_eta,m_phi,mu.m()/1e3);
@@ -497,8 +508,8 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       if(m_ptcb == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasCB->size())  return CorrectionCode::Ok;
       CorrectionCode corr=CorrectForCharge( sagitta(m_sagittasCB->at(iter),lvCB)*0.5, m_ptcb, q, isMC);
-      if(corr != CorrectionCode::Ok) return corr; 
       iter++;
+      if(corr != CorrectionCode::Ok) return corr;
       if(!stop)  return applyiSagittaBiasCorrection(MCAST::SagittaCorType::CB,mu,iter,stop,isMC);
     }
     
@@ -506,8 +517,8 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       if(m_ptid == 0 ) return CorrectionCode::Ok;
       if( iter >= m_sagittasID->size())  return CorrectionCode::Ok;
       CorrectionCode corr=CorrectForCharge(  sagitta(m_sagittasID->at(iter),lvID)*0.5 , m_ptid, q, isMC);
-      if(corr != CorrectionCode::Ok) return corr; 
       iter++;
+      if(corr != CorrectionCode::Ok) return corr;
       if(!stop)return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ID,mu,iter,stop,isMC);
     }
     
@@ -515,13 +526,13 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       if(m_ptms == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasME->size() )  return CorrectionCode::Ok;
       CorrectionCode corr=CorrectForCharge(sagitta(m_sagittasME->at(iter),lvME) *0.5 , m_ptms, q, isMC);
-      if(corr != CorrectionCode::Ok) return corr; 
       iter++;
+      if(corr != CorrectionCode::Ok) return corr;
       if(!stop) return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME,mu,iter,stop,isMC);
     }
     
     else if( SgCorrType == MCAST::SagittaCorType::WEIGHTS){
-    
+
       const xAOD::TrackParticle* ID_track  = mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       const xAOD::TrackParticle* ME_track =  mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
    
@@ -599,13 +610,9 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     
     
     CorrectionCode corr=CorrectForCharge(CBsagitta3, m_ptcb,q,isMC);
-    if(corr != CorrectionCode::Ok) return corr; 
-   
-  
-      
-    
     iter++;
-    return applyiSagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS,mu,iter,stop,isMC);
+    if(corr != CorrectionCode::Ok) return corr; 
+    if(!stop) return applyiSagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS,mu,iter,stop,isMC);
     }
     
     return CorrectionCode::Ok;
@@ -613,7 +620,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     
     
     CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC,const unsigned int SytCase){//isSystematics ==false
-      
+
       unsigned int itersCB=0;
       if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
         itersCB= m_SagittaIterations.at(0) - 1;
@@ -626,7 +633,6 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       unsigned int itersME=0;
       if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
         itersME= m_SagittaIterations.at(2) - 1;
-      
       
       //::: In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect. 
       if(m_doSagittaMCDistortion && isMC){ 
@@ -641,21 +647,25 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     // Correct the ME momentum; 
     else if(DetType == MCAST::DetectorType::MS)
       return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME,mu,isMC,itersME);
-    
+   
     // Correct the CB momentum; 
     else if(DetType == MCAST::DetectorType::CB){
-      
+
       if( m_ptcb == 0) {
-        ATH_MSG_VERBOSE("Combined pt = 0 correcting separtly ID and ME");
+
+	ATH_MSG_VERBOSE("Combined pt = 0 correcting separtly ID and ME");
         if(m_ptid !=0 && m_ptms !=0){ 
           if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID,mu,isMC,SytCase) != CorrectionCode::Ok &&
               applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS,mu,isMC,SytCase) != CorrectionCode::Ok ) return CorrectionCode::Error;
-        } else if(m_ptid !=0 ){
+        } 
+	else if(m_ptid !=0 ){
           if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID,mu,isMC,SytCase) != CorrectionCode::Ok) return CorrectionCode::Error; 
-        } else if(m_ptms !=0 ){
+        } 
+	else if(m_ptms !=0 ){
           if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS,mu,isMC,SytCase) != CorrectionCode::Ok) return CorrectionCode::Error; 
-        } else {
-          return CP::CorrectionCode::Ok;
+        } 
+	else {
+	return CP::CorrectionCode::Ok;
         }
       }
 
@@ -666,6 +676,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       bool isSystematic = SytCase == MCAST::SagittaSysType::RHO;
       
       if(isSystematic) {
+
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * m_ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * m_ptcb;
         double denominator = (  m_ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
@@ -730,6 +741,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       else {
         ptWeight =  m_ptcb; 
       }
+
       if(m_useFixedRho){
         ATH_MSG_VERBOSE("Using fixed rho value "<<m_fixedRho);
         rho=m_fixedRho;
@@ -750,8 +762,6 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   ATH_MSG_VERBOSE( "Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )" );
   ATH_MSG_VERBOSE( "Muon Author = " << mu.author() );
-
-  
 
   //::: Set pt ID:
   
@@ -1028,10 +1038,11 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     m_ptms = res_msPt/1000.; 
     m_ptcb = res_cbPt/1000.; 
 
+
     CorrectionCode sgCode=CorrectionCode::Ok;
     if(m_currentParameters->SagittaRho != MCAST::SystVariation::Default){
       if(m_currentParameters->SagittaRho == MCAST::SystVariation::Up || m_currentParameters->SagittaRho == MCAST::SystVariation::Down){
-        sgCode=applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB,mu,true,MCAST::SagittaSysType::RHO);
+	sgCode=applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB,mu,true,MCAST::SagittaSysType::RHO);
       }}
     
     else if(m_currentParameters->SagittaBias != MCAST::SystVariation::Default){
@@ -1040,7 +1051,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
       }}
     
     if(sgCode!=CorrectionCode::Ok) return sgCode;
-    
+
     res_idPt=m_ptid *1000.;
     res_msPt=m_ptms *1000.;
     res_cbPt=m_ptcb *1000.;
@@ -2618,11 +2629,12 @@ bool MuonCalibrationAndSmearingTool::isBadMuon( const xAOD::Muon& mu ) const {
     const xAOD::TrackParticle*       idtrack = mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
     const xAOD::TrackParticle*       metrack = mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
     const xAOD::TrackParticle*       cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
-    ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix()(4,4) ));
 
     // ::
     bool IsBadMuon = false;
     if( idtrack && metrack && cbtrack ) {
+      ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix \
+																					      ()(4,4) ));
       // ::
       double qOverP_ME = metrack->qOverP();
       double qOverPerr_ME = sqrt( metrack->definingParametersCovMatrix()(4,4) );

@@ -10,7 +10,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -202,7 +203,7 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

@@ -542,7 +542,7 @@ namespace xAOD {
 
     std::string str;
     std::string sind(indent, ' ');
-    str += sind + "ID tracks: (" + tpc->size() + ")\n";
+    str += sind + "ID tracks: (" + std::to_string(tpc->size()) + ")\n";
     str += sind + std::string(80-indent, '-');
     // loop over ID tracks
     for (xAOD::TrackParticleContainer::const_iterator trkItr = tpc->begin();
@@ -563,7 +563,7 @@ namespace xAOD {
 
     std::string str;
     std::string sind(indent, ' ');
-    str += sind + "Primary vertices: (" + pvc->size() + ")\n";
+    str += sind + "Primary vertices: (" + std::to_string(pvc->size()) + ")\n";
     str += sind + std::string(80-indent, '-');
     for (xAOD::VertexContainer::const_iterator vtxItr = pvc->begin();
 	 vtxItr != pvc->end(); ++vtxItr) {
@@ -584,7 +584,7 @@ namespace xAOD {
 
     std::string str;
     std::string sind(indent, ' ');
-    str += sind + "Refitted primary vertices: (" + rpvc->size() + ")\n";
+    str += sind + "Refitted primary vertices: (" + std::to_string(rpvc->size()) + ")\n";
     str += sind + std::string(80-indent, '-');
     for (xAOD::VertexContainer::const_iterator vtxItr = rpvc->begin();
 	 vtxItr != rpvc->end(); ++vtxItr) {
@@ -605,7 +605,7 @@ namespace xAOD {
 
     std::string str;
     std::string sind(indent, ' ');
-    str += sind + "Secondary vertices: (" + svc->size() + ")\n";
+    str += sind + "Secondary vertices: (" + std::to_string(svc->size()) + ")\n";
     str += sind + std::string(80-indent, '-');
     for (xAOD::VertexContainer::const_iterator vtxItr = svc->begin();
 	 vtxItr != svc->end(); ++vtxItr) {

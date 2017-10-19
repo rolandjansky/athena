@@ -8,11 +8,39 @@ TopExamples.grid.Add("TOPQ1_ttbar_PowPy8").datasets = [
 
 TopExamples.grid.Add("TOPQ1_ttbar_dil_PowPy8").datasets = [
     'mc16_13TeV.410503.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_dil.deriv.DAOD_TOPQ1.e5475_s3126_r9364_r9315_p3215',
-]
+    ]
+
+TopExamples.grid.Add("TOPQ1_tchan_lep_PowPy6").datasets = [
+    'mc16_13TeV.410011.PowhegPythiaEvtGen_P2012_singletop_tchan_lept_top.deriv.DAOD_TOPQ1.e3824_s3126_r9364_r9315_p3215',
+    'mc16_13TeV.410012.PowhegPythiaEvtGen_P2012_singletop_tchan_lept_antitop.deriv.DAOD_TOPQ1.e3824_s3126_r9364_r9315_p3215',
+    ]
+
+TopExamples.grid.Add("TOPQ1_Wt_inc_PowPy6").datasets = [
+    'mc16_13TeV.410013.PowhegPythiaEvtGen_P2012_Wt_inclusive_top.deriv.DAOD_TOPQ1.e3753_s3126_r9364_r9315_p3215',
+    'mc16_13TeV.410014.PowhegPythiaEvtGen_P2012_Wt_inclusive_antitop.deriv.DAOD_TOPQ1.e3753_s3126_r9364_r9315_p3215',
+    ]
+
+TopExamples.grid.Add("TOPQ1_schan_noAllHad_PowPy6").datasets = [
+    'mc16_13TeV.410025.PowhegPythiaEvtGen_P2012_SingleTopSchan_noAllHad_top.deriv.DAOD_TOPQ1.e3998_s3126_r9364_r9315_p3215',
+    'mc16_13TeV.410026.PowhegPythiaEvtGen_P2012_SingleTopSchan_noAllHad_antitop.deriv.DAOD_TOPQ1.e3998_s3126_r9364_r9315_p3215',
+    ]
+
+TopExamples.grid.Add("TOPQ1_tZ_noAllHad_PowPy6").datasets = [
+    'mc16_13TeV.410560.MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_noAllHad.deriv.DAOD_TOPQ1.e5803_s3126_r9364_r9315_p3215',
+    ]
+
+TopExamples.grid.Add("TOPQ1_tZ_trilepton_PowPy6").datasets = [
+    'mc16_13TeV.410550.MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_trilepton.deriv.DAOD_TOPQ1.e5803_s3126_r9364_r9315_p3215',
+    ]
+
+TopExamples.grid.Add("TOPQ1_tWZ").datasets = [
+    'mc16_13TeV.410217.aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_260000_tWZDR.deriv.DAOD_TOPQ1.e4851_s3126_r9364_r9315_p3215',
+    ]
+
 
 TopExamples.grid.Add("TOPQ1_ttbargamma").datasets = [
     'mc16_13TeV.410082.MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma_noallhad.deriv.DAOD_TOPQ1.e4404_s3126_r9364_r9315_p3215',
-]
+    ]
 
 TopExamples.grid.Add("TOPQ1_photons").datasets = [
     'mc16_13TeV.301535.Sherpa_CT10_eegammaPt10_35.deriv.DAOD_TOPQ1.e3952_s3126_r9364_r9315_p3215',                                  
@@ -177,4 +205,4 @@ TopExamples.grid.Add("TOPQ1_ttV").datasets = [
     'mc16_13TeV.410218.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttee.deriv.DAOD_TOPQ1.e5070_s3126_r9364_r9315_p3215',                
     'mc16_13TeV.410219.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttmumu.deriv.DAOD_TOPQ1.e5070_s3126_r9364_r9315_p3215',              
     'mc16_13TeV.410220.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tttautau.deriv.DAOD_TOPQ1.e5070_s3126_r9364_r9315_p3215',            
-]         
+    ]         

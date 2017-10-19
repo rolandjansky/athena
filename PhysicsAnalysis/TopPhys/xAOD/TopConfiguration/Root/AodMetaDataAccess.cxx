@@ -38,9 +38,9 @@ AodMetaDataAccess::~AodMetaDataAccess() {
 void AodMetaDataAccess::loadWithFilesFrom(std::string const & fileListPath) {
 
    // Implementation using PathResolver
-   std::string filename = "TopConfiguration/AodMetaDataReader.py";
-   // Use the path resolver to find the first file in the list of possible paths ($PYTHONPATH)
-   std::string exePath = PathResolver::find_file(filename, "PYTHONPATH");
+   std::string filename = "AodMetaDataReader.py";
+   // Use the path resolver to find the script which is stored as an executable in bin (no package name)
+   std::string exePath = PathResolver::find_file(filename, "PATH");
 
    if(exePath == ""){
      std::cout << "ERROR::AodMetaDataAccess - could not find file \n";

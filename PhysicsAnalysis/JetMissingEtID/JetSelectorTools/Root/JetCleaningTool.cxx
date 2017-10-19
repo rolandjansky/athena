@@ -222,8 +222,8 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
     if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
   }
   if(fmax>0.99 && std::fabs(eta)<2)                       return m_accept;
-  //HEC spike
-  if(std::fabs(negE*0.001)>60)                            return m_accept;
+  //HEC spike-- gone as of 2017! 
+  //if(std::fabs(negE*0.001)>60)                            return m_accept;
   if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return m_accept;
   //EM calo noise
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;

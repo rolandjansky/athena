@@ -525,7 +525,8 @@ if globalflags.DataSource() == 'geant4':
 # the MC background it subtracts from data in the QCD control region
 # (used to estimate the fake rate of lepton-to-jet misid)
 if isMC:
-   from DerivationFrameworkMCTruth.MCTruthCommon import *
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   addStandardTruthContents()
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
    EXOT4Classifier = MCTruthClassifier( name                      = "EXOT4Classifier",

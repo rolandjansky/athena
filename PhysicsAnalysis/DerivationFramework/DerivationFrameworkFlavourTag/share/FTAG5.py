@@ -13,7 +13,9 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data': from DerivationFrameworkMCTruth.MCTruthCommon import *
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 

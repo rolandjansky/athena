@@ -9,7 +9,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -235,7 +236,7 @@ replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

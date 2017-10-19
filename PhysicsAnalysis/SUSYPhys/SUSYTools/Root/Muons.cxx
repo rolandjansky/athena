@@ -38,6 +38,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char>  acc_passedHighPtCuts("passedHighPtCuts");
 
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
+  const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
@@ -226,6 +227,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
 {
 
   if (!acc_baseline(input)) return false;
+  if (!acc_passSignalID(input)) return false;
 
   if (input.pt() <= ptcut || input.pt() == 0) return false; // pT cut (might be necessary for leading muon to pass trigger)
   if ( etacut==DUMMYDEF ){

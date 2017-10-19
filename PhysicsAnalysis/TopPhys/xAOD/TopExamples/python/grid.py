@@ -6,6 +6,8 @@ import sys
 import distutils.spawn
 import logger
 import analysis
+import ROOT
+from PathResolver import PathResolver
 
 try:
     import rucio.client
@@ -99,7 +101,7 @@ class Config:
         print ' -NoSubmit:      ', self.noSubmit
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
-        print ' -maxNFilesPerJob', self.maxNFilesPerJob
+        print ' -maxNFilesPerJob', self.maxNFilesPerJob        
         print ' -OtherOptions:  ', self.otherOptions
 
         txt = self.destSE
@@ -171,15 +173,24 @@ def submit(config, allSamples):
 
   #Check for cuts file
   if not checkForFile(config.settingsFile):
-      print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
-      print '%s does not exist in this directory' % config.settingsFile
-      print 'please make it before submitting'
-
-      if config.settingsFile == 'dil-cuts.txt' or config.settingsFile == 'ljets-cuts.txt':
-         print 'or... copy it with'
-         print 'cp $ROOTCOREBIN/data/TopAnalysis/%s .' % config.settingsFile
-
-      sys.exit(1)
+      print logger.FAIL    + " Error - %s does not exist in this directory "%(config.settingsFile) + logger.ENDC
+      print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
+      settingsFilePath = ROOT.PathResolver.find_file(config.settingsFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
+      if settingsFilePath == "":
+          print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
+          print '%s does not exist in this directory and cannot be found' % config.settingsFile
+          print 'Please make it before submitting'
+          sys.exit(1)      
+      else:
+          print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
+          print logger.WARNING + "       - Will copy " + logger.ENDC + config.settingsFile + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
+          print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
+          user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
+          if(user_check != "yes" and user_check != "y" and user_check != "Y"):
+              print logger.FAIL + " Exiting submission " + logger.ENDC
+              sys.exit(2)
+          print logger.OKGREEN + "       - Confirmed " + logger.ENDC
+          os.system("cp %s %s"%(settingsFilePath,"./"))
 
   #Look in the cuts file for the output filename
   outputFilename = 'EMPTY'
@@ -382,7 +393,8 @@ if __name__ == '__main__':
 
 def checkForShowerAlgorithm(Samples):
     noShowerDatasets = []
-    tdp = analysis.TopDataPreparation(os.getenv('ROOTCOREBIN') + '/data/TopDataPreparation/XSection-MC15-13TeV.data')
+    tdpFile = ROOT.PathResolver.find_file("TopDataPreparation/XSection-MC15-13TeV.data", "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    tdp = analysis.TopDataPreparation(tdpFile)
     for TopSample in availableDatasets.values():
         for List in Samples:
             SublistSamples = List.datasets

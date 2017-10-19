@@ -16,8 +16,8 @@ using namespace ST;
 #include "AssociationUtils/OverlapRemovalInit.h"
 
 // Abstract interface classes
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
 #include "JetResolution/IJERTool.h"
@@ -625,8 +625,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_MSG_WARNING("Not configuring electron ID and trigger scale factors for " << m_eleId);
   } 
   else {
-    
-    std::string eleId = TString(m_eleId).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
+   
+    // This needs to be formatted for the scale factors: no _Rel20, no LH label, etc. 
+    std::string eleId = TString(m_eleId).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").ReplaceAll("_Rel20p7","").Data();
 
     // electron id
     toolName = "AsgElectronEfficiencyCorrectionTool_id_" + m_eleId;
@@ -892,7 +893,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_elecChargeIDSelectorTool.isUserConfigured()) {
 
-    std::string eleId = TString(m_eleId).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
+    // For the selector, can use the nice function
+    std::string eleId = EG_WP(m_eleId);
     m_elecChargeIDSelectorTool.setTypeAndName("AsgElectronChargeIDSelectorTool/ElectronChargeIDSelectorTool_"+eleId);
  
     //default cut value for https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool

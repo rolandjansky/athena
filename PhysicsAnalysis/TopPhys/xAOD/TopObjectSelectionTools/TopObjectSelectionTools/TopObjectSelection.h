@@ -33,12 +33,12 @@
 #include "TopObjectSelectionTools/OverlapRemovalBase.h"
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 
-// b-tagging includes
-#include "FTagAnalysisInterfaces/BTaggingSelectionTool.h"
-
 // boosted-tagging includes
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
+
+// b-tagging
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "TopEvent/Event.h"
 

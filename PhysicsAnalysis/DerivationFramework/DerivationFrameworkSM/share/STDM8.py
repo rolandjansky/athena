@@ -48,17 +48,6 @@ STDM8ThinningHelper.AppendToStream( STDM8Stream )
 # TRACK  THINNING
 #=====================
 
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-STDM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM8JetTPThinningTool",
-                                                                        ThinningService         = STDM8ThinningHelper.ThinningSvc(),
-                                                                        JetKey                  = "AntiKt4EMTopoJets",
-                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False) 
-ToolSvc += STDM8JetTPThinningTool
-thinningTools.append(STDM8JetTPThinningTool)
-
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM8MuonTPThinningTool",

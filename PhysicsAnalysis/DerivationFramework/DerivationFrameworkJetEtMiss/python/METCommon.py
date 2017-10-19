@@ -108,7 +108,8 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                AssocConfig('Soft')]
     cfg = METAssocConfig(jetcoll+vxColl,
                  associators,
-                 jetcoll=='AntiKt4EMPFlow' # doPFlow
+                 jetcoll=='AntiKt4EMPFlow', # doPFlow
+                 doOriginCorrClus=True
                  )
     for assoc in cfg.assoclist:
         assoc.PrimVxColl = vxColl+'PrimaryVertices'

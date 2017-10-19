@@ -14,7 +14,9 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-if globalflags.DataSource()!='data': from DerivationFrameworkMCTruth.MCTruthCommon import *
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
