@@ -5,6 +5,3 @@
 
 DECLARE_SERVICE_FACTORY( DFStreamEventSelector )
 
-DECLARE_FACTORY_ENTRIES( DFStreamEventSelector ) {
-    DECLARE_SERVICE    ( DFStreamEventSelector )
-}
