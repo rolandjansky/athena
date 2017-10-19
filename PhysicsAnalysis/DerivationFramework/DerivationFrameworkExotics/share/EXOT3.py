@@ -31,36 +31,47 @@ thinningTools = []
 # Track thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
-EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
+EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "EXOT3TPThinningTool",
                                                                  ThinningService         = "EXOT3ThinningSvc",
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3TPThinningTool
 thinningTools.append(EXOT3TPThinningTool)
 
+# Tracks and CaloClusters associated with TCCs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
+EXOT3TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                    = "EXOT3TCCTPThinningTool",
+                                                                       ThinningService         = "EXOT3ThinningSvc",
+                                                                       JetKey                  = "AntiKt10TrackCaloClusterJets",
+                                                                       TCCKey                  = "TrackCaloClustersCombinedAndNeutral",
+                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                       CaloCalTopoClustersKey  = "CaloCalTopoClusters")
+ToolSvc += EXOT3TCCTPThinningTool
+thinningTools.append(EXOT3TCCTPThinningTool)
+
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT3MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT3ThinningSvc",
-                                                                            MuonKey                 = "Muons",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                         ThinningService         = "EXOT3ThinningSvc",
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3MuonTPThinningTool
 thinningTools.append(EXOT3MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT3ThinningSvc",
-                                                                                        SGKey             	= "Electrons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT3ElectronTPThinningTool",
+                                                                               ThinningService         = "EXOT3ThinningSvc",
+                                                                               SGKey             	   = "Electrons",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3ElectronTPThinningTool
 thinningTools.append(EXOT3ElectronTPThinningTool)
 
 # Tracks associated with Photons
-EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3PhotonTPThinningTool",
-                                                                                        ThinningService         = "EXOT3ThinningSvc",
-                                                                                        SGKey             	= "Photons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT3PhotonTPThinningTool",
+                                                                             ThinningService         = "EXOT3ThinningSvc",
+                                                                             SGKey             	     = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3PhotonTPThinningTool
 thinningTools.append(EXOT3PhotonTPThinningTool)
 
@@ -82,18 +93,9 @@ EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( nam
 ToolSvc += EXOT3AKt10JetTPThinningTool
 thinningTools.append(EXOT3AKt10JetTPThinningTool)
 
-#FIX #ATLJETMET-744
-#EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3Cam12JetTPThinningTool",
-#                                                                        ThinningService         = "EXOT3ThinningSvc",
-#                                                                        JetKey                  = "CamKt12LCTopoJets",
-#                                                                        SelectionString         = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
-#                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT3AKt10JetTPThinningTool
-#thinningTools.append(EXOT3AKt10JetTPThinningTool)
-
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3Ak10CCThinningTool",
+EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                 = "EXOT3Ak10CCThinningTool",
                                                                       ThinningService       = "EXOT3ThinningSvc",
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
@@ -101,16 +103,6 @@ EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
                                                                       ConeSize              = 0)
 ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
-
-#FIX #ATLJETMET-744
-#EXOT3CA12CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3CA12CCThinningTool",
-#                                                                      ThinningService       = "EXOT3ThinningSvc",
-#                                                                      SGKey                 = "CamKt12LCTopoJets",
-#                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
-#                                                                      SelectionString       = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
-#                                                                      ConeSize              = 0)
-#ToolSvc += EXOT3CA12CCThinningTool
-#thinningTools.append(EXOT3CA12CCThinningTool)
 
 #Truth Thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
@@ -141,6 +133,7 @@ if isMC:
 #====================================================================
 
 triggers = [
+            # Standard large-R jet support triggers (bootstrap, etc)
             "HLT_j260_a10_lcw_L1J75",
             "HLT_j260_a10_lcw_nojcalib_L1J75",
             "HLT_j260_a10_nojcalib_L1J75",
@@ -148,26 +141,45 @@ triggers = [
             "HLT_j260_a10_lcw_sub_L1J75",
             "HLT_j300_a10_sub_L1J75",
             "HLT_j300_a10_lcw_L1J75",
+            "HLT_j300_a10_lcw_sub_L1SC85",
+            "HLT_j300_a10_lcw_L1SC85",
+            # Standard large-R jet primary triggers
+            "HLT_j360_a10_lcw_sub_L1J100", # lowest unprescaled, 2015
             "HLT_j360_a10_lcw_L1J100",
             "HLT_j380_a10_lcw_L1J100",
             "HLT_j400_a10_lcw_L1J100",
-            "HLT_j420_a10_lcw_L1J100",
+            "HLT_j420_a10_lcw_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10_lcw_L1J100",
             "HLT_j460_a10_sub_L1J100",
             "HLT_j460_a10_lcw_L1J100",
+            "HLT_j460_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
             "HLT_j460_a10_nojcalib_L1J100",
             "HLT_j460_a10_lcw_nojcalib_L1J100",
             "HLT_j460_a10_lcw_sub_L1J100",
-            "HLT_j300_a10_lcw_sub_L1SC85",
-            "HLT_j300_a10_lcw_L1SC85",
+            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jet primary triggers (new 2017 nominal)
+            "HLT_j460_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jets, with 1xmass cuts (substructure-enriched triggers)
+            "HLT_j420_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j440_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j420_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j440_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # Trimmed large-R jets, with 2xmass cuts (substructure-enriched triggers)
+            "HLT_2j330_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_2j330_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 and 2.0e34 menus)
+            # Reclustered large-R jet support triggers
             "HLT_j260_a10r_L1J75",
             "HLT_j300_a10r_L1J75",
-            "HLT_j360_a10r_L1J100",
+            # Reclustered large-R jet primary triggers
+            "HLT_j360_a10r_L1J100", # lowest unprescaled, 2015 - TRIGGER HAD A BUG IN 2015
             "HLT_j380_a10r_L1J100",
             "HLT_j400_a10r_L1J100",
-            "HLT_j420_a10r_L1J100",
+            "HLT_j420_a10r_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10r_L1J100",
-            "HLT_j460_a10r_L1J100",
+            "HLT_j460_a10r_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            # HT triggers
             "HLT_ht850_L1J75",
             "HLT_ht850_L1J100",
             "HLT_ht850",
@@ -176,16 +188,11 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
-topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1)"
-topology_selection_1jet += " )"#FIX #ATLJETMET-744
-#topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"#FIX #ATLJETMET-744
+topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1))"
 
 topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
-#topology_selection_2jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 2)"#FIX #ATLJETMET-744
 
-topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
-topology_selection_2jet_highpt += " )"#FIX #ATLJETMET-744
-#topology_selection_2jet_highpt += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 1000*GeV)  >= 2))"#FIX #ATLJETMET-744
+topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2))"
 
 topology_selection_2jet += " || " + topology_selection_2jet_highpt
 
@@ -230,6 +237,12 @@ DerivationFrameworkJob += exot3Seq
 #=======================================
 # JETS
 #=======================================
+# Create TCC objects
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(exot3Seq, ToolSvc, "CaloCalTopoClusters", "InDetTrackParticles")
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
@@ -239,12 +252,14 @@ reducedJetList = [
     "AntiKt4PV0TrackJets",
     "AntiKt4TruthJets",
     "AntiKt10TruthJets",
-    "AntiKt10LCTopoJets"]
+    "AntiKt10LCTopoJets",
+    "AntiKt10TrackCaloClusterJets"]
 replaceAODReducedJets(reducedJetList,exot3Seq,"EXOT3")
 
 #AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
+addTCCTrimmedJets(exot3Seq,"EXOT3")
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
@@ -252,6 +267,12 @@ addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
           VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+# Create variable-R trackjets and dress AntiKt10TCC with ghost VR-trkjet
+# A wrapper function which does all the necessary steps
+# addVRJetsTCC(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+             # VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+             # ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+             # variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 #b-tagging
 
@@ -262,14 +283,6 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
 
 #some jets collections are not included in the new jet restoring mechanism and need to be added the old way
-
-#split-filtered jets
-#CamKt jets not yet available #FIX #ATLJETMET-744 
-#if isMC:#FIX #ATLJETMET-744
-#  addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
-#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
-#addFilteredJets("CamKt", 1.2, "PV0Track", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
-
 #trimmed jets
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed", algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
 
@@ -318,8 +331,7 @@ EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
-#listJets = ['CamKt12LCTopoBDRSFilteredMU100Y4Jets', 'CamKt12PV0TrackBDRSFilteredMU100Y4Jets', 'CamKt12TruthBDRSFilteredMU100Y4Jets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT3SlimmingHelper.AppendToDictionary = {
