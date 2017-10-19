@@ -14,6 +14,7 @@ if( NOT XAOD_STANDALONE )
       Control/AthenaBaseComps
       Control/StoreGate
       Event/EventInfo
+      Event/xAOD/xAODEventInfo
       Event/xAOD/xAODTruth
       GaudiKernel
       Generators/GeneratorObjects )
@@ -41,8 +42,9 @@ atlas_add_library( xAODTruthCnvLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( xAODTruthCnv
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthLinks AthenaBaseComps StoreGateLib EventInfo xAODTruth
-      GaudiKernel GeneratorObjects xAODTruthCnvLib )
+      LINK_LIBRARIES AthLinks AthenaBaseComps StoreGateLib EventInfo
+      xAODEventInfo xAODTruth GaudiKernel GeneratorObjects
+      xAODTruthCnvLib )
 endif()
 
 atlas_add_dictionary( xAODTruthCnvDict
