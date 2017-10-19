@@ -384,6 +384,9 @@
 + Trigger/TrigT1/TrigT1CaloEvent
 + Trigger/TrigT1/TrigT1Interfaces
 + Trigger/TrigTools/TrigTimeAlgs
++ Trigger/TrigTools/TrigTrackJetFinderTool
++ Trigger/TrigHypothesis/TrigBjetHypo
++ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 # Don't build anything else:
 - .*

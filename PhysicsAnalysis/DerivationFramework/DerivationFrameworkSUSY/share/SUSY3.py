@@ -203,7 +203,7 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim

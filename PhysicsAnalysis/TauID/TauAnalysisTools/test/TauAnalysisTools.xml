@@ -14,4 +14,17 @@
     </expectations>
   </TEST>
 
+  <TEST name="TauCorrectionsTest" type="script" suite="ASG">
+    <package>PhysicsAnalysis/TauID/TauAnalysisTools</package>
+    <options_atn>ut_TauCorrections_test.exe</options_atn>
+    <timelimit>5</timelimit>
+    <author>David Kirchmeier</author>
+    <mailto>david.kirchmeier@cern.ch</mailto>
+    <expectations>
+      <errorMessage>ERROR</errorMessage>
+      <errorMessage>differ</errorMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+  </TEST>
+
 </atn>

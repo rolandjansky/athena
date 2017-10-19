@@ -19,11 +19,13 @@ elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
 # If it isn't available, make a truth meta data object (will hold MC Event Weights)
 if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
     # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
+    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
-                                                             AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
-                                                             )
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
+                                                                AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
+                                                                 )
 # Add in some jets - global config if we are running on EVNT
 if dfInputIsEVNT:
     from JetRec.JetRecFlags import jetFlags
@@ -67,19 +69,20 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
     # In this case, we simply use the helpers from ExtendedJetCommon
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets,addAntiKt4TruthWZJets,addAntiKt10TruthJets
     addAntiKt4TruthJets(kernel,"TRUTH") # Ignore the output list
-    if decorationDressing is None:
-        addAntiKt4TruthWZJets(kernel,"TRUTH")
-    else:
+    addAntiKt4TruthWZJets(kernel,"TRUTH")
+    if decorationDressing is not None:
+        from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
         addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
     addAntiKt10TruthJets(kernel,"TRUTH")
 
 # Helper for adding truth jet collections
 def addTruthJets(kernel=None, decorationDressing=None):
     # In case it's requested, set up the use of photon decorations from dressing code
-    if decorationDressing is not None:
-        # Ensure that we are adding it to something
+    from JetRec.JetRecStandardToolManager import jtm
+    if decorationDressing is not None and not hasattr(jtm,'truthpartdressedwz'):
+        # Ensure that we are adding it to something, and that we haven't run it already
         if kernel is None:
             from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
             kernel = DerivationFrameworkJob
@@ -137,6 +140,9 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonPreJetKernel'):
+        # Already there!  Carry on...
+        return
     # These augmentations do *not* require truth jets at all
     # If requested, add a decoration to photons that were used in the dressing
     if decorationDressing is not None:
@@ -170,7 +176,9 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-
+    if hasattr(kernel,'MCTruthCommonPostJetKernel'):
+        # Already there!  Carry on...
+        return
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
     from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
@@ -181,6 +189,7 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
         DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthDressedWZJets")
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += DFCommonTruthDressedWZQGLabelTool
         augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -196,6 +205,7 @@ def addStandardTruthContents(kernel=None,
     schedulePreJetMCTruthAugmentations(kernel, decorationDressing)
     # Should photons that are dressed onto taus also be removed from truth jets?
     if includeTausInDressingPhotonRemoval:
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc.DFCommonTruthTauDressingTool.decorationName=decorationDressing
     # Jets and MET
     addTruthJets(kernel, decorationDressing)

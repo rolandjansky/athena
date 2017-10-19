@@ -170,7 +170,7 @@ STDM2Sequence = CfgMgr.AthSequencer("STDM2Sequence")
 STDM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM2Kernel",
                               SkimmingTools = [STDM2SkimmingTool],
                               AugmentationTools = [STDM2_PhotonVertexSelectionWrapper,STDM2_MaxCellDecoratorTool],
-                              ThinningTools = [STDM2TPThinningTool,STDM2JetTPThinningTool,STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
+                              ThinningTools = [STDM2TPThinningTool,STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
 
 
 

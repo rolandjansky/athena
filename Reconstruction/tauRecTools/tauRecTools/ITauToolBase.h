@@ -30,6 +30,11 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode initialize() = 0;
 
   //-----------------------------------------------------------------
+  //! inTrigger - whether the tool is executed at trigger level
+  //-----------------------------------------------------------------
+  virtual bool inTrigger() const = 0;
+
+  //-----------------------------------------------------------------
   //! Event initializer - called at the beginning of each event
   //-----------------------------------------------------------------
   virtual StatusCode eventInitialize() = 0;

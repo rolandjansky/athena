@@ -1,16 +1,16 @@
 import os
 
-makeDataDAODs=False
-makeMCDAODs=False
+makeDataDAODs=True
+makeMCDAODs=True
 makeTruthDAODs=True
-makeTrains=False
+makeTrains=True
 
-formatList = ['PHYSVAL', 
+formatList = [#'PHYSVAL', 
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5', 
               'HIGG1D1', 'HIGG1D2',  
               'HIGG2D1', 'HIGG2D2', 'HIGG2D4', 'HIGG2D5', 
               'HIGG3D1', 'HIGG3D2', 'HIGG3D3', 
-              'HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 
+              'HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5','HIGG4D6', 
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3', 
               'HIGG6D1', 'HIGG6D2', 
               'HIGG8D1',  
@@ -33,7 +33,7 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
               ["JETM10","BPHY10","EGAM4","EXOT10","STDM5","MUON2"], # 0.1-0.1%
               ["SUSY13","HIGG1D2","HIGG3D2","EXOT12","EGAM9"], # 0.16-0.2%
               ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17"], # 0.2-0.3%
-              ["JETM7","BPHY5","MUON3","EXOT6","EGAM2"], # 0.35-0.38%
+              ["JETM7","BPHY5","MUON3","EXOT6","EGAM2","HIGG4D6"], # 0.35-0.4%
               ["BPHY4","BPHY7","HIGG4D5","EXOT15","EXOT9","BPHY1","EGAM7"], # 0.4-0.5%
               ["SUSY16","EXOT20","HIGG1D1","STDM3","TOPQ2"], # 0.5-0.6%
               ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
@@ -70,12 +70,13 @@ def generateText(formatName,label,inputFile,isTruth,isMC):
    outputFile.write("\n")
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
-   if ((isTruth==False) and (isMC==False) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 5000 "+dataPreExec+"\n")
-   if ((isTruth==False) and (isMC==True) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 5000 "+mcPreExec+"\n")
+   if ((isTruth==False) and (isMC==False) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 8000 "+dataPreExec+"\n")
+   if ((isTruth==False) and (isMC==True) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 10000 "+mcPreExec+"\n")
    if (isTruth==True): outputFile.write("Reco_tf.py --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 1000"+"\n")
    outputFile.write("\n")
    if (isTruth==False): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
    if (isTruth==True): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+" --autoConfiguration ProjectName RealOrSim BeamType ConditionsTag DoTruth InputType BeamEnergy LumiFlags TriggerStream --athenaopts=\"-s\" "+"\n")
+   outputFile.write("checkFile.py DAOD_"+formatName+".art.pool.root > checkFile.txt")
    outputFile.close()
    os.system("chmod +x "+outputFileName)
 
@@ -92,7 +93,7 @@ def generateTrains(formatList,label,inputFile,isMC):
    outputFile.write("\n")
    if (isMC == False): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+dataPreExec+" --passThrough True "+"\n")
    if (isMC == True): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+mcPreExec+" --passThrough True "+"\n")
-
+   os.system("chmod +x "+outputFileName)
 
 
 if (makeDataDAODs or makeMCDAODs):
@@ -101,7 +102,7 @@ if (makeDataDAODs or makeMCDAODs):
       if (makeMCDAODs):
          if formatName=="BPHY8":
             generateText(formatName,mcLabel,mcFileBPHY8,False,True)      
-         else (makeMCDAODs): generateText(formatName,mcLabel,mcFile,False,True)
+         else: generateText(formatName,mcLabel,mcFile,False,True)
 
 if (makeTruthDAODs):
    for formatName in truthFormatList:
