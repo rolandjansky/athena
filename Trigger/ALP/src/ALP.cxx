@@ -1,9 +1,10 @@
 // Dear emacs, this is -*- c++ -*-
-/**
- * @file ALP.cxx
- * @author <a href="mailto:sami.kama_at_cern.ch">Sami Kama</a>
- * @brief HLT ALP
- */
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
 
 #include "ALP/ALP.h"
 // needed for system calls

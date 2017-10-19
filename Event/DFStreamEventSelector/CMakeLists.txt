@@ -23,16 +23,7 @@ atlas_depends_on_subdirs(
    )
 
 # External dependencies:
-#find_package( Boost COMPONENTS system )
-#find_package( CORAL COMPONENTS CoralBase )
 find_package( tdaq-common COMPONENTS hltinterface )
-# dump_var("TDAQ-COMMON_FOUND")
-# dump_var("TDAQ-COMMON_INCLUDE_DIR")
-# dump_var("TDAQ-COMMON_INCLUDE_DIRS")
-# dump_var("TDAQ-COMMON_hltinterface_LIBRARY")
-# dump_var("TDAQ-COMMON_HLTINTERFACE_LIBRARY")
-# dump_var("TDAQ-COMMON_LIBRARIES")
-# dump_var("TDAQ-COMMON_ROOT")
 # Libraries in the package:
 atlas_add_library( DFStreamEventSelectorLib
    src/*.h src/*.cxx

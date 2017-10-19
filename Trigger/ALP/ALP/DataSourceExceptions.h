@@ -1,4 +1,10 @@
 // -*- c++ -*-
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
 #ifndef ALP_DATASOURCEEXCEPTIONS_H
 #define ALP_DATASOURCEEXCEPTIONS_H
 #include <stdexcept>

@@ -1,5 +1,11 @@
 // Dear emacs, this is -*- c++ -*-
-//Author: Sami Kama
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
+
 #ifndef ALP_FILEDATASOURCE_H
 #define ALP_FILEDATASOURCE_H
 #include <vector>

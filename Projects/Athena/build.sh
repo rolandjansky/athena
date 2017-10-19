@@ -54,7 +54,7 @@ while getopts ":t:b:hcmipaN" opt; do
 	    NIGHTLY=false
 	    ;;
 	N)
-	    BUILDTOOL="ninja"
+	    BUILDTOOL="ninja -k 0"
 	    BUILDTOOLTYPE="-GNinja"
 	    INSTALLRULE="install"
 	    ;;
@@ -125,8 +125,8 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time ${BUILDTOOL} ${INSTALLRULE} \
-	DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+    time DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE} \
+	 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:

@@ -1,4 +1,11 @@
 /*  -*- c++ -*- */
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+
+*/
 /* A simple class to use DFDataSource implementations to read data
  *
  */

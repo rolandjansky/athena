@@ -1,3 +1,11 @@
+#####################
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# 
+# Author: Sami Kama 2017
+#####################
+# Python module to construct ptrees for ALP execution
+# and provide ALP class for using from python side.
+#
 import os,sys
 from lxml import etree as et
 

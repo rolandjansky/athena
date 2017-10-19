@@ -1,7 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
-//  Offline equivalent of ALP
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
+//  Offline equivalent of HLTMPPU
 //  
-//  author: Sami Kama
+
 
 #ifndef __ALP_H
 #define __ALP_H

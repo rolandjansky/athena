@@ -1,5 +1,11 @@
 // --*- c++ -*-- 
-// Author: Sami Kama
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
+
 #ifndef __ALP_PLUGINLOADER_H
 #define __ALP_PLUGINLOADER_H
 

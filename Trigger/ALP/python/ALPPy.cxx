@@ -1,3 +1,10 @@
+/*
+
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+Author: Sami Kama 2017
+*/
+// Python bindings for ALP
 #include <dlfcn.h>
 #include <cstdio>
 #include <memory>
@@ -14,12 +21,6 @@ typedef void (*destroyer)(hltinterface::HLTInterface*);
 
 
 void sahandler(int sig,siginfo_t * si,void* /*vp*/){
-  //std::cerr<<__PRETTY_FUNCTION__<<" Child "<<getpid()<<" terminated with signal "<<sig <<std::endl;
-  // std::cerr<<HLTMP::getTimeTag()<<"Got signal "<<sig<<std::endl;
-  // if(!si){
-  //   std::cerr<<HLTMP::getTimeTag()<<__PRETTY_FUNCTION__<<" siginfo_t is NULL "<<std::endl;
-  //   return;
-  // }
   fprintf(stderr,"ALPPy Got signal\n");
   if(sig==SIGTERM||sig==SIGINT){
     //std::cerr<<"Got signal"<<std::endl;
