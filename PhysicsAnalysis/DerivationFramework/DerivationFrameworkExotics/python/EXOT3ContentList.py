@@ -65,8 +65,6 @@ EXOT3AllVariablesContent = [
 
      "egammaTopoSeededClusters",
 
-     "InDetForwardTrackParticles",
-
      "CombinedMuonTrackParticles",
      "ExtrapolatedMuonTrackParticles",
      "GSFTrackParticles",

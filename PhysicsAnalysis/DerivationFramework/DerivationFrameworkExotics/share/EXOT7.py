@@ -144,57 +144,6 @@ print EXOT7StringSkimmingTool
 
 # define thinning tool 
 thinningTools=[]
-# Tracks associated with jets (for e-in-jet OR)
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-EXOT7JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7JetTPThinningTool",
-                                                                       ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
-                                                                       JetKey                  = "AntiKt4LCTopoJets",
-                                                                       SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && AntiKt4LCTopoJets.eta > -2.8 && AntiKt4LCTopoJets.eta < 2.8",
-                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT7JetTPThinningTool
-thinningTools.append(EXOT7JetTPThinningTool)
-
-# for HTT
-#FIX #ATLJETMET-744
-#EXOT7CA15JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7CA15JetTPThinningTool",
-#                                                                       ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
-#                                                                       JetKey                  = "CamKt15LCTopoJets",
-#                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV && CamKt15LCTopoJets.eta > -2.7 && CamKt15LCTopoJets.eta < 2.7",
-#                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT7CA15JetTPThinningTool
-#thinningTools.append(EXOT7CA15JetTPThinningTool)
-
-EXOT7Ak10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7Ak10JetTPThinningTool",
-                                                                       ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
-                                                                       JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                       SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta > -2.7 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta < 2.7",
-                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT7Ak10JetTPThinningTool
-thinningTools.append(EXOT7Ak10JetTPThinningTool)
-
-# Tracks associated with Muons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-EXOT7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT7MuonTPThinningTool",
-                                                                         ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
-                                                                         MuonKey                 = "Muons",
-                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                         SelectionString = "Muons.pt > 7*GeV",
-                                                                         ConeSize=0.4)
-ToolSvc += EXOT7MuonTPThinningTool
-thinningTools.append(EXOT7MuonTPThinningTool)
-
-# Tracks associated with Electrons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EXOT7ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT7ElectronTPThinningTool",
-                                                                               ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
-                                                                               SGKey                   = "Electrons",
-                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                               GSFTrackParticlesKey    = "GSFTrackParticles",
-                                                                               SelectionString         = "Electrons.pt > 7*GeV",
-                                                                               ConeSize = 0.4
-                                                                              )
-ToolSvc += EXOT7ElectronTPThinningTool
-thinningTools.append(EXOT7ElectronTPThinningTool)
 
 # calo cluster thinning for electrons only (only affects egClusterCollection)
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
