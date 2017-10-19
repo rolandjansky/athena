@@ -123,13 +123,13 @@ class BoostedXbbTagger : public JSSTaggerBase {
     std::string m_decorationName;
 
     // generic decorations used
-    const SG::AuxElement::Decorator<float>* jetMassMinDecor;
-    const SG::AuxElement::Decorator<float>* jetMassMaxDecor;
-    const SG::AuxElement::Decorator<float>* jssCutDecor;
-    const SG::AuxElement::Decorator<TLorentzVector>* correctedJetDecor;
-    const SG::AuxElement::Decorator<TLorentzVector>* calibratedMuonDecor;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* muonsInTrackJetLink;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* muonsInFatJetLink;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* trackJetsInFatJet;
+    const SG::AuxElement::Decorator<float>* m_dec_jetMassMin;
+    const SG::AuxElement::Decorator<float>* m_dec_jetMassMax;
+    const SG::AuxElement::Decorator<float>* m_dec_jssCut;
+    const SG::AuxElement::Decorator<TLorentzVector>* m_dec_correctedJet;
+    const SG::AuxElement::Decorator<TLorentzVector>* m_dec_calibratedMuon;
+    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInTrackJetLink;
+    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInFatJetLink;
+    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_trackJetsInFatJet;
 };
 #endif
