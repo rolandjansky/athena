@@ -100,7 +100,7 @@ StatusCode OverlapRemovalGenUseAlg::execute()
 	  ATH_CHECK( m_orTool->removeOverlaps(electrons, muons, jets, taus, photons) );}
   else{
 	  // Reset all decorations to failing
-	  ATH_MSG_WARNING("No primary vertices found, cannot do overlap removal! Will return all fails."); 
+	  ATH_MSG_DEBUG("No primary vertices found, cannot do overlap removal! Will return all fails."); 
 	  if(electrons) setDefaultDecorations(*electrons);
 	  if(muons)     setDefaultDecorations(*muons);
 	  if(jets)      setDefaultDecorations(*jets);
@@ -109,12 +109,13 @@ StatusCode OverlapRemovalGenUseAlg::execute()
   }
 
   // Dump the objects
-  ATH_MSG_DEBUG("Dumping results");
+  ATH_MSG_VERBOSE("Dumping results");
+  if(msgLevel() >= MSG::VERBOSE){
   printObjects(*electrons, "ele");
   printObjects(*muons, "muo");
   printObjects(*taus, "tau");
   printObjects(*jets, "jet");
-  printObjects(*photons, "pho");
+  printObjects(*photons, "pho");}
 
   return StatusCode::SUCCESS;
 }
@@ -155,14 +156,10 @@ template<>
 bool OverlapRemovalGenUseAlg::selectObject<xAOD::Jet>(const xAOD::Jet& obj)
 {
   // Label bjets
+  const static SG::AuxElement::ConstAccessor<float> acc_applyBTag("DFCommonJets_FixedCutBEff_85");
   static ort::inputDecorator_t bJetDec(m_bJetLabel);
-  bJetDec(obj) = false;
-  double mv2c10 = 0.;
-  auto btag = obj.btagging();
-  if(btag && btag->MVx_discriminant("MV2c10", mv2c10)){
-    if(mv2c10 > -0.1416) bJetDec(obj) = true;
-  }
-  else ATH_MSG_WARNING("BTag info unavailable!");
+  bJetDec(obj) = acc_applyBTag(obj);
+  // Selection
   if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
   return true;
 }
@@ -223,7 +220,7 @@ void OverlapRemovalGenUseAlg::printObjects(const xAOD::IParticleContainer& conta
   for(auto obj : container){
     if(selectAcc(*obj)){
       bool overlaps = overlapAcc(*obj);
-      ATH_MSG_DEBUG("  " << type << " pt " << obj->pt()*invGeV
+      ATH_MSG_VERBOSE("  " << type << " pt " << obj->pt()*invGeV
                     << " eta " << obj->eta() << " phi " << obj->phi()
                     << " overlaps " << overlaps);
     }
