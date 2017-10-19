@@ -3,6 +3,8 @@
 */
 
 #include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/System.h"
+#include <typeinfo>
 
 namespace SG {
   
@@ -14,7 +16,9 @@ namespace SG {
                  StoreID::storeName(StoreID::CONDITION_STORE)),
     m_cs(StoreID::storeName(StoreID::CONDITION_STORE),"CondHandleKey"),
     m_dbKey(dbKey)
-  {}
+  {
+    CondCont<T>::registerBaseInit();
+  }
 
   //---------------------------------------------------------------------------  
   
@@ -37,33 +41,51 @@ namespace SG {
       return StatusCode::FAILURE;
     }
 
-    
-    if (m_cs->contains< CondCont<T> > (SG::VarHandleKey::key()) ) {      
-      if (m_cs->retrieve(m_cc, SG::VarHandleKey::key()).isFailure()) {
+              
+    if (mode() == DataHandle::Writer) {
+      if (m_cs->contains< CondCont<T> > (SG::VarHandleKey::key()) ) {
         MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
         msg << MSG::ERROR 
-            << "CondHandleKey::init(): unable to retrieve CondCont of "
-            << Gaudi::DataHandle::fullKey() << " from " 
-            << StoreID::storeName(StoreID::CONDITION_STORE)
-            << " with key " << SG::VarHandleKey::key()
+            << StoreID::storeName( StoreID::CONDITION_STORE ) 
+            << " already contains a CondCont of type "
+            << Gaudi::DataHandle::fullKey() 
             << endmsg;
         return StatusCode::FAILURE;
+      } else {
+        m_cc = new CondCont<T>(Gaudi::DataHandle::fullKey());
+        if (m_cs->record(m_cc, SG::VarHandleKey::key()).isFailure()) {
+          MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+          msg << MSG::ERROR 
+              << "CondHandleKey::init(): unable to record empty CondCont of " 
+              << Gaudi::DataHandle::fullKey() << " in " 
+              << StoreID::storeName( StoreID::CONDITION_STORE ) 
+              << " with key " << SG::VarHandleKey::key() << endmsg;
+          delete m_cc;
+          m_cc = 0;
+          return StatusCode::FAILURE;
+        }
+        // std::cout << "recorded " << Gaudi::DataHandle::fullKey() 
+        //           << " with key "
+        //           << SG::VarHandleKey::key() << std::endl;
       }
     } else {
-      m_cc = new CondCont<T>(Gaudi::DataHandle::fullKey());
-      if (m_cs->record(m_cc, SG::VarHandleKey::key()).isFailure()) {
-        MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
-        msg << MSG::ERROR 
-            << "CondHandleKey::init(): unable to record empty CondCont of " 
-            << Gaudi::DataHandle::fullKey() << " in " 
-            << StoreID::storeName( StoreID::CONDITION_STORE ) 
-            << " with key " << SG::VarHandleKey::key() << endmsg;
-        delete m_cc;
-        m_cc = 0;
-        return StatusCode::FAILURE;
+      // lets see if we get lucky and the Write alg already created the
+      // continer we want
+      if (m_cs->contains< CondCont<T> > (SG::VarHandleKey::key()) ) {
+        if (m_cs->retrieve(m_cc, SG::VarHandleKey::key()).isFailure()) {
+          MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
+          msg << MSG::ERROR 
+              << "CondHandleKey::init(): unable to retrieve CondCont of "
+              << Gaudi::DataHandle::fullKey() << " from " 
+              << StoreID::storeName(StoreID::CONDITION_STORE)
+              << " with key " << SG::VarHandleKey::key()
+              << endmsg;
+          m_cc = 0;
+          return StatusCode::FAILURE;
+        }
       }
     }
-
+          
 
     m_isInit = true;
 

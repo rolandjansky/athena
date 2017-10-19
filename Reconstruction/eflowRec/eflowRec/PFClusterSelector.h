@@ -24,16 +24,16 @@ public:
 
 private:
   /** for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
-  void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight);
+  void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight,const xAOD::CaloClusterContainer& caloCalClustersContainer);
   
-  /** ReadHandle for the CaloClusterContainer to be used as input */
-  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloClustersReadHandle;
+  /** ReadHandleKey for the CaloClusterContainer to be used as input */
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
-  /** ReadHandle for the CaloClusterContainer, at LC scale, to be used as input */
-  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloCalClustersReadHandle;
+  /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoCluster","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};
 
-  /** WriteHandle for the eflowRecClusterContainer to write out: */
-  SG::WriteHandle<eflowRecClusterContainer> m_eflowRecClustersWriteHandle;
+  /** WriteHandleKey for the eflowRecClusterContainer to write out */
+  SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};
   
 
   

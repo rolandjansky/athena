@@ -78,26 +78,26 @@ public:
 
 //____________________________________________________________________
 PRDCollHandleBase::PRDCollHandleBase(PRDDetType::Type type,PRDSysCommonData*cd,const QString& key)
-  : VP1StdCollection(cd->system(),"PRDCollHandle_"+PRDDetType::typeToString(type)+"_"+key), d(new Imp), m_common(cd),m_nshownhandles(0),
+  : VP1StdCollection(cd->system(),"PRDCollHandle_"+PRDDetType::typeToString(type)+"_"+key), m_d(new Imp), m_common(cd),m_nshownhandles(0),
   m_colourmethod(ByTechOnly), m_highlightweight(999999.0)
 {
-  d->theclass = this;
-  d->detType = type;
-  d->storegate_key = key;
-  d->highlightmaterial = 0;
-  d->highlightoutliers = false;
-  d->drawerrors = false;
-  d->drawrdos = false;
-  d->sephelper_detail = 0;
-  d->sephelper_simple = 0;
-  d->sep_lods = 0;
-  d->comboBox_detailLevel = new QComboBox;
-  d->comboBox_detailLevel->setToolTip("Level of realism in representation"
+  m_d->theclass = this;
+  m_d->detType = type;
+  m_d->storegate_key = key;
+  m_d->highlightmaterial = 0;
+  m_d->highlightoutliers = false;
+  m_d->drawerrors = false;
+  m_d->drawrdos = false;
+  m_d->sephelper_detail = 0;
+  m_d->sephelper_simple = 0;
+  m_d->sep_lods = 0;
+  m_d->comboBox_detailLevel = new QComboBox;
+  m_d->comboBox_detailLevel->setToolTip("Level of realism in representation"
     " (\"Auto\" switches mode based on distance to camera)");
-  d->comboBox_detailLevel->addItems(QStringList()<<"Low"<<"Auto"<<"High");//Low==simple, High==detailed. Don't change order.
-  d->generalprddetaillevel = SIMPLE;
-  d->comboBox_detailLevel->setCurrentIndex(0);//corresponds to simple.
-  connect(d->comboBox_detailLevel,SIGNAL(currentIndexChanged(int)),this,SLOT(detailComboBoxItemChanged()));
+  m_d->comboBox_detailLevel->addItems(QStringList()<<"Low"<<"Auto"<<"High");//Low==simple, High==detailed. Don't change order.
+  m_d->generalprddetaillevel = SIMPLE;
+  m_d->comboBox_detailLevel->setCurrentIndex(0);//corresponds to simple.
+  connect(m_d->comboBox_detailLevel,SIGNAL(currentIndexChanged(int)),this,SLOT(detailComboBoxItemChanged()));
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 }
 
@@ -110,20 +110,20 @@ void PRDCollHandleBase::init(VP1MaterialButtonBase*)
   sep_detail->setName("PRDColl_sep_detail");
   SoSeparator * sep_simple = new SoSeparator;
   sep_simple->setName("PRDColl_sep_simple");
-  d->sep_lods = new SoSeparator;
-  d->sep_lods->setName("PRDColl_sep_lods");
+  m_d->sep_lods = new SoSeparator;
+  m_d->sep_lods->setName("PRDColl_sep_lods");
   sep_detail->ref();
   sep_simple->ref();
-  d->sep_lods->ref();
+  m_d->sep_lods->ref();
 
-  d->sephelper_detail = new VP1ExtraSepLayerHelper(sep_detail,128);
-  d->sephelper_simple = new VP1ExtraSepLayerHelper(sep_simple,128);
+  m_d->sephelper_detail = new VP1ExtraSepLayerHelper(sep_detail,128);
+  m_d->sephelper_simple = new VP1ExtraSepLayerHelper(sep_simple,128);
 
   setupSettingsFromController(common()->controller());
 
   //Setup detail level:
   setGeneralPRDDetailLevel(defaultDetailLevel());
-  d->updateDetailSepAttachments();
+  m_d->updateDetailSepAttachments();
 
 }
 
@@ -132,40 +132,40 @@ void PRDCollHandleBase::init(VP1MaterialButtonBase*)
 PRDCollHandleBase::~PRDCollHandleBase()
 {
   //Lod sep-helpers:
-  std::map<int,std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> > >::iterator it, itE = d->regionindex2lodhelpers.end();
-  for (it = d->regionindex2lodhelpers.begin();it!=itE;++it) {
+  std::map<int,std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> > >::iterator it, itE = m_d->regionindex2lodhelpers.end();
+  for (it = m_d->regionindex2lodhelpers.begin();it!=itE;++it) {
     delete it->second.second.first;
     delete it->second.second.second;
     it->second.first->unref();
   }
-  d->regionindex2lodhelpers.clear();
+  m_d->regionindex2lodhelpers.clear();
 
   //Cleanup separators:
-  if (d->sephelper_detail) {
-    SoSeparator * sep_detail = d->sephelper_detail->topSeparator();
-    delete d->sephelper_detail;
+  if (m_d->sephelper_detail) {
+    SoSeparator * sep_detail = m_d->sephelper_detail->topSeparator();
+    delete m_d->sephelper_detail;
     sep_detail->unref();
   }
-  if (d->sephelper_simple) {
-    SoSeparator * sep_simple = d->sephelper_simple->topSeparator();
-    delete d->sephelper_simple;
+  if (m_d->sephelper_simple) {
+    SoSeparator * sep_simple = m_d->sephelper_simple->topSeparator();
+    delete m_d->sephelper_simple;
     sep_simple->unref();
   }
-  if (d->sep_lods)
-    d->sep_lods->unref();
+  if (m_d->sep_lods)
+    m_d->sep_lods->unref();
 
-  cleanupPtrContainer(d->prdhandles);
+  cleanupPtrContainer(m_d->prdhandles);
 
-  if (d->highlightmaterial)
-    d->highlightmaterial->unref();
+  if (m_d->highlightmaterial)
+    m_d->highlightmaterial->unref();
 
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 bool PRDCollHandleBase::load() {
   bool safeToLoad(false);
-  switch (d->detType){
+  switch (m_d->detType){
     case PRDDetType::TRT:
     safeToLoad = VP1JobConfigInfo::hasTRTGeometry();
     break;
@@ -193,17 +193,17 @@ bool PRDCollHandleBase::load() {
     return false;
   }
 
-  switch (d->detType){
-    case PRDDetType::TRT:   return d->actualLoad<InDet::TRT_DriftCircleContainer>();
-    case PRDDetType::Pixel: return d->actualLoad<InDet::PixelClusterContainer>();
-    case PRDDetType::SCT:   return d->actualLoad<InDet::SCT_ClusterContainer>();
-    case PRDDetType::CSC:   return d->actualLoad<Muon::CscPrepDataContainer>();
-    case PRDDetType::CSCstrip:   return d->actualLoad<Muon::CscStripPrepDataContainer>();
-    case PRDDetType::RPC:   return d->actualLoad<Muon::RpcPrepDataContainer>();
-    case PRDDetType::TGC:   return d->actualLoad<Muon::TgcPrepDataContainer>();
-    case PRDDetType::MDT:   return d->actualLoad<Muon::MdtPrepDataContainer>();
-    case PRDDetType::MM:    return d->actualLoad<Muon::MMPrepDataContainer>();
-    case PRDDetType::sTGC:  return d->actualLoad<Muon::sTgcPrepDataContainer>();
+  switch (m_d->detType){
+    case PRDDetType::TRT:   return m_d->actualLoad<InDet::TRT_DriftCircleContainer>();
+    case PRDDetType::Pixel: return m_d->actualLoad<InDet::PixelClusterContainer>();
+    case PRDDetType::SCT:   return m_d->actualLoad<InDet::SCT_ClusterContainer>();
+    case PRDDetType::CSC:   return m_d->actualLoad<Muon::CscPrepDataContainer>();
+    case PRDDetType::CSCstrip:   return m_d->actualLoad<Muon::CscStripPrepDataContainer>();
+    case PRDDetType::RPC:   return m_d->actualLoad<Muon::RpcPrepDataContainer>();
+    case PRDDetType::TGC:   return m_d->actualLoad<Muon::TgcPrepDataContainer>();
+    case PRDDetType::MDT:   return m_d->actualLoad<Muon::MdtPrepDataContainer>();
+    case PRDDetType::MM:    return m_d->actualLoad<Muon::MMPrepDataContainer>();
+    case PRDDetType::sTGC:  return m_d->actualLoad<Muon::sTgcPrepDataContainer>();
     //SpacePoints implements their own load.
     default:
     return false;
@@ -399,20 +399,20 @@ void PRDCollHandleBase::Imp::updateDetailSepAttachments()
 //____________________________________________________________________
 VP1ExtraSepLayerHelper * PRDCollHandleBase::sephelperDetailedNodes() const
 {
-  return d->sephelper_detail;
+  return m_d->sephelper_detail;
 }
 
 //____________________________________________________________________
 VP1ExtraSepLayerHelper * PRDCollHandleBase::sephelperSimpleNodes() const
 {
-  return d->sephelper_simple;
+  return m_d->sephelper_simple;
 }
 
 //____________________________________________________________________
 void PRDCollHandleBase::detailComboBoxItemChanged()
 {
   messageVerbose("Collection detail level combo box changed index");
-  switch(d->comboBox_detailLevel->currentIndex()) {
+  switch(m_d->comboBox_detailLevel->currentIndex()) {
     case 1:
     setGeneralPRDDetailLevel(AUTO);
     break;
@@ -429,21 +429,21 @@ void PRDCollHandleBase::detailComboBoxItemChanged()
 //____________________________________________________________________
 PRDCollHandleBase::DETAIL PRDCollHandleBase::detailLevel() const
 {
-  return d->generalprddetaillevel;
+  return m_d->generalprddetaillevel;
 }
 
 //____________________________________________________________________
 void PRDCollHandleBase::setGeneralPRDDetailLevel( DETAIL dm )
 {
-  if (d->generalprddetaillevel==dm)
+  if (m_d->generalprddetaillevel==dm)
     return;
-  d->generalprddetaillevel = dm;
+  m_d->generalprddetaillevel = dm;
   messageVerbose("Detail level changed");
 //   common()->system()->deselectAll();
 
   //Update gui combobox:
   int targetIndex(0);
-  switch(d->generalprddetaillevel) {
+  switch(m_d->generalprddetaillevel) {
     case AUTO:
     targetIndex = 1;
     break;
@@ -455,14 +455,14 @@ void PRDCollHandleBase::setGeneralPRDDetailLevel( DETAIL dm )
     targetIndex = 0;
     break;
   }
-  if (targetIndex!=d->comboBox_detailLevel->currentIndex()) {
-    bool save = d->comboBox_detailLevel->blockSignals(true);
-    d->comboBox_detailLevel->setCurrentIndex(targetIndex);
-    d->comboBox_detailLevel->blockSignals(save);
+  if (targetIndex!=m_d->comboBox_detailLevel->currentIndex()) {
+    bool save = m_d->comboBox_detailLevel->blockSignals(true);
+    m_d->comboBox_detailLevel->setCurrentIndex(targetIndex);
+    m_d->comboBox_detailLevel->blockSignals(save);
   }
 
   //Actual changes to 3D representation:
-  d->updateDetailSepAttachments();
+  m_d->updateDetailSepAttachments();
 
   detailLevelChanged();
 
@@ -472,8 +472,8 @@ void PRDCollHandleBase::setGeneralPRDDetailLevel( DETAIL dm )
 void PRDCollHandleBase::getLODSeparators(int index, VP1ExtraSepLayerHelper*& sephelper_detail,VP1ExtraSepLayerHelper*& sephelper_simple)
 {
   const float complexity = 0.3f;//Fixme: Hardcoded here.
-  std::map<int,std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> > >::iterator it = d->regionindex2lodhelpers.find(index);
-  if (it!=d->regionindex2lodhelpers.end()) {
+  std::map<int,std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> > >::iterator it = m_d->regionindex2lodhelpers.find(index);
+  if (it!=m_d->regionindex2lodhelpers.end()) {
     sephelper_detail = it->second.second.first;
     sephelper_simple = it->second.second.second;
     //To try to scale somehow different regions to change at "the same time":
@@ -486,12 +486,12 @@ void PRDCollHandleBase::getLODSeparators(int index, VP1ExtraSepLayerHelper*& sep
   lod->addChild(sep_detail);
   lod->addChild(sep_simple);
   lod->screenArea.setValue(lodArea()/(complexity+0.5f));
-  d->sep_lods->addChild(lod);
+  m_d->sep_lods->addChild(lod);
   sephelper_detail = new VP1ExtraSepLayerHelper(sep_detail);
   sephelper_simple = new VP1ExtraSepLayerHelper(sep_simple);
 
   lod->ref();
-  d->regionindex2lodhelpers[index] =
+  m_d->regionindex2lodhelpers[index] =
     std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> >
     (lod,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*>(sephelper_detail,sephelper_simple));
 }
@@ -500,25 +500,25 @@ void PRDCollHandleBase::getLODSeparators(int index, VP1ExtraSepLayerHelper*& sep
 void PRDCollHandleBase::addHandle(PRDHandleBase*handle)
 {
   if (handle)
-    d->prdhandles.push_back(handle);
+    m_d->prdhandles.push_back(handle);
 }
 
 //____________________________________________________________________
 std::vector<PRDHandleBase*>& PRDCollHandleBase::getPrdHandles()
 {
-  return d->prdhandles;
+  return m_d->prdhandles;
 }
 
 //____________________________________________________________________
 const std::vector<PRDHandleBase*>& PRDCollHandleBase::getPrdHandles() const
 {
-  return d->prdhandles;
+  return m_d->prdhandles;
 }
 
 //____________________________________________________________________
 void PRDCollHandleBase::recheckCutStatus(PRDHandleBase*handle)
 {
-  handle->setVisible( visible() && cut(handle) && d->etaPhiCut(handle) );
+  handle->setVisible( visible() && cut(handle) && m_d->etaPhiCut(handle) );
 }
 
 //Fixme: A few of the methods of this class should be inlined (requires a few more public data members)
@@ -529,10 +529,10 @@ void PRDCollHandleBase::setupSettingsFromController(PRDSystemController*controll
   assert(controller);
   largeChangesBegin();
 
-  collSep()->addChild(controller->drawOptions(d->detType));
+  collSep()->addChild(controller->drawOptions(m_d->detType));
 
-  d->highlightmaterial = controller->getHighLightMaterial();
-  d->highlightmaterial->ref();
+  m_d->highlightmaterial = controller->getHighLightMaterial();
+  m_d->highlightmaterial->ref();
 
   connect(controller,SIGNAL(highLightOutliersChanged(bool)),this,SLOT(setHighLightOutliers(bool)));
   setHighLightOutliers(controller->highLightOutliers());
@@ -570,7 +570,7 @@ void PRDCollHandleBase::recheckCutStatusOfAllHandles()
   common()->system()->deselectAll();
 
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   int i(0);
   for (;it!=itE;++it) {
     recheckCutStatus(*it);
@@ -590,7 +590,7 @@ void PRDCollHandleBase::recheckCutStatusOfAllVisibleHandles()
   common()->system()->deselectAll();
 
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     if ((*it)->visible())
       recheckCutStatus(*it);
@@ -605,7 +605,7 @@ void PRDCollHandleBase::recheckCutStatusOfAllNotVisibleHandles()
   messageVerbose("PRDCollHandleBase::recheckCutStatusOfAllNotVisibleHandles");
 
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     if (!(*it)->visible())
       recheckCutStatus(*it);
@@ -618,35 +618,35 @@ void PRDCollHandleBase::recheckCutStatusOfAllNotVisibleHandles()
 //____________________________________________________________________
 bool PRDCollHandleBase::highLightOutliers() const
 {
-  return d->highlightoutliers;
+  return m_d->highlightoutliers;
 }
 
 //____________________________________________________________________
 bool PRDCollHandleBase::drawErrors() const
 {
-  return d->drawerrors;
+  return m_d->drawerrors;
 }
 
 //____________________________________________________________________
 bool PRDCollHandleBase::drawRDOs() const
 {
-  return d->drawrdos;
+  return m_d->drawrdos;
 }
 
 //____________________________________________________________________
 SoMaterial * PRDCollHandleBase::highLightMaterial() const
 {
-  return  d->highlightmaterial;
+  return  m_d->highlightmaterial;
 }
 
 //____________________________________________________________________
 void PRDCollHandleBase::setHighLightOutliers(bool b)
 {
-  if (d->highlightoutliers==b)
+  if (m_d->highlightoutliers==b)
     return;
-  d->highlightoutliers = b;
+  m_d->highlightoutliers = b;
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     (*it)->updateMaterial();
     //Fixme: Improve performance by only calling updateMaterial() on
@@ -658,11 +658,11 @@ void PRDCollHandleBase::setHighLightOutliers(bool b)
 //____________________________________________________________________
 void PRDCollHandleBase::setDrawErrors(bool b)
 {
-  if (d->drawerrors==b)
+  if (m_d->drawerrors==b)
     return;
-  d->drawerrors = b;
+  m_d->drawerrors = b;
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     (*it)->update3DObjects();
     //Fixme: Improve performance by only calling updateMaterial() on
@@ -674,11 +674,11 @@ void PRDCollHandleBase::setDrawErrors(bool b)
 //____________________________________________________________________
 void PRDCollHandleBase::setDrawRDOs(bool b)
 {
-  if (d->drawrdos==b)
+  if (m_d->drawrdos==b)
     return;
-  d->drawrdos = b;
+  m_d->drawrdos = b;
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     (*it)->update3DObjects();
     //Fixme: Improve performance by only calling updateMaterial() on
@@ -695,9 +695,9 @@ void PRDCollHandleBase::setHighLightWeight(const double& hlw)
     return;
   m_highlightweight = hlw;
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
-    if (d->highlightoutliers || (*it)->highLight())
+    if (m_d->highlightoutliers || (*it)->highLight())
       (*it)->updateMaterial();
     //Fixme: We can improve performance here by investigating whether
     //the handle actually is an outlier for at least one track, or if
@@ -714,7 +714,7 @@ void PRDCollHandleBase::setColourMethod(PRDCollHandleBase::COLOURMETHOD cm)
   m_colourmethod = cm;
 
   largeChangesBegin();
-  std::vector<PRDHandleBase*>::iterator it(d->prdhandles.begin()),itE(d->prdhandles.end());
+  std::vector<PRDHandleBase*>::iterator it(m_d->prdhandles.begin()),itE(m_d->prdhandles.end());
   for (;it!=itE;++it) {
     (*it)->updateMaterial();
     //Fixme: Improve performance by only calling on those that are on tracks/segments as relevant.
@@ -749,13 +749,13 @@ QString PRDCollHandleBase::toString(const COLOURMETHOD& cm)
 //____________________________________________________________________
 qint32 PRDCollHandleBase::provideCollTypeID() const
 {
-  return PRDDetType::typeToInt(d->detType);
+  return PRDDetType::typeToInt(m_d->detType);
 }
 
 //____________________________________________________________________
 QString PRDCollHandleBase::provideText() const
 {
-  return d->storegate_key;
+  return m_d->storegate_key;
 }
 
 //____________________________________________________________________
@@ -767,7 +767,7 @@ void PRDCollHandleBase::assignDefaultMaterial(SoMaterial*m) const
 //____________________________________________________________________
 QString PRDCollHandleBase::provideSection() const
 {
-  switch (d->detType) {
+  switch (m_d->detType) {
     case PRDDetType::Pixel:
     case PRDDetType::SCT:
     case PRDDetType::TRT:
@@ -789,7 +789,7 @@ QString PRDCollHandleBase::provideSection() const
 //____________________________________________________________________
 QString PRDCollHandleBase::provideSectionToolTip() const
 {
-  switch (d->detType) {
+  switch (m_d->detType) {
     case PRDDetType::Pixel:
     case PRDDetType::SCT:
     case PRDDetType::TRT:
@@ -809,14 +809,14 @@ QString PRDCollHandleBase::provideSectionToolTip() const
 //____________________________________________________________________
 QList<QWidget*> PRDCollHandleBase::provideExtraWidgetsForGuiRow() const
 {
-  return QList<QWidget*>() << d->comboBox_detailLevel;
+  return QList<QWidget*>() << m_d->comboBox_detailLevel;
 }
 
 //____________________________________________________________________
 QByteArray PRDCollHandleBase::extraWidgetsState() const
 {
   VP1Serialise serialise(0/*version*/,systemBase());
-  serialise.save(d->comboBox_detailLevel);
+  serialise.save(m_d->comboBox_detailLevel);
   serialise.disableUnsavedChecks();
   return serialise.result();
 }
@@ -827,7 +827,7 @@ void PRDCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
   VP1Deserialise state(ba, systemBase());
   if (state.version()!=0)
     return;//just ignore silently... i guess we ought to warn?
-  state.restore(d->comboBox_detailLevel);
+  state.restore(m_d->comboBox_detailLevel);
   state.disableUnrestoredChecks();
   detailComboBoxItemChanged();
 }
@@ -835,11 +835,11 @@ void PRDCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
 //____________________________________________________________________
 void PRDCollHandleBase::setAllowedEta(const VP1Interval& e)
 {
-  if (d->allowedEta==e)
+  if (m_d->allowedEta==e)
     return;
-  bool relaxed(e.contains(d->allowedEta));
-  bool tightened(d->allowedEta.contains(e));
-  d->allowedEta=e;
+  bool relaxed(e.contains(m_d->allowedEta));
+  bool tightened(m_d->allowedEta.contains(e));
+  m_d->allowedEta=e;
   if (relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else if (tightened)
@@ -851,9 +851,9 @@ void PRDCollHandleBase::setAllowedEta(const VP1Interval& e)
 //____________________________________________________________________
 void PRDCollHandleBase::setAllowedPhi(const QList<VP1Interval>& l)
 {
-  if (d->allowedPhi==l)
+  if (m_d->allowedPhi==l)
     return;
-  d->allowedPhi=l;
+  m_d->allowedPhi=l;
   recheckCutStatusOfAllHandles();
 }
 

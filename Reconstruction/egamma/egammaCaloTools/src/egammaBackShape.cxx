@@ -4,7 +4,6 @@
 
 
 #include "egammaBackShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloLayerCalculator.h"
@@ -29,7 +28,6 @@ egammaBackShape::egammaBackShape(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_cluster(0),
     m_cellContainer(0),
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
     m_eallsamples(0),
     m_e3(0),
     m_eta(0),
@@ -46,12 +44,6 @@ egammaBackShape::egammaBackShape(const std::string& type,
   // declare Interface
   declareInterface<IegammaBackShape>(this);
   
-  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
-
-  // Calculate some less important variables
-  declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
-		  "Calculate some less important variables");  
-
   // initialisation of variables
   InitVariables();
 }

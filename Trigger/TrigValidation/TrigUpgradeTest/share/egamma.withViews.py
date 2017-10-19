@@ -63,7 +63,7 @@ if viewTest:
   allViewAlgorithms += theFastCaloAlgo
   svcMgr.ViewAlgPool.TopAlg += [ theFastCaloAlgo.getName() ]
   l2CaloViewsMaker = EventViewCreatorAlgorithm("l2CaloViewsMaker", OutputLevel=DEBUG)
-  
+  l2CaloViewsMaker.ViewFallThrough = True
   l2CaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
   l2CaloViewsMaker.RoIsLink = "initialRoI" # -||-
   l2CaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
@@ -205,6 +205,9 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       ClustersName            = "PixelTrigClusters",
                                                       isRoI_Seeded            = True)
 
+if viewTest:
+   InDetPixelClusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.Pixel_ClusterKey
+
 #
 # --- SCT_ClusteringTool (public)
 #
@@ -226,7 +229,8 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
                                                     isRoI_Seeded            = True )
 
-
+if viewTest:
+   InDetSCT_Clusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.SCT_ClusterKey
 
 #Space points and FTF
 
@@ -244,8 +248,11 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                  ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
-
+                                                                  ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                  OutputLevel=DEBUG)
+if viewTest:
+   InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = topSequence.InDetCacheCreatorTrigViews.SpacePointCacheSCT
+   InDetSiTrackerSpacePointFinder.SpacePointCachePix = topSequence.InDetCacheCreatorTrigViews.SpacePointCachePix
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
@@ -286,7 +293,7 @@ if viewTest:
   l2ElectronViewsMaker.RoIsLink = "roi" # -||-
   l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
   l2ElectronViewsMaker.Views = "EMElectronViews"
-
+  l2ElectronViewsMaker.ViewFallThrough = True
 
   theTrackParticleCreatorAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
   for idAlg in IDSequence:

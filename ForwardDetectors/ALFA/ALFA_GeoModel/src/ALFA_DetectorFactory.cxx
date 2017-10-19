@@ -36,8 +36,8 @@
 #include <algorithm>
 using namespace std;
 
-#include "ALFA_GeoModel/ALFA_DetectorTool.h"
-#include "ALFA_GeoModel/ALFA_DetectorFactory.h"
+#include "ALFA_DetectorTool.h"
+#include "ALFA_DetectorFactory.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 
 double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};

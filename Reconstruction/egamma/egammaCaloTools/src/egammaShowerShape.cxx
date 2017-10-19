@@ -29,10 +29,6 @@ egammaShowerShape::egammaShowerShape(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_cluster(0), 
     m_cellContainer(0),
-    m_egammaPreSamplerShape("egammaPreSamplerShape/egammapresamplershape"),
-    m_egammaStripsShape("egammaStripsShape/egammastripsshape"),
-    m_egammaMiddleShape("egammaMiddleShape/egammamiddleshape"),
-    m_egammaBackShape("egammaBackShape/egammabackshape"),
     m_enecell(0), 
     m_etacell(0),
     m_gracell(0),
@@ -40,39 +36,6 @@ egammaShowerShape::egammaShowerShape(const std::string& type,
 { 
   // declare Interface
   declareInterface<IegammaShowerShape>(this);
-
-  declareProperty("egammaPreSamplerShapeTool",m_egammaPreSamplerShape);
-  declareProperty("egammaStripsShapeTool",m_egammaStripsShape);
-  declareProperty("egammaMiddleShapeTool",m_egammaMiddleShape);
-  declareProperty("egammaBackShapeTool",m_egammaBackShape);
-
-  // boolean for which algo to apply
-  declareProperty("ExecAllVariables",m_ExecAllVariables=true,
-		  "flag used by trigger");  
-
-  // Calculate EM presampler variables
-  declareProperty("ExecPreSampler",m_ExecPreSampler=true,
-		  "Calculate EM presampler variables");  
-
-  // Calculate EM 1st sampling variables
-  declareProperty("ExecEMFirst",m_ExecEMFirst=true,
-		  "Calculate EM 1st sampling variables");  
-
-  // Calculate EM 1st sampling variables
-  declareProperty("ExecEMSecond",m_ExecEMSecond=true,
-		  "Calculate EM 1st sampling variables");
-
-  // Calculate EM 2nd sampling variables
-  declareProperty("ExecEMThird",m_ExecEMThird=true,
-		  "Calculate EM 2nd sampling variables"); 
-
-  // Calculate EM variables combining all samplings
-  declareProperty("ExecEMCombined",m_ExecEMCombined=true,
-		  "Calculate EM variables combining all samplings");
-
-  // Calculate some less important variables
-  declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
-		  "Calculate some less important variables");  
 
   InitVariables();
 }

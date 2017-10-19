@@ -5,7 +5,7 @@
 #ifndef BYTESTREAMEVENTTPCNV_BYTESTREAMMETADATA_P1_H
 #define BYTESTREAMEVENTTPCNV_BYTESTREAMMETADATA_P1_H
 
-/** @file ByteStreamMetadata_p1.h
+/** @file ByteStreamEventTPCnv/ByteStreamMetadata_p1.h
  *  @brief This file contains the class definition for the ByteStreamMetadata_p1 class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ByteStreamMetadata_p1.h,v 1.1 2009-03-18 17:42:44 gemmeren Exp $

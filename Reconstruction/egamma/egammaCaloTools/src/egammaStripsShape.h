@@ -161,20 +161,40 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   const xAOD::CaloCluster* m_cluster; 
   /** @brief Cell container*/
   const CaloCellContainer* m_cellContainer;
-  /** @brief name of the cell container*/
-  std::string m_cellsName;
   /** Tool to calculate correction for the eta width modulation in strips */
-  ToolHandle<Iegammaqweta1c> m_egammaqweta1c;
+  ToolHandle<Iegammaqweta1c> m_egammaqweta1c {this,
+      "egammaqweta1cTool", "egammaqweta1c/egammaqweta1c"};
+
   /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
-  double m_neta;
-  double m_nphi;
+  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
+      "egammaEnergyPositionAllSamplesTool", 
+      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
+
+  //
+  // calculate quantities base on information in the strips in a region
+  // around the cluster. 
+  //
+  // Use 2 strips in phi and cover a region of +-1.1875
+  // 5 cells in eta based on second sampling granularity ~0.025 in eta.
+  //Corresponds to ~19 strips in em barrel)
+  //  
+  Gaudi::Property<double> m_neta {this, "Neta", 5,
+      "Number of eta cell in each sampling in which to calculated shower shapes"};
+
+  Gaudi::Property<double> m_nphi {this, "Nphi", 2.,
+      "Number of phi cell in each sampling in which to calculated shower shapes"};
+
   /** @brief boolean to calculate all variables*/
-  bool m_ExecAllVariables;
+  Gaudi::Property<bool> m_ExecAllVariables {this, 
+      "ExecAllVariables", true, "flag used by trigger"};
+
   /** @brief boolean to calculate less important variables*/
-  bool m_ExecOtherVariables;
+  Gaudi::Property<bool> m_ExecOtherVariables {this,
+      "ExecOtherVariables", true, "Calculate some less important variables"};
+
   /** @brief boolean to use cluster cells or all cells */
-  bool m_UseCellsFromCluster;
+  Gaudi::Property<bool> m_UseCellsFromCluster {this,
+      "UseCellsFromCluster", true, "Use Cells from the cluster"};
 
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;

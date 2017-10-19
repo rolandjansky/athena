@@ -21,68 +21,68 @@ namespace FADS {
 
 
 
-  FieldManager* FieldManager::thePointer = FieldManager::GetFieldManager();
+  FieldManager* FieldManager::s_thePointer = FieldManager::GetFieldManager();
 
 
   FieldManager::FieldManager()
-    : currentField(NULL),currentStepper(NULL),
-      theEquation(NULL),theChordFinder(NULL),eqOfMotion("Default")
+    : m_currentField(NULL),m_currentStepper(NULL),
+      m_theEquation(NULL),m_theChordFinder(NULL),m_eqOfMotion("Default")
   {
     // default primary event action
   }
 
 
   FieldManager* FieldManager::GetFieldManager() {
-    if (!thePointer) thePointer = new FieldManager();
-    return thePointer;
+    if (!s_thePointer) s_thePointer = new FieldManager();
+    return s_thePointer;
   }
 
 
   void FieldManager::RegisterMagneticField(MagneticFieldMap* map) {
-    fieldCatalog[map->GetName()] = map;
+    m_fieldCatalog[map->GetName()] = map;
   }
 
   void FieldManager::InitializeField()
   {
-    if (!currentField)
+    if (!m_currentField)
       {
         std::cout<<" Field Manager initialization: a field map"
                  <<" has not been set: running without field? "<<std::endl;
         return;
       }
-    currentField->Create();
-    if (!currentField->IsInitialized()) currentField->SetInitialValues();
+    m_currentField->Create();
+    if (!m_currentField->IsInitialized()) m_currentField->SetInitialValues();
     G4FieldManager* fieldMgr=G4TransportationManager::GetTransportationManager()->GetFieldManager();
-    fieldMgr->SetDetectorField(currentField);
-    fieldMgr->CreateChordFinder(currentField);
-    theChordFinder=fieldMgr->GetChordFinder();
-    theEquation = GetEquationOfMotion();
+    fieldMgr->SetDetectorField(m_currentField);
+    fieldMgr->CreateChordFinder(m_currentField);
+    m_theChordFinder=fieldMgr->GetChordFinder();
+    m_theEquation = GetEquationOfMotion();
   }
 
   void FieldManager::SelectMagneticField(const string& name) {
-    if (fieldCatalog.find(name) == fieldCatalog.end()) {
+    if (m_fieldCatalog.find(name) == m_fieldCatalog.end()) {
       cout << "FieldManager Warning!!! Field " << name <<" not found!!!!" << endl;
       return;
     }
-    // if (currentField) currentField->Terminate;
-    currentField = fieldCatalog[name];
+    // if (m_currentField) m_currentField->Terminate;
+    m_currentField = m_fieldCatalog[name];
   }
 
 
   void FieldManager::SelectAndCreateMagneticField(const string& name) {
-    if (fieldCatalog.find(name) == fieldCatalog.end())  {
+    if (m_fieldCatalog.find(name) == m_fieldCatalog.end())  {
       cout << "FieldManager Warning!!! Field " << name << " not found!!!!" << endl;
       return;
     }
-    // if (currentField) currentField->Terminate;
-    currentField = fieldCatalog[name];
-    currentField->Create();
+    // if (m_currentField) m_currentField->Terminate;
+    m_currentField = m_fieldCatalog[name];
+    m_currentField->Create();
   }
 
 
   MagneticFieldMap* FieldManager::GetMagneticField(const string& name) {
-    FieldMap::iterator it_f = fieldCatalog.find(name);
-    if (it_f == fieldCatalog.end()) {
+    FieldMap::iterator it_f = m_fieldCatalog.find(name);
+    if (it_f == m_fieldCatalog.end()) {
       cout << " FieldManager Warning!!! Field " << name << " not found!!!!" << endl;
       return 0;
     }
@@ -91,21 +91,21 @@ namespace FADS {
 
   G4Mag_EqRhs* FieldManager::GetEquationOfMotion()
   {
-    if (!theEquation) {
-      if (eqOfMotion=="Default") {
-        theEquation=new G4Mag_UsualEqRhs(currentField);
+    if (!m_theEquation) {
+      if (m_eqOfMotion=="Default") {
+        m_theEquation=new G4Mag_UsualEqRhs(m_currentField);
       }
       else {
-        theEquation=GetEqOfMotion(eqOfMotion);
+        m_theEquation=GetEqOfMotion(m_eqOfMotion);
       }
     }
-    return theEquation;
+    return m_theEquation;
   }
 
 
   const MagneticFieldMap* FieldManager::GetMagneticField(const string& name) const {
-    FieldMap::const_iterator it_f = fieldCatalog.find(name);
-    if (it_f == fieldCatalog.end()) {
+    FieldMap::const_iterator it_f = m_fieldCatalog.find(name);
+    if (it_f == m_fieldCatalog.end()) {
       cout << " FieldManager Warning!!! Field " << name << " not found!!!!" << endl;
       return 0;
     }
@@ -117,52 +117,52 @@ namespace FADS {
   void FieldManager::PrintFieldList() const {
     FieldMap::const_iterator it;
     cout << " List of Magnetic Field Maps available: " << endl;
-    for (it = fieldCatalog.begin(); it != fieldCatalog.end(); ++it)
+    for (it = m_fieldCatalog.begin(); it != m_fieldCatalog.end(); ++it)
       cout << "\t---> " << it->first << "\t\t<---" << endl;
     cout << " <--------------------------------------->" << endl;
   }
 
   void FieldManager::RegisterEqOfMotion(EqOfMotionFactoryBase* eq) {
     cout << "Registering equation of motion" << eq->GetName() << endl;
-    theEquations[eq->GetName()] = eq;
+    m_theEquations[eq->GetName()] = eq;
   }
 
   G4Mag_EqRhs* FieldManager::GetEqOfMotion(const std::string eqM) {
-    if (theEquations.find(eqM) == theEquations.end())
+    if (m_theEquations.find(eqM) == m_theEquations.end())
       {
         cout << " FieldManager could not find equation of motion " << eqM << endl;
         return 0;
       }
-    return theEquations[eqM]->Build();
+    return m_theEquations[eqM]->Build();
   }
 
   void FieldManager::RegisterStepper(IntegratorStepperBase* stepper) {
-    cout << "Registering stepper " << stepper->GetName() << endl;
-    theSteppers[stepper->GetName()] = stepper;
+    //cout << "Registering stepper " << stepper->GetName() << endl;
+    m_theSteppers[stepper->GetName()] = stepper;
   }
 
 
   void FieldManager::ListSteppers() const {
     cout << " List of all Integrator Steppers available " << endl;
-    for (StepperMap::const_iterator it = theSteppers.begin(); it != theSteppers.end(); ++it) {
+    for (StepperMap::const_iterator it = m_theSteppers.begin(); it != m_theSteppers.end(); ++it) {
       cout << "---- " << it->first << " ----" << endl;
     }
   }
 
 
   void FieldManager::SetCurrentStepper(const string& n) {
-    if (theSteppers.find(n) == theSteppers.end()) {
+    if (m_theSteppers.find(n) == m_theSteppers.end()) {
       cout << "Stepper " << n << " not found! Stepper not changed" << endl;
       return;
     }
-    currentStepperName = n;
-    currentStepper = theSteppers[n]->Build();
+    m_currentStepperName = n;
+    m_currentStepper = m_theSteppers[n]->Build();
   }
 
 
   void FieldManager::UseCurrentStepper() {
-    if (theChordFinder && theChordFinder->GetIntegrationDriver()) {
-      theChordFinder->GetIntegrationDriver()->RenewStepperAndAdjust(currentStepper);
+    if (m_theChordFinder && m_theChordFinder->GetIntegrationDriver()) {
+      m_theChordFinder->GetIntegrationDriver()->RenewStepperAndAdjust(m_currentStepper);
     }
   }
 
@@ -170,25 +170,25 @@ namespace FADS {
   void FieldManager::UseStepper(const string& n) {
     /// @todo It would be good to replace most of this with a call to SetCurrentStepper...
     ///       but we can't since there is no way to report a failure. Is this function actually needed?
-    if (theSteppers.find(n) == theSteppers.end())  {
+    if (m_theSteppers.find(n) == m_theSteppers.end())  {
       cout << "Stepper " << n << " not found! Stepper not changed" << endl;
       return;
     }
-    currentStepperName = n;
-    currentStepper = theSteppers[n]->Build();
+    m_currentStepperName = n;
+    m_currentStepper = m_theSteppers[n]->Build();
     UseCurrentStepper();
   }
 
   G4MagIntegratorStepper* FieldManager::GetStepper(const std::string& n){
-    if (n == currentStepperName) {
-      cout << "FieldManager: the stepper " << n << " and currentStepper are the same. Return the currentStepper." << endl;
-      return currentStepper;
+    if (n == m_currentStepperName) {
+      cout << "FieldManager: the stepper " << n << " and m_currentStepper are the same. Return the m_currentStepper." << endl;
+      return m_currentStepper;
     }
-    if (theSteppers.find(n) == theSteppers.end())  {
+    if (m_theSteppers.find(n) == m_theSteppers.end())  {
       cout << "Stepper " << n << " not found. Return 0!!!" << endl;
       return 0;
     }
-    return theSteppers[n]->Build();
+    return m_theSteppers[n]->Build();
   }
 
   void FieldManager::SetDeltaOneStep(double value) {

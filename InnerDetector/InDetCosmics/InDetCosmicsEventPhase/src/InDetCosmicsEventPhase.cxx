@@ -61,7 +61,8 @@ namespace InDet
   
   StatusCode InDetCosmicsEventPhase::beginRun()
   {
-    m_eventPhaseTool->beginRun();
+    m_event=0;
+    //m_eventPhaseTool->beginRun();  // To access conditions, move this
     return StatusCode::SUCCESS;
   }
   
@@ -70,7 +71,8 @@ namespace InDet
     ++m_event;
     ATH_MSG_DEBUG ("execute() event: " << m_event);
     m_phase=0;    
-    
+    if(m_event==1) m_eventPhaseTool->beginRun(); //to here
+
     const Trk::Track* selected=0;
     int maxTRT=-1;
 

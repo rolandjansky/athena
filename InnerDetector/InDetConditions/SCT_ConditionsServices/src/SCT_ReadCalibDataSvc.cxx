@@ -9,17 +9,9 @@
 // Include SCT_ReadCalibDataSvc.h
 #include "SCT_ReadCalibDataSvc.h"
 
-// Include Event Info 
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "CoralBase/TimeStamp.h"
-
 // Include Athena stuff
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "EventInfo/EventID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -88,7 +80,6 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator*
     declareProperty("PrintCalibDefectMaps", m_printCalibDefectMaps=false, "Print data read from the Calib Defect map?");
     declareProperty("AttrListCollFolders", m_atrcollist, "List of calibration data folder?"); 
     declareProperty("RecoOnly", m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
-    declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of EventInfo container");
     declareProperty("IgnoreDefects", m_ignoreDefects, "Defects to ignore");
     declareProperty("IgnoreDefectsParameters", m_ignoreDefectParameters, "Limit on defect to ignore parameters");
 
@@ -96,9 +87,9 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator*
     names[0] = std::string{"/SCT/DAQ/Calibration/NPtGainDefects"};
     names[1] = std::string{"/SCT/DAQ/Calibration/NoiseOccupancyDefects"};
     m_atrcollist.setValue(names);
-    WaferIsGoodInfo_t OneWaferIsGoodInfo;
-    OneWaferIsGoodInfo.assign(0);
-    m_isGoodAllWafersInfo.assign(OneWaferIsGoodInfo);
+    WaferIsGoodInfo_t oneWaferIsGoodInfo;
+    oneWaferIsGoodInfo.assign(0);
+    m_isGoodAllWafersInfo.assign(oneWaferIsGoodInfo);
     m_ignoreDefects.push_back("NOISE_SLOPE");
     m_ignoreDefects.push_back("OFFSET_SLOPE");
     m_ignoreDefects.push_back("GAIN_SLOPE");
@@ -185,9 +176,6 @@ StatusCode SCT_ReadCalibDataSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // Read Handle Key
-  ATH_CHECK(m_eventInfoKey.initialize());
-  
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::initialize()
 
@@ -246,10 +234,10 @@ StatusCode SCT_ReadCalibDataSvc::fillData(int& /*i*/ , std::list<std::string>& l
     ATH_MSG_INFO("Calib Defect array/maps filled ok");
     // Print the defect maps
     if (m_printCalibDefectMaps and not m_recoOnly) {
-      std::string NPGCalibDefectMap{m_NPGDefects.str()};
-      std::string NOCalibDefectMap{m_NODefects.str()};
-      ATH_MSG_DEBUG("\n" << NPGCalibDefectMap);
-      ATH_MSG_DEBUG(NOCalibDefectMap);
+      std::string npgCalibDefectMap{m_NPGDefects.str()};
+      std::string noCalibDefectMap{m_NODefects.str()};
+      ATH_MSG_DEBUG("\n" << npgCalibDefectMap);
+      ATH_MSG_DEBUG(noCalibDefectMap);
     }
     return StatusCode::SUCCESS;
   } else {
@@ -289,16 +277,6 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
   s_defectMapIntToString[37] = "BAD_OPE";       //<! Bad occupancy per event variance/binomial variance > 2.0)
   s_defectMapIntToString[38] = "DOUBTR_HI";     //<! High double trigger noise occupancy, > 5
 
-  // Get the current event and print info
-  SG::ReadHandle<EventInfo> event{m_eventInfoKey};
-  if (event.isValid()) {
-    coral::TimeStamp::ValueType nsTime{event->event_ID()->time_stamp()*1000000000LL};
-    ATH_MSG_VERBOSE("In run/event [" << event->event_ID()->run_number() <<
-		     "," << event->event_ID()->event_number() << "] timestamp " << nsTime); 
-  } else {
-    ATH_MSG_ERROR("Could not get pointer to event");
-  }
-
   if (not m_recoOnly) {
     // Check if maps empty, and if not clear them
     if (not m_NPGDefects.empty()) m_NPGDefects.clear();
@@ -335,40 +313,40 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
         p_element = (m_SCTdetMgr->getDetectorElement(hashId1));
         if (p_element->swapPhiReadoutDirection()) { phiSwap1Present = true; }
        
-	// Clear theseDefects
+        // Clear theseDefects
         theseDefects.begDefects.clear();
         theseDefects.endDefects.clear();
         theseDefects.typeOfDefect.clear();
         theseDefects.parValue.clear();
   
-	// Get all defect parameters from COOL attrib list
-        std::string Gaindefectb{((anAttrList)["defectBeginChannel"]).data<std::string>()};
-        std::string Gaindefecte{((anAttrList)["defectEndChannel"]).data<std::string>()};
-        std::string DefectType{((anAttrList)["defectType"]).data<std::string>()};
+        // Get all defect parameters from COOL attrib list
+        std::string gaindefectb{((anAttrList)["defectBeginChannel"]).data<std::string>()};
+        std::string gaindefecte{((anAttrList)["defectEndChannel"]).data<std::string>()};
+        std::string defectType{((anAttrList)["defectType"]).data<std::string>()};
         std::string parValue{((anAttrList)["defectParameter"]).data<std::string>()};
   
-	// Convert the defect strings to vectors
-	std::vector<unsigned int> Gaindefectbvec;
-	fillFromString(Gaindefectb, Gaindefectbvec);
-	std::vector<unsigned int> Gaindefectevec;
-	fillFromString(Gaindefecte, Gaindefectevec);
-	std::vector<unsigned int> DefectTypevec;
-	fillFromString(DefectType, DefectTypevec);
-	std::vector<double> parValuevec;
-	fillFromString(parValue, parValuevec);
+        // Convert the defect strings to vectors
+        std::vector<unsigned int> gaindefectbvec;
+        fillFromString(gaindefectb, gaindefectbvec);
+        std::vector<unsigned int> gaindefectevec;
+        fillFromString(gaindefecte, gaindefectevec);
+        std::vector<unsigned int> defectTypevec;
+        fillFromString(defectType, defectTypevec);
+        std::vector<double> parValuevec;
+        fillFromString(parValue, parValuevec);
 
-	// Fill the Calib defect objects    
-        long unsigned int Gainvec_size{Gaindefectbvec.size()};
-        for (long unsigned int i=0; i<Gainvec_size; ++i) {
-          theseDefects.begDefects.push_back(Gaindefectbvec[i]);
-          theseDefects.endDefects.push_back(Gaindefectevec[i]);
-          theseDefects.typeOfDefect.push_back(s_defectMapIntToString[DefectTypevec[i]]);
+        // Fill the Calib defect objects
+        long unsigned int gainvec_size{gaindefectbvec.size()};
+        for (long unsigned int i{0}; i<gainvec_size; ++i) {
+          theseDefects.begDefects.push_back(gaindefectbvec[i]);
+          theseDefects.endDefects.push_back(gaindefectevec[i]);
+          theseDefects.typeOfDefect.push_back(s_defectMapIntToString[defectTypevec[i]]);
           theseDefects.parValue.push_back(coerceToFloatRange(parValuevec[i]));
         }
         // Fill the isGoodWaferArray
         if (not theseDefects.begDefects.empty()) {
           for (unsigned int i{0}; i<theseDefects.begDefects.size(); ++i) { // loop over all defects
-	    // Check for defects and their limits not to take into account in isGood 
+            // Check for defects and their limits not to take into account in isGood
             bool ignoreDefect{false};
             unsigned int ig{0};
             //std::string defectType = theseDefects.typeOfDefect[i];
@@ -387,18 +365,18 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
               ig++;
             }
             if (!ignoreDefect) {
-	      //set the isGoodBool value for all strips for this defect
+              //set the isGoodBool value for all strips for this defect
               for (unsigned int strip{theseDefects.begDefects[i]}; strip <= theseDefects.endDefects[i]; ++strip) { 
-		// Check for phiSwap and which wafer side before filling isGood vector
-                if (strip < 768) { //side 0 0->767
+                // Check for phiSwap and which wafer side before filling isGood vector
+                if (strip < STRIPS_PER_WAFER) { //side 0 0->767
                   const unsigned int waferId0{hashId0};
                   WaferIsGoodInfo_t& thisWaferIsGoodData0{m_isGoodAllWafersInfo[waferId0]};
-                  const unsigned int side0StripNumber{phiSwap0Present ? (767-strip) : strip};
+                  const unsigned int side0StripNumber{phiSwap0Present ? (  STRIPS_PER_WAFER-1-strip) : strip};
                   thisWaferIsGoodData0[side0StripNumber] = false;
                 } else { // side 1 768->1535 => 0->767
                   const unsigned int waferId1{hashId1};
                   WaferIsGoodInfo_t& thisWaferIsGoodData1{m_isGoodAllWafersInfo[waferId1]};
-                  const unsigned int side1StripNumber{phiSwap1Present ? (1535-strip) : (strip-768)};
+                  const unsigned int side1StripNumber{phiSwap1Present ? (2*STRIPS_PER_WAFER-1-strip) : (strip-STRIPS_PER_WAFER)};
                   thisWaferIsGoodData1[side1StripNumber] = false;
                 }
               }
@@ -464,14 +442,12 @@ bool SCT_ReadCalibDataSvc::isGood(const Identifier& elementId, InDetConditions::
       ATH_MSG_WARNING("summary(): Module good/bad is not applicable for Calibration data");
       break;
     }
-
   case InDetConditions::SCT_SIDE:
     {
       // Not applicable for Calibration data
       ATH_MSG_WARNING("summary(): Wafer good/bad is not applicable for Calibration data");
       break;
     }
-
   case InDetConditions::SCT_CHIP:
     {
       // Not applicable for Calibration data
@@ -556,12 +532,12 @@ SCT_ReadCalibDataSvc::CalibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
       const InDetDD::SiDetectorElement* p_element{m_SCTdetMgr->getDetectorElement(stripId)};
       if (p_element->swapPhiReadoutDirection()) {
         if (side == 0) {
-          stripNum = 767 - strip;
+          stripNum =   STRIPS_PER_WAFER-1 - strip;
         } else {
-          stripNum = 1535 - strip;
+          stripNum = 2*STRIPS_PER_WAFER-1 - strip;
         }      
       } else {
-        stripNum = side * 768 + strip;
+        stripNum = side * STRIPS_PER_WAFER + strip;
       }
       
       // Find the bad strip and fill calibDefectSummary
@@ -632,12 +608,12 @@ std::list<Identifier> SCT_ReadCalibDataSvc::defectList(const std::string& defect
   SCT_CalibDefectData::CalibModuleDefects wantedDefects;
   
   //Check which scan the defect belongs
-  bool NPDefect{false};
-  bool NODefect{false};
+  bool npDefect{false};
+  bool noDefect{false};
   if (defect=="NO_HI" or defect=="BAD_OPE" or defect=="DOUBTR_HI") {
-    NODefect = true;
+    noDefect = true;
   } else {
-    NPDefect = true;
+    npDefect = true;
   }
   
   //Loop over all wafers using hashIds from the cabling service
@@ -656,20 +632,20 @@ std::list<Identifier> SCT_ReadCalibDataSvc::defectList(const std::string& defect
       //Only use the hashid for side 0, since data saved per module basis
       if (side!=0) continue;
       Identifier moduleId{m_id_sct->module_id(waferId)};
-      if (NPDefect) {
+      if (npDefect) {
         wantedDefects = m_NPGDefects.findModule(moduleId);
-      }  else if (NODefect) {
+      }  else if (noDefect) {
         wantedDefects = m_NODefects.findModule(moduleId);
       }
       if (!wantedDefects.begDefects.empty()) {
         for (unsigned int i{0}; i < wantedDefects.begDefects.size(); ++i) {
           if (wantedDefects.typeOfDefect[i] == defect) {
-	    // Create identifier for all strips inside begin to end
+            // Create identifier for all strips inside begin to end
             int strip_beg{static_cast<int>(wantedDefects.begDefects[i])};
             int strip_end{static_cast<int>(wantedDefects.endDefects[i])};
             // In DB: strip from 0-1535, need to convert to side and 0-767 and take into account phiSwaps
             for (int strip{strip_beg}; strip<strip_end+1; strip++) {
-              int nside{(strip<768) ? 0 : 1};
+              int nside{(strip<STRIPS_PER_WAFER) ? 0 : 1};
               int strip_cor;
               const InDetDD::SiDetectorElement* p_element;
               if (nside==1) { // if side 1 need waferId of side 1 to get phiswap and correct stripId
@@ -682,12 +658,12 @@ std::list<Identifier> SCT_ReadCalibDataSvc::defectList(const std::string& defect
               }
               if (p_element->swapPhiReadoutDirection()) {
                 if (nside == 0) {
-                  strip_cor = 767 - strip;
+                  strip_cor =   STRIPS_PER_WAFER-1 - strip;
                 } else {
-                  strip_cor = 1535 - strip;
+                  strip_cor = 2*STRIPS_PER_WAFER-1 - strip;
                 }      
               } else {
-                strip_cor = strip - nside * 768;
+                strip_cor = strip - nside * STRIPS_PER_WAFER;
               }
               Identifier stripId{m_id_sct->strip_id(waferId,strip_cor)};
               defectList.push_back(stripId);

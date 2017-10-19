@@ -43,7 +43,9 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
     m_directionEtaCut(0.5),
     m_positionPhiCut(5.),
     m_positionZ_Cut(250.),
-    m_pRegionSelector("RegSelSvc",n)
+    m_pRegionSelector("RegSelSvc",n),
+    m_sctId(nullptr),
+    m_trtId(nullptr)
 {
 
 

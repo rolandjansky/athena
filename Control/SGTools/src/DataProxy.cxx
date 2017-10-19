@@ -193,6 +193,16 @@ bool DataProxy::bindHandle(IResetable* ir) {
 }
 
 
+/// Drop the reference to the data object.
+void DataProxy::resetRef()
+{
+  DataObject* dobj = m_dObject;
+  resetGaudiRef(dobj);
+  m_dObject = dobj;
+  m_tAddress->reset();
+  m_const = m_origConst;
+}
+
 
 void DataProxy::reset (bool hard /*= false*/)
 {
@@ -200,12 +210,9 @@ void DataProxy::reset (bool hard /*= false*/)
 
   objLock_t objLock (m_objMutex);
   lock_t lock (m_mutex);
-  DataObject* dobj = m_dObject;
-  resetGaudiRef(dobj);
-  m_dObject = dobj;
-  m_tAddress->reset();
-  m_const = m_origConst;
+  resetRef();
 }
+
 
 void DataProxy::finalReset()
 {
@@ -293,18 +300,34 @@ unsigned long DataProxy::release()
 }
 
 
-///request to release the instance (may just reset it)
+/**
+ * @brief Reset/release a proxy at the end of an event.
+ * @param force If true, force a release rather than a reset.
+ * @param hard Do a hard reset if true.
+ * @returns True if the caller should release the proxy.
+ *
+ * This is usually called at the end of an event.
+ * No locking is done, so there should be no other threads accessing
+ * this proxy.
+ *
+ * `Release' means that we want to remove the proxy from the store.
+ * `Reset' means that we keep the proxy, but remove the data object
+ * that it references.
+ * Each proxy has a flag saying whether it wants to do a release or a reset.
+ * This can be forced via the FORCE argument; this would typically be done
+ * when deleting the store.
+ * This function does not actually release the proxy.  If it returns
+ * true, the caller is expected to release the proxy.
+ *
+ * See AthenaKernel/IResetable.h for the meaning of HARD.
+ */
 bool DataProxy::requestRelease(bool force, bool hard) {
 
-  //this needs to happen no matter what
-  resetBoundHandles(hard);
-
-  bool canRelease = force;
-  {
-    lock_t lock (m_mutex);
-    if (!m_resetFlag) canRelease = true;
+  if (!m_handles.empty()) {
+    resetBoundHandles(hard);
   }
-
+  bool canRelease = force;
+  if (!m_resetFlag) canRelease = true;
 #ifndef NDEBUG
   MsgStream gLog(m_ims, "DataProxy");
   if (gLog.level() <= MSG::VERBOSE) {
@@ -315,8 +338,9 @@ bool DataProxy::requestRelease(bool force, bool hard) {
 	 << object() << MSG::dec << endmsg;
   }
 #endif
-  if (canRelease)  release();
-  else             reset(hard);
+  if (!canRelease) {
+    resetRef();
+  }
   return canRelease;
 }
 

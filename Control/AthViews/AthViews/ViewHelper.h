@@ -34,7 +34,7 @@ namespace ViewHelper
 	//Function to create a vector of views, each populated with one data object
 	template< typename T >
 	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool AllowFallThrough=false )
+			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool allowFallThrough=false )
 	{
 		//Loop over all input data
 		unsigned int const viewNumber = InputData.size();
@@ -42,7 +42,7 @@ namespace ViewHelper
 		{
 			//Create view
 			std::string viewName = ViewNameRoot + std::to_string( viewIndex );
-			SG::View * outputView = new SG::View( viewName, AllowFallThrough );
+			SG::View * outputView = new SG::View( viewName, allowFallThrough );
 			ViewVector.push_back( outputView );
 
 			//Attach the handle to the view
@@ -209,10 +209,10 @@ namespace ViewHelper
   /**
    * @arg unique_index - gets appended to the view name if >= 0
    */
-  inline SG::View* makeView( const std::string& common_name, int unique_index=-1) {
+  inline SG::View* makeView( const std::string& common_name, int unique_index=-1, bool allowFallThrough = true) {
 	  return  (( unique_index == -1 ) ?
-		   new SG::View( common_name ) :
-		   new SG::View( common_name+ " "+std::to_string(unique_index) ) );
+		   new SG::View( common_name, allowFallThrough ) :
+		   new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );
 	  
   }
   

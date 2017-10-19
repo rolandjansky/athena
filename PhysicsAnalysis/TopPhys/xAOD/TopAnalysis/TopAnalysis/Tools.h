@@ -13,7 +13,7 @@
 #include "TopConfiguration/TopConfig.h"
 
 /**
- * @file Tools.h
+ * @file TopAnalysis/Tools.h
  *
  * Some tools to make life in the xAOD world a bit easier.  Including ways
  * to initialise, guess the best "mode" to open an xAOD with, load cuts, list

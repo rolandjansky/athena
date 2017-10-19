@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BeamPipeGeoModel/BeamPipeDetectorTool.h"
-#include "BeamPipeGeoModel/BeamPipeDetectorFactory.h" 
+#include "BeamPipeDetectorTool.h"
+#include "BeamPipeDetectorFactory.h" 
 #include "BeamPipeGeoModel/BeamPipeDetectorManager.h" 
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
@@ -31,7 +31,7 @@ BeamPipeDetectorTool::~BeamPipeDetectorTool()
 }
 
 
-StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
+StatusCode BeamPipeDetectorTool::create()
 { 
   MsgStream log(msgSvc(), name()); 
 
@@ -51,7 +51,7 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
   std::string versionNode = "ATLAS";
 
   GeoModelExperiment * theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
 	<< endmsg; 
@@ -81,13 +81,13 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
       
     } else {
       
-      BeamPipeDetectorFactory theBeamPipeFactory(detStore,raccess);
+      BeamPipeDetectorFactory theBeamPipeFactory(detStore().operator->(),raccess);
       theBeamPipeFactory.setTagNode(atlasVersion,versionNode);
       theBeamPipeFactory.create(world);
 
       m_manager = theBeamPipeFactory.getDetectorManager();
       theExpt->addManager(m_manager);
-      sc = detStore->record(m_manager,
+      sc = detStore()->record(m_manager,
 			    m_manager->getName());
     
 
@@ -101,9 +101,9 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
   return StatusCode::FAILURE;
 }
 
-StatusCode BeamPipeDetectorTool::clear(StoreGateSvc* detStore)
+StatusCode BeamPipeDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<BeamPipeDetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<BeamPipeDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;

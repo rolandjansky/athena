@@ -91,7 +91,7 @@ public:
   
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   VP1TrackSystem * m_3dsystem;
   AscObjSelectionManager* m_ascObjSelectionManager;

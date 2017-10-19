@@ -3,16 +3,13 @@
 */
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GeoModelKernel/GeoVDetectorManager.h"
-#include "GaudiKernel/MsgStream.h"
 
 /**
  ** Constructor(s)
  **/
 GeoModelTool::GeoModelTool( const std::string& type, const std::string& name, const IInterface* parent )
-  : AthAlgTool( type, name, parent ),
-    m_detector(0)
-  
+  : AthAlgTool( type, name, parent )
+  , m_detector(0)
 {
   declareInterface<IGeoModelTool>( this );
 }
@@ -26,24 +23,21 @@ GeoModelTool::~GeoModelTool()  {
 /**
  ** The Detector Node corresponding to this tool
  **/
-GeoVDetectorManager*
-GeoModelTool::manager() const {
-	return m_detector;
+GeoVDetectorManager* GeoModelTool::manager() const {
+  return m_detector;
 }
 
-StatusCode GeoModelTool::clear(StoreGateSvc*)
+StatusCode GeoModelTool::clear()
 {
   return StatusCode::SUCCESS;
 }
 
-StatusCode 
-GeoModelTool::align(IOVSVC_CALLBACK_ARGS)
+StatusCode GeoModelTool::align(IOVSVC_CALLBACK_ARGS)
 {
   return StatusCode::SUCCESS;
 }
 
-StatusCode 
-GeoModelTool::registerCallback( StoreGateSvc* )
+StatusCode GeoModelTool::registerCallback()
 {
   // Return Failure since no function has been registered
   return StatusCode::FAILURE;

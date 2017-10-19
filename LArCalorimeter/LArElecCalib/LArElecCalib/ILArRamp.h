@@ -45,7 +45,5 @@ CLASS_DEF( ILArRamp,8123,1)
 //ConditionsContainer clid for athenaMT"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILArRamp> , 39560902 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILArRamp>, CondContBase );
 
 #endif 

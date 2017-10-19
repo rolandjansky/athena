@@ -19,7 +19,7 @@ namespace EL {
 }
 
 /**
- * @file AnalysisTools.h
+ * @file TopExamples/AnalysisTools.h
  *
  * @brief A few functions for analysis code in the final stages.
  */

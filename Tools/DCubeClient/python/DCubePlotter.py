@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubePlotter.py
+# @file DCubeClient/python/DCubePlotter.py
 # @author Krzysztof Daniel Ciba (Krzyszotf.Ciba@NOSPAgmail.com)
 # @brief implementation of DCubePlotter, DCubeStyle and test_DCubePlotter classes
 #

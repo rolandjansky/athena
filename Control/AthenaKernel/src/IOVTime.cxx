@@ -196,11 +196,11 @@ IOVTime::operator std::string () const {
 IOVTime::operator EventIDBase() const {
   if (isBoth()) {
     return EventIDBase(run(),EventIDBase::UNDEFEVT,
-                       timestamp()/1000000000LL,timestamp()%1000000000LL,
+		       std::min(timestamp()/1000000000LL,(unsigned long long)(std::numeric_limits<unsigned int>::max()-1)),timestamp()%1000000000LL,
                        event());
   } else if (isTimestamp()) {
     return EventIDBase(EventIDBase::UNDEFNUM,EventIDBase::UNDEFEVT,
-                       timestamp()/1000000000LL,timestamp()%1000000000LL);
+		       std::min(timestamp()/1000000000LL,(unsigned long long)(std::numeric_limits<unsigned int>::max()-1)),timestamp()%1000000000LL);
   } else if (isRunEvent()) {
     return EventIDBase(run(),EventIDBase::UNDEFEVT,
                        EventIDBase::UNDEFNUM,0,

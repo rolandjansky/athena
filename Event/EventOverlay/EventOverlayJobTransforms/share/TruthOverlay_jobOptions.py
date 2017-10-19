@@ -17,7 +17,6 @@ from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyMcEventCollection
 job += CopyMcEventCollection()
 if readBS and isRealData:
     job.CopyMcEventCollection.RealData = True
-    job.CopyMcEventCollection.InfoType = "ByteStreamEventInfo"
 
 if not isRealData:
     from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyTruthInfo

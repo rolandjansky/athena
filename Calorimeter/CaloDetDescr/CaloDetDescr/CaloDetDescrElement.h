@@ -3,7 +3,7 @@
 */
 
 /**
- * @file CaloDetDescrElement.h
+ * @file CaloDetDescr/CaloDetDescrElement.h
  *
  * @brief Definition of CaloDetDescrElement
  *

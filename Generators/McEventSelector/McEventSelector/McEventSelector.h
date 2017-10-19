@@ -28,7 +28,7 @@
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/MsgStream.h"
 
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 
 // Forward declarations
 class EventSource;
@@ -47,30 +47,31 @@ class McContext;
 
 class McEventSelector : virtual public AthService, 
                         virtual public IEvtSelector,
-                        virtual public IEventSeek {
+                        virtual public IEvtSelectorSeek {
 public:
 
-  virtual StatusCode initialize();
-  virtual StatusCode stop();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface(const InterfaceID& riid, 
-				    void** ppvInterface);
-  virtual StatusCode createContext(Context*& refpCtxt) const;
+				    void** ppvInterface) override;
+  virtual StatusCode createContext(Context*& refpCtxt) const override;
 
-  virtual StatusCode last(Context& refContext) const;
-  virtual StatusCode next(Context& refCtxt) const;
-  virtual StatusCode next(Context& refCtxt,int jump) const;
-  virtual StatusCode previous(Context& refCtxt) const;
-  virtual StatusCode previous(Context& refCtxt,int jump) const;
-  virtual StatusCode rewind(Context& refCtxt) const;
+  virtual StatusCode last(Context& refContext) const override;
+  virtual StatusCode next(Context& refCtxt) const override;
+  virtual StatusCode next(Context& refCtxt,int jump) const override;
+  virtual StatusCode previous(Context& refCtxt) const override;
+  virtual StatusCode previous(Context& refCtxt,int jump) const override;
+  virtual StatusCode rewind(Context& refCtxt) const override;
 
   virtual StatusCode createAddress(const Context& refCtxt, 
-				   IOpaqueAddress*&) const;
-  virtual StatusCode releaseContext(Context*& refCtxt) const;
-  virtual StatusCode resetCriteria(const std::string& cr,Context& c)const;
+				   IOpaqueAddress*&) const override;
+  virtual StatusCode releaseContext(Context*& refCtxt) const override;
+  virtual StatusCode resetCriteria(const std::string& cr,Context& c)const override;
 
-  virtual StatusCode seek(int);
-  virtual int curEvent() const;
+  virtual StatusCode seek(Context& refCtxt, int) const override;
+  virtual int curEvent (const Context& refCtxt) const override;
+  virtual int size (Context& refCtxt) const override;
 
   /// Service Constructor
   McEventSelector( const std::string& name, ISvcLocator* svcloc );

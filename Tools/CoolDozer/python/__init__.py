@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ## 
-# @file __init__.py
+# @file CoolDozer/python/__init__.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief Custom duty.
 

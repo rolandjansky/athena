@@ -10,12 +10,7 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
-def appendToEMTrackMatchBuilder(tool):
-    "add track to calo tool (like it was done in egammaGetter)"
-    tool += EMExtrapolationTools()
-  
 EMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
-      postInit = [appendToEMTrackMatchBuilder],
       TrackParticlesName = egammaKeys.outputTrackParticleKey(),
       ExtrapolationTool  = EMExtrapolationTools,
       broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2

@@ -108,7 +108,7 @@ EL::StatusCode JetReclusteringAlgo :: execute ()
     } else if(m_event->contains<jet_t>(m_inputJetContainer)){
       if(!m_event->retrieve( smallRjets, m_inputJetContainer ).isSuccess()) return EL::StatusCode::FAILURE;
     } else {
-      Error("execute()", "Could not find the input jet container. That's ***REMOVED***.");
+      Error("execute()", "Could not find the input jet container. That's weird.");
       return EL::StatusCode::FAILURE;
     }
 

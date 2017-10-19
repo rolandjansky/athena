@@ -750,8 +750,7 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms()
       // this duplicates what is already done in Algorithm::sysExecute, which
       // calls Algorithm::setExecuted, but eventually we plan to remove that 
       // function
-      m_aess->algExecState(*ita,*m_eventContext).setExecuted(true);
-      m_aess->algExecState(*ita,*m_eventContext).setExecStatus(sc);
+      m_aess->algExecState(*ita,*m_eventContext).setState(AlgExecState::State::Done, sc);
       if ( !sc.isSuccess() )
         {
           ATH_MSG_INFO ( "Execution of algorithm " <<

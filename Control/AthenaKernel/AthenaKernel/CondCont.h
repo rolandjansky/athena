@@ -1,8 +1,7 @@
-// This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
  * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
+//
 /**
  * @file AthenaKernel/CondCont.h
  * @author Vakho, Charles, Scott
@@ -403,12 +402,13 @@ protected:
                                   EventIDRange* r) const override;
 
 
-private:
+public:
 
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
   static void registerBaseInit();
 
+private:
 
   /// Mutex used to protect the container.
   typedef std::mutex mutex_t;
@@ -431,6 +431,13 @@ private:
 
 #include "AthenaKernel/CondCont.icc"
 
+#include "AthenaKernel/CondContMaker.h"
+
+#define CONCATUNF_(x,y) x##y
+#define CONCATUNF(x,y) CONCATUNF_(x,y)
+#define UNIQUEVARNAME CONCATUNF(CONCATUNF(REGCCM_,__COUNTER__),__LINE__)
+
+#define REGISTER_CC(T) static CondContainer::CondContMaker<T> UNIQUEVARNAME {}
 
 #endif // not ATHENAKERNEL_CONDCONT_H
 

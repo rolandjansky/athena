@@ -4,8 +4,8 @@
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 
-#include "LArGeoAlgsNV/LArDetectorToolNV.h"
-#include "LArGeoAlgsNV/LArDetectorFactory.h" 
+#include "LArDetectorToolNV.h"
+#include "LArDetectorFactory.h" 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -51,7 +51,6 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type,
     m_buildBarrel(true),
     m_buildEndcap(true),
     m_applyAlignments(false),
-    m_detStore(0),
     m_geometryConfig("FULL")
 {
   declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);
@@ -72,7 +71,7 @@ LArDetectorToolNV::~LArDetectorToolNV()
   LArGeo::VDetectorParameters::SetInstance(0);
 }
 
-StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
+StatusCode LArDetectorToolNV::create()
 { 
   IMessageSvc* msgSvc;
   if(StatusCode::FAILURE==service ("MessageSvc",msgSvc))
@@ -95,9 +94,7 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
 
 
   MsgStream log(msgSvc, name()); 
-  m_detStore = detStore;
-
-  if (StatusCode::SUCCESS != detStore->record(hvManager,"LArHVManager")) {
+  if (StatusCode::SUCCESS != detStore()->record(hvManager,"LArHVManager")) {
      log << MSG::ERROR << "Unable to record LArHVManager in detector store " << endmsg;
      return StatusCode::FAILURE;
   }
@@ -161,7 +158,7 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
 
   // Locate the top level experiment node 
   DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) 
   { 
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
@@ -203,7 +200,7 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
     GeoPhysVol *world=&*theExpt->getPhysVol();
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
-    if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),
+    if (StatusCode::SUCCESS != detStore()->record(theLArFactory.getDetectorManager(),
 						theLArFactory.getDetectorManager()->getName())) 
       { 
 	log << MSG::ERROR << "Could not record" << endmsg; 
@@ -223,16 +220,16 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   return StatusCode::FAILURE;
 }
 
-StatusCode LArDetectorToolNV::clear(StoreGateSvc* detStore)
+StatusCode LArDetectorToolNV::clear()
 {
   std::vector<std::string>::const_iterator itStored;
 
   StoredPhysVol* storedPV(0);
   StatusCode status(StatusCode::SUCCESS);
-  std::vector<std::string> sgkeysFPV = detStore->keys<StoredPhysVol>();
+  std::vector<std::string> sgkeysFPV = detStore()->keys<StoredPhysVol>();
   // First loop over all Full Physical volumes and initialize their global position informations
   for(itStored=sgkeysFPV.begin();itStored!=sgkeysFPV.end();itStored++) {
-    status = detStore->retrieve(storedPV,*itStored);
+    status = detStore()->retrieve(storedPV,*itStored);
     if(status.isFailure()) {
       storedPV = 0;
       continue;
@@ -245,7 +242,7 @@ StatusCode LArDetectorToolNV::clear(StoreGateSvc* detStore)
   }
 
   for(itStored=sgkeysFPV.begin();itStored!=sgkeysFPV.end();itStored++) {
-    status = detStore->retrieve(storedPV,*itStored);
+    status = detStore()->retrieve(storedPV,*itStored);
     if(status.isFailure()) {
       storedPV = 0;
       continue;
@@ -257,15 +254,15 @@ StatusCode LArDetectorToolNV::clear(StoreGateSvc* detStore)
   }
 
   // Release all Stored XF and Stored FPV from the detector store
-  std::vector<std::string> sgkeysAXF = detStore->keys<StoredAlignX>();
+  std::vector<std::string> sgkeysAXF = detStore()->keys<StoredAlignX>();
   for(itStored=sgkeysAXF.begin();itStored!=sgkeysAXF.end();itStored++) {
-    SG::DataProxy* proxy = detStore->proxy(ClassID_traits<StoredAlignX>::ID(),*itStored);
+    SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<StoredAlignX>::ID(),*itStored);
     if(proxy)
       proxy->reset();
   }
 
   // Release manager from the detector store
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<LArDetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<LArDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;
@@ -274,7 +271,7 @@ StatusCode LArDetectorToolNV::clear(StoreGateSvc* detStore)
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
+StatusCode LArDetectorToolNV::registerCallback()
 {
   // Return FAILURE if no callbacks have been registered
   MsgStream log(msgSvc(), name());
@@ -289,7 +286,7 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
 
   const DataHandle<DetCondKeyTrans> dckt;
   log << MSG::DEBUG << "Registering callback on DetCondKeyTrans with folder " << folderName << endmsg;
-  StatusCode sc = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName); 
+  StatusCode sc = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName); 
   if(sc.isSuccess())
     log << MSG::DEBUG << " Successfully registered " << endmsg;
   else
@@ -346,9 +343,9 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   }
 
   const DetCondKeyTrans* align=0;
-  if(m_detStore->contains<DetCondKeyTrans>(LAR_ALIGN))
+  if(detStore()->contains<DetCondKeyTrans>(LAR_ALIGN))
   {
-    StatusCode sc = m_detStore->retrieve(align, LAR_ALIGN);
+    StatusCode sc = detStore()->retrieve(align, LAR_ALIGN);
   
     if(sc.isFailure())
     {
@@ -369,23 +366,23 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     StoredAlignX *hec2AlxPos=0;
     StoredAlignX *hec1AlxNeg=0;
     StoredAlignX *hec2AlxNeg=0;
-    if (m_detStore->contains<StoredAlignX> ("HEC1_POS")) {
-      if (m_detStore->retrieve(hec1AlxPos,"HEC1_POS")!=StatusCode::SUCCESS) {
+    if (detStore()->contains<StoredAlignX> ("HEC1_POS")) {
+      if (detStore()->retrieve(hec1AlxPos,"HEC1_POS")!=StatusCode::SUCCESS) {
 	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_POS" << endmsg;
       }
     }
-    if (m_detStore->contains<StoredAlignX> ("HEC1_NEG")) {
-      if (m_detStore->retrieve(hec1AlxNeg,"HEC1_NEG")!=StatusCode::SUCCESS) {
+    if (detStore()->contains<StoredAlignX> ("HEC1_NEG")) {
+      if (detStore()->retrieve(hec1AlxNeg,"HEC1_NEG")!=StatusCode::SUCCESS) {
 	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_NEG" << endmsg;
       }
     }
-    if (m_detStore->contains<StoredAlignX> ("HEC2_POS")) {
-      if (m_detStore->retrieve(hec2AlxPos,"HEC2_POS")!=StatusCode::SUCCESS) {
+    if (detStore()->contains<StoredAlignX> ("HEC2_POS")) {
+      if (detStore()->retrieve(hec2AlxPos,"HEC2_POS")!=StatusCode::SUCCESS) {
 	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_POS" << endmsg;
       }
     }
-    if (m_detStore->contains<StoredAlignX> ("HEC2_NEG")) {
-      if (m_detStore->retrieve(hec2AlxNeg,"HEC2_NEG")!=StatusCode::SUCCESS) {
+    if (detStore()->contains<StoredAlignX> ("HEC2_NEG")) {
+      if (detStore()->retrieve(hec2AlxNeg,"HEC2_NEG")!=StatusCode::SUCCESS) {
 	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_NEG" << endmsg;
       }
     }
@@ -401,10 +398,10 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     {
       std::string alignName = alignNames[i];
       // First try to retrieve StoredAlignX
-      if(m_detStore->contains<StoredAlignX>(alignName))
+      if(detStore()->contains<StoredAlignX>(alignName))
       {
 	StoredAlignX* alignX = 0;
-	sc = m_detStore->retrieve(alignX,alignName);
+	sc = detStore()->retrieve(alignX,alignName);
 
 	if(sc.isFailure())
 	{
@@ -476,10 +473,10 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   for(unsigned int i=0; i<alignNames.size(); i++)
   {
     std::string alignName = alignNames[i];
-    if(m_detStore->contains<StoredPhysVol>(alignName))
+    if(detStore()->contains<StoredPhysVol>(alignName))
     {
 	StoredPhysVol* storedPV = 0;
-	StatusCode sc = m_detStore->retrieve(storedPV,alignName);
+	StatusCode sc = detStore()->retrieve(storedPV,alignName);
 	if(sc.isSuccess())
 	{
 	  const GeoFullPhysVol* fullPV = storedPV->getPhysVol();

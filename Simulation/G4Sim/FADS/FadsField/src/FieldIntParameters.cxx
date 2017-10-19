@@ -14,54 +14,54 @@
 
 namespace FADS {
 
-G4double FieldIntParameters::default_kineticEnergyThreshold = 1.0*CLHEP::GeV;
-G4double FieldIntParameters::default_maxLengthForConstField = 1.0*CLHEP::mm;
-G4double FieldIntParameters::default_missDistance = 0.25*CLHEP::mm;
-G4double FieldIntParameters::default_typicalLongStep = 1.0*CLHEP::cm;
-G4double FieldIntParameters::default_tolerableBiasError = 1.0e-5*CLHEP::m;
-G4double FieldIntParameters::default_tolerableIntegrationError = 1.0e-4*CLHEP::m;
-G4double FieldIntParameters::default_expectedNumBoundaries = 1.0e2;
-G4double FieldIntParameters::default_expectedTrackLength = 20.0*CLHEP::m;
+G4double FieldIntParameters::s_default_kineticEnergyThreshold = 1.0*CLHEP::GeV;
+G4double FieldIntParameters::s_default_maxLengthForConstField = 1.0*CLHEP::mm;
+G4double FieldIntParameters::s_default_missDistance = 0.25*CLHEP::mm;
+G4double FieldIntParameters::s_default_typicalLongStep = 1.0*CLHEP::cm;
+G4double FieldIntParameters::s_default_tolerableBiasError = 1.0e-5*CLHEP::m;
+G4double FieldIntParameters::s_default_tolerableIntegrationError = 1.0e-4*CLHEP::m;
+G4double FieldIntParameters::s_default_expectedNumBoundaries = 1.0e2;
+G4double FieldIntParameters::s_default_expectedTrackLength = 20.0*CLHEP::m;
 
 FieldIntParameters::FieldIntParameters()
 {
- current_kineticEnergyThreshold = default_kineticEnergyThreshold;
+ m_current_kineticEnergyThreshold = s_default_kineticEnergyThreshold;
 
- // for e+/e- track below current_kineticEnergyThreshold
- current_maxLengthForConstField[0] = default_maxLengthForConstField * 100.;
- current_missDistance[0] = default_missDistance;
- current_typicalLongStep[0] = default_typicalLongStep;
- current_tolerableBiasError[0] = default_tolerableBiasError;
- current_tolerableIntegrationError[0] = default_tolerableIntegrationError * 10.;
- current_expectedNumBoundaries[0] = default_expectedNumBoundaries / 10.;
- current_expectedTrackLength[0] = default_expectedTrackLength / 100.;
+ // for e+/e- track below m_current_kineticEnergyThreshold
+ m_current_maxLengthForConstField[0] = s_default_maxLengthForConstField * 100.;
+ m_current_missDistance[0] = s_default_missDistance;
+ m_current_typicalLongStep[0] = s_default_typicalLongStep;
+ m_current_tolerableBiasError[0] = s_default_tolerableBiasError;
+ m_current_tolerableIntegrationError[0] = s_default_tolerableIntegrationError * 10.;
+ m_current_expectedNumBoundaries[0] = s_default_expectedNumBoundaries / 10.;
+ m_current_expectedTrackLength[0] = s_default_expectedTrackLength / 100.;
 
- // for e+/e- track above current_kineticEnergyThreshold
+ // for e+/e- track above m_current_kineticEnergyThreshold
  // and all other charged track except mu+/mu- of any kinetic energy
- current_maxLengthForConstField[1] = default_maxLengthForConstField / 1000.;
- current_missDistance[1] = default_missDistance;
- current_typicalLongStep[1] = default_typicalLongStep;
- current_tolerableBiasError[1] = default_tolerableBiasError;
- current_tolerableIntegrationError[1] = default_tolerableIntegrationError;
- current_expectedNumBoundaries[1] = default_expectedNumBoundaries;
- current_expectedTrackLength[1] = default_expectedTrackLength;
+ m_current_maxLengthForConstField[1] = s_default_maxLengthForConstField / 1000.;
+ m_current_missDistance[1] = s_default_missDistance;
+ m_current_typicalLongStep[1] = s_default_typicalLongStep;
+ m_current_tolerableBiasError[1] = s_default_tolerableBiasError;
+ m_current_tolerableIntegrationError[1] = s_default_tolerableIntegrationError;
+ m_current_expectedNumBoundaries[1] = s_default_expectedNumBoundaries;
+ m_current_expectedTrackLength[1] = s_default_expectedTrackLength;
 
  // for mu+/mu- track of any kinetic energy
- current_maxLengthForConstField[2] = default_maxLengthForConstField / 1000.;
- current_missDistance[2] = default_missDistance;
- current_typicalLongStep[2] = default_typicalLongStep;
- current_tolerableBiasError[2] = default_tolerableBiasError / 10.;
- current_tolerableIntegrationError[2] = default_tolerableIntegrationError;
- current_expectedNumBoundaries[2] = default_expectedNumBoundaries;
- current_expectedTrackLength[2] = default_expectedTrackLength;
+ m_current_maxLengthForConstField[2] = s_default_maxLengthForConstField / 1000.;
+ m_current_missDistance[2] = s_default_missDistance;
+ m_current_typicalLongStep[2] = s_default_typicalLongStep;
+ m_current_tolerableBiasError[2] = s_default_tolerableBiasError / 10.;
+ m_current_tolerableIntegrationError[2] = s_default_tolerableIntegrationError;
+ m_current_expectedNumBoundaries[2] = s_default_expectedNumBoundaries;
+ m_current_expectedTrackLength[2] = s_default_expectedTrackLength;
 
  for(int i=0;i<3;i++)
  {
-   nLongStep[i] = 0;
-   nShortStep[i] = 0;
+   m_nLongStep[i] = 0;
+   m_nShortStep[i] = 0;
  }
  
- idx = -1;
+ m_idx = -1;
 }
 
 FieldIntParameters::~FieldIntParameters()
@@ -71,24 +71,24 @@ void FieldIntParameters::List(G4int iFlg) const
 {
   if(iFlg)
   { 
-  G4cout<<" Number of Long Steps for each pType \t"<<nLongStep[0]<<"\t"<<nLongStep[1]
-          <<"\t"<<nLongStep[2]<<"\t-- Total long steps "<<nLongStep[0]+nLongStep[1]+nLongStep[2]<<G4endl;
-  G4cout<<" Number of Short Steps for each pType\t"<<nShortStep[0]<<"\t"<<nShortStep[1]
-          <<"\t"<<nShortStep[2]<<"\t-- Total short steps "<<nShortStep[0]+nShortStep[1]+nShortStep[2]<<G4endl;
+  G4cout<<" Number of Long Steps for each pType \t"<<m_nLongStep[0]<<"\t"<<m_nLongStep[1]
+          <<"\t"<<m_nLongStep[2]<<"\t-- Total long steps "<<m_nLongStep[0]+m_nLongStep[1]+m_nLongStep[2]<<G4endl;
+  G4cout<<" Number of Short Steps for each pType\t"<<m_nShortStep[0]<<"\t"<<m_nShortStep[1]
+          <<"\t"<<m_nShortStep[2]<<"\t-- Total short steps "<<m_nShortStep[0]+m_nShortStep[1]+m_nShortStep[2]<<G4endl;
   }
-  G4cout<<" kineticEnergyThreshold [MeV]        \t"<<current_kineticEnergyThreshold<<G4endl;
-  G4cout<<" maxLengthForConstField [mm]         \t"<<current_maxLengthForConstField[0]<<"\t"
-        <<current_maxLengthForConstField[1]<<"\t"
-        <<current_maxLengthForConstField[2]<<G4endl;
-  G4cout<<" missDistance [mm]                   \t"<<current_missDistance[0]<<"\t"
-        <<current_missDistance[1]<<"\t"
-        <<current_missDistance[2]<<G4endl;
-  G4cout<<" tolerableBiasError [mm]             \t"<<current_tolerableBiasError[0]<<"\t"
-        <<current_tolerableBiasError[1]<<"\t"
-        <<current_tolerableBiasError[2]<<G4endl;
-  G4cout<<" tolerableIntegrationError [mm]      \t"<<current_tolerableIntegrationError[0]<<"\t"
-        <<current_tolerableIntegrationError[1]<<"\t"
-        <<current_tolerableIntegrationError[2]<<G4endl;
+  G4cout<<" kineticEnergyThreshold [MeV]        \t"<<m_current_kineticEnergyThreshold<<G4endl;
+  G4cout<<" maxLengthForConstField [mm]         \t"<<m_current_maxLengthForConstField[0]<<"\t"
+        <<m_current_maxLengthForConstField[1]<<"\t"
+        <<m_current_maxLengthForConstField[2]<<G4endl;
+  G4cout<<" missDistance [mm]                   \t"<<m_current_missDistance[0]<<"\t"
+        <<m_current_missDistance[1]<<"\t"
+        <<m_current_missDistance[2]<<G4endl;
+  G4cout<<" tolerableBiasError [mm]             \t"<<m_current_tolerableBiasError[0]<<"\t"
+        <<m_current_tolerableBiasError[1]<<"\t"
+        <<m_current_tolerableBiasError[2]<<G4endl;
+  G4cout<<" tolerableIntegrationError [mm]      \t"<<m_current_tolerableIntegrationError[0]<<"\t"
+        <<m_current_tolerableIntegrationError[1]<<"\t"
+        <<m_current_tolerableIntegrationError[2]<<G4endl;
 }
 
 void FieldIntParameters::GetParameters(const G4Track* aTrack,
@@ -100,20 +100,20 @@ void FieldIntParameters::GetParameters(const G4Track* aTrack,
     G4double& expectedNumBoundaries,
     G4double& expectedTrackLength)
 {
-  idx = 1;
+  m_idx = 1;
   G4ParticleDefinition* partDef = aTrack->GetDefinition();
   if(partDef==G4Electron::Definition() || partDef==G4Positron::Definition())
-  { if(aTrack->GetKineticEnergy() < current_kineticEnergyThreshold) idx = 0; }
+  { if(aTrack->GetKineticEnergy() < m_current_kineticEnergyThreshold) m_idx = 0; }
   else if(partDef==G4MuonPlus::Definition() || partDef==G4MuonMinus::Definition())
-  { idx = 2; }
+  { m_idx = 2; }
 
-  maxLengthForConstField = current_maxLengthForConstField[idx];
-  missDistance = current_missDistance[idx];
-  typicalLongStep = current_typicalLongStep[idx];
-  tolerableBiasError = current_tolerableBiasError[idx];
-  tolerableIntegrationError = current_tolerableIntegrationError[idx];
-  expectedNumBoundaries = current_expectedNumBoundaries[idx];
-  expectedTrackLength = current_expectedTrackLength[idx];
+  maxLengthForConstField = m_current_maxLengthForConstField[m_idx];
+  missDistance = m_current_missDistance[m_idx];
+  typicalLongStep = m_current_typicalLongStep[m_idx];
+  tolerableBiasError = m_current_tolerableBiasError[m_idx];
+  tolerableIntegrationError = m_current_tolerableIntegrationError[m_idx];
+  expectedNumBoundaries = m_current_expectedNumBoundaries[m_idx];
+  expectedTrackLength = m_current_expectedTrackLength[m_idx];
 }
 
 }

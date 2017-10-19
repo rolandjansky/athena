@@ -34,7 +34,5 @@ inline std::ostream& operator<<(std::ostream& ost, const CondDataObjY& rhs) {
 CLASS_DEF( CondDataObjY , 6664392 , 1 )
 CLASS_DEF( CondCont<CondDataObjY> , 207255848 , 1 )
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<CondDataObjY>, CondContBase );
 
 #endif

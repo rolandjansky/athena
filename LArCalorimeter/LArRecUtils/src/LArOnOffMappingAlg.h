@@ -20,11 +20,11 @@ class LArOnOffMappingAlg: public AthAlgorithm {
 public:
 
   LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArOnOffMappingAlg();
+  virtual ~LArOnOffMappingAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+
 
  private:
   SG::ReadCondHandleKey<AthenaAttributeList> m_readKey;

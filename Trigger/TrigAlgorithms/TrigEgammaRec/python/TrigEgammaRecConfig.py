@@ -80,9 +80,9 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     
     # Tools with default configuration    
 #     VertexBuilderTool = EMVertexBuilder,
-    ConversionBuilderTool = EMConversionBuilder, 
-    AmbiguityTool = EGammaAmbiguityTool,
-    FourMomBuilderTool = EMFourMomBuilder,
+    ConversionBuilderTool = EMConversionBuilder.copyPublic("TrigEMConversionBuilder"),
+    AmbiguityTool = EGammaAmbiguityTool.copyPublic("TrigEGammaAmbiguityTool"),
+    FourMomBuilderTool = EMFourMomBuilder.copyPublic("TrigEMFourMomBuilder"),
     
     # Flags
     doTrackMatching = True,

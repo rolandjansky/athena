@@ -6,28 +6,28 @@
 #include "G4Field/ConstantField.h"
 
 ConstantFieldXMLHandler::ConstantFieldXMLHandler(std::string s,ConstantField *c):
-						DescriptionFactory(s),theField(c)
+						DescriptionFactory(s),m_theField(c)
 {
 }
 
 void ConstantFieldXMLHandler::BuildDescription()
 {
 	if (CheckAttribute("Bx")) 
-		theField->SetXComponent(GetAttributeAsDoubleAndUnit("Bx"));
+		m_theField->SetXComponent(GetAttributeAsDoubleAndUnit("Bx"));
 	if (CheckAttribute("By")) 
-		theField->SetYComponent(GetAttributeAsDoubleAndUnit("By"));
+		m_theField->SetYComponent(GetAttributeAsDoubleAndUnit("By"));
 	if (CheckAttribute("Bz")) 
-		theField->SetZComponent(GetAttributeAsDoubleAndUnit("Bz"));
+		m_theField->SetZComponent(GetAttributeAsDoubleAndUnit("Bz"));
 	if (CheckAttribute("Xmin"))
-		theField->SetXMinField(GetAttributeAsDoubleAndUnit("Xmin"));
+		m_theField->SetXMinField(GetAttributeAsDoubleAndUnit("Xmin"));
 	if (CheckAttribute("Xmax"))
-		theField->SetXMaxField(GetAttributeAsDoubleAndUnit("Xmax"));
+		m_theField->SetXMaxField(GetAttributeAsDoubleAndUnit("Xmax"));
 	if (CheckAttribute("Ymin"))
-		theField->SetYMinField(GetAttributeAsDoubleAndUnit("Ymin"));
+		m_theField->SetYMinField(GetAttributeAsDoubleAndUnit("Ymin"));
 	if (CheckAttribute("Ymax"))
-		theField->SetYMaxField(GetAttributeAsDoubleAndUnit("Ymax"));
+		m_theField->SetYMaxField(GetAttributeAsDoubleAndUnit("Ymax"));
 	if (CheckAttribute("Zmin"))
-		theField->SetZMinField(GetAttributeAsDoubleAndUnit("Zmin"));
+		m_theField->SetZMinField(GetAttributeAsDoubleAndUnit("Zmin"));
 	if (CheckAttribute("Zmax"))
-		theField->SetZMaxField(GetAttributeAsDoubleAndUnit("Zmax"));
+		m_theField->SetZMaxField(GetAttributeAsDoubleAndUnit("Zmax"));
 }

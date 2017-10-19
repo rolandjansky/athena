@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include "LUCID_GeoModel/GetReflectivity.h"
+#include "GetReflectivity.h"
 
 namespace {
   

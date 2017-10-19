@@ -21,12 +21,12 @@ FieldManagerFactoryStore* FieldManagerFactoryStore::GetStore()
 
 void FieldManagerFactoryStore::AddFieldManagerFactory(FieldManagerFactory *f)
 {
-	theFactories[f->GetName()] = f;
+	m_theFactories[f->GetName()] = f;
 }
 
 FieldManagerFactory *FieldManagerFactoryStore::GetFieldManagerFactory(std::string n)
 {
-	if (theFactories.find(n)!=theFactories.end()) return theFactories[n];
+	if (m_theFactories.find(n)!=m_theFactories.end()) return m_theFactories[n];
 	else return 0;
 }
 }

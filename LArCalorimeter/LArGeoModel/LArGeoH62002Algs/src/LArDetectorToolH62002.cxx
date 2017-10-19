@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62002Algs/LArDetectorToolH62002.h"
-#include "LArGeoH62002Algs/LArDetectorFactoryH62002.h" 
+#include "LArDetectorToolH62002.h"
+#include "LArDetectorFactoryH62002.h" 
 
 #include "LArReadoutGeometry/HECDetectorManager.h"
 
@@ -45,7 +45,7 @@ LArDetectorToolH62002::~LArDetectorToolH62002()
  ** Create the Detector Node corresponding to this tool
  **/
 StatusCode
-LArDetectorToolH62002::create( StoreGateSvc* detStore )
+LArDetectorToolH62002::create()
 { 
   MsgStream log(msgSvc(), name()); 
   
@@ -71,7 +71,7 @@ LArDetectorToolH62002::create( StoreGateSvc* detStore )
   // Locate the top level experiment node 
   // 
   DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
 	<< endmsg; 
@@ -88,7 +88,7 @@ LArDetectorToolH62002::create( StoreGateSvc* detStore )
   //}
 
 
-  LArGeo::LArDetectorFactoryH62002 theLArFactory(detStore);
+  LArGeo::LArDetectorFactoryH62002 theLArFactory(detStore().operator->());
 
 
 
@@ -109,7 +109,7 @@ LArDetectorToolH62002::create( StoreGateSvc* detStore )
     }
     // Register the H62002Node instance with the Transient Detector Store
     theExpt->addManager(theLArFactory.getDetectorManager());
-    detStore->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName());
+    detStore()->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName());
 
 
     return StatusCode::SUCCESS;
