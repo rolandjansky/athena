@@ -422,6 +422,8 @@ cfSvc.release().ignore();
    else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") { clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
 //if (num != 0) return(StatusCode::SUCCESS);
    }
+   else if (className == "9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0") clid = 1115934851;  // xAOD::LumiBlockRangeContainer
+   else if (className == "514696E1-A262-470A-BEB1-FF980CD8827A") clid = 1251061086;  // xAOD::LumiBlockRangeAuxContainer
    else if (className == "C87E3828-4A7A-480A-95DE-0339539F6A0F") clid = 178309087;  // xAOD::FileMetaData
    else if (className == "BEE2BECF-A936-4078-9FDD-AD703C9ADF9F") clid = 73252552;   // xAOD::FileMetaDataAuxInfo
 
