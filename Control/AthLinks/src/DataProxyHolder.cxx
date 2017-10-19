@@ -129,8 +129,8 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
   m_proxy = sg->proxy (link_clid, dataID);
   if (m_proxy == 0) {
     // Didn't find a proxy; make a dummy.
-    auto tad = std::make_unique<SG::TransientAddress> (link_clid, dataID);
-    tad->setSGKey (sg->stringToKey (dataID, link_clid));
+    SG::TransientAddress tad (link_clid, dataID);
+    tad.setSGKey (sg->stringToKey (dataID, link_clid));
     m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (link_clid, m_proxy).isFailure())
       std::abort();
@@ -191,12 +191,11 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
   
   if (m_proxy == 0) {
     // Still didn't find it --- make a dummy.
-    std::unique_ptr<SG::TransientAddress> tad;
-    if (key)
-      tad = std::make_unique<SG::TransientAddress> (clid, *key);
-    else
-      tad = std::make_unique<SG::TransientAddress>();
-    tad->setSGKey (sgkey);
+    SG::TransientAddress tad;
+    if (key) {
+      tad = SG::TransientAddress (clid, *key);
+    }
+    tad.setSGKey (sgkey);
     m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (clid, m_proxy).isFailure())
       std::abort();
