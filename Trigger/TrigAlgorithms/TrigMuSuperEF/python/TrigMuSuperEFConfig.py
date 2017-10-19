@@ -277,7 +277,7 @@ def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
 
 def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
-    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False)
+    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 3.0*mm, removeSelf=True, useAnnulus=False)
 
 def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCaloTool", **kwargs):
     kwargs.setdefault("CaloCellContainerName", "TrigCaloCellMaker")
