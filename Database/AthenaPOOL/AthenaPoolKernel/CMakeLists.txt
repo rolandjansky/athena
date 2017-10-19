@@ -9,6 +9,9 @@ atlas_subdir( AthenaPoolKernel )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( AthenaPoolKernel )
-
+# Component(s) in the package:
+atlas_add_library( AthenaPoolKernelLib
+   AthenaPoolKernel/*.h
+   INTERFACE
+   PUBLIC_HEADERS AthenaPoolKernel
+   LINK_LIBRARIES GaudiKernel )
