@@ -33,9 +33,9 @@ m_tccSGKey(""),
 m_inDetSGKey("InDetTrackParticles"),
 m_calCTCSGKey("CaloCalTopoClusters"),
 m_jetSGKey("AntiKt10TrackCaloClusterJets"),
-m_selectionString(""),
-m_and(false),
-m_parser(0)
+// m_selectionString(""),
+m_and(false)
+// ,m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
@@ -43,7 +43,7 @@ m_parser(0)
     declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
     declareProperty("CaloCalTopoClustersKey", m_calCTCSGKey);
     declareProperty("JetKey"                , m_jetSGKey);
-    declareProperty("SelectionString", m_selectionString);
+//     declareProperty("SelectionString", m_selectionString);
     declareProperty("ApplyAnd", m_and);
 }
 
@@ -77,13 +77,13 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::initialize()
     } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_tccSGKey << " will be retained in this format with the rest being thinned away");}
         
     // Set up the text-parsing machinery for selectiong the TCC directly according to user cuts
-    if (m_selectionString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
-    }
+//     if (m_selectionString!="") {
+// 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+// 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+// 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+// 	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+// 	    m_parser->loadExpression(m_selectionString);
+//     }
     return StatusCode::SUCCESS;
 }
 
@@ -93,10 +93,10 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::finalize()
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotCC <<" calo clusters, "<< m_npassCC<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotTCC <<" TCCs, "<< m_npassTCC<< " were retained ");
-    if (m_selectionString!="") {
-        delete m_parser;
-        m_parser = 0;
-    }
+//     if (m_selectionString!="") {
+//         delete m_parser;
+//         m_parser = 0;
+//     }
     return StatusCode::SUCCESS;
 }
 
