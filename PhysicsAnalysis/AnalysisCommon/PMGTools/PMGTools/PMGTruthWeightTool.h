@@ -74,6 +74,18 @@ namespace PMGTools
 
     /// @}
 
+    /// Loads weight information from xAOD::TruthMetaDataContainer
+    virtual StatusCode loadMetaData();
+
+    /// Loads weight information from HepMCWeightNames
+    virtual StatusCode loadMetaData(const std::map<std::string, int>& hepMCWeightNamesMap);
+
+    /// Validate weight caches
+    virtual StatusCode validateWeightCaches() const;
+
+    /// Clear caches
+    virtual void clearWeightCaches();
+
     /// Stores the meta data record name
     std::string m_metaName;
 
@@ -85,18 +97,6 @@ namespace PMGTools
 
     /// Ptr to the event info for the current event
     const xAOD::EventInfo* m_evtInfo;
-
-    /// Loads weight information from metadata container
-    virtual StatusCode loadMetaData(const xAOD::TruthMetaData* truthMetaData);
-
-    /// Loads weight information from HepMCWeightNames
-    virtual StatusCode loadMetaData(const std::map<std::string, int>& hepMCWeightNamesMap);
-
-    /// Validate weight caches
-    virtual StatusCode validateWeightCaches();
-
-    /// Clear caches
-    virtual void clearWeightCaches();
 
     /// Flag to indicate whether the xAOD::TruthMetaData objects have incorrect McChannelNumber
     mutable bool m_hasInvalidMcChannel;

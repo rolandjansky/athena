@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
+   Event/xAOD/xAODMetaData
    Tools/PathResolver
    ${extra_deps} )
 
@@ -53,7 +54,7 @@ atlas_add_library( PMGToolsLib
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTruth
-   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet )
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet xAODMetaData)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools
