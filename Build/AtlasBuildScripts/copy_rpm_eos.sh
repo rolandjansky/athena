@@ -59,7 +59,7 @@ else
    DDAY=${WEEKDAY}
 fi
 echo "====================================================="
-echo "=== STARTING RPMs copy to /eos"
+echo "=== STARTING RPMs copy to /eos at `date`"
 echo "====================================================="
 
 
@@ -67,7 +67,8 @@ DESTDIR=${DESTDIR}/${BRANCH}/${ARCH}/${DDAY}
 
 if [ ! -d ${DESTDIR} ] ; then 
    echo "mkdir -p ${DESTDIR}"
-   mkdir -p ${DESTDIR} || ((ERROR_COUNT++))
+   mkdir -p ${DESTDIR} 
+   if [ ! -d ${DESTDIR} ] ; then ERROR_COUNT++ ; fi  #avoid false positive eos error if the directory was actually created
 fi
 
 arr_rpm=(`(shopt -s nocaseglob; ls ${SOURCEDIR}/*.rpm)`)
