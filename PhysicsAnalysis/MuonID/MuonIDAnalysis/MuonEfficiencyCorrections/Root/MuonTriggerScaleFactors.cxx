@@ -36,7 +36,7 @@ static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
     static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
-    const unsigned int FallBackRunNumber = 311481;
+    static const unsigned int FallBackRunNumber = 311481;
     // ==================================================================================
     // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
     // ==================================================================================
@@ -757,7 +757,7 @@ namespace CP {
         return CP::SystematicCode::Ok;
     }
 
-    // returns: the list of all systematics this tool recommends to use
+    /// returns: the list of all systematics this tool recommends to use
     CP::SystematicSet MuonTriggerScaleFactors::recommendedSystematics() const {
         return affectingSystematics();
     }
