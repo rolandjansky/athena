@@ -731,6 +731,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int endcapinner = 3;
   int bee = 8;
   int bme = 9;
+  // int bmg = 10;
 
   std::string muonCollKey = "MuonL2SAInfo";
   
@@ -757,6 +758,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
       bme = xAOD::L2MuonParameters::Chamber::BME;
       endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
+      // bmg  = xAOD::L2MuonParameters::Chamber::Backup;
     }
 
     ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());

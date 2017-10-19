@@ -31,8 +31,6 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "MuonCablingData/MdtSubdetectorMap.h"
 #include "MuonCablingData/MdtCsmMap.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
@@ -62,7 +60,9 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    m_regionSelector(0), m_robDataProvider(0), m_recMuonRoIUtils(),
    m_mdtRegionDefiner("TrigL2MuonSA::MdtRegionDefiner"),
    m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
-   m_use_mdtcsm(true)
+   m_use_mdtcsm(true),
+   m_BMGpresent(false),
+   m_BMGid(-1)
 {
    declareInterface<TrigL2MuonSA::MdtDataPreparator>(this);
 
@@ -179,6 +179,25 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
      return sc ;
    }
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
+
+   m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+   if(m_BMGpresent){
+     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+     m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+     for(int phi=6; phi<8; phi++) { // phi sectors - BMGs are ony in (6 aka 12) and (7 aka 14)
+       for(int eta=1; eta<4; eta++) { // eta sectors - BMGs are in eta 1 to 3
+         for(int side=-1; side<2; side+=2) { // side - both sides have BMGs
+           if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+           for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+             const MuonGM::MdtReadoutElement* mdtRE =
+                   dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+             if(mdtRE) initDeadChannels(mdtRE);
+           }
+         }
+       }
+     }
+   }
+
    
    // 
    return StatusCode::SUCCESS; 
@@ -479,19 +498,28 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
     }
 
     IdentifierHash v_idHash_corr = v_idHash[i];
+    
+    
+    Identifier tmp_id;
+    IdContext tmp_context = m_mdtIdHelper->module_context();
+    m_mdtIdHelper->get_id(v_idHash[i], tmp_id, &tmp_context);
+    Identifier ml_id = tmp_id;
     if( BMEpresent ) {
       // if there are BMEs the RDOs are registered with the detectorElement hash
-      Identifier tmp_id;
-      IdContext tmp_context = m_mdtIdHelper->module_context();
-       m_mdtIdHelper->get_id(v_idHash[i], tmp_id, &tmp_context);
-       // for BMEs the 2 CSMs are registered with the hashes of the 2 multilayers
-       Identifier ml_id = m_mdtIdHelper->multilayerID(tmp_id, processingDetEl);
-       m_mdtIdHelper->get_detectorElement_hash(ml_id, v_idHash_corr);
+      // for BMEs the 2 CSMs are registered with the hashes of the 2 multilayers
+      ml_id = m_mdtIdHelper->multilayerID(tmp_id, processingDetEl);
+      m_mdtIdHelper->get_detectorElement_hash(ml_id, v_idHash_corr);
     }
     MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash_corr);
     
     if( pCsmIt==pMdtCsmContainer->end() ) {
-      if(processingDetEl == 1) ++i;
+      if(processingDetEl == 1){
+	if ( m_mdtIdHelper->stationName(ml_id) == 53 ) processingDetEl = 2;   //if this is BME, the 2nd layer should be checked next
+	else ++i;
+      } else {
+	processingDetEl = 1;                //reset processingDetEl
+	++i;                              //and go to the next chamber
+      }
       continue;
     }
     if( BMEpresent ){
@@ -572,6 +600,10 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      
      unsigned short int TdcId     = (*amt)->tdcId();
      unsigned short int ChannelId = (*amt)->channelId();
+     // also for HPTDC the fine time is 5 bits, i.e. the shift by 5 for coarse is ok
+     // even though the total TDC is 17 bits (19 bits for HPTDC) it's ok to use
+     // unsigned short int (16 bit) as no more than 2000 tics are delivered by
+     // the DAQ and therefore hte leading bits of coarse can be lost
      unsigned short int drift     = (*amt)->fine() | ( (*amt)->coarse() << 5);  
      
      int StationPhi;
@@ -631,10 +663,25 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
        if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
        if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
+       if (st=='M' && chamberType[2]=='G') chamber = xAOD::L2MuonParameters::Chamber::Backup;
      }
-     
-     double R = m_mdtReadout->center(TubeLayer, Tube).perp();
-     double Z = m_mdtReadout->center(TubeLayer, Tube).z();
+
+     double R = -99999., Z = -99999.;
+     if(m_BMGpresent) {
+       Identifier tubeId = m_mdtIdHelper->channelID(StationName, StationEta, StationPhi, MultiLayer, Layer, Tube);
+       if(m_mdtIdHelper->stationName(tubeId) == m_BMGid ) {
+         std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( m_muonMgr->getMdtReadoutElement(tubeId)->identify() );
+         if( myIt != m_DeadChannels.end() ){
+           if( std::find( (myIt->second).begin(), (myIt->second).end(), tubeId) != (myIt->second).end() ) {
+             ATH_MSG_DEBUG("Skipping tube with identifier " << m_mdtIdHelper->show_to_string(tubeId) );
+             ++amt;
+             continue;
+           }
+         }
+       }
+     }
+     R = m_mdtReadout->center(TubeLayer, Tube).perp();
+     Z = m_mdtReadout->center(TubeLayer, Tube).z();
      
      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
      if(m_muonStation->endcap()==0){
@@ -760,13 +807,14 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    std::vector<IdentifierHash> idList;
 
    //combine regions of sector and type
-   for(int j_station=0; j_station<5; j_station++) {
+   for(int j_station=0; j_station<6; j_station++) {
      int cha=0;
      if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::BarrelInner; 
      if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::BME;
      if (j_station==4) cha = xAOD::L2MuonParameters::Chamber::EndcapInner;
+     if (j_station==5) cha = xAOD::L2MuonParameters::Chamber::Backup; // BMG
      phiMinChamber[cha]=mdtRegion.phiMin[cha][0];
      phiMaxChamber[cha]=mdtRegion.phiMax[cha][0];
      etaMinChamber[cha]=9999;
@@ -780,13 +828,14 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    }
 
    // get hashIdlist by using region selector
-   for(int i_station=0; i_station<5; i_station++) {
+   for(int i_station=0; i_station<6; i_station++) {
      int chamber=0;
      if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner; 
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::BME;
      if (i_station==4) chamber = xAOD::L2MuonParameters::Chamber::EndcapInner;
+     if (i_station==5) chamber = xAOD::L2MuonParameters::Chamber::Backup; // BMG;
      ATH_MSG_DEBUG( "chamber=" << chamber );
      ATH_MSG_DEBUG( "...etaMin/etaMax/phiMin/phiMax="
        << etaMinChamber[chamber] << "/"
@@ -1009,10 +1058,21 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
   if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
   if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
+  if (st=='M' && chamberType[2]=='G') chamber = xAOD::L2MuonParameters::Chamber::Backup;
       }
-      
-      double R = m_mdtReadout->center(TubeLayer, Tube).perp();
-      double Z = m_mdtReadout->center(TubeLayer, Tube).z();
+
+      double R = -99999., Z = -99999.;
+      if(m_BMGpresent && m_mdtIdHelper->stationName(id) == m_BMGid ) {
+        std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( m_muonMgr->getMdtReadoutElement(id)->identify() );
+        if( myIt != m_DeadChannels.end() ){
+          if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
+            ATH_MSG_DEBUG("Skipping tube with identifier " << m_mdtIdHelper->show_to_string(id) );
+            continue;
+          }
+        }
+      }
+      R = m_mdtReadout->center(TubeLayer, Tube).perp();
+      Z = m_mdtReadout->center(TubeLayer, Tube).z();
       
       Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
       if(m_muonStation->endcap()==0){
@@ -1113,6 +1173,48 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::finalize()
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
+  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
+  int nGrandchildren = cv->getNChildVols();
+  if(nGrandchildren <= 0) return;
+
+  Identifier detElId = mydetEl->identify();
+
+  int name = m_mdtIdHelper->stationName(detElId);
+  int eta = m_mdtIdHelper->stationEta(detElId);
+  int phi = m_mdtIdHelper->stationPhi(detElId);
+  int ml = m_mdtIdHelper->multilayer(detElId);
+  std::vector<Identifier> deadTubes;
+
+  for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
+    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
+      bool tubefound = false;
+      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+        int tubegeo = cv->getIdOfChildVol(kk) % 100;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        if( tubegeo == tube && layergeo == layer ) {
+          tubefound=true;
+          break;
+        }
+        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      }
+      if(!tubefound) {
+        Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+        deadTubes.push_back( deadTubeId );
+        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      }
+    }
+  }
+  std::sort(deadTubes.begin(), deadTubes.end());
+  m_DeadChannels[detElId] = deadTubes;
+  return;
 }
 
 // --------------------------------------------------------------------------------
