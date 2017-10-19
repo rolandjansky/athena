@@ -22,7 +22,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include "CommissionEvent/ComTime.h"
 #include "VxVertex/VxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "TROOT.h"
@@ -100,7 +99,6 @@ StatusCode TRTCalibrationMgr::initialize()
   //Initialize ReadHandles and ReadHandleKeys
   ATH_CHECK(m_verticesKey.initialize());
   ATH_CHECK(m_EventInfoKey.initialize());
-  ATH_CHECK(m_theComTimeKey.initialize());
   ATH_CHECK(m_TrkCollections.initialize());
   // Each ROI/road may create its own collection....
   msg(MSG::INFO) << "Tracks from Trk::Track collection(s):";
@@ -184,28 +182,6 @@ StatusCode TRTCalibrationMgr::execute()
   // Loop over tracks; get track info and accumulate it
   const Trk::Track* aTrack;
   //const DataVector<Trk::Track>* trks;
-
-  //Get the Event phase:
-  
-  double eventPhase = 0;
-  
-
-  SG::ReadHandle<ComTime> theComTime(m_theComTimeKey);
-  if (not theComTime.isValid()) {
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
-    eventPhase = -1;//invalid, reject track 
-  }
-  
-  if (theComTime.cptr()) {
-    eventPhase = theComTime->getTime();
-  }
-  
-  if(eventPhase==0) {
-    msg(MSG::INFO) << "no skipping event, event phase = 0" << endmsg; 
-//    return StatusCode::SUCCESS;
-  }
-
-  //if(eventPhase!=0 && m_TrkCollections.size()>=3){
     
   TrackCollection::const_iterator t;
 
