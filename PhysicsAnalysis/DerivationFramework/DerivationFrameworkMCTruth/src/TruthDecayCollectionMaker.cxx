@@ -100,8 +100,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
                 addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles, m_generations );
             } // Found a particle of interest!
         } // Loop over the PDG IDs we want to keep
-        if (m_keepBHadrons && part->isBottomHadron() ||
-            m_keepCHadrons && part->isCharmHadron()){
+        if ((m_keepBHadrons && part->isBottomHadron()) ||
+            (m_keepCHadrons && part->isCharmHadron())){
             addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
         }
     } // Loop over the initial truth particle collection
