@@ -56,9 +56,7 @@ namespace CP {
             virtual ~MuonTriggerScaleFactors();
 
             virtual StatusCode initialize(void);
-
-            virtual CorrectionCode setRunNumber(Int_t runNumber);
-
+            
             // for single lepton triggers
             virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger);
 

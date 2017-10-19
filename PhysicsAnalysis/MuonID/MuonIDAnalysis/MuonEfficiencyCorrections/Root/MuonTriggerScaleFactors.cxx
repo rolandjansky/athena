@@ -36,7 +36,7 @@ static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
     static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
-
+    const unsigned int FallBackRunNumber = 311481;
     // ==================================================================================
     // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
     // ==================================================================================
@@ -225,14 +225,7 @@ namespace CP {
     // Public functions  //
     ///////////////////////
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::setRunNumber
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t) {
-        ATH_MSG_WARNING("MuonTriggerScaleFactors has now learned how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
-        return CorrectionCode::Ok;
-    }
-
+    
     // ==================================================================================
     // == MuonTriggerScaleFactors::getTriggerScaleFactor
     // ==================================================================================
@@ -677,14 +670,15 @@ namespace CP {
             else if (runNumber >= 309311 && runNumber <= 309759) return "K";
             else if (runNumber >= 310015 && runNumber <= 311481) return "L";
         }
+    
         //Return some  default  value
-        return std::string();
+        return getDataPeriod(FallBackRunNumber, getYear(FallBackRunNumber));
     }
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         const xAOD::EventInfo* info = nullptr;
         if (!evtStore()->retrieve(info, "EventInfo")) {
             ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 311481");
-            return 311481;
+            return FallBackRunNumber;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
@@ -692,10 +686,10 @@ namespace CP {
         }
         if (!acc_rnd.isAvailable(*info)) {
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
-            return 311481;
+            return FallBackRunNumber;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
-            return 311481;
+            return FallBackRunNumber;
         }
         return acc_rnd(*info);
     }
@@ -763,7 +757,7 @@ namespace CP {
         return CP::SystematicCode::Ok;
     }
 
-    /// returns: the list of all systematics this tool recommends to use
+    // returns: the list of all systematics this tool recommends to use
     CP::SystematicSet MuonTriggerScaleFactors::recommendedSystematics() const {
         return affectingSystematics();
     }
