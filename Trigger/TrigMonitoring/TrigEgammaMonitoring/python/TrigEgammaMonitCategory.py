@@ -113,8 +113,12 @@ monitoring_mam_cosmic = {'primary_single_ele':'HLT_e0_perf_L1EM3_EMPTY',
 
 # Validation Items for MC
 validation_electron=[
+    # 2016
     'HLT_e60_lhmedium_nod0',
     'HLT_e140_lhloose_nod0',
+    # 2015
+    'HLT_e60_lhmedium',
+    'HLT_e120_lhloose',
     ]
 validation_electron.extend(monitoring_electron)
 
@@ -143,8 +147,6 @@ validationTP_electron = [
     'HLT_e24_lhmedium_nod0_L1EM20VHI'
     # 2015
     'HLT_e24_lhmedium_L1EM20VH',
-    'HLT_e60_lhmedium',
-    'HLT_e120_lhloose',
     'HLT_e12_lhloose_L1EM10VH',
     'HLT_e24_lhmedium_L1EM20VHI',
     ]
