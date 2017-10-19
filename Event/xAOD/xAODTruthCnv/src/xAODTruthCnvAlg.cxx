@@ -227,7 +227,7 @@ namespace xAODMaker {
                             ATH_CHECK(evtStore()->retrieve(eventInfo));
                             mcChannelNumber = eventInfo->event_type()->mc_channel_number();
                             if (mcChannelNumber==0) mcChannelNumber = eventInfo->event_ID()->run_number();
-                        } else if (evtStore()->contains<xAOD::EventInfo>("McEventInfo")){
+                        } else if (evtStore()->contains<xAOD::EventInfo>("EventInfo")){
                             const xAOD::EventInfo* eventInfo(nullptr);
                             ATH_CHECK(evtStore()->retrieve(eventInfo));
                             mcChannelNumber = eventInfo->mcChannelNumber();
