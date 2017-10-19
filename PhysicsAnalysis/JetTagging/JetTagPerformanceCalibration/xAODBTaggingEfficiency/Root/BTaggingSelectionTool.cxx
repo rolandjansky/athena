@@ -160,15 +160,15 @@ const Root::TAccept& BTaggingSelectionTool::getTAccept() const {
   return m_accept;
 }
 
-double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
+CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, double & tagweight) const{
 
- double tagweight(-100.);
+ tagweight = -100.;
 
  if ( "MV2cl100_MV2c100"==m_taggerName ){
 
   ATH_MSG_ERROR("Cannot retrive weight for 2D taggers!");
 
-  return tagweight;
+  return CorrectionCode::Error;
  }
 
  else if ( m_taggerName.find("MV2") != string::npos ){
@@ -178,9 +178,10 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
 
     if ((!btag) || (!btag->MVx_discriminant(m_taggerName, tagweight))){
       ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+      return CorrectionCode::Error;
     }
-    ATH_MSG_VERBOSE( "MV2c20 " <<  tagweight );
-    return  tagweight;
+    ATH_MSG_VERBOSE( m_taggerName << " " <<  tagweight );
+    return  CorrectionCode::Ok;
   }
 
   else if(m_taggerName.find("DL1") != string::npos){
@@ -199,6 +200,7 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
    || (!btag->pc(m_taggerName, dl1_pc ))
    || (!btag->pu(m_taggerName, dl1_pu )) ){
    ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+   return CorrectionCode::Error;
   }
   ATH_MSG_VERBOSE( "pb " <<  dl1_pb );
   ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
@@ -208,22 +210,22 @@ double BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet ) const{
 
   if (!valid_input){
     ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
-    return tagweight;
+    return CorrectionCode::Error;
   }
 
-  return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu);
+  return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, tagweight);
 
   }
 
   //if we got here the tagger name is not configured properly
   ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
-  return tagweight;
+  return CorrectionCode::Error;
 
 }
 
-double BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu ) const {
+CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu , double & tagweight) const {
 
-  double tagweight(-100.);
+  tagweight = -100.;
   if( m_taggerName.find("DL1") != string::npos ){
 
     if(m_OP.find("CTag") != string::npos){
@@ -232,14 +234,12 @@ double BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu )
      tagweight = log( pb/(m_fraction*pc+(1.-m_fraction)*pu) );
     }
 
-    return tagweight;
-  }else{
-     ATH_MSG_ERROR("this call to getTaggerWeight only works for DL1 taggers");
-
+    return CorrectionCode::Ok;
   }
+
   //if we got here the tagger name is not configured properly
-  ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
-  return tagweight;
+  ATH_MSG_ERROR("this call to getTaggerWeight only works for DL1 taggers");
+  return CorrectionCode::Error;
 
 }
 
@@ -301,6 +301,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
 
     if ( (!btag->MVx_discriminant("MV2cl100", weight_mv2cl100 ))|| (!btag->MVx_discriminant("MV2c100", weight_mv2c100 )) ){
       ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      return m_accept;
     }
     ATH_MSG_VERBOSE( "MV2cl100 "  <<  weight_mv2cl100 );
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
@@ -310,7 +311,10 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     //for all other taggers, use the same method
     double tagger_weight(-100);
 
-    tagger_weight = getTaggerWeight( jet );
+    if( getTaggerWeight( jet ,tagger_weight)!=CorrectionCode::Ok){
+      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      return m_accept;
+    };
 
     ATH_MSG_VERBOSE( m_taggerName << " : " <<  tagger_weight );
     return accept(pT, eta, tagger_weight);
@@ -343,7 +347,9 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
   // After initialization, either m_spline or m_constcut should be non-zero
   // Else, the initialization was incorrect and should be revisited
   double cutvalue(DBL_MAX);
-  cutvalue = getCutValue(pT);
+  if( getCutValue(pT, cutvalue )!=CorrectionCode::Ok ){
+    return m_accept;
+  };
 
   if (  tag_weight < cutvalue ){
     return m_accept;
@@ -417,7 +423,9 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
    // Else, the initialization was incorrect and should be revisited
    double cutvalue(DBL_MAX);
 
-   cutvalue = getCutValue(pT);
+   if( getCutValue(pT, cutvalue)!=CorrectionCode::Ok){
+    return m_accept;
+   };
 
    float weight = -1;
 
@@ -517,16 +525,24 @@ bool BTaggingSelectionTool::checkRange(double pT, double eta) const
   return true;
 }
 
-double BTaggingSelectionTool::getCutValue(double pT) const
+CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval) const
 {
-   double cutvalue(DBL_MAX);
+   cutval = DBL_MAX;
+
    if (m_spline != nullptr && m_constcut == nullptr) {
-     cutvalue = m_spline->Eval(pT/1000.);
+     cutval = m_spline->Eval(pT/1000.);
    }
+
    else if (m_constcut != nullptr && m_spline == nullptr) {
-     cutvalue = m_constcut[0](0);
+     cutval = m_constcut[0](0);
    }
-   else ATH_MSG_ERROR( "Bad cut configuration!" );
-   ATH_MSG_VERBOSE( "Cut value " << cutvalue );
-   return cutvalue;
+   else{
+    ATH_MSG_ERROR( "Bad cut configuration!" );
+    return CorrectionCode::Error;
+   }
+
+
+   ATH_MSG_VERBOSE( "Cut value " << cutval );
+
+   return CorrectionCode::Ok;
 }

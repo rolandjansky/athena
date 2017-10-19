@@ -61,9 +61,9 @@ class BTaggingSelectionTool: public asg::AsgTool,
   virtual int getQuantile( const xAOD::Jet& ) const;
   virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */  ) const;
 
-  virtual double getCutValue(double /* jet pt */) const;
-  virtual double getTaggerWeight( const xAOD::Jet& jet ) const;
-  virtual double getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ ) const;
+  virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval) const;
+  virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight ) const;
+  virtual CP::CorrectionCode getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ , double & weight) const;
 
 private:
   /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging
