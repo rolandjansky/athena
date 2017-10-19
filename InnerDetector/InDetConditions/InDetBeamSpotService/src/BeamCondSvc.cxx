@@ -66,11 +66,11 @@ StatusCode BeamCondSvc::initialize()
 {
   // service initialisation - get parameters, setup default cache
   // and register for condDB callbacks if needed
-  msg(MSG::INFO) << "in initialize()" << endreq;
+  msg(MSG::INFO) << "in initialize()" << endmsg;
 
   // get detector store
   if (p_detstore.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Detector store not found" << endreq; 
+    msg(MSG::FATAL) << "Detector store not found" << endmsg; 
     return StatusCode::FAILURE;
   }
   // always init cache to joboption values in case CondDB read fails
@@ -81,9 +81,9 @@ StatusCode BeamCondSvc::initialize()
     const DataHandle<AthenaAttributeList> aptr;
     if (StatusCode::SUCCESS==p_detstore->regFcn(&BeamCondSvc::update,this,
 						aptr, INDET_BEAMPOS )) {
-      msg(MSG::DEBUG) << "Registered callback for beam position" << endreq;
+      msg(MSG::DEBUG) << "Registered callback for beam position" << endmsg;
     } else {
-      msg(MSG::ERROR) << "Callback registration failed" << endreq;
+      msg(MSG::ERROR) << "Callback registration failed" << endmsg;
     }
   } else {
     msg(MSG::INFO) << 
@@ -152,7 +152,7 @@ bool BeamCondSvc::fillRec() const {
   aspec->extend("tiltY","float");
   aspec->extend("sigmaXY","float");
   if (!aspec->size()) msg(MSG::ERROR) << 
-			"Attribute list specification is empty!" << endreq;
+			"Attribute list specification is empty!" << endmsg;
   AthenaAttributeList* alist=new AthenaAttributeList(*aspec);
   // set status to 1 for now - for future use
   (*alist)["status"].setValue(m_par_status);
@@ -167,9 +167,9 @@ bool BeamCondSvc::fillRec() const {
   (*alist)["sigmaXY"].setValue(m_par_sigxy);
   // record Beampos object in TDS
   if (StatusCode::SUCCESS==p_detstore->record(alist, INDET_BEAMPOS )) {
-    if (msgLvl(MSG::INFO)) msg() << "Recorded Beampos object in TDS" << endreq;
+    if (msgLvl(MSG::INFO)) msg() << "Recorded Beampos object in TDS" << endmsg;
   } else {
-    msg(MSG::ERROR) << "Could not record Beampos object" << endreq;
+    msg(MSG::ERROR) << "Could not record Beampos object" << endmsg;
     return false;
   }
   return true;
@@ -181,7 +181,7 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     msg() << "update callback invoked for I=" << I << " keys: ";
   for (std::list<std::string>::const_iterator itr=keys.begin();
        itr!=keys.end(); ++itr) msg() << " " << *itr;
-  msg() << endreq;
+  msg() << endmsg;
   // read the Beampos object
   const AthenaAttributeList* atrlist=0;
   if (StatusCode::SUCCESS==p_detstore->retrieve(atrlist, INDET_BEAMPOS ) &&
@@ -204,7 +204,7 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     catch (coral::AttributeListException& e) {
       sigxy=0.;
       if (msgLvl(MSG::DEBUG))
-	msg() << "No sigmaXY retrieved from conditions DB, assume 0" << endreq;
+	msg() << "No sigmaXY retrieved from conditions DB, assume 0" << endmsg;
     }
     if (msgLvl(MSG::INFO))
       msg() << "Read from condDB"
@@ -213,10 +213,10 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
             << " sigma (" << sigx << "," << sigy << "," << sigz << ")"
             << " tilt (" << tiltx << "," << tilty << ")"
             << " sigmaXY " << sigxy
-            << endreq;
+            << endmsg;
     initCache(status,posx,posy,posz,sigx,sigy,sigz,sigxy,tiltx,tilty);
   } else {
-    msg(MSG::ERROR) << "Problem reading condDB object" << endreq;
+    msg(MSG::ERROR) << "Problem reading condDB object" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
