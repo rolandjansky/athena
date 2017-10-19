@@ -3107,9 +3107,9 @@ def setupMenu():
         ['beamspot_allTE_trkfast_peb_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         ['beamspot_trkFS_trkfast_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         
-        ['beamspot_activeTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
-        ['beamspot_allTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
-        ['beamspot_trkFS_trkfast_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+#        ['beamspot_activeTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+#        ['beamspot_allTE_trkfast_peb_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+#        ['beamspot_trkFS_trkfast_L1MBTS_1_VTE70', 'L1_MBTS_1_VTE70', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
 
         ]   
 
@@ -3136,28 +3136,28 @@ def setupMenu():
         ['mb_sptrk_noisesup_L1RD0_EMPTY',   'L1_RD0_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
         
         #For Xe run
-        ['mb_sptrk_L1MBTS_1',   'L1_MBTS_1', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_1_VTE2',   'L1_MBTS_1_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_1_VTE3',   'L1_MBTS_1_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_1_VTE4',   'L1_MBTS_1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_1_VTE5',   'L1_MBTS_1_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_1_VTE10',   'L1_MBTS_1_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1',   'L1_MBTS_1', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1_VTE2',   'L1_MBTS_1_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1_VTE3',   'L1_MBTS_1_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1_VTE4',   'L1_MBTS_1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1_VTE5',   'L1_MBTS_1_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_1_VTE10',   'L1_MBTS_1_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         
-        ['mb_sptrk_L1MBTS_2_VTE2',   'L1_MBTS_2_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_2_VTE3',   'L1_MBTS_2_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_2_VTE4',   'L1_MBTS_2_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_2_VTE5',   'L1_MBTS_2_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1MBTS_2_VTE10',   'L1_MBTS_2_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_2_VTE2',   'L1_MBTS_2_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_2_VTE3',   'L1_MBTS_2_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_2_VTE4',   'L1_MBTS_2_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_2_VTE5',   'L1_MBTS_2_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1MBTS_2_VTE10',   'L1_MBTS_2_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         
-        ['mb_sptrk_L1VTE2',   'L1_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1VTE3',   'L1_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1VTE4',   'L1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1VTE5',   'L1_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_sptrk_L1VTE10',   'L1_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1VTE2',   'L1_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1VTE3',   'L1_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1VTE4',   'L1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1VTE5',   'L1_VTE5', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+##         ['mb_sptrk_L1VTE10',   'L1_VTE10', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         
         #overlay
-        ['mb_sp_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
-        ['mb_sptrk_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+#        ['mb_sp_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+#        ['mb_sptrk_L1MBTS_1_OVERLAY',  'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 
 
 	#leading track for low-mu run
@@ -3210,7 +3210,7 @@ def setupMenu():
         ['mb_sp1200_trk75_hmt_L1MBTS_1_1', 'L1_MBTS_1_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp1400_trk80_hmt_L1MBTS_1_1', 'L1_MBTS_1_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         
-                
+
         #HMT with pileup supprestion seeded by L1_TE triggers
         ['mb_sp600_pusup300_trk40_hmt_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp700_pusup350_trk50_hmt_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -3656,8 +3656,8 @@ def setupMenu():
         ['idcalib_trk29_central',   'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         ['idcalib_trk29_fwd',       'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         
-        ['idcalib_trk9_central_L1MBTS_1_VTE70',    'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
-        ['idcalib_trk9_fwd_L1MBTS_1_VTE70',        'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+#        ['idcalib_trk9_central_L1MBTS_1_VTE70',    'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+#        ['idcalib_trk9_fwd_L1MBTS_1_VTE70',        'L1_MBTS_1_VTE70', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
 
         ['conej40_larpebj',  'L1_J20',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['conej165_larpebj', 'L1_J100',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1], 
@@ -3782,9 +3782,9 @@ def setupMenu():
         ['noalg_L1MU21_FIRSTEMPTY',     'L1_MU21_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         ['noalg_L1MU20MU21_FIRSTEMPTY', 'L1_MU20MU21_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         
-        ['noalg_mb_L1TE2',  'L1_TE2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_mb_L1TE3',  'L1_TE3', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_mb_L1TE4',  'L1_TE4', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+##         ['noalg_mb_L1TE2',  'L1_TE2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+##         ['noalg_mb_L1TE3',  'L1_TE3', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+##         ['noalg_mb_L1TE4',  'L1_TE4', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_mb_L1TE5',  'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_mb_L1TE10',  'L1_TE10', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1], 
         ['noalg_mb_L1TE20',  'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -3795,8 +3795,8 @@ def setupMenu():
         ['noalg_mb_L1TE70',  'L1_TE70', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         
         #data min-bias overlay
-	    ['noalg_L1TE20_OVERLAY',   'L1_TE20_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
-	    ['noalg_L1MBTS_1_OVERLAY',   'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+#	    ['noalg_L1TE20_OVERLAY',   'L1_TE20_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+#	    ['noalg_L1MBTS_1_OVERLAY',   'L1_MBTS_1_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 
         #['noalg_mb_L1TE5.0ETA24',  'L1_TE5.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         #['noalg_mb_L1TE10.0ETA24',  'L1_TE10.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -4184,9 +4184,9 @@ def setupMenu():
         ['noalg_L1TE20',  'L1_TE20',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ], 
         ['noalg_L1TE10',   'L1_TE10', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         ['noalg_L1TE5',   'L1_TE5', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1TE4',   'L1_TE4', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1TE3',   'L1_TE3', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1TE2',   'L1_TE2', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
+#        ['noalg_L1TE4',   'L1_TE4', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
+#        ['noalg_L1TE3',   'L1_TE3', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
+#        ['noalg_L1TE2',   'L1_TE2', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         #['noalg_L1TE5.0ETA24',   'L1_TE5.0ETA24', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         #['noalg_L1TE10.0ETA24',   'L1_TE10.0ETA24', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         #['noalg_L1TE15.0ETA24',   'L1_TE15.0ETA24', [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
@@ -5194,22 +5194,22 @@ chain_list=[
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
     'mb_sptrk_trk80_L1MBTS_2',
     'mb_sptrk_pt2_L1MBTS_2',
-    'mb_sptrk_L1MBTS_1',
-    'mb_sptrk_L1MBTS_1_VTE2',
-    'mb_sptrk_L1MBTS_1_VTE3',
-    'mb_sptrk_L1MBTS_1_VTE4',
-    'mb_sptrk_L1MBTS_1_VTE5',
-    'mb_sptrk_L1MBTS_1_VTE10',
-    'mb_sptrk_L1MBTS_2_VTE2',
-    'mb_sptrk_L1MBTS_2_VTE3',
-    'mb_sptrk_L1MBTS_2_VTE4',
-    'mb_sptrk_L1MBTS_2_VTE5',
-    'mb_sptrk_L1MBTS_2_VTE10',
-    'mb_sptrk_L1VTE2',
-    'mb_sptrk_L1VTE3',
-    'mb_sptrk_L1VTE4',
-    'mb_sptrk_L1VTE5',
-    'mb_sptrk_L1VTE10',   
+#    'mb_sptrk_L1MBTS_1',
+##     'mb_sptrk_L1MBTS_1_VTE2',
+##     'mb_sptrk_L1MBTS_1_VTE3',
+##     'mb_sptrk_L1MBTS_1_VTE4',
+##     'mb_sptrk_L1MBTS_1_VTE5',
+##     'mb_sptrk_L1MBTS_1_VTE10',
+##     'mb_sptrk_L1MBTS_2_VTE2',
+##     'mb_sptrk_L1MBTS_2_VTE3',
+##     'mb_sptrk_L1MBTS_2_VTE4',
+##     'mb_sptrk_L1MBTS_2_VTE5',
+##     'mb_sptrk_L1MBTS_2_VTE10',
+##     'mb_sptrk_L1VTE2',
+##     'mb_sptrk_L1VTE3',
+##     'mb_sptrk_L1VTE4',
+##     'mb_sptrk_L1VTE5',
+##     'mb_sptrk_L1VTE10',   
     
     # minBias streamer
     'noalg_mb_L1LUCID',
@@ -5232,9 +5232,9 @@ chain_list=[
     'noalg_mb_L1RD2_FILLED',
     'noalg_mb_L1RD3_EMPTY',
     'noalg_mb_L1RD3_FILLED',
-    'noalg_mb_L1TE2',
-    'noalg_mb_L1TE3',
-    'noalg_mb_L1TE4',
+ ##    'noalg_mb_L1TE2',
+##     'noalg_mb_L1TE3',
+##     'noalg_mb_L1TE4',
     'noalg_mb_L1TE5',
     #'noalg_mb_L1TE5.0ETA24',
     'noalg_mb_L1TE10',
@@ -5256,10 +5256,10 @@ chain_list=[
     'zdcpeb_L1ZDC_AND', 
     'zdcpeb_L1ZDC_A_C',
     'timeburner',
-    'mb_sp_L1MBTS_1_OVERLAY',
-    'mb_sptrk_L1MBTS_1_OVERLAY',
-    'noalg_L1MBTS_1_OVERLAY',
-    'noalg_L1TE20_OVERLAY',
+#    'mb_sp_L1MBTS_1_OVERLAY',
+#    'mb_sptrk_L1MBTS_1_OVERLAY',
+#    'noalg_L1MBTS_1_OVERLAY',
+#    'noalg_L1TE20_OVERLAY',
     ]
 Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
