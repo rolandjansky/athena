@@ -159,7 +159,7 @@ jtm.modifiersMap["truthdarkmods"] = [jtm.truthpartondr,
 # analogous to addRscanJets in JETM9
 # calls addStandardJets in JetCommon -- modified to include custom pseudojetgetter inputs
 def addTruthDarkJets(jetalg, radius, sequence, outputlist):
-    inputtype = "TruthDark" 
+    inputtype = "TruthDark"
     jetname = "{0}{1}{2}Jets".format(jetalg, int(radius*10), inputtype)
     algname = "jetalg" + jetname
 
@@ -176,8 +176,8 @@ def addTruthDarkJets(jetalg, radius, sequence, outputlist):
 
 # call truth dark helper
 if jetFlags.useTruth:
-    addTruthDarkJets("AntiKt", 0.4, SeqEXOT22, "EXOT22") # CHANGE BACK
-    addTruthDarkJets("AntiKt", 1.0, SeqEXOT22, "EXOT22") # CHANGE BACK
+    addTruthDarkJets("AntiKt", 0.4, SeqEXOT22, "EXOT22")
+    addTruthDarkJets("AntiKt", 1.0, SeqEXOT22, "EXOT22")
 
     
 #====================================================================
