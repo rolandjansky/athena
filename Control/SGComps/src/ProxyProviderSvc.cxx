@@ -151,37 +151,39 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   //hence avoiding the proxy explosion observed with trigger object for releases <= 14.1.0
   bool resetOnly(tAddr->name().substr(0,10) != std::string("HLTAutoKey"));
   // std::cout << "PPS:addAdress: proxy for key " << tAddr->name() << " has resetOnly " << resetOnly << std::endl;
-  SG::DataProxy* dp = new SG::DataProxy(tAddr, m_pDataLoader, true, resetOnly );
+  SG::DataProxy* dp = new SG::DataProxy(std::move(*tAddr),
+                                        m_pDataLoader, true, resetOnly );
+  delete tAddr;
   //  store.addToStore(tAddr->clID(),dp);
   //  ATH_MSG_VERBOSE("created proxy for " << tAddr->clID() << "/" << tAddr->name() << "using " << m_pDataLoader->repSvcType());
 
   bool addedProxy(false);
   // loop over all the transient CLIDs:
-  SG::TransientAddress::TransientClidSet tClid = tAddr->transientID();
+  SG::TransientAddress::TransientClidSet tClid = dp->transientID();
   for (CLID clid : tClid) {
     addedProxy |= (store.addToStore(clid, dp)).isSuccess();
   }
 
   if (addedProxy) {
     // loop over all alias'
-    for (const std::string& alias : tAddr->alias()) {
+    for (const std::string& alias : dp->alias()) {
       (store.addAlias(alias, dp)).ignore();
     }
     
     // Add any other allowable conversions.
-    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (tAddr->clID());
+    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (dp->clID());
     if (bi) {
       for (CLID clid : bi->get_bases()) {
         if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
-          tAddr->setTransientID (clid);
+          dp->setTransientID (clid);
         }
       }
 
       for (CLID clid : bi->get_copy_conversions()) {
         if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
-          tAddr->setTransientID (clid);
+          dp->setTransientID (clid);
         }
       }
     }

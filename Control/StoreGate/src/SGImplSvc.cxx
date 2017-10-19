@@ -438,9 +438,9 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
   if (0 == dp) 
     {
       // create the proxy object and register it
-      TransientAddress* tAddr = new TransientAddress(dataID, skey, 
-                                                     pAddress, clearAddressFlag);
-      dp = new DataProxy(tAddr, m_pDataLoader, true, true);
+      dp = new DataProxy (TransientAddress (dataID, skey,
+                                            pAddress, clearAddressFlag),
+                          m_pDataLoader, true, true);
       m_pStore->addToStore(dataID, dp).ignore();
 
       addAutoSymLinks (skey, dataID, dp, 0, false);
@@ -513,8 +513,9 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
     } 
   } else {
     // Case 2: No Proxy found:
-    TransientAddress* tAddr = new TransientAddress(dataID, gK);
-    dp = new DataProxy(pDObj, tAddr, !allowMods, resetOnly);
+    dp = new DataProxy(pDObj,
+                       TransientAddress(dataID, gK),
+                       !allowMods, resetOnly);
     if (!(m_pStore->addToStore(dataID, dp).isSuccess())) {
       msg() << MSG::WARNING
             << " setupProxy:: could not addToStore proxy @" << dp

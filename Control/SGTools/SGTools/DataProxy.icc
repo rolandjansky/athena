@@ -29,7 +29,7 @@ inline
 const SG::DataProxy::name_type& SG::DataProxy::name() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->name();
+  return m_tAddress.name();
 }
 
 
@@ -39,7 +39,7 @@ inline
 const SG::DataProxy::id_type& SG::DataProxy::identifier() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->name();
+  return m_tAddress.name();
 }
 
 
@@ -56,7 +56,7 @@ inline
 IOpaqueAddress* SG::DataProxy::address() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->address();
+  return m_tAddress.address();
 } 
 
 
@@ -72,7 +72,7 @@ inline
 SG::sgkey_t SG::DataProxy::sgkey() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->sgkey();
+  return m_tAddress.sgkey();
 }
 
 
@@ -81,7 +81,7 @@ inline
 void SG::DataProxy::setSGKey (sgkey_t sgkey)
 {
   lock_t lock (m_mutex);
-  m_tAddress->setSGKey (sgkey);
+  m_tAddress.setSGKey (sgkey);
 }
 
 
@@ -90,7 +90,7 @@ inline
 StoreID::type SG::DataProxy::storeID() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->storeID();
+  return m_tAddress.storeID();
 }
 
 
@@ -99,7 +99,7 @@ inline
 bool SG::DataProxy::transientID (CLID id) const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->transientID (id);
+  return m_tAddress.transientID (id);
 }
 
 
@@ -108,7 +108,7 @@ inline
 SG::DataProxy::CLIDCont_t SG::DataProxy::transientID() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->transientID();
+  return m_tAddress.transientID();
 }
 
 
@@ -117,7 +117,7 @@ inline
 void SG::DataProxy::setTransientID(CLID id)
 {
   lock_t lock (m_mutex);
-  m_tAddress->setTransientID (id);
+  m_tAddress.setTransientID (id);
 }
 
 
@@ -127,7 +127,7 @@ inline
 SG::DataProxy::AliasCont_t SG::DataProxy::alias() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->alias();
+  return m_tAddress.alias();
 }
 
 
@@ -136,7 +136,7 @@ inline
 void SG::DataProxy::setAlias(const std::string& key)
 {
   lock_t lock (m_mutex);
-  m_tAddress->setAlias (key);
+  m_tAddress.setAlias (key);
 }
 
 
@@ -145,7 +145,7 @@ inline
 bool SG::DataProxy::hasAlias(const std::string& key) const
 {
   lock_t lock (m_mutex);
-  const AliasCont_t& alias = m_tAddress->alias();
+  const AliasCont_t& alias = m_tAddress.alias();
   return alias.find(key) != alias.end();
 }
 
@@ -155,7 +155,7 @@ inline
 bool SG::DataProxy::removeAlias(const std::string& key)
 {
   lock_t lock (m_mutex);
-  return m_tAddress->removeAlias (key);
+  return m_tAddress.removeAlias (key);
 }
 
 
@@ -164,7 +164,7 @@ inline
 IAddressProvider* SG::DataProxy::provider()
 {
   lock_t lock (m_mutex);
-  return m_tAddress->provider();
+  return m_tAddress.provider();
 }
 
 
@@ -174,7 +174,7 @@ void SG::DataProxy::setProvider(IAddressProvider* provider,
                                 StoreID::type storeID)
 {
   lock_t lock (m_mutex);
-  m_tAddress->setProvider (provider, storeID);
+  m_tAddress.setProvider (provider, storeID);
 }
 
 
@@ -184,7 +184,7 @@ inline
 void SG::DataProxy::setID (CLID id, const std::string& key)
 {
   lock_t lock (m_mutex);
-  m_tAddress->setID (id, key);
+  m_tAddress.setID (id, key);
 }
 
 
@@ -201,16 +201,7 @@ inline
 CLID SG::DataProxy::clID() const
 {
   lock_t lock (m_mutex);
-  return m_tAddress->clID();
-}
-
-
-/// Retrieve storage type
-inline
-unsigned char SG::DataProxy::svcType() const
-{
-  lock_t lock (m_mutex);
-  return m_storageType;
+  return m_tAddress.clID();
 }
 
 

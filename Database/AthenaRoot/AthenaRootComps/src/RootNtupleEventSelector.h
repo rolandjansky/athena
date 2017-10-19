@@ -247,12 +247,6 @@ class RootNtupleEventSelector :
   //   m_needReload and m_fireBIF ?
   mutable bool m_fireBIF;
 
-  typedef std::unordered_map<SG::TransientAddress*, bool> Addrs_t;
-  // the list of transient addresses we "manage" or know about
-  // these addresses are the actual TTree's branch names
-  // for the event data
-  Addrs_t m_rootAddresses;
-
   // the list of transient addresses we "manage" or know about
   // these addresses are the actual TTree's branch names
   // for the metadata tree(s)

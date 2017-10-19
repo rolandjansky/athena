@@ -247,8 +247,7 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
   m_collEvts (   ),
   m_tuple    (NULL),
   m_needReload (true),
-  m_fireBIF  (true),
-  m_rootAddresses ()
+  m_fireBIF  (true)
 {
   declareProperty( "DataStore",
 		   m_dataStore,
@@ -535,20 +534,19 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
     //           << std::endl;
     // std::cerr << "::switch to next file...\n";
 
-    // iterate over our "cached" transient addresses, 
-    // marking them as garbage and dropping the RootBranchAddress (as a side effect of
+    // iterate over proxies and
+    // mark as garbage and drop the RootBranchAddress (as a side effect of
     // ::setAddress(NULL).
     // this way, the next time we hit ::createRootBranchAddress or ::updateAddress
     // all internal states are kosher.
-    for (Addrs_t::iterator 
-           iaddr = self()->m_rootAddresses.begin(),
-           iaddre= self()->m_rootAddresses.end();
-         iaddr != iaddre;
-         ++iaddr) {
-      iaddr->second = false; // mark as invalid
-      SG::TransientAddress* taddr = iaddr->first;
-      taddr->setAddress(NULL);
+    for (const SG::DataProxy* cdp : m_dataStore->proxies()) {
+      if (dynamic_cast<Athena::RootBranchAddress*> (cdp->address()) != nullptr) {
+        if (SG::DataProxy* dp = m_dataStore->proxy_exact (cdp->sgkey())) {
+          dp->setAddress (nullptr);
+        }
+      }
     }
+
     const bool forceRemove = false;
     CHECK( m_dataStore->clearStore(forceRemove) ); //must clear the storegate so that any tampering user did in EndInputFile incident is cleared
     m_needReload = true;m_fireBIF=true;
@@ -764,7 +762,7 @@ RootNtupleEventSelector::preLoadAddresses(StoreID::type /*storeID*/,
 StatusCode 
 RootNtupleEventSelector::loadAddresses(StoreID::type storeID, tadList& tads)
 {
-  if (m_needReload || m_rootAddresses.empty()) {
+  if (m_needReload) {
     return createRootBranchAddresses(storeID, tads);
   }
 
@@ -776,20 +774,12 @@ StatusCode
 RootNtupleEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
                                        const EventContext& /*ctx*/)
 {
-  // FIXME: check if we couldn't just use TTree::GetListOfBranches...
-  // check memory usage/cpu consumption tradeoff
-
-  // check if this tad is known to us.
   if (tad) {
-    Addrs_t::const_iterator itr = m_rootAddresses.find(tad);
-    if ( itr != m_rootAddresses.end() && itr->second ) {
+    if (m_dataStore->proxy_exact (tad->sgkey())) {
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_DEBUG("updateAddress: address [" << tad->clID() << "#"
-		  << tad->name() << ") NOT known to us.");
     return StatusCode::FAILURE;
   }
-
   // do nothing. 
   return StatusCode::SUCCESS;
 }
@@ -889,37 +879,16 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
          (unsigned long)(m_curEvt-1));
 
       // recycle old rootaddress, if any.
-      SG::TransientAddress* taddr = NULL;
-      // FIXME: should we only iterate over m_rootAddresses which have been marked
-      //        as invalid ? (ie: iaddr->second == false)
-      //        probably not worth it... (but depends on the "occupancy")
-      for (Addrs_t::iterator 
-             iaddr = m_rootAddresses.begin(),
-             iaddre= m_rootAddresses.end();
-           iaddr != iaddre;
-           ++iaddr) {
-        SG::TransientAddress *old = iaddr->first;
-        if (old->clID() == id &&
-            old->name() == sg_key) {
-          // found a "cached" transient address which corresponds to this clid+key
-          // bind it to our new RootBranchAddress...
-          old->setAddress(addr);
-          taddr = old;
-          iaddr->second = true; // mark as valid
-          break;
-        }
+      SG::DataProxy* proxy = m_dataStore->proxy (id, sg_key);
+      if (proxy) {
+        proxy->setAddress (addr);
       }
-      if (taddr == NULL) {
-        taddr = new SG::TransientAddress(id, sg_key, addr);
+      else {
+        auto taddr = new SG::TransientAddress(id, sg_key, addr, false);
         taddr->setProvider(this, storeID);
-        taddr->clearAddress(false);
         // only add the *new* TransientAddress to the input list as the *old* ones
         // are already tracked by the datastore (via the sticky proxies)
         tads.push_back(taddr);
-        // note: we can store this taddr *b/c* we don't clearAddress it
-        // ie: b/c we just called clearAddress(false) so it will be recycled
-        // over the events.
-        m_rootAddresses.insert(std::make_pair(taddr, true));
       }
     }
   }
@@ -1186,7 +1155,6 @@ RootNtupleEventSelector::do_init_io()
 
   // std::cout << "::clear-root-addresses..." << std::endl;
   // reset the list of branches
-  //m_rootAddresses.clear();
   m_needReload = true;
 
   // skip events we are asked to skip
