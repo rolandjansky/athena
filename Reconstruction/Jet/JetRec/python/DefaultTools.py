@@ -106,6 +106,16 @@ def declareDefaultTools():
     SkipNegativeEnergy = True,
     GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
   )
+  
+  # TCCs.
+  jtm += PseudoJetGetter(
+    "tccget",
+    InputContainer = "TrackCaloClustersCombinedAndNeutral",
+    Label = "TrackCaloCluster",
+    OutputContainer = "PseudoJetTCC",
+    SkipNegativeEnergy = True,
+    GhostScale = 0.0
+  )
 
   #--------------------------------------------------------------
   # Jet builder.

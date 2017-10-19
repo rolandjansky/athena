@@ -168,6 +168,15 @@ addDefaultTrimmedJets(jetm3Seq,"JETM3")
 
 addAntiKt4LowPtJets(jetm3Seq,"JETM3")
 
+#====================================================================
+#Jets for R-scan
+#====================================================================
+for radius in [0.2, 0.6]:
+    if jetFlags.useTruth:
+        addRscanJets("AntiKt",radius,"Truth",jetm3Seq,"JETM3")
+        addRscanJets("AntiKt",radius,"TruthWZ",jetm3Seq,"JETM3")
+    addRscanJets("AntiKt",radius,"LCTopo",jetm3Seq,"JETM3")
+
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
@@ -188,6 +197,7 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt2LCTopoJets", "AntiKt6LCTopoJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
 					]

@@ -49,6 +49,7 @@ thinningTools = DerivationFrameworkHiggs.HIGG4DxThinning.setup(DAOD_StreamID, HI
 # skimming tools
 import DerivationFrameworkHiggs.HIGG4DxSkimming
 skimmingTools = DerivationFrameworkHiggs.HIGG4DxSkimming.setup(DAOD_StreamID, ToolSvc)
+fatJetSkimmingTools = DerivationFrameworkHiggs.HIGG4DxSkimming.setupFatJetSkim(DAOD_StreamID, ToolSvc)
 
 #augmentation tools
 from DerivationFrameworkHiggs.HIGG4DxAugmentation import *
@@ -75,7 +76,7 @@ HIGG4D6Sequence = CfgMgr.AthSequencer(DAOD_StreamID+"Sequence")
 # augmentation
 HIGG4D6Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommonAugmentationKernel", AugmentationTools = augmentationTools)
 
-# skimming
+# skimming #1: based on di-taus and trigger
 HIGG4D6Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
 
 # fat/trimmed jet building (after skimming)
@@ -84,8 +85,8 @@ DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D6Sequence, HIGG4
 # variable-R jets + b-tagging
 DerivationFrameworkHiggs.HIGG4DxAugmentation.addVRJetsAndBTagging(DAOD_StreamID, HIGG4D6Sequence)
 
-# thinning
-HIGG4D6Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools)
+# thinning + skimming #2 based on fat jets (now we have them created)
+HIGG4D6Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools, SkimmingTools = fatJetSkimmingTools)
 
 # add the private sequence to the main job
 DerivationFrameworkJob += HIGG4D6Sequence
