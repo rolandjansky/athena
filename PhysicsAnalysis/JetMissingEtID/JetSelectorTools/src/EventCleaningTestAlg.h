@@ -47,6 +47,7 @@ class EventCleaningTestAlg : public AthAlgorithm
     std::string m_prefix;
     std::string m_cleaningLevel;
     std::string m_collection;
+    bool m_doEvent;
 };
 
 #endif

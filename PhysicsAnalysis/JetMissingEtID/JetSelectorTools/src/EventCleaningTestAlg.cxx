@@ -33,6 +33,8 @@ EventCleaningTestAlg::EventCleaningTestAlg(const std::string& name,
                   "Input cleaning level");
   declareProperty("JetCollectionName", m_collection = "AntiKt4EMTopoJets",
                   "Jet collection name");
+  declareProperty("doEvent",m_doEvent = true,
+                  "Decorate the EventInfo");
 }
 
 //-----------------------------------------------------------------------------
@@ -62,11 +64,13 @@ StatusCode EventCleaningTestAlg::execute()
   result = m_ecTool->acceptEvent(jets) ;
  
   //Decorate event
+  if(m_doEvent){
   SG::AuxElement::Decorator<char>* dec_eventClean = new SG::AuxElement::Decorator<char>(m_prefix + "eventClean_" + m_cleaningLevel);
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
   (*dec_eventClean)(*eventInfo) = result; 
   delete dec_eventClean; 
+  }
 
   return StatusCode::SUCCESS;
 }

@@ -301,7 +301,8 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
                             EventCleaningTool=ecToolTight,
                             JetCollectionName="AntiKt4EMTopoJets",
 			    EventCleanPrefix=prefix, 
-			    CleaningLevel="TightBad")
+			    CleaningLevel="TightBad",
+		  	    doEvent=False)
     sequence += algCleanTight
 
 ##################################################################
