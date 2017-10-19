@@ -281,17 +281,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //TProfile * m_ErrorDetectorCoverageVsLB;
   TProfile * m_TotalDetectorCoverageVsLB;
 
-  ///rate of errors
-  TProfile2D_LW* tmp_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
-  ///total number of errors
-  TH2F_LW* tmp_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
-
-  TProfile_LW * tmp_ByteStreamVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES+10][NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_ByteStreamWithSctFlagVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES+10][NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_LinksWithAnyErrorsVsLB[NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_LinksWithBadErrorsVsLB[NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_LinksWithLnkErrorsVsLB[NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_LinksWithRODErrorsVsLB[NREGIONS_INC_GENERAL];
 
 };
 
