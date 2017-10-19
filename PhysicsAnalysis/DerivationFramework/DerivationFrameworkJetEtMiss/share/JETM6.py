@@ -15,6 +15,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
+  from DerivationFrameworkCore.WeightMetadata import *
+  from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SKIMMING TOOL 
