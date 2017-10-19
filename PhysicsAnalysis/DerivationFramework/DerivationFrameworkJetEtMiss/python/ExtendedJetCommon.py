@@ -295,6 +295,18 @@ def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
                             JetCollectionName="AntiKt4EMTopoJets")
     sequence += algClean
 
+def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
+    jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
+    algname = "jetalg"+jetname
+
+    if not hasattr(sequence,algname):
+        if inputtype == "Truth":
+            addStandardJets(jetalg, radius, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+        if inputtype == "TruthWZ":
+            addStandardJets(jetalg, radius, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+        elif inputtype == "LCTopo":
+            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
+                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
