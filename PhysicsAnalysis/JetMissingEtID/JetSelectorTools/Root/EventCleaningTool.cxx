@@ -74,6 +74,7 @@ StatusCode EventCleaningTool::initialize()
   }
   
   //initialize jet cleaning tool
+  m_tool = new JetCleaningTool("JetCleaningTool_"+m_cleaningLevel);
   ATH_CHECK(m_tool->setProperty("CutLevel", m_cleaningLevel));
   ATH_CHECK(m_tool->initialize());
   ATH_MSG_INFO( "Event cleaning tool configured with cut level " << m_cleaningLevel  );
@@ -91,7 +92,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
 
-	const static SG::AuxElement::Decorator<char> dec_jetClean(m_prefix + "jetClean_" + m_cleaningLevel);
+        SG::AuxElement::Decorator<char>* dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
 	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_prefix+m_or);
 	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_prefix+m_jvt);	
 	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
@@ -110,9 +111,10 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 		}	
 		else isThisJetGood = pass_accept;     //if it fails any one of these, it shouldn't be able to kill the whole event, but we still need to know cleaning
 		ATH_MSG_DEBUG("Is jet good? " << isThisJetGood);
-		dec_jetClean(*thisJet) = isThisJetGood;
+		(*dec_jetClean)(*thisJet) = isThisJetGood;
  	}
 	ATH_MSG_DEBUG("Is event good? " << isEventAllGood);
+   	delete dec_jetClean;
 	return isEventAllGood;		
 }
 
@@ -120,7 +122,6 @@ int EventCleaningTool::keepJet(const xAOD::Jet& jet) const
 { 
 	return m_tool->keep(jet); 
 }
-
 
 }//ECUtils
 

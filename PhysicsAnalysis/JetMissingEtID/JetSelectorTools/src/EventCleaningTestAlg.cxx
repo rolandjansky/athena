@@ -60,12 +60,13 @@ StatusCode EventCleaningTestAlg::execute()
   // Apply the event cleaning
   bool result = 0;
   result = m_ecTool->acceptEvent(jets) ;
-  
+ 
   //Decorate event
-  const static SG::AuxElement::Decorator<char> dec_eventClean(m_prefix+"eventClean_" + m_cleaningLevel);
+  SG::AuxElement::Decorator<char>* dec_eventClean = new SG::AuxElement::Decorator<char>(m_prefix + "eventClean_" + m_cleaningLevel);
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
-  dec_eventClean(*eventInfo) = result; 
+  (*dec_eventClean)(*eventInfo) = result; 
+  delete dec_eventClean; 
 
   return StatusCode::SUCCESS;
 }
