@@ -41,14 +41,14 @@ def main():
 ## Get the base transform with all arguments added
 def getTransform():
     trf = transform(executor = athenaExecutor(name = 'athena', 
-                                              skeletonFile='PileupReweighting/generatePRW_tfWrapper.py'))
+                                              skeletonFile='PileupReweighting/skeleton.AODtoNTUP_PILEUP.py'))
 
     trf.parser.defineArgGroup("PRWConfig_tf","PRWConfig_tf options")
 
     #for input and output file lists to be put correctly into the runArgs and tested in the pre and post corruption
     #tests, the format of option must be inputXXXXFile and outputYYYYFile
     trf.parser.add_argument("--inputAODFile",type=trfArgClasses.argFactory(trfArgClasses.argFile,io='input',type='aod',multipleOK=True),nargs='+',help="The input files",group="PRWConfig_tf")
-    trf.parser.add_argument("--outputPRWFile",type=trfArgClasses.argFactory(trfArgClasses.argFile,io='output',type='hist',multipleOK=False),help="The output filename",group="PRWConfig_tf")
+    trf.parser.add_argument("--outputNTUP_PILEUPFile",type=trfArgClasses.argFactory(trfArgClasses.argFile,io='output',type='hist',multipleOK=False),help="The output filename",group="PRWConfig_tf")
 
     return trf
     

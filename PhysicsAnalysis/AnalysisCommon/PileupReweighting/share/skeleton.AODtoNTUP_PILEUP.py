@@ -2,7 +2,7 @@
 #to connect up the runArgs input and outputs
 
 jps.AthenaCommonFlags.FilesInput = runArgs.inputAODFile
-outputPRWFile = runArgs.outputPRWFile
+outputPRWFile = runArgs.outputNTUP_PILEUPFile
 
 include("PileupReweighting/generatePRW_jobOptions.py")
 
