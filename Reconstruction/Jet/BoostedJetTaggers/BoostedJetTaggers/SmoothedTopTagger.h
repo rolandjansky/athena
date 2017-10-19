@@ -68,6 +68,15 @@ class SmoothedTopTagger : public JSSTaggerBase {
   std::string m_modeName;
   Mode m_mode;
 
+  // string for decorating jets with DNN output
+  std::string m_decorationName;
+
+  // decorators
+  const SG::AuxElement::Decorator<float>*    m_dec_mcut;
+  const SG::AuxElement::Decorator<float>*    m_dec_tau32cut;
+  const SG::AuxElement::Decorator<float>*    m_dec_split23cut;
+  const SG::AuxElement::Decorator<float>*    m_dec_qwcut;
+
 
 };
 

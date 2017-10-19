@@ -109,5 +109,13 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+
+
+    // decorators to be used throughout
+    const SG::AuxElement::Decorator<float>*    m_dec_mcutL;
+    const SG::AuxElement::Decorator<float>*    m_dec_mcutH;
+    const SG::AuxElement::Decorator<float>*    m_dec_scoreCut;
+    const SG::AuxElement::Decorator<float>*    m_dec_scoreValue;
+
 };
 #endif
