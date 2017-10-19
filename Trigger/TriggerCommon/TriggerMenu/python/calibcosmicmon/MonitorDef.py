@@ -46,7 +46,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
             self.setupCSCMonChain()
         elif ('l1calooverflow' in self.monType):
             self.setupL1CaloOverflow()
-        elif ('l1topotransmission' in self.monType):
+        elif ('l1topodebug' in self.monType):
             self.setupL1TopoTransmission()
         else:
             log.error("No suitable configuration for chain %s found!" % self.chainName)
