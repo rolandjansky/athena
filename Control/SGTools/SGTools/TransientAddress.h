@@ -42,14 +42,20 @@ namespace SG {
     TransientAddress();
 
     ///< Construct from clid and string key:
-    TransientAddress(const CLID& id, const std::string& key);
+    TransientAddress(CLID id, const std::string& key);
 
     ///< Construct from clid, key and IOpaqueAddress
-    TransientAddress(const CLID& id, const std::string& key, 
+    TransientAddress(CLID id, const std::string& key, 
 		     IOpaqueAddress* addr, bool clearAddress = true);
+
+    TransientAddress (const TransientAddress&);
+    TransientAddress (TransientAddress&&);
 
     ///< Destructor
     ~TransientAddress();
+
+    TransientAddress& operator= (const TransientAddress&);
+    TransientAddress& operator= (TransientAddress&&);
 
     /// Set the CLID / key.
     /// This will only succeed if the clid/key are currently clear.
@@ -124,6 +130,11 @@ namespace SG {
     void setProvider(IAddressProvider* provider, StoreID::type storeID);
 
   private:
+    TransientAddress(CLID id, const std::string& key, 
+		     IOpaqueAddress* addr,
+                     bool clearAddress,
+                     bool consultProvider);
+
     /**
      * @brief Retrieve the EventContext saved in store STORE.
      * @param store The store from which to retrieve the context, or nullptr.
@@ -137,6 +148,21 @@ namespace SG {
     ///< clid of the concrete class (persistent clid)
     CLID m_clid;
 
+    ///< (hashed) SG key for primary clid / key.
+    sgkey_t m_sgkey;
+
+    ///< Store type, needed by updateAddress
+    StoreID::type m_storeID;
+
+    ///< Controls if IOpaqueAddress should be deleted:
+    bool m_clearAddress;
+
+    ///< Control whether the Address Provider must be consulted
+    bool m_consultProvider;
+
+    ///< IOpaqueAddress:
+    IOpaqueAddress* m_address;
+
     ///< string key of this object
     std::string m_name;
 
@@ -146,23 +172,8 @@ namespace SG {
     ///< all alias names for a DataObject. They come from setAlias
     TransientAliasSet m_transientAlias;
 
-    ///< IOpaqueAddress:
-    IOpaqueAddress* m_address;
-
-    ///< Controls if IOpaqueAddress should be deleted:
-    bool m_clearAddress;
-
-    ///< Control whether the Address Provider must be consulted
-    bool m_consultProvider;
-
     ///< AddressProvider
     IAddressProvider* m_pAddressProvider;
-
-    ///< Store type, needed by updateAddress
-    StoreID::type m_storeID;
-
-    ///< (hashed) SG key for primary clid / key.
-    sgkey_t m_sgkey;
   };
   /////////////////////////////////////////////////////////////////////
   // inlined code:
