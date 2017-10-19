@@ -6,13 +6,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-<<<<<<< HEAD
 #include "RoiDescriptor/RoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
 #include "IRegionSelector/IRoiDescriptor.h"
-=======
 #include "IRegionSelector/IRegSelSvc.h"
->>>>>>> 643cedbc7d289416cbd730c4fed6de7df1f8fbac
 
 namespace PESA
 {
@@ -134,6 +131,10 @@ namespace PESA
     }
     
     if (roi->composite()) {
+      if (m_requestPIXRobs || m_requestSCTRobs){
+        registerROBs(roi);
+      }
+
       ATH_MSG_DEBUG("Not touching a composite RoI");
       updateNeeded = false;
     }
