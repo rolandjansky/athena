@@ -392,11 +392,13 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
       }
    }
+   else if (className == "E0A5F063-F07D-4D2E-8D3B-49205CD712C1") clid = 1076128893; // ByteStreamMetadataContainer
    else if (className == "6C2DE6DF-6D52-43F6-B435-9F29812F40C0") clid = 1316383046; // IOVMetaDataContainer
    else if (className == "0EFE2D2C-9E78-441D-9A87-9EE2B908AC81") clid = 243004407;  // xAOD::EventFormat, FIXME: May need new copy tool
    else if (className == "AA55120B-11CF-44A3-B1E4-A5AB062207B7") clid = 1107011239; // xAOD::TriggerMenuContainer
    else if (className == "B8614CC5-8696-4170-8CCC-496DA7671246") clid = 1212409402; // xAOD::TriggerMenuAuxContainer
    else if (className == "F2F90B2F-B879-43B8-AF9B-0F843E299A87") { clid = 1234982351; // xAOD::CutBookkeeperContainer
+//if (num != 0) return(StatusCode::SUCCESS);
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
@@ -417,7 +419,9 @@ cfSvc.release().ignore();
 }
       }
    }
-   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
+   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") { clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
+//if (num != 0) return(StatusCode::SUCCESS);
+   }
    else if (className == "C87E3828-4A7A-480A-95DE-0339539F6A0F") clid = 178309087;  // xAOD::FileMetaData
    else if (className == "BEE2BECF-A936-4078-9FDD-AD703C9ADF9F") clid = 73252552;   // xAOD::FileMetaDataAuxInfo
 
