@@ -15,7 +15,7 @@
 
 TaggerType: TopQuark
 
-DecorationName: DNNTaggerScoreTopQuark
+DecorationName: DNNTaggerTopQuark80
 
 CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
 #CalibArea: Local
