@@ -23,7 +23,7 @@ def getBtagFexSplitInstance( instance, version, algo):
                          PriVtxKey="xPrimVx",TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig")
 
 def getBtagFexFTKInstance( instance, version, algo):
-    return BtagFexFTK( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
+    return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
                        PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
 
 def getBtagFexFTKRefitInstance( instance, version, algo):
