@@ -68,7 +68,7 @@ void CopyEventStreamInfo::handle(const Incident& inc) {
    ATH_MSG_DEBUG("handle() " << inc.type());
    if (inc.type() == "BeginInputFile") {
       std::vector<std::string> keys;
-      if (m_key.empty()) {
+      if (m_key.value().empty()) {
          m_inputMetaDataStore->keys<EventStreamInfo>(keys);
       } else {
          keys.push_back(m_key);

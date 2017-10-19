@@ -13,7 +13,7 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
-const std::size_t maxTokenLength = 512;
+const std::size_t maxTokenLength = 1024;
 
 struct ShareEventHeader {
    enum ProcessStatus { CLEARED, FILLED, LOCKED, UNLOCKED, PARTIAL, SHARED, UNKNOWN };
