@@ -24,8 +24,10 @@ namespace TSU {
      /**
         @brief compute the sum in quadrature of two ints
 
-        This function includes an implementation of the int sqr using...
-        TODO explain left-right implementation trick
+        This function includes an integer square root implementation using a bitwise iterative approach.
+        Square root is computed bit-by-bit (highest significance bits first) and the result is
+        adjusted up- or downwards in each iteration based on whether or not the current result
+        under- or overestimates the value of the sum of squares.
 
         That is the same way in which the sqrt int is implemented in firmware:
             processor/sources/common/libraries/L1TopoFunctions.vhd
