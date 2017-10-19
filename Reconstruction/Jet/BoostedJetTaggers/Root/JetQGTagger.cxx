@@ -109,7 +109,10 @@ namespace CP {
     // decorators used to store
     // 1) ntracks
     // 2) tagger weight
-    m_taggerdec  = new SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
+    ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+    ATH_MSG_INFO( "  "<<m_tagger_decoration_name<<" : Number of tracks for tagging decision" );
+    m_taggerdec = new SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
+    ATH_MSG_INFO( "  "<<m_weight_decoration_name<<" : Scale factor weight given the number of tracks" );
     m_weightdec = new SG::AuxElement::Decorator< float>(m_weight_decoration_name);
 
     // set up InDet selection tool

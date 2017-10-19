@@ -53,12 +53,25 @@ StatusCode TopoclusterTopTagger::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+    // file access method depends on whether we are in r20.7 or r21
+    int releaseSeries = atoi(getenv("ROOTCORE_RELEASE_SERIES"));
+    if(releaseSeries>=25){
+      // r21 with release <= 21.2.4
+      configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+    }
+    else {
+      // r20.7 with release <= AnalysisBase,2.4.24
+      #ifdef ROOTCORE
+          configPath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
+      #else
+          configPath = PathResolverFindXMLFile(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
+      #endif
+    }
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
     if(fSuccess != 0){
-      ATH_MSG_ERROR("Recommendations file could not be found : " << configPath);
+      ATH_MSG_ERROR("Recommendations file could not be found : ");
       return StatusCode::FAILURE;
     }
     else {
@@ -120,6 +133,23 @@ StatusCode TopoclusterTopTagger::initialize(){
     }
 
   }
+
+  // decorators to be used throughout
+  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  std::string dec_name;
+
+  dec_name = m_decorationName+"_Cut_mlow";
+  ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
+  m_dec_mcutL = new SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_mlow").c_str());
+  dec_name = m_decorationName+"_Cut_mhigh";
+  ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
+  m_dec_mcutH = new SG::AuxElement::Decorator<float> ((m_decorationName+"_Cut_mhigh").c_str());
+  dec_name = m_decorationName+"_Cut_score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : cut on the MVA score for the given working point" );
+  m_dec_scoreCut = new SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_score").c_str());
+  dec_name = m_decorationName+"_Score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : name of the evaluated MVA score" );
+  m_dec_scoreValue = new SG::AuxElement::Decorator<float>((m_decorationName+"_Score").c_str());
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -318,16 +348,10 @@ void TopoclusterTopTagger::preprocess(std::map<std::string,double> &clusters, co
 void TopoclusterTopTagger::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
     /* decorate jet with attributes */
 
-    // decorators to be used throughout
-    static SG::AuxElement::Decorator<float>    dec_mcutL ("TopoclusterTopTagCut_mlow");
-    static SG::AuxElement::Decorator<float>    dec_mcutH ("TopoclusterTopTagCut_mhigh");
-    static SG::AuxElement::Decorator<float>    dec_scoreCut("TopoclusterTopTagCut_score");
-    static SG::AuxElement::Decorator<float>    dec_scoreValue(m_decorationName.c_str());
-
-    dec_mcutH(jet)      = mcutH;
-    dec_mcutL(jet)      = mcutL;
-    dec_scoreCut(jet)   = scoreCut;
-    dec_scoreValue(jet) = scoreValue;
+    (*m_dec_mcutH)(jet)      = mcutH;
+    (*m_dec_mcutL)(jet)      = mcutL;
+    (*m_dec_scoreCut)(jet)   = scoreCut;
+    (*m_dec_scoreValue)(jet) = scoreValue;
 
 }
 
