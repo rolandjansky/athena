@@ -35,7 +35,7 @@
 static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
-    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+    static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
     static const unsigned int FallBackRunNumber = 311481;
     // ==================================================================================
     // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
