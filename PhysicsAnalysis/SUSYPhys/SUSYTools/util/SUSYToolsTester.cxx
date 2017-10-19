@@ -125,7 +125,7 @@ int main( int argc, char* argv[] ) {
   // Check if we received a file name:
   if ( argc < 2 ) {
     Error( APP_NAME, "No file name received!" );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [nEvtMax] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx]", APP_NAME );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx]", APP_NAME );
     return 1;
   }
 
@@ -168,7 +168,7 @@ int main( int argc, char* argv[] ) {
 
   if (isData < 0 || isAtlfast < 0) {
     Error( APP_NAME, "One of the flags isData or isAtlfast was not set! Must provide isData or isAtlfast." );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [nEvtMax] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug]", APP_NAME );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug]", APP_NAME );
     return 10;
   }
   ST::ISUSYObjDef_xAODTool::DataSource datasource = (isData ? ST::ISUSYObjDef_xAODTool::Data : (isAtlfast ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim));
