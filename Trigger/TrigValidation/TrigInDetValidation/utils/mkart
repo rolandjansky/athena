@@ -60,12 +60,19 @@ COUNTER=0
 
 for xmlfile in $FILES; do  
 
-   _file=test_$(echo $(basename $xmlfile .xml) | tr '[:upper:]' '[:lower:]' )
+    _file=test_$(echo $(basename $xmlfile .xml) | tr '[:upper:]' '[:lower:]' )
       
-#  echo "xmlfile $xmlfile  $_file"
+#   echo "xmlfile $xmlfile  $_file"
 
-   outfile="$OUTDIR/$_file.sh"
+    outfile="$OUTDIR/$_file.sh"
  
+
+    if [ -z $DATASET ]; then 
+	SAMPLE=$(grep include $xmlfile | grep sample | grep -v "<\!-" | head -1 | sed 's|.* \"||g' | sed 's|\".*||g')
+	DATASET=$(grep dataset ../TIDAbuild/$SAMPLE | grep -v "<\!-" | head -1 | sed 's|.*<dataset>||g' | sed 's|</dataset>.*||g' )
+    fi 
+
+
     if [ -e $outfile ]; then 
       if [ $NOGLOB -eq 0 ]; then 
          echo "file $outfile already exists, moving to " $outfile.bak
