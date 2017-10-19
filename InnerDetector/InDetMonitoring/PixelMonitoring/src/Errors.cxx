@@ -393,7 +393,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         if (!is_ibl) {
           if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
           if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
-          if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+          // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
           if (bit == 0  || bit == 1)               error_type = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
           if (bit == 23)                           error_type = 5;  // optical errors                  (23: preamble (bitflip))
           if (bit >= 5  && bit <= 7)               error_type = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
@@ -461,9 +461,10 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         }  // End of if(error_type)
 
         if (getErrorState(bit, is_ibl) != 99) {
-          num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
           if (is_ibl) {
             num_errors_per_stateIBL[getErrorState(bit, is_ibl) - kNumErrorStates]++;
+          } else {
+            num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
           }
           if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
         }
