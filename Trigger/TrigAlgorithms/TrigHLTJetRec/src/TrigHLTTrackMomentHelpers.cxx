@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // TrigHLTTrackMomentHelpers:Trigger algorithm that reads FTK primary vertices and tracks from
 // an incoming trigger element and gives them fixed SG key aliases that the track vertex association (tva) and track moment tools are configured with.
 // The tva tool is executed here. 
