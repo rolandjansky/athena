@@ -14,7 +14,10 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventStreamInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthEventContainer.h"
@@ -219,10 +222,23 @@ namespace xAODMaker {
                     
                     if (m_writeMetaData) {
                         //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
-                        const EventStreamInfo* esi = nullptr;
-                        CHECK( inputMetaStore->retrieve(esi));
-                        uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
-                        
+                        uint32_t mcChannelNumber = 0;
+                        if (evtStore()->contains<EventInfo>("McEventInfo")){
+                            const EventInfo* eventInfo(nullptr);
+                            CHECK( evtStore()->retrieve(eventInfo));
+                            mcChannelNumber = eventInfo->event_type()->mc_channel_number();
+                            if (mcChannelNumber==0) mcChannelNumber = eventInfo->event_ID()->run_number();
+                        } else if (evtStore()->contains<xAOD::EventInfo>("McEventInfo")){
+                            const xAOD::EventInfo* eventInfo(nullptr);
+                            CHECK( evtStore()->retrieve(eventInfo));
+                            mcChannelNumber = eventInfo->mcChannelNumber();
+                            if (mcChannelNumber==0) mcChannelNumber = eventInfo->runNumber();
+                        } else {
+                            const EventStreamInfo* esi = nullptr;
+                            CHECK( inputMetaStore->retrieve(esi));
+                            mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
+                            if (mcChannelNumber==0) mcChannelNumber = *(esi->getRunNumbers().begin());
+                        }
                         //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
                         //is used to check if the key already exists (returns false in the case it exists)
                         if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
