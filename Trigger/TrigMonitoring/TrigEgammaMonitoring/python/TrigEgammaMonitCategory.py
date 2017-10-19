@@ -54,7 +54,7 @@ monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e5_lhtight_nod0_e9_etcut_Jpsiee',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee',
-    'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee'
+    'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee',
     'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e5_lhtight_nod0_e4_etcut_L1JPSI-1M5',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5',
@@ -144,7 +144,7 @@ validationTP_electron = [
     'HLT_e26_lhtight_nod0_ivarloose',
     'HLT_e17_lhvloose_nod0',
     'HLT_e24_lhtight_nod0_ivarloose',
-    'HLT_e24_lhmedium_nod0_L1EM20VHI'
+    'HLT_e24_lhmedium_nod0_L1EM20VHI',
     # 2015
     'HLT_e24_lhmedium_L1EM20VH',
     'HLT_e12_lhloose_L1EM10VH',
