@@ -19,9 +19,13 @@
 class AFP_Raw2Digi : public ::AthAlgorithm {
 public:
   AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator);
+
+  /// Does nothing
   virtual ~AFP_Raw2Digi();
 
   virtual StatusCode initialize();
+
+  /// Executes commands in #m_digitool
   virtual StatusCode execute();
   virtual StatusCode finalize();
 

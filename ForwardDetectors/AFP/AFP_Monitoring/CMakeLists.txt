@@ -18,7 +18,11 @@ atlas_depends_on_subdirs( PUBLIC
    )
 
 # Component(s) in the package:
-atlas_add_library( AFP_Monitoring
-   AFP_Monitoring/*.h src/*.cxx
+atlas_add_component( AFP_Monitoring
+   src/*.cxx
+   src/components/*.cxx
    PUBLIC_HEADERS AFP_Monitoring
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib LWHists xAODForward xAODEventInfo AFP_RawEv)
+
+atlas_install_headers( AFP_Monitoring )
+atlas_install_joboptions( share/*.py )

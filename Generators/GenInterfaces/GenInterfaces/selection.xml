@@ -6,4 +6,7 @@
   <class name="ITruthSelector" />
   <class name="IxAODtoHepMCTool" />
   <class name="IHiggsTruthCategoryTool" />
+  <class name="IHforTool" />
+
+  <class name="std::vector<HepMC::FourVector>"/>
 </lcgdict>

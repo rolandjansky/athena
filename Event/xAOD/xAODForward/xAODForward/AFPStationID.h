@@ -46,10 +46,10 @@ namespace xAOD
   class AFPStationID
   {
   public:
-    static const int farA = 0; ///< station with at Z = 217 m
-    static const int nearA = 1; ///< station with at Z = 205 m
-    static const int nearC = 2; ///< station with at Z = -205 m
-    static const int farC = 3; ///< station with at Z = -217 m
+    static const int farA; ///< station with at Z = 217 m
+    static const int nearA; ///< station with at Z = 205 m
+    static const int nearC; ///< station with at Z = -205 m
+    static const int farC; ///< station with at Z = -217 m
   };
 
 }

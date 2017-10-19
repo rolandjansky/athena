@@ -7,6 +7,9 @@
 #include "PrimaryDPDMaker/BCIDFilterTool.h"
 #include "PrimaryDPDMaker/CollisionFilterAlg.h"
 #include "PrimaryDPDMaker/muonTrkTrackThinTool.h"
+#include "PrimaryDPDMaker/CaloCellThinningTool.h"
+
+using namespace DerivationFramework;
 
 DECLARE_ALGORITHM_FACTORY( PrimaryDPDPrescaler )
 DECLARE_ALGORITHM_FACTORY( ThinContainers )
@@ -15,6 +18,7 @@ DECLARE_ALGORITHM_FACTORY( muonTrkTrackThinTool )
 DECLARE_TOOL_FACTORY( MBTSTimeFilterTool )
 DECLARE_TOOL_FACTORY( CaloTimeFilterTool )
 DECLARE_TOOL_FACTORY( BCIDFilterTool )
+DECLARE_TOOL_FACTORY( CaloCellThinningTool )
 
 DECLARE_FACTORY_ENTRIES( PrimaryDPDMaker )
 {
@@ -25,4 +29,5 @@ DECLARE_FACTORY_ENTRIES( PrimaryDPDMaker )
   DECLARE_TOOL( MBTSTimeFilterTool );
   DECLARE_TOOL( CaloTimeFilterTool );
   DECLARE_TOOL( BCIDFilterTool );
+  DECLARE_TOOL( CaloCellThinningTool );
 }

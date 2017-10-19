@@ -8,7 +8,7 @@
 
 AFP_TDDigiCollection_PERS* AFP_TDDigiCollectionCnv::createPersistent(AFP_TDDigiCollection* transCont)
 {
-	MsgStream mlog(messageService(), "AFP_TDDigiCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_TDDigiCollectionConverter" );
 
 	AFP_TDDigiCollectionCnv_p1 TPConverter;
 	AFP_TDDigiCollection_PERS *pPersColl = TPConverter.createPersistent( transCont, mlog );
@@ -18,7 +18,7 @@ AFP_TDDigiCollection_PERS* AFP_TDDigiCollectionCnv::createPersistent(AFP_TDDigiC
 
 AFP_TDDigiCollection* AFP_TDDigiCollectionCnv::createTransient()
 {
-	MsgStream mlog(messageService(), "AFP_TDDigiCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_TDDigiCollectionConverter" );
 
 	//GUID of persistence collection class (see selection.xml in AFP_EventTPCnv, class item AFP_TDDigiCollection_p1
 	static const pool::Guid p1_guid("352BE1B9-96FA-46BB-B1AE-51DDF56380EB");
