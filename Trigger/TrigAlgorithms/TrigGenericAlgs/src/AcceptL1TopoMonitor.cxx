@@ -131,7 +131,7 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     declareProperty("AcceptCrcDaqError"      , m_acceptCrcDaqError=false,       "accept event with CrcDaq error"      );
     declareProperty("AcceptRoibDaqDifference", m_acceptRoibDaqDifference=false, "accept event with Roib Daq Difference");
     declareProperty("AcceptRoibCtpDifference", m_acceptRoibCtpDifference=false, "accept event with Roib Ctp Difference");
-    declareProperty("AcceptDaqCtpDifference" , m_acceptDaqCtpDifference=false,  "accept event with Daq Ctp Difference");
+    declareProperty("AcceptDaqCtpDifference" , m_acceptDaqCtpDifference=true,  "accept event with Daq Ctp Difference");
 }
 //----------------------------------------------------------
 HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
