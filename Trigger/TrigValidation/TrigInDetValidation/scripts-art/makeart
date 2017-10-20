@@ -19,9 +19,11 @@ for job in $(grep include  ../TIDAbuild/TrigInDetValidation_TestConfiguration_ma
 
     ../utils/mkart ../TIDAbuild/$job -d $DATASET -o . 
 
-    chmod 755 $(basename $job .xml).sh 
-    mv $(basename $job .xml).sh ../test
-    ls -ld ../test/$(basename $job .xml).sh
+    _job=test_$(echo $(basename $job .xml) | tr '[:upper:]' '[:lower:]' )
+
+    chmod 755 $_job.sh 
+    mv $_job.sh ../test
+    ls -ld ../test/$_job.sh
 
 done
 
