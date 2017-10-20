@@ -98,6 +98,9 @@ BUILDDIR=$(cd ${BUILDDIR} && pwd)
 source $AthAnalysisSrcDir/build_env.sh -b $BUILDDIR >& ${BUILDDIR}/build_env.log
 cat ${BUILDDIR}/build_env.log
 
+# Set Gaudi's version to the same value as this project's version:
+export GAUDI_VERSION=`cat ${AthAnalysisSrcDir}/version.txt`
+
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/AthAnalysis
 cd ${BUILDDIR}/build/AthAnalysis
