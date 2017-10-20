@@ -10,11 +10,11 @@ class ThinInDetForwardTrackParticles(Configured):
         mlog.info('entering')
         try:
             from ThinningUtils.ThinningUtilsConf import ThinInDetForwardTrackParticlesAlg
-            theGeantTruthThinner = ThinInDetForwardTrackParticlesAlg(
+            theInDetFwdThinner = ThinInDetForwardTrackParticlesAlg(
                 "ThinInDetForwardTrackParticlesAlg",
                 ThinInDetForwardTrackParticles = True
             )
-            print theGeantTruthThinner
+            print theInDetFwdThinner
         except Exception:
             mlog.error("could not get handle to ThinInDetForwardTrackParticlesAlg")
             print traceback.format_exc()
@@ -22,5 +22,5 @@ class ThinInDetForwardTrackParticles(Configured):
         mlog.info("now adding to topSequence")
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theGeantTruthThinner
+        topSequence += theInDetFwdThinner
         return True
