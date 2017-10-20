@@ -31,7 +31,7 @@ def setup(HIGG4DxName, ToolSvc):
     tauProngs = "abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)"
     tauTracks = "(TauJets.nTracks == 1 || TauJets.nTracks == 3)"
     
-    tauProngs123 = "abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 2 || TauJets.nTracks == 3)"
+    tauProngs123 = "( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) ) || (TauJets.pt > 100.0*GeV && TauJets.nTracks == 2 )"    
     tauTracks123 = "(TauJets.nTracks == 1 || TauJets.nTracks == 2 || TauJets.nTracks == 3)"
 
     if HIGG4DxName == 'HIGG4D1':     
