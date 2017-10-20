@@ -20,7 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           DetectorDescription/IRegionSelector
-                          Event/ByteStreamCnvSvcBase
+                          DetectorDescription/RoiDescriptor
+			  Event/ByteStreamCnvSvcBase
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigNavigation
