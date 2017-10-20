@@ -15,10 +15,8 @@ class sTGC_RawDataContainer
   : public IdentifiableContainer<sTGC_RawDataCollection>
 {
 public:  
-  sTGC_RawDataContainer();
   sTGC_RawDataContainer(unsigned int hashmax);
   ~sTGC_RawDataContainer(); 
-
   
   // class ID
   static const CLID& classID(); 
