@@ -509,13 +509,7 @@ from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetAlgorithm
 
-# run the GenFilterTool, which adds a decoration flag in the derivation
-# to identify the MET and HT bins of this sample in some cases
-# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MergingHTMETSamplesttWt
 augTools = []
-if globalflags.DataSource() == 'geant4':
-   from DerivationFrameworkMCTruth.GenFilterToolSetup import *
-   augTools.append(ToolSvc.DFCommonTruthGenFilt)
 
 # this classifies leptons into background or signal leptons depending on
 # where they come from
@@ -526,17 +520,16 @@ if globalflags.DataSource() == 'geant4':
 # (used to estimate the fake rate of lepton-to-jet misid)
 if isMC:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   # Includes the GenFilterTool
+   # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MergingHTMETSamplesttWt
    addStandardTruthContents()
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
-   from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-   EXOT4Classifier = MCTruthClassifier( name                      = "EXOT4Classifier",
-                                       ParticleCaloExtensionTool = "" ) 
-   ToolSvc += EXOT4Classifier
+
    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
    EXOT4ClassificationDecorator = DerivationFramework__TruthClassificationDecorator(
                                  name              = "EXOT4ClassificationDecorator",
                                  ParticlesKey      = "TruthParticles",
-                                 MCTruthClassifier = EXOT4Classifier) 
+                                 MCTruthClassifier = ToolSvc.DFCommonTruthClassifier) 
    ToolSvc += EXOT4ClassificationDecorator
    augTools.append(EXOT4ClassificationDecorator)
    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
@@ -565,8 +558,6 @@ OutputJets["EXOT4"] = []
 reducedJetList = [
     "AntiKt2PV0TrackJets", #flavour-tagged automatically
     "AntiKt4PV0TrackJets",
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets",
     "AntiKt10TruthJets",
     "AntiKt10LCTopoJets"]
 replaceAODReducedJets(reducedJetList,exot4Seq,"EXOT4")
