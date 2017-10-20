@@ -23,8 +23,8 @@ if DetFlags.digitize.Muon_on():
     if DetFlags.digitize.TGC_on():
         job += CfgGetter.getAlgorithm("TgcDigitToTgcRDO/TgcDigitToTgcRDO", tryDefaultConfigurable=True)
     #----------------
-    #if DetFlags.digitize.sTGC_on():
-    #    job += CfgGetter.getAlgorithm("sTgcDigitTosTgcRDO/sTgcDigitTosTgcRDO", tryDefaultConfigurable=True)
+    if DetFlags.digitize.sTGC_on():
+        job += CfgGetter.getAlgorithm("sTGC_DigitToRDO/sTGC_DigitToRDO", tryDefaultConfigurable=True)
     #----------------
     #if DetFlags.digitize.Micromegas_on():
     #    job += CfgGetter.getAlgorithm("MmDigitToMmRDO/MmDigitToMmRDO", tryDefaultConfigurable=True)
