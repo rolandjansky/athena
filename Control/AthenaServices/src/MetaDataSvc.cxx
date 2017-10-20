@@ -24,6 +24,7 @@
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
 
+#include <vector>
 #include <sstream>
 
 //________________________________________________________________________________
@@ -35,11 +36,24 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_incSvc("IncidentSvc", name),
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
-	m_allowMetaDataStop(false) {
+	m_allowMetaDataStop(false),
+	m_persToClid() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
    declareProperty("CnvSvc", m_addrCrtr = ServiceHandle<IAddressCreator>("AthenaPoolCnvSvc", name));
+   m_persToClid.insert(std::pair<std::string, CLID>("11DF1B8C-0DEE-4687-80D7-E74B520ACBB4",  167728019)); // EventStreamInfo
+   m_persToClid.insert(std::pair<std::string, CLID>("E0A5F063-F07D-4D2E-8D3B-49205CD712C1", 1076128893)); // ByteStreamMetadataContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("6C2DE6DF-6D52-43F6-B435-9F29812F40C0", 1316383046)); // IOVMetaDataContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("0EFE2D2C-9E78-441D-9A87-9EE2B908AC81",  243004407)); // xAOD::EventFormat
+   m_persToClid.insert(std::pair<std::string, CLID>("AA55120B-11CF-44A3-B1E4-A5AB062207B7", 1107011239)); // xAOD::TriggerMenuContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("B8614CC5-8696-4170-8CCC-496DA7671246", 1212409402)); // xAOD::TriggerMenuAuxContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("F2F90B2F-B879-43B8-AF9B-0F843E299A87", 1234982351)); // xAOD::CutBookkeeperContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("AF612BAA-20B8-40A3-A418-894A9FB8A61B", 1147935274)); // xAOD::CutBookkeeperAuxContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0", 1115934851)); // xAOD::LumiBlockRangeContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("514696E1-A262-470A-BEB1-FF980CD8827A", 1251061086)); // xAOD::LumiBlockRangeAuxContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("C87E3828-4A7A-480A-95DE-0339539F6A0F",  178309087)); // xAOD::FileMetaData
+   m_persToClid.insert(std::pair<std::string, CLID>("BEE2BECF-A936-4078-9FDD-AD703C9ADF9F",   73252552)); // xAOD::FileMetaDataAuxInfo
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -300,13 +314,6 @@ void MetaDataSvc::handle(const Incident& inc) {
          }
          m_clearedInputDataStore = true;
       }
-static bool first = true;
-if (first) {
-first = false;
-         if (!m_outputDataStore->clearStore().isSuccess()) {
-            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
-         }
-}
       if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
          ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
       }
@@ -363,6 +370,8 @@ StatusCode MetaDataSvc::rootOpenAction(FILEMGR_CALLBACK_ARGS) {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr) {
+   std::string fileName = tokenStr.substr(tokenStr.find("[FILE=") + 6);
+   fileName = fileName.substr(0, fileName.find(']'));
    std::string className = tokenStr.substr(tokenStr.find("[CLID=") + 6);
    className = className.substr(0, className.find(']'));
    std::string contName = tokenStr.substr(tokenStr.find("[CONT=") + 6);
@@ -374,12 +383,12 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    unsigned long num = 0;
    std::istringstream iss(numName);
    iss >> num;
-   CLID clid = 0; //FIXME: Find better pers Guid to trans Clid
+   CLID clid = m_persToClid[className];
    const std::string par[2] = { "SHM" , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
 
-   if (className == "11DF1B8C-0DEE-4687-80D7-E74B520ACBB4") { clid = 167728019; // EventStreamInfo
+   if (clid == 167728019) { // EventStreamInfo
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_CopyEventStreamInfo") foundTool = true;
@@ -389,16 +398,13 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          m_metaDataTools.push_back(copyTool);
          if (!copyTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/SHM_CopyEventStreamInfo");
+            return(StatusCode::FAILURE);
+         }
+         if (!m_outputDataStore->clearStore().isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
          }
       }
-   }
-   else if (className == "E0A5F063-F07D-4D2E-8D3B-49205CD712C1") clid = 1076128893; // ByteStreamMetadataContainer
-   else if (className == "6C2DE6DF-6D52-43F6-B435-9F29812F40C0") clid = 1316383046; // IOVMetaDataContainer
-   else if (className == "0EFE2D2C-9E78-441D-9A87-9EE2B908AC81") clid = 243004407;  // xAOD::EventFormat, FIXME: May need new copy tool
-   else if (className == "AA55120B-11CF-44A3-B1E4-A5AB062207B7") clid = 1107011239; // xAOD::TriggerMenuContainer
-   else if (className == "B8614CC5-8696-4170-8CCC-496DA7671246") clid = 1212409402; // xAOD::TriggerMenuAuxContainer
-   else if (className == "F2F90B2F-B879-43B8-AF9B-0F843E299A87") { clid = 1234982351; // xAOD::CutBookkeeperContainer
-//if (num != 0) return(StatusCode::SUCCESS);
+   } else if (clid == 1234982351) { // xAOD::CutBookkeeperContainer
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
@@ -408,24 +414,21 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          m_metaDataTools.push_back(bookkeeperTool);
          if (!bookkeeperTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get BookkeeperTool/SHM_BookkeeperTool");
+            return(StatusCode::FAILURE);
          }
-ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name());
-if (cfSvc.retrieve().isSuccess()) {
-m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
-m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
-m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
-m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
-cfSvc.release().ignore();
-}
+         if (!m_outputDataStore->clearStore().isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
+         }
+         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name());
+         if (cfSvc.retrieve().isSuccess()) {
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
+            m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
+            cfSvc.release().ignore();
+         }
       }
    }
-   else if (className == "AF612BAA-20B8-40A3-A418-894A9FB8A61B") { clid = 1147935274; // xAOD::CutBookkeeperAuxContainer
-//if (num != 0) return(StatusCode::SUCCESS);
-   }
-   else if (className == "9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0") clid = 1115934851;  // xAOD::LumiBlockRangeContainer
-   else if (className == "514696E1-A262-470A-BEB1-FF980CD8827A") clid = 1251061086;  // xAOD::LumiBlockRangeAuxContainer
-   else if (className == "C87E3828-4A7A-480A-95DE-0339539F6A0F") clid = 178309087;  // xAOD::FileMetaData
-   else if (className == "BEE2BECF-A936-4078-9FDD-AD703C9ADF9F") clid = 73252552;   // xAOD::FileMetaDataAuxInfo
 
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
@@ -439,6 +442,10 @@ cfSvc.release().ignore();
    if (m_inputDataStore->accessData(clid, keyName) == nullptr) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
+   }
+   static const std::string derFile = fileName;
+   if (fileName != derFile && (clid == 1234982351 || clid == 1147935274)) {
+      m_inputDataStore->proxy(clid, keyName)->reset();
    }
    return(StatusCode::SUCCESS);
 }

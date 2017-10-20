@@ -723,9 +723,15 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          ATH_MSG_DEBUG("registerForWrite SKIPPED for expired server, Placement = " << placement->toString());
          Token* tempToken = new Token();
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
-         return(tempToken);
+         token = tempToken; tempToken = nullptr;
+      } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+         ATH_MSG_DEBUG("registerForWrite SKIPPED for uninitialized server, Placement = " << placement->toString());
+         Token* tempToken = new Token();
+         tempToken->setClassID(pool::DbReflex::guid(classDesc));
+         token = tempToken; tempToken = nullptr;
+      } else {
+         token = m_poolSvc->registerForWrite(placement, obj, classDesc);
       }
-      token = m_poolSvc->registerForWrite(placement, obj, classDesc);
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cRepR_ALL");
