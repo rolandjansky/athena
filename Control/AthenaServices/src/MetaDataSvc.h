@@ -21,7 +21,7 @@
 
 #include "boost/bind.hpp"
 
-#include <vector>
+#include <map>
 
 // Forward declarations
 class IAddressCreator;
@@ -105,6 +105,7 @@ private: // data
    long m_storageType;
    bool m_clearedInputDataStore;
    bool m_allowMetaDataStop;
+   std::map<std::string, CLID> m_persToClid;
 
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
