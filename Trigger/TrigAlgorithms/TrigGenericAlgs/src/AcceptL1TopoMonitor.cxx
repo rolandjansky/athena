@@ -101,7 +101,15 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     m_hasCrcDaqError(false),
     m_hasRoibDaqDifference(false),
     m_hasRoibCtpDifference(false),
-    m_hasDaqCtpDifference(false)
+    m_hasDaqCtpDifference(false),
+    m_counterGenericRoiError(0),
+    m_counterGenericDaqError(0),
+    m_counterCrcTobError(0),
+    m_counterCrcFibreError(0),
+    m_counterCrcDaqError(0),
+    m_counterRoibDaqDifference(0),
+    m_counterRoibCtpDifference(0),
+    m_counterDaqCtpDifference(0)
 {
     m_scaler = new HLT::PeriodicScaler();
     declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910000, 0x00910010, 0x00910020}, "L1TOPO DAQ ROB IDs");
@@ -140,6 +148,14 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
     ATH_MSG_DEBUG ( m_vROIROBIDs );
     ATH_MSG_DEBUG ( m_prescaleForDAQROBAccess );
     ATH_MSG_DEBUG ( m_simTopoCTPLocation );
+    ATH_MSG_DEBUG("AcceptGenericRoiError   : "<<m_acceptGenericRoiError);
+    ATH_MSG_DEBUG("AcceptGenericDaqError   : "<<m_acceptGenericDaqError);
+    ATH_MSG_DEBUG("AcceptCrcTobError       : "<<m_acceptCrcTobError);
+    ATH_MSG_DEBUG("AcceptCrcFibreError     : "<<m_acceptCrcFibreError);
+    ATH_MSG_DEBUG("AcceptCrcDaqError       : "<<m_acceptCrcDaqError);
+    ATH_MSG_DEBUG("AcceptRoibDaqDifference : "<<m_acceptRoibDaqDifference);
+    ATH_MSG_DEBUG("AcceptRoibCtpDifference : "<<m_acceptRoibCtpDifference);
+    ATH_MSG_DEBUG("AcceptDaqCtpDifference  : "<<m_acceptDaqCtpDifference);
     return HLT::OK;
 }
 //----------------------------------------------------------
@@ -219,7 +235,8 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
         (doSimDaq(prescaleForDAQROBAccess));
     }
 
-    const bool anythingToAccept = (
+    incrementErrorCounters();
+    m_acceptThisEvent = (
         (m_acceptGenericRoiError   and m_hasGenericRoiError) or
         (m_acceptGenericDaqError   and m_hasGenericDaqError) or
         (m_acceptCrcTobError       and m_hasCrcTobError) or
@@ -245,7 +262,7 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
     compObj->setDetail("hasDaqCtpDifference",  m_hasDaqCtpDifference );
     std::vector<HLT::TriggerElement*> empty_seed;
     HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, outputTeType);
-    te->setActiveState(anythingToAccept);
+    te->setActiveState(m_acceptThisEvent);
     HLT::ErrorCode hltStatus = attachFeature(te, errorFlagContainer, "errors_L1TopoMonitor");
     if(hltStatus != HLT::OK) {
         msg()<<MSG::ERROR
@@ -426,7 +443,16 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
 //----------------------------------------------------------
 HLT::ErrorCode AcceptL1TopoMonitor::hltEndRun()
 {
-    ATH_MSG_INFO ("endRun");
+    ATH_MSG_INFO("endRun");
+    ATH_MSG_DEBUG("Error counters:");
+    ATH_MSG_DEBUG("GenericRoiError   : "<<m_counterGenericRoiError);
+    ATH_MSG_DEBUG("GenericDaqError   : "<<m_counterGenericDaqError);
+    ATH_MSG_DEBUG("CrcTobError       : "<<m_counterCrcTobError);
+    ATH_MSG_DEBUG("CrcFibreError     : "<<m_counterCrcFibreError);
+    ATH_MSG_DEBUG("CrcDaqError       : "<<m_counterCrcDaqError);
+    ATH_MSG_DEBUG("RoibDaqDifference : "<<m_counterRoibDaqDifference);
+    ATH_MSG_DEBUG("RoibCtpDifference : "<<m_counterRoibCtpDifference);
+    ATH_MSG_DEBUG("DaqCtpDifference  : "<<m_counterDaqCtpDifference);
     return HLT::OK;
 }
 //----------------------------------------------------------
@@ -977,5 +1003,15 @@ StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-
-
+void AcceptL1TopoMonitor::incrementErrorCounters()
+{
+    m_counterGenericRoiError   += (m_hasGenericRoiError   ? 1 : 0);
+    m_counterGenericDaqError   += (m_hasGenericDaqError   ? 1 : 0);
+    m_counterCrcTobError       += (m_hasCrcTobError       ? 1 : 0);
+    m_counterCrcFibreError     += (m_hasCrcFibreError     ? 1 : 0);
+    m_counterCrcDaqError       += (m_hasCrcDaqError       ? 1 : 0);
+    m_counterRoibDaqDifference += (m_hasRoibDaqDifference ? 1 : 0);
+    m_counterRoibCtpDifference += (m_hasRoibCtpDifference ? 1 : 0);
+    m_counterDaqCtpDifference  += (m_hasDaqCtpDifference  ? 1 : 0);
+}
+//----------------------------------------------------------

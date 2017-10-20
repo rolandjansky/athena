@@ -110,6 +110,10 @@ private:
                      const std::bitset<m_nTopoCTPOutputs>& left,
                      const std::bitset<m_nTopoCTPOutputs>& right,
                      TH1F*& hist);
+    /**
+       @brief increment the counters for each error type
+     */
+    void incrementErrorCounters();
     ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
     ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;
     BooleanProperty m_doRawMon;
@@ -189,6 +193,15 @@ private:
     bool m_acceptRoibDaqDifference;
     bool m_acceptRoibCtpDifference;
     bool m_acceptDaqCtpDifference;
+
+    uint32_t m_counterGenericRoiError;
+    uint32_t m_counterGenericDaqError;
+    uint32_t m_counterCrcTobError;
+    uint32_t m_counterCrcFibreError;
+    uint32_t m_counterCrcDaqError;
+    uint32_t m_counterRoibDaqDifference;
+    uint32_t m_counterRoibCtpDifference;
+    uint32_t m_counterDaqCtpDifference;
 
     enum class Problems {
         ROI_NO_RDO=0,
