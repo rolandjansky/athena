@@ -20,6 +20,8 @@ class RedirStderr
 public:
   RedirStderr();
   ~RedirStderr();
+  RedirStderr (const RedirStderr&) = delete;
+  RedirStderr& operator= (const RedirStderr&) = delete;
 
 private:
   int m_nullfd;
@@ -32,7 +34,9 @@ RedirStderr::RedirStderr()
 {
   m_nullfd = open ("/dev/null", O_WRONLY);
   m_stderr = dup (2);
-  dup2 (m_nullfd, 2);
+  if (m_nullfd >= 0) {
+    dup2 (m_nullfd, 2);
+  }
 }
 
 
