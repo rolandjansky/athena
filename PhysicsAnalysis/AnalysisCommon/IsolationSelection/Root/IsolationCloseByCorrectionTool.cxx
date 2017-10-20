@@ -229,35 +229,20 @@ namespace CP {
         }
         corrections = std::vector<float>(types.size(), 0);
         TrackCollection Tracks;
-
-        ATH_MSG_DEBUG("getCloseByCorrection 1");
-
         getTrackCandidates(&closePar, retrieveIDBestPrimaryVertex(), Tracks);
         ClusterCollection Clusters;
         if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) getClusterCandidates(&closePar, Clusters);
-
-        ATH_MSG_DEBUG("getCloseByCorrection 2");
-
         std::vector<float>::iterator Cone = corrections.begin();
         for (auto& t : types) {
             IsoHelperMap::const_iterator Itr = m_isohelpers.find(t);
-
-            ATH_MSG_DEBUG("getCloseByCorrection 3");
-
             if (Itr == m_isohelpers.end()) {
                 m_isohelpers.insert(IsoHelperPair(t, IsoHelperPtr(new IsoVariableHelper(t, m_backup_prefix))));
                 Itr = m_isohelpers.find(t);
             }
-
-            ATH_MSG_DEBUG("getCloseByCorrection 4");
-
             if (isTrackIso(t) && getCloseByCorrectionTrackIso((*Cone), &par, t, Tracks) == CorrectionCode::Error) {
                 ATH_MSG_ERROR("Failed to apply track correction");
                 return CorrectionCode::Error;
             }
-
-            ATH_MSG_DEBUG("getCloseByCorrection 5");
-
             if (isTopoEtIso(t)) {
                 if (!Clusters.empty()) {
                     if (getCloseByCorrectionTopoIso((*Cone), &par, t, Clusters) == CorrectionCode::Error) {
@@ -397,27 +382,18 @@ namespace CP {
             return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTrackIso 1 " << tracks.size());
-        
     
         if (Itr == m_isohelpers.end() || Itr->second->backupIsolation(par) == CorrectionCode::Error || Itr->second->getOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
             return CorrectionCode::Error;
         } else if (tracks.empty()) return CorrectionCode::Ok;
 
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTrackIso 2");
-        
         double MaxDR = coneSize(par, type);
         TrackCollection ToExclude = getAssociatedTracks(par);
 
         const xAOD::IParticle* Ref = trackIsoRefPart(par);
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
 
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTrackIso 3");
-        
         for (auto& T : tracks) {
             if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
                 ATH_MSG_VERBOSE("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV.");
@@ -429,18 +405,12 @@ namespace CP {
         return CorrectionCode::Ok;
     }
     CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const {
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTopoIso 1");
-        
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         } else if (!isTopoEtIso(type)) {
             ATH_MSG_ERROR("Invalid isolation type");
             return CorrectionCode::Error;
         }
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTopoIso 2");
-        
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
         if (Itr == m_isohelpers.end() || Itr->second->backupIsolation(par) == CorrectionCode::Error || Itr->second->getOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
@@ -449,9 +419,6 @@ namespace CP {
         //Disable the correction of already isolated objects
         else if (correction <= 0.0) return CorrectionCode::Ok;
 
-
-        ATH_MSG_DEBUG("getCloseByCorrectionTopoIso 2");
-        
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         const xAOD::IParticle* Ref = topoEtIsoRefPart(par);
         if (!Ref) {
@@ -703,9 +670,6 @@ namespace CP {
         return xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(Iso);
     }
     bool IsolationCloseByCorrectionTool::isTrackIso(xAOD::Iso::IsolationType Iso) const {
-
-        ATH_MSG_DEBUG("isTrackIso 1 " << Iso << " " << isVarTrackIso(Iso)  << " " << isFixedTrackIso(Iso));
-
         return isVarTrackIso(Iso) || isFixedTrackIso(Iso);
     }
     bool IsolationCloseByCorrectionTool::isTopoEtIso(xAOD::Iso::IsolationType Iso) const {
