@@ -111,7 +111,14 @@ PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "Pri
 
 PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                          "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex" ]
+                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                         "CaloCalTopoClusters.rawEta.rawPhi.rawE.rawM.calEta.calPhi.calE.calM.AVG_LAR_Q.AVG_TILE_Q.BADLARQ_FRAC.CENTER_LAMBDA.ENG_BAD_CELLS.ENG_POS.ISOLATION.N_BAD_CELLS.SECOND_R",
+                                         "CombinedMuonTrackParticles.truthType.chiSquared",
+                                         "ExtrapolatedMuonTrackParticles.truthType.chiSquared",
+                                         "MuonSpectrometerTrackParticles.truthType.chiSquared",
+                                         "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
+                                         "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
+                                         ]
 
 
 # Trigger content
