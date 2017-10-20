@@ -31,7 +31,7 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree Hist RIO )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
 
 atlas_install_generic( share/* DESTINATION data/JetCalibTools )
 
@@ -62,11 +62,23 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore xAODRootAccess JetCalibToolsLib )
+   
+   atlas_add_executable( JetCalibTools_PlotJMSFactors
+      util/JetCalibTools_PlotJMSFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
 else()
    atlas_add_executable( JetCalibTools_Example
       util/JetCalibTools_Example.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore POOLRootAccessLib xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotJMSFactors
+      util/JetCalibTools_PlotJMSFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
 endif()
 
