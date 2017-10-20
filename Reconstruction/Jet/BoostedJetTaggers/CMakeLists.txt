@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools 
    Event/xAOD/xAODBase
    Event/xAOD/xAODJet 
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections 
    PhysicsAnalysis/AnalysisCommon/PATCore 

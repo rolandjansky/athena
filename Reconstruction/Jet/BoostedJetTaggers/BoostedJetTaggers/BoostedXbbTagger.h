@@ -5,17 +5,10 @@
 #ifndef JSSXBBTAGGER_H_
 #define JSSXBBTAGGER_H_
 
-//////////////////////////////////////////////////
-// boosted Xbb tagger
-// Felix Mueller <fmueller@cern.ch>
-// Eric Takasugi <eric.hayato.takasugi@cern.ch>
-//
-// based on original BoostedXbbTag tool in JetSubStructureUtils by
-// Giordon Stark <gstark@cern.ch>
-//////////////////////////////////////////////////
-
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
+#include "PATInterfaces/CorrectionCode.h" // needed for checking of muon momentum correction return value properly
 
 // c++ includes
 #include <set>
@@ -26,7 +19,11 @@
 // EDM includes
 #include <xAODJet/JetContainer.h>
 #include <xAODMuon/MuonContainer.h>
+
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
+
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
 class BoostedXbbTagger : public JSSTaggerBase {
@@ -112,8 +109,10 @@ class BoostedXbbTagger : public JSSTaggerBase {
     float m_muonPtMin;
     float m_muonEtaMax;
     float m_muonMatchDR;
-    std::unique_ptr<CP::MuonSelectionTool> m_muonSelectionTool;
-    std::unique_ptr<CP::MuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
+
+    // muon correction tools
+    asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
 
     // generic accessors used
     static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> parent;
@@ -123,13 +122,14 @@ class BoostedXbbTagger : public JSSTaggerBase {
     std::string m_decorationName;
 
     // generic decorations used
-    const SG::AuxElement::Decorator<float>* m_dec_jetMassMin;
-    const SG::AuxElement::Decorator<float>* m_dec_jetMassMax;
-    const SG::AuxElement::Decorator<float>* m_dec_jssCut;
-    const SG::AuxElement::Decorator<TLorentzVector>* m_dec_correctedJet;
-    const SG::AuxElement::Decorator<TLorentzVector>* m_dec_calibratedMuon;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInTrackJetLink;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInFatJetLink;
-    const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_trackJetsInFatJet;
+//    SG::AuxElement::Decorator< float > m_dec;
+    SG::AuxElement::Decorator<float>* m_dec_jetMassMin;
+    SG::AuxElement::Decorator<float>* m_dec_jetMassMax;
+    SG::AuxElement::Decorator<float>* m_dec_jssCut;
+    SG::AuxElement::Decorator<TLorentzVector>* m_dec_correctedJet;
+    SG::AuxElement::Decorator<TLorentzVector>* m_dec_calibratedMuon;
+    SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInTrackJetLink;
+    SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_muonsInFatJetLink;
+    SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >* m_dec_trackJetsInFatJet;
 };
 #endif

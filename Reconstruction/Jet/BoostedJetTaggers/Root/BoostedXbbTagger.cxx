@@ -16,11 +16,7 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
   m_name(name),
-  m_jetSubCutTF1(nullptr),
-
-  // the following don't have default constructors, so need to initialise them here
-  m_muonSelectionTool(new CP::MuonSelectionTool(name+"MuonSelection")),
-  m_muonCalibrationAndSmearingTool(new CP::MuonCalibrationAndSmearingTool(name+"MuonCalibrationTool"))
+  m_jetSubCutTF1(nullptr)
 
 {
 
@@ -66,15 +62,6 @@ BoostedXbbTagger::~BoostedXbbTagger() {}
 StatusCode BoostedXbbTagger::initialize()
 {
     ATH_MSG_INFO("Initializing BoostedXbbTagger tool");
-    // muons for muon-in-jet correction
-    if(!m_muonSelectionTool->initialize().isSuccess()){
-        ATH_MSG_ERROR("Could not initialize the MuonSelectionTool.");
-        return StatusCode::FAILURE;
-    }
-    if(!m_muonCalibrationAndSmearingTool->initialize().isSuccess()){
-        ATH_MSG_ERROR("Could not initialize the MuonCalibrationAndSmearingTool.");
-        return StatusCode::FAILURE;
-    }
     if( ! m_configFile.empty() ) {
       ATH_MSG_INFO( "Using config file : "<< m_configFile );
       // check for the existence of the configuration file
@@ -157,6 +144,15 @@ StatusCode BoostedXbbTagger::initialize()
       m_decorationName = configReader.GetValue("DecorationName" ,"");
 
     }
+
+    // set up muon tools
+    ASG_SET_ANA_TOOL_TYPE( m_muonSelectionTool, CP::MuonSelectionTool);
+    m_muonSelectionTool.setName(m_name+"MuonSelection");
+    m_muonSelectionTool.retrieve();
+
+    ASG_SET_ANA_TOOL_TYPE( m_muonCalibrationAndSmearingTool, CP::muonCalibrationAndSmearingTool);
+    m_muonCalibrationAndSmearingTool.setName(m_name+"MuonCalibrationTool");
+    m_muonCalibrationAndSmearingTool.retrieve();
 
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
         ATH_MSG_ERROR( "Error setting mass calibration scheme to " << m_muonCorrectionSchemeName );
@@ -380,7 +376,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   for (const auto& trackJetEL: associated_trackJets_links) {
       const xAOD::Jet *trackJet(static_cast<const xAOD::Jet*>(*trackJetEL));
       float maxDR(m_muonMatchDR);
-//       trackJet->getAttribute("SizeParameter", maxDR);
+//      trackJet->getAttribute("SizeParameter", maxDR);
       const xAOD::Muon *closest_muon(nullptr);
       ElementLink<xAOD::IParticleContainer> closest_muonEL;
       // get muons from jet decoration
@@ -401,7 +397,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
               ATH_MSG_DEBUG("No decorators for MuonSpectrometerPt or InnerDetectorPt found. Calibrate muons on-the-fly.");
               xAOD::Muon *muon_calib(nullptr);
 
-        if (!m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib)) {
+          if( m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib) != CP::CorrectionCode::Ok ){
                   ATH_MSG_ERROR("Could not get calibrated copy of muon.");
                   m_accept.setCutResult("ValidJetContent" , false);
               }
