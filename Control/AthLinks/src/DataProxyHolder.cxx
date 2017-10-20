@@ -561,20 +561,6 @@ SG::DataProxy* DataProxyHolder::proxy1(bool nothrow) const
 
 
 /**
- * @brief Return the data source for this reference.
- *
- * If we're holding a pointer directly, rather than a proxy,
- * then return 0 rather than raising an exception.
- */
-IProxyDict* DataProxyHolder::source1() const
-{
-  if (!m_proxy || (reinterpret_cast<unsigned long>(m_proxy) & 1) == 1)
-    return 0;
-  return m_proxy->store();
-}
-
-
-/**
  * @brief Compare for equality.
  */
 bool DataProxyHolder::operator== (const DataProxyHolder& other) const
