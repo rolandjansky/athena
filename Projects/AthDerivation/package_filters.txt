@@ -391,15 +391,15 @@
 
 # For physics validation
 + MuonSpectrometer/MuonValidation/MuonDQA/MuonPhysValMonitoring
-+ MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonResidualPullCalculators/
++ MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonResidualPullCalculators
 + PhysicsAnalysis/TauID/TauDQA
 + PhysicsAnalysis/TauID/TauHistUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/JetMissingEtID/MissingETDQA
-+ PhysicsAnalysis/JetTagging/JetTagValidation/JetTagDQA/
++ PhysicsAnalysis/JetTagging/JetTagValidation/JetTagDQA
 + Reconstruction/Jet/JetMonitoring
 + Reconstruction/PFlow/PFlowValidation/PFODQA
-+ Reconstruction/PFlow/PFlowValidation/PFOHistUtils/
++ Reconstruction/PFlow/PFlowValidation/PFOHistUtils
 + Reconstruction/egamma/EgammaPhysValMonitoring
 
 # Don't build anything else:
