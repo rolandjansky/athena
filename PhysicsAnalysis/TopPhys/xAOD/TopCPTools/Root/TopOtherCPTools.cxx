@@ -87,11 +87,6 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     for (std::string& s : pileup_config)
       s = PathResolverFindCalibFile(s);
     
-    // now using by default the nominal mc15c definition - the config file is appended to the list provided by the user
-    ATH_MSG_INFO("Now appending the default pile-up profile mc15c_v2_defaults.NotRecommended.prw.root to list of PRW config files.");
-    ATH_MSG_INFO("This is required because we can't provide a default channel number anymore.");
-    pileup_config.push_back(PathResolverFindCalibFile("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"));
-
     std::vector<std::string> pileup_lumi_calc = m_config->PileupLumiCalc();
     for (std::string& s : pileup_lumi_calc)
       s = PathResolverFindCalibFile(s);
