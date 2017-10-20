@@ -7,7 +7,10 @@
 #include <TVector2.h>
 
 HIJetSubtractorToolBase::HIJetSubtractorToolBase(const std::string& myname) : asg::AsgTool(myname),
-									      m_useCells(true)
+									      m_useCells(true),
+									      m_shape(nullptr),
+									      m_index(nullptr),
+									      m_modulator(nullptr)
 {
 #ifdef ASGTOOL_ATHENA
   //should not need this due to ASG_TOOL_CLASS macro since 
@@ -35,5 +38,14 @@ void HIJetSubtractorToolBase::setSubtractedEtaPhi(float E, float& eta, float& ph
     eta=eta0;
     phi=phi0;
   }
+
+}
+
+StatusCode HIJetSubtractorToolBase::configureEvent(const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const IHIUEModulatorTool* modulator)
+{
+  setShape(shape);
+  setIndex(index);
+  setModulator(modulator);
+  return StatusCode::SUCCESS;
 
 }

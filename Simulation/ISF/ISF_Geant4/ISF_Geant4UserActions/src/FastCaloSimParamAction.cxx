@@ -166,7 +166,7 @@ namespace G4UA{
       delete it.second;
     } // Vector of IDs in the map
     m_hit_map.clear();
-  
+
     if (m_eventSteps->size()==0) return; //don't need to play with it
     G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
 
@@ -606,7 +606,10 @@ namespace G4UA{
         if (steps.size()>1)
           {
             //only when doing substeps, don't want to delete the original a4step
-            while(!steps.empty()) delete steps.back(), steps.pop_back();
+            for (std::vector<const G4Step*>::iterator it = steps.begin(); it!=steps.end(); ++it) {
+              delete *it;
+            }
+            steps.clear();
           }
       }
       ////////////////////////
@@ -634,7 +637,7 @@ namespace G4UA{
                 //std::cout <<"Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
                 //std::cout <<"E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
               }
-            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1); 
+            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             //Commented out version needs ISF_Event which is not yet in SVN..
             //      ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1,StepLength);
@@ -676,7 +679,7 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
   if (map_item==m_hit_map.end()){
     m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
     m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
-  } 
+  }
   else {
 
     // Get the appropriate merging limits
@@ -697,41 +700,54 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
     bool match = false;
     for (auto map_it : * map_item->second){
       // Time check is straightforward
-      if ( fabs(map_it->time()-l_time)>=tsame ) continue;
+      double delta_t = fabs(map_it->time()-l_time);
+      if ( delta_t >= tsame ) continue;
+
       // Distance check is less straightforward
       CLHEP::Hep3Vector a_diff = l_vec - map_it->position();
       double a_inv_length = 1./a_diff.mag();
-      if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
-        // 5mm in eta, 5mm in phi, no cut in r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
-        // 1mm in eta, 5mm in phi, 15mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 15 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=1) continue; // eta
-      } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
-        // 5mm in eta, 5mm in phi, 60mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 60 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EMB3){
-        // 5mm in eta, 5mm in phi, 8mm in r
-        if ( a_diff.dot( l_vec ) * a_inv_length >= 8 ) continue; // r
-        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
-        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
-      } else if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusLAr ) continue;
-      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusHEC ) continue;
-      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusTile ) continue;
-      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusFCAL ) continue;
-      } else {
-        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadius ) continue;
-      }
+      double delta_phi = fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag());
+      double delta_eta = fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag());
+      double delta_r = fabs(a_diff.dot( l_vec ) * a_inv_length);
+      double hit_diff2 = map_it->position().diff2( l_vec );
 
+      // Overall merging scheme
+      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+        // Customized merging scheme for LAr barrel and endcap, use only if we're not changing maxRadiusLAr value
+        if(m_config.m_maxRadiusLAr == 25){
+          if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
+            // PS default is 1mm in eta, 5mm in phi, no cut in r
+            if (delta_r >= m_config.m_maxrPS) continue;
+            if (delta_eta >= m_config.m_maxEtaPS) continue;
+            if (delta_phi >= m_config.m_maxPhiPS) continue;
+          } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
+            // EM1 default is 1mm in eta, 5mm in phi, 15mm in r
+            if (delta_r >= m_config.m_maxrEM1) continue;
+            if (delta_eta >= m_config.m_maxEtaEM1) continue;
+            if (delta_phi >= m_config.m_maxPhiEM1) continue;
+          } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
+            // EM2 default is 1mm in eta, 5mm in phi, 60mm in r
+            if (delta_r >= m_config.m_maxrEM2) continue;
+            if (delta_eta >= m_config.m_maxEtaEM2) continue;
+            if (delta_phi >= m_config.m_maxPhiEM2) continue;
+          } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EME3){
+            // EM3 default is 1mm in eta, 5mm in phi, 8mm in r
+            if (delta_r >= m_config.m_maxrEM3) continue;
+            if (delta_eta >= m_config.m_maxEtaEM3) continue;
+            if (delta_phi >= m_config.m_maxPhiEM3) continue;
+          }
+        } else{ // Merging schemes done by changing maxRadiusLAr
+            if ( hit_diff2 >= m_config.m_maxRadiusLAr ) continue;
+        }
+      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+        if ( hit_diff2 >= m_config.m_maxRadiusHEC ) continue;
+      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+        if ( hit_diff2 >= m_config.m_maxRadiusTile ) continue;
+      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+        if ( hit_diff2 >= m_config.m_maxRadiusFCAL ) continue;
+      } else {
+        if ( hit_diff2 >= m_config.m_maxRadius ) continue;
+      }
       // Found a match.  Make a temporary that will be deleted!
       ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
       *map_it += my_info;

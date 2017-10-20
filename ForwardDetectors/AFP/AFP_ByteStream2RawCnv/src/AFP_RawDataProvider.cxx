@@ -3,22 +3,25 @@
 */
 
 // AFP includes
-#include "AFP_RawEv/AFP_ROBID.h"
 
 // AFP_ByteStream2RawCnv includes
 #include "AFP_ByteStream2RawCnv/AFP_RawDataProvider.h"
 
+#include "AFP_RawEv/AFP_RawContainer.h"
+
+const std::vector<unsigned int> AFP_RawDataProvider::s_robIDs = {AFP_ROBID::sideA, AFP_ROBID::sideC};
+
 AFP_RawDataProvider::AFP_RawDataProvider(const std::string &name,
                                          ISvcLocator *pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator), m_nRawDataCollection(0), m_nRawData(0),
+    : AthAlgorithm(name, pSvcLocator),
       m_robDataProvider("ROBDataProviderSvc", name),
-      m_rawDataTool("AFP_RawDataProviderTool"), m_AFP_RawDataCollectionKey(),
-      m_collection()
-
+      m_rawDataTool("AFP_RawDataProviderTool")
 {
 
-  declareProperty("AFP_RawDataCollectionKey",
-                  m_AFP_RawDataCollectionKey = "AFP_RawData");
+  declareProperty("AFP_RawContainerKey",
+                  m_AFP_RawContainerKey = "AFP_RawData",
+		  "Name under which AFP_RawContainer object will be saved in StoreGate");
+  
   declareProperty("ProviderTool", m_rawDataTool);
 }
 
@@ -45,10 +48,11 @@ StatusCode AFP_RawDataProvider::initialize() {
 
 StatusCode AFP_RawDataProvider::execute() {
   ATH_MSG_DEBUG("AFP_RawDataProvider::EXECUTE");
-  AFP_RawDataContainer *container = new AFP_RawDataContainer();
+  AFP_RawContainer *container = new AFP_RawContainer;
   ATH_MSG_DEBUG("Created AFP RDO Container");
+
   StatusCode recordSC =
-      evtStore()->record(container, m_AFP_RawDataCollectionKey);
+      evtStore()->record(container, m_AFP_RawContainerKey);
   if (recordSC.isFailure()) {
     ATH_MSG_WARNING("Unable to record AFP RDO Container");
     return StatusCode::SUCCESS;
@@ -56,26 +60,20 @@ StatusCode AFP_RawDataProvider::execute() {
     ATH_MSG_DEBUG("AFP RDO Container recorded");
   }
 
-  std::vector<const ROBFragment *> listOfRobf;
-  std::vector<unsigned int> ROBIDs;
-  ROBIDs.push_back(AFP_ROBID::sideA);
-  ROBIDs.push_back(AFP_ROBID::sideC);
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> listOfRobf;
 
-  m_robDataProvider->getROBData(ROBIDs, listOfRobf);
-  ATH_MSG_DEBUG("  ROB ID " << std::hex << ROBIDs<<std::dec);
+  m_robDataProvider->getROBData(s_robIDs, listOfRobf);
+  ATH_MSG_DEBUG("  ROB ID " << std::hex << s_robIDs<<std::dec);
   ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
   if (m_rawDataTool->convert(listOfRobf, container).isFailure()) {
-    ATH_MSG_WARNING("BS conversion into RDOs failed");
+    ATH_MSG_WARNING("Bytestream conversion into raw failed");
     return StatusCode::SUCCESS;
   } else {
-    ATH_MSG_DEBUG(" Number of collections in container is "
-                  << container->size());
-  }
-
-  StatusCode sc = evtStore()->retrieve(container, m_AFP_RawDataCollectionKey);
-  if (sc.isSuccess()) {
-    ATH_MSG_DEBUG("AFP RDO Container retrieved");
+    ATH_MSG_DEBUG(" Number of time-of-flight collections in container is "
+                  << container->collectionsToF().size());
+    ATH_MSG_DEBUG(" Number of silicon collections in container is "
+                  << container->collectionsSi().size());
   }
 
   return StatusCode::SUCCESS;

@@ -27,23 +27,23 @@ void run_shapeparaLocal(string action)
 {
    // * set the input parameters -----------------------------------------------------------------------------
 
-   string particle = "el_1mm"; // pion, el_1mm, el_opt, photon
+   string particle = "pion"; // pion, el_1mm, el_opt, photon
    float  energy   = 50;     // in GeV
    float  etamin   = 0.20;
    float  etamax   = 0.25;
 
 
-   int   calolayer   = 12;
-   int   PCAbin      = 5;
-   int   nbinsR      = 20;
+   int   calolayer   = 2;
+   int   PCAbin      = 1;
    int   nbinsAlpha  = 8;
+   int   nbinsR      = 20;
    float mincalosize = -1000;     //whaaat are thooose?
-   float tolerance   = .00000001; // for empty bin check
+   float tolerance   = .000000001; // for empty bin check
 
 
 
    // * regression parameters
-   int neurons = 6;
+   int neurons = 4;
 
 
 
@@ -136,8 +136,9 @@ void run_shapeparaLocal(string action)
       shapeStudy->set_fileName(fileName);
       shapeStudy->set_hitsNtupleName(HitsFile);
 
-      shapeStudy->InvesitageShowerCenter(HitsFile);
-      //shapeStudy->EachParticleShower();
+      //shapeStudy->InvesitageShowerCenter(HitsFile);
+
+      shapeStudy->EachParticleShower();
    }
    else if (doBinning)
    {
@@ -161,6 +162,8 @@ void run_shapeparaLocal(string action)
       shapeBin->set_tolerance(tolerance);
       shapeBin->set_topDir(topDir);
       shapeBin->set_fileName(fileName);
+
+      bool force = true;
 
       if (!hitsalphadrfile)
       {
@@ -207,7 +210,8 @@ void run_shapeparaLocal(string action)
       //targetVarVec.push_back("EnergyDensity");
       //targetVarVec.push_back("LnEnergy");
       //targetVarVec.push_back("LnEnergyDensity");
-      targetVarVec.push_back("EnergyNorm");
+      //targetVarVec.push_back("EnergyNorm");
+      targetVarVec.push_back("hEnergyNorm");
       shapeRegression->Run(targetVarVec);
    }
    else if (doPlotting)
@@ -247,15 +251,15 @@ void run_shapeparaLocal(string action)
 
       std::vector < string > histVec;
       //histVec.push_back("hHits");
-      // histVec.push_back("hEnergy");
-      histVec.push_back("hEnergyDensity");
+      //histVec.push_back("hEnergy");
+      // histVec.push_back("hEnergyDensity");
       //histVec.push_back("hLnEnergy");
       //histVec.push_back("hLnEnergyDensity");
-      // histVec.push_back("hEnergyNorm");
+      histVec.push_back("hEnergyNorm");
 
       shapePlot->PlotEnergyDensityGradient();
       shapePlot->PlotPolar(histVec, false);
-      shapePlot->CreateValidationPlot();
+      //shapePlot->CreateValidationPlot();
       // shapePlot->CreateHTML(histVec);
       shapePlot->CreatePlotBook(histVec);
    }

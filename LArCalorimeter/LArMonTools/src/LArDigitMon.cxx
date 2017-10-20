@@ -126,7 +126,7 @@ LArDigitMon::~LArDigitMon()
 StatusCode 
 LArDigitMon::finalize()
 {
-  ATH_MSG_INFO("Finalize LArDigitMon" );
+  ATH_MSG_INFO( "finalHists LArDigitMon" );
   DeleteHist(m_BarrelA);
   DeleteHist(m_BarrelC);
   DeleteHist(m_EmecA);
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  ATH_MSG_INFO("Initialize LArDigitMon" );
+  ATH_MSG_INFO( "Initialize LArDigitMon" );
   
   StatusCode sc;
   
@@ -964,16 +964,17 @@ void LArDigitMon::ScaleHisto(LWHist2D * hist,int& events)
 void LArDigitMon::ComputeError(LWHist2D* hist,int& events)
 {
   int normFactor=events;
+  if (normFactor == 0) return;
+  double inv_normFactor2 = 1. / (static_cast<double> (normFactor) * static_cast<double> (normFactor));
   unsigned xbin, ybin;
   double numer, error;
   hist->resetActiveBinLoop();
   while(hist->getNextActiveBin(xbin,ybin,numer,error)) 
   {
     if(numer>normFactor)continue;//protection against sqrt(neg)
-    if(normFactor==0)continue;//protection against div 0
     if(numer>0)
     {
-      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))/normFactor/normFactor;
+      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))*inv_normFactor2;
       hist->SetBinError(xbin,ybin,tabError);       
     }
   }

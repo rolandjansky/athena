@@ -1078,8 +1078,9 @@ class athenaExecutor(scriptExecutor):
             ignorePatterns = trfValidation.ignorePatterns(files = athenaExecutor._defaultIgnorePatternFile, extraSearch=igPat)
         
         # Now actually scan my logfile
-        msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
-        self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
+        msg.info('Scanning logfile {0} for errors in substep {1}'.format(self._logFileName, self._substep))
+        self._logScan = trfValidation.athenaLogFileReport(logfile=self._logFileName, substepName=self._substep,
+                                                          ignoreList=ignorePatterns)
         worstError = self._logScan.worstError()
         self._dbMonitor = self._logScan.dbMonitor()
         
@@ -1876,6 +1877,7 @@ class archiveExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']
@@ -1892,6 +1894,8 @@ class archiveExecutor(scriptExecutor):
                     pass
         elif self._exe == 'zip':
             self._cmd = [self._exe]
+            if 'compressionLevel' in self.conf.argdict:
+                self._cmd.append(self.conf.argdict['compressionLevel'])
             self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
             if '.' not in self.conf.argdict['outputArchFile'].value[0]:
                 errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '

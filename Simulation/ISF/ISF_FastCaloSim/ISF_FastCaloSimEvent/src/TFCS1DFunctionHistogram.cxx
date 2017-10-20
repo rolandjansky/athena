@@ -97,8 +97,7 @@ TH1* TFCS1DFunctionHistogram::vector_to_histo()
   for(int b=1;b<=h_out->GetNbinsX();b++)
     h_out->SetBinContent(b,m_HistoContents[b-1]);
 
-
-  delete bins;
+  delete[] bins;
 
   return h_out;
 
@@ -142,6 +141,12 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
   }
 
   cout<<"Info: Rebinned histogram has "<<h_output->GetNbinsX()<<" bins."<<endl;
+
+  //correct normalization (last bin content must be 1)
+  double sf=1.0/h_output->GetBinContent(h_output->GetNbinsX());
+  h_output->Scale(sf);
+
+  //store:
 
   for(int b=1;b<=h_output->GetNbinsX();b++)
     m_HistoContents.push_back(h_output->GetBinContent(b));

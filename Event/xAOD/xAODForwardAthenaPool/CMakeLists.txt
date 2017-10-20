@@ -22,7 +22,9 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
 			   xAODForward/AFPDataAuxContainer.h
    			   xAODForward/AFPSiHitContainer.h
 			   xAODForward/AFPSiHitAuxContainer.h
-   			   xAODForward/AFPSiHitsClusterContainer.h
+                           xAODForward/AFPToFHitContainer.h
+            		   xAODForward/AFPToFHitAuxContainer.h
+        	           xAODForward/AFPSiHitsClusterContainer.h
 			   xAODForward/AFPSiHitsClusterAuxContainer.h
    			   xAODForward/AFPTrackContainer.h
 			   xAODForward/AFPTrackAuxContainer.h
@@ -32,7 +34,7 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
 			   xAODForward/MBTSModuleAuxContainer.h
 			   xAODForward/ForwardEventInfoContainer.h
 			   xAODForward/ForwardEventInfoAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::ALFADataContainer xAOD::ALFADataAuxContainer xAOD::AFPDataContainer xAOD::AFPDataAuxContainer xAOD::AFPSiHitContainer xAOD::AFPSiHitAuxContainer xAOD::AFPSiHitsClusterContainer xAOD::AFPSiHitsClusterAuxContainer xAOD::AFPTrackContainer xAOD::AFPTrackAuxContainer xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer xAOD::ForwardEventInfoContainer xAOD::ForwardEventInfoAuxContainer
+               TYPES_WITH_NAMESPACE xAOD::ALFADataContainer xAOD::ALFADataAuxContainer xAOD::AFPDataContainer xAOD::AFPDataAuxContainer xAOD::AFPSiHitContainer xAOD::AFPSiHitAuxContainer xAOD::AFPToFHitContainer xAOD::AFPToFHitAuxContainer xAOD::AFPSiHitsClusterContainer xAOD::AFPSiHitsClusterAuxContainer xAOD::AFPTrackContainer xAOD::AFPTrackAuxContainer xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer xAOD::ForwardEventInfoContainer xAOD::ForwardEventInfoAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODForward )
 
