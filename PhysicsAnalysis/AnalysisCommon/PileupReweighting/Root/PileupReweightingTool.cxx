@@ -48,7 +48,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
-   declareProperty("UseMultiPeriods",m_useMultiPeriods=false,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
    declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
