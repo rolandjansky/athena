@@ -2,17 +2,11 @@ LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
 
 ### Good Run List
 GRLDir  GoodRunsLists
-GRLFile data15_13TeV/20160720/physics_25ns_20.7.xml data16_13TeV/20170215/physics_25ns_20.7.xml
+GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20170605/physics_25ns_21.0.19.xml data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.xml
 
 ### Pile-up reweighting tool - this is now mandatory
-### Now requires only PRWLumiCalcFiles
-### No PRWDefaultChannel anymore
-### The nominal mc15c PU distribution is now appended to PRWConfigFiles automatically
-### Will hence be using mc15c_v2_defaults.NotRecommended.prw.root if nothing is provided for PRWConfigFiles
-# PRWConfigFiles TopCorrections/PRW.410000.mc15c.r7725_r7676.root
-PRWConfigFiles
-PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7.lumicalc.OflLumi-13TeV-008.root
-# no PRWDefaultChannel anymore
+PRWConfigFiles dev/SUSYTools/merged_prw_mc16a_latest.root
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20170605/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-008.root GoodRunsLists/data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.lumicalc.OflLumi-13TeV-001.root
 
 ElectronCollectionName Electrons
 MuonCollectionName Muons
