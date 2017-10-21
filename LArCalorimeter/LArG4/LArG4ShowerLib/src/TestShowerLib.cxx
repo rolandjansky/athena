@@ -24,6 +24,7 @@
 #include "G4Track.hh"
 
 #include "LArG4Code/EnergySpot.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -229,7 +230,7 @@ bool TestShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Sho
 		  theinfo.momentum = new HepMC::FourVector(x,y,z,e);
 		  for(int i = 0; i < nhits; i++) {
 			  source->GetEntry(entr++); //variables mean what the name suggests
-			  shower.push_back(new EnergySpot(G4ThreeVector(x,y,z),e,time));
+			  shower.push_back(new ShowerEnergySpot(G4ThreeVector(x,y,z),e,time));
 		  }
 		  m_libData.push_back(storedShower(theinfo,shower));
 	  } while (entr < nentr);
