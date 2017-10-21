@@ -57,6 +57,7 @@ namespace SH
   /// \pre !name.empty()
   /// \pre name.find('*') == std::string::npos
   /// \pre !filter.empty()
+  [[deprecated("please use rucioDirectAccessGlob instead")]]
   std::vector<std::string>
   faxListFilesGlob (const std::string& name, const std::string& filter);
 
@@ -71,8 +72,36 @@ namespace SH
   /// \pre !name.empty()
   /// \pre name.find('*') == std::string::npos
   /// \pre !filter.empty()
+  [[deprecated("please use rucioDirectAccessRegex instead")]]
   std::vector<std::string>
   faxListFilesRegex (const std::string& name, const std::string& filter);
+
+
+  /// \brief list the rucio URLs for all the files in the dataset or
+  /// dataset container matching the given filter (as glob expression)
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   grid utility failures
+  /// \pre !name.empty()
+  /// \pre name.find('*') == std::string::npos
+  /// \pre !filter.empty()
+  std::vector<std::string>
+  rucioDirectAccessGlob (const std::string& name, const std::string& filter);
+
+
+  /// \brief list the rucio URLs for all the files in the dataset or
+  /// dataset container matching the given filter (as regular
+  /// expression)
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   grid utility failures
+  /// \pre !name.empty()
+  /// \pre name.find('*') == std::string::npos
+  /// \pre !filter.empty()
+  std::vector<std::string>
+  rucioDirectAccessRegex (const std::string& name, const std::string& filter);
 
 
   /// \brief one entry from the rucio-list-dids command

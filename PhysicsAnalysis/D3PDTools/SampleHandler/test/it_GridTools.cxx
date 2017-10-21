@@ -48,6 +48,13 @@ TEST (GridToolsTest, MANUAL_faxListFiles)
   ASSERT_EQ (5u, files.size());
 }
 
+TEST (GridToolsTest, MANUAL_rucioDirectAccessGlob)
+{
+  const auto files = rucioDirectAccessGlob
+    ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
+  ASSERT_EQ (5u, files.size());
+}
+
 TEST (GridToolsTest, MANUAL_rucioListDids)
 {
   const auto entries = rucioListDids
