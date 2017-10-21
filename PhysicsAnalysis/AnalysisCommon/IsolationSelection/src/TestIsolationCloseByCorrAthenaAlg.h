@@ -15,6 +15,9 @@
 #include <xAODCore/ShallowCopy.h>
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include <GaudiKernel/ITHistSvc.h>
 
 #include <IsolationSelection/TestMacroHelpers.h>

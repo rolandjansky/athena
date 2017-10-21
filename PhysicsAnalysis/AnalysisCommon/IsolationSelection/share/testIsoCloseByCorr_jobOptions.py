@@ -15,7 +15,10 @@ ServiceMgr += THistSvc()
 OutFileName = "AnalysisOutput.root" if not "outFile" in globals() else outFile
 ServiceMgr.THistSvc.Output += ["ISOCORRECTION DATAFILE='{}' OPT='RECREATE'".format(OutFileName)]
 ROOTFiles = []
-  
+
+#Cmd to execute the tester:
+# athena.py -c "inputFile='/ptmp/mpp/junggjo9/Datasets/mc16_13TeV.344235.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125.DAOD.e5500_e5984_s3126_r9781_r9778_21.2_r05_EXT0/user.schaffer/user.schaffer.12283539.EXT0._000004.DAOD_HIGG2D1.pool.root'" IsolationSelection/testIsoCloseByCorr_jobOptions.py
+#
 
 
 
@@ -54,7 +57,8 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "correctedIsol" ,
-                                                      BackupPrefix = "default")
+                                                      BackupPrefix = "default",
+                                                      OutputLevel = 1)
 
 
 ## Test algorithm
