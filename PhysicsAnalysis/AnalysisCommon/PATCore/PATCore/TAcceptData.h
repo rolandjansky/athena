@@ -4,8 +4,8 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef PATCORE_TACCEPT_H
-#define PATCORE_TACCEPT_H
+#ifndef PATCORE_TACCEPT_DATA_H
+#define PATCORE_TACCEPT_DATA_H
 
 /**
    @class TAcceptData
