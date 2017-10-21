@@ -48,7 +48,6 @@ if "nevents" in globals():
     theApp.EvtMax = int (nevents)
 ## Configure an isolation selection tool with your desired working points
 ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutLoose", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
-# ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutLoose", PhotonWP = "FixedCutTightCaloOnly")
 
 
 ## Configure CorrectionTool, feeding it our selection tool
@@ -57,8 +56,7 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "correctedIsol" ,
-                                                      BackupPrefix = "default",
-                                                      OutputLevel = 1)
+                                                      BackupPrefix = "default")
 
 
 ## Test algorithm
