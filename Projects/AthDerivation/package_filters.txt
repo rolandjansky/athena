@@ -391,6 +391,7 @@
 
 # For physics validation
 + MuonSpectrometer/MuonValidation/MuonDQA/MuonPhysValMonitoring
++ MuonSpectrometer/MuonValidation/MuonHistogramming/MuonHistUtils
 + MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonResidualPullCalculators
 + PhysicsAnalysis/TauID/TauDQA
 + PhysicsAnalysis/TauID/TauHistUtils
