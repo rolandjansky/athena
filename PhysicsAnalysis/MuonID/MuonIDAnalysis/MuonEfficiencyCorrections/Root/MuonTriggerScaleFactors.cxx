@@ -676,8 +676,9 @@ namespace CP {
     }
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         const xAOD::EventInfo* info = nullptr;
-        if (!evtStore()->retrieve(info, "EventInfo")) {
-            ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 311481");
+        
+        if (!evtStore()->contains<xAOD::EventInfo>("EventInfo") || !evtStore()->retrieve(info, "EventInfo").isSuccess()) {
+            ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo. Return "<<FallBackRunNumber);
             return FallBackRunNumber;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
