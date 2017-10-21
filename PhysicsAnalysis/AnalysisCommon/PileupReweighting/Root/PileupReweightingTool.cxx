@@ -192,6 +192,14 @@ StatusCode PileupReweightingTool::initialize() {
 #endif
    } else {
       //have we any prw to load
+      if(m_prwFiles.size() && m_usePeriodConfig=="auto") {
+        //will override the input config period assignments, will assume PRW is so standardized by r21 that we know best!
+        IgnoreConfigFilePeriods(true);
+        if(m_upTool) m_upTool->IgnoreConfigFilePeriods(true);
+        if(m_downTool) m_downTool->IgnoreConfigFilePeriods(true);
+        UsePeriodConfig("MC16"); //hardcoded period assignments
+      }
+      
       for(unsigned int j=0;j<m_prwFiles.size();j++) {
             ATH_MSG_VERBOSE("Locating File: " << m_prwFiles[j]);
             std::string file = PathResolverFindCalibFile(m_prwFiles[j]);
