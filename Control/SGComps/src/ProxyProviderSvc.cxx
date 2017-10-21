@@ -85,6 +85,8 @@ void setProviderOnList (ProxyProviderSvc::TAdList& tList,
 StatusCode 
 ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
 {
+  if (m_providers.empty()) return StatusCode::SUCCESS;
+
   StoreID::type storeID = store.storeID();
   TAdList tList;
   for (IAddressProvider* provider : m_providers) {
@@ -101,6 +103,8 @@ ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
 StatusCode 
 ProxyProviderSvc::loadProxies(IProxyRegistry& store)
 {
+  if (m_providers.empty()) return StatusCode::SUCCESS;
+
   StoreID::type storeID = store.storeID();
   TAdList tList;
   for (IAddressProvider* provider : m_providers) {
@@ -130,12 +134,11 @@ StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store,
       if (proxy->provider() == 0) {
         proxy->setProvider(tad->provider(), store.storeID());
       }
-      delete tad;
-      tad = nullptr;
     }
     else {
-      if ( 0 == addAddress(store, tad) ) return StatusCode::FAILURE;
+      if ( 0 == addAddress(store, std::move(*tad)) ) return StatusCode::FAILURE;
     }
+    delete tad;
   }
   
   return StatusCode::SUCCESS;
@@ -145,15 +148,14 @@ StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store,
 ///create a new Proxy, overriding CLID and/or key
 SG::DataProxy*
 ProxyProviderSvc::addAddress(IProxyRegistry& store, 
-			     SG::TransientAddress* tAddr) 
+			     SG::TransientAddress&& tAddr) 
 {  
   //HACK! The proxies for all object those key starts with "HLTAutoKey" will be deleted at the end of each event (resetOnly=false)
   //hence avoiding the proxy explosion observed with trigger object for releases <= 14.1.0
-  bool resetOnly(tAddr->name().substr(0,10) != std::string("HLTAutoKey"));
+  bool resetOnly(tAddr.name().substr(0,10) != std::string("HLTAutoKey"));
   // std::cout << "PPS:addAdress: proxy for key " << tAddr->name() << " has resetOnly " << resetOnly << std::endl;
-  SG::DataProxy* dp = new SG::DataProxy(std::move(*tAddr),
+  SG::DataProxy* dp = new SG::DataProxy(std::move(tAddr),
                                         m_pDataLoader, true, resetOnly );
-  delete tAddr;
   //  store.addToStore(tAddr->clID(),dp);
   //  ATH_MSG_VERBOSE("created proxy for " << tAddr->clID() << "/" << tAddr->name() << "using " << m_pDataLoader->repSvcType());
 
@@ -203,22 +205,20 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
   SG::DataProxy *dp;
   if ( (dp=store.proxy(id,key)) != 0 ) return dp;
 
-  if ( store.storeID() != StoreID::SIMPLE_STORE ) {
+  if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
     const EventContext& ctx = contextFromStore (store);
-    SG::TransientAddress* pTAd = new SG::TransientAddress(id, key);
+    SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
     for (; iProvider != iEnd; iProvider++) {
-      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd,ctx)).isSuccess() ) 
+      if ( ((*iProvider)->updateAddress(store.storeID(),&pTAd,ctx)).isSuccess() ) 
 	{
-	  pTAd->setProvider(*iProvider, store.storeID());
-	  return this->addAddress(store,pTAd);
+	  pTAd.setProvider(*iProvider, store.storeID());
+	  return this->addAddress(store,std::move(pTAd));
 	}
     }  
-    delete pTAd; pTAd=0;
   }  
   
-  return 0;
-
+  return nullptr;
 }
 
 /**
