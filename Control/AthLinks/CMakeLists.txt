@@ -136,6 +136,7 @@ atlas_add_test( CachedValue_test
                 test/CachedValue_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthLinks
+                PROPERTIES TIMEOUT 300
                 )
               
 
