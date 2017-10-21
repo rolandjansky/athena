@@ -7,10 +7,10 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkTau.TauCommon import *
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+import DerivationFrameworkEGamma.EGammaCommon
+import DerivationFrameworkMuons.MuonsCommon
+import DerivationFrameworkTau.TauCommon 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -152,6 +152,18 @@ def getJetAugmentationTool(jetalg):
 
     return jetaugtool
 
+def getJetCleaningTool(cleaningLevel):
+    jetcleaningtoolname = 'JetCleaningTool_'+cleaningLevel
+    jetcleaningtool = None
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,jetcleaningtoolname):
+        jetcleaningtool = getattr(ToolSvc,jetcleaningtoolname)
+    else:
+        jetcleaningtool = CfgMgr.JetCleaningTool(jetcleaningtoolname,CutLevel=cleaningLevel)
+        ToolSvc += jetcleaningtool
+
+    return jetcleaningtool
+
 def getJetExternalAssocTool(jetalg, extjetalg, **options):
     jetassoctoolname = 'DFJetExternalAssoc_%s_From_%s' % (jetalg, extjetalg)
     jetassoctool = None
@@ -291,9 +303,11 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
 def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_Loose"
     prefix = "DFCommonJets_"
     ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
     ecToolLoose.JetCleanPrefix = prefix
+    ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
     algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_loose',
                             EventCleaningTool=ecToolLoose,
                             JetCollectionName="AntiKt4EMTopoJets",
@@ -303,9 +317,11 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
 def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_Tight"
     prefix = "DFCommonJets_"
     ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
     ecToolTight.JetCleanPrefix = prefix
+    ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
     algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_tight',
                             EventCleaningTool=ecToolTight,
                             JetCollectionName="AntiKt4EMTopoJets",

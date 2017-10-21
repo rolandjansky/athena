@@ -44,6 +44,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_or()
   , m_prefix()
   , m_cleaningLevel()
+  , m_jetCleaningTool()
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
   declareProperty( "EtaCut" , m_eta = 4.5 );
@@ -51,6 +52,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   declareProperty( "OrDecorator" , m_or = "passOR" );
   declareProperty( "JetCleanPrefix", m_prefix = "" );
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
+  declareProperty("JetCleaningTool", m_jetCleaningTool);
 }
 
 
@@ -74,10 +76,9 @@ StatusCode EventCleaningTool::initialize()
   }
   
   //initialize jet cleaning tool
-  m_tool = new JetCleaningTool("JetCleaningTool_"+m_cleaningLevel);
-  ATH_CHECK(m_tool->setProperty("CutLevel", m_cleaningLevel));
-  ATH_CHECK(m_tool->initialize());
+  ATH_CHECK(m_jetCleaningTool->initialize());
   ATH_MSG_INFO( "Event cleaning tool configured with cut level " << m_cleaningLevel  );
+
 
   return StatusCode::SUCCESS;
 }
@@ -120,7 +121,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 
 int EventCleaningTool::keepJet(const xAOD::Jet& jet) const 
 { 
-	return m_tool->keep(jet); 
+	return m_jetCleaningTool->keep(jet); 
 }
 
 }//ECUtils

@@ -62,7 +62,7 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     std::string m_or; 
     std::string m_prefix; 
     std::string m_cleaningLevel; 
-    JetCleaningTool *m_tool;
+    ToolHandle<IJetSelector> m_jetCleaningTool;
 
 
 }; // End: class definition
