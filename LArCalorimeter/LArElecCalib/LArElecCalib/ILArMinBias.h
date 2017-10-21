@@ -38,8 +38,6 @@ CLASS_DEF( ILArMinBias, 197482938 ,1)
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILArMinBias>,88954252 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILArMinBias>, CondContBase );
 
 
 

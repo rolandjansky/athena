@@ -635,8 +635,7 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
     // this duplicates what is already done in Algorithm::sysExecute, which
     // calls Algorithm::setExecuted, but eventually we plan to remove that 
     // function
-    m_aess->algExecState(*ita,ctx).setExecuted(true);
-    m_aess->algExecState(*ita,ctx).setExecStatus(sc);
+    m_aess->algExecState(*ita,ctx).setState(AlgExecState::State::Done, sc);
     if ( !sc.isSuccess() ) {
       m_msg << MSG::INFO  << "Execution of algorithm "
 	    << (*ita)->name() << " failed with StatusCode::" << sc
@@ -1027,24 +1026,28 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 
 //=========================================================================
 // Seek to a given event.
-// The event selector must support the IEventSeek interface for this to work.
+// The event selector must support the IEvtSelectorSeek interface for this to work.
 //=========================================================================
 StatusCode AthenaEventLoopMgr::seek (int evt)
 {
-  IEventSeek* is = dynamic_cast<IEventSeek*> (m_evtSelector);
+  IEvtSelectorSeek* is = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (is == nullptr) {
     m_msg << MSG::ERROR << "Seek failed; unsupported by event selector"
 	  <<endmsg;
     return StatusCode::FAILURE;
   }
-  StatusCode sc = is->seek(evt);
-  if (sc.isSuccess()) {
-    m_nevt = evt;
+
+  if (!m_evtContext) {
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       m_msg  << MSG::FATAL << "Can not create the event selector Context."
              << endmsg;
       return StatusCode::FAILURE;
     }
+  }
+
+  StatusCode sc = is->seek (*m_evtContext, evt);
+  if (sc.isSuccess()) {
+    m_nevt = evt;
   }
   else {
     m_msg << MSG::ERROR << "Seek failed." << endmsg;
@@ -1066,13 +1069,22 @@ int AthenaEventLoopMgr::curEvent() const
 //=========================================================================
 int AthenaEventLoopMgr::size()
 {
-  ICollectionSize* cs = dynamic_cast<ICollectionSize*> (m_evtSelector);
+  IEvtSelectorSeek* cs = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (cs == nullptr) {
     m_msg << MSG::ERROR << "Collection size unsupported by event selector"
 	  <<endmsg;
     return -1;
   }
-  return cs->size();
+
+  if (!m_evtContext) {
+    if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+      m_msg  << MSG::FATAL << "Can not create the event selector Context."
+             << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  return cs->size (*m_evtContext);
 }
 
 void AthenaEventLoopMgr::handle(const Incident& inc)

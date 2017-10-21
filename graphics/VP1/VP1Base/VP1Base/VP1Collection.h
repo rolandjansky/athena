@@ -57,7 +57,7 @@ private:
   VP1Collection( const VP1Collection & );
   VP1Collection & operator= ( const VP1Collection & );
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 public:
 

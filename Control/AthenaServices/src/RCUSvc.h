@@ -91,7 +91,7 @@ private:
   set_t m_objs;
 
   /// The hive WB service.  Used to get the current number of slots.
-  ServiceHandle<IHiveWhiteBoard> m_hiveWhiteBoardSvc;
+  ServiceHandle<IInterface> m_hiveWhiteBoardSvc;
 
   /// Gaudi incident service.
   ServiceHandle<IIncidentSvc> m_incidentSvc;

@@ -290,7 +290,16 @@ namespace VKalVrtAthena {
     ATH_MSG_VERBOSE(" > reconstruct2TrackVertices(): Remove worst track from vertices with very bad Chi2.");
     for(int iv=0; iv< static_cast<int>( (*WrkVrtSet).size() ); iv++) {
       if( (*WrkVrtSet)[iv].Chi2 > (4.*(*WrkVrtSet)[iv].SelTrk.size()) )
-        ATH_CHECK( DisassembleVertex( WrkVrtSet, iv, m_selectedBaseTracks ) );
+      {
+	StatusCode sc = DisassembleVertex( WrkVrtSet, iv, m_selectedBaseTracks );
+	if ( !sc.isSuccess() )
+	{
+	  REPORT_ERROR(sc) << "DisassembleVertex()";
+	  if (weit) delete[] weit;  // Avoid memory leaks
+	  if (Solution) delete[] Solution;
+	  return sc;
+	}
+      }
     }
 
     //-Remove vertices fully contained in other vertices 
@@ -542,6 +551,10 @@ namespace VKalVrtAthena {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           good_flag = false;
         }
+	else
+	{
+	  delete sv_perigee; // Avoid memory leak
+	}
       }
       if( !good_flag ) {
         continue;
@@ -656,6 +669,7 @@ namespace VKalVrtAthena {
         vep     += sqrt( p_wrtSV*p_wrtSV + m_proton*m_proton );
 
         ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": end." );
+	delete sv_perigee;
       } // loop over tracks in vertex
 
       ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop end. ");
@@ -827,7 +841,7 @@ namespace VKalVrtAthena {
       //  return foundMinVrtDst;
       //}
       
-      if( foundV1 < 0 or foundV2 < 0 ) break;
+      if( (foundV1 < 0) or (foundV2 < 0) ) break;
       
       if( foundMinVrtDst >  m_VertexMergeFinalDistCut ) {
         ATH_MSG_DEBUG( "Vertices " << foundV1 << " and " << foundV2

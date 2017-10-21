@@ -10,6 +10,10 @@
  * @brief setattr hook for PyROOT classes to apply container fixes.
  */
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "RootUtils/PyROOTTypePatch.h"
 #include "Python.h"
 #include "TClass.h"

@@ -107,7 +107,7 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
   // In case they don't get used. 
   railGap1->ref(); 
   railGap2->ref(); 
-  
+  railGap12->ref();   
  
   // Build general services:
   //
@@ -186,6 +186,7 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
   
   railGap1->unref(); 
   railGap2->unref(); 
+  railGap12->unref(); 
 
   //-------------------------------------------------------------------------------------------
   // SCT supports (wings,mechanisms)

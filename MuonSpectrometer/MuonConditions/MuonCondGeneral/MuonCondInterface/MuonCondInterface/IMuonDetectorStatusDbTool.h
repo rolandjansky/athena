@@ -15,10 +15,12 @@
 // {      
  
  
-class IMuonDetectorStatusDbTool: virtual public IAlgTool, 
-                        virtual public IAddressProvider {
+class IMuonDetectorStatusDbTool
+  : virtual public extend_interfaces<IAlgTool, IAddressProvider>
+{
    
  public:
+  DeclareInterfaceID(IMuonDetectorStatusDbTool, 1, 0);
  
   virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS) = 0;
   virtual StatusCode loadTubeStatus(IOVSVC_CALLBACK_ARGS) = 0;

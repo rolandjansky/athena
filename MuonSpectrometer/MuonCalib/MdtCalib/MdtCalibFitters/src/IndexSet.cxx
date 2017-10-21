@@ -31,11 +31,11 @@ using namespace std;
 
 //*****************************************************************************
 
-//:::::::::::::::::::
-//:: METHOD m_init ::
-//:::::::::::::::::::
+//:::::::::::::::::
+//:: METHOD init ::
+//:::::::::::::::::
 
-void IndexSet::m_init(void) {
+void IndexSet::init(void) {
 
 	m_nb_indices = 0;
 	return;
@@ -44,11 +44,11 @@ void IndexSet::m_init(void) {
 
 //*****************************************************************************
 
-//::::::::::::::::::::::
-//:: METHOD m_init(.) ::
-//::::::::::::::::::::::
+//::::::::::::::::::::
+//:: METHOD init(.) ::
+//::::::::::::::::::::
 
-void IndexSet::m_init(const unsigned int & r_nb_indices) {
+void IndexSet::init(const unsigned int & r_nb_indices) {
 
 	m_nb_indices = r_nb_indices;
 	m_index = vector<int>(m_nb_indices);
@@ -59,10 +59,10 @@ void IndexSet::m_init(const unsigned int & r_nb_indices) {
 //*****************************************************************************
 
 //::::::::::::::::::::::::
-//:: METHOD m_init(.,.) ::
+//:: METHOD init(.,.) ::
 //::::::::::::::::::::::::
 
-void IndexSet::m_init(const unsigned int & r_nb_indices,
+void IndexSet::init(const unsigned int & r_nb_indices,
 					const vector<int> r_index) {
 
 ///////////////////////
@@ -71,7 +71,7 @@ void IndexSet::m_init(const unsigned int & r_nb_indices,
 
 	if (r_index.size()<r_nb_indices) {
 		cerr << endl
-			<< "Class IndexSet, method m_init: ERROR!\n"
+			<< "Class IndexSet, method init: ERROR!\n"
 			<< "Index vector too short!\n";
 		exit(1);
 	}

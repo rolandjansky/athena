@@ -4,7 +4,6 @@
 
 // ***************************************************************************
 // -----------------------------------------
-// Copyright (C) 2004 by ATLAS Collaboration
 //
 // 25.10.2004 Creation of the class by claire.bourdarios@cern.ch
 //

@@ -134,7 +134,7 @@ private slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   PRDSysCommonData * m_common;
   int m_nshownhandles;

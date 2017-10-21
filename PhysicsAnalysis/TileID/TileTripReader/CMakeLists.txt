@@ -17,6 +17,7 @@ endif()
 atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PRIVATE
+                          Event/EventKernel
                           Event/xAOD/xAODEventInfo
                           Tools/PathResolver )
 

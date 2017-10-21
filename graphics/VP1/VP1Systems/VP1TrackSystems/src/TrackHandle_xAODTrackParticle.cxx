@@ -52,19 +52,19 @@ public:
 
 //____________________________________________________________________
 TrackHandle_xAODTrackParticle::TrackHandle_xAODTrackParticle(TrackCollHandleBase* ch, const xAOD::TrackParticle *tp)
-  : TrackHandleBase(ch), d(new Imp)
+  : TrackHandleBase(ch), m_d(new Imp)
 {
-  d->theclass = this;
-  d->trackparticle = tp;
-  d->trkTrack = 0;
-  d->trkTrackInit = false;
+  m_d->theclass = this;
+  m_d->trackparticle = tp;
+  m_d->trkTrack = 0;
+  m_d->trkTrackInit = false;
 
 }
 
 //____________________________________________________________________
 TrackHandle_xAODTrackParticle::~TrackHandle_xAODTrackParticle()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -79,7 +79,7 @@ QStringList TrackHandle_xAODTrackParticle::clicked() const
 //____________________________________________________________________
 Amg::Vector3D TrackHandle_xAODTrackParticle::momentum() const
 {
-  const Trk::Perigee& p = d->trackparticle->perigeeParameters();
+  const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
   if (!common()->trackSanityHelper()->isSafe(&p))
     return Amg::Vector3D(0,0,0);//fixme: warn?
   return p.momentum();
@@ -88,27 +88,27 @@ Amg::Vector3D TrackHandle_xAODTrackParticle::momentum() const
 //____________________________________________________________________
 double TrackHandle_xAODTrackParticle::calculateCharge() const
 {
-  // const Trk::MeasuredPerigee* p = d->trackparticle->measuredPerigee();
+  // const Trk::MeasuredPerigee* p = m_d->trackparticle->measuredPerigee();
   // if (!common()->trackSanityHelper()->isSafe(p))
   //   return unknown();//fixme: warn
-  return d->trackparticle->charge();
+  return m_d->trackparticle->charge();
 }
 
 //____________________________________________________________________
 const Trk::Track * TrackHandle_xAODTrackParticle::provide_pathInfoTrkTrack() const
 {
-  if (d->trkTrackInit)
-    return d->trkTrack;
-  d->trkTrackInit = true;
+  if (m_d->trkTrackInit)
+    return m_d->trkTrack;
+  m_d->trkTrackInit = true;
   std::vector<const Trk::TrackParameters*>  trackpars;
   DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
 
-  const Trk::Perigee* peri = &(d->trackparticle->perigeeParameters());
+  const Trk::Perigee* peri = &(m_d->trackparticle->perigeeParameters());
   // const Trk::ParametersBase* base = static_cast<const Trk::TrackParameters*>(peri);
   
   // if (!trackpars.empty()) {
   trackpars.push_back(peri);
-    // bool needresorting = trackpars.at(0)!=d->trackparticle->perigee();//Needed since TrackParticles are (at the moment)
+    // bool needresorting = trackpars.at(0)!=m_d->trackparticle->perigee();//Needed since TrackParticles are (at the moment)
     //                                                                   //created with the first parameter put last
     // if (needresorting) {
     //   const Trk::ParametersT<Trk::Charged>* p = dynamic_cast<const Trk::ParametersT<Trk::Charged>* >(trackpars.at(trackpars.size()-1));
@@ -128,8 +128,8 @@ const Trk::Track * TrackHandle_xAODTrackParticle::provide_pathInfoTrkTrack() con
     }
   // }
 
-  d->trkTrack = d->createTrack(trackStateOnSurfaces);
-  return d->trkTrack;
+  m_d->trkTrack = m_d->createTrack(trackStateOnSurfaces);
+  return m_d->trkTrack;
 }
 
 //____________________________________________________________________
@@ -141,7 +141,7 @@ void TrackHandle_xAODTrackParticle::ensureTouchedMuonChambersInitialised() const
 unsigned TrackHandle_xAODTrackParticle::getNPixelHits() const
 { 
   uint8_t numberOfPixelHits = 0; 
-  if (d->trackparticle && d->trackparticle->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits))
+  if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits))
     return numberOfPixelHits; 
   return 0;
 }
@@ -150,7 +150,7 @@ unsigned TrackHandle_xAODTrackParticle::getNPixelHits() const
 unsigned TrackHandle_xAODTrackParticle::getNSCTHits() const
 { 
   uint8_t numberOfSCTHits = 0;   
-  if (d->trackparticle && d->trackparticle->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits))
+  if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits))
     return numberOfSCTHits; 
   return 0;
 }
@@ -159,7 +159,7 @@ unsigned TrackHandle_xAODTrackParticle::getNSCTHits() const
 unsigned TrackHandle_xAODTrackParticle::getNTRTHits() const
 { 
   uint8_t numberOfTRTHits = 0;   
-    if (d->trackparticle && d->trackparticle->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits)) 
+    if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits)) 
       return numberOfTRTHits; 
     return 0;
 }
@@ -168,28 +168,28 @@ unsigned TrackHandle_xAODTrackParticle::getNTRTHits() const
 unsigned TrackHandle_xAODTrackParticle::getNMuonPhiHits() const
 { 
   return 0;
-  // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) + d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) + d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
+  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNMDTHits() const
 { 
   return 0;
-  // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
+  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNRPCHits() const
 { 
   return 0;
-  // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0; 
+  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0; 
 }//____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNTGCHits() const
 { 
   return 0;
-  // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0; 
+  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0; 
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNCSCHits() const
 { 
   return 0;
-  // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
+  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
 }

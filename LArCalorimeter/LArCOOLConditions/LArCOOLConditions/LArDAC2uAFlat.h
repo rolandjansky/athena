@@ -32,11 +32,9 @@ public:
   
 };
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArDAC2uAFlat,ILArDAC2uA);
 CLASS_DEF( LArDAC2uAFlat , 54280245 , 1 )
 //ConditionsContainer clid for athenaMT
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArDAC2uAFlat> , 251448397 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArDAC2uAFlat>, CondContBase );
-
 #endif 

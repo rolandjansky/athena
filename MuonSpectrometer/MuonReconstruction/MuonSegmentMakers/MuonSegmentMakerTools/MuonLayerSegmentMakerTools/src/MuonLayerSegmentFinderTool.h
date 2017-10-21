@@ -19,7 +19,7 @@ class ICscSegmentFinder;
 namespace Muon {
   
   class MuonSegment;
-  class MuonLayerPrepRawData;
+  struct MuonLayerPrepRawData;
   class MuonLayerROTs;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;

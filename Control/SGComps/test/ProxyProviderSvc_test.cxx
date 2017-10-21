@@ -30,6 +30,11 @@ class TestProvider
   : public IAddressProvider
 {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   virtual StatusCode preLoadAddresses(StoreID::type storeID,
 				      tadList& list)  override;
 
@@ -57,7 +62,7 @@ StatusCode TestProvider::preLoadAddresses(StoreID::type /*storeID*/,
 {
   tListLen = list.size();
   for (const SG::TransientAddress& tad : m_tads)
-    list.push_back (new SG::TransientAddress (tad));
+    list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
   return StatusCode::SUCCESS;
 }
 
@@ -67,7 +72,7 @@ StatusCode TestProvider::loadAddresses(StoreID::type /*storeID*/,
 {
   tListLen = list.size();
   for (const SG::TransientAddress& tad : m_tads)
-    list.push_back (new SG::TransientAddress (tad));
+    list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
   return StatusCode::SUCCESS;
 }
 

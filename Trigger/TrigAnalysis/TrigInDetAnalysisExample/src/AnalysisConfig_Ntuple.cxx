@@ -656,9 +656,7 @@ void AnalysisConfig_Ntuple::loop() {
 		/// count the number of interactions of each sort
 		/// this is actually *very stupid*, there are a *lot*
 		/// of "processes" with *no* particles in them for some 
-		/// reason, whoever programed this f**cked up structure 
-		/// that needs this sort of fannying around to navigate 
-		/// through ***REMOVED***
+		/// reason.
 
 		//      DataVector<HepMC::GenEvent>::iterator 
 		McEventCollection::const_iterator evitr(mcevent->begin());
@@ -1352,14 +1350,9 @@ void AnalysisConfig_Ntuple::loop() {
 			  else if ( selectTracks<TrackCollection>( &selectorTest, comb, collectionName) );
 			  else if ( selectTracks<TrigInDetTrackCollection>( &selectorTest, comb, truthMap, collectionName, collectionName_index ) );
 #ifdef XAODTRACKING_TRACKPARTICLE_H
-			  else {
-			    // m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << collectionName << endmsg;  
-			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ); //m_provider->msg(MSG::INFO) << "\tFound xAOD collection " << collectionName << " (Ntple)"  << endmsg;  
-			    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endmsg;  
-			  }
-#else
-			  else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endmsg;  
+			  else if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ); 
 #endif
+			  else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endmsg;  
 			}
 			else {
 			  //L2 track EDM
@@ -1385,7 +1378,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 			/// what is this doing? Why is it just fetching but not assigning to anything ????? who write this?
 			
-			m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << " for key " << vtx_name << endmsg;
+			m_provider->msg(MSG::INFO) << "\tFetch VxContainer for chain " << chainName << " for key " << vtx_name << endmsg;
 
 			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>(vtx_name);
 

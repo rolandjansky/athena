@@ -432,8 +432,7 @@ class SCT_ConditionsServicesSetup:
         calibSvc = getattr(self.svcMgr, instanceName); 
       else:
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-        calibSvc = SCT_ReadCalibDataSvc(name = instanceName,
-                                        EventInfoKey = self.eventInfoKey)
+        calibSvc = SCT_ReadCalibDataSvc(name = instanceName)
         self.svcMgr += calibSvc
 
       self.summarySvc.ConditionsServices+=[instanceName]
@@ -527,12 +526,12 @@ class TRTConditionsServicesSetup:
         conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
 
     if not (conddb.folderRequested('/TRT/Calib/RT') or conddb.folderRequested('/TRT/Onl/Calib/RT')):
-      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/RT','/TRT/Calib/RT')
+      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/RT','/TRT/Calib/RT',className='TRTCond::RtRelationMultChanContainer')
     if not (conddb.folderRequested('/TRT/Calib/T0') or conddb.folderRequested('/TRT/Onl/Calib/T0')):
-      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/T0','/TRT/Calib/T0')
+      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/T0','/TRT/Calib/T0',className='TRTCond::StrawT0MultChanContainer')
 
     if not (conddb.folderRequested('/TRT/Calib/errors') or conddb.folderRequested('/TRT/Onl/Calib/errors')):
-      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors")
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
       # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
 
     if not (conddb.folderRequested('/TRT/Calib/ToTCalib') or conddb.folderRequested('/TRT/Onl/Calib/ToTCalib')):
@@ -634,7 +633,7 @@ class TRTConditionsServicesSetup:
     if self._print:
       print InDetTRTConditionsSummaryService 
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_ActiveFractionSvc
+    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
     InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name=self.instanceName("InDetTRTActiveFractionSvc"),
                                                        #missing link to TRTSummarySvc
                                                        )

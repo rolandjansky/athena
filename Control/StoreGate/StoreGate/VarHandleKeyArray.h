@@ -13,6 +13,7 @@
  */
 
 #include "GaudiKernel/DataHandle.h"
+#include "GaudiKernel/IDataHandleHolder.h"
 #include "StoreGate/VarHandleKey.h"
 
 #include <vector>
@@ -33,6 +34,10 @@ namespace SG {
     virtual Gaudi::DataHandle::Mode mode() const = 0;
 
     virtual std::vector<SG::VarHandleKey*> keys() const = 0;
+
+    virtual void renounce() = 0;
+    virtual bool renounced() const = 0;
+    virtual void declare(IDataHandleHolder*)  = 0;
 
   };
 
@@ -95,18 +100,37 @@ namespace SG {
      * vector of std::strings
      * @param vs vector of initializer strings
      */
-    StatusCode assign(const std::vector<std::string>& vs);
+    virtual StatusCode assign(const std::vector<std::string>& vs) override;
 
     /**
      * @brief string representation of the VarHandleKeyArray
      */
-    std::string toString() const;
+    virtual std::string toString() const override;
 
     /**
      * @brief create array of all base VarHandleKeys in the Array
      */
-    std::vector<SG::VarHandleKey*> keys() const;
+    virtual std::vector<SG::VarHandleKey*> keys() const override;
     
+
+    /**
+     * @brief if called, handles will not be declared in the algorithm I/O
+     */
+    virtual void renounce() override { m_isRenounced = true; }
+    
+    /**
+     * @brief query renounced state
+     **/ 
+    virtual bool renounced() const override { return m_isRenounced; }
+
+    virtual void declare( IDataHandleHolder* ) override;
+
+  private:
+    
+
+
+    bool m_isRenounced{ false };
+
   };
   
 } // namespace SG

@@ -16,6 +16,7 @@
 #include "../xAODTestReadDecor.h"
 #include "../xAODTestDecor.h"
 #include "../xAODTestAlg.h"
+#include "../xAODTestWriteCInfo.h"
 #include "../CondWriterAlg.h"
 #include "../CondReaderAlg.h"
 #include "../xAODTestReadSymlinkTool.h"
@@ -25,6 +26,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadSymlink)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadDecor)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestDecor)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCInfo)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, CondWriterAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, CondReaderAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, CondAlg1)

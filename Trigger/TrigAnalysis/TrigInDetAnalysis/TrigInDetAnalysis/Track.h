@@ -1,5 +1,5 @@
 // emacs: this is -*- c++ -*-
-/** @file Track.h */
+/** @file TrigInDetAnalysis/Track.h */
 
 #ifndef TIDA_TRACK_H
 #define TIDA_TRACK_H
@@ -167,6 +167,8 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Track& t) {
       // << "\thpb="  << hextobin(t.hitPattern(),20)
 	    << "\tchi2=" << t.chi2() << "/" << t.dof()  
 	    << "\talgo=" << t.author()
+            << "\tbl="   << t.bLayerHits() 
+            << ":"  << ( t.expectBL() ? "t" : "f" )
 	    << "\tid=0x" << std::hex << t.id() << std::dec
 	    << "\t] ";
 }

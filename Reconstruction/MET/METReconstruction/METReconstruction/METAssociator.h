@@ -33,11 +33,6 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
 
-namespace CP {
-  class IWeightPFOTool;
-  class IRetrievePFOTool;
-}
-
 namespace InDet {
   class IInDetTrackSelectionTool;
 }
@@ -85,6 +80,7 @@ namespace met {
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
+    std::string m_pfcoll;
 
     bool m_pflow;
     bool m_useTracks;
@@ -94,8 +90,6 @@ namespace met {
     bool m_weight_charged_pfo;
     bool m_cleanChargedPFO;
 
-    ToolHandle<CP::IRetrievePFOTool> m_pfotool;
-    ToolHandle<CP::IWeightPFOTool> m_pfoweighttool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
@@ -112,7 +106,6 @@ namespace met {
     StatusCode retrieveConstituents(met::METAssociator::ConstitHolder& constits) const;
 
     bool acceptTrack (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
-    bool acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk) const;
 
     virtual StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,

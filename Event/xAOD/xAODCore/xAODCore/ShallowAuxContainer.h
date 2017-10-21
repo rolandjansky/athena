@@ -107,7 +107,7 @@ namespace xAOD {
       /// Lock the container.
       virtual void lock();
       /// Clear all decorations.
-      virtual void clearDecorations();
+      virtual bool clearDecorations();
       /// Get the size of the container.
       virtual size_t size() const;
       /// Lock a decoration.

@@ -293,15 +293,18 @@ namespace xAOD {
       return;
    }
 
-   void AuxInfoBase::clearDecorations() {
+   bool AuxInfoBase::clearDecorations() {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
 
       // Clear the decorations that are in the dynamic store:
+      bool anycleared = false;
       if( m_store ) {
-         m_store->clearDecorations();
+         anycleared = m_store->clearDecorations();
       }
+      // Early exit if there were no decorations.
+      if (!anycleared) return false;
 
       // Reconstruct the list of managed auxiliary IDs from scratch:
       m_auxids.clear();
@@ -319,7 +322,7 @@ namespace xAOD {
       // Remember that the auxiliary IDs were updated:
       ++m_tick;
 
-      return;
+      return true;
    }
 
    /// Lock a decoration.

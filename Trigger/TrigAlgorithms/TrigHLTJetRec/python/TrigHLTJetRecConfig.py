@@ -236,20 +236,20 @@ def _getJetBuildTool(merge_param,
     if jetBuildTool is None:
         print 'adding new jet finder ', name
         try:
-            jetBuildTool = jtm.addJetFinder(name,
-                                            "AntiKt",
-                                            merge_param,
-                                            "mygetters",
-                                            "mymods",
-                                            # non-zero ghostArea: calcjet area
-                                            # for pileup subtraction.
-                                            ghostArea=0.01,
-                                            rndseed=1,
-                                            isTrigger=True,
-                                            ptmin=ptmin,
-                                            ptminFilter=ptminFilter
-                                            )
-            
+            # jetBuildTool = jtm.addJetFinderTrigger(
+            jetBuildTool = jtm.addJetFinder(
+                name,
+                "AntiKt",
+                merge_param,
+                "mygetters",
+                "mymods",
+                # non-zero ghostArea: calcjet area
+                # for pileup subtraction.
+                ghostArea=0.01,
+                rndseed=1,
+                isTrigger=True,
+                ptmin=ptmin,
+                ptminFilter=ptminFilter)
             
         except Exception, e:
             print 'error adding new jet finder %s' % name
@@ -428,6 +428,8 @@ def _getTriggerPseudoJetGetter(cluster_calib):
         # JetRecStandardTools.py.
         pjg = TrigHLTJetRecConf.TriggerPseudoJetGetter(pjg_name, Label=label)
 
+        # kludge for release 22 pseudojet getters
+        pjg.OutputContainer = 'PseudoJet%s' % label
         # adds arg to Tool Service and returns arg
         jtm.add(pjg)
         triggerPseudoJetGetter = getattr(jtm, pjg_name)

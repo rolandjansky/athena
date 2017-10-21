@@ -8,7 +8,7 @@
 class BCMExtra
 {
 public:
-  BCMExtra(): vertexX(0.0),vertexY(0.0),vertexZ(0.0) {};
+  BCMExtra(): m_vertexX(0.0),m_vertexY(0.0),m_vertexZ(0.0) {};
   virtual ~BCMExtra() {};
   
   void SetVertex(double X, double Y, double Z);
@@ -16,9 +16,9 @@ public:
   double GetVertexY();
   double GetVertexZ();
 private:
-  double vertexX;
-  double vertexY;
-  double vertexZ;
+  double m_vertexX;
+  double m_vertexY;
+  double m_vertexZ;
 };
 
 #include "CLIDSvc/CLASS_DEF.h"

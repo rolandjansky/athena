@@ -10,6 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 namespace SG {
 

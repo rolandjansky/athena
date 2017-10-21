@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
-## @file :  Logging.py
+## @file :  PyUtils/python/Logging.py
 ## @purpose: try to import Logging from AthenaCommon.
 ##           falls back on stdlib's one
 

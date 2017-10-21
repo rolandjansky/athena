@@ -53,24 +53,6 @@ namespace SG {
     T* result;
     return  fromStorable(pDObj, result, quiet, irt, isConst) ? result : 0;
   }
-  template <typename T>
-  const T* Storable_cast(const DataObject* pDObj, bool quiet=true,
-                         IRegisterTransient* irt = 0,
-                         bool isConst = true) {
-    return Storable_cast<T>(const_cast<DataObject*>(pDObj), quiet, irt, isConst);
-  }
-
-  class bad_Storable_cast : public std::bad_cast {};
-  template<typename T>
-  T& Storable_cast(const DataObject& dObj, bool quiet=true,
-                   IRegisterTransient* irt = 0,
-                   bool isConst = true)
-  {
-    T* result(0);
-    if (!fromStorable(const_cast<DataObject*>(&dObj),
-                      result, quiet, irt, isConst)) throw bad_Storable_cast();
-    return *(const_cast<T*>(result));
-  }
 
 
   /**
@@ -104,20 +86,6 @@ namespace SG {
                       IRegisterTransient* irt = 0,
                       bool isConst = true);
 
-  /**
-   * @brief Try to get the pointer back from a @a DataObject,
-   *        converted to be of type @a clid.
-   * @param pDObj The @a DataObject.
-   * @param clid The ID of the class to which to convert.
-   * @param irt To be called if we make a new instance.
-   * @param isConst True if the object being converted is regarded as const.
-   *
-   * Only works if the @a DataObject is a @a DataBucket.
-   * Returns 0 on failure,
-   */
-  const void* Storable_cast(const DataObject* pDObj, CLID clid,
-                            IRegisterTransient* irt = 0,
-                            bool isConst = true);
 }
 
 //////////////////////////////////////////////////////////////////

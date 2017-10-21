@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubeTester.py
+# @file DCubeClient/python/DCubeTester.py
 # @author Krzysztof Daniel Ciba (Krzyszotf.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubeTester and test_DCubeTester classes
 

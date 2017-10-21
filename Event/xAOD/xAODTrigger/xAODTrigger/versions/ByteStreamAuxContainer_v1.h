@@ -81,7 +81,7 @@ namespace xAOD {
       virtual void lock();
 
       /// Clear all decorations.
-      virtual void clearDecorations();
+      virtual bool clearDecorations();
 
       /// Lock a decoration.
       virtual void lockDecoration (SG::auxid_t auxid);

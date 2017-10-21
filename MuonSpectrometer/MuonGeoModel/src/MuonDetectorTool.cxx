@@ -173,7 +173,7 @@ void MuonDetectorTool::handle(const Incident& inc)
  ** Create the Detector Node corresponding to this tool
  **/
 StatusCode
-MuonDetectorTool::create( StoreGateSvc* detStore )
+MuonDetectorTool::create()
 { 
 
     std::ofstream geoModelStats;
@@ -262,7 +262,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     // Locate the top level experiment node 
     // 
     DataHandle<GeoModelExperiment> theExpt; 
-    if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" ))
+    if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" ))
     { 
         msg(MSG::ERROR) 
             << "Could not find GeoModelExperiment ATLAS" 
@@ -320,7 +320,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     // Locate the material manager:
     //
     DataHandle<StoredMaterialManager> theMaterialManager;
-    if (StatusCode::SUCCESS != detStore->retrieve(theMaterialManager, "MATERIALS")) {
+    if (StatusCode::SUCCESS != detStore()->retrieve(theMaterialManager, "MATERIALS")) {
         msg(MSG::ERROR) 
             << "Could not find Material Manager MATERIALS" 
             << endmsg; 
@@ -344,7 +344,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         IRDBAccessSvc* access = 0;
         service("RDBAccessSvc",access);
 
-        MuonDetectorFactory001 theFactory(detStore);
+        MuonDetectorFactory001 theFactory(detStore().operator->());
     
         theFactory.setDBAtlasVersion(AtlasVersion);
         theFactory.setDBMuonVersion(MuonVersion);
@@ -415,8 +415,8 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 	msg(MSG::DEBUG)<<"A/BLineMapContainers are @ <"<<(uintptr_t)amap<<"> and <"<<(uintptr_t)bmap<<">"<<endmsg;
 	
 	// is this really needed ???????????
-        if ((detStore->record(amap,"MDT_A_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
-        if ((detStore->record(bmap,"MDT_B_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
+        if ((detStore()->record(amap,"MDT_A_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
+        if ((detStore()->record(bmap,"MDT_B_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
         // if we want to fill the whole cache init time
         if (m_fillCache_initTime) {
 	  m_manager->fillCache();
@@ -440,7 +440,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 	}
 	
 
-        result = detStore->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
+        result = detStore()->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
         if (result != StatusCode::SUCCESS) return result;
 
         //if  (m_idhfromconverters == 0)
@@ -487,7 +487,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         const MuonGM::TgcReadoutElement* detEl = m_manager->getTgcReadoutElement(i);
         if( detEl ) (*sectorHashVec)[i] = mapping.getSector(detEl->center().phi());
       }
-      if( detStore->record(sectorHashVec,"TGC_SectorMapping").isFailure()) {
+      if( detStore()->record(sectorHashVec,"TGC_SectorMapping").isFailure()) {
         ATH_MSG_WARNING(" failed to record TGC sector mapping ");
       }
     }
@@ -495,9 +495,9 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 }
 
 StatusCode
-MuonDetectorTool::clear(StoreGateSvc* detStore)
+MuonDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;
@@ -506,7 +506,7 @@ MuonDetectorTool::clear(StoreGateSvc* detStore)
 }
 
 StatusCode   
-MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
+MuonDetectorTool::registerCallback()
 {
 
     //MsgStream log(msgSvc(), name());
@@ -537,7 +537,7 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
       {
           ++ic;
           msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
-          if (detStore->contains<CondAttrListCollection>(*ifld)) {
+          if (detStore()->contains<CondAttrListCollection>(*ifld)) {
               aFolderFound=true;
               foundFolderNames.push_back(*ifld);
               msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
@@ -566,7 +566,7 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
     for (std::vector<std::string>::const_iterator ifld=foundFolderNames.begin(); ifld!=foundFolderNames.end(); ++ifld)
     {
         const DataHandle<CondAttrListCollection> parlineData;
-        StatusCode sc = detStore->regFcn(&IGeoModelTool::align,
+        StatusCode sc = detStore()->regFcn(&IGeoModelTool::align,
                                          dynamic_cast<IGeoModelTool *>(this),
                                          parlineData,
                                          *ifld);

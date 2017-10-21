@@ -438,9 +438,9 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
   if (0 == dp) 
     {
       // create the proxy object and register it
-      TransientAddress* tAddr = new TransientAddress(dataID, skey, 
-                                                     pAddress, clearAddressFlag);
-      dp = new DataProxy(tAddr, m_pDataLoader, true, true);
+      dp = new DataProxy (TransientAddress (dataID, skey,
+                                            pAddress, clearAddressFlag),
+                          m_pDataLoader, true, true);
       m_pStore->addToStore(dataID, dp).ignore();
 
       addAutoSymLinks (skey, dataID, dp, 0, false);
@@ -513,8 +513,9 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
     } 
   } else {
     // Case 2: No Proxy found:
-    TransientAddress* tAddr = new TransientAddress(dataID, gK);
-    dp = new DataProxy(pDObj, tAddr, !allowMods, resetOnly);
+    dp = new DataProxy(pDObj,
+                       TransientAddress(dataID, gK),
+                       !allowMods, resetOnly);
     if (!(m_pStore->addToStore(dataID, dp).isSuccess())) {
       msg() << MSG::WARNING
             << " setupProxy:: could not addToStore proxy @" << dp
@@ -964,7 +965,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             bool allowMods, bool resetOnly, bool noHist)
 {
   return typeless_record (obj, key, raw_ptr, allowMods, resetOnly, noHist, 0,
-                          nullptr, false);
+                          nullptr, true);
 }
 
 
@@ -975,7 +976,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             const std::type_info* tinfo)
 {
   return typeless_record (obj, key, raw_ptr, allowMods, resetOnly, noHist,tinfo,
-                          nullptr, false);
+                          nullptr, true);
 }
 
 
@@ -989,7 +990,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
 {
   lock_t lock (m_mutex);
   SG::DataProxy* proxy =
-    record_impl( obj, key, raw_ptr, allowMods, resetOnly, noOverwrite, tinfo);
+    record_impl( obj, key, raw_ptr, allowMods, resetOnly, !noOverwrite, tinfo);
   if ( proxy == nullptr )
     return StatusCode::FAILURE;
   if (proxy_ret)
@@ -1093,7 +1094,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
             << "record_impl: you are recording an object with key "
             << rawKey << ", type "  << clidTypeName
             << " (CLID " << clid << ')' 
-            << "\n There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead"
+            << "\n There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated."
             << endmsg;
     }
   }

@@ -114,15 +114,15 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 
   if(!m_staveLayout) {
     //We make these fullPhysVols for the alignment code.
-    GeoFullPhysVol* module = new GeoFullPhysVol(m_logVolume); 
-    //first, calculate the module components position
-    HepGeom::Transform3D innerSidePos, baseBoardPos, outerSidePos;
     if (not m_baseBoard){
     	std::cerr<<"baseboard pointer in function 'build' of \n" 
     	<<"InnerDetector/InDetDetDescr/SCT_SLHC_GeoModel/src/SCT_Module.cxx\n"
     	<<" is NULL." <<std::endl;
     	return NULL;
     }
+    GeoFullPhysVol* module = new GeoFullPhysVol(m_logVolume); 
+    //first, calculate the module components position
+    HepGeom::Transform3D innerSidePos, baseBoardPos, outerSidePos;
     if (m_doubleSided){
       //inner side position (shift this side towards the intreaction point, ie X negative)
       CLHEP::HepRotation inner_Rot;

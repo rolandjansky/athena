@@ -125,7 +125,7 @@ TEST_F(CollectionMerger_test, setupReadHandleKeyVector) {
   sgKeys.emplace_back( "testKeyC" );
 
   ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isSuccess() );
-  ASSERT_EQ( readHandles.size(), 3 );
+  ASSERT_EQ( readHandles.size(), 3u );
   ASSERT_EQ( readHandles.at(0).key(), "testKeyA" );
   ASSERT_TRUE( readHandles.at(0).clid() );
   ASSERT_EQ( readHandles.at(0).mode(), Gaudi::DataHandle::Reader );
@@ -197,7 +197,7 @@ TEST_F(CollectionMerger_test, mergeCollections) {
   SG::ReadHandle<TestHitCollection_t>     mergedCollectionHandle{mergedCollectionKey};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
-  ASSERT_EQ( mergedCollectionHandle->size(), 3+2+3 );
+  ASSERT_EQ( mergedCollectionHandle->size(), 3u+2u+3u );
 
   const auto& mergedCollectionVector = mergedCollectionHandle->getVector();
   ASSERT_EQ( mergedCollectionVector.at(0).m_value, 1  ); // inputCollectionA
@@ -251,7 +251,7 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   SG::ReadHandle<SiHitCollection>     mergedCollectionHandle{mergedCollectionKey};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
-  ASSERT_EQ( mergedCollectionHandle->size(), 3+2+3 );
+  ASSERT_EQ( mergedCollectionHandle->size(), 3u+2u+3u );
 
   const auto& mergedCollectionVector = mergedCollectionHandle->getVector();
   ASSERT_EQ( mergedCollectionVector.at(0).trackNumber(), 1  ); // inputPixelCollectionIntegrationTestA
@@ -292,7 +292,7 @@ TEST_F(CollectionMerger_test, one_empty_one_filled_input_collection___expect_fil
   SG::ReadHandle<SiHitCollection> mergedCollectionHandle{mergedCollectionKey};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
-  ASSERT_EQ( 3, mergedCollectionHandle->size() );
+  ASSERT_EQ( 3u, mergedCollectionHandle->size() );
 
   const auto& mergedCollectionVector = mergedCollectionHandle->getVector();
   ASSERT_EQ( mergedCollectionVector.at(0).trackNumber(), 1  ); // inputPixelCollectionIntegrationTestA
@@ -371,7 +371,7 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   SG::ReadHandle<TestPointerHitCollection_t> mergedCollectionHandle{mergedCollectionKey};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
-  ASSERT_EQ( 3+2, mergedCollectionHandle->size() );
+  ASSERT_EQ( 3u+2u, mergedCollectionHandle->size() );
 
   const auto* outputHit1 = (*mergedCollectionHandle)[0];  // inputPointerCollectionA
   const auto* outputHit2 = (*mergedCollectionHandle)[1];  // inputPointerCollectionA

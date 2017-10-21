@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRGHLTJETHYPO_SMCTOOL_H
+#ifndef TRIGHLTJETHYPO_SMCTOOL_H
 #define TRIGHLTJETHYPO_SMCTOOL_H
 /********************************************************************
  *
@@ -43,7 +43,7 @@ class TrigHLTJetHypo_SMCTool : public TrigHLTJetHypoTool {
   std::vector<std::string> m_JetMassMax;
   std::vector<int> m_asymmetricEtas;
 
-  float GeV = 1000.;
+  static constexpr float s_GeV = 1000.;
 
 };
 #endif

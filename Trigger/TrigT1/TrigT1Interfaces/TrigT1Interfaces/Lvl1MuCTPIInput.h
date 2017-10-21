@@ -102,7 +102,7 @@ namespace LVL1MUONIF {
       bool hasOutOfTimeCandidates(size_t systemAddress)  const
       {
 	if ( systemAddress <  NumberOfMuonSystem) {
-	  return isFilledOutOfTimeCandidates[systemAddress];
+	  return m_isFilledOutOfTimeCandidates[systemAddress];
 	} 
 	return false;
       }
@@ -151,7 +151,7 @@ namespace LVL1MUONIF {
        return -1;
      };
 
-     bool isFilledOutOfTimeCandidates[NumberOfMuonSystem];
+     bool m_isFilledOutOfTimeCandidates[NumberOfMuonSystem];
 
      
      typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicData> > Lvl1MuVect;

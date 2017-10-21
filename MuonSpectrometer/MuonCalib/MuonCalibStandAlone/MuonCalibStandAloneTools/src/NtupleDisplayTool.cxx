@@ -150,7 +150,7 @@ StatusCode NtupleDisplayTool::initialize() {
     //-- Variables --//
     //---------------//
         
-    qfitter = NULL;
+    m_qfitter = NULL;
     
     m_nb_multilayers = -1;
     m_nb_layers      = -1;
@@ -230,12 +230,12 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //-- VARIABLES --//
     //---------------//
     
-    if(qfitter==NULL){
+    if(m_qfitter==NULL){
        if (m_fitter_name==string("QuasianalyticLineReconstruction")) {
-        qfitter = new QuasianalyticLineReconstruction();
+        m_qfitter = new QuasianalyticLineReconstruction();
        }
        if (m_fitter_name==string("StraightPatRec")) {
-        qfitter = new StraightPatRec();
+        m_qfitter = new StraightPatRec();
        }
        if (m_fitter_name!=string("QuasianalyticLineReconstruction") &&
            m_fitter_name!=string("StraightPatRec")) {
@@ -414,8 +414,8 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     double y1, z1, y2, z2;
     z1 = z_min-15;
     z2 = z_max+15;
-    y1 = track.m_x2()*z1+track.b_x2();
-    y2 = track.m_x2()*z2+track.b_x2();
+    y1 = track.a_x2()*z1+track.b_x2();
+    y2 = track.a_x2()*z2+track.b_x2();
     
     TLine* line = new TLine(y1, z1, y2, z2);
     line->SetLineWidth(2);
@@ -423,19 +423,19 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     
     //refit segment 
     bool fit_success(false);
-    if(qfitter)
+    if(m_qfitter)
     	{
-	    qfitter->setRoadWidth(m_road_width); //0.65
-	    qfitter->switchOnRefit();
+	    m_qfitter->setRoadWidth(m_road_width); //0.65
+	    m_qfitter->switchOnRefit();
     
     
-	    fit_success = qfitter->fit(segment);
+	    fit_success = m_qfitter->fit(segment);
         }
     MTStraightLine track_refit(segment.position(),segment.direction(),
                                           Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
 
-    y1 = track_refit.m_x2()*z1+track_refit.b_x2();
-    y2 = track_refit.m_x2()*z2+track_refit.b_x2();
+    y1 = track_refit.a_x2()*z1+track_refit.b_x2();
+    y2 = track_refit.a_x2()*z2+track_refit.b_x2();
        
     TLine* line_refit = new TLine(y1, z1, y2, z2);
     line_refit->SetLineWidth(2);
@@ -600,7 +600,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     line->Draw();
 
     if(fit_success){
-        //if(fit_success && qfitter->numberOfTrackHits()>=m_nb_hits){ 
+        //if(fit_success && m_qfitter->numberOfTrackHits()>=m_nb_hits){ 
         line_refit->Draw();
     }
     else{

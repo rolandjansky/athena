@@ -457,7 +457,7 @@ namespace MuonCalib {
  
       std::cout<<" STARTING doAdcFit "<< std::endl;
 
-      TH1 * h ;
+      TH1 * h = nullptr;
 
 // E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
 //    if (!fitMezz) {

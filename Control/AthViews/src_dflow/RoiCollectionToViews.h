@@ -66,6 +66,7 @@ class RoiCollectionToViews
   std::vector< std::string > m_algorithmNameSequence;
   std::string m_algPoolName;
   std::string m_viewBaseName;
+  Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may access StoreGate directly to retrieve data" };
 }; 
 
 // I/O operators

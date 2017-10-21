@@ -6,7 +6,6 @@
  AlgTool describing arrangement of silicon layers wrt vertex region. 
  Allocates layer number to a SpacePoint (needed during pattern recognition).
  --------------------------------------------------------------------------
- Copyright (C) 2001 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATGEOMETRYTOOLS_LAYERNUMBERALLOCATOR_H

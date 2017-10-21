@@ -43,11 +43,14 @@ namespace HLTTest {
     decisions->setStore( aux.get() );
     size_t counter = 0;
     for ( auto objIter =   input->begin();  objIter != input->end(); ++objIter, ++counter ) {
-auto d = newDecisionIn(decisions.get());
+      auto d = newDecisionIn(decisions.get());
       d->setObjectLink("feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );
     }
-    for ( auto tool: m_tools ) {
-      CHECK( tool->decide( decisions.get() ) );
+
+    if (decisions->size()>0){
+      for ( auto tool: m_tools ) {
+	CHECK( tool->decide( decisions.get() ) );
+      }
     }
 
     auto outputHandle = SG::makeHandle(m_output);

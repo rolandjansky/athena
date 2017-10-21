@@ -1,17 +1,15 @@
 
-
-
 def TrigL2ElectronHypoToolFromName( name ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
-    assert name.startswith("HLT_e"), "The chain name does not start from HLT_e"
-
     bname = name.split('_')
-    threshold = int(bname[1][1:])
-    assert str(threshold) == bname[1][1:], "Threshold definition is not a simple int"
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
 
+    threshold = bname[1]
+    from TrigEgammaHypo.TrigL2CaloHypoTool import decodeThreshold
+    thresholds = decodeThreshold( threshold )
+
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
     tool = TrigL2ElectronHypoTool(name)
     tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -34,26 +32,38 @@ def TrigL2ElectronHypoToolFromName( name ):
         tool += monTool
 
     from AthenaCommon.SystemOfUnits import GeV    
-    tool.TrackPt = [ 1.0 * GeV ] 
-    tool.CaloTrackdETA = [ 0.2 ]
-    tool.CaloTrackdPHI = [ 999. ]
-    tool.CaloTrackdEoverPLow = [ 0.0 ]
-    tool.CaloTrackdEoverPHigh = [ 999.0 ]
-    tool.TRTRatio = [ -999. ]
+    nt = len( thresholds )
+    tool.TrackPt = [0.0] * nt
+    tool.CaloTrackdETA = [ 0.2 ] *nt
+    tool.CaloTrackdPHI = [ 990. ] *nt
+    tool.CaloTrackdEoverPLow = [ 0.0 ] * nt
+    tool.CaloTrackdEoverPHigh = [ 999.0 ] * nt
+    tool.TRTRatio = [ -999. ] * nt
 
-    if float(threshold) < 15:
-        tool.TrackPt = [ 1.0 * GeV ]
-    elif float(threshold) >= 15 and float(threshold) < 20:
-        tool.TrackPt = [ 2.0 * GeV ]
-    elif float(threshold) >= 20 and float(threshold) < 50:
-        tool.TrackPt = [ 3.0 * GeV ]
-    elif float(threshold) >= 50:
-        tool.TrackPt = [ 5.0 * GeV ]
-        tool.CaloTrackdETA = [ 999. ]
-        tool.CaloTrackdPHI = [ 999. ]
-    else:
-        raise RuntimeError('No threshold: Default cut configured')
+
+    for th, thvalue in enumerate(thresholds):
+        print th, thvalue
+        if float(thvalue) < 15:
+            tool.TrackPt[ th ] = 1.0 * GeV 
+        elif float(thvalue) >= 15 and float(thvalue) < 20:
+            tool.TrackPt[ th ] = 2.0 * GeV 
+        elif float(thvalue) >= 20 and float(thvalue) < 50:
+            tool.TrackPt[ th ] =  3.0 * GeV 
+        elif float(thvalue) >= 50:
+            tool.TrackPt[ th ] =  5.0 * GeV 
+            tool.CaloTrackdETA[ th ] =  999. 
+            tool.CaloTrackdPHI[ th ] =  999.
+        else:
+            raise RuntimeError('No threshold: Default cut configured')
     return tool
 
+
 if __name__ == "__main__":
-    tool = TrigL2ElectronHypoToolFromName("HLT_e4")    
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut")    
+    assert tool, "Not configured simple tool"
+
+    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut")    
+    assert tool, "Not configured simple tool"
+    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
+
+    print ( "\n\nALL OK\n\n" )    

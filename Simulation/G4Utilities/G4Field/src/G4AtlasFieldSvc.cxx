@@ -8,7 +8,7 @@
 // magnetic field service interface
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-bool G4AtlasFieldSvc::fieldinitialized = false;
+bool G4AtlasFieldSvc::s_fieldinitialized = false;
 
 static FADS::MagneticFieldMapT<G4AtlasFieldSvc> idCool("G4AtlasFieldSvc");
 
@@ -28,7 +28,7 @@ G4AtlasFieldSvc::G4AtlasFieldSvc(const std::string& n)
 
 
 void G4AtlasFieldSvc::Initialize() {
-  if (!fieldinitialized) {
+  if (!s_fieldinitialized) {
     if ( m_magFieldSvc.retrieve().isFailure()) {
       // mlog << MSG::FATAL << "Could not find MagFieldAthenaSvc" << endmsg ;
       std::cout << "Could not find MagFieldAthenaSvc" << std::endl ;
@@ -38,7 +38,7 @@ void G4AtlasFieldSvc::Initialize() {
     // store a quick access pointer to remove gaudi overhead
     m_magFieldSvcQuick = &(*m_magFieldSvc);
 
-    fieldinitialized = true;
+    s_fieldinitialized = true;
   }
 }
 

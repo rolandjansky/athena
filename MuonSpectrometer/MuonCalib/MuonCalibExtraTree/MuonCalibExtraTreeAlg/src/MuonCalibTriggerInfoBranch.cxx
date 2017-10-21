@@ -21,23 +21,23 @@ using namespace std;
 namespace MuonCalib {
 
 MuonCalibTriggerInfoBranch::MuonCalibTriggerInfoBranch(std::string branchName) : 
-  m_branchName(branchName), branchesInit(false), m_first(true), index(0), m_numberBC(0),
+  m_branchName(branchName), m_branchesInit(false), m_first(true), m_index(0), m_numberBC(0),
   m_L1A_BC(0), m_timeNs(0), m_randomTrig(0), m_firedItemsBeforePrescale(0), m_prescaledClock(0) {
 }
 
 bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO) {
   // check if branches where initialized
-  if( !branchesInit ) {
+  if( !m_branchesInit ) {
     //std::cout << "MuonCalibTriggerInfoBranch::fillBranch  ERROR <branches where not initialized>"
     //	<<  std::endl;
     return false;    
   }
     
   // check if index not out of range 
-  if( index >= blockSize || index < 0 ) {
+  if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
       //std::cout << "MuonCalibTriggerInfoBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //  <<  index << std::endl;
+      //  <<  m_index << std::endl;
       m_first = false;
     }
     return false;
@@ -59,7 +59,7 @@ bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO) {
   m_firedItemsBeforePrescale = 0;
   m_prescaledClock = 0;
   
-  for (int i = 0 ; i < blockSize; i++) {
+  for (int i = 0 ; i < s_blockSize; i++) {
     m_bcid[i] = 0;
     m_bcIndexPIT[i] = 0;
     m_pit[i] = 0;
@@ -143,7 +143,7 @@ bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO) {
   if (index_pit > indexm) indexm = index_pit;
   if (index_tbp > indexm) indexm = index_tbp;
   if (index_bcid > indexm) indexm = index_bcid;
-  index += indexm;
+  m_index += indexm;
     
   return true;
 }  // end MuonCalibTriggerInfoBranch::fillBranch
@@ -162,7 +162,7 @@ bool  MuonCalibTriggerInfoBranch::createBranch(TTree* tree) {
   std::string index_name ="nTriggerInfo";
 
   // create a branch for every data member
-  branchCreator.createBranch( tree, index_name, &index, "/I");
+  branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
   // all entries of same size, the number of hits in the event
   std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
@@ -187,7 +187,7 @@ bool  MuonCalibTriggerInfoBranch::createBranch(TTree* tree) {
   branchCreator.createBranch( tree, "type", &m_type, array_size +"/I");
   branchCreator.createBranch( tree, "delay", &m_delay, array_size +"/F");
 
-  branchesInit = true;
+  m_branchesInit = true;
     
   // reset branch
   reset();

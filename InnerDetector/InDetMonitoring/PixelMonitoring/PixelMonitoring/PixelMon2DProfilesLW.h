@@ -42,19 +42,19 @@ public:
    *        into readable info (e.g. eta/phi module index)
    * @param value: the fill value
    */
-  void Fill(Identifier &id, const PixelID* pixID, float value);
+  void fill(Identifier &id, const PixelID* pixID, float value);
 
   //! Fill method which takes values from another 2D profile
-  void Fill2DMon(PixelMon2DProfilesLW* oldmap);
+  void fill2DMon(PixelMon2DProfilesLW* oldmap);
 
   //! Fill method which takes values from a 2D map object
-  void FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
+  void fillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
 
   //! Set maximal value of the 2D profile bins
-  void SetMaxValue(float max);
+  void setMaxValue(float max);
 
   //! Reset the 2D profiles
-  void Reset();
+  void reset();
 
   //! Formatting function for histograms (reimplemented from template)
   virtual void formatHist() override;

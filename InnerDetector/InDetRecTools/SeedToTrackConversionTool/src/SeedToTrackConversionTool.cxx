@@ -22,7 +22,9 @@ InDet::SeedToTrackConversionTool::SeedToTrackConversionTool(const std::string& t
 			  const IInterface*  p )
   : AthAlgTool(t,n,p),
   m_extrapolator("Trk::Extrapolator"),
-  m_rotcreator("Trk::RIO_OnTrackCreator/InDetRotCreator")
+  m_rotcreator("Trk::RIO_OnTrackCreator/InDetRotCreator"),
+  m_totseed(0),
+  m_survived(0)
 {
     // For SiSPSeedSegment
   //

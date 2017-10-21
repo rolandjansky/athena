@@ -3,6 +3,9 @@
 */
 
 #include "GeoModelExamples/ToyDetectorManager.h"
+#include "ForwardScrutinizer.h"
+#include "CentralScrutinizer.h"
+
 ToyDetectorManager::ToyDetectorManager()
 {
   setName("Toy");

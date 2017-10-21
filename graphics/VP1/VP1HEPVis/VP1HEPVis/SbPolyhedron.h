@@ -139,7 +139,7 @@
 //   in bodies of revolution
 //
 // 24.06.97 J.Allison
-// - added static private member fNumberOfRotationSteps and static public
+// - added static private member s_numberOfRotationSteps and static public
 //   functions void SetNumberOfRotationSteps (G4int n) and
 //   void ResetNumberOfRotationSteps ().  Modified
 //   GetNumberOfRotationSteps() appropriately.  Made all three functions
@@ -219,25 +219,25 @@ class SbFacet {
   friend std::ostream& operator<<(std::ostream&, const SbFacet &facet);
 
  private:
-  struct { int v,f; } edge[4];
+  struct { int v,f; } m_edge[4];
 
  public:
   SbFacet(int v1=0, int f1=0, int v2=0, int f2=0,
           int v3=0, int f3=0, int v4=0, int f4=0)
-  { edge[0].v=v1; edge[0].f=f1; edge[1].v=v2; edge[1].f=f2;
-    edge[2].v=v3; edge[2].f=f3; edge[3].v=v4; edge[3].f=f4; }
+  { m_edge[0].v=v1; m_edge[0].f=f1; m_edge[1].v=v2; m_edge[1].f=f2;
+    m_edge[2].v=v3; m_edge[2].f=f3; m_edge[3].v=v4; m_edge[3].f=f4; }
 };
 
 class SbPolyhedron {
   friend std::ostream& operator<<(std::ostream&, const SbPolyhedron &ph);
 
  private:
-  static int fNumberOfRotationSteps;
+  static int s_numberOfRotationSteps;
 
  protected:
-  int nvert, nface;
-  HVPoint3D *pV;
-  SbFacet    *pF;
+  int m_nvert, m_nface;
+  HVPoint3D *m_pV;
+  SbFacet    *m_pF;
 
   // Allocate memory for SbPolyhedron
   void AllocateMemory(int Nvert, int Nface);
@@ -276,24 +276,24 @@ class SbPolyhedron {
  public:
   // Constructor
   SbPolyhedron(int Nvert=0, int Nface=0)
-    : nvert(Nvert), nface(Nface),
-      pV(Nvert ? new HVPoint3D[Nvert+1] : 0),
-      pF(Nface ? new SbFacet[Nface+1] : 0) {}
+    : m_nvert(Nvert), m_nface(Nface),
+      m_pV(Nvert ? new HVPoint3D[Nvert+1] : 0),
+      m_pF(Nface ? new SbFacet[Nface+1] : 0) {}
 
   // Copy constructor
   SbPolyhedron(const SbPolyhedron & from);
 
   // Destructor
-  virtual ~SbPolyhedron() { delete [] pV; delete [] pF; }
+  virtual ~SbPolyhedron() { delete [] m_pV; delete [] m_pF; }
 
   // Assignment
   virtual SbPolyhedron & operator=(const SbPolyhedron & from);
 
   // Get number of vertices
-  int GetNoVertices() const { return nvert; }
+  int GetNoVertices() const { return m_nvert; }
 
   // Get number of facets
-  int GetNoFacets() const { return nface; }
+  int GetNoFacets() const { return m_nface; }
 
   // rbianchi change
   //- original version
@@ -372,14 +372,14 @@ class SbPolyhedron {
   double GetVolume() const;
 
   // Get number of steps for whole circle
-  static int GetNumberOfRotationSteps() { return fNumberOfRotationSteps; }
+  static int GetNumberOfRotationSteps() { return s_numberOfRotationSteps; }
 
   // Set number of steps for whole circle
   static void SetNumberOfRotationSteps(int n);
 
   // Reset number of steps for whole circle to default value
   static void ResetNumberOfRotationSteps() {
-    fNumberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
+    s_numberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
   }
 };
 
@@ -565,8 +565,8 @@ class SbPolyhedronArbitrary : public SbPolyhedron {
   void Finalize();
 
  protected:
-  int nVertexCount;
-  int nFacetCount;
+  int m_nVertexCount;
+  int m_nFacetCount;
 };
 
 class SbPolyhedronGenericTrap : public SbPolyhedron {

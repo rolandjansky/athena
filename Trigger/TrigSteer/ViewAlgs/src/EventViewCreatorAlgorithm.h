@@ -36,15 +36,13 @@ class EventViewCreatorAlgorithm : public AthAlgorithm
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
     SG::WriteHandleKey< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_inViewDecisions{ this, "InViewDecisions", "Unspecified", "The name of decision container placed in the view" };
 
-
     Gaudi::Property< std::vector<std::string> > m_viewAlgorithmNames{ this, "AlgorithmNameSequence", std::vector<std::string>(), "Algorithms to run in each view" };
-
-
 
     Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
     
     Gaudi::Property< std::string > m_algPoolName{ this, "AlgPoolName", "ViewAlgPool", "" };
     Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "Unspecified", "Name of EL to RoI object lined to the decision" };
+    Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may access StoreGate directly to retrieve data" };
 };
 
 #endif

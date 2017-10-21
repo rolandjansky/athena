@@ -11,6 +11,7 @@
 #include "GaudiKernel/Bootstrap.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventSeek.h"
 
 #include "GaudiKernel/IAppMgrUI.h"
@@ -25,6 +26,7 @@
 
 class TFile;
 class TChain;
+class IEventProcessor;
 
 //Bootstraps the minimal gaudi environment + a few extra defaults (see basic.opts)
 namespace Gaudi {
@@ -114,10 +116,11 @@ namespace POOL {
          long m_curEntry = -1; //if this becomes >=0 then the TEvent is considered 'initialized'
          long m_size = -1; //cache of the event size, filled on first call to getEntries
 
+         IEventProcessor* m_evtProcessor;
          ServiceHandle<IJobOptionsSvc> m_joSvc;
 
          ServiceHandle<IEventSeek> m_evtLoop; //the AthenaEventLoopMgr
-         ServiceHandle<IEventSeek> m_evtSelect; //the EventSelectorAthenaPool
+         ServiceHandle<IEvtSelectorSeek> m_evtSelect; //the EventSelectorAthenaPool
          ServiceHandle<StoreGateSvc> m_evtStore; //the storegate
          ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; //the active store svc for switching to our store before reading next event
 

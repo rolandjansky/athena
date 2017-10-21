@@ -16,11 +16,11 @@
 // #include "GaudiKernel/ToolFactory.h"
 // #include "GaudiKernel/IToolFactory.h"
 
-TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& s,
-                                               const std::string& name,
-                                               const IInterface* i) 
-  : PseudoJetGetter(s, name, i), m_primed(false), m_pseudoJetVector(0){
-  declareInterface<ITriggerPseudoJetGetter>(this);
+TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& name)
+  :AsgTool(name),  m_primed(false), m_label(""), m_pseudoJetVector(nullptr){
+  // declareInterface<ITriggerPseudoJetGetter>(this);
+  declareProperty("Label", m_label); 
+  declareProperty("OutputContainer", m_outputContainer); 
 }
 
 TriggerPseudoJetGetter::~TriggerPseudoJetGetter(){}
@@ -53,3 +53,19 @@ void TriggerPseudoJetGetter::print() const
                 << " particles");
 }
 
+
+std::string TriggerPseudoJetGetter::label() const { return m_label;}
+
+
+int TriggerPseudoJetGetter::inputContainerNames(std::vector<std::string>&) {
+  return 0;
+}
+
+int TriggerPseudoJetGetter::outputContainerNames(std::vector<std::string>&) {
+  return 0;
+}
+
+// needed for future changes to offline jet code
+// StatusCode TriggerPseudoJetGetter::createAndRecord() const {
+//   return StatusCode::FAILURE; // Trigger: should never be called.
+// }

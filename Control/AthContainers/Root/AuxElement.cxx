@@ -285,11 +285,15 @@ bool AuxElement::hasNonConstStore() const
  *
  * Erase all decorations from an associated store, restoring the state to when
  * @c lock was called.
+ *
+ * Returns true if there were any decorations that were cleared,
+ * false if the store did not contain any decorations.
  */
-void AuxElement::clearDecorations() const
+bool AuxElement::clearDecorations() const
 {
   if (privateDataValid())
-    m_privateData->clearDecorations();
+    return m_privateData->clearDecorations();
+  return false;
 }
 
 

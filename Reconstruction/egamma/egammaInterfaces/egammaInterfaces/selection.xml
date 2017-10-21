@@ -1,13 +1,11 @@
 <lcgdict>
   <class name="ICaloCluster_OnTrackBuilder" />
-  <class name="IEMBremCollectionBuilder" />
   <class name="IEMClusterTool" />
   <class name="IEMConversionBuilder" />
   <class name="IEMExtrapolationTools" />
   <class name="IEMFourMomBuilder" />
   <class name="IEMShowerBuilder" />
   <class name="IEMTrackMatchBuilder" />
-  <class name="IEMVertexBuilder" />
   <class name="IFourMomCombiner" />
   <class name="IegammaBackShape" />
   <class name="IegammaBaseTool" />
@@ -24,6 +22,5 @@
   <class name="Iegammaqweta2c" />
   <class name="IelectronSuperClusterBuilder" />
   <class name="IphotonSuperClusterBuilder" />
-  <class name="IegammaTopoClusterCopier" />
 </lcgdict>
 

@@ -42,16 +42,16 @@ public:
 //____________________________________________________________________
 TrackCollHandle_TrackParticle::TrackCollHandle_TrackParticle(TrackSysCommonData * cd,
 							     const QString& name)
-  : TrackCollHandleBase(cd,name,TrackType::TrackParticle), d(new Imp)
+  : TrackCollHandleBase(cd,name,TrackType::TrackParticle), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
 }
 
 //____________________________________________________________________
 TrackCollHandle_TrackParticle::~TrackCollHandle_TrackParticle()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -68,7 +68,7 @@ bool TrackCollHandle_TrackParticle::load()
   hintNumberOfTracksInEvent(coll->size());
   Rec::TrackParticleContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null TrackParticle pointer.");
       continue;

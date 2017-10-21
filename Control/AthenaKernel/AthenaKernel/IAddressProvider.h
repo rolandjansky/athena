@@ -13,20 +13,22 @@
 #ifndef ATHENAKERNEL_IADDRESSPROVIDER_H
 # define ATHENAKERNEL_IADDRESSPROVIDER_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include <list>
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/IInterface.h"
 #include "AthenaKernel/StoreID.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 class EventContext;
 namespace SG {
   class TransientAddress;
 }
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-class IAddressProvider {
+class IAddressProvider
+  : virtual public IInterface
+{
 public:
+  DeclareInterfaceID(IAddressProvider, 1, 0);
+
   typedef std::list<SG::TransientAddress*> tadList;
   typedef tadList::iterator tadListIterator;
 
@@ -53,8 +55,6 @@ public:
   virtual ~IAddressProvider() {}
 };
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // ATHENAKERNEL_IADDRESSPROVIDER_H
 

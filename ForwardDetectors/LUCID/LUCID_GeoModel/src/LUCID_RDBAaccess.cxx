@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LUCID_GeoModel/LUCID_RDBAaccess.h"
+#include "LUCID_RDBAaccess.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -36,10 +36,10 @@ void LUCID_RDBAccess::ReadDB() {
   log << MSG::DEBUG << " Starting LUCID_GeoModel::LUCID_RDBAaccess " << endmsg;
   log << MSG::DEBUG << " LUCID_RDBAaccess::ReadDB "<< endmsg;  
 
-  svcLocator = Gaudi::svcLocator();
+  m_svcLocator = Gaudi::svcLocator();
   IRDBAccessSvc* iAccessSvc = NULL;
   
-  StatusCode result = svcLocator->service("RDBAccessSvc", iAccessSvc);
+  StatusCode result = m_svcLocator->service("RDBAccessSvc", iAccessSvc);
 
   if (result.isFailure() || iAccessSvc == NULL) {
 
@@ -51,9 +51,9 @@ void LUCID_RDBAccess::ReadDB() {
   DecodeVersionKey atlasVersion("ATLAS");
   std::string AtlasVersion = atlasVersion.tag();
   
-  lucidParams = iAccessSvc->getRecordsetPtr("LucidParams", AtlasVersion, "ATLAS");
+  m_lucidParams = iAccessSvc->getRecordsetPtr("LucidParams", AtlasVersion, "ATLAS");
   
-  if (!lucidParams->size()) std::cerr << " ERROR: Unable to retrieve LucidParams data "<< std::endl;
+  if (!m_lucidParams->size()) std::cerr << " ERROR: Unable to retrieve LucidParams data "<< std::endl;
   
   log << MSG::INFO << " LUCID data corresponding to " << AtlasVersion << " fetched " << endmsg;
 }
@@ -70,7 +70,7 @@ void LUCID_RDBAccess::SetParameters() {
   
   IRDBRecordset::const_iterator AccessSvc_iter;
   
-  for(AccessSvc_iter = lucidParams->begin(); AccessSvc_iter != lucidParams->end(); AccessSvc_iter++) {
+  for(AccessSvc_iter = m_lucidParams->begin(); AccessSvc_iter != m_lucidParams->end(); AccessSvc_iter++) {
     
     distanceToIP                  = (*AccessSvc_iter)->getDouble("DISTANCETOIP")*CLHEP::mm;
     VJdistanceToIP                = (*AccessSvc_iter)->getDouble("VJDISTANCETOIP")*CLHEP::mm;

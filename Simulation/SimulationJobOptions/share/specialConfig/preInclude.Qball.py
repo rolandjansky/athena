@@ -64,7 +64,7 @@ if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
-    simFlags.OptionalUserActionList.addAction('MonopoleLooperKillerTool',['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::MonopoleLooperKillerTool',['Step'])
     # add default HIP killer
     simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool',['Step'])
 

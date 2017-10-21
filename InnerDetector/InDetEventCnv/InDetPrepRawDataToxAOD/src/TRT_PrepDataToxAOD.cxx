@@ -29,6 +29,8 @@
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
+#define AUXDATA(OBJ, TYP, NAME) \
+  static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -59,7 +61,6 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   declareProperty("TRTCalDbSvc",           m_trtcaldbSvc);
   declareProperty("NeighbourSvc",          m_neighbourSvc);
   declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
-  declareProperty("NeighbourSvc",          m_neighbourSvc);
 
 }
 
@@ -175,13 +176,13 @@ StatusCode TRT_PrepDataToxAOD::execute()
 
 
       // Save ID info:
-      xprd->auxdata<int>("bec")         =   m_TRTHelper->barrel_ec( surfaceID )     ;
-      xprd->auxdata<int>("layer")       =   m_TRTHelper->layer_or_wheel(surfaceID ) ;  
-      xprd->auxdata<int>("phi_module")  =   m_TRTHelper->phi_module( surfaceID )    ;
-      xprd->auxdata<int>("strawlayer")  =   m_TRTHelper->straw_layer( surfaceID )   ;
-      xprd->auxdata<int>("strawnumber") =   m_TRTHelper->straw( surfaceID )         ;
+      AUXDATA(xprd, int, bec)         =   m_TRTHelper->barrel_ec( surfaceID )     ;
+      AUXDATA(xprd, int, layer)       =   m_TRTHelper->layer_or_wheel(surfaceID ) ;  
+      AUXDATA(xprd, int, phi_module)  =   m_TRTHelper->phi_module( surfaceID )    ;
+      AUXDATA(xprd, int, strawlayer)  =   m_TRTHelper->straw_layer( surfaceID )   ;
+      AUXDATA(xprd, int, strawnumber) =   m_TRTHelper->straw( surfaceID )         ;
       const InDetDD::TRT_BaseElement* element = m_trtman->getElement(surfaceID);
-      xprd->auxdata<float>("strawphi")    =   element->center(surfaceID).phi();
+      AUXDATA(xprd, float, strawphi)    =   element->center(surfaceID).phi();
 
       int chip=0;
       int board=-1;
@@ -194,8 +195,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
         chip=chip-20;
         board=1;
       }
-      xprd->auxdata<int>("TRTboard") =   board ; 
-      xprd->auxdata<int>("TRTchip")  =   chip  ;
+      AUXDATA(xprd, int, TRTboard) =   board ; 
+      AUXDATA(xprd, int, TRTchip)  =   chip  ;
 
       
       //Set Local Position
@@ -236,22 +237,24 @@ StatusCode TRT_PrepDataToxAOD::execute()
       //TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
       double tot = prd->timeOverThreshold();
       bool isvalid=false;
-      xprd->auxdata<float>("drifttime")  = prd->driftTime(isvalid)   ;
-      xprd->auxdata<int>("status")      = isvalid;
-      xprd->auxdata<float>("tot")        = tot ;
-      xprd->auxdata<char>("isHT")        = prd->highLevel()    ;
-      xprd->auxdata<float>("T0")         = m_trtcaldbSvc->getT0(surfaceID)   ; 
+      AUXDATA(xprd, float, drifttime)  = prd->driftTime(isvalid)   ;
+      AUXDATA(xprd, int, status)      = isvalid;
+      AUXDATA(xprd, float, tot)        = tot ;
+      AUXDATA(xprd, char, isHT)        = prd->highLevel()    ;
+      AUXDATA(xprd, float, T0)         = m_trtcaldbSvc->getT0(surfaceID)   ; 
 
 
       // Save time info:
-      xprd->auxdata<float>("leadingEdge")  = prd->rawDriftTime();
+      AUXDATA(xprd, float, leadingEdge)  = prd->rawDriftTime();
 
       //Drift Time corrections
-      xprd->auxdata<float>("driftTimeToTCorrection") = m_driftFunctionTool->driftTimeToTCorrection(tot,surfaceID);
-      if(prd->highLevel()) 
-        xprd->auxdata<float>("driftTimeHTCorrection") = m_driftFunctionTool->driftTimeHTCorrection(surfaceID);
-      else 
-        xprd->auxdata<float>("driftTimeHTCorrection") = 0;
+      AUXDATA(xprd, float, driftTimeToTCorrection) = m_driftFunctionTool->driftTimeToTCorrection(tot,surfaceID);
+      if(prd->highLevel())  {
+        AUXDATA(xprd, float, driftTimeHTCorrection) = m_driftFunctionTool->driftTimeHTCorrection(surfaceID);
+      }
+      else  {
+        AUXDATA(xprd, float, driftTimeHTCorrection) = 0;
+      }
       
       
       //HT Bit patterens
@@ -273,10 +276,10 @@ StatusCode TRT_PrepDataToxAOD::execute()
       else if (theWord == 0x04020100) //pattern 7
         highThreshold = 7;
       
-      xprd->auxdata<char>("highThreshold") = highThreshold;
+      AUXDATA(xprd, char, highThreshold) = highThreshold;
       
       //Full bit patternword from the TRT
-      xprd->auxdata<unsigned int>("bitPattern") = word;
+      AUXDATA(xprd, unsigned int, bitPattern) = word;
       
       char gas_type = kUnset;
       if (!m_TRTStrawSummarySvc.empty()) {
@@ -288,7 +291,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
         else if  ( stat==6 )              gas_type = kEmAr;
         else if  ( stat==7 )              gas_type = kEmKr;
       }
-      xprd->auxdata<char>("gasType")              = gas_type;
+      AUXDATA(xprd, char, gasType)              = gas_type;
 
       // Use the MultiTruth Collection to get a list of all true particle contributing to the DC
       if(m_prdmtColl){
@@ -297,7 +300,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
         for (auto i = range.first; i != range.second; ++i) {
           barcodes.push_back( i->second.barcode() );
         }
-        xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
+        AUXDATA(xprd,  std::vector<int> , truth_barcode) = barcodes;
       }
 
       if( m_sdoCollection ){
@@ -307,7 +310,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
         if( pos != m_sdoCollection->end() ) {
           sdo_word = pos->second.word();
         }           
-        xprd->auxdata<int>("sdo_word")      = sdo_word;
+        AUXDATA(xprd, int, sdo_word)      = sdo_word;
       }
 
     }

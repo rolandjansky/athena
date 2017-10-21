@@ -63,7 +63,7 @@ class NtupleAnalyticAutocalibrationTool : public AthAlgTool, virtual public Ntup
 	//! fix_min, fix_max=true: fix r(t_min), r(t_max) - job option
 		bool m_fix_min, m_fix_max;
 	//! maximum number of iterations. - job otion
-		int max_it;
+		int m_max_it;
 	//! force monotonuous rt relation - job option
 		bool m_force_mono;
 	//! control histogram output - job option

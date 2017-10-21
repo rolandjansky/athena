@@ -72,6 +72,10 @@
 #include <map>
 
 
+#include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/PerfStats.h"
+#include "xAODCore/tools/IOStats.h"
+
 namespace Athena {
 
 /** @class xAODEventContext 
@@ -130,6 +134,8 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
    declareProperty( "AccessMode", m_accessMode = -1, "-1 = use TEvent Default; 0 = BranchAccess; 1 = ClassAccess; 2 = AthenaAccess" );
 
    declareProperty( "FillEventInfo", m_fillEventInfo=false,"If True, will fill old EDM EventInfo with xAOD::EventInfo content, necessary for database reading (IOVDbSvc)");
+
+   declareProperty( "PrintPerfStats", m_printPerfStats=false,"If True, at end of job will print the xAOD perf stats");
 
 //Expert Properties:
   declareProperty( "EvtStore", m_dataStore,       "Store where to publish data");
@@ -308,6 +314,8 @@ StatusCode xAODEventSelector::initialize()
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
+  if(m_printPerfStats) xAOD::PerfStats::instance().start();
+
 
   return StatusCode::SUCCESS;
 }
@@ -318,6 +326,13 @@ StatusCode xAODEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  if(m_printPerfStats) {
+    xAOD::PerfStats::instance().stop();
+    xAOD::IOStats::instance().stats().Print();
+  }
+  
+
   return StatusCode::SUCCESS;
 }
 
@@ -332,8 +347,8 @@ xAODEventSelector::queryInterface( const InterfaceID& riid,
 {
   if ( IEvtSelector::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IEvtSelector*>(this);
-  } else if ( IEventSeek::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IEventSeek*>(this);
+  } else if ( IEvtSelectorSeek::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
   } else if ( IIoComponent::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IIoComponent*>(this);
   } else {
@@ -474,7 +489,7 @@ StatusCode xAODEventSelector::next( Context& ctx, int jump ) const
 {
   ATH_MSG_DEBUG ("next(" << jump << ") : iEvt " << m_curEvt);
 
-  if (self()->seek(m_curEvt + jump).isSuccess()) {
+  if (self()->seek(ctx, m_curEvt + jump).isSuccess()) {
     return StatusCode::FAILURE;
   }
   return next(ctx);
@@ -501,9 +516,9 @@ xAODEventSelector::last( Context& /*ctxt*/ ) const
 
 
 StatusCode 
-xAODEventSelector::rewind( Context& /*ctxt*/ ) const 
+xAODEventSelector::rewind( Context& ctxt ) const 
 {
-  return self()->seek(0);
+  return self()->seek(ctxt, 0);
 }
 
 StatusCode
@@ -551,7 +566,7 @@ xAODEventSelector::resetCriteria( const std::string&, Context& ) const
  * @param evtnum  The event number to which to seek.
  */
 StatusCode
-xAODEventSelector::seek (int evtnum)
+xAODEventSelector::seek (Context& refCtxt, int evtnum) const
 {
   // std::cout << "::seek - evtnum=" << evtnum 
   //           << " curevt=" << m_curEvt 
@@ -574,7 +589,8 @@ xAODEventSelector::seek (int evtnum)
 
   if (coll_idx != m_collIdx) {
     // tell everyone we switched files...
-    setFile("");
+    xAODEventContext* rctx = dynamic_cast<xAODEventContext*>(&refCtxt);
+    rctx->setFile("");
   }
 
   m_collIdx = coll_idx;
@@ -588,7 +604,7 @@ xAODEventSelector::seek (int evtnum)
  * @return The current event number.
  */
 int 
-xAODEventSelector::curEvent() const
+xAODEventSelector::curEvent (const Context& /*refCtxt*/) const
 {
   return m_curEvt;
 }
@@ -1033,7 +1049,7 @@ xAODEventSelector::do_init_io()
 /// for a given event index `evtidx`.
 /// returns -1 if not found.
 int 
-xAODEventSelector::find_coll_idx(int evtidx)
+xAODEventSelector::find_coll_idx(int evtidx) const
 {
   // std::cout << "--find_coll_idx(" << evtidx << ")..." << std::endl
   //           << "--collsize: " << m_collEvts.size() << std::endl;
@@ -1068,7 +1084,7 @@ xAODEventSelector::find_coll_idx(int evtidx)
 }
 
 
-int xAODEventSelector::size() {
+int xAODEventSelector::size (Context& /*refCtxt*/) const {
    //use find_coll_idx to trigger a population of the m_collEvts ... dummy call with -1 to trigger all colls loaded
    find_coll_idx(-1);
    return m_collEvts.back().max_entries;

@@ -269,6 +269,7 @@ private:
   AthenaHiveEventLoopMgr& operator= (const AthenaHiveEventLoopMgr&); ///< no implementation
 
   unsigned int m_nevt;
+  unsigned int m_timeStamp { 0 };
   /// @property histogram write/update interval
   UnsignedIntegerProperty m_writeInterval;
   bool m_writeHists;
@@ -282,7 +283,8 @@ private:
   bool m_useTools;
   bool m_doEvtHeartbeat;
 
-  unsigned int m_flmbi;
+  unsigned int m_flmbi, m_timeStampInt;
+  bool m_showTimeStamp;
 
   // from MinimalEventLoopMgr
 public:

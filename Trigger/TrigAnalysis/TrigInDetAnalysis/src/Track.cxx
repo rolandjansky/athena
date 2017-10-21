@@ -1,5 +1,5 @@
 // emacs: this is -*- c++ -*- 
-/** @file Track.cxx */
+/** @file TrigInDetAnalysis/src/Track.cxx */
 
 #include "TrigInDetAnalysis/Track.h"
 

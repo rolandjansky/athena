@@ -22,7 +22,7 @@ class SiDetectorElementCollection;
 
 namespace InDet {
 
-class SiElementPropertiesTable
+class SiElementPropertiesTable final 
 {
 public:
     
@@ -31,27 +31,23 @@ public:
 			     float						epsilonWidth); 
     ~SiElementPropertiesTable();
 
-    std::vector<IdentifierHash>*	neighbours(const IdentifierHash& waferID);
-    float				halfWidth(IdentifierHash hashID);
+    const std::vector<IdentifierHash>*	neighbours(const IdentifierHash& waferID) const;
+    float				halfWidth(IdentifierHash hashID) const;
     
 private:
     std::vector<SiElementProperties*>		m_properties;
-    const InDetDD::SiDetectorElementCollection&	m_elements; 
-    float					m_epsilonWidth; //tolerance for strip overlap limits.   
-    int						m_maxSCT;
-    std::vector<SiElementProperties*>::const_iterator m_propertiesBegin;
     
 };
 
 
-inline std::vector<IdentifierHash>*
-SiElementPropertiesTable::neighbours(const IdentifierHash& waferID)
+inline const std::vector<IdentifierHash>*
+SiElementPropertiesTable::neighbours(const IdentifierHash& waferID) const
 {
     return (m_properties[(unsigned int)waferID])->neighbours();
 }
 
 inline float
-SiElementPropertiesTable::halfWidth(IdentifierHash waferID)
+SiElementPropertiesTable::halfWidth(IdentifierHash waferID) const
 {
     return (m_properties[(unsigned int)waferID])->halfWidth();
 }

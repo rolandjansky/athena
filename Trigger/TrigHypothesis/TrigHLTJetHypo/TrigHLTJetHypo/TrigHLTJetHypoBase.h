@@ -26,8 +26,6 @@
 class TriggerElement;
 class TrigHLTJetHypoHelper;
 
-using namespace std::chrono;
-
 class TrigHLTJetHypoBase : public HLT::HypoAlgo {
 
  public:
@@ -71,7 +69,7 @@ class TrigHLTJetHypoBase : public HLT::HypoAlgo {
                             const HLT::TriggerElement*);
   void resetCounters();
 
-  void accumulateTime(nanoseconds) noexcept;
+  void accumulateTime(std::chrono::nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
 

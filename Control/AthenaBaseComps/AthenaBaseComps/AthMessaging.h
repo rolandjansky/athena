@@ -14,12 +14,14 @@
 // STL includes
 #include <iosfwd>
 #include <string>
+#include <atomic>
 
 // framework includes
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <boost/thread/tss.hpp>
 
 /** @class AthMessaging AthMessaging.h AthenaBaseComps/AthMessaging.h
  *
@@ -41,9 +43,6 @@ class AthMessaging
 
   /// Constructor with parameters: 
   AthMessaging (IMessageSvc* msgSvc, const std::string& name);
-
-  /// Constructor, from an explicit existing stream.
-  AthMessaging (MsgStream& msg);
 
   /// Destructor: 
   virtual ~AthMessaging(); 
@@ -77,6 +76,11 @@ class AthMessaging
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
+  /** Change the current logging level.
+   *  Use this rather than msg().setLevel() for proper operation with MT.
+   */
+  void setLevel (MSG::Level lvl);
+
   /////////////////////////////////////////////////////////////////// 
   // Private methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -92,8 +96,14 @@ class AthMessaging
   /////////////////////////////////////////////////////////////////// 
  private: 
 
+  /// Current logging level.
+  std::atomic<MSG::Level> m_lvl;
+
   /// MsgStream instance (a std::cout like with print-out levels)
-  mutable MsgStream m_msg;
+  mutable boost::thread_specific_ptr<MsgStream> m_msg_tls;
+
+  IMessageSvc* m_imsg { nullptr };
+  std::string m_nm;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
@@ -105,23 +115,32 @@ inline
 bool
 AthMessaging::msgLvl (const MSG::Level lvl) const
 {
- if (m_msg.level() <= lvl) {
-   m_msg << lvl;
-   return true;
- } else {
-   return false;
- }
+  if (m_lvl <= lvl) {
+    msg() << lvl;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 inline
 MsgStream&
 AthMessaging::msg() const 
-{ return m_msg; }
+{
+  MsgStream* ms = m_msg_tls.get();
+  if (!ms) {
+    ms = new MsgStream(m_imsg,m_nm);
+    m_msg_tls.reset( ms );
+  }
+
+  ms->setLevel (m_lvl);
+  return *ms;
+}
 
 inline
 MsgStream&
 AthMessaging::msg (const MSG::Level lvl) const 
-{ return m_msg << lvl; }
+{ return msg() << lvl; }
 
 
 #endif //> !ATHENABASECOMPS_ATHMESSAGING_H

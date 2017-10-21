@@ -87,17 +87,16 @@ namespace {
 
 // Default Constructor
 DataProxy::DataProxy():
-  m_tAddress(new TransientAddress()),
   m_refCount(0),
-  m_dObject(0), 
-  m_dataLoader(0),
+  m_resetFlag(true),
+  m_boundHandles(false),
   m_const(false),
   m_origConst(false),
-  m_storageType(0),
-  m_resetFlag(true),
-  m_t2p(0),
+  m_dObject(nullptr), 
+  m_dataLoader(nullptr),
+  m_t2p(nullptr),
   m_errno(ALLOK),
-  m_store(0)
+  m_store(nullptr)
 { 
 }
 
@@ -106,27 +105,37 @@ DataProxy::DataProxy():
 DataProxy::DataProxy(TransientAddress* tAddr, 
 		     IConverter* svc,
 		     bool constFlag, bool resetOnly)
-  : DataProxy (std::unique_ptr<TransientAddress> (tAddr),
+  : DataProxy (std::move(*tAddr),
                svc, constFlag, resetOnly)
 {
+  delete tAddr;
 }
 
 // DataProxy constructor with Transient Address
 // (typically called from Proxy Provider)
 DataProxy::DataProxy(std::unique_ptr<TransientAddress> tAddr, 
 		     IConverter* svc,
+		     bool constFlag, bool resetOnly)
+  : DataProxy (std::move(*tAddr), svc, constFlag, resetOnly)
+{
+  //assert( tAddr->clID() != 0 );
+  if (svc) svc->addRef();
+}
+
+DataProxy::DataProxy(TransientAddress&& tAddr, 
+		     IConverter* svc,
 		     bool constFlag, bool resetOnly):
-  m_tAddress(std::move(tAddr)),
   m_refCount(0),
-  m_dObject(0), 
-  m_dataLoader(svc),
+  m_resetFlag(resetOnly),
+  m_boundHandles(false),
   m_const(constFlag),
   m_origConst(constFlag),
-  m_storageType(0),
-  m_resetFlag(resetOnly),
-  m_t2p(0),
+  m_dObject(0), 
+  m_tAddress(std::move(tAddr)),
+  m_dataLoader(svc),
+  m_t2p(nullptr),
   m_errno(ALLOK),
-  m_store(0)
+  m_store(nullptr)
 {
   //assert( tAddr->clID() != 0 );
   if (svc) svc->addRef();
@@ -137,17 +146,36 @@ DataProxy::DataProxy(std::unique_ptr<TransientAddress> tAddr,
 DataProxy::DataProxy(DataObject* dObject, 
 		     TransientAddress* tAddr,
 		     bool constFlag, bool resetOnly):
-  m_tAddress(tAddr),
   m_refCount(0),
-  m_dObject(0), 
-  m_dataLoader(0),
+  m_resetFlag(resetOnly),
+  m_boundHandles(false),
   m_const(constFlag),
   m_origConst(constFlag),
-  m_storageType(0),
-  m_resetFlag(resetOnly),
-  m_t2p(0),
+  m_dObject(0), 
+  m_tAddress(std::move(*tAddr)),
+  m_dataLoader(nullptr),
+  m_t2p(nullptr),
   m_errno(ALLOK),
-  m_store(0)
+  m_store(nullptr)
+{
+  setObject(dObject);
+  delete tAddr;
+}
+
+DataProxy::DataProxy(DataObject* dObject, 
+		     TransientAddress&& tAddr,
+		     bool constFlag, bool resetOnly):
+  m_refCount(0),
+  m_resetFlag(resetOnly),
+  m_boundHandles(false),
+  m_const(constFlag),
+  m_origConst(constFlag),
+  m_dObject(0), 
+  m_tAddress(std::move(tAddr)),
+  m_dataLoader(nullptr),
+  m_t2p(nullptr),
+  m_errno(ALLOK),
+  m_store(nullptr)
 {
   setObject(dObject);
 }
@@ -160,6 +188,7 @@ DataProxy::~DataProxy()
 
 void DataProxy::setT2p(T2pMap* t2p)
 {
+  lock_t lock (m_mutex);
   m_t2p = t2p;
 }
 
@@ -172,8 +201,10 @@ void DataProxy::setT2p(T2pMap* t2p)
  */
 void DataProxy::setConst()
 {
+  objLock_t objLock (m_objMutex);
+  lock_t lock (m_mutex);
   m_const = true;
-  lock();
+  this->lock (objLock);
 }
 
 bool DataProxy::bindHandle(IResetable* ir) {
@@ -183,6 +214,7 @@ bool DataProxy::bindHandle(IResetable* ir) {
     return false;
   } else {
     m_handles.push_back(ir);
+    m_boundHandles = true;
     if (m_store)
       m_store->boundHandle(ir);
     return true;
@@ -190,28 +222,50 @@ bool DataProxy::bindHandle(IResetable* ir) {
 }
 
 
+/// Drop the reference to the data object.
+void DataProxy::resetRef()
+{
+  DataObject* dobj = m_dObject;
+  resetGaudiRef(dobj);
+  m_dObject = dobj;
+  m_tAddress.reset();
+  m_const = m_origConst;
+}
+
 
 void DataProxy::reset (bool hard /*= false*/)
 {
+  resetBoundHandles (hard);
 
-  if (! m_handles.empty()) { resetBoundHandles (hard); }
-
-  resetGaudiRef(m_dObject);
-  m_tAddress->reset();
-  m_const = m_origConst;
-
+  objLock_t objLock (m_objMutex);
+  lock_t lock (m_mutex);
+  resetRef();
 }
+
 
 void DataProxy::finalReset()
 {
-  m_const=false; //hack to force the resetting of proxy ptr in VarHandleBase
+  handleList_t handles;
+  {
+    objLock_t objLock (m_objMutex);
+    lock_t lock (m_mutex);
+    m_const=false; //hack to force the resetting of proxy ptr in VarHandleBase
 
-  for (auto ih: m_handles) {
-    if (0 != ih) ih->finalReset();
+    handles = m_handles;
+
+    DataObject* dobj = m_dObject;
+    resetGaudiRef(dobj);
+    m_dObject = dobj;
+    resetGaudiRef(m_dataLoader);
+
+    if (m_handles.empty()) {
+      m_boundHandles = false;
+    }
   }
 
-  resetGaudiRef(m_dObject);
-  resetGaudiRef(m_dataLoader);
+  for (auto ih: handles) {
+    if (0 != ih) ih->finalReset();
+  }
 }
 
 /// don't need no comment
@@ -220,13 +274,16 @@ void DataProxy::resetBoundHandles (bool hard) {
   {
     lock_t lock (m_mutex);
     // Early exit if the list is empty.
-    if (m_handles.empty()) return;
+    if (!m_boundHandles) return;
 
     // Remove empty entries.
     handleList_t::iterator it =
       std::remove (m_handles.begin(), m_handles.end(), nullptr);
     m_handles.erase (it, m_handles.end());
-    if (m_handles.empty()) return;
+    if (m_handles.empty()) {
+      m_boundHandles = false;
+      return;
+    }
 
     // Make a copy and drop the lock, so we're not holding the lock
     // during the callback.
@@ -250,6 +307,7 @@ void DataProxy::unbindHandle(IResetable *ir) {
     if (m_store)
       m_store->unboundHandle(ir);
   }
+  m_boundHandles = !m_handles.empty();
 }
   
 /// return refCount
@@ -279,13 +337,34 @@ unsigned long DataProxy::release()
 }
 
 
-///request to release the instance (may just reset it)
+/**
+ * @brief Reset/release a proxy at the end of an event.
+ * @param force If true, force a release rather than a reset.
+ * @param hard Do a hard reset if true.
+ * @returns True if the caller should release the proxy.
+ *
+ * This is usually called at the end of an event.
+ * No locking is done, so there should be no other threads accessing
+ * this proxy.
+ *
+ * `Release' means that we want to remove the proxy from the store.
+ * `Reset' means that we keep the proxy, but remove the data object
+ * that it references.
+ * Each proxy has a flag saying whether it wants to do a release or a reset.
+ * This can be forced via the FORCE argument; this would typically be done
+ * when deleting the store.
+ * This function does not actually release the proxy.  If it returns
+ * true, the caller is expected to release the proxy.
+ *
+ * See AthenaKernel/IResetable.h for the meaning of HARD.
+ */
 bool DataProxy::requestRelease(bool force, bool hard) {
 
-  //this needs to happen no matter what
-  if (! m_handles.empty()) { resetBoundHandles(hard); }
-
-  bool canRelease = !isResetOnly() || force;
+  if (m_boundHandles) {
+    resetBoundHandles(hard);
+  }
+  bool canRelease = force;
+  if (!m_resetFlag) canRelease = true;
 #ifndef NDEBUG
   MsgStream gLog(m_ims, "DataProxy");
   if (gLog.level() <= MSG::VERBOSE) {
@@ -296,26 +375,38 @@ bool DataProxy::requestRelease(bool force, bool hard) {
 	 << object() << MSG::dec << endmsg;
   }
 #endif
-  if (canRelease)  release();
-    else             reset(hard);
+  if (!canRelease) {
+    resetRef();
+  }
   return canRelease;
 }
 
 /// set a DataObject address
+void DataProxy::setObject(objLock_t& objLock, DataObject* dObject)
+{
+  DataObject* dobj = m_dObject;
+  setGaudiRef(dObject, dobj);
+  m_dObject = dobj;
+  if (0 != dobj) {
+    dobj->setRegistry(this);
+    if (m_const) this->lock (objLock);
+  }
+}
+
+
+/// set a DataObject address
 void DataProxy::setObject(DataObject* dObject)
 {
-  setGaudiRef(dObject, m_dObject);
-  if (0 != m_dObject) {
-    m_dObject->setRegistry(this);
-    if (m_const) lock();
-  }
+  objLock_t objLock (m_objMutex);
+  setObject (objLock, dObject);
 }
 
 
 // set IOpaqueAddress
 void DataProxy::setAddress(IOpaqueAddress* address)
 {
-  m_tAddress->setAddress(address);
+  lock_t lock (m_mutex);
+  m_tAddress.setAddress(address);
 }
 //////////////////////////////////////////////////////////////
 
@@ -331,33 +422,43 @@ void DataProxy::setAddress(IOpaqueAddress* address)
  * This will fail if the proxy does not refer to an object read from an
  * input file.
  */
-std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
+std::unique_ptr<DataObject> DataProxy::readData (objLock_t&, ErrNo* errNo) const
 {
   if (errNo) *errNo = ALLOK;
 
-  if (0 == m_dataLoader) {
-    //MsgStream gLog(m_ims, "DataProxy");
-    //gLog << MSG::WARNING
-    //	  << "accessData:  IConverter ptr not set" <<endmsg;
-    if (errNo) *errNo=NOCNVSVC;
-    return nullptr;
-  }
-  if (!isValidAddress()) {
-    //MsgStream gLog(m_ims, "DataProxy");
-    //gLog << MSG::WARNING
-    //	 << "accessData:  IOA pointer not set" <<endmsg;
-    if (errNo) *errNo=NOIOA;
-    return nullptr;
+  IConverter* dataLoader;
+  IProxyDict* store;
+  IOpaqueAddress* address;
+  {
+    lock_t lock (m_mutex);
+    if (0 == m_dataLoader) {
+      //MsgStream gLog(m_ims, "DataProxy");
+      //gLog << MSG::WARNING
+      //	  << "accessData:  IConverter ptr not set" <<endmsg;
+      if (errNo) *errNo=NOCNVSVC;
+      return nullptr;
+    }
+    if (!isValidAddress (lock)) {
+      //MsgStream gLog(m_ims, "DataProxy");
+      //gLog << MSG::WARNING
+      //	 << "accessData:  IOA pointer not set" <<endmsg;
+      if (errNo) *errNo=NOIOA;
+      return nullptr;
+    }
+
+    dataLoader = m_dataLoader;
+    store = m_store;
+    address = m_tAddress.address();
   }
 
   SG::CurrentEventStore::Push push (m_store);
 
   DataObject* obj = nullptr;
   StatusCode sc;
-  if (m_store)
-    sc = m_store->createObj (m_dataLoader, m_tAddress->address(), obj);
+  if (store)
+    sc = store->createObj (dataLoader, address, obj);
   else
-    sc = m_dataLoader->createObj (m_tAddress->address(), obj);
+    sc = dataLoader->createObj (address, obj);
   if (sc.isSuccess())
     return std::unique_ptr<DataObject>(obj);
   if (errNo) *errNo = CNVFAILED;
@@ -370,6 +471,8 @@ DataObject* DataProxy::accessData()
 {
   if (0 != m_dObject) return m_dObject;  // cached object
 
+  objLock_t objLock (m_objMutex);
+
   if (isValidAddress()) {
     // An address provider called by isValidAddress may have set the object
     // pointer directly, rather than filling in the address.  So check
@@ -377,7 +480,7 @@ DataObject* DataProxy::accessData()
     if (0 != m_dObject) return m_dObject;  // cached object
   }
 
-  std::unique_ptr<DataObject> obju = readData (&m_errno);
+  std::unique_ptr<DataObject> obju = readData (objLock, &m_errno);
   if (!obju) {
     if (m_errno == NOIOA) {
       MsgStream gLog(m_ims, "DataProxy");
@@ -388,15 +491,15 @@ DataObject* DataProxy::accessData()
       MsgStream gLog(m_ims, "DataProxy");
       gLog << MSG::WARNING 
            << "accessData: conversion failed for data object " 
-           <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
+           <<m_tAddress.clID() << '/' << m_tAddress.name() << '\n'
            <<" Returning NULL DataObject pointer  " << endmsg;
     }
-    setObject(0);
+    setObject(objLock, 0);
     return 0;   
   }
 
   DataObject* obj = obju.release();
-  setObject(obj);
+  setObject(objLock, obj);
   DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(obj);
   if (m_t2p) {
     if (bucket) {
@@ -405,7 +508,7 @@ DataObject* DataProxy::accessData()
       m_errno=ALLOK;
 
       // Register bases as well.
-      const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
+      const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress.clID());
       if (bi) {
         std::vector<CLID> base_clids = bi->get_bases();
         for (unsigned i=0; i < base_clids.size(); ++i) {
@@ -419,10 +522,10 @@ DataObject* DataProxy::accessData()
       MsgStream gLog(m_ims, "DataProxy");
       gLog << MSG::ERROR
            << "accessData: ERROR registering object in t2p map" 
-           <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
+           <<m_tAddress.clID() << '/' << m_tAddress.name() << '\n'
            <<" Returning NULL DataObject pointer  " << endmsg;
       obj=0; 
-      setObject(0);
+      setObject(objLock, 0);
       m_errno=T2PREGFAILED;
     }
   }
@@ -432,9 +535,16 @@ DataObject* DataProxy::accessData()
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+bool DataProxy::isValidAddress (lock_t&) const
+{
+  /// FIXME: why don't we get a thread-checker warning here?
+  return const_cast<DataProxy*>(this)->m_tAddress.isValid(m_store);
+}
+
 bool DataProxy::isValidAddress() const
 {
-  return (0 != m_tAddress && m_tAddress->isValid(m_store));
+  lock_t lock (m_mutex);
+  return isValidAddress (lock);
 }
 
 bool DataProxy::isValidObject() const
@@ -451,7 +561,8 @@ bool DataProxy::isValid() const
 
 bool DataProxy::updateAddress()
 {
-  return m_tAddress->isValid(m_store, true);
+  lock_t lock (m_mutex);
+  return m_tAddress.isValid(m_store, true);
 }
 
 /**
@@ -480,6 +591,7 @@ void* SG::DataProxy_cast (SG::DataProxy* proxy, CLID clid)
  */
 void DataProxy::registerTransient (void* p)
 {
+  lock_t lock (m_mutex);
   if (m_t2p)
     m_t2p->t2pRegister (p, this);
 }
@@ -487,10 +599,13 @@ void DataProxy::registerTransient (void* p)
 
 /**
  * @brief Lock the data object we're holding, if any.
+ *
+ * Should be called with the mutex held.
  */
-void DataProxy::lock()
+void DataProxy::lock (objLock_t&)
 {
-  DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(m_dObject);
+  DataObject* dobj = m_dObject;
+  DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(dobj);
   if (bucket)
     bucket->lock();
 }

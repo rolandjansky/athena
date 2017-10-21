@@ -57,7 +57,9 @@ void SCT1_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDetRawData_p1* pchan = &(persCont->m_rawdata[i + chanBegin]);
             const SCT1_RawData* chan = dynamic_cast<const SCT1_RawData*>(collection[i]);
-            chanCnv.transToPers(chan, pchan, log);
+            if (chan) {
+                chanCnv.transToPers(chan, pchan, log);
+            }
         }
     }
     MSG_DEBUG(log," ***  Writing SCT_RDO_Container (SCT1_RawData concrete type)");

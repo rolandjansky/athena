@@ -237,7 +237,6 @@ private:
 	
 	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
 						     // detector manager
-	const MuonGM::RpcDetectorElement *m_rpcDetEl; // pointer to the RPC detector element 
 	const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
 // private methods //

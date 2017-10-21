@@ -29,7 +29,8 @@ namespace Trk
   ImagingSeedFinder::ImagingSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
     m_vertexImageMaker("Trk::VertexImageMaker"),
-    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder" )
+    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder" ),
+    m_cacheRunNumber(0), m_cacheEventNumber(0), m_currentSeedIdx(0)
   {   
 
     declareProperty("VertexImageMaker"        , m_vertexImageMaker         );

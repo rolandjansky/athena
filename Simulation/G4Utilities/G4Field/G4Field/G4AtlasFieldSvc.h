@@ -26,7 +26,7 @@ class G4AtlasFieldSvc : public FADS::MagneticFieldMap {
     
   private:
     /** status flag for field initialization status */
-    static bool fieldinitialized;
+    static bool s_fieldinitialized;
     
     /** the MagneticField service */
     ServiceHandle<MagField::IMagFieldSvc>   m_magFieldSvc;       //!< athena service handle

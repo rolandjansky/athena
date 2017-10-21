@@ -16,7 +16,7 @@
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "./VHKASupport.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -83,11 +83,8 @@ StatusCode AthAlgTool::sysInitialize()
 {
   ATH_CHECK( AlgTool::sysInitialize() );
 
-  for (SG::VarHandleKeyArray* a : m_vhka) {
-    for (SG::VarHandleKey* k : a->keys()) {
-      this->declare (*k);
-      k->setOwner(this);
-    }
+  for (  SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
   m_varHandleArraysDeclared = true;
 
@@ -107,15 +104,14 @@ std::vector<Gaudi::DataHandle*> AthAlgTool::inputHandles() const
   std::vector<Gaudi::DataHandle*> v = AlgTool::inputHandles();
 
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-        v.push_back (k);
-      }
-    }
+    VHKASupport::insertInput( m_vhka, v );
   }
 
   return v;
+}
+
+void AthAlgTool::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
 }
 
 
@@ -129,16 +125,9 @@ std::vector<Gaudi::DataHandle*> AthAlgTool::inputHandles() const
 std::vector<Gaudi::DataHandle*> AthAlgTool::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = AlgTool::outputHandles();
-
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-        v.push_back (k);
-      }
-    }
-  }
-
+    VHKASupport::insertOutput( m_vhka, v );
+  }  
   return v;
 }
 
@@ -173,9 +162,9 @@ AthAlgTool::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-      msg().setLevel( iprop->value() );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-      msg().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 

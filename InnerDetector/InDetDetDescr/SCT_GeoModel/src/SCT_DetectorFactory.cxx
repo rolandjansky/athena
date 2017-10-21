@@ -139,9 +139,6 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   msg(MSG::INFO) << "Building SCT Detector." << endmsg;
   msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
-  // The name tag here is what is used by the GeoModel viewer.
-  GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");         
-
   // Change precision.
   int oldPrecision = std::cout.precision(6);
 
@@ -184,6 +181,8 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     GeoAlignableTransform * barrelTransform = new GeoAlignableTransform(sctTransform * sctGeneral->partTransform(barrelLabel));
 
     //indet->add(new GeoNameTag("SCT_Barrel"));
+    // The name tag here is what is used by the GeoModel viewer.
+    GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");
     indet->add(topLevelNameTag);
     indet->add(new GeoIdentifierTag(0));
     indet->add(barrelTransform);
@@ -216,6 +215,8 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     GeoAlignableTransform * fwdGeoTransformPlus = new GeoAlignableTransform(fwdTransformPlus);
     
     //indet->add(new GeoNameTag("SCT_ForwardPlus"));
+    // The name tag here is what is used by the GeoModel viewer.
+    GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");
     indet->add(topLevelNameTag);
     indet->add(new GeoIdentifierTag(2));
     indet->add(fwdGeoTransformPlus);
@@ -252,6 +253,8 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     GeoAlignableTransform * fwdGeoTransformMinus = new GeoAlignableTransform(fwdTransformMinus);
 
     //indet->add(new GeoNameTag("SCT_ForwardMinus"));
+    // The name tag here is what is used by the GeoModel viewer.
+    GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");
     indet->add(topLevelNameTag);
     indet->add(new GeoIdentifierTag(-2));
     indet->add(fwdGeoTransformMinus);

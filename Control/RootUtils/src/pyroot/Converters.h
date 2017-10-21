@@ -21,6 +21,10 @@
 #ifndef ROOTUTILS_CONVERTERS_H
 #define ROOTUTILS_CONVERTERS_H
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "TPython.h"
 
 // ROOT

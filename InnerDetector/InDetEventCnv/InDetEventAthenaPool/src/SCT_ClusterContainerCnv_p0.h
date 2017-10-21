@@ -20,8 +20,8 @@ class SCT_DetectorManager;
 class MsgStream;
 class SCT_ClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::SCT_ClusterContainer, SCT_ClusterContainer_p0> {
  private:
-   const SCT_ID*  m_sctId;
-   const InDetDD::SCT_DetectorManager* m_sctMgr;
+  const SCT_ID*  m_sctId{nullptr};
+  const InDetDD::SCT_DetectorManager* m_sctMgr{nullptr};
  public:
   virtual void   persToTrans(const SCT_ClusterContainer_p0*, InDet::SCT_ClusterContainer*, MsgStream&) override {
     // everything is done in createTransient()

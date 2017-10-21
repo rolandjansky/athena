@@ -5,7 +5,6 @@
 /***************************************************************************
  Calo Identifier Manager converter package
  -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: CaloIdMgrDetDescrCnv.h,v 1.7 2009-02-10 14:09:21 fledroit Exp $

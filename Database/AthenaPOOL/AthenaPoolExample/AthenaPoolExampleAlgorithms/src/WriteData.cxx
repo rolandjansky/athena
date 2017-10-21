@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file WriteData.cxx
+/** @file AthenaPoolExampleAlgorithms/src/WriteData.cxx
  *  @brief This file contains the implementation for the WriteData class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: WriteData.cxx,v 1.25 2008-12-10 21:28:11 gemmeren Exp $

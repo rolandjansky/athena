@@ -19,6 +19,8 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #endif
 
+
+#include "./VHKASupport.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -112,9 +114,9 @@ AthReentrantAlgorithm::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-      msg().setLevel( iprop->value() );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-      msg().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 
@@ -166,20 +168,20 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 {
   ATH_CHECK( ReEntAlgorithm::sysInitialize() );
 
-  for (SG::VarHandleKeyArray* a : m_vhka) {
-    for (SG::VarHandleKey* k : a->keys()) {
-      this->declare (*k);
-      k->setOwner(this);
-    }
+  for ( SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
   }
   m_varHandleArraysDeclared = true;
 
   return StatusCode::SUCCESS;
 }
 
+void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
+  vh.renounce();
+}
 
 /**
- * @brief Return this algorithm's input handles.
+ * @briefS Return this algorithm's input handles.
  *
  * We override this to include handle instances from key arrays
  * if they have not yet been declared.
@@ -188,16 +190,9 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
 std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
-
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
-        v.push_back (k);
-      }
-    }
-  }
-
+    VHKASupport::insertInput( m_vhka, v );
+  }  
   return v;
 }
 
@@ -212,15 +207,9 @@ std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
 std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
 {
   std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
-
   if (!m_varHandleArraysDeclared) {
-    for (SG::VarHandleKeyArray* a : m_vhka) {
-      for (SG::VarHandleKey* k : a->keys()) {
-        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
-        v.push_back (k);
-      }
-    }
-  }
+    VHKASupport::insertOutput( m_vhka, v );
+  }  
 
   return v;
 }

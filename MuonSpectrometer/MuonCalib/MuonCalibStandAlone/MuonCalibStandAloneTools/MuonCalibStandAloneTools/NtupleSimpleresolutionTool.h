@@ -50,7 +50,7 @@ public:
 	NtupleSimpleResolutionTool(const std::string& t, const std::string& n, const IInterface* p);
 
 	inline virtual ~NtupleSimpleResolutionTool(void) {
-		m_destruct();
+		destruct();
 		}
 
 /** Tool initialize **/
@@ -83,7 +83,6 @@ private:
 
 	void end_of_data(const IRtRelation * rt_rel);
 /* resolution curves */
-	const IRtResolution *m_initial_resolution; // initial resolution curve
 	IRtResolution *m_final_resolution; // final resolution curve
 
 /* segments */
@@ -92,28 +91,31 @@ private:
 					/* vector with the refitted segments
 	                   (used to store the segments for the autocalibration iteration) */
 
-	unsigned int MINNUMHITS;
+	unsigned int m_MINNUMHITS;
 /* bining and ranges for Histograms*/
-	unsigned int SBIN, RESBIN;
-	float SRANGE, RRANGE, RESRANGE;
+	static const unsigned int SBIN = 500;
+        static const unsigned int RESBIN = 60;
+	static constexpr float SRANGE = 2.0;
+        static constexpr float RRANGE = 15.0;
+        static constexpr float RESRANGE = 6.0;
 
 
 /* JOB OPTION PARAMETERS */
 /* do curved track fit - job option */
 	bool m_curved;
 /* track error entries limit - job optins */
-	float REJ_LOW, REJ_TOP;
+	float m_REJ_LOW, m_REJ_TOP;
 /* Relative difference betwen iterations for convergence. - job optins */
-	float DELTA_CONV, DIFF_MAX;
+	float m_DELTA_CONV, m_DIFF_MAX;
 /* maximimum number of iteration - job options */
-	int MAX_NUM_IT;
-	bool hist_fit_method;
-	bool replace_with_flat;
+	int m_MAX_NUM_IT;
+	bool m_hist_fit_method;
+	bool m_replace_with_flat;
 /* Name of output file with resolution curve */
-	std::string spr_out_name;
+	std::string m_spr_out_name;
 /* Outlier removal */
-	bool suppress_outliers;
-	float SUPPRESS_LOW, SUPPRESS_TOP;
+	bool m_suppress_outliers;
+	float m_SUPPRESS_LOW, m_SUPPRESS_TOP;
 	float m_low[RBIN], m_top[RBIN];
 
 /* Calibration input service */
@@ -122,7 +124,7 @@ private:
 	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 
 /* rt relation */
-	const IRtRelation *p_rt_relation;
+	const IRtRelation *m_rt_relation;
 
 /* is true if initialize is called - needed for genvonf */
 	bool m_is_initialized;
@@ -151,7 +153,7 @@ private:
 */
 
 /* private methods */
-	void m_destruct(void); /* destruction routine */
+	void destruct(void); /* destruction routine */
 
 	int trackFit(int num_hit, double *dist_hit, double *y,
 		double *sigma2_hit, double &shift, double &sigma_track);

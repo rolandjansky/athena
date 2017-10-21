@@ -9,7 +9,7 @@
 // Extra Tree
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -55,7 +55,7 @@ MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocato
   m_ntupleName(""), m_patternLocation(""),m_delayFinish(false),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"),
   m_segmentOnTrackSelector(""),
-  m_file(0), m_dir(0), m_tree(0),
+  m_dir(0), m_tree(0),
   m_init(false) {
   m_ntupleName = "PatternNtupleMaker";
   declareProperty("doPhi",m_doPhi);

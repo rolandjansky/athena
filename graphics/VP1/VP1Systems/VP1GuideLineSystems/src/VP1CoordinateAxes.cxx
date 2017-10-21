@@ -59,7 +59,7 @@ public:
 VP1CoordinateAxes::VP1CoordinateAxes(SoMaterial * xmat,SoMaterial * ymat,SoMaterial * zmat,
 				     SoSeparator * attachsep,
 				     IVP1System * sys,QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"VP1CoordinateAxes"), d(new Imp(this,xmat,ymat,zmat,attachsep))
+  : QObject(parent), VP1HelperClassBase(sys,"VP1CoordinateAxes"), m_d(new Imp(this,xmat,ymat,zmat,attachsep))
 {
 }
 
@@ -67,15 +67,15 @@ VP1CoordinateAxes::VP1CoordinateAxes(SoMaterial * xmat,SoMaterial * ymat,SoMater
 VP1CoordinateAxes::~VP1CoordinateAxes()
 {
   setShown(false);
-  if (d->sep)
-    d->sep->unref();
-  if (d->singleaxis_sep)
-    d->singleaxis_sep->unref();
-  d->materialXAxis->unref();
-  d->materialYAxis->unref();
-  d->materialZAxis->unref();
-  d->attachSep->unref();
-  delete d;
+  if (m_d->sep)
+    m_d->sep->unref();
+  if (m_d->singleaxis_sep)
+    m_d->singleaxis_sep->unref();
+  m_d->materialXAxis->unref();
+  m_d->materialYAxis->unref();
+  m_d->materialZAxis->unref();
+  m_d->attachSep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -174,16 +174,16 @@ void VP1CoordinateAxes::Imp::updateFields()
 void VP1CoordinateAxes::setShown(bool b)
 {
   messageVerbose("Signal received: setShown("+str(b)+")");
-  if (d->shown==b)
+  if (m_d->shown==b)
     return;
-  d->shown=b;
-  if (d->shown) {
-    d->updateFields();
-    if (d->attachSep->findChild(d->sep)<0)
-      d->attachSep->addChild(d->sep);
+  m_d->shown=b;
+  if (m_d->shown) {
+    m_d->updateFields();
+    if (m_d->attachSep->findChild(m_d->sep)<0)
+      m_d->attachSep->addChild(m_d->sep);
   } else {
-    if (d->sep&&d->attachSep->findChild(d->sep)>=0)
-      d->attachSep->removeChild(d->sep);
+    if (m_d->sep&&m_d->attachSep->findChild(m_d->sep)>=0)
+      m_d->attachSep->removeChild(m_d->sep);
   }
 }
 
@@ -191,11 +191,11 @@ void VP1CoordinateAxes::setShown(bool b)
 void VP1CoordinateAxes::setPosition(const SbVec3f& o)
 {
   messageVerbose("Signal received: setPosition("+str(o)+")");
-  if (d->origo==o)
+  if (m_d->origo==o)
     return;
-  d->origo=o;
-  if (d->shown)
-    d->updateFields();
+  m_d->origo=o;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 
@@ -203,20 +203,20 @@ void VP1CoordinateAxes::setPosition(const SbVec3f& o)
 void VP1CoordinateAxes::setLength(const double&l)
 {
   messageVerbose("Signal received: setLength("+str(l)+")");
-  if (d->axislength==l)
+  if (m_d->axislength==l)
     return;
-  d->axislength=l;
-  if (d->shown)
-    d->updateFields();
+  m_d->axislength=l;
+  if (m_d->shown)
+    m_d->updateFields();
 }
 
 //____________________________________________________________________
 void VP1CoordinateAxes::setRelativeAxisThickness(const double& t)
 {
   messageVerbose("Signal received: setRelativeAxisThickness("+str(t)+")");
-  if (d->relaxisthick==t)
+  if (m_d->relaxisthick==t)
     return;
-  d->relaxisthick=t;
-  if (d->shown)
-    d->updateFields();
+  m_d->relaxisthick=t;
+  if (m_d->shown)
+    m_d->updateFields();
 }

@@ -306,8 +306,19 @@ class AthAppMgr( AppMgr ):
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
-         athAllAlgSeq += athCondSeq
-         athAllAlgSeq += athAlgSeq
+
+         # ensure that the CondInputLoader gets initialized after all
+         # other user Algorithms for MT so that base classes of data deps
+         # can be correctly determined. In MT, the order of execution
+         # is irrelevant (determined by data deps). But for serial, we 
+         # need the CondAlgs to execute first, so the ordering changes.
+         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+         if ( jp.ConcurrencyFlags.NumThreads() > 0 ) :
+            athAllAlgSeq += athAlgSeq
+            athAllAlgSeq += athCondSeq
+         else:
+            athAllAlgSeq += athCondSeq
+            athAllAlgSeq += athAlgSeq
 
          athAlgEvtSeq += athBeginSeq
          athAlgEvtSeq += athAllAlgSeq

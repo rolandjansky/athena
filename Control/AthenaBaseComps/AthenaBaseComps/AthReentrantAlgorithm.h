@@ -19,6 +19,7 @@
 // Need to do this very early so parser for VarHandleKey picked up
 #include <string>
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/VarHandleKeyArray.h"
 namespace SG {
   class VarHandleKey;
   class VarHandleKeyArray;
@@ -174,9 +175,9 @@ class AthReentrantAlgorithm
   virtual StatusCode execute_r (const EventContext& ctx) const = 0;
 #endif
 
-
-private:
+private:  
   // to keep track of VarHandleKeyArrays for data dep registration
+
   mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
 
 public:
@@ -427,6 +428,10 @@ public:
   void msg_update_handler(Property& outputLevel);
   /// callback to add storeName to ExtraInputs/Outputs data deps
   void extraDeps_update_handler(Property&);
+
+
+  /// remove all handles in array from I/O resolution
+  void renounceArray( SG::VarHandleKeyArray& handlesArray );
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

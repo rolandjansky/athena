@@ -7,7 +7,6 @@
 #include  "TrkParameters/TrackParameters.h"
 
 //extrapolation
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
@@ -22,7 +21,6 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdentificationHelper.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "FourMomUtils/P4Helpers.h"
@@ -33,30 +31,11 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_defaultParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool"),
-  m_perigeeParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_trtId(0)
 {
-  declareProperty( "DefaultCaloExtentionTool", m_defaultParticleCaloExtensionTool );
-  declareProperty( "PerigeeCaloExtentionTool", m_perigeeParticleCaloExtensionTool );
-  declareProperty( "Extrapolator", m_extrapolator);
 
   // Name of the utility for conversion
   
-  declareProperty( "BroadDeltaEta",         m_broadDeltaEta      = 0.05);
-  declareProperty( "BroadDeltaPhi",         m_broadDeltaPhi      = 0.10);
-  declareProperty( "NarrowDeltaEta",        m_narrowDeltaEta     = 0.05);
-  declareProperty( "NarrowDeltaPhi",        m_narrowDeltaPhi     = 0.05);
-  declareProperty( "NarrowDeltaPhiBrem",    m_narrowDeltaPhiBrem = 0.10);
-  declareProperty( "NarrowDeltaPhiTRTbarrel",     m_narrowDeltaPhiTRTbarrel  = 0.02);
-  declareProperty( "NarrowDeltaPhiBremTRTbarrel", m_narrowDeltaPhiBremTRTbarrel = 0.03);  
-  declareProperty( "NarrowDeltaPhiTRTendcap",     m_narrowDeltaPhiTRTendcap  = 0.02);
-  declareProperty( "NarrowDeltaPhiBremTRTendcap", m_narrowDeltaPhiBremTRTendcap = 0.03);  
-  declareProperty( "TRTbarrelDeltaEta",     m_TRTbarrelDeltaEta  = 0.35);
-  declareProperty( "TRTendcapDeltaEta",     m_TRTendcapDeltaEta  = 0.2);
-  
-  declareProperty("useCaching", m_useCaching = true, "Use the cache for track Particle extrapolation");
   declareInterface<IEMExtrapolationTools>(this);
 }
 

@@ -19,6 +19,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -28,6 +29,11 @@ class TestProvider
   : public IAddressProvider
 {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
 				   SG::TransientAddress* /*pTAd*/,
                                    const EventContext& /*ctx*/) override
@@ -58,7 +64,7 @@ void test_ctor()
 }
 
 
-void test_addToStore()
+void test_addToStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addToStore\n";
 
@@ -86,11 +92,11 @@ void test_addToStore()
   SG::StringPool::sgkey_t sgkey2b = pool.stringToKey ("dp2", 124);
   assert (store.proxy_exact (sgkey2b) == dp2);
   assert (store.proxy_exact (sgkey2a) == 0);
-  assert (dp2->sgkey() == sgkey2a);
+  assert (dp2->sgkey() == sgkey2b);
 }
 
 
-void test_addAlias()
+void test_addAlias ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_addAlias\n";
 
@@ -152,7 +158,7 @@ void test_addSymLink()
 }
 
 
-void test_proxy_exact()
+void test_proxy_exact ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_proxy_exact\n";
 
@@ -365,7 +371,7 @@ void test_keys()
 }
 
 
-void test_removeProxy()
+void test_removeProxy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_removeProxy\n";
 
@@ -406,7 +412,7 @@ void test_removeProxy()
 }
 
 
-void test_clearStore()
+void test_clearStore ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_clearStore\n";
 
@@ -482,7 +488,7 @@ void test_t2p()
 }
 
 
-void test_dummy()
+void test_dummy ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test_dummy\n";
 
@@ -514,7 +520,7 @@ void test_dummy()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   test_ctor();

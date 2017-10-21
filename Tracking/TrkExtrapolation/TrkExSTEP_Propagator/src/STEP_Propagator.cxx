@@ -604,7 +604,7 @@ const Trk::IntersectionSolution*
 
   Trk::RungeKuttaUtils rungeKuttaUtils;
   //double P[45];
-  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, P)) return 0;
+  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, m_P)) return 0;
   double path = 0.;
 
   const Amg::Transform3D&  T = targetSurface.transform();   
@@ -616,33 +616,33 @@ const Trk::IntersectionSolution*
 	 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
   }
 
   else if (ty == Trk::Surface::Line     ) { 
     	 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)}; 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
   }
 
   else if (ty == Trk::Surface::Cylinder ) { 
        
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface); 
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),Trk::alongMomentum,0.}; 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
   }
   
   else if (ty == Trk::Surface::Cone     ) { 
 
     double k     = static_cast<const Trk::ConeSurface*>(&targetSurface)->bounds().tanAlpha(); k = k*k+1.; 
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,Trk::alongMomentum,0.}; 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
   }
 
   else if (ty == Trk::Surface::Perigee  ) { 
  	
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.}; 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
   }
 
   else {      // presumably curvilinear
@@ -652,12 +652,12 @@ const Trk::IntersectionSolution*
 	 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian( false, ty, s, P, path)) return 0;
+    if (!propagateWithJacobian( false, ty, s, m_P, path)) return 0;
 
   }
 
-  Amg::Vector3D globalPosition( P[0],P[1],P[2]);
-  Amg::Vector3D direction( P[3],P[4],P[5]);
+  Amg::Vector3D globalPosition( m_P[0],m_P[1],m_P[2]);
+  Amg::Vector3D direction( m_P[3],m_P[4],m_P[5]);
   Trk::IntersectionSolution* intersectionSolution = new Trk::IntersectionSolution();
   intersectionSolution->push_back(new Trk::TrackSurfaceIntersection( globalPosition, direction, path));
   return intersectionSolution;
@@ -861,7 +861,7 @@ const Trk::TrackParameters*
   }
   
   Trk::RungeKuttaUtils rungeKuttaUtils;
-  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, P)) {
+  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
@@ -876,7 +876,7 @@ const Trk::TrackParameters*
 	 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     }
@@ -885,7 +885,7 @@ const Trk::TrackParameters*
   else if (ty == Trk::Surface::Line     ) { 
     	 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)}; 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     }
@@ -895,7 +895,7 @@ const Trk::TrackParameters*
        
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface); 
     double s[9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),(double)propagationDirection,0.}; 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     } 
@@ -905,7 +905,7 @@ const Trk::TrackParameters*
 
     double k     = static_cast<const Trk::ConeSurface*>(&targetSurface)->bounds().tanAlpha(); k = k*k+1.; 
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,(double)propagationDirection,0.}; 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     } 
@@ -914,7 +914,7 @@ const Trk::TrackParameters*
   else if (ty == Trk::Surface::Perigee  ) { 
  	
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.}; 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     } 
@@ -927,7 +927,7 @@ const Trk::TrackParameters*
 	 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
+    if (!propagateWithJacobian( errorPropagation, ty, s, m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
     } 
@@ -942,8 +942,8 @@ const Trk::TrackParameters*
   // output in curvilinear parameters 
   if (returnCurv || ty==Trk::Surface::Cone)  {
 
-    rungeKuttaUtils.transformGlobalToLocal(P,localp);
-    Amg::Vector3D gp(P[0],P[1],P[2]);
+    rungeKuttaUtils.transformGlobalToLocal(m_P,localp);
+    Amg::Vector3D gp(m_P[0],m_P[1],m_P[2]);
    
     if ( boundaryCheck && !targetSurface.isOnSurface(gp) ) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
@@ -956,19 +956,19 @@ const Trk::TrackParameters*
     }
 
     double useless[2];
-    rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+    rungeKuttaUtils.transformGlobalToCurvilinear( true, m_P, useless, Jacobian);
     AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
       Jacobian, *trackParameters->covariance());
 
     if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
-      covarianceContribution( trackParameters, path, fabs( 1./P[6]), measurementCovariance);
+      covarianceContribution( trackParameters, path, fabs( 1./m_P[6]), measurementCovariance);
 
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return new Trk::CurvilinearParameters(gp,localp[2],localp[3],localp[4],measurementCovariance); 
   }
 
   // Common transformation for all surfaces 
-  rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,P,localp,Jacobian);
+  rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,m_P,localp,Jacobian);
   
   if (boundaryCheck) {
     Amg::Vector2D localPosition( localp[0], localp[1]);
@@ -1067,7 +1067,7 @@ const Trk::TrackParameters*
 
   Trk::RungeKuttaUtils rungeKuttaUtils;
   //double P[45]; // Track parameters and jacobian
-  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, P)) {
+  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
@@ -1085,7 +1085,7 @@ const Trk::TrackParameters*
   double Jacobian[21];
   while ( validStep ) { 
     // propagation to next surface
-    validStep = propagateWithJacobian( errorPropagation, targetSurfaces, P, propagationDirection, solutions, path, totalPath);
+    validStep = propagateWithJacobian( errorPropagation, targetSurfaces, m_P, propagationDirection, solutions, path, totalPath);
     if (!validStep) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
@@ -1098,20 +1098,20 @@ const Trk::TrackParameters*
     if (m_propagateWithPathLimit>1 || m_binMat ) {    // make sure that for sliding surfaces the result does not get distorted
       // return curvilinear parameters
       const Trk::CurvilinearParameters* cPar = 0;
-      rungeKuttaUtils.transformGlobalToLocal(P, localp);
+      rungeKuttaUtils.transformGlobalToLocal(m_P, localp);
       if (!errorPropagation) { 
-          cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
+          cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(m_P[0],m_P[1],m_P[2]),localp[2],localp[3],localp[4]); 
       }	else {
 	double useless[2];
-	rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+	rungeKuttaUtils.transformGlobalToCurvilinear( true, m_P, useless, Jacobian);
 	AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(Jacobian,
 										     *trackParameters->covariance());
 	//Calculate multiple scattering and straggling covariance contribution.
 	if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
-	  covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+	  covarianceContribution( trackParameters, totalPath, fabs( 1./m_P[6]), measurementCovariance);
 	}
 	if (trackParameters != &inputTrackParameters) delete trackParameters;
-	cPar = new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4],
+	cPar = new Trk::CurvilinearParameters(Amg::Vector3D(m_P[0],m_P[1],m_P[2]),localp[2],localp[3],localp[4],
 						      measurementCovariance);
       }
       // material collection : first iteration, bin material averaged
@@ -1124,7 +1124,7 @@ const Trk::TrackParameters*
     if (m_propagateWithPathLimit>0) m_pathLimit -= path;
     // boundary check
     // take into account that there may be many identical surfaces with different boundaries
-    Amg::Vector3D gp(P[0],P[1],P[2]);  
+    Amg::Vector3D gp(m_P[0],m_P[1],m_P[2]);  
     bool solution = false;
     std::vector<unsigned int> valid_solutions;
     valid_solutions.reserve(solutions.size());
@@ -1133,10 +1133,10 @@ const Trk::TrackParameters*
     while ( iSol != solutions.end() ) {  
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
-	  rungeKuttaUtils.transformGlobalToLocal(P, localp);
+	  rungeKuttaUtils.transformGlobalToLocal(m_P, localp);
           if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
-	    rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
-          } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
+	    rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,m_P,localp,Jacobian); 
+          } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,m_P,localp,Jacobian);
 	  solution = true;
         }
         valid_solutions.push_back( *iSol );
@@ -1164,7 +1164,7 @@ const Trk::TrackParameters*
   if (!errorPropagation) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-      Amg::Vector3D gp(P[0],P[1],P[2]);
+      Amg::Vector3D gp(m_P[0],m_P[1],m_P[2]);
       return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
     }
     return onTargetSurf;
@@ -1177,7 +1177,7 @@ const Trk::TrackParameters*
   //Calculate multiple scattering and straggling covariance contribution.
   if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-      covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+      covarianceContribution( trackParameters, totalPath, fabs( 1./m_P[6]), measurementCovariance);
     } else {
       covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
     }
@@ -1185,7 +1185,7 @@ const Trk::TrackParameters*
 
   if (trackParameters != &inputTrackParameters) delete trackParameters;
   if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-    Amg::Vector3D gp(P[0],P[1],P[2]);
+    Amg::Vector3D gp(m_P[0],m_P[1],m_P[2]);
     return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4], measurementCovariance);
   }
 

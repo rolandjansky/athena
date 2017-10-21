@@ -17,6 +17,7 @@
 // XAOD INCLUDES:
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
+#include "egammaInterfaces/IFourMomCombiner.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
@@ -29,14 +30,10 @@
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "EventKernel/IParticle.h"
 #include "CaloEvent/CaloCluster.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "egammaRecEvent/egammaRec.h"
 
-
-class FourMomCombiner;
-class IFourMomCombiner;
 class eg_resolution;
 class EMFourMomBuilder : public egammaBaseTool, virtual public IEMFourMomBuilder
 {
@@ -67,13 +64,21 @@ private:
   StatusCode setFromCluster(xAOD::Egamma*);
   //Method to save parameters in egamma object.
   void saveParameters    (xAOD::Egamma*);
+
   //Adding in separate combination tool - this should act as the shell that makes the decision.
-  ToolHandle<IFourMomCombiner> m_FourMomCombiner;
+  ToolHandle<IFourMomCombiner> m_FourMomCombiner {this,
+      "FourMomCombiner", "FourMomCombiner",
+      "Tool for performing E-p combination"};
+
   /** @brief Use E-p combination*/
-  bool   m_useCombination;
+  Gaudi::Property<bool> m_useCombination {this, 
+      "UseCombination", false, "Use the E-p combination"};
 
   /** @brief Resolution configuration*/
-  std::string m_ResolutionConfiguration; 
+  Gaudi::Property<std::string> m_ResolutionConfiguration {this,
+      "ResolutionConfiguration", "run2_pre",
+      "Resolution Configuration"};
+ 
   std::unique_ptr<eg_resolution> m_eg_resol;
 };
 

@@ -16,6 +16,7 @@
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/ClassID.h"
+#include "CxxUtils/checker_macros.h"
 
 ///< forward declarations:
 class IOpaqueAddress;
@@ -41,14 +42,20 @@ namespace SG {
     TransientAddress();
 
     ///< Construct from clid and string key:
-    TransientAddress(const CLID& id, const std::string& key);
+    TransientAddress(CLID id, const std::string& key);
 
     ///< Construct from clid, key and IOpaqueAddress
-    TransientAddress(const CLID& id, const std::string& key, 
+    TransientAddress(CLID id, const std::string& key, 
 		     IOpaqueAddress* addr, bool clearAddress = true);
 
+    TransientAddress (const TransientAddress&);
+    TransientAddress (TransientAddress&&);
+
     ///< Destructor
-    virtual ~TransientAddress();
+    ~TransientAddress();
+
+    TransientAddress& operator= (const TransientAddress&);
+    TransientAddress& operator= (TransientAddress&&);
 
     /// Set the CLID / key.
     /// This will only succeed if the clid/key are currently clear.
@@ -58,10 +65,12 @@ namespace SG {
     void reset();
 
     ///< Retrieve IOpaqueAddress
-    virtual IOpaqueAddress* address() const; 
+    // Can't change the signature here to satisfy the thread-safety
+    // checker as this should match the signature in the Gaudi IRegistry.
+    IOpaqueAddress* address ATLAS_NOT_CONST_THREAD_SAFE () const; 
 
     ///< set IOpaqueAddress
-    virtual void setAddress(IOpaqueAddress* pAddress);
+    void setAddress(IOpaqueAddress* pAddress);
 
     ///< Retrieve primary clid
     CLID clID() const;
@@ -116,11 +125,16 @@ namespace SG {
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
-    IAddressProvider* provider() const;
+    IAddressProvider* provider();
     StoreID::type storeID() const;
     void setProvider(IAddressProvider* provider, StoreID::type storeID);
 
   private:
+    TransientAddress(CLID id, const std::string& key, 
+		     IOpaqueAddress* addr,
+                     bool clearAddress,
+                     bool consultProvider);
+
     /**
      * @brief Retrieve the EventContext saved in store STORE.
      * @param store The store from which to retrieve the context, or nullptr.
@@ -134,6 +148,21 @@ namespace SG {
     ///< clid of the concrete class (persistent clid)
     CLID m_clid;
 
+    ///< (hashed) SG key for primary clid / key.
+    sgkey_t m_sgkey;
+
+    ///< Store type, needed by updateAddress
+    StoreID::type m_storeID;
+
+    ///< Controls if IOpaqueAddress should be deleted:
+    bool m_clearAddress;
+
+    ///< Control whether the Address Provider must be consulted
+    bool m_consultProvider;
+
+    ///< IOpaqueAddress:
+    IOpaqueAddress* m_address;
+
     ///< string key of this object
     std::string m_name;
 
@@ -143,23 +172,8 @@ namespace SG {
     ///< all alias names for a DataObject. They come from setAlias
     TransientAliasSet m_transientAlias;
 
-    ///< IOpaqueAddress:
-    IOpaqueAddress* m_address;
-
-    ///< Controls if IOpaqueAddress should be deleted:
-    bool m_clearAddress;
-
-    ///< Control whether the Address Provider must be consulted
-    bool m_consultProvider;
-
     ///< AddressProvider
     IAddressProvider* m_pAddressProvider;
-
-    ///< Store type, needed by updateAddress
-    StoreID::type m_storeID;
-
-    ///< (hashed) SG key for primary clid / key.
-    sgkey_t m_sgkey;
   };
   /////////////////////////////////////////////////////////////////////
   // inlined code:
@@ -174,7 +188,7 @@ namespace SG {
 
   /// Retrieve IOpaqueAddress
   inline
-  IOpaqueAddress* TransientAddress::address() const 
+  IOpaqueAddress* TransientAddress::address ATLAS_NOT_CONST_THREAD_SAFE () const 
   { 
     return m_address; 
   }
@@ -279,7 +293,7 @@ namespace SG {
   ///< cache the pointer to the Address provider which can update
   ///< this transient address
   inline
-  IAddressProvider* TransientAddress::provider() const
+  IAddressProvider* TransientAddress::provider()
   {
     return m_pAddressProvider;
   }

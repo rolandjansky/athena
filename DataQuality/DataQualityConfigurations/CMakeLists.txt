@@ -89,4 +89,3 @@ set_target_properties( DataQualityConfigurations_han_configs PROPERTIES
 
 # Clean up:
 unset( hcfgfiles )
-

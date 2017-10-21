@@ -15,7 +15,6 @@
 #include "TrigT2CaloJet/T2L1CaloJetFullScanFastJetTool.h"
 #include "TrigT2CaloJet/T2L1TowerCalibTool.h"
 #include "TrigT2CaloJet/T2L1CaloJetCalibTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( T2CaloJet )
 DECLARE_ALGORITHM_FACTORY( T2L1CaloJet )
@@ -34,23 +33,3 @@ DECLARE_TOOL_FACTORY( T2L1CaloJetFullScanFastJetTool )
 DECLARE_TOOL_FACTORY( T2L1TowerCalibTool )
 DECLARE_TOOL_FACTORY( T2L1CaloJetCalibTool )
 
-
-DECLARE_FACTORY_ENTRIES(TrigT2CaloJet) {
-    DECLARE_ALGORITHM( T2CaloJet );
-    DECLARE_ALGORITHM( T2L1CaloJet );
-    DECLARE_ALGORITHM( T2L1CaloFullScanJet );
-    DECLARE_ALGORITHM( T2CaloFastJet );
-    DECLARE_ALGORITHM( T2L1Unpacking );
-    DECLARE_ALGORITHM( T2AllRoiUnpacking );
-    DECLARE_TOOL( T2CaloJetBaseTool );
-    DECLARE_TOOL( T2CaloJetConeTool );
-    DECLARE_TOOL( T2CaloJetCalibTool );
-    DECLARE_TOOL( T2CaloJetGridFromCells );
-    DECLARE_TOOL( T2CaloJetGridFromFEBHeader );
-    DECLARE_TOOL( T2CaloJetGridFromLvl1Ppr );
-    DECLARE_TOOL( T2L1CaloJetFullScanBaseTool );
-    DECLARE_TOOL( T2L1CaloJetFullScanFastJetTool );
-    DECLARE_TOOL( T2L1TowerCalibTool );
-    DECLARE_TOOL( T2L1CaloJetCalibTool );
-
-}

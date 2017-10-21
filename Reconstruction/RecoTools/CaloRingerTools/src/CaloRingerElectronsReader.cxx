@@ -8,9 +8,8 @@
 
 #include <algorithm>
 
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
 #include "PATCore/TAccept.h"
+#include "StoreGate/ReadHandle.h"
 
 namespace Ringer {
 
@@ -19,21 +18,12 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent) :
   CaloRingerInputReader(type, name, parent),
-  m_container(nullptr),
-  m_constContainer(nullptr),
   m_clRingsBuilderElectronFctor(nullptr)
 {
 
   // declare interface
   declareInterface<ICaloRingerElectronsReader>(this);
 
-  // @brief Electron selectors.
-  declareProperty("ElectronSelectors", m_ringerSelectors,
-      "The ASG Electron Selectors.");
-
-  // Whether selectors available
-  declareProperty("selectorsAvailable", m_selectorsAvailable, 
-      "Whether Selector Tool is available.");
 }
 
 // =============================================================================
@@ -48,6 +38,11 @@ StatusCode CaloRingerElectronsReader::initialize()
 
   CHECK( CaloRingerInputReader::initialize() );
 
+  ATH_CHECK(m_inputElectronContainerKey.initialize());
+
+
+  m_selectorDecorHandleKeys.setContName(m_inputElectronContainerKey.key());
+
   if ( m_selectorsAvailable ) {
     CHECK( retrieveSelectors() );
   }
@@ -55,7 +50,7 @@ StatusCode CaloRingerElectronsReader::initialize()
   if ( m_builderAvailable ) {
     // Initialize our fctor
     m_clRingsBuilderElectronFctor =
-      new BuildCaloRingsFctor<xAOD::Electron>(
+      new BuildCaloRingsFctor<const xAOD::Electron>(
         m_crBuilder,
         msg()
       );
@@ -78,6 +73,9 @@ StatusCode CaloRingerElectronsReader::retrieveSelectors()
       ATH_MSG_FATAL( "Could not get tool: " << tool );
       return StatusCode::FAILURE;
     }
+
+    ATH_CHECK(m_selectorDecorHandleKeys.addSelector(tool->name()));
+
   }
   return StatusCode::SUCCESS;
 }
@@ -92,60 +90,37 @@ StatusCode CaloRingerElectronsReader::finalize()
 StatusCode CaloRingerElectronsReader::execute()
 {
 
-  ATH_MSG_DEBUG("Entering " << name() << " execute.");
+  ATH_MSG_DEBUG("Entering " << name() << " execute, m_builderAvailable = " << m_builderAvailable);
 
-  xAOD::ElectronAuxContainer* crAux{nullptr};
-
-  // Retrieve electrons
-  if ( m_builderAvailable ) {
-
-    if ( evtStore()->retrieve( m_container, m_inputKey).isFailure() )
-    {
-      ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
-      return StatusCode::FAILURE;
-    }
-  } else {
-
-    ATH_MSG_DEBUG("No builder available, will work on copies!");
-
-    if ( evtStore()->retrieve( m_constContainer, m_inputKey).isFailure() ){
-      ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
-      return StatusCode::FAILURE;
-    }
-
-    // Create container to hold new information
-    m_container = new xAOD::ElectronContainer();
-    m_container->reserve( m_constContainer->size() );
-
-    // Create its aux container and set it:
-    crAux = new xAOD::ElectronAuxContainer();
-    crAux->reserve( m_constContainer->size() );
-    m_container->setStore( crAux );
-
-    // Copy information to non_const container
-    for ( const xAOD::Electron *el : *m_constContainer ) {
-      auto elCopy = new xAOD::Electron(*el);
-      m_container->push_back( elCopy );
-    }
+   // Retrieve photons 
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_inputElectronContainerKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!electrons.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_inputElectronContainerKey.key());
+    return StatusCode::FAILURE;
   }
 
   // Check if requested to run CaloRings Builder:
   if ( m_builderAvailable ) {
     // Set current container size:
-    m_clRingsBuilderElectronFctor->prepareToLoopFor(m_container->size());
+    m_clRingsBuilderElectronFctor->prepareToLoopFor(electrons->size());
 
     // loop over our particles:
     std::for_each( 
-        m_container->begin(), 
-        m_container->end(), 
+        electrons->begin(), 
+        electrons->end(), 
         *m_clRingsBuilderElectronFctor );
   }
 
   StatusCode sc(SUCCESS);
 
+  writeDecorHandles<xAOD::ElectronContainer> decoHandles(m_selectorDecorHandleKeys);
+
   // Run selectors, if available:
-  for ( const auto& selector : m_ringerSelectors ) {
-    for ( xAOD::Electron *el : *m_container ) {
+  for ( size_t i = 0; i < m_ringerSelectors.size(); i++ ) {
+    for ( const xAOD::Electron *el : *electrons ) {
+
+      const auto& selector = m_ringerSelectors[i];
 
       // Execute selector for each electron
       StatusCode lsc = selector->execute(el);
@@ -166,16 +141,10 @@ StatusCode CaloRingerElectronsReader::execute()
           << std::noboolalpha << outputSpace);
 
       // Save the bool result
-      el->setPassSelection(
-          static_cast<char>(accept), 
-          selector->name()
-        );
+      decoHandles.sel(i)(*el) = static_cast<char>(accept);
 
       //// Save the resulting bitmask
-      el->setSelectionisEM(
-          static_cast<unsigned int>(accept.getCutResultInverted()), 
-          selector->name() + std::string("_isEM")
-        );
+      decoHandles.isEM(i)(*el) = static_cast<unsigned int>(accept.getCutResultInverted());
 
       // Check if output space is empty, if so, use error code
       float outputToSave(std::numeric_limits<float>::min());
@@ -184,22 +153,8 @@ StatusCode CaloRingerElectronsReader::execute()
       }
 
       // Save chain output
-      el->setLikelihoodValue(
-          outputToSave,
-          selector->name() + std::string("_output")
-        );
+      decoHandles.lhood(i)(*el) = outputToSave;
     }
-  }
-
-  if ( ! m_builderAvailable ) {
-    // In case we worked on copies, place the container on EventStore and set
-    // it to be const:
-    CHECK( evtStore()->overwrite( crAux, 
-          m_inputKey + "Aux.", 
-          /*allowMods = */ false) );
-    CHECK( evtStore()->overwrite( m_container, 
-          m_inputKey, 
-          /*allowMods = */ false) );
   }
 
   return sc;

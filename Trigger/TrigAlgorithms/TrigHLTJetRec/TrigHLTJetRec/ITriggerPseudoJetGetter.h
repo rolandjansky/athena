@@ -19,18 +19,21 @@
 
 #include "JetInterface/IPseudoJetGetter.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "AsgTools/IAsgTool.h"
 
 class StatusCode;
 
 class ITriggerPseudoJetGetter: virtual public IPseudoJetGetter {
+  ASG_TOOL_INTERFACE(ITriggerPseudoJetGetter)
 
 public:
 
-  static const InterfaceID& interfaceID() {
+  /*  static const InterfaceID& interfaceID() {
     static const InterfaceID
       IID_ITriggerPseudoJetGetter("ITriggerPseudoJetGetter", 1, 0);
     return IID_ITriggerPseudoJetGetter;
   }
+  */
 
   virtual ~ITriggerPseudoJetGetter();
 

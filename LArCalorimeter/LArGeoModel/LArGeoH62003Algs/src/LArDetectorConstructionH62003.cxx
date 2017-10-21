@@ -4,7 +4,7 @@
 
 // LArDetectorConstructionH62003
 
-#include "LArGeoH62003Algs/LArDetectorConstructionH62003.h"
+#include "LArDetectorConstructionH62003.h"
 #include "LArGeoH6Cryostats/H6CryostatConstruction.h"
 #include "LArGeoFcal/FCALConstruction.h"
 #include "GeoModelKernel/GeoElement.h"  

@@ -85,6 +85,7 @@ fi
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
+ rm -f CMakeCache.txt
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     ${EXTRACONF} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp

@@ -60,8 +60,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
-    "emcpflow" : ("EMCPFlowEventShape", jtm.emcpflowget),
-    "lcpflow"  : ("LCPFlowEventShape",  jtm.lcpflowget),
   }
 
   if jetFlags.useTracks():
@@ -69,6 +67,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     evsDict["lctopo"] = ("LCTopoEventShape",   jtm.lcoriginget)
   jetlog.info( myname + "Event shape tools: " + str(eventShapeTools) )
 
+  from RecExConfig.AutoConfiguration import IsInInputFile
   for evskey in eventShapeTools:
     from EventShapeTools.EventDensityConfig import configEventDensityTool
     if evskey in evsDict:
@@ -77,7 +76,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
         jetlog.info( myname + "Skipping duplicate event shape: " + toolname )
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
-        if not cfgKeyStore.isInInputFile("xAOD::EventShape",toolname):
+        if not IsInInputFile("xAOD::EventShape",toolname):
           jtm += configEventDensityTool(toolname, getter, 0.4)
           evstools += [jtm.tools[toolname]]
     else:
@@ -120,20 +119,33 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
       thinneg = True
   
   if jetFlags.useTracks:
-    if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
+    if not IsInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_LCOrigin]
       if thinneg:
         from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
         postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegLCOriginTopoClusters',
                                                             ThinNegativeEnergyCaloClusters = True,
                                                             CaloClustersKey = 'LCOriginTopoClusters'))
-    if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
+    if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
       if thinneg:
         from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
         postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegEMOriginTopoClusters',
                                                             ThinNegativeEnergyCaloClusters = True,
                                                             CaloClustersKey = 'EMOriginTopoClusters'))
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+      if not hasattr(job,"jetalgCHSPFlow"):
+        ctools += [jtm.JetConstitSeq_PFlowCHS]
+        if thinneg:
+          from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
+          CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
+            "ThinNegativeEnergyCHSNeutralPFOsAlg",
+            NeutralPFOsKey="CHSNeutralParticleFlowObjects",
+            ThinNegativeEnergyNeutralPFOs = True
+            )
+          postalgs.append(CHSnPFOsThinAlg)
+
+
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:

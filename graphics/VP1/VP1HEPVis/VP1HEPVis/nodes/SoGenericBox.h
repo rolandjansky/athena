@@ -111,7 +111,7 @@ private:
   float * m_normals;
   SbBox3f m_bbox;
   SbVec3f m_center;
-  static bool didInit;
+  static bool s_didInit;
 };
 
 #endif

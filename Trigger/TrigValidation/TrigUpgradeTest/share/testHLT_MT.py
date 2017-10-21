@@ -344,7 +344,15 @@ if opt.enableViews:
     # Make a separate alg pool for the view algs
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool('ViewAlgPool')
-    
+    #Create IdentifiableCaches
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                        Pixel_ClusterKey = "PixelTrigClustersCache",
+                                        SCT_ClusterKey   = "SCT_ClustersCache",
+                                        SpacePointCachePix = "PixelSpacePointCache",
+                                        SpacePointCacheSCT   = "SctSpacePointCache",
+                                        OutputLevel=DEBUG)
+    topSequence += InDetCacheCreatorTrigViews    
     
     # Set of view algs
     allViewAlgs = AthSequencer( "allViewAlgorithms" )

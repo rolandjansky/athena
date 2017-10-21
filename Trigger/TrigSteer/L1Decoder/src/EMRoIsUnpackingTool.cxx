@@ -14,45 +14,20 @@
 // Constructors
 ////////////////
 EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type, 
-					  const std::string& name, 
-					  const IInterface* parent ) 
-  : AthAlgTool ( type, name, parent ),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_monTool( "GenericMonitoringTool/MonTool", this ) {
-
-  declareProperty( "Decisions", m_decisionsKey="EMRoIDecisions", "Decisions for each RoI" );
-  declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., ( note spaces )" );
-  declareProperty( "OutputTrigRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "OutputRecRoIs", m_recRoIsKey="RecEMRoIs", "Name of the RoIs object produced by the unpacker" );
-  declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
-  declareProperty( "MonTool", m_monTool=ToolHandle<GenericMonitoringTool>( "", this ), "Monitoring tool" );
+                                          const std::string& name, 
+                                          const IInterface* parent ) 
+  : RoIsUnpackingToolBase(type, name, parent),
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
+{
 }
 
 
-EMRoIsUnpackingTool::~EMRoIsUnpackingTool(){
-}
+StatusCode EMRoIsUnpackingTool::initialize() {
 
-
-StatusCode EMRoIsUnpackingTool::initialize() {  
+  CHECK( RoIsUnpackingToolBase::initialize() );
   CHECK( m_configSvc.retrieve() );
-  CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize() );
-  if ( not m_monTool.name().empty() ) 
-    CHECK( m_monTool.retrieve() );
-
-  if ( decodeMapping().isFailure() ) {
-    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
-    return StatusCode::FAILURE;
-  }
-  if ( m_thresholdToChainMapping.empty() ) {
-    ATH_MSG_WARNING( "None of the chains configured to require EM thresholds" );
-    ATH_MSG_WARNING( "The property configuring that is: " << m_thresholdToChainProperty );
-  }
-  for ( auto el: m_thresholdToChainMapping ) {
-    ATH_MSG_INFO( "Threshold " << el.first << " mapped to chains " << el.second );
-  }
-
 
   return StatusCode::SUCCESS;
 }
@@ -129,6 +104,10 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
 	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	      TrigCompositeUtils::DecisionIDContainer ids; 
+	      TrigCompositeUtils::decisionIDs( decision, ids ); 
+	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
 	}
       }
       

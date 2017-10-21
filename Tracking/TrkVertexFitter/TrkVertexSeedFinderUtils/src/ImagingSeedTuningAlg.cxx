@@ -58,7 +58,9 @@ ImagingSeedTuningAlg::ImagingSeedTuningAlg( const std::string& name,
   m_seedFinder("Trk::ImagingSeedFinder"),
   m_impactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
   m_iBeamCondSvc("BeamCondSvc", name),
-  m_iTHistSvc("THistSvc", name)
+  m_iTHistSvc("THistSvc", name),
+  m_h_nTruthVertices(NULL), m_h_zTruthVertices(NULL), m_t_seeds(NULL),
+  m_b_nTruth(0), m_b_nConditions(0), m_iCondition(0)
 {
   //
   // Property declaration
@@ -518,18 +520,21 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
       for (auto trk : trackVector)
       {
 	Trk::LinkToXAODTrackParticle* lxtp = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trk);
-	bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
-	if (isAssoc)
+        if (lxtp)
 	{
-	  auto assocParticle = truthParticleAssoc(**(*lxtp));
-	  for (auto truthParticle : evt->truthParticleLinks())
+	  bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
+	  if (isAssoc)
 	  {
-	    if (assocParticle == truthParticle)
+	    auto assocParticle = truthParticleAssoc(**(*lxtp));
+	    for (auto truthParticle : evt->truthParticleLinks())
 	    {
-	      double error;
-	      double distance = distanceAndError(trk->parameters(), &vTruth, error);
-	      if (distance < m_significanceTruthCut * error) nGoodTracks++;
-	      break;
+	      if (assocParticle == truthParticle)
+	      {
+		double error;
+		double distance = distanceAndError(trk->parameters(), &vTruth, error);
+		if (distance < m_significanceTruthCut * error) nGoodTracks++;
+		break;
+	      }
 	    }
 	  }
 	}

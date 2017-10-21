@@ -16,36 +16,36 @@
 namespace MuonCalib {
 
 MuonCalibCaloBranch::MuonCalibCaloBranch(std::string branchName) : 
-  m_branchName(branchName), branchesInit(false), m_first(true), index(0) {
+  m_branchName(branchName), m_branchesInit(false), m_first(true), m_index(0) {
 }
 
 bool  MuonCalibCaloBranch::fillBranch(const MuonCalibCaloHit& hit) {
   // check if branches were initialized
-  if( !branchesInit ){
+  if( !m_branchesInit ){
     //std::cout << "MuonCalibCaloBranch::fillBranch  ERROR <branches were not initialized>"
     //	<<  std::endl;
     return false;    
   }
 
   // check if index not out of range 
-  if( index >= blockSize || index < 0 ) {
+  if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
       //std::cout << "MuonCalibCaloBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //  <<  index << std::endl;
+      //  <<  m_index << std::endl;
       m_first = false;
     }
     return false;
   }
     
-  id[index]    = hit.identify();
-  posX[index]  = hit.position().x();
-  posY[index]  = hit.position().y();
-  posZ[index]  = hit.position().z();
-  time[index]  = hit.time();
-  charge[index] = hit.charge();
+  m_id[m_index]    = hit.identify();
+  m_posX[m_index]  = hit.position().x();
+  m_posY[m_index]  = hit.position().y();
+  m_posZ[m_index]  = hit.position().z();
+  m_time[m_index]  = hit.time();
+  m_charge[m_index] = hit.charge();
 
   // increment hit index
-  ++index;
+  ++m_index;
   
   return true;
 }  //end MuonCalibCaloBranch::fillBranch
@@ -64,20 +64,20 @@ bool MuonCalibCaloBranch::createBranch(TTree* tree) {
   std::string index_name ="nHits";
 
   // create a branch for every data member
-  branchCreator.createBranch( tree, index_name, &index, "/I");
+  branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
   // all entries of same size, the number of hits in the event
   std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
   // create the branches
-  branchCreator.createBranch( tree, "id",          &id,          array_size + "/I" );
-  branchCreator.createBranch( tree, "posX",        &posX,        array_size + "/F" );
-  branchCreator.createBranch( tree, "posY",        &posY,        array_size + "/F" );
-  branchCreator.createBranch( tree, "posZ",        &posZ,        array_size + "/F" );
-  branchCreator.createBranch( tree, "time",        &time,        array_size + "/F" );
-  branchCreator.createBranch( tree, "charge",      &charge,      array_size + "/F" );
+  branchCreator.createBranch( tree, "id",          &m_id,          array_size + "/I" );
+  branchCreator.createBranch( tree, "posX",        &m_posX,        array_size + "/F" );
+  branchCreator.createBranch( tree, "posY",        &m_posY,        array_size + "/F" );
+  branchCreator.createBranch( tree, "posZ",        &m_posZ,        array_size + "/F" );
+  branchCreator.createBranch( tree, "time",        &m_time,        array_size + "/F" );
+  branchCreator.createBranch( tree, "charge",      &m_charge,      array_size + "/F" );
 
-  branchesInit = true;
+  m_branchesInit = true;
   
   // reset branch
   reset();

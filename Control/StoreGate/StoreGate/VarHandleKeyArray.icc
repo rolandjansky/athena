@@ -75,5 +75,16 @@ namespace SG {
     }
     return keys;
   }      
-  
+ 
+  template <class Base>
+  inline  
+  void VarHandleKeyArrayCommon<Base>::declare(IDataHandleHolder* owner) {
+    if ( renounced() ) {
+      return;
+    }     
+    for (auto k: keys() ) {
+      owner->declare ( *k );
+      k->setOwner( owner );
+    }
+  }
 }

@@ -6,10 +6,6 @@ CaloESDList = []
 
 CaloESDList += [ "CaloCellContainer#AllCalo" ]
 
-# compactify calo cell
-from CaloTools.CaloToolsConf import CaloCompactCellTool
-svcMgr.ToolSvc += CaloCompactCellTool()
-
 # add explicitly E4', MBTS cells and trigger output to ESD
 CaloESDList += [ "TileCellContainer#E4prContainer" ]
 CaloESDList += [ "TileCellContainer#MBTSContainer" ]

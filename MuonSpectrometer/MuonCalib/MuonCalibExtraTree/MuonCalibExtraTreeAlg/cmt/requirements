@@ -24,7 +24,7 @@ use EventPrimitives * Event
 
 use AtlasCLHEP		AtlasCLHEP-*		External
 
-use DataModel		DataModel-*		Control     
+use AthContainers	AthContainers-*		Control     
 
 use CaloIdentifier	CaloIdentifier-*	Calorimeter
 use CaloEvent		CaloEvent-*		Calorimeter

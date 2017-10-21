@@ -331,7 +331,7 @@ std::string Type::getTypeName() const
  *
  * Returns 0 if this is for a fundamental type.
  */
-TClass* Type::getClass() const
+const TClass* Type::getClass() const
 {
   return m_cls;
 }

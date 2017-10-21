@@ -14,7 +14,7 @@ currentStatusN0X = """
 var runs = new Array();
 
 /******************************************/
-/* ***REMOVED*** class for messages */
+/* A simple Javascript class for messages */
 /******************************************/
 
 function Run(date,rel,branch,comment){
@@ -97,7 +97,7 @@ currentStatusNX0  = """
 var runs = new Array();
 
 /******************************************/
-/* ***REMOVED*** class for messages */
+/* A simple Javascript class for messages */
 /******************************************/
 
 function Run(date,rel,branch,comment){
@@ -184,7 +184,7 @@ messageOfTheDay  = """
 var messages = new Array();
 
 /******************************************/
-/* ***REMOVED*** class for messages */
+/* A simple Javascript class for messages */
 /******************************************/
 
 function Message(date,text,isImportant){

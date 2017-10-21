@@ -19,21 +19,21 @@
 #include <string>
 #include <vector>
 
-class IAsgSelectionTool;
-class IAsgElectronIsEMSelector;
-class IAsgElectronLikelihoodTool;
-class IAsgPhotonIsEMSelector;
-class ILumiBlockMuTool;
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "PATCore/IAsgSelectionTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 
 class EMPIDBuilder : public egammaBaseTool
 {
- public:
-
+public:
+  
   /** @brief Default constructor*/
   EMPIDBuilder(const std::string& type,
 	       const std::string& name,
 	       const IInterface* parent);
-   
+  
   /** @brief Destructor*/
   ~EMPIDBuilder();
 	
@@ -44,30 +44,44 @@ class EMPIDBuilder : public egammaBaseTool
   /** @brief finalize method*/
   StatusCode finalize();
 
- protected:
+protected:
   /** Handle to the selectors */
 
-  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMselectors;
-  std::vector<std::string> m_electronIsEMselectorResultNames;
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMselectors {this,
+      "electronIsEMselectors", {},
+      "The selectors that we need to apply to the Electron object"};
+  Gaudi::Property<std::vector<std::string> > m_electronIsEMselectorResultNames {this,
+      "electronIsEMselectorResultNames", {}, "The selector result names"};
  
-  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHselectors;
-  std::vector<std::string> m_electronLHselectorResultNames;
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHselectors {this,
+      "electronLHselectors", {},
+      "The selectors that we need to apply to the LH electron object"};
+  Gaudi::Property<std::vector<std::string> > m_electronLHselectorResultNames {this,
+      "electronLHselectorResultNames", {}, "The selector result names"};
   
-  ToolHandleArray<IAsgSelectionTool> m_genericIsEMselectors;
-  std::vector<std::string> m_genericIsEMselectorResultNames;
+  ToolHandleArray<IAsgSelectionTool> m_genericIsEMselectors {this,
+      "genericIsEMselectors", {},
+      "The selectors that we need to apply to the generic object"};
+  Gaudi::Property<std::vector<std::string> > m_genericIsEMselectorResultNames {this,
+      "genericIsEMselectorResultNames", {}, "The selector result names"};
   
-  ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMselectors;
-  std::vector<std::string> m_photonIsEMselectorResultNames;
+  ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMselectors {this,
+      "photonIsEMselectors", {},
+      "The selectors that we need to apply to the pothon object"};
+  Gaudi::Property<std::vector<std::string> > m_photonIsEMselectorResultNames {this,
+      "photonIsEMselectorResultNames", {}, "The selector result names"};
  
-  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
+  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool {this,
+      "LuminosityTool", "", "Luminosity Tool"};
 
-  std::string m_LHValueName;
-
- private:
-  bool m_UselumiBlockMuTool;
-
-
+  Gaudi::Property<std::string> m_LHValueName {this, 
+      "LHValueName", "LHValue", "The LH Value name"};
   
+private:
+  Gaudi::Property<bool> m_UselumiBlockMuTool {this, 
+      "UseLuminosityTool", false, 
+      "Use Luminosity Tool instead of value stored in xAOD"};
+
 };
 
 #endif

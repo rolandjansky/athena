@@ -141,7 +141,7 @@ pool::PoolXMLFileCatalog::PoolXMLFileCatalog(const std::string& contactstring)  
       imeta(0),
       fmeta(true)
 {
-   msg().setLevel( FCSystemTools::GetOutputLvl() );
+   this->setLevel( FCSystemTools::GetOutputLvl() );
 // MN: this might be a MT critical section
    if( NumberOfIstances==0 ) try {
          ATH_MSG_INFO("Xerces-c initialization");

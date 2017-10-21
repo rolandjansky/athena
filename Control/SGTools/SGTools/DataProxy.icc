@@ -28,7 +28,8 @@ class DataObject;
 inline
 const SG::DataProxy::name_type& SG::DataProxy::name() const
 {
-  return m_tAddress->name();
+  lock_t lock (m_mutex);
+  return m_tAddress.name();
 }
 
 
@@ -37,13 +38,14 @@ const SG::DataProxy::name_type& SG::DataProxy::name() const
 inline
 const SG::DataProxy::id_type& SG::DataProxy::identifier() const
 {
-  return m_tAddress->name();
+  lock_t lock (m_mutex);
+  return m_tAddress.name();
 }
 
 
 /// Retrieve DataObject
 inline
-DataObject* SG::DataProxy::object() const
+DataObject* SG::DataProxy::object ATLAS_NOT_CONST_THREAD_SAFE () const
 {
   return m_dObject;
 }
@@ -53,7 +55,8 @@ DataObject* SG::DataProxy::object() const
 inline
 IOpaqueAddress* SG::DataProxy::address() const
 {
-  return m_tAddress->address();
+  lock_t lock (m_mutex);
+  return m_tAddress.address();
 } 
 
 
@@ -64,18 +67,12 @@ IDataProviderSvc* SG::DataProxy::dataSvc() const
   return nullptr;
 }
 
-/// Retrieve TransientAddress
-inline
-SG::TransientAddress* SG::DataProxy::transientAddress() const
-{
-  return m_tAddress.get();
-}
-
 ///< Get the primary (hashed) SG key.
 inline
 SG::sgkey_t SG::DataProxy::sgkey() const
 {
-  return m_tAddress->sgkey();
+  lock_t lock (m_mutex);
+  return m_tAddress.sgkey();
 }
 
 
@@ -83,7 +80,8 @@ SG::sgkey_t SG::DataProxy::sgkey() const
 inline
 void SG::DataProxy::setSGKey (sgkey_t sgkey)
 {
-  m_tAddress->setSGKey (sgkey);
+  lock_t lock (m_mutex);
+  m_tAddress.setSGKey (sgkey);
 }
 
 
@@ -91,7 +89,8 @@ void SG::DataProxy::setSGKey (sgkey_t sgkey)
 inline
 StoreID::type SG::DataProxy::storeID() const
 {
-  return m_tAddress->storeID();
+  lock_t lock (m_mutex);
+  return m_tAddress.storeID();
 }
 
 
@@ -99,7 +98,8 @@ StoreID::type SG::DataProxy::storeID() const
 inline
 bool SG::DataProxy::transientID (CLID id) const
 {
-  return m_tAddress->transientID (id);
+  lock_t lock (m_mutex);
+  return m_tAddress.transientID (id);
 }
 
 
@@ -107,7 +107,8 @@ bool SG::DataProxy::transientID (CLID id) const
 inline
 SG::DataProxy::CLIDCont_t SG::DataProxy::transientID() const
 {
-  return m_tAddress->transientID();
+  lock_t lock (m_mutex);
+  return m_tAddress.transientID();
 }
 
 
@@ -115,7 +116,8 @@ SG::DataProxy::CLIDCont_t SG::DataProxy::transientID() const
 inline
 void SG::DataProxy::setTransientID(CLID id)
 {
-  m_tAddress->setTransientID (id);
+  lock_t lock (m_mutex);
+  m_tAddress.setTransientID (id);
 }
 
 
@@ -124,7 +126,8 @@ void SG::DataProxy::setTransientID(CLID id)
 inline
 SG::DataProxy::AliasCont_t SG::DataProxy::alias() const
 {
-  return m_tAddress->alias();
+  lock_t lock (m_mutex);
+  return m_tAddress.alias();
 }
 
 
@@ -132,7 +135,8 @@ SG::DataProxy::AliasCont_t SG::DataProxy::alias() const
 inline
 void SG::DataProxy::setAlias(const std::string& key)
 {
-  m_tAddress->setAlias (key);
+  lock_t lock (m_mutex);
+  m_tAddress.setAlias (key);
 }
 
 
@@ -141,7 +145,7 @@ inline
 bool SG::DataProxy::hasAlias(const std::string& key) const
 {
   lock_t lock (m_mutex);
-  const AliasCont_t& alias = m_tAddress->alias();
+  const AliasCont_t& alias = m_tAddress.alias();
   return alias.find(key) != alias.end();
 }
 
@@ -150,7 +154,8 @@ bool SG::DataProxy::hasAlias(const std::string& key) const
 inline
 bool SG::DataProxy::removeAlias(const std::string& key)
 {
-  return m_tAddress->removeAlias (key);
+  lock_t lock (m_mutex);
+  return m_tAddress.removeAlias (key);
 }
 
 
@@ -158,7 +163,8 @@ bool SG::DataProxy::removeAlias(const std::string& key)
 inline
 IAddressProvider* SG::DataProxy::provider()
 {
-  return m_tAddress->provider();
+  lock_t lock (m_mutex);
+  return m_tAddress.provider();
 }
 
 
@@ -167,7 +173,8 @@ inline
 void SG::DataProxy::setProvider(IAddressProvider* provider,
                                 StoreID::type storeID)
 {
-  m_tAddress->setProvider (provider, storeID);
+  lock_t lock (m_mutex);
+  m_tAddress.setProvider (provider, storeID);
 }
 
 
@@ -176,13 +183,15 @@ void SG::DataProxy::setProvider(IAddressProvider* provider,
 inline
 void SG::DataProxy::setID (CLID id, const std::string& key)
 {
-  m_tAddress->setID (id, key);
+  lock_t lock (m_mutex);
+  m_tAddress.setID (id, key);
 }
 
 
 inline
 SG::DataProxy::ErrNo SG::DataProxy::errNo() const
 {
+  lock_t lock (m_mutex);
   return m_errno;
 }
 
@@ -191,15 +200,8 @@ SG::DataProxy::ErrNo SG::DataProxy::errNo() const
 inline
 CLID SG::DataProxy::clID() const
 {
-  return m_tAddress->clID();
-}
-
-
-/// Retrieve storage type
-inline
-unsigned char SG::DataProxy::svcType() const
-{
-  return m_storageType;
+  lock_t lock (m_mutex);
+  return m_tAddress.clID();
 }
 
 
@@ -207,6 +209,7 @@ unsigned char SG::DataProxy::svcType() const
 inline
 bool SG::DataProxy::isConst() const
 {
+  lock_t lock (m_mutex);
   return m_const;
 }
 
@@ -215,6 +218,7 @@ bool SG::DataProxy::isConst() const
 inline
 void SG::DataProxy::resetOnly(const bool& flag)
 {
+  lock_t lock (m_mutex);
   m_resetFlag = flag;
 }
 
@@ -223,6 +227,7 @@ void SG::DataProxy::resetOnly(const bool& flag)
 inline
 bool SG::DataProxy::isResetOnly() const
 {
+  lock_t lock (m_mutex);
   return m_resetFlag;
 }
 
@@ -231,20 +236,32 @@ bool SG::DataProxy::isResetOnly() const
 inline
 void SG::DataProxy::setStore (IProxyDict* store)
 {
+  lock_t lock (m_mutex);
   m_store = store;
 }
 
 /// Return the store of which we're a part.
 inline
-IProxyDict* SG::DataProxy::store() const
+IProxyDict* SG::DataProxy::store()
 {
+  lock_t lock (m_mutex);
+  return m_store;
+}
+
+
+/// Return the store of which we're a part.
+inline
+const IProxyDict* SG::DataProxy::store() const
+{
+  lock_t lock (m_mutex);
   return m_store;
 }
 
 
 inline
-IConverter* SG::DataProxy::loader() const
+IConverter* SG::DataProxy::loader()
 {
+  lock_t lock (m_mutex);
   return m_dataLoader;
 }
 
@@ -264,7 +281,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
         // stored with, nor it inherits from it. 
         // Before giving up let's check its transient CLIDs
         DataBucketBase* db(0);
-        if (proxy->transientAddress()->transientID(dataID) &&
+        if (proxy->transientID(dataID) &&
             0 != (db = dynamic_cast<DataBucketBase*>(pObject)) )
           {
             //it is a symlink after all. Let's hard cast and keep our fingers Xed
@@ -318,14 +335,6 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
 #endif
   }
   return result;
-}
-
-
-///const pointer version of the cast
-template<typename DATA>
-const DATA* SG::DataProxy_cast(const SG::DataProxy* proxy)
-{
-  return SG::DataProxy_cast<DATA>(const_cast<SG::DataProxy*>(proxy));
 }
 
 

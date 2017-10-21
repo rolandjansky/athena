@@ -21,6 +21,7 @@
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
 #include "AthenaKernel/sgkey_t.h"
 #include <cstdlib>
+#include <atomic>
 #include <stdint.h>
 
 
@@ -427,10 +428,22 @@ protected:
 
 
   /**
+   * @brief Set the cached element stored in the link,
+   *        assuming the cached element is null.
+   * @param elt New value for the cached element.
+   *
+   * This method will set the current cached element if it is
+   * currently unset.  If it has previously been assigned, then this
+   * method will do nothing.
+   */
+  void setCachedElement (ElementType elt) const;
+
+
+  /**
    * @brief Set the cached element stored in the link.
    * @param elt New value for the cached element.
    */
-  void setCachedElement (ElementType elt) const;
+  void storeCachedElement (ElementType elt);
 
 
   /**
@@ -454,6 +467,9 @@ private:
   /// For regression testing.
   friend class ElementLinkBase_test;
 
+  /// Clear the currently-cached element.
+  void clearCachedElement();
+
   /// The hashed key for this link.
   SG::sgkey_t m_persKey;
 
@@ -464,7 +480,68 @@ private:
   SG::DataProxyHolder m_proxy;  //! Transient
 
   /// Cached copy of the element to which this link refers.
-  mutable ElementType m_element;  //! Transient
+  // In principle, we need this to be atomic, since this cached value
+  // can be changed from a const method.  However, because any access should
+  // always fill this with the same value, we don't care about ordering,
+  // only that the access itself is atomic in the sense of reading/writing
+  // the entire object at once.  Hence, we can use a relaxed memory ordering
+  // for accesses to the value.
+  // A further wrinkle is that we need to return a pointer to the value here;
+  // there doesn't seem to be a way around that without either changing
+  // how links are used or storing additional data here.  It should, however,
+  // be ok from a data race point of view because we ensure that we don't
+  // return a pointer until after it's set, and also that after it's set
+  // it isn't written again (from a const method).
+  // There is however, no portable way of getting a pointer to the
+  // underlying value of a std::atomic, so here we cheat and use a union.
+  // As an added check, we require that the compiler say that atomic
+  // pointers are always lock-free.
+  union ElementTypeWrapper
+  {
+  public:
+    /// Default constructor.  Sets the element to null.
+    ElementTypeWrapper();
+
+    
+    /// Constructor from an element.
+    ElementTypeWrapper (ElementType elt);
+
+
+    /// Copy constructor.
+    ElementTypeWrapper (const ElementTypeWrapper& other);
+
+
+    /// Assignment.
+    ElementTypeWrapper& operator= (const ElementTypeWrapper& other);
+
+
+    /// Set the element, assuming it is currently null.
+    void set (ElementType elt) const;
+
+
+    /// Store a new value to the element.
+    void store (ElementType elt) const;
+
+
+    /// Return the current value of the element.
+    ElementType get() const;
+
+
+    /// Return a pointer to the cached element.
+    const ElementType* ptr() const;
+
+
+  private:
+    /// The cached element, both directly and as an atomic
+    /// (recall that this is a union).
+    mutable std::atomic<ElementType> m_a;  //! Transient
+    ElementType m_e;    //! Transient
+  };
+  ElementTypeWrapper m_element;    //! Transient
+
+#if ATOMIC_POINTER_LOCK_FREE != 2
+# error Code assumes lock-free atomic pointers; see comments above.
+#endif
 };
 
 

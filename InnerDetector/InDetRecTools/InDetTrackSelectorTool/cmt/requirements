@@ -4,7 +4,7 @@ author Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
 
 private
 
-use DataModel              DataModel-*              Control
+use AthContainers          AthContainers-*          Control
 use AtlasCLHEP             AtlasCLHEP-*             External
 use AtlasROOT              AtlasROOT-*              External
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr

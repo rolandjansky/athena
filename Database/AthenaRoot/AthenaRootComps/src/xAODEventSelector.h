@@ -19,9 +19,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAddressProvider.h"
-#include "AthenaKernel/ICollectionSize.h"
 
 #include "PoolSvc/IPoolSvc.h"
 
@@ -45,8 +44,8 @@ namespace Athena {
  *         ROOT @c TTree as a backend
  */
 class xAODEventSelector : 
-  virtual public IEvtSelector, virtual public ICollectionSize, 
-  virtual public IEventSeek,
+  virtual public IEvtSelector,
+  virtual public IEvtSelectorSeek,
   virtual public IAddressProvider,
   virtual public IIoComponent, virtual public IIncidentListener,
           public ::AthService
@@ -67,29 +66,29 @@ class xAODEventSelector :
   virtual ~xAODEventSelector(); 
 
   // Athena hooks
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
   
-   void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
 
   ///@{
   /// @c IEvtSelector interface
-  virtual StatusCode createContext( Context*& refpCtxt ) const;
+  virtual StatusCode createContext( Context*& refpCtxt ) const override;
 
-  virtual StatusCode last( Context& refContext ) const;
-  virtual StatusCode next( Context& refCtxt ) const;
-  virtual StatusCode next( Context& refCtxt, int jump ) const;
-  virtual StatusCode previous( Context& refCtxt ) const;
-  virtual StatusCode previous( Context& refCtxt, int jump ) const;
-  virtual StatusCode rewind( Context& refCtxt ) const;
+  virtual StatusCode last( Context& refContext ) const override;
+  virtual StatusCode next( Context& refCtxt ) const override;
+  virtual StatusCode next( Context& refCtxt, int jump ) const override;
+  virtual StatusCode previous( Context& refCtxt ) const override;
+  virtual StatusCode previous( Context& refCtxt, int jump ) const override;
+  virtual StatusCode rewind( Context& refCtxt ) const override;
 
   virtual StatusCode createAddress( const Context& refCtxt, 
-                                    IOpaqueAddress*& ) const;
-  virtual StatusCode releaseContext( Context*& refCtxt ) const;
+                                    IOpaqueAddress*& ) const override;
+  virtual StatusCode releaseContext( Context*& refCtxt ) const override;
   virtual StatusCode resetCriteria( const std::string& cr, 
-                                    Context& ctx )const;
+                                    Context& ctx )const override;
   ///@}
 
   ///@{
@@ -98,37 +97,37 @@ class xAODEventSelector :
    * @brief Seek to a given event number.
    * @param evtnum  The event number to which to seek.
    */
-  virtual StatusCode seek (int evtnum);
+  virtual StatusCode seek (Context& refCtxt, int evtnum) const override;
 
   /**
    * @brief return the current event number.
    * @return The current event number.
    */
-  virtual int curEvent () const;
+  virtual int curEvent (const Context& refCtxt) const override;
   ///@}
   
   /// Callback method to reinitialize the internal state of the component 
   /// for I/O purposes (e.g. upon @c fork(2))
-  virtual StatusCode io_reinit();
+  virtual StatusCode io_reinit() override;
 
   ///@{
   /// @c IAddressProvider interface
   ///get all addresses from Provider : Called before Begin Event
   virtual 
-  StatusCode preLoadAddresses(StoreID::type storeID, tadList& list);
+  StatusCode preLoadAddresses(StoreID::type storeID, tadList& list) override;
  
    /// get all new addresses from Provider for this Event.
   virtual 
-  StatusCode loadAddresses(StoreID::type storeID, tadList& list);
+  StatusCode loadAddresses(StoreID::type storeID, tadList& list) override;
  
   /// update a transient Address
   virtual 
   StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
-                           const EventContext& ctx);
+                           const EventContext& ctx) override;
   ///@}
 
   ///@c ICollectionSize  interface
-  virtual int size();
+  virtual int size (Context& refCtxt) const override;
 
 
  private: 
@@ -153,7 +152,7 @@ class xAODEventSelector :
   /// helper method to get the collection index (into `m_inputCollectionsName`)
   /// for a given event index `evtidx`.
   /// returns -1 if not found.
-  int find_coll_idx(int evtidx);
+  int find_coll_idx(int evtidx) const;
 
   /// non-const access to self (b/c ::next() is const)
   xAODEventSelector *self() const
@@ -234,6 +233,8 @@ class xAODEventSelector :
   bool m_fillEventInfo = false; //if true, will fill EventInfo from xAOD::EventInfo
 
   bool m_readMetadataWithPool = false; //interacts with PoolSvc to create collections, needed by MetaDataSvc
+
+  bool m_printPerfStats = false; //should we monitor the touched input branches?
 
 #ifndef XAOD_ANALYSIS
   //these are here just for compatibility with RecExCommon ... we were trying to use this selector in recexcommon jobs for a bit

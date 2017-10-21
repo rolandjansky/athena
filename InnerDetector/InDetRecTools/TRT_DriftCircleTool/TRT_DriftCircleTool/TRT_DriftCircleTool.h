@@ -24,6 +24,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 class ITRT_StrawSummarySvc;
 class ITRT_DriftFunctionTool;
 class IInDetConditionsSvc;
@@ -73,7 +75,7 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"xAODEventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo" }; //!< key to retrieve eventinfo
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
 //  ServiceHandle<ITRT_ConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool

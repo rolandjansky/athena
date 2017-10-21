@@ -269,13 +269,13 @@ public:
 
 //____________________________________________________________________
 VP1VertexCollection::VP1VertexCollection(VertexSysController*controller,const QString& key)
-  : VP1StdCollection(controller->systemBase(),"VP1VertexCollection_"+key), d(new Imp),
+  : VP1StdCollection(controller->systemBase(),"VP1VertexCollection_"+key), m_d(new Imp),
   m_colourby(COLOUR_PERCOLLECTION)
 {
-  d->theclass = this;
-  d->controller = controller;
-  d->key = key;
-  d->comboBox_colourby = new QComboBox;
+  m_d->theclass = this;
+  m_d->controller = controller;
+  m_d->key = key;
+  m_d->comboBox_colourby = new QComboBox;
   connect(controller,SIGNAL(reconVertexRepresentationChanged(const double&)),this,SLOT(updateAllShapes()));
   connect(controller,SIGNAL(reconCutAllowedTypesChanged(VertexCommonFlags::ReconVertexTypeFlags)),this,SLOT(recheckAllCuts()));
   connect(this,SIGNAL(tracksFromVertexChanged(QList<std::pair<const SoMaterial*,QList<const Trk::Track*> > >&)),
@@ -286,11 +286,11 @@ VP1VertexCollection::VP1VertexCollection(VertexSysController*controller,const QS
 //____________________________________________________________________
 VP1VertexCollection::~VP1VertexCollection()
 {
-  foreach(Imp::VertexHandle* vh,d->vertices)
+  foreach(Imp::VertexHandle* vh,m_d->vertices)
     delete vh;
     
-  // delete d->comboBox_colourby; DONE by baseclass
-  delete d;
+  // delete m_d->comboBox_colourby; DONE by baseclass
+  delete m_d;
 }
 
 void VP1VertexCollection::init(VP1MaterialButtonBase*)
@@ -300,19 +300,19 @@ void VP1VertexCollection::init(VP1MaterialButtonBase*)
   // setupSettingsFromController(common()->controller());
 
   //Setup colour by:
-  d->comboBox_colourby->setToolTip("Determine how vertices from this collection are coloured.");
+  m_d->comboBox_colourby->setToolTip("Determine how vertices from this collection are coloured.");
   QStringList l;
   l << Imp::comboBoxEntry_ColourByCollection();
   l << Imp::comboBoxEntry_ColourByRandom();
-  d->comboBox_colourby->addItems(l);
-  d->comboBox_colourby->setCurrentIndex(0);//corresponds to per collection.
-  connect(d->comboBox_colourby,SIGNAL(currentIndexChanged(int)),
+  m_d->comboBox_colourby->addItems(l);
+  m_d->comboBox_colourby->setCurrentIndex(0);//corresponds to per collection.
+  connect(m_d->comboBox_colourby,SIGNAL(currentIndexChanged(int)),
           this,SLOT(colourByComboBoxItemChanged()));
   
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
   setColourBy(defaultColourBy());
   
-  connect(d->controller,SIGNAL(rerandomise()),this,SLOT(rerandomiseRandomVertexColours()));
+  connect(m_d->controller,SIGNAL(rerandomise()),this,SLOT(rerandomiseRandomVertexColours()));
   
 }
 
@@ -335,12 +335,12 @@ void VP1VertexCollection::setColourBy( VP1VertexCollection::COLOURBY cb )
     targetText = Imp::comboBoxEntry_ColourByCollection();
     break;
   }
-  if (targetText!=d->comboBox_colourby->currentText()) {
-    int i = d->comboBox_colourby->findText(targetText);
-    if (i>=0&&i<d->comboBox_colourby->count()) {
-      bool save = d->comboBox_colourby->blockSignals(true);
-      d->comboBox_colourby->setCurrentIndex(i);
-      d->comboBox_colourby->blockSignals(save);
+  if (targetText!=m_d->comboBox_colourby->currentText()) {
+    int i = m_d->comboBox_colourby->findText(targetText);
+    if (i>=0&&i<m_d->comboBox_colourby->count()) {
+      bool save = m_d->comboBox_colourby->blockSignals(true);
+      m_d->comboBox_colourby->setCurrentIndex(i);
+      m_d->comboBox_colourby->blockSignals(save);
     } else {
       message("ERROR: Problems finding correct text in combo box");
     }
@@ -353,8 +353,8 @@ void VP1VertexCollection::setColourBy( VP1VertexCollection::COLOURBY cb )
   QList<const Trk::Track*> tracks;
   QList<const Trk::TrackParticleBase*> trackparticles;
   QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > colAndTracks;
-  foreach(Imp::VertexHandle* vh,d->vertices){
-    d->findAssociatedTracks(vh->vertex(),tracks,trackparticles);
+  foreach(Imp::VertexHandle* vh,m_d->vertices){
+    m_d->findAssociatedTracks(vh->vertex(),tracks,trackparticles);
     const SoMaterial* mat = vh->attached()?vh->determineMaterial():0; // store either the material, or 0 for hidden vertices
     colAndTracks.append(std::pair<const SoMaterial*, QList< const Trk::Track*> >(mat, tracks));
   }
@@ -365,7 +365,7 @@ void VP1VertexCollection::setColourBy( VP1VertexCollection::COLOURBY cb )
 //____________________________________________________________________
 QList<QWidget*> VP1VertexCollection::provideExtraWidgetsForGuiRow() const
 {
-  return QList<QWidget*>() << d->comboBox_colourby;
+  return QList<QWidget*>() << m_d->comboBox_colourby;
 
 }
 
@@ -373,7 +373,7 @@ QList<QWidget*> VP1VertexCollection::provideExtraWidgetsForGuiRow() const
 void VP1VertexCollection::colourByComboBoxItemChanged()
 {
   messageVerbose("Collection detail level combo box changed index");
-  if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
+  if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
     setColourBy(COLOUR_RANDOM);
   else
     setColourBy(COLOUR_PERCOLLECTION);
@@ -382,7 +382,7 @@ void VP1VertexCollection::colourByComboBoxItemChanged()
 //____________________________________________________________________
 QString VP1VertexCollection::provideText() const
 {
-  return d->key;
+  return m_d->key;
 }
 
 //____________________________________________________________________
@@ -437,9 +437,9 @@ void VP1VertexCollection::recheckAllCuts()
   QList<const Trk::Track*> tracks;
   QList<const Trk::TrackParticleBase*> trackparticles;
   QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > colAndTracks;
-  foreach(Imp::VertexHandle* vh,d->vertices){
-    d->recheckCut(vh);
-    d->findAssociatedTracks(vh->vertex(),tracks,trackparticles);
+  foreach(Imp::VertexHandle* vh,m_d->vertices){
+    m_d->recheckCut(vh);
+    m_d->findAssociatedTracks(vh->vertex(),tracks,trackparticles);
     const SoMaterial* mat = vh->attached()?vh->determineMaterial():0; // store either the material, or 0 for hidden vertices
     colAndTracks.append(std::pair<const SoMaterial*, QList< const Trk::Track*> >(mat, tracks));
   }
@@ -453,8 +453,8 @@ void VP1VertexCollection::updateAllShapes()
   messageVerbose("VP1VertexCollection::updateAllShapes()");
   
   largeChangesBegin();
-  foreach(Imp::VertexHandle* vh,d->vertices)
-    vh->updateShapes(d->controller);
+  foreach(Imp::VertexHandle* vh,m_d->vertices)
+    vh->updateShapes(m_d->controller);
   largeChangesEnd();
 }
 
@@ -462,7 +462,7 @@ void VP1VertexCollection::updateAllShapes()
 bool VP1VertexCollection::load()
 {
   const VxContainer* vxContainer;
-  if (!VP1SGAccessHelper(systemBase()).retrieve(vxContainer, d->key))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(vxContainer, m_d->key))
     return false;
 
   int i(0);
@@ -470,10 +470,7 @@ bool VP1VertexCollection::load()
     const Trk::VxCandidate* theVxCandidate = *vtxItr;
     if (!theVxCandidate)
       continue;
-    const Trk::RecVertex& vertex = theVxCandidate->recVertex();
-    if (!&vertex)
-      continue;
-    d->vertices << new Imp::VertexHandle(theVxCandidate, this);
+    m_d->vertices << new Imp::VertexHandle(theVxCandidate, this);
     if (!(i++%20))
       systemBase()->updateGUI();
   }
@@ -499,7 +496,7 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
   SoSeparator * pickedSep = static_cast<SoSeparator *>(pickedPath->getNodeFromTail(0));
 
   Imp::VertexHandle*vertexHandle(0);
-  foreach (Imp::VertexHandle*vh,d->vertices) {
+  foreach (Imp::VertexHandle*vh,m_d->vertices) {
     if (vh->sep()==pickedSep) {
       vertexHandle = vh;
       break;
@@ -510,7 +507,7 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
   const Trk::VxCandidate * vtx = vertexHandle->vertex();
 
   QStringList l;
-  if (d->controller->printInfoOnClick()) {
+  if (m_d->controller->printInfoOnClick()) {
 
     //Make output:
     l <<"Reconstructed vertex from collection "+text()+":" ;
@@ -521,9 +518,9 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
     //track system to e.g. colour tracks by vertex - for now just print the number of those):
     QList<const Trk::Track*> tracks;
     QList<const Trk::TrackParticleBase*> trackparticles;
-    d->findAssociatedTracks(vtx,tracks,trackparticles);
+    m_d->findAssociatedTracks(vtx,tracks,trackparticles);
     l << "--#Tracks used: "+str(vtx->vxTrackAtVertex()->size());
-    if (d->controller->printVerboseInfoOnClick()) {
+    if (m_d->controller->printVerboseInfoOnClick()) {
       l << "--#Trk::Track's: "+str(tracks.count());
       l << "--#Trk::TrackParticleBase's: "+str(trackparticles.count());
       l <<"======== Dump ========";
@@ -534,7 +531,7 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
     }
   }
 
-  if (d->controller->zoomOnClick()) {
+  if (m_d->controller->zoomOnClick()) {
     std::set<SoCamera*> cameras = static_cast<IVP13DSystem*>(systemBase())->getCameraList();
     std::set<SoCamera*>::iterator it,itE = cameras.end();
     for (it=cameras.begin();it!=itE;++it)
@@ -564,7 +561,7 @@ void VP1VertexCollection::rerandomiseRandomVertexColours()
     return;
   messageVerbose("rerandomiseRandomVertexColours start");
   largeChangesBegin();
-  foreach(Imp::VertexHandle* vh,d->vertices)
+  foreach(Imp::VertexHandle* vh,m_d->vertices)
     vh->rerandomiseRandomMaterial();
   largeChangesEnd();
   messageVerbose("rerandomiseRandomVertexColours end");

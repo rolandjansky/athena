@@ -196,13 +196,14 @@ if not 'InputOFCPoolFileName' in dir():
    if ( PeakOF and StripsXtalkCorr ) :
       InputOFCPoolFileName = "LArOFCCali_StripsXtalkCorr_" + str(OFCRunNumber) +"_"+Partition.replace("*","")+ ".pool.root"
 
-if  not StripsXtalkCorr:
-   CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolder
-else:
-   CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolderXtlk
+if not 'CaliOFCFolder' in dir():
+   if  not StripsXtalkCorr:
+      CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolder
+   else:
+      CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolderXtlk
 
 
-rs=FolderTagResover()
+rs=FolderTagResover(DBConnectionCOOL)
 if not 'LArRampFolderOutputTag' in dir():
    LArRampFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArRampFolder)
 if not 'PedLArCalibFolderTag' in dir(): 
@@ -251,10 +252,11 @@ if ( ReadPedFromCOOL ):
       InputDBConnectionPed = DBConnectionCOOL
 
 if ( PeakOF and ReadOFCFromCOOL ):
-   if 'InputOFCSQLiteFile' in dir():
-      InputDBConnectionOFC = DBConnectionFile(InputOFCSQLiteFile)
-   else:
-      InputDBConnectionOFC = DBConnectionCOOL
+   if 'InputDBConnectionOFC' not in dir():
+      if 'InputOFCSQLiteFile' in dir():
+         InputDBConnectionOFC = DBConnectionFile(InputOFCSQLiteFile)
+      else:
+         InputDBConnectionOFC = DBConnectionCOOL
 
 if ( ReadHECMapFromCOOL ):
    if 'InputHECMapSQLiteFile' in dir():
@@ -267,13 +269,6 @@ if ( ReadHECMapFromCOOL ):
 if not 'ReadBadChannelFromCOOL' in dir():
    ReadBadChannelFromCOOL = True   
 
-if ( ReadBadChannelFromCOOL ):      
-   if 'InputBadChannelSQLiteFile' in dir():
-      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
-   else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"
-      
 #######################################################################################
 #                                print summary                                        #
 #######################################################################################
@@ -420,6 +415,13 @@ if not 'InputBadChannelSQLiteFile' in dir():
 else :   
    RampLog.info( "Read Bad Channels from SQLite file") 
 
+if ( ReadBadChannelFromCOOL ):      
+   if 'InputBadChannelSQLiteFile' in dir():
+      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+   else:
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+      
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
    conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
@@ -523,7 +525,10 @@ else:
    
 if ( ReadOFCFromCOOL ):
    if PeakOF:
-      CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,LArCaliOFCFolderTag)
+      if not 'CaliOFCTagSpec' in dir():
+         CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,LArCaliOFCFolderTag)
+      #CaliOFCTagSpec = 'HEAD'
+      #print 'zzz', CaliOFCFolder, CaliOFCTagSpec, InputDBConnectionOFC
       conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
 
 else:
