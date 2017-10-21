@@ -56,6 +56,9 @@ atlas_add_dictionary( xAODRootAccessDict
 # Install the Python modules of the package:
 atlas_install_python_modules( python/*.py )
 
+# Install the checkxAOD.py script
+atlas_install_scripts( scripts/checkxAOD.py )
+
 # Build the executables of the package:
 foreach( exec xAODChecker xAODMerge xAODFileReadTest )
    atlas_add_executable( ${exec} util/${exec}.cxx
