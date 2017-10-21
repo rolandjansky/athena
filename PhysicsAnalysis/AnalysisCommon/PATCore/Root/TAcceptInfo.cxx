@@ -35,8 +35,7 @@ Description: Object to encode the result of several cuts
 //=============================================================================
 Root::TAcceptInfo::TAcceptInfo(const char* name) :
   m_name(name),
-  m_cutMap(),
-  m_emptyString("")
+  m_cutMap()
 {
 }
 
@@ -72,10 +71,12 @@ int Root::TAcceptInfo::addCut( const std::string& cutName, const std::string& cu
 //=============================================================================
 const std::string& Root::TAcceptInfo::getCutName( unsigned int cutPosition ) const
 {
+  static const std::string emptyString;
+
   // Make sure that this cut doesn't exceed the number of defined cuts
   if ( cutPosition >= m_cutMap.size() )
     {
-      return m_emptyString;
+      return emptyString;
     }
 
   // iterate over the map and find the right position
@@ -89,7 +90,7 @@ const std::string& Root::TAcceptInfo::getCutName( unsigned int cutPosition ) con
         }
     }
 
-  return m_emptyString;
+  return emptyString;
 }
 
 
@@ -100,10 +101,12 @@ const std::string& Root::TAcceptInfo::getCutName( unsigned int cutPosition ) con
 //=============================================================================
 const std::string& Root::TAcceptInfo::getCutDescription( unsigned int cutPosition ) const
 {
+  static const std::string emptyString;
+
   // Make sure that this cut doesn't exceed the number of defined cuts
   if ( cutPosition >= m_cutMap.size() )
     {
-      return m_emptyString;
+      return emptyString;
     }
 
   // iterate over the map and find the right position
@@ -117,7 +120,7 @@ const std::string& Root::TAcceptInfo::getCutDescription( unsigned int cutPositio
         }
     }
 
-  return m_emptyString;
+  return emptyString;
 }
 
 
@@ -146,3 +149,12 @@ void Root::TAcceptInfo::setCutDescription( const unsigned int cutPosition, const
 
 
 
+
+
+/** Get the description of a cut, based on the cut name */
+const std::string& Root::TAcceptInfo :: getCutDescription( const std::string& cutName ) const
+{
+  static const std::string emptyString;
+  auto it = m_cutMap.find(cutName);
+  return (it != m_cutMap.end()) ? (it->second).first : emptyString;
+}

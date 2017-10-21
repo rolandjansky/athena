@@ -63,11 +63,7 @@ namespace Root {
 
 
     /** Get the description of a cut, based on the cut name */
-    inline const std::string& getCutDescription( const std::string& cutName ) const
-    {
-      auto it = m_cutMap.find(cutName);
-      return (it != m_cutMap.end()) ? (it->second).first : m_emptyString;
-    }
+    const std::string& getCutDescription( const std::string& cutName ) const;
 
     /** Get the description of a cut, based on the cut position */
     const std::string& getCutDescription( unsigned int cutPosition ) const;
@@ -92,9 +88,6 @@ namespace Root {
 
     /** The map for mapping cut names to their description and position */
     std::map< std::string, std::pair< std::string, unsigned int > > m_cutMap;
-
-    /** An empty string as default return for some member methods */
-    std::string m_emptyString;
 
     /** A bitmap that provides a mask that only leaves defined cuts */
     std::bitset<NBITS> m_cutMask;
