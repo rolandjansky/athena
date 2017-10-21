@@ -86,32 +86,32 @@ class DataStore;
     ///\name IRegistry implementation
     //@{
     /// Add reference to object
-    virtual unsigned long addRef() override;
+    virtual unsigned long addRef() override final;
 
     /// release reference to object
-    virtual unsigned long release() override;
+    virtual unsigned long release() override final;
 
     /// return refCount
     unsigned long refCount() const;
 
     /// Retrieve data object key == string
-    virtual const name_type& name() const override;
+    virtual const name_type& name() const override final;
 
     /// Retrieve data object key == string
     /// duplicated for Gaudi folks does same as name()
-    virtual const id_type& identifier() const override;
+    virtual const id_type& identifier() const override final;
 
     /// Retrieve DataObject
-    virtual DataObject* object ATLAS_NOT_CONST_THREAD_SAFE () const override;
+    virtual DataObject* object ATLAS_NOT_CONST_THREAD_SAFE () const override final;
 
     /// set an IOpaqueAddress
-    virtual void setAddress(IOpaqueAddress* ioa) override;
+    virtual void setAddress(IOpaqueAddress* ioa) override final;
 
     /// Retrieve IOpaqueAddress
-    virtual IOpaqueAddress* address() const override;
+    virtual IOpaqueAddress* address() const override final;
 
     /// set DataSvc (Gaudi-specific); do nothing for us
-    virtual IDataProviderSvc* dataSvc() const override;
+    virtual IDataProviderSvc* dataSvc() const override final;
     //@}
 
     ///< Get the primary (hashed) SG key.
@@ -218,7 +218,7 @@ class DataStore;
      *
      * (@c IRegisterTransient interface.)
      */
-    virtual void registerTransient (void* p) override;
+    virtual void registerTransient (void* p) override final;
 
     /// Set the store of which we're a part.
     void setStore (IProxyDict* store);
