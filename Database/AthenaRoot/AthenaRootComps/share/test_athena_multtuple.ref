@@ -1,0 +1,5 @@
+::::::::::::::::::::::::::::::::::::::::::::::
+::: run athena-ntuple-dumper... (w/ multiple tuples)
+21.76user 1.00system 0:22.94elapsed 99%CPU (0avgtext+0avgdata 552440maxresident)k
+::: comparing ascii dumps...
+::: comparing ascii dumps...[0]

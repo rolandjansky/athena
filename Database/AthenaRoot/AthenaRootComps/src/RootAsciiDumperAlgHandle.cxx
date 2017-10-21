@@ -81,6 +81,10 @@ RootAsciiDumperAlgHandle::RootAsciiDumperAlgHandle( const std::string& name,
                   m_el_jetcone_dr = SG::RVar<std::vector<std::vector<float> > >("el_jetcone_dr"),
                   "handle to the jetcone-dR of electrons in event (read)");
 
+
+  declareProperty("eiKey",
+                  m_eiKey = "EventInfo");
+
 }
 
 // Destructor
@@ -109,6 +113,8 @@ StatusCode RootAsciiDumperAlgHandle::initialize()
                   "write permissions.");
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_eiKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -152,13 +158,30 @@ StatusCode RootAsciiDumperAlgHandle::execute()
     return StatusCode::RECOVERABLE;
   }
 
+  SG::ReadHandle<xAOD::EventInfo> ei (m_eiKey);
+  static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+  static const SG::AuxElement::Accessor<std::string> collectionName ("collectionName");
+  std::string collName = collectionName(*ei);
+  std::string::size_type pos = collName.rfind ("/");
+  if (pos != std::string::npos) {
+    collName.erase (0, pos+1);
+  }
+
   {
     char* buf = 0;
     int buf_sz = asprintf
       (&buf,
+       "%03" PRId64 ".%s = %s\n"
+       "%03" PRId64 ".%s = %s\n"
        "%03" PRId64 ".%s = %u\n"
        "%03" PRId64 ".%s = %u\n"
        "%03" PRId64 ".%s = %i\n",
+       nevts,
+       "collectionName",
+       collName.c_str(),
+       nevts,
+       "tupleName",
+       tupleName(*ei).c_str(),
        nevts,
        "RunNumber",
        *m_runnbr,

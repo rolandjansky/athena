@@ -7,7 +7,7 @@ rm -rf $testname
 mkdir $testname
 cd $testname
 
-ATLAS_REFERENCE_TAG=AthenaRootComps/AthenaRootCompsReference-01-00-00
+ATLAS_REFERENCE_TAG=AthenaRootComps/AthenaRootCompsReference-01-00-01
 refbase=ref.d3pd.ascii
 chkfile=d3pd.ascii
 
