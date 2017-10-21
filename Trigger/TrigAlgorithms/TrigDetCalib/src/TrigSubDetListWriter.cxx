@@ -181,6 +181,16 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::TILECAL_EXT_A_SIDE);
         m_sourceid.push_back(eformat::TILECAL_EXT_C_SIDE);
      }
+     if (*detit=="LAr") {
+        m_sourceid.push_back(eformat::LAR_EM_BARREL_A_SIDE);
+        m_sourceid.push_back(eformat::LAR_EM_BARREL_C_SIDE);
+        m_sourceid.push_back(eformat::LAR_EM_ENDCAP_A_SIDE);
+        m_sourceid.push_back(eformat::LAR_EM_ENDCAP_C_SIDE);
+        m_sourceid.push_back(eformat::LAR_FCAL_A_SIDE);
+        m_sourceid.push_back(eformat::LAR_FCAL_C_SIDE);
+        m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_A_SIDE);
+        m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_C_SIDE);
+     }
      if (*detit=="FORWARD_BCM") {     
          m_sourceid.push_back(eformat::FORWARD_BCM);
      }

@@ -10,7 +10,7 @@
 #ServiceMgr.PixelCablingSvc.IBLHybridModuleType = [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1]
 
 # Overriding the mapping file is possible, but not recommended
-#ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat"
+#ServiceMgr.PixelCablingSvc.MappingFile = "PixelCabling/Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat"
 
 # Print a warning if this jO is included
 from AthenaCommon.Logging import logging

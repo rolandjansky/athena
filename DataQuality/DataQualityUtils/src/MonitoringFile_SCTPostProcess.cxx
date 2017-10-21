@@ -493,7 +493,7 @@ namespace dqutils {
 	const int N_hist = 3;
 	double Threshold[N_hist] = {0.7,0.1,150};
 	TString name_hist[N_hist][N_dir] = {
-	  {"","/errors/summaryErrsECm_", "/errors/summaryErrs_", "/errors/summaryErrsECp_"},
+	  {"","/errors/Errors/SCT_NumberOfErrorsEC_", "/errors/Errors/SCT_NumberOfErrorsB_", "/errors/Errors/SCT_NumberOfErrorsEA_"},
 	  {"","/eff/ineffm_", "/eff/ineff_", "/eff/ineffp_"},
 	  {"","/Noise/noiseoccupancymaptriggerECm_", "/Noise/noiseoccupancymaptrigger_", "/Noise/noiseoccupancymaptriggerECp_"}
 	};

@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/errorcheck.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #define private public
 #   include "GeneratorObjects/McEventCollection.h"
@@ -14,7 +13,10 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventStreamInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthEventContainer.h"
@@ -79,15 +81,15 @@ namespace xAODMaker {
         if (!m_doAllPileUp && !m_doInTimePileUp) ATH_MSG_INFO( "No pile-up truth will be written" );
         
         if (m_writeMetaData) {
-            CHECK( m_metaStore.retrieve() );
+            ATH_CHECK( m_metaStore.retrieve() );
             // Create an empty truth meta data container:
             xAOD::TruthMetaDataAuxContainer* aux = new xAOD::TruthMetaDataAuxContainer();
             m_tmd = new xAOD::TruthMetaDataContainer();
             m_tmd->setStore( aux );
             
             // Record the trigger configuration metadata into it:
-            CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
-            CHECK( m_metaStore->record( m_tmd, m_metaName ) );
+            ATH_CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
+            ATH_CHECK( m_metaStore->record( m_tmd, m_metaName ) );
         }
         
         return StatusCode::SUCCESS;
@@ -109,7 +111,7 @@ namespace xAODMaker {
         }
         
         xAODTruthParticleLinkVector* truthLinkVec = new xAODTruthParticleLinkVector();
-        CHECK( evtStore()->record( truthLinkVec, m_truthLinkContainerName ) );
+        ATH_CHECK( evtStore()->record( truthLinkVec, m_truthLinkContainerName ) );
         
         if (evtStore()->contains<McEventCollection>(m_aodContainerName)) {
             
@@ -123,9 +125,9 @@ namespace xAODMaker {
             // **************************************************************
             // Signal event
             xAOD::TruthEventContainer* xTruthEventContainer = new xAOD::TruthEventContainer();
-            CHECK( evtStore()->record( xTruthEventContainer, m_xaodTruthEventContainerName ) );
+            ATH_CHECK( evtStore()->record( xTruthEventContainer, m_xaodTruthEventContainerName ) );
             xAOD::TruthEventAuxContainer* xTruthEventAuxContainer = new xAOD::TruthEventAuxContainer();
-            CHECK( evtStore()->record( xTruthEventAuxContainer, m_xaodTruthEventContainerName + "Aux." ) );
+            ATH_CHECK( evtStore()->record( xTruthEventAuxContainer, m_xaodTruthEventContainerName + "Aux." ) );
             xTruthEventContainer->setStore( xTruthEventAuxContainer );
             ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerName );
             // Pile-up events
@@ -133,24 +135,24 @@ namespace xAODMaker {
             xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = 0;
             if (m_doAllPileUp || m_doInTimePileUp) {
                 xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
-                CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
+                ATH_CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
                 xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
-                CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
+                ATH_CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
                 xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
                 ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
             }
             // Particles
             xAOD::TruthParticleContainer* xTruthParticleContainer = new xAOD::TruthParticleContainer();
-            CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
+            ATH_CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
             xAOD::TruthParticleAuxContainer* xTruthParticleAuxContainer = new xAOD::TruthParticleAuxContainer();
-            CHECK( evtStore()->record( xTruthParticleAuxContainer, m_xaodTruthParticleContainerName + "Aux." ) );
+            ATH_CHECK( evtStore()->record( xTruthParticleAuxContainer, m_xaodTruthParticleContainerName + "Aux." ) );
             xTruthParticleContainer->setStore( xTruthParticleAuxContainer );
             ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_xaodTruthParticleContainerName );
             // Vertices
             xAOD::TruthVertexContainer* xTruthVertexContainer = new xAOD::TruthVertexContainer();
-            CHECK( evtStore()->record( xTruthVertexContainer, m_xaodTruthVertexContainerName ) );
+            ATH_CHECK( evtStore()->record( xTruthVertexContainer, m_xaodTruthVertexContainerName ) );
             xAOD::TruthVertexAuxContainer* xTruthVertexAuxContainer = new xAOD::TruthVertexAuxContainer();
-            CHECK( evtStore()->record( xTruthVertexAuxContainer, m_xaodTruthVertexContainerName + "Aux." ) );
+            ATH_CHECK( evtStore()->record( xTruthVertexAuxContainer, m_xaodTruthVertexContainerName + "Aux." ) );
             xTruthVertexContainer->setStore( xTruthVertexAuxContainer );
             ATH_MSG_DEBUG( "Recorded TruthVertexContainer with key: " << m_xaodTruthVertexContainerName );
             
@@ -219,10 +221,23 @@ namespace xAODMaker {
                     
                     if (m_writeMetaData) {
                         //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
-                        const EventStreamInfo* esi = nullptr;
-                        CHECK( inputMetaStore->retrieve(esi));
-                        uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
-                        
+                        uint32_t mcChannelNumber = 0;
+                        if (evtStore()->contains<EventInfo>("McEventInfo")){
+                            const EventInfo* eventInfo(nullptr);
+                            ATH_CHECK(evtStore()->retrieve(eventInfo));
+                            mcChannelNumber = eventInfo->event_type()->mc_channel_number();
+                            if (mcChannelNumber==0) mcChannelNumber = eventInfo->event_ID()->run_number();
+                        } else if (evtStore()->contains<xAOD::EventInfo>("EventInfo")){
+                            const xAOD::EventInfo* eventInfo(nullptr);
+                            ATH_CHECK(evtStore()->retrieve(eventInfo));
+                            mcChannelNumber = eventInfo->mcChannelNumber();
+                            if (mcChannelNumber==0) mcChannelNumber = eventInfo->runNumber();
+                        } else {
+                            const EventStreamInfo* esi = nullptr;
+                            ATH_CHECK(inputMetaStore->retrieve(esi));
+                            mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
+                            if (mcChannelNumber==0) mcChannelNumber = *(esi->getRunNumbers().begin());
+                        }
                         //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
                         //is used to check if the key already exists (returns false in the case it exists)
                         if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
@@ -397,7 +412,7 @@ namespace xAODMaker {
                 return StatusCode::SUCCESS;
             }
             xAOD::TruthEventContainer* xTruthEventContainer = 0;
-            CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName ) );
+            ATH_CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName ) );
             
             // Loop over events and particles
             for (auto evt : *xTruthEventContainer) {

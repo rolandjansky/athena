@@ -4,9 +4,7 @@
 
 HIGG2D1ExtraContent=[
     "egammaClusters.rawE.phi_sampl.calM",
-    "GSFTrackParticles.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers",
-    "Muons.quality.etcone20.ptconecoreTrackPtrCorrection",
-    "ExtrapolatedMuonTrackParticles.numberOfTRTHits.numberOfTRTOutliers",
+    "Muons.ptconecoreTrackPtrCorrection",
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
     "TauJets.ptDetectorAxis,phiDetectorAxis,etaDetectorAxis,mDetectorAxis",
     "TauNeutralParticleFlowObjects.pt.eta.phi.m",

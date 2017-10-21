@@ -24,7 +24,6 @@ class TH2;
  *                                                                              
  */
 
-
 class TauWPDecorator : public TauRecToolBase {
 public:
 
@@ -50,7 +49,7 @@ private:
     std::string m_file1P; //!< energy calibration file
     std::string m_file3P; //!< energy calibration file
     
-    typedef std::pair<double, TH2* > m_pair_t;
+    typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
     
     std::vector<m_pair_t> m_hists1P;
     std::vector<m_pair_t> m_hists3P;

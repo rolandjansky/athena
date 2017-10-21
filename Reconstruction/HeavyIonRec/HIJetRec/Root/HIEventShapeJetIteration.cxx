@@ -11,7 +11,6 @@
 #include "xAODCore/ShallowCopy.h"
 
 
-
 namespace
 {
   struct SelectByList{
@@ -43,6 +42,7 @@ HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(n
   declareProperty("RemodulateUE",m_do_remodulation=false,"Correct UE for incomplete cancellation of flow harmonics when iterating");
   declareProperty("ModulationScheme",m_modulation_scheme=0,"Scheme to build separate ES object for flow modulation");
   declareProperty("ModulationEventShapeKey",m_modulation_key="HIEventShape_itr_mod");
+  declareProperty("ShallowCopy",m_shallowCopy=true,"Use shallow copy for iterated event shape");
 
 }
 
@@ -58,7 +58,6 @@ int HIEventShapeJetIteration::execute() const
   
   const xAOD::JetContainer* theCaloJets=0;
   const xAOD::JetContainer* theTrackJets=0;
-
   if(m_calo_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theCaloJets,m_calo_jet_seed_key));
   if(m_track_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theTrackJets,m_track_jet_seed_key));
 
@@ -75,9 +74,9 @@ int HIEventShapeJetIteration::execute() const
   assoc_clusters.reserve(6400);
   if(theCaloJets) ATH_CHECK(makeClusterList(assoc_clusters,theCaloJets,used_indices,used_eta_bins));
   if(theTrackJets) ATH_CHECK(makeClusterList(assoc_clusters,theTrackJets,used_indices,used_eta_bins));
-  
+  ATH_MSG_DEBUG("Total clusters " << assoc_clusters.size());
   updateShape(output_shape,assoc_clusters,es_index);
-  
+
   //compute ES for modulation
   if(m_modulation_scheme)
   {
@@ -89,7 +88,7 @@ int HIEventShapeJetIteration::execute() const
     
     xAOD::HIEventShape* ms=new xAOD::HIEventShape();
     modShape->push_back(ms);
-    ATH_CHECK( fillModulatorShape(ms,output_shape,used_indices,m_modulation_scheme) );
+    ATH_CHECK( fillModulatorShape(ms,output_shape,used_eta_bins,m_modulation_scheme) );
     if(m_do_remodulation) ATH_CHECK( remodulate(output_shape,ms,used_indices) );
   }
   return 0;
@@ -235,22 +234,16 @@ StatusCode HIEventShapeJetIteration::fillModulatorShape(xAOD::HIEventShape* ms, 
 
 StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* output_shape, const xAOD::HIEventShape* ms, const std::set<unsigned int>& used_indices) const
 {
-  ATH_CHECK(m_modulator_tool->setEventShapeForModulation(ms));
-  return remodulate(output_shape,used_indices);
-}
-
-StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices) const
-{
-
   std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
   std::vector<float> mod_counts(HI::TowerBins::numEtaBins(),0);
-  
+
   for(std::set<unsigned int>::const_iterator sItr=used_indices.begin(); sItr!=used_indices.end(); sItr++)
   {
-    unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
+    unsigned int phi_bin=(*sItr) % HI::TowerBins::numPhiBins();
     unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
     mod_counts[eta_bin]++;
-    mod_factors[eta_bin]+=m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin));
+    mod_factors[eta_bin]+=(m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin),ms)-1.);
+
   }
   double nphibins=HI::TowerBins::numPhiBins();
   //now loop on shape and correct;
@@ -259,11 +252,11 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
     xAOD::HIEventShape* s=output_shape->at(i);
     float eta0=0.5*(s->etaMin()+s->etaMax());
     unsigned int eb=HI::TowerBins::findBinEta(eta0);
-    double cf=(nphibins-mod_counts[eb])/(nphibins-mod_factors[eb]);
+    double neff=nphibins-mod_counts[eb];
+    double cf=neff/(neff-mod_factors[eb]);
     //check on value of cf;
-    if(cf < 0) cf =1;
+    if(cf < 0.) cf =1;
     if(cf > 2.) cf=2;
-     
     s->setEt(s->et()*cf);
     s->setRho(s->rho()*cf);
   }
@@ -273,14 +266,38 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
 StatusCode HIEventShapeJetIteration::getShapes(const xAOD::HIEventShapeContainer*& input_shape, xAOD::HIEventShapeContainer*& output_shape, bool record) const
 {
   ATH_CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key));
-  auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
-  output_shape=shape_copy.first;
 
-  if(record)
+  if(m_shallowCopy)
   {
-    ATH_CHECK(evtStore()->record(output_shape,m_output_event_shape_key));
-    ATH_CHECK(evtStore()->record(shape_copy.second,m_output_event_shape_key + "Aux."));
+    auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
+    output_shape=shape_copy.first;
+    if(record)
+    {
+      ATH_CHECK(evtStore()->record(output_shape,m_output_event_shape_key));
+      ATH_CHECK(evtStore()->record(shape_copy.second,m_output_event_shape_key + "Aux."));
+    }
+
   }
+  else
+  {
+    output_shape=new xAOD::HIEventShapeContainer;
+    xAOD::HIEventShapeAuxContainer* output_Aux=new xAOD::HIEventShapeAuxContainer;
+    output_shape->setStore(output_Aux);
+    output_shape->reserve(input_shape->size());
+    for(auto s=input_shape->begin(); s!=input_shape->end(); s++)
+    {
+      xAOD::HIEventShape* s_copy=new xAOD::HIEventShape();
+      output_shape->push_back(s_copy);
+      *s_copy=**s;
+    }
+    if(record)
+    {
+      ATH_CHECK(evtStore()->record(output_shape,m_output_event_shape_key));
+      ATH_CHECK(evtStore()->record(output_Aux,m_output_event_shape_key + "Aux."));
+    }
+
+  }
+
 
   const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(m_input_event_shape_key);
   if(es_index==nullptr)

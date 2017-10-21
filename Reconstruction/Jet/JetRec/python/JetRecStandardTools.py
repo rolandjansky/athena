@@ -319,6 +319,16 @@ jtm += MuonSegmentPseudoJetGetter(
   Pt = 1.e-20
 )
 
+# TCCs.
+jtm += PseudoJetGetter(
+  "tccget",
+  InputContainer = "TrackCaloClustersCombinedAndNeutral",
+  Label = "TrackCaloCluster",
+  OutputContainer = "PseudoJetTCC",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0
+)
+
 # Retriever for pflow objects.
 jtm += RetrievePFOTool("pflowretriever")
 

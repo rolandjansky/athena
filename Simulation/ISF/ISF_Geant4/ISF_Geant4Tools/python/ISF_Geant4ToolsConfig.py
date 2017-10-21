@@ -7,7 +7,7 @@ from AthenaCommon import CfgMgr
 
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthService.get_Value())
+    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthStrategy.TruthServiceName())
     return CfgMgr.G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
 def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
