@@ -1540,8 +1540,14 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
     tinfo = CLIDRegistry::CLIDToTypeinfo (clid);
   }
   const SG::BaseInfoBase* bib = nullptr;
-  if (tinfo)
+  if (tinfo) {
     bib = SG::BaseInfoBase::find (*tinfo);
+  }
+  if (!bib) {
+    // Could succeed where the previous fails if clid for DataVector<T>
+    // but tinfo is for ConstDataVector<DataVector<T> >.
+    bib = SG::BaseInfoBase::find (clid);
+  }
   if ( bib ) {
     std::vector<CLID> bases = bib->get_bases();
     for ( std::size_t i = 0, iMax = bases.size(); i < iMax; ++i ) {
