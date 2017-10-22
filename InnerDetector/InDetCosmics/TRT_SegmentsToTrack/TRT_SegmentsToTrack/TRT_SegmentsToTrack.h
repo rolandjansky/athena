@@ -16,9 +16,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+
 
 class PRD_MultiTruthCollection;
 class AtlasDetectorID;
@@ -77,8 +79,8 @@ namespace InDet
     
     SG::ReadHandleKey<Trk::SegmentCollection> m_inputSegmentCollectionName{this,"InputSegmentsCollection","TrackSegments","RHK to retrieve input track collection"}; //!< Name of the TrackSegment Collection to read in
 
-    std::string m_outputTrackCollectionName;  //!< Name of the TrackCollection to write out
-    
+    SG::WriteHandleKey<TrackCollection> m_outputTrackCollectionName{this,"OutputTrackCollection","SegmentTracks","WHK to store output tracks"};  //!< Name of the TrackCollection to write out 
+
     ToolHandle<Trk::ITrackFitter> m_trackFitter;   //!< The TrackFitter
 
     ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< The Extrapolator    
@@ -111,7 +113,7 @@ namespace InDet
     SG::ReadHandleKey<Trk::SegmentCollection> m_barrelSegments{this,"BarrelSegments","TRTBarrelSegments","RHK to retrieve barrel track segments"}; //!< Name of Barrel segment collection
     SG::ReadHandleKey<Trk::SegmentCollection> m_endcapSegments{this,"EndcapSegments","TRTEndcapSegments","RHK to retrieve endcap track segments"}; //!< Name of Endcap segment collection
 
-    std::string m_BECCollectionName;  //!< Name of the combined (TRT Barrel+EC) TrackCollection to write out
+    SG::WriteHandleKey<TrackCollection> m_BECCollectionName{this,"BarrelEndcapTracks","TRT_Barrel_EC","WHK to write tracks"};  //!< Name of the combined (TRT Barrel+EC) TrackCollection to write out
 
     std::string m_dummy;
     bool m_dummy_bool;

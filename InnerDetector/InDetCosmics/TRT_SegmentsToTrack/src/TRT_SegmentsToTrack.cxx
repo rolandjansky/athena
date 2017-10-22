@@ -68,15 +68,12 @@ InDet::TRT_SegmentsToTrack::TRT_SegmentsToTrack(const std::string& name, ISvcLoc
   m_events(0),
   m_n_combined_fit(0)
 {
-
-  declareProperty("OutputTrackCollection",   m_outputTrackCollectionName   =  "SegmentTracks");
   declareProperty("TrackFitter",             m_trackFitter);
   declareProperty("ExtrapolationTool",       m_extrapolator);
   declareProperty("NoiseCut",                m_noiseCut                    = -1.);
   declareProperty("MinNHit",                 m_minTRTHits                  =  1);
   declareProperty("MaterialEffects",         m_materialEffects             = false);
   declareProperty("OutlierRemoval",          m_outlierRemoval              = false);
-  declareProperty("BarrelEndcapTracks",      m_BECCollectionName           = "TRT_Barrel_EC");
   declareProperty("CombineSegments",         m_combineSegments             = false);
   //to be deleted
   declareProperty("InputSCTCollection",m_dummy);
@@ -106,6 +103,8 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
   ATH_CHECK(m_multiTruthCollectionTRTName.initialize());
   ATH_CHECK(m_barrelSegments.initialize());
   ATH_CHECK(m_endcapSegments.initialize());
+  ATH_CHECK(m_outputTrackCollectionName.initialize());
+  ATH_CHECK(m_BECCollectionName.initialize());
 
   //--------- Set up fitter -------------
   CHECK( m_trackFitter.retrieve());
@@ -194,8 +193,9 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 
   //output collections for fitted tracks
   
-  TrackCollection *outputTrackCollection   = new TrackCollection();
-  
+  SG::WriteHandle<TrackCollection> outputTrackCollection(m_outputTrackCollectionName);
+  ATH_CHECK(outputTrackCollection.record(std::make_unique<TrackCollection>()));
+
   //try to get truth information
 
   SG::ReadHandle<PRD_MultiTruthCollection> m_truthCollectionTRT(m_multiTruthCollectionTRTName);
@@ -406,10 +406,10 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
     } //end of if: (*iseg)->numberOfMeasurementBases()>0
   } //end of loop over segments
 
-  sc = evtStore()->record(outputTrackCollection, m_outputTrackCollectionName);
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("Could not write track collection " << m_outputTrackCollectionName);
-    return sc;
+  if (!outputTrackCollection.isValid()) {
+    ATH_MSG_ERROR("Could not write track collection " << m_outputTrackCollectionName.key());
+    return StatusCode::FAILURE;
+    //return sc;
   }
 
   return sc;
@@ -606,8 +606,9 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
 
   StatusCode sc;
 
-  TrackCollection *outputCombiCollection   = new TrackCollection();
-
+  SG::WriteHandle<TrackCollection> outputCombiCollection(m_BECCollectionName);
+  sc = outputCombiCollection.record(std::make_unique<TrackCollection>());
+  if (sc.isFailure()) return;
 
   if (!BarrelSegments.isValid()){
     ATH_MSG_FATAL("Could not open barrel segments collection : " <<   m_barrelSegments.key());
@@ -938,8 +939,8 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
       }
     }
   }
-  sc = evtStore()->record(outputCombiCollection, m_BECCollectionName);
-  if(sc.isFailure()){
+
+  if (!outputCombiCollection.isValid()) {
     ATH_MSG_ERROR("Could not write track Barrel+EC collection TRT_Barrel_EC");
   }
 }
