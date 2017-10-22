@@ -70,11 +70,12 @@ StatusCode EventInfoReader::execute()
 
     // Get TagInfo and add tags
 
+    TagInfo tagInfo_local;
     const TagInfo* tagInfo = 0;
     // Try to get tagInfo if there, otherwise create
     if (detStore()->retrieve( tagInfo ).isFailure()) {
 	ATH_MSG_DEBUG("No TagInfo in DetectorStore - creating one" );
-	tagInfo = new TagInfo();
+	tagInfo = &tagInfo_local;
     } 
     else {
 	ATH_MSG_DEBUG("Retrieved TagInfo" );
