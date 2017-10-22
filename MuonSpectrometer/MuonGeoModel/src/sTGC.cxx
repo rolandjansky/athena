@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "MuonGeoModel/sTGC.h"
 #include "MuonAGDDDescription/sTGC_Technology.h"
@@ -66,7 +69,6 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
   double chamberTck = gasTck+pcbTck; //Note: pcbTck is the xml value and is the combined thickness of 2 pcbs.
   double honeycombTck = (thickness - 4*chamberTck)/5;
   double pcbActualTck = pcbTck/2;
- 
 
   minimalgeo=t->geoLevel;
 
@@ -94,7 +96,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
   if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("muo::Honeycomb");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
-  GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd); 
+  GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
 
   if (!minimalgeo) return ptrd;
 
@@ -122,7 +124,6 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
     if (i==0) newXPos=newpos+ chamberTck/2 + honeycombTck ;
     else newXPos=newpos+ chamberTck + honeycombTck ;
 
- 
     //Build chamber volume (gas + pcb) out of gas
     GeoSimplePolygonBrep *sGasVolume
         =new GeoSimplePolygonBrep(chamberTck/2.);
@@ -149,8 +150,8 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
     for(int i = 0; i < 2; i++){
       if (i==0) pcbpos = -chamberTck/2 + pcbActualTck/2; //This becomes the zero reference point for the pcb at -chamberTck/2
       else pcbpos = -chamberTck/2 + pcbActualTck + gasTck + pcbActualTck/2; //This becomes the zero reference point for the pcb at +chamberTck/2. Alternatively, we can say pcbpos = +chamberTck/2 - pcbActualTck/2 ???
-	
-      //Build pcb volume out of G10 material                                                                                                  
+
+      //Build pcb volume out of G10 material
       GeoSimplePolygonBrep *sPcbVolume = new GeoSimplePolygonBrep(pcbActualTck/2.);
       sPcbVolume->addVertex(longWidthActive/2.,lengthActive/2.);
       sPcbVolume->addVertex(-longWidthActive/2.,lengthActive/2.);
@@ -159,7 +160,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
       sPcbVolume->addVertex(widthActive/2.,-lengthActive/2.);
       if (yCutout) sPcbVolume->addVertex(longWidthActive/2.,lengthActive/2.-yCutout);
 
-      //Transform PCB volume                                                                                                                              
+      //Transform PCB volume
       CLHEP::Hep3Vector vv(0,0,0);
       CLHEP::HepRotation rott;
       rott.rotateX(M_PI/2.);
@@ -182,7 +183,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
     } //Close loop on pcb volumes
 
     //Place chamber volume inside the mother volume (honeycomb volume)
-    ptrd->add(gastag);                                                                                                                                   
+    ptrd->add(gastag);
     ptrd->add(chamberpos);
     ptrd->add(ptrdgas);
 
