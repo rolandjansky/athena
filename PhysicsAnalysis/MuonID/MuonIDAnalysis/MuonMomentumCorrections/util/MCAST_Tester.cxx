@@ -30,10 +30,12 @@
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "AsgTools/Check.h"
+#include "AsgTools/AnaToolHandle.h"
 
 #include "PATInterfaces/SystematicCode.h"
 
 // Local include(s):
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include <string>
@@ -54,7 +56,7 @@ int main( int argc, char* argv[] ) {
 
   string options;
   for( int i=0; i<argc; i++)   { options+=(argv[i]);  }
-  
+
   int Ievent=-1;
   if(options.find("-event")!=string::npos){
   for( int ipos=0; ipos<argc ; ipos++ ) {
@@ -69,8 +71,8 @@ int main( int argc, char* argv[] ) {
       {       nEvents=atoi(argv[ipos+1]); break; }
   }}
 
-  
-  //std::cout<<"Checking for event "<<Ievent<<std::endl;  
+
+  //std::cout<<"Checking for event "<<Ievent<<std::endl;
   //::: Initialise the application:
   //ATH_CHECK( xAOD::Init( APP_NAME ) );
   xAOD::Init( APP_NAME );
@@ -103,27 +105,28 @@ int main( int argc, char* argv[] ) {
   //}
   //}
 
-  //::: Create the tool(s) to test:
+  ////////////////////////////////////////////////////
+  //::: MuonCalibrationAndSmearingTool
+  // setup the tool handle as per the
+  // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
+  ////////////////////////////////////////////////////
+  asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
+  corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
 
-  //::: Muon Calibration and Smearing
-  CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  //corrTool.msg().setLevel( MSG::VERBOSE);
-  corrTool.msg().setLevel( MSG::INFO);
-  //corrTool.msg().setLevel( MSG::WARNING);
-  //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
   //corrTool.setProperty( "Year", "Data15" );
   corrTool.setProperty( "Year", "Data16" );
   //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
-  corrTool.setProperty("SagittaCorr",true); 
-  //corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
+  corrTool.setProperty("SagittaCorr",true);
+  //corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17");
   corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_25_07_17");
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
-  if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
-  
+  corrTool.retrieve();
+
+
 
   //::: Muon Selection
 
@@ -135,14 +138,14 @@ int main( int argc, char* argv[] ) {
   //::: Systematics initialization
   std::vector< CP::SystematicSet > sysList;
   //sysList.push_back( CP::SystematicSet() );
-  
+
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   for( CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr ) {
     sysList.push_back( CP::SystematicSet() );
     sysList.back().insert( *sysItr );
   }
-  
+
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
 
   std::cout<<"Systematics are "<<std::endl;
@@ -179,22 +182,22 @@ int main( int argc, char* argv[] ) {
   //::: Loop over the events:
   for( Long64_t entry = 0; entry < entries; ++entry ) {
 
-    if( nEvents!=-1 && entry > nEvents ) break; 
+    if( nEvents!=-1 && entry > nEvents ) break;
     //::: Tell the object which entry to look at:
     event.getEntry( entry );
 
     //::: Print some event information for fun:
     const xAOD::EventInfo* evtInfo = 0;
     //ATH_CHECK( event.retrieve( evtInfo, "EventInfo" ) );
-    if(event.retrieve( evtInfo, "EventInfo" ) != StatusCode::SUCCESS) continue; 
+    if(event.retrieve( evtInfo, "EventInfo" ) != StatusCode::SUCCESS) continue;
     if(Ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=Ievent) {
       //std::cout<<"Event "<<evtInfo->eventNumber()<<" Ievent "<<Ievent<<std::endl;
-      continue;  
+      continue;
     }
 
 
     //Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
-    
+
     //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
     //ATH_CHECK( event.retrieve( muons, "Muons" ) );
@@ -212,15 +215,15 @@ int main( int argc, char* argv[] ) {
 
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
-      
+
       //Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable
-      if( corrTool.applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) { 
+      if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 
-      //for( int i=-0; i<1e3 ; i++) { 
+      //for( int i=-0; i<1e3 ; i++) {
       //::: Loop over muon container
       for( auto muon: *muonsCorr ) {
 
@@ -244,14 +247,14 @@ int main( int argc, char* argv[] ) {
           const ElementLink< xAOD::TrackParticleContainer >& ms_track = muon->extrapolatedMuonSpectrometerTrackParticleLink();
           InitPtMS = (!ms_track) ? 0:(*ms_track)->pt();
         }
-        
+
         Eta = muon->eta();
         Phi = muon->phi();
         Charge = muon->charge();
-      
+
         //::: Print some info about the selected muon:
         //Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
-        
+
         float ptCB = 0 ;
         if(muon->primaryTrackParticleLink().isValid()){
           const ElementLink< xAOD::TrackParticleContainer >& cb_track = muon->primaryTrackParticleLink();
@@ -260,7 +263,7 @@ int main( int argc, char* argv[] ) {
         else {
           Info( APP_NAME, "Missing primary track particle link for --> CB %g, author: %d, type: %d",ptCB,muon->author(),muon->muonType());
         }
-        float ptID = 0; 
+        float ptID = 0;
         if(muon->inDetTrackParticleLink().isValid()){
           const ElementLink< xAOD::TrackParticleContainer >& id_track = muon->inDetTrackParticleLink();
           ptID = (!id_track) ?  0:(*id_track)->pt();
@@ -270,15 +273,15 @@ int main( int argc, char* argv[] ) {
           const ElementLink< xAOD::TrackParticleContainer >& ms_track = muon->extrapolatedMuonSpectrometerTrackParticleLink();
           ptME = (!ms_track) ? 0:(*ms_track)->pt();
         }
-       
-        //if(entry %  1000 ==0 ) 
+
+        //if(entry %  1000 ==0 )
         Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
-        
+
         //:::
         if( do_it_the_right_way ) {
           //::: Create a calibrated muon:
           xAOD::Muon* mu = 0;
-          if( !corrTool.correctedCopy( *muon, mu ) ) {
+          if( !corrTool->correctedCopy( *muon, mu ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
           }
@@ -287,32 +290,32 @@ int main( int argc, char* argv[] ) {
           CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
 
           //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
-          
+
           sysTreeMap[ *sysListItr ]->Fill();
           //::: Delete the calibrated muon:
           delete mu;
         }
         else {
-          if( !corrTool.applyCorrection( *muon ) ) {
+          if( !corrTool->applyCorrection( *muon ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
           }
           CorrPtCB = muon->pt();
           CorrPtID = muon->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = muon->auxdata< float >( "MuonSpectrometerPt" );
-          ExpResoCB = corrTool.ExpectedResolution( "CB", *muon );
-          ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
-          ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
-          //if(entry %  1000 ==0 ) 
+          ExpResoCB = corrTool->expectedResolution( "CB", *muon, true );
+          ExpResoID = corrTool->expectedResolution( "ID", *muon, true );
+          ExpResoMS = corrTool->expectedResolution( "MS", *muon, true );
+          //if(entry %  1000 ==0 )
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
       }
       //}
     }
-    
+
     //::: Close with a message:
-    //if(entry %  1000 ==0 ) 
+    //if(entry %  1000 ==0 )
       Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 
@@ -326,6 +329,7 @@ int main( int argc, char* argv[] ) {
   outputFile->Close();
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+
 
   //::: Return gracefully:
   return 0;
