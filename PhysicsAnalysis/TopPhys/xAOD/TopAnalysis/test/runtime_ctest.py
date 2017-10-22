@@ -21,6 +21,10 @@ cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
                                             "DATAPATH", 
                                             ROOT.PathResolver.RecursiveSearch)
 
+# -- Print the file location for debugging --
+print "runtime_ctest : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
+
+# -- Copy the cutfile locally to be updated -- 
 shutil.copyfile(cutfilepath, cutfilename)
 
 # -- Write the input file path to a temporary file --
