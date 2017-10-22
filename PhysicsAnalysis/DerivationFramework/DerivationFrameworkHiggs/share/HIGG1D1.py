@@ -23,8 +23,8 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
-        addStandardTruthContents()
-        addPVCollection()
+    addStandardTruthContents()
+    addPVCollection()
     print "HIGG1D1.py Applying MCTruthCommon"
 
 #====================================================================
