@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           PRIVATE
+			  Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
