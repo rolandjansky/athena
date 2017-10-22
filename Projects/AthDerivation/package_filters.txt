@@ -398,6 +398,7 @@
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/JetMissingEtID/MissingETDQA
 + PhysicsAnalysis/JetTagging/JetTagValidation/JetTagDQA
++ PhysicsAnalysis/PhysicsValidation/PhysValMonitoring
 + Reconstruction/Jet/JetMonitoring
 + Reconstruction/PFlow/PFlowValidation/PFODQA
 + Reconstruction/PFlow/PFlowValidation/PFOHistUtils
