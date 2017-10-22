@@ -35,7 +35,7 @@
 #include "PATInterfaces/SystematicCode.h"
 
 // Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include <string>
@@ -303,9 +303,9 @@ int main( int argc, char* argv[] ) {
           CorrPtCB = muon->pt();
           CorrPtID = muon->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = muon->auxdata< float >( "MuonSpectrometerPt" );
-          ExpResoCB = corrTool->expectedResolution( "CB", *muon, true );
-          ExpResoID = corrTool->expectedResolution( "ID", *muon, true );
-          ExpResoMS = corrTool->expectedResolution( "MS", *muon, true );
+//           ExpResoCB = corrTool->expectedResolution( "CB", *muon, true ); // Sam Meehan - these will not work because the interface now needs the InfoHelper to pass to it - this is a messy interface
+//           ExpResoID = corrTool->expectedResolution( "ID", *muon, true );
+//           ExpResoMS = corrTool->expectedResolution( "MS", *muon, true );
           //if(entry %  1000 ==0 )
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
