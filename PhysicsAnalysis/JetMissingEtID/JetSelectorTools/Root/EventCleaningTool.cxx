@@ -44,7 +44,8 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_or()
   , m_prefix()
   , m_cleaningLevel()
-  , m_jetCleaningTool()
+  , m_jetCleaningTool() 
+  , m_dec_jetClean(0)
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
   declareProperty( "EtaCut" , m_eta = 4.5 );
@@ -79,6 +80,8 @@ StatusCode EventCleaningTool::initialize()
   ATH_CHECK(m_jetCleaningTool->initialize());
   ATH_MSG_INFO( "Event cleaning tool configured with cut level " << m_cleaningLevel  );
 
+  //create the decorator
+  m_dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
 
   return StatusCode::SUCCESS;
 }
@@ -93,7 +96,6 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
 
-        SG::AuxElement::Decorator<char>* dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
 	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_prefix+m_or);
 	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_prefix+m_jvt);	
 	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
@@ -112,16 +114,25 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 		}	
 		else isThisJetGood = pass_accept;     //if it fails any one of these, it shouldn't be able to kill the whole event, but we still need to know cleaning
 		ATH_MSG_DEBUG("Is jet good? " << isThisJetGood);
-		(*dec_jetClean)(*thisJet) = isThisJetGood;
+		(*m_dec_jetClean)(*thisJet) = isThisJetGood;
  	}
 	ATH_MSG_DEBUG("Is event good? " << isEventAllGood);
-   	delete dec_jetClean;
 	return isEventAllGood;		
 }
 
 int EventCleaningTool::keepJet(const xAOD::Jet& jet) const 
 { 
 	return m_jetCleaningTool->keep(jet); 
+}
+
+//=============================================================================
+// Finalize
+//=============================================================================
+StatusCode EventCleaningTool::finalize()
+{
+   	delete m_dec_jetClean;
+	return StatusCode::SUCCESS;
+
 }
 
 }//ECUtils

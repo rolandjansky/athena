@@ -30,6 +30,9 @@ class EventCleaningTestAlg : public AthAlgorithm
 
     /// Initialize the algorithm
     virtual StatusCode initialize();
+    
+    /// Finalize the algorithm
+    virtual StatusCode finalize();
 
     /// Execute the algorithm
     virtual StatusCode execute();
@@ -48,6 +51,7 @@ class EventCleaningTestAlg : public AthAlgorithm
     std::string m_cleaningLevel;
     std::string m_collection;
     bool m_doEvent;
+    SG::AuxElement::Decorator<char>* m_dec_eventClean; 
 };
 
 #endif
