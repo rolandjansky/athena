@@ -159,8 +159,10 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
             StreamRDO_ItemList+=["sTgcDigitContainer#*"]
+            StreamRDO_ItemList+=["GenericMuonSimHitCollection#sTGCSensitiveDetector"]
         if DetFlags.writeRDOPool.Micromegas_on():
             StreamRDO_ItemList+=["MmDigitContainer#*"]
+            StreamRDO_ItemList+=["GenericMuonSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():
