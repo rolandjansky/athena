@@ -43,7 +43,16 @@ namespace ShowerLib {
 	static IShowerLib* createEmptyLib(const std::string& inputFile);
 
     //! default destructor
-    virtual ~EtaEnergyShowerLib() {}
+    virtual ~EtaEnergyShowerLib()
+          {
+              for ( auto& eta : m_libData) {  // eta bins
+                  for (auto& ene : eta.second )  {  // energy map
+                      ene.second.clear();
+                  }
+                  eta.second.clear();
+              }
+              m_libData.clear();
+          }
 
     //! get shower for given G4 track
     virtual std::vector<EnergySpot>* getShower(const G4Track* track, ShowerLibStatistics* stats, int randomShift) const;
