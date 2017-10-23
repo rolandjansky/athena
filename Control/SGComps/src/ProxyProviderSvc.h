@@ -60,7 +60,7 @@ public:
 
   ///create a new Proxy, overriding CLID and/or key
   SG::DataProxy* addAddress(IProxyRegistry& storeToModify, 
-			    SG::TransientAddress* tad);
+			    SG::TransientAddress&& tad);
   //@}
 
 
