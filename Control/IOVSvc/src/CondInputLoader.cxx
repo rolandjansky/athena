@@ -243,7 +243,7 @@ CondInputLoader::start()
         CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
       if (cb == 0) {
         // try to force a load of libraries using ROOT
-        TClass::GetClass (tp.c_str());
+        (void)TClass::GetClass (tp.c_str());
         cb =
           CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
       }
