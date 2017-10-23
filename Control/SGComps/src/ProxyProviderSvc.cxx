@@ -25,7 +25,7 @@ using namespace std;
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
-  AthService(name, svcLoc),
+  base_class(name, svcLoc),
   m_pDataLoader(0)
 {
   declareProperty("ProviderNames", m_providerNames,
@@ -238,24 +238,6 @@ const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) cons
   }
   static const EventContext emptyContext;
   return emptyContext;
-}
-
-
-/// Gaudi Service boilerplate
-/// Gaudi_cast...
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-ProxyProviderSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( IProxyProviderSvc::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IProxyProviderSvc*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
 
 

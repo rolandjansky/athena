@@ -39,14 +39,9 @@ class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
 ///manages the address providers and add proxies on demand to the store
-class ProxyProviderSvc : virtual public IProxyProviderSvc,
-                         public AthService
+class ProxyProviderSvc : public extends<AthService, IProxyProviderSvc>
 {
 public:
-
-  // fwd compat w/ gaudi-v21
-  using AthMessaging::msg;
-
   typedef std::list<IAddressProvider*>::iterator  pAPiterator;
   typedef std::list<SG::TransientAddress*> TAdList;
   typedef TAdList::iterator TAdIterator;
@@ -76,7 +71,6 @@ public:
   /// Service boilerplate
   //@{
   virtual StatusCode initialize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
 protected:    
