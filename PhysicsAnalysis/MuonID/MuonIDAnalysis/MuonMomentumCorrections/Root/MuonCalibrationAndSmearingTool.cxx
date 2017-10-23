@@ -16,7 +16,7 @@ namespace CP {
 
 MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) :
   asg::AsgTool( name ),
-  m_useExternalSeed(false),
+  //m_useExternalSeed(false),
   //m_smearDeltaMS( 0. ), m_smearDeltaID( 0. ), m_smearDeltaCB( 0. ),
   m_Tsmear( 0 ),
   m_Tdata( 0 ), m_Trel( 0 ), m_Talgo( 0 ), //m_detRegion( 0 ),
@@ -29,15 +29,15 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
 
   m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ),
   m_StatCombPtThreshold(300.00), m_useStatComb(false), m_SagittaCorrPhaseSpace(false), m_doSagittaCorrection(false),m_doSagittaMCDistortion(false),m_SagittaRelease("sagittaBiasDataAll_02_08_17"){
-  declareProperty( "Year", m_year = "Data16" );
-  declareProperty( "Algo", m_algo = "muons" );
-  declareProperty( "SmearingType", m_type = "q_pT" );
-  declareProperty( "Release", m_release = "Recs2016_15_07" );
-  declareProperty( "ToroidOff", m_toroidOff = false );
-  declareProperty( "FilesPath", m_FilesPath = "" );
-  declareProperty( "StatComb", m_useStatComb = false);
-  declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0);
-  declareProperty( "SagittaCorr", m_doSagittaCorrection = false);
+  declareProperty("Year", m_year = "Data16" );
+  declareProperty("Algo", m_algo = "muons" );
+  declareProperty("SmearingType", m_type = "q_pT" );
+  declareProperty("Release", m_release = "Recs2016_15_07" );
+  declareProperty("ToroidOff", m_toroidOff = false );
+  declareProperty("FilesPath", m_FilesPath = "" );
+  declareProperty("StatComb", m_useStatComb = false);
+  declareProperty("MinCombPt", m_StatCombPtThreshold=300.0);
+  declareProperty("SagittaCorr", m_doSagittaCorrection = false);
   declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_25_07_17");
   declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
   declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
@@ -48,12 +48,14 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   declareProperty("fixedRho",m_fixedRho=1.0);
   declareProperty("useFixedRho",m_useFixedRho=false);
   declareProperty("noEigenDecor" ,m_doNotUseAMGMATRIXDECOR=false);
+  declareProperty("useExternalSeed" ,m_useExternalSeed=false);
+  declareProperty("externalSeed" ,m_externalSeed=0);
 
 
   //m_scaleRegion = -1;
   m_currentParameters = NULL;
 
-  m_useExternalSeed = false;
+  //m_useExternalSeed = false;
 
   m_SagittaIterations.push_back(0);
   m_SagittaIterations.push_back(0);
@@ -69,7 +71,9 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
 
 MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) :
   asg::AsgTool( tool.name() + "Copy" ),
+
   m_useExternalSeed( tool.m_useExternalSeed ),
+  m_externalSeed( tool.m_externalSeed ),
 
 //   m_smearDeltaMS( tool.m_smearDeltaMS ),
 //   m_smearDeltaID( tool.m_smearDeltaID ),
@@ -947,13 +951,17 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Checking Input Muon Info - Charge: " << ( ( muonInfo.charge > 0 ) ? "+" : "-" ) );
   ATH_MSG_VERBOSE( "Checking Input Muon Info -  Pt_CB - Pt_ID: " << ( muonInfo.ptcb - muonInfo.ptid ) * 1000. );
 
+  // if you don't want to use the external seed it will be set based on the eventNumber and the muon(eta,phi)
   if( !m_useExternalSeed ) {
     //::: Get Event Number:
     const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
     //::: Construct a seed for the random number generator:
     const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     m_random3.SetSeed( seed );
-    //m_random3.SetSeed(0);
+  }
+  else{
+    const UInt_t seed = m_externalSeed;
+    m_random3.SetSeed( seed );
   }
 
   muonInfo.smearDeltaMS = 0.;
@@ -1925,9 +1933,6 @@ void MuonCalibrationAndSmearingTool::CleanScales() {
   double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
     return ExpectedResolution(DetType, mu, mc, muonInfo);
   }
-//   double MuonCalibrationAndSmearingTool::expectedResolution( const int DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
-//     return ExpectedResolution(DetType, mu, mc, muonInfo);
-//   }
 
   double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
 
@@ -2629,9 +2634,9 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
  return CorrectionCode::Ok;
   }
 
-  void MuonCalibrationAndSmearingTool::setUseStatCombination(bool flag){
-    m_useStatComb=flag;
-  }
+//   void MuonCalibrationAndSmearingTool::setUseStatCombination(bool flag){
+//     m_useStatComb=flag;
+//   }
 
 
 bool MuonCalibrationAndSmearingTool::isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const {
@@ -2645,8 +2650,7 @@ bool MuonCalibrationAndSmearingTool::isBadMuon( const xAOD::Muon& mu, InfoHelper
     // ::
     bool IsBadMuon = false;
     if( idtrack && metrack && cbtrack ) {
-      ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix \
-																					      ()(4,4) ));
+      ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix()(4,4) ));
       // ::
       double qOverP_ME = metrack->qOverP();
       double qOverPerr_ME = sqrt( metrack->definingParametersCovMatrix()(4,4) );
