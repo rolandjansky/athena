@@ -240,12 +240,10 @@ bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
 
   lock_t lock (m_mutex);
 
-  auto isRunLumi = [] (const EventIDBase& id)
-    { return id.run_number() != EventIDBase::UNDEFNUM &&
-             id.lumi_block() != EventIDBase::UNDEFNUM; };
-
-  // LBN part of stop() will be UNDEFNUM for an open-ended range.
-  if (isRunLumi(r.start()) && r.stop().run_number() != EventIDBase::UNDEFNUM) {
+  // LBN part of ranges may be undefined for an open-ended range.
+  if (r.start().run_number() != EventIDBase::UNDEFNUM &&
+      r.stop().run_number() != EventIDBase::UNDEFNUM)
+  {
     EventIDBase start = r.start();
     EventIDBase stop = r.stop();
     start.set_event_number (EventIDBase::UNDEFEVT);
@@ -253,12 +251,10 @@ bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
     m_condSet_RE.emplace( IOVEntryT<T>(t.release(), EventIDRange(start, stop)) );
     
   }
-  else if (r.start().isRunEvent() && r.stop().isRunEvent())
-  {
-    m_condSet_RE.emplace( IOVEntryT<T>(t.release(), r) );
-  } else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
+  else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
     m_condSet_clock.emplace( IOVEntryT<T>(t.release(), r) );
-  } else {
+  }
+  else {
     std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
               << " is neither fully RunEvent nor TimeStamp" 
               << std::endl;
