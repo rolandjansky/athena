@@ -663,7 +663,7 @@ G4bool LArWheelSolid::test_dti(
 	const G4double distance
 ) const
 {
-	if(distance > 10.*m){
+	if(distance > 10.*CLHEP::m){
 		LWSDBG(1, std::cout << "DTI test skipped, distance > 10 m"
 	                        << std::endl);
 		return false;
@@ -671,19 +671,19 @@ G4bool LArWheelSolid::test_dti(
 	unsigned long counter = 0;
 	counter ++;
 	G4ThreeVector p;
-	if(BoundingShape->Inside(inputP) == kOutside){
-		p = inputP + inputV * BoundingShape->DistanceToIn(inputP, inputV);
+	if(m_BoundingShape->Inside(inputP) == kOutside){
+		p = inputP + inputV * m_BoundingShape->DistanceToIn(inputP, inputV);
 	} else p = inputP;
 	const G4double phi0 = p.phi();
 	int p_fan = 0;
 	const G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
-	if(fabs(d) < FHTminusT){
+	if(fabs(d) < m_FHTplusT){
 		std::cout << "DTI test already inside" << MSG_VECTOR(p) << std::endl;
 		return false;
 	}
 	G4ThreeVector v( inputV );
 	v.rotateZ(p.phi() - phi0);
-	const G4double dd = IterationPrecision;
+	const G4double dd = s_IterationPrecision;
 	LWSDBG(1, std::cout << "Start DTI test, expect "
 	                    << long(distance / dd) << " iterations"
 	                    << std::endl);
@@ -691,17 +691,17 @@ G4bool LArWheelSolid::test_dti(
 	G4int V = Verbose;
 	Verbose = 0;
 
-	const G4double d1 = distance - IterationPrecision;
+	const G4double d1 = distance - s_IterationPrecision;
 	bool first = true;
-	for(G4double t = IterationPrecision; t < d1; t += dd){
+	for(G4double t = s_IterationPrecision; t < d1; t += dd){
 		G4ThreeVector p1 = p + v * t;
-		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) < FHTminusT){
+		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) < m_FHTplusT){
 			std::cout << "DTI test at " << MSG_VECTOR(inputP) << " -> "
 			          << MSG_VECTOR(inputV) << ", translated to "
 			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
 			          << " in range of "
 			          << distance << ": found nearer intersection at local point"
-			          << MSG_VECTOR(p1) << ", distance " << d
+			          << MSG_VECTOR(p1) << ", distance " << t
 			          << ", call " << counter
 			          << std::endl;
 			Verbose = V;
@@ -712,7 +712,7 @@ G4bool LArWheelSolid::test_dti(
 				if(F){
 					fprintf(F, "%10e %10e %10e\n", p.x(), p.y(), p.z());
 					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
-					for(G4double e = IterationPrecision; e < d1; e += dd){
+					for(G4double e = s_IterationPrecision; e < d1; e += dd){
 						p1 = p + v * e;
 						G4double f = fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) - m_FanHalfThickness;
 						fprintf(F, "%10e %10e\n", e, f);
@@ -736,7 +736,7 @@ G4bool LArWheelSolid::test_dto(
 	const G4double distance
 ) const
 {
-	if(distance > 10.*m){
+	if(distance > 10.*CLHEP::m){
 		LWSDBG(1, std::cout << "DTO test skipped, distance > 10 m"
 	                        << std::endl);
 		return false;
@@ -747,13 +747,13 @@ G4bool LArWheelSolid::test_dto(
 	const G4double phi0 = p.phi();
 	int p_fan = 0;
 	const G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
-	if(fabs(d) > FHTplusT){
+	if(fabs(d) > m_FHTplusT){
 		std::cout << "DTO test already outside" << MSG_VECTOR(p) << std::endl;
 		return false;
 	}
 	G4ThreeVector v( inputV );
 	v.rotateZ(p.phi() - phi0);
-	const G4double dd = IterationPrecision;
+	const G4double dd = s_IterationPrecision;
 	LWSDBG(1, std::cout << "Start DTO test, expect "
 	                    << long(distance / dd) << " iterations"
 	                    << std::endl);
@@ -761,17 +761,17 @@ G4bool LArWheelSolid::test_dto(
 	G4int V = Verbose;
 	Verbose = 0;
 
-	const G4double d1 = distance - IterationPrecision;
+	const G4double d1 = distance - s_IterationPrecision;
 	static bool first = true;
-	for(G4double t = IterationPrecision; t < d1; t += dd){
+	for(G4double t = s_IterationPrecision; t < d1; t += dd){
 		G4ThreeVector p1 = p + v * t;
-		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) > FHTplusT){
+		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) > m_FHTplusT){
 			std::cout << "DTO test at " << MSG_VECTOR(inputP) << " -> "
 			          << MSG_VECTOR(inputV) << ", translated to "
 			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
 			          << " in range of "
 			          << distance << ": found nearer intersection at local point"
-			          << MSG_VECTOR(p1) << ", distance " << d
+			          << MSG_VECTOR(p1) << ", distance " << t
 			          << ", call " << counter
 			          << std::endl;
 			Verbose = V;
@@ -782,7 +782,7 @@ G4bool LArWheelSolid::test_dto(
 				if(F){
 					fprintf(F, "%10e %10e %10e\n", p.x(), p.y(), p.z());
 					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
-					for(G4double e = IterationPrecision; e < d1; e += dd){
+					for(G4double e = s_IterationPrecision; e < d1; e += dd){
 						p1 = p + v * e;
 						G4double f = fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) - m_FanHalfThickness;
 						fprintf(F, "%10e %10e\n", e, f);
