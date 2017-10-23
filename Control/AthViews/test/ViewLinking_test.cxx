@@ -131,7 +131,7 @@ void testFallThrough( StoreGateSvc* sg , MsgStream& log) {
     rh.setProxyDict( transparentView ); 
     VALUE( rh.isValid() ) EXPECTED( true );
   }
-  log << MSG::INFO << "Fall trhrough works as expected " << endmsg;
+  log << MSG::INFO << "Fall through works as expected " << endmsg;
 }
 
 

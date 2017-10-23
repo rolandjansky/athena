@@ -1,0 +1,19 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus110.cern.ch on Thu Oct 19 17:45:56 2017
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ClassIDSvc           INFO  getRegistryEntries: read 811 CLIDRegistry entries for module ALL
+ViewLinking_test     INFO SG pointer: 0xdab760
+ClassIDSvc           INFO  getRegistryEntries: read 400 CLIDRegistry entries for module ALL
+ViewLinking_test     INFO Views that are not linked behave correctly 
+ViewLinking_test     INFO Views that are linked behave correctly 
+ViewLinking_test     INFO Hiding works as expected 
+ViewLinking_test     INFO Fall through works as expected 
