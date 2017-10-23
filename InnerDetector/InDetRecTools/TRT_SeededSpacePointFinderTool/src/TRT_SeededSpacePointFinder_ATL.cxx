@@ -473,6 +473,25 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 ///////////////////////////////////////////////////////////////////
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
+namespace {
+    class StreamState
+    {
+    public:
+      StreamState(std::ostream& out)
+           : m_out(out), m_prec(out.precision())
+       {
+       }
+
+       ~StreamState()
+       {
+           m_out.precision(m_prec);
+       }
+
+    private:
+       std::ostream& m_out;
+       std::streamsize m_prec;
+    };
+}
 
 MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) const
 {
@@ -500,14 +519,13 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) co
   
   double sF1 = pi2/double(m_fNmax+1);
   
-  std::ios_base::fmtflags original_flags=std::cout.flags(); 
+  StreamState restore_precision(cout); 
   for(int f=0; f<=m_fNmax; ++f) {
     out<<"|  "
        <<std::setw(10)<<std::setprecision(4)<<sF1*double(f)<<" | "
        <<std::setw(6)<<rf_map[f]<<" |";
     out<<std::endl;
   }
-  std::cout.flags(original_flags);
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
