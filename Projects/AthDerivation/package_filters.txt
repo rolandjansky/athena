@@ -256,7 +256,6 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
-- Reconstruction/Jet/JetMonitoring
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface
@@ -396,10 +395,9 @@
 + PhysicsAnalysis/TauID/TauDQA
 + PhysicsAnalysis/TauID/TauHistUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
-+ PhysicsAnalysis/JetMissingEtID/MissingETDQA
++ PhysicsAnalysis/JetMissingEtID/MissingEtDQA
 + PhysicsAnalysis/JetTagging/JetTagValidation/JetTagDQA
 + PhysicsAnalysis/PhysicsValidation/PhysValMonitoring
-+ Reconstruction/Jet/JetMonitoring
 + Reconstruction/PFlow/PFlowValidation/PFODQA
 + Reconstruction/PFlow/PFlowValidation/PFOHistUtils
 + Reconstruction/egamma/EgammaPhysValMonitoring
