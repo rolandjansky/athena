@@ -58,9 +58,9 @@ else
   echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
 fi
 
-TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/_build-jobs/${SUBDIR}
+TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
 if [[ ! -e ${TARGETDIR} ]]; then
   echo Target directory ${TARGETDIR}
-  eos mkdir ${TARGETDIR}
+  eos mkdir -p ${TARGETDIR}
   xrdcp -vr ${OUTDIR} ${TARGETDIR}
 fi

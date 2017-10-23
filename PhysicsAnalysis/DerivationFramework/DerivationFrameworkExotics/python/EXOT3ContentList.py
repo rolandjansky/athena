@@ -26,14 +26,13 @@ EXOT3AllVariablesContent = [
      "MuonTruthParticles",
      "TruthParticles",
      "MET_Truth",
-     #"CamKt12TruthJets",#FIX #ATLJETMET-744
      "AntiKt10TruthJets",
      "AntiKt4TruthJets",
 
      ### JETS ###
      "AntiKt10LCTopoJets",
+     "AntiKt10TrackCaloClusterJets",
      "AntiKt4EMTopoJets",
-     #"CamKt12LCTopoJets",#FIX #ATLJETMET-744
      "AntiKt2PV0TrackJets",
      "TauJets",
      
@@ -49,14 +48,15 @@ EXOT3AllVariablesContent = [
 
      ### TOPOCLUSTERS ###
      "CaloCalTopoClusters",
+     
+     ### TRACKCALOCLUSTERS ###
+     "TrackCaloClustersCombinedAndNeutral",
 
      "METAssoc_AntiKt4EMTopo",
      "MET_Core_AntiKt4EMTopo",
      "MET_Reference_AntiKt4EMTopo",
 
      "egammaTopoSeededClusters",
-
-     "InDetForwardTrackParticles",
 
      "CombinedMuonTrackParticles",
      "ExtrapolatedMuonTrackParticles",

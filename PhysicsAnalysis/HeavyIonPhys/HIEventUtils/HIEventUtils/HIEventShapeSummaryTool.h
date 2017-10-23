@@ -15,7 +15,7 @@
 
 class HIEventShapeSummaryTool : virtual public asg::AsgTool, virtual public IHIEventShapeSummaryTool
 {
-  ASG_TOOL_CLASS(HIEventShapeSummaryTool,IHIEventShapeSummaryTool);
+  ASG_TOOL_CLASS(HIEventShapeSummaryTool,IHIEventShapeSummaryTool)
 public:
   HIEventShapeSummaryTool(const std::string& n);
 

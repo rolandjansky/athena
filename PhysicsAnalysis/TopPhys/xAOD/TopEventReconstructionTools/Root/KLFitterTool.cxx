@@ -66,14 +66,20 @@ namespace top{
     // 4) create an instance of the likelihood for ttH -> l+jets channel and customize it according to your needs
     KLFitter::LikelihoodTTHLeptonJets * myLikelihood_TTH = new KLFitter::LikelihoodTTHLeptonJets{};
 
+    // 4) create an instance of the likelihood for ttbar->l+jets channel using jet angles channel and customize it according to your needs
+    KLFitter::LikelihoodTopLeptonJets_JetAngles * myLikelihood_JetAngles = new KLFitter::LikelihoodTopLeptonJets_JetAngles{};
+
+
     // 4.a) SetleptonType
     if (m_leptonType == "kElectron") {
       m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron;
       m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron;
+      m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron;
     }
     else if (m_leptonType == "kMuon") {
       m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon;
       m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon;
+      m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
     } 
     else {
       ATH_MSG_ERROR(" Please supply a valid LeptonType : kElectron or kMuon");
@@ -82,6 +88,7 @@ namespace top{
         
     myLikelihood     -> SetLeptonType( m_leptonTypeKLFitterEnum ); 
     myLikelihood_TTH -> SetLeptonType( m_leptonTypeKLFitterEnum_TTH );
+    myLikelihood_JetAngles -> SetLeptonType( m_leptonTypeKLFitterEnum_JetAngles );
 
     // 4.b) Jet Selection Mode
     if (m_config->KLFitterJetSelectionMode() == "kLeadingFour" ){
@@ -145,20 +152,25 @@ namespace top{
       ATH_MSG_ERROR("Please supply a valid BTaggingMethod : kNotag,kVetoNoFit,kVetoNoFitLight,kVetoNoFitBoth,kWorkingPoint,kVeto,kVetoLight or kVetoBoth" );
       return StatusCode::FAILURE;
     }
-    myLikelihood     -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_TTH -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    myLikelihood           -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    myLikelihood_TTH       -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    myLikelihood_JetAngles -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     // 4.d) SetTopMass
-    myLikelihood     -> PhysicsConstants()->SetMassTop( m_massTop ); 
-    myLikelihood_TTH -> PhysicsConstants()->SetMassTop( m_massTop );
+    myLikelihood           -> PhysicsConstants()->SetMassTop( m_massTop ); 
+    myLikelihood_TTH       -> PhysicsConstants()->SetMassTop( m_massTop );
+    myLikelihood_JetAngles -> PhysicsConstants()->SetMassTop( m_massTop );
     // 4.e) TopMassFixed
-    myLikelihood     -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
-    myLikelihood_TTH -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-
+    myLikelihood           -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
+    myLikelihood_TTH       -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    myLikelihood_JetAngles -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
       m_myFitter->SetLikelihood(myLikelihood);  
     else if (m_LHType == "ttH")
       m_myFitter->SetLikelihood(myLikelihood_TTH);
+    else if (m_LHType == "ttbar_JetAngles")
+      m_myFitter->SetLikelihood(myLikelihood_JetAngles);
+
     else{
 
       ATH_MSG_ERROR( "KLFitter: This likelihood is not defined..." );
@@ -245,7 +257,18 @@ namespace top{
         myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon);
       }
     }
-        
+    if(m_LHType == "ttbar_JetAngles"){
+      if (m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
+	TLorentzVector el;
+	el.SetPtEtaPhiE( event.m_electrons.at(0)->pt()/1.e3 ,  event.m_electrons.at(0)->eta() , event.m_electrons.at(0)->phi(),  event.m_electrons.at(0)->e() / 1.e3);
+	myParticles->AddParticle(&el, event.m_electrons.at(0)->caloCluster()->etaBE(2) , KLFitter::Particles::kElectron);
+      }
+      if (m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
+	TLorentzVector mu;
+	mu.SetPtEtaPhiE( event.m_muons.at(0)->pt()/1.e3 ,  event.m_muons.at(0)->eta() , event.m_muons.at(0)->phi(),  event.m_muons.at(0)->e() / 1.e3);
+	myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon);
+      }
+    }
     // set the jets, depending on the Jet Selection Mode
     setJets(event, myParticles); 
     
@@ -276,7 +299,6 @@ namespace top{
     for (int iperm  = 0; iperm < nperm; ++iperm) {
       // Perform the fit
       m_myFitter->Fit(iperm); 
-      
       // create a result 
       xAOD::KLFitterResult* result = new xAOD::KLFitterResult{};
       resultContainer->push_back( result );
@@ -286,7 +308,7 @@ namespace top{
       bool FitAbortedDueToNaN = (ConvergenceStatusBitWord & m_myFitter->FitAbortedDueToNaNMask) != 0;
       bool AtLeastOneFitParameterAtItsLimit = (ConvergenceStatusBitWord & m_myFitter->AtLeastOneFitParameterAtItsLimitMask) != 0;
       bool InvalidTransferFunctionAtConvergence = (ConvergenceStatusBitWord & m_myFitter->InvalidTransferFunctionAtConvergenceMask) != 0;      
-      
+
       result->setMinuitDidNotConverge( ((MinuitDidNotConverge) ? 1 : 0) );
       result->setFitAbortedDueToNaN( ((FitAbortedDueToNaN) ? 1 : 0) );
       result->setAtLeastOneFitParameterAtItsLimit( ((AtLeastOneFitParameterAtItsLimit) ? 1 : 0 ) );
@@ -300,6 +322,8 @@ namespace top{
       KLFitter::Particles * myModelParticles = m_myFitter->Likelihood()->ParticlesModel();
       KLFitter::Particles ** myPermutedParticles = m_myFitter->Likelihood()->PParticlesPermuted();
       
+
+
       result->setModel_bhad_pt( myModelParticles->Parton(0)->Pt() );
       result->setModel_bhad_eta( myModelParticles->Parton(0)->Eta() );
       result->setModel_bhad_phi( myModelParticles->Parton(0)->Phi() );
@@ -340,14 +364,18 @@ namespace top{
 
       } 
       
-      if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron || m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron) {
+      if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron || 
+          m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron ||
+          m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
         result->setModel_lep_pt( myModelParticles->Electron(0)->Pt() );
         result->setModel_lep_eta( myModelParticles->Electron(0)->Eta() );
         result->setModel_lep_phi( myModelParticles->Electron(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Electron(0)->E() );
       }
       
-      if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon || m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon) {
+      if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon || 
+          m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon || 
+          m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
         result->setModel_lep_pt( myModelParticles->Muon(0)->Pt() );
         result->setModel_lep_eta( myModelParticles->Muon(0)->Eta() );
         result->setModel_lep_phi( myModelParticles->Muon(0)->Phi() );

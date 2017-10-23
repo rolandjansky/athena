@@ -43,15 +43,6 @@ SUSY16ThinningHelper.AppendToStream( SUSY16Stream )
 # THINNING TOOLS 
 #====================================================================
 
-# B.M.: likely not used
-# TrackParticles directly
-#SUSY16TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY16TPThinningTool",
-#                                                                  ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
-#                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY16TPThinningTool
-#thinningTools.append(SUSY16TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY16MuonTPThinningTool",
@@ -147,10 +138,10 @@ if DerivationFrameworkIsMonteCarlo:
                                                                      WriteBSMProducts             = True,
                                                                      WriteTopAndDecays            = True,
                                                                      WriteEverything              = False,
-                                                                     WriteAllLeptons              = False,
+                                                                     WriteAllLeptons              = True,
                                                                      WriteLeptonsNotFromHadrons   = False,
                                                                      WriteStatus3                 = False,
-                                                                     WriteFirstN                  = -1,
+                                                                     WriteFirstN                  = 10,
                                                                      PreserveAncestors            = True,
                                                                      PreserveGeneratorDescendants = False,
                                                                      SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
@@ -191,7 +182,7 @@ ToolSvc += SUSY16LeptonSkimmingTool
 
 # ------------------------------------------------------------
 # Trigger selection
-from DerivationFrameworkSUSY.SUSY16TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation
+from DerivationFrameworkSUSY.SUSY16TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation,triggersTriLep,triggersSingleLep,triggersDiLep
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
 
 
@@ -235,11 +226,42 @@ else:
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
-# Final skim selection, with trigger selection and lepton selection
-SUSY16SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool", 
-                                                               FilterList = [SUSY16LeptonSkimmingTool, 
-                                                                             SUSY16TriggerSkimmingTool])
-ToolSvc += SUSY16SkimmingTool
+# Final MET-based skim selection, with trigger selection and lepton selection
+SUSY16SkimmingTool_MET = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_MET", 
+                                                                   FilterList = [SUSY16LeptonSkimmingTool, 
+                                                                                 SUSY16TriggerSkimmingTool])
+ToolSvc += SUSY16SkimmingTool_MET
+
+# Trilepton final skim
+includeTrileptonEvents=False
+if includeTrileptonEvents:
+    # trilepton selection
+    trileptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 3)'
+    SUSY16TriLeptonSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY16LeptonSkimmingTool",
+                                                                               expression = '('+trileptonSelection+')')
+    ToolSvc += SUSY16TriLeptonSkimmingTool
+
+    # lepton-based triggers done separately, will use separate lepton multiplicity requirements for those
+    trileptrigReq=triggersSingleLep+triggersDiLep+triggersTriLep
+    SUSY16TriLepTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY16TriLepTriggerSkimmingTool",
+                                                                                TriggerListOR = trileptrigReq)
+    ToolSvc += SUSY16TriLepTriggerSkimmingTool
+
+    # Trilepton trigger+lepton selection
+    SUSY16SkimmingTool_TriLep = DerivationFramework__FilterCombinationAND(name = "SUSY16SkimmingTool_TriLep", 
+                                                                          FilterList = [SUSY16TriLeptonSkimmingTool, 
+                                                                                        SUSY16TriLepTriggerSkimmingTool])
+    ToolSvc += SUSY16SkimmingTool_TriLep
+
+    # and the final-final selection is an OR of the trilepton selection and the inclusive-MET selection:
+    SUSY16SkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY16SkimmingTool", 
+                                                                  FilterList = [SUSY16SkimmingTool_MET, 
+                                                                                SUSY16SkimmingTool_TriLep])
+    ToolSvc += SUSY16SkimmingTool
+else:
+    # just using inclusive MET
+    SUSY16SkimmingTool = SUSY16SkimmingTool_MET
+
 # ------------------------------------------------------------
 
 #====================================================================
@@ -253,16 +275,47 @@ SUSY16_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name       
                                                                      )
 ToolSvc += SUSY16_MaxCellDecoratorTool
 
-# Calo Clusters associated with Electrons
-SUSY16ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "SUSY16ElectronCCThinningTool",
-                                                                        ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
-                                                                        SGKey                   = "Electrons",
-                                                                        CaloClCollectionSGKey   = "egammaClusters",
-                                                                        TopoClCollectionSGKey   = "",
-                                                                        #SelectionString         = "Electrons.pt > 15*GeV",
-                                                                        #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
-                                                                        ConeSize                = 0)
-ToolSvc += SUSY16ElectronCCThinningTool
+# May want to add this in at some point for isolated-track selection studies?
+if False:
+    #====================================================================
+    # ISOLATION TOOL 
+    #====================================================================
+    #Track selection
+    from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
+    TrackIsoTool = xAOD__TrackIsolationTool("TrackIsoTool")
+    TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 3.
+    TrackIsoTool.TrackSelectionTool.minPt= 1000.
+    TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
+    ToolSvc += TrackIsoTool
+
+    TrackIsoTool500 = xAOD__TrackIsolationTool("TrackIsoTool500")
+    TrackIsoTool500.TrackSelectionTool.maxZ0SinTheta= 3.
+    TrackIsoTool500.TrackSelectionTool.minPt= 500.
+    TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
+    ToolSvc += TrackIsoTool500
+
+    from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
+    import ROOT, PyCintex
+    PyCintex.loadDictionary('xAODCoreRflxDict')
+    PyCintex.loadDictionary('xAODPrimitivesDict')
+    isoPar = ROOT.xAOD.Iso
+    Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
+                                                                    TrackIsolationTool = TrackIsoTool,
+                                                                    TargetContainer = "InDetTrackParticles",
+                                                                    ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                    Prefix = 'TrkIsoPt1000_'
+                                                                   )
+    Pt500IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt500IsoTrackDecorator",
+                                                                    TrackIsolationTool = TrackIsoTool500,
+                                                                    TargetContainer = "InDetTrackParticles",
+                                                                    ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                    Prefix = 'TrkIsoPt500_'
+                                                                   )
+    ToolSvc += Pt1000IsoTrackDecorator
+    ToolSvc += Pt500IsoTrackDecorator
+
+    AugmentationTools.append(Pt1000IsoTrackDecorator)
+    AugmentationTools.append(Pt500IsoTrackDecorator)
 
 
 #=======================================
@@ -354,12 +407,12 @@ SUSY16SlimmingHelper.AllVariables = ["TruthParticles",
                                      "MET_Truth"]					
 SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl",
+                                      "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Photons.author.Loose.Tight",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
-                                      + ".PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased",
+                                      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m",
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",

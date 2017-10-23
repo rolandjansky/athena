@@ -63,7 +63,15 @@ const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xT
     if (m_bWriteTruthTaus or m_bTruthTauAvailable)
     {
       static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
-      return *accTruthTau(xTau);
+      if (accTruthTau(xTau).isValid())
+      {
+        return *accTruthTau(xTau);
+      }
+      else
+      {
+        ATH_MSG_WARNING("ElementLink to TruthParticle is not valid.");
+        return nullptr;
+      }
     }
     else
     {

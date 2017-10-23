@@ -319,13 +319,37 @@ class ConfiguredNewTrackingCuts :
     if mode == "LargeD0": 
       self.__extension          = "LargeD0" # this runs parallel to NewTracking
       self.__maxPT              = 1.0 * Units.TeV
-      self.__minPT              = 500 * Units.MeV
+      self.__minPT              = 900 * Units.MeV
       self.__maxEta             = 5
       self.__maxPrimaryImpact   = 300.0 * Units.mm
       self.__maxZImpact         = 1500.0 * Units.mm
       self.__maxSecondaryImpact = 300.0 * Units.mm
       self.__minSecondaryPt     = 500.0 * Units.MeV
       self.__minClusters        = 7
+      self.__minSiNotShared     = 5
+      self.__maxShared          = 2   # cut is now on number of shared modules
+      self.__minPixel           = 0   
+      self.__maxHoles           = 2
+      self.__maxPixelHoles      = 1
+      self.__maxSctHoles        = 2
+      self.__maxDoubleHoles     = 1
+      self.__radMax             = 600. * Units.mm
+      self.__nHolesMax          = self.__maxHoles
+      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles  
+      self.__seedFilterLevel   = 1
+      self.__maxTracksPerSharedPRD = 2
+
+    # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
+    if mode == "LowPtLargeD0": 
+      self.__extension          = "LowPtLargeD0" # this runs parallel to NewTracking
+      self.__maxPT              = 1.0 * Units.TeV
+      self.__minPT              = 100 * Units.MeV
+      self.__maxEta             = 5
+      self.__maxPrimaryImpact   = 300.0 * Units.mm
+      self.__maxZImpact         = 1500.0 * Units.mm
+      self.__maxSecondaryImpact = 300.0 * Units.mm
+      self.__minSecondaryPt     = 400.0 * Units.MeV
+      self.__minClusters        = 5
       self.__minSiNotShared     = 5
       self.__maxShared          = 2   # cut is now on number of shared modules
       self.__minPixel           = 0   

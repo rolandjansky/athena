@@ -48,12 +48,52 @@ triggersMET = [
 'HLT_xe120_wEFMu',      
 'HLT_xe130_mht_L1XE50',
 'HLT_xe140_mht_L1XE50',
-'HLT_noalg_L1J400'
+'HLT_noalg_L1J400',
+# 2017
+'HLT_xe90_pufit_L1XE50',
+'HLT_xe100_pufit_L1XE50',
+'HLT_xe100_pufit_L1XE55',
+'HLT_xe110_pufit_L1XE50',
+'HLT_xe110_pufit_L1XE55',
+'HLT_xe110_pufit_L1XE60',
+'HLT_xe120_pufit_L1XE50',
+'HLT_xe120_pufit_L1XE55',
+'HLT_xe120_pufit_L1XE60',
+'HLT_noalg_L1J420',
+'HLT_noalg_L1J450',
 ]
 
 triggersSoftMuon = [
+# 2016
 'HLT_2mu4_j85_xe50_mht',
-'HLT_mu4_j125_xe90_mht'
+'HLT_mu4_j125_xe90_mht',
+# 2017
+'HLT_2mu4_invm1_j20_xe40_pufit_2dphi10_L12MU4_J20_XE30_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J20_XE30_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J20_XE40_DPHI-J20s2XE30',
+'HLT_2mu4_invm1_j20_xe60_pufit_2dphi10_L12MU4_J40_XE50',
+'HLT_2mu4_invm1_j20_xe80_pufit_2dphi10_L12MU4_J40_XE50',
+'HLT_mu4_j90_xe90_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30',
+'HLT_mu4_j90_xe90_pufit_2dphi10_L1MU4_XE60',
+'HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_XE60',
+'HLT_2e5_lhvloose_nod0_j40_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_2e5_lhvloose_nod0_j40_xe70_pufit_2dphi10_L1XE60'
+'HLT_2e5_lhmedium_nod0_j40_xe80_pufit_2dphi10_L1XE60',
+'HLT_2e5_lhloose_nod0_j40_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhvloose_nod0_mu4_j30_xe40_pufit_2dphi10_L1MU4_J30_XE40_DPHI-J20s2XE30',
+'HLT_e5_lhloose_nod0_j50_xe70_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhloose_nod0_mu4_j30_xe40_pufit_2dphi10_L1MU4_J30_XE40_DPHI-J20s2XE30',
+'HLT_e5_lhmedium_nod0_j50_xe80_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',
+'HLT_e5_lhmedium_nod0_mu4_j30_xe65_pufit_2dphi10_L1MU4_XE60',
+'HLT_e5_lhloose_nod0_j40_xe70_pufit_2dphi10_L1XE60',
+'HLT_e5_lhmedium_nod0_j40_xe80_pufit_2dphi10_L1XE60',
+'HLT_e5_lhmedium_nod0_j50_xe90_pufit_2dphi10_L1J40_XE50_DPHI_J20s2XE50',
+# MC16
+'HLT_mu4_j100_xe60mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_mu4_xe60mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_2mu4_xe40mht_L12MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_e5_lhmedium_nod0_mu4_xe40_mht_L1MU4_J20_XE30_DPHI-J20sXE30',
+'HLT_2e5_lhmedium_nod0_j50_xe80_mht_L1J40_XE50_DPHI-J20sXE50',
 ]
 
 triggersSoftMuonEmulation = [
@@ -69,7 +109,7 @@ triggersSoftMuonEmulation = [
 'HLT_j85',
 'HLT_j100',
 'HLT_j110',
-'HLT_j125'
+'HLT_j125',
 ]
 
 triggersJetPlusMet = [
@@ -102,22 +142,15 @@ triggersPhoton = [
 'HLT_g80_loose_xe80noL1',
 ]
 
-triggersMultiLep = [
-# multi-muon
+triggersDiLep = [
+# di-muon
 'HLT_mu24_mu8noL1',
-'HLT_mu24_2mu4noL1',
-'HLT_mu22_2mu4noL1',
-'HLT_mu20_2mu4noL1',
 'HLT_mu22_mu8noL1',
 'HLT_mu20_mu8noL1',
 'HLT_mu18_mu8noL1',
-'HLT_mu18_2mu4noL1',
 'HLT_2mu10',
-'HLT_3mu4',
 'HLT_2mu14',
 'HLT_2mu14_nomucomb',
-'HLT_3mu6',
-'HLT_3mu6_msonly',    
 # multi-electron
 'HLT_e17_lhloose_2e9_lhloose',
 'HLT_e17_lhmedium_2e9_lhmedium',
@@ -131,6 +164,9 @@ triggersMultiLep = [
 'HLT_2e15_lhvloose_nod0_L12EM13VH',
 'HLT_2e12_lhvloose_L12EM10VH',
 'HLT_2e12_lhvloose_nod0_L12EM10VH',
+'HLT_2e12_lhloose_L12EM10VH',
+'HLT_2e17_lhvloose_nod0_L12EM15VHI',
+'HLT_2e24_lhvloose_nod0',
 # e+mu
 'HLT_e17_loose_mu14',
 'HLT_e17_lhloose_mu14',
@@ -138,12 +174,35 @@ triggersMultiLep = [
 'HLT_e7_medium_mu24',
 'HLT_e7_lhmedium_mu24',
 'HLT_e7_lhmedium_nod0_mu24',
+'HLT_e26_lhmedium_nod0_mu8noL1',
 'HLT_e26_medium_L1EM22VHI_mu8noL1',
 'HLT_e26_lhmedium_L1EM22VHI_mu8noL1',
 'HLT_e26_lhmedium_nod0_L1EM22VHI_mu8noL1',
 'HLT_e24_medium_L1EM20VHI_mu8noL1',
 'HLT_e24_lhmedium_L1EM20VHI_mu8noL1',
 'HLT_e24_lhmedium_nod0_L1EM20VHI_mu8noL1',
+]
+
+triggersTriLep = [
+# trimuon for low-MET analysis
+'HLT_3mu4',
+'HLT_3mu6',
+'HLT_3mu6_msonly',
+'HLT_mu24_2mu4noL1',
+'HLT_mu22_2mu4noL1',
+'HLT_mu20_2mu4noL1',
+'HLT_mu18_2mu4noL1',
+'HLT_mu6_2mu4',
+# tri-electron
+'HLT_e17_lhloose_2e9_lhloose',
+'HLT_e17_lhloose_nod0_2e9_lhloose_nod0',
+'HLT_e17_lhloose_nod0_2e10_lhloose_nod0',
+'HLT_e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH',
+# mixed trilepton
+'HLT_e12_lhloose_2mu10', 
+'HLT_e12_lhloose_nod0_2mu10', 
+'HLT_2e12_lhloose_mu10', 
+'HLT_2e12_lhloose_nod0_mu10',
 ]
 
 triggersJets=[
@@ -251,5 +310,4 @@ triggersSingleLep = [
 'HLT_mu6_2j40_0eta490_invm400',
 ]
 
-triggersNavThin=triggersMET+triggersPhoton+triggersMultiLep+triggersJets+triggersSingleLep+triggersSoftMuon+triggersJetPlusMet+triggersSoftMuonEmulation
-
+triggersNavThin=triggersMET+triggersPhoton+triggersDiLep+triggersJets+triggersSingleLep+triggersSoftMuon+triggersJetPlusMet+triggersSoftMuonEmulation+triggersTriLep

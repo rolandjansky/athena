@@ -101,12 +101,29 @@ namespace G4UA{
       DoubleProperty            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
       DoubleProperty            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
       DoubleProperty            m_maxRadiusTile=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
- 
+
       DoubleProperty            m_maxTime=25.;
       DoubleProperty            m_maxTimeLAr=25.;
       DoubleProperty            m_maxTimeHEC=25.;
       DoubleProperty            m_maxTimeFCAL=25.;
       DoubleProperty            m_maxTimeTile=25.;
+
+      // Optimised merging scheme
+      DoubleProperty            m_maxEtaPS=1.;
+      DoubleProperty            m_maxPhiPS=5.;
+      DoubleProperty            m_maxrPS=0.;
+
+      DoubleProperty            m_maxEtaEM1=1.;
+      DoubleProperty            m_maxPhiEM1=5.;
+      DoubleProperty            m_maxrEM1=15.;
+
+      DoubleProperty            m_maxEtaEM2=1.;
+      DoubleProperty            m_maxPhiEM2=5.;
+      DoubleProperty            m_maxrEM2=60.;
+
+      DoubleProperty            m_maxEtaEM3=1.;
+      DoubleProperty            m_maxPhiEM3=5.;
+      DoubleProperty            m_maxrEM3=8.;
 
     };
 

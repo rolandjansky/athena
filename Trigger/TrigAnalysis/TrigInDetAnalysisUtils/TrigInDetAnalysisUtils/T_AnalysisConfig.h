@@ -298,13 +298,10 @@ protected:
 
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
-      // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
-      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;
+      // NB!! a combination should never have more than one entry for a track collection from a single algorithm, for single object triggers
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {
-	//	std::cout << "selectTracks() ifeat=" << ifeat << "\tkey " << key << std::endl;
 	Trig::Feature<Collection> trackfeature = trackcollections.at(ifeat);
 	if ( !trackfeature.empty() ) {
-	  //	  m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endmsg;
 	  // actually select the tracks from this roi at last!!
 	  const Collection* trigtracks = trackfeature.cptr();
 	  selector->selectTracks( trigtracks );

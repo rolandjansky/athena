@@ -115,6 +115,8 @@ trackgetters = [jtm.trackget]
 # Add track ghosts
 emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
+
+tccgetters = [jtm.tccget]
 if jetFlags.useTracks():
   emgetters = [jtm.emoriginget]
   lcgetters = [jtm.lcoriginget]
@@ -123,6 +125,7 @@ if jetFlags.useTracks():
   empfgetters += [jtm.gtrackget]
   emcpfgetters += [jtm.gtrackget]
   lcpfgetters += [jtm.gtrackget]
+  tccgetters += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
@@ -130,12 +133,14 @@ if jetFlags.useMuonSegments():
   empfgetters  += [jtm.gmusegget]
   emcpfgetters += [jtm.gmusegget]
   lcpfgetters += [jtm.gmusegget]
+  tccgetters += [jtm.gmusegget]
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():
     getter = jtm[gettername]
     emgetters += [getter]
     lcgetters += [getter]
+    tccgetters += [getter]
 # Add truth getter and truth ghosts.
 if jetFlags.useTruth():
   truthgetters = [jtm.truthget]
@@ -146,6 +151,7 @@ if jetFlags.useTruth():
   empfgetters += [jtm.gtruthget]
   emcpfgetters += [jtm.gtruthget]
   lcpfgetters += [jtm.gtruthget]
+  tccgetters += [jtm.gtruthget]
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
   for ptype in jetFlags.truthFlavorTags():
@@ -158,17 +164,19 @@ if jetFlags.useTruth():
   empfgetters    += flavorgetters
   emcpfgetters   += flavorgetters
   lcpfgetters    += flavorgetters
+  tccgetters     += flavorgetters
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
   trackjetgetters += [jtm.gakt2trackget]
 #  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
-  emgetters += trackjetgetters
-  lcgetters += trackjetgetters
-  empfgetters += trackjetgetters
-  emcpfgetters += trackjetgetters
-  lcpfgetters += trackjetgetters
+  emgetters     += trackjetgetters
+  lcgetters     += trackjetgetters
+  empfgetters   += trackjetgetters
+  emcpfgetters  += trackjetgetters
+  lcpfgetters   += trackjetgetters
+  tccgetters    += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
@@ -180,12 +188,14 @@ jtm.gettersMap["lcpflow"]   = list(lcpfgetters)
 jtm.gettersMap["track"]     = list(trackgetters)
 jtm.gettersMap["ztrack"]    = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
+jtm.gettersMap["tcc"]       = list(tccgetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
 
 jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
 jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
+jtm.gettersMap["tcc_reduced"]     = filterout(["gakt2trackget","gakt4trackget"],tccgetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
 
 
@@ -272,6 +282,20 @@ pflow_groomed_modifiers += groomed_modifiers
 # For truth jets, don't add track moments
 truth_groomed_modifiers = filterout(["trksummoms"], groomed_modifiers)
 
+# Add Btagging.
+btags = ["btag"]
+if jetFlags.useBTagging():
+  ungroomed_modifiers += btags
+
+# TCC-only modifiers here
+tcc_ungroomed_modifiers = []
+tcc_ungroomed_modifiers += [jtm.constitfourmom_pflow]
+tcc_ungroomed_modifiers += filterout(["ecpsfrac","jetens","larhvcorr","caloqual_cluster"], ungroomed_modifiers)
+
+tcc_groomed_modifiers = []
+tcc_groomed_modifiers += [jtm.constitfourmom_pflow]
+tcc_groomed_modifiers += groomed_modifiers
+
 # Here add tools to be run for topo jets and NOT for pflow.
 
 # Cluster moments.
@@ -279,11 +303,6 @@ ungroomed_modifiers += [jtm.clsmoms]
 
 # Voronoi moments.
 #ungroomed_modifiers += [jtm.voromoms]
-
-# Add Btagging.
-btags = ["btag"]
-if jetFlags.useBTagging():
-  ungroomed_modifiers += btags
 
 # EM-only modifiers here
 emtopo_ungroomed_modifiers = []
@@ -314,22 +333,26 @@ if len(jetFlags.skipTools()):
   pflow_ungroomed_modifiers         = filterout(jetFlags.skipTools(), pflow_ungroomed_modifiers)
   emtopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), emtopo_ungroomed_modifiers)
   lctopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), lctopo_ungroomed_modifiers)
+  tcc_ungroomed_modifiers           = filterout(jetFlags.skipTools(), tcc_ungroomed_modifiers)
   pflow_groomed_modifiers           = filterout(jetFlags.skipTools(), pflow_groomed_modifiers)
   emtopo_groomed_modifiers          = filterout(jetFlags.skipTools(), emtopo_groomed_modifiers)
   lctopo_groomed_modifiers          = filterout(jetFlags.skipTools(), lctopo_groomed_modifiers)
+  tcc_groomed_modifiers             = filterout(jetFlags.skipTools(), tcc_groomed_modifiers)
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
-jtm.modifiersMap["ungroomed"]             =            list(ungroomed_modifiers)
-jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
+jtm.modifiersMap["ungroomed"]             =      list(ungroomed_modifiers)
+jtm.modifiersMap["groomed"]               =      list(groomed_modifiers)
 
-jtm.modifiersMap["emtopo_ungroomed"]      =     list(emtopo_ungroomed_modifiers)
-jtm.modifiersMap["lctopo_ungroomed"]      =     list(lctopo_ungroomed_modifiers)
+jtm.modifiersMap["emtopo_ungroomed"]      =      list(emtopo_ungroomed_modifiers)
+jtm.modifiersMap["lctopo_ungroomed"]      =      list(lctopo_ungroomed_modifiers)
 jtm.modifiersMap["pflow_ungroomed"]       =      list(pflow_ungroomed_modifiers)
+jtm.modifiersMap["tcc_ungroomed"]         =      list(tcc_ungroomed_modifiers)
 
-jtm.modifiersMap["emtopo_groomed"]        =       list(emtopo_groomed_modifiers)
-jtm.modifiersMap["lctopo_groomed"]        =       list(lctopo_groomed_modifiers)
-jtm.modifiersMap["pflow_groomed"]         =        list(pflow_groomed_modifiers)
+jtm.modifiersMap["emtopo_groomed"]        =      list(emtopo_groomed_modifiers)
+jtm.modifiersMap["lctopo_groomed"]        =      list(lctopo_groomed_modifiers)
+jtm.modifiersMap["pflow_groomed"]         =      list(pflow_groomed_modifiers)
+jtm.modifiersMap["tcc_groomed"]           =      list(tcc_groomed_modifiers)
 
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)

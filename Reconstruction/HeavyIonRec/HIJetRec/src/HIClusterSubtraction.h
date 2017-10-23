@@ -52,5 +52,6 @@ private:
   ToolHandle<IHIUEModulatorTool> m_modulator_tool;
   ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools; 
   bool m_set_moments;
+  bool m_updateMode;
 };
 #endif
