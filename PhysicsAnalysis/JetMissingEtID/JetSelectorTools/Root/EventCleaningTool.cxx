@@ -109,7 +109,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 		jvtDecision = (*m_acc_passJvt)(*thisJet);
 		orDecision = !(*m_acc_passOR)(*thisJet);  //recall, passOR==0 means that the jet is not an overlap and should be kept!
 
-		ATH_MSG_INFO("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
+		ATH_MSG_DEBUG("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
 		if(pass_pt && pass_eta && jvtDecision && orDecision){//only consider jets for cleaning if they pass these requirements. 
 			isThisJetGood = pass_accept;
 			isEventAllGood = isEventAllGood && isThisJetGood; //any event with a bad jet is rejected 
