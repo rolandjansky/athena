@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODBase
   Event/xAOD/xAODEgamma
   Event/xAOD/xAODMuon
+  Event/xAOD/xAODEventInfo  
   Event/xAOD/xAODPrimitives
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
@@ -45,7 +46,7 @@ atlas_add_library( IsolationSelectionLib
   IsolationSelection/*.h Root/*.cxx
   PUBLIC_HEADERS IsolationSelection
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon ${extra_libs}
+  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon xAODEventInfo ${extra_libs}
   xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver FourMomUtils )
 
