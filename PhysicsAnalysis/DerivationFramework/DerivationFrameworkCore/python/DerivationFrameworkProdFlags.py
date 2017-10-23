@@ -514,6 +514,18 @@ class WriteDAOD_HIGG4D5Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG4D5Stream)
 listAODtoDPD.append(WriteDAOD_HIGG4D5Stream.StreamName)
 
+class WriteDAOD_HIGG4D6Stream(JobProperty):
+    """HIGG4D6 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HIGG4D6'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHiggs/HIGG4D6.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG4D6Stream)
+listAODtoDPD.append(WriteDAOD_HIGG4D6Stream.StreamName)
 
 ##################################
 # Defined by Higgs subgroup 5
@@ -1327,18 +1339,20 @@ class WriteDAOD_EXOT21Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT21Stream)
 listAODtoDPD.append(WriteDAOD_EXOT21Stream.StreamName)
 
-class WriteDAOD_EXOT22Stream(JobProperty):
-    """EXOT22 derivation"""
+## EXOT22 in progress ##
+
+class WriteDAOD_EXOT23Stream(JobProperty):
+    """EXOT23 derivation"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
-    StreamName = 'StreamDAOD_EXOT22'
+    StreamName = 'StreamDAOD_EXOT23'
     FileName = ''
     isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT22.py"
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT23.py"
     pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT22Stream)
-listAODtoDPD.append(WriteDAOD_EXOT22Stream.StreamName)
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT23Stream)
+listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 
 #################################
 # Defined by the Jet/MET group
