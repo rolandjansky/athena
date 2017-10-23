@@ -47,6 +47,9 @@ namespace ShowerLib {
           {
               for ( auto& eta : m_libData) {  // eta bins
                   for (auto& ene : eta.second )  {  // energy map
+                      for ( auto& spot : ene.second ) {
+                          delete  spot;
+                      }
                       ene.second.clear();
                   }
                   eta.second.clear();
