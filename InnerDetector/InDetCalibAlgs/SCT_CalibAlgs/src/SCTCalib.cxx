@@ -1925,23 +1925,32 @@ StatusCode SCTCalib::getBSErrors() {
                      unsigned long long n_errors = 0;
                      if ( iType == errItr->first ) {
                         ostringstream streamHist;
+                        ostringstream streamHistAlt; 
                         //temporal fix: folder and histogram names should be Preamble
-                        //streamHist << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide;
                         streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
+                        streamHistAlt << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide; 
                         std::string folder = errItr->second+std::string("/");
                         //histogram might or might not be inside a folder with the same name
                         std::string profname = detectorStems[stemIndex] + folder +streamHist.str();
                         std::string profnameShort = detectorStems[stemIndex] + streamHist.str();
-
+                        std::string profnameAlt = detectorStems[stemIndex] + folder +streamHistAlt.str();
+                        std::string profnameAltShort = detectorStems[stemIndex] + streamHistAlt.str();
+ 
                         TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( profname.c_str() );
                         if(prof_tmp ==NULL) {
                            prof_tmp = (TProfile2D*) m_inputHist->Get( profnameShort.c_str() );
                         }
                         if(prof_tmp ==NULL) {
+                           prof_tmp = (TProfile2D*) m_inputHist->Get( profnameAlt.c_str() );
+                        } 
+                        if(prof_tmp ==NULL) {
+                           prof_tmp = (TProfile2D*) m_inputHist->Get( profnameAltShort.c_str() );
+                        } 
+                        if(prof_tmp ==NULL) {
                            msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endmsg;
                            return StatusCode::FAILURE;
                         }
-
+                        
                         n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         //		    unsigned long long n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         if(n_errors!=0) {
