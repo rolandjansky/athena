@@ -112,6 +112,7 @@ namespace CP {
         protected:      
             //Retrieve the runNumber and dataPeriod
             unsigned int getRunNumber() const;
+            unsigned int getFallBackRunNumber() const;
             std::string getDataPeriod() const;
      
             unsigned int getYear(unsigned int run) const;
