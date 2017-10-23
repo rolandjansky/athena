@@ -39,10 +39,10 @@ public:
 
 	void xFrame(double y) {_xFrame=y;}
 	double xFrame() {return _xFrame;}
-	
+
 	void ysFrame(double y) {_ysFrame=y;}
 	double ysFrame() {return _ysFrame;}
-	
+
 	void ylFrame(double y) {_ylFrame=y;}
 	double ylFrame() {return _ylFrame;}
 	
