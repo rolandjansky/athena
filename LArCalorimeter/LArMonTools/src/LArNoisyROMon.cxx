@@ -402,11 +402,11 @@ StatusCode LArNoisyROMon::procHistograms()
     if ( m_IsOnline ){
       // copy the "running" histo to the final ones, to be normalised
       for (int i=0;i<4;i++){
-	CopyHisto(m_partHistos[i].h_NoisyFEBPerEvt,m_partHistos[i].h_NoisyFEBFracPerEvt);
-	CopyHisto(m_partHistos[i].h_MNBTightFEBPerEvt,m_partHistos[i].h_MNBTightFEBFracPerEvt);
-	CopyHisto(m_partHistos[i].h_MNBLooseFEBPerEvt,m_partHistos[i].h_MNBLooseFEBFracPerEvt);
-	CopyHisto(m_partHistos[i].h_CandidateMNBTightFEBPerEvt,m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt);
-	CopyHisto(m_partHistos[i].h_CandidateMNBLooseFEBPerEvt,m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_NoisyFEBPerEvt,m_partHistos[i].h_NoisyFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_MNBTightFEBPerEvt,m_partHistos[i].h_MNBTightFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_MNBLooseFEBPerEvt,m_partHistos[i].h_MNBLooseFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_CandidateMNBTightFEBPerEvt,m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_CandidateMNBLooseFEBPerEvt,m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt);
       }
     }
 
@@ -424,21 +424,21 @@ StatusCode LArNoisyROMon::procHistograms()
 	m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt->SetEntries(m_eventCounter);
 	m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt->scaleContentsAndErrors(scale);
 	m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_NoisyEventFrac,m_partHistos[i].h_NoisyEvent,m_h_LBN);
+	divideHisto(m_partHistos[i].h_NoisyEventFrac,m_partHistos[i].h_NoisyEvent,m_h_LBN);
 	m_partHistos[i].h_NoisyEventFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_SaturatedNoisyEventFrac,m_partHistos[i].h_SaturatedNoisyEvent,m_h_LBN);
+	divideHisto(m_partHistos[i].h_SaturatedNoisyEventFrac,m_partHistos[i].h_SaturatedNoisyEvent,m_h_LBN);
 	m_partHistos[i].h_SaturatedNoisyEventFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_MNBTightEventFrac,m_partHistos[i].h_MNBTightEvent,m_h_LBN);
+	divideHisto(m_partHistos[i].h_MNBTightEventFrac,m_partHistos[i].h_MNBTightEvent,m_h_LBN);
 	m_partHistos[i].h_MNBTightEventFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_MNBLooseEventFrac,m_partHistos[i].h_MNBLooseEvent,m_h_LBN);
+	divideHisto(m_partHistos[i].h_MNBLooseEventFrac,m_partHistos[i].h_MNBLooseEvent,m_h_LBN);
 	m_partHistos[i].h_MNBLooseEventFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_NoisyEventTimeVetoFrac,m_partHistos[i].h_NoisyEventTimeVeto,m_h_LBN);
+	divideHisto(m_partHistos[i].h_NoisyEventTimeVetoFrac,m_partHistos[i].h_NoisyEventTimeVeto,m_h_LBN);
 	m_partHistos[i].h_NoisyEventTimeVetoFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_SaturatedNoisyEventTimeVetoFrac,m_partHistos[i].h_SaturatedNoisyEventTimeVeto,m_h_LBN);
+	divideHisto(m_partHistos[i].h_SaturatedNoisyEventTimeVetoFrac,m_partHistos[i].h_SaturatedNoisyEventTimeVeto,m_h_LBN);
 	m_partHistos[i].h_SaturatedNoisyEventTimeVetoFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_MNBTightEventTimeVetoFrac,m_partHistos[i].h_MNBTightEventTimeVeto,m_h_LBN);
+	divideHisto(m_partHistos[i].h_MNBTightEventTimeVetoFrac,m_partHistos[i].h_MNBTightEventTimeVeto,m_h_LBN);
 	m_partHistos[i].h_MNBTightEventTimeVetoFrac->SetEntries(m_eventCounter);
-	Divide(m_partHistos[i].h_MNBLooseEventTimeVetoFrac,m_partHistos[i].h_MNBLooseEventTimeVeto,m_h_LBN);
+	divideHisto(m_partHistos[i].h_MNBLooseEventTimeVetoFrac,m_partHistos[i].h_MNBLooseEventTimeVeto,m_h_LBN);
 	m_partHistos[i].h_MNBLooseEventTimeVetoFrac->SetEntries(m_eventCounter);
       }    
     }//end if m_eventCounter>0
@@ -463,7 +463,7 @@ StatusCode LArNoisyROMon::procHistograms()
   return StatusCode::SUCCESS;
 }
 
-void LArNoisyROMon::CopyHisto(LWHist2D* from,LWHist2D* to)
+void LArNoisyROMon::copyHisto(LWHist2D* from,LWHist2D* to)
 {
   unsigned xbin, ybin;
   double numer, error;
@@ -476,7 +476,7 @@ void LArNoisyROMon::CopyHisto(LWHist2D* from,LWHist2D* to)
 }
 
 
-void LArNoisyROMon::CopyHisto(LWHist1D* from,LWHist1D* to)
+void LArNoisyROMon::copyHisto(LWHist1D* from,LWHist1D* to)
 {
   unsigned xbin;
   double numer, error;
@@ -489,7 +489,7 @@ void LArNoisyROMon::CopyHisto(LWHist1D* from,LWHist1D* to)
 }
 
 
-void LArNoisyROMon::Divide(LWHist1D* to,LWHist1D* num,LWHist1D* denom)
+void LArNoisyROMon::divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom)
 {
   static double OneSigOneSided = 0.159; // 0.5*(1-0.681) where 0.681 means 68%CL
   

@@ -117,11 +117,11 @@ private:
 
   
   void bookPartitionHistos(partitionHistos&, const std::string& name, MonGroup& group, MonGroup& groupfrac, MonGroup& groupfracbin);
-  void CopyHisto(LWHist2D* from,LWHist2D* to);
-  void CopyHisto(LWHist1D* from,LWHist1D* to);
+  void copyHisto(LWHist2D* from,LWHist2D* to);
+  void copyHisto(LWHist1D* from,LWHist1D* to);
   
   // divide num by denom and store in to, assuming num is a subset of denom
-  void Divide(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
+  void divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
   
   // fill histogram of triggers
   void fillTriggerHisto(partitionHistos& partition, uint8_t triggerbits, uint8_t L1triggerbits);
