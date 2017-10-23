@@ -28,10 +28,8 @@ namespace ShowerLib {
                 m_energy = E;
                 m_time = t;
             }
-
-    
-        virtual ~ShowerEnergySpot() 
-            {;}
+        ~ShowerEnergySpot() 
+            { ;}
 
 // Accessor methods
         inline void SetEnergy(const G4double& E) 
