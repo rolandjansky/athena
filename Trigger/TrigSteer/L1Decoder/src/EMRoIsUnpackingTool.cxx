@@ -5,6 +5,7 @@
 #include "EMRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 
 /////////////////////////////////////////////////////////////////// 
