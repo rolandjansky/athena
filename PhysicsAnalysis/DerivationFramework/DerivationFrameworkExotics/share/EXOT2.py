@@ -97,5 +97,6 @@ EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     "LVL1MuonRoIs",
                                    ]
 EXOT2SlimmingHelper.IncludeJetTriggerContent = True
+EXOT2SlimmingHelper.IncludeBJetTriggerContent = True
 addMETOutputs(EXOT2SlimmingHelper, ["EXOT2"])
 EXOT2SlimmingHelper.AppendContentToStream(EXOT2Stream)
