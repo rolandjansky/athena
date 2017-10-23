@@ -3,6 +3,7 @@
 # art-description: DAOD building TRUTH1 mc15
 # art-type: grid
 # art-output: *.pool.root
+# art-output: checkFile.txt
 
 set -e
 

@@ -3,7 +3,7 @@ import os
 makeDataDAODs=True
 makeMCDAODs=True
 makeTruthDAODs=True
-makeTrains=True
+makeTrains=False
 
 formatList = [#'PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5',
@@ -68,6 +68,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC):
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
+   outputFile.write("# art-output: checkFile.txt"+"\n")
    outputFile.write("\n")
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
