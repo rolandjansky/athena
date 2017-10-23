@@ -51,6 +51,29 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
   //::: Create a proper constructor for Athena
   ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
 
+public:
+  struct InfoHelper{
+    double ptms = 0;
+    double ptid = 0;
+    double ptcb = 0;
+    double eta = 0;
+    double phi = 0;
+    double g0;
+    double g1;
+    double g2;
+    double g3;
+    double g4;
+    int    charge = 1;
+    int    detRegion = 0;
+    int    scaleRegion = 0;
+    std::vector < float >  cbParsA;
+    std::vector < float >  cbCovMat;
+    double weightMS = 0;
+    double weightID = 0;
+    double smearDeltaMS = 0;
+    double smearDeltaID = 0;
+    double smearDeltaCB = 0;
+  };
 
 public:
 
@@ -78,11 +101,11 @@ public:
   //:::Interface - Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
   //:::Interface - get the expected resolution of the muon
-  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
+  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
 
 
-  double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
-  double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
+  double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
+  double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc ) const;
 
   virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
                                                const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
@@ -93,7 +116,7 @@ public:
   virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
   virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
   virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
-  virtual CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
+  virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
 
 protected:

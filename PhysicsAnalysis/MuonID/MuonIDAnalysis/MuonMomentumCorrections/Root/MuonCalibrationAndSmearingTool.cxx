@@ -450,7 +450,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     return CorrectionCode::Ok;
   }
 
-  CorrectionCode MuonCalibrationAndSmearingTool::applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const {
+  CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const {
 
     if(m_doSagittaMCDistortion && isMC && iter == 0) stop=true;
 
@@ -514,7 +514,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       CorrectionCode corr = CorrectForCharge( sagitta(m_sagittasCB->at(iter),lvCB)*0.5, muonInfo.ptcb, q, isMC);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
-      if(!stop)  return applyiSagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, iter, stop, isMC, muonInfo);
+      if(!stop)  return applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, iter, stop, isMC, muonInfo);
     }
 
     else if(SgCorrType == MCAST::SagittaCorType::ID){
@@ -523,7 +523,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       CorrectionCode corr = CorrectForCharge(  sagitta(m_sagittasID->at(iter),lvID)*0.5 , muonInfo.ptid, q, isMC);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
-      if(!stop)return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, stop, isMC, muonInfo);
+      if(!stop)return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, stop, isMC, muonInfo);
     }
 
     else if(SgCorrType == MCAST::SagittaCorType::ME){
@@ -532,7 +532,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME->at(iter),lvME) *0.5 , muonInfo.ptms, q, isMC);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
-      if(!stop) return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, stop, isMC, muonInfo);
+      if(!stop) return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, stop, isMC, muonInfo);
     }
 
     else if( SgCorrType == MCAST::SagittaCorType::WEIGHTS){
@@ -593,7 +593,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     double tmpDeltaID=0;
     double tmpDeltaMS=0;
 
-    CorrectionCode idOK=applyiSagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, true, isMC, muonInfo);
+    CorrectionCode idOK=applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, true, isMC, muonInfo);
     TLorentzVector lvIDCorr; lvIDCorr.SetPtEtaPhiM(muonInfo.ptid,muonInfo.eta,muonInfo.phi,mu.m()/1e3);
 
     if(idOK == CorrectionCode::Ok && tmpPtID!=0 ) tmpDeltaID = ( -tmpPtID +lvIDCorr.Pt() )/ tmpPtID  ;
@@ -601,7 +601,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     ATH_MSG_VERBOSE( "Shift ID "<<tmpDeltaID );
 
 
-    CorrectionCode meOK=applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, true, isMC, muonInfo);
+    CorrectionCode meOK=applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, true, isMC, muonInfo);
     TLorentzVector lvMECorr;  lvMECorr.SetPtEtaPhiM(muonInfo.ptms,muonInfo.eta,muonInfo.phi,mu.m()/1e3);
     if(meOK == CorrectionCode::Ok && tmpPtMS!=0 ) tmpDeltaMS = ( -tmpPtMS + lvMECorr.Pt()/1e3 ) /tmpPtMS  ;
     else tmpDeltaMS=0;
@@ -616,7 +616,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     CorrectionCode corr = CorrectForCharge(CBsagitta3, muonInfo.ptcb, q, isMC);
     iter++;
     if(corr != CorrectionCode::Ok) return corr;
-    if(!stop) return applyiSagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, iter, stop, isMC, muonInfo);
+    if(!stop) return applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, iter, stop, isMC, muonInfo);
     }
 
     return CorrectionCode::Ok;
@@ -647,11 +647,11 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
     // Correct the ID momentum - Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
     if(DetType == MCAST::DetectorType::ID)
-      return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo);
 
     // Correct the ME momentum  - Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
     else if(DetType == MCAST::DetectorType::MS)
-      return applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo);
 
     // Correct the CB momentum;
     else if(DetType == MCAST::DetectorType::CB){
@@ -682,8 +682,8 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
       if(isSystematic) {
 
-        double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true, muonInfo ) * muonInfo.ptcb;
-        double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true, muonInfo ) * muonInfo.ptcb;
+        double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
+        double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
@@ -705,13 +705,13 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
         rho=0;
         if(muonInfo.ptid == 0  && muonInfo.ptms != 0 )  {
-          if(applyiSagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo)!=CorrectionCode::Ok){ // Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo)!=CorrectionCode::Ok){ // Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
             return CP::CorrectionCode::Error;
             muonInfo.ptcb=muonInfo.ptms;
           }}
 
         else if(muonInfo.ptid != 0  && muonInfo.ptms == 0 )  {
-          if(applyiSagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo)!=CorrectionCode::Ok){ // Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo)!=CorrectionCode::Ok){ // Sam Meehan added default argument to allow for expansion or argument list - this assumed data now (no functionality change)
             return CP::CorrectionCode::Error;
             muonInfo.ptcb=muonInfo.ptid;
           }}
@@ -730,7 +730,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
       ATH_MSG_VERBOSE("Applying CB sagitta correction");
 
-      if(applyiSagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
 
@@ -740,7 +740,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
       ATH_MSG_VERBOSE("Applying Weighted sagitta correction");
 
-      if(applyiSagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
       else {
@@ -1890,8 +1890,8 @@ void MuonCalibrationAndSmearingTool::CalcCBWeights( xAOD::Muon& mu, InfoHelper& 
     return;
   }
   const bool doNotAddSmearing = true;
-  double SigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, doNotAddSmearing, muonInfo );
-  double SigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, doNotAddSmearing, muonInfo );
+  double SigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, doNotAddSmearing );
+  double SigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, doNotAddSmearing );
   double Nsigma = m_useNsigmaForICombine;
   if( fabs( muonInfo.ptcb - muonInfo.ptms ) > Nsigma * SigmaMS * muonInfo.ptcb || fabs( muonInfo.ptcb - muonInfo.ptid ) > Nsigma * SigmaID * muonInfo.ptcb ) {
     double R=1, Rplus;
@@ -1930,20 +1930,21 @@ void MuonCalibrationAndSmearingTool::CleanScales() {
 
 }
 
-  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
-    return ExpectedResolution(DetType, mu, mc, muonInfo);
+  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const {
+    // Expected resolution in data (or unsmeared MC if second argument is true)
+    return ExpectedResolution(DetType, mu, mc);
   }
 
-  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
-
+  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc ) const {
+    // Expected resolution in data (or unsmeared MC if second argument is true)
   if( DetType == "MS" ) {
-    return ExpectedResolution( MCAST::DetectorType::MS, mu, mc, muonInfo );
+    return ExpectedResolution( MCAST::DetectorType::MS, mu, mc );
   }
   else if( DetType == "ID" ) {
-    return ExpectedResolution( MCAST::DetectorType::ID, mu, mc, muonInfo );
+    return ExpectedResolution( MCAST::DetectorType::ID, mu, mc );
   }
   else if( DetType == "CB" ) {
-    return ExpectedResolution( MCAST::DetectorType::CB, mu, mc, muonInfo );
+    return ExpectedResolution( MCAST::DetectorType::CB, mu, mc );
   }
   else {
     ATH_MSG_ERROR( "wrong DetType in input " << DetType );
@@ -1952,29 +1953,102 @@ void MuonCalibrationAndSmearingTool::CleanScales() {
 
 }
 
-double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const {
+double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAOD::Muon& mu, const bool mc ) const {
 
+  // get the pt measurements from the xAOD::Muon object
+
+  double loc_ptid = 0;
+  double loc_ptms = 0;
+  double loc_ptcb = 0;
+
+  //::: Set pt ID:
+
+  ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
+  ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
+  ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
+  ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == NULL ) = " << ( mu.inDetTrackParticleLink() == NULL ) );
+  ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
+  ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
+
+  if( ( mu.inDetTrackParticleLink() ).isValid() ) {
+    //if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer> > ("inDetTrackParticleLink")){
+    const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
+    loc_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
+  }
+  else loc_ptid = 0.;
+
+  //::: Set pt MS:
+
+  ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
+  ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
+  ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
+  ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == NULL ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == NULL ) );
+  ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
+  ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
+  if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
+    // if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) ) {
+    const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
+    loc_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
+  }
+ else
+    //ATH_MSG_VERBOSE("No link to extrapolatedMuonSpectrometerTrackParticleLink setting pt to 0");
+    loc_ptms = 0.;
+
+  //::: Set pt CB:
+
+  ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
+  ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
+  ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"primaryTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "primaryTrackParticleLink" ) );
+  ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() == NULL ) = " << ( mu.primaryTrackParticleLink() == NULL ) );
+  ATH_MSG_VERBOSE( "mu.primaryTrackParticleLink() = " << mu.primaryTrackParticleLink() );
+  ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
+
+  if( ( mu.primaryTrackParticleLink() ).isValid() ) {
+    //if( mu.isAvailable< ElementLink < xAOD::TrackParticleContainer > > ( "primaryTrackParticleLink" ) ) {
+    const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.primaryTrackParticleLink();
+    loc_ptcb = ( !cb_track ) ? 0. : ( *cb_track )->pt() / 1000.;
+  }
+  else loc_ptcb = 0.;
+
+  // obtain detRegion given the muon (eta,phi)
+  int loc_detRegion = 0;
+  double loc_eta = mu.eta();
+  double loc_phi = mu.phi();
+
+  //::: Getting detector region
+  if( int( loc_phi ) == DEFAULT_INIT_VAL && m_Trel == MCAST::Release::Rel17_2_Sum13 ) ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
+
+  if( int( loc_phi ) == DEFAULT_INIT_VAL && m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
+    //Lower release have just Eta bins, so usually the user doesn't input
+    //Phi and 0 is a good default for these regions
+    loc_detRegion = GetRegion( loc_eta, 0 );
+  }
+  else {
+    loc_detRegion = GetRegion( loc_eta, loc_phi );
+  }
+
+  // Expected resolution in data (or unsmeared MC if second argument is true)
   bool useTan2 = true;
   /** do the average with the EXPECTED resolutions **/
-  if ( muonInfo.detRegion<0 || muonInfo.detRegion>=m_nb_regions ) return 0;
+  if ( loc_detRegion<0 || loc_detRegion>=m_nb_regions ) return 0;
   double expRes = 0.;
   if ( DetType == MCAST::DetectorType::MS ) {
-    if (muonInfo.ptms == 0) return 1e12;
-    double p0 = mc ? m_MC_p0_MS[muonInfo.detRegion] : ( m_MC_p0_MS[muonInfo.detRegion] + m_p0_MS[muonInfo.detRegion] );
-    double p1 = mc ? m_MC_p1_MS[muonInfo.detRegion] : ( m_MC_p1_MS[muonInfo.detRegion] + m_p1_MS[muonInfo.detRegion] );
-    double p2 = mc ? m_MC_p2_MS[muonInfo.detRegion] : ( m_MC_p2_MS[muonInfo.detRegion] + m_p2_MS[muonInfo.detRegion] );
-    expRes =  sqrt( pow( p0/muonInfo.ptms, 2 ) + pow( p1, 2 ) + pow( p2*muonInfo.ptms ,2 ) );
+    if (loc_ptms == 0) return 1e12;
+    double p0 = mc ? m_MC_p0_MS[loc_detRegion] : ( m_MC_p0_MS[loc_detRegion] + m_p0_MS[loc_detRegion] );
+    double p1 = mc ? m_MC_p1_MS[loc_detRegion] : ( m_MC_p1_MS[loc_detRegion] + m_p1_MS[loc_detRegion] );
+    double p2 = mc ? m_MC_p2_MS[loc_detRegion] : ( m_MC_p2_MS[loc_detRegion] + m_p2_MS[loc_detRegion] );
+    expRes =  sqrt( pow( p0/loc_ptms, 2 ) + pow( p1, 2 ) + pow( p2*loc_ptms ,2 ) );
     return expRes; //+++++No SYS!!!
   }
   else if ( DetType == MCAST::DetectorType::ID ) {
-    if ( muonInfo.ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
-    double p1 = mc ? m_MC_p1_ID[muonInfo.detRegion] : ( m_MC_p1_ID[muonInfo.detRegion] + m_p1_ID[muonInfo.detRegion] );
-    double p2 = mc ? m_MC_p2_ID[muonInfo.detRegion] : ( m_MC_p2_ID[muonInfo.detRegion] + m_p2_ID[muonInfo.detRegion] );
-    if ( m_MC_p2_ID_TAN[muonInfo.detRegion] != 0 && useTan2 ) {
-      p2 = mc ? m_MC_p2_ID_TAN[muonInfo.detRegion] : ( m_MC_p2_ID_TAN[muonInfo.detRegion] + m_p2_ID_TAN[muonInfo.detRegion] );
+    if ( loc_ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
+    double p1 = mc ? m_MC_p1_ID[loc_detRegion] : ( m_MC_p1_ID[loc_detRegion] + m_p1_ID[loc_detRegion] );
+    double p2 = mc ? m_MC_p2_ID[loc_detRegion] : ( m_MC_p2_ID[loc_detRegion] + m_p2_ID[loc_detRegion] );
+    if ( m_MC_p2_ID_TAN[loc_detRegion] != 0 && useTan2 ) {
+      p2 = mc ? m_MC_p2_ID_TAN[loc_detRegion] : ( m_MC_p2_ID_TAN[loc_detRegion] + m_p2_ID_TAN[loc_detRegion] );
       p2 = p2*sinh( mu.eta() )*sinh( mu.eta() );
     }
-    expRes = sqrt( pow( p1, 2 ) + pow( p2*muonInfo.ptid ,2 ) );
+    expRes = sqrt( pow( p1, 2 ) + pow( p2*loc_ptid ,2 ) );
     return expRes; //+++++No SYS!!!
   }
   else if ( DetType == MCAST::DetectorType::CB ) {
@@ -1983,9 +2057,9 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     // sigma_CB = sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
     // Do a little recursive calling to make things easier to read
     // Turn these into *absolute* uncertainties to make life easier
-    double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc, muonInfo ) * muonInfo.ptid;
-    double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc, muonInfo ) * muonInfo.ptms;
-    double denominator = ( muonInfo.ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+    double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc ) * loc_ptid;
+    double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
+    double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
     return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
   }
   else {

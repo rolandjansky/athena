@@ -25,29 +25,6 @@ class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual pu
 
   //::: Declare the interface that the class provides
   ASG_TOOL_INTERFACE( CP::IMuonCalibrationAndSmearingTool )
-public:
-  struct InfoHelper{
-    double ptms = 0;
-    double ptid = 0;
-    double ptcb = 0;
-    double eta = 0;
-    double phi = 0;
-    double g0;
-    double g1;
-    double g2;
-    double g3;
-    double g4;
-    int    charge = 1;
-    int    detRegion = 0;
-    int    scaleRegion = 0;
-    std::vector < float >  cbParsA;
-    std::vector < float >  cbCovMat;
-    double weightMS = 0;
-    double weightID = 0;
-    double smearDeltaMS = 0;
-    double smearDeltaID = 0;
-    double smearDeltaCB = 0;
-  };
 
 public:
   //::: Apply the correction on a modifyable object
@@ -63,7 +40,7 @@ public:
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) = 0;
   //::: Get the expected pT resolution
-  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const=0;
+  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
 
 }; // class IMuonCalibrationAndSmearingTool
 
