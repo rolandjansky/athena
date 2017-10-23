@@ -3,6 +3,7 @@
 # art-description: DAOD building EGAM4 mc16
 # art-type: grid
 # art-output: *.pool.root
+# art-output: checkFile.txt
 
 set -e
 

@@ -3,6 +3,7 @@
 # art-description: DAOD building BPHY11 data17
 # art-type: grid
 # art-output: *.pool.root
+# art-output: checkFile.txt
 
 set -e
 
