@@ -17,6 +17,7 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 //#include "CxxUtils/PageAccessControl.h"
 #include "GaudiKernel/IHistorySvc.h"
@@ -1535,9 +1536,18 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
                                  bool warn_nobib /*= true*/)
 {
   // Automatically make all legal base class symlinks
-  const SG::BaseInfoBase* bib = SG::BaseInfoBase::find( clid );
-  if (!bib && tinfo)
+  if (!tinfo) {
+    tinfo = CLIDRegistry::CLIDToTypeinfo (clid);
+  }
+  const SG::BaseInfoBase* bib = nullptr;
+  if (tinfo) {
     bib = SG::BaseInfoBase::find (*tinfo);
+  }
+  if (!bib) {
+    // Could succeed where the previous fails if clid for DataVector<T>
+    // but tinfo is for ConstDataVector<DataVector<T> >.
+    bib = SG::BaseInfoBase::find (clid);
+  }
   if ( bib ) {
     std::vector<CLID> bases = bib->get_bases();
     for ( std::size_t i = 0, iMax = bases.size(); i < iMax; ++i ) {
