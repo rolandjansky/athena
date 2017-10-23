@@ -54,6 +54,23 @@ ConstDataVector<DV>::ConstDataVector
 
 
 /**
+ * @brief Constructor with argument forwarding.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * All arguments are forwarded to the base class constructor.
+ */
+template <class DV>
+template <typename... ARGS>
+inline
+ConstDataVector<DV>::ConstDataVector (SG::OwnershipPolicy ownPolicy,
+                                      ARGS&&... args)
+  : DV (ownPolicy, std::forward<ARGS>(args)...)
+{
+  base_data_vector::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+}
+
+
+/**
  * @brief Sized constructor.
  * @param n The size of the container.
  * @param ownPolicy The ownership mode for the container.
