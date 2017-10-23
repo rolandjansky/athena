@@ -1,4 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
+#include "DerivationFrameworkInDet/InDetTrackSelectionToolWrapper.h"
 #include "DerivationFrameworkInDet/TrackToVertexWrapper.h"
 #include "DerivationFrameworkInDet/TrackParticleThinning.h"
 #include "DerivationFrameworkInDet/MuonTrackParticleThinning.h"
@@ -21,6 +22,7 @@
 
 using namespace DerivationFramework;
 
+DECLARE_TOOL_FACTORY( InDetTrackSelectionToolWrapper )
 DECLARE_TOOL_FACTORY( TrackToVertexWrapper )
 DECLARE_TOOL_FACTORY( TrackParticleThinning )
 DECLARE_TOOL_FACTORY( MuonTrackParticleThinning )
@@ -42,6 +44,7 @@ DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
 DECLARE_TOOL_FACTORY( TCCTrackParticleThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
+   DECLARE_TOOL( InDetTrackSelectionToolWrapper )
    DECLARE_TOOL( TrackToVertexWrapper )
    DECLARE_TOOL( TrackParticleThinning )
    DECLARE_TOOL( MuonTrackParticleThinning )
