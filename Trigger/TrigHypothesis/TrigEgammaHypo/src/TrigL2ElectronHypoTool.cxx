@@ -5,6 +5,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 #include "TrigL2ElectronHypoTool.h"
 
