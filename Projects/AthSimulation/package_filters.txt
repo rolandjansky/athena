@@ -70,7 +70,6 @@
 + Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
-+ Database/APR/TrigCollQuery
 + Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolKernel

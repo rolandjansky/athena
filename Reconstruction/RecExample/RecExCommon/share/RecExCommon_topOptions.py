@@ -244,8 +244,6 @@ if globalflags.InputFormat()=='pool':
                 svcMgr.EventSelector.RefName="StreamESD"
             elif not rec.readAOD() and not rec.TAGFromRDO() : # == read RDO
                 svcMgr.EventSelector.RefName="StreamRDO"
-
-            protectedInclude("TrigCollQuery/TrigCollQuery_jobOptions.py")
         elif rec.readAOD():
             svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
         else:
