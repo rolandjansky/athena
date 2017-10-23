@@ -37,7 +37,7 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
   
   //! constructor
   SCTRawDataProviderTool(const std::string& type, const std::string& name,
-			 const IInterface* parent ) ;
+                         const IInterface* parent ) ;
 
   //! destructor 
   virtual ~SCTRawDataProviderTool();
@@ -50,7 +50,7 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
   
   //! this is the main decoding method
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-			     SCT_RDO_Container& rdoIdc,
+                             SCT_RDO_Container& rdoIdc,
                              InDetBSErrContainer* errs) override;
 
   /** function to be executed at BeginEvent incident */
