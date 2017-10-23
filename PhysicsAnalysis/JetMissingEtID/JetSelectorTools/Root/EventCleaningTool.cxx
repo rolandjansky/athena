@@ -46,6 +46,8 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_cleaningLevel()
   , m_jetCleaningTool() 
   , m_dec_jetClean(0)
+  , m_acc_passJvt(0)
+  , m_acc_passOR(0)
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
   declareProperty( "EtaCut" , m_eta = 4.5 );
@@ -82,6 +84,8 @@ StatusCode EventCleaningTool::initialize()
 
   //create the decorator
   m_dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
+  m_acc_passJvt = new SG::AuxElement::Accessor<char>(m_prefix + m_jvt);
+  m_acc_passOR = new SG::AuxElement::Accessor<char>(m_prefix + m_or);
 
   return StatusCode::SUCCESS;
 }
@@ -96,18 +100,16 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
 
-	const static SG::AuxElement::ConstAccessor<char> acc_passOR(m_prefix+m_or);
-	const static SG::AuxElement::ConstAccessor<char> acc_passJvt(m_prefix+m_jvt);	
 	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
 
 	for (auto thisJet : *jets){  //loop over decorated jet collection 
 		pass_pt = thisJet->pt() > m_pt; 
 		pass_eta = fabs(thisJet->eta()) < m_eta;
 		pass_accept = keepJet(*thisJet); 
-		jvtDecision = acc_passJvt(*thisJet);
-		orDecision = !acc_passOR(*thisJet);  //recall, passOR==0 means that the jet is not an overlap and should be kept!
+		jvtDecision = (*m_acc_passJvt)(*thisJet);
+		orDecision = !(*m_acc_passOR)(*thisJet);  //recall, passOR==0 means that the jet is not an overlap and should be kept!
 
-		ATH_MSG_DEBUG("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
+		ATH_MSG_INFO("Jet info: pT: " << pass_pt << ", eta: " << pass_eta << ", accept? " << pass_accept << ", jvt: " << jvtDecision << ", or: " << orDecision); 
 		if(pass_pt && pass_eta && jvtDecision && orDecision){//only consider jets for cleaning if they pass these requirements. 
 			isThisJetGood = pass_accept;
 			isEventAllGood = isEventAllGood && isThisJetGood; //any event with a bad jet is rejected 
@@ -131,6 +133,8 @@ int EventCleaningTool::keepJet(const xAOD::Jet& jet) const
 StatusCode EventCleaningTool::finalize()
 {
    	delete m_dec_jetClean;
+   	delete m_acc_passJvt;
+   	delete m_acc_passOR;
 	return StatusCode::SUCCESS;
 
 }

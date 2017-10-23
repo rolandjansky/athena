@@ -52,7 +52,7 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     virtual StatusCode initialize() override;
 
      /** Initialize method */
-    virtual StatusCode finalize() override;
+    virtual StatusCode finalize();
 
     virtual bool acceptEvent(const xAOD::JetContainer* jets) const override;
 
@@ -67,6 +67,8 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     std::string m_cleaningLevel; 
     ToolHandle<IJetSelector> m_jetCleaningTool;
     SG::AuxElement::Decorator<char>* m_dec_jetClean;
+    SG::AuxElement::Accessor<char>* m_acc_passJvt;
+    SG::AuxElement::Accessor<char>* m_acc_passOR;
 
 
 }; // End: class definition
