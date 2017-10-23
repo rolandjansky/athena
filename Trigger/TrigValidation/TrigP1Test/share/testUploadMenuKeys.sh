@@ -3,7 +3,7 @@
 echo 'Testing SMKey upload'
 if [ $# -ge 1 ]; then
    type=$1
-   echo 'Trying to upload Menu generated  with test "${type}"_menu' 
+   echo "Trying to upload Menu generated  with test "${type}"_menu" 
 else
    type=""
 fi
@@ -12,7 +12,6 @@ fi
 export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
-source $TDAQ_RELEASE_BASE/tdaq/$TDAQ_VERSION/installed/setup.sh $TDAQ_VERSION
 export PATH=$PATH:$TDAQ_JAVA_HOME/bin
 
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
@@ -49,8 +48,6 @@ get_files -xmls -copy LVL1config_"${stump}".xml
 l1menu=`find .  -name LVL1config_${stump}.xml` 
 
 #get the L1 Topo configuration
-
-
 get_files -xmls -copy L1Topoconfig_"${stump}".xml 
 l1topo=`find . -name L1Topoconfig_${stump}.xml` 
 
