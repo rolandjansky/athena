@@ -3,7 +3,7 @@
 */
 
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
-
+#include "PATInterfaces/CorrectionCode.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
@@ -11,66 +11,86 @@
 #include <string>
 #include <iomanip>
 
+using CP::CorrectionCode;
+
 int main() {
 
+
+  std::string taggerName = "DL1";
+  std::string workingPointName = "HybBEff_77";
+
+
+
   BTaggingSelectionTool * tool = new BTaggingSelectionTool("BTagSelecTest");
-  tool->setProperty( "MaxEta", 2.5 );
-  tool->setProperty( "MinPt", 20000. );  
-  //  tool->setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root" );
-  tool->setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/share/AntiKt2TrackJets_20160615.root" );
-  tool->setProperty("TaggerName",     "MV2c00_MV2c100"  );
-  tool->setProperty("OperatingPoint", "2DFixedCutBEff_85"   );
-  tool->setProperty("JetAuthor",      "AntiKt2PV0TrackJets" );
+  StatusCode code1 = tool->setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root" );
+  StatusCode code2 = tool->setProperty("TaggerName",    taggerName  );
+  StatusCode code3 = tool->setProperty("OperatingPoint", workingPointName);
+  StatusCode code4 = tool->setProperty("JetAuthor",      "AntiKt4EMTopoJets" );
 
   // A successful initialisation ought to be checked for
-  StatusCode code = tool->initialize();
-  if (code != StatusCode::SUCCESS) {
-    std::cout << "Initialization of tool " << tool->name() << " failed! Subsequent results may not make sense." << std::endl;
+  StatusCode code5 = tool->initialize();
+
+  if (code1 != StatusCode::SUCCESS || code2 != StatusCode::SUCCESS || code3 != StatusCode::SUCCESS || code4 != StatusCode::SUCCESS || code5 != StatusCode::SUCCESS) {
+    std::cout << "Initialization of tool " << tool->name() << " failed! " << std::endl;
+    return -1;
   }
   else {
     std::cout << "Initialization of tool " << tool->name() << " finished." << std::endl;
   }
 
-  bool retval = true;
 
-  std::cout << "\nTesting function calls for a large pT range..." << std::endl;
-  for (unsigned pt=15000; pt<1200000; pt+=100000){
-    if (tool->accept(pt, 0.5, 0.5543, 0.)){
-      std::cout << "Jet is tagged" << std::endl;
-    } else {
-      std::cout << "Jet is untagged" << std::endl;
-    }
+  //load some jets to show how to use the tool
+
+  xAOD::TEvent event;
+
+  TFile* m_file = TFile::Open("/afs/cern.ch/work/j/jshlomi/public/DAOD_FTAG2.12165764._000400.pool.root.1","read");
+
+  if(!event.readFrom(m_file).isSuccess()){ std::cout << "failed to load file" << std::endl; return -1; }
+
+  event.getEntry(0);
+
+  const xAOD::JetContainer* jets = 0;
+
+  if (!event.retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ std::cout << " error retrieving jets " << std::endl; return -1;}
+
+  int jet_index = 0;
+  for (auto jet : *jets) {
+
+    //getting a tagging decision, is the jet tagged or not
+    bool tagged = tool->accept(*jet);
+
+    //you can get the tagger weight,
+    double tagweight;
+    if( tool->getTaggerWeight( *jet ,tagweight)!=CorrectionCode::Ok ){ std::cout << " error retrieving tagger weight " << std::endl; return -1; }
+
+    std::cout << "jet " << jet_index << " " <<  taggerName  << "  " << workingPointName << " is tagged " << tagged << " tag weight " << tagweight << std::endl;
+
+
+    //if you have DL1 weights, you can get the tagger weight this way
+    const xAOD::BTagging *btag = jet->btagging();
+
+    double dl1_pb = btag->auxdata<double>("DL1_pb");
+    double dl1_pc = btag->auxdata<double>("DL1_pc");
+    double dl1_pu = btag->auxdata<double>("DL1_pu");
+
+
+    if(  tool->getTaggerWeight(dl1_pb,dl1_pc,dl1_pu, tagweight) !=CorrectionCode::Ok ){ std::cout << " error retrieving tagger weight " << std::endl; return -1; }
+
+    std::cout << " tagweight " << tagweight << std::endl;
+
+    //you can also extract the cut value (which may or may not depend on the jet pt)
+
+    double cutval;
+     //provide the pt in MeV
+    if( tool->getCutValue( jet->pt() , cutval)!=CorrectionCode::Ok ){ std::cout << " error retrieving cut value " << std::endl; return -1; }
+
+    std::cout << " cut value " << cutval << std::endl;
+
+
+    jet_index++;
+
   }
 
-  // #### Trying to build a b-jet on the fly
-  // auto JetAuxContainer = new xAOD::JetAuxContainer();
-  // auto JetContainer = new xAOD::JetContainer();
-  // JetContainer->setStore(JetAuxContainer);
-  // auto tjet = new xAOD::Jet();
-  // JetContainer->push_back(tjet);
 
-  // std::cout << "jet container ready, now btagging ones" << std::endl;
-
-  // auto BTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
-  // auto BTaggingContainer = new xAOD::BTaggingContainer();
-  // BTaggingContainer->setStore(BTaggingAuxContainer);
-  // auto BTagging = new xAOD::BTagging();
-  // BTaggingContainer->push_back(BTagging);
-
-  // std::cout << "BTagging container ready, now the store" << std::endl;
-  // xAOD::TStore store;
-  // store.record(JetContainer, "JetTest");
-  // store.record(JetAuxContainer, "JetTestAux.");
-  // store.record(BTaggingContainer, "BTagTest");
-  // store.record(BTaggingAuxContainer, "BTagTestAux.");
-  // std::cout << "Store ready" << std::endl;
-  // std::cout << tjet << "\t\t" << BTaggingContainer << "\t\t" << BTagging << std::endl;
-
-  // ElementLink< xAOD::BTaggingContainer> linkBTagger;
-  // linkBTagger.toContainedElement(*BTaggingContainer, BTagging);
-  // // tjet->setBTaggingLink(linkBTagger);
-  // // BTagging->setVariable("MV2c20", "discriminant", 0.20);
-  // ######
-
-  return retval;
+  return 0;
 }
