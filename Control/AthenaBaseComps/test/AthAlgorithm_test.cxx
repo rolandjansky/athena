@@ -254,7 +254,9 @@ void test2 (ISvcLocator* svcLoc)
 int main()
 {
   ISvcLocator* svcLoc = nullptr;
-  Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc);
+  if (!Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc)) {
+    return 1;
+  }
 
   test1 (svcLoc);
   test2 (svcLoc);
