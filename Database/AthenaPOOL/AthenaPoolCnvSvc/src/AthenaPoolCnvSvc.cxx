@@ -570,8 +570,8 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput() {
       } else {
          m_streamServer = m_outputStreamingTool.size();
       }
-   }
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
+   }
    // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
    std::vector<std::string> maxFileSize;
    maxFileSize.push_back("TREE_MAX_SIZE");
