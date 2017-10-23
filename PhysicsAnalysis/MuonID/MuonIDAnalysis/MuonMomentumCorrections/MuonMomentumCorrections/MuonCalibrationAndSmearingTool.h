@@ -77,8 +77,6 @@ public:
   virtual SystematicSet recommendedSystematics() const;
   //:::Interface - Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
-  //:::Interface - Set seed for the random number generator
-  //void setRandomSeed( unsigned seed = 0 ) { m_random3.SetSeed( seed ); m_useExternalSeed = true;}
   //:::Interface - get the expected resolution of the muon
   virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
 
@@ -86,23 +84,16 @@ public:
   double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
   double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true) // Sam Meehan - removed default arguments to make implementation more explicit
 
-  //:::Interface
   virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
                                                const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
                                                int charge,
                                                AmgVector(5)& parsCB,
                                                AmgSymMatrix(5)& covCB,
                                                double& chi2) const;
-  //:::Interface
   virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
-  //:::Interface
-  //virtual void setUseStatCombination(bool flag);
-  //:::Interface
   virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
-  //:::Interface
-  virtual  CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
-  //:::Interface
-  virtual  CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
+  virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
+  virtual CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
 
 protected:

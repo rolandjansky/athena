@@ -62,25 +62,8 @@ public:
   virtual SystematicSet recommendedSystematics() const = 0;
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) = 0;
-  //::: External setting of random seed
-  //virtual void setRandomSeed( unsigned seed ) = 0;
-  //::: expectedResolution
+  //::: Get the expected pT resolution
   virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc, InfoHelper& muonInfo ) const=0;
-
-  virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
-                                               const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
-                                               int charge,
-                                               AmgVector(5)& parsCB,
-                                               AmgSymMatrix(5)& covCB,
-                                               double& chi2) const = 0;
-  virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const =0 ;
-
-  //virtual void setUseStatCombination(bool flag) = 0;
-
-  virtual  CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const=0;
-  virtual  CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const=0;
-  virtual  CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const=0;
-
 
 }; // class IMuonCalibrationAndSmearingTool
 
