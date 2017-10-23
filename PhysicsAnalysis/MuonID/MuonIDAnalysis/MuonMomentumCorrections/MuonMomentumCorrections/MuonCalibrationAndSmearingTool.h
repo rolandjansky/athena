@@ -169,10 +169,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double SagittaBias;
     };
 
-    // this declaration of TRandom3 is not thread safe but can work in the current athena
-    mutable TRandom3   m_random3;
-    bool               m_useExternalSeed;
-    int                m_externalSeed;
+    bool  m_useExternalSeed;
+    int   m_externalSeed;
 
     std::string m_year, m_algo, m_type, m_release;
     std::string m_FilesPath;

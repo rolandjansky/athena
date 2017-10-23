@@ -933,17 +933,20 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Checking Input Muon Info - Charge: " << ( ( muonInfo.charge > 0 ) ? "+" : "-" ) );
   ATH_MSG_VERBOSE( "Checking Input Muon Info -  Pt_CB - Pt_ID: " << ( muonInfo.ptcb - muonInfo.ptid ) * 1000. );
 
+  // Random number generation for smearing
+  TRandom3   loc_random3;
+
   // if you don't want to use the external seed it will be set based on the eventNumber and the muon(eta,phi)
   if( !m_useExternalSeed ) {
     //::: Get Event Number:
     const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
     //::: Construct a seed for the random number generator:
     const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
-    m_random3.SetSeed( seed );
+    loc_random3.SetSeed( seed );
   }
   else{
     const UInt_t seed = m_externalSeed;
-    m_random3.SetSeed( seed );
+    loc_random3.SetSeed( seed );
   }
 
   muonInfo.smearDeltaMS = 0.;
@@ -973,11 +976,11 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   //::: Getting scale region
   //muonInfo.scaleRegion = GetScaleRegion( mu ); // Sam Meehan - is scaleRegions actually used anywhere, it seems not
-  muonInfo.g0 = m_random3.Gaus( 0, 1 );
-  muonInfo.g1 = m_random3.Gaus( 0, 1 );
-  muonInfo.g2 = m_random3.Gaus( 0, 1 );
-  muonInfo.g3 = m_random3.Gaus( 0, 1 );
-  muonInfo.g4 = m_random3.Gaus( 0, 1 );
+  muonInfo.g0 = loc_random3.Gaus( 0, 1 );
+  muonInfo.g1 = loc_random3.Gaus( 0, 1 );
+  muonInfo.g2 = loc_random3.Gaus( 0, 1 );
+  muonInfo.g3 = loc_random3.Gaus( 0, 1 );
+  muonInfo.g4 = loc_random3.Gaus( 0, 1 );
   ATH_MSG_VERBOSE( "Checking Random Values - g_0: " << muonInfo.g0 );
   ATH_MSG_VERBOSE( "Checking Random Values - g_1: " << muonInfo.g1 );
   ATH_MSG_VERBOSE( "Checking Random Values - g_2: " << muonInfo.g2 );
