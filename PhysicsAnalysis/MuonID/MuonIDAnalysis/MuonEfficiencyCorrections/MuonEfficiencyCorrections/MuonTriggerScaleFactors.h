@@ -56,9 +56,7 @@ namespace CP {
             virtual ~MuonTriggerScaleFactors();
 
             virtual StatusCode initialize(void);
-
-            virtual CorrectionCode setRunNumber(Int_t runNumber);
-
+            
             // for single lepton triggers
             virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger);
 
@@ -114,6 +112,7 @@ namespace CP {
         protected:      
             //Retrieve the runNumber and dataPeriod
             unsigned int getRunNumber() const;
+            unsigned int getFallBackRunNumber() const;
             std::string getDataPeriod() const;
      
             unsigned int getYear(unsigned int run) const;
