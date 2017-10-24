@@ -236,7 +236,7 @@ class TestAtlasG4(unittest.TestCase):
 
 
     def test___G4AtlasAlg_G4Commands_setCorrectly(self):
-        expected_property_value = [] #TODO this will probably change as the configuration is migrated
+        expected_property_value = ['/run/verbose 2'] #TODO this will probably change as the configuration is migrated
         self._assert_Algorithm_property_unordered_equal('G4AtlasAlg', 'G4Commands', expected_property_value)
 
 
