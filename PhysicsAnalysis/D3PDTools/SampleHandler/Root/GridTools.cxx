@@ -217,7 +217,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<std::string> result;
 
     ANA_MSG_INFO ("querying FAX for dataset " << name);
@@ -272,7 +272,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
 
     ANA_MSG_INFO ("querying rucio for dataset " << name);
     std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas --pfns --protocols root " + sh::quote (name));
@@ -322,7 +322,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListDidsEntry> result;
 
     ANA_MSG_INFO ("querying rucio for dataset " << dataset);
@@ -358,7 +358,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListFileReplicasEntry> result;
 
     std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset);
@@ -400,7 +400,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::map<std::string,std::unique_ptr<MetaObject> > result;
 
     std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio get-metadata";
