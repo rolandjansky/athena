@@ -17,3 +17,6 @@ target_link_libraries (SystematicsHandles_cc_SysReadHandle SystematicsHandlesLib
 
 add_executable (SystematicsHandles_cc_SysCopyHandle test/cc_SysCopyHandle.cxx)
 target_link_libraries (SystematicsHandles_cc_SysCopyHandle SystematicsHandlesLib xAODEventInfo xAODJet)
+
+add_executable (SystematicsHandles_cc_SysWriteHandle test/cc_SysWriteHandle.cxx)
+target_link_libraries (SystematicsHandles_cc_SysWriteHandle SystematicsHandlesLib)

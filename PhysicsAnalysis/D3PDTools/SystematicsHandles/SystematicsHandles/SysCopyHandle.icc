@@ -70,9 +70,9 @@ namespace EL
       if (detail::ShallowCopyCore<T>::setLink (*inputObject, *copy.first).isFailure())
         return StatusCode::FAILURE;
 
-      if (m_evtStore->record (copy.first, std::get<1>(cache->second)).isFailure())
+      if (m_evtStore->record (copy.second, std::get<2>(cache->second)).isFailure())
         return StatusCode::FAILURE;
-      if (m_evtStore->record (copy.first, std::get<2>(cache->second)).isFailure())
+      if (m_evtStore->record (copy.first, std::get<1>(cache->second)).isFailure())
         return StatusCode::FAILURE;
       object = copy.first;
       return StatusCode::SUCCESS;
