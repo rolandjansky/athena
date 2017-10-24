@@ -758,8 +758,8 @@ bool ALP::prepareForRun(const boost::property_tree::ptree& args) {
     }
   }//Forking loop
   
-  char *dummv=0;
-  int dummc=0;
+  //char *dummv=0;
+  //int dummc=0;
   //sleep(300);
   // try{
   //   IPCCore::init(dummc,&dummv);
@@ -1473,8 +1473,8 @@ pid_t ALP::forkChildren(int pos){
   }else{// child process detached from parent.
     if(m_dumpFD)printOpenFDs("child pre-redirection->");
     if(m_dumpThreads)printTasks("child pre-redirection Tasks(threads)->");
-    char *dummv=0;
-    int dummc=0;
+    //char *dummv=0;
+    //int dummc=0;
     std::cerr<<ALPUtils::getTimeTag()<<"Fork done"<<std::endl;
     std::cout<<ALPUtils::getTimeTag()<<"Fork done"<<std::endl;
     m_myPid=getpid();
