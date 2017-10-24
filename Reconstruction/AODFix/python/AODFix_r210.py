@@ -21,10 +21,9 @@ class AODFix_r210(AODFix_base):
     @staticmethod
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
-        nextMajRel = "21.0.21"
 
         # items in this list will be excluded from the metadata, so will always rerun
-        excludeFromMetadata = [] 
+        excludeFromMetadata = ["btagging"] 
 
         metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys()) 
                         if ("_" in item and "__" not in item)]
@@ -32,8 +31,6 @@ class AODFix_r210(AODFix_base):
         for excl in excludeFromMetadata:
             if excl in metadataList:
                 metadataList.remove(excl)
-
-        metadataList.insert(0, nextMajRel)
 
         return "-".join(metadataList)
 
@@ -127,6 +124,13 @@ class AODFix_r210(AODFix_base):
         """
         from egammaRec.egammaRecConf import egammaAODFixAlg
         topSequence+=egammaAODFixAlg()
+
+    def IDTide_postSystemRec(self, topSequence):
+        """
+        A dummy fix to just add metadata--not event scheduled.
+        Please update postSystemRec if you actually want to run it.
+        """
+        pass
         
 
                 
