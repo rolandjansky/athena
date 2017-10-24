@@ -32,7 +32,8 @@
 
 #include "AuxDiscoverySvc.h"
 
-#include <set>
+static const std::string s_DH_guid("D82968A1-CF91-4320-B2DD-E0F739CBC7E6");
+static const std::string s_DHF_guid("3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE");
 
 //______________________________________________________________________________
 // Initialize the service.
@@ -446,7 +447,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   delete token; token = nullptr;
 
                   // For DataHeaderForm, Token needs to be inserted to DataHeader Object
-                  if (className == "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
+                  if (className == s_DHF_guid) {
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
                      IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                      if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
@@ -454,7 +455,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                         return(StatusCode::FAILURE);
                      }
                   // Found DataHeader
-                  } else if (className == "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
+                  } else if (className == s_DH_guid) {
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
                      IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                      if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
@@ -729,6 +730,11 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          Token* tempToken = new Token();
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
+         if (token->classID().toString() == s_DH_guid) {
+            ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+            FileIncident proxyIncident(name(), "ShmMap", token->toString());
+            incSvc->fireIncident(proxyIncident);
+         }
       } else {
          token = m_poolSvc->registerForWrite(placement, obj, classDesc);
       }
