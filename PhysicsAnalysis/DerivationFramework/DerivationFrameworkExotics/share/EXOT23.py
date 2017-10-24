@@ -113,46 +113,47 @@ from JetRec.JetRecConf import JetAlgorithm
 
 OutputJets["EXOT23"] = []
 
-# "truthpartcopydark" ADDED TO rtools IN JetRec/JetAlgorithm.py ##
-# select truth dark hadrons for jet clustering
-from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-from JetRec.JetRecStandardTools import truthClassifier
+if jetFlags.useTruth:
+    # "truthpartcopydark" ADDED TO rtools IN JetRec/JetAlgorithm.py ##
+    # select truth dark hadrons for jet clustering
+    from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
+    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+    from JetRec.JetRecStandardTools import truthClassifier
 
-jtm += CopyTruthJetParticles("truthpartcopydark",
-                             OutputName = "JetInputTruthParticlesDarkHad",
-                             MCTruthClassifier = truthClassifier,
-                             IncludeSMParts = False,
-                             IncludeDarkHads = True)
+    jtm += CopyTruthJetParticles("truthpartcopydark",
+                                OutputName = "JetInputTruthParticlesDarkHad",
+                                MCTruthClassifier = truthClassifier,
+                                IncludeSMParts = False,
+                                IncludeDarkHads = True)
 
-# add JetToolRunner instance for new truthpartcopydark tool
-jtm += CfgMgr.JetToolRunner("jetrun_copytruthpartdark",
-                            EventShapeTools = [],
-                            Tools = [jtm.truthpartcopydark])
+    # add JetToolRunner instance for new truthpartcopydark tool
+    jtm += CfgMgr.JetToolRunner("jetrun_copytruthpartdark",
+                                EventShapeTools = [],
+                                Tools = [jtm.truthpartcopydark])
 
-# import pseudojet getter
-from JetRec.JetRecConf import PseudoJetGetter
+    # import pseudojet getter
+    from JetRec.JetRecConf import PseudoJetGetter
+    
+    # build truth dark pseudojets
+    jtm += PseudoJetGetter("truthdarkget",
+                        Label = "Truth",
+                        InputContainer = jtm.truthpartcopydark.OutputName,
+                        OutputContainer = "PseudoJetTruthDark",
+                        GhostScale = 0.0,
+                        SkipNegativeEnergy = True)
 
-# build truth dark pseudojets
-jtm += PseudoJetGetter("truthdarkget",
-                       Label = "Truth",
-                       InputContainer = jtm.truthpartcopydark.OutputName,
-                       OutputContainer = "PseudoJetTruthDark",
-                       GhostScale = 0.0,
-                       SkipNegativeEnergy = True)
+    # add truth dark pseudojet getters
+    truthdarkgetters = [jtm.truthdarkget]
+    # add truth cone matching and truth flavor ghosts for truth dark jets
+    from JetRec.JetRecStandardToolManager import flavorgetters
+    truthdarkgetters += flavorgetters
 
-# add truth dark pseudojet getters
-truthdarkgetters = [jtm.truthdarkget]
-# add truth cone matching and truth flavor ghosts for truth dark jets
-from JetRec.JetRecStandardToolManager import flavorgetters
-truthdarkgetters += flavorgetters
+    # add truth dark getters list to jtm
+    jtm.gettersMap["truthdark"] = list(truthdarkgetters)
 
-# add truth dark getters list to jtm
-jtm.gettersMap["truthdark"] = list(truthdarkgetters)
-
-# build list of truth dark jet modifiers
-jtm.modifiersMap["truthdarkmods"] = [jtm.truthpartondr,
-                                     jtm.partontruthlabel]
+    # build list of truth dark jet modifiers
+    jtm.modifiersMap["truthdarkmods"] = [jtm.truthpartondr,
+                                        jtm.partontruthlabel]
 
 
 # define truth dark jets helper
