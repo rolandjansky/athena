@@ -290,6 +290,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArDigitMon=False
+      LArMonFlags.doLArCollisionTimeMon=True
       doCaloCellVecMon=True
       HLTMonFlags.doBjet=False
       HLTMonFlags.doEgamma=False
