@@ -38,7 +38,6 @@ JETM1Stream.AcceptAlgs(["JETM1Kernel"])
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
 JETM1ThinningHelper.AppendToStream( JETM1Stream )
-
 #====================================================================
 # THINNING TOOLS 
 #====================================================================
