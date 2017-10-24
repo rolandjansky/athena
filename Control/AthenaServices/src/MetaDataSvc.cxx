@@ -42,20 +42,10 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
    declareProperty("CnvSvc", m_addrCrtr = ServiceHandle<IAddressCreator>("AthenaPoolCnvSvc", name));
-   m_persToClid.insert(std::pair<std::string, CLID>("11DF1B8C-0DEE-4687-80D7-E74B520ACBB4",  167728019)); // EventStreamInfo
-   m_persToClid.insert(std::pair<std::string, CLID>("E0A5F063-F07D-4D2E-8D3B-49205CD712C1", 1076128893)); // ByteStreamMetadataContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("6C2DE6DF-6D52-43F6-B435-9F29812F40C0", 1316383046)); // IOVMetaDataContainer
+   // MetaData that is skipped for 0-event files needs to be added manually
    m_persToClid.insert(std::pair<std::string, CLID>("0EFE2D2C-9E78-441D-9A87-9EE2B908AC81",  243004407)); // xAOD::EventFormat
    m_persToClid.insert(std::pair<std::string, CLID>("AA55120B-11CF-44A3-B1E4-A5AB062207B7", 1107011239)); // xAOD::TriggerMenuContainer
    m_persToClid.insert(std::pair<std::string, CLID>("B8614CC5-8696-4170-8CCC-496DA7671246", 1212409402)); // xAOD::TriggerMenuAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("F2F90B2F-B879-43B8-AF9B-0F843E299A87", 1234982351)); // xAOD::CutBookkeeperContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("AF612BAA-20B8-40A3-A418-894A9FB8A61B", 1147935274)); // xAOD::CutBookkeeperAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0", 1115934851)); // xAOD::LumiBlockRangeContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("514696E1-A262-470A-BEB1-FF980CD8827A", 1251061086)); // xAOD::LumiBlockRangeAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("C87E3828-4A7A-480A-95DE-0339539F6A0F",  178309087)); // xAOD::FileMetaData
-   m_persToClid.insert(std::pair<std::string, CLID>("BEE2BECF-A936-4078-9FDD-AD703C9ADF9F",   73252552)); // xAOD::FileMetaDataAuxInfo
-   m_persToClid.insert(std::pair<std::string, CLID>("754BDA89-C0D9-43BF-B468-32E10C1690FE", 1188015687)); // xAOD::TruthMetaDataContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("E2EF5F89-DFFA-4225-823E-29E40130A7B2", 1094306618)); // xAOD::TruthMetaDataAuxContainer
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -110,6 +100,7 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "EndTagFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
    m_incSvc->addListener(this, "ShmProxy", 90);
+   m_incSvc->addListener(this, "ShmMap", 90);
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -232,29 +223,11 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
          for (std::vector<DataHeaderElement>::const_iterator dhIter = dataHeader->begin(),
 		         dhLast = dataHeader->end(); dhIter != dhLast; dhIter++) {
             const CLID clid = dhIter->getPrimaryClassID();
-            SG::VersionedKey myVersObjKey(dhIter->getKey(), verNumber);
-            IOpaqueAddress* opqAddr = 0;
-            if (dhIter->getToken() == 0
-	            || !m_addrCrtr->createAddress(m_storageType, clid, dhIter->getToken()->toString(), opqAddr).isSuccess()) {
-               ATH_MSG_ERROR("Could not create IOpaqueAddress, will not read Metadata object");
-               continue;
-            }
-            SG::TransientAddress* tadd = 0;
-            if (verNumber == 0 && clid != ClassID_traits<DataHeader>::ID()) {
-               tadd = new SG::TransientAddress(clid, dhIter->getKey(), opqAddr);
-            } else {
-               tadd = new SG::TransientAddress(clid, myVersObjKey, opqAddr);
-            }
-            if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
-               delete tadd; tadd = 0;
-            } else {
-               std::set<unsigned int> clids = dhIter->getClassIDs();
-               for (std::set<unsigned int>::const_iterator iter = clids.begin(), last = clids.end();
-		               iter != last; iter++) {
-                  tadd->setTransientID(*iter);
-               }
-               tadd->setAlias(dhIter->getAlias());
-               tads.push_back(tadd);
+            if (clid != ClassID_traits<DataHeader>::ID()) {
+               SG::VersionedKey myVersObjKey(dhIter->getKey(), verNumber);
+               std::string key = dhIter->getKey();
+               if (verNumber != 0) key = myVersObjKey;
+               tads.push_back(dhIter->getAddress(key));
             }
          }
       }
@@ -319,6 +292,22 @@ void MetaDataSvc::handle(const Incident& inc) {
       if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
          ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
       }
+   } else if (inc.type() == "ShmMap") {
+      std::vector<std::string> keys;
+      m_outputDataStore->keys<DataHeader>(keys);
+      for (const auto &key : keys) {
+         const DataHeader* dataHeader;
+         if (!m_outputDataStore->retrieve(dataHeader, key).isSuccess()) {
+            ATH_MSG_ERROR("Could not find DataObject in output: " << key);
+         }
+         for (std::vector<DataHeaderElement>::const_iterator dhIter = dataHeader->begin(),
+		         dhLast = dataHeader->end(); dhIter != dhLast; dhIter++) {
+            if (dhIter->getToken() != nullptr) {
+               ATH_MSG_DEBUG("Registering Persistent: " << dhIter->getToken()->classID().toString() << " to Transient: " << dhIter->getPrimaryClassID());
+               m_persToClid.insert(std::pair<std::string, CLID>(dhIter->getToken()->classID().toString(), dhIter->getPrimaryClassID()));
+            }
+         }
+      }
    }
 }
 //__________________________________________________________________________
@@ -359,11 +348,6 @@ StatusCode MetaDataSvc::io_reinit() {
 		   last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attched MetadDataTool: " << (*iter)->name());
    }
-/*
-   if (!m_outputDataStore->clearStore().isSuccess()) {
-      ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
-   }
-*/
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -390,7 +374,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
 
-   if (clid == 167728019) { // EventStreamInfo
+   if (clid == 167728019) { // EventStreamInfo, needs to change tool to combine input metadata
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_CopyEventStreamInfo") foundTool = true;
@@ -406,7 +390,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
          }
       }
-   } else if (clid == 1234982351) { // xAOD::CutBookkeeperContainer
+   } else if (clid == 1234982351) { // xAOD::CutBookkeeperContainer, needs to change tool to combine input metadata
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
@@ -421,7 +405,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          if (!m_outputDataStore->clearStore().isSuccess()) {
             ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
          }
-         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name());
+         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
          if (cfSvc.retrieve().isSuccess()) {
             m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
             m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
@@ -445,7 +429,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
    }
-   static const std::string derFile = fileName;
+   static const std::string derFile = fileName; // For EventBookkeeper all Streams contain duplicate objects
    if (fileName != derFile && (clid == 1234982351 || clid == 1147935274)) {
       m_inputDataStore->proxy(clid, keyName)->reset();
    }
