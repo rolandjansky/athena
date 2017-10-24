@@ -843,8 +843,6 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.detRegion = GetRegion( muonInfo.eta, muonInfo.phi );
   }
 
-  //muonInfo.scaleRegion = GetScaleRegion( mu ); // Sam Meehan - is scaleRegions actually used anywhere, it seems not
-
   //::: Clear the vector of cov matrices
   muonInfo.cbParsA.clear();
   muonInfo.cbCovMat.clear();
@@ -974,8 +972,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     return CorrectionCode::OutOfValidityRange;
   }
 
-  //::: Getting scale region
-  //muonInfo.scaleRegion = GetScaleRegion( mu ); // Sam Meehan - is scaleRegions actually used anywhere, it seems not
+  //::: Getting random numbers for smearing
   muonInfo.g0 = loc_random3.Gaus( 0, 1 );
   muonInfo.g1 = loc_random3.Gaus( 0, 1 );
   muonInfo.g2 = loc_random3.Gaus( 0, 1 );
@@ -1782,28 +1779,6 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   return StatusCode::SUCCESS;
 
 }
-
-/*
-int MuonCalibrationAndSmearingTool::GetScaleRegion( xAOD::Muon& mu ) const {
-
-  if( m_scaleBins.empty() ) {
-    return -1;
-  }
-  double min = m_scaleBins[0];
-  double max = m_scaleBins[m_scaleBins.size()-1];
-  if( mu.eta()<min ) {
-    return 0;
-  }
-  if( mu.eta()>=max ) {
-    return m_scaleBins.size() - 1;
-  }
-
-  std::vector<double>::iterator lb = lower_bound( m_scaleBins.begin(),m_scaleBins.end(),mu.eta()+1e-9 ); // [first,last)
-  return( std::min( static_cast<int>( distance( m_scaleBins.begin(),lb ) ) , static_cast<int>( m_scaleBins.size()-1 ) ) );
-
-  return -1;
-}
-*/
 
 double MuonCalibrationAndSmearingTool::GetSmearing( int DetType, xAOD::Muon& mu, InfoHelper& muonInfo ) const {
 

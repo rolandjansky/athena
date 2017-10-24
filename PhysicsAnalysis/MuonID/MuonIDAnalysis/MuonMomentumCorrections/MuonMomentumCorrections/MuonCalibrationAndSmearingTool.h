@@ -84,7 +84,6 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double g4;
       int    charge = 1;
       int    detRegion = 0;
-      int    scaleRegion = 0;
       std::vector < float >  cbParsA;
       std::vector < float >  cbCovMat;
       double weightMS = 0;
@@ -133,7 +132,6 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::string  GetRegionName( const double eta, const double phi ) const;
     double GetSmearing( int DetType, xAOD::Muon&, InfoHelper& muonInfo ) const;
     double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
-    //int GetScaleRegion( xAOD::Muon& ) const; // Sam Meehan - removed this internal function because it seems to not be used anywhere
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
     double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const;
     StatusCode FillValues();
