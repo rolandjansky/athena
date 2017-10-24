@@ -133,7 +133,6 @@ fi
     fi
     (set +e
      ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_config.log 
-     true
     )
  } || true
 }
@@ -153,7 +152,6 @@ fi
  test "X${NIGHTLY_STATUS}" != "X" && {
     (set +e
      ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_build.log 
-     true
     )
  } || true
 }
@@ -178,7 +176,6 @@ fi
         ${scriptsdir_nightly_status}/cmake_cpack_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" "${project}" ${BUILDDIR}/build/${project}/cmake_cpack.log 
      done
      ${scriptsdir_nightly_status}/collect_nightly_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" "$BUILDDIR"
-     true
     )
  } || true
 }

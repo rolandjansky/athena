@@ -135,7 +135,6 @@ ${scriptsdir}/checkout_atlasexternals.sh \
    (set +e 
     touch ${BUILDDIR}/.${timestamp_tmp}
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
-    true
    )
  } || true
 }
@@ -154,7 +153,6 @@ ${scriptsdir}/build_atlasexternals.sh \
    (set +e 
     ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_config.log 
     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_build.log 
-    true
    )
  } || true
 }
@@ -175,7 +173,6 @@ ${scriptsdir}/checkout_Gaudi.sh \
  test "X${NIGHTLY_STATUS}" != "X" && { 
    (set +e
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/src/checkout.GAUDI.log
-    true
    )
  } || true
 }
@@ -194,7 +191,6 @@ ${scriptsdir}/build_Gaudi.sh \
    (set +e
     ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_config.log 
     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log 
-    true
    )
  } || true
 }
