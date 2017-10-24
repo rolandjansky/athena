@@ -47,7 +47,7 @@ namespace EL
         m_evtStore = m_evtStoreGetter();
     }
     assert (m_evtStore);
-    if (m_evtStore->record (aux.release(), cache->second + ".").isFailure())
+    if (m_evtStore->record (aux.release(), cache->second + "Aux.").isFailure())
       return StatusCode::FAILURE;
     if (m_evtStore->record (object.release(), cache->second).isFailure())
       return StatusCode::FAILURE;

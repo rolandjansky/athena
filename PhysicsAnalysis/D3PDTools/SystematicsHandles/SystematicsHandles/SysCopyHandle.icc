@@ -42,7 +42,7 @@ namespace EL
     {
       std::string inputName = detail::makeSystematicsName (m_inputName, sys);
       std::string outputName = detail::makeSystematicsName (m_outputName, sys);
-      m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+".")));
+      m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
       cache = m_nameCache.find (sys);
       assert (cache != m_nameCache.end());
       if (!m_evtStore)
