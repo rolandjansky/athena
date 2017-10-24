@@ -105,7 +105,7 @@ StatusCode ViewSubgraphAlg::execute()
 */
   //Schedule the algorithms in views
   CHECK( ViewHelper::ScheduleViews( viewVector,					//View vector
-        "allViewAlgorithms", //node name
+        m_algPoolName, //node name (rename var)
         ctx,  //event context
         serviceLocator()->service( "AvalancheSchedulerSvc" ) ) ); //Scheduler
 
