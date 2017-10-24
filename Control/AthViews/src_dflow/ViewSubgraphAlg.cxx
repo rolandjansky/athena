@@ -98,10 +98,16 @@ StatusCode ViewSubgraphAlg::execute()
 					viewData ) );	//Data to initialise each view - one view will be made per entry
 
   //Run the algorithms in views
-  CHECK( ViewHelper::RunViews( viewVector,					//View vector
+/*  CHECK( ViewHelper::RunViews( viewVector,					//View vector
 				m_algorithmNameSequence,			//Algorithms to run in each view
 				ctx,						//Context to attach the views to
 				serviceLocator()->service( m_algPoolName ) ) );	//Service to retrieve algorithms by name
+*/
+  //Schedule the algorithms in views
+  CHECK( ViewHelper::ScheduleViews( viewVector,					//View vector
+        "allViewAlgorithms", //node name
+        ctx,  //event context
+        serviceLocator()->service( "AvalancheSchedulerSvc" ) ) ); //Scheduler
 
   //Store the collection of views
   SG::WriteHandle< std::vector< SG::View* > > outputViewHandle( m_w_views, ctx );

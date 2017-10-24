@@ -8,6 +8,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/IService.h"
+#include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/ExtendedEventContext.h"
@@ -34,7 +35,7 @@ namespace ViewHelper
 	//Function to create a vector of views, each populated with one data object
 	template< typename T >
 	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool allowFallThrough=false )
+			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool allowFallThrough=true )
 	{
 		//Loop over all input data
 		unsigned int const viewNumber = InputData.size();
@@ -130,6 +131,46 @@ namespace ViewHelper
 		return StatusCode::SUCCESS;
 	}
 
+  //Function to attach a set of views to a graph node
+  inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
+      EventContext const& InputContext, SmartIF< IService > & SchedulerIF )
+  {
+    //Retrieve the scheduler
+    SmartIF< IScheduler > scheduler( SchedulerIF );
+    if ( !scheduler )
+    {
+      return StatusCode::FAILURE;
+    }
+
+    if ( ViewVector.size() )
+    {
+      for ( SG::View* view : ViewVector )
+      {
+        //Make a context for each view
+        //EventContext * viewContext = new EventContext( InputContext.evt(), InputContext.slot() );
+        //viewContext->setExtension( view );
+
+        //Make a context with the view attached
+        EventContext * viewContext = new EventContext( InputContext );
+        unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+        viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
+
+        //Attach the view to the named node
+        StatusCode sc = scheduler->attachViewToNode( viewContext, NodeName );
+        if ( !sc.isSuccess() )
+        {
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+    else
+    {
+      //Disable the node if no views
+      scheduler->disableViewNode( &InputContext, NodeName );
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
 	// a varaint of RunViews accepting ready to use contexts
 	// useful ehne contexts neeed to be made anyways for the purpose of filling the handles
