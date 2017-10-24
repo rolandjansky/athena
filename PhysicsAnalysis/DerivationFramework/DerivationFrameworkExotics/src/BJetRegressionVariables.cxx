@@ -73,8 +73,8 @@ namespace DerivationFramework {
 	const float minPt = m_minTrackPt[iCut];
 	BJetRegressionVariables::TrackMomentStruct moments = getSumTrackPt(minPt,tracks);
 	const std::string baseName = getMomentBaseName(minPt);
-	SG::AuxElement::Decorator< float > scalSumPtTrk("scalSumPtTrk"+baseName);
-	SG::AuxElement::Decorator< float > vecSumPtTrk("vecSumPtTrk"+baseName);
+	SG::AuxElement::Decorator< float > scalSumPtTrk("ScalSumPtTrk"+baseName);
+	SG::AuxElement::Decorator< float > vecSumPtTrk("VecSumPtTrk"+baseName);
 	scalSumPtTrk( **jetItr )   = moments.vecSumPtTrk;
 	vecSumPtTrk( **jetItr )    = moments.scalSumPtTrk;
       }
