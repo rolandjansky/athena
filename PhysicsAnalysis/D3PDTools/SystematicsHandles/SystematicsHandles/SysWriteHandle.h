@@ -12,12 +12,14 @@
 
 
 #include <PATInterfaces/SystematicSet.h>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 #ifdef ROOTCORE
 #include <AsgTools/SgTEvent.h>
 #else
+#include <StoreGate/StoreGateSvc.h>
 #endif
 
 class StatusCode;
@@ -73,6 +75,14 @@ namespace EL
     /// \brief the function to retrieve the event store
   private:
     std::function<asg::SgTEvent*()> m_evtStoreGetter;
+#else
+    /// \brief the event store we use
+  private:
+    mutable StoreGateSvc *m_evtStore = nullptr;
+
+    /// \brief the function to retrieve the event store
+  private:
+    std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
   };
 
@@ -119,6 +129,14 @@ namespace EL
     /// \brief the function to retrieve the event store
   private:
     std::function<asg::SgTEvent*()> m_evtStoreGetter;
+#else
+    /// \brief the event store we use
+  private:
+    mutable StoreGateSvc *m_evtStore = nullptr;
+
+    /// \brief the function to retrieve the event store
+  private:
+    std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
   };
 }

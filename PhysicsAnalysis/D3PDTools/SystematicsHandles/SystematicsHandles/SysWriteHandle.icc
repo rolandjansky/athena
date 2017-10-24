@@ -25,7 +25,7 @@ namespace EL
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
-    , m_evtStoreGetter ([owner] () {return owner->evtStore();})
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -61,7 +61,7 @@ namespace EL
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
-    , m_evtStoreGetter ([owner] () {return owner->evtStore();})
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
