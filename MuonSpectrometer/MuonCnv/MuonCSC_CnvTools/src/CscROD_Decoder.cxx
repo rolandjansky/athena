@@ -112,8 +112,7 @@ void Muon::CscROD_Decoder::fillCollection(const ROBFragment& robFrag,  CscRawDat
      this->rodVersion2(robFrag, rdoIDC, log);
   }
   else if (rodMinorVersion == 0x1 || // ROD version for CTB and DC3 - for backward compatibility
-           m_eventInfo->event_type()->test(EventType::IS_TESTBEAM) || 
-           m_geoVersion == "CTB2004") 
+           m_eventInfo->event_type()->test(EventType::IS_TESTBEAM)) 
      this->rodVersion1(robFrag, rdoIDC, log);
   else if (rodMinorVersion == 0x0) 
      ATH_MSG_DEBUG ( "Empty ROB - doing nothing " );

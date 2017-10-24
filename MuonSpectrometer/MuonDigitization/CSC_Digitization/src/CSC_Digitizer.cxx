@@ -98,17 +98,10 @@ StatusCode CSC_Digitizer::initialize() {
     m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];    
   } else {
     std::string  gVersion = m_muonMgr->geometryVersion();
-    if (gVersion == "CTB2004") {
-      m_hashOffset[0][0] = 0;
-      m_hashOffset[0][1] = 1536;
-      m_hashOffset[1][0] = m_hashOffset[0][0];
-      m_hashOffset[1][1] = m_hashOffset[0][1];
-    } else {
-      m_hashOffset[0][0] = 0;
-      m_hashOffset[0][1] = 24576;
-      m_hashOffset[1][0] = m_hashOffset[0][1]+6144;
-      m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];
-    }
+    m_hashOffset[0][0] = 0;
+    m_hashOffset[0][1] = 24576;
+    m_hashOffset[1][0] = m_hashOffset[0][1]+6144;
+    m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];
   } 
   return StatusCode::SUCCESS;
 }
@@ -256,10 +249,6 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   double wireCharge;
   int nElectrons=0;
 
-  // for CTB 2004, the chamber is eta=+1 but we only have one etaIndex
-  // because there is no chamber at eta=-1 in the CTB,
-  // thus reset index for hashes
-  if (m_muonMgr->geometryVersion() == "CTB2004") etaIndex = 1;
 
   // loop over number of interactions and do digitization
   for (int i=0; i<nInter; i++) {
@@ -558,11 +547,6 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   double zc;
   double wireCharge;
   int nElectrons=0;
-
-  // for CTB 2004, the chamber is eta=+1 but we only have one etaIndex
-  // because there is no chamber at eta=-1 in the CTB,
-  // thus reset index for hashes
-  if (m_muonMgr->geometryVersion() == "CTB2004") etaIndex = 1;
 
   // loop over number of interactions and do digitization
   for (int i=0; i<nInter; i++) {
@@ -869,11 +853,6 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   double zc;
   double wireCharge;
   int nElectrons=0;
-
-  // for CTB 2004, the chamber is eta=+1 but we only have one etaIndex
-  // because there is no chamber at eta=-1 in the CTB,
-  // thus reset index for hashes
-  if (m_muonMgr->geometryVersion() == "CTB2004") etaIndex = 1;
 
   // loop over number of interactions and do digitization
   for (int i=0; i<nInter; i++) {

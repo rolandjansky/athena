@@ -789,7 +789,7 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     std::string geov = MYSQL::GetPointer()->getGeometryVersion();
     CLHEP::Hep3Vector vec;
     double RAD;
-    if (geov != "CTB2004" && m_name[0]=='T')
+    if (m_name[0]=='T')
       {
 	//RAD=((TgcComponent *)GetComponent(0))->posy;
 	RAD=p.radius;
@@ -840,20 +840,11 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     HepGeom::Rotate3D ralpha = HepGeom::RotateX3D(p.alpha*CLHEP::deg);
     HepGeom::Rotate3D rbeta  = HepGeom::RotateZ3D(p.beta*CLHEP::deg);
     HepGeom::Rotate3D rgamma;
-    if (m_name[0]=='B' || p.isBarrelLike  || geov != "CTB2004") // pay attention here !!!!!!!!!
-    {
-      rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
-	  if (pLvl)
-      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
-    }
-    else
-      {
-	if (pLvl)
-	log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endmsg;
-	rgamma = HepGeom::RotateY3D(-p.gamma*CLHEP::deg);  //WHY???
-      }
-	if (pLvl)
-    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
+    rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
+    if (pLvl)
+      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endreq;
+    if (pLvl)
+    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endreq;
 
     // // apply all transform in sequence 
     // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
@@ -913,7 +904,6 @@ HepGeom::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Pos
 HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) const
 {
   MsgStream log(m_msgSvc, "MGM getDeltaTransform_tszFrame");
-  int amdbVersion = MYSQL::GetPointer()->getNovaReadVersion();
   std::string geov = MYSQL::GetPointer()->getGeometryVersion();
   if (ap.tras!=0 ||ap.trat!= 0 ||ap.traz!=0 ||
       ap.rots!=0 || ap.rott!=0||ap.rotz!=0)
@@ -936,21 +926,6 @@ HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) co
   HepGeom::Transform3D trans = HepGeom::TranslateY3D(ap.tras)*
                          HepGeom::TranslateZ3D(ap.traz)*HepGeom::TranslateX3D(ap.trat);
 
-  // imt The following is probably also true for ATLAS geometries, but has
-  //     only been tested for CTB:
-  if (geov=="CTB2004")
-    {
-      if (amdbVersion > 0 && amdbVersion < 7 && !ap.isBarrel)
-	{
-	log << MSG::DEBUG << "For AMDB version " << amdbVersion
-		  << " a left-handed chamber coordinate system was used " 
-		  << " for endcap side A, so s-axis flipped for corrections."
-		  << endmsg;
-	  rots = HepGeom::RotateY3D(-(ap.rots));
-	  trans = HepGeom::TranslateY3D(-(ap.tras))*
-	    HepGeom::TranslateZ3D(ap.traz)*HepGeom::TranslateX3D(ap.trat);
-	}
-    }
 
   HepGeom::Transform3D delta = trans*rots*rotz*rott;
   	

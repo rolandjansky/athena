@@ -90,7 +90,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareInterface<IMuonDigitizationTool>(this);
 
   declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
-  declareProperty("CTB2004"              ,  m_ctb2004 = false                     , "option to run the CTB - only with release <= 12");
   declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
   declareProperty("OutputObjectName"     ,  m_outputDigitCollectionName = "RPC_DIGITS","name of the output object");
   declareProperty("OutputSDOsName"       ,  m_outputSDO_CollectionName  = "RPC_SDO",   "name of the output object");
@@ -155,7 +154,6 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Configuration  RpcDigitizationTool " );
 
   ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
-  ATH_MSG_DEBUG ( "CTB2004                " << m_ctb2004                   );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
   ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionName );
   ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
@@ -701,12 +699,6 @@ StatusCode RpcDigitizationTool::doDigitization() {
       int         measphi     = muonHelper->GetMeasuresPhi(idHit);
 
       if( measphi!=0 ) continue; //Skip phi strip . To be created after efficiency evaluation
-
-      // CTB2004 has different layout for BOL chambers
-      if(m_ctb2004&&stationName=="BOL"){
-	if(doubletZ==1) doubletZ=2;
-	else if(doubletZ==2) doubletZ=1;
-      }
 
       //construct Atlas identifier from components
       ATH_MSG_DEBUG ( "creating id for hit in element:"
