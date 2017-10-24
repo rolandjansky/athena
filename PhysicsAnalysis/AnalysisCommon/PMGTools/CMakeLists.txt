@@ -31,12 +31,12 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTruth
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/FourMomUtils
-   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
    Event/xAOD/xAODMetaData
    Tools/PathResolver
