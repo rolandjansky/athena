@@ -18,7 +18,7 @@ DESDM_PHOJET_Seq = CfgMgr.AthSequencer("DESDM_PHOJET_Seq")
 ## Define the skimming (event selection) for the DESD_PHOJET output stream
 ##============================================================================
 # Object selection strings
-sel_phojet  = 'Photons.pt > 190*GeV && Photons.Tight'
+sel_phojet  = 'Photons.pt > 280*GeV && Photons.Tight'
 
 # Event selection string
 desd_phojet = '(count('+sel_phojet+')>=1)'
