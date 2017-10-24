@@ -25,7 +25,7 @@ exot13Seq = CfgMgr.AthSequencer("EXOT13Sequence")
 #=====================
 # TRIGGER NAV THINNING
 #=====================
-triggerNavChains = "HLT_mu20_msonly_mu6noL1_msonly_nscan05|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_j85_cleanLLP|HLT_j30_jes_cleanLLP_PS_llp_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH|HLT_j250_jes_cleanLLP_PS_revllp_L1TAU60|HLT_j230_jes_cleanLLP_PS_revllp_L1TAU60|HLT_j200_jes_cleanLLP_PS_revllp_trkiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO| HLT_3mu6_msonly|HLT_3mu6_msonly_L1MU4_EMPTY| HLT_3mu6_msonly_L1MU6_EMPTY|HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO| HLT_3mu6_msonly_L1MU4_UNPAIRED_NONISO|HLT_e24_lhmedium_L1EM18VH| HLT_e24_lhmedium_L1EM20VH|HLT_e24_lhmedium_iloose_L1EM18VH| HLT_e24_lhtight_nod0_ivarloose|HLT_e24_lhmedium_nod0_L1EM20VHI| HLT_e24_lhtight_nod0_ivarloose|HLT_e24_lhmedium_nod0_L1EM20VHI| HLT_e26_lhtight_nod0_ivarloose|HLT_e60_lhmedium_nod0| HLT_e60_medium|HLT_mu20_iloose_L1MU15|HLT_mu50|HLT_mu60|HLT_mu24_iloose|HLT_mu24_iloose_L1MU15|HLT_mu24_ivarloose|HLT_mu24_ivarloose_L1MU15|HLT_mu40|HLT_mu24_ivarmedium|HLT_mu24_imedium|HLT_mu26_ivarmedium|HLT_mu26_imedium| HLT_j80_xe80|HLT_xe70_L1XE45|HLT_xe70|HLT_xe70_mht|HLT_xe80_tc_lcw_L1XE50|HLT_xe90_mht_L1XE50|HLT_xe80_tc_lcw_L1XE50|HLT_xe100_mht_L1XE50|HLT_xe110_mht_L1XE50|HLT_j25|HLT_j35|HLT_j45|HLT_j55|HLT_j60|HLT_j85"
+triggerNavChains = "HLT_mu20_msonly_mu6noL1_msonly_nscan05|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu6noL1_msonly_nscan05|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb|HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40|HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30|HLT_mu20_msonly_mu6noL1_msonly_nscan05|HLT_mu6_dRl1_mu20_msonly_iloosems_mu6noL1_dRl1_msonly|HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40|HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30|HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_j30_jes_PS_llp_L1TAU30|HLT_j30_jes_PS_llp_L1TAU40|HLT_j30_jes_PS_llp_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_pufix_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_pufix_noiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1LLP-RO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-RO|HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH|HLT_j30_jes_cleanLLP_PS_llp_L1TAU100|HLT_j30_jes_cleanLLP_PS_llp_pufix_L1TAU100|HLT_j30_jes_cleanLLP_PS_llp_pufix_noiso_L1TAU100|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO|HLT_3mu6_msonly|HLT_3mu6_msonly_L1MU4_EMPTY|HLT_3mu6_msonly_L1MU6_EMPTY|HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO|HLT_e24_lhmedium_L1EM18VH|HLT_e24_lhmedium_L1EM20VH|HLT_e60_lhmedium|HLT_e24_lhtight_nod0_ivarloose|HLT_e26_lhtight_nod0_ivarloose|HLT_e60_lhmedium_nod0|HLT_mu20_iloose_L1MU15|HLT_mu40|HLT_mu24_ivarloose|HLT_mu24_ivarloose_L1MU15|HLT_mu40|HLT_mu24_ivarmedium| HLT_mu24_imedium| HLT_mu50|HLT_mu26_ivarmedium|HLT_mu26_imedium| HLT_xe70_mht|HLT_xe90_mht_L1XE50|HLT_xe110_mht_L1XE50|HLT_xe110_pufit_L1XE50|HLT_j25|HLT_j35|HLT_j45|HLT_j60|HLT_j85|HLT_j110|HLT_j145|HLT_j175|HLT_j260|HLT_j340|HLT_j360|HLT_j380|HLT_j400|HLT_j420"
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT13ThinningHelper = ThinningHelper("EXOT13ThinningHelper")
@@ -35,7 +35,8 @@ EXOT13ThinningHelper.AppendToStream(EXOT13Stream)
 #=======================================
 # SKIMMING   
 #=======================================
-expression = 'HLT_mu20_msonly_mu6noL1_msonly_nscan05||   HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb||    HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb||        HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY||      HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY||     HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||     HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY||     HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY||     HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||         HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO||   HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||      HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY||        HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||         HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||    HLT_j85_cleanLLP||     HLT_j30_jes_cleanLLP_PS_llp_L1TAU60||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60||      HLT_j250_jes_cleanLLP_PS_revllp_L1TAU60||        HLT_j230_jes_cleanLLP_PS_revllp_L1TAU60||     HLT_j200_jes_cleanLLP_PS_revllp_trkiso_L1TAU60||      HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO||      HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO||      HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO||         HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO||      HLT_3mu6_msonly||    HLT_3mu6_msonly_L1MU4_EMPTY||      HLT_3mu6_msonly_L1MU6_EMPTY||       HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO||    HLT_3mu6_msonly_L1MU4_UNPAIRED_NONISO||        HLT_e24_lhmedium_L1EM18VH||   HLT_e24_lhmedium_L1EM20VH||      HLT_e24_lhmedium_iloose_L1EM18VH||      HLT_e24_lhtight_nod0_ivarloose||       HLT_e24_lhmedium_nod0_L1EM20VHI||    HLT_e24_lhtight_nod0_ivarloose||       HLT_e24_lhmedium_nod0_L1EM20VHI||        HLT_e26_lhtight_nod0_ivarloose||      HLT_e60_lhmedium_nod0||     HLT_e60_medium||      HLT_mu20_iloose_L1MU15||       HLT_mu50||     HLT_mu60||    HLT_mu24_iloose||       HLT_mu24_iloose_L1MU15||    HLT_mu24_ivarloose||    HLT_mu24_ivarloose_L1MU15||     HLT_mu40||     HLT_mu24_ivarmedium||       HLT_mu24_imedium||   HLT_mu26_ivarmedium||   HLT_mu26_imedium||    HLT_j80_xe80||      HLT_xe70_L1XE45||     HLT_xe70||      HLT_xe70_mht||     HLT_xe80_tc_lcw_L1XE50||  HLT_xe90_mht_L1XE50||     HLT_xe80_tc_lcw_L1XE50||  HLT_xe100_mht_L1XE50||     HLT_xe110_mht_L1XE50||    HLT_j25||    HLT_j35||    HLT_j45||     HLT_j55||    HLT_j60||    HLT_j85'
+expression = 'HLT_mu20_msonly_mu6noL1_msonly_nscan05||    HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb||    HLT_mu20_msonly_mu6noL1_msonly_nscan05||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb||    HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40||    HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30||    HLT_mu20_msonly_mu6noL1_msonly_nscan05||    HLT_mu6_dRl1_mu20_msonly_iloosems_mu6noL1_dRl1_msonly||    HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40||    HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30||    HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY||    HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY||    HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||    HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY||    HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY||    HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||    HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO||    HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||    HLT_j30_jes_PS_llp_L1TAU30||    HLT_j30_jes_PS_llp_L1TAU40||    HLT_j30_jes_PS_llp_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_pufix_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_pufix_noiso_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU100||    HLT_j30_jes_cleanLLP_PS_llp_pufix_L1TAU100||    HLT_j30_jes_cleanLLP_PS_llp_pufix_noiso_L1TAU100||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY||    HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY||    HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO||    HLT_3mu6_msonly||    HLT_3mu6_msonly_L1MU4_EMPTY||    HLT_3mu6_msonly_L1MU6_EMPTY||    HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO||    HLT_e24_lhmedium_L1EM18VH||    HLT_e24_lhmedium_L1EM20VH||    HLT_e60_lhmedium||    HLT_e24_lhtight_nod0_ivarloose||    HLT_e26_lhtight_nod0_ivarloose||    HLT_e60_lhmedium_nod0||    HLT_mu20_iloose_L1MU15||    HLT_mu40||    HLT_mu24_ivarloose||    HLT_mu24_ivarloose_L1MU15||    HLT_mu40||    HLT_mu24_ivarmedium||     HLT_mu24_imedium||     HLT_mu50||    HLT_mu26_ivarmedium||    HLT_mu26_imedium||     HLT_xe70_mht||    HLT_xe90_mht_L1XE50||    HLT_xe110_mht_L1XE50||    HLT_xe110_pufit_L1XE50||   HLT_j25||    HLT_j35||    HLT_j45||    HLT_j60||    HLT_j85||    HLT_j110||    HLT_j145||    HLT_j175||    HLT_j260||    HLT_j340||    HLT_j360||    HLT_j380||    HLT_j400||    HLT_j420' 
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT13StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT13StringSkimmingTool", expression = expression)
@@ -63,68 +64,30 @@ thinningTools=[]
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT13TPThinningTool = DerivationFramework__TrackParticleThinning( name                    =  "EXOT13TPThinningTool",
                                                                     ThinningService = EXOT13ThinningHelper.ThinningSvc(),
-                                                                    SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
+                                                                    SelectionString         =  "InDetTrackParticles.pt > 1.0*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
                                                                     InDetTrackParticlesKey  =  "InDetTrackParticles")
 ToolSvc += EXOT13TPThinningTool
 thinningTools.append(EXOT13TPThinningTool)
 
-#Thin calo-clusters 
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT13JCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                   = "EXOT13JCCThinningTool",
-                                                                    ThinningService        = "EXOT13ThinningSvc",
-                                                                    SGKey                  = "AntiKt4EMTopoJets",
-                                                                    TopoClCollectionSGKey  = "CaloCalTopoClusters",
-                                                                    SelectionString        = "AntiKt4EMTopoJets.pt > 20*GeV && AntiKt4EMTopoJets.eta >-2.5 && AntiKt4EMTopoJets.eta <2.5",
-                                                                    ConeSize               = 0.5)
-ToolSvc += EXOT13JCCThinningTool
-thinningTools.append(EXOT13JCCThinningTool)
-
 #Thin all electrons
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-#EXOT13ElectronsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13ElectronsThinningTool",
-#                                        ThinningService = "EXOT13ThinningSvc",
-#                                        ContainerName = "Electrons",
-#                                        ApplyAnd = False,
-#                                        SelectionString = "Electrons.pt > 20*GeV")
-#ToolSvc += EXOT13ElectronsThinningTool
-#thinningTools.append(EXOT13ElectronsThinningTool)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+EXOT13ElectronsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13ElectronsThinningTool",
+                                        ThinningService = "EXOT13ThinningSvc",
+                                        ContainerName = "Electrons",
+                                        ApplyAnd = False,
+                                        SelectionString = "Electrons.pt > 25*GeV && Electrons.eta>-2.5 && Electrons.eta<2.5")
+ToolSvc += EXOT13ElectronsThinningTool
+thinningTools.append(EXOT13ElectronsThinningTool)
 
-#Thin all AntiKt4EMTopoJets
-#EXOT13JetsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13JetsThinningTool",
-#                                        ThinningService = "EXOT13ThinningSvc",
-#                                        ContainerName = "AntiKt4EMTopoJets",
-#                                        ApplyAnd = False,
-#                                        SelectionString = "AntiKt4EMTopoJets.pt > 20*GeV && AntiKt4EMTopoJets.eta >-2.5 && AntiKt4EMTopoJets.eta <2.5")
-#ToolSvc += EXOT13JetsThinningTool
-#thinningTools.append(EXOT13JetsThinningTool)
-
-## truth thinning
-#from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-#EXOT13TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT13TruthTool",
-#                                                        ThinningService       = "EXOT13ThinningSvc",
-#                                                        WritePartons          = False,
-#                                                        WriteHadrons          = True,
-#                                                        WriteBHadrons         = False,
-#                                                        WriteGeant            = False,
-#                                                        WriteTauHad           = False,
-#                                                        PartonPtThresh        = -1.0,
-#                                                        WriteBSM              = True,
-#                                                        WriteBosons           = True,
-#                                                        WriteBSMProducts      = True,
-#                                                        WriteBosonProducts    = True,
-#                                                        WriteTopAndDecays     = False,
-#                                                        WriteEverything       = False,
-#                                                        WriteAllLeptons       = True,
-#                                                        WriteStatus3          = False,
-#                                                        PreserveGeneratorDescendants  = True,
-#                                                        PreserveAncestors     = True,
-#                                                        WriteFirstN           = -1)
-#
-#
-#from AthenaCommon.GlobalFlags import globalflags
-#if globalflags.DataSource()=='geant4':
-#  ToolSvc += EXOT13TruthTool
-#  thinningTools.append(EXOT13TruthTool)
+#Thin all Muons
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+EXOT13MuonsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13MuonsThinningTool",
+                                        ThinningService = "EXOT13ThinningSvc",
+                                        ContainerName = "Muons",
+                                        ApplyAnd = False,
+                                        SelectionString = "Muons.pt > 6*GeV && Muons.eta>-2.5 && Muons.eta<2.5")
+ToolSvc += EXOT13ElectronsThinningTool
+thinningTools.append(EXOT13ElectronsThinningTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -134,13 +97,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot13Seq
 exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel_skim", SkimmingTools = [EXOT13triggerORTool])
 exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel", ThinningTools = thinningTools)
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT13ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
