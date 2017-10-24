@@ -56,7 +56,8 @@ unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const T
 }
 
 unsigned long TSU::Kinematics::quadraticSumBW(int i1, int i2){
-    unsigned int a = i1*i1 + i2*i2; 
+    unsigned int ui1 = i1, ui2=i2;
+    unsigned int a = ui1*ui1 + ui2*ui2; 
 
     unsigned int result=0;
     int left=0, right=0; 

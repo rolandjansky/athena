@@ -102,13 +102,11 @@ void test3()
 
    from http://www.geeksforgeeks.org/square-root-of-an-integer/
 */
-int floorSqrt(int x)
+int floorSqrt(unsigned int x)
 {
     // Base cases
     if (x == 0 || x == 1)
         return x;
-    else if(x<0)
-        throw std::invalid_argument("cannot compute sqrt of negative value "+std::to_string(x));
     // Do Binary Search for floor(sqrt(x))
     unsigned long int start = 1, end = x, ans;
     unsigned long int ux = x;
@@ -127,10 +125,22 @@ int floorSqrt(int x)
     }
     return boost::numeric_cast<int>(ans);
 }
-void test4()
+int test4_compare(int u, int v){
+    int bw_result = TSU::Kinematics::quadraticSumBW(u,v);
+    unsigned int uu = u*u;
+    unsigned int uv = v*v;
+    int fl_result = floorSqrt(uu+uv);
+    cout<<" sum2("<<u<<", "<<v<<") :"
+        <<" std = "<<fl_result
+        <<" bw = "<<bw_result
+        <<endl;
+    if(bw_result < u && bw_result < v) return 1; //overflow occurred
+    else return bw_result - fl_result; //possibility mismatch
+}
+int test4()
 {
     cout << "** test4: L1TopoSimulationUtils quadraticSumBW bitshift**\n";
-    const std::vector<int> values = {0b0, // 0 through 32767=2^(15) (16 bits)
+    const std::vector<int> values = {/*0b0,*/ // 0 through 32767=2^(15) (16 bits)
                                      0b1,
                                      0b11,
                                      0b111,
@@ -146,17 +156,16 @@ void test4()
                                      0b1111111111111,
                                      0b11111111111111,
                                      0b111111111111111};
-    unsigned int iBits=0;
     for(const int v : values){
-        const unsigned int uv = v;
-        cout<<"["<<iBits<<"]"
-            <<" sum2("<<v<<", "<<v<<") :"
-            <<" std = "<<floorSqrt(uv*uv+uv*uv)
-            <<" bw = "<<TSU::Kinematics::quadraticSumBW(v, v)
-            <<endl;
-        iBits++;
+      if(test4_compare(v,v) != 0) return 1;
+      if(test4_compare(-v,-v) != 0) return 1;
     }
-    // TODO : return a sensible value (fail when diff observed)
+
+    if(test4_compare(0,65535) != 0) return 1;
+    if(test4_compare(362,65535) != 0) return 1;
+    if(test4_compare(46340,46340) != 0) return 1;
+
+    return 0;
 }
 
 
@@ -166,6 +175,7 @@ int main()
   test1();
   test2();
   test3();
-  test4();
-  return 0;
+  int result = test4();
+
+  return result;
 }
