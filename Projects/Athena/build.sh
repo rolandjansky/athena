@@ -135,7 +135,7 @@ fi
      ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_config.log 
      true
     )
- }
+ } || true
 }
 
 # for nightly builds we want to get as far as we can
@@ -155,7 +155,7 @@ fi
      ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_build.log 
      true
     )
- }
+ } || true
 }
 
 # Install the results:
@@ -180,5 +180,5 @@ fi
      ${scriptsdir_nightly_status}/collect_nightly_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" "$BUILDDIR"
      true
     )
- }
+ } || true
 }

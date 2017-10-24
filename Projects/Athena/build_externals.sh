@@ -137,7 +137,7 @@ ${scriptsdir}/checkout_atlasexternals.sh \
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
     true
    )
- }
+ } || true
 }
 
 # Build AthenaExternals:
@@ -156,7 +156,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_build.log 
     true
    )
- }
+ } || true
 }
 
 # Get the "platform name" from the directory created by the AthenaExternals
@@ -177,7 +177,7 @@ ${scriptsdir}/checkout_Gaudi.sh \
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/src/checkout.GAUDI.log
     true
    )
- }
+ } || true
 }
 
 # Build Gaudi:
@@ -196,6 +196,6 @@ ${scriptsdir}/build_Gaudi.sh \
     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log 
     true
    )
- }
+ } || true
 }
 
