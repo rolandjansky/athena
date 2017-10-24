@@ -51,13 +51,13 @@ StatusCode LArPedestalAutoCorrBuilder::initialize()
  
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
   }
 
 
   if (!m_doPedestal && !m_doAutoCorr) {
-    msg(MSG::ERROR) << "Configuration Problem: Neither doPedstal nor doAutoCorr set!" << endmsg;
+    ATH_MSG_ERROR( "Configuration Problem: Neither doPedstal nor doAutoCorr set!" );
     return StatusCode::FAILURE;
   }
 
@@ -73,7 +73,7 @@ StatusCode LArPedestalAutoCorrBuilder::initialize()
  m_accu.setGroupingType(LArConditionsContainerBase::SingleGroup);
  sc=m_accu.initialize(); 
  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArConditionsContainer 'm_accu'" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArConditionsContainer 'm_accu'" );
     return sc;
   }
  return StatusCode::SUCCESS;
@@ -88,7 +88,7 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
   StatusCode sc;
   ++m_event_counter;
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endmsg;
+    ATH_MSG_ERROR( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   } 
   
@@ -97,13 +97,13 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
   if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
     sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve FebErrorSummary object!" );
       return sc;
     }
   }
   else
     if (m_event_counter==1)
-      msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endmsg;
+      ATH_MSG_WARNING( "No FebErrorSummaryObject found! Feb errors not checked!" );
 
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
@@ -139,8 +139,8 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 	if (febErrs & m_fatalFebErrorPattern) {
 	  if (febid!=lastFailedFEB) {
 	    lastFailedFEB=febid;
-	    msg(MSG::ERROR) << "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endmsg;
+	    ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
+		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." );
 	  }
 	  continue;
 	} //end if fatal feb error
@@ -150,7 +150,7 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 
       LArAccumulatedDigit& accDg=m_accu.get(chid,gain);
       if (!accDg.setAddSubStep(*dg)) 
-	msg(MSG::ERROR) << "Failed to accumulate sub-steps! Inconsistent number of ADC samples" << endmsg;
+	ATH_MSG_ERROR( "Failed to accumulate sub-steps! Inconsistent number of ADC samples" );
     } //end loop over input container
   }//end loop over keys
   return StatusCode::SUCCESS;
@@ -168,12 +168,12 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
     larAutoCorrComplete = new LArAutoCorrComplete();
     StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed to set groupingType for LArAutoCorrComplete object" );
       return sc;
     }
     sc=larAutoCorrComplete->initialize(); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed initialize LArAutoCorrComplete object" );
       return sc;
     }
   }
@@ -183,12 +183,12 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
     larPedestalComplete = new LArPedestalComplete();
     StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed to set groupingType for LArPedestalComplete object" );
       return sc;
     }
     sc=larPedestalComplete->initialize(); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed initialize LArPedestalComplete object" );
       return sc;
     }
   }
@@ -250,18 +250,18 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
     // Record LArPedestalComplete
     StatusCode sc = detStore()->record(larPedestalComplete,m_pedContName);
     if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
+      ATH_MSG_ERROR( " Cannot store LArPedestalComplete in TDS " );
       delete larPedestalComplete;
       delete larAutoCorrComplete;
       return sc;
     }
     else
-      msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
+      ATH_MSG_INFO( "Recorded LArPedestalComplete object with key " << m_pedContName );
     
     // Make symlink
     sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
     if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+      ATH_MSG_ERROR( " Cannot make link for Data Object " );
       return sc;
     }
   } // end if LArPedestal
@@ -270,17 +270,17 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
   if (larAutoCorrComplete) {
     StatusCode sc = detStore()->record(larAutoCorrComplete,m_acContName);
     if (sc != StatusCode::SUCCESS) { 
-      msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
+      ATH_MSG_ERROR( " Cannot store LArAutoCorrComplete in TDS ");
       delete larAutoCorrComplete;
       return sc;
     }
     else
-      msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
+      ATH_MSG_INFO( "Recorded LArAutCorrComplete object with key " << m_acContName );
 
     // Make symlink
     sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
     if (sc != StatusCode::SUCCESS)  {
-      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+      ATH_MSG_ERROR( " Cannot make link for Data Object " );
       return sc;
     }
   } // end if have AutoCorr

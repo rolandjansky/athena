@@ -54,12 +54,12 @@ StatusCode LArAutoCorrBuilder::stop() {
   // Initialize LArAutoCorrComplete 
   StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArAutoCorrComplete object" );
     return sc;
   }
   sc=larAutoCorrComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArAutoCorrComplete object" );
     return sc;
   }
 
@@ -93,9 +93,9 @@ StatusCode LArAutoCorrBuilder::stop() {
       NAutoCorr++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max << endmsg;
+    ATH_MSG_DEBUG( "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero );
+    ATH_MSG_DEBUG( "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min );
+    ATH_MSG_DEBUG( "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max );
   }//end loop over gains
 
   //ATH_MSG_INFO(" Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions() );
@@ -109,16 +109,16 @@ StatusCode LArAutoCorrBuilder::stop() {
   // Record LArAutoCorrComplete
   sc = detStore()->record(larAutoCorrComplete,m_acContName);
   if (sc != StatusCode::SUCCESS) { 
-    msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
+    ATH_MSG_ERROR( " Cannot store LArAutoCorrComplete in TDS ");
     delete larAutoCorrComplete;
     return sc;
   }
   else
-    msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
+    ATH_MSG_INFO( "Recorded LArAutCorrComplete object with key " << m_acContName );
   // Make symlink
   sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
   if (sc != StatusCode::SUCCESS)  {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+    ATH_MSG_ERROR( " Cannot make link for Data Object " );
     return sc;
   }
    
