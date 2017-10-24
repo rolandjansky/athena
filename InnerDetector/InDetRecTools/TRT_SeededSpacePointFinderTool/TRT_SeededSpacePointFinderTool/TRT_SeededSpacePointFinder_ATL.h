@@ -194,11 +194,6 @@ namespace InDet{
       void production2Spb (const Trk::TrackParameters&,int)           ;
       // // // // // // // // // // // // // // // // //
 
-      /** Cut on chi2 based on TRT segment qOverP, theta and phi track parameters */
-      
-      // // // // // // // // // // // // // // // // //
-      bool cutTPb(long, long, double);
-      // // // // // // // // // // // // // // // // //
       /** Obtain geo model info for a specific space point  */
       void geoInfo(const Trk::SpacePoint*, int&, int&)               ;
 
@@ -210,17 +205,23 @@ namespace InDet{
       // nested loop (memory allocated and deallocated in production2Spb)
       struct bypass_struct {
 	double X, Y, Z;
-	double RR, R, invR;
+	double R, invR;
 	double a, b;
-      } *prod_bypass;
+      };
 
       // place to keep scalar values needed for cuts, common to all seeds
       // updated only once per production2Sp call instead or each cutTPb
-      struct invar_bypass_struct {
-	double xic, 
-	  min_theta, max_theta, min_phi, max_phi, invp_min, invp_max,
+      struct invar_bypass_struct { 
+	  double min_theta, max_theta, min_phi, max_phi, invp_min, invp_max,
 	  invp_min2, invp_max2;
-      } invar_bypass;
+      };
+      
+      /** Cut on chi2 based on TRT segment qOverP, theta and phi track parameters */
+ 
+      // // // // // // // // // // // // // // // // //
+      bool cutTPb(const invar_bypass_struct &invar_bypass, const std::vector<bypass_struct> &prod_bypass,long, long, double);
+      // // // // // // // // // // // // // // // // //
+
     };
 
   MsgStream&    operator << (MsgStream&   ,const TRT_SeededSpacePointFinder_ATL&);
