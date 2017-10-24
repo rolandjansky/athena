@@ -127,14 +127,14 @@ namespace met {
       std::string configpath  = PathResolverFindCalibFile(m_configPrefix+m_configJetPhiResoFile);
       m_file = TFile::Open(configpath.c_str());
       if(m_file){
-        h_phi_reso_pt20 = static_cast<TH2F *>(m_file->Get("phi_reso_pt20"));
-        if(!h_phi_reso_pt20) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
-        h_phi_reso_pt50 = static_cast<TH2F *>(m_file->Get("phi_reso_pt50"));
-        if(!h_phi_reso_pt50) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
-        h_phi_reso_pt100 = static_cast<TH2F *>(m_file->Get("phi_reso_pt100"));
-        if(!h_phi_reso_pt100) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+	h_phi_reso_pt20 = static_cast<TH2F *>(m_file->Get("phi_reso_pt20"));
+	if(!h_phi_reso_pt20) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+	h_phi_reso_pt50 = static_cast<TH2F *>(m_file->Get("phi_reso_pt50"));
+	if(!h_phi_reso_pt50) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+	h_phi_reso_pt100 = static_cast<TH2F *>(m_file->Get("phi_reso_pt100"));
+	if(!h_phi_reso_pt100) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
       } else{
-        ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
+	ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
       }
     }
 
@@ -151,30 +151,30 @@ namespace met {
         ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
-        ATH_MSG_INFO("Set up JER tools");
-        std::string toolName;
-        std::string jetcoll = "AntiKt4EMTopoJets";
-        toolName = "JERTool_" + jetcoll;
+	ATH_MSG_INFO("Set up JER tools");
+	std::string toolName;
+	std::string jetcoll = "AntiKt4EMTopoJets";
+	toolName = "JERTool_" + jetcoll;
 
-        m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
-        ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
-        ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
+	m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
+	ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
+	ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
 
-        ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
-        toolName = "MuonCalibrationAndSmearingTool";
-        m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
+	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
+	toolName = "MuonCalibrationAndSmearingTool";
+	m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
 
-        ATH_MSG_DEBUG( "Initialising EgcalibTool " );
-        toolName = "EgammaCalibrationAndSmearingTool";
-        m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
-        ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2016PRE"));
-        ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
-        if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
-        else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
+	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
+	toolName = "EgammaCalibrationAndSmearingTool";
+	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
+	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2016PRE"));
+	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
+	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
+	else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
 
-        toolName = "TauPerfTool";
-        m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
-        ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
+	toolName = "TauPerfTool";
+	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
+	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
 
         return StatusCode::SUCCESS;
     }
@@ -182,9 +182,9 @@ namespace met {
     StatusCode METSignificance::finalize()
     {
         ATH_MSG_INFO ("Finalizing " << name() << "...");
-        delete h_phi_reso_pt20;
-        delete h_phi_reso_pt50;
-        delete h_phi_reso_pt100;
+	delete h_phi_reso_pt20;
+	delete h_phi_reso_pt50;
+	delete h_phi_reso_pt100;
 
         return StatusCode::SUCCESS;
     }
@@ -200,7 +200,8 @@ namespace met {
       m_VarT = 0.0;
       m_CvLT = 0.0;
 
-      double particle_sum[2][2] = {{0.0,0.0},{0.0,0.0}};
+      double particle_sum[2][2] = {{0.0,0.0},
+				   {0.0,0.0}};
       m_metphi = 0.0; //Angle for rotation of the cov matrix
       m_met = -1.0; // Numerator
       m_metsoft = 0.0;
@@ -212,99 +213,99 @@ namespace met {
 
       // first fill the total MET
       if(metCont->find(totalMETName)!=metCont->end()){
-        const auto &tot_met = static_cast<xAOD::MissingET*>(*(metCont->find(totalMETName)));
-        if(!MissingETBase::Source::isTotalTerm(tot_met->source())){
-          ATH_MSG_ERROR("NOT the total MET with name:" <<totalMETName);
-          return StatusCode::SUCCESS;
-        }
-        m_met    = tot_met->met()/m_GeV;
-        m_metphi = tot_met->phi();
-        m_sumet  = tot_met->sumet()/m_GeV;
-        m_ht     = m_sumet;
-        ATH_MSG_VERBOSE("total MET: " << m_met << " phi: " << m_metphi << " name: " << tot_met->name());
+	const auto &tot_met = static_cast<xAOD::MissingET*>(*(metCont->find(totalMETName)));
+	if(!MissingETBase::Source::isTotalTerm(tot_met->source())){
+	  ATH_MSG_ERROR("NOT the total MET with name:" <<totalMETName);
+	  return StatusCode::SUCCESS;
+	}
+	m_met    = tot_met->met()/m_GeV;
+	m_metphi = tot_met->phi();
+	m_sumet  = tot_met->sumet()/m_GeV;
+	m_ht     = m_sumet;
+	ATH_MSG_VERBOSE("total MET: " << m_met << " phi: " << m_metphi << " name: " << tot_met->name());
 
       }else{
-        ATH_MSG_ERROR("Could not find the total MET with name:" <<totalMETName);
-        return StatusCode::SUCCESS;
+	ATH_MSG_ERROR("Could not find the total MET with name:" <<totalMETName);
+	return StatusCode::SUCCESS;
       }
       m_met_vect.SetPtEtaPhi(m_met, 0.0, m_metphi);
 
       // Fill the remaining terms
       for(const auto& met : *metCont) {
 
-        // skip the invisible and total MET
-        if(MissingETBase::Source::isTotalTerm(met->source())){
-          continue;
-        }
-        if(met->source()==invisSource) continue;
+	// skip the invisible and total MET
+	if(MissingETBase::Source::isTotalTerm(met->source())){
+	  continue;
+	}
+	if(met->source()==invisSource) continue;
 
-        // Soft term collection
-        if(MissingETBase::Source::isSoftTerm(met->source())){
+	// Soft term collection
+	if(MissingETBase::Source::isSoftTerm(met->source())){
 
-          if(!MissingETBase::Source::hasPattern(met->source(),MissingETBase::Source::Track)) continue;
-          ATH_MSG_VERBOSE("Soft Name: " << met->name());
-          // make sure the container name matches
-          if(met->name()!=softTermName || nIterSoft>0){
-            if(nIterSoft>0) ATH_MSG_ERROR("Found multiple soft terms with the name:" <<softTermName << ". Your MET configuration is wrong!!!");
-            continue;
-          }
-          ++nIterSoft;
-          softSumET=(met->sumet()/m_GeV);
+	  if(!MissingETBase::Source::hasPattern(met->source(),MissingETBase::Source::Track)) continue;
+	  ATH_MSG_VERBOSE("Soft Name: " << met->name());
+	  // make sure the container name matches
+	  if(met->name()!=softTermName || nIterSoft>0){
+	    if(nIterSoft>0) ATH_MSG_ERROR("Found multiple soft terms with the name:" <<softTermName << ". Your MET configuration is wrong!!!");
+	    continue;
+	  }
+	  ++nIterSoft;
+	  softSumET=(met->sumet()/m_GeV);
 
-          AddSoftTerm(met, m_met_vect, particle_sum);
-          m_metsoft = met->met()/m_GeV;
-          m_metsoftphi = met->phi();
-          // done with the soft term. go to the next term.
-          continue;
-        }
-        ATH_MSG_VERBOSE("Add MET term " << met->name() );
-        for(const auto& el : dec_constitObjLinks(*met)) {
-          const IParticle* obj(*el);
-          float pt_reso=0.0, phi_reso=0.0;
-          if(obj->type()==xAOD::Type::Muon){
-            ATH_CHECK(AddMuon(obj, pt_reso, phi_reso));
-          }else if(obj->type()==xAOD::Type::Jet){
+	  AddSoftTerm(met, m_met_vect, particle_sum);
+	  m_metsoft = met->met()/m_GeV;
+	  m_metsoftphi = met->phi();
+	  // done with the soft term. go to the next term.
+	  continue;
+	}
+	ATH_MSG_VERBOSE("Add MET term " << met->name() );
+	for(const auto& el : dec_constitObjLinks(*met)) {
+	  const IParticle* obj(*el);
+	  float pt_reso=0.0, phi_reso=0.0;
+	  if(obj->type()==xAOD::Type::Muon){
+	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso));
+	  }else if(obj->type()==xAOD::Type::Jet){
 
-            // make sure the container name matches
-            if(met->name()!=jetTermName) continue;
+	    // make sure the container name matches
+	    if(met->name()!=jetTermName) continue;
 
-            AddJet(obj, pt_reso, phi_reso);
+	    AddJet(obj, pt_reso, phi_reso);
 
-          }else if(obj->type()==xAOD::Type::Electron){
-            AddElectron(obj, pt_reso, phi_reso);
-          }else if(obj->type()==xAOD::Type::Photon){
-            AddPhoton(obj, pt_reso, phi_reso);
-          }else if(obj->type()==xAOD::Type::Tau){
-            AddTau(obj, pt_reso, phi_reso);
-          }
+	  }else if(obj->type()==xAOD::Type::Electron){
+	    AddElectron(obj, pt_reso, phi_reso);
+	  }else if(obj->type()==xAOD::Type::Photon){
+	    AddPhoton(obj, pt_reso, phi_reso);
+	  }else if(obj->type()==xAOD::Type::Tau){
+	    AddTau(obj, pt_reso, phi_reso);
+	  }
 
-          // compute NEW
-          double particle_u[2][2]     = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
-                 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
-          double particle_u_rot[2][2] = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
-                 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
-          RotateXY(particle_u, particle_u_rot,m_met_vect.DeltaPhi(obj->p4().Vect()));
-          m_VarL+=particle_u_rot[0][0];
-          m_VarT+=particle_u_rot[1][1];
-          m_CvLT+=particle_u_rot[0][1];
+	  // compute NEW
+	  double particle_u[2][2]     = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
+					 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
+	  double particle_u_rot[2][2] = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
+					 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
+	  RotateXY(particle_u, particle_u_rot,m_met_vect.DeltaPhi(obj->p4().Vect()));
+	  m_VarL+=particle_u_rot[0][0];
+	  m_VarT+=particle_u_rot[1][1];
+	  m_CvLT+=particle_u_rot[0][1];
 
-          RotateXY (particle_u,   particle_u_rot, obj->p4().Phi()); // positive phi rotation
-          AddMatrix(particle_sum, particle_u_rot, particle_sum);
+	  RotateXY (particle_u,   particle_u_rot, obj->p4().Phi()); // positive phi rotation
+	  AddMatrix(particle_sum, particle_u_rot, particle_sum);
 
-          // END compute NEW
+	  // END compute NEW
 
 
-          ATH_MSG_VERBOSE("Resolution: " << pt_reso << " phi reso: " << phi_reso );
+	  ATH_MSG_VERBOSE("Resolution: " << pt_reso << " phi reso: " << phi_reso );
 
-          /*
-            if(acc_varX.isAvailable(*obj) && acc_varY.isAvailable(*obj) && acc_covXY.isAvailable(*obj)) {
-            ATH_MSG_VERBOSE("Add object with vars " << acc_varX(*obj)<<","<<acc_varY(*obj)<<","<<acc_covXY(*obj));
-            varx+=acc_varX(*obj);
-            vary+=acc_varY(*obj);
-            covxy+=acc_covXY(*obj);
-            //met->add(acc_varX(*el),acc_varY(*el),acc_covXY(*el));
-            }*/
-        }
+	  /*
+	    if(acc_varX.isAvailable(*obj) && acc_varY.isAvailable(*obj) && acc_covXY.isAvailable(*obj)) {
+	    ATH_MSG_VERBOSE("Add object with vars " << acc_varX(*obj)<<","<<acc_varY(*obj)<<","<<acc_covXY(*obj));
+	    varx+=acc_varX(*obj);
+	    vary+=acc_varY(*obj);
+	    covxy+=acc_covXY(*obj);
+	    //met->add(acc_varX(*el),acc_varY(*el),acc_covXY(*el));
+	    }*/
+	}
       }
 
       /*
@@ -333,45 +334,45 @@ namespace met {
 
       if( m_VarL != 0 ){
 
-        if(m_applyBias){
-          TVector3 met_vect = m_met_vect;
-          TVector3 soft_vect = m_soft_vect;
+	if(m_applyBias){
+	  TVector3 met_vect = m_met_vect;
+	  TVector3 soft_vect = m_soft_vect;
 
-          // should be done to reset the phi as well...
-          if(m_softTermParam==met::TSTParam){
-            Double_t Bias_TST = BiasPtSoftdir(m_metsoft);
-            Double_t MEx = m_met * cos(m_metphi) - Bias_TST * cos(m_metsoftphi);
-            Double_t MEy = m_met * sin(m_metphi) - Bias_TST * sin(m_metsoftphi);
-            met_vect.SetXYZ(MEx,MEy,0.0);
+	  // should be done to reset the phi as well...
+	  if(m_softTermParam==met::TSTParam){
+	    Double_t Bias_TST = BiasPtSoftdir(m_metsoft);
+	    Double_t MEx = m_met * cos(m_metphi) - Bias_TST * cos(m_metsoftphi);
+	    Double_t MEy = m_met * sin(m_metphi) - Bias_TST * sin(m_metsoftphi);
+	    met_vect.SetXYZ(MEx,MEy,0.0);
 
-          }else if(m_softTermParam==met::PthardParam){
-            m_soft_vect.SetPtEtaPhi(m_metsoft, 0.0, m_metsoftphi);
-            m_pthard_vect = m_soft_vect - m_met_vect;
-            Double_t PtSoftparaPH = m_pthard_vect.Mag()>0.0 ? (m_soft_vect.Dot(m_pthard_vect))/m_pthard_vect.Mag() : 0.0;
-            Double_t Bias_pthard = Bias_PtSoftParall(PtSoftparaPH);
-            Double_t MEx = m_met * cos(m_metphi) - Bias_pthard * cos(m_metsoftphi);
-            Double_t MEy = m_met * sin(m_metphi) - Bias_pthard * sin(m_metsoftphi);
-            met_vect.SetXYZ(MEx,MEy,0.0);
-          }
-          // Rotate  & compute
-          RotateToPhi(met_vect.Phi());
-          m_significance = Significance_LT(met_vect.Pt(), m_VarL, m_VarT, m_CvLT);
-          m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
-        }else{
-          // standard calculation
-          m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
-          m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
-        }
-        m_ht-=softSumET;
-        ATH_MSG_VERBOSE("     Significance (squared): " << m_significance << " rho: " << GetRho()
-            << " MET: " << m_met << " phi: " << m_metphi << " SUMET: " << m_sumet << " HT: " << m_ht << " sigmaL: " << GetVarL()
-            << " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
-            << " MET/sqrt(HT): " << GetMETOverSqrtHT()
-            << " sqrt(signif): " << GetSignificance()
-            << " sqrt(signifDirectional): " << GetSigDirectional());
+	  }else if(m_softTermParam==met::PthardParam){
+	    m_soft_vect.SetPtEtaPhi(m_metsoft, 0.0, m_metsoftphi);
+	    m_pthard_vect = m_soft_vect - m_met_vect;
+	    Double_t PtSoftparaPH = m_pthard_vect.Mag()>0.0 ? (m_soft_vect.Dot(m_pthard_vect))/m_pthard_vect.Mag() : 0.0;
+	    Double_t Bias_pthard = Bias_PtSoftParall(PtSoftparaPH);
+	    Double_t MEx = m_met * cos(m_metphi) - Bias_pthard * cos(m_metsoftphi);
+	    Double_t MEy = m_met * sin(m_metphi) - Bias_pthard * sin(m_metsoftphi);
+	    met_vect.SetXYZ(MEx,MEy,0.0);
+	  }
+	  // Rotate  & compute
+	  RotateToPhi(met_vect.Phi());
+	  m_significance = Significance_LT(met_vect.Pt(), m_VarL, m_VarT, m_CvLT);
+	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
+	}else{
+	  // standard calculation
+	  m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
+	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
+	}
+	m_ht-=softSumET;
+	ATH_MSG_VERBOSE("     Significance (squared): " << m_significance << " rho: " << GetRho()
+			<< " MET: " << m_met << " phi: " << m_metphi << " SUMET: " << m_sumet << " HT: " << m_ht << " sigmaL: " << GetVarL()
+			<< " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
+			<< " MET/sqrt(HT): " << GetMETOverSqrtHT()
+			<< " sqrt(signif): " << GetSignificance()
+			<< " sqrt(signifDirectional): " << GetSigDirectional());
       }
       else{
-        ATH_MSG_DEBUG("Var_L is 0");
+	ATH_MSG_DEBUG("Var_L is 0");
       }
       return StatusCode::SUCCESS;
     }
@@ -388,10 +389,10 @@ namespace met {
       m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
     }
     ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance
-        << " rho: " << GetRho()
-        << " MET: " << m_met
-        << " sigmaL: " << GetVarL()
-        << " sigmaT: " << GetVarT() );
+		    << " rho: " << GetRho()
+		    << " MET: " << m_met
+		    << " sigmaL: " << GetVarL()
+		    << " sigmaT: " << GetVarT() );
 
     return StatusCode::SUCCESS;
   }
@@ -508,9 +509,9 @@ namespace met {
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
 
       double particle_u[2][2] = {{m_softTermReso*m_softTermReso,0.0},
-         {0.0,m_softTermReso*m_softTermReso}};
+				 {0.0,m_softTermReso*m_softTermReso}};
       double particle_u_rot[2][2] = {{m_softTermReso*m_softTermReso,0.0},
-             {0.0,m_softTermReso*m_softTermReso}};
+				     {0.0,m_softTermReso*m_softTermReso}};
 
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
@@ -521,8 +522,8 @@ namespace met {
       AddMatrix(particle_sum, particle_u_rot,     particle_sum);
 
       ATH_MSG_VERBOSE("SOFT " << soft->name() <<" - pt_reso: " << m_softTermReso << " soft: " << soft->met() << " phi: " << soft->phi()
-          << " Var_L: " << particle_u_rot[0][0] << " Var_T: " << particle_u_rot[1][1]
-          << " " << particle_u_rot[0][1]);
+		      << " Var_L: " << particle_u_rot[0][0] << " Var_T: " << particle_u_rot[1][1]
+		      << " " << particle_u_rot[0][1]);
 
     }else if (m_softTermParam==met::PthardParam){
 
@@ -534,8 +535,10 @@ namespace met {
 
       double varTST = Var_Ptsoft(soft->met()/m_GeV);
 
-      double particle_u[2][2] = {{varTST,0.0},{0.0,varTST}};
-      double particle_u_rot[2][2] = {{varTST,0.0},{0.0,varTST}};
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
 
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_pthard_vect));
       m_VarL+=particle_u_rot[0][0];
@@ -553,8 +556,10 @@ namespace met {
 
       double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
 
-      double particle_u[2][2] = {{varTST,0.0},{0.0,varTST}};
-      double particle_u_rot[2][2] = {{varTST,0.0},{0.0,varTST}};
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
 
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
@@ -574,7 +579,7 @@ namespace met {
     // Const methods:
     ///////////////////////////////////////////////////////////////////
   double METSignificance::GetPUProb(double jet_eta, double /*jet_phi*/,
-            double jet_pt,  double jet_jvt) {
+				    double jet_pt,  double jet_jvt) {
 
     double unc=0.0;
     if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0e3){
@@ -686,8 +691,8 @@ namespace met {
     Double_t Significance = 0;
     if (fabs( rho ) >= 0.9 )  //Cov Max not invertible -> Significance diverges
       {
-        ATH_MSG_VERBOSE("rho is large: " << rho);
-        Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall  ) ;
+	ATH_MSG_VERBOSE("rho is large: " << rho);
+	Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall  ) ;
       }
     else
     {
@@ -696,7 +701,7 @@ namespace met {
 
     if( fabs(Significance) >= 10e+15)
       {
-        ATH_MSG_WARNING("warning -->"<< Significance);
+	ATH_MSG_WARNING("warning -->"<< Significance);
       }
 
     return Significance;
