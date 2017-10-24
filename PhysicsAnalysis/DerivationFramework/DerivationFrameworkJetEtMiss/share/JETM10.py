@@ -44,5 +44,6 @@ jetm10Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM10Kernel',
                                                           SkimmingTools = [JETM10SkimmingTool],
                                                           ThinningTools = contentManager.thinningTools)
 contentManager.slimmingHelper.AllVariables.append("HLT_xAOD__MuonContainer_MuonEFInfo")
+contentManager.slimmingHelper.AllVariables += ["HLT_xAOD__JetContainer_{0}".format(j) for j in ["a4tclcwsubjesFS", "a4tclcwsubjesISFS"]]
 contentManager.slimmingHelper.AllVariables.append("CaloCalTopoClusters")
 contentManager.slimmingHelper.AppendContentToStream(JETM10Stream)

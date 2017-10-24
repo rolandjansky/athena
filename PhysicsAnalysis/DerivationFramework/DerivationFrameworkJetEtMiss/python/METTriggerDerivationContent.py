@@ -53,7 +53,9 @@ class METTriggerDerivationContentManager(object):
 # Slimming Tools #
 ##################
   def makeSlimmingTools(self, stream, jetAlgorithms):
-    hltJets = ["a4tclcwsubjesFS", "a4tclcwsubjesISFS", "a4tcemsubjesFS", "a4tcemsubjesISFS"]
+    hltJets = ["a4tclcwsubjesFS", "a4tclcwsubjesISFS"]
+    # Remove the hlt jets from the default list - they're too large
+    hltJets = []
     streamName = self.streamName
     self.slimmingHelper = SlimmingHelper(streamName + "SlimmingHelper")
     self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["BTagging_{0}".format(a) for a in jetAlgorithms] + ["MET_Reference_{0}".format(a) for a in jetAlgorithms]
