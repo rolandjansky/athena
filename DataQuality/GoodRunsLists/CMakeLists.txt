@@ -41,7 +41,8 @@ else()
       DetectorDescription/DetDescrCond/DetectorStatus
       Event/EventInfo
       Tools/PathResolver
-      AtlasTest/TestTools )
+      AtlasTest/TestTools
+      PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces)
 endif()
 
 # External dependencies:

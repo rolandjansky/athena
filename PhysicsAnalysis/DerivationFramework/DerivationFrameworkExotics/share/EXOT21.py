@@ -24,12 +24,12 @@ EXOT21Stream.AcceptAlgs(["EXOT21Kernel"])
 exot21Seq = CfgMgr.AthSequencer("EXOT21Sequence")
 
 triggerNavChains  = ""
-triggerNavChains += "HLT_3mu6.*|"
-triggerNavChains += "HLT_mu26_imedium.*|HLT_mu24_imedium.*|HLT_mu50|HLT_mu40|HLT_mu26|HLT_mu24.*|HLT_2mu14.*|HLT_2mu10.*|"
-triggerNavChains += "HLT_e17_lhloose.*|HLT_e60_lhmedium.*|HLT_e24_lhmedium.*|HLT_e24_lhtight_iloose.*|HLT_e26_lhtight_iloose.*|"
-triggerNavChains += "HLT_j80_xe80.*|HLT_g15_loose_2mu10_msonly.*|HLT_g35_medium_g25_medium.*|"
-triggerNavChains += "HLT_g35_loose_L1EM15_g25_loose_L1EM15|HLT_2e12_lhloose_L12EM10VH|HLT_e17_lhloose_2e9_lhloose|"
-triggerNavChains += "HLT_j150 | HLT_j175 | HLT_j380 | HLT_j340 | HLT_3j175 | HLT_3j200"
+triggerNavChains += "HLT_3mu6* | HLT_3mu4 | HLT_mu* |"
+triggerNavChains += "HLT_2mu14.* | HLT_2mu10.* | HLT_e* |"
+triggerNavChains += "HLT_2e15_lhvloose_nod0_L12EM13VH |"
+triggerNavChains += "HLT_g15_loose_2mu10_msonly.*| HLT_2e17_lhvloose_nod0 |"
+triggerNavChains += "HLT_g35_loose_g25_loose | HLT_e17_lhloose_nod0_2e9_lhloose_nod0 |"
+triggerNavChains += "HLT_j*"
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT21ThinningHelper = ThinningHelper("EXOT21ThinningHelper")
@@ -39,43 +39,34 @@ EXOT21ThinningHelper.AppendToStream(EXOT21Stream)
 ##=======================================
 # SKIMMING   
 #=======================================
-# main triggers
-expression = 'HLT_3mu6_msonly'
-# muon triggers
-expression += ' || HLT_mu26_imedium || HLT_mu24_imedium || HLT_mu50 || HLT_mu40 || HLT_mu26 || HLT_mu24 || HLT_2mu14 || HLT_2mu10'
-# associatedHiggs and iDM triggers
-expression += ' || HLT_e17_lhloose || HLT_e60_lhmedium || HLT_e24_lhmedium_iloose || HLT_e24_lhtight_iloose || HLT_e26_lhtight_iloose || HLT_j80_xe80'
-# other triggers
-expression += ' || HLT_g15_loose_2mu10_msonly || HLT_g35_medium_g25_medium'
-expression += ' || HLT_g35_loose_L1EM15_g25_loose_L1EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_e17_lhloose_2e9_lhloose'
-# jet triggers
-expression += ' || HLT_j150 || HLT_j175 || HLT_j380 || HLT_j340 || HLT_3j175 || HLT_3j200'
-# MC triggers, which don't exist in data
-expression += '|| HLT_e24_lhmedium_nodeta_L1EM18VH || HLT_e24_lhmedium_nodphires_L1EM18VH || HLT_e24_lhmedium_cutd0dphideta_L1EM18VH || HLT_e24_lhmedium_cutd0dphideta_L1EM20VH || HLT_e24_lhmedium_ivarloose_L1EM18VHL1_EM18VH || HLT_e24_lhmedium_nod0_ivarloose_L1EM18VH || HLT_e24_lhmedium_nod0_ringer_L1EM20VH || HLT_e24_lhmedium_nod0_ringer_iloose || HLT_e24_lhmedium_nod0_ringer_ivarloose || HLT_mu24_imediumcalo || HLT_2mu14_noMuCombOvlpRm || HLT_2mu14_l2msonly || HLT_e17_lhloose_L1EM15VHJ1523ETA49 ||HLT_e17_lhloose_L1EM15VHJJ1523ETA49 || HLT_e60_lhmedium_cutd0dphideta || HLT_e24_lhmedium_iloose_L1EM18VH || HLT_j80_xe80_dphi1'
-
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT21StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT21StringSkimmingTool", expression = expression)
-
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-EXOT21TrigDashSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT21TrigDashSkimmingTool",
-                                                                      TriggerListOR = [
-                                                                          "HLT_j30_jes_PS_llp_L1LLP-NOMATCH",
-                                                                          "HLT_j30_jes_PS_llp_noiso_L1LLP-NOMATCH",
-                                                                          "HLT_j80_xe80_1dphi10_L1J40_DPHI-Js2XE50",
-                                                                          "HLT_j80_xe80_1dphi10_L1J40_DPHI-J20s2XE50",
-                                                                          "HLT_j80_xe80_1dphi10_L1J40_DPHI-J20XE50",
-                                                                          "HLT_j80_xe80_1dphi10_L1J40_DPHI-CJ20XE50"])
-ToolSvc += EXOT21TrigDashSkimmingTool
-ToolSvc += EXOT21StringSkimmingTool
-print EXOT21TrigDashSkimmingTool
-print EXOT21StringSkimmingTool
-
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-EXOT21triggerORTool=DerivationFramework__FilterCombinationOR(name="EXOT21triggerORTool", FilterList=[EXOT21TrigDashSkimmingTool,EXOT21StringSkimmingTool])
-ToolSvc += EXOT21triggerORTool
-print EXOT21triggerORTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
+#default triggers
+triggers = ['HLT_mu50','HLT_mu24_ivarloose_L1MU15','HLT_mu26_ivarmedium','HLT_2mu14','HLT_2mu10','HLT_3mu6',
+               'HLT_3mu6_msonly','HLT_3mu4','HLT_g15_loose_2mu10_msonly','HLT_e60_lhmedium_nod0','HLT_e24_lhtight_nod0_ivarloose',
+               'HLT_e26_lhtight_nod0_ivarloose','HLT_2e15_lhvloose_nod0_L12EM13VH','HLT_2e17_lhvloose_nod0',
+               'HLT_e17_lhloose_nod0_2e9_lhloose_nod0','HLT_g35_loose_g25_loose']
+
+#QCD triggers to be used with the 10% GRL
+extraTriggers = ['HLT_j25','HLT_j35','HLT_j45','HLT_j55','HLT_j60','HLT_j85','HLT_j150','HLT_j175','HLT_j340','HLT_j380','HLT_3j175','HLT_3j200']
+
+#GoodRunsListSelectionTool that selects events in the 10% GRL
+ToolSvc += CfgMgr.GoodRunsListSelectionTool("EXOT21GRLTool",GoodRunsListVec=['DerivationFrameworkExotics/data/EXOT21.grl.xml'])
+
+#TriggerSkimmingTools
+EXOT21TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool("EXOT21TriggerSkimmingTool",TriggerListOR=triggers)
+ToolSvc += EXOT21TriggerSkimmingTool
+EXOT21ExtraTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool("EXOT21ExtraTriggerSkimmingTool",TriggerListOR=extraTriggers)
+ToolSvc += EXOT21ExtraTriggerSkimmingTool
+
+#combine the TriggerSkimmingTools with logical AND and OR:
+#(EXOT21TriggerSkimmingTool || (EXOT21GRLTool && EXOT21ExtraTriggerSkimmingTool))
+EXOT21ExtraEventsTool = DerivationFramework__FilterCombinationAND("EXOT21ExtraEventsTool",FilterList=[ToolSvc.EXOT21GRLTool,EXOT21ExtraTriggerSkimmingTool])
+ToolSvc += EXOT21ExtraEventsTool
+EXOT21AllEventsTool = DerivationFramework__FilterCombinationOR("EXOT21AllEventsTool",FilterList=[EXOT21TriggerSkimmingTool,EXOT21ExtraEventsTool])
+ToolSvc += EXOT21AllEventsTool
 
 #=======================================
 # THINNING
@@ -114,7 +105,7 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot21Seq
-exot21Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT21Kernel_skim", SkimmingTools = [EXOT21triggerORTool])
+exot21Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT21Kernel_skim", SkimmingTools = [EXOT21AllEventsTool])
 exot21Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT21Kernel", ThinningTools = thinningTools)
 
 # SPECIAL LINES FOR THINNING
