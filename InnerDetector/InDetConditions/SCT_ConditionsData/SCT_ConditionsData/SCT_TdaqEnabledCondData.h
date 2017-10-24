@@ -67,6 +67,7 @@ CLASS_DEF( SCT_TdaqEnabledCondData , 137549585 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<SCT_TdaqEnabledCondData> , 31730865 , 1 )
+REGISTER_CC( SCT_TdaqEnabledCondData );
 
 
 #endif // SCT_TDAQENABLEDDATA_H

@@ -12,7 +12,6 @@
 //====================================================================
 
 // Framework include files
-#include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbSelect.h"

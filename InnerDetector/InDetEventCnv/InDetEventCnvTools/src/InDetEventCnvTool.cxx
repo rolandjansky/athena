@@ -19,13 +19,10 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
@@ -45,18 +42,12 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(
   m_sctMgr(0),
   m_trtMgrLocation("TRT"),
   m_trtMgr(0),
-  m_setPrepRawDataLink(false),
-  m_pixClusContName("PixelClusters"),
-  m_sctClusContName("SCT_Clusters"),
-  m_trtDriftCircleContName("TRT_DriftCircles")
+  m_setPrepRawDataLink(false)
 {
   declareInterface<ITrkEventCnvTool>(this);
   declareProperty("PixelMgrLocation", m_pixMgrLocation);
   declareProperty("SCT_MgrLocation", m_sctMgrLocation);
   declareProperty("TRT_MgrLocation", m_trtMgrLocation);
-  declareProperty("PixelClusterContainer", m_pixClusContName);
-  declareProperty("SCT_ClusterContainer", m_sctClusContName);
-  declareProperty("TRT_DriftCircleContainer", m_trtDriftCircleContName);
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
 }
@@ -130,6 +121,11 @@ StatusCode InDet::InDetEventCnvTool::initialize()
     ATH_MSG_FATAL( "Could not get ATLAS ID helper");
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_pixClusContName.initialize() );
+  ATH_CHECK( m_sctClusContName.initialize() );
+  ATH_CHECK( m_trtDriftCircleContName.initialize() );
+
   return sc;
      
 }
@@ -292,16 +288,16 @@ const Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const PixelClusterContainer* pixClusCont;
-  StatusCode sc = evtStore()->retrieve(pixClusCont, m_pixClusContName);
-  if (sc.isFailure()){
+  SG::ReadHandle<PixelClusterContainer> h_pixClusCont (m_pixClusContName);
+  if (!h_pixClusCont.isValid()) {
       ATH_MSG_ERROR("Pixel Cluster container not found at "<<m_pixClusContName);
       return 0;
   }
   else{
-      ATH_MSG_DEBUG("Pixel Cluster container found" );
+    ATH_MSG_DEBUG("Pixel Cluster Container found" );
   }
-  
+  const PixelClusterContainer* pixClusCont = h_pixClusCont.cptr();
+
   PixelClusterContainer::const_iterator it = pixClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
   if (it!=pixClusCont->end()) 
@@ -326,16 +322,16 @@ const Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const SCT_ClusterContainer* sctClusCont;
-  StatusCode sc = evtStore()->retrieve(sctClusCont, m_sctClusContName);
-  if (sc.isFailure()){
-    ATH_MSG_ERROR("SCT Cluster Container not found at "<< m_sctClusContName);
-    return 0;
+  SG::ReadHandle<SCT_ClusterContainer> h_sctClusCont (m_sctClusContName);
+  if (!h_sctClusCont.isValid()) {
+      ATH_MSG_ERROR("SCT Cluster container not found at "<<m_sctClusContName);
+      return 0;
   }
   else{
     ATH_MSG_DEBUG("SCT Cluster Container found" );
   }
-  
+  const SCT_ClusterContainer* sctClusCont = h_sctClusCont.cptr();
+ 
   SCT_ClusterContainer::const_iterator it = sctClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
   if (it!=sctClusCont->end()) 
@@ -360,15 +356,15 @@ const Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const TRT_DriftCircleContainer* trtDriftCircleCont;
-  StatusCode sc = evtStore()->retrieve(trtDriftCircleCont, m_trtDriftCircleContName);
-  if (sc.isFailure()){
-    ATH_MSG_ERROR("TRT DriftCircle Container not found at "<<m_trtDriftCircleContName);
-    return 0;
+  SG::ReadHandle<TRT_DriftCircleContainer> h_trtDriftCircleCont (m_trtDriftCircleContName);
+  if (!h_trtDriftCircleCont.isValid()) {
+      ATH_MSG_ERROR("TRT Drift Circles container not found at "<<m_trtDriftCircleContName);
+      return 0;
   }
   else{
-    ATH_MSG_DEBUG("TRT DriftCircle Container found" );
+    ATH_MSG_DEBUG("TRT Drift Circles Container found" );
   }
+  const TRT_DriftCircleContainer* trtDriftCircleCont = h_trtDriftCircleCont.cptr();
   
   TRT_DriftCircleContainer::const_iterator it = trtDriftCircleCont->indexFind(idHash);
   // if we find PRD, then recreate link

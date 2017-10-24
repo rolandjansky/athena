@@ -190,7 +190,10 @@ void test_proxy()
   assert (store.proxy (123, "dp1") == dp1);
   assert (store.proxy (123, "") == dp1);
 
-  assert (store.proxy (new SG::TransientAddress (123, "dp1")) == dp1);
+  {
+    SG::TransientAddress ta (123, "dp1");
+    assert (store.proxy (&ta) == dp1);
+  }
 
   assert (store.addAlias ("dp1a", dp1).isSuccess());
   assert (store.addAlias ("dp1b", dp1).isSuccess());

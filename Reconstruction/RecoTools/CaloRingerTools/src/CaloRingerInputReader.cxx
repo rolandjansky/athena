@@ -20,16 +20,6 @@ CaloRingerInputReader::CaloRingerInputReader(const std::string& type,
   // declare interface
   declareInterface<ICaloRingerInputReader>(this);
 
-  // Whether builder tool is available
-  declareProperty("builderAvailable", m_builderAvailable, 
-      "Whether Builder Tool is available.");
-  
-  // The CaloRingsBuilder Tool
-  declareProperty("crBuilder", m_crBuilder, "CaloRingsBuilder Tool" );
-
-  // The input container key 
-  declareProperty("inputKey", m_inputKey, "The input container key" );
-
 }
 
 // =============================================================================

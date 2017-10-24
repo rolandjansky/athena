@@ -70,7 +70,7 @@ StatusCode SCT_SiliconConditionsSvc::initialize(){
       ATH_MSG_INFO( "SCTDCSSvc retrieved" );
       ATH_MSG_INFO( "Registering callback." );
       ATH_CHECK( m_detStore->regFcn(&ISCT_ConditionsSvc::fillData,  dynamic_cast<ISCT_ConditionsSvc*>(&*m_sctDCSSvc),
-					 &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true));
+                                    &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true));
     }
   } else {
     // Otherwise we use the GeoModel values

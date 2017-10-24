@@ -34,14 +34,15 @@ PURPOSE:  Tool which propagate track to
 
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+
 class TRT_ID;
 class CaloDepthTool;
 
 namespace Trk
 {
   class INeutralParticleParameterCalculator;
-  class IExtrapolator;
-  class IParticleCaloExtensionTool;
 }
 
 
@@ -139,28 +140,39 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 			    CaloExtensionHelpers::LayersToSelect& layersToSelect
 			    ) const;
   
-  ToolHandle<Trk::IParticleCaloExtensionTool>     m_defaultParticleCaloExtensionTool;
-  ToolHandle<Trk::IParticleCaloExtensionTool>     m_perigeeParticleCaloExtensionTool;
-  ToolHandle<Trk::IExtrapolator>                  m_extrapolator;
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_defaultParticleCaloExtensionTool {this,
+      "DefaultCaloExtentionTool", "Trk::ParticleCaloExtensionTool"};
+
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_perigeeParticleCaloExtensionTool {this,
+      "PerigeeCaloExtentionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
+
+  ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
+      "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
        
   // Track-to-cluster match cuts
-  double                                m_broadDeltaEta;
-  double                                m_broadDeltaPhi;
-  double                                m_narrowDeltaEta;
-  double                                m_narrowDeltaPhi;
-  double                                m_narrowDeltaPhiBrem;
-  double                                m_narrowDeltaPhiTRTbarrel;
-  double                                m_narrowDeltaPhiBremTRTbarrel;
-  double                                m_narrowDeltaPhiTRTendcap;
-  double                                m_narrowDeltaPhiBremTRTendcap;
-  double                                m_TRTbarrelDeltaEta;
-  double                                m_TRTendcapDeltaEta;
+  Gaudi::Property<double> m_broadDeltaEta{this, "BroadDeltaEta", 0.05};
+  Gaudi::Property<double> m_broadDeltaPhi{this, "BroadDeltaPhi", 0.10};
+  Gaudi::Property<double> m_narrowDeltaEta{this, "NarrowDeltaEta", 0.05};
+  Gaudi::Property<double> m_narrowDeltaPhi{this, "NarrowDeltaPhi", 0.05};
+  Gaudi::Property<double> m_narrowDeltaPhiBrem{this,
+      "NarrowDeltaPhiBrem", 0.10};
+  Gaudi::Property<double> m_narrowDeltaPhiTRTbarrel{this,
+      "NarrowDeltaPhiTRTbarrel", 0.02};
+  Gaudi::Property<double> m_narrowDeltaPhiBremTRTbarrel{this,
+      "NarrowDeltaPhiBremTRTbarrel", 0.03};
+  Gaudi::Property<double> m_narrowDeltaPhiTRTendcap{this,
+      "NarrowDeltaPhiTRTendcap", 0.02};
+  Gaudi::Property<double> m_narrowDeltaPhiBremTRTendcap{this,
+      "NarrowDeltaPhiBremTRTendcap", 0.03};
+  Gaudi::Property<double> m_TRTbarrelDeltaEta{this, "TRTbarrelDeltaEta", 0.35};
+  Gaudi::Property<double> m_TRTendcapDeltaEta{this, "TRTendcapDeltaEta", 0.2};
 
   // ID TRT helper
   const TRT_ID*                         m_trtId;
   
   //Use the a cache for track Particle extrapolation
-  bool  m_useCaching;
+  Gaudi::Property<bool>  m_useCaching {this, 
+      "useCaching", true, "Use the cache for track Particle extrapolation"};
   
 };
 

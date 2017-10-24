@@ -78,8 +78,9 @@ def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,
                      'flipIPSign'                       : True,
+                     'flipZIPSign'                      : True,
                      'usePosIP'                         : True,
-                     'useNegIP'                         : False,
+                     'useNegIP'                         : True,
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
                      }

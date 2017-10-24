@@ -62,7 +62,7 @@ StatusCode TestProvider::preLoadAddresses(StoreID::type /*storeID*/,
 {
   tListLen = list.size();
   for (const SG::TransientAddress& tad : m_tads)
-    list.push_back (new SG::TransientAddress (tad));
+    list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
   return StatusCode::SUCCESS;
 }
 
@@ -72,7 +72,7 @@ StatusCode TestProvider::loadAddresses(StoreID::type /*storeID*/,
 {
   tListLen = list.size();
   for (const SG::TransientAddress& tad : m_tads)
-    list.push_back (new SG::TransientAddress (tad));
+    list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
   return StatusCode::SUCCESS;
 }
 

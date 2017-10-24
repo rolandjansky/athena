@@ -48,20 +48,20 @@ public:
 
 //____________________________________________________________________
 AscObj_TruthPoint::AscObj_TruthPoint(TrackHandleBase*th, const HepMC::GenVertex * v, const HepMC::GenParticle * p)
-  : AssociatedObjectHandleBase(th), d(new Imp(v,p))
+  : AssociatedObjectHandleBase(th), m_d(new Imp(v,p))
 {
 }
 
 //____________________________________________________________________
 AscObj_TruthPoint::AscObj_TruthPoint(TrackHandleBase*th, SimHitHandleBase*s)
-  : AssociatedObjectHandleBase(th), d(new Imp(s))
+  : AssociatedObjectHandleBase(th), m_d(new Imp(s))
 {
 }
 
 //____________________________________________________________________
 AscObj_TruthPoint::~AscObj_TruthPoint()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -76,17 +76,17 @@ void AscObj_TruthPoint::buildShapes(SoSeparator*&shape_simple, SoSeparator*&shap
   Amg::Vector3D u;//mom direction
 
 
-  if (d->simhit) {
-    p1 = d->simhit->posStart();
-    u = d->simhit->momentumDirection();
+  if (m_d->simhit) {
+    p1 = m_d->simhit->posStart();
+    u = m_d->simhit->momentumDirection();
   }
   else
   {
 	  // Eigen migration
-//    p1 = Trk::GlobalPosition(d->genVertex->point3d().x(),d->genVertex->point3d().y(),d->genVertex->point3d().z());
-//    u = Trk::GlobalMomentum(d->genParticle->momentum().px(),d->genParticle->momentum().py(),d->genParticle->momentum().pz()).unit();
-    p1 = Amg::Vector3D(d->genVertex->point3d().x(),d->genVertex->point3d().y(),d->genVertex->point3d().z());
-    u = Amg::Vector3D(d->genParticle->momentum().px(),d->genParticle->momentum().py(),d->genParticle->momentum().pz()).unit();
+//    p1 = Trk::GlobalPosition(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+//    u = Trk::GlobalMomentum(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
+    p1 = Amg::Vector3D(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    u = Amg::Vector3D(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
   }
 
   // Eigen migration
@@ -117,24 +117,24 @@ QStringList AscObj_TruthPoint::clicked()
   QStringList l;
 
   l << "  ==> Truth point";
-  if (d->simhit) {
-    l << "Sim Hit ("+d->simhit->type()+")";
-////    l << "  Position: "+VP1Msg::str( d->simhit->posStart() ) ;
-//    l << "  Direction: "+VP1Msg::str( d->simhit->momentumDirection() );
-//    l << "  Momentum: "+VP1Msg::str(d->simhit->momentum()/CLHEP::GeV)+" GeV"+(d->simhit->actualMomentum()==d->simhit->momentum()?"":" (fudged)");
-    l << "  Position: " + QString::fromStdString(Amg::AsString(d->simhit->posStart()));
-    l << "  Direction: " + QString::fromStdString(Amg::AsString(d->simhit->momentumDirection()));
-    l << "  Momentum: " + VP1Msg::str(d->simhit->momentum()/CLHEP::GeV)+" GeV"+(d->simhit->actualMomentum()==d->simhit->momentum()?"":" (fudged)");
+  if (m_d->simhit) {
+    l << "Sim Hit ("+m_d->simhit->type()+")";
+////    l << "  Position: "+VP1Msg::str( m_d->simhit->posStart() ) ;
+//    l << "  Direction: "+VP1Msg::str( m_d->simhit->momentumDirection() );
+//    l << "  Momentum: "+VP1Msg::str(m_d->simhit->momentum()/CLHEP::GeV)+" GeV"+(m_d->simhit->actualMomentum()==m_d->simhit->momentum()?"":" (fudged)");
+    l << "  Position: " + QString::fromStdString(Amg::AsString(m_d->simhit->posStart()));
+    l << "  Direction: " + QString::fromStdString(Amg::AsString(m_d->simhit->momentumDirection()));
+    l << "  Momentum: " + VP1Msg::str(m_d->simhit->momentum()/CLHEP::GeV)+" GeV"+(m_d->simhit->actualMomentum()==m_d->simhit->momentum()?"":" (fudged)");
   } else {
-    if (!d->genVertex||!d->genParticle) {
+    if (!m_d->genVertex||!m_d->genParticle) {
       l << "ERROR";
       return l;
     }
 
-//    Trk::GlobalPosition p(d->genVertex->point3d().x(),d->genVertex->point3d().y(),d->genVertex->point3d().z());
-//    Trk::GlobalMomentum mom(d->genParticle->momentum().px(),d->genParticle->momentum().py(),d->genParticle->momentum().pz());
-    Amg::Vector3D p(d->genVertex->point3d().x(),d->genVertex->point3d().y(),d->genVertex->point3d().z());
-    Amg::Vector3D mom(d->genParticle->momentum().px(),d->genParticle->momentum().py(),d->genParticle->momentum().pz());
+//    Trk::GlobalPosition p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+//    Trk::GlobalMomentum mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
+    Amg::Vector3D p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    Amg::Vector3D mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
 
     l << "Gen Particle vertex";
 //    l << "  Position: "+VP1Msg::str(p);

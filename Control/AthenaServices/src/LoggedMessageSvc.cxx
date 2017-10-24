@@ -124,16 +124,10 @@ StatusCode LoggedMessageSvc::initialize() {
   StatusCode sc;
   sc = base_class::initialize();
   if( sc.isFailure() ) return sc;
-#ifdef ATLAS_GAUDI_V21
+  // hack since in Gaudi v30, msgSvc() now returns a const SmartIF<IMessageSvc>
   // Release pointer to myself done in Service base class
-  msgSvc().reset();
-#else
-  // Release pointer to myself done in Service base class
-  if( m_messageSvc ) {
-    m_messageSvc->release();
-    m_messageSvc = 0;
-  }
-#endif
+  SmartIF<IMessageSvc> &si = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
+  si.reset();
 
   // Set my own properties
   sc = setProperties();

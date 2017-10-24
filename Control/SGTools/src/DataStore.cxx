@@ -221,11 +221,15 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
          i != clids.end(); ++i)
     {
+      if (*i == clid) continue;
       m_keyMap.erase (m_pool.stringToKey (name, *i));
       storeIter = m_storeMap.find(*i);
       if (storeIter != m_storeMap.end()) {
-        if (1 == storeIter->second.erase(name))
+        SG::ProxyIterator it = storeIter->second.find (name);
+        if (it != storeIter->second.end() && it->second == proxy) {
+          storeIter->second.erase (it);
           proxy->release();
+        }
       }
     } //symlinks loop
 

@@ -92,6 +92,7 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
   }
 
   // Decorate particle with CaloRings:
+  // THIS NEEDS TO BE MIGRATED TO USE A WRITE DECO HANDLE
   xAOD::getCaloRingsDecorator()->operator()( *part ) = clRingsLinks;
 
 }

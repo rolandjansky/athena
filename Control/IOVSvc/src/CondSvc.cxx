@@ -6,6 +6,8 @@
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/SvcFactory.h"
 #include "AthenaKernel/StoreID.h"
+#include "SGTools/BaseInfo.h"
+
 
 //---------------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ CondSvc::initialize() {
 void
 CondSvc::dump(std::ostream& ost) const {
 
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   ost << "CondSvc::dump()";
 
@@ -124,7 +126,16 @@ CondSvc::stop() {
 StatusCode 
 CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
 
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
+  return regHandle_i(alg, dh);
+
+}
+
+//---------------------------------------------------------------------------
+
+// separate implementation to avoid the use of a recursive mutex
+StatusCode 
+CondSvc::regHandle_i(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
 
   ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: "
                  << dh.fullKey() );
@@ -168,7 +179,25 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
     m_algMap[alg] = DataObjIDColl { dh.fullKey() };
   }
 
-  return StatusCode::SUCCESS;
+  StatusCode sc(StatusCode::SUCCESS);
+
+  CLID clid = dh.fullKey().clid();
+  const SG::BaseInfoBase* bib = SG::BaseInfoBase::find( clid );
+  if ( bib ) {
+    for (CLID clid2 : bib->get_bases()) {
+      if (clid2 != clid) {
+        SG::VarHandleKey vhk(clid2,dh.objKey(),Gaudi::DataHandle::Writer,
+                             StoreID::storeName(StoreID::CONDITION_STORE));
+        if (regHandle_i(alg, vhk).isFailure()) {
+          sc = StatusCode::FAILURE;
+        }
+      }
+    }
+  }
+  
+
+
+  return sc;
 
 }
 
@@ -176,9 +205,9 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
 
 bool
 CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
-  EventIDBase now(ctx.eventID().run_number(), ctx.eventID().event_number());
+  EventIDBase now(ctx.eventID());
 
   std::ostringstream ost;
   ost << "getInvalidIDS " << ctx.eventID() 
@@ -213,7 +242,7 @@ CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
 bool
 CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
                        DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -252,7 +281,7 @@ CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
 
 bool
 CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -288,7 +317,7 @@ CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
 
 bool
 CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -301,10 +330,14 @@ CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
   if (m_sgs->contains<CondContBase>( sk ) ) {
     CondContBase *cib;
     if (m_sgs->retrieve(cib, sk).isSuccess()) {
+      ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
+                    << id << ": T");
       return cib->valid(now);
     }
   }
 
+  ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id: " 
+                << id << " : F");
   return false;
 
 }

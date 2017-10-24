@@ -198,7 +198,7 @@ CLASS_DEF(CondAttrListCollection, 1238547719, 0)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<CondAttrListCollection>, 1223307417  , 1 )
 
-REGISTER_CC( CondAttrListCollection )
+REGISTER_CC( CondAttrListCollection );
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>

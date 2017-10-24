@@ -57,7 +57,7 @@ SCTRawContByteStreamService::queryInterface(const InterfaceID& riid, void** ppvI
 
 StatusCode
 SCTRawContByteStreamService::initialize() {
-  StatusCode sc = AthService::initialize(); 
+  StatusCode sc{AthService::initialize()};
   /** Retrieve id mapping  */
   if (m_cabling.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve service " << m_cabling);
@@ -134,7 +134,7 @@ SCTRawContByteStreamService::convert(SCT_RDO_Container* cont, RawEventWrite* re,
       Identifier idColl{coll->identify()};
       IdentifierHash idCollHash{m_sct_idHelper->wafer_hash(idColl)};
       uint32_t robid{m_cabling->getRobIdFromHash(idCollHash)};
-      if (robid == 0) continue ; 
+      if (robid == 0) continue;
       
       /** Building the rod ID */
       eformat::helper::SourceIdentifier sid_rob{robid};
@@ -149,10 +149,10 @@ SCTRawContByteStreamService::convert(SCT_RDO_Container* cont, RawEventWrite* re,
       SCTRawCollection::const_iterator it_b{coll->begin()};
       SCTRawCollection::const_iterator it_e{coll->end()}; 
       for(; it_b!=it_e; ++it_b) {
-	const RDO* theRdo{*it_b};          
-	/** fill ROD/ RDO map */
-	rdoMap[rodid].push_back(theRdo);
-	if (swapPhiReadoutDirection) m_encoder->addSwapModuleId(idColl);
+        const RDO* theRdo{*it_b};          
+        /** fill ROD/ RDO map */
+        rdoMap[rodid].push_back(theRdo);
+        if (swapPhiReadoutDirection) m_encoder->addSwapModuleId(idColl);
       }
     }
   }  /** End loop over collections */
@@ -164,7 +164,7 @@ SCTRawContByteStreamService::convert(SCT_RDO_Container* cont, RawEventWrite* re,
   
   for (; it_map != it_map_end; ++it_map) { 
     theROD = m_fea.getRodData(it_map->first); /** get ROD data address */
-    m_encoder->fillROD(*theROD,it_map->first, it_map->second) ;  /** encode ROD data */
+    m_encoder->fillROD(*theROD,it_map->first, it_map->second);  /** encode ROD data */
   }
   m_fea.fill(re, log); 
   

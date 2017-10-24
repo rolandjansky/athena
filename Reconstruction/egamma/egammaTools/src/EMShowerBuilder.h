@@ -30,6 +30,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h" 
+#include "StoreGate/ReadHandleKey.h"
 
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
@@ -86,15 +87,22 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   StatusCode FillEMShowerShape(xAOD::Egamma* eg) const ;
 
   /** @brief Cell container*/
-  std::string m_cellsName;     
+  SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
+      "CellsName", "AllCalo", "Names of containers which contain cells"};
+     
   /** @brief vector of calo-id to treat*/
-  std::vector<int> m_caloNums ;     
+  Gaudi::Property<std::vector<int> > m_caloNums {this,
+      "CaloNums", {}, "list of calo to treat"};     
 
   /** @brief Tool for shower shape calculation*/
-  ToolHandle<IegammaShowerShape> m_ShowerShapeTool;
+  ToolHandle<IegammaShowerShape> m_ShowerShapeTool {this,
+      "ShowerShapeTool", "egammaShowerShape/egammashowershape", 
+      "Handle of instance of egammaShowerShape Tool to be run"};
+
   /** @brief Tool for hadronic leakage calculation*/
-  ToolHandle<IegammaIso> m_HadronicLeakageTool;
- 
+  ToolHandle<IegammaIso> m_HadronicLeakageTool {this,
+      "HadronicLeakageTool", "egammaIso", 
+      "Handle of the EMCaloIsolationTool for Hadronic leakage"};
 
   /** @brief the CaloCell container */
   const CaloCellContainer* m_cellcoll;
@@ -102,21 +110,32 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   const xAOD::CaloCluster* m_clus;
 
   /** @brief boolean to print results*/
-  bool m_Print;
+  Gaudi::Property<bool> m_Print {this,
+      "Print", false, "in case of extra prints"};
+
   /** @brief Boolean to call shower shape calculation and filling
       (NB: this could be important when redoing calculation from AODs) */
-  bool m_UseShowerShapeTool;
+  Gaudi::Property<bool> m_UseShowerShapeTool {this,
+      "UseShowerShapeTool", true, 
+      "Boolean to call shower shape calculation and filling"};
+
   /** @brief Boolean to call calo isolation variables calculation and filling
       (NB: this could be important when redoing calculation from AODs) */
-  bool m_UseCaloIsoTool;
+  Gaudi::Property<bool> m_UseCaloIsoTool {this,
+      "UseCaloIsoTool", true, 
+      "Boolean to call hadronic leakage calculation and filling"};
+
   /** @brief */
   bool m_caloSelection ;
 
   /** @brief boolean to know if we are looking at cosmic data */
-  bool m_isCosmics;
+  Gaudi::Property<bool> m_isCosmics {this,
+      "isCosmics", false, "Boolean for use of cosmics"};
   
    // for timing
-  bool m_timing;
+  Gaudi::Property<bool> m_timing {this, 
+      "Timing", false, "do extra timing"};
+
   IChronoStatSvc* m_timingProfile;
 
 };

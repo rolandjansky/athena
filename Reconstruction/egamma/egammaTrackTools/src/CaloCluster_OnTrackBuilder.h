@@ -12,6 +12,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 namespace Trk{
   class CaloCluster_OnTrack;
   class Surface;
@@ -20,10 +22,10 @@ namespace Trk{
 
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 
-class CaloCellContainer;
 class CaloDetDescrManager;
-class ICaloSurfaceBuilder;
 
 class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluster_OnTrackBuilder
 {
@@ -63,19 +65,17 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
 
 
   /** @brief Tool to build calorimeter layer surfaces */
-  ToolHandle<ICaloSurfaceBuilder>  m_calosurf;
+  ToolHandle<ICaloSurfaceBuilder>  m_calosurf {this, 
+      "CaloSurfaceBuilder", "CaloSurfaceBuilder", "Tool to build calorimeter layer surfaces"};
   
-  bool m_useClusterEnergy;
-  bool m_useClusterPhi;
-  bool m_useClusterEta;
+  Gaudi::Property<bool> m_useClusterEnergy{this, "UseClusterEnergy", true};
+  Gaudi::Property<bool> m_useClusterPhi{this, "UseClusterPhi", true};
+  Gaudi::Property<bool> m_useClusterEta{this, "UseClusterEta", true};
 
 
-  std::string                          m_caloCellContainerName;
-  mutable const CaloCellContainer*     m_cellContainer;
-  
-  /** @brief (eta,phi) around which estimate the shower shapes */
-  mutable double m_eta;
-  mutable double m_phi;
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey {this,
+      "InputCellContainerName", "AODCellContainer"};
+
   /** @brief (deta,dphi) granularity*/
   mutable double m_deta;
   mutable double m_dphi;
@@ -85,7 +85,6 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   /** @brief CaloSample */
   mutable CaloSampling::CaloSample m_sam;
   mutable CaloCell_ID::SUBCALO m_subcalo;
-  mutable bool m_barrel;
   
 };
 

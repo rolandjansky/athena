@@ -203,29 +203,52 @@ class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
   const xAOD::CaloCluster* m_cluster; 
   /** @brief Cell container*/
   const CaloCellContainer* m_cellContainer;
+
   /** @brief Tool to estimate shower shapes in presampler */
-  ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape;
+  ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape {this,
+      "egammaPreSamplerShapeTool", "egammaPreSamplerShape/egammapresamplershape"};
+
   /** @brief Tool to estimate shower shapes in strips */
-  ToolHandle<IegammaStripsShape> m_egammaStripsShape;
+  ToolHandle<IegammaStripsShape> m_egammaStripsShape {this,
+    "egammaStripsShapeTool", "egammaStripsShape/egammastripsshape"};
+
   /** @brief Tool to estimate shower shapes in middle sampling */
-  ToolHandle<IegammaMiddleShape> m_egammaMiddleShape;
+  ToolHandle<IegammaMiddleShape> m_egammaMiddleShape {this,
+      "egammaMiddleShapeTool", "egammaMiddleShape/egammamiddleshape"};
+
   /** @brief Tool to estimate shower shapes in back sampling */
-  ToolHandle<IegammaBackShape> m_egammaBackShape;
+  ToolHandle<IegammaBackShape> m_egammaBackShape {this,
+      "egammaBackShapeTool", "egammaBackShape/egammabackshape"};
 
   /** @brief boolean to calculate all variables*/
-  bool m_ExecAllVariables;
+  Gaudi::Property<bool> m_ExecAllVariables {this, 
+      "ExecAllVariables", true, "flag used by trigger"};
+
   /** @brief boolean to calculate variables for presempler*/
-  bool m_ExecPreSampler;
+  Gaudi::Property<bool> m_ExecPreSampler {this, 
+      "ExecPreSampler", true, "Calculate EM presampler variables"};
+
   /** @brief boolean to calculate variables for 1st sampling*/
-  bool m_ExecEMFirst;
+  Gaudi::Property<bool> m_ExecEMFirst {this, 
+      "ExecEMFirst", true, "Calculate EM 1st sampling variables"};
+
   /** @brief boolean to calculate variables for 2nd sampling*/
-  bool m_ExecEMSecond;
+  Gaudi::Property<bool> m_ExecEMSecond {this,
+      "ExecEMSecond", true, "Calculate EM 2nd sampling variables"};
+
   /** @brief boolean to calculate variables for 3rd sampling*/
-  bool m_ExecEMThird;
+  Gaudi::Property<bool> m_ExecEMThird {this,
+      "ExecEMThird", true, "Calculate EM 3rd sampling variables"};
+
   /** @brief boolean to calculate combined variables*/
-  bool m_ExecEMCombined;
+  Gaudi::Property<bool> m_ExecEMCombined {this,
+      "ExecEMCombined", true, 
+      "Calculate EM variables combining all samplings"};
+
   /** @brief boolean to calculate less important variables*/
-  bool m_ExecOtherVariables;
+  Gaudi::Property<bool> m_ExecOtherVariables {this,
+      "ExecOtherVariables", true,
+      "Calculate some less important variables"};
 
   enum { STRIP_ARRAY_SIZE = 40 };
   /** @brief array of cell energies*/

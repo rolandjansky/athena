@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# specifies egamma"standard"
+# This file is for the "old" non-topocluster version of egamma
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
@@ -9,17 +9,10 @@ from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.Configured import Configured
 #
 from egammaRec import egammaKeys
-from egammaRec import egammaRecConf
+from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-
-#Some handy flags
-def doSuperclusters():
-  return egammaRecFlags.doSuperclusters()
-
-def doBremFinding():
-  return DetFlags.detdescr.ID_on() and egammaRecFlags.doBremFinding()
 
 def doConversions() :
   return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
@@ -27,15 +20,10 @@ def doConversions() :
 
 # Import the tool factories
 from egammaTools.egammaToolsFactories import \
-    EMBremCollectionBuilder, EMTrackMatchBuilder,\
-    EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
+    EMTrackMatchBuilder,\
+    EMConversionBuilder, EGammaAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
-
-# Extra tool when we do the superclustering approach
-if doSuperclusters() : 
-  from egammaTools.egammaToolsFactories import \
-      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder
 
 #
 #Topo seeded fixed size clusters, related configurations
@@ -71,60 +59,29 @@ class egammaGetter ( Configured ) :
         mlog = logging.getLogger ('egammaGetter.py::configure:')
         mlog.info('entering')        
 
-        if doSuperclusters() : 
-          egammaBuilder = AlgFactory(egammaRecConf.topoEgammaBuilder, name = 'egamma',
-                                     # Keys
-                                     ElectronOutputName = egammaKeys.outputElectronKey(),
-                                     PhotonOutputName = egammaKeys.outputPhotonKey(),                                     
-                                     #Super Cluster Tools
-                                     TopoClusterCopier = egammaTopoClusterCopier,
-                                     electronSuperClusterBuilder = electronSuperClusterBuilder,
-                                     photonSuperClusterBuilder = photonSuperClusterBuilder,
-                                     InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),                                           
-                                     # Builder tools
-                                     BremCollectionBuilderTool = EMBremCollectionBuilder,
-                                     TrackMatchBuilderTool = EMTrackMatchBuilder,
-                                     VertexBuilder = EMVertexBuilder if doConversions() else None,
-                                     ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-                                     AmbiguityTool = EGammaAmbiguityTool,                                     
-                                     # Decoration tools
-                                     egammaTools = FcnWrapper(egammaDecorationTools),
-                                     ElectronTools = FcnWrapper(electronDecorationTools),
-                                     PhotonTools = FcnWrapper(photonDecorationTools),                                     
-                                     # Flags and other properties
-                                     # Track matching depending if ID is on/off
-                                     doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     # conversions building/matching depending if ID is on/off
-                                     doVertexCollection=doConversions(),
-                                     doConversions = doConversions()
-                                     )
-        else : 
-          egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',
-                                     # Keys
-                                     ElectronOutputName = egammaKeys.outputElectronKey(),
-                                     PhotonOutputName = egammaKeys.outputPhotonKey(),
-                                     TopoSeededClusterContainerName = getTopoSeededCollectionName(),                                     
-                                     # Builder tools
-                                     BremCollectionBuilderTool = EMBremCollectionBuilder,
-                                     TrackMatchBuilderTool = EMTrackMatchBuilder,
-                                     VertexBuilder = EMVertexBuilder if doConversions() else None,
-                                     ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-                                     AmbiguityTool = EGammaAmbiguityTool,                                     
-                                     # Decoration tools
-                                     egammaTools = FcnWrapper(egammaDecorationTools),
-                                     ElectronTools = FcnWrapper(electronDecorationTools),
-                                     PhotonTools = FcnWrapper(photonDecorationTools),                                     
-                                     # Flags and other properties
-                                     # Track matching depending if ID is on/off
-                                     doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     # conversions building/matching depending if ID is on/off
-                                     doVertexCollection=doConversions(),
-                                     doConversions = doConversions(),
-                                     #
-                                     clusterEnergyCut = 10*MeV,
-                                     doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded()
-                                     )          
-
+        egammaBuilder = AlgFactory(egammaAlgsConf.egammaBuilder, name = 'egamma',
+                                   # Keys
+                                   ElectronOutputName = egammaKeys.outputElectronKey(),
+                                   PhotonOutputName = egammaKeys.outputPhotonKey(),
+                                   TopoSeededClusterContainerName = getTopoSeededCollectionName(),                                     
+                                   # Builder tools
+                                   TrackMatchBuilderTool = EMTrackMatchBuilder,
+                                   ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
+                                   AmbiguityTool = EGammaAmbiguityTool,                                     
+                                   # Decoration tools
+                                   egammaTools = FcnWrapper(egammaDecorationTools),
+                                   ElectronTools = FcnWrapper(electronDecorationTools),
+                                   PhotonTools = FcnWrapper(photonDecorationTools),                                     
+                                   # Flags and other properties
+                                   # Track matching depending if ID is on/off
+                                   doTrackMatching = DetFlags.detdescr.ID_on(),
+                                   # conversions matching depending if ID is on/off
+                                   doConversions = doConversions(),
+                                   #
+                                   clusterEnergyCut = 10*MeV,
+                                   doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded()
+                                   )          
+        
         # configure egamma here:
         try:
             self._egammaBuilderHandle = egammaBuilder()

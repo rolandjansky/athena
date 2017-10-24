@@ -5,3 +5,13 @@ release 1 0
 release 2 0
 addRef 2 1
 release 2 0
+test2
+addRef 1 1
+release 1 0
+test3
+addRef 1 1
+addRef 1 2
+addRef 1 3
+release 1 2
+release 1 1
+release 1 0

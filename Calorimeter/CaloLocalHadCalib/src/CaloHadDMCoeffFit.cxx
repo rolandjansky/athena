@@ -764,7 +764,7 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                 v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
                 int iBin = m_HadDMCoeff->getBin(i_dms, v_indx);
                 float y(0), ye(0);
-                if(m_FitData[iBin]) {
+                if(iBin >= 0 && m_FitData[iBin]) {
                   float p0inv, s0inv, p1inv, s1inv;
                   m_FitData[iBin]->getInverted(p0inv, s0inv, p1inv, s1inv);
                   if(i_par==0) {

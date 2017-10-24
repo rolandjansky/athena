@@ -501,9 +501,10 @@ def main():
 
         
 ########### Get release info
-        mysetup = GetReleaseSetup() 
+        if not (options.ref and options.val):
+            mysetup = GetReleaseSetup()
+            cleanSetup = mysetup
         mypwd   = pwd()
-        cleanSetup = mysetup
 
 ########### List the packages in the local InstallArea                                                                                                                                                                                                                           
         if options.ref and options.val:

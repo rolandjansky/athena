@@ -41,17 +41,8 @@ StatusCode egammaqweta1c::finalize()
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////
-// ATHENA EXECUTE METHOD:
-
-// ==================================================================
-StatusCode egammaqweta1c::execute() 
-{
-  return StatusCode::SUCCESS;
-}
-
 // ===================================================================
-float egammaqweta1c::Correct(float eta, float etacell, float width)
+float egammaqweta1c::Correct(float eta, float etacell, float width) const
 {
 
   //   Make correction to the width of the cluster shower in sampling 1
@@ -91,7 +82,7 @@ float egammaqweta1c::Correct(float eta, float etacell, float width)
 }
 
 // ===============================================================
-double egammaqweta1c::RelPosition(float eta, float etacell)
+double egammaqweta1c::RelPosition(float eta, float etacell) const
 {
   //
   //   get relative position within cell in eta of the cluster 

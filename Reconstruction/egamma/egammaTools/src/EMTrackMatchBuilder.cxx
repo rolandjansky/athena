@@ -15,12 +15,10 @@
 #include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-//extrapolation
-#include "egammaInterfaces/IEMExtrapolationTools.h"
-//
-#include "CandidateMatchHelpers.h"
+#include "egammaUtils/CandidateMatchHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "SGTools/CurrentEventStore.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <cmath>
 
@@ -33,82 +31,10 @@
 EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent) : 
-  egammaBaseTool(type, name, parent),
-  m_extrapolationTool("EMExtrapolationTools"),
-  m_isCosmics(false)
+  egammaBaseTool(type, name, parent)
 {
-
   // declare interface
   declareInterface<IEMTrackMatchBuilder>(this);
-
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-
-  // Name of the input track particle container
-  declareProperty("TrackParticlesName", m_TrackParticlesName,
-                  "Name of the input track particle container");
-  
-  // Name of the extrapolation tool
-  declareProperty("ExtrapolationTool",
-                  m_extrapolationTool,
-                  "Name of the extrapolation tool");
-  
-  // Value of broad cut for delta eta
-  declareProperty("broadDeltaEta",m_broadDeltaEta = 0.1,
-                  "Value of broad cut for delta eta");
-
-  // Value of broad cut for delta phi
-  declareProperty("broadDeltaPhi",m_broadDeltaPhi = 0.1,
-                  "Value of broad cut for delta phi");
-
-  //Use rescale in the metric
-  declareProperty("UseRescaleMetric", m_UseRescaleMetric =true,
-		  "Use Rescale Metric");
-
-  // Do second pass with rescale
-  declareProperty("SecondPassRescale", m_SecondPassRescale =true,
-		  "Do second pass with rescale");  
-
-  // Value of narrow cuts
-  declareProperty("narrowDeltaEta", m_narrowDeltaEta = 0.05,
-		  "Value of narrow cut for delta eta");
-
-  declareProperty("narrowDeltaPhi", m_narrowDeltaPhi =0.05,
-		  "Value of the narrowd cut for delta phi ");
-
-  declareProperty("narrowDeltaPhiBrem", m_narrowDeltaPhiBrem =0.1,
-		  "Value of the narrow cut for delta phi  Brem");
-
-  declareProperty("narrowDeltaPhiRescale",  m_narrowDeltaPhiRescale =0.05,
-		  "Value of the narrow cut for delta phi Rescale");
-
-  declareProperty("narrowDeltaPhiRescaleBrem", m_narrowDeltaPhiRescaleBrem =0.1,
-		  "Value of the narrow cut for delta phi Rescale Brem");
-
-  declareProperty("MaxDeltaPhiRescale", m_MaxDeltaPhiRescale=0.25,
-		  "Maximum Value of the deltaPhi rescale");
-
-  // Boolean to use candidate matching
-  declareProperty("useCandidateMatch",
-                  m_useCandidateMatch = true,
-                  "Boolean to use candidate matching");
-
-  //Boolean to favor tracks with Pixel hits
-  declareProperty("useScoring",
-                  m_useScoring= true,
-                  "Boolean to favor tracks with Pixel hits");
-
-  // Boolean for use of cosmics
-  declareProperty("isCosmics",
-                  m_isCosmics=false,
-                  "Boolean for use of cosmics");
-
-  // Boolean to use last measurement for track extrapolation
-  // False means use perigee
-  declareProperty("useLastMeasurement",
-                  m_useLastMeasurement = false,
-                  "Boolean to use last measurement for extrapolation, otherwise use perigee");
-
 }
 
 // ==============================================================
@@ -128,6 +54,8 @@ StatusCode EMTrackMatchBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing EMTrackMatchBuilder");
 
+
+  ATH_CHECK(m_TrackParticlesKey.initialize());
 
   // the extrapolation tool
   if(m_extrapolationTool.retrieve().isFailure()){
@@ -171,23 +99,16 @@ StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg)
   }
         
   // retrieve the trackparticle container
-  const xAOD::TrackParticleContainer* trackPC = evtStore()->retrieve< const xAOD::TrackParticleContainer >(m_TrackParticlesName );
-  if( ! trackPC ) {
-    REPORT_MESSAGE( MSG::WARNING )
-      << "Couldn't retrieve TrackParticle container with key: "
-      << m_TrackParticlesName;
-    return StatusCode::SUCCESS;
-  }
-  // Check that the auxiliary store association was made successfully:
-  if( ! trackPC->hasStore() ) {
-    REPORT_MESSAGE( MSG::WARNING )
-      << "No auxiliary store got associated to the TrackParticle container "
-      << "with key: " << m_TrackParticlesName;
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if( !trackPC.isValid() ) {
+    ATH_MSG_ERROR("Couldn't retrieve TrackParticle container with key: " << m_TrackParticlesKey.key());
+    return StatusCode::FAILURE;
   }
    
   // call the execute method
-  CHECK( trackExecute(eg, trackPC) );
+  CHECK( trackExecute(eg, trackPC.cptr()) );
   return StatusCode::SUCCESS;
 }
 

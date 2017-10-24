@@ -87,9 +87,9 @@ SCTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   StatusCode sc{m_service->convert(cont, re, m_log)};
   if (sc.isFailure()) {
     m_log << MSG::ERROR
-	  << " Could not convert rdo with SCTRawContByteStreamSvc " << endmsg;
+          << " Could not convert rdo with SCTRawContByteStreamSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
-  return StatusCode::SUCCESS ;
+  return StatusCode::SUCCESS;
 }

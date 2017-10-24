@@ -41,12 +41,10 @@ namespace Athena {
 /** @brief Class implementing the GAUDI @c IEvtSelector interface using 
  *         ROOT @c TTree as a backend
  */
-class RootNtupleEventSelector : 
-    virtual public IEvtSelector,
-  virtual public IEvtSelectorSeek,
-  virtual public IAddressProvider,
-  virtual public IIoComponent, virtual public IIncidentListener,
-          public ::AthService
+class RootNtupleEventSelector :
+    public extends<AthService,
+                   IEvtSelector, IEvtSelectorSeek,
+                   IAddressProvider, IIoComponent, IIncidentListener>
 { 
   friend class Athena::RootNtupleEventContext;
 
@@ -66,8 +64,6 @@ class RootNtupleEventSelector :
   // Athena hooks
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface ) override;
   
   virtual void handle(const Incident& incident) override;
 
@@ -250,12 +246,6 @@ class RootNtupleEventSelector :
   // FIXME: use some kind of state-machine to couple 
   //   m_needReload and m_fireBIF ?
   mutable bool m_fireBIF;
-
-  typedef std::unordered_map<SG::TransientAddress*, bool> Addrs_t;
-  // the list of transient addresses we "manage" or know about
-  // these addresses are the actual TTree's branch names
-  // for the event data
-  Addrs_t m_rootAddresses;
 
   // the list of transient addresses we "manage" or know about
   // these addresses are the actual TTree's branch names

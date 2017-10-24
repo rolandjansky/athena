@@ -15,18 +15,11 @@
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
 
 using namespace CLHEP;
 using namespace CombinationFlags;
@@ -39,15 +32,6 @@ FourMomCombiner::FourMomCombiner(const std::string& type,
 				 const std::string& name,
 				 const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_usedPoverP(false),
-  m_dPoverP(1.),
-  m_useCombination(false),
-  m_applyTrackOnly(false),
-  m_EPsigmacut(3.),
-  m_dPoverPcut(0.3),
-  m_EPoverPcut(0.2),
-  m_applytrackOnlyEcut(15*GeV),
-  m_minPtTRT(2E3),
   m_trkVector(5),
   m_trkMatrix(5,5),
   m_clusVector(5),
@@ -58,8 +42,6 @@ FourMomCombiner::FourMomCombiner(const std::string& type,
   m_par2(0), 
   m_par3(0),
   m_combFlag(TRACK),
-  m_combType(COVMAT),
-  m_NumberofSiHits(4),
   m_DEFAULT_QOVERP_ERROR(1), 
   m_DEFAULT_MOMENTUM(0)
 {
@@ -72,34 +54,6 @@ FourMomCombiner::FourMomCombiner(const std::string& type,
     
   // Declare interface.
   declareInterface<IFourMomCombiner>(this);
-
-  declareProperty("m_combType",m_combType,
-		  "Decides whether to do full covariance method, or single-shot Kalman update");
-
-  declareProperty("MinPtTRT", 
-		  m_minPtTRT = 2000.0, 
-		  "Minimum pT for TRT-only tracks for them to be combined");
-
-  declareProperty( "applyTrackOnly",
-		   m_applyTrackOnly = false,
-		   "Use Track P if E/P and E < applytrackOnlyEcut");
-
-  declareProperty( "applytrackOnlyEcut",
-		   m_applytrackOnlyEcut = 15*GeV,
-		   "cut on E in order to use track P");
-
-  //Variables for dP/P.
-  declareProperty("usedPoverP",
-		  m_usedPoverP = false,
-		  "Judge combination by dP/P rather than sigma");
-
-  declareProperty("m_dPoverPcut",
-		  m_dPoverPcut=0.3,
-		  "Cutoff for combination when judging by dP/P + |E-p|/p");
-
-  declareProperty("m_EPoverPcut",
-		  m_EPoverPcut=0.2,
-		  "Cutoff for combination when judging by dP/P + |E-p|/p");
 
 }
 

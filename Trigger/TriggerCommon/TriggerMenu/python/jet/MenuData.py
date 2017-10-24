@@ -32,6 +32,7 @@ class MenuData(object):
         self.hypo_params = None
         self.cluster_params = None
         self.second_fex_params = None
+        self.trkopt = None
 
     def __str__(self):
         s = ['%s\n%s\n' % (k, str(v)) for k, v in self.__dict__.items()]

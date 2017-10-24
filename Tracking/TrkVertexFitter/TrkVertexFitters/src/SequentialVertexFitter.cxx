@@ -581,12 +581,12 @@ namespace Trk{
   
       //creating new meas perigees, since the will be deleted 
       //by VxTrackAtVertex in destructor
-      const Trk::Perigee * m_loc_per = dynamic_cast<const Trk::Perigee *>(*i);
-      if( m_loc_per != 0)
+      const Trk::Perigee * loc_per = dynamic_cast<const Trk::Perigee *>(*i);
+      if( loc_per != 0)
       {
-        Trk::Perigee * mPer = new Trk::Perigee(*m_loc_per);
-        const Trk::Perigee * inPer = m_loc_per;
-        //new MeasuredPerigee(*m_loc_per);
+        Trk::Perigee * mPer = new Trk::Perigee(*loc_per);
+        const Trk::Perigee * inPer = loc_per;
+        //new MeasuredPerigee(*loc_per);
         Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, NULL, inPer, NULL);
 
         //linearization itself
@@ -608,11 +608,11 @@ namespace Trk{
 
       //creating new meas perigees, since the will be deleted
       //by VxTrackAtVertex in destructor
-      const Trk::NeutralPerigee * m_loc_per = dynamic_cast<const Trk::NeutralPerigee *>(*i);
-      if( m_loc_per != 0)
+      const Trk::NeutralPerigee * loc_per = dynamic_cast<const Trk::NeutralPerigee *>(*i);
+      if( loc_per != 0)
       {
-        Trk::NeutralPerigee * mPer  = new Trk::NeutralPerigee(*m_loc_per);
-        const Trk::NeutralPerigee * inPer = m_loc_per;
+        Trk::NeutralPerigee * mPer  = new Trk::NeutralPerigee(*loc_per);
+        const Trk::NeutralPerigee * inPer = loc_per;
         Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., NULL, mPer, NULL, inPer);
 
         //linearization itself

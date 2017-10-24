@@ -80,16 +80,16 @@ public:
   // digitize a single hit
   StatusCode digitize_hit(const CSCSimHit * cscHit, std::vector<IdentifierHash> & hashVec,
 			  std::map<IdentifierHash, std::pair<double,double> >& data_map,
-			  CLHEP::HepRandomEngine* m_rndmEngine);
+			  CLHEP::HepRandomEngine* rndmEngine);
   StatusCode digitize_hit (const CSCSimHit * cscHit, 
                            std::vector<IdentifierHash>& hashVec,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMapOddPhase,
-                           CLHEP::HepRandomEngine* m_rndmEngine);
+                           CLHEP::HepRandomEngine* rndmEngine);
   StatusCode digitize_hit (const CSCSimHit * cscHit, 
                            std::vector<IdentifierHash>& hashVec,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
-                           CLHEP::HepRandomEngine* m_rndmEngine);
+                           CLHEP::HepRandomEngine* rndmEngine);
 
   // input parameters should be as form of cscHelper returned value....
   IdentifierHash getHashId(int eta, int phiSector, int chamberLayer, int chamberType, int wireLayer, int stripId, int maxStrip, int measuresPhi) {
