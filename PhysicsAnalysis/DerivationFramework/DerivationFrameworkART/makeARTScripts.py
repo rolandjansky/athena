@@ -1,9 +1,9 @@
 import os
 
-makeDataDAODs=True
-makeMCDAODs=True
-makeTruthDAODs=True
-makeTrains=False
+makeDataDAODs=False
+makeMCDAODs=False
+makeTruthDAODs=False
+makeTrains=True
 
 formatList = [#'PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5',
@@ -115,4 +115,4 @@ if (makeTruthDAODs):
 if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
-      #generateTrains(train,mcLabel,mcFile,True)
+      generateTrains(train,mcLabel,mcFile,True)
