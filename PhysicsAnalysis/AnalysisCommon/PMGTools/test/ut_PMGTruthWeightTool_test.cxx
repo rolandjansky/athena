@@ -25,8 +25,33 @@
 
 // ROOT include(s):
 #include "TFile.h"
+#include <chrono>
 
 using namespace asg::msgUserCode;  // messaging
+
+
+// Check for exceptions matching known text
+#define EXPECT_THROW(x,text) \
+{ std::string internalTestMessage; \
+  try { \
+    x; internalTestMessage = std::string ("expected statement ") + #x " to throw, but it didn't"; \
+  } catch (std::exception& e) { \
+    if (std::string(e.what()).find(std::string(text)) == std::string::npos) { \
+      internalTestMessage = std::string ("expected statement ") + #x " to throw message matching " + (text) + ", but actual message didn't match: " + e.what(); \
+    } \
+  } catch (...) { \
+    internalTestMessage = std::string ("statement ") + #x " threw an exception that didn't derive from std::exception"; \
+  } \
+  if (internalTestMessage.empty()) { ANA_MSG_INFO("Success!"); \
+  } else { ANA_MSG_FATAL(internalTestMessage); return -1; } \
+}
+
+// Check for functions returning false
+#define EXPECT_FALSE(x) \
+{ if (x == false) { ANA_MSG_INFO("Success!"); \
+  } else { ANA_MSG_FATAL("Expected " << #x << " to return false"); return -1; } \
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -66,21 +91,21 @@ int main(int argc, char *argv[])
   asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool;
   ASG_SET_ANA_TOOL_TYPE(weightTool, PMGTools::PMGTruthWeightTool);
   weightTool.setName("PMGTruthWeightTool");
-  ANA_CHECK(weightTool.retrieve());
+  ANA_CHECK(weightTool.initialize());
 #else
   asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
-  ANA_CHECK(weightTool.initialize());
+  ANA_CHECK(weightTool.retrieve());
 #endif
 
   // Loop over a few events:
   ANA_MSG_INFO("Preparing to loop over events...");
-  const Long64_t entries = 20;
-  for(Long64_t entry = 0; entry < entries; ++entry) {
+  const Long64_t nEntries = 5;
+  // double retrievalTimeNanoSeconds = 0;
+  for(Long64_t entry = 0; entry < nEntries; ++entry) {
     if (event.getEntry(entry) < 0) { ANA_MSG_ERROR("Failed to read event " << entry); continue; }
 
     auto weightNames = weightTool->getWeightNames();
-    auto weights = weightTool->getWeights();
-    ANA_MSG_INFO("Event #" << entry << ": found " << weights.size() << " weights and " << weightNames.size() << " weight names for this event");
+    ANA_MSG_INFO("Event #" << entry << ": found " << weightNames.size() << " weights for this event");
 
     // Print out the first weight for every event
     if (weightNames.size() > 1) {
@@ -91,14 +116,37 @@ int main(int argc, char *argv[])
     // Full print out for some of the events
     if ((entry + 1) % 5 == 0) {
       // Print out all weights and names
-      ANA_MSG_INFO("Printing all " << weights.size() << " weights for this event...");
-      for (size_t i = 0; i < weightNames.size(); ++i) {
-        ANA_MSG_INFO("   weight " << i << " has name \"" << weightNames[i].c_str() << "\" and value " << weights[i]);
+      ANA_MSG_INFO("Printing all " << weightNames.size() << " weights for this event...");
+      unsigned int idx(0);
+      for (auto weight : weightNames) {
+        ANA_MSG_INFO("... weight " << idx++ << " has name \"" << weight << "\" and value " << weightTool->getWeight(weight));
       }
 
       // Give feedback about where we are
-      ANA_MSG_INFO("Processed " << entry + 1 << " / " << entries << " events");
+      ANA_MSG_INFO("Processed " << entry + 1 << " / " << nEntries << " events");
     }
+
+    // Check retrieval speed
+    ANA_MSG_INFO("Check average time taken to retrieve a weight");
+    if (entry == nEntries - 1) {
+      int nWeightCalls = 1000000;
+      static std::string weight_name_to_test = weightNames.back();
+      auto start = std::chrono::steady_clock::now();
+      for (int i = 0; i < nWeightCalls; ++i) {
+        weightTool->getWeight(weight_name_to_test);
+      }
+      auto elapsed = std::chrono::steady_clock::now() - start;
+      double retrievalTimeNanoSeconds = std::chrono::duration <double, std::nano> (elapsed).count() / nWeightCalls;
+      ANA_MSG_INFO("Retrieving " << nWeightCalls << " weights took " << retrievalTimeNanoSeconds << " ns per call");
+    }
+
+    // Check that retrieving a non-existent weight throws an exception
+    ANA_MSG_INFO("Check that retrieving a non-existent weight throws an exception");
+    EXPECT_THROW(weightTool->getWeight("non-existent-name"), "Weight \"non-existent-name\" could not be found");
+
+    // Check that asking for a non-existent weight returns false
+    ANA_MSG_INFO("Check that asking for a non-existent weight returns false");
+    EXPECT_FALSE(weightTool->hasWeight("non-existent-name"));
   }
 
   // trigger finalization of all services and tools created by the Gaudi Application

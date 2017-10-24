@@ -29,16 +29,10 @@ namespace PMGTools
     /// Return vector of weight names (descriptions) from meta data
     virtual const std::vector<std::string>& getWeightNames() const = 0;
 
-    /// Return vector of MC event weights. Same as accessing it from TruthEvent or EventInfo
-    virtual const std::vector<float>& getWeights() const = 0;
-
-    // Return the weight. Same as getWeights()[getWeightIndex(weightName)]
+    // Return the weight corresponding to weightName for this event
     virtual float getWeight(const std::string& weightName) const = 0;
 
-    /// Return weight index for weightName
-    virtual size_t getWeightIndex(const std::string& weightName) const = 0;
-
-    /// Check if a weight with the current name exists
+    /// Check if a weight called weightName exists
     virtual bool hasWeight(const std::string& weightName) const = 0;
 
   }; // class IPMGTruthWeightTool

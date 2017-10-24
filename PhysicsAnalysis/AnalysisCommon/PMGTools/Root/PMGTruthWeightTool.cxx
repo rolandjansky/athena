@@ -2,9 +2,6 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ROOT include(s):
-#include "TString.h"
-
 // EDM include(s):
 #ifndef XAOD_STANDALONE
   #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -36,29 +33,20 @@ namespace PMGTools
   }
 
 
-  const std::vector<float>& PMGTruthWeightTool::getWeights() const {
+  float PMGTruthWeightTool::getWeight(const std::string& weightName) const {
+    // Check that we have a valid EventInfo pointer
     if (m_evtInfo == nullptr) {
       ATH_MSG_FATAL("Cannot access MC weights as EventInfo could not be read. Maybe beginEvent() was not called?");
       throw std::runtime_error(name() + ": Cannot access MC weights as EventInfo could not be read.  Maybe beginEvent() was not called?");
     }
 
-    // Read weights from EventInfo: this should be identical to the TruthEvent
-    return m_evtInfo->mcEventWeights();
-  }
-
-
-  float PMGTruthWeightTool::getWeight(const std::string& weightName) const {
-    return getWeights().at(getWeightIndex(weightName));
-  }
-
-
-  size_t PMGTruthWeightTool::getWeightIndex(const std::string& weightName) const {
-    if (!this->hasWeight(weightName)) {
-      ATH_MSG_ERROR("Requested weight \'" + weightName + "\' doesn't exist");
-      return 0;
+    // Return appropriate weight from EventInfo: this should be identical to the TruthEvent
+    try {
+      return m_evtInfo->mcEventWeights().at(m_weightIndices.at(weightName));
+    } catch (const std::out_of_range& e) {
+      ATH_MSG_FATAL("Weight \"" + weightName + "\" could not be found");
+      throw std::runtime_error(name() + ": Weight \"" + weightName + "\" could not be found");
     }
-
-    return m_weightIndices.at(weightName);
   }
 
 
@@ -184,10 +172,9 @@ namespace PMGTools
 
     // Use input map to fill the index map and the weight names
     ATH_MSG_INFO("Attempting to load weight meta data from HepMC IOVMetaData container");
-    m_weightNames.resize(hepMCWeightNamesMap.size(), "");
     for (auto& kv : hepMCWeightNamesMap) {
+      m_weightNames.push_back(kv.first);
       m_weightIndices[kv.first] = kv.second;
-      m_weightNames.at(kv.second) = kv.first;
     }
     return this->validateWeightCaches();
   }

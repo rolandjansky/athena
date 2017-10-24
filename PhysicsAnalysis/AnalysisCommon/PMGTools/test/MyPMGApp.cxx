@@ -155,8 +155,7 @@ int main(int argc, char *argv[])
 
     // Test the PMGTruthWeightTool interface
     auto weightNames = truthWeightTool->getWeightNames();
-    auto weights = truthWeightTool->getWeights();
-    ANA_MSG_INFO("Event #" << i << ": found " << weights.size() << " weights and " << weightNames.size() << " weight names for this event");
+    ANA_MSG_INFO("Event #" << i << ": found " << weightNames.size() << " weights for this event");
 
   }
 

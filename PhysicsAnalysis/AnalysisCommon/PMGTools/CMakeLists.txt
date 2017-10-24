@@ -21,12 +21,9 @@ set( xaod_access_lib )
 # ... for AnalysisBase
 if( XAOD_STANDALONE )
    set( xaod_access_lib xAODRootAccess )
-# ... for AthAnalysisBase
+# ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 elseif( XAOD_ANALYSIS AND NOT XAOD_STANDALONE )
    set( xaod_access_lib POOLRootAccessLib )
-else()
-# ... for Athena
-   set( xaod_access_lib POOLRootAccess )
 endif()
 
 
@@ -92,7 +89,7 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGToolsLib ${xaod_access_lib} )
 endif()
-# ... triple-use: Athena/AthAnalysis/AnalysisBase
+# ... AthAnalysis/AnalysisBase
 atlas_add_test( ut_PMGTruthWeightTool_test
    SOURCES test/ut_PMGTruthWeightTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

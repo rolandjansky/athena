@@ -5,9 +5,6 @@
 #ifndef PMGTOOLS_PMGTRUTHWEIGHTTOOL_H
 #define PMGTOOLS_PMGTRUTHWEIGHTTOOL_H
 
-// STL includes
-#include <memory>
-
 // EDM include(s):
 #include "AsgTools/AsgMetadataTool.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -49,13 +46,7 @@ namespace PMGTools
     const std::vector<std::string>& getWeightNames() const;
 
     /// Implements interface from IPMGTruthWeightTool
-    const std::vector<float>& getWeights() const;
-
-    /// Implements interface from IPMGTruthWeightTool
     float getWeight(const std::string& weightName) const;
-
-    /// Implements interface from IPMGTruthWeightTool
-    size_t getWeightIndex(const std::string& weightName) const;
 
     /// Implements interface from IPMGTruthWeightTool
     bool hasWeight(const std::string& weightName) const;
@@ -105,8 +96,7 @@ namespace PMGTools
     std::vector<std::string> m_weightNames;
 
     /// List of indices for available weights
-    std::map<std::string, int> m_weightIndices;
-
+    std::unordered_map<std::string, int> m_weightIndices;
   };
 } // namespace PMGTools
 
