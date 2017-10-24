@@ -1,0 +1,51 @@
+//        Copyright Iowa State University 2017.
+//                  Author: Nils Krumnack
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
+// reports, feature suggestions, praise and complaints.
+
+
+//
+// includes
+//
+
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace EL
+{
+  template<typename T> template<typename T2> SysReadHandle<T> ::
+  SysReadHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : m_inputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+  }
+
+
+
+  template<typename T> ::StatusCode SysReadHandle<T> ::
+  retrieve (const T*& object, const CP::SystematicSet& sys) const
+  {
+    auto cache = m_inputNameCache.find (sys);
+    if (cache == m_inputNameCache.end())
+    {
+      std::string newName = detail::makeSystematicsName (m_inputName, sys);
+      m_inputNameCache.insert (std::make_pair (sys, newName));
+      cache = m_inputNameCache.find (sys);
+      assert (cache != m_inputNameCache.end());
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    assert (m_evtStore);
+    return m_evtStore->retrieve (object, cache->second);
+  }
+}

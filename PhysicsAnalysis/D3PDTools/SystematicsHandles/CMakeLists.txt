@@ -1,0 +1,16 @@
+# The name of the package:
+atlas_subdir( SystematicsHandles )
+
+# The package's dependencies:
+atlas_depends_on_subdirs(
+   PUBLIC
+   PhysicsAnalysis/D3PDTools/AnaAlgorithm
+   Control/AthToolSupport/AsgTools )
+
+atlas_add_library( SystematicsHandlesLib
+   SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
+   PUBLIC_HEADERS SystematicsHandles
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib PATInterfaces )
+
+add_executable (SystematicsHandles_cc_SysReadHandle test/cc_SysReadHandle.cxx)
+target_link_libraries (SystematicsHandles_cc_SysReadHandle SystematicsHandlesLib)
