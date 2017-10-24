@@ -1,0 +1,81 @@
+//        Copyright Iowa State University 2017.
+//                  Author: Nils Krumnack
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
+// reports, feature suggestions, praise and complaints.
+
+
+//
+// includes
+//
+
+#include <SystematicsHandles/CopyHelpers.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace EL
+{
+  template<typename T> template<typename T2> SysCopyHandle<T> ::
+  SysCopyHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : m_inputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Out", m_outputName, "name to which to copy " + propertyName);
+  }
+
+
+
+  template<typename T> ::StatusCode SysCopyHandle<T> ::
+  retrieve (T*& object, const CP::SystematicSet& sys) const
+  {
+    auto cache = m_nameCache.find (sys);
+    if (cache == m_nameCache.end())
+    {
+      std::string inputName = detail::makeSystematicsName (m_inputName, sys);
+      std::string outputName = detail::makeSystematicsName (m_outputName, sys);
+      m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+".")));
+      cache = m_nameCache.find (sys);
+      assert (cache != m_nameCache.end());
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    assert (m_evtStore);
+    if (std::get<1>(cache->second).empty())
+    {
+      // if no output name is configured, act like an update handle
+      return m_evtStore->retrieve (object, std::get<0>(cache->second));
+    } else
+    {
+      // if an output name is configured, retrieve the input object as
+      // a const object, (shallow) copy it, record the copy and return
+      // it.
+
+      const T *inputObject = nullptr;
+      if (m_evtStore->retrieve (inputObject, std::get<0>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+
+      assert (inputObject != nullptr);
+      auto copy = detail::ShallowCopyCore<T>::copy (*inputObject);
+      assert (copy.first != nullptr);
+      assert (copy.second != nullptr);
+      if (detail::ShallowCopyCore<T>::setLink (*inputObject, *copy.first).isFailure())
+        return StatusCode::FAILURE;
+
+      if (m_evtStore->record (copy.first, std::get<1>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+      if (m_evtStore->record (copy.first, std::get<2>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+      object = copy.first;
+      return StatusCode::SUCCESS;
+    }
+  }
+}

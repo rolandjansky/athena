@@ -10,7 +10,10 @@ atlas_depends_on_subdirs(
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib PATInterfaces )
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib PATInterfaces xAODBase )
 
 add_executable (SystematicsHandles_cc_SysReadHandle test/cc_SysReadHandle.cxx)
 target_link_libraries (SystematicsHandles_cc_SysReadHandle SystematicsHandlesLib)
+
+add_executable (SystematicsHandles_cc_SysCopyHandle test/cc_SysCopyHandle.cxx)
+target_link_libraries (SystematicsHandles_cc_SysCopyHandle SystematicsHandlesLib xAODEventInfo xAODJet)
