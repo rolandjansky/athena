@@ -9,6 +9,7 @@
  *
  */
 
+#include <cmath>
 #include <TKey.h>
 
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
@@ -199,6 +200,39 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     else ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name);
   }
 
+  // Determine the binning strategy
+  // History is to use pt_mass_eta, with many past config files that don't specify
+  // As such, if nothing is specified, assume pt_mass_eta
+  // If something is specified and it's not understood, then that's a failure
+  // *Note* that it is assumed the calo and TA masses use the same binning parametrization
+  TString binParamString = m_config->GetValue("JMSBinningParam","");
+  if (binParamString == "")
+  {
+    m_binParam = BinningParam::pt_mass_eta;
+    ATH_MSG_INFO("JMS Tool will use the implied pt_mass_eta binning strategy");
+  }
+  else
+  {
+    // Check if we recognize what was specified
+    if (!binParamString.CompareTo("pt_mass_eta",TString::kIgnoreCase))
+      m_binParam = BinningParam::pt_mass_eta;
+    else if (!binParamString.CompareTo("e_LOGmOe_eta",TString::kIgnoreCase))
+      m_binParam = BinningParam::e_LOGmOe_eta;
+    else if (!binParamString.CompareTo("e_LOGmOet_eta",TString::kIgnoreCase))
+      m_binParam = BinningParam::e_LOGmOet_eta;
+    else if (!binParamString.CompareTo("e_LOGmOpt_eta",TString::kIgnoreCase))
+      m_binParam = BinningParam::e_LOGmOpt_eta;
+    else
+    {
+      // Failed to determine what was specified
+      ATH_MSG_FATAL("JMSBinningParam was specified, but input was not understood: " << binParamString);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("JMS Tool will use the " << binParamString << " binning strategy");
+  }
+
+
+
   return StatusCode::SUCCESS;
 
 }
@@ -206,13 +240,15 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const {
 
   // Asymptotic values
-  double pTMax = m_respFactorsMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsMass[etabin]->GetNbinsX()+1);
-  double pTMin = m_respFactorsMass[etabin]->GetXaxis()->GetBinLowEdge(1);
-  double massMax = m_respFactorsMass[etabin]->GetYaxis()->GetBinLowEdge(m_respFactorsMass[etabin]->GetNbinsY()+1);
+  const double pTMax = m_respFactorsMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsMass[etabin]->GetNbinsX()+1);
+  const double pTMin = m_respFactorsMass[etabin]->GetXaxis()->GetBinLowEdge(1);
+  const double massMax = m_respFactorsMass[etabin]->GetYaxis()->GetBinLowEdge(m_respFactorsMass[etabin]->GetNbinsY()+1);
+  const double massMin = m_respFactorsMass[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
   if ( mass_uncorr > massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( mass_uncorr < massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
 
   float mass_corr = m_respFactorsMass[etabin]->Interpolate( pT_uncorr, mass_uncorr );
 
@@ -222,13 +258,15 @@ float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabi
 float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double uncorr, int etabin) const {
 
   // Asymptotic values
-  double pTMax = m_respFactorsTrackAssistedMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsTrackAssistedMass[etabin]->GetNbinsX()+1);
-  double pTMin = m_respFactorsTrackAssistedMass[etabin]->GetXaxis()->GetBinLowEdge(1);
-  double massMax = m_respFactorsTrackAssistedMass[etabin]->GetYaxis()->GetBinLowEdge(m_respFactorsTrackAssistedMass[etabin]->GetNbinsY()+1);
+  const double pTMax = m_respFactorsTrackAssistedMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsTrackAssistedMass[etabin]->GetNbinsX()+1);
+  const double pTMin = m_respFactorsTrackAssistedMass[etabin]->GetXaxis()->GetBinLowEdge(1);
+  const double massMax = m_respFactorsTrackAssistedMass[etabin]->GetYaxis()->GetBinLowEdge(m_respFactorsTrackAssistedMass[etabin]->GetNbinsY()+1);
+  const double massMin = m_respFactorsTrackAssistedMass[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
   if ( uncorr > massMax ) uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( uncorr < massMin ) uncorr = massMin+1e-6; //so it fits the low-most m-bin
 
   float mass_corr = m_respFactorsTrackAssistedMass[etabin]->Interpolate( pT_uncorr, uncorr );
 
@@ -315,9 +353,14 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     ATH_MSG_FATAL("Please check that the mass correction eta binning is properly set in your config file");
     return StatusCode::FAILURE;
   }
-  xAOD::JetConstituentVector constituents = jet.getConstituents();
-  int nconstituents = constituents.size();
-  if ( absdetectorEta < m_massEtaBins.back() && nconstituents>1 ) { //Fiducial Cuts
+
+  // Originally was jet.getConstituents().size() > 1
+  // This essentially requires that the jet has a mass
+  // However, constituents are not stored now in rel21 (LCOrigTopoClusters are transient)
+  // Thus, getConstituents() breaks unless they are specifically written out
+  // Instead, this has been changed to require a non-zero mass (same impact)
+  // Done by S. Schramm on Oct 21, 2017
+  if ( absdetectorEta < m_massEtaBins.back() && jetStartP4.mass()!=0 ) { //Fiducial Cuts
     for (uint i=0; i<m_massEtaBins.size()-1; ++i) {
         if(absdetectorEta >= m_massEtaBins[i] && absdetectorEta < m_massEtaBins[i+1]) etabin = i;
     }
@@ -325,7 +368,28 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass correction");
       return StatusCode::FAILURE;
     }
-    mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, etabin );
+    
+    // Use the correct histogram binning parametrisation when reading the corrected mass
+    switch (m_binParam)
+    {
+      case BinningParam::pt_mass_eta:
+        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, etabin );
+        break;
+      case BinningParam::e_LOGmOe_eta:
+        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), etabin);
+        break;
+      case BinningParam::e_LOGmOet_eta:
+        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
+        break;
+      case BinningParam::e_LOGmOpt_eta:
+        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), etabin);
+        break;
+      default:
+        ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the calo mass was not.  Please contact the tool developer(s) to fix this.");
+        return StatusCode::FAILURE;
+        break;
+    }
+    
     if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
   }
 
@@ -399,6 +463,28 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       }
       
       mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
+
+      // Use the correct histogram binning parametrisation when reading the corrected mass
+      switch (m_binParam)
+      {
+        case BinningParam::pt_mass_eta:
+          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
+          break;
+        case BinningParam::e_LOGmOe_eta:
+          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
+          break;
+        case BinningParam::e_LOGmOet_eta:
+          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+          break;
+        case BinningParam::e_LOGmOpt_eta:
+          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+          break;
+        default:
+          ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
+          return StatusCode::FAILURE;
+          break;
+      }
+
       if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
       else{E_corr  = sqrt(jetStartP4.P()*jetStartP4.P()+mass_corr*mass_corr);}
     }
