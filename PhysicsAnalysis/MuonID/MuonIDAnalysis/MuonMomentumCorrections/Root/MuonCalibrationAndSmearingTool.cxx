@@ -16,6 +16,8 @@ namespace CP {
 
 MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) :
   asg::AsgTool( name ),
+  m_useExternalSeed(false),
+  m_externalSeed(0),
   m_Tsmear( 0 ),
   m_Tdata( 0 ),
   m_Trel( 0 ),
@@ -27,8 +29,6 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_StatCombPtThreshold(300.00),
   m_useStatComb(false),
   m_SagittaCorrPhaseSpace(false),
-  m_useExternalSeed(false),
-  m_externalSeed(0),
   m_doSagittaCorrection(false),
   m_doSagittaMCDistortion(false),
   m_SagittaRelease("sagittaBiasDataAll_02_08_17"){
