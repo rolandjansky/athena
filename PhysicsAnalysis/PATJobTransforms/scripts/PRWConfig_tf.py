@@ -41,7 +41,7 @@ def main():
 ## Get the base transform with all arguments added
 def getTransform():
     trf = transform(executor = athenaExecutor(name = 'athena', 
-                                              skeletonFile='PileupReweighting/skeleton.AODtoNTUP_PILEUP.py'))
+                                              skeletonFile='PATJobTransforms/skeleton.AODtoNTUP_PILEUP.py'))
 
     trf.parser.defineArgGroup("PRWConfig_tf","PRWConfig_tf options")
 
