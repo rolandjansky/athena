@@ -57,7 +57,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
     r_size(0),
     m_ns(0),
     m_fNmax(0),
-    m_fNmin(0),
     m_nr(0),
     m_nrf(0),
     m_sF(0.)    
@@ -833,7 +832,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 
     // // // // // // <Fill prod_bypass and the local array // // // //
     for (long i = 0; r != re; i++, r++) {
-      assert( i < tmp_prod_bypass.size() );
       const Trk::SpacePoint *vrpi = (*r).first;
 
       geo_info[i] = (*r).second;
@@ -962,7 +960,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 //#define ANGLE_DISCO_COMPAT
 
 bool
-InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_invar_bypass,const std::vector<bypass_struct> &tmp_prod_bypass,long bSP1, long bSP2, double H) {
+InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_invar_bypass,
+                                              const std::vector<bypass_struct> &tmp_prod_bypass,
+                                              long bSP1, long bSP2, double H) 
+{
 
   double inv_r2 = tmp_prod_bypass[bSP2].invR;
   double inv_r1 = tmp_prod_bypass[bSP1].invR; // == u1 in original cutTP

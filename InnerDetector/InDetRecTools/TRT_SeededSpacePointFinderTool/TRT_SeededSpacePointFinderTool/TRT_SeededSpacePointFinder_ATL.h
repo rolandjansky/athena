@@ -159,7 +159,6 @@ namespace InDet{
 
       int m_ns                                                       ;
       int m_fNmax                                                    ;
-      int m_fNmin                                                    ;
       int  m_nr       ; int* r_index   ; int* r_map                  ;
       int  m_nrf     , rf_index   [ 530], rf_map   [ 530]            ;
       double m_sF                                                    ;
