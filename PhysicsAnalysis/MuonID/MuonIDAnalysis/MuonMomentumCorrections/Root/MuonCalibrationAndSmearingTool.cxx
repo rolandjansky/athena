@@ -1541,7 +1541,7 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
 }
 
 StatusCode MuonCalibrationAndSmearingTool::FillValues() {
-
+  ATH_MSG_VERBOSE( "Initializing lookup tables [FillValues()] : "<<m_algo<<"   "<<m_year<<"   "<<m_release );
   Clean();
   double tmpval;
   std::string tmpname;
@@ -1985,20 +1985,32 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     loc_detRegion = GetRegion( loc_eta, loc_phi );
   }
 
+  ATH_MSG_VERBOSE( "Getting Expected Resolution: " );
+  ATH_MSG_VERBOSE( " detRegion = "<<loc_detRegion);
+  ATH_MSG_VERBOSE( " ptid      = "<<loc_ptid);
+  ATH_MSG_VERBOSE( " ptms      = "<<loc_ptms);
+  ATH_MSG_VERBOSE( " ptcb      = "<<loc_ptcb);
+  ATH_MSG_VERBOSE( " m_nb_regions = "<<m_nb_regions);
+  ATH_MSG_VERBOSE( " mc = "<<mc);
+
   // Expected resolution in data (or unsmeared MC if second argument is true)
   bool useTan2 = true;
   /** do the average with the EXPECTED resolutions **/
   if ( loc_detRegion<0 || loc_detRegion>=m_nb_regions ) return 0;
   double expRes = 0.;
   if ( DetType == MCAST::DetectorType::MS ) {
+    ATH_MSG_VERBOSE("MS resolution");
     if (loc_ptms == 0) return 1e12;
     double p0 = mc ? m_MC_p0_MS[loc_detRegion] : ( m_MC_p0_MS[loc_detRegion] + m_p0_MS[loc_detRegion] );
     double p1 = mc ? m_MC_p1_MS[loc_detRegion] : ( m_MC_p1_MS[loc_detRegion] + m_p1_MS[loc_detRegion] );
     double p2 = mc ? m_MC_p2_MS[loc_detRegion] : ( m_MC_p2_MS[loc_detRegion] + m_p2_MS[loc_detRegion] );
+    ATH_MSG_VERBOSE("p0,p1,p2 = "<<p0<<"  "<<p1<<"  "<<p2);
     expRes =  sqrt( pow( p0/loc_ptms, 2 ) + pow( p1, 2 ) + pow( p2*loc_ptms ,2 ) );
+    ATH_MSG_VERBOSE("expRes = "<<expRes);
     return expRes; //+++++No SYS!!!
   }
   else if ( DetType == MCAST::DetectorType::ID ) {
+    ATH_MSG_VERBOSE("ID resolution");
     if ( loc_ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
     double p1 = mc ? m_MC_p1_ID[loc_detRegion] : ( m_MC_p1_ID[loc_detRegion] + m_p1_ID[loc_detRegion] );
     double p2 = mc ? m_MC_p2_ID[loc_detRegion] : ( m_MC_p2_ID[loc_detRegion] + m_p2_ID[loc_detRegion] );
@@ -2006,10 +2018,13 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
       p2 = mc ? m_MC_p2_ID_TAN[loc_detRegion] : ( m_MC_p2_ID_TAN[loc_detRegion] + m_p2_ID_TAN[loc_detRegion] );
       p2 = p2*sinh( mu.eta() )*sinh( mu.eta() );
     }
+    ATH_MSG_VERBOSE("p1,p2 = "<<p1<<"  "<<p2);
     expRes = sqrt( pow( p1, 2 ) + pow( p2*loc_ptid ,2 ) );
+    ATH_MSG_VERBOSE("expRes = "<<expRes);
     return expRes; //+++++No SYS!!!
   }
   else if ( DetType == MCAST::DetectorType::CB ) {
+    ATH_MSG_VERBOSE("CB resolution");
     // Due to complicated maths, the expected combined resolution
     // is given by this equation (note: all sigmas are fractional uncertainties):
     // sigma_CB = sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
@@ -2017,6 +2032,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     // Turn these into *absolute* uncertainties to make life easier
     double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc ) * loc_ptid;
     double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
+    ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
     double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
     return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
   }

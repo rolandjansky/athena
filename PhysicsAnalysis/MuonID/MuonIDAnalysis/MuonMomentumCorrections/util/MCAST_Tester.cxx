@@ -180,7 +180,7 @@ int main( int argc, char* argv[] ) {
   selTool.setTypeAndName("CP::MuonSelectionTool/MuonSelectionTool");
 
   //::: set the properties
-  selTool.setProperty( "MaxEta",              2.5 );
+//   selTool.setProperty( "MaxEta",              2.5 );
 //   selTool.setProperty( "MuQuality",           1 );   //corresponds to 0=Tight, 1=Medium, 2=Loose, 3=VeryLoose, 4=HighPt, 5=LowPtEfficiency
 //   selTool.setProperty( "ToroidOff",           false );
 //   selTool.setProperty( "TurnOffMomCorr",      false );
@@ -373,6 +373,7 @@ int main( int argc, char* argv[] ) {
           ExpResoID = corrTool->expectedResolution( "ID", *muon, true );
           ExpResoMS = corrTool->expectedResolution( "MS", *muon, true );
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
+          Info( APP_NAME, " expReso : ExpResoCB = %g , ExpResoID = %g , ExpResoMS = %g", ExpResoCB, ExpResoID, ExpResoMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
       }
