@@ -23,7 +23,10 @@ public:
   typedef MyBase::ID ID;
   typedef TileDigits _TElement;
 
-  TileDigitsCollection ( ID& id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  )
+  TileDigitsCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  )
+    : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
+  // Alternate constructor for use with ConstDataVector.
+  TileDigitsCollection ( SG::OwnershipPolicy ownPolicy, ID id  )
     : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
   TileDigitsCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) 
     : MyBase(ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
