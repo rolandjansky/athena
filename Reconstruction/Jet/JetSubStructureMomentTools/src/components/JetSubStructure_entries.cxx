@@ -22,7 +22,6 @@
 #include "JetSubStructureMomentTools/Validator.h"
 #include "JetSubStructureMomentTools/QwTool.h"
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 DECLARE_TOOL_FACTORY(KtDeltaRTool)
@@ -47,29 +46,4 @@ DECLARE_TOOL_FACTORY(BosonTagTool)
 DECLARE_TOOL_FACTORY(Validator)
 DECLARE_TOOL_FACTORY(QwTool)
 DECLARE_TOOL_FACTORY(BoostedXbbTagTool)
-
-DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
-  DECLARE_TOOL(KtDeltaRTool)
-  DECLARE_TOOL(NSubjettinessTool)
-  DECLARE_TOOL(NSubjettinessRatiosTool)
-  DECLARE_TOOL(KTSplittingScaleTool)
-  DECLARE_TOOL(DipolarityTool)
-  DECLARE_TOOL(AngularityTool)
-  DECLARE_TOOL(KtMassDropTool)
-  DECLARE_TOOL(PlanarFlowTool)
-  DECLARE_TOOL(CenterOfMassShapesTool)
-  DECLARE_TOOL(EnergyCorrelatorTool)
-  DECLARE_TOOL(EnergyCorrelatorRatiosTool)
-  DECLARE_TOOL(JetPullTool)
-  DECLARE_TOOL(JetChargeTool)
-  DECLARE_TOOL(VolatilityTool)
-  DECLARE_TOOL(ShowerDeconstructionTool)
-  DECLARE_TOOL(SubjetMakerTool)
-  DECLARE_TOOL(SubjetFinderTool)
-  DECLARE_TOOL(SubjetRecorderTool)
-  DECLARE_TOOL(BosonTagTool)
-  DECLARE_TOOL(Validator)
-  DECLARE_TOOL(QwTool)
-  DECLARE_TOOL(BoostedXbbTagTool)
-}
 

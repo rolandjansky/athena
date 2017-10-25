@@ -21,7 +21,6 @@
 #include "MissingETPerformance/PileUpTool.h"
 #include "MissingETPerformance/MissingETScaleTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( MissingETPerformance )
 DECLARE_ALGORITHM_FACTORY( ZeeSequencer )
@@ -47,27 +46,3 @@ DECLARE_TOOL_FACTORY( ContainerComparatorTool )
 DECLARE_TOOL_FACTORY( PileUpTool )
 DECLARE_TOOL_FACTORY( MissingETScaleTool )
 
-DECLARE_FACTORY_ENTRIES( MissingETPerformance )
-{
-    DECLARE_TOOL( MissingETData )
-    DECLARE_TOOL( MissingETMuonData )
-    DECLARE_TOOL( MissingETEventSelector )
-    DECLARE_TOOL( ResolutionTool )
-    DECLARE_TOOL( BasicPlotsTool )
-    DECLARE_TOOL( MissingETCompositionTool )
-    DECLARE_TOOL( LinearityTool )
-    DECLARE_TOOL( EtaRingsTool )
-    DECLARE_TOOL( JetVariablesTool )
-    DECLARE_TOOL( TopoClusterVariablesTool )
-    DECLARE_TOOL( TrigMissingETTool )
-    DECLARE_TOOL( TrigVsOfflineMissingETTool )
-    DECLARE_TOOL( FakeMissingETTool )
-    DECLARE_TOOL( ZMuMuTool )
-    DECLARE_TOOL( ZeeTool )
-    DECLARE_TOOL( MuonTool )
-    DECLARE_TOOL( ContainerComparatorTool )
-    DECLARE_TOOL( PileUpTool )
-    DECLARE_TOOL( MissingETScaleTool )
-
-    DECLARE_ALGORITHM( MissingETPerformance )
-}

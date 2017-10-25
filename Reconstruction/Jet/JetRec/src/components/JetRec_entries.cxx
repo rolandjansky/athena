@@ -1,5 +1,3 @@
-// JetRec_entries.cxx
-
 #include "../JetAlgorithm.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
@@ -14,7 +12,6 @@
 #include "JetRec/JetPruner.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "JetRec/JetSorter.h"
 #include "JetRec/JetPseudojetRetriever.h"
@@ -44,28 +41,4 @@ DECLARE_TOOL_FACTORY(JetPseudojetCopier)
 DECLARE_TOOL_FACTORY(JetConstitRemover)
 
 DECLARE_ALGORITHM_FACTORY(JetAlgorithm)
-
-DECLARE_FACTORY_ENTRIES(JetRec) {
-  DECLARE_TOOL(JetToolRunner)
-  DECLARE_TOOL(JetRecTool)
-  DECLARE_TOOL(JetDumper)
-  DECLARE_TOOL(PseudoJetGetter)
-  DECLARE_TOOL(MuonSegmentPseudoJetGetter)
-  DECLARE_TOOL(JetFinder)
-  DECLARE_TOOL(JetByVertexFinder)
-  DECLARE_TOOL(JetFromPseudojet)
-  DECLARE_TOOL(JetSorter)
-  DECLARE_TOOL(JetFilterTool)
-  DECLARE_TOOL(JetSplitter)
-  DECLARE_TOOL(JetTrimmer)
-  DECLARE_TOOL(JetPruner)
-  DECLARE_TOOL(JetReclusterer)
-  DECLARE_TOOL(FastJetInterfaceTool)
-  DECLARE_TOOL(JetPseudojetRetriever)
-  DECLARE_TOOL(JetConstituentsRetriever)
-  DECLARE_TOOL(JetPseudojetCopier)
-  DECLARE_TOOL(JetConstitRemover)
-
-  DECLARE_ALGORITHM(JetAlgorithm)
-}
 

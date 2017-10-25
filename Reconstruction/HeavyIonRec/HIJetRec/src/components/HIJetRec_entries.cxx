@@ -1,6 +1,3 @@
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #ifndef XAOD_ANALYSIS
 #include "../HIClusterMaker.h"
 #include "../HIJetCellSubtractorTool.h"
@@ -36,19 +33,3 @@ DECLARE_TOOL_FACTORY(HIJetSignificanceTool)
 DECLARE_TOOL_FACTORY(HIUEModulatorTool)
 DECLARE_TOOL_FACTORY(HIClusterPseudoJetGetter)
 
-DECLARE_FACTORY_ENTRIES( HIJetRec ) {
-#ifndef XAOD_ANALYSIS
-  DECLARE_ALGORITHM( HIClusterMaker )
-    DECLARE_TOOL(HIJetCellSubtractorTool)
-    DECLARE_TOOL( HIClusterSubtraction )
-    DECLARE_TOOL(HISubtractedCellMakerTool)
-#endif
-    DECLARE_TOOL( HIEventShapeJetIteration )
-    DECLARE_TOOL(HIJetConstituentSubtractionTool)
-    DECLARE_TOOL(HIJetClusterSubtractorTool)
-    DECLARE_TOOL(HIJetDRAssociationTool)
-    DECLARE_TOOL(HIJetMaxOverMeanTool)
-    DECLARE_TOOL(HIJetDiscriminatorTool)
-    DECLARE_TOOL(HIUEModulatorTool)
-    DECLARE_TOOL(HIClusterPseudoJetGetter)
-}

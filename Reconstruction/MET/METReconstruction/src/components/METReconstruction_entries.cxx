@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 // Top level tool
 #include "METReconstruction/METRecoTool.h"
 #include "METReconstruction/METAssociationTool.h"
@@ -61,32 +59,3 @@ DECLARE_ALGORITHM_FACTORY(METRecoAlg)
 DECLARE_ALGORITHM_FACTORY(METReaderAlg)
 DECLARE_ALGORITHM_FACTORY(METAssocTestAlg)
 
-DECLARE_FACTORY_ENTRIES(METReconstruction) {
-  DECLARE_TOOL(METRecoTool)
-  DECLARE_TOOL(METElectronTool)
-  DECLARE_TOOL(METPhotonTool)
-  DECLARE_TOOL(METJetTool)
-  DECLARE_TOOL(METTauTool)
-  DECLARE_TOOL(METMuonTool)
-  DECLARE_TOOL(METSoftTermsTool)
-  DECLARE_TOOL(METAssociationTool)
-  DECLARE_TOOL(METElectronAssociator)
-  DECLARE_TOOL(METPhotonAssociator)
-  DECLARE_TOOL(METJetAssocTool)
-  DECLARE_TOOL(METTauAssociator)
-  DECLARE_TOOL(METMuonAssociator)
-  DECLARE_TOOL(METSoftAssociator)
-    //
-  DECLARE_TOOL(METTruthTool)
-  DECLARE_TOOL(METTruthAssociator)
-  DECLARE_TOOL(METCaloRegionsTool)
-    //
-  DECLARE_TOOL(METJetFilterTool)
-  DECLARE_TOOL(METTrackFilterTool)
-  DECLARE_TOOL(METMuonElossTool)
-  DECLARE_TOOL(METRegionsTool)
-    //
-  DECLARE_ALGORITHM(METRecoAlg)
-  DECLARE_ALGORITHM(METReaderAlg)
-  DECLARE_ALGORITHM(METAssocTestAlg)
-}

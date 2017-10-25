@@ -8,7 +8,6 @@
 #include "../egammaqweta1c.h"
 #include "../egammaqweta2c.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_TOOL_FACTORY     ( egammaShowerShape   )
 DECLARE_TOOL_FACTORY     ( egammaEnergyPositionAllSamples )
@@ -20,17 +19,3 @@ DECLARE_TOOL_FACTORY     ( egammaIso        )
 DECLARE_TOOL_FACTORY     ( egammaqweta1c    )
 DECLARE_TOOL_FACTORY     ( egammaqweta2c    )
 
-
-DECLARE_FACTORY_ENTRIES(egammaCaloTools) {
-    DECLARE_TOOL     ( egammaIso       )  
-    DECLARE_TOOL     ( egammaShowerShape  )  
-    DECLARE_TOOL     ( egammaEnergyPositionAllSamples )
-    DECLARE_TOOL     ( egammaPreSamplerShape )
-    DECLARE_TOOL     ( egammaStripsShape )
-    DECLARE_TOOL     ( egammaMiddleShape )
-    DECLARE_TOOL     ( egammaBackShape )
-    DECLARE_TOOL     ( egammaqweta1c   )  
-    DECLARE_TOOL     ( egammaqweta2c   )  
-
-}
- 

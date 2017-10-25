@@ -1,6 +1,3 @@
-// JetRec_entries.cxx
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
 #include "JetMomentTools/JetCaloQualityTool.h"
@@ -47,29 +44,4 @@ DECLARE_TOOL_FACTORY(JetConstitFourMomTool)
 DECLARE_TOOL_FACTORY(JetBadChanCorrTool)
 DECLARE_TOOL_FACTORY(JetCaloCellQualityTool)
 #endif
-
-DECLARE_FACTORY_ENTRIES(JetRec) {
-  DECLARE_TOOL(JetCaloEnergies)
-  DECLARE_TOOL(JetCaloQualityTool)
-  DECLARE_TOOL(JetWidthTool)
-  DECLARE_TOOL(JetMuonSegmentMomentsTool)
-  DECLARE_TOOL(JetTrackMomentsTool)
-  DECLARE_TOOL(JetTrackSumMomentsTool)
-  DECLARE_TOOL(JetClusterMomentsTool)
-  DECLARE_TOOL(JetVoronoiMomentsTool)
-  DECLARE_TOOL(JetVertexFractionTool)
-  DECLARE_TOOL(JetVertexTaggerTool)
-  DECLARE_TOOL(JetForwardJvtTool)
-  DECLARE_TOOL(JetPtAssociationTool)
-  DECLARE_TOOL(JetIsolationTool)
-  DECLARE_TOOL(JetLArHVTool)
-  DECLARE_TOOL(JetOriginCorrectionTool)
-  DECLARE_TOOL(JetECPSFractionTool)
-  DECLARE_TOOL(JetConstitFourMomTool)
-
-#ifndef XAOD_ANALYSIS
-  DECLARE_TOOL(JetBadChanCorrTool)
-  DECLARE_TOOL(JetCaloCellQualityTool)
-#endif
-}
 

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../CaloRingsBuilder.h"
 #include "../CaloAsymRingsBuilder.h"
 #include "../CaloRingerInputReader.h"
@@ -12,13 +11,4 @@ DECLARE_TOOL_FACTORY( CaloAsymRingsBuilder      )
 DECLARE_TOOL_FACTORY( CaloRingerInputReader     )
 DECLARE_TOOL_FACTORY( CaloRingerElectronsReader )
 DECLARE_TOOL_FACTORY( CaloRingerPhotonsReader   )
-
-DECLARE_FACTORY_ENTRIES( CaloRingerTools  )
-{
-  DECLARE_TOOL( CaloRingsBuilder          )
-  DECLARE_TOOL( CaloAsymRingsBuilder      )
-  DECLARE_TOOL( CaloRingerInputReader     )
-  DECLARE_TOOL( CaloRingerElectronsReader )
-  DECLARE_TOOL( CaloRingerPhotonsReader   )
-}
 

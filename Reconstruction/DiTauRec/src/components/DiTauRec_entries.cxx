@@ -1,6 +1,3 @@
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "DiTauRec/DiTauBuilder.h"
 #include "DiTauRec/DiTauToolBase.h"
 #include "DiTauRec/SeedJetBuilder.h"
@@ -20,14 +17,3 @@ DECLARE_TOOL_FACTORY( DiTauTrackFinder )
 DECLARE_TOOL_FACTORY( CellFinder )
 DECLARE_TOOL_FACTORY( IDVarCalculator )
 
-DECLARE_FACTORY_ENTRIES( DiTauRec ) 
-{
-  DECLARE_ALGORITHM( DiTauBuilder );
-  DECLARE_TOOL( SeedJetBuilder );
-  DECLARE_TOOL( SubjetBuilder );
-  DECLARE_TOOL( ElMuFinder );
-  DECLARE_TOOL( VertexFinder );
-  DECLARE_TOOL( DiTauTrackFinder );
-  DECLARE_TOOL( CellFinder );
-  DECLARE_TOOL( IDVarCalculator );
-}

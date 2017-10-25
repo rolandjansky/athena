@@ -26,7 +26,6 @@
 #include "eflowRec/PFLCCalibTool.h"
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( eflowBuilder )
 DECLARE_ALGORITHM_FACTORY( eflowPreparation )
@@ -57,33 +56,3 @@ DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_JetETMiss)
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_LC)
 DECLARE_TOOL_FACTORY( eflowObjectCreatorTool )
 
-DECLARE_FACTORY_ENTRIES(eflowRec) {
-  DECLARE_ALGORITHM( eflowBuilder )
-    DECLARE_ALGORITHM( eflowPreparation )
-    DECLARE_ALGORITHM( eflowCaloObjectBuilder )
-    DECLARE_ALGORITHM( eflowObjectBuilder )
-    DECLARE_ALGORITHM (eflowOverlapRemoval )
-    DECLARE_ALGORITHM ( eflowVertexInformationSetter )
-    DECLARE_ALGORITHM( PFLeptonSelector )
-    DECLARE_ALGORITHM( PFClusterSelector )
-    DECLARE_ALGORITHM( PFTrackSelector )
-    DECLARE_ALGORITHM( PFAlgorithm )
-    DECLARE_ALGORITHM( PFOChargedCreatorAlgorithm )
-    DECLARE_ALGORITHM( PFONeutralCreatorAlgorithm )
-    DECLARE_TOOL( PFCellLevelSubtractionTool )
-    DECLARE_TOOL( PFRecoverSplitShowersTool )
-    DECLARE_TOOL( PFMomentCalculatorTool )
-    DECLARE_TOOL( PFClusterCollectionTool )
-    DECLARE_TOOL( PFLCCalibTool )
-    DECLARE_TOOL ( eflowRecoverSplitShowersTool )
-    DECLARE_TOOL ( eflowCellLevelSubtractionTool )
-    DECLARE_TOOL ( eflowMomentCalculatorTool )
-    DECLARE_TOOL ( eflowClusterCollectionTool )
-    DECLARE_TOOL ( eflowLCCalibTool )
-    DECLARE_TOOL ( eflowTrackCaloExtensionTool )
-    DECLARE_TOOL ( eflowTrackCaloDummyExtensionTool )
-    DECLARE_TOOL ( PFTrackClusterMatchingTool )
-    DECLARE_TOOL (eflowCellEOverPTool_mc12_JetETMiss)
-    DECLARE_TOOL ( eflowCellEOverPTool_mc12_LC)
-    DECLARE_TOOL (eflowObjectCreatorTool )
-}

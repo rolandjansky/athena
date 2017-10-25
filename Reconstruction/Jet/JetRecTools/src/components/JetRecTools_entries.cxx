@@ -1,6 +1,3 @@
-// JetRecTools_entries.cxx
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "JetRecTools/JetTrackSelectionTool.h"
 #include "JetRecTools/SimpleJetTrackSelectionTool.h"
 #include "JetRecTools/TrackVertexAssociationTool.h"
@@ -37,23 +34,3 @@ DECLARE_TOOL_FACTORY( CorrectPFOTool )
 DECLARE_TOOL_FACTORY( ChargedHadronSubtractionTool )
 DECLARE_TOOL_FACTORY( PuppiWeightTool )
 
-DECLARE_FACTORY_ENTRIES(JetRecTools) {
-  DECLARE_TOOL(JetTrackSelectionTool)
-  DECLARE_TOOL(SimpleJetTrackSelectionTool)
-  DECLARE_TOOL(TrackVertexAssociationTool)
-  DECLARE_TOOL(TrackPseudoJetGetter)
-  DECLARE_TOOL(PFlowPseudoJetGetter)
-  DECLARE_TOOL(JetConstituentModSequence)
-  DECLARE_TOOL(JetConstituentModifierBase)
-  DECLARE_TOOL(CaloClusterConstituentsOrigin)
-  DECLARE_TOOL(SoftKillerWeightTool)
-  DECLARE_TOOL( ConstituentSubtractorTool )
-  DECLARE_TOOL( VoronoiWeightTool )
-  DECLARE_TOOL( ClusterAtEMScaleTool )
-  DECLARE_TOOL( ConstitTimeCutTool )
-  DECLARE_TOOL( JetInputElRemovalTool )
-  DECLARE_TOOL( CorrectPFOTool )
-  DECLARE_TOOL( ChargedHadronSubtractionTool )
-  DECLARE_TOOL( PuppiWeightTool )
-
-}

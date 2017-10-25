@@ -40,7 +40,6 @@
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_TOOL_FACTORY( JetSeedBuilder             )
@@ -85,3 +84,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauIDVarCalculator )
 DECLARE_TOOL_FACTORY( TauJetBDTEvaluator )
 DECLARE_TOOL_FACTORY( TauEleOLRDecorator )
 DECLARE_TOOL_FACTORY( TauIDVarCalculator )
+

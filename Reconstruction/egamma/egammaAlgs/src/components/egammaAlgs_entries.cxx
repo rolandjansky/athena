@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../egammaBuilder.h"
 #include "../egammaRecBuilder.h"
 #include "../topoEgammaBuilder.h"
@@ -24,17 +23,3 @@ DECLARE_ALGORITHM_FACTORY( egammaTopoClusterCopier  )
 DECLARE_ALGORITHM_FACTORY( electronSuperClusterBuilder  )
 DECLARE_ALGORITHM_FACTORY( photonSuperClusterBuilder    )
 
-DECLARE_FACTORY_ENTRIES(egammaAlgs) {
-     DECLARE_ALGORITHM( egammaBuilder             )
-     DECLARE_ALGORITHM( egammaRecBuilder          )
-     DECLARE_ALGORITHM( topoEgammaBuilder         )
-     DECLARE_ALGORITHM( egammaForwardBuilder      )
-     DECLARE_ALGORITHM( egammaTruthAssociationAlg )
-     DECLARE_ALGORITHM( egammaTrackSlimmer        )
-     DECLARE_ALGORITHM( EMBremCollectionBuilder   )
-     DECLARE_ALGORITHM( EMVertexBuilder           )
-     DECLARE_ALGORITHM( egammaTopoClusterCopier   )
-     DECLARE_ALGORITHM( electronSuperClusterBuilder  )
-     DECLARE_ALGORITHM( photonSuperClusterBuilder    )
-
-}

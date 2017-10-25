@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../MuonCandidateTool.h"
 #include "../InDetCandidateTool.h"
 #include "../MuonCombinedTool.h"
@@ -26,20 +25,4 @@ DECLARE_TOOL_FACTORY( MuonSegmentTagTool )
 DECLARE_TOOL_FACTORY( MuGirlTagTool )
 DECLARE_TOOL_FACTORY( MuonCaloTagTool )
 DECLARE_TOOL_FACTORY( TrackSegmentAssociationTool )
-
-DECLARE_FACTORY_ENTRIES( MuonCombinedBaseTools )
-{
-  DECLARE_TOOL( InDetCandidateTool )
-  DECLARE_TOOL( MuonCandidateTool )
-  DECLARE_TOOL( MuonCombinedTool )
-  DECLARE_TOOL( MuonCombinedDebuggerTool )
-  DECLARE_TOOL( MuonCreatorTool )
-  DECLARE_TOOL( MuonDressingTool )
-  DECLARE_TOOL( MuonCombinedStacoTagTool )
-  DECLARE_TOOL( MuonCombinedFitTagTool )
-  DECLARE_TOOL( MuonSegmentTagTool )
-  DECLARE_TOOL( MuGirlTagTool )
-  DECLARE_TOOL( MuonCaloTagTool )
-  DECLARE_TOOL( TrackSegmentAssociationTool )
-}
 
