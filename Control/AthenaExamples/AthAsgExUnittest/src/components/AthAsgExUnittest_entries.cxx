@@ -1,5 +1,3 @@
-
-
 #include "../MyPackageAlg.h"
 
 DECLARE_ALGORITHM_FACTORY( MyPackageAlg )

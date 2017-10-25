@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../BkgStreamsCache.h"
 #include "../BkgStreamsConcentricCache.h"
 #include "../BkgStreamsStepCache.h"
@@ -31,3 +29,4 @@ DECLARE_TOOL_FACTORY( PileUpXingFolder )
 DECLARE_TOOL_FACTORY( TestPileUpTool )
 DECLARE_ALGORITHM_FACTORY( PileUpToolsAlg )
 DECLARE_ALGORITHM_FACTORY( DigitizationAlg )
+
