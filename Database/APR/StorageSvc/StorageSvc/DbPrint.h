@@ -13,13 +13,44 @@
 #define POOL_STORAGESVC_DBPRINT_H 1
 
 // Framework customization file
-#include "CoralBase/MessageStream.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 /*
  *   POOL namespace declaration
  */
 namespace pool {
-  typedef coral::MessageStream DbPrint;
-  namespace DbPrintLvl = coral;
+
+   namespace  DbPrintLvl {
+      typedef   MSG::Level      MsgLevel;
+      static const MsgLevel None        = MsgLevel::NIL;
+      static const MsgLevel Verbose     = MsgLevel::VERBOSE;
+      static const MsgLevel Debug       = MsgLevel::DEBUG;
+      static const MsgLevel Info        = MsgLevel::INFO;
+      static const MsgLevel Warning     = MsgLevel::WARNING;
+      static const MsgLevel Error       = MsgLevel::ERROR;
+      static const MsgLevel Fatal       = MsgLevel::FATAL;
+      static const MsgLevel Always      = MsgLevel::ALWAYS;
+
+      extern MsgLevel   outputLvl;
+      inline void       setLevel( MsgLevel l )  { outputLvl=l; }
+   }
+
+
+   class DbPrint : public MsgStream
+   {
+  public:
+     DbPrint( const std::string& name )
+           : MsgStream( Gaudi::svcLocator()->service<IMessageSvc>( "MessageSvc" ).get(), name )
+     {
+        if( DbPrintLvl::outputLvl != DbPrintLvl::None ) {
+           setLevel( DbPrintLvl::outputLvl );
+        }
+     }
+
+     static MsgStream& endmsg( MsgStream& s ) { return ::endmsg(s); }
+   };
+
 }       // End namespace pool
 #endif  // POOL_STORAGESVC_DBPRINT_H

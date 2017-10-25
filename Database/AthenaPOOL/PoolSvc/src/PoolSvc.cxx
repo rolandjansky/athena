@@ -131,23 +131,11 @@ StatusCode PoolSvc::initialize() {
          ATH_MSG_WARNING("Cannot setup replica sorting algorithm");
       }
    }
-   int athLvl = msg().level();
+   MSG::Level athLvl = msg().level();
    ATH_MSG_DEBUG("OutputLevel is " << athLvl);
-   coral::MsgLevel lvl = coral::Warning;
-   // Map gaudi print level to one of Seal.
-   switch (athLvl) {
-      case 1:  lvl = coral::Verbose; break;
-      case 2:  lvl = coral::Debug;   break;
-      case 3:  lvl = coral::Info;    break;
-      case 4:  lvl = coral::Warning; break;
-      case 5:  lvl = coral::Error;   break;
-      default: lvl = coral::Warning;
-   };
-   coral::MessageStream::setMsgVerbosity(lvl);
-   if (!setupPersistencySvc().isSuccess()) {
-      return(StatusCode::FAILURE);
-   }
-   return reinit();
+   pool::DbPrintLvl::setLevel( athLvl );
+
+   return setupPersistencySvc();
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::reinit() {
