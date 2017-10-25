@@ -23,7 +23,7 @@ AlgScheduler.ShowDataDependencies( True )
 from AthenaCommon.AlgSequence import AthSequencer
 allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
 allViewAlgorithms.ModeOR = False
-allViewAlgorithms.Sequential = True
+allViewAlgorithms.Sequential = False
 allViewAlgorithms.StopOverride = False
 makeViewSequence = AthSequencer( "makeViewSequence" )
 makeViewSequence.ModeOR = False
@@ -37,7 +37,7 @@ job = AlgSequence()
 # Make views
 makeViewSequence += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
 makeViewSequence.make_alg.ViewBaseName = "view"
-makeViewSequence.make_alg.ViewNumber = 5
+makeViewSequence.make_alg.ViewNumber = 10
 makeViewSequence.make_alg.AlgPoolName = "allViewAlgorithms" #TODO Rename variable
 
 # View algorithms
@@ -71,6 +71,3 @@ theApp.EvtMax = 10
 # End of job options file
 #
 ###############################################################
-
-#svcMgr.StoreGateSvc.Dump = True
-#svcMgr.StoreGateSvc.OutputLevel = VERBOSE
