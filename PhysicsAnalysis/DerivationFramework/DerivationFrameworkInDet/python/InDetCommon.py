@@ -14,6 +14,17 @@ from AthenaCommon.BeamFlags import jobproperties
 if (jobproperties.Beam.beamType()!="cosmics") and ( not inputFileSummary['eventdata_items'] or any('PrimaryVertices' in elements for elements in inputFileSummary['eventdata_items']) ):
 
 #====================================================================
+# LABELLING TRACKS WITH OUTCOME OF SELECTOR TOOL
+#====================================================================
+    
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__InDetTrackSelectionToolWrapper
+    DFCommonTrackSelection = DerivationFramework__InDetTrackSelectionToolWrapper(name = "DFCommonTrackSelection",
+                                                                                 ContainerName = "InDetTrackParticles",
+                                                                                 DecorationName = "DFCommonTightPrimary" )
+    DFCommonTrackSelection.TrackSelectionTool.CutLevel = "TightPrimary"
+    ToolSvc += DFCommonTrackSelection
+ 
+#====================================================================
 # EXPRESSION OF Z0 AT THE PRIMARY VERTEX
 #====================================================================
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersAtPV
@@ -29,5 +40,5 @@ if (jobproperties.Beam.beamType()!="cosmics") and ( not inputFileSummary['eventd
     
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel",
-                                                                             AugmentationTools = [DFCommonZ0AtPV]
+                                                                             AugmentationTools = [DFCommonTrackSelection,DFCommonZ0AtPV]
                                                                              )
