@@ -37,7 +37,8 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_allowMetaDataStop(false),
-	m_persToClid() {
+	m_persToClid(),
+	m_streamForKey() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
@@ -429,8 +430,11 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
    }
-   static const std::string derFile = fileName; // For EventBookkeeper all Streams contain duplicate objects
-   if (fileName != derFile && (clid == 1234982351 || clid == 1147935274)) {
+   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
+   if (iter == m_streamForKey.end()) {
+      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
+   } else if (fileName != iter->second) { // Remove duplicated objects
+      ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
       m_inputDataStore->proxy(clid, keyName)->reset();
    }
    return(StatusCode::SUCCESS);
