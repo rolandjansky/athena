@@ -44,7 +44,7 @@ m_nTracksThinned(0)
     declareProperty("ThinningSvc",          m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
     
-    declareProperty("ThinInDetForwardTrackParticlesAlg", m_doThinning,
+    declareProperty("ThinInDetForwardTrackParticles", m_doThinning,
                     "Should the InDetForwardTrackParticles thinning be run?");
    
 }
