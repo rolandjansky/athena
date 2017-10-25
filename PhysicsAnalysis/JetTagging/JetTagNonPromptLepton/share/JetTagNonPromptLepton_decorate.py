@@ -70,9 +70,10 @@ def getDecorateIso(lepton_name, track_jet_name):
     alg.OutputLevel           = INFO
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2016-11-02/%s/PromptLeptonIso' %part_type
+    alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/PromptLeptonIso' %part_type
     alg.MethodTitleMVA        = 'BDT_%s_PromptLeptonIso' %part_type
-    alg.AuxVarPrefix          = 'PromptLeptonIso_'
+    alg.AuxVarPrefix          = 'PromptLeptonInput_'
+    alg.BDTName               = 'PromptLeptonIso'
     alg.PrintTime             = False
     alg.PrintAuxVars          = printAuxVars
 
@@ -90,84 +91,8 @@ def getDecorateIso(lepton_name, track_jet_name):
                                  'ip3',
                                  'LepJetPtFrac',
                                  'DRlj',
-                                 'EtTopoCone30Rel',
+                                 'TopoEtCone30Rel',
                                  'PtVarCone30Rel']
-
-    print alg
-    return alg
-
-########################################################################################
-def getDecorateNoIso(lepton_name, track_jet_name):
-
-    alg = CfgMgr.Prompt__DecoratePromptLepton('%s_decoratePromptLeptonNoIso' %lepton_name)
-
-    if lepton_name == 'Electrons':
-        part_type = 'Electron'
-    elif lepton_name == 'Muons':
-        part_type = 'Muon'
-
-    alg.OutputLevel           = INFO
-    alg.LeptonContainerName   = lepton_name
-    alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2016-11-02/%s/PromptLepton' %part_type
-    alg.MethodTitleMVA        = 'BDT_%s_PromptLepton' %part_type
-    alg.AuxVarPrefix          = 'PromptLepton_'
-    alg.PrintTime             = False
-    alg.PrintAuxVars          = printAuxVars
-
-    if weightsPathElec != None and part_type == 'Electron':
-        alg.ConfigPathOverride  = weightsPathElec
-        log.info('%s: use command line config path override: %s' %(part_type, weightsPathElec))
-
-    if weightsPathMuon != None and part_type == 'Muon':
-        alg.ConfigPathOverride  = weightsPathMuon
-        log.info('%s: use command line config path override: %s' %(part_type, weightsPathMuon))
-
-    alg.StringIntVars         = ['TrackJetNTrack',
-                                 'sv1_jf_ntrkv']
-    alg.StringFloatVars       = ['ip2',
-                                 'ip3',
-                                 'LepJetPtFrac',
-                                 'DRlj']
-
-    print alg
-    return alg
-
-########################################################################################
-def getDecorate(lepton_name, track_jet_name):
-
-    alg = CfgMgr.Prompt__DecoratePromptLepton('%s_decoratePromptLepton' %lepton_name)
-
-    if lepton_name == 'Electrons':
-        part_type = 'Electron'
-    elif lepton_name == 'Muons':
-        part_type = 'Muon'
-
-    alg.OutputLevel           = INFO
-    alg.LeptonContainerName   = lepton_name
-    alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2016-05-22/%s/BTagBDTEtIso' %part_type
-    alg.MethodTitleMVA        = 'BDT_%s_BTagBDTEtIso' %part_type
-    alg.AuxVarPrefix          = 'PromptLepton_'
-    alg.PrintTime             = False
-    alg.PrintAuxVars          = printAuxVars
-
-    if weightsPathElec != None and part_type == 'Electron':
-        alg.ConfigPathOverride  = weightsPathElec
-        log.info('%s: use command line config path override: %s' %(part_type, weightsPathElec))
-
-    if weightsPathMuon != None and part_type == 'Muon':
-        alg.ConfigPathOverride  = weightsPathMuon
-        log.info('%s: use command line config path override: %s' %(part_type, weightsPathMuon))
-
-    alg.StringIntVars         = ['TrackJetNTrack',
-                                 'sv1_ntkv',
-                                 'jf_ntrkv']
-    alg.StringFloatVars       = ['ip2',
-                                 'ip2_cu',
-                                 'ip3',
-                                 'ip3_cu',
-                                 'EtTopoCone20Rel']
 
     print alg
     return alg
@@ -192,11 +117,8 @@ def getDecorateVeto(lepton_name, track_jet_name):
     alg.OutputLevel           = DEBUG
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
-    #alg.ConfigFileVersion     = 'InputData-2016-11-02/%s/%s' %(part_type, BDT_name)
-    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)
-    alg.ConfigPathOverride    = '/afs/hep.man.ac.uk/u/rhysroberts/Public/r21-xml-test/%s/%s/TMVAClassification_%s.weights.xml' %(part_type, 
-                                                                                                                                 BDT_name, 
-                                                                                                                                 alg.MethodTitleMVA)   
+    alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/%s' %(part_type, BDT_name)
+    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)  
     alg.BDTName               = '%s' %BDT_name
     alg.AuxVarPrefix          = 'PromptLeptonInput_'
     alg.PrintTime             = False
@@ -222,6 +144,7 @@ if 'TestPythonConfig' in dir():
     from JetTagNonPromptLepton import JetTagNonPromptLeptonConfig
 
     algSeq += JetTagNonPromptLeptonConfig.GetDecoratePromptLeptonAlgs()
+    algSeq += JetTagNonPromptLeptonConfig.GetDecoratePromptTauAlgs()
 
 else:
     algSeq += getDecorateVeto('Electrons', 'AntiKt4PV0TrackJets')

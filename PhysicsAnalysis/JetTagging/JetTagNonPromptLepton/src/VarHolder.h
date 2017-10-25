@@ -50,7 +50,11 @@ namespace Prompt
       PtFrac,
       PtRel,
       DL1mu,
-      rnnip
+      rnnip,
+      BTagrnnip,
+      BTagMV2c10rnn,
+      SV1,
+      JetF
     };
 
     int RegisterAllVars();

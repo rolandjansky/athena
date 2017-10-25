@@ -19,6 +19,8 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
 						   ISvcLocator* pSvcLocator):  
   AthAlgorithm(name, pSvcLocator),
   m_TMVAReader            (0),
+  m_TMVAReaderOneTrack    (0),
+  m_TMVAReaderThreeTrack  (0),
   m_accessCalIsolation20  (0),
   m_accessCalIsolation30  (0),
   m_accessTrackIsolation30(0),
@@ -26,18 +28,22 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
   m_decoratorBDT          (0),
   m_decoratorDR           (0)
 {
-  declareProperty("LeptonContainerName",   m_leptonContainerName);
-  declareProperty("TrackJetContainerName", m_trackJetContainerName);
-  declareProperty("ConfigFileVersion",     m_configFileVersion);
-  declareProperty("ConfigPathOverride",    m_configPathOverride);
-  declareProperty("AuxVarPrefix",          m_auxVarPrefix);
-  declareProperty("BDTName",               m_BDTName);
-  declareProperty("MethodTitleMVA",        m_methodTitleMVA = "BDT");
+  declareProperty("LeptonContainerName",         m_leptonContainerName);
+  declareProperty("TrackJetContainerName",       m_trackJetContainerName);
+  declareProperty("ConfigFileVersion",           m_configFileVersion);
+  declareProperty("ConfigFileVersionOneTrack",   m_configFileVersionOneTrack);
+  declareProperty("ConfigFileVersionThreeTrack", m_configFileVersionThreeTrack);
+  declareProperty("ConfigPathOverride",          m_configPathOverride);
+  declareProperty("AuxVarPrefix",                m_auxVarPrefix);
+  declareProperty("BDTName",                     m_BDTName);
+  declareProperty("MethodTitleMVA",              m_methodTitleMVA = "BDT");
+  declareProperty("MethodTitleMVAOneTrack",      m_methodTitleMVAOneTrack   = "BDT");
+  declareProperty("MethodTitleMVAThreeTrack",    m_methodTitleMVAThreeTrack = "BDT");
 
-  declareProperty("StringIntVars",         m_stringIntVars);
-  declareProperty("StringFloatVars",       m_stringFloatVars);
-  declareProperty("PrintAuxVars",          m_printAuxVars = false); 
-  declareProperty("PrintTime",             m_printTime    = false);
+  declareProperty("StringIntVars",               m_stringIntVars);
+  declareProperty("StringFloatVars",             m_stringFloatVars);
+  declareProperty("PrintAuxVars",                m_printAuxVars = false); 
+  declareProperty("PrintTime",                   m_printTime    = false);
 }
 
 
@@ -52,6 +58,7 @@ StatusCode Prompt::DecoratePromptLepton::initialize()
     m_timerExec.Reset();
     m_timerMuon.Reset();
     m_timerElec.Reset();
+    m_timerTau .Reset();
     m_timerJet .Reset();
 
     //
@@ -80,9 +87,16 @@ StatusCode Prompt::DecoratePromptLepton::initialize()
   initializeConstAccessors();
 
   //
-  // Initialize TMVA Reader
+  // Initialize TMVA Reader - different function needed for taus
   //
-  bool success = initializeTMVAReader();
+  bool success = false;
+
+  if(m_leptonContainerName == "TauJets") {
+    success = initializeTMVAReaderTau();
+  }
+  else {
+    success = initializeTMVAReader();
+  }
 
   if(success) return StatusCode::SUCCESS;
   else        return StatusCode::FAILURE;
@@ -103,13 +117,21 @@ StatusCode Prompt::DecoratePromptLepton::finalize()
     ATH_MSG_INFO("Execute time: " << PrintResetStopWatch(m_timerExec));
     ATH_MSG_INFO("Muon    time: " << PrintResetStopWatch(m_timerMuon));
     ATH_MSG_INFO("Elec    time: " << PrintResetStopWatch(m_timerElec));
+    ATH_MSG_INFO("Tau     time: " << PrintResetStopWatch(m_timerTau ));
     ATH_MSG_INFO("Jet     time: " << PrintResetStopWatch(m_timerJet ));
   }
 
   //
   // Delete pointers
   //
-  delete m_TMVAReader;
+  if(m_leptonContainerName == "TauJets") {
+    delete m_TMVAReaderOneTrack;
+    delete m_TMVAReaderThreeTrack;
+  }
+  else {
+    delete m_TMVAReader;
+  }
+  
   delete m_accessCalIsolation20;
   delete m_accessCalIsolation30;
   delete m_accessTrackIsolation30;
@@ -177,6 +199,17 @@ StatusCode Prompt::DecoratePromptLepton::execute()
     }  
   }
 
+  else if(m_leptonContainerName == "TauJets") {     
+    //
+    // Dynamic cast IParticle container to tau container and decorate
+    //
+    m_taus = dynamic_cast< const xAOD::TauJetContainer* >(leptonContainer);
+
+    for(const xAOD::TauJet *tau: *m_taus) {
+      decorateTau(tau, trackJetContainer);
+    }  
+  }
+
   else {
     ATH_MSG_ERROR("Must specify Electrons or Muons");
     return StatusCode::FAILURE;
@@ -184,7 +217,6 @@ StatusCode Prompt::DecoratePromptLepton::execute()
 
   return StatusCode::SUCCESS;
 }
-
 
 //=============================================================================
 bool Prompt::DecoratePromptLepton::initializeTMVAReader()
@@ -224,6 +256,55 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReader()
   }
   else {
     m_TMVAReader->BookMVA(m_methodTitleMVA, fullPathToFile);
+  }
+
+  return true;
+}
+
+//=============================================================================
+bool Prompt::DecoratePromptLepton::initializeTMVAReaderTau()
+{   
+  //
+  // Make new instances of TMVA Readers and add variables
+  //
+  m_TMVAReaderOneTrack   = new TMVA::Reader();
+  m_TMVAReaderThreeTrack = new TMVA::Reader();
+
+  for(Prompt::Def::Var &var: m_allVars) {
+    Float_t *new_var = new Float_t(0.0);
+
+    m_TMVAReaderOneTrack  ->AddVariable(Prompt::Def::AsStr(var), new_var);
+    m_TMVAReaderThreeTrack->AddVariable(Prompt::Def::AsStr(var), new_var);
+
+    m_varTMVA.push_back(new_var);
+  }
+  
+  //
+  // Get path to xml training files
+  //
+  std::string fullPathToFileOneTrack = PathResolverFindCalibFile("JetTagNonPromptLepton/" 
+								 + m_configFileVersionOneTrack 
+								 + "/TMVAClassification_" + m_methodTitleMVAOneTrack + ".weights.xml");
+  std::string fullPathToFileThreeTrack = PathResolverFindCalibFile("JetTagNonPromptLepton/" 
+								   + m_configFileVersionThreeTrack 
+								   + "/TMVAClassification_" + m_methodTitleMVAThreeTrack + ".weights.xml");
+
+  ATH_MSG_INFO("TMVA configuration file (one track): " + fullPathToFileOneTrack);
+  ATH_MSG_INFO("TMVA method name (one track):        " + m_methodTitleMVAOneTrack);
+
+  ATH_MSG_INFO("TMVA configuration file (three tracks): " + fullPathToFileThreeTrack);
+  ATH_MSG_INFO("TMVA method name (three tracks):        " + m_methodTitleMVAThreeTrack);
+
+  //
+  // Book an instance of BDT reader if path is available
+  //
+  if(fullPathToFileOneTrack == "" || fullPathToFileThreeTrack == "") {
+    ATH_MSG_ERROR("Could not find path to xml training file");
+    return false;
+  }
+  else {
+    m_TMVAReaderOneTrack  ->BookMVA(m_methodTitleMVAOneTrack,   fullPathToFileOneTrack);
+    m_TMVAReaderThreeTrack->BookMVA(m_methodTitleMVAThreeTrack, fullPathToFileThreeTrack);
   }
 
   return true;
@@ -406,6 +487,70 @@ void Prompt::DecoratePromptLepton::decorateMuon(const xAOD::Muon* muon,
 
 
 //=============================================================================
+void Prompt::DecoratePromptLepton::decorateTau(const xAOD::TauJet* tau, 
+					       const xAOD::JetContainer* trackJets)
+{ 
+  //
+  // Find nearest track jet to tau
+  //
+  TimerScopeHelper timer(m_timerTau);
+
+  std::pair<double, const xAOD::Jet *> match = FindNearestTrackJet(tau, trackJets);
+
+  // Get ntrack in tau to decide which reader to evaluate BDT on
+  const int ntracktau = tau->nTracks();
+
+  //
+  // Get jet variables and return ntrack in track jet
+  //
+  Prompt::VarHolder vars;
+  const int ntrack = getJetVariables(match.second, vars);
+
+  if(match.second && ntrack >= 0) {
+
+    // Get mutual tau-track jet variables
+    getMutualTauVariables(tau, match.second, vars, match.first);
+
+    //
+    // Add variables to TMVA Reader
+    //
+    bool goodJet = true;
+
+    if(match.first < 0.4 && ntrack > 0) {
+      addVarsToTMVA(vars);
+    }
+    else {
+      goodJet = false;
+    }
+
+    //
+    // Decorate tau with input vars and BDT weight
+    //
+    decorateAuxTau(tau, vars, goodJet, ntracktau);
+
+    (*m_decoratorDR)(*tau) = float(match.first);
+  }
+  else {
+    ATH_MSG_DEBUG("No track jet found near to tau");
+    //
+    // Decorate tau with default values
+    //
+    fillVarDefault(vars);
+    decorateAuxTau(tau, vars, false, ntracktau);
+
+    (*m_decoratorDR)(*tau) = float(-1.0);
+  }
+
+  ATH_MSG_DEBUG("Tau BDT score: " << tau->auxdataConst<float>(m_BDTName) 
+		<< "\n-----------------------------------------------------------------");
+
+  if(m_printAuxVars) {
+    printAuxVars(tau);
+  }
+}
+
+
+//=============================================================================
 int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::VarHolder &vars)
 {
   //
@@ -430,6 +575,7 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   const int ntrack = jet->getConstituents().size();
 
   int sv1_ntkv = 0;
+  float    SV1 = -99.0;
 
   if(m_accessSV1Vertices->isAvailable(*btag)) {
     const std::vector<ElementLink<xAOD::VertexContainer > > SV1vertices = (*m_accessSV1Vertices)(*btag);
@@ -441,9 +587,13 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
     ATH_MSG_WARNING("SV1 vertex container not found in auxiliary store");
   }  
 
+  // SV1 LLR
+  SV1 = btag->SV1_loglikelihoodratio();
+
   int jf_ntrkv  =  0;
   int tmpNvtx   = -1;
   int tmpNvtx1t = -1;
+  float    JetF = -99.0;
 
   btag->taggerInfo(tmpNvtx,   xAOD::JetFitter_nVTX);
   btag->taggerInfo(tmpNvtx1t, xAOD::JetFitter_nSingleTracks);
@@ -451,6 +601,9 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   if (tmpNvtx > 0 || tmpNvtx1t > 0) {
     btag->taggerInfo(jf_ntrkv, xAOD::JetFitter_nTracksAtVtx);
   }
+
+  // JetFitter LLR
+  JetF = btag->JetFitter_loglikelihoodratio();
 
   //
   // Add new variable which is the addition of sv1 + jf
@@ -470,16 +623,17 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   ip2_cu = ip2_pc>0 and ip2_pu ? log(ip2_pc/ip2_pu) : -20;
   ip3_cu = ip3_pc>0 and ip3_pu ? log(ip3_pc/ip3_pu) : -20;
 
-  ip2    = btag->IP2D_loglikelihoodratio();
-  ip3    = btag->IP3D_loglikelihoodratio();
+  // IP LLR
+  ip2 = btag->IP2D_loglikelihoodratio();
+  ip3 = btag->IP3D_loglikelihoodratio();
 
   //
   // r21 LLR variables
   //
-  std::vector<LLRVarPair> LLRVars = {std::make_pair(Prompt::Def::DL1mu, -100.0),
-				     std::make_pair(Prompt::Def::rnnip, -100.0)};
+  std::vector<VarPair> LLRVars = {std::make_pair(Prompt::Def::DL1mu, -100.0),
+				  std::make_pair(Prompt::Def::rnnip, -100.0)};
 
-  for(LLRVarPair &var: LLRVars) { 
+  for(VarPair &var: LLRVars) { 
     if(!btag->loglikelihoodratio(Prompt::Def::AsStr(var.first), var.second)) {	
       ATH_MSG_WARNING("Missing " << Prompt::Def::AsStr(var.first));
     }
@@ -488,6 +642,22 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
     // Add LLR vars to VarHolder
     //
     vars.AddVar(var.first, var.second);
+
+    //
+    // Add duplicated rnnip var to VarHolder for tau trainings
+    //
+    if(var.first == Prompt::Def::rnnip) {
+      vars.AddVar(Prompt::Def::BTagrnnip, var.second);
+    }
+  }
+
+  //
+  // r21 MV2 vars
+  //
+  double BTagMV2c10rnn = -100.0;
+
+  if(!btag->MVx_discriminant("MV2c10rnn", BTagMV2c10rnn)) {	
+    msg(MSG::WARNING) << "Missing MV2c10rnn" << endmsg;
   }
   
   //
@@ -501,6 +671,9 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   vars.AddVar(Prompt::Def::ip2_cu,         ip2_cu);
   vars.AddVar(Prompt::Def::ip3,            ip3);
   vars.AddVar(Prompt::Def::ip3_cu,         ip3_cu);
+  vars.AddVar(Prompt::Def::BTagMV2c10rnn,  BTagMV2c10rnn);
+  vars.AddVar(Prompt::Def::SV1,            SV1);
+  vars.AddVar(Prompt::Def::JetF,           JetF);
 
   if(ntrack == 1) {
     ATH_MSG_DEBUG("Nearest track jet only contains one track");
@@ -516,7 +689,7 @@ void Prompt::DecoratePromptLepton::getLeptonVariables(const xAOD::IParticle* par
   //
   // Get lepton variables - isolation
   //
-  float topoetcone20rel = 99.0, topoetcone30rel = 99.0, ptvarcone30rel = 99.0;
+  float topoetcone20rel = -99.0, topoetcone30rel = -99.0, ptvarcone30rel = -99.0;
 
   topoetcone20rel = accessIsolation(&(*m_accessCalIsolation20),   &(*particle));
   topoetcone30rel = accessIsolation(&(*m_accessCalIsolation30),   &(*particle));
@@ -559,6 +732,28 @@ void Prompt::DecoratePromptLepton::getMutualVariables(const xAOD::IParticle* par
   vars.AddVar(Prompt::Def::LepJetPtFrac, LepJetPtFrac);
   vars.AddVar(Prompt::Def::PtFrac,       PtFrac);
   vars.AddVar(Prompt::Def::PtRel,        PtRel);
+  vars.AddVar(Prompt::Def::DRlj,         DRlj);
+}
+
+//=============================================================================
+void Prompt::DecoratePromptLepton::getMutualTauVariables(const xAOD::TauJet* tau,
+							 const xAOD::Jet* jet, 
+							 Prompt::VarHolder &vars,
+							 float DRlj)
+{
+  //
+  // Add tau - jet variables to VarHolder
+  //
+  float LepJetPtFrac = -99.;
+ 
+  if(tau->pt() > 0.0 && jet->pt() > 0.0) {
+    LepJetPtFrac = tau->pt() / jet->pt();
+  }
+
+  //
+  // Add vars to VarHolder
+  //
+  vars.AddVar(Prompt::Def::LepJetPtFrac, LepJetPtFrac);
   vars.AddVar(Prompt::Def::DRlj,         DRlj);
 }
 
@@ -654,6 +849,70 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
   else {
     ATH_MSG_DEBUG("No nearby track jet, DR > 0.4");
     (*m_decoratorBDT)(*particle) = float(-1.1);
+  }
+}
+
+//=============================================================================
+void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau, 
+						  Prompt::VarHolder &vars, 
+						  bool goodJet,
+						  const int ntrack)
+{
+  //
+  // Decorate lepton with input short variables
+  //
+  for(shortDecoratorMap::value_type &dec: m_shortMap) {
+    double val = 0.0;
+
+    if(vars.GetVar(dec.first, val)) {
+      dec.second(*tau) = static_cast<short>(val);
+    }    
+    else {
+      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
+    }
+
+    ATH_MSG_DEBUG("Variable: " << Prompt::Def::AsStr(dec.first) << "\tValue: " 
+		  << tau->auxdataConst<short>(m_auxVarPrefix+Prompt::Def::AsStr(dec.first)));
+  }  
+
+  //
+  // Decorate lepton with input float variables
+  //
+  for(floatDecoratorMap::value_type &dec: m_floatMap) {
+    double val = 0.0;
+
+    if(vars.GetVar(dec.first, val)) {
+      dec.second(*tau) = val;
+    }
+    else {
+      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
+    }
+
+    ATH_MSG_DEBUG("Variable: " << Prompt::Def::AsStr(dec.first) << "\tValue: " 
+		  << tau->auxdataConst<float>(m_auxVarPrefix+Prompt::Def::AsStr(dec.first)));
+  }
+
+  //
+  // Decorate lepton with classifier response, if goodJet
+  //
+  if(goodJet && (ntrack == 1 || ntrack == 3)) {
+    if(ntrack == 1) {
+      (*m_decoratorBDT)(*tau) = static_cast<float>(m_TMVAReaderOneTrack->EvaluateMVA(m_methodTitleMVAOneTrack));
+    }
+    else if(ntrack == 3) {
+      (*m_decoratorBDT)(*tau) = static_cast<float>(m_TMVAReaderThreeTrack->EvaluateMVA(m_methodTitleMVAThreeTrack));
+    }
+  }
+  else {
+    if(!(ntrack == 1 || ntrack == 3)) {
+      ATH_MSG_DEBUG("Tau does not have 1 or 3 tracks");
+    }
+    else{
+      ATH_MSG_DEBUG("No nearby track jet, DR > 0.4");
+    }
+
+    // Decorate with default value
+    (*m_decoratorBDT)(*tau) = float(-1.1);
   }
 }
 
