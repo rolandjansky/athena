@@ -65,7 +65,7 @@ T ALPNS::Plugin::function(const std::string &name){
     T origType;
   }u;
   u.p=0;
-  char *error(0);
+  //char *error(0);
   for(auto &l:m_libs){
     auto h=ALPNS::PluginLoader::getHandle(l);
     if(h){
