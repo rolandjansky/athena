@@ -79,6 +79,7 @@ StatusCode sTgcFastDigitizer::initialize() {
   }
   ATH_CHECK( m_idHelperTool.retrieve() );
   ATH_CHECK( m_muonClusterCreator.retrieve() );
+  ATH_CHECK( m_sdoName.initialize() );
 
   if( !readFileOfTimeJitter() ) return StatusCode::FAILURE; 
 
@@ -155,8 +156,9 @@ StatusCode sTgcFastDigitizer::initialize() {
 StatusCode sTgcFastDigitizer::execute() {
 
 // Create and record the SDO container in StoreGate
-  MuonSimDataCollection* sdoContainer = new MuonSimDataCollection();
-  ATH_CHECK( evtStore()->record(sdoContainer,m_sdoName) );
+  SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
+  auto sdoContainer = std::make_unique<MuonSimDataCollection>(*h_sdoContainer);
+  ATH_CHECK( h_sdoContainer.record ( std::move (sdoContainer)) );
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
   
@@ -529,7 +531,7 @@ StatusCode sTgcFastDigitizer::execute() {
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
-      sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
+      h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
 
       previousHit = &hit;
 
