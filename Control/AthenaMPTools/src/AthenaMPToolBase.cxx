@@ -386,7 +386,14 @@ int AthenaMPToolBase::reopenFds()
     ATH_MSG_DEBUG("* " << **itFile);
     const std::string& filename = (**itFile).name();
     Io::Fd fd = (**itFile).fd();
-    ATH_MSG_DEBUG("FLAGS: " << (**itFile).flags());
+
+    if(fd==-1) {
+      // It is legal to have fd=-1 for remote inputs
+      // On the other hand, these inputs should not remain open after fork. The issue being tracked at ATEAM-434.
+      // So, this hopefully is a temporary patch
+      ATH_MSG_WARNING("FD=-1 detected on an open file retrieved from FileMgr. Skip FD reopening. File name: " << filename);
+      continue;
+    }
     
     if(reopenFd(fd,filename))
       return -1;
@@ -404,6 +411,12 @@ int AthenaMPToolBase::reopenFds()
     else {
       ATH_MSG_WARNING("The file " << regEntry.name << " has not been registered with the FileMgr!");
       
+      if(regEntry.fd==-1) {
+      // Same protection as the one above
+	ATH_MSG_WARNING("FD=-1 detected on an open file retrieved from FD Registry. Skip FD reopening. File name: " << regEntry.name);
+	continue;
+      }
+
       if(reopenFd(regEntry.fd,regEntry.name))
         return -1;
       
