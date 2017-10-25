@@ -44,15 +44,17 @@ StatusCode sTGC_DigitToRDO::execute()
     sTGC_RawDataCollection* coll = new sTGC_RawDataCollection(hash);
     if (rdos->addCollection(coll,hash).isFailure() ){
       ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
-      /// TODO cleanup
+      delete coll;
+      continue;
     }
+    
     for (auto digit : *digitColl ){
       Identifier id = digit->identify();
       sTGC_RawData* rdo = new sTGC_RawData(id);
       coll->push_back(rdo);
     }
   }
-  
+    
   ATH_MSG_DEBUG( "done execute()"  );
   return StatusCode::SUCCESS;
 }
