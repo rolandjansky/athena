@@ -29,6 +29,7 @@ addTool("G4AtlasTools.G4GeometryConfig.getCosmicShortCut", "CosmicShortCut")
 addTool("G4AtlasTools.G4GeometryConfig.getATLAS", "Atlas")
 addTool("G4AtlasTools.G4GeometryConfig.getCavernWorld", "Cavern")
 addTool("G4AtlasTools.G4GeometryConfig.getG4AtlasDetectorConstructionTool", "G4AtlasDetectorConstructionTool")
+addTool("G4AtlasTools.G4GeometryConfig.getMaterialDescriptionTool", "MaterialDescriptionTool")
 
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_CALOEnvelope", "TileTB_CALO")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_WorldEnvelope", "TileTB_World")
