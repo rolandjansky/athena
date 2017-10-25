@@ -138,7 +138,8 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   sc = timeShift.regHist(m_cluster_LVL1A = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_lvl1, min_lvl1, max_lvl1));
 
   // per-layer histograms
-  for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+  const unsigned int kNumLayers = m_doIBL ? PixLayer::COUNT : PixLayer::COUNT - 1;
+  for (unsigned int i = 0; i < kNumLayers; i++) {
     hname = makeHistname(("Clusters_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Average number of pixel clusters per event per LB, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_clu), false);
     sc = clusterExpert.regHist(m_clusters_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
