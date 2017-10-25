@@ -47,6 +47,8 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_persToClid.insert(std::pair<std::string, CLID>("0EFE2D2C-9E78-441D-9A87-9EE2B908AC81",  243004407)); // xAOD::EventFormat
    m_persToClid.insert(std::pair<std::string, CLID>("AA55120B-11CF-44A3-B1E4-A5AB062207B7", 1107011239)); // xAOD::TriggerMenuContainer
    m_persToClid.insert(std::pair<std::string, CLID>("B8614CC5-8696-4170-8CCC-496DA7671246", 1212409402)); // xAOD::TriggerMenuAuxContainer
+   m_persToClid.insert(std::pair<std::string, CLID>("C87E3828-4A7A-480A-95DE-0339539F6A0F",  178309087)); // xAOD::FileMetaData
+   m_persToClid.insert(std::pair<std::string, CLID>("BEE2BECF-A936-4078-9FDD-AD703C9ADF9F",   73252552)); // xAOD::FileMetaDataAuxInfo
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
