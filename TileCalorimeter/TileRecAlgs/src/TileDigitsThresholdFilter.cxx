@@ -24,6 +24,7 @@
 #include "TileIdentifier/TileHWID.h"
 
 // Atlas includes
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -75,7 +76,7 @@ StatusCode TileDigitsThresholdFilter::initialize() {
 StatusCode TileDigitsThresholdFilter::execute() {
 
   // Create new container for filtered digits
-  TileDigitsContainer* outputContainer = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
+  auto outputContainer = std::make_unique<TileDigitsContainer>(false, SG::VIEW_ELEMENTS);
   
 
   const TileDigitsContainer* inputContainer(nullptr);
@@ -85,32 +86,41 @@ StatusCode TileDigitsThresholdFilter::execute() {
   outputContainer->set_type(inputContainer->get_type());
   outputContainer->set_bsflags(inputContainer->get_bsflags());
 
-  for (const TileDigitsCollection* digitsCollection : *inputContainer) {
+  TileDigitsContainer::const_iterator collItr = inputContainer->begin();
+  TileDigitsContainer::const_iterator collEnd = inputContainer->end();
+  for (; collItr != collEnd; ++collItr) {
+    const TileDigitsCollection* digitsCollection = *collItr;
+
+    auto outColl = std::make_unique<ConstDataVector<TileDigitsCollection> >
+      (SG::VIEW_ELEMENTS, digitsCollection->identify());
 
     int fragId = digitsCollection->identify();
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
 
-    for (TileDigits* tile_digits : *digitsCollection) {
-
+    for (const TileDigits* tile_digits : *digitsCollection)
+    {
       HWIdentifier adcId = tile_digits->adc_HWID();
       int channel = m_tileHWID->channel(adcId);
       int gain = m_tileHWID->adc(adcId);
 
       float dspThreshold = m_tileDspThreshold->getDspThreshold(drawerIdx, channel, gain);
 
-      const std::vector<float> digits = tile_digits->samples();
+      const std::vector<float>& digits = tile_digits->samples();
       auto minMaxDigits = std::minmax_element(digits.begin(), digits.end());
       float minDigit = *minMaxDigits.first;
       float maxDigit = *minMaxDigits.second;
 
       if (maxDigit - minDigit > dspThreshold) {
-        outputContainer->push_back(tile_digits);
+        outColl->push_back(tile_digits);
       }
 
     }
+    ATH_CHECK( outputContainer->addCollection (outColl.release()->asDataVector(),
+                                               collItr.hashId()) );
+    
   }
 
-  CHECK( evtStore()->record(outputContainer, m_outputContainer, false) );
+  CHECK( evtStore()->record(std::move(outputContainer), m_outputContainer, false) );
 
   return StatusCode::SUCCESS;
 }
