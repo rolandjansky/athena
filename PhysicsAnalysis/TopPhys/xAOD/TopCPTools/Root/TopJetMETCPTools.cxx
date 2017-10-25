@@ -233,8 +233,10 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   m_jetCleaningToolLooseBad = setupJetCleaningTool("LooseBad");
   m_jetCleaningToolTightBad = setupJetCleaningTool("TightBad");
 
-  m_jetEventCleaningToolLooseBad = setupJetEventCleaningTool("LooseBad");
-  m_jetEventCleaningToolTightBad = setupJetEventCleaningTool("TightBad");
+  // The event cleaning tool now also needs a pointer to the jet cleaning tool
+  // Our function will return one if it is already configured
+  m_jetEventCleaningToolLooseBad = setupJetEventCleaningTool("LooseBad", m_jetCleaningToolLooseBad);
+  m_jetEventCleaningToolTightBad = setupJetEventCleaningTool("TightBad", m_jetCleaningToolTightBad);
 
   // Uncertainties
   // Is our MC full or fast simulation?
@@ -546,7 +548,7 @@ IJetSelector* JetMETCPTools::setupJetCleaningTool(const std::string& WP) {
   return tool;
 }
 
-ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std::string& WP) {
+  ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std::string& WP, ToolHandle<IJetSelector> JetCleaningToolHandle) {
   ECUtils::IEventCleaningTool* tool = nullptr;
   std::string name = "JetEventCleaningTool" + WP;
   if (asg::ToolStore::contains<ECUtils::IEventCleaningTool>(name)){
@@ -569,6 +571,8 @@ ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std:
 	       "Failed to set jet OR decoration in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "CleaningLevel", WP),
 	       "Failed to set jet WP "+ WP + " in JetEventCleaningTool");
+    top::check(asg::setProperty(tool, "JetCleaningTool",JetCleaningToolHandle),
+	       "Failed to associate the JetCleaningTool object to JetEventCleaningTool");
     top::check(tool->initialize(), "Failed to initialize " + name);
   }
 
