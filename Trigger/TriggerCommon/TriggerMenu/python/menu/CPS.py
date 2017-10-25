@@ -314,8 +314,8 @@ def defineCPSGroups():
                                                    'mu6_j60_gsc110_boffperf_split_dr05_dz02',
                                                    ],
 
-                'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose'],
-                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose'],
+                'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose','mu4_mu2noL1_L1MU4'],
+                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose','mu6_mu2noL1_L1MU6'],
                 'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose', 'mu10_bJpsi_TrkPEBmon'],
                 'RATE:CPS:HLT_mu14_bJpsi_Trk' : ['mu14_bJpsi_TrkPEB','mu14_bJpsi_Trkloose'],
 
