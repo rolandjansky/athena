@@ -76,15 +76,18 @@ typedef struct {
   MuonSimData::Deposit Dep;
   double Edep; 
   int keep;  // a flag used to label this digit object is kept or not (could be removed by the electronics threshold / deadtime) 0 --> do not keep, 1 --> keep if the strip is turned on by neighborOn mode; 2 --> keep because of a signal over threshold 
+  bool isDead;
+  bool isPileup;
 } structDigitType; 
 
 typedef std::pair<float, structDigitType> tempDigitType; // pair<float digitTime, structDigitType>  
 
 typedef struct {
   int readLevel;
+  float deadtimeStart;
   float neighborOnTime;
-} structNeighborOn;
-typedef std::map<Identifier,std::pair<structNeighborOn, std::vector<tempDigitType> > > tempDigitCollectionType; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
+} structReadoutElement;
+typedef std::map<Identifier,std::pair<structReadoutElement, std::vector<tempDigitType> > > tempDigitCollectionType; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
 typedef std::map<IdentifierHash, tempDigitCollectionType> tempDigitContainerType; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
 
 inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
@@ -110,12 +113,23 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_inputHitCollectionName("sTGCSensitiveDetector"),
     m_outputDigitCollectionName("sTGC_DIGITS"),
     m_outputSDO_CollectionName("sTGC_SDO"),
+	m_outputDigitInfoCollectionName("sTGC_DIGIT_INFO"),
     m_doToFCorrection(0),
     m_doChannelTypes(3),
+    m_readoutThreshold(0),
+    m_neighborOnThreshold(0),
+    m_saturation(0),
+	m_deadtimeON(1),
+	m_produceDeadDigits(0),
     m_deadtimeStrip(50.),
     m_deadtimePad(5.),
+    m_timeWindowOffsetPad(0),
+    m_timeWindowOffsetStrip(0),
     m_timeWindowPad(30.),
-    m_timeWindowStrip(30.)
+    m_timeWindowStrip(30.),
+    m_bunchCrossingTime(0),
+    m_timeJitterElectronicsStrip(0),
+    m_timeJitterElectronicsPad(0)
 
     //m_file(0),
     //m_SimHitOrg(0),
@@ -135,6 +149,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
   declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
+  declareProperty("OutputDigitInfoName",     m_outputDigitInfoCollectionName = "sTGC_DIGIT_INFO");
   declareProperty("doToFCorrection",         m_doToFCorrection); 
   declareProperty("doChannelTypes",          m_doChannelTypes); 
   declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
@@ -166,7 +181,7 @@ StatusCode sTgcDigitizationTool::initialize() {
 
   status = service("ActiveStoreSvc", m_activeStore);
   if(!status.isSuccess()) { 
-    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endreq; 
+    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg; 
     return status;
   }
 
@@ -203,7 +218,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;
@@ -222,6 +237,8 @@ StatusCode sTgcDigitizationTool::initialize() {
     ATH_MSG_FATAL("Fail to initialize sTgcDigitMaker");
     return status;
   }
+
+  readDeadtimeConfig();
 
   // initialize digit container
   m_digitContainer = new sTgcDigitContainer(m_idHelper->detectorElement_hash_max());
@@ -446,6 +463,17 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
     ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
   }
   
+  m_digitInfoCollection = new sTgcDigitInfoCollection();
+
+  status = m_sgSvc->record(m_digitInfoCollection, m_outputDigitInfoCollectionName);
+  if(status.isFailure())  {
+      ATH_MSG_FATAL("Unable to record digit info collection in StoreGate");
+      return status;
+  } else {
+	  ATH_MSG_DEBUG("Digit info collection recorded in StoreGate.");
+  }
+
+
   return status;
 }
 /*******************************************************************************/
@@ -517,347 +545,477 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
   sTgcDigitCollection* digitCollection = 0;
 
+  m_digitInfoCollection->clear();
+
   ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 
   IdContext tgcContext = m_idHelper->module_context();
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
   while(m_thpcsTGC->nextDetectorElement(i, e)) {    
-    std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
-    // merge hits
+	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
+	  // merge hits
+	  int nhits = 0;
+	  while(i != e){
+		  TimedHitPtr<GenericMuonSimHit> phit = *i++;
+		  const GenericMuonSimHit& hit = *phit;
 
-  
-    int nhits = 0;
-    while(i != e){ 
-      TimedHitPtr<GenericMuonSimHit> phit = *i++;
-      const GenericMuonSimHit& hit = *phit;     
-      //m_SimHitOrg->Fill(hit.globalPosition().x(), hit.globalPosition().y());
-      //m_kineticEnergy->Fill(hit.kineticEnergy()/1000.);
+		  // 50MeV cut on kineticEnergy of the particle
+		  if(hit.kineticEnergy()<50.) continue;
+		  nhits++;
 
-      // 50MeV cut on kineticEnergy of the particle 
-      if(hit.kineticEnergy()<50.) continue;
-      nhits++;
+		  sTgcSimIdToOfflineId simToOffline(*m_idHelper);
+		  const int idHit = hit.GenericId();
+		  Identifier layid = simToOffline.convert(idHit);
+
+		  std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
+		  int isSmall = stationName[2] == 'S';
+		  int multiPlet = m_idHelper->multilayer(layid);
+		  int gasGap = m_idHelper->gasGap(layid);
+
+		  const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);
+		  if( !detEL ){
+			msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endmsg;
+			continue;
+		  }
+
+		  // project the hit position to wire surface (along the incident angle)
+		  Amg::Vector3D HPOS(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
+
+		  const Amg::Vector3D GLOBAL_ORIG(0., 0., 0.);
+		  const Amg::Vector3D GLOBAL_Z(0., 0., 1.);
+		  const Amg::Vector3D GLODIRE(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+
+		  int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
+		  const Trk::PlaneSurface&  SURF_WIRE = detEL->surface(surfHash_wire);
+
+		  Amg::Vector3D LOCAL_Z = SURF_WIRE.transform().inverse()*GLOBAL_Z - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
+		  Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
+
+		  Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;
+
+		  double e = 1e-5;
+
+		  bool X_1 = std::abs( std::abs(LOCAL_Z.x()) - 1. ) < e;
+		  bool Y_1 = std::abs( std::abs(LOCAL_Z.y()) - 1. ) < e;
+		  bool Z_1 = std::abs( std::abs(LOCAL_Z.z()) - 1. ) < e;
+		  bool X_s = std::abs(LOCAL_Z.x()) < e;
+		  bool Y_s = std::abs(LOCAL_Z.y()) < e;
+		  bool Z_s = std::abs(LOCAL_Z.z()) < e;
+
+		  double scale = 0;
+		  if(X_1 && Y_s && Z_s)
+			  scale = -LPOS.x() / LOCDIRE.x();
+		  if(X_s && Y_1 && Z_s)
+			  scale = -LPOS.y() / LOCDIRE.y();
+		  if(X_s && Y_s && Z_1)
+			  scale = -LPOS.z() / LOCDIRE.z();
+		  else
+			  msg(MSG::ERROR) << " Wrong scale! " << endmsg;
+
+		  Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
+		  Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;
+
+		  // check the strip id this hit is pointing to
+		  int surfHash_strip = detEL->surfaceHash(gasGap, 1);
+		  const Trk::PlaneSurface&  SURF_STRIP = detEL->surface(surfHash_strip);
+		  Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*G_HITONSURFACE_WIRE;
+		  Amg::Vector2D POSONSURF_STRIP(hitOnSurface_strip.x(),hitOnSurface_strip.y());
+
+		  Identifier STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, 1, true);// find the a strip id
+		  bool insideBounds = SURF_STRIP.insideBounds(POSONSURF_STRIP);
+		  if(!insideBounds) {
+                    ATH_MSG_DEBUG( "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() );
+                    continue;
+		  }
+
+		  int stripNumber = detEL->stripNumber(POSONSURF_STRIP, STRIP_ID);
+		  if( stripNumber == -1 ){
+			msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(STRIP_ID) << endmsg;
+			msg(MSG::ERROR) <<" pos " << POSONSURF_STRIP << endmsg;
+		  }
+		  bool isValid = 0;
+		  STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, stripNumber, true, &isValid);
+		  if(!isValid)
+			  continue;
+
+
+		  std::pair<std::pair<double, Amg::Vector3D>, const GenericMuonSimHit* >& entry = merged_SimHit[STRIP_ID];
+		  if(entry.first.first<0) entry.first.first = 0;
+		  entry.first.first += hit.depositEnergy();
+		  entry.first.second = hitOnSurface_strip;
+		  if(!entry.second) {
+		  	int eventId = phit.eventId();
+			  m_hitSourceVec.push_back(eventId);
+			  entry.second = &hit;
+		  }
+
+	  } // end of while(i != e)
+
+	  // end of merge hits
  
-      sTgcSimIdToOfflineId simToOffline(*m_idHelper);
-      const int idHit = hit.GenericId();
-      Identifier layid = simToOffline.convert(idHit);
-
-      std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
-      int isSmall = stationName[2] == 'S';
-      //int stationEta = m_idHelper->stationEta(layid);
-      //int stationPhi  = m_idHelper->stationPhi(layid);
-      int multiPlet = m_idHelper->multilayer(layid);
-      int gasGap = m_idHelper->gasGap(layid);
- 
-      const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);
-      if( !detEL ){
-        msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endreq;
-	continue;
-      }
-
-      // project the hit position to wire surface (along the incident angle)
-      // Amg::Transform3D GTOL = detEL->absTransform().inverse();
-      Amg::Vector3D HPOS(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
-      // Amg::Vector3D LPOS = GTOL*HPOS;
-     
-      const Amg::Vector3D GLOBAL_ORIG(0., 0., 0.);
-      const Amg::Vector3D GLOBAL_Z(0., 0., 1.);
-      const Amg::Vector3D GLODIRE(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
-    
-      int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
-      const Trk::PlaneSurface&  SURF_WIRE = detEL->surface(surfHash_wire);
-
-      Amg::Vector3D LOCAL_Z = SURF_WIRE.transform().inverse()*GLOBAL_Z - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
-      Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
- 
-      Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;
-
-      double scale = 0.;
-      if (std::abs(std::abs(LOCAL_Z.x())-1.)<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(LOCAL_Z.z())<1e-5)      scale = -LPOS.x() / LOCDIRE.x();
-      else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(std::abs(LOCAL_Z.y())-1.)<1e-5 && std::abs(LOCAL_Z.z())<1e-5) scale = -LPOS.y() / LOCDIRE.y();
-      else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(std::abs(LOCAL_Z.z())-1.)<1e-5) scale = -LPOS.z() / LOCDIRE.z();
-      else msg(MSG::ERROR) << " Wrong scale! " << endreq;
-
-      Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
-      Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;
-
-      //msg(MSG::VERBOSE) << "project to wire surface : "<< "global position : " << G_HITONSURFACE_WIRE.x() <<"  "<< G_HITONSURFACE_WIRE.y() <<"  "<< G_HITONSURFACE_WIRE.z() << endreq; 
-      //msg(MSG::VERBOSE) << "project to wire  surface : "<< "local position : " << HITONSURFACE_WIRE.x() <<"  "<< HITONSURFACE_WIRE.y() <<"  "<< HITONSURFACE_WIRE.z() << endreq; 
-
-
-      // check the strip id this hit is pointing to
-      int surfHash_strip = detEL->surfaceHash(gasGap, 1);
-      const Trk::PlaneSurface&  SURF_STRIP = detEL->surface(surfHash_strip);
-      Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*G_HITONSURFACE_WIRE;
-      Amg::Vector2D POSONSURF_STRIP(hitOnSurface_strip.x(),hitOnSurface_strip.y());
-  
-      Identifier STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, 1, true);// find the a strip id
-      bool insideBounds = SURF_STRIP.insideBounds(POSONSURF_STRIP);
-      if(!insideBounds) { 
-        if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() <<endreq; 
-        continue;
-      }
-      
-      int stripNumber = detEL->stripNumber(POSONSURF_STRIP, STRIP_ID);
-      if( stripNumber == -1 ){
-        msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(STRIP_ID) << endreq;
-        msg(MSG::ERROR) <<" pos " << POSONSURF_STRIP << endreq;
-        //stripNumber = 1;
-      }
-      bool isValid = 0;
-      STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, stripNumber, true, &isValid);
-      if(!isValid) continue;
-
-      std::pair<std::pair<double, Amg::Vector3D>, const GenericMuonSimHit* >& entry = merged_SimHit[STRIP_ID];
-      if(entry.first.first<0) entry.first.first = 0;
-      entry.first.first += hit.depositEnergy();
-      entry.first.second = G_HITONSURFACE_WIRE;
-      if(!entry.second) entry.second = &hit;
-
-    } // end of while(i != e)
-
-    // end of merge hits
- 
-    ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization next element");
+	  ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization next element");
     
     // Loop over the hits:
+    int hitNum = 0;
     typedef std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> >::iterator it_mergedSimHit; 
 
     for(it_mergedSimHit it_SimHit = merged_SimHit.begin(); it_SimHit!=merged_SimHit.end(); it_SimHit++ ) {
-      double depositEnergy = it_SimHit->second.first.first; 
-      if(depositEnergy<0) {
-        msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endreq;
-        continue;
-      }
-      const GenericMuonSimHit temp_hit = *((it_SimHit->second).second);
+    	hitNum++;
+    	double depositEnergy = it_SimHit->second.first.first;
+    	if(depositEnergy<0) {
+    		msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
+    		continue;
+    	}
+    	const GenericMuonSimHit temp_hit = *((it_SimHit->second).second);
 
-      const GenericMuonSimHit hit(temp_hit.GenericId(), temp_hit.globalTime(), temp_hit.globalpreTime(), 
-				  //temp_hit.globalPosition(),
-				  it_SimHit->second.first.second, 
-				  temp_hit.localPosition(),
-				  temp_hit.globalPrePosition(), 
-				  temp_hit.localPrePosition(),
-				  temp_hit.particleEncoding(),
-				  temp_hit.kineticEnergy(),
-				  temp_hit.globalDirection(),
-				  depositEnergy,
-				  temp_hit.StepLength(),
-				  temp_hit.trackNumber());
+    	const GenericMuonSimHit hit(temp_hit.GenericId(), temp_hit.globalTime(), temp_hit.globalpreTime(),
+    			temp_hit.globalPosition(),
+				it_SimHit->second.first.second,
+				temp_hit.globalPrePosition(),
+				temp_hit.localPrePosition(),
+				temp_hit.particleEncoding(),
+				temp_hit.kineticEnergy(),
+				temp_hit.globalDirection(),
+				depositEnergy,
+				temp_hit.StepLength(),
+				temp_hit.trackNumber());
 
-      //m_SimHitMerged->Fill(hit.globalPosition().x(), hit.globalPosition().y());
-      //m_EnergyDeposit->Fill(depositEnergy);
 
-      float globalHitTime = hit.globalTime();
-      float tof = hit.globalPosition().mag()/CLHEP::c_light;
-      float bunchTime = globalHitTime - tof;
+    	float globalHitTime = hit.globalTime();
+    	float tof = hit.globalPosition().mag()/CLHEP::c_light;
+    	float bunchTime = globalHitTime - tof;
 
-      sTgcDigitCollection* digiHits = 0;
-      digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
-      if(!digiHits) continue;
+		sTgcDigitCollection* digiHits = 0;
 
-      //m_SimHitDigitized->Fill(hit.globalPosition().x(), hit.globalPosition().y());
+		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
+		if(!digiHits)
+			continue;
 
-      sTgcDigitCollection::const_iterator it_digiHits;
-     // bool hasPad = false;
-      for(it_digiHits=digiHits->begin(); it_digiHits!=digiHits->end(); ++it_digiHits) {
+		sTgcDigitCollection::const_iterator it_digiHits;
+		for(it_digiHits=digiHits->begin(); it_digiHits!=digiHits->end(); ++it_digiHits) {
+			/*
+			   NOTE:
+			   -----
+			   Since not every hit might end up resulting in a
+			   digit, this construction might take place after the hit loop
+			   in a loop of its own!
+			*/
+			// make new sTgcDigit
+			Identifier newDigitId = (*it_digiHits)->identify();
+			float newTime = (*it_digiHits)->time();
+			int newChannelType = m_idHelper->channelType((*it_digiHits)->identify());
 
-	/**
-	   NOTE: 
-	   ----- 
-	   Since not every hit might end up resulting in a
-	   digit, this construction might take place after the hit loop 
-	   in a loop of its own! 
-	*/
+			float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
+			float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
+			if(newChannelType==1)
+				newTime += timeJitterElectronicsStrip;
+			else
+				newTime += timeJitterElectronicsPad;
+			uint16_t newBcTag = bcTagging(newTime+bunchTime, newChannelType);
+
+			if(m_doToFCorrection)
+				newTime += bunchTime;
+			else
+				newTime += globalHitTime;
+
+			float newCharge = -1.;
+			if(newChannelType==1)
+				newCharge = (*it_digiHits)->charge();
+			Identifier elemId = m_idHelper->elementID(newDigitId);
+
+			if(newChannelType!=0 && newChannelType!=1 && newChannelType!=2) {
+				ATH_MSG_WARNING( "Wrong channelType " << newChannelType );
+			}
+
+			bool isDead = 0;
+			bool isPileup = 0;
+			if(m_hitSourceVec[hitNum-1]!= 0)
+				  isPileup = 1;
+
+			IdentifierHash coll_hash;
+
+			m_idHelper->get_detectorElement_hash(elemId, coll_hash);
+
+			std::vector<tempDigitType>& newTempDigit = tempDigitContainer[coll_hash][newDigitId].second;
+			tempDigitContainer[coll_hash][newDigitId].first.readLevel = 0;
+			tempDigitContainer[coll_hash][newDigitId].first.deadtimeStart = -999999.;
+			tempDigitContainer[coll_hash][newDigitId].first.neighborOnTime = -999999.;
+
+			MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.localPosition().x(), hit.localPosition().y()));
+			structDigitType newStructDigit = {newBcTag, newCharge, newChannelType, deposit, 1e6 * hit.depositEnergy(), 0, isDead, isPileup};
+			newTempDigit.push_back(std::make_pair(newTime, newStructDigit));
 	
-	// make new sTgcDigit
-	Identifier newDigitId = (*it_digiHits)->identify();
-	float newTime    = (*it_digiHits)->time();
-        int newChannelType   = m_idHelper->channelType((*it_digiHits)->identify());
-       // if(newChannelType==0) hasPad = true;
-
-	//uint16_t newBcTag    = (*it_digiHits)->bcTag();
-        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
-        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
-        if(newChannelType==1) newTime += timeJitterElectronicsStrip;
-        else newTime += timeJitterElectronicsPad;
-	uint16_t newBcTag    = bcTagging(newTime+bunchTime, newChannelType);
-
-        if(m_doToFCorrection) newTime += bunchTime;
-        else newTime += globalHitTime;
-
-        float newCharge = -1.; 
-        if(newChannelType==1) newCharge      = (*it_digiHits)->charge();
-	Identifier elemId    = m_idHelper->elementID(newDigitId);
-	
-        if(newChannelType!=0 && newChannelType!=1 && newChannelType!=2) {
-	  ATH_MSG_WARNING( "Wrong channelType " << newChannelType );
-        }
-
-	IdentifierHash coll_hash;
-	
-        m_idHelper->get_detectorElement_hash(elemId, coll_hash); 
-      
-        std::vector<tempDigitType>& newTempDigit = tempDigitContainer[coll_hash][newDigitId].second;
-        tempDigitContainer[coll_hash][newDigitId].first.readLevel = 0;
-        tempDigitContainer[coll_hash][newDigitId].first.neighborOnTime = -1.;
-
-        MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.globalPosition().x(), hit.globalPosition().y()));
-        structDigitType newStructDigit = {newBcTag, newCharge, newChannelType, deposit, 1e6 * hit.depositEnergy(), 0}; 
-        newTempDigit.push_back(std::make_pair(newTime, newStructDigit));
-
-      } // end of loop digiHits
- 
-      delete digiHits;
-      digiHits = 0;
-      //if(hasPad) m_SimHitDigitizedwPad->Fill(hit.globalPosition().x(), hit.globalPosition().y());
-      //else m_SimHitDigitizedwoPad->Fill(hit.globalPosition().x(), hit.globalPosition().y()); 
-
-    }// end of loop(merged_SimHit) 
-    merged_SimHit.clear();   
+		} // end of loop digiHits
+		delete digiHits;
+		digiHits = 0;
+    }// end of loop(merged_SimHit)
+    merged_SimHit.clear();
+    m_hitSourceVec.clear();
   }//while(m_thpcsTGC->nextDetectorElement(i, e))
 
-  //after looping all the hit in a single event, add noise factor,simulation VMM "neighborOn" mode and cut at a threshold for each readout element, remove the readout elements do not pass the threshold
+  //after looping all the hit in a single event, add noise factor, simulation VMM "neighborOn" mode and cut at a threshold for each readout element, remove the readout elements do not pass the threshold
   m_activeStore->setStore(&*m_sgSvc);
-  //int count_coll = 0;
 
   for(tempDigitContainerType::iterator it_coll = tempDigitContainer.begin(); it_coll != tempDigitContainer.end(); ++it_coll){
+	  for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
+		  Identifier newDigitId = it_REID->first;
 
-    for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
+		  sort(it_REID->second.second.begin(), it_REID->second.second.end(), sort_EarlyToLate);
 
-      Identifier newDigitId = it_REID->first;
-      //msg(MSG::VERBOSE) << "   Digit Id= " << m_idHelper->show_to_string(newDigitId) << endreq;
+		  // apply electronics deadtime
+		  for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
+			  if(it_digit->second.channelType!=1) { //Pads and wires
+				  if( m_deadtimeON && (it_digit->first - it_REID->second.first.deadtimeStart) > m_deadtimePad ) { //If not dead
+					  if(it_REID->second.first.readLevel<2) {
+						  it_REID->second.first.readLevel = 2;
+					  }
+					  it_digit->second.keep = 2;
+					  it_REID->second.first.deadtimeStart = it_digit->first;
+				  }
+				  else if(!m_deadtimeON){
+					  if(it_REID->second.first.readLevel<2) {
+						  it_REID->second.first.readLevel = 2;
+					  }
+					  it_digit->second.keep = 2;
+				  }
+				  else{ //is dead
+				  	if(m_deadtimeON)
+				  		it_digit->second.isDead = 1;
+				  	if(m_produceDeadDigits){ //keep dead digits for de-bugging
+					  if(it_REID->second.first.readLevel<2) {
+						  it_REID->second.first.readLevel = 2;
+					  }
+					  it_digit->second.keep = 2;
+				  	}
+				  }
+			  } // end of pad/wire
+			  else { //strips
+			  	//Check if the charge is above threshold and if the strip is dead due to a previous hit
+			  	bool mainThreshold = it_digit->second.charge > m_readoutThreshold ? 1 : 0;
+			  	bool neighborThreshold = 0;
+			  	if(!mainThreshold)
+			  		neighborThreshold = it_digit->second.charge > m_neighborOnThreshold ? 1 : 0;
+			  	bool isDead = 0;
+			  	if(m_deadtimeON){
+					double hitTimeDiff = it_digit->first - it_REID->second.first.deadtimeStart;
+			  		isDead = hitTimeDiff < m_deadtimeStrip ? 1 : 0;
+			  		//ATH_MSG_INFO("Hit time: " << it_digit->first << " deadtimeStart: " << it_REID->second.first.deadtimeStart << " time difference: " << hitTimeDiff << " is pileup? " << it_digit->second.isPileup << " is dead? " << isDead);
+			  	}
 
-      sort(it_REID->second.second.begin(), it_REID->second.second.end(), sort_EarlyToLate);
+				  Identifier parentId = m_idHelper->parentID(newDigitId);
+				  int multiPlet = m_idHelper->multilayer(newDigitId);
+				  int gasGap = m_idHelper->gasGap(newDigitId);
+				  int channelType = it_digit->second.channelType;
+				  int stripNumber = m_idHelper->channel(newDigitId);
 
-      float deadtimeBlockStrip = -9999.;
-      float deadtimeBlockPad = -9999.;
+			  	// ----------------->1: ABOVE MAIN THRESHOLD AND NOT DEAD<-----------------
+			  	if(mainThreshold && !isDead){
+					  it_digit->second.keep = 2;
+					  it_REID->second.first.deadtimeStart = it_digit->first;
+					  if(it_REID->second.first.readLevel<2)
+						  it_REID->second.first.readLevel = 2;
 
-      // apply electronics deadtime
-      for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
+					  //set the read level of the neighboring channels to 1
+					  bool isValid = false;
+					  Identifier neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
+					  if(isValid){
+						  tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
+						  if(it_neighborREID != it_coll->second.end()) {
+							  if(it_neighborREID->second.first.readLevel<1) {
+								  it_neighborREID->second.first.readLevel = 1;
+								  it_neighborREID->second.first.neighborOnTime = it_digit->first;
+							  }
+						  }
+					  }
+					  isValid = false;
+					  neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
+					  if(isValid){
+						  tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
+						  if(it_neighborREID != it_coll->second.end()) {
+							  if(it_neighborREID->second.first.readLevel<1) {
+								  it_neighborREID->second.first.readLevel = 1;
+								  it_neighborREID->second.first.neighborOnTime = it_digit->first;
+							  }
+						  }
+					  }
+			  	}
 
-        if(it_digit->second.channelType!=1) {
-          if( (it_digit->first - deadtimeBlockPad)> m_deadtimePad ) {
-            if(it_REID->second.first.readLevel<2) it_REID->second.first.readLevel = 2;
-	    it_digit->second.keep = 2;
-	    deadtimeBlockPad = it_digit->first;
-          }
-        } // end of pad/wire
-        else if((it_digit->first - deadtimeBlockStrip)> m_deadtimeStrip || it_REID->second.first.readLevel<2){ 
+			  	// ----------------->2: ABOVE NEIGHBOR THRESHOLD AND NOT DEAD<-----------------
+			  	if(neighborThreshold && !mainThreshold && !isDead){
+				  it_digit->second.keep = 1;
+				  //Check if this strip was turned on by a previous digit, if so this digit will be read out so we set the deadtime to the time of neighboring hit
+				  if(it_REID->second.first.readLevel > 1)
+					  it_REID->second.first.deadtimeStart = it_REID->second.first.neighborOnTime;
+			  	}
+			  	// If we want to keep dead digits for de-bugging then there are 2 more cases
+			  	// ----------------->3: ABOVE MAIN THRESHOLD AND DEAD<-----------------
+			  	if(mainThreshold && isDead && m_produceDeadDigits){
+			  		it_digit->second.isDead = 1;
+			  		it_digit->second.keep = 2;
+			  		if(it_REID->second.first.readLevel<2)
+			  			it_REID->second.first.readLevel = 2;
 
-          if( it_digit->second.charge>m_readoutThreshold ) {
-	    it_digit->second.keep = 2; 
-	    deadtimeBlockStrip = it_digit->first;
-            
-            if(it_REID->second.first.readLevel<2) it_REID->second.first.readLevel = 2;
-            // "neighborOn" mode of VMM
-            Identifier parentId = m_idHelper->parentID(newDigitId);
-            int multiPlet = m_idHelper->multilayer(newDigitId);
-            int gasGap = m_idHelper->gasGap(newDigitId);
-            int channelType = it_digit->second.channelType;
-            int stripNumber = m_idHelper->channel(newDigitId);
-            bool isValid = false;
-            Identifier neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
-            if(isValid){
-              tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-              if(it_neighborREID != it_coll->second.end()) { if(it_neighborREID->second.first.readLevel<1) {it_neighborREID->second.first.readLevel = 1; it_neighborREID->second.first.neighborOnTime = it_digit->first;}} 
-            }
-            isValid = false;
-            neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
-            if(isValid){
-              tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-              if(it_neighborREID != it_coll->second.end()) { if(it_neighborREID->second.first.readLevel<1) {it_neighborREID->second.first.readLevel = 1;it_neighborREID->second.first.neighborOnTime = it_digit->first;}} 
-            }
-          } // end if not in the dead time block 
-          else if( it_digit->second.charge>m_neighborOnThreshold ){
-            it_digit->second.keep = 1;  
-            deadtimeBlockStrip = it_digit->first;
-          }
-        } // end of strip
-
-        //msg(MSG::VERBOSE) << "              "
-	//		  << " digittime = "       << it_digit->first 
-	//		  << " BC tag = "          << it_digit->second.bcTag 
-	//		  << " charge = "          << it_digit->second.charge 
-	//		  << " channelType = "     << it_digit->second.channelType
-	//		  << " keep this digit = " << it_digit->second.keep
-	//		  << endreq;
-        // 
-      } // end of loop all signals(at different time) of the same ReadoutElementID
-
-    } // end of loop for all the ReadoutElementID
-
+			  		//set the read level of the neighboring channels to 1
+			  		bool isValid = false;
+			  		Identifier neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
+			  		if(isValid){
+			  			tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
+						if(it_neighborREID != it_coll->second.end()) {
+							if(it_neighborREID->second.first.readLevel<1) {
+								it_neighborREID->second.first.readLevel = 1;
+							}
+						}
+			  		}
+			  		isValid = false;
+			  		neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
+			  		if(isValid){
+			  			tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
+			  			if(it_neighborREID != it_coll->second.end()) {
+			  				if(it_neighborREID->second.first.readLevel<1) {
+			  					it_neighborREID->second.first.readLevel = 1;
+			  				}
+			  			}
+			  		}
+			  	}
+			  	// ----------------->4: ABOVE NEIGHBOR THRESHOLD AND DEAD<-----------------
+			  	if(neighborThreshold && !mainThreshold && isDead && m_produceDeadDigits){
+			  		it_digit->second.isDead = 1;
+			  		it_digit->second.keep = 1;
+			  	}
+			  }
+		  } // end of loop all signals(at different time) of the same ReadoutElementID
+	  } // end of loop for all the ReadoutElementID
   } // end of loop tempDigitContainer(hash_max)
 
-
   for(tempDigitContainerType::iterator it_coll = tempDigitContainer.begin(); it_coll != tempDigitContainer.end(); ++it_coll){
-    
-    IdentifierHash coll = it_coll->first;
-    msg(MSG::VERBOSE) << "coll = "<< coll << endreq;  
-    digitCollection = new sTgcDigitCollection(it_coll->second.begin()->first, coll);
+	  IdentifierHash coll = it_coll->first;
+	  msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;
+	  digitCollection = new sTgcDigitCollection(it_coll->second.begin()->first, coll);
 
-    for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
-      int readLevel = it_REID->second.first.readLevel;
-      float neighborOnTime = it_REID->second.first.neighborOnTime;
-      if(!readLevel) continue;
-      
-      Identifier newDigitId = it_REID->first;
+	  for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
+		  int readLevel = it_REID->second.first.readLevel;
+			float neighborOnTime = it_REID->second.first.neighborOnTime;
+			if(!readLevel)
+				continue;
 
-      std::vector<MuonSimData::Deposit> deposits;
+			Identifier newDigitId = it_REID->first;
 
-      for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
+			std::vector<MuonSimData::Deposit> deposits;
 
-        int kept = it_digit->second.keep;
-        if(!kept) continue; 
-        else if(readLevel==2 && kept<2) continue;
-        else if(readLevel==1 && kept==1) {
-          if(std::abs(it_digit->first - neighborOnTime)>m_timeJitterElectronicsStrip*3.) continue; // 3 sigma ~ 99.7%
-        }
+			for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
+					int kept = it_digit->second.keep;
+					bool isDead = it_digit->second.isDead;
+					bool isPileup = it_digit->second.isPileup;
+					if(!kept)
+						continue;
+					else if(readLevel==2 && kept<2)
+						continue;
+					else if(readLevel==1 && kept==1) {
+						if(std::abs(it_digit->first - neighborOnTime)>m_timeJitterElectronicsStrip*3.)
+							continue; // 3 sigma ~ 99.7%
+					}
 
-        float newDigitTime = it_digit->first;
-        uint16_t newBcTag = it_digit->second.bcTag;
-        float newCharge  = it_digit->second.charge;
-        int newChannelType = it_digit->second.channelType;
-        MuonSimData::Deposit newDep = it_digit->second.Dep;
+					float newDigitTime = it_digit->first;
+					uint16_t newBcTag = it_digit->second.bcTag;
+					float newCharge  = it_digit->second.charge;
+					int newChannelType = it_digit->second.channelType;
+					MuonSimData::Deposit newDep = it_digit->second.Dep;
 
-        if(newChannelType!=1) digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, -1));
-        else {
-          if(newCharge>m_saturation) newCharge = m_saturation; 
-          //newCharge = (float)((int)(newCharge/m_ADC));
-          digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, newCharge)); 
-        }
+					if(newChannelType!=1){
+						digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, -1));
+						m_digitInfoCollection->push_back(new sTgcDigitInfo(newDigitId, newBcTag, newDigitTime, -1, isDead, isPileup));
+					}
+					else {
+						if(newCharge>m_saturation) newCharge = m_saturation;
+						digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, newCharge));
+						m_digitInfoCollection->push_back(new sTgcDigitInfo(newDigitId, newBcTag, newDigitTime, newCharge, isDead, isPileup));
+					}
 
-        deposits.push_back(newDep);
-      } // end of loop for all the digit object of the same ReadoutElementID
+					deposits.push_back(newDep);
+			} // end of loop for all the digit object of the same ReadoutElementID
 
-      //Record the SDO collection in StoreGate
-      m_sdoContainer->insert ( std::make_pair ( newDigitId, MuonSimData(deposits, it_REID->second.second.begin()->second.Edep) ) );
-      deposits.clear();
+		  //Record the SDO collection in StoreGate
+		  m_sdoContainer->insert ( std::make_pair ( newDigitId, MuonSimData(deposits, it_REID->second.second.begin()->second.Edep) ) );
+		  deposits.clear();
 
-    } // end of loop for all the ReadoutElementID
+	  } // end of loop for all the ReadoutElementID
 
-    if(digitCollection->size()){
-      ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
-      if(m_digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure()){
-        ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());        
-      }
-      for(sTgcDigitCollection::iterator it_stgcDigit_final = digitCollection->begin(); it_stgcDigit_final != digitCollection->end(); ++it_stgcDigit_final) {
-  
-        ATH_MSG_VERBOSE("push to StoreGate : Digit Id= " << m_idHelper->show_to_string((*it_stgcDigit_final)->identify())
-			<< " BC tag = "    << (*it_stgcDigit_final)->bcTag() 
-			<< " digitTime = " << (*it_stgcDigit_final)->time() 
-			<< " charge_6bit = "    << (*it_stgcDigit_final)->charge_6bit()
-			<< " charge_10bit = "    << (*it_stgcDigit_final)->charge_10bit()
-			<< " channelType = " << m_idHelper->channelType((*it_stgcDigit_final)->identify())) ; 
-      }
-    }
-    else {
-      delete digitCollection;
-      digitCollection = 0;
-    }
+	  if(digitCollection->size()){
+		  ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
+		  if(m_digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
+			  ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());
 
+		  for(sTgcDigitCollection::iterator it_stgcDigit_final = digitCollection->begin(); it_stgcDigit_final != digitCollection->end(); ++it_stgcDigit_final) {
+			  ATH_MSG_VERBOSE("push to StoreGate : Digit Id= " << m_idHelper->show_to_string((*it_stgcDigit_final)->identify())
+					  << " BC tag = "    << (*it_stgcDigit_final)->bcTag()
+					  << " digitTime = " << (*it_stgcDigit_final)->time()
+					  << " charge_6bit = "    << (*it_stgcDigit_final)->charge_6bit()
+					  << " charge_10bit = "    << (*it_stgcDigit_final)->charge_10bit()
+					  << " channelType = " << m_idHelper->channelType((*it_stgcDigit_final)->identify())) ;
+		  }
+	  }
+	  else {
+		  delete digitCollection;
+		  digitCollection = 0;
+	  }
   } // end of loop tempDigitContainer(hash_max)
 
   return StatusCode::SUCCESS;
+}
+
+/*******************************************************************************/
+void sTgcDigitizationTool::readDeadtimeConfig()
+{
+  const char* const fileName = "sTGC_Digitization_deadtime.config";
+  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
+
+  ATH_MSG_INFO("Reading deadtime config file");
+
+  std::ifstream ifs;
+  if (fileWithPath != "") {
+    ifs.open(fileWithPath.c_str(), std::ios::in);
+  }
+  else {
+    ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName );
+    exit(-1);
+  }
+
+  if(ifs.bad()){
+    ATH_MSG_FATAL("readDeadtimeConfig(): Could not open file "<< fileName );
+    exit(-1);
+  }
+
+  std::string var;
+  float value;
+
+  while(ifs.good()){
+	  ifs >> var >> value;
+	  	  if(var.compare("deadtimeON") == 0){
+	  		  m_deadtimeON = (bool)value;
+	  		  ATH_MSG_INFO("m_deadtimeON = " << (bool)value);
+	  		  continue;
+	  	  }
+	  	  if(var.compare("produceDeadDigits") == 0){
+	  		  m_produceDeadDigits = (bool)value;
+	  		  ATH_MSG_INFO("m_produceDeadDigits = " << (bool)value);
+	  		  continue;
+	  	  }
+	  	  if(var.compare("deadtimeStrip") == 0){
+	  		  m_deadtimeStrip = value;
+	  		  ATH_MSG_INFO("m_deadtimeStrip = " << value);
+	  		  continue;
+	  	  }
+	  	  if(var.compare("deadtimePad") == 0){
+	  		  m_deadtimePad = value;
+	  		  ATH_MSG_INFO("m_deadtimePad = " << value);
+	  		  continue;
+	  	  }
+	  	  ATH_MSG_WARNING("Unknown value encountered reading deadtime.config");
+  }
+
+  ifs.close();
+
 }
 
 /*******************************************************************************/

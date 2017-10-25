@@ -512,7 +512,7 @@ void sTgcDigitMaker::readFileOfTimeJitter()
         if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
     }
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
     i++;
   }
   ifs.close();
@@ -667,7 +667,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime));
+    m_digits->push_back(new sTgcDigit(id, bctag, digittime, -1));
   }
 
   return;

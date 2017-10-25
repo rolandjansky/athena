@@ -28,6 +28,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
+#include "sTGC_Digitization/sTgcDigitInfoCollection.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -138,6 +140,7 @@ private:
   ActiveStoreSvc*                          m_activeStore;
   sTgcHitIdHelper*                         m_hitIdHelper;
   sTgcDigitContainer*                      m_digitContainer;
+  sTgcDigitInfoCollection*				   m_digitInfoCollection;
   const sTgcIdHelper*                      m_idHelper;
   const MuonGM::MuonDetectorManager*       m_mdManager;
   sTgcDigitMaker*                          m_digitizer;
@@ -149,6 +152,8 @@ private:
   std::string m_outputDigitCollectionName; // name of the output digits
   std::string m_outputSDO_CollectionName; // name of the output SDOs
 
+  std::string m_outputDigitInfoCollectionName;
+
   bool m_doToFCorrection;
   int m_doChannelTypes;
   //double m_noiseFactor;
@@ -156,6 +161,8 @@ private:
   float m_neighborOnThreshold;
   float m_saturation;
   //float m_ADC;
+  bool  m_deadtimeON;
+  bool  m_produceDeadDigits;
   float m_deadtimeStrip;
   float m_deadtimePad;
   float m_timeWindowOffsetPad;
@@ -165,6 +172,10 @@ private:
   float m_bunchCrossingTime;
   float m_timeJitterElectronicsStrip;
   float m_timeJitterElectronicsPad;
+
+  std::vector<int> m_hitSourceVec;
+
+  void readDeadtimeConfig();
 
   uint16_t bcTagging(const float digittime, const int channelType) const;
 
