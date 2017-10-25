@@ -34,23 +34,23 @@ class CSCHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hits_eta;
-   TH1* h_hits_phi;
-   TH1* h_hits_sx;
-   TH1* h_hits_sy;
-   TH1* h_hits_sz;
-   TH1* h_hits_ex;
-   TH1* h_hits_ey;
-   TH1* h_hits_ez;
-   TH1* h_hits_time;
-   TH1* h_hits_edep;
-   TH1* h_hits_kine;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hits_eta;
+   TH1* m_h_hits_phi;
+   TH1* m_h_hits_sx;
+   TH1* m_h_hits_sy;
+   TH1* m_h_hits_sz;
+   TH1* m_h_hits_ex;
+   TH1* m_h_hits_ey;
+   TH1* m_h_hits_ez;
+   TH1* m_h_hits_time;
+   TH1* m_h_hits_edep;
+   TH1* m_h_hits_kine;
 
    std::vector<float>* m_hits_x;
    std::vector<float>* m_hits_y;

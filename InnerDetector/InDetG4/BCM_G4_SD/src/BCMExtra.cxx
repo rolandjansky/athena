@@ -6,23 +6,23 @@
 
 void BCMExtra::SetVertex(double X, double Y, double Z)
 {
-  vertexX = X;
-  vertexY = Y;
-  vertexZ = Z;
+  m_vertexX = X;
+  m_vertexY = Y;
+  m_vertexZ = Z;
 }
 
 double BCMExtra::GetVertexX()
 {
-  return vertexX;
+  return m_vertexX;
 }
 
 double BCMExtra::GetVertexY()
 {
-  return vertexY;
+  return m_vertexY;
 }
 
 double BCMExtra::GetVertexZ()
 {
-  return vertexZ;
+  return m_vertexZ;
 }
 

@@ -343,7 +343,6 @@
 + Tracking/TrkEvent/TrkEventPrimitives
 + Tracking/TrkEvent/TrkNeutralParameters
 + Tracking/TrkEvent/TrkParametersBase
-+ Tracking/TrkEvent/TrkTrackLink
 
 
 # Ignore everything else

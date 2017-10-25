@@ -112,6 +112,9 @@ def generateCaloSensitiveDetectorList():
             SensitiveDetectorList += [ 'TileGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
             SensitiveDetectorList += [ 'TileGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
+    from G4AtlasApps.SimFlags import simFlags
+    if simFlags.RecordStepInfo.get_Value():
+        SensitiveDetectorList += [ 'FCS_StepInfoSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateMuonSensitiveDetectorList():
