@@ -9,7 +9,8 @@
 #define PMGTOOLS_PMGTOOLSDICT_H
 
 // Local include(s):
-#include "PMGTools/PMGSherpa22VJetsWeightTool.h"
 #include "PMGTools/PMGCrossSectionTool.h"
+#include "PMGTools/PMGSherpa22VJetsWeightTool.h"
+#include "PMGTools/PMGTruthWeightTool.h"
 
 #endif // PMGTOOLS_PMGTOOLSDICT_H
