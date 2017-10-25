@@ -46,7 +46,6 @@ class LArMinBiasMC: public LArMinBiasComplete {
 
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArMinBiasMC,ILArMinBias);
 CLASS_DEF( LArMinBiasMC, 85803560 ,1)
-CLASS_DEF( CondCont<LArMinBiasMC> , 133518152 , 1 )
+CONDCONT_DEF( LArMinBiasMC, 133518152, ILArMinBias );
 #endif 

@@ -32,9 +32,8 @@ class LArDAC2uASym: virtual public ILArDAC2uA {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArDAC2uASym, ILArDAC2uA);
 CLASS_DEF( LArDAC2uASym,235307622,1)
-CLASS_DEF( CondCont<LArDAC2uASym> ,22175210 , 1 )
+CONDCONT_DEF( LArDAC2uASym, 22175210, ILArDAC2uA );
 #endif 

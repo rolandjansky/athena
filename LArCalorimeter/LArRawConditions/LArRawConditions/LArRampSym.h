@@ -32,10 +32,9 @@ class LArRampSym: public ILArRamp {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArRampSym,ILArRamp);
 CLASS_DEF( LArRampSym,226012704,1)
-CLASS_DEF( CondCont<LArRampSym> ,121227424 , 1 )
+CONDCONT_DEF( LArRampSym, 121227424, ILArRamp );
 
 #endif 

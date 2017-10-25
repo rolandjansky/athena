@@ -14,8 +14,8 @@
 #ifndef LARWFPARAMSCONTAINER_H
 #define LARWFPARAMSCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRawConditions/LArWFParams.h"
 
 /**
