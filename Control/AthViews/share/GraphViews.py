@@ -49,7 +49,7 @@ job = AlgSequence()
 # Make views
 job += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
 job.make_alg.ViewBaseName = "view"
-job.make_alg.ViewNumber = 5
+job.make_alg.ViewNumber = 10
 job.make_alg.AlgPoolName = viewAlgPoolName
 job.make_alg.AlgorithmNameSequence = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #Eventually scheduler will do this
 
