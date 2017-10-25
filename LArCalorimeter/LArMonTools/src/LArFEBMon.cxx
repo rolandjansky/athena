@@ -62,14 +62,14 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_strHelper(0),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_trigok(false),
-    m_barrelCSummary(),
-    m_barrelASummary(),
-    m_emecCSummary(),
-    m_emecASummary(),
-    m_hecCSummary(),
-    m_hecASummary(),
-    m_fcalCSummary(),
-    m_fcalASummary(),
+//    m_barrelCSummary(),
+//    m_barrelASummary(),
+//    m_emecCSummary(),
+//    m_emecASummary(),
+//    m_hecCSummary(),
+//    m_hecASummary(),
+//    m_fcalCSummary(),
+//    m_fcalASummary(),
     m_febInError(),
     m_anyfebIE(false) 
 {
@@ -173,18 +173,26 @@ StatusCode LArFEBMon::bookHistograms() {
     MonGroup perPartitionDataGroup( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED );
     MonGroup perPartitionDataGroupLowerLB( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED, "", "lowerLB" );
     // General summary histos
-    m_rejectedHisto = TH1F_LW::create("EventsRejected","Nb of events rejected (at least one error)",3,0.5,3.5);
-    (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
-    (m_rejectedHisto->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
-    (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
+    m_rejectedHisto = TH1F_LW::create("EventsRejected","Nb of events rejected (at least one error)",7,0.5,7.5);
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(1,">=1 FEB in error");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(2,">=4 FEBs in error");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"LArError::DATACORRUPTED");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(4,"LArError::DATACORRUPTEDVETO");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(5,"LArError::NOISEBURSTVETO");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(6,"Accepted");
+    (m_rejectedHisto->GetXaxis())->SetBinLabel(7,"Total");
     //sc = sc && summaryGroup.regHist(m_rejectedHisto);
     
     sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
     
-    m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
-    (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
-    (m_rejectedYield->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
-    (m_rejectedYield->GetXaxis())->SetBinLabel(3,"Accepted");
+    m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",7,0.5,7.5);
+    (m_rejectedYield->GetXaxis())->SetBinLabel(1,">=1 FEB in error");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(2,">=4 FEBs in error");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(3,"LArError::DATACORRUPTED");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(4,"LArError::DATACORRUPTEDVETO");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(5,"LArError::NOISEBURSTVETO");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(6,"Accepted");
+    (m_rejectedYield->GetXaxis())->SetBinLabel(7,"Total");
     (m_rejectedYield->GetYaxis())->SetTitle("Yield(%)");
     sc = sc && summaryGroupW.regHist(m_rejectedYield);
     
@@ -314,15 +322,16 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_totNbSw2->GetYaxis())->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_totNbSw2);
     
+    m_partHistos.resize(8);
     // Book per partition set of histograms
-    sc = sc && bookNewPartitionSumm(m_barrelCSummary,"EMBC");
-    sc = sc && bookNewPartitionSumm(m_barrelASummary,"EMBA");
-    sc = sc && bookNewPartitionSumm(m_emecCSummary,"EMECC");
-    sc = sc && bookNewPartitionSumm(m_emecASummary,"EMECA");
-    sc = sc && bookNewPartitionSumm(m_hecCSummary,"HECC");
-    sc = sc && bookNewPartitionSumm(m_hecASummary,"HECA");
-    sc = sc && bookNewPartitionSumm(m_fcalCSummary,"FcalC");
-    sc = sc && bookNewPartitionSumm(m_fcalASummary,"FcalA");
+    sc = sc && bookNewPartitionSumm(0,"EMBC");
+    sc = sc && bookNewPartitionSumm(1,"EMBA");
+    sc = sc && bookNewPartitionSumm(2,"EMECC");
+    sc = sc && bookNewPartitionSumm(3,"EMECA");
+    sc = sc && bookNewPartitionSumm(4,"HECC");
+    sc = sc && bookNewPartitionSumm(5,"HECA");
+    sc = sc && bookNewPartitionSumm(6,"FcalC");
+    sc = sc && bookNewPartitionSumm(7,"FcalA");
     
     plotMaskedFEB();
     
@@ -387,9 +396,7 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime=thisEvent->timeStamp();
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
-  unsigned lumi_block = thisEvent->lumiBlock();
-  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
-  
+  unsigned lumi_block = thisEvent->lumiBlock();  
   //ATH_MSG_INFO( "LArFEBMon Lumi block: "<<lumi_block);
 
   const LArFebHeaderContainer* hdrCont;
@@ -507,69 +514,79 @@ StatusCode LArFEBMon::fillHistograms() {
       m_hTriggerTypeAllDSP->Fill((*it)->LVL1TigType());
       if (firstEventType == 4) totNbOfSweet2 = totNbOfSweet2+(*it)->NbSweetCells2();
       // Fill (nb of sweet cells per FEB) histos
-      switch (partitionNb_dE){
-	case 0:
-	  (m_barrelCSummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelCSummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 1:
-	  (m_barrelASummary.nbOfEvts)->Fill(slot,ft);
-   	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelASummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" EMBA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 2:
-	  (m_emecCSummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecCSummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" EMECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 3:
-	  (m_emecASummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_emecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_emecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecASummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" EMECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;	
-	case 4:
-	  (m_hecCSummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecCSummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" HECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 5:
-	  (m_hecASummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_hecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_hecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecASummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" HECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 6:
-	  (m_fcalCSummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalCSummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" FCALC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-	case 7:
-	  (m_fcalASummary.nbOfEvts)->Fill(slot,ft);
-	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalASummary.missingTriggerType)->Fill(slot,ft);
-	  ATH_MSG_DEBUG(" FCALA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-	  break;
-      }      
+      (m_partHistos[partitionNb_dE].nbOfEvts)->Fill(slot,ft);
+      if (firstEventType == 4) (m_partHistos[partitionNb_dE].nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+      if (firstEventType == 4) (m_partHistos[partitionNb_dE].nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+      if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_partHistos[partitionNb_dE].missingTriggerType)->Fill(slot,ft);
+      ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+
+//      switch (partitionNb_dE){
+//	case 0:
+//	  (m_barrelCSummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelCSummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 1:
+//	  (m_barrelASummary.nbOfEvts)->Fill(slot,ft);
+//   	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelASummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" EMBA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 2:
+//	  (m_emecCSummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecCSummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" EMECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 3:
+//	  (m_emecASummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_emecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_emecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecASummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" EMECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;	
+//	case 4:
+//	  (m_hecCSummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecCSummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" HECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 5:
+//	  (m_hecASummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_hecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_hecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecASummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" HECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 6:
+//	  (m_fcalCSummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalCSummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" FCALC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//	case 7:
+//	  (m_fcalASummary.nbOfEvts)->Fill(slot,ft);
+//	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
+//	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
+//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalASummary.missingTriggerType)->Fill(slot,ft);
+//	  ATH_MSG_DEBUG(" FCALA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
+//	  break;
+//      }      
     }//Test on FEBid
   }//end of loop over FEB headers
   
-  // Loop over all febs to plot the error from statusword
-  // This is mandatory to also monitor the FEBs with missing headers
+
+  // According to http://acode-browser2.usatlas.bnl.gov/lxr-rel21/source/atlas/LArCalorimeter/LArCellRec/src/LArBadFebMaskingTool.cxx
+  // LAr is in error if : >= 4 FEB in error in online/express and >=1 in bulk
+  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
+
+  // Loop over all febs to fill the FEB errors
   m_anyfebIE = false;
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); 
        allFeb != m_onlineHelper->feb_end(); ++allFeb) {
@@ -585,32 +602,34 @@ StatusCode LArFEBMon::fillHistograms() {
       int partitionNb_dE = returnPartition(barrel_ec,pos_neg,ft,slot);
       
       // Fill the errors in partition histograms
-      switch (partitionNb_dE){
-	case 0:
-	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 1:
-	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 2:
-	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 3:
-	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;	
-	case 4:
-	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 5:
-	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 6:
-	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-	case 7:	    
-	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
-	  break;
-      }
+      
+      fillErrorsSummary(partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//      switch (partitionNb_dE){
+//	case 0:
+//	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 1:
+//	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 2:
+//	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 3:
+//	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;	
+//	case 4:
+//	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 5:
+//	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 6:
+//	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//	case 7:	    
+//	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+//	  break;
+//      }
       if (m_currentFebStatus && m_febInErrorTree.size()<33){
 	m_febInErrorTree.push_back(febid.get_identifier32().get_compact());
 	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
@@ -621,38 +640,44 @@ StatusCode LArFEBMon::fillHistograms() {
   // Check and reset the rejected histo per partition
   // Use the ENTRIES variable to store the LB and reset if needed!
   if (m_isOnline){
-     if ((m_barrelCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_barrelCSummary.m_rejectedLBProfilePart)->Reset();
-                      (m_barrelCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_barrelASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_barrelASummary.m_rejectedLBProfilePart)->Reset();
-                      (m_barrelASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_emecASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_emecASummary.m_rejectedLBProfilePart)->Reset();
-                      (m_emecASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_emecCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_emecCSummary.m_rejectedLBProfilePart)->Reset();
-                      (m_emecCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_hecCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_hecCSummary.m_rejectedLBProfilePart)->Reset();
-                      (m_hecCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_hecASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_hecASummary.m_rejectedLBProfilePart)->Reset();
-                      (m_hecASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_fcalASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_fcalASummary.m_rejectedLBProfilePart)->Reset();
-                      (m_fcalASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
-     if ((m_fcalCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
-                      (m_fcalCSummary.m_rejectedLBProfilePart)->Reset();
-                      (m_fcalCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-     }
+    for (int iPart = 0;iPart<8;iPart++){
+      if ((m_partHistos[iPart].m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+	(m_partHistos[iPart].m_rejectedLBProfilePart)->Reset();
+	(m_partHistos[iPart].m_rejectedLBProfilePart)->SetEntries(lumi_block);
+      }
+    }
+//     if ((m_barrelCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_barrelCSummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_barrelCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_barrelASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_barrelASummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_barrelASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_emecASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_emecASummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_emecASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_emecCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_emecCSummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_emecCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_hecCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_hecCSummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_hecCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_hecASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_hecASummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_hecASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_fcalASummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_fcalASummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_fcalASummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
+//     if ((m_fcalCSummary.m_rejectedLBProfilePart)->GetEntries() != lumi_block) {
+//                      (m_fcalCSummary.m_rejectedLBProfilePart)->Reset();
+//                      (m_fcalCSummary.m_rejectedLBProfilePart)->SetEntries(lumi_block);
+//     }
   }
   
   //Fill general data histos
@@ -663,45 +688,79 @@ StatusCode LArFEBMon::fillHistograms() {
   // Fill the total number of FEB (test on DSP headers) and for each partition (Dirac plots)
   m_nbOfFebBlocksTotal->Fill(nbOfFeb);
   
-  m_barrelASummary.nbOfFebBlocks->Fill(nfeb[1]);	
-  m_nbOfEvts2D->Fill(nfeb[1],1);
-  
-  m_barrelCSummary.nbOfFebBlocks->Fill(nfeb[0]);	
-  m_nbOfEvts2D->Fill(nfeb[0],0);
-  
-  m_nbOfEvts2D->Fill(nfeb[3]+nfeb[5]+nfeb[7],3);
-  m_emecASummary.nbOfFebBlocks->Fill(nfeb[3]);
-  m_hecASummary.nbOfFebBlocks->Fill(nfeb[5]);
-  m_fcalASummary.nbOfFebBlocks->Fill(nfeb[7]);
-  
-  m_nbOfEvts2D->Fill(nfeb[2]+nfeb[4]+nfeb[6],2);
-  m_emecCSummary.nbOfFebBlocks->Fill(nfeb[2]);
-  m_hecCSummary.nbOfFebBlocks->Fill(nfeb[4]);
-  m_fcalCSummary.nbOfFebBlocks->Fill(nfeb[6]);
+  for (int iPart = 0;iPart<8;iPart++){
+    m_partHistos[iPart].nbOfFebBlocks->Fill(nfeb[iPart]);	
+    m_nbOfEvts2D->Fill(nfeb[iPart],iPart);
+  }
+
+//  m_barrelASummary.nbOfFebBlocks->Fill(nfeb[1]);	
+//  m_nbOfEvts2D->Fill(nfeb[1],1);
+//  
+//  m_barrelCSummary.nbOfFebBlocks->Fill(nfeb[0]);	
+//  m_nbOfEvts2D->Fill(nfeb[0],0);
+//  
+//  m_nbOfEvts2D->Fill(nfeb[3]+nfeb[5]+nfeb[7],3);
+//  m_emecASummary.nbOfFebBlocks->Fill(nfeb[3]);
+//  m_hecASummary.nbOfFebBlocks->Fill(nfeb[5]);
+//  m_fcalASummary.nbOfFebBlocks->Fill(nfeb[7]);
+//  
+//  m_nbOfEvts2D->Fill(nfeb[2]+nfeb[4]+nfeb[6],2);
+//  m_emecCSummary.nbOfFebBlocks->Fill(nfeb[2]);
+//  m_hecCSummary.nbOfFebBlocks->Fill(nfeb[4]);
+//  m_fcalCSummary.nbOfFebBlocks->Fill(nfeb[6]);
   
   // If the nb of DSP headers is lower than the maximum, this means that there are some missing FEBs, probably
   // due to missing ROS fragment
   // This assumes that the maximum of DSP headers found is the expected one
   //  ATH_MSG_ERROR( "ICI" << nbOfFeb << " " << m_nbOfFebBlocksTotal->GetBinLowEdge(m_nbOfFebBlocksTotal->GetMaximumBin()) );
   
-  if (nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
-    // The nb of readout FEB is lower than the maximum number of FEBs observed in this run
+  // Fill event histograms
+  if (m_febInErrorTree.size()>=1){
     m_rejectedHisto->Fill(1);
-    //    m_rejectedLBProfile->Fill(0.5,100);
+    if (m_febInErrorTree.size()>=4) m_rejectedHisto->Fill(2);
+  }
+
+  if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){ // Event in error (whatever is the cause)
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)){ // Event corrupted (>=1/4 FEBs in error)
+      m_rejectedHisto->Fill(3);
+      m_rejectedYieldLB->Fill(lumi_block,100);
+      if (m_isOnline) m_rejectedLBProfile->Fill(0.5,100);
+      if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) m_rejectedYieldLBout->Fill(lumi_block,0); // Vetoed
+      else m_rejectedYieldLBout->Fill(lumi_block,100); // not vetoed
+      m_rejBitsHisto->Fill(m_rejectionBits.to_ulong());
+    }
+    else{ // Event not corrupted
+      m_rejectedYieldLB->Fill(lumi_block,0);
+      if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
+    }
+
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) m_rejectedHisto->Fill(4);
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) m_rejectedHisto->Fill(5);
   }
   else{
-    // There was at least one FEB in error
-    if (m_eventRejected) {
-      m_rejectedHisto->Fill(2);
-      m_rejBitsHisto->Fill(m_rejectionBits.to_ulong());
-      //   m_rejectedLBProfile->Fill(0.5,100);
-    }
-    // The event is accepted
-    else {
-      m_rejectedHisto->Fill(3);
-      //m_rejectedLBProfile->Fill(0.5,0);
-    }
+    m_rejectedHisto->Fill(6);
   }
+  m_rejectedHisto->Fill(7);
+
+  if (m_isOnline) m_rejectedLBProfile->SetEntries(lumi_block);
+
+
+  // Test on test of FEBs obsolete 
+  //if (nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
+  //  // The nb of readout FEB is lower than the maximum number of FEBs observed in this run
+  //  m_rejectedHisto->Fill(1);
+  //}
+  //else{
+  //  // There was at least one FEB in error
+  //  if (m_eventRejected) {
+  //    m_rejectedHisto->Fill(2);
+  //    m_rejBitsHisto->Fill(m_rejectionBits.to_ulong());
+  //  }
+  //  // The event is accepted
+  //  else {
+  //    m_rejectedHisto->Fill(3);
+  //  }
+  //}
   
     
   m_eventsLB->Fill(lumi_block);    
@@ -717,23 +776,23 @@ StatusCode LArFEBMon::fillHistograms() {
 
   if(m_anyfebIE) { m_CorruptTree->Fill(); }
 
-  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
-    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
-
-    if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
-      m_rejectedYieldLBout->Fill(lumi_block,100);
-    else
-      m_rejectedYieldLBout->Fill(lumi_block,0);
-
-    if (m_isOnline) {
-       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
-    }
-  } else{
-    m_rejectedYieldLB->Fill(lumi_block,0);
-    m_rejectedYieldLBout->Fill(lumi_block,0);
-    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
-  }
-  if (m_isOnline) m_rejectedLBProfile->SetEntries(lumi_block);
+//  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
+//    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
+//
+//    if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
+//      m_rejectedYieldLBout->Fill(lumi_block,100);
+//    else
+//      m_rejectedYieldLBout->Fill(lumi_block,0);
+//
+//    if (m_isOnline) {
+//       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
+//    }
+//  } else{
+//    m_rejectedYieldLB->Fill(lumi_block,0);
+//    m_rejectedYieldLBout->Fill(lumi_block,0);
+//    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
+//  }
+  
   
 
   //Trigger part: Already done at the beginning of this function
@@ -760,28 +819,36 @@ StatusCode LArFEBMon::fillHistograms() {
               
       m_stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize) ;
       
-      m_barrelASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[1]/262144);	
-      m_barrelCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[0]/262144);
-      
-      m_emecASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[3]/262144);
-      m_hecASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[5]/262144);
-      m_fcalASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[7]/262144);
-      
-      m_emecCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[2]/262144);
-      m_hecCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[4]/262144);
-      m_fcalCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[6]/262144);
+      for (int iPart = 0;iPart<8;iPart++){
+	m_partHistos[iPart].stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[iPart]/262144);
+      }
+
+//      m_barrelASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[1]/262144);	
+//      m_barrelCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[0]/262144);
+//      
+//      m_emecASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[3]/262144);
+//      m_hecASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[5]/262144);
+//      m_fcalASummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[7]/262144);
+//      
+//      m_emecCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[2]/262144);
+//      m_hecCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[4]/262144);
+//      m_fcalCSummary.stream_eventSizeLB->Fill(lumi_block, m_streamsThisEvent[str], larEventSize_part[6]/262144);
     }
   } else { // we are filling only simple profiles
-    m_barrelASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[1]/262144);	
-    m_barrelCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[0]/262144);
-      
-    m_emecASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[3]/262144);
-    m_hecASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[5]/262144);
-    m_fcalASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[7]/262144);
-   
-    m_emecCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[2]/262144);
-    m_hecCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[4]/262144);
-    m_fcalCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[6]/262144);
+    for (int iPart = 0;iPart<8;iPart++){
+      m_partHistos[iPart].eventSizeLB->Fill(lumi_block,  larEventSize_part[iPart]/262144);
+    }
+//
+//    m_barrelASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[1]/262144);	
+//    m_barrelCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[0]/262144);
+//      
+//    m_emecASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[3]/262144);
+//    m_hecASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[5]/262144);
+//    m_fcalASummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[7]/262144);
+//   
+//    m_emecCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[2]/262144);
+//    m_hecCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[4]/262144);
+//    m_fcalCSummary.eventSizeLB->Fill(lumi_block,  larEventSize_part[6]/262144);
   }
 
    
@@ -790,75 +857,79 @@ StatusCode LArFEBMon::fillHistograms() {
 
 
 // ********************************************************************
-void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
+// Method to fill the error partition-histograms
+void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
 {  
-  if (summ.maskedFEB->GetBinContent(slot,ft+1) != 0) return;
+  // If the FEB has a special treatment (masked in DB), do not set errors.
+  if (m_partHistos[partitNb_2].maskedFEB->GetBinContent(slot,ft+1) != 0) return;
   
+  // Consider all possible errors and fill the correspond FT/Slot TH2
+  // as well as the global summary plot
   if ( error & (1<<0) ){
-    (summ.parity)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].parity)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(0);
     m_LArAllErrors_dE->Fill(1,partitNb_2);
   }
   
   if ( error & (1<<1) ){
-    (summ.BCID_2halves)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].BCID_2halves)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(1);
     m_LArAllErrors_dE->Fill(2,partitNb_2);
   }
   
   if ( error & (1<<2) ){
-    (summ.RADD_2halves)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].RADD_2halves)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(2);
     m_LArAllErrors_dE->Fill(3,partitNb_2);
   }
   
   if ( error & (1<<3) ){
-    (summ.EVTID_2halves)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].EVTID_2halves)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(3);
     m_LArAllErrors_dE->Fill(4,partitNb_2);
   }
   
   if ( error & (1<<4) ){
-    (summ.SCACStatus)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].SCACStatus)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(4);
     m_LArAllErrors_dE->Fill(5,partitNb_2);
   }
   
   if ( error & (1<<5) ){
-    (summ.scaOutOfRange)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].scaOutOfRange)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(5);
     m_LArAllErrors_dE->Fill(6,partitNb_2);
   }
   
   if ( error & (1<<6) ){
-    (summ.gainMismatch)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].gainMismatch)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(6);
     m_LArAllErrors_dE->Fill(7,partitNb_2);
   }
   
   if ( error & (1<<7) ){
-    (summ.typeMismatch)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].typeMismatch)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(7);
     m_LArAllErrors_dE->Fill(8,partitNb_2);
   }
   
   if ( error & (1<<8) ){
-    (summ.badNbOfSamp)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].badNbOfSamp)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(8);
     m_LArAllErrors_dE->Fill(9,partitNb_2);
   }
   
   if ( error & (1<<9) ){
-    (summ.zeroSamp)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].zeroSamp)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(9);
     m_LArAllErrors_dE->Fill(10,partitNb_2);
@@ -866,7 +937,7 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
   
   
   if ( error & (1<<11) ){
-    (summ.checkSum)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].checkSum)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(10);
     m_LArAllErrors_dE->Fill(11,partitNb_2);
@@ -875,7 +946,7 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
   if ( error & (1<<12) ){
     // Check whether this error can be ignored. Useful for calibration run of PS or EMB
     if (!((m_ignoreMissingHeaderEMB && partitNb_2<2 && slot>=2) || (m_ignoreMissingHeaderPS && partitNb_2<2 && slot==1))){
-      (summ.missingHeader)->Fill(slot,ft);
+      (m_partHistos[partitNb_2].missingHeader)->Fill(slot,ft);
       m_currentFebStatus = true;
       m_rejectionBits.set(11);
       m_LArAllErrors_dE->Fill(12,partitNb_2);
@@ -883,37 +954,41 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
   }
   
   if ( error & (1<<13) ){
-    (summ.badGain)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].badGain)->Fill(slot,ft);
     m_currentFebStatus = true;
     m_rejectionBits.set(12);
     m_LArAllErrors_dE->Fill(13,partitNb_2);
   }
   
+  // If this FEB was in error (any kind), fill the global FT/Slot TH2
+  // and fill online histogram that is reseted at the beginning of each LB
+  // This a 1 bin TProfile that is filled in a quite strange way : 
+  // 0%/50%/100% -> Not corrupted / Corrupted but not LAr in Error (cf 4 FEB threshold) / Corrupted and LAr in Error
 
   if (m_currentFebStatus){
-    (summ.LArAllErrors)->Fill(slot,ft);
+    (m_partHistos[partitNb_2].LArAllErrors)->Fill(slot,ft);
     if (lar_inerror) {// LArinError
        m_eventRejected = true;
-       if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
+       if (m_isOnline) (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,100);
     } else {
-       if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,50);
+       if (m_isOnline)  (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,50);
     }
   } else {
-    if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,0);
+    if (m_isOnline)  (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,0);
   }
   
+  // This 1 bin histogram has the "Nb of entries" set as LB number to know when to reset it.
   if (m_isOnline) {
-     (summ.m_rejectedLBProfilePart)->SetEntries(lumi_block);
-      //std::cout<<" Setting m_rejectedLBProfilePart Entries: "<<lumi_block<<std::endl;   
+     (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->SetEntries(lumi_block);
   }
 
   return;
 }
 
 //********************************************************************
-StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string summName)
+StatusCode LArFEBMon::bookNewPartitionSumm(int partNb,std::string partName)
 {
-  ATH_MSG_DEBUG( "In bookNewPartitionSumm ->" << summName );
+  ATH_MSG_DEBUG( "In bookNewPartitionSumm ->" << partName );
   
   MonGroup perPartitionGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED );
   MonGroup perPartitionYieldGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED, "" , "weightedEff" );
@@ -922,7 +997,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   
   int nbOfFT = 25;
   int nbOfSlot = 15;
-  if (summName.find("B",0) != std::string::npos){
+  if (partName.find("B",0) != std::string::npos){
     nbOfFT = 32;
     nbOfSlot = 14;
   }
@@ -933,164 +1008,164 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   
   // These are error histograms-This should be empty
   // They are stored in /perPartition directory
-  std::string hName = "Parity"+summName;
-  std::string hTitle = "Parity error - " + summName;  
-  summ.parity = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.parity);
-  sc = sc && perPartitionGroup.regHist(summ.parity);
+  std::string hName = "Parity"+partName;
+  std::string hTitle = "Parity error - " + partName;  
+  m_partHistos[partNb].parity = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].parity);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].parity);
   
-  hName = "BCID"+summName;
-  hTitle = "BCID mismatch betw. 2 halves of FEB - " + summName;
-  summ.BCID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.BCID_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.BCID_2halves);
+  hName = "BCID"+partName;
+  hTitle = "BCID mismatch betw. 2 halves of FEB - " + partName;
+  m_partHistos[partNb].BCID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].BCID_2halves);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].BCID_2halves);
   
-  hName = "RADD"+summName;
-  hTitle = "Sample header mismatch betw. 2 halves of FEB - " + summName;
-  summ.RADD_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.RADD_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.RADD_2halves);
+  hName = "RADD"+partName;
+  hTitle = "Sample header mismatch betw. 2 halves of FEB - " + partName;
+  m_partHistos[partNb].RADD_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].RADD_2halves);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].RADD_2halves);
   
-  hName = "EVTID"+summName;
-  hTitle = "EVTID mismatch betw. 2 halves of FEB - " + summName;
-  summ.EVTID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.EVTID_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.EVTID_2halves);
+  hName = "EVTID"+partName;
+  hTitle = "EVTID mismatch betw. 2 halves of FEB - " + partName;
+  m_partHistos[partNb].EVTID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].EVTID_2halves);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].EVTID_2halves);
   
-  hName = "SCACStatus"+summName;
-  hTitle = "Wrong SCAC status in one half of a FEB - " + summName;
-  summ.SCACStatus = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.SCACStatus);
-  sc = sc && perPartitionGroup.regHist(summ.SCACStatus);
+  hName = "SCACStatus"+partName;
+  hTitle = "Wrong SCAC status in one half of a FEB - " + partName;
+  m_partHistos[partNb].SCACStatus = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].SCACStatus);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].SCACStatus);
   
-  hName = "scaOutOfRange"+summName;
-  hTitle = "Sca out of range - " + summName;
-  summ.scaOutOfRange = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.scaOutOfRange);
-  sc = sc && perPartitionGroup.regHist(summ.scaOutOfRange);
+  hName = "scaOutOfRange"+partName;
+  hTitle = "Sca out of range - " + partName;
+  m_partHistos[partNb].scaOutOfRange = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].scaOutOfRange);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].scaOutOfRange);
   
-  hName = "gainMismatch"+summName;
-  hTitle = "Gain mismatch within time samples - " + summName;
-  summ.gainMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.gainMismatch);
-  sc = sc && perPartitionGroup.regHist(summ.gainMismatch);
+  hName = "gainMismatch"+partName;
+  hTitle = "Gain mismatch within time samples - " + partName;
+  m_partHistos[partNb].gainMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].gainMismatch);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].gainMismatch);
   
-  hName = "typeMismatch"+summName;
-  hTitle = "Event type mismatch - " + summName;
-  summ.typeMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.typeMismatch);
-  sc = sc && perPartitionGroup.regHist(summ.typeMismatch);
+  hName = "typeMismatch"+partName;
+  hTitle = "Event type mismatch - " + partName;
+  m_partHistos[partNb].typeMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].typeMismatch);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].typeMismatch);
   
-  hName = "badNbOfSamp"+summName;
-  hTitle = "Non uniform number of samples - " + summName;
-  summ.badNbOfSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.badNbOfSamp);
-  sc = sc && perPartitionGroup.regHist(summ.badNbOfSamp);
+  hName = "badNbOfSamp"+partName;
+  hTitle = "Non uniform number of samples - " + partName;
+  m_partHistos[partNb].badNbOfSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].badNbOfSamp);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].badNbOfSamp);
   
-  hName = "zeroSamp"+summName;
-  hTitle = "Empty FEB data blocks - " + summName;
-  summ.zeroSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.zeroSamp);
-  sc = sc && perPartitionGroup.regHist(summ.zeroSamp);
+  hName = "zeroSamp"+partName;
+  hTitle = "Empty FEB data blocks - " + partName;
+  m_partHistos[partNb].zeroSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].zeroSamp);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].zeroSamp);
   
-  hName = "checkSum"+summName;
-  hTitle = "Checksum / DSP block size - " + summName;
-  summ.checkSum = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.checkSum);
-  sc = sc && perPartitionGroup.regHist(summ.checkSum);
+  hName = "checkSum"+partName;
+  hTitle = "Checksum / DSP block size - " + partName;
+  m_partHistos[partNb].checkSum = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].checkSum);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].checkSum);
   
-  hName = "missingHeader"+summName;
-  hTitle = "Missing header " + summName;
-  summ.missingHeader = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.missingHeader);
-  sc = sc && perPartitionGroup.regHist(summ.missingHeader);
+  hName = "missingHeader"+partName;
+  hTitle = "Missing header " + partName;
+  m_partHistos[partNb].missingHeader = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].missingHeader);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].missingHeader);
   
-  hName = "badGain"+summName;
-  hTitle = "Bad gain " + summName;
-  summ.badGain = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.badGain);
-  sc = sc && perPartitionGroup.regHist(summ.badGain);
+  hName = "badGain"+partName;
+  hTitle = "Bad gain " + partName;
+  m_partHistos[partNb].badGain = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].badGain);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].badGain);
   
-  hName = "LArFEBMonErrorsAbsolute"+summName;
-  hTitle = "Nb of events with at least one error - " + summName;
-  summ.LArAllErrors = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.LArAllErrors);
-  sc = sc && perPartitionGroup.regHist(summ.LArAllErrors);
+  hName = "LArFEBMonErrorsAbsolute"+partName;
+  hTitle = "Nb of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrors = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrors);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors);
   
-  hName = "LArFEBMonErrors"+summName;
-  hTitle = "% of events with at least one error - " + summName;
-  summ.LArAllErrorsYield = TH2F_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.LArAllErrorsYield);
-  sc = sc && perPartitionYieldGroup.regHist(summ.LArAllErrorsYield);
+  hName = "LArFEBMonErrors"+partName;
+  hTitle = "% of events with at least one error - " + partName;
+  m_partHistos[partNb].LArAllErrorsYield = TH2F_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrorsYield);
+  sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrorsYield);
   
-  hName = "knownFaultyFEB"+summName;
-  hTitle = "FEB with known errors (1:err. ignored 2:FEB masked) - " + summName;  
-  summ.maskedFEB = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.maskedFEB);
-  sc = sc && perPartitionGroup.regHist(summ.maskedFEB);
+  hName = "knownFaultyFEB"+partName;
+  hTitle = "FEB with known errors (1:err. ignored 2:FEB masked) - " + partName;  
+  m_partHistos[partNb].maskedFEB = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].maskedFEB);
+  sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].maskedFEB);
   
   // These are misc histograms-This may be changed in error histograms if needed
   // They are stored in /perPartitionMisc directory
-  hName = "missingTriggerType"+summName;
-  hTitle = "LVL1 trigger type missing or different from event type - " + summName;  
-  summ.missingTriggerType = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.missingTriggerType);
-  sc = sc && perPartitionMiscGroup.regHist(summ.missingTriggerType);
+  hName = "missingTriggerType"+partName;
+  hTitle = "LVL1 trigger type missing or different from event type - " + partName;  
+  m_partHistos[partNb].missingTriggerType = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].missingTriggerType);
+  sc = sc && perPartitionMiscGroup.regHist(m_partHistos[partNb].missingTriggerType);
   
   
   // These are general data histograms
   // They are stored in /perPartitionData directory
-  hName = "nbOfEvts"+summName;
-  hTitle = "Nb of events (DSP header check only) - " + summName;  
-  summ.nbOfEvts = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfEvts);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfEvts);
+  hName = "nbOfEvts"+partName;
+  hTitle = "Nb of events (DSP header check only) - " + partName;  
+  m_partHistos[partNb].nbOfEvts = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].nbOfEvts);
+  sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].nbOfEvts);
   
-  hName = "NbOfSweet1PerFEB"+summName;
-  hTitle = "Average # of cells with (qfactor+time) readout - " + summName;    
-  summ.nbOfSweet1 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet1);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet1);
+  hName = "NbOfSweet1PerFEB"+partName;
+  hTitle = "Average # of cells with (qfactor+time) readout - " + partName;    
+  m_partHistos[partNb].nbOfSweet1 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].nbOfSweet1);
+  sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].nbOfSweet1);
   
-  hName = "NbOfSweet2PerFEB"+summName;
-  hTitle = "Average # of cells with samples readout - " + summName;    
-  summ.nbOfSweet2 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet2);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet2);
+  hName = "NbOfSweet2PerFEB"+partName;
+  hTitle = "Average # of cells with samples readout - " + partName;    
+  m_partHistos[partNb].nbOfSweet2 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
+  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].nbOfSweet2);
+  sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].nbOfSweet2);
   
-  hName = "nbOfFebBlocks"+summName;
-  hTitle = "# of readout FEBs (DSP header check only) - " + summName;  
-  summ.nbOfFebBlocks = TH1I_LW::create(hName.c_str(),hTitle.c_str(),600,-99.5,500.5);
-  (summ.nbOfFebBlocks)->GetXaxis()->SetTitle("# of readout FEBs");
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfFebBlocks);
+  hName = "nbOfFebBlocks"+partName;
+  hTitle = "# of readout FEBs (DSP header check only) - " + partName;  
+  m_partHistos[partNb].nbOfFebBlocks = TH1I_LW::create(hName.c_str(),hTitle.c_str(),600,-99.5,500.5);
+  (m_partHistos[partNb].nbOfFebBlocks)->GetXaxis()->SetTitle("# of readout FEBs");
+  sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].nbOfFebBlocks);
   
   int nStreams=m_streams.size();
   if(m_isOnline && nStreams > 0) { // book 2d histo with asked streams 
-    hName = "eventSizeStreamVsLB"+summName;
-    hTitle = "LAr event size per stream per LB (w/o ROS headers)" + summName;  
-    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
-    (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
+    hName = "eventSizeStreamVsLB"+partName;
+    hTitle = "LAr event size per stream per LB (w/o ROS headers)" + partName;  
+    m_partHistos[partNb].stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
+    (m_partHistos[partNb].stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     for (int str = 0; str < nStreams; str++) {
-         (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
+         (m_partHistos[partNb].stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
     }
-    (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(nStreams+1,"others");
-    sc = sc && perPartitionDataGroup.regHist(summ.stream_eventSizeLB);
+    (m_partHistos[partNb].stream_eventSizeLB->GetYaxis())->SetBinLabel(nStreams+1,"others");
+    sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].stream_eventSizeLB);
   } else { // book simple profile
-    hName = "eventSizeVsLB"+summName;
-    hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
-    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
-    (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
-    sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
+    hName = "eventSizeVsLB"+partName;
+    hTitle = "LAr event size per LB (w/o ROS headers)" + partName;  
+    m_partHistos[partNb].eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
+    (m_partHistos[partNb].eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
+    sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].eventSizeLB);
   }
 
   if(m_isOnline) { 
-    hName = "EventsRejectedLB"+summName;
-    hTitle = " % of events rejected in current LB (online only) - " + summName;  
-    summ.m_rejectedLBProfilePart = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1,0,1);
-    (summ.m_rejectedLBProfilePart)->GetXaxis()->SetBinLabel(1,"% of events");
-    (summ.m_rejectedLBProfilePart)->SetMinimum(0);
-    (summ.m_rejectedLBProfilePart)->SetMaximum(100);
-    sc = sc && perPartitionDataGroup.regHist(summ.m_rejectedLBProfilePart);
+    hName = "EventsRejectedLB"+partName;
+    hTitle = " % of events rejected in current LB (online only) - " + partName;  
+    m_partHistos[partNb].m_rejectedLBProfilePart = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1,0,1);
+    (m_partHistos[partNb].m_rejectedLBProfilePart)->GetXaxis()->SetBinLabel(1,"% of events");
+    (m_partHistos[partNb].m_rejectedLBProfilePart)->SetMinimum(0);
+    (m_partHistos[partNb].m_rejectedLBProfilePart)->SetMaximum(100);
+    sc = sc && perPartitionDataGroup.regHist(m_partHistos[partNb].m_rejectedLBProfilePart);
     
     if (sc.isFailure()) {
       ATH_MSG_FATAL( "Unable to book partitions histograms" );
@@ -1106,26 +1181,21 @@ LArFEBMon::procHistograms()
   
   if (m_eventsCounter != 0 && endOfEventsBlockFlag()){ 
     float scaleFactor = 100./((float) m_eventsCounter); 
-    AddHistos(m_rejectedYield,m_rejectedHisto,m_rejectedHisto,scaleFactor,0.);
+    addHistos(m_rejectedYield,m_rejectedHisto,m_rejectedHisto,scaleFactor,0.);
     m_rejectedYield->SetEntries(m_eventsCounter);
   }
-  
-  // Reset now done manually to be sure it works online!
-  //  if (isEndOfLumiBlockFlag(){
-  //    m_rejectedLBProfile->Reset();
-  //  }
-  
+    
   if (endOfRunFlag() || endOfEventsBlockFlag()){
     // Book dynamically all FEBs in error
     for (int iError = 1;iError<14;iError++){
-      fillFebInError(m_barrelCSummary,iError,0,0,"EMBC");
-      fillFebInError(m_barrelASummary,iError,0,1,"EMBA");
-      fillFebInError(m_emecCSummary,iError,1,0,"EMECC");
-      fillFebInError(m_emecASummary,iError,1,1,"EMECA");
-      fillFebInError(m_hecCSummary,iError,1,0,"HECC");
-      fillFebInError(m_hecASummary,iError,1,1,"HECA");
-      fillFebInError(m_fcalCSummary,iError,1,0,"FCALC");
-      fillFebInError(m_fcalASummary,iError,1,1,"FCALA");
+      fillFebInError(m_partHistos[0],iError,0,0,"EMBC");
+      fillFebInError(m_partHistos[1],iError,0,1,"EMBA");
+      fillFebInError(m_partHistos[2],iError,1,0,"EMECC");
+      fillFebInError(m_partHistos[3],iError,1,1,"EMECA");
+      fillFebInError(m_partHistos[4],iError,1,0,"HECC");
+      fillFebInError(m_partHistos[5],iError,1,1,"HECA");
+      fillFebInError(m_partHistos[6],iError,1,0,"FCALC");
+      fillFebInError(m_partHistos[7],iError,1,1,"FCALA");
     }
   }
   
@@ -1154,32 +1224,34 @@ LArFEBMon::plotMaskedFEB(){
       int slot      = m_onlineHelper->slot(febid);  
       int partitionNb_dE = returnPartition(barrel_ec,pos_neg,ft,slot);
       
-      switch (partitionNb_dE){
-	case 0:
-	  m_barrelCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 1:
-	  m_barrelASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 2:
-	  m_emecCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 3:
-	  m_emecASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 4:
-	  m_hecCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 5:
-	  m_hecASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 6:
-	  m_fcalCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-	case 7:
-	  m_fcalASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
-	  break;
-      }
+      m_partHistos[partitionNb_dE].maskedFEB->SetBinContent(slot,ft+1,binContent);
+
+//      switch (partitionNb_dE){
+//	case 0:
+//	  m_barrelCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 1:
+//	  m_barrelASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 2:
+//	  m_emecCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 3:
+//	  m_emecASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 4:
+//	  m_hecCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 5:
+//	  m_hecASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 6:
+//	  m_fcalCSummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//	case 7:
+//	  m_fcalASummary.maskedFEB->SetBinContent(slot,ft+1,binContent);
+//	  break;
+//      }
     }
   }
 }
@@ -1253,7 +1325,7 @@ LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_
 	HWIdentifier errorFebId = m_onlineHelper->feb_Id(barrel_ec,pos_neg,iy-1,ix);
 	IdentifierHash hashId = m_onlineHelper->feb_Hash(errorFebId);
 	if (!m_bfebIE[hashId]) {
-	  m_febInError[hashId] = TH1F_LW::create((m_strHelper->feb_str(errorFebId)).c_str(),(m_strHelper->feb_str(errorFebId)+"(UNRELIABLE if # of faulty FEBs>15)").c_str(),13,0.5,13.5);
+	  m_febInError[hashId] = TH1F_LW::create((m_strHelper->feb_str(errorFebId)).c_str(),(m_strHelper->feb_str(errorFebId)+"(UNRELIABLE if # of faulty FEBs>33)").c_str(),13,0.5,13.5);
 	  //	  tempHisto->Print();	
 	  (m_febInError[hashId]->GetXaxis())->SetBinLabel(1,"Parity");
 	  (m_febInError[hashId]->GetXaxis())->SetBinLabel(2,"BCID");
@@ -1313,7 +1385,7 @@ void LArFEBMon::fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto)
 
 /*---------------------------------------------------------*/
 int LArFEBMon::returnPartition(int be,int pn,int ft,int sl){
-  // partitionNb_dE = 0 : EMBC / 1 : EMBA / 2 : EMECC / 3 : EMECA / 4 : HECC / 5 : HECA / 6 : FCALC / 7 : FCALA
+  //  0->EMBC / 1->EMBA / 2->EMECC / 3->EMECA / 4->HECC / 5->HECA / 6->FCalC / 7->FCalA    
   int part = be*2+pn;
   if (be == 1){
     // This is a HEC FEB - Dirty method as IsHECOnlineFEBId is buggy!
@@ -1325,7 +1397,7 @@ int LArFEBMon::returnPartition(int be,int pn,int ft,int sl){
 
 
 /*---------------------------------------------------------*/
-void LArFEBMon::AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2){
+void LArFEBMon::addHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2){
   for (unsigned int ix=1;ix<=h1->GetNbinsX();ix++){
     for (unsigned int iy=1;iy<=h2->GetNbinsY();iy++){
       h0->SetBinContent(ix,iy,h1->GetBinContent(ix,iy)+h2->GetBinContent(ix,iy));
@@ -1335,7 +1407,7 @@ void LArFEBMon::AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2){
 }
 
 /*---------------------------------------------------------*/
-void LArFEBMon::AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2,float s1,float s2){
+void LArFEBMon::addHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2,float s1,float s2){
   for (unsigned int ix=1;ix<=h1->GetNbinsX();ix++){
     h0->SetBinContent(ix,s1*h1->GetBinContent(ix)+s2*h2->GetBinContent(ix));
     // h0->SetBinError(ix,sqrt(pow(s1*s1*h1->GetBinError(ix),2.0)+pow(s2*s2*h2->GetBinError(ix),2.0)));
