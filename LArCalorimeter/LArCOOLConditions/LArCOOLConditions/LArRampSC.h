@@ -30,9 +30,8 @@ class LArRampSC:
   
 };
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArRampSC,ILArRamp);
 CLASS_DEF( LArRampSC , 43028438, 1 )
-CLASS_DEF( CondCont<LArRampSC> , 147380444 , 1 )
+CONDCONT_DEF( LArRampSC, 147380444, ILArRamp );
 
 
 #endif 

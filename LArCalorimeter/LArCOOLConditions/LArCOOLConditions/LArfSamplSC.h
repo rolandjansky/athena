@@ -37,9 +37,7 @@ private:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArfSamplSC,ILArfSampl);
 CLASS_DEF( LArfSamplSC , 174984919, 1 )
-//ConditionsContainer clid for athenaMT
-CLASS_DEF( CondCont<LArfSamplSC> , 188510651 , 1 )
+CONDCONT_DEF( LArfSamplSC, 188510651, ILArfSampl );
 
 #endif 

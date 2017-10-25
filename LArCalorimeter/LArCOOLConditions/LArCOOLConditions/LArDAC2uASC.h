@@ -37,8 +37,7 @@ private:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArDAC2uASC,ILArDAC2uA);
 CLASS_DEF( LArDAC2uASC ,74944220 , 1 )
-CLASS_DEF( CondCont<LArDAC2uASC> , 122040978 , 1 )
+CONDCONT_DEF( LArDAC2uASC, 122040978, ILArDAC2uA );
 
 #endif 

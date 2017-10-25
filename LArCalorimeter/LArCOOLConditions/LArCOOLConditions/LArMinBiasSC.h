@@ -36,8 +36,7 @@ private:
 
 };
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArMinBiasSC,ILArMinBias);
 CLASS_DEF( LArMinBiasSC ,156198230 , 1 )
-CLASS_DEF( CondCont<LArMinBiasSC> , 98956242 , 1 )
+CONDCONT_DEF( LArMinBiasSC, 98956242, ILArMinBias );
 
 #endif 

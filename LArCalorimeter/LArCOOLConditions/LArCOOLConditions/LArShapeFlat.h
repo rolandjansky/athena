@@ -69,8 +69,7 @@ class LArShapeFlat: public ILArShape,
 
 };  
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArShapeFlat,ILArShape);
 CLASS_DEF( LArShapeFlat , 192810633 , 1 )
-CLASS_DEF( CondCont<LArShapeFlat> , 264124099 , 1 )
+CONDCONT_DEF( LArShapeFlat, 264124099, ILArShape );
 
 #endif 

@@ -33,8 +33,6 @@ public:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LAruA2MeVFlat,ILAruA2MeV);
 CLASS_DEF( LAruA2MeVFlat , 92824273 , 1 )
-//ConditionsContainer clid for athenaMT
-CLASS_DEF( CondCont<LAruA2MeVFlat> , 84245593 , 1 )
+CONDCONT_DEF( LAruA2MeVFlat, 84245593, ILAruA2MeV );
 #endif 

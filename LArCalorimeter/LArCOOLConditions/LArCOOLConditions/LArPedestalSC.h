@@ -44,7 +44,6 @@ public:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArPedestalSC,ILArPedestal);
 CLASS_DEF( LArPedestalSC,17770864,1  )
-CLASS_DEF( CondCont<LArPedestalSC> , 219458938 , 1 )
+CONDCONT_DEF( LArPedestalSC, 219458938, ILArPedestal );
 #endif 
