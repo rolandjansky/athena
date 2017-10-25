@@ -44,7 +44,7 @@ public:
 
   void addHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
   void addHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
-  bool nbOfFebOK(float nfeb,TH1I_LW* h);
+  //  bool nbOfFebOK(float nfeb,TH1I_LW* h);
   
 private:
   
@@ -63,6 +63,7 @@ private:
   unsigned int m_eventTime;
   unsigned int m_eventTime_ns;
 
+  std::vector<std::string> m_partitionNames;
   //Added for Stream aware:
   std::vector<std::string> m_streams;
   std::vector<unsigned int> m_streamsThisEvent;
@@ -189,10 +190,11 @@ private:
   
   TTree* m_CorruptTree;
   
-  StatusCode bookNewPartitionSumm(int partNb,std::string summName);
+  StatusCode bookNewPartitionSumm(int partNb);
   void fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
-  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
+  //  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
+  void fillFebInError(int partNb,int errorType);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);
   int returnPartition(int be,int pn,int ft,int sl);
 };
