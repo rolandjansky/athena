@@ -21,19 +21,19 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //m_collection:  "PixelHits", "SCT_Hits", "BCMHits" and "BLMHits" 
 SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , h_hits_x(0)
-   , h_hits_y(0)
-   , h_hits_z(0)
-   , h_hits_r(0)
-   , h_xy(0)
-   , h_zr(0)
-   , h_hits_time(0)
-   , h_hits_eloss(0)
-   , h_hits_step(0)
-   , h_hits_barcode(0)
-   , h_time_eloss(0)
-   , h_z_eloss(0)
-   , h_r_eloss(0)
+   , m_h_hits_x(0)
+   , m_h_hits_y(0)
+   , m_h_hits_z(0)
+   , m_h_hits_r(0)
+   , m_h_xy(0)
+   , m_h_zr(0)
+   , m_h_hits_time(0)
+   , m_h_hits_eloss(0)
+   , m_h_hits_step(0)
+   , m_h_hits_barcode(0)
+   , m_h_time_eloss(0)
+   , m_h_z_eloss(0)
+   , m_h_r_eloss(0)
    , m_hits_x(0)
    , m_hits_y(0)
    , m_hits_z(0)
@@ -99,61 +99,61 @@ StatusCode SiHitAnalysis::initialize() {
     radius_down = 0;
   }
   
-  h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
-  h_hits_x->StatOverflows();
+  m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
+  m_h_hits_x->StatOverflows();
 
-  h_hits_y = new TH1D(("h_"+detName+"_y").c_str(), ("h_"+detName+"_y").c_str(), 100,bin_down,bin_up);
-  h_hits_y->StatOverflows();
+  m_h_hits_y = new TH1D(("h_"+detName+"_y").c_str(), ("h_"+detName+"_y").c_str(), 100,bin_down,bin_up);
+  m_h_hits_y->StatOverflows();
 
-  h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-1200,1200);
-  h_hits_z->StatOverflows();
+  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-1200,1200);
+  m_h_hits_z->StatOverflows();
 
-  h_hits_r = new TH1D(("h_"+detName+"_r").c_str(), ("h_"+detName+"_r").c_str(), 100,radius_down,radius_up);
-  h_hits_r->StatOverflows();
+  m_h_hits_r = new TH1D(("h_"+detName+"_r").c_str(), ("h_"+detName+"_r").c_str(), 100,radius_down,radius_up);
+  m_h_hits_r->StatOverflows();
 
-  h_xy = new TH2D(("h_"+detName+"_xy").c_str(), ("h_"+detName+"_xy").c_str(), 100,bin_down,bin_up,100, bin_down, bin_up);
-  h_xy->StatOverflows();
+  m_h_xy = new TH2D(("h_"+detName+"_xy").c_str(), ("h_"+detName+"_xy").c_str(), 100,bin_down,bin_up,100, bin_down, bin_up);
+  m_h_xy->StatOverflows();
 
-  h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-1200,1200.,100, radius_down, radius_up);
-  h_zr->StatOverflows();
+  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-1200,1200.,100, radius_down, radius_up);
+  m_h_zr->StatOverflows();
 
-  h_hits_time = new TH1D(("h_"+detName+"_time").c_str(), ("h_"+detName+"_time").c_str(), 100,0,500);
-  h_hits_time->StatOverflows();
+  m_h_hits_time = new TH1D(("h_"+detName+"_time").c_str(), ("h_"+detName+"_time").c_str(), 100,0,500);
+  m_h_hits_time->StatOverflows();
 
-  h_hits_eloss = new TH1D(("h_"+detName+"_eloss").c_str(), ("h_"+detName+"_eloss").c_str(), 100,0,50);
-  h_hits_eloss->StatOverflows();
+  m_h_hits_eloss = new TH1D(("h_"+detName+"_eloss").c_str(), ("h_"+detName+"_eloss").c_str(), 100,0,50);
+  m_h_hits_eloss->StatOverflows();
 
-  h_hits_step = new TH1D(("h_"+detName+"_step").c_str(), ("h_"+detName+"_step").c_str(), 100,0,50);
-  h_hits_step->StatOverflows();
+  m_h_hits_step = new TH1D(("h_"+detName+"_step").c_str(), ("h_"+detName+"_step").c_str(), 100,0,50);
+  m_h_hits_step->StatOverflows();
 
-  h_hits_barcode = new TH1D(("h_"+detName+"_barcode").c_str(), ("h_"+detName+"_barcode").c_str(), 200,0,250000);
-  h_hits_barcode->StatOverflows();
+  m_h_hits_barcode = new TH1D(("h_"+detName+"_barcode").c_str(), ("h_"+detName+"_barcode").c_str(), 200,0,250000);
+  m_h_hits_barcode->StatOverflows();
 
-  h_time_eloss = new TH2D(("h_"+detName+"_time_eloss").c_str(), ("h_"+detName+" Eloss vs. time").c_str(),100, 0,500,100,0,50);
-  h_time_eloss->StatOverflows();
+  m_h_time_eloss = new TH2D(("h_"+detName+"_time_eloss").c_str(), ("h_"+detName+" Eloss vs. time").c_str(),100, 0,500,100,0,50);
+  m_h_time_eloss->StatOverflows();
 
-  h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -1200,1200,100,0,50);
-  h_z_eloss->StatOverflows();
+  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -1200,1200,100,0,50);
+  m_h_z_eloss->StatOverflows();
 
-  h_r_eloss = new TH2D(("h_"+detName+"_r_eloss").c_str(), ("h_"+detName+ " Eloss vs. r").c_str(),100, radius_down,radius_down,100,0,50);
-  h_r_eloss->StatOverflows();
+  m_h_r_eloss = new TH2D(("h_"+detName+"_r_eloss").c_str(), ("h_"+detName+ " Eloss vs. r").c_str(),100, radius_down,radius_down,100,0,50);
+  m_h_r_eloss->StatOverflows();
 
-  CHECK(m_thistSvc->regHist(m_path + h_hits_x->GetName(), h_hits_x));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_y->GetName(), h_hits_y));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_z->GetName(), h_hits_z));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_r->GetName(), h_hits_r));
-  CHECK(m_thistSvc->regHist( m_path+h_xy->GetName(), h_xy));
-  CHECK(m_thistSvc->regHist( m_path+h_zr->GetName(), h_zr));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_time->GetName(), h_hits_time));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_eloss->GetName(), h_hits_eloss));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_step->GetName(), h_hits_step));
-  CHECK(m_thistSvc->regHist(m_path + h_hits_barcode->GetName(), h_hits_barcode));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_x->GetName(), m_h_hits_x));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_y->GetName(), m_h_hits_y));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_z->GetName(), m_h_hits_z));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_r->GetName(), m_h_hits_r));
+  CHECK(m_thistSvc->regHist( m_path+m_h_xy->GetName(), m_h_xy));
+  CHECK(m_thistSvc->regHist( m_path+m_h_zr->GetName(), m_h_zr));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_time->GetName(), m_h_hits_time));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_eloss->GetName(), m_h_hits_eloss));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_step->GetName(), m_h_hits_step));
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_barcode->GetName(), m_h_hits_barcode));
   
   //To be filled only when the expert mode is on.
   if (m_expert == "on") {
-    CHECK(m_thistSvc->regHist(m_path + h_time_eloss->GetName(), h_time_eloss));
-    CHECK(m_thistSvc->regHist(m_path + h_z_eloss->GetName(), h_z_eloss));
-    CHECK(m_thistSvc->regHist(m_path + h_r_eloss->GetName(), h_r_eloss));
+    CHECK(m_thistSvc->regHist(m_path + m_h_time_eloss->GetName(), m_h_time_eloss));
+    CHECK(m_thistSvc->regHist(m_path + m_h_z_eloss->GetName(), m_h_z_eloss));
+    CHECK(m_thistSvc->regHist(m_path + m_h_r_eloss->GetName(), m_h_r_eloss));
   }
 
   CHECK(m_thistSvc.retrieve());
@@ -198,25 +198,25 @@ StatusCode SiHitAnalysis::execute() {
     for (SiHitConstIterator i_hit = p_collection->begin(); i_hit != p_collection->end() ;++i_hit) {
       GeoSiHit ghit(*i_hit);
       HepGeom::Point3D<double> p = ghit.getGlobalPosition();
-      h_hits_x->Fill(p.x());
-      h_hits_y->Fill(p.y());
-      h_hits_z->Fill(p.z());
-      h_hits_r->Fill(p.perp());
-      h_xy->Fill(p.x(), p.y());
-      h_zr->Fill(p.z(),p.perp());
-      h_hits_eloss->Fill(i_hit->energyLoss());
-      h_hits_time->Fill(i_hit->meanTime());  
+      m_h_hits_x->Fill(p.x());
+      m_h_hits_y->Fill(p.y());
+      m_h_hits_z->Fill(p.z());
+      m_h_hits_r->Fill(p.perp());
+      m_h_xy->Fill(p.x(), p.y());
+      m_h_zr->Fill(p.z(),p.perp());
+      m_h_hits_eloss->Fill(i_hit->energyLoss());
+      m_h_hits_time->Fill(i_hit->meanTime());  
       double step_length=(i_hit->localStartPosition() - i_hit->localEndPosition()).mag();
-      h_hits_step->Fill(step_length);
-      h_hits_barcode->Fill(i_hit->particleLink().barcode());
+      m_h_hits_step->Fill(step_length);
+      m_h_hits_barcode->Fill(i_hit->particleLink().barcode());
       
       if (m_expert == "on") {
-	h_time_eloss->Fill(i_hit->meanTime(), i_hit->energyLoss());
+	m_h_time_eloss->Fill(i_hit->meanTime(), i_hit->energyLoss());
 	if (i_hit->getBarrelEndcap()==0) {
-	  h_z_eloss->Fill(p.z(), i_hit->energyLoss());
+	  m_h_z_eloss->Fill(p.z(), i_hit->energyLoss());
 	}
 	else {
-	  h_r_eloss->Fill(p.perp(), i_hit->energyLoss());
+	  m_h_r_eloss->Fill(p.perp(), i_hit->energyLoss());
 	}
       }
       
