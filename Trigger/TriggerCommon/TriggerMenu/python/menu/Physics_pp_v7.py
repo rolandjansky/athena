@@ -527,7 +527,9 @@ def setupMenu():
         ['2j350_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['2j350_a10t_lcw_jes_L1SC111',                      'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-
+        #Low-mu run triggers
+        ['j360_a10_lcw_subjes_L1J100',     'L1_J100',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j110_a10_lcw_subjes_L1J30',      'L1_J30', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         #####
         ######################### Multi-jet small-R trigger chains
