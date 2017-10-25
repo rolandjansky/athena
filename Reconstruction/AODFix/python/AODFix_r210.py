@@ -127,8 +127,8 @@ class AODFix_r210(AODFix_base):
 
     def IDTide_postSystemRec(self, topSequence):
         """
-        A dummy fix to just add metadata--not event scheduled.
-        Please update postSystemRec if you actually want to run it.
+        A dummy fix to just add metadata--not called
+        Please update postSystemRec to call if you want to run it.
         """
         pass
         
