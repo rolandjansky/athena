@@ -80,6 +80,11 @@ def setupMenu():
         #ATR-16981
         ['mu24_ivarmedium',	     'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
+        #Low-mu run triggers
+        ['mu15',     'L1_MU11',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu16',     'L1_MU11',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu18',     'L1_MU11',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+
 				# Toroid-off run (ATR-9923)
         ['mu8_mucombTag_noEF_L1MU40',  'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu10_mucombTag_noEF_L1MU40', 'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -199,6 +204,10 @@ def setupMenu():
 	['mu50_mgonly_inTimeRoI',                'L1_MU20MU21',       ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu60_mgonly_inTimeRoI',                'L1_MU20MU21',       ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
+        #Low-mu run triggers
+        ['mu4_mu2noL1_L1MU4', 'L1_MU4',  ['L1_MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu2noL1']]],
+        ['mu6_mu2noL1_L1MU6', 'L1_MU6',  ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6','mu2noL1']]],
+
 			 ]
 
 
@@ -226,6 +235,11 @@ def setupMenu():
         ['j0_perf_ds1_L1J50',      'L1_J50',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
         ['j0_perf_ds1_L1J75',      'L1_J75',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
         ['j0_perf_ds1_L1J100',     'L1_J100', [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+
+        #Low-mu run triggers
+        ['j0_perf_ds1_L1J15',      'L1_J15',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j0_perf_ds1_L1J20',      'L1_J20',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j0_perf_ds1_L1J30',      'L1_J30',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
 
         # Performance chains
         ['ht0_L1J12_EMPTY',        'L1_J12_EMPTY', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -513,7 +527,9 @@ def setupMenu():
         ['2j350_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['2j350_a10t_lcw_jes_L1SC111',                      'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-
+        #Low-mu run triggers
+        ['j360_a10_lcw_subjes_L1J100',     'L1_J100',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j110_a10_lcw_subjes_L1J30',      'L1_J30', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         #####
         ######################### Multi-jet small-R trigger chains
@@ -802,6 +818,11 @@ def setupMenu():
         ['j20_L1J12',                    'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['j10_320eta490_L1MBTS_2',          'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['2j10_deta20_L1MBTS_2',            'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        #Low-mu run triggers
+        ['j45_L1AFP_A_OR_C_J12',          'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j45_L1AFP_A_AND_C_J12',         'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j45_L1J12',                     'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
 			 ]
 
@@ -1790,6 +1811,10 @@ def setupMenu():
         ['e120_lhvloose_nod0', 														'L1_EM24VHI',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1 ],
         ['e80_lhmedium_nod0',              'L1_EM22VHI',   [], [PhysicsStream], ['Primary:17000','RATE:SingleElectron', 'BW:Egamma'],-1 ],
         ['e80_lhmedium_nod0_L1EM24VHI',    'L1_EM24VHI',   [], [PhysicsStream], ['Primary:20000','RATE:SingleElectron', 'BW:Egamma'],-1 ],
+
+        #Low-mu run triggers
+        ['e15_lhloose_nod0_L1EM12',  'L1_EM12', [], [PhysicsStream], ['RATE:SingleElectron','BW:Egamma'], -1],
+        ['e15_lhvloose_nod0_L1EM12', 'L1_EM12', [], [PhysicsStream], ['RATE:SingleElectron','BW:Egamma'], -1],
 
         # Prescaled triggers
         # Rate = 1 Hz each
