@@ -299,6 +299,8 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (mdt_id), "MdtIdHelper") );
 
+  new MuonGM::sTGC_Technology ("sTG1-dummy");
+  new MuonGM::sTGC_Technology ("sTGC_1");
   auto stgc_id = CxxUtils::make_unique<sTgcIdHelper>();
   stgc_id->initialize_from_dictionary (idd);
   muo_dd->set_stgcIdHelper (stgc_id.get());
