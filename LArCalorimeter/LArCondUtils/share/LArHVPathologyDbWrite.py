@@ -17,8 +17,11 @@ if "tagName" not in dir():
 if "RunNumber" not in dir():
     RunNumber = 999999
 
+if "LBNumber" not in dir():
+    LBNumber = 0
+
 if "GloablTag" not in dir():
-    GlobalTag = 'CONDBR2-BLKPA-2016-14'
+    GlobalTag = 'CONDBR2-BLKPA-2017-03'
 
 if "date" not in dir():
     date="2015-09-29:12:00:00"
@@ -56,7 +59,7 @@ globalflags.InputFormat = 'bytestream'
 
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -115,7 +118,8 @@ regSvc = svcMgr.IOVRegistrationSvc
 # Select the following to delete and recreate the folders. Default is
 # NOT to recreate
 regSvc.RecreateFolders = False
-
+regSvc.BeginRun = RunNumber
+regSvc.BeginLB = LBNumber
 
 #--------------------------------------------------------------
 # The following turns off the ability to set EventSelector parameters

@@ -3,11 +3,6 @@
 */
 
 #include "CaloCondPhysAlgs/CaloCellPosition2Ntuple.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -30,6 +25,7 @@ CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLo
   m_dx(0),
   m_dy(0),
   m_dz(0),
+  m_volume(0), 
   m_tree(NULL)
 {
   declareProperty("inputKey",m_key,"Key for CaloCellPositionShift");
@@ -39,8 +35,7 @@ CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLo
 //Destructor
 CaloCellPosition2Ntuple::~CaloCellPosition2Ntuple()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "CaloCellPosition2Ntuple destructor called" << endreq;
+  ATH_MSG_DEBUG( "CaloCellPosition2Ntuple destructor called"  );
 }
 //__________________________________________________________________________
 StatusCode CaloCellPosition2Ntuple::initialize()
@@ -63,6 +58,7 @@ StatusCode CaloCellPosition2Ntuple::initialize()
   m_tree->Branch("dx",&m_dx,"DeltaX/F");
   m_tree->Branch("dy",&m_dy,"DeltaY/F");
   m_tree->Branch("dz",&m_dz,"DeltaZ/F");
+  m_tree->Branch("volume",&m_volume,"volume/F");
 
   ATH_CHECK( m_thistSvc->regTree("/file1/cellpos/mytree",m_tree) );
 
@@ -88,7 +84,7 @@ StatusCode CaloCellPosition2Ntuple::stop()
 
   int nread = (int)(m_cellPos->size());
 
-  if (nread != ncell) {
+  if (nread > ncell) {
     ATH_MSG_WARNING ( " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell );
     return StatusCode::SUCCESS;
   }
@@ -108,6 +104,7 @@ StatusCode CaloCellPosition2Ntuple::stop()
        m_dx = m_cellPos->deltaX(i);
        m_dy = m_cellPos->deltaY(i);
        m_dz = m_cellPos->deltaZ(i);
+       m_volume = calodde->volume();
 
        m_tree->Fill();
 

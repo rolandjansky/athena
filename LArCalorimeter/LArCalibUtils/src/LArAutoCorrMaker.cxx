@@ -63,7 +63,7 @@ LArAutoCorrMaker::~LArAutoCorrMaker()
 
 StatusCode LArAutoCorrMaker::initialize() {
 
-  msg(MSG::INFO) << ">>> Initialize" << endmsg;
+  ATH_MSG_INFO( ">>> Initialize" );
   
   
   // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
@@ -76,21 +76,21 @@ StatusCode LArAutoCorrMaker::initialize() {
 
   m_keylist=m_keylistproperty;
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty!" << endmsg;
+    ATH_MSG_ERROR( "Key list is empty!" );
     return StatusCode::FAILURE;
   }
 
   m_autocorr.setGroupingType(LArConditionsContainerBase::SingleGroup);
   StatusCode sc=m_autocorr.initialize();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize intermediate AutoCorr object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize intermediate AutoCorr object" );
     return sc;
   }
 
   if (m_bunchCrossingsFromFront>0) {
     sc=m_bunchCrossingTool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve BunchCrossingTool!" << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve BunchCrossingTool!" );
     }
   }
 
@@ -107,7 +107,7 @@ StatusCode LArAutoCorrMaker::execute()
     const xAOD::EventInfo* eventInfo;
     sc=evtStore()->retrieve( eventInfo ); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve EventInfo object!" << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve EventInfo object!" );
       return sc;
     }
     uint32_t bcid = eventInfo->bcid();
@@ -144,7 +144,7 @@ StatusCode LArAutoCorrMaker::execute()
       const HWIdentifier chid=(*it)->hardwareID();
       const CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN) {
-	msg(MSG::ERROR) << "Found odd gain number ("<< (int)gain <<")" << endmsg;
+	ATH_MSG_ERROR( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
       const std::vector<short> & samples = (*it)->samples();
@@ -187,10 +187,10 @@ StatusCode LArAutoCorrMaker::stop()
   //---------------------------------------------------------------------------
 {
   StatusCode sc;
-  msg(MSG::INFO) << ">>> Stop()" << endmsg;
+  ATH_MSG_INFO( ">>> Stop()" );
 
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endmsg;
+    ATH_MSG_ERROR( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   }
 
@@ -199,13 +199,13 @@ StatusCode LArAutoCorrMaker::stop()
 
   sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArAutoCorrComplete object" );
     return sc;
   }
 
   sc=larAutoCorrComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArAutoCorrComplete object" );
     return sc;
   }
 
@@ -256,14 +256,14 @@ StatusCode LArAutoCorrMaker::stop()
   // Record LArAutoCorrComplete
   sc = detStore()->record(larAutoCorrComplete,m_keyoutput);
   if (sc != StatusCode::SUCCESS) { 
-      msg(MSG::ERROR) << " Cannot store LArAutoCorrComplete in DetectorStore " << endmsg;
+      ATH_MSG_ERROR( " Cannot store LArAutoCorrComplete in DetectorStore " );
       return sc;
     }
   
   // Make symlink
   sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
   if (sc != StatusCode::SUCCESS)  {
-      msg(MSG::ERROR) << " Cannot make link for Data Object " << endmsg;
+      ATH_MSG_ERROR( " Cannot make link for Data Object " );
       return sc;
     }
   

@@ -28,7 +28,9 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
-  class LArMinBiasAlg : public AthAlgorithm {
+#define MAX_SYM_CELLS 3000
+
+class LArMinBiasAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -75,18 +77,22 @@
 
 // FIXME   Total maximum array size for ntuple hardcoded... not very nice
    int m_nsymcell = 0;
-   double m_nevt[2000];
-   int m_layer[2000];
-   int m_identifier[2000];
-   float m_eta[2000];
-   float m_phi[2000];
-   double m_average[2000];
-   double m_rms[2000];
-   double m_offset[2000];
+   double m_nevt[MAX_SYM_CELLS];
+   int m_layer[MAX_SYM_CELLS];
+   int m_region[MAX_SYM_CELLS];
+   int m_ieta[MAX_SYM_CELLS];
+   int m_identifier[MAX_SYM_CELLS];
+   float m_eta[MAX_SYM_CELLS];
+   float m_phi[MAX_SYM_CELLS];
+   double m_average[MAX_SYM_CELLS];
+   double m_rms[MAX_SYM_CELLS];
+   double m_offset[MAX_SYM_CELLS];
 
 
   struct CellInfo {
       int layer;
+      int region;
+      int ieta;
       float eta;
       float phi;
       Identifier identifier;

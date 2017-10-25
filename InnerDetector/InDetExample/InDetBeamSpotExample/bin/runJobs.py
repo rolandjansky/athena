@@ -162,8 +162,6 @@ if __name__ == '__main__':
             help='grid username (default: $USER)')
     execopt.add_option('', '--grid-site', dest='gridsite', default='AUTO', metavar='SITE',
             help='site name where jobs are sent (default: AUTO)')
-    execopt.add_option('', '--lsf-submit', dest='lsf_submit', default=False, action='store_true',
-            help='submit on the LSF batch system')
     execopt.add_option('-q', '--queue', dest='batchqueue', default='atlasb1',
             help='batch queue (default: atlasb1)')
     parser.add_option_group(execopt)
@@ -228,7 +226,7 @@ if __name__ == '__main__':
         if grid_mode:
             runner_type = 'PandaJobRunner'
         if opts.legacy_interactive:
-            opts.legacy_runner='JobRunner'
+            runner_type = 'JobRunner'
     else:
         files = extract_file_list(opts)
         grid_mode = opts.submit == 'grid'

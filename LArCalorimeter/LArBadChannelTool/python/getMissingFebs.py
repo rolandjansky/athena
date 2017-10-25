@@ -68,7 +68,7 @@ def getMissingFebs(run, tag=None):
         feblist=set()
         for (id,mf) in vect_BadFebEntry:
             if not mf.good():
-                feblist.add(id.get_compact())
+                feblist.add(id.get_identifier32().get_compact())
 
         retval.append((obj.since(), obj.until(),feblist))
 
