@@ -9,6 +9,7 @@ atlas_subdir( AthenaServices )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PRIVATE
+   Control/AthToolSupport/AsgTools
    AtlasTest/TestTools
    Control/AthContainersInterfaces
    Control/AthenaBaseComps
@@ -23,6 +24,7 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    Database/PersistentDataModel
+   Database/AthenaPOOL/AthenaPoolKernel
    Event/EventInfo
    GaudiKernel )
 
@@ -36,22 +38,21 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
-   ${CLHEP_LIBRARIES} z TestTools AthenaBaseComps AthenaKernel CxxUtils
+   ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel CxxUtils
    AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
 
 # Test library checking the ability to build T/P converters:
 atlas_add_tpcnv_library( AthenaServicesTest src/test/*.cxx
    NO_PUBLIC_HEADERS
-   PRIVATE_LINK_LIBRARIES AthenaKernel )
+   PRIVATE_LINK_LIBRARIES AthenaKernel)
 
 # The test(s) of the package:
 atlas_add_test( AthenaOutputStream_test
    SOURCES test/AthenaOutputStream_test.cxx src/AthenaOutputStream.cxx
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES TestTools AthenaKernel SGTools StoreGateLib GaudiKernel
-   AthenaBaseComps PersistentDataModel
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
    EXTRA_PATTERNS "^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|Service base class initialized successfully|^TimelineSvc +DEBUG|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
@@ -63,13 +64,13 @@ atlas_add_test( FPEControlSvc_test
 
 atlas_add_test( AthenaEventLoopMgr_test
    SOURCES test/AthenaEventLoopMgr_test.cxx
-   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( RCUSvc_test
    SOURCES test/RCUSvc_test.cxx
-   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

@@ -85,6 +85,7 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+
    incsvc->addListener(this, "FirstInputFile", 90);
    incsvc->addListener(this, "BeginTagFile", 90);
    incsvc->addListener(this, "BeginInputFile", 90);
@@ -162,6 +163,14 @@ StatusCode MetaDataSvc::stop() {
          }
       }
    }
+   // finalizing tools via metaDataStop
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_INFO("MDS: calling metaDataStop for " << (*it)->name());
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+      }
+   }
+   ATH_MSG_INFO("MDS: " << m_outputDataStore->dump());
    ATH_MSG_DEBUG("Releasing MetaDataTools");
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
@@ -233,6 +242,7 @@ StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
 }
 //__________________________________________________________________________
 void MetaDataSvc::handle(const Incident& inc) {
+   ATH_MSG_INFO("MDS handle " << inc.type());
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
    if (fileInc == nullptr) {
       ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
@@ -263,13 +273,18 @@ void MetaDataSvc::handle(const Incident& inc) {
             ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
          }
       }
-   } else if (inc.type() == "EndInputFile") {
-/*
-      if (!m_inputDataStore->clearStore().isSuccess()) {
-         ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         ATH_MSG_INFO("MDS: calling beginInputFile for " << (*it)->name());
+         if ( (*it)->beginInputFile().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
+         }
       }
-      m_clearedInputDataStore = true;
-*/
+   } else if (inc.type() == "EndInputFile") {
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         if ( (*it)->endInputFile().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
+         }
+      }
       m_allowMetaDataStop = true;
    } else if (inc.type() == "LastInputFile") {
       if (!m_metaDataTools.release().isSuccess()) {
@@ -291,6 +306,12 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    }
    Incident metaDataStopIncident(name(), "MetaDataStop");
    incsvc->fireIncident(metaDataStopIncident);
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_INFO("MDS: calling metaDataStop for " << (*it)->name());
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+      }
+   }
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
@@ -309,6 +330,12 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+   else {
+     for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+       ATH_MSG_INFO("TESST " << it->name());
+     }
+   }
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -316,8 +343,8 @@ StatusCode MetaDataSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
    ATH_MSG_INFO("Dumping InputMetaDataStore: " << m_inputDataStore->dump());
    ATH_MSG_INFO("Dumping OutputMetaDataStore: " << m_outputDataStore->dump());
-   for (ToolHandleArray<IAlgTool>::iterator iter = m_metaDataTools.begin(),
-		   last = m_metaDataTools.end(); iter != last; iter++) {
+   for (auto iter = m_metaDataTools.begin(),
+ 	     last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attched MetadDataTool: " << (*iter)->name());
    }
    return(StatusCode::SUCCESS);

@@ -12,7 +12,8 @@
  **/
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
+//#include "GaudiKernel/IIncidentListener.h"
+//#include "AthenaKernel/IFileTransition.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 
@@ -24,8 +25,7 @@ class StoreGateSvc;
  *  @brief This class provides the MetaDataTool for ByteStreamMetadata objects
  **/
 class ByteStreamMetadataTool : public ::AthAlgTool,
-	virtual public IMetaDataTool,
-	virtual public IIncidentListener {
+	virtual public IMetaDataTool {
 public: 
    /// Standard Service Constructor
    ByteStreamMetadataTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -37,7 +37,10 @@ public:
    StatusCode finalize();
 
    /// Incident service handle listening for BeginInputFile and EndInputFile.
-   void handle(const Incident& incident);
+   //void handle(const Incident& incident);
+   virtual StatusCode beginInputFile();
+   virtual StatusCode endInputFile();
+   virtual StatusCode metaDataStop();
 
 private:
    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

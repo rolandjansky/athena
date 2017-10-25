@@ -10,8 +10,8 @@
 
 #include "ByteStreamMetadataTool.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/FileIncident.h"
+//#include "GaudiKernel/IIncidentSvc.h"
+//#include "GaudiKernel/FileIncident.h"
 
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -48,17 +48,6 @@ StatusCode ByteStreamMetadataTool::initialize() {
       ATH_MSG_ERROR("Could not find InputMetaDataStore");
       return(status);
    }
-   // Set to be listener for end of event
-   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   status = incSvc.retrieve();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Unable to get the IncidentSvc");
-      return(status);
-   }
-   incSvc->addListener(this, "FirstInputFile", 80);
-   incSvc->addListener(this, "BeginInputFile", 80); // pri has to be < 90 to be after MetaDataSvc.
-   incSvc->addListener(this, "EndInputFile", 80);
-   incSvc->addListener(this, "LastInputFile", 80);
    return(StatusCode::SUCCESS);
 }
 
@@ -68,94 +57,103 @@ StatusCode ByteStreamMetadataTool::finalize() {
    return(::AthAlgTool::finalize());
 }
 
-//__________________________________________________________________________
-void ByteStreamMetadataTool::handle(const Incident& inc) {
-   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc == 0) { return; }
-   ATH_MSG_INFO("handle() " << inc.type() << ", filename = " << fileInc->fileName());
-   if (inc.type() == "BeginInputFile") {
-      std::vector<std::string> vKeys;
-      std::set<std::string> keys;
-      m_pInputStore->keys<ByteStreamMetadata>(vKeys);
-      keys.insert(vKeys.begin(), vKeys.end());
-      m_pInputStore->keys<ByteStreamMetadataContainer>(vKeys);
-      keys.insert(vKeys.begin(), vKeys.end());
 
-      std::vector<ByteStreamMetadata*> copy;
-      std::set<std::string> transGuids;
-      for (std::set<std::string>::const_iterator keyIter = keys.begin(), keyEnd = keys.end();
+StatusCode ByteStreamMetadataTool::beginInputFile()
+{
+   std::vector<std::string> vKeys;
+   std::set<std::string> keys;
+   m_pInputStore->keys<ByteStreamMetadata>(vKeys);
+   keys.insert(vKeys.begin(), vKeys.end());
+   m_pInputStore->keys<ByteStreamMetadataContainer>(vKeys);
+   keys.insert(vKeys.begin(), vKeys.end());
+
+   std::vector<ByteStreamMetadata*> copy;
+   std::set<std::string> transGuids;
+   for (std::set<std::string>::const_iterator keyIter = keys.begin(), keyEnd = keys.end();
 	      keyIter != keyEnd; keyIter++) {
-         ATH_MSG_DEBUG("Processing Input ByteStreamMetadata, key = " << *keyIter);
-         copy.clear();
-         if (m_pInputStore->contains<ByteStreamMetadata>(*keyIter)) {
-            std::list<SG::ObjectWithVersion<ByteStreamMetadata> > allVersions;
-            StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
-            if (!status.isSuccess()) {
-               ATH_MSG_ERROR("Could not find Input ByteStreamMetadata");
-               return;
-            } else {
-               ATH_MSG_DEBUG("Found Input ByteStreamMetadata");
-            }
-            for (std::list<SG::ObjectWithVersion<ByteStreamMetadata> >::const_iterator versIter =
-		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
-               const DataHandle<ByteStreamMetadata> bsmd = versIter->dataObject;
-               copy.push_back(new ByteStreamMetadata(*bsmd));
-            }
+      ATH_MSG_DEBUG("Processing Input ByteStreamMetadata, key = " << *keyIter);
+      copy.clear();
+      if (m_pInputStore->contains<ByteStreamMetadata>(*keyIter)) {
+         std::list<SG::ObjectWithVersion<ByteStreamMetadata> > allVersions;
+         StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
+         if (!status.isSuccess()) {
+            ATH_MSG_ERROR("Could not find Input ByteStreamMetadata");
+            return StatusCode::FAILURE;
+         } else {
+            ATH_MSG_DEBUG("Found Input ByteStreamMetadata");
          }
-         if (m_pInputStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
-            std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> > allVersions;
-            StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
-            if (!status.isSuccess()) {
-               ATH_MSG_ERROR("Could not find Input ByteStreamMetadataContainer");
-               return;
-            } else {
-               ATH_MSG_DEBUG("Found Input ByteStreamMetadataContainer");
-            }
-            for (std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> >::const_iterator versIter =
+         for (std::list<SG::ObjectWithVersion<ByteStreamMetadata> >::const_iterator versIter =
 		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
-               const ByteStreamMetadataContainer* bsmdc = versIter->dataObject;
-               for (ByteStreamMetadataContainer::const_iterator elemIter = bsmdc->begin(), elemEnd = bsmdc->end();
+            const DataHandle<ByteStreamMetadata> bsmd = versIter->dataObject;
+            copy.push_back(new ByteStreamMetadata(*bsmd));
+         }
+      }
+      if (m_pInputStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
+         std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> > allVersions;
+         StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
+         if (!status.isSuccess()) {
+            ATH_MSG_ERROR("Could not find Input ByteStreamMetadataContainer");
+            return StatusCode::FAILURE;
+         } else {
+            ATH_MSG_DEBUG("Found Input ByteStreamMetadataContainer");
+         }
+         for (std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> >::const_iterator versIter =
+		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
+            const ByteStreamMetadataContainer* bsmdc = versIter->dataObject;
+            for (ByteStreamMetadataContainer::const_iterator elemIter = bsmdc->begin(), elemEnd = bsmdc->end();
 	               elemIter != elemEnd; elemIter++) {
-                  copy.push_back(new ByteStreamMetadata(**elemIter));
-               }
+               copy.push_back(new ByteStreamMetadata(**elemIter));
             }
          }
-         if (!copy.empty()) {
-            transGuids.clear();
-            // Check for existing container
-            ByteStreamMetadataContainer* bsmdc = 0;
-            if (m_pMetaDataStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
-               ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
-               StatusCode status = m_pMetaDataStore->retrieve(bsmdc, *keyIter);
-               if (!status.isSuccess()) {
-                  ATH_MSG_ERROR("Could not retrieve " << *keyIter << " ByteStreamMetadataContainer");
-                  return;
-               }
-               for (ByteStreamMetadataContainer::const_iterator iter = bsmdc->begin(), iterEnd = bsmdc->end();
-	               iter != iterEnd; iter++) {
-                  transGuids.insert((*iter)->getGuid());
-               }
-            } else {
-               bsmdc = new ByteStreamMetadataContainer;
-               StatusCode status = m_pMetaDataStore->record(bsmdc, *keyIter);
-               if (!status.isSuccess()) {
-                  ATH_MSG_ERROR("Could not store ByteStreamMetadata in Metadata store");
-                  return;
-               } else {
-                  ATH_MSG_DEBUG("ByteStreamMetadata copied to MetaDataStore");
-               }
+      }
+      if (!copy.empty()) {
+         transGuids.clear();
+         // Check for existing container
+         ByteStreamMetadataContainer* bsmdc = 0;
+         if (m_pMetaDataStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
+            ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
+            StatusCode status = m_pMetaDataStore->retrieve(bsmdc, *keyIter);
+            if (!status.isSuccess()) {
+               ATH_MSG_ERROR("Could not retrieve " << *keyIter << " ByteStreamMetadataContainer");
+               return StatusCode::FAILURE;
             }
-            for (std::vector<ByteStreamMetadata*>::iterator iter = copy.begin(), iterEnd = copy.end();
+            for (ByteStreamMetadataContainer::const_iterator iter = bsmdc->begin(), iterEnd = bsmdc->end();
+	               iter != iterEnd; iter++) {
+               transGuids.insert((*iter)->getGuid());
+            }
+         } else {
+            bsmdc = new ByteStreamMetadataContainer;
+            StatusCode status = m_pMetaDataStore->record(bsmdc, *keyIter);
+            if (!status.isSuccess()) {
+               ATH_MSG_ERROR("Could not store ByteStreamMetadata in Metadata store");
+               return StatusCode::FAILURE;
+            } else {
+               ATH_MSG_DEBUG("ByteStreamMetadata copied to MetaDataStore");
+            }
+         }
+         for (std::vector<ByteStreamMetadata*>::iterator iter = copy.begin(), iterEnd = copy.end();
 	            iter != iterEnd; iter++) {
-               // Only insert new metadata records (with GUID not yet in container)
-               if (transGuids.insert((*iter)->getGuid()).second) {
-                  bsmdc->push_back(*iter);
-                  *iter = 0;
-               } else {
-                  delete *iter; *iter = 0;
-               }
+            // Only insert new metadata records (with GUID not yet in container)
+            if (transGuids.insert((*iter)->getGuid()).second) {
+               bsmdc->push_back(*iter);
+               *iter = 0;
+            } else {
+               delete *iter; *iter = 0;
             }
          }
       }
    }
+   return StatusCode::SUCCESS;
+}
+
+
+StatusCode ByteStreamMetadataTool::endInputFile()
+{
+   return StatusCode::SUCCESS;
+}
+
+
+StatusCode ByteStreamMetadataTool::metaDataStop()
+{
+   return StatusCode::SUCCESS;
 }

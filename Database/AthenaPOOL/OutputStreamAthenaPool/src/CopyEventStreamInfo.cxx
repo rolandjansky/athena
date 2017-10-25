@@ -43,12 +43,14 @@ StatusCode CopyEventStreamInfo::initialize() {
       return(StatusCode::FAILURE);
    }
    // Set to be listener for end of event
+   /*
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
    if (incSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Unable to get the IncidentSvc");
       return(StatusCode::FAILURE);
    }
    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
+   */
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________
@@ -63,7 +65,67 @@ StatusCode CopyEventStreamInfo::finalize() {
    }
    return(StatusCode::SUCCESS);
 }
+
+
+StatusCode CopyEventStreamInfo::beginInputFile()
+{
+   if (m_inputMetaDataStore->contains<EventStreamInfo>(m_key)) {
+      std::list<SG::ObjectWithVersion<EventStreamInfo> > allVersions;
+      if (!m_inputMetaDataStore->retrieveAllVersions(allVersions, m_key).isSuccess()) {
+         ATH_MSG_ERROR("Could not retrieve all versions for EventStreamInfo");
+         return StatusCode::FAILURE;
+      }
+      EventStreamInfo* evtStrInfo_out = 0;
+      for (std::list<SG::ObjectWithVersion<EventStreamInfo> >::const_iterator iter = allVersions.begin(),
+		      iterEnd = allVersions.end(); iter != iterEnd; iter++) {
+         const EventStreamInfo* evtStrInfo_in = iter->dataObject;
+         if (!m_metaDataStore->contains<EventStreamInfo>(m_key)) {
+            evtStrInfo_out = new EventStreamInfo(*evtStrInfo_in);
+            if (!m_metaDataStore->record(evtStrInfo_out, m_key).isSuccess()) {
+               ATH_MSG_ERROR("Could not record DataObject: " << m_key);
+               return StatusCode::FAILURE;
+            }
+         } else {
+            if (!m_metaDataStore->retrieve(evtStrInfo_out, m_key).isSuccess()) {
+               ATH_MSG_ERROR("Could not find DataObject in output: " << m_key);
+               return StatusCode::FAILURE;
+            }
+            evtStrInfo_out->addEvent(evtStrInfo_in->getNumberOfEvents());
+            for (std::set<unsigned int>::const_iterator elem = evtStrInfo_in->getRunNumbers().begin(),
+	               lastElem = evtStrInfo_in->getRunNumbers().end(); elem != lastElem; elem++) {
+               evtStrInfo_out->insertRunNumber(*elem);
+            }
+            for (std::set<unsigned int>::const_iterator elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
+	               lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); elem != lastElem; elem++) {
+               evtStrInfo_out->insertLumiBlockNumber(*elem);
+            }
+            for (std::set<std::string>::const_iterator elem = evtStrInfo_in->getProcessingTags().begin(),
+	               lastElem = evtStrInfo_in->getProcessingTags().end(); elem != lastElem; elem++) {
+               evtStrInfo_out->insertProcessingTag(*elem);
+            }
+            for (std::set<std::pair<CLID, std::string> >::const_iterator elem = evtStrInfo_in->getItemList().begin(),
+	               lastElem = evtStrInfo_in->getItemList().end(); elem != lastElem; elem++) {
+               evtStrInfo_out->insertItemList((*elem).first, (*elem).second);
+            }
+            for (std::set<EventType>::const_iterator elem = evtStrInfo_in->getEventTypes().begin(),
+	               lastElem = evtStrInfo_in->getEventTypes().end(); elem != lastElem; elem++) {
+               evtStrInfo_out->insertEventType(*elem);
+            }
+         }
+      }
+   }
+   return(StatusCode::SUCCESS);
+}
+StatusCode CopyEventStreamInfo::endInputFile()
+{
+   return(StatusCode::SUCCESS);
+}
+StatusCode CopyEventStreamInfo::metaDataStop()
+{
+   return(StatusCode::SUCCESS);
+}
 //___________________________________________________________________________
+/*
 void CopyEventStreamInfo::handle(const Incident& inc) {
    ATH_MSG_DEBUG("handle() " << inc.type());
    if (inc.type() == "BeginInputFile") {
@@ -114,3 +176,4 @@ void CopyEventStreamInfo::handle(const Incident& inc) {
       }
    }
 }
+*/

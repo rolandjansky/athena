@@ -69,6 +69,17 @@ public:
     /// Finalize AlgTool
     virtual StatusCode finalize();
 
+
+    /// Function called when a new input file is opened
+    StatusCode beginInputFile() {return StatusCode::SUCCESS;}
+
+    /// Function called when the currently open input file got completely
+    /// processed
+    StatusCode endInputFile() {return StatusCode::SUCCESS;}
+
+    /// Function called when the tool should write out its metadata
+    StatusCode metaDataStop() {return StatusCode::SUCCESS;}
+
     /// Incident service handle listening for BeginInputFile and EndInputFile.
     void handle(const Incident& incident);
 

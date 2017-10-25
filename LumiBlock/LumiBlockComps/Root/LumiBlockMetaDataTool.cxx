@@ -112,13 +112,15 @@ StatusCode LumiBlockMetaDataTool::initialize() {
    ATH_CHECK( m_tagDataStore.retrieve() );
 
    // Set to be listener for end of event
+   /*
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
    ATH_CHECK( incSvc.retrieve() );
    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
    incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc and AthenaOutputStream.
    incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 20 to be before MetaDataSvc and AthenaOutputStream.
    incSvc->addListener(this, "MetaDataStop", 70); 
-   
+   */
+
 
    // Don't try to retrieve this during initialize().
    // Otherwise, we induce a component initialization dependency
@@ -134,7 +136,112 @@ StatusCode LumiBlockMetaDataTool::initialize() {
 StatusCode LumiBlockMetaDataTool::finalize() {
    return(StatusCode::SUCCESS);
 }
+
+StatusCode LumiBlockMetaDataTool::beginInputFile()
+{
+   std::string fileName = "Undefined ";
+   bool alreadyRecorded=false;
+     if(m_CurrentFileName==fileName) {
+       alreadyRecorded=true;
+       }
+     if(m_fileCurrentlyOpened) {
+       alreadyRecorded=true;
+     }
+     m_CurrentFileName = fileName;
+     if(alreadyRecorded) return StatusCode::SUCCESS;
+      m_nfiles++;
+      m_fileCurrentlyOpened=true;
+      //
+      // Look for LB information on input store and transfer it to temporay cache
+      // ===========================================================================
+
+      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_LBColl_name)) {
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_LBColl_name << endmsg;
+	const xAOD::LumiBlockRangeContainer* lbrange =0;
+	StatusCode sc = m_pInputStore->retrieve(lbrange,m_LBColl_name);
+         if (!sc.isSuccess()) {
+            ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
+	    return StatusCode::SUCCESS;
+	 }
+	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
+         for ( const auto* lb : *lbrange ) {
+	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
+            m_cacheInputRangeContainer->push_back(iovr);
+	 }
+      }
+      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_unfinishedLBColl_name)) {
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_unfinishedLBColl_name << endmsg;
+	const xAOD::LumiBlockRangeContainer* lbrange =0;
+	StatusCode sc = m_pInputStore->retrieve(lbrange,m_unfinishedLBColl_name);
+         if (!sc.isSuccess()) {
+            ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
+	    return StatusCode::SUCCESS;
+	 }
+	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
+         for ( const auto* lb : *lbrange ) {
+	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
+            m_cacheInputRangeContainer->push_back(iovr);
+	}
+      }
+      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_suspectLBColl_name)) {
+	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_suspectLBColl_name << endmsg;
+	const xAOD::LumiBlockRangeContainer* lbrange =0;
+	StatusCode sc = m_pInputStore->retrieve(lbrange,m_suspectLBColl_name);
+         if (!sc.isSuccess()) {
+            ATH_MSG_INFO( "Could not find suspect xAOD::LumiBlockRangeContainer in input metatdata store" );
+	    return StatusCode::SUCCESS;
+	 }
+	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
+         for ( const auto* lb : *lbrange ) {
+	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
+            m_cacheSuspectInputRangeContainer->push_back(iovr);
+	 }
+      }
+   return(StatusCode::SUCCESS);
+}
+StatusCode LumiBlockMetaDataTool::endInputFile()
+{
+   std::string fileName = "Undefined ";
+   bool alreadyRecorded=false;
+      m_fileCurrentlyOpened=false;
+      xAOD::LumiBlockRangeContainer::const_iterator it;
+      for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
+	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
+        m_cacheOutputRangeContainer->push_back(iovr);
+      }
+      m_cacheInputRangeContainer->clear();
+
+      for(it=m_cacheSuspectInputRangeContainer->begin(); it!=m_cacheSuspectInputRangeContainer->end(); it++) {
+	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
+        m_cacheSuspectOutputRangeContainer->push_back(iovr);
+      }
+      m_cacheSuspectInputRangeContainer->clear();
+   return(StatusCode::SUCCESS);
+}
+StatusCode LumiBlockMetaDataTool::metaDataStop()
+{
+   std::string fileName = "Undefined ";
+   bool alreadyRecorded=false;
+     if(m_fileCurrentlyOpened) {
+         ATH_MSG_INFO( "MetaDataStop called when input file open: LumiBlock is suspect" );
+         xAOD::LumiBlockRangeContainer::const_iterator it;
+         for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
+	   xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
+          m_cacheSuspectOutputRangeContainer->push_back(iovr);
+	 }
+      m_cacheInputRangeContainer->clear();
+     }
+
+      StatusCode sc = finishUp();
+      if (!sc.isSuccess()) {
+         ATH_MSG_INFO( "finishup failed" );
+         return StatusCode::FAILURE;
+    } 
+   return(StatusCode::SUCCESS);
+}
+
 //__________________________________________________________________________
+/*
 void LumiBlockMetaDataTool::handle(const Incident& inc) {
   // This handle is fired when files are opened or closed.
   // The "MetaDataStop" incident is fired when the final write
@@ -238,6 +345,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
     } 
    }
 }
+*/
 
 //__________________________________________________________________________
 StatusCode   LumiBlockMetaDataTool::finishUp() {

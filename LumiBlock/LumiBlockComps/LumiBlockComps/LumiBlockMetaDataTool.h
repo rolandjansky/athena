@@ -13,7 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
+//#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
@@ -37,7 +37,8 @@ namespace Root {
   class TGRLCollection;
 }
 
-class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool, virtual public IIncidentListener {
+//class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool, virtual public IIncidentListener {
+class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    LumiBlockMetaDataTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -50,8 +51,17 @@ public:
    StatusCode finalize();
    // StatusCode stop();
 
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode beginInputFile();
+
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode endInputFile();
+
+   /// Function writing the collected metadata to the output
+   virtual StatusCode metaDataStop();
+
    /// Incident service handle listening for BeginFile and EndFile.
-   void handle(const Incident& incident);
+   //void handle(const Incident& incident);
 
    /// functions from ILumiBlockMetaDataTool
    inline const Root::TGRLCollection* getGRLCollection() const { return m_grlcollection; }

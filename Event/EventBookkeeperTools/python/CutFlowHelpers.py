@@ -83,7 +83,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     svcMgr.ToolSvc += cutflowtool
 
     # Add tool to MetaDataSvc
-    svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+    #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
@@ -99,7 +99,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         svcMgr.ToolSvc += pdfweighttool
 
         # Add tool to MetaDataSvc
-        svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
+        #svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
 
     # Check if we have a sequence given
     if not seq :
@@ -170,6 +170,6 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
   svcMgr.ToolSvc += cutflowtool
 
   # Add tool to MetaDataSvc
-  svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+  #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
   return

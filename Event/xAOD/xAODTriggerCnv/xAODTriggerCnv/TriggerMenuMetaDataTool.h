@@ -58,6 +58,7 @@ namespace xAODMaker {
       /// Function collecting the trigger configuration metadata from the input
       /// file
       virtual StatusCode beginInputFile();
+      virtual StatusCode endInputFile();
 
       /// Function used to make sure that file openings are not missed
       virtual StatusCode beginEvent();

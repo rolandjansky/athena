@@ -35,7 +35,7 @@ namespace xAODMaker {
       declareProperty( "OutputKey", m_outputKey = "EventFormat" );
 
       declareInterface< ::IMetaDataTool >( this );
-      declareInterface< ::IIncidentListener >( this );
+      //declareInterface< ::IIncidentListener >( this );
    }
 
    StatusCode EventFormatMetaDataTool::initialize() {
@@ -52,10 +52,12 @@ namespace xAODMaker {
       ATH_CHECK( m_outputMetaStore.retrieve() );
 
       // Make the tool listen to certain incidents:
+      /*
       ServiceHandle< ::IIncidentSvc > incSvc( "IncidentSvc", name() );
       ATH_CHECK( incSvc.retrieve() );
       incSvc->addListener( this, IncidentType::BeginInputFile );
       incSvc->addListener( this, METADATASTOP, 70 );
+      */
 
       // Reset the internal object if it exists:
       m_format.reset();
@@ -64,6 +66,37 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
+
+   StatusCode EventFormatMetaDataTool::beginInputFile()
+   {
+      if( collectMetaData().isFailure() ) {
+         REPORT_ERROR( MSG::FATAL )
+            << "Failed to collect metadata from the input file";
+         throw std::runtime_error( "Failed to collect trigger configuration "
+                                   "metadata from the input" );
+      } 
+      return StatusCode::SUCCESS;
+   }
+
+
+   StatusCode EventFormatMetaDataTool::endInputFile()
+   {
+      return StatusCode::SUCCESS;
+   }
+
+
+   StatusCode EventFormatMetaDataTool::metaDataStop()
+   {
+      if( writeMetaData().isFailure() ) {
+         REPORT_ERROR( MSG::FATAL )
+            << "Failed to write metadata to the output store";
+         throw std::runtime_error( "Failed write xAOD::EventFormat "
+                                   "to the output" );
+      }
+      return StatusCode::SUCCESS;
+   }
+
+/*
    void EventFormatMetaDataTool::handle( const Incident& inc ) {
 
       // Some debugging information:
@@ -90,6 +123,7 @@ namespace xAODMaker {
 
       return;
    }
+*/
 
    StatusCode EventFormatMetaDataTool::collectMetaData() {
 

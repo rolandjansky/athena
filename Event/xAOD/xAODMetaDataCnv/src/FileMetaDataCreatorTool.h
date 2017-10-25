@@ -64,6 +64,9 @@ namespace xAODMaker {
       /// Function collecting the metadata from a new input file
       virtual StatusCode beginInputFile();
 
+      /// Function collecting the metadata from a new input file
+      virtual StatusCode endInputFile();
+
       /// Function writing the collected metadata to the output
       virtual StatusCode metaDataStop();
 
