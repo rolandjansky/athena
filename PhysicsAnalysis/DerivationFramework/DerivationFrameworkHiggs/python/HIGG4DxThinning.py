@@ -15,11 +15,18 @@ DFisMC = (globalflags.DataSource()=='geant4')
 # trigger navigation
 def TriggerChains(HIGG4DxName):
     if HIGG4DxName == 'HIGG4D1': 
-        return 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+        # single-e, single-mu, di-e, di-mu, and mu-e triggers.
+        # removing combined lepton + jet, missingET, gamma, bphys, and performance triggers
+        return '^(?!.*_[0-9]*(j|xe|tau|g|b|perf|idperf))(HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*)'
     elif HIGG4DxName == 'HIGG4D2': 
-        return 'HLT_e.*|HLT_mu.*'
-    elif HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
+        # single-e, single-mu, and combined lepton+tau triggers
+        # Removing multiplepton triggers (also with asymmetric thresholds), lepton+jet, lepton+missingET, lepton-photon, b-phys, and performance triggers
+        return '(^(?!.*_[0-9]*(mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))|(^(?!.*_[0-9]*(e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
+    elif HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+        # keeping all tau triggers as there isn't that many of them
         return 'HLT_tau.*'
+    elif HIGG4DxName in ['HIGG4D6']:
+        return ''
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
