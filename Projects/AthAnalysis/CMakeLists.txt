@@ -24,6 +24,7 @@ find_package( Gaudi REQUIRED )
 # additional externals
 find_package( Xrootd )
 find_package( GSL )
+find_package( Davix )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
