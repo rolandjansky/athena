@@ -12,7 +12,7 @@
 #include <xAODPrimitives/tools/getIsolationCorrectionAccessor.h>
 
 #include <IsolationSelection/IsolationSelectionTool.h>
-#include <InDetTrackSelectionTool/InDetTrackSelectionTool.h>
+#include <InDetTrackSelectionTool/IInDetTrackSelectionTool.h>
 
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
@@ -26,9 +26,6 @@
 
 //Tools includes:
 #include <cmath>
-#define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
-  ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
-  TOOLHANDLE.setName(TOOLNAME);
 
 namespace CP {
 
@@ -40,6 +37,7 @@ namespace CP {
                 m_maxTopoPolution(1.1),
                 m_ConeSizeVariation(1.2),
                 m_isInitialised(false),
+                m_isCoreSubtracted(false),
                 m_indetTrackParticleLocation("InDetTrackParticles"),
                 m_VertexContainerName("PrimaryVertices"),
                 m_CaloClusterContainerName("CaloCalTopoClusters"),
@@ -82,7 +80,7 @@ namespace CP {
 
         //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
-            SET_DUAL_TOOL(m_trkselTool, InDet::InDetTrackSelectionTool, "TackParticleSelectionTool");
+            m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TrackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
             ATH_CHECK(m_trkselTool.setProperty("maxZ0SinTheta", 3.));
             ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
@@ -256,7 +254,6 @@ namespace CP {
         }
         return CorrectionCode::Ok;
     }
-
     CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
         xAOD::IParticleContainer Container(SG::VIEW_ELEMENTS);
         for (auto&P : closePar)

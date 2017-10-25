@@ -221,21 +221,6 @@ namespace FSR {
                                    << " dr = " << dr );
                 }
             }
-            // else {
-                
-            //     double dr = deltaR(muon->eta(), muon->phi(), photon->eta(), photon->phi());
-   
-            //     if (dr < m_drcut) {
-            //         // ph_cl_eta/phi should be used in duplicate
-            //     ATH_MSG_INFO( "Near Fsr candidates ( photon ) kinematics ; author  "
-            //                   << photon->author()
-            //                   << " Et = " << photon->p4().Et()
-            //                   << " f1 = " << photon_f1
-            //                   << " dr = " << dr );
-            //     }
-                
-            // }
-
    	}
    
    	unsigned int nofPhFsr = nearFsrCandList.size();
