@@ -923,6 +923,13 @@ def defineCPSGroups():
 
         "RATE:CPS:HLT_g60_loose_L1EM24VHIM" : ['g60_loose_L1EM24VHIM',],
 
+        "RATE:CPS:HLT_jX_L1AFP_A_OR_C_J12" : ['j20_L1AFP_A_OR_C_J12',
+                                              'j45_L1AFP_A_OR_C_J12']
+        "RATE:CPS:HLT_jX_L1AFP_A_AND_C_J12" : ['j20_L1AFP_A_AND_C_J12',
+                                              'j45_L1AFP_A_AND_C_J12']
+        "RATE:CPS:HLT_jX_L1J12" : ['j20_L1J12',
+                                   'j45_L1J12']
+
 
         })
     return (HLT_CPS_Groups)

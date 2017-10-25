@@ -807,6 +807,11 @@ def setupMenu():
         ['j10_320eta490_L1MBTS_2',          'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['2j10_deta20_L1MBTS_2',            'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
+        #Low-mu run triggers
+        ['j45_L1AFP_A_OR_C_J12',          'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j45_L1AFP_A_AND_C_J12',         'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j45_L1J12',                     'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
 			 ]
 
     TriggerFlags.BjetSlice.signatures = [
