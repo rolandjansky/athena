@@ -137,7 +137,10 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
 HLT::ErrorCode AcceptL1TopoMonitor::hltInitialize()
 {
     ATH_MSG_INFO ("initialize");
-    (m_robDataProviderSvc.retrieve());
+    if(m_robDataProviderSvc.retrieve().isFailure())
+        ATH_MSG_INFO("Cannot retrieve ROBDataProviderSvc: will not be able to retrieve ROBs");
+    else
+        ATH_MSG_DEBUG("Retrieved ROBDataProviderSvc");
     ATH_MSG_DEBUG ("Properties:" );
     ATH_MSG_DEBUG ( m_doRawMon );
     ATH_MSG_DEBUG ( m_doCnvMon );
@@ -188,9 +191,8 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
     if (m_useDetMask){
         ATH_MSG_VERBOSE( "Using DetMask to decide whether to monitor this event" );
         // Check L1Topo detector is present; get event information
-        const EventInfo* event;
-        (evtStore()->retrieve(event));
-        if(! event){
+        const EventInfo* event=NULL;
+        if(evtStore()->retrieve(event).isFailure() or event==NULL){
             ATH_MSG_WARNING( "Could not retrieve EventInfo object" );
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
         }
@@ -221,18 +223,23 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
     }
     ATH_MSG_DEBUG("Prescale for DAQ ROB access: "
                   <<std::boolalpha<<prescaleForDAQROBAccess<<std::noboolalpha);
-    if (m_doRawMon){
-        (doRawMon(prescaleForDAQROBAccess));
+    if(m_doRawMon){
+        StatusCode sc = doRawMon(prescaleForDAQROBAccess);
+        ATH_MSG_DEBUG("Executed doRawMon : "<<(sc.isFailure() ? "failed" : "ok"));
     }
     if (m_doCnvMon){
-        (doCnvMon(prescaleForDAQROBAccess));
+        StatusCode sc = doCnvMon(prescaleForDAQROBAccess);
+        ATH_MSG_DEBUG("Executed doCnvMon : "<<(sc.isFailure() ? "failed" : "ok"));
     }
     if (m_doSimMon){
-        (doSimMon(prescaleForDAQROBAccess));
-        (doOverflowSimMon());
+        StatusCode sc = doSimMon(prescaleForDAQROBAccess);
+        ATH_MSG_DEBUG("Executed doSimMon : "<<(sc.isFailure() ? "failed" : "ok"));
+        sc = doOverflowSimMon();
+        ATH_MSG_DEBUG("Executed doOverflowSimMon : "<<(sc.isFailure() ? "failed" : "ok"));
     }
     if(m_doSimDaq){
-        (doSimDaq(prescaleForDAQROBAccess));
+        StatusCode sc = doSimDaq(prescaleForDAQROBAccess);
+        ATH_MSG_DEBUG("Executed doSimDaq : "<<(sc.isFailure() ? "failed" : "ok"));
     }
 
     incrementErrorCounters();
@@ -281,13 +288,13 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltFinalize()
     return HLT::OK;
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle)
+bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle)
 {
     auto p = prop.value();
     return bookAndRegisterHist(rootHistSvc, hist, p.title()+extraName, p.title()+extraTitle, p.bins(), p.lowEdge(), p.highEdge());
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge)
+bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge)
 {
     // booking path
     std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
@@ -296,21 +303,26 @@ StatusCode AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& ro
     if (hist) {
         if ( rootHistSvc->regHist(path + hist->GetName(), hist).isFailure() ){
             ATH_MSG_WARNING( "Can not register monitoring histogram"<< hist->GetName() );
-            return StatusCode::RECOVERABLE;
+            return false;
         }
     }
     else{
         ATH_MSG_WARNING( "Failed to create new monitoring histogram"<<hName );
-        return StatusCode::RECOVERABLE;
+        return false;
     }
-    return StatusCode::SUCCESS;
+    return true;
 }
 //----------------------------------------------------------
 HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
 {
     ATH_MSG_INFO ("beginRun");
     ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
-    ( rootHistSvc.retrieve() );
+    if(rootHistSvc.retrieve().isFailure()){
+        ATH_MSG_WARNING("Could not retrieve THistSvc: will not be able to book histograms");
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
+    } else {
+        ATH_MSG_DEBUG("Retrieved THistSvc");
+    }
     m_scaler->reset();
 
     // fill map of all ROB SIDs from properties, mapping to an integer counter for use as a bin index.
@@ -466,7 +478,7 @@ StatusCode AcceptL1TopoMonitor::doRawMon(bool prescalForDAQROBAccess)
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs, bool isROIROB)
+void AcceptL1TopoMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs, bool isROIROB)
 {
     // Iterate over the ROB fragments and histogram their source IDs
     ATH_MSG_VERBOSE( "ROB IDs of type "<<(isROIROB?"ROI":"DAQ")<<" requested: "<<L1Topo::formatVecHex8(vROBIDs));
@@ -506,7 +518,6 @@ StatusCode AcceptL1TopoMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs
             m_histPayloadSizeDAQROB->Fill(ndata);
         }
     }//  loop over rob fragments
-    return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
 StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
@@ -524,8 +535,9 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
 
     // Retrieve and print the L1Topo RDOs from the ROI RODs
     std::vector<L1Topo::L1TopoTOB> roiTobs;
-    const ROIB::RoIBResult* roibresult = 0;
-     (evtStore()->retrieve(roibresult) );
+    const ROIB::RoIBResult* roibresult = NULL;
+    if(evtStore()->retrieve(roibresult).isFailure() or roibresult==NULL)
+        return StatusCode::RECOVERABLE;
     const std::vector< ROIB::L1TopoResult > l1TopoResults = roibresult->l1TopoResult();
     ATH_MSG_DEBUG( "Number of L1Topo ROI RODs found: "<<l1TopoResults.size() );
     if (l1TopoResults.size()==0){
@@ -763,7 +775,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-StatusCode AcceptL1TopoMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header,
+void AcceptL1TopoMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header,
                                              std::vector<uint32_t>& /* vFibreSizes */,
                                              std::vector<uint32_t>& vFibreStatus,
                                              std::vector<L1Topo::L1TopoTOB>& /* daqTobs */)
@@ -787,7 +799,6 @@ StatusCode AcceptL1TopoMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& 
     }
     // bcns
     m_histBCNsFromDAQConv->Fill(header.bcn(),1.);
-    return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
 StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess)
@@ -800,9 +811,9 @@ StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess)
                      <<" Perhaps it was prescaled? Skipping simulation comparison.");
     } else {
         const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
-        ( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
-        if (!simTopoCTP){
-            ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. Skipping simulation comparison." );
+        StatusCode sc = evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value());
+        if(sc.isFailure() or !simTopoCTP){
+            ATH_MSG_WARNING( "Retrieve of LVL1::FrontPanelCTP failed. Skipping simulation comparison." );
         } else {
             m_setTopoSimResult=true;
             // From L1CaloL1TopoMon code (simulated result)
@@ -966,7 +977,8 @@ StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
     ATH_MSG_DEBUG( "doOverflowSimMon" );
     if(evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value())){
         const DataHandle< LVL1::FrontPanelCTP > simTopoOverflowCTP;
-        ( evtStore()->retrieve(simTopoOverflowCTP, m_simTopoOverflowCTPLocation.value()) );
+        if(evtStore()->retrieve(simTopoOverflowCTP, m_simTopoOverflowCTPLocation.value()).isFailure())
+            ATH_MSG_DEBUG("Cannot retrieve FrontPanelCTP handle");
         if(simTopoOverflowCTP){
             for(unsigned int i=0; i<32; ++i) { // store words
                 uint32_t mask = 0x1; mask <<= i;
