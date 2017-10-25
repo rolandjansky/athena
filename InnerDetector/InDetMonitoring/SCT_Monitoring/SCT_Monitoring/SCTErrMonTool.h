@@ -98,7 +98,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F_LW * m_secondHit[NREGIONS_INC_GENERAL];
   //@}
 
-  enum CategoryErrors { MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, N_ERRCATEGORY};
+  enum CategoryErrors { MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
 
   int errorsToGet(int errtype); // transfer [enum ErrorTypes] -> [SCT_ByteStreamErrors]
   TString errorsString(int errtype); // transfer [enum ErrorTypes] -> [TString ErrorName]

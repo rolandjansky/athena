@@ -202,14 +202,6 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_nBinsPhi( 100 ),
   m_ModulesThreshold( 2.5 ),
   m_TotalDetectorCoverageVsLB{}//,
-  // tmp_allErrs{},
-  // tmp_pallErrs{},
-  // tmp_ByteStreamVsLB{},
-  // tmp_ByteStreamWithSctFlagVsLB{},
-  // tmp_LinksWithAnyErrorsVsLB{},
-  // tmp_LinksWithBadErrorsVsLB{},
-  // tmp_LinksWithLnkErrorsVsLB{},
-  // tmp_LinksWithRODErrorsVsLB{},
   {
     /**
      *  sroe 3 Sept 2015:
@@ -297,6 +289,9 @@ SCTErrMonTool::errorsString(int errtype) {
   }
   if (errtype == RODLEVEL) {
     return "RODLevelErrors";
+  }
+  if (errtype == MASKEDCHIP) {
+    return "MaskedChipALL";
   }
   return "";
 }
@@ -751,6 +746,12 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
     (err_type == SCT_ByteStreamErrors::RODClockError) || (err_type == SCT_ByteStreamErrors::TruncatedROD) ||
     (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MaskedROD);
 
+  b_category[CategoryErrors::MASKEDCHIP] = false;
+  b_category[CategoryErrors::MASKEDCHIP] =
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip0) || (err_type == SCT_ByteStreamErrors::TempMaskedChip1) ||
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip2) || (err_type == SCT_ByteStreamErrors::TempMaskedChip3) ||
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip4) || (err_type == SCT_ByteStreamErrors::TempMaskedChip5);
+
   //--- Count BS errors
   int nerrors = 0;
   std::set<IdentifierHash>::iterator fit = errors->begin();
@@ -788,6 +789,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
 	if (b_category[CategoryErrors::BADERR])       m_pallErrsCatePerLumi[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
 	if (b_category[CategoryErrors::LINKLEVEL])    m_pallErrsCatePerLumi[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
 	if (b_category[CategoryErrors::RODLEVEL])     m_pallErrsCatePerLumi[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
+	if (b_category[CategoryErrors::MASKEDCHIP])   m_pallErrsCatePerLumi[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
       }
     }else {
       if (m_doPerLumiErrors) m_numErrorsPerLumi[regionIndex]->Fill(err_type, layer);
@@ -796,6 +798,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
       if (b_category[CategoryErrors::BADERR])       m_pallErrsCate[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
       if (b_category[CategoryErrors::LINKLEVEL])    m_pallErrsCate[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
       if (b_category[CategoryErrors::RODLEVEL])     m_pallErrsCate[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
+      if (b_category[CategoryErrors::MASKEDCHIP])   m_pallErrsCate[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
     }
   }
 
