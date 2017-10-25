@@ -138,13 +138,20 @@ electronsRequirements = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.6) 
 #jetRequirements = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 22.*GeV && (abs(AntiKt4EMTopoJets.JetConstitScaleMomentum_eta)<2.2))'
 jetRequirements = '(AntiKt4EMTopoJets.DFCommonJets_Calib_pt >= 40.*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.5)'
 
-expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) || (HLT_6j45_0eta240) || (HLT_6j45_0eta240_L14J20) || (HLT_6j50_0eta240_L14J20) || (HLT_7j45) || (HLT_5j70) || (HLT_5j85) || (HLT_5j45) || (HLT_6j45) )'
+# expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) || (HLT_5j.*) || (HLT_6j.*) || (HLT_7j.*) )'
+expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) )'
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-SUSY4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4SkimmingTool",
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__FilterCombinationOR
+SUSY4ObjectSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4ObjectSkimmingTool",
                                                                 expression = expression)
-
+ToolSvc += SUSY4ObjectSkimmingTool
+SUSY4TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY4TrigSkimmingTool",
+                                                                  TriggerListOR = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*"])
+ToolSvc += SUSY4TrigSkimmingTool
+SUSY4SkimmingTool = DerivationFramework__FilterCombinationOR( name = "SUSY4SkimmingTool",
+                                                              FilterList = [SUSY4ObjectSkimmingTool, SUSY4TrigSkimmingTool])
 ToolSvc += SUSY4SkimmingTool
+
 
 from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
 
