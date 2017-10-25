@@ -29,20 +29,20 @@ using namespace std;
 
 sTGCHitAnalysis::sTGCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , h_S_rz_A(0)
-  , h_S_rz_C(0)
-  , h_S_xy_A(0)
-  , h_S_xy_C(0)
-  , h_L_rz_A(0)
-  , h_L_rz_C(0)
-  , h_L_xy_A(0)
-  , h_L_xy_C(0)
-  , h_rz_A(0)
-  , h_rz_C(0)
-  , h_xy_A(0)
-  , h_xy_C(0)
-  , h_r_A(0)
-  , h_r_C(0)
+  , m_h_S_rz_A(0)
+  , m_h_S_rz_C(0)
+  , m_h_S_xy_A(0)
+  , m_h_S_xy_C(0)
+  , m_h_L_rz_A(0)
+  , m_h_L_rz_C(0)
+  , m_h_L_xy_A(0)
+  , m_h_L_xy_C(0)
+  , m_h_rz_A(0)
+  , m_h_rz_C(0)
+  , m_h_xy_A(0)
+  , m_h_xy_C(0)
+  , m_h_r_A(0)
+  , m_h_r_C(0)
   , m_ntupleFileName("sTGCHitAnalysis/ntuple/")
   , m_path("/sTGCHitAnalysis/histos/")
   , m_thistSvc("THistSvc", name)
@@ -61,62 +61,62 @@ StatusCode sTGCHitAnalysis::initialize() {
 
   /** Histograms */
 
-  h_rz_A = new TH2D("h_stgc_rz_A","rz_A", 2000,6500., 8500., 1000, -5000., 5000.);
-  h_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rz_A->GetName(), h_rz_A));
+  m_h_rz_A = new TH2D("h_stgc_rz_A","rz_A", 2000,6500., 8500., 1000, -5000., 5000.);
+  m_h_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_rz_A->GetName(), m_h_rz_A));
 
-  h_rz_C = new TH2D("h_stgc_rz_C","rz_C", 2000,-8500., -6500., 5000, 0., 5000.);
-  h_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rz_C->GetName(), h_rz_C));
+  m_h_rz_C = new TH2D("h_stgc_rz_C","rz_C", 2000,-8500., -6500., 5000, 0., 5000.);
+  m_h_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_rz_C->GetName(), m_h_rz_C));
 
-  h_L_rz_A = new TH2D("h_stgc_L_rz_A","L_rz_A", 2000, 6500., 8500., 5000, 0., 5000.);
-  h_L_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_rz_A->GetName(), h_L_rz_A));
+  m_h_L_rz_A = new TH2D("h_stgc_L_rz_A","L_rz_A", 2000, 6500., 8500., 5000, 0., 5000.);
+  m_h_L_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_rz_A->GetName(), m_h_L_rz_A));
 
-  h_L_rz_C = new TH2D("h_stgc_L_rz_C","L_rz_C", 2000,-8500., -6500., 5000, 0., 5000.);
-  h_L_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_rz_C->GetName(), h_L_rz_C));
+  m_h_L_rz_C = new TH2D("h_stgc_L_rz_C","L_rz_C", 2000,-8500., -6500., 5000, 0., 5000.);
+  m_h_L_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_rz_C->GetName(), m_h_L_rz_C));
 
-  h_S_rz_A = new TH2D("h_stgc_S_rz_A","S_rz_A", 2000,6500., 8500., 5000, 0., 5000.);
-  h_S_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_rz_A->GetName(), h_S_rz_A));
+  m_h_S_rz_A = new TH2D("h_stgc_S_rz_A","S_rz_A", 2000,6500., 8500., 5000, 0., 5000.);
+  m_h_S_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_rz_A->GetName(), m_h_S_rz_A));
 
-  h_S_rz_C = new TH2D("h_stgc_S_rz_C","S_rz_C", 2000, -8500., -6500., 5000, 0., 5000.);
-  h_S_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_rz_C->GetName(), h_S_rz_C));
+  m_h_S_rz_C = new TH2D("h_stgc_S_rz_C","S_rz_C", 2000, -8500., -6500., 5000, 0., 5000.);
+  m_h_S_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_rz_C->GetName(), m_h_S_rz_C));
 
   
-  h_xy_A = new TH2D("h_stgc_xy_A","xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_xy_A->GetName(), h_xy_A));
+  m_h_xy_A = new TH2D("h_stgc_xy_A","xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_xy_A->GetName(), m_h_xy_A));
 
-  h_xy_C = new TH2D("h_stgc_xy_C","xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_xy_C->GetName(), h_xy_C));
+  m_h_xy_C = new TH2D("h_stgc_xy_C","xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_xy_C->GetName(), m_h_xy_C));
 
-  h_L_xy_A = new TH2D("h_stgc_L_xy_A","L_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_xy_A->GetName(), h_L_xy_A));
+  m_h_L_xy_A = new TH2D("h_stgc_L_xy_A","L_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_xy_A->GetName(), m_h_L_xy_A));
 
-  h_L_xy_C = new TH2D("h_stgc_L_xy_C","L_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_xy_C->GetName(), h_L_xy_C));
+  m_h_L_xy_C = new TH2D("h_stgc_L_xy_C","L_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_xy_C->GetName(), m_h_L_xy_C));
 
-  h_S_xy_A = new TH2D("h_stgc_S_xy_A","S_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_xy_A->GetName(), h_S_xy_A));
+  m_h_S_xy_A = new TH2D("h_stgc_S_xy_A","S_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_xy_A->GetName(), m_h_S_xy_A));
 
-  h_S_xy_C = new TH2D("h_stgc_S_xy_C","S_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_xy_C->GetName(), h_S_xy_C));
+  m_h_S_xy_C = new TH2D("h_stgc_S_xy_C","S_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_xy_C->GetName(), m_h_S_xy_C));
 
-  h_r_A = new TH1D("h_stgc_r_A","r_A", 1000,0., 14000.);
-  h_r_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_r_A->GetName(), h_r_A));
+  m_h_r_A = new TH1D("h_stgc_r_A","r_A", 1000,0., 14000.);
+  m_h_r_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_r_A->GetName(), m_h_r_A));
   
-  h_r_C = new TH1D("h_stgc_r_C","r_C", 1000,0., 14000.);
-  h_r_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_r_C->GetName(), h_r_C));
+  m_h_r_C = new TH1D("h_stgc_r_C","r_C", 1000,0., 14000.);
+  m_h_r_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_r_C->GetName(), m_h_r_C));
 
   
   return StatusCode::SUCCESS;
@@ -146,40 +146,40 @@ StatusCode sTGCHitAnalysis::execute() {
 
       if ( sim_side==1){ //Both sectors A side
         double r_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r 
-        h_rz_A->Fill(p.z(), r_A);
-	h_xy_A->Fill(p.x(), p.y());
-	h_r_A->Fill(r_A);
+        m_h_rz_A->Fill(p.z(), r_A);
+	m_h_xy_A->Fill(p.x(), p.y());
+	m_h_r_A->Fill(r_A);
       }
 
       if ( sim_side==-1){ //Both sectors C side
         double r_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_rz_C->Fill(p.z(), r_C);
-	h_xy_C->Fill(p.x(), p.y());
-	h_r_C->Fill(r_C);
+        m_h_rz_C->Fill(p.z(), r_C);
+	m_h_xy_C->Fill(p.x(), p.y());
+	m_h_r_C->Fill(r_C);
       }
 
       if ((sim_stationName==TS11 || sim_stationName==TS21 || sim_stationName==TS31) && sim_side==1){ //Small sectors A side 
         double r_S_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_S_rz_A->Fill(p.z(), r_S_A);
-	h_S_xy_A->Fill(p.x(), p.y());
+        m_h_S_rz_A->Fill(p.z(), r_S_A);
+	m_h_S_xy_A->Fill(p.x(), p.y());
       }
 
       if ((sim_stationName==TS11 || sim_stationName==TS21 || sim_stationName==TS31) && sim_side==-1){ //Small sectors C side 
         double r_S_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_S_rz_C->Fill(p.z(), r_S_C);
-        h_S_xy_C->Fill(p.x(), p.y());
+        m_h_S_rz_C->Fill(p.z(), r_S_C);
+        m_h_S_xy_C->Fill(p.x(), p.y());
       }
 
       if ((sim_stationName==TL11 || sim_stationName==TL21 || sim_stationName==TL31) && sim_side==1){ //Large sectors A side
 	double r_L_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L_rz_A->Fill(p.z(), r_L_A);
-        h_L_xy_A->Fill(p.x(), p.y());
+        m_h_L_rz_A->Fill(p.z(), r_L_A);
+        m_h_L_xy_A->Fill(p.x(), p.y());
       }
 
       if ((sim_stationName==TL11 || sim_stationName==TL21 || sim_stationName==TL31) && sim_side==-1){ //Large sectors C side
         double r_L_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L_rz_C->Fill(p.z(), r_L_C);
-        h_L_xy_C->Fill(p.x(), p.y());
+        m_h_L_rz_C->Fill(p.z(), r_L_C);
+        m_h_L_xy_C->Fill(p.x(), p.y());
       }
 
     }
