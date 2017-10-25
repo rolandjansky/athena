@@ -548,7 +548,7 @@ def defineMenu():
         #"L1_MBTS_1_VTE2", "L1_MBTS_1_VTE3", "L1_MBTS_1_VTE4", "L1_MBTS_1_VTE5", "L1_MBTS_1_VTE10", "L1_MBTS_2_VTE2", "L1_MBTS_2_VTE3", "L1_MBTS_2_VTE4", "L1_MBTS_2_VTE5", "L1_MBTS_2_VTE10", 
         
         #TE + MU
-        "L1_MU4_TE10",
+        "L1_MU4_TE10", "L1_MU4_TE40", "L1_MU4_TE50",
 
         # MBTS
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
@@ -1506,6 +1506,8 @@ def defineMenu():
         'L1_ZDC_AND':421, 
         'L1_ZDC_A_C':422, 
         'L1_MU4_TE10':470,
+        'L1_MU4_TE40':108,
+        'L1_MU4_TE50':124,
 
         'L1_LUCID_BGRP9' : 471,
         'L1_LUCID_BGRP11' : 472,
