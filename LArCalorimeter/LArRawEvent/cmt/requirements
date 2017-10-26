@@ -7,8 +7,8 @@ author Hong Ma <hma@bnl.gov>
 use AtlasPolicy AtlasPolicy-*
 use AtlasCLHEP AtlasCLHEP-* External
 use CaloIdentifier CaloIdentifier-* Calorimeter
-use CLIDSvc CLIDSvc-* Control
-use DataModel DataModel-* Control
+use AthenaKernel AthenaKernel-* Control
+use AthContainers AthContainers-* Control
 
 use Identifier Identifier-* DetectorDescription
 
