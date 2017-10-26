@@ -1,6 +1,6 @@
 #include "InDetTruthAlgs/PRD_MultiTruthMaker.h"
 #include "InDetTruthAlgs/InDetDetailedTrackTruthMaker.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, InDetDetailedTrackTruthMaker )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, PRD_MultiTruthMaker )
+DECLARE_COMPONENT( InDet::InDetDetailedTrackTruthMaker )
+DECLARE_COMPONENT( InDet::PRD_MultiTruthMaker )
 

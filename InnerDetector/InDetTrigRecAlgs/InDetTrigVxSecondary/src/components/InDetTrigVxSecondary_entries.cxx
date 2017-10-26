@@ -3,6 +3,6 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( TrigVxSecondary      )
-DECLARE_ALGORITHM_FACTORY( TrigVxSecondaryCombo )
+DECLARE_COMPONENT( TrigVxSecondary )
+DECLARE_COMPONENT( TrigVxSecondaryCombo )
 

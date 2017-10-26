@@ -1,4 +1,4 @@
 #include "InDetSegmentDriftCircleAssValidation/SegmentDriftCircleAssValidation.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(InDet, SegmentDriftCircleAssValidation )
+DECLARE_COMPONENT( InDet::SegmentDriftCircleAssValidation )
 

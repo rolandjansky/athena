@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SiCombinatorialTrackFinder_xk)
+DECLARE_COMPONENT( SiCombinatorialTrackFinder_xk )
 

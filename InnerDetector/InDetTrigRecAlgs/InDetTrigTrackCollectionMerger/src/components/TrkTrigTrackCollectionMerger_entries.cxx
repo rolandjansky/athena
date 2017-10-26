@@ -8,6 +8,6 @@
 
 using namespace Trk;
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, TrigTrackCollectionMerger )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, SimpleTrigTrackCollMerger )
+DECLARE_COMPONENT( Trk::TrigTrackCollectionMerger )
+DECLARE_COMPONENT( Trk::SimpleTrigTrackCollMerger )
 

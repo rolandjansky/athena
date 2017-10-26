@@ -8,11 +8,11 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_ATLxk      )
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_LowMomentum)
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_BeamGas    )
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_Cosmic     )
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_HeavyIon   )
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_Trigger    )
-DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_ITK        )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_ATLxk )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_LowMomentum )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_BeamGas )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_Cosmic )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_HeavyIon )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_Trigger )
+DECLARE_COMPONENT( SiSpacePointsSeedMaker_ITK )
 

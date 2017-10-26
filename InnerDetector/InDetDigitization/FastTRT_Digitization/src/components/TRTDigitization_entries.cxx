@@ -2,7 +2,7 @@
 #include "../../FastTRT_Digitization/TRTFastDigitizationTool.h"
 #include "../../FastTRT_Digitization/ITRTFastDigitizationTool.h"
 
-DECLARE_ALGORITHM_FACTORY( TRTFastDigitization )
+DECLARE_COMPONENT( TRTFastDigitization )
 
-DECLARE_TOOL_FACTORY(TRTFastDigitizationTool)
+DECLARE_COMPONENT( TRTFastDigitizationTool )
 

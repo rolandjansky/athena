@@ -3,6 +3,6 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( TRT_SeededSpacePointFinder_ATL )
-DECLARE_TOOL_FACTORY( SimpleTRT_SeededSpacePointFinder_ATL )
+DECLARE_COMPONENT( TRT_SeededSpacePointFinder_ATL )
+DECLARE_COMPONENT( SimpleTRT_SeededSpacePointFinder_ATL )
 

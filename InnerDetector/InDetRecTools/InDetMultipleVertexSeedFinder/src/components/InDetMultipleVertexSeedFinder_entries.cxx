@@ -4,7 +4,7 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SlidingWindowMultiSeedFinder )
-DECLARE_TOOL_FACTORY( DivisiveMultiSeedFinder )
-DECLARE_TOOL_FACTORY( HistogrammingMultiSeedFinder )
+DECLARE_COMPONENT( SlidingWindowMultiSeedFinder )
+DECLARE_COMPONENT( DivisiveMultiSeedFinder )
+DECLARE_COMPONENT( HistogrammingMultiSeedFinder )
 

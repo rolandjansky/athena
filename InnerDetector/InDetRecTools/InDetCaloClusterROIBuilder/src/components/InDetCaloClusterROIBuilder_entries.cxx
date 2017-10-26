@@ -3,5 +3,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY (CaloClusterROI_Builder)
+DECLARE_COMPONENT( CaloClusterROI_Builder )
 

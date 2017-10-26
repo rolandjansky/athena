@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( TRT_SeededTrackFinder_ATL)
+DECLARE_COMPONENT( TRT_SeededTrackFinder_ATL )
 

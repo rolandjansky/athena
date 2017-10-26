@@ -3,6 +3,6 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY(TRT_TrackExtensionTool_xk)
-DECLARE_TOOL_FACTORY(TRT_TrackExtensionToolCosmics)
+DECLARE_COMPONENT( TRT_TrackExtensionTool_xk )
+DECLARE_COMPONENT( TRT_TrackExtensionToolCosmics )
 

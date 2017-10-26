@@ -4,7 +4,7 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( TRT_TrackSegmentsMaker_ATLxk )
-DECLARE_TOOL_FACTORY( TRT_TrackSegmentsMaker_ECcosmics )
-DECLARE_TOOL_FACTORY( TRT_TrackSegmentsMaker_BarrelCosmics )
+DECLARE_COMPONENT( TRT_TrackSegmentsMaker_ATLxk )
+DECLARE_COMPONENT( TRT_TrackSegmentsMaker_ECcosmics )
+DECLARE_COMPONENT( TRT_TrackSegmentsMaker_BarrelCosmics )
 

@@ -2,5 +2,5 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, TRT_TrigTrackExtensionAlg )
+DECLARE_COMPONENT( InDet::TRT_TrigTrackExtensionAlg )
 

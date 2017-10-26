@@ -4,8 +4,8 @@
 #include "../RefitTracksAndVertex.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(InDet, InDetBeamSpotFinder )
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, InDetBeamSpotVertex)
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, InDetBeamSpotRooFit)
-DECLARE_ALGORITHM_FACTORY( RefitTracksAndVertex )
+DECLARE_COMPONENT( InDet::InDetBeamSpotFinder )
+DECLARE_COMPONENT( InDet::InDetBeamSpotVertex )
+DECLARE_COMPONENT( InDet::InDetBeamSpotRooFit )
+DECLARE_COMPONENT( RefitTracksAndVertex )
 

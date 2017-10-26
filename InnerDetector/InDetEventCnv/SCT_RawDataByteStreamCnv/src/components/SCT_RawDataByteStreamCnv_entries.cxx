@@ -2,17 +2,17 @@
 DECLARE_CONVERTER_FACTORY( SCTRawContByteStreamCnv )
 
 #include "../SCTRawContByteStreamService.h"
-DECLARE_SERVICE_FACTORY( SCTRawContByteStreamService )  
+DECLARE_COMPONENT( SCTRawContByteStreamService )  
 
 #include "../SCTRawDataProvider.h"
-DECLARE_ALGORITHM_FACTORY( SCTRawDataProvider )
+DECLARE_COMPONENT( SCTRawDataProvider )
 
 #include "../SCTRawDataProviderTool.h"
-DECLARE_TOOL_FACTORY( SCTRawDataProviderTool)  
+DECLARE_COMPONENT( SCTRawDataProviderTool )  
 
 #include "../SCT_RodDecoder.h"
-DECLARE_TOOL_FACTORY( SCT_RodDecoder )
+DECLARE_COMPONENT( SCT_RodDecoder )
 
 #include "../SCT_RodEncoder.h"
-DECLARE_TOOL_FACTORY( SCT_RodEncoder )
+DECLARE_COMPONENT( SCT_RodEncoder )
 

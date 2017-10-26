@@ -3,8 +3,8 @@
 #include "InDetTruthTools/PRD_TruthTrajectoryManipulatorID.h"
 #include "InDetTruthTools/PRD_TruthTrajectorySelectorID.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, PRD_MultiTruthBuilder)
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, PRD_TruthTrajectorySorterID)
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, PRD_TruthTrajectoryManipulatorID)
-DECLARE_NAMESPACE_TOOL_FACTORY(InDet, PRD_TruthTrajectorySelectorID)
+DECLARE_COMPONENT( InDet::PRD_MultiTruthBuilder )
+DECLARE_COMPONENT( InDet::PRD_TruthTrajectorySorterID )
+DECLARE_COMPONENT( InDet::PRD_TruthTrajectoryManipulatorID )
+DECLARE_COMPONENT( InDet::PRD_TruthTrajectorySelectorID )
 

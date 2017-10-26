@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetTrackSummaryHelperTool )
+DECLARE_COMPONENT( InDetTrackSummaryHelperTool )
 

@@ -1,4 +1,4 @@
 #include "../BeamCondSvc.h"
 
-DECLARE_SERVICE_FACTORY( BeamCondSvc )
+DECLARE_COMPONENT( BeamCondSvc )
 

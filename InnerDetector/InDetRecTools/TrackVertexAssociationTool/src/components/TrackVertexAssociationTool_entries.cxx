@@ -8,10 +8,10 @@
 
 using namespace xAOD;
 
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,LooseTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,TightTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,BaseTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,ElectronTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,MuonTrackVertexAssociationTool)
-DECLARE_ALGORITHM_FACTORY(TrackVertexAssoTestAlg)
+DECLARE_COMPONENT( CP::LooseTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::TightTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::BaseTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::ElectronTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::MuonTrackVertexAssociationTool )
+DECLARE_COMPONENT( TrackVertexAssoTestAlg )
 

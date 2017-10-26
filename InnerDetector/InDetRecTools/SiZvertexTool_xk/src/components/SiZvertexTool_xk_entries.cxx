@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SiZvertexMaker_xk )
+DECLARE_COMPONENT( SiZvertexMaker_xk )
 

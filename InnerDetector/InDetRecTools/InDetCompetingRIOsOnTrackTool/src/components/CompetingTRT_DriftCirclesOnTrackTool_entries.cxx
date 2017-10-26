@@ -2,7 +2,7 @@
 #include "InDetCompetingRIOsOnTrackTool/CompetingPixelClustersOnTrackTool.h"
 #include "InDetCompetingRIOsOnTrackTool/CompetingSCT_ClustersOnTrackTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, CompetingTRT_DriftCirclesOnTrackTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, CompetingPixelClustersOnTrackTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, CompetingSCT_ClustersOnTrackTool )
+DECLARE_COMPONENT( InDet::CompetingTRT_DriftCirclesOnTrackTool )
+DECLARE_COMPONENT( InDet::CompetingPixelClustersOnTrackTool )
+DECLARE_COMPONENT( InDet::CompetingSCT_ClustersOnTrackTool )
 

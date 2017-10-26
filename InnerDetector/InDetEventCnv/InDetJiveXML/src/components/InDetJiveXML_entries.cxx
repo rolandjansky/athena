@@ -9,12 +9,12 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(SiSpacePointRetriever)
-DECLARE_TOOL_FACTORY(TRTRetriever)
-DECLARE_TOOL_FACTORY(SiClusterRetriever)
-DECLARE_TOOL_FACTORY(PixelClusterRetriever)
-DECLARE_TOOL_FACTORY(SCTRDORetriever)
-DECLARE_TOOL_FACTORY(PixelRDORetriever)
-DECLARE_TOOL_FACTORY(InDetGeoModelTool)
-DECLARE_TOOL_FACTORY(BeamSpotRetriever)
+DECLARE_COMPONENT( SiSpacePointRetriever )
+DECLARE_COMPONENT( TRTRetriever )
+DECLARE_COMPONENT( SiClusterRetriever )
+DECLARE_COMPONENT( PixelClusterRetriever )
+DECLARE_COMPONENT( SCTRDORetriever )
+DECLARE_COMPONENT( PixelRDORetriever )
+DECLARE_COMPONENT( InDetGeoModelTool )
+DECLARE_COMPONENT( BeamSpotRetriever )
 

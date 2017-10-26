@@ -1,4 +1,4 @@
 #include "../PixelSensorSDTool.h"
 
-DECLARE_TOOL_FACTORY( PixelSensorSDTool )
+DECLARE_COMPONENT( PixelSensorSDTool )
 

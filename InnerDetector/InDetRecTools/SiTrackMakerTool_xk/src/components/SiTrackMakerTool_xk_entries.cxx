@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SiTrackMaker_xk)
+DECLARE_COMPONENT( SiTrackMaker_xk )
 

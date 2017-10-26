@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( TRT_TrigStandaloneTrackFinder )
+DECLARE_COMPONENT( TRT_TrigStandaloneTrackFinder )
 

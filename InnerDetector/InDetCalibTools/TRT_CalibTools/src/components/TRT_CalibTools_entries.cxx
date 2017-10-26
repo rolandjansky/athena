@@ -8,13 +8,13 @@
 //#include "../TRTCalModuleAccumulator.h"
 //#include "../TRTCalStrawAccumulator.h"
 
-DECLARE_TOOL_FACTORY( TRTCalibTrackSelectionTool )
-DECLARE_TOOL_FACTORY( FillAlignTrkInfo )
-DECLARE_TOOL_FACTORY( FillAlignTRTHits )
-DECLARE_TOOL_FACTORY( TRTCalibrator )
-//DECLARE_TOOL_FACTORY( TRTCalAccumulator )
-DECLARE_TOOL_FACTORY( FitTool )
-//DECLARE_TOOL_FACTORY( TRTCalChipAccumulator  )
-//DECLARE_TOOL_FACTORY( TRTCalModuleAccumulator  )
-//DECLARE_TOOL_FACTORY( TRTCalStrawAccumulator )
+DECLARE_COMPONENT( TRTCalibTrackSelectionTool )
+DECLARE_COMPONENT( FillAlignTrkInfo )
+DECLARE_COMPONENT( FillAlignTRTHits )
+DECLARE_COMPONENT( TRTCalibrator )
+//DECLARE_COMPONENT( TRTCalAccumulator )
+DECLARE_COMPONENT( FitTool )
+//DECLARE_COMPONENT( TRTCalChipAccumulator )
+//DECLARE_COMPONENT( TRTCalModuleAccumulator )
+//DECLARE_COMPONENT( TRTCalStrawAccumulator )
 

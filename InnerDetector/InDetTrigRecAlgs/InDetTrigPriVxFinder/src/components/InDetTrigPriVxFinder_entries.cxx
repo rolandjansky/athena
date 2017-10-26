@@ -4,6 +4,6 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( TrigVxPrimary )
-DECLARE_ALGORITHM_FACTORY( TrigVxPrimaryAllTE )
+DECLARE_COMPONENT( TrigVxPrimary )
+DECLARE_COMPONENT( TrigVxPrimaryAllTE )
 

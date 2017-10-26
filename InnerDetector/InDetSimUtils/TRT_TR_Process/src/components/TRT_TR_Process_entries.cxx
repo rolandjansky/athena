@@ -1,6 +1,6 @@
 #include "../TRTPhysicsTool.h"
 
-DECLARE_TOOL_FACTORY( TRTPhysicsTool )
+DECLARE_COMPONENT( TRTPhysicsTool )
 
 
  

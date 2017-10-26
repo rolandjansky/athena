@@ -5,12 +5,12 @@
 #include "InDetCosmicsEventPhase/TRT_TrackTimingTool.h"
 
 using namespace InDet;
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, InDetCosmicsEventPhase )
+DECLARE_COMPONENT( InDet::InDetCosmicsEventPhase )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetCosmicsEventPhaseTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetFixedWindowTrackTimeTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetSlidingWindowTrackTimeTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TRT_TrackTimingTool )
+DECLARE_COMPONENT( InDet::InDetCosmicsEventPhaseTool )
+DECLARE_COMPONENT( InDet::InDetFixedWindowTrackTimeTool )
+DECLARE_COMPONENT( InDet::InDetSlidingWindowTrackTimeTool )
+DECLARE_COMPONENT( InDet::TRT_TrackTimingTool )
 
     
 

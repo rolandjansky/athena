@@ -3,6 +3,6 @@
 
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, SCT_TrigSpacePointTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, SiTrigSpacePointFinder )
+DECLARE_COMPONENT( InDet::SCT_TrigSpacePointTool )
+DECLARE_COMPONENT( InDet::SiTrigSpacePointFinder )
 

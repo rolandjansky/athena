@@ -3,5 +3,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( InDetTrigAmbiguitySolver )
+DECLARE_COMPONENT( InDetTrigAmbiguitySolver )
 

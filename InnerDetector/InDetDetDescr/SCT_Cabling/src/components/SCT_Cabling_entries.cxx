@@ -3,8 +3,8 @@
 #include "../SCT_FillCablingFromCoraCool.h"
 #include "SCT_Cabling/SCT_TestCablingAlg.h"
 
-DECLARE_SERVICE_FACTORY(SCT_CablingSvc)
-DECLARE_SERVICE_FACTORY(SCT_FillCablingFromText)
-DECLARE_SERVICE_FACTORY(SCT_FillCablingFromCoraCool)
-DECLARE_ALGORITHM_FACTORY(SCT_TestCablingAlg)
+DECLARE_COMPONENT( SCT_CablingSvc )
+DECLARE_COMPONENT( SCT_FillCablingFromText )
+DECLARE_COMPONENT( SCT_FillCablingFromCoraCool )
+DECLARE_COMPONENT( SCT_TestCablingAlg )
 

@@ -6,11 +6,11 @@
 #include "../SCT_DetailedSurfaceChargesGenerator.h"
 #include "../SCT_RandomDisabledCellGenerator.h"
 
-DECLARE_ALGORITHM_FACTORY(SCT_Digitization)
-DECLARE_TOOL_FACTORY(SCT_Amp)  
-DECLARE_TOOL_FACTORY(SCT_FrontEnd)
-DECLARE_TOOL_FACTORY(SCT_DigitizationTool)
-DECLARE_TOOL_FACTORY(SCT_SurfaceChargesGenerator)
-DECLARE_TOOL_FACTORY(SCT_DetailedSurfaceChargesGenerator)
-DECLARE_TOOL_FACTORY(SCT_RandomDisabledCellGenerator)
+DECLARE_COMPONENT( SCT_Digitization )
+DECLARE_COMPONENT( SCT_Amp )  
+DECLARE_COMPONENT( SCT_FrontEnd )
+DECLARE_COMPONENT( SCT_DigitizationTool )
+DECLARE_COMPONENT( SCT_SurfaceChargesGenerator )
+DECLARE_COMPONENT( SCT_DetailedSurfaceChargesGenerator )
+DECLARE_COMPONENT( SCT_RandomDisabledCellGenerator )
 

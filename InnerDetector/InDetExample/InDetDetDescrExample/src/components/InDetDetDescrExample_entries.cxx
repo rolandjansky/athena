@@ -5,10 +5,10 @@
 #include "InDetDetDescrExample/InDetUpdateCaches.h"
 #include "InDetDetDescrExample/PrintSiElements.h"
 
-DECLARE_ALGORITHM_FACTORY( ReadSiDetectorElements )
-DECLARE_ALGORITHM_FACTORY( ReadTRT_DetectorElements )
-DECLARE_ALGORITHM_FACTORY( TestSiAlignment )
-DECLARE_ALGORITHM_FACTORY( TestTRT_Alignment )
-DECLARE_ALGORITHM_FACTORY( InDetUpdateCaches )
-DECLARE_ALGORITHM_FACTORY( PrintSiElements )
+DECLARE_COMPONENT( ReadSiDetectorElements )
+DECLARE_COMPONENT( ReadTRT_DetectorElements )
+DECLARE_COMPONENT( TestSiAlignment )
+DECLARE_COMPONENT( TestTRT_Alignment )
+DECLARE_COMPONENT( InDetUpdateCaches )
+DECLARE_COMPONENT( PrintSiElements )
 

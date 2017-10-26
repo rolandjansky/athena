@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( InDetZVTOP_Alg )
+DECLARE_COMPONENT( InDetZVTOP_Alg )
 

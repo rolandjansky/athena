@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( SiDetElementsRoadMaker_xk)
+DECLARE_COMPONENT( SiDetElementsRoadMaker_xk )
 

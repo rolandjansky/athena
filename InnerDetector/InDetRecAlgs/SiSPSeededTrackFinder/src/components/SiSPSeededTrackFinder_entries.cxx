@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( SiSPSeededTrackFinder )
+DECLARE_COMPONENT( SiSPSeededTrackFinder )
 

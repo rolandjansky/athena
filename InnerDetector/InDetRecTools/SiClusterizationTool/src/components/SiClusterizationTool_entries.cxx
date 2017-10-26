@@ -17,17 +17,17 @@
 
 using namespace InDet;
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, MergedPixelsTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, SCT_ClusteringTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, PixelGangedAmbiguitiesFinder )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, ClusterMakerTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TotPixelClusterSplitter )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitter )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnClusterizationFactory )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitProbTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthPixelClusterSplitter )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthClusterizationFactory )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TruthPixelClusterSplitProbTool )
+DECLARE_COMPONENT( InDet::MergedPixelsTool )
+DECLARE_COMPONENT( InDet::SCT_ClusteringTool )
+DECLARE_COMPONENT( InDet::PixelGangedAmbiguitiesFinder )
+DECLARE_COMPONENT( InDet::ClusterMakerTool )
+DECLARE_COMPONENT( InDet::TotPixelClusterSplitter )
+DECLARE_COMPONENT( InDet::NnPixelClusterSplitter )
+DECLARE_COMPONENT( InDet::NnClusterizationFactory )
+DECLARE_COMPONENT( InDet::NnPixelClusterSplitProbTool )
+DECLARE_COMPONENT( InDet::TruthPixelClusterSplitter )
+DECLARE_COMPONENT( InDet::TruthClusterizationFactory )
+DECLARE_COMPONENT( InDet::TruthPixelClusterSplitProbTool )
 
 
   

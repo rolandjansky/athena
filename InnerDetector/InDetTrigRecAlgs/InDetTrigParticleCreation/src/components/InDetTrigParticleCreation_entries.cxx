@@ -4,12 +4,8 @@
 #include "InDetTrigParticleCreation/TrigVertexxAODCnv.h"
 #include "TrkTrack/Track.h"
 
-using namespace InDet;
-
-DECLARE_ALGORITHM_FACTORY( TrigParticleCreator )
-DECLARE_ALGORITHM_FACTORY( TrigTrackingxAODCnv )
-DECLARE_ALGORITHM_FACTORY( TrigTrackingxAODCnvMT )
-DECLARE_ALGORITHM_FACTORY( TrigVertexxAODCnv )
-
-/** factory entries need to have the name of the package */
+DECLARE_COMPONENT( InDet::TrigParticleCreator )
+DECLARE_COMPONENT( InDet::TrigTrackingxAODCnv )
+DECLARE_COMPONENT( InDet::TrigTrackingxAODCnvMT )
+DECLARE_COMPONENT( InDet::TrigVertexxAODCnv )
 

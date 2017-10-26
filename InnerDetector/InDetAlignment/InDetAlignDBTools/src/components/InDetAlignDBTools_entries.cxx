@@ -2,7 +2,7 @@
 #include "InDetAlignDBTools/TRTTrkAlignDBTool.h"
 #include "InDetAlignDBTools/InDetTrkAlignDBTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, SiTrkAlignDBTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TRTTrkAlignDBTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetTrkAlignDBTool )
+DECLARE_COMPONENT( InDet::SiTrkAlignDBTool )
+DECLARE_COMPONENT( InDet::TRTTrkAlignDBTool )
+DECLARE_COMPONENT( InDet::InDetTrkAlignDBTool )
 

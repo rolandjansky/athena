@@ -2,8 +2,8 @@
 #include "../TRTDigitizationTool.h"
 #include "../TRT_SimDriftTimeTool.h"
 
-DECLARE_ALGORITHM_FACTORY( TRTDigitization )
+DECLARE_COMPONENT( TRTDigitization )
 
-DECLARE_TOOL_FACTORY(TRTDigitizationTool)
-DECLARE_TOOL_FACTORY( TRT_SimDriftTimeTool )
+DECLARE_COMPONENT( TRTDigitizationTool )
+DECLARE_COMPONENT( TRT_SimDriftTimeTool )
 

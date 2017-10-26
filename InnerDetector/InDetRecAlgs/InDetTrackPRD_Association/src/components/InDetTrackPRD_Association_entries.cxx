@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( InDetTrackPRD_Association )
+DECLARE_COMPONENT( InDetTrackPRD_Association )
 

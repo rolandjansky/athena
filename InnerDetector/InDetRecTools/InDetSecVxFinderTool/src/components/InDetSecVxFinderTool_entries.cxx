@@ -4,7 +4,7 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetJetFitterVxFinder )
-DECLARE_TOOL_FACTORY( InDetJetFitterUtils )
-DECLARE_TOOL_FACTORY( InDetImprovedJetFitterVxFinder )
+DECLARE_COMPONENT( InDetJetFitterVxFinder )
+DECLARE_COMPONENT( InDetJetFitterUtils )
+DECLARE_COMPONENT( InDetImprovedJetFitterVxFinder )
 

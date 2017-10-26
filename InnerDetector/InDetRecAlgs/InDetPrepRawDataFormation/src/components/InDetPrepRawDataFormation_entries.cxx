@@ -6,8 +6,8 @@
 
 using namespace InDet;
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, PixelClusterization)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, SCT_Clusterization )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, TRT_RIO_Maker      )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, CacheCreator      )
+DECLARE_COMPONENT( InDet::PixelClusterization )
+DECLARE_COMPONENT( InDet::SCT_Clusterization )
+DECLARE_COMPONENT( InDet::TRT_RIO_Maker )
+DECLARE_COMPONENT( InDet::CacheCreator )
 

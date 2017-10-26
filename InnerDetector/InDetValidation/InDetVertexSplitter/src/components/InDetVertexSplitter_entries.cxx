@@ -3,6 +3,6 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( InDetVertexSplitter )
-DECLARE_ALGORITHM_FACTORY( InDetVertexSplitterHist )
+DECLARE_COMPONENT( InDetVertexSplitter )
+DECLARE_COMPONENT( InDetVertexSplitterHist )
 

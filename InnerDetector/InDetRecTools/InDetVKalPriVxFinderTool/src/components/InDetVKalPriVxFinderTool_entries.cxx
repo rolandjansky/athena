@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetVKalPriVxFinderTool )
+DECLARE_COMPONENT( InDetVKalPriVxFinderTool )
 

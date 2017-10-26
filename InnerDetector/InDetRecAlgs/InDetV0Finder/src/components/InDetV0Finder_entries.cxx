@@ -4,9 +4,9 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetV0FinderTool )
+DECLARE_COMPONENT( InDetV0FinderTool )
 
 
-DECLARE_ALGORITHM_FACTORY( InDetV0Finder )
-//DECLARE_ALGORITHM_FACTORY( InDetSimpleV0Finder )
+DECLARE_COMPONENT( InDetV0Finder )
+//DECLARE_COMPONENT( InDetSimpleV0Finder )
 

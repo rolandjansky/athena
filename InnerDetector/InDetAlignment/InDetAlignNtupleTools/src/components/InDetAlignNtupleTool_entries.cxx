@@ -2,6 +2,6 @@
 #include "InDetAlignNtupleTools/DetailedIDNtupleTool.h"
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, SimpleIDNtupleTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, DetailedIDNtupleTool )
+DECLARE_COMPONENT( InDet::SimpleIDNtupleTool )
+DECLARE_COMPONENT( InDet::DetailedIDNtupleTool )
 

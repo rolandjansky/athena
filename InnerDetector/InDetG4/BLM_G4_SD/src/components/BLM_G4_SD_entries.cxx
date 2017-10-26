@@ -1,4 +1,4 @@
 #include "../BLMSensorSDTool.h"
 
-DECLARE_TOOL_FACTORY( BLMSensorSDTool )
+DECLARE_COMPONENT( BLMSensorSDTool )
 

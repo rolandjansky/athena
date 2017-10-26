@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY(TRT_DetElementsRoadMaker_xk)
+DECLARE_COMPONENT( TRT_DetElementsRoadMaker_xk )
 

@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetSVWithMuonTool )
+DECLARE_COMPONENT( InDetSVWithMuonTool )
 

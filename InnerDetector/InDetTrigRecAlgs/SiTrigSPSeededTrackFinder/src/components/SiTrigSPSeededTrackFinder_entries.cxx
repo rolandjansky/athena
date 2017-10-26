@@ -7,5 +7,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( SiTrigSPSeededTrackFinder )
+DECLARE_COMPONENT( SiTrigSPSeededTrackFinder )
 

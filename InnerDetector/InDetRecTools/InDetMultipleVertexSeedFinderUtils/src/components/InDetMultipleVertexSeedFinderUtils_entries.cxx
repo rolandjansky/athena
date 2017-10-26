@@ -3,6 +3,6 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetTrackZ0SortingTool )
-DECLARE_TOOL_FACTORY( InDetTrackClusterCleaningTool )
+DECLARE_COMPONENT( InDetTrackZ0SortingTool )
+DECLARE_COMPONENT( InDetTrackClusterCleaningTool )
 

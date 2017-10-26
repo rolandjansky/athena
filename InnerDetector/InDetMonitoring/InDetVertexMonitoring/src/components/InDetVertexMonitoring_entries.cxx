@@ -1,4 +1,4 @@
 #include "../InDetVertexMonitoring.h"
 
-DECLARE_TOOL_FACTORY( InDetVertexMonitoring )
+DECLARE_COMPONENT( InDetVertexMonitoring )
 

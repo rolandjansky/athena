@@ -2,7 +2,7 @@
 #include "InDetSimpleVisual/GetDetectorLocalFrames.h"
 
 
-DECLARE_ALGORITHM_FACTORY( GetDetectorPositions )
-DECLARE_ALGORITHM_FACTORY( GetDetectorLocalFrames )
+DECLARE_COMPONENT( GetDetectorPositions )
+DECLARE_COMPONENT( GetDetectorLocalFrames )
   
 

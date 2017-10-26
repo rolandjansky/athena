@@ -5,7 +5,7 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( TrigTrackParticleTruthMaker )
-DECLARE_ALGORITHM_FACTORY( PRD_TrigMultiTruthMaker )
-DECLARE_ALGORITHM_FACTORY( InDetTrigDetailedTrackTruthMaker )
+DECLARE_COMPONENT( TrigTrackParticleTruthMaker )
+DECLARE_COMPONENT( PRD_TrigMultiTruthMaker )
+DECLARE_COMPONENT( InDetTrigDetailedTrackTruthMaker )
 

@@ -1,4 +1,4 @@
 #include "../TRTSensitiveDetectorTool.h"
 
-DECLARE_TOOL_FACTORY( TRTSensitiveDetectorTool )
+DECLARE_COMPONENT( TRTSensitiveDetectorTool )
 

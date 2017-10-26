@@ -1,5 +1,5 @@
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TRT_SegmentToTrackTool )
+DECLARE_COMPONENT( InDet::TRT_SegmentToTrackTool )
 

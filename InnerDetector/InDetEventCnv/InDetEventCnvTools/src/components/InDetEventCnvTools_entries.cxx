@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetEventCnvTool )
+DECLARE_COMPONENT( InDetEventCnvTool )
 

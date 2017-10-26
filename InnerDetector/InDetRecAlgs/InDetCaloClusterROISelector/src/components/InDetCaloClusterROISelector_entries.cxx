@@ -2,6 +2,6 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( CaloClusterROI_Selector  )
+DECLARE_COMPONENT( CaloClusterROI_Selector )
 	
 

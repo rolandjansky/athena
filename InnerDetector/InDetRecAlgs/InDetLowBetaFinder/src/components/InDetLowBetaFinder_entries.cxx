@@ -2,5 +2,5 @@
 
 using namespace InDet;
 
-DECLARE_ALGORITHM_FACTORY( LowBetaAlg )
+DECLARE_COMPONENT( LowBetaAlg )
 

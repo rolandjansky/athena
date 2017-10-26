@@ -2,7 +2,7 @@
 #include "TRT_ConditionsAlgs/TRTStrawAlign.h"
 #include "TRT_ConditionsAlgs/TRTStrawStatusWrite.h"
 
-DECLARE_ALGORITHM_FACTORY( TRTCondWrite )
-DECLARE_ALGORITHM_FACTORY( TRTStrawAlign )
-DECLARE_ALGORITHM_FACTORY( TRTStrawStatusWrite )
+DECLARE_COMPONENT( TRTCondWrite )
+DECLARE_COMPONENT( TRTStrawAlign )
+DECLARE_COMPONENT( TRTStrawStatusWrite )
 

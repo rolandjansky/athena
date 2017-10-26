@@ -3,7 +3,7 @@
 #include "../PixelCablingSvc.h"
 
 
-DECLARE_TOOL_FACTORY( PixelFillCablingData_Final )
-DECLARE_TOOL_FACTORY( PixelFillCablingData )
-DECLARE_SERVICE_FACTORY(PixelCablingSvc)
+DECLARE_COMPONENT( PixelFillCablingData_Final )
+DECLARE_COMPONENT( PixelFillCablingData )
+DECLARE_COMPONENT( PixelCablingSvc )
 

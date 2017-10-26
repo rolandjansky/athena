@@ -7,14 +7,14 @@
 #include "src/PixelDistortionsTool.h"
 #include "src/PixelDistortionsTestReadWrite.h"
 
-DECLARE_TOOL_FACTORY( PixelRecoDbTool )
-DECLARE_TOOL_FACTORY( PixelCalibDbTool )
-DECLARE_ALGORITHM_FACTORY( PixelCalibDbTestWriteRead )
-DECLARE_ALGORITHM_FACTORY( PixelRecoDbTestWriteRead )
-DECLARE_TOOL_FACTORY( PixelDCSTool )
-DECLARE_ALGORITHM_FACTORY( PixelDCSTestReadWrite )
-DECLARE_TOOL_FACTORY( PixelDistortionsTool )
-DECLARE_ALGORITHM_FACTORY( PixelDistortionsTestReadWrite )
+DECLARE_COMPONENT( PixelRecoDbTool )
+DECLARE_COMPONENT( PixelCalibDbTool )
+DECLARE_COMPONENT( PixelCalibDbTestWriteRead )
+DECLARE_COMPONENT( PixelRecoDbTestWriteRead )
+DECLARE_COMPONENT( PixelDCSTool )
+DECLARE_COMPONENT( PixelDCSTestReadWrite )
+DECLARE_COMPONENT( PixelDistortionsTool )
+DECLARE_COMPONENT( PixelDistortionsTestReadWrite )
 
        
 
