@@ -16,7 +16,8 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
   m_name(name),
-  m_jetSubCutTF1(nullptr){
+  m_jetSubCutTF1(nullptr),
+  m_dec_jetMassMin( "jetMassMin" ){
 
       // load parameter from configuration file
       declareProperty( "WorkingPoint",          m_wkpt = "" );       // allows to specify more WP inside one configuration file
