@@ -40,7 +40,9 @@ namespace CP {
                   m_trkTruthFilterTool(name+"_trackfiltertool",this),
                   m_trkFakeTool(name+"_trackfaketool",this),
                   m_jetTrackFilterTool(name+"_jettrackfiltertool",this),
-                  m_originTool(name+"_origintool",this)
+                  m_originTool(name+"_origintool",this),
+                  m_taggerdec("taggerdec"),
+                  m_weightdec("weightdec")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -111,9 +113,9 @@ namespace CP {
     // 2) tagger weight
     ATH_MSG_INFO( "Decorators that will be attached to jet :" );
     ATH_MSG_INFO( "  "<<m_tagger_decoration_name<<" : Number of tracks for tagging decision" );
-    m_taggerdec = new SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
+    m_taggerdec = SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
     ATH_MSG_INFO( "  "<<m_weight_decoration_name<<" : Scale factor weight given the number of tracks" );
-    m_weightdec = new SG::AuxElement::Decorator< float>(m_weight_decoration_name);
+    m_weightdec = SG::AuxElement::Decorator< float>(m_weight_decoration_name);
 
     // set up InDet selection tool
     assert( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
@@ -303,8 +305,8 @@ namespace CP {
 
     // decorate the cut value if specified
     if(m_decorate){
-      (*m_taggerdec)(jet) = jetNTrack;
-      (*m_weightdec)(jet) = jetWeight;
+      m_taggerdec(jet) = jetNTrack;
+      m_weightdec(jet) = jetWeight;
     }
 
     // fill the TAccept

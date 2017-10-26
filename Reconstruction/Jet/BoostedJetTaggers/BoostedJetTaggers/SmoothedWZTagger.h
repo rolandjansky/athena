@@ -58,9 +58,9 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_decorationName;
 
     // decorators
-    const SG::AuxElement::Decorator<float>*    m_dec_mcutL;
-    const SG::AuxElement::Decorator<float>*    m_dec_mcutH;
-    const SG::AuxElement::Decorator<float>*    m_dec_d2cut;
+    SG::AuxElement::Decorator<float>    m_dec_mcutL;
+    SG::AuxElement::Decorator<float>    m_dec_mcutH;
+    SG::AuxElement::Decorator<float>    m_dec_d2cut;
 
 
 };

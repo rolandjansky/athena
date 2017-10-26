@@ -72,10 +72,10 @@ class SmoothedTopTagger : public JSSTaggerBase {
   std::string m_decorationName;
 
   // decorators
-  const SG::AuxElement::Decorator<float>*    m_dec_mcut;
-  const SG::AuxElement::Decorator<float>*    m_dec_tau32cut;
-  const SG::AuxElement::Decorator<float>*    m_dec_split23cut;
-  const SG::AuxElement::Decorator<float>*    m_dec_qwcut;
+  SG::AuxElement::Decorator<float>    m_dec_mcut;
+  SG::AuxElement::Decorator<float>    m_dec_tau32cut;
+  SG::AuxElement::Decorator<float>    m_dec_split23cut;
+  SG::AuxElement::Decorator<float>    m_dec_qwcut;
 
 
 };

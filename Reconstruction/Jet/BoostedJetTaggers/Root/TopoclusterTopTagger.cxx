@@ -22,7 +22,11 @@ TopoclusterTopTagger::TopoclusterTopTagger( const std::string& name ) :
   m_lwnn(nullptr),
   m_jetPtMin(200000.),
   m_jetPtMax(300000.),
-  m_jetEtaMax(2.0)
+  m_jetEtaMax(2.0),
+  m_dec_mcutL("mcutL"),
+  m_dec_mcutH("mcutH"),
+  m_dec_scoreCut("scoreCut"),
+  m_dec_scoreValue("scoreValue")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -140,16 +144,16 @@ StatusCode TopoclusterTopTagger::initialize(){
 
   dec_name = m_decorationName+"_Cut_mlow";
   ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
-  m_dec_mcutL = new SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_mlow").c_str());
+  m_dec_mcutL = SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_mlow").c_str());
   dec_name = m_decorationName+"_Cut_mhigh";
   ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
-  m_dec_mcutH = new SG::AuxElement::Decorator<float> ((m_decorationName+"_Cut_mhigh").c_str());
+  m_dec_mcutH = SG::AuxElement::Decorator<float> ((m_decorationName+"_Cut_mhigh").c_str());
   dec_name = m_decorationName+"_Cut_score";
   ATH_MSG_INFO( "  "<<dec_name<<" : cut on the MVA score for the given working point" );
-  m_dec_scoreCut = new SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_score").c_str());
+  m_dec_scoreCut = SG::AuxElement::Decorator<float>((m_decorationName+"_Cut_score").c_str());
   dec_name = m_decorationName+"_Score";
   ATH_MSG_INFO( "  "<<dec_name<<" : name of the evaluated MVA score" );
-  m_dec_scoreValue = new SG::AuxElement::Decorator<float>((m_decorationName+"_Score").c_str());
+  m_dec_scoreValue = SG::AuxElement::Decorator<float>((m_decorationName+"_Score").c_str());
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -348,10 +352,10 @@ void TopoclusterTopTagger::preprocess(std::map<std::string,double> &clusters, co
 void TopoclusterTopTagger::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
     /* decorate jet with attributes */
 
-    (*m_dec_mcutH)(jet)      = mcutH;
-    (*m_dec_mcutL)(jet)      = mcutL;
-    (*m_dec_scoreCut)(jet)   = scoreCut;
-    (*m_dec_scoreValue)(jet) = scoreValue;
+    m_dec_mcutH(jet)      = mcutH;
+    m_dec_mcutL(jet)      = mcutL;
+    m_dec_scoreCut(jet)   = scoreCut;
+    m_dec_scoreValue(jet) = scoreValue;
 
 }
 

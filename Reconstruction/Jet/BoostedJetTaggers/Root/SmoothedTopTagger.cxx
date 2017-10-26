@@ -13,7 +13,12 @@
 
 
 SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
-  JSSTaggerBase( name ){
+  JSSTaggerBase( name ),
+  m_dec_mcut("mcut"),
+  m_dec_tau32cut("tau32cut"),
+  m_dec_split23cut("split23cut"),
+  m_dec_qwcut("qwcut")
+{
 
   declareProperty( "ConfigFile",   m_configFile="");
 
@@ -165,10 +170,10 @@ StatusCode SmoothedTopTagger::initialize(){
 
     dec_name = m_decorationName+"_Cut_m";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on mass" );
-    m_dec_mcut     = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_mcut     = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_Cut_tau32";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
-    m_dec_tau32cut = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   case Tau32Split23:{
     m_accept.addCut( "PassTau32"    , "Tau32Jet < Tau32Cut"  );
@@ -176,10 +181,10 @@ StatusCode SmoothedTopTagger::initialize(){
 
     dec_name = m_decorationName+"_Cut_tau32";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
-    m_dec_tau32cut   = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_tau32cut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_Cut_split23";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on split23" );
-    m_dec_split23cut = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_split23cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   case QwTau32:{
     m_accept.addCut( "PassQw"       , "QwJet > QwCut" );
@@ -187,10 +192,10 @@ StatusCode SmoothedTopTagger::initialize(){
 
     dec_name = m_decorationName+"_Cut_qw";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on qw" );
-    m_dec_qwcut    = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_qwcut    = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_Cut_tau32";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
-    m_dec_tau32cut = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   default: break;
   }
@@ -253,8 +258,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
   switch(m_mode) {
     case MassTau32 :{
       if(m_decorate) {
-        (*m_dec_mcut)(jet)     = cut_var1;
-        (*m_dec_tau32cut)(jet) = cut_var2;
+        m_dec_mcut(jet)     = cut_var1;
+        m_dec_tau32cut(jet) = cut_var2;
       }
       float tau32 = buildTau32(jet); // builds tau32 and checks for content
 
@@ -267,8 +272,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
     }
     case Tau32Split23:{
       if(m_decorate) {
-        (*m_dec_tau32cut)(jet) = cut_var1;
-        (*m_dec_split23cut)(jet)   = cut_var2;
+        m_dec_tau32cut(jet) = cut_var1;
+        m_dec_split23cut(jet)   = cut_var2;
       }
       float tau32 = buildTau32(jet);
 
@@ -286,8 +291,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
     }
     case QwTau32:{
       if(m_decorate) {
-        (*m_dec_qwcut)(jet)    = cut_var1;
-        (*m_dec_tau32cut)(jet) = cut_var2;
+        m_dec_qwcut(jet)    = cut_var1;
+        m_dec_tau32cut(jet) = cut_var2;
       }
       float tau32 = buildTau32(jet);
 

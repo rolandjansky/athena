@@ -17,7 +17,11 @@ JSSWTopTaggerBDT::JSSWTopTaggerBDT( const std::string& name ) :
   m_name(name),
   m_APP_NAME(APP_NAME),
   m_inputVariableSet("NvarM"),
-  m_BDTmethod("BDTG method")
+  m_BDTmethod("BDTG method"),
+  m_dec_mcutL("mcutL"),
+  m_dec_mcutH("mcutH"),
+  m_dec_scoreCut("scoreCut"),
+  m_dec_scoreValue("scoreValue")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -130,16 +134,16 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
   dec_name = m_decorationName+"_Cut_mlow";
   ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
-  m_dec_mcutL      = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+  m_dec_mcutL      = SG::AuxElement::Decorator<float>((dec_name).c_str());
   dec_name = m_decorationName+"_Cut_mhigh";
   ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
-  m_dec_mcutH      = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+  m_dec_mcutH      = SG::AuxElement::Decorator<float>((dec_name).c_str());
   dec_name = m_decorationName+"_Cut_score";
   ATH_MSG_INFO( "  "<<dec_name<<" : MVA score cut for tagger choice" );
-  m_dec_scoreCut   = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+  m_dec_scoreCut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
   dec_name = m_decorationName+"_Score";
   ATH_MSG_INFO( "  "<<dec_name<<" : evaluated MVA score" );
-  m_dec_scoreValue = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+  m_dec_scoreValue = SG::AuxElement::Decorator<float>((dec_name).c_str());
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -334,10 +338,10 @@ float JSSWTopTaggerBDT::getScore(const xAOD::Jet& jet) const{
 void JSSWTopTaggerBDT::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
     /* decorate jet with attributes */
 
-    (*m_dec_mcutH)(jet)      = mcutH;
-    (*m_dec_mcutL)(jet)      = mcutL;
-    (*m_dec_scoreCut)(jet)   = scoreCut;
-    (*m_dec_scoreValue)(jet) = scoreValue;
+    m_dec_mcutH(jet)      = mcutH;
+    m_dec_mcutL(jet)      = mcutL;
+    m_dec_scoreCut(jet)   = scoreCut;
+    m_dec_scoreValue(jet) = scoreValue;
 
 }
 

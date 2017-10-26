@@ -112,10 +112,10 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
 
 
     // decorators to be used throughout
-    const SG::AuxElement::Decorator<float>*    m_dec_mcutL;
-    const SG::AuxElement::Decorator<float>*    m_dec_mcutH;
-    const SG::AuxElement::Decorator<float>*    m_dec_scoreCut;
-    const SG::AuxElement::Decorator<float>*    m_dec_scoreValue;
+    SG::AuxElement::Decorator<float>    m_dec_mcutL;
+    SG::AuxElement::Decorator<float>    m_dec_mcutH;
+    SG::AuxElement::Decorator<float>    m_dec_scoreCut;
+    SG::AuxElement::Decorator<float>    m_dec_scoreValue;
 
 };
 #endif

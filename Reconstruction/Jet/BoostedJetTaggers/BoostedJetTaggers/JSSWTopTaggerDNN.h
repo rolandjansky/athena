@@ -80,9 +80,9 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_decorationName;
 
     // decorators
-    const SG::AuxElement::Decorator<float>* m_dec_mcutL;
-    const SG::AuxElement::Decorator<float>* m_dec_mcutH;
-    const SG::AuxElement::Decorator<float>* m_dec_scoreCut;
-    const SG::AuxElement::Decorator<float>* m_dec_scoreValue;
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
 };
 #endif
