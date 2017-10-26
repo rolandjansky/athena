@@ -366,6 +366,7 @@
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
+            <prerequisite>TP1menu</prerequisite>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -377,6 +378,7 @@
             <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
+            <prerequisite>TP1menu</prerequisite>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
