@@ -15,7 +15,7 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "TH2D.h"
+#include "TH2F.h"
 
 class AsgElectronLikelihoodTool;
 
@@ -43,7 +43,7 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   std::string m_sElectronContainerName;
   bool m_bElectonsAvailable;
   std::string m_sEleOLRFilePath;
-  std::unique_ptr<TH2D> m_hCutValues;
+  std::unique_ptr<TH2F> m_hCutValues;
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   bool m_bEleOLRMatchAvailable=false;
   bool m_bEleOLRMatchAvailableChecked=false;

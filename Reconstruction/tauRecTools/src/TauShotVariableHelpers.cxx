@@ -144,7 +144,7 @@ namespace TauShotVariableHelpers {
     }
 
 
-    float mean_eta(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float mean_eta(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float sumEta=0.;
         float sumWeight=0.;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -152,15 +152,15 @@ namespace TauShotVariableHelpers {
             vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
             for( ; itrEta!=itrPhi->end(); ++itrEta ){
                 if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta);
-                sumEta    += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta) * (*itrEta)->eta();
+                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
+                sumEta    += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * (*itrEta)->eta();
             }
         }
         if(sumWeight<=0.) return -99999.;
         return sumEta/sumWeight;
     }
 
-    float mean_pt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float mean_pt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float sumPt=0.;
         int nCells = 0;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -168,7 +168,7 @@ namespace TauShotVariableHelpers {
             vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
             for( ; itrEta!=itrPhi->end(); ++itrEta ){
                 if((*itrEta) == NULL) continue;
-                sumPt  += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta);
+                sumPt  += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
                 nCells ++;
             }
         }
@@ -176,7 +176,7 @@ namespace TauShotVariableHelpers {
         return sumPt/nCells;
     }
 
-    float ptWindow(vector<vector<const CaloCell*> > shotCells, int windowSize, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float ptWindow(vector<vector<const CaloCell*> > shotCells, int windowSize, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window size should be odd and noti be larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -185,13 +185,13 @@ namespace TauShotVariableHelpers {
         float ptWindow  = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
 	  if(std::abs(iCell-seedIndex)>windowSize/2) continue;
-            if(shotCells.at(0).at(iCell) != NULL) ptWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell) != NULL) ptWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell) != NULL) ptWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell) != NULL) ptWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
         return ptWindow;
     }
 
-    float ws5(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float ws5(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         float sumWeight=0.;
@@ -200,16 +200,16 @@ namespace TauShotVariableHelpers {
         for( ; itrPhi!=shotCells.end(); ++itrPhi ){
             for(unsigned iCell = 0; iCell != itrPhi->size(); ++iCell ){
                 if(itrPhi->at(iCell) == NULL) continue;
-                sumWeight += itrPhi->at(iCell)->pt()*m_caloWeightTool->wtCell(itrPhi->at(iCell));
-                sumDev2   += itrPhi->at(iCell)->pt()*m_caloWeightTool->wtCell(itrPhi->at(iCell)) * pow(iCell-seedIndex,2);
+                sumWeight += itrPhi->at(iCell)->pt()*caloWeightTool->wtCell(itrPhi->at(iCell));
+                sumDev2   += itrPhi->at(iCell)->pt()*caloWeightTool->wtCell(itrPhi->at(iCell)) * pow(iCell-seedIndex,2);
             }
         }
         if(sumWeight<=0. || sumDev2 <0.) return -99999.;
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevEta_WRTmean(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
-        float mean = mean_eta(shotCells, m_caloWeightTool); 
+    float sdevEta_WRTmean(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+        float mean = mean_eta(shotCells, caloWeightTool); 
         float sumWeight=0.;
         float sumDev2=0.;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -217,15 +217,15 @@ namespace TauShotVariableHelpers {
             vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
             for( ; itrEta!=itrPhi->end(); ++itrEta ){
                 if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta);
-                sumDev2   += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mean,2);
+                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
+                sumDev2   += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mean,2);
             }
         }
         if(sumWeight<=0. || sumDev2 <0.) return -99999.;
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevEta_WRTmode(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float sdevEta_WRTmode(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         float mode = shotCells.at(0).at(seedIndex)->eta();
@@ -236,16 +236,16 @@ namespace TauShotVariableHelpers {
             vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
             for( ; itrEta!=itrPhi->end(); ++itrEta ){
                 if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta);
-                sumDev2   += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mode,2);
+                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
+                sumDev2   += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mode,2);
             }
         }
         if(sumWeight<=0. || sumDev2 <0.) return -99999.;
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevPt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
-        float mean = mean_pt(shotCells, m_caloWeightTool);
+    float sdevPt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+        float mean = mean_pt(shotCells, caloWeightTool);
         float sumWeight=0.;
         float sumDev2=0.;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -253,15 +253,15 @@ namespace TauShotVariableHelpers {
             vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
             for( ; itrEta!=itrPhi->end(); ++itrEta ){
                 if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta);
-                sumDev2   += pow((*itrEta)->pt()*m_caloWeightTool->wtCell(*itrEta) - mean,2);
+                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
+                sumDev2   += pow((*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) - mean,2);
             }
         }
         if(sumWeight<=0. || sumDev2 <0.) return -99999.;
         return sqrt(sumDev2)/sumWeight;
     }
 
-    float deltaPt12_min(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float deltaPt12_min(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         bool haveLeft  = false;
@@ -270,20 +270,20 @@ namespace TauShotVariableHelpers {
         float deltaPt_right = 0.;
         if(shotCells.at(0).at(seedIndex-1)!=NULL && shotCells.at(0).at(seedIndex-2)!=NULL){
             haveLeft  = true;
-            deltaPt_left =  shotCells.at(0).at(seedIndex-1)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-1))
-                           -shotCells.at(0).at(seedIndex-2)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-2));
+            deltaPt_left =  shotCells.at(0).at(seedIndex-1)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-1))
+                           -shotCells.at(0).at(seedIndex-2)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-2));
             if(shotCells.at(1).at(seedIndex-1)!=NULL && shotCells.at(1).at(seedIndex-2)!=NULL){
-                deltaPt_left += shotCells.at(1).at(seedIndex-1)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-1))
-                               -shotCells.at(1).at(seedIndex-2)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-2));
+                deltaPt_left += shotCells.at(1).at(seedIndex-1)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-1))
+                               -shotCells.at(1).at(seedIndex-2)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-2));
             }
         }
         if(shotCells.at(0).at(seedIndex+1)!=NULL && shotCells.at(0).at(seedIndex+2)!=NULL){
             haveRight = true;
-            deltaPt_right =  shotCells.at(0).at(seedIndex+1)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+1))
-                            -shotCells.at(0).at(seedIndex+2)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+2));
+            deltaPt_right =  shotCells.at(0).at(seedIndex+1)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+1))
+                            -shotCells.at(0).at(seedIndex+2)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+2));
             if(shotCells.at(1).at(seedIndex+1)!=NULL && shotCells.at(1).at(seedIndex+2)!=NULL){
-                deltaPt_right += shotCells.at(1).at(seedIndex+1)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1))
-                                -shotCells.at(1).at(seedIndex+2)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1));
+                deltaPt_right += shotCells.at(1).at(seedIndex+1)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1))
+                                -shotCells.at(1).at(seedIndex+2)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1));
             }
         }
         if(haveLeft && haveRight) return fmin(deltaPt_left,deltaPt_right);
@@ -293,7 +293,7 @@ namespace TauShotVariableHelpers {
     }
 
 
-    float Fside(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float Fside(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -304,17 +304,17 @@ namespace TauShotVariableHelpers {
         float pt_smallerWindow = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
 	    if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
             if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
         if(pt_smallerWindow==0.) return -99999.;
         return (pt_largerWindow-pt_smallerWindow)/pt_smallerWindow;
     }
 
-    float fracSide(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float fracSide(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -325,17 +325,17 @@ namespace TauShotVariableHelpers {
         float pt_smallerWindow = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
             if(abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
             if(abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
         if(pt_largerWindow==0.) return -99999.;
         return (pt_largerWindow-pt_smallerWindow)/pt_largerWindow;
     }
 
-    float ptWindowFrac(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& m_caloWeightTool){
+    float ptWindowFrac(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -346,11 +346,11 @@ namespace TauShotVariableHelpers {
         float pt_smallerWindow = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
             if(abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
             if(abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
+            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
+            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
         if(pt_largerWindow==0.) return -99999.;
         return pt_smallerWindow/pt_largerWindow;

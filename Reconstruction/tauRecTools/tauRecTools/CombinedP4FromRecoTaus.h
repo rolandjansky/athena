@@ -7,7 +7,7 @@
 
 //STL include(s)
 //#include <memory>
-///#include <map>
+//#include <map>
 
 //Root include(s)
 #include "TH1F.h"
@@ -97,7 +97,7 @@ class CombinedP4FromRecoTaus
   double m_et_cb2PT_postcalib, m_et_postcalib, m_et_weighted;
     
   std::string m_sWeightFileName;
-  TF1 m_Nsigma_compatibility;
+  std::unique_ptr<TF1> m_Nsigma_compatibility;
 };
 
 

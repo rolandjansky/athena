@@ -6,7 +6,6 @@
 
 TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_outputVar(0)
   , m_myBdt(0)
 {
   declareProperty("weightsFile", m_weightsFile="");
@@ -21,8 +20,6 @@ TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
 
 //________________________________________
 StatusCode TauJetBDTEvaluator::initialize(){
-  //init output variable accessor
-  m_outputVar = new SG::AuxElement::Accessor<float>(m_outputVarName);
 
   //check if weightsFile is empty, if so, assume we apply dummyValue to all taus
   if(m_weightsFile.length()==0){
@@ -44,8 +41,11 @@ SG::AuxElement::ConstAccessor<float> acc_absTrackEta("ABS_ETA_LEAD_TRACK");
 
 //________________________________________
 StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
+  //init output variable accessor
+  static SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
+
   if(m_myBdt==0) {
-    (*m_outputVar)(xTau) = m_dummyValue;
+    (outputVar)(xTau) = m_dummyValue;
     return StatusCode::SUCCESS;
   }
 
@@ -53,24 +53,23 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   xTau.detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
   if(nTracks<m_minNTracks) return StatusCode::SUCCESS;
   if(nTracks>m_maxNTracks) return StatusCode::SUCCESS;
-  
-  if ( !inTrigger() ) {
-  float absTrackEta = acc_absTrackEta(xTau);
-  if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
-    return StatusCode::SUCCESS;
-  if(m_maxAbsTrackEta>=0. && absTrackEta >= m_maxAbsTrackEta)
-    return StatusCode::SUCCESS; 
+
+  if( !inTrigger() ){
+    float absTrackEta = acc_absTrackEta(xTau);
+    if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
+      return StatusCode::SUCCESS;
+    if(m_maxAbsTrackEta>=0. && absTrackEta >= m_maxAbsTrackEta)
+      return StatusCode::SUCCESS; 
   }
 
   m_myBdt->updateVariables(xTau);
   float response = (m_isGrad ? m_myBdt->GetGradBoostMVA() : m_myBdt->GetClassification() );   
-  (*m_outputVar)(xTau) = response;
+  (outputVar)(xTau) = response;
   return StatusCode::SUCCESS;
 }
 
 //________________________________________
 StatusCode TauJetBDTEvaluator::finalize(){ 
   if(m_myBdt) delete m_myBdt; 
-  if(m_outputVar) delete m_outputVar; 
   return StatusCode::SUCCESS;
 }
