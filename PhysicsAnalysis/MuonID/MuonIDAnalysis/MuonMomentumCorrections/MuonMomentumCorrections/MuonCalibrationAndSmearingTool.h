@@ -48,25 +48,27 @@ namespace MCAST {
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
-  //::: Create a proper constructor for Athena
+  // Create a proper constructor for Athena
   ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
 
   public:
-    //:: Interface methods that must be defined
-    //:::Interface - Apply the correction on a modifyable object
+    // Interface methods that must be defined
+    // Interface - Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const;
-    //:::Interface - Create a corrected copy from a constant muon
+    // Interface - Create a corrected copy from a constant muon
     virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const;
-    //:::Interface - Is the tool affected by a specific systematic?
+    // Interface - Is the tool affected by a specific systematic?
     virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const;
-    //:::Interface - Which systematics have an effect on the tool's behaviour?
+    // Interface - Which systematics have an effect on the tool's behaviour?
     virtual SystematicSet affectingSystematics() const;
-    //:::Interface - Systematics to be used for physics analysis
+    // Interface - Systematics to be used for physics analysis
     virtual SystematicSet recommendedSystematics() const;
-    //:::Interface - Use specific systematic
+    // Interface - Use specific systematic
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
-    //:::Interface - get the expected resolution of the muon
+    // Interface - get the expected resolution of the muon
     virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
+    // Interface - get the expected resolution of the muon
+    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const;
 
   public:
     // InfoHelper is intended to be used to ease the passing of information between internal
@@ -95,13 +97,13 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
   public:
 
-    //::: Constructor
+    // Constructor
     MuonCalibrationAndSmearingTool( const std::string& name );
 
-    //::: Copy constructor
+    // Copy constructor
     MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool );
 
-    //::: Destructor
+    // Destructor
     virtual ~MuonCalibrationAndSmearingTool();
 
     virtual StatusCode initialize();
@@ -122,7 +124,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
 
   protected:
-    //::: Regions helpers
+    // Regions helpers
     StatusCode   Regions( std::string inRegionFile, int doMacroRegionsFlag = 0 );
     void         PrintRegions() const;
     unsigned int GetNRegions() const;
@@ -156,7 +158,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     //private:
-    //::: fake assignment operator missing actual implementation
+    // fake assignment operator missing actual implementation
     MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
 
     struct ParameterSet {
@@ -238,8 +240,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
 
 
-  }; //::: class MuonCalibrationAndSmearingTool
+  }; // class MuonCalibrationAndSmearingTool
 
-} //::: namespace CP
+} // namespace CP
 
 #endif

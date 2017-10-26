@@ -23,24 +23,19 @@ namespace CP {
 
 class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual public CP::ISystematicsTool {
 
-  //::: Declare the interface that the class provides
+  // Declare the interface that the class provides
   ASG_TOOL_INTERFACE( CP::IMuonCalibrationAndSmearingTool )
 
   public:
-    //::: Apply the correction on a modifyable object
+    // Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const = 0;
-    //::: Create a corrected copy from a constant muon
+    // Create a corrected copy from a constant muon
     virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const = 0;
-    //::: Is the tool affected by a specific systematic?
-    virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const = 0;
-    //::: Which systematics have an effect on the tool's behaviour?
-    virtual SystematicSet affectingSystematics() const = 0;
-    //::: Systematics to be used for physics analysis
-    virtual SystematicSet recommendedSystematics() const = 0;
-    //::: Use specific systematic
-    virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) = 0;
-    //::: Get the expected pT resolution
+    // Get the expected pT resolution
     virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+    // Get the expected pT resolution - int argument is more efficient
+    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+
 
 }; // class IMuonCalibrationAndSmearingTool
 

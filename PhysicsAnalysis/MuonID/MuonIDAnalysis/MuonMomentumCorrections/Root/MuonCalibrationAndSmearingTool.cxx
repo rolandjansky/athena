@@ -197,7 +197,7 @@ MuonCalibrationAndSmearingTool::~MuonCalibrationAndSmearingTool(){
 
 StatusCode MuonCalibrationAndSmearingTool::initialize(){
 
-  //::: Greet the user:
+  // Greet the user:
   ATH_MSG_INFO( "Initialising..." );
 
   if( SetData( m_year ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
@@ -212,7 +212,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize(){
 
   std::string regionsPath;
   int regionMode = 0; // simple Eta Bins
-  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
   if ( m_FilesPath == "" ) {
     if ( m_Trel <= MCAST::Release::Rel17 ) {
       regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/Regions.dat" );
@@ -279,21 +279,21 @@ StatusCode MuonCalibrationAndSmearingTool::initialize(){
 
     m_SagittaIterations.clear();
 
-    //::: First batch of corrections
+    // First batch of corrections
     if(m_SagittaRelease.compare("sagittaBiasDataAll")==0){
       m_SagittaIterations.push_back(10); m_SagittaIterations.push_back(10); m_SagittaIterations.push_back(10);
     }
-    //::: Second batch of corrections reduced uncertainty
+    // Second batch of corrections reduced uncertainty
     else if (m_SagittaRelease.compare("sagittaBiasDataAll_06_02_17")==0){
       m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
     }
 
-    //::: R21 batch of corrections reduced uncertainty
+    // R21 batch of corrections reduced uncertainty
     else if (m_SagittaRelease.compare("sagittaBiasDataAll_02_08_17")==0){
       m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
     }
 
-    //::: R21 first batch of corrections reduced uncertainty
+    // R21 first batch of corrections reduced uncertainty
     else if (m_SagittaRelease.compare("sagittaBiasDataAll_25_07_17")==0){
       m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11); m_SagittaIterations.push_back(11);
     }
@@ -323,7 +323,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize(){
       }
     }
   }
-  //::: Return gracefully:
+  // Return gracefully:
   return StatusCode::SUCCESS;
 }
 
@@ -617,7 +617,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(co
   if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
     itersME= m_SagittaIterations.at(2) - 1;
 
-  //::: In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
+  // In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
   if(m_doSagittaMCDistortion && isMC){
     itersCB =0; itersID =0;  itersME=0;
   }
@@ -671,7 +671,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(co
     double rho= 1/sigmas;
     if(sigmas <  1 ) rho=1;
 
-    //::: For standalone muons and Silicon associated fowrad do not use the combined
+    // For standalone muons and Silicon associated fowrad do not use the combined
     if( muonInfo.ptid ==0 || muonInfo.ptms ==0){
       ATH_MSG_VERBOSE("Applying sagitta correction for Standalone");
 
@@ -738,10 +738,10 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )" );
   ATH_MSG_VERBOSE( "Muon Author = " << mu.author() );
 
-  //::: Make InfoHelper for passing muon info between functions
+  // Make InfoHelper for passing muon info between functions
   InfoHelper muonInfo;
 
-  //::: Set pt ID:
+  // Set pt ID:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
@@ -760,7 +760,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.ptid = 0.;
   }
 
-  //::: Set pt MS:
+  // Set pt MS:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
@@ -778,7 +778,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.ptms = 0.;
   }
 
-  //::: Set pt CB:
+  // Set pt CB:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
@@ -797,7 +797,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.ptcb = 0.;
   }
 
-  //::: Set the charge
+  // Set the charge
 
   if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
     if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer > > ("combinedTrackParticleLink")){
@@ -811,8 +811,8 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.charge = mu.charge();
   }
 
-  //::: Set remaining muon information:
-  //::: Check if muon has been already corrected! If so, take original pt...
+  // Set remaining muon information:
+  // Check if muon has been already corrected! If so, take original pt...
   //ATH_MSG_VERBOSE( "Setting Pt  [CB]..." );
   //if( mu.isAvailable< float >( "OriginalMuonPt" ) && mu.auxdata< float >( "OriginalMuonPt" ) > 0 ) {
   //  muonInfo.ptcb = mu.auxdata< float >( "OriginalMuonPt" ) / 1000.;
@@ -830,7 +830,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
 
 
-  //::: Getting detector region
+  // Getting detector region
   if( int( muonInfo.phi ) == DEFAULT_INIT_VAL && m_Trel == MCAST::Release::Rel17_2_Sum13 )
     ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
 
@@ -843,11 +843,11 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     muonInfo.detRegion = GetRegion( muonInfo.eta, muonInfo.phi );
   }
 
-  //::: Clear the vector of cov matrices
+  // Clear the vector of cov matrices
   muonInfo.cbParsA.clear();
   muonInfo.cbCovMat.clear();
 
-  //::: Set the statistical combination for muons above given pT threshotld.
+  // Set the statistical combination for muons above given pT threshotld.
   if( m_useStatComb && muonInfo.ptcb > m_StatCombPtThreshold && isBadMuon(mu, muonInfo)) {
     CorrectionCode cbCode=applyStatCombination(mu, muonInfo);
     if( cbCode==CorrectionCode::Ok){
@@ -862,7 +862,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     }
   }
 
-  //::: Retrieve the event information:
+  // Retrieve the event information:
   const xAOD::EventInfo* evtInfo = 0;
   ATH_MSG_VERBOSE( "Retrieving EventInfo from the EventStore..." );
   if( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() ) {
@@ -874,12 +874,12 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   if( !evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
 
-    //::: Statistical combiantion specifics
+    // Statistical combiantion specifics
     if(m_useStatComb){
       mu.setP4( muonInfo.ptcb * 1000 , muonInfo.eta, muonInfo.phi );
     }
 
-    //::: Sagitta Correction  specifics
+    // Sagitta Correction  specifics
     if(m_doSagittaCorrection){
       CorrectionCode sgCode = applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB, mu, false, MCAST::SagittaSysType::NOMINAL, muonInfo);
       if(sgCode!=CorrectionCode::Ok) return sgCode;
@@ -890,7 +890,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
     mu.auxdata< float >( "InnerDetectorPt" ) = muonInfo.ptid * 1000.;
 
-    //::: Toroid-off specifics
+    // Toroid-off specifics
     if( m_toroidOff ) {
       mu.auxdata< float >( "MuonSpectrometerPt" ) = 0.;
       mu.setP4( muonInfo.ptid * 1000., muonInfo.eta, muonInfo.phi );
@@ -899,7 +899,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
       mu.auxdata< float >( "MuonSpectrometerPt" ) = muonInfo.ptms * 1000.;
     }
 
-    //::: SAF specifics
+    // SAF specifics
     if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
       ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
       ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
@@ -936,9 +936,9 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   // if you don't want to use the external seed it will be set based on the eventNumber and the muon(eta,phi)
   if( !m_useExternalSeed ) {
-    //::: Get Event Number:
+    // Get Event Number:
     const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
-    //::: Construct a seed for the random number generator:
+    // Construct a seed for the random number generator:
     const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     loc_random3.SetSeed( seed );
   }
@@ -953,7 +953,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   muonInfo.detRegion = -1;
 
 
-  //::: Getting detector region
+  // Getting detector region
   if( int( muonInfo.phi ) == DEFAULT_INIT_VAL && m_Trel == MCAST::Release::Rel17_2_Sum13 ) ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
 
   if( int( muonInfo.phi ) == DEFAULT_INIT_VAL && m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
@@ -972,7 +972,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     return CorrectionCode::OutOfValidityRange;
   }
 
-  //::: Getting random numbers for smearing
+  // Getting random numbers for smearing
   muonInfo.g0 = loc_random3.Gaus( 0, 1 );
   muonInfo.g1 = loc_random3.Gaus( 0, 1 );
   muonInfo.g2 = loc_random3.Gaus( 0, 1 );
@@ -984,8 +984,8 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Checking Random Values - g_3: " << muonInfo.g3 );
   ATH_MSG_VERBOSE( "Checking Random Values - g_4: " << muonInfo.g4 );
 
-  //::: Getting smearing values
-  //::: MS
+  // Getting smearing values
+  // MS
   if( m_currentParameters->SmearTypeMS == MCAST::SystVariation::Default ) {
     muonInfo.smearDeltaMS = GetSmearing( MCAST::DetectorType::MS, mu, muonInfo );
   }
@@ -998,7 +998,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   else {
     ATH_MSG_ERROR( "Invalid value for m_currentParameters->SmearTypeMS" );
   }
-  //::: ID
+  // ID
   if( m_currentParameters->SmearTypeID == MCAST::SystVariation::Default ) {
     muonInfo.smearDeltaID = GetSmearing( MCAST::DetectorType::ID, mu, muonInfo );
   }
@@ -1019,7 +1019,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Checking Weights - weightMS: " << muonInfo.weightMS << " - fabs( weightMS - 1 ): " << fabs( muonInfo.weightMS - 1 ) );
   muonInfo.smearDeltaCB = muonInfo.smearDeltaID * muonInfo.weightID + muonInfo.smearDeltaMS * muonInfo.weightMS;
 
-  //::: Calibrate the pt of the muon:
+  // Calibrate the pt of the muon:
   double res_idPt = 1000. * CalculatePt( MCAST::DetectorType::ID, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
   double res_msPt = 1000. * CalculatePt( MCAST::DetectorType::MS, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
   double res_cbPt = 1000. * CalculatePt( MCAST::DetectorType::CB, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
@@ -1054,17 +1054,17 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     res_cbPt=muonInfo.ptcb *1000.;
   }
 
-  //::: Sagitta Distrotion  specifics
+  // Sagitta Distrotion  specifics
   //if(m_doSagittaMCDistortion){
   //CorrectionCode sgCode=applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB, mu, true, MCAST::SagittaSysType::NOMINAL, muonInfo);
   //if(sgCode!=CorrectionCode::Ok) return sgCode;
   //mu.setP4( muonInfo.ptcb * 1000 , muonInfo.eta, muonInfo.phi );
   //}
 
-  //::: Override combined momentum for special cases
+  // Override combined momentum for special cases
   if( fabs( muonInfo.weightID - 1 ) < EPSILON ) res_cbPt = res_idPt;
   if( fabs( muonInfo.weightMS - 1 ) < EPSILON ) res_cbPt = res_msPt;
-  //::: Using ToroidOff flag
+  // Using ToroidOff flag
   mu.auxdata< float >( "InnerDetectorPt" ) = res_idPt;
   if( m_toroidOff ) {
     mu.auxdata< float >( "MuonSpectrometerPt" ) = 0.;
@@ -1087,23 +1087,23 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_VERBOSE( "Checking Output Muon Info - Pt_CB - Pt_ID: " << res_cbPt - res_idPt );
 
 
-  //::: Return gracefully:
+  // Return gracefully:
   return CorrectionCode::Ok;
 
 }
 
 CorrectionCode MuonCalibrationAndSmearingTool::correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const {
 
-  //::: A sanity check:
+  // A sanity check:
   if( output ) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
 
-  //::: Create a new object:
+  // Create a new object:
   ATH_MSG_VERBOSE( "Going to create new xAOD::Muon..." );
   output = new xAOD::Muon();
   ATH_MSG_VERBOSE( "Calling makePrivateStore..." );
   output->makePrivateStore( input );
 
-  //::: Use the other function to modify this object:
+  // Use the other function to modify this object:
   ATH_MSG_VERBOSE( "Calling applyCorrection..." );
 
   CP::CorrectionCode retCode = applyCorrection( *output );
@@ -1121,23 +1121,23 @@ SystematicSet MuonCalibrationAndSmearingTool::affectingSystematics() const {
 
   SystematicSet result;
 
-  //::: ID systematics
+  // ID systematics
   result.insert( SystematicVariation( "MUON_ID", 1 ) );
   result.insert( SystematicVariation( "MUON_ID", -1 ) );
 
-  //::: MS systematics
+  // MS systematics
   result.insert( SystematicVariation( "MUON_MS", 1 ) );
   result.insert( SystematicVariation( "MUON_MS", -1 ) );
 
-  //::: Scale systematics
+  // Scale systematics
   result.insert( SystematicVariation( "MUON_SCALE", 1 ) );
   result.insert( SystematicVariation( "MUON_SCALE", -1 ) );
 
-  //::: Sagitta correction rho
+  // Sagitta correction rho
   result.insert( SystematicVariation( "MUON_SAGITTA_RHO", 1 ) );
   result.insert( SystematicVariation( "MUON_SAGITTA_RHO", -1 ) );
 
-  //::: Sagitta correction resid bias
+  // Sagitta correction resid bias
   result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", 1 ) );
   result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", -1 ) );
 
@@ -1151,14 +1151,14 @@ SystematicSet MuonCalibrationAndSmearingTool::recommendedSystematics() const {
 
 SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
 
-  //::: First check if we already know this systematic configuration
+  // First check if we already know this systematic configuration
   boost::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
   if( parIter != m_Parameters.end() ) {
     m_currentParameters = &parIter->second;
     return SystematicCode::Ok;
   }
 
-  //::: Then check if it is actually supported
+  // Then check if it is actually supported
   static CP::SystematicSet affSysts = affectingSystematics();
   SystematicSet checkSysConf;
   if( !SystematicSet::filterForAffectingSystematics( systConfig, affSysts, checkSysConf ) ) {
@@ -1173,7 +1173,7 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   param.SagittaRho=MCAST::SystVariation::Default;
   param.SagittaBias=MCAST::SystVariation::Default;
 
-  //::: ID systematics
+  // ID systematics
   SystematicVariation syst = systConfig.getSystematicByBaseName( "MUON_ID" );
 
   if( syst == SystematicVariation( "MUON_ID", 1 ) ) {
@@ -1194,7 +1194,7 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   }
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
-  //::: MS systematics
+  // MS systematics
   syst = systConfig.getSystematicByBaseName( "MUON_MS" );
 
   if( syst == SystematicVariation( "MUON_MS", 1 ) ) {
@@ -1217,7 +1217,7 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   }
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
-  //::: Scale systematics
+  // Scale systematics
   syst = systConfig.getSystematicByBaseName( "MUON_SCALE" );
 
   if( syst == SystematicVariation( "MUON_SCALE", 1 ) ) {
@@ -1237,7 +1237,7 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
 
-  //::: Sagitta Rho systematics
+  // Sagitta Rho systematics
   syst = systConfig.getSystematicByBaseName( "MUON_SAGITTA_RHO" );
 
   if( syst == SystematicVariation( "MUON_SAGITTA_RHO", 1 ) ) {
@@ -1257,7 +1257,7 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
 
-  //::: Sagitta Residual Bias systematics
+  // Sagitta Residual Bias systematics
   syst = systConfig.getSystematicByBaseName( "MUON_SAGITTA_RESBIAS" );
 
   if( syst == SystematicVariation( "MUON_SAGITTA_RESBIAS", 1 ) ) {
@@ -1277,11 +1277,11 @@ SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const S
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
 
-  //:::
+  //
   ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeID: " << param.SmearTypeID );
   ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeMS: " << param.SmearTypeMS );
   ATH_MSG_DEBUG( "Systematic variation's parameters, Scale: " << param.Scale );
-  //::: store this calibration for future use, and make it current
+  // store this calibration for future use, and make it current
   m_currentParameters = &m_Parameters.insert( std::make_pair( systConfig, param ) ).first->second;
   return SystematicCode::Ok;
 
@@ -1405,10 +1405,10 @@ StatusCode MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
 
 double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, double S, const double S_enLoss, InfoHelper& muonInfo ) const {
 
-  //::: Sanity checks:
+  // Sanity checks:
   if( muonInfo.detRegion < 0 || muonInfo.detRegion >= m_nb_regions ) return pt;
 
-  //::: default momentum scale (derived form template fits)
+  // default momentum scale (derived form template fits)
   return pt * S + S_enLoss;
   //bool apply_to_data = false;
   //return apply_to_data ? pt / S : ( pt * S + S_enLoss );
@@ -1419,7 +1419,7 @@ double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, double S, co
 double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const {
 
   double scaleID = 0., enLossCorrMS = 0., scaleMS = 0., scaleCB = 0.;//initialize all to 0
-  //::: These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
+  // These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
   //double s1_ID = 0., s2_ID = 0., s1_MS = 0., s2_MS = 0., s1_CB = 0., s2_CB = 0.;//Description of these is in ApplyScale
 
   if( fabs( scaleVar ) != 1. && scaleVar != 0. ) ATH_MSG_ERROR( "Unpredicted scale variation of Delta "<<scaleVar<<" sigmas!" );
@@ -1547,9 +1547,9 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   std::string tmpname;
   std::ifstream InValues;
 
-  //::: Retrieving scale corrections!
+  // Retrieving scale corrections!
   std::string scale_val;
-  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
   if ( m_FilesPath == "" ) {
     if( m_Trel >= MCAST::Release::PreRec ) {
       scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
@@ -1623,9 +1623,9 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   InValues.close();
   InValues.clear();
 
-  //::: Retrieving data values
+  // Retrieving data values
   std::string data_val;
-  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
   if ( m_FilesPath == "" ) {
     if( m_Trel >= MCAST::Release::PreRec ) {
       data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
@@ -1728,9 +1728,9 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   InValues.close();
   InValues.clear();
 
-  //::: Retrieving MC values
+  // Retrieving MC values
   std::string mc_val;
-  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
   if ( m_FilesPath == "" ) {
     if ( m_Trel >= MCAST::Release::PreRec ) {
       mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
@@ -1887,6 +1887,11 @@ double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& De
   return ExpectedResolution(DetType, mu, mc);
 }
 
+double MuonCalibrationAndSmearingTool::expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const {
+  // Expected resolution in data (or unsmeared MC if second argument is true)
+  return ExpectedResolution(DetType, mu, mc);
+}
+
 double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc ) const {
   // Expected resolution in data (or unsmeared MC if second argument is true)
   if( DetType == "MS" ) {
@@ -1899,7 +1904,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &De
     return ExpectedResolution( MCAST::DetectorType::CB, mu, mc );
   }
   else {
-    ATH_MSG_ERROR( "wrong DetType in input " << DetType );
+    ATH_MSG_ERROR( "The DetType that you entered is not allows - DetType = " << DetType );
     return 0.;
   }
 }
@@ -1912,7 +1917,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
   double loc_ptms = 0;
   double loc_ptcb = 0;
 
-  //::: Set pt ID:
+  // Set pt ID:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
@@ -1931,7 +1936,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     loc_ptid = 0.;
   }
 
-  //::: Set pt MS:
+  // Set pt MS:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
@@ -1949,7 +1954,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     loc_ptms = 0.;
   }
 
-  //::: Set pt CB:
+  // Set pt CB:
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
@@ -1973,7 +1978,7 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
   double loc_eta = mu.eta();
   double loc_phi = mu.phi();
 
-  //::: Getting detector region
+  // Getting detector region
   if( int( loc_phi ) == DEFAULT_INIT_VAL && m_Trel == MCAST::Release::Rel17_2_Sum13 ) ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
 
   if( int( loc_phi ) == DEFAULT_INIT_VAL && m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
@@ -2533,7 +2538,7 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
 
 CorrectionCode MuonCalibrationAndSmearingTool::applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const {
 
-  //::: Set pt ID:
+  // Set pt ID:
   ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to ID TrackParticle..." );
   ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
   ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == NULL ) = " << ( mu.inDetTrackParticleLink() == NULL ) );
@@ -2546,7 +2551,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyStatCombination( xAOD::Muon&
 
   const ElementLink< xAOD::TrackParticleContainer >& id_track=mu.inDetTrackParticleLink();
 
-  //::: Set pt MS:
+  // Set pt MS:
 
   ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to MS TrackParticle..." );
   ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
@@ -2559,10 +2564,10 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyStatCombination( xAOD::Muon&
 
   const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
 
-  //::: Set the charge
+  // Set the charge
   int charge = mu.charge();
 
-  //::: SAF specifics
+  // SAF specifics
   if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
     if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer > > ("combinedTrackParticleLink")){
       if(mu.combinedTrackParticleLink().isValid()){
