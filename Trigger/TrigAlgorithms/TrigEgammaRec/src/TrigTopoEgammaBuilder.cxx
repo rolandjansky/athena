@@ -387,26 +387,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   // Chrono name for each Tool
   std::string chronoName;
 
-//  xAOD::ElectronContainer*    electronContainer    = new xAOD::ElectronContainer();
-//  xAOD::ElectronAuxContainer* electronAuxContainer = new xAOD::ElectronAuxContainer();
-//  electronContainer->setStore( electronAuxContainer );
-//
-//  if ( evtStore()->record(electronContainer, m_electronOutputName).isFailure() ||
-//       evtStore()->record(electronAuxContainer, m_electronOutputName + "Aux.").isFailure()){
-//      ATH_MSG_ERROR("Could not record electron container or its aux container");
-//      return HLT::ERROR;
-//    }
-//
-//  xAOD::PhotonContainer*    photonContainer    = new xAOD::PhotonContainer();
-//  xAOD::PhotonAuxContainer* photonAuxContainer = new xAOD::PhotonAuxContainer();
-//  photonContainer->setStore( photonAuxContainer );
-//
-//  if ( evtStore()->record(photonContainer, m_photonOutputName).isFailure() ||
-//       evtStore()->record(photonAuxContainer, m_photonOutputName + "Aux.").isFailure()){
-//    ATH_MSG_ERROR("Could not record photon container or its aux container");
-//    return HLT::ERROR;
-//  }
-
     // Create collections used in the navigation
     // Electrons
     xAOD::ElectronContainer* electronContainer = new xAOD::ElectronContainer();
@@ -425,13 +405,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   }
 
   //Then retrieve them
-//  const xAOD::CaloClusterContainer *topoclusters = 0;
-//  if (evtStore()->retrieve(topoclusters, m_inputTopoClusterContainerName).isFailure()) {
-//    ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputTopoClusterContainerName);
-//    return HLT::ERROR;
-// } else {
-//    ATH_MSG_DEBUG("Retrieved input cluster container " << m_inputTopoClusterContainerName);
-//  }
 
   //**********************************************************************
   // Retrieve cluster container
