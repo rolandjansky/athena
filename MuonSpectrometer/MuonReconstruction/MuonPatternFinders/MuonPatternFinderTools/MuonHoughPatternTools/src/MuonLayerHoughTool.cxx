@@ -1637,7 +1637,9 @@ namespace Muon {
                         << " nHits "         << maximum.hits.size() );
 
         int nmdt = 0;
+        int nmm = 0;
         int ntgc = 0;
+        int nstgc = 0;
 
         const unsigned int nHitsInMaximum = maximum.hits.size();
         for( unsigned int i = 0; i < nHitsInMaximum; ++i){
@@ -1647,6 +1649,8 @@ namespace Muon {
 
           if( m_idHelper->isMdt(id) ) ++nmdt;
           else if( m_idHelper->isTgc(id) ) ++ntgc;
+          else if( m_idHelper->issTgc(id) ) ++nstgc;
+          else if( m_idHelper->isMM(id) ) ++nmm;
 
           if( m_doTruth ){
             if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
@@ -1657,7 +1661,7 @@ namespace Muon {
         }
 
         // only store maxima that have MDT hits        
-        if( nmdt > 0) {
+        if( nmdt > 0 || (nmm + nstgc) > 0) {
           maxima.push_back( new MuonHough::MuonLayerHough::Maximum(maximum) );
           // add to seed list if 
           if( maximum.max > m_selectors[hough.m_descriptor.chIndex].getCutValue(maximum.pos) ) m_seedMaxima.push_back(maxima.back());        
@@ -2030,9 +2034,17 @@ namespace Muon {
       if( technology < truthCollections.size() ) matchTruth(*truthCollections[technology],id,*debug);
 
       if( m_idHelper->stgcIdHelper().channelType(id) == 1 ) {
+        // eta strips
         float x = prd.globalPosition().z();
         float y = rCor(prd);
         float stripCor = 1.5; // get from det el
+        const MuonGM::MuonChannelDesign* design = prd.detectorElement()->getDesign( id );
+        if(design) {
+          double stripWidth=design->inputWidth;
+          double stripLength=design->channelLength(m_idHelper->stgcIdHelper().channel(id));
+          if(m_debugHough) std::cout << " eta strip width " << stripWidth << " stripLength " << stripLength << std::endl;
+          stripCor = 0.5*stripWidth;
+        }
         debug->r = stripCor;
         float ymin = y - stripCor;
         float ymax = y + stripCor;
@@ -2043,13 +2055,22 @@ namespace Muon {
         double chWidth = 0;
         if( m_idHelper->stgcIdHelper().channelType(id) == 0 ) {
             
+          // pads
           const MuonGM::MuonPadDesign* design = prd.detectorElement()->getPadDesign(id);
           if( !design ) {
             ATH_MSG_WARNING("No design found for " << m_idHelper->toString(id) );
             delete debug;
             continue;
           }
-          chWidth = 0.5*design->channelWidth(prd.localPosition(),true);
+          // weird large number
+          double chWidthOLD = 0.5*design->channelWidth(prd.localPosition(),true);
+
+          // inputPhiPitch is in degrees
+          float radius = prd.globalPosition().perp();
+          chWidth = 0.5*design->inputPhiPitch*M_PI/180.*radius;
+          if(m_debugHough) std::cout << " sPadWidth " << design->sPadWidth  << " lPadWidth " << design->lPadWidth  << " inputRowWidth " << design->inputRowWidth << std::endl;
+
+          if(m_debugHough) std::cout << " Pad chWidth " << chWidth  << " OLD " << chWidthOLD << " phi global " << prd.globalPosition().phi() << std::endl;
         }
         else if( m_idHelper->stgcIdHelper().channelType(id) == 2 ) {
           const MuonGM::MuonChannelDesign* design = prd.detectorElement()->getDesign(id);
@@ -2058,7 +2079,13 @@ namespace Muon {
             delete debug;
             continue;
           }
-          chWidth = 0.5*design->channelWidth(prd.localPosition());
+          // double etaWidth=design->channelLength(idhelper->channel(id));
+          double phiMaxWidth=design->maxYSize/design->nch;
+          // double phiMinWidth=design->minYSize/design->nch;
+          double chWidthOLD = 0.5*design->channelWidth(prd.localPosition());
+          chWidth = 0.5*phiMaxWidth;
+
+          if(m_debugHough) std::cout << " Wire Gang chWidth " << chWidth  << " OLD " << chWidthOLD << " phi global " << prd.globalPosition().phi() << std::endl;
         }
         
         Amg::Vector2D lp1(prd.localPosition().x()+chWidth,prd.localPosition().y());
