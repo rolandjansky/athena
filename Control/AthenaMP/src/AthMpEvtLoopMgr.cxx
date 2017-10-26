@@ -75,7 +75,7 @@ StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
 
-  if(m_strategy=="EventServive" && m_nEventsBeforeFork!=0) {
+  if(m_strategy=="EventService" && m_nEventsBeforeFork!=0) {
     ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
     return StatusCode::FAILURE;
   }
