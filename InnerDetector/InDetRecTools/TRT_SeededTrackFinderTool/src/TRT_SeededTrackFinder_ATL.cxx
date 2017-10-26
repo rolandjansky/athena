@@ -80,7 +80,10 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
     m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
     m_proptool("Trk::RungeKuttaPropagator/InDetPropagator"),
     m_updatorTool("Trk::KalmanUpdator_xk/InDetPatternUpdator"),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_nprint(0),
+    m_fieldService(nullptr),
+    m_trtId(nullptr)
 {
   m_fieldmode    = "MapSolenoid"    ;   //Field Mode
   m_xi2max       = 15.              ;   //Maximum chi2 per DOF to accept track candidate
