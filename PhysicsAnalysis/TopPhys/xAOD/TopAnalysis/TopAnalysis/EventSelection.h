@@ -214,6 +214,7 @@ private:
 
     ///The particle level cutflow histogram filled by the tool.
     mutable TH1D* m_cutflowParticleLevel;
+    mutable TH1D* m_cutflowParticleLevelMCWeights;
 
     ///The upgrade level cutflow histogram filled by the tool.
     mutable TH1D* m_cutflowUpgradeLevel;
