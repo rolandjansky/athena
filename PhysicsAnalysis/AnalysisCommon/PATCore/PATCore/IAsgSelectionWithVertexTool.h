@@ -29,7 +29,7 @@ namespace xAOD{
 
 
 
-class IAsgSelectionWithVertexTool : virtual public asg::IAsgTool
+class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionWithVertexTool : virtual public asg::IAsgTool
 {
   /// Declare the interface ID for this pure-virtual interface class to the Athena framework
   ASG_TOOL_INTERFACE(IAsgSelectionWithVertexTool)
