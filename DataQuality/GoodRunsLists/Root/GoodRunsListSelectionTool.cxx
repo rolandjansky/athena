@@ -185,6 +185,7 @@ GoodRunsListSelectionTool::readXMLs( Root::TGRLCollection& grl,
    return StatusCode::SUCCESS;
 }
 
+#ifndef XAOD_STANDALONE
 bool GoodRunsListSelectionTool::eventPassesFilter() const {
   const xAOD::EventInfo* ei = 0;
   if( evtStore()->retrieve( ei , "EventInfo" ).isFailure() ) {
@@ -193,3 +194,4 @@ bool GoodRunsListSelectionTool::eventPassesFilter() const {
   }
   return passRunLB( *ei );
 }
+#endif
