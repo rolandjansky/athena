@@ -165,14 +165,14 @@ bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
       }
       
       if ( value_loose_pos == 1 || value_loose_neg == 1 ) {
-	double m_invMass = -999.;
+	double invMass = -999.;
 	
 	/** Calculate invariant mass of ee */
-	m_invMass = ( electrons_positive[ i ]->p4() + electrons_negative[ i ]->p4() ).M();
+	invMass = ( electrons_positive[ i ]->p4() + electrons_negative[ i ]->p4() ).M();
 
 	
 	/** Make decision for a good Zee */
-	if ( (m_massZLow < m_invMass) && (m_invMass < m_massZHigh) ) m_flagZeeEvent = true;
+	if ( (m_massZLow < invMass) && (invMass < m_massZHigh) ) m_flagZeeEvent = true;
 	
 	/** Print the details of Zee Candidate if outputLevel=DEBUG */      
 	if (m_flagZeeEvent) { 
