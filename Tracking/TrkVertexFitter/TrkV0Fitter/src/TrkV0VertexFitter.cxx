@@ -425,10 +425,10 @@ namespace Trk
     int ndf = nMeas - (nPar - nCnst);                // Number of degrees of freedom
     if (ndf < 0) {ndf = 1;}
 
-    unsigned int m_dim = nCnst;                      //
+    unsigned int dim = nCnst;                      //
     unsigned int n_dim = nMeas;                      //
 
-    ATH_MSG_DEBUG("ndf " << ndf << " n_dim " << n_dim << " m_dim " << m_dim);
+    ATH_MSG_DEBUG("ndf " << ndf << " n_dim " << n_dim << " dim " << dim);
 
     std::vector<V0FitterTrack> v0FitterTracks;
 
@@ -438,28 +438,28 @@ namespace Trk
 
     Amg::MatrixX Wmeas_mat(n_dim,n_dim); Wmeas_mat.setZero();
     Amg::MatrixX Wmeas0_mat(n_dim,n_dim); Wmeas0_mat.setZero();
-    Amg::MatrixX Bjac_mat(m_dim,n_dim); Bjac_mat.setZero();
-    Amg::MatrixX Ajac_mat(m_dim,3); Ajac_mat.setZero();
+    Amg::MatrixX Bjac_mat(dim,n_dim); Bjac_mat.setZero();
+    Amg::MatrixX Ajac_mat(dim,3); Ajac_mat.setZero();
     Amg::MatrixX C11_mat(n_dim,n_dim); C11_mat.setZero();
     Amg::MatrixX C22_mat(3,3); C22_mat.setZero();
     Amg::MatrixX C21_mat(3,n_dim); C21_mat.setZero();
-    Amg::MatrixX C31_mat(m_dim,n_dim); C31_mat.setZero();
-    Amg::MatrixX C32_mat(m_dim,3); C32_mat.setZero();
-    Amg::MatrixX Wb_mat(m_dim,m_dim); Wb_mat.setZero();
-    Amg::MatrixX Btemp_mat(m_dim,n_dim); Btemp_mat.setZero();
-    Amg::MatrixX Atemp_mat(m_dim,3); Atemp_mat.setZero();
+    Amg::MatrixX C31_mat(dim,n_dim); C31_mat.setZero();
+    Amg::MatrixX C32_mat(dim,3); C32_mat.setZero();
+    Amg::MatrixX Wb_mat(dim,dim); Wb_mat.setZero();
+    Amg::MatrixX Btemp_mat(dim,n_dim); Btemp_mat.setZero();
+    Amg::MatrixX Atemp_mat(dim,3); Atemp_mat.setZero();
     Amg::VectorX DeltaY_vec(n_dim); DeltaY_vec.setZero();
     Amg::Vector3D DeltaA_vec; DeltaA_vec.setZero();
     Amg::VectorX DeltaY0_vec(n_dim); DeltaY0_vec.setZero();
-    Amg::VectorX F_vec(m_dim); F_vec.setZero();
-    Amg::VectorX C_vec(m_dim); C_vec.setZero();
-    Amg::VectorX C_cor_vec(m_dim); C_cor_vec.setZero();
+    Amg::VectorX F_vec(dim); F_vec.setZero();
+    Amg::VectorX C_vec(dim); C_vec.setZero();
+    Amg::VectorX C_cor_vec(dim); C_cor_vec.setZero();
     Amg::MatrixX V_mat(nPar,nPar); V_mat.setZero();
     Amg::MatrixX Chi_vec(1,n_dim); Chi_vec.setZero();
     AmgSymMatrix(1) Chi_mat; Chi_mat.setZero();
     Amg::MatrixX ChiItr_vec(1,n_dim); ChiItr_vec.setZero();
     AmgSymMatrix(1) ChiItr_mat; ChiItr_mat.setZero();
-    Amg::VectorX F_fac_vec(m_dim); F_fac_vec.setZero();
+    Amg::VectorX F_fac_vec(dim); F_fac_vec.setZero();
 
     const Amg::Vector3D * globalPosition = &(firstStartingPoint);
     ATH_MSG_DEBUG("globalPosition of starting point: " << (*globalPosition)[0] << ", " << (*globalPosition)[1] << ", " << (*globalPosition)[2]);
@@ -756,7 +756,7 @@ namespace Trk
       }
 
       sumConstr = 0.;
-      for (unsigned int i=0; i<m_dim; ++i) 
+      for (unsigned int i=0; i<dim; ++i) 
       {
         sumConstr += F_fac_vec[i]*fabs(F_vec[i]);
       }
