@@ -16,20 +16,20 @@
 #include "HIJetRec/HIClusterPseudoJetGetter.h"
 
 #ifndef XAOD_ANALYSIS
-DECLARE_ALGORITHM_FACTORY( HIClusterMaker )
-DECLARE_TOOL_FACTORY(HIJetCellSubtractorTool)
-DECLARE_TOOL_FACTORY( HIClusterSubtraction )
-DECLARE_TOOL_FACTORY(HISubtractedCellMakerTool)
+DECLARE_COMPONENT( HIClusterMaker )
+DECLARE_COMPONENT( HIJetCellSubtractorTool )
+DECLARE_COMPONENT( HIClusterSubtraction )
+DECLARE_COMPONENT( HISubtractedCellMakerTool )
 #endif
 
 
-DECLARE_TOOL_FACTORY( HIEventShapeJetIteration )
-DECLARE_TOOL_FACTORY(HIJetConstituentSubtractionTool)
-DECLARE_TOOL_FACTORY(HIJetClusterSubtractorTool)
-DECLARE_TOOL_FACTORY(HIJetDRAssociationTool)
-DECLARE_TOOL_FACTORY(HIJetMaxOverMeanTool)
-DECLARE_TOOL_FACTORY(HIJetDiscriminatorTool)
-DECLARE_TOOL_FACTORY(HIJetSignificanceTool)
-DECLARE_TOOL_FACTORY(HIUEModulatorTool)
-DECLARE_TOOL_FACTORY(HIClusterPseudoJetGetter)
+DECLARE_COMPONENT( HIEventShapeJetIteration )
+DECLARE_COMPONENT( HIJetConstituentSubtractionTool )
+DECLARE_COMPONENT( HIJetClusterSubtractorTool )
+DECLARE_COMPONENT( HIJetDRAssociationTool )
+DECLARE_COMPONENT( HIJetMaxOverMeanTool )
+DECLARE_COMPONENT( HIJetDiscriminatorTool )
+DECLARE_COMPONENT( HIJetSignificanceTool )
+DECLARE_COMPONENT( HIUEModulatorTool )
+DECLARE_COMPONENT( HIClusterPseudoJetGetter )
 

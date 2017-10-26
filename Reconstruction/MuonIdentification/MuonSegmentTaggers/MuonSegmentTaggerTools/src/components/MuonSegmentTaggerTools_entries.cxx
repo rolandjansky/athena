@@ -2,6 +2,6 @@
 #include "../MuTagAmbiguitySolverTool.h"
 
 
-DECLARE_TOOL_FACTORY     ( MuTagMatchingTool)
-DECLARE_TOOL_FACTORY     ( MuTagAmbiguitySolverTool)
+DECLARE_COMPONENT( MuTagMatchingTool )
+DECLARE_COMPONENT( MuTagAmbiguitySolverTool )
 

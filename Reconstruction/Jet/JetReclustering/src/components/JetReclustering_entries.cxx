@@ -1,10 +1,10 @@
 #include "JetReclustering/JetReclusteringTool.h"
 #include "JetReclustering/EffectiveRTool.h"
 
-DECLARE_TOOL_FACTORY( JetReclusteringTool )
-DECLARE_TOOL_FACTORY( EffectiveRTool )
+DECLARE_COMPONENT( JetReclusteringTool )
+DECLARE_COMPONENT( EffectiveRTool )
 
 
 #include "../AthJetReclusteringAlgo.h"
-DECLARE_ALGORITHM_FACTORY( AthJetReclusteringAlgo )
+DECLARE_COMPONENT( AthJetReclusteringAlgo )
 

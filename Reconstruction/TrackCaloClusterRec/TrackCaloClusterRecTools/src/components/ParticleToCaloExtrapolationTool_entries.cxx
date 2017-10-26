@@ -3,8 +3,8 @@
 #include "TrackCaloClusterRecTools/TrackCaloClusterCreatorTool.h"
 #include "TrackCaloClusterRecTools/ClusterFilterTool.h"
  
-DECLARE_TOOL_FACTORY(ParticleToCaloExtrapolationTool)
-DECLARE_TOOL_FACTORY(TrackCaloClusterWeightsTool)
-DECLARE_TOOL_FACTORY(TrackCaloClusterCreatorTool)
-DECLARE_TOOL_FACTORY(ClusterFilterTool)
+DECLARE_COMPONENT( ParticleToCaloExtrapolationTool )
+DECLARE_COMPONENT( TrackCaloClusterWeightsTool )
+DECLARE_COMPONENT( TrackCaloClusterCreatorTool )
+DECLARE_COMPONENT( ClusterFilterTool )
 

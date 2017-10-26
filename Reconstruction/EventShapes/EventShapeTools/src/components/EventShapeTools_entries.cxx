@@ -2,7 +2,7 @@
 #include "EventShapeTools/EventShapeCopier.h"
 #include "../EventDensityAthAlg.h"
 
-DECLARE_TOOL_FACTORY( EventDensityTool )
-DECLARE_TOOL_FACTORY( EventShapeCopier )
-DECLARE_ALGORITHM_FACTORY( EventDensityAthAlg )
+DECLARE_COMPONENT( EventDensityTool )
+DECLARE_COMPONENT( EventShapeCopier )
+DECLARE_COMPONENT( EventDensityAthAlg )
 

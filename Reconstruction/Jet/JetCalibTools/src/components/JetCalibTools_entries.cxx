@@ -5,9 +5,9 @@
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 
-DECLARE_TOOL_FACTORY( JetCalibrationTool )
-DECLARE_TOOL_FACTORY( JetPileupCorrection )
-DECLARE_TOOL_FACTORY( ResidualOffsetCorrection )
-DECLARE_TOOL_FACTORY( EtaJESCorrection )
-DECLARE_TOOL_FACTORY( InsituDataCorrection )
+DECLARE_COMPONENT( JetCalibrationTool )
+DECLARE_COMPONENT( JetPileupCorrection )
+DECLARE_COMPONENT( ResidualOffsetCorrection )
+DECLARE_COMPONENT( EtaJESCorrection )
+DECLARE_COMPONENT( InsituDataCorrection )
 

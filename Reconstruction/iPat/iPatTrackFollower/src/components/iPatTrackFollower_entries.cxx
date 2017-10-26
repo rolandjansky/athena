@@ -3,8 +3,8 @@
 #include "iPatTrackFollower/TrackBuilder.h"
 #include "iPatTrackFollower/TrackFollower.h"
 
-DECLARE_TOOL_FACTORY( SiClusterProperties )
-DECLARE_TOOL_FACTORY( SiliconLayerAssociator )
-DECLARE_TOOL_FACTORY( TrackBuilder )
-DECLARE_TOOL_FACTORY( TrackFollower )
+DECLARE_COMPONENT( SiClusterProperties )
+DECLARE_COMPONENT( SiliconLayerAssociator )
+DECLARE_COMPONENT( TrackBuilder )
+DECLARE_COMPONENT( TrackFollower )
 

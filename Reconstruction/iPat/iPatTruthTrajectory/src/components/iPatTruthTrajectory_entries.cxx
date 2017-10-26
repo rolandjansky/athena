@@ -1,4 +1,4 @@
 #include "iPatTruthTrajectory/TruthParameters.h"
 
-DECLARE_TOOL_FACTORY( TruthParameters )
+DECLARE_COMPONENT( TruthParameters )
 

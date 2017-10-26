@@ -2,5 +2,5 @@
 
 using namespace MuGirlNS;
 
-DECLARE_TOOL_FACTORY( MuGirlRecoTool )
+DECLARE_COMPONENT( MuGirlRecoTool )
 

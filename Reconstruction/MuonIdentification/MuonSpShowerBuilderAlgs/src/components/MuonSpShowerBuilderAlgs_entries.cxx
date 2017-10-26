@@ -1,5 +1,5 @@
 #include "MuonSpShowerBuilderAlgs/MuonSpShowerBuilder.h"
 
 
-DECLARE_ALGORITHM_FACTORY( MuonSpShowerBuilder )
+DECLARE_COMPONENT( MuonSpShowerBuilder )
 

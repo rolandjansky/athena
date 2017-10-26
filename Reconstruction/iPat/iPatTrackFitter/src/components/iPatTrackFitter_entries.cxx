@@ -1,4 +1,4 @@
 #include "iPatTrackFitter/TrackFitter.h"
 
-DECLARE_TOOL_FACTORY( TrackFitter )
+DECLARE_COMPONENT( TrackFitter )
 

@@ -5,8 +5,8 @@
 
 using namespace Rec;
 
-DECLARE_TOOL_FACTORY( MuonPrintingTool )
-DECLARE_TOOL_FACTORY( MuonScatteringAngleSignificanceTool )
-DECLARE_TOOL_FACTORY( MuonMomentumBalanceSignificanceTool )
-DECLARE_TOOL_FACTORY( MuonMeanMDTdADCFillerTool )
+DECLARE_COMPONENT( MuonPrintingTool )
+DECLARE_COMPONENT( MuonScatteringAngleSignificanceTool )
+DECLARE_COMPONENT( MuonMomentumBalanceSignificanceTool )
+DECLARE_COMPONENT( MuonMeanMDTdADCFillerTool )
 

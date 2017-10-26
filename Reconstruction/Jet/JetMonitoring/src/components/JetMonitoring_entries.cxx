@@ -11,18 +11,18 @@
 
 #include "../JetMonitoringTool.h"
 
-DECLARE_TOOL_FACTORY( JetKinematicHistos )
-DECLARE_TOOL_FACTORY( JetMonitoringTool )
-DECLARE_TOOL_FACTORY( HistoDefinitionTool )
-DECLARE_TOOL_FACTORY( HistosForJetSelection )
-DECLARE_TOOL_FACTORY( LeadingJetsRelations )
-DECLARE_TOOL_FACTORY( EfficiencyResponseHistos )
-DECLARE_TOOL_FACTORY( HIEfficiencyResponseHistos )
-DECLARE_TOOL_FACTORY( JetContainerHistoFiller )
-DECLARE_TOOL_FACTORY( JetSelectorAttribute )
-DECLARE_TOOL_FACTORY( HIJetUEMonitoring )
+DECLARE_COMPONENT( JetKinematicHistos )
+DECLARE_COMPONENT( JetMonitoringTool )
+DECLARE_COMPONENT( HistoDefinitionTool )
+DECLARE_COMPONENT( HistosForJetSelection )
+DECLARE_COMPONENT( LeadingJetsRelations )
+DECLARE_COMPONENT( EfficiencyResponseHistos )
+DECLARE_COMPONENT( HIEfficiencyResponseHistos )
+DECLARE_COMPONENT( JetContainerHistoFiller )
+DECLARE_COMPONENT( JetSelectorAttribute )
+DECLARE_COMPONENT( HIJetUEMonitoring )
 
-DECLARE_TOOL_FACTORY( JetAttributeHisto )
+DECLARE_COMPONENT( JetAttributeHisto )
 
 
 

@@ -1,4 +1,4 @@
 #include "JetRecCalo/MissingCellListTool.h"
 
-DECLARE_TOOL_FACTORY(MissingCellListTool)
+DECLARE_COMPONENT( MissingCellListTool )
 

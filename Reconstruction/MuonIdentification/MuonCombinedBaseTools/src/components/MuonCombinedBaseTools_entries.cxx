@@ -13,16 +13,16 @@
 
 using namespace MuonCombined;
 using namespace Muon;
-DECLARE_TOOL_FACTORY( MuonCandidateTool )
-DECLARE_TOOL_FACTORY( InDetCandidateTool )
-DECLARE_TOOL_FACTORY( MuonCombinedTool )
-DECLARE_TOOL_FACTORY( MuonCombinedDebuggerTool )
-DECLARE_TOOL_FACTORY( MuonCreatorTool )
-DECLARE_TOOL_FACTORY( MuonDressingTool )
-DECLARE_TOOL_FACTORY( MuonCombinedStacoTagTool )
-DECLARE_TOOL_FACTORY( MuonCombinedFitTagTool )
-DECLARE_TOOL_FACTORY( MuonSegmentTagTool )
-DECLARE_TOOL_FACTORY( MuGirlTagTool )
-DECLARE_TOOL_FACTORY( MuonCaloTagTool )
-DECLARE_TOOL_FACTORY( TrackSegmentAssociationTool )
+DECLARE_COMPONENT( MuonCandidateTool )
+DECLARE_COMPONENT( InDetCandidateTool )
+DECLARE_COMPONENT( MuonCombinedTool )
+DECLARE_COMPONENT( MuonCombinedDebuggerTool )
+DECLARE_COMPONENT( MuonCreatorTool )
+DECLARE_COMPONENT( MuonDressingTool )
+DECLARE_COMPONENT( MuonCombinedStacoTagTool )
+DECLARE_COMPONENT( MuonCombinedFitTagTool )
+DECLARE_COMPONENT( MuonSegmentTagTool )
+DECLARE_COMPONENT( MuGirlTagTool )
+DECLARE_COMPONENT( MuonCaloTagTool )
+DECLARE_COMPONENT( TrackSegmentAssociationTool )
 

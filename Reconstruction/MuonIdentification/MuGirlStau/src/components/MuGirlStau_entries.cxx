@@ -3,6 +3,6 @@
 
 using namespace MuGirlNS;
 
-DECLARE_TOOL_FACTORY (StauTool)
-DECLARE_TOOL_FACTORY (StauBetaTofTool)
+DECLARE_COMPONENT( StauTool )
+DECLARE_COMPONENT( StauBetaTofTool )
 

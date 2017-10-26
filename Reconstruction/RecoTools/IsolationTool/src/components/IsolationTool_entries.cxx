@@ -3,9 +3,9 @@
 #include "IsolationTool/IsolationHelper.h"
 #include "../IsolationTool_AthTest.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAOD, TrackIsolationTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAOD, CaloIsolationTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, IsolationHelper )
+DECLARE_COMPONENT( xAOD::TrackIsolationTool )
+DECLARE_COMPONENT( xAOD::CaloIsolationTool )
+DECLARE_COMPONENT( CP::IsolationHelper )
 
-DECLARE_ALGORITHM_FACTORY( IsolationTool_AthTest )
+DECLARE_COMPONENT( IsolationTool_AthTest )
 

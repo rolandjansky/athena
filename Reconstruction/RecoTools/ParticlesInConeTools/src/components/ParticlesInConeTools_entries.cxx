@@ -5,8 +5,8 @@
 
 using namespace xAOD;
 
-DECLARE_TOOL_FACTORY( TrackParticlesInConeTool )
-DECLARE_TOOL_FACTORY( TruthParticlesInConeTool )
-DECLARE_TOOL_FACTORY( CaloClustersInConeTool )
-DECLARE_TOOL_FACTORY( PFlowObjectsInConeTool )
+DECLARE_COMPONENT( TrackParticlesInConeTool )
+DECLARE_COMPONENT( TruthParticlesInConeTool )
+DECLARE_COMPONENT( CaloClustersInConeTool )
+DECLARE_COMPONENT( PFlowObjectsInConeTool )
 

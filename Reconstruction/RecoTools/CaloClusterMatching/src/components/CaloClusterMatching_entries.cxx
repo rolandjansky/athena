@@ -3,7 +3,7 @@
 
 using namespace ClusterMatching;
 
-DECLARE_TOOL_FACTORY(CaloClusterMatchingTool)
+DECLARE_COMPONENT( CaloClusterMatchingTool )
 
-DECLARE_ALGORITHM_FACTORY(CaloClusterMatchLinkAlg)
+DECLARE_COMPONENT( CaloClusterMatchLinkAlg )
 

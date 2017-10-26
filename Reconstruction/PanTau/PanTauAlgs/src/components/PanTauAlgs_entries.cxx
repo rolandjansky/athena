@@ -9,15 +9,15 @@
 #include "PanTauAlgs/PanTauProcessor.h"
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_InformationStore )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_InputConverter )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_TauConstituentGetter )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_TauConstituentSelector )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_FeatureExtractor )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_ModeDiscriminator )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_DecayModeDeterminator )
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, Tool_DetailsArranger )
+DECLARE_COMPONENT( PanTau::Tool_InformationStore )
+DECLARE_COMPONENT( PanTau::Tool_InputConverter )
+DECLARE_COMPONENT( PanTau::Tool_TauConstituentGetter )
+DECLARE_COMPONENT( PanTau::Tool_TauConstituentSelector )
+DECLARE_COMPONENT( PanTau::Tool_FeatureExtractor )
+DECLARE_COMPONENT( PanTau::Tool_ModeDiscriminator )
+DECLARE_COMPONENT( PanTau::Tool_DecayModeDeterminator )
+DECLARE_COMPONENT( PanTau::Tool_DetailsArranger )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( PanTau, PanTauProcessor )
-//DECLARE_NAMESPACE_ALGORITHM_FACTORY( PanTau, PanTauProcessor )
+DECLARE_COMPONENT( PanTau::PanTauProcessor )
+//DECLARE_COMPONENT( PanTau::PanTauProcessor )
 

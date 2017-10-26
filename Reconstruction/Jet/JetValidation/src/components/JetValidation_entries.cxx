@@ -2,11 +2,11 @@
 //#include "JetValidation/JetCalibratorAthenaExample.h"
 
 
-//DECLARE_ALGORITHM_FACTORY( JetTests )
-//DECLARE_ALGORITHM_FACTORY( JetSkeletonAlg )
+//DECLARE_COMPONENT( JetTests )
+//DECLARE_COMPONENT( JetSkeletonAlg )
 
-//DECLARE_TOOL_FACTORY( JetCalibratorAthenaExample )
-//DECLARE_TOOL_FACTORY( JetCollectionTester )
+//DECLARE_COMPONENT( JetCalibratorAthenaExample )
+//DECLARE_COMPONENT( JetCollectionTester )
 
 
   

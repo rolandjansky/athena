@@ -1,4 +1,4 @@
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
-DECLARE_TOOL_FACTORY(JetUncertaintiesTool)
+DECLARE_COMPONENT( JetUncertaintiesTool )
 

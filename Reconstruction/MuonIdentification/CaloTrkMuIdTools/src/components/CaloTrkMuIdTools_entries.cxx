@@ -3,8 +3,8 @@
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
 #include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
 
-DECLARE_TOOL_FACTORY( CaloMuonTag )
-DECLARE_TOOL_FACTORY( TrackEnergyInCaloTool )
-DECLARE_TOOL_FACTORY( TrackDepositInCaloTool )
-DECLARE_TOOL_FACTORY( CaloMuonLikelihoodTool )
+DECLARE_COMPONENT( CaloMuonTag )
+DECLARE_COMPONENT( TrackEnergyInCaloTool )
+DECLARE_COMPONENT( TrackDepositInCaloTool )
+DECLARE_COMPONENT( CaloMuonLikelihoodTool )
 

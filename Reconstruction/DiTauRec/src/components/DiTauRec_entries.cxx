@@ -8,12 +8,12 @@
 #include "DiTauRec/CellFinder.h"
 #include "DiTauRec/IDVarCalculator.h"
 
-DECLARE_ALGORITHM_FACTORY( DiTauBuilder )
-DECLARE_TOOL_FACTORY( SeedJetBuilder )
-DECLARE_TOOL_FACTORY( SubjetBuilder )
-DECLARE_TOOL_FACTORY( ElMuFinder )
-DECLARE_TOOL_FACTORY( VertexFinder )
-DECLARE_TOOL_FACTORY( DiTauTrackFinder )
-DECLARE_TOOL_FACTORY( CellFinder )
-DECLARE_TOOL_FACTORY( IDVarCalculator )
+DECLARE_COMPONENT( DiTauBuilder )
+DECLARE_COMPONENT( SeedJetBuilder )
+DECLARE_COMPONENT( SubjetBuilder )
+DECLARE_COMPONENT( ElMuFinder )
+DECLARE_COMPONENT( VertexFinder )
+DECLARE_COMPONENT( DiTauTrackFinder )
+DECLARE_COMPONENT( CellFinder )
+DECLARE_COMPONENT( IDVarCalculator )
 

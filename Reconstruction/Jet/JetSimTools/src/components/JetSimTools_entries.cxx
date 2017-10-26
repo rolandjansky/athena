@@ -2,7 +2,7 @@
 #include "JetSimTools/TruthPseudoJetGetter.h"
 
 
-DECLARE_TOOL_FACTORY( JetTruthParticleSelectorTool )
+DECLARE_COMPONENT( JetTruthParticleSelectorTool )
 
-DECLARE_TOOL_FACTORY( TruthPseudoJetGetter )
+DECLARE_COMPONENT( TruthPseudoJetGetter )
 

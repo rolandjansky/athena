@@ -1,6 +1,6 @@
 #include "TrackCaloClusterRecValidation/TrackCaloClusterRecValidationTool.h"
 #include "TrackCaloClusterRecValidation/CalibrationNtupleMakerTool.h"
 
-DECLARE_TOOL_FACTORY(TrackCaloClusterRecValidationTool)
-DECLARE_ALGORITHM_FACTORY(CalibrationNtupleMakerTool)
+DECLARE_COMPONENT( TrackCaloClusterRecValidationTool )
+DECLARE_COMPONENT( CalibrationNtupleMakerTool )
 

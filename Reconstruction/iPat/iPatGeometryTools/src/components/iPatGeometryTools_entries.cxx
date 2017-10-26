@@ -3,8 +3,8 @@
 #include "iPatGeometryTools/LayerNumberAllocator.h"
 #include "iPatGeometryTools/SiDetectorLocator.h"
 
-DECLARE_TOOL_FACTORY( DetectorSelection )
-DECLARE_TOOL_FACTORY( LayerAllocator )
-DECLARE_TOOL_FACTORY( LayerNumberAllocator )
-DECLARE_TOOL_FACTORY( SiDetectorLocator )
+DECLARE_COMPONENT( DetectorSelection )
+DECLARE_COMPONENT( LayerAllocator )
+DECLARE_COMPONENT( LayerNumberAllocator )
+DECLARE_COMPONENT( SiDetectorLocator )
 

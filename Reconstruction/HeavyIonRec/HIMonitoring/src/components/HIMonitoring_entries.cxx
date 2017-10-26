@@ -4,9 +4,9 @@
 #include "HIMonitoring/HIMonitoringMuonsTool.h"
 #include "HIMonitoring/HIMonitoringElectronsTool.h"
 
-DECLARE_TOOL_FACTORY(HIMonitoringEventShapeTool)
-DECLARE_TOOL_FACTORY(HIMonitoringPhotonsTool)
-DECLARE_TOOL_FACTORY(HIMonitoringZdcTool)
-DECLARE_TOOL_FACTORY(HIMonitoringMuonsTool)
-DECLARE_TOOL_FACTORY(HIMonitoringElectronsTool)	
+DECLARE_COMPONENT( HIMonitoringEventShapeTool )
+DECLARE_COMPONENT( HIMonitoringPhotonsTool )
+DECLARE_COMPONENT( HIMonitoringZdcTool )
+DECLARE_COMPONENT( HIMonitoringMuonsTool )
+DECLARE_COMPONENT( HIMonitoringElectronsTool )	
 

@@ -2,7 +2,7 @@
 #include "JetResolution/JERSmearingTool.h"
 #include "../JERTestAlg.h"
 
-DECLARE_TOOL_FACTORY( JERTool )
-DECLARE_TOOL_FACTORY( JERSmearingTool )
-DECLARE_ALGORITHM_FACTORY( JERTestAlg )
+DECLARE_COMPONENT( JERTool )
+DECLARE_COMPONENT( JERSmearingTool )
+DECLARE_COMPONENT( JERTestAlg )
 

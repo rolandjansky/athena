@@ -3,6 +3,6 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(JetRecJetRetriever)
-DECLARE_TOOL_FACTORY(MissingETRetriever)
+DECLARE_COMPONENT( JetRecJetRetriever )
+DECLARE_COMPONENT( MissingETRetriever )
 

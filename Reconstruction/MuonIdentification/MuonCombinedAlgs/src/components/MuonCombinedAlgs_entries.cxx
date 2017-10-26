@@ -5,10 +5,10 @@
 #include "../MuonCombinedInDetExtensionAlg.h"
 #include "../MuonSegmentTagAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( MuonCombinedInDetCandidateAlg )
-DECLARE_ALGORITHM_FACTORY( MuonCombinedMuonCandidateAlg )
-DECLARE_ALGORITHM_FACTORY( MuonCombinedAlg )
-DECLARE_ALGORITHM_FACTORY( MuonCreatorAlg )
-DECLARE_ALGORITHM_FACTORY( MuonCombinedInDetExtensionAlg )
-DECLARE_ALGORITHM_FACTORY( MuonSegmentTagAlg )
+DECLARE_COMPONENT( MuonCombinedInDetCandidateAlg )
+DECLARE_COMPONENT( MuonCombinedMuonCandidateAlg )
+DECLARE_COMPONENT( MuonCombinedAlg )
+DECLARE_COMPONENT( MuonCreatorAlg )
+DECLARE_COMPONENT( MuonCombinedInDetExtensionAlg )
+DECLARE_COMPONENT( MuonSegmentTagAlg )
 

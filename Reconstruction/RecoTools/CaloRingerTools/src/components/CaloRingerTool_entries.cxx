@@ -6,9 +6,9 @@
 
 using namespace Ringer;
 
-DECLARE_TOOL_FACTORY( CaloRingsBuilder          )
-DECLARE_TOOL_FACTORY( CaloAsymRingsBuilder      )
-DECLARE_TOOL_FACTORY( CaloRingerInputReader     )
-DECLARE_TOOL_FACTORY( CaloRingerElectronsReader )
-DECLARE_TOOL_FACTORY( CaloRingerPhotonsReader   )
+DECLARE_COMPONENT( CaloRingsBuilder )
+DECLARE_COMPONENT( CaloAsymRingsBuilder )
+DECLARE_COMPONENT( CaloRingerInputReader )
+DECLARE_COMPONENT( CaloRingerElectronsReader )
+DECLARE_COMPONENT( CaloRingerPhotonsReader )
 

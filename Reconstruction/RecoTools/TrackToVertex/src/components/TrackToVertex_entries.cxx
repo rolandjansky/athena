@@ -3,6 +3,6 @@
 
 using namespace Reco;
 
-DECLARE_TOOL_FACTORY( TrackToVertex )
-DECLARE_TOOL_FACTORY( TrackToVertexAssociator )
+DECLARE_COMPONENT( TrackToVertex )
+DECLARE_COMPONENT( TrackToVertexAssociator )
 

@@ -2,6 +2,6 @@
 
 //using namespace MuonCombined;
 
-DECLARE_NAMESPACE_TOOL_FACTORY( MuonCombined, MuonTrackTagTestTool )
+DECLARE_COMPONENT( MuonCombined::MuonTrackTagTestTool )
   
 
