@@ -788,7 +788,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    int nPadDigits = 0;
    for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
    for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
-       sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
        
        /*******************
        * Merge Pad Digits *
@@ -874,7 +874,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    int nStripDigits = 0;
     for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
-       sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
        
        /*******************
        * Merge Strip Digits *
