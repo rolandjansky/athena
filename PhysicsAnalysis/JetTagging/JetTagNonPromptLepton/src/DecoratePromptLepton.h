@@ -97,7 +97,7 @@ namespace Prompt
     void decorateAuxTau(const xAOD::TauJet* tau, 
 			Prompt::VarHolder &vars, 
 			bool goodJet,
-			const int ntrack);
+			const int ntracktau);
 
     template<class T> std::pair<double, const xAOD::Jet*>
       FindNearestTrackJet(const T &part, const xAOD::JetContainer* jets);

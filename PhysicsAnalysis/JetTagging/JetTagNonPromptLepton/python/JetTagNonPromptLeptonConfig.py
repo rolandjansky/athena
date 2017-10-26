@@ -16,30 +16,35 @@ def ConfigureAntiKt4PV0TrackJets(privateSeq, name):
     from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 
     # Run track jet clustering 
-    replaceAODReducedJets(["AntiKt4PV0TrackJets"], privateSeq, name)
+    replaceAODReducedJets(['AntiKt4PV0TrackJets'], privateSeq, name)
+
+    # B-tagging algs to be run on AntiKt4PV0TrackJets
+    # Run all in case of inter-dependencies (will not be saved in derivation unless specified)
+    btag_algs  = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn']
+    btag_algs += ['JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
 
     # B-tag algs to be run on new track jet collection
-    ReTag(['MV2c10rnn', 'DL1mu', 'RNNIP'], ['AntiKt4PV0TrackJets'], privateSeq)
+    ReTag(btag_algs, ['AntiKt4PV0TrackJets'], privateSeq)
 
 #------------------------------------------------------------------------------
-def GetDecoratePromptLeptonAlgs():
+def GetDecoratePromptLeptonAlgs(name=""):
 
     algs  = []
 
-    algs += [DecoratePromptLepton("PromptLeptonIso",  "Electrons", "AntiKt4PV0TrackJets")]
-    algs += [DecoratePromptLepton("PromptLeptonVeto", "Electrons", "AntiKt4PV0TrackJets")]
+    if name == "" or name == "Electrons":
+        algs += [DecoratePromptLepton("PromptLeptonIso",  "Electrons", "AntiKt4PV0TrackJets")]
+        algs += [DecoratePromptLepton("PromptLeptonVeto", "Electrons", "AntiKt4PV0TrackJets")]
 
-    algs += [DecoratePromptLepton("PromptLeptonIso",  "Muons", "AntiKt4PV0TrackJets")]
-    algs += [DecoratePromptLepton("PromptLeptonVeto", "Muons", "AntiKt4PV0TrackJets")]
+    if name == "" or name == "Muons":
+        algs += [DecoratePromptLepton("PromptLeptonIso",  "Muons", "AntiKt4PV0TrackJets")]
+        algs += [DecoratePromptLepton("PromptLeptonVeto", "Muons", "AntiKt4PV0TrackJets")]
 
     return algs
 
 #------------------------------------------------------------------------------
 def GetDecoratePromptTauAlgs():
 
-    algs  = []
-
-    algs += [DecoratePromptTau("PromptTauVeto", "TauJets", "AntiKt4PV0TrackJets")]
+    algs = [DecoratePromptTau("PromptTauVeto", "TauJets", "AntiKt4PV0TrackJets")]
 
     return algs
 
@@ -66,11 +71,11 @@ def GetExtraPromptTauVariablesForDxAOD():
     prompt_lep_vars = []
 
     prompt_vars  = "PromptTauVeto."
-    prompt_vars += "PromptLeptonInput_TrackJetNTrack.PromptLeptonInput_rnnip."
-    prompt_vars += "PromptLeptonInput_MV2c10rnn."
-    prompt_vars += "PromptLeptonInput_JetF.PromptLeptonInput_SV1."
-    prompt_vars += "PromptLeptonInput_ip2.PromptLeptonInput_ip3."
-    prompt_vars += "PromptLeptonInput_LepJetPtFrac.PromptLeptonInput_DRlj."
+    prompt_vars += "PromptTauInput_TrackJetNTrack.PromptTauInput_BTagrnnip."
+    prompt_vars += "PromptTauInput_BTagMV2c10rnn."
+    prompt_vars += "PromptTauInput_JetF.PromptTauInput_SV1."
+    prompt_vars += "PromptTauInput_ip2.PromptTauInput_ip3."
+    prompt_vars += "PromptTauInput_LepJetPtFrac.PromptTauInput_DRlj."
     
     prompt_lep_vars += ["TauJets.%s" %prompt_vars]  
 
@@ -94,6 +99,7 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name):
     # Prepare DecoratePromptLepton alg
     alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
 
+    alg.OutputLevel           = 2
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
     alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/%s' %(part_type, BDT_name)
@@ -127,6 +133,7 @@ def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
     # Prepare DecoratePromptLepton alg
     alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
 
+    alg.OutputLevel                 = 2
     alg.LeptonContainerName         = lepton_name
     alg.TrackJetContainerName       = track_jet_name
     alg.ConfigFileVersionOneTrack   = 'InputData-2017-10-24/%s/%sOneTrack'   %(part_type, BDT_name)
@@ -134,7 +141,7 @@ def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
     alg.MethodTitleMVAOneTrack      = 'BDT_%s_%sOneTrack'   %(part_type, BDT_name)
     alg.MethodTitleMVAThreeTrack    = 'BDT_%s_%sThreeTrack' %(part_type, BDT_name)
     alg.BDTName                     = '%s' %BDT_name
-    alg.AuxVarPrefix                = 'PromptLeptonInput_'
+    alg.AuxVarPrefix                = 'PromptTauInput_'
     alg.PrintTime                   = False
 
     alg.StringIntVars   = getStringIntVars  (BDT_name)
@@ -142,46 +149,6 @@ def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
 
     log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
 
-    print alg
-
-    return alg
-
-#------------------------------------------------------------------------------
-def DecoratePromptLeptonIso(lepton_name, track_jet_name):
-
-    BDT_name = 'PromptLeptonIso'
-
-    if lepton_name == 'Electrons':
-        part_type = 'Electron'
-    elif lepton_name == 'Muons':
-        part_type = 'Muon'
-    else:
-        raise Exception('DecoratePromptLeptonIso - unknown lepton type: "%s"' %lepton_name)
-
-    if track_jet_name != 'AntiKt4PV0TrackJets':
-        raise Exception('DecoratePromptLeptonIso - unknown track-jet collection: "%s"' %track_jet_name)
-
-    
-
-    alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
-
-    alg.LeptonContainerName   = lepton_name
-    alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/%s' %(part_type, BDT_name)
-    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)
-    alg.AuxVarPrefix          = 'PromptLeptonInput_'
-    alg.PrintTime             = False
-
-    alg.StringIntVars         = ['TrackJetNTrack',
-                                 'sv1_jf_ntrkv']
-    alg.StringFloatVars       = ['ip2',
-                                 'ip3',
-                                 'LepJetPtFrac',
-                                 'DRlj',         
-                                 'TopoEtCone30Rel',
-                                 'PtVarCone30Rel']
-
-    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
     print alg
 
     return alg
@@ -196,6 +163,9 @@ def getStringIntVars(BDT_name):
                      'sv1_jf_ntrkv']
 
     elif BDT_name == "PromptLeptonVeto":
+        int_vars += ['TrackJetNTrack']
+
+    elif BDT_name == "PromptTauVeto":
         int_vars += ['TrackJetNTrack']
 
     else:
@@ -225,7 +195,17 @@ def getStringFloatVars(BDT_name):
                        'TopoEtCone30Rel',
                        'PtVarCone30Rel']
 
+    elif BDT_name == "PromptTauVeto":
+        float_vars += ['BTagrnnip',
+                       'BTagMV2c10rnn',
+                       'JetF',
+                       'SV1',
+                       'ip2',
+                       'ip3',
+                       'LepJetPtFrac',
+                       'DRlj']
+
     else:
-        raise Exception('getStringIntVars - unknown alg: "%s"' %BDT_name)
+        raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)
    
     return float_vars

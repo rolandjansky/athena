@@ -506,7 +506,7 @@ void Prompt::DecoratePromptLepton::decorateTau(const xAOD::TauJet* tau,
   Prompt::VarHolder vars;
   const int ntrack = getJetVariables(match.second, vars);
 
-  if(match.second && ntrack >= 0) {
+  if(match.second && ntrack >= 0 && ntracktau >= 0) {
 
     // Get mutual tau-track jet variables
     getMutualTauVariables(tau, match.second, vars, match.first);
@@ -813,7 +813,10 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
     double val = 0.0;
 
     if(vars.GetVar(dec.first, val)) {
-      dec.second(*particle) = static_cast<short>(val);
+      // Decorate only if variable is not already saved
+      if(!dec.second.isAvailable(*particle)) {
+	dec.second(*particle) = static_cast<short>(val);
+      }
     }    
     else {
       ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
@@ -830,7 +833,10 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
     double val = 0.0;
 
     if(vars.GetVar(dec.first, val)) {
-      dec.second(*particle) = val;
+      // Decorate only if variable is not already saved
+      if(!dec.second.isAvailable(*particle)) {
+	dec.second(*particle) = val;
+      }
     }
     else {
       ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
@@ -856,10 +862,13 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
 void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau, 
 						  Prompt::VarHolder &vars, 
 						  bool goodJet,
-						  const int ntrack)
+						  const int ntracktau)
 {
+  ATH_MSG_DEBUG("Tau (pT [GeV], NTracks): " << tau->pt()/1000 << ", " << ntracktau);
+
   //
   // Decorate lepton with input short variables
+  // isAvailable check not needed since only one tau alg ran
   //
   for(shortDecoratorMap::value_type &dec: m_shortMap) {
     double val = 0.0;
@@ -868,7 +877,7 @@ void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau,
       dec.second(*tau) = static_cast<short>(val);
     }    
     else {
-      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
+      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to tau");
     }
 
     ATH_MSG_DEBUG("Variable: " << Prompt::Def::AsStr(dec.first) << "\tValue: " 
@@ -885,7 +894,7 @@ void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau,
       dec.second(*tau) = val;
     }
     else {
-      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
+      ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to tau");
     }
 
     ATH_MSG_DEBUG("Variable: " << Prompt::Def::AsStr(dec.first) << "\tValue: " 
@@ -893,26 +902,26 @@ void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau,
   }
 
   //
-  // Decorate lepton with classifier response, if goodJet
+  // Decorate lepton with classifier response, if goodJet and ntracktau = 1 or 3
   //
-  if(goodJet && (ntrack == 1 || ntrack == 3)) {
-    if(ntrack == 1) {
+  if(goodJet && (ntracktau == 1 || ntracktau == 3)) {
+    if(ntracktau == 1) {
       (*m_decoratorBDT)(*tau) = static_cast<float>(m_TMVAReaderOneTrack->EvaluateMVA(m_methodTitleMVAOneTrack));
     }
-    else if(ntrack == 3) {
+    else if(ntracktau == 3) {
       (*m_decoratorBDT)(*tau) = static_cast<float>(m_TMVAReaderThreeTrack->EvaluateMVA(m_methodTitleMVAThreeTrack));
     }
   }
   else {
-    if(!(ntrack == 1 || ntrack == 3)) {
+    // Decorate with default values
+    if(!(ntracktau == 1 || ntracktau == 3)) {
       ATH_MSG_DEBUG("Tau does not have 1 or 3 tracks");
+      (*m_decoratorBDT)(*tau) = float(-1.2);
     }
-    else{
+    else {
       ATH_MSG_DEBUG("No nearby track jet, DR > 0.4");
+      (*m_decoratorBDT)(*tau) = float(-1.1);
     }
-
-    // Decorate with default value
-    (*m_decoratorBDT)(*tau) = float(-1.1);
   }
 }
 
