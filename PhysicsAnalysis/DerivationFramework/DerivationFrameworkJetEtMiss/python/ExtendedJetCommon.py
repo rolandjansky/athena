@@ -16,6 +16,9 @@ from JetRec.JetRecFlags import jetFlags
 from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
+# for debugging output
+from AthenaCommon.Constants import INFO,DEBUG,WARNING
+
 ##################################################################
 # Jet helpers for large-radius groomed jets
 ##################################################################
@@ -270,18 +273,17 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
-def addJetPtAssociation(jetalg, sequence, algname='JetCommonKernel_xAODJets'):
+def addJetPtAssociation(jetalg, truthjetalg, sequence, algname='JetCommonKernel_xAODJets'):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
         extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
 
-    jetptassociationtoolname = 'DFJetPtAssociation_'+jetalg
+    jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg
     from AthenaCommon.AppMgr import ToolSvc
-#    from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
     if hasattr(ToolSvc,jetptassociationtoolname):
         jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
     else:
-        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer="AntiKt4TruthJets", AssociationName="GhostTruth")
+        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
         ToolSvc += jetptassociationtool
         jetaugtool.JetPtAssociationTool = jetptassociationtool
 

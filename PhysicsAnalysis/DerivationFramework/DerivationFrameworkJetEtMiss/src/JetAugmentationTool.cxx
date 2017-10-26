@@ -97,11 +97,13 @@ namespace DerivationFramework {
       dec_tracksumpt   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumPt");
     }
 
+    // This tool creates the GhostTruthAssociation decorations recommended for truth matching //
     if(!m_jetPtAssociationTool.empty()) {
       CHECK(m_jetPtAssociationTool.retrieve());
-      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments \"" << m_momentPrefix << " Link,Fraction\"");
+      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
       m_decorateptassociation = true;
-      dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>(m_momentPrefix+"GhostTruthAssociationFraction");
+      dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
+      dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
 
     return StatusCode::SUCCESS;
@@ -133,6 +135,7 @@ namespace DerivationFramework {
 
     if(m_decorateptassociation){
       delete dec_GhostTruthAssociationFraction;
+      delete dec_GhostTruthAssociationLink;
     }
 
     return StatusCode::SUCCESS;
@@ -217,6 +220,8 @@ namespace DerivationFramework {
       if(m_decorateptassociation){
         (*dec_GhostTruthAssociationFraction)(jet_orig) = jet->getAttribute<float>("GhostTruthAssociationFraction");
         ATH_MSG_VERBOSE("GhostTruthAssociationFraction: " << (*dec_GhostTruthAssociationFraction)(jet_orig) );
+        (*dec_GhostTruthAssociationLink)(jet_orig) = jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
+        ATH_MSG_VERBOSE("GhostTruthAssociationLink: " << (*dec_GhostTruthAssociationLink)(jet_orig) );
       }
     }
 

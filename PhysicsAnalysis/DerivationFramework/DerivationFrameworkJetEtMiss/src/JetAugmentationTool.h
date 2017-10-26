@@ -74,7 +74,7 @@ namespace DerivationFramework {
     ToolHandle<IJetModifier> m_jetPtAssociationTool;
     bool m_decorateptassociation;
     SG::AuxElement::Decorator<float>* dec_GhostTruthAssociationFraction;
-    //Need GhostTruthAssociationLink
+    SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >* dec_GhostTruthAssociationLink;
   };
 }
 
