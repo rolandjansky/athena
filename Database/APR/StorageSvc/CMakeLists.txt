@@ -18,23 +18,22 @@ atlas_depends_on_subdirs(
    GaudiKernel )
 
 # External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Thread pthread )
 find_package( UUID )
 
 # Component(s) in the package:
 atlas_add_library( StorageSvc src/*.cpp
    PUBLIC_HEADERS StorageSvc
-   INCLUDE_DIRS ${UUID_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+   INCLUDE_DIRS ${UUID_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${UUID_LIBRARIES} ${CORAL_LIBRARIES} CxxUtils DataModelRoot
+   LINK_LIBRARIES ${UUID_LIBRARIES} CxxUtils DataModelRoot
    PersistentDataModel
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers
    GaudiKernel )
 
 atlas_add_dictionary( StorageSvcDict StorageSvc/dict.h StorageSvc/dict.xml
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${UUID_LIBRARIES} ${CORAL_LIBRARIES}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${UUID_LIBRARIES}
    CxxUtils DataModelRoot PersistentDataModel TestTools AthContainers
    GaudiKernel StorageSvc )
 
