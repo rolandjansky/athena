@@ -26,24 +26,30 @@ class AODFix_base(object):
         """
         return ""
 
+    @staticmethod
+    def excludeFromMetadata():
+        """ Override if you want to remove something from metadata to be written
+        """
+        return []
+
     def __init__(self, prevVersion = "", isMC = False, metadataOnly = False, force = False):
         """ The default constructor. It implements the default behavior of setting
         up the latest AODFix to run. Only needs to be overriden if doing something
         more complicated.
         """
         self.isMC = isMC
-        self.prevAODFix = prevVersion
+        self.prevAODFix = prevVersion if not force else 'none' # if forcing, ignore old AODFix
         self.newAODFix = self.latestAODFixVersion()
         logAODFix.debug( "latestAODFixVersion() = " +  self.latestAODFixVersion())
         logAODFix.debug( "prevVersion = " +  prevVersion)
         logAODFix.debug( "force = " +  str(force))
         logAODFix.debug( "metadataOnly = " +  str(metadataOnly))
-        if self.latestAODFixVersion() == "":
+        if self.newAODFix == "":
             # the AODFix is empty: do nothing
             self.doAODFix = False
             self.addMetadata = False
         elif not force:
-            if prevVersion == self.latestAODFixVersion():
+            if prevVersion == self.newAODFix:
                 self.doAODFix = False
                 self.addMetadata = False
             elif metadataOnly:
@@ -54,7 +60,7 @@ class AODFix_base(object):
                 self.addMetadata = True
 
         else:  # force running
-            if prevVersion == self.latestAODFixVersion():
+            if prevVersion == self.newAODFix:
                 if metadataOnly:
                     self.doAODFix = False
                     self.addMetadata = False
@@ -84,7 +90,15 @@ class AODFix_base(object):
             elif rec.readAOD():
                 suffix="_AOD"
 
-            str = "AODFix_" + self.newAODFix + suffix
+            # remove any metadata we don't want to write out (in order to rerun again)
+            metadataList = self.newAODFix.split("-")
+            excludeFromMetadata = self.excludeFromMetadata()
+
+            for excl in excludeFromMetadata:
+                if excl in metadataList:
+                    metadataList.remove(excl)
+
+            str = "AODFix_" + "-".join(metadataList) + suffix
 
             logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % str)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
