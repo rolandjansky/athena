@@ -73,21 +73,21 @@ namespace InDet{
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&,
+	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 const TrackQualityCuts&);
 
       virtual const std::list<Trk::Track*>& getTracks
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&,
+	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&,
+	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
 	 bool);
    
@@ -170,7 +170,7 @@ namespace InDet{
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&,
+	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
 
       void getTrackQualityCuts(const TrackQualityCuts&);
@@ -187,8 +187,8 @@ namespace InDet{
 	 std::list<const InDet::SiCluster*>     &); 
 
       void detectorElementLinks
-	(std::list<const InDetDD::SiDetectorElement*>        &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&);
+	(std::vector<const InDetDD::SiDetectorElement*>        &,
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;

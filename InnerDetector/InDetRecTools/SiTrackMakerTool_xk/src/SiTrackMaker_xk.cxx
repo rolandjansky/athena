@@ -515,7 +515,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 
   // Get detector elements road
   //
-  std::list<const InDetDD::SiDetectorElement*> DE;
+  std::vector<const InDetDD::SiDetectorElement*> DE;
   if(!m_cosmicTrack) m_roadmaker->detElementsRoad(*Tp,Trk::alongMomentum,   DE);
   else               m_roadmaker->detElementsRoad(*Tp,Trk::oppositeMomentum,DE);
 
@@ -574,7 +574,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 
   // Get detector elements road
   //
-  std::list<const InDetDD::SiDetectorElement*> DE;
+  std::vector<const InDetDD::SiDetectorElement*> DE;
   if(!m_cosmicTrack) m_roadmaker->detElementsRoad(Tp,Trk::alongMomentum,   DE);
   else               m_roadmaker->detElementsRoad(Tp,Trk::oppositeMomentum,DE);
 
@@ -820,9 +820,9 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
 // Detector elements selection
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>& DE)
+void InDet::SiTrackMaker_xk::detectorElementsSelection(std::vector<const InDetDD::SiDetectorElement*>& DE)
 {
-  std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
+  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
   if(!m_dbm) {
 
     while(d!=DE.end()) {

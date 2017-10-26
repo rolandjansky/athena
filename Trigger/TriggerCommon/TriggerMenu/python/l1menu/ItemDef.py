@@ -253,6 +253,7 @@ class ItemDef:
 
 
         LVL1MenuItem('L1_MU4_TE10' ).setLogic( MU4      & TE10 & physcond).setTriggerType(TT.muon)     # noqa: F821
+        LVL1MenuItem('L1_MU4_TE40' ).setLogic( MU4      & TE40 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE50' ).setLogic( MU4      & TE50 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE70' ).setLogic( MU4      & TE70 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE90' ).setLogic( MU4      & TE90 & physcond).setTriggerType(TT.muon)     # noqa: F821

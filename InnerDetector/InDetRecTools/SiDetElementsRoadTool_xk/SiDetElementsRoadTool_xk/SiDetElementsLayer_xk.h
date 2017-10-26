@@ -56,9 +56,9 @@ namespace InDet{
       void  add(const SiDetElementLink_xk&);
       int   nElements() const;
       void getBarrelDetElements
-	(float*,float*,std::list<InDet::SiDetElementLink_xk*>&);
+	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
       void getEndcapDetElements
-	(float*,float*,std::list<InDet::SiDetElementLink_xk*>&);
+	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
       void sortDetectorElements();
 
     protected:
@@ -78,7 +78,7 @@ namespace InDet{
       // Methods
       ///////////////////////////////////////////////////////////////////
       void getDetElements(float*,float*,float,float,
-			  std::list<InDet::SiDetElementLink_xk*>&);
+          std::vector<InDet::SiDetElementLink_xk*>&);
       
     };
   
