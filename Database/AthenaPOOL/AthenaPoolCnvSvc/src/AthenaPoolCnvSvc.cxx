@@ -663,6 +663,8 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       std::size_t formPos = placementStr.find("[FORM=");
       if (formPos != std::string::npos) {
          placementStr = placementStr.substr(0, formPos) + "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]" + placementStr.substr(formPos);
+      } else if (!classDesc.IsFundamental()) {
+         placementStr += "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]";
       } else {
          placementStr += "[CLID=" + classDesc.Name() + "]";
       }
@@ -758,7 +760,6 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
       if (token->dbID() == Guid::null()) {
          int num = token->oid().first;
-         RootType cltype(pool::DbReflex::forGuid(token->classID()));
          // Get object from SHM
          void* buffer = nullptr;
          std::size_t nbytes = 0;
@@ -771,8 +772,14 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             ATH_MSG_ERROR("Failed to get Data for " << token->toString());
             return;
          }
-         // Deserialize object
-         obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+         if (token->classID() != Guid::null()) {
+            // Deserialize object
+            RootType cltype(pool::DbReflex::forGuid(token->classID()));
+            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+         } else {
+            obj = new char[nbytes];
+            std::memcpy(obj, buffer, nbytes); buffer = nullptr;
+         }
          AuxDiscoverySvc auxDiscover;
          if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
             ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
