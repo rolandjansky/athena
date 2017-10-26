@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /* This class is a simulation of the sTGC VMM behavior.  It is intended to be used as a module controlling
  * the readout of digits from each readout channel.  It should take a vector of digits for the whole time
  * window of the event being digitized on that channel, the initial time to begin the processing, and the
