@@ -1,5 +1,6 @@
 
-##### obsolete
+##### obsolete functions for ctests
+
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from TrigUpgradeTest.HLTCFConfig import *
 

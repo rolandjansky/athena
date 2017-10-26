@@ -158,8 +158,8 @@ for nstep in range(0, NSTEPS):
                 sequence_input=previous_sequence.outputs
 
             # add hypotools
-            for recoSeq in sequence.recoSeqList:
-                hypoAlg= recoSeq.hypo                
+            for nodeSeq in sequence.nodeSeqList:
+                hypoAlg= nodeSeq.hypo                
                 print "Adding %s to %s"%(threshold,hypoAlg.name)
                 hypoAlg.addHypoTool(hypotool)
 
@@ -186,13 +186,13 @@ for nstep in range(0, NSTEPS):
                 sfilter.setChains(chain.name)
                 print "Filter Done: %s"%(sfilter)
                     
-            #loop over RecoSequences of this sequence to add inputs to InputMaker
-            for recoSeq in sequence.recoSeqList:
-                seed=recoSeq.seed            
+            #loop over NodeSequences of this sequence to add inputs to InputMaker
+            for nodeSeq in sequence.nodeSeqList:
+                seed=nodeSeq.seed            
                 #TMP: now run InputMaker with sequence input, until InputMaker has inplicit DH
-                input_maker_name = recoSeq.inputMaker.name
+                input_maker_name = nodeSeq.inputMaker.name
                 input_maker_input= (inp for inp in sequence_input if seed in inp)
-                for i in input_maker_input: recoSeq.inputMaker.setInput(i)                    
+                for i in input_maker_input: nodeSeq.inputMaker.setInput(i)                    
             #end of reco sequence loop
                     
             #make the decision step                        

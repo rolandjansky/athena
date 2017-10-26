@@ -44,10 +44,10 @@ step1_mu_recoAlg = AlgNode( Alg=muAlg,inputProp='Input', outputProp='Output')
 
 muHypo = Step1MuHypo(name="Step1MuHypo")
 step1_mu_HypoAlg = HypoAlgNode( Alg=muHypo,inputProp='Input', outputProp='Output')
-recoSequence_mu = MenuRecoSequence("muRecoSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_mu_HypoAlg, Seed="MU")
+nodeSequence_mu = NodeSequence("muNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_mu_HypoAlg, Seed="MU")
 
 def muStep1Sequence():
-    return MenuSequence("muStep1Seq", recoSeqList=[recoSequence_mu])
+    return MenuSequence("muStep1Seq", nodeSeqList=[nodeSequence_mu])
 
 
 #electron signatures
@@ -74,9 +74,9 @@ step1_el_recoAlg = AlgNode( Alg=elAlg,inputProp='Input', outputProp='Output')
 elHypo = Step1ElGamHypo(name="Step1ElHypo")
 step1_el_HypoAlg = HypoAlgNode( Alg=elHypo,inputProp='Input', outputProp='Output')
 
-recoSequence_el = MenuRecoSequence("elRecoSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_el_HypoAlg, Seed="EM")
+nodeSequence_el = NodeSequence("elNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_el_HypoAlg, Seed="EM")
 def elStep1Sequence():
-    return MenuSequence("elStep1Seq", recoSeqList=[recoSequence_el])
+    return MenuSequence("elStep1Seq", nodeSeqList=[nodeSequence_el])
 
 
 #combined Hypo
@@ -91,9 +91,9 @@ comboAlg = Step1ComboMuEHypo("Step1ComboMuElHypo")
 step1_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg,inputProp='Input1', outputProp='Output1')
 step1_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg,inputProp='Input2', outputProp='Output2')
 
-recoSequence_muComb = MenuRecoSequence("CombmuRecoSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="MU")
-recoSequence_elComb = MenuRecoSequence("CombelRecoSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="EM")
+nodeSequence_muComb = NodeSequence("CombmuNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="MU")
+nodeSequence_elComb = NodeSequence("CombelNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="EM")
 
 def combStep1Sequence():
-    return MenuSequence("combStep1Seq", recoSeqList=[recoSequence_muComb,recoSequence_elComb])
+    return MenuSequence("combStep1Seq", nodeSeqList=[nodeSequence_muComb,nodeSequence_elComb])
 

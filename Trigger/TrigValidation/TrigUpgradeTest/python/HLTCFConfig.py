@@ -172,7 +172,7 @@ def find_stepCF_algs(step_list):
         #print "Finding algos of step %s"%step
         step_algs = []
         step_algs.append(step.filter)
-        for seq in step.menuSeq.recoSeqList:
+        for seq in step.menuSeq.nodeSeqList:
             step_algs.extend(seq.algs )
             step_algs.append(seq.hypo)
         #print step_algs
@@ -279,7 +279,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
         file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
         for inp in cfseq.filter.getInputList():
             file.write(addConnection(name, cfseq.filter.algname, inp))
-        for seq in cfseq.menuSeq.recoSeqList:
+        for seq in cfseq.menuSeq.nodeSeqList:
             for inp in seq.inputMaker.getInputList():
                 file.write(addConnection(cfseq.filter.algname,seq.inputMaker.algname,inp))
 
@@ -295,7 +295,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
         cfseq_algs.append(cfseq.filter)
         #        cfseq_algs.append(cfseq.hypo)
 
-        for seq in cfseq.menuSeq.recoSeqList:
+        for seq in cfseq.menuSeq.nodeSeqList:
             cfseq_algs.append(seq.inputMaker)
             cfseq_algs.extend(seq.algs )
             if seq.reuse==False:

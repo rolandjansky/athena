@@ -1,7 +1,7 @@
 ##########################################################
 
 
-class MenuRecoSequence():
+class NodeSequence():
     def __init__(self, name, InputMaker, Algs, Hypo, Seed):
         self.name = name
         self.inputMaker=InputMaker
@@ -21,15 +21,15 @@ class MenuRecoSequence():
         print "connect: %s"%self
             
     def __str__(self):
-        return "MenuRecoSequence %s with \n Seed::%s \n InputMaker::%s  \n %s \n Hypo::%s"%(self.name, self.seed, self.inputMaker, ', \n'.join(map(str, self.algs)), self.hypo)
+        return "NodeSequence %s with \n Seed::%s \n InputMaker::%s  \n %s \n Hypo::%s"%(self.name, self.seed, self.inputMaker, ', \n'.join(map(str, self.algs)), self.hypo)
 
 class MenuSequence():
-    def __init__(self, name, recoSeqList):
+    def __init__(self, name, nodeSeqList):
         self.name = name
-        self.recoSeqList=recoSeqList
+        self.nodeSeqList=nodeSeqList
 
     def __str__(self):
-        return "MenuSequence::%s \n  %s"%(self.name,',\n '.join(map(str, self.recoSeqList)))
+        return "MenuSequence::%s \n  %s"%(self.name,',\n '.join(map(str, self.nodeSeqList)))
 
 
 class CFSeq:
@@ -45,7 +45,7 @@ class CFSeq:
 
     def getAllNodes(self):
         algs = []
-        for seq in self.menuSeq.recoSeqList:
+        for seq in self.menuSeq.nodeSeqList:
             algs.append(seq.inputMaker)
             algs.extend(seq.algs)
             algs.append(seq.hypo)
