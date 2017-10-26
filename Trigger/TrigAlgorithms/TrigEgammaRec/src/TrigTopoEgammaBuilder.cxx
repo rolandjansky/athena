@@ -20,6 +20,10 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
+#include "AthContainers/ConstDataVector.h"
+//#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "xAODCore/ShallowCopy.h"
+
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
@@ -398,14 +402,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     xAOD::PhotonTrigAuxContainer photonAux;
     photonContainer->setStore(&photonAux);
 
-  //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
-  {
-    smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
-    TRIG_CHECK_SC(m_egammaTopoClusterCopier->contExecute());
-  }
-
-  //Then retrieve them
-
   //**********************************************************************
   // Retrieve cluster container
   // get pointer to CaloClusterContainer from the trigger element
@@ -416,6 +412,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
     return HLT::OK;
   }
+
   //debug message
   if ( msgLvl() <= MSG::VERBOSE)
         msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
@@ -433,8 +430,8 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   }
 
   // Get the last ClusterContainer
-  const xAOD::CaloClusterContainer *topoclusters = vectorClusterContainer.back();
-  if(!topoclusters){
+  const xAOD::CaloClusterContainer *input_topoclusters = vectorClusterContainer.back();
+  if(!input_topoclusters){
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
@@ -442,6 +439,25 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
   }
+
+   //Create a shallow copy, the elements of this can be modified ,
+   //but no need to recreate the cluster
+   std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*input_topoclusters );
+
+   //Here it just needs to be a view copy ,
+   //i.e the collection we create does not really
+   //own its elements
+   ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
+
+
+  //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
+  {
+    smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
+    TRIG_CHECK_SC(m_egammaTopoClusterCopier->hltExecute(inputShallowcopy, viewCopy));
+  }
+
+  //Then retrieve them
+  const xAOD::CaloClusterContainer *topoclusters = viewCopy->asDataVector();
 
 
   //Build the initial egamma Rec objects for all copied Topo Clusters
