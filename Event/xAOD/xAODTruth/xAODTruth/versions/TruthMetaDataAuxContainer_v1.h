@@ -39,6 +39,14 @@ namespace xAOD {
     std::vector < std::vector < std::string > > weightNames;
     std::vector < uint32_t > mcChannelNumber;
 
+    // Provide access to the other key generator metadata
+    std::vector < std::string > lhefGenerator; //!< Generator for LHE file events
+    std::vector < std::string > generators; //!< Generators for this dataset
+    std::vector < std::string > evgenProcess; //!< Physics process in this dataset
+    std::vector < std::string > evgenTune; //!< Hadronization and UE tune used for this dataset
+    std::vector < std::string > hardPDF; //!< PDF used for the hard process
+    std::vector < std::string > softPDF; //!< PDF used for the tune / shower / hadronization
+
   }; // class TruthMetaDataAuxContainer_v1
 
 } // namespace xAOD
