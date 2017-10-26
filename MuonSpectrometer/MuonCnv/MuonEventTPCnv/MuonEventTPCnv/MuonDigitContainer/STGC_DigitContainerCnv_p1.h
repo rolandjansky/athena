@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef STGCDIGITCONTAINERCNV_p1_H
 #define STGCDIGITCONTAINERCNV_p1_H
 
