@@ -205,9 +205,11 @@ const MuonGM::MuonDetectorManager& make_dd()
 
   ddsdet.Register();
   ddsdet.roParameters.nWires.push_back(0);
-  ddsdet.roParameters.nPadX.push_back(0);
-  ddsdet.roParameters.firstPadPhi.push_back(0);
-  ddsdet.roParameters.PadPhiShift.push_back(0);
+  ddsdet.roParameters.nPadPhi.push_back(0);
+  ddsdet.roParameters.firstPadPhiDivision_A.push_back(0);
+  ddsdet.roParameters.firstPadPhiDivision_C.push_back(0);
+  ddsdet.roParameters.PadPhiShift_A.push_back(0);
+  ddsdet.roParameters.PadPhiShift_C.push_back(0);
   ddsdet.roParameters.firstPadRow.push_back(0);
   ddsdet.roParameters.nPadH.push_back(0);
   ddsdet.roParameters.firstPadH.push_back(0);
@@ -297,6 +299,8 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (mdt_id), "MdtIdHelper") );
 
+  new MuonGM::sTGC_Technology ("sTG1-dummy");
+  new MuonGM::sTGC_Technology ("sTGC_1");
   auto stgc_id = CxxUtils::make_unique<sTgcIdHelper>();
   stgc_id->initialize_from_dictionary (idd);
   muo_dd->set_stgcIdHelper (stgc_id.get());

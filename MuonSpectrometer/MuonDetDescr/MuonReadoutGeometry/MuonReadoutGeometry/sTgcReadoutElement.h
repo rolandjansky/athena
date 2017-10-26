@@ -138,6 +138,8 @@ namespace MuonGM {
     /** set methods only to be used by MuonGeoModel */
     void setChamberLayer(int ml) {m_ml=ml;}
 
+    //double getSectorOpeningAngle(bool isLargeSector);
+
   private:
 
     std::vector<MuonChannelDesign> m_phiDesign;
@@ -149,12 +151,21 @@ namespace MuonGM {
     std::vector<int> m_nPads;
     int m_nlayers;
     
-    int m_ml;  
+    int m_ml;
 
-    // surface dimensions
+    int sTGC_type;
+
+    //const double m_largeSectorOpeningAngle = 28.0;
+    //const double m_smallSectorOpeningAngle = 17.0;
+
+    // surface dimensions for strips
     std::vector<double> m_halfX;
     std::vector<double> m_minHalfY;
     std::vector<double> m_maxHalfY;
+    // surface dimensions for pads and wires
+    std::vector<double> m_PadhalfX;
+    std::vector<double> m_PadminHalfY;
+    std::vector<double> m_PadmaxHalfY;
 
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
@@ -230,11 +241,11 @@ namespace MuonGM {
 
     const MuonPadDesign* design = getPadDesign(id);
     if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endreq;
+      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
       return -1;
     }
     std::pair<int,int> pad(design->channelNumber(pos));
-    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endreq;
+    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
 
     if (pad.first>0 && pad.second>0) {
 
@@ -248,12 +259,12 @@ namespace MuonGM {
       int padEta = manager()->stgcIdHelper()->padEta(padID);
       int padPhi = manager()->stgcIdHelper()->padPhi(padID);
       if( padEta != pad.first || padPhi != pad.second ){
-	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endreq;
+	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
 	return -1;
       }
       return channel;
     } 
-    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endreq;
+    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endmsg;
 
     return -1; 
   }

@@ -52,6 +52,7 @@ namespace MuonGM {
     double Length;
     double sWidth;
     double lWidth;
+    double Size;
     double thickness;
     mutable double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
 
@@ -65,6 +66,11 @@ namespace MuonGM {
     int    nPadColumns;
     double PadPhiShift;
     int etasign;
+    int isLargeSector;
+    double sectorOpeningAngle;
+
+    const double largeSectorOpeningAngle = 28.0;
+    const double smallSectorOpeningAngle = 17.0;
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;

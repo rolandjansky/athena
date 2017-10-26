@@ -576,7 +576,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getMdtReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<MdtRElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<MdtRElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -591,7 +591,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getRpcReadoutElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<RpcRElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<RpcRElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -606,7 +606,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getTgcReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcRElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<TgcRElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -621,7 +621,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getCscReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscRElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<CscRElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif
@@ -636,7 +636,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");	
 	  log <<MSG::WARNING<<" try to getMdtDetectorElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<MdtDetElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<MdtDetElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -651,7 +651,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getTgcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcDetElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<TgcDetElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -666,7 +666,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getCscDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscDetElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<CscDetElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 
@@ -681,7 +681,7 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getRpcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<RpcDetElMaxHash-1<<endreq;
+	      <<(unsigned int)id<<" outside range 0-"<<RpcDetElMaxHash-1<<endmsg;
 	  return 0;
 	}
 #endif 

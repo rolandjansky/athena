@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
@@ -64,9 +65,7 @@ namespace MuonGM {
     bool foundShape = false;
 
     if (mgr->MinimalGeoFlag() == 0) {
-      GeoPhysVol* pvc = NULL;
-      pvc = (GeoPhysVol*)pv;
-      if (pvc != NULL) {
+      if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
 	unsigned int nchildvol = pvc->getNChildVols();
 	int llay = 0;
 	std::string::size_type npos;
@@ -130,7 +129,7 @@ namespace MuonGM {
       }
     }
     if( !foundShape ){
-      *m_MsgStream << MSG::WARNING << " failed to initialize dimensions of this chamber " << endreq;
+      *m_MsgStream << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
     }
     //fillCache();
 
@@ -160,7 +159,7 @@ namespace MuonGM {
     if (gethash_code != 0) 
        reLog()<<MSG::WARNING
 	      <<"MMReadoutElement --  detectorElement hash Id NOT computed for id = "
-	      <<manager()->mmIdHelper()->show_to_string(id)<<endreq;
+	      <<manager()->mmIdHelper()->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
   }
 
@@ -204,7 +203,7 @@ namespace MuonGM {
       if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
       else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
       else reLog()<<MSG::WARNING
-	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endreq;
+	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
       if (m_etaDesign[il].sAngle == 0.) {    // stereo angle 0.
 	
@@ -248,7 +247,7 @@ namespace MuonGM {
       m_nStrips.push_back(m_etaDesign[il].nch);
 
       reLog()<<MSG::INFO 
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endreq;
+	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
 
     }
 
@@ -258,7 +257,7 @@ namespace MuonGM {
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endreq;
+      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
     }
 
