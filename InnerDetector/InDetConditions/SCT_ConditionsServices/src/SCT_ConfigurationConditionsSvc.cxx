@@ -309,11 +309,11 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       // Bad chips (= all strips bad) bitpacked
       // Should only do this for modules with at least one chip bad?
       if (thisChip->numberOfMaskedChannels() == stripsPerChip) {
-	chipStatusWord |= (1<<thisChip->id());
-	nDisabledChips++; // A bad chip
-	if(!isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
+        chipStatusWord |= (1<<thisChip->id());
+        nDisabledChips++; // A bad chip
+        if(!isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
       } else { // Good chip
-	if(!isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
+        if(!isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
       }
 
     }

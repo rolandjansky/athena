@@ -28,7 +28,7 @@
 
 static bool modified0 (Identifier moduleId) {
   return ((moduleId==169922560) or (moduleId==170801152) or (moduleId==172556288) or (moduleId==172621824) or 
-	  (moduleId==174342144) or (moduleId==174610432) or (moduleId==174962688));
+          (moduleId==174342144) or (moduleId==174610432) or (moduleId==174962688));
 }
 
 static bool modified1 (Identifier moduleId) {
@@ -238,7 +238,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (inChipId == None) {
 #ifndef NDEBUG
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is not an end but port " << chip.inPort() 
-				    << " is not mapped to anything" << endmsg;
+                                                << " is not mapped to anything" << endmsg;
 #endif
     return false;
   }
@@ -248,7 +248,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (m_chips.at(inChipId)->outPort() != chip.inPort()) {
     
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip" << chip.id() << " is not an end and is listening on Port " 
-				    << chip.inPort() << " but nothing is talking to it" << endmsg;
+                                                << chip.inPort() << " but nothing is talking to it" << endmsg;
     return false;
   }
   return true;
@@ -383,10 +383,10 @@ void SCT_ReadoutTool::printStatus(const Identifier& moduleId) {
   bool standard = (isLinkStandard(0) && isLinkStandard(1));
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Readout status " <<  moduleId << ": "
-				<< ((m_type == SCT_Parameters::ENDCAP) ? "ENDCAP" : "")
-				<< ((m_type == SCT_Parameters::BARREL) ? "BARREL" : "")
-				<< ((m_type == SCT_Parameters::MODIFIED_0) ? "MOD_0" : "")
-				<< ((m_type == SCT_Parameters::MODIFIED_1) ? "MOD_1" : "");
+                                          << ((m_type == SCT_Parameters::ENDCAP) ? "ENDCAP" : "")
+                                          << ((m_type == SCT_Parameters::BARREL) ? "BARREL" : "")
+                                          << ((m_type == SCT_Parameters::MODIFIED_0) ? "MOD_0" : "")
+                                          << ((m_type == SCT_Parameters::MODIFIED_1) ? "MOD_1" : "");
  
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Link0 = " << std::boolalpha << m_linkActive[0] << " (";
   

@@ -112,13 +112,13 @@ int SCT_ReadoutTestAlg::bin2dec(const char *bin)
   for (k = 0; k <= len; k++) {
       n = (bin[k] - '0'); // char to numeric value
       if ((n > 1) || (n < 0)) {
-	msg(MSG::ERROR) << "ERROR! BINARY has only 1 and 0!" << endmsg;
-	return 0;
+        msg(MSG::ERROR) << "ERROR! BINARY has only 1 and 0!" << endmsg;
+        return 0;
       }
       
       for(b = 1, m = len; m > k; m--) {
-	// 1 2 4 8 16 32 64 ... place-values, reversed here
-	b *= 2;
+        // 1 2 4 8 16 32 64 ... place-values, reversed here
+        b *= 2;
       }
 
       // sum it up
