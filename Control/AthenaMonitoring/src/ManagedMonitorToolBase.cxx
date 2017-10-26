@@ -468,6 +468,30 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
      m_templateLWHistograms[interval] = std::vector< MgmtParams<LWHist> >();
      m_supportedIntervalsForRebooking.insert(interval);
    }
+
+   newLowStatInterval = false;
+   newMedStatInterval = false;
+   newHigStatInterval = false;
+   newLowStat = false;
+   newLumiBlock = false;
+   newRun = false;
+   newEventsBlock = false;
+   endOfEventsBlock = false;
+   endOfLowStat = false;
+   endOfLumiBlock = false;
+   endOfRun = false;
+
+   m_newLowStatInterval = false;
+   m_newMedStatInterval = false;
+   m_newHigStatInterval = false;
+   m_newLowStat = false;
+   m_newLumiBlock = false;
+   m_newRun = false;
+   m_newEventsBlock = false;
+   m_endOfEventsBlock = false;
+   m_endOfLowStat = false;
+   m_endOfLumiBlock = false;
+   m_endOfRun = false;
 }
 
 
