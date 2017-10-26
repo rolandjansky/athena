@@ -5,6 +5,7 @@
 // ***************************************************************************
 // Liquid Argon FCAL detector description package
 // -----------------------------------------
+// Copyright (C) 1998 by ATLAS Collaboration
 //
 //
 // 10-Sep-2000 S.Simion   Handling of the FCAL read-out identifiers
