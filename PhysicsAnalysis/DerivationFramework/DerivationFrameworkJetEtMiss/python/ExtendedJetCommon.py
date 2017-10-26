@@ -270,7 +270,7 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
-def addJetPtAssociation(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob):
+def addJetPtAssociation(jetalg, sequence, algname='JetCommonKernel_xAODJets'):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
         extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
