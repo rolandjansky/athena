@@ -41,7 +41,9 @@ public:
   ///add new proxies to store every Event:
   virtual StatusCode loadProxies(IProxyRegistry& dataStore) = 0;
 
-  ///get the default proxy for a given CLID/Key"
+  /// Use a provider to create a proxy for ID/KEY.
+  /// If successful, the new proxy will be added to DATASTORE
+  /// and returned; otherwise, return null.
   virtual SG::DataProxy* retrieveProxy(const CLID& id, 
 				       const std::string& key,
 				       IProxyRegistry& dataStore) = 0;
