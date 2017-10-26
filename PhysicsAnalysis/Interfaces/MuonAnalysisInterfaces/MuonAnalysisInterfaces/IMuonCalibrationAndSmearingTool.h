@@ -5,13 +5,13 @@
 #ifndef MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
 #define MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
 
-// Framework include(s):
+/// Framework include(s):
 #include "AsgTools/IAsgTool.h"
 
-// EDM include(s):
+/// EDM include(s):
 #include "xAODMuon/Muon.h"
 
-// Local include(s):
+/// Local include(s):
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicCode.h"
@@ -23,22 +23,22 @@ namespace CP {
 
 class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual public CP::ISystematicsTool {
 
-  // Declare the interface that the class provides
+  /// Declare the interface that the class provides
   ASG_TOOL_INTERFACE( CP::IMuonCalibrationAndSmearingTool )
 
   public:
-    // Apply the correction on a modifyable object
+    /// Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const = 0;
-    // Create a corrected copy from a constant muon
+    /// Create a corrected copy from a constant muon
     virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const = 0;
-    // Get the expected pT resolution
+    /// Get the expected pT resolution
     virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
-    // Get the expected pT resolution - int argument is more efficient
+    /// Get the expected pT resolution - int argument is more efficient
     virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const=0;
 
 
-}; // class IMuonCalibrationAndSmearingTool
+}; /// class IMuonCalibrationAndSmearingTool
 
-} // namespace CP
+} /// namespace CP
 
-#endif // MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
+#endif /// MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
