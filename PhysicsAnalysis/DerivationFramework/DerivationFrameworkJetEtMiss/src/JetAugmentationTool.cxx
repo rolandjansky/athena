@@ -171,7 +171,13 @@ namespace DerivationFramework {
       }
     }
 
-    if(m_decorateptassociation){
+    // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them //
+    bool isMissingPtAssociation = true;
+    if( jets_copy->size() == 0 || !dec_GhostTruthAssociationFraction->isAvailable(*jets_copy->at(0)) ) {
+      isMissingPtAssociation = false;
+    }
+
+    if(m_decorateptassociation && isMissingPtAssociation){
       if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
         ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
@@ -217,7 +223,7 @@ namespace DerivationFramework {
         ATH_MSG_VERBOSE("TrackSumPt: "   << (*dec_tracksummass)(jet_orig) );
       }
 
-      if(m_decorateptassociation){
+      if(m_decorateptassociation && isMissingPtAssociation){
         (*dec_GhostTruthAssociationFraction)(jet_orig) = jet->getAttribute<float>("GhostTruthAssociationFraction");
         ATH_MSG_VERBOSE("GhostTruthAssociationFraction: " << (*dec_GhostTruthAssociationFraction)(jet_orig) );
         (*dec_GhostTruthAssociationLink)(jet_orig) = jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");

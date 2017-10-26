@@ -142,8 +142,10 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
     if not jetaugtool in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
 
-def getJetAugmentationTool(jetalg):
-    jetaugtoolname = 'DFJetAug_'+jetalg
+def getJetAugmentationTool(jetalg, suffix=''):
+    jetaugtoolname = 'DFJetAug_'+jetalg+suffix
+#def getJetAugmentationTool(jetalg):
+#    jetaugtoolname = 'DFJetAug_'+jetalg
     jetaugtool = None
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,jetaugtoolname):
@@ -273,8 +275,8 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
-def addJetPtAssociation(jetalg, truthjetalg, sequence, algname='JetCommonKernel_xAODJets'):
-    jetaugtool = getJetAugmentationTool(jetalg)
+def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
+    jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
     if(jetaugtool==None):
         extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
 

@@ -42,7 +42,7 @@ int JetPtAssociationTool::modifyJet(xAOD::Jet& jet) const {
   if ( evtStore()->contains<xAOD::JetContainer>(m_conname) ) {
     pjets = evtStore()->retrieve<const xAOD::JetContainer>(m_conname);
   } else {
-    ATH_MSG_DEBUG("Matching jet container not found: " << m_conname);
+    ATH_MSG_WARNING("Matching jet container not found: " << m_conname);
     return 2;
   }
   // Match associated particle to jets.
