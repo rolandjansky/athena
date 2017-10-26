@@ -17,6 +17,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
+#include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 
 class TRT_ID;
 class PixelID;
@@ -43,7 +44,8 @@ namespace InDet{
         SG::WriteHandleKey<SpacePointCache>    m_PIXSpacePointCacheKey;
         SG::WriteHandleKey<SpacePointCache>    m_SCTSpacePointCacheKey;
         bool m_disableTRT;
-        SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;//Temporary workaround for problem in scheduler - remove later
+        SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;//Temporary workarounds for problem in scheduler - remove later
+        SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey2;
 
         template<typename T>
         StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
