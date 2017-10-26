@@ -179,7 +179,7 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
 
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
-  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
+  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
   const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, SpacePointCollection* spacepointCollection) const {
 
   double stripLengthGapTolerance = 0.; 
@@ -226,7 +226,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
       Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
       double diff = InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0).xPhi() - xPhi1;
-      if ((min <= diff && diff <= max)||m_allClusters){
+      if ((min <= diff && diff <= max)||allClusters){
 	
 	Trk::SpacePoint* sp =
 	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
@@ -263,9 +263,9 @@ void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClus
 
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
-  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
+  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
   const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-  SpacePointOverlapCollection* m_spacepointoverlapCollection) const {
+  SpacePointOverlapCollection* spacepointoverlapCollection) const {
 
   double stripLengthGapTolerance = 0.; 
 
@@ -307,12 +307,12 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
       Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
       double diff = InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0).xPhi() - xPhi1;
-      if ((min <= diff && diff <= max)||m_allClusters){
+      if ((min <= diff && diff <= max)||allClusters){
 	 
 	Trk::SpacePoint* sp =
 	  makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
 	if (sp) {
-	  m_spacepointoverlapCollection->push_back(sp);
+	  spacepointoverlapCollection->push_back(sp);
 	}
       }
     }
@@ -324,8 +324,8 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, double max2, 
-  bool m_allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-  SpacePointOverlapCollection* m_spacepointoverlapCollection) const {
+  bool allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
+  SpacePointOverlapCollection* spacepointoverlapCollection) const {
 
   double stripLengthGapTolerance = 0.; if(m_SCTgapParameter!=0.) {min1-=20.;  max1+=20.;}
 
@@ -350,7 +350,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
     Amg::Vector2D locpos = (*clusters1Next)->localPosition();
     Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
     double xPhi1 = InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0).xPhi();
-    if ((min1 <= xPhi1 && xPhi1 <= max1)||m_allClusters){
+    if ((min1 <= xPhi1 && xPhi1 <= max1)||allClusters){
       InDet::SCT_ClusterCollection::const_iterator
 	clusters2Next=(*clusters2).begin();
       InDet::SCT_ClusterCollection::const_iterator
@@ -370,11 +370,11 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
 	  Amg::Vector2D locpos = (*clusters2Next)->localPosition(); 
 	  Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
 	  double xPhi2 = InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0).xPhi();
-	  if ((min2<= xPhi2 && xPhi2 <= max2)||m_allClusters){
+	  if ((min2<= xPhi2 && xPhi2 <= max2)||allClusters){
 	    Trk::SpacePoint* sp 
 	      (makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance));
 	    if (sp) {
-	      m_spacepointoverlapCollection->push_back(sp);
+	      spacepointoverlapCollection->push_back(sp);
 	    }
 	  }
 	}
