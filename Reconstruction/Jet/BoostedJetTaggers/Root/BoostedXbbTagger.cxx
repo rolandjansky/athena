@@ -16,9 +16,7 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
   m_name(name),
-  m_jetSubCutTF1(nullptr)
-
-{
+  m_jetSubCutTF1(nullptr){
 
       // load parameter from configuration file
       declareProperty( "WorkingPoint",          m_wkpt = "" );       // allows to specify more WP inside one configuration file
@@ -144,7 +142,7 @@ StatusCode BoostedXbbTagger::initialize()
       m_decorationName = configReader.GetValue("DecorationName" ,"");
 
     }
-
+/*
     // set up muon tools
     ASG_SET_ANA_TOOL_TYPE( m_muonSelectionTool, CP::MuonSelectionTool);
     m_muonSelectionTool.setName(m_name+"MuonSelection");
@@ -153,7 +151,7 @@ StatusCode BoostedXbbTagger::initialize()
     ASG_SET_ANA_TOOL_TYPE( m_muonCalibrationAndSmearingTool, CP::muonCalibrationAndSmearingTool);
     m_muonCalibrationAndSmearingTool.setName(m_name+"MuonCalibrationTool");
     m_muonCalibrationAndSmearingTool.retrieve();
-
+*/
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
         ATH_MSG_ERROR( "Error setting mass calibration scheme to " << m_muonCorrectionSchemeName );
         return StatusCode::FAILURE;
@@ -200,9 +198,11 @@ StatusCode BoostedXbbTagger::initialize()
     ATH_MSG_INFO( "Decorators that will be attached to jet :" );
     std::string dec_name;
 
+//m_dec = SG::AuxElement::Decorator< float >( decorationName );
+
     dec_name = m_decorationName+"_MassMin";
     ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
-    m_dec_jetMassMin          = new SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_dec_jetMassMin          = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_MassMax";
     ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
     m_dec_jetMassMax          = new SG::AuxElement::Decorator<float>((dec_name).c_str());
@@ -396,20 +396,24 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
           if (!(acc_innerDetectorPt.isAvailable(*muon) && acc_muonSpectrometerPt.isAvailable(*muon))) {
               ATH_MSG_DEBUG("No decorators for MuonSpectrometerPt or InnerDetectorPt found. Calibrate muons on-the-fly.");
               xAOD::Muon *muon_calib(nullptr);
-
-          if( m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib) != CP::CorrectionCode::Ok ){
+//UNCOMMENT ME
+/*
+              if( m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib) != CP::CorrectionCode::Ok ){
                   ATH_MSG_ERROR("Could not get calibrated copy of muon.");
                   m_accept.setCutResult("ValidJetContent" , false);
               }
-              if (m_decorate) (*m_dec_calibratedMuon)(*muon) = muon_calib->p4();
-        // save the pointers for deletion later
-        calibratedMuons.push_back(muon_calib);
+*/
+              if (m_decorate)
+                  (*m_dec_calibratedMuon)(*muon) = muon_calib->p4();
+              // save the pointers for deletion later
+              calibratedMuons.push_back(muon_calib);
               // work with calibrated muon
               muon = muon_calib;
-    }
+          }
           // muon quality selection
           if (muon->pt() < m_muonPtMin) continue;
-          if (m_muonSelectionTool->getQuality(*muon) > xAOD::Muon::Medium) continue;
+//UNCOMMENT ME
+//          if (m_muonSelectionTool->getQuality(*muon) > xAOD::Muon::Medium) continue;
           if (fabs(muon->eta()) > m_muonEtaMax) continue;
           // find clostest muon
           float DR( trackJet->p4().DeltaR(muon->p4()) );
@@ -453,7 +457,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
     ATH_MSG_DEBUG("Jet FAILED the mass window cut. Mass: " << corrected_jet.M()/1.e3 << " GeV, Mass Window: [ " << jetMassMin << ", " << jetMassMax << " ]");
   }
   if (m_decorate) {
-      (*m_dec_jetMassMin)(jet) = jetMassMin;
+      m_dec_jetMassMin(jet) = jetMassMin;
       (*m_dec_jetMassMax)(jet) = jetMassMax;
   }
 
@@ -693,7 +697,7 @@ TLorentzVector BoostedXbbTagger::getCalibratedMuonTLV(const xAOD::Muon& muon) co
 }
 
 float BoostedXbbTagger::getMassMin(const xAOD::Jet& jet) const {
-  return (*m_dec_jetMassMin)(jet);
+  return m_dec_jetMassMin(jet);
 }
 
 float BoostedXbbTagger::getMassMax(const xAOD::Jet& jet) const {

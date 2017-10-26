@@ -123,7 +123,7 @@ class BoostedXbbTagger : public JSSTaggerBase {
 
     // generic decorations used
 //    SG::AuxElement::Decorator< float > m_dec;
-    SG::AuxElement::Decorator<float>* m_dec_jetMassMin;
+    SG::AuxElement::Decorator<float> m_dec_jetMassMin;
     SG::AuxElement::Decorator<float>* m_dec_jetMassMax;
     SG::AuxElement::Decorator<float>* m_dec_jssCut;
     SG::AuxElement::Decorator<TLorentzVector>* m_dec_correctedJet;
