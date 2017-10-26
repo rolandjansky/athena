@@ -23,8 +23,8 @@
 #ifndef TILEEVENT_TILERAWDATACOLLECTION_H
 #define TILEEVENT_TILERAWDATACOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 // #include "TileEvent/TileRoI_ID.h"
 

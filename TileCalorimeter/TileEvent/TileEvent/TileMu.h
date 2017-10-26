@@ -12,7 +12,7 @@
 #ifndef TILEMU_H
 #define TILEMU_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <vector>
 
