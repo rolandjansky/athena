@@ -381,7 +381,7 @@ namespace CP {
             return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
-
+    
         if (Itr == m_isohelpers.end() || Itr->second->backupIsolation(par) == CorrectionCode::Error || Itr->second->getOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
             return CorrectionCode::Error;
