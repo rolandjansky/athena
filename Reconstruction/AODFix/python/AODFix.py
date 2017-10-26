@@ -137,6 +137,8 @@ def AODFix_Init():
         logAODFix.info(" Input file is DATA")
     logAODFix.info(" Input file produced with Athena version <%s>." % prevRelease)
     logAODFix.info(" AODFix version <%s> was previously applied." % prevAODFix)
+    if rec.doApplyAODFix.is_locked():
+        logAODFix.info(" AODFix is forced to run!")
 
     ##################
     # determine which AODFix to run (if actually running--to be determined later)
