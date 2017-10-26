@@ -107,7 +107,7 @@ from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import Derivation
 EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
                                                                             ContainerName = "AntiKt4EMTopoJets",
                                                                             AssociatedTracks = "GhostTrack",
-                                                                            MinTrackPtCuts = [500, 1000])
+                                                                            MinTrackPtCuts = [0])
 
 ToolSvc += EXOT8BJetRegressionVariables
 augmentationTools.append(EXOT8BJetRegressionVariables)
@@ -276,7 +276,6 @@ EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
 EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
-                                        "InDetTrackParticles",
                                         "PrimaryVertices",
                                         "Electrons",
                                         "Muons",
@@ -288,7 +287,10 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
                                       "AntiKt4EMTopoJets.TrackSumPt",
-                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt500",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0PV0",
+                                      "AntiKt4EMTopoJets.VecSumPtTrkCleanPt0PV0",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMTopo.SV1_normdist",
                                       "BTagging_AntiKt4EMTopo.SV1_masssvx",

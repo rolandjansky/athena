@@ -13,9 +13,14 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+#include "JetEDM/TrackVertexAssociation.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
@@ -41,12 +46,19 @@ namespace DerivationFramework {
     std::string m_containerName; 
     std::string m_assocTracksName;
     std::vector<float> m_minTrackPt;
+    std::string m_vertexContainer;
+    bool m_requireTrackPV;
+    InDet::InDetTrackSelectionTool* m_TrackSelTool;
+    std::string m_tva;
 
-    struct TrackMomentStruct {float vecSumPtTrk; float scalSumPtTrk; };
+    struct TrackMomentStruct {float vecSumPtTrk; float scalSumPtTrk; float vecSumPtTrkClean; float scalSumPtTrkClean;};
 
-    TrackMomentStruct getSumTrackPt( const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks) const;
+    TrackMomentStruct getSumTrackPt( const float minTrackPt, 
+				     const std::vector<const xAOD::TrackParticle*>& tracks, 
+				     const xAOD::Vertex* vertex, 
+				     const jet::TrackVertexAssociation* tva) const;
 
-    const std::string getMomentBaseName(const float minTrackPt) const;
+    const std::string getMomentBaseName(const float minTrackPt, const bool pv0) const;
   };
 }
 
