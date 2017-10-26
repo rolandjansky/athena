@@ -5,7 +5,7 @@
 #ifndef LARGLOBALTIMEOFFSET_H
 #define LARGLOBALTIMEOFFSET_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 
 class LArGlobalTimeOffset: public ILArGlobalTimeOffset {

@@ -9,7 +9,7 @@
 #define LARPHYSWAVECONTAINER_H
 
 #include "LArRawConditions/LArConditionsContainer.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRawConditions/LArPhysWave.h"
 
 /**

@@ -32,9 +32,8 @@ class LArMinBiasSym: virtual public ILArMinBias {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArMinBiasSym, ILArMinBias);
 CLASS_DEF( LArMinBiasSym,211635936,1)
-CLASS_DEF( CondCont<LArMinBiasSym> ,185039882, 1 )
+CONDCONT_DEF( LArMinBiasSym ,185039882, ILArMinBias );
 #endif 

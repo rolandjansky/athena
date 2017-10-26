@@ -39,7 +39,6 @@ class LAruA2MeVComplete: public ILAruA2MeV ,
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LAruA2MeVComplete,ILAruA2MeV);
 CLASS_DEF( LAruA2MeVComplete, 64178609,1)
-CLASS_DEF( CondCont<LAruA2MeVComplete> , 59678833 , 1 )
+CONDCONT_DEF( LAruA2MeVComplete, 59678833, ILAruA2MeV );
 #endif 

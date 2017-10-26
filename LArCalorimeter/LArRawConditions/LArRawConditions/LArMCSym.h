@@ -53,9 +53,9 @@ class LArMCSym {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArMCSym , 33771274 , 1 )
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF(  CondCont<LArMCSym> ,159334782 , 1 )
+CONDCONT_DEF( LArMCSym, 159334782 );
 
 #endif 
