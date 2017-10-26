@@ -234,11 +234,6 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
   float cut_var1  = m_var1CutFunc->Eval(jet_pt);
   float cut_var2  = m_var2CutFunc->Eval(jet_pt);
 
-  static SG::AuxElement::Decorator<float>    dec_m     ("TopTagMassCut");
-  static SG::AuxElement::Decorator<float>    dec_tau32 ("TopTagTau32Cut");
-  static SG::AuxElement::Decorator<float>    dec_s23   ("TopTagSplit23Cut");
-  static SG::AuxElement::Decorator<float>    dec_qw    ("TopTagQwCut");
-
   static SG::AuxElement::Accessor<float>    acc_s23 ("Split23");
   static SG::AuxElement::Accessor<float>    acc_qw ("Qw");
 
