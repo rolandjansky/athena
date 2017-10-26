@@ -42,7 +42,7 @@ class BCM_ZeroSuppression : public AthAlgorithm {
   std::string m_bcmContainerName;
   std::string m_bcmOutputName;
 
-  BCM_RDO_Collection* my_collection;
+  BCM_RDO_Collection* m_my_collection;
 
 };
 
