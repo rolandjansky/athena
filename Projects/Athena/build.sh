@@ -83,6 +83,8 @@ if [ -z "$EXE_CMAKE" -a -z "$EXE_MAKE" -a -z "$EXE_INSTALL" -a -z "$EXE_CPACK" ]
     EXE_CPACK="1"
 fi
 
+
+
 # Stop on errors from here on out:
 set -e
 # consider a pipe failed if ANY of the commands fails
@@ -90,6 +92,11 @@ set -o pipefail
 
 # Source in our environment
 AthenaSrcDir=$(dirname ${BASH_SOURCE[0]})
+
+# The directory holding the helper scripts:
+scriptsdir=${AthenaSrcDir}/../../Build/AtlasBuildScripts
+scriptsdir=$(cd ${scriptsdir}; pwd)
+
 if [ -z "$BUILDDIR" ]; then
     BUILDDIR=${AthenaSrcDir}/../../../build
 fi
@@ -113,6 +120,23 @@ if [ -n "$EXE_CMAKE" ]; then
         ${AthenaSrcDir}  2>&1 | tee cmake_config.log
 fi
 
+#log analyzer never affects return status in the parent shell:
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status
+    branch=$(basename $(cd ${BUILDDIR}/.. ; pwd)) #FIXME: should be taken from env.
+    timestamp_tmp=` basename ${BUILDDIR}/.@@__* 2>/dev/null | sed 's,^\.,,' `
+    if test "X$timestamp_tmp" = "X" ; then
+        timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
+        touch ${BUILDDIR}/.${timestamp_tmp}
+    fi
+    (set +e
+     ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_config.log 
+    )
+ } || true
+}
+
 # for nightly builds we want to get as far as we can
 if [ "$NIGHTLY" = true ]; then
     # At this point stop worrying about errors:
@@ -124,14 +148,34 @@ if [ -n "$EXE_MAKE" ]; then
     time ${BUILDTOOL} 2>&1 | tee cmake_build.log
 fi
 
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    (set +e
+     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_build.log 
+    )
+ } || true
+}
+
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
     time DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE} \
 	 2>&1 | tee cmake_install.log
 fi
+#^^^ do we need to analyze local install logs?
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
     time cpack 2>&1 | tee cmake_cpack.log
     cp Athena*.rpm ${BUILDDIR}/
 fi
+
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    (set +e
+     for project in `ls ${BUILDDIR}/build 2>/dev/null` ; do
+        ${scriptsdir_nightly_status}/cmake_cpack_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" "${project}" ${BUILDDIR}/build/${project}/cmake_cpack.log 
+     done
+     ${scriptsdir_nightly_status}/collect_nightly_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" "$BUILDDIR"
+    )
+ } || true
+}
