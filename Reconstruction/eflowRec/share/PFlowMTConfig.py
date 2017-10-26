@@ -159,12 +159,12 @@ PFAlgorithm.BaseToolList = [PFMomentCalculatorTool]
 from eflowRec.eflowRecConf import PFLCCalibTool
 PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
 
-from eflowRec.eflowLocalHadCal import eflowLocalHadCal
-LocalHadCal = eflowLocalHadCal()
-Calib = LocalHadCal.eflowCaloClusterLocalCalib("PFLCCalibTool")
-CalibOO = LocalHadCal.eflowCaloClusterLocalCalibOO("PFLCCalibTool")
-CalibOOPi0 = LocalHadCal.eflowCaloClusterLocalCalibOOPi0("PFLCCalibTool")
-CalibDM = LocalHadCal.eflowCaloClusterLocalCalibDM("PFLCCalibTool")
+from eflowRec.PFLocalHadCal import PFLocalHadCal
+LocalHadCal = PFLocalHadCal()
+Calib = LocalHadCal.PFCaloClusterLocalCalib("PFLCCalibTool")
+CalibOO = LocalHadCal.PFCaloClusterLocalCalibOO("PFLCCalibTool")
+CalibOOPi0 = LocalHadCal.PFCaloClusterLocalCalibOOPi0("PFLCCalibTool")
+CalibDM = LocalHadCal.PFCaloClusterLocalCalibDM("PFLCCalibTool")
 
 from CaloRec.CaloTopoClusterFlags import jobproperties
 if not (jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()):

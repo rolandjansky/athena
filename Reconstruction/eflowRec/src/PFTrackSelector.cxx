@@ -1,6 +1,5 @@
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "eflowRec/PFTrackSelector.h"
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 
 

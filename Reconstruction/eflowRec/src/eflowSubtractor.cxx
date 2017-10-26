@@ -12,7 +12,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "eflowRec/eflowCellLevelSubtractionTool.h"
 #include "eflowRec/eflowRecTrack.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowTrackClusterLink.h"

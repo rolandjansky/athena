@@ -4,11 +4,11 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import jobproperties
 import traceback
 
-class eflowLocalHadCal:
+class PFLocalHadCal:
 
-    def eflowCaloClusterLocalCalib(self,name):
+    def PFCaloClusterLocalCalib(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::eflowCaloClusterLocalCalib' )
+        mlog = logging.getLogger( 'PFLocalHadCal::PFCaloClusterLocalCalib' )
 
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -56,7 +56,7 @@ class eflowLocalHadCal:
 
     def getLCWeightTool(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::getLCWeightTool' )
+        mlog = logging.getLogger( 'PFLocalHadCal::getLCWeightTool' )
 
         try:
             from CaloUtils.CaloUtilsConf import CaloLCWeightTool;
@@ -100,9 +100,9 @@ class eflowLocalHadCal:
 
         return LCWeight
 
-    def eflowCaloClusterLocalCalibDM(self,name):
+    def PFCaloClusterLocalCalibDM(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::eflowCaloClusterLocalCalibDM' )
+        mlog = logging.getLogger( 'PFLocalHadCal::PFCaloClusterLocalCalibDM' )
 
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -123,7 +123,7 @@ class eflowLocalHadCal:
 
     def getDeadMaterialCorrectionTool(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::getDeadMaterialCorrectionTool' )
+        mlog = logging.getLogger( 'PFLocalHadCal::getDeadMaterialCorrectionTool' )
         
         try:
             from CaloUtils.CaloUtilsConf import CaloLCDeadMaterialTool
@@ -140,9 +140,9 @@ class eflowLocalHadCal:
 
         return LCDeadMaterial
         
-    def eflowCaloClusterLocalCalibOO(self,name):
+    def PFCaloClusterLocalCalibOO(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::eflowCaloClusterLocalCalibOO' )
+        mlog = logging.getLogger( 'PFLocalHadCal::PFCaloClusterLocalCalibOO' )
 
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -162,9 +162,9 @@ class eflowLocalHadCal:
 
         return CalibOO
 
-    def eflowCaloClusterLocalCalibOOPi0(self,name):
+    def PFCaloClusterLocalCalibOOPi0(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::eflowCaloClusterLocalCalibOOPi0' )
+        mlog = logging.getLogger( 'PFLocalHadCal::PFCaloClusterLocalCalibOOPi0' )
         
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -185,7 +185,7 @@ class eflowLocalHadCal:
 
     def getOutOfClusterCorrectionTool(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::getOutOfClusterCorrectionTool' )
+        mlog = logging.getLogger( 'PFLocalHadCal::getOutOfClusterCorrectionTool' )
 
         try:
             from CaloUtils.CaloUtilsConf import CaloLCOutOfClusterTool
@@ -203,7 +203,7 @@ class eflowLocalHadCal:
 
     def getOutOfClusterCorrectionPi0Tool(self,name):
 
-        mlog = logging.getLogger( 'eflowLocalHadCal::getOutOfClusterCorrectionPi0Tool' )
+        mlog = logging.getLogger( 'PFLocalHadCal::getOutOfClusterCorrectionPi0Tool' )
 
         try:
             from CaloUtils.CaloUtilsConf import CaloLCOutOfClusterTool
