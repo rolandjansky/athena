@@ -27,7 +27,6 @@
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
-#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
@@ -57,60 +56,11 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   m_oMeasPer(0),
   m_rMeasPer(0),
   m_ParticleHypothesis(Trk::electron), 
-  m_ITrackFitter("TrkKalmanFitter/AtlasKalmanFitter"),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_linFactory("Trk::FullLinearizedTrackFactory"),
   m_beamCondSvc("BeamCondSvc",name),
-  m_CCOTBuilder("CaloCluster_OnTrackBuilder"),
   m_idHelper(0) 
 {
   // declare interface
   declareInterface< IegammaTrkRefitterTool >(this) ;
-
-  // ToolHandle for track fitter implementation
-  declareProperty("FitterTool",
-                  m_ITrackFitter,
-                  "ToolHandle for track fitter implementation");                                           
-  // Switch if refit should be made on PRD or ROT level
-  declareProperty("Fit_RIO_OnTrack",
-                  m_fitRIO_OnTrack=false, 
-                  "Switch if refit should be made on PRD or ROT level");
-
-  // Switch to control outlier finding in track fit
-  declareProperty("runOutlier",
-                   m_runOutlier = false,
-                  "Switch to control outlier finding in track fit");
-                  
-  // Switch to control outlier finding in track fit
-  declareProperty("ReintegrateOutliers",
-                   m_reintegrateOutliers = false,
-                  "Switch to control addition of  outliers back for track fit");
-
-  // Type of material interaction in extrapolation (default Electron)
-  declareProperty("matEffects",
-                   m_matEffects = 1,
-                   "Type of material interaction in extrapolation (Default Electron)");
-      
-  declareProperty("minNoSiHits",
-                  m_MinNoSiHits = 3,
-                  "Minimum number of silicon hits on track before it is allowed to be refitted");
-      
-  // Switch to control use of Beam spot measurement
-  declareProperty("useBeamSpot",
-                   m_useBeamSpot = false, 
-                   "Switch to control use of Beam Spot Measurement ");
-  
-  declareProperty("Extrapolator",              
-                   m_extrapolator );
-
-  declareProperty("useClusterPosition",
-                  m_useClusterPosition = false, 
-                  "Switch to control use of Cluster position measurement");
-
-  declareProperty("CCOTBuilder", 
-                   m_CCOTBuilder);
-                   
-  declareProperty("RemoveTRTHits",m_RemoveTRT  = false,"RemoveTRT Hits");	  
 }
 
   

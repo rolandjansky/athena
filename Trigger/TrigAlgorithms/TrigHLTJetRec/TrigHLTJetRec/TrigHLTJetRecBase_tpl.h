@@ -29,6 +29,7 @@ HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "output_collection_label", m_outputCollectionLabel);
   declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
   declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
+  declareProperty( "secondary_label", m_secondarylabel);
 }
 
 
@@ -98,6 +99,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
    * CaloClusters...) of type given by the template arguement. This
    * containees must be of type IParticle. Select the inputs
    * using an AlgTool. Convert the selected inputs to pseudojets.
+   * In case of calo clusters, the secondary label is checked for secondary pseudojets.
    * Pass these to the jet build tool. Attach the resulting jet
    * container to the output trigger element.
    */
@@ -123,7 +125,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
   jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
-  PseudoJetVector pjv_in;
+  jet::PseudoJetVector pjv_in;
   
   status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
   if (status == HLT::OK) {
@@ -152,7 +154,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
                     << p.e() << " " 
                     <<p.eta() );
     }
-  
+ 
 
   // Load the pseudo jets into the TriggerSPseudoJetGetter tool
   // Despite the name, we push the pseudojets into the tool. This is
@@ -160,7 +162,14 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   m_pseudoJetGetter->prime(&pjv);  
   m_pseudoJetGetter->print();
 
+  // 
+  // secondary pseudojet set up if secondary exists (at the moment only for clusters)
+  //
+  jet::PseudoJetVector pjv_secondary;
+  status = this->checkforSecondaryPseudoJets(outputTE, indexMap, pjv_secondary);
+  
   ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
+
   // auto j_container = m_jetbuildTool->build();
   //auto j_container = defaultBuild();
   auto j_container = build();
@@ -175,11 +184,6 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   unsigned int j_count{0};
   for(auto j: *j_container)
     {
-      ATH_MSG_DEBUG("jet "  
-                      << j_count 
-                      << " E " 
-                      << j->e() << " " 
-                      <<j->eta() );
       /*
       ATH_MSG_VERBOSE("EMScale E " 
                       << (j->getAttribute<xAOD::JetFourMom_t>("JetEMScaleMomentum")).E());
@@ -187,7 +191,14 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
                       << j->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum").E());
       */
       ++j_count;
-    }
+  
+      ATH_MSG_DEBUG("jet "  
+                      << j_count 
+                      << " E " 
+                      << j->e() << " " 
+                      <<j->eta() );
+
+  } 
 
   delete indexMap;
 
@@ -281,6 +292,16 @@ TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
                  toPseudoJet);
 
   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
+  return HLT::OK;
+}
+
+template<typename InputContainer>
+HLT::ErrorCode
+TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
+                                                 const HLT::TriggerElement* /*unused*/, 
+                                                 jet::LabelIndex* /*unused*/,
+                                                 jet::PseudoJetVector& /*unused*/){
+  ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }
 

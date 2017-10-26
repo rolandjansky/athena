@@ -5,8 +5,13 @@
 
 #include "../SCT_ModuleVetoTestAlg.h"
 #include "../SCT_ConditionsSummaryTestAlg.h"
+
 #include "../SCT_DCSConditionsSvc.h"
+#include "../SCT_DCSConditionsHVCondAlg.h"
+#include "../SCT_DCSConditionsStatCondAlg.h"
+#include "../SCT_DCSConditionsTempCondAlg.h"
 #include "../SCT_DCSConditionsTestAlg.h"
+
 #include "../SCT_ByteStreamErrorsSvc.h"
 #include "../SCT_ConfigurationConditionsSvc.h"
 #include "../SCT_ConfigurationConditionsTestAlg.h"
@@ -42,6 +47,7 @@
 #include "../SCT_SensorsTestAlg.h"
 
 #include "../SCT_MajorityConditionsSvc.h"
+#include "../SCT_MajorityCondAlg.h"
 #include "../SCT_MajorityConditionsTestAlg.h"
 
 #include "../SCT_CachedSummarySvc.h"
@@ -63,6 +69,9 @@ DECLARE_SERVICE_FACTORY(SCT_RODVetoSvc)
 DECLARE_ALGORITHM_FACTORY(SCT_ModuleVetoTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsSummaryTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_CachedSummaryTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsHVCondAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsStatCondAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTempCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsTestAlg)
@@ -72,6 +81,7 @@ DECLARE_ALGORITHM_FACTORY(SCT_SiliconConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ReadoutTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_LinkMaskingTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConfigurationConditionsTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_MajorityCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MajorityConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsParameterTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_SensorsTestAlg)
@@ -125,11 +135,14 @@ DECLARE_FACTORY_ENTRIES(SCT_ConditionsServices) {
   DECLARE_SERVICE( SCT_ChargeTrappingSvc )
   DECLARE_SERVICE( SCT_RadDamageSummarySvc )
 
-DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
+  DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ModuleVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsSummaryTestAlg )
   DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
 
+  DECLARE_ALGORITHM( SCT_DCSConditionsHVCondAlg )
+  DECLARE_ALGORITHM( SCT_DCSConditionsStatCondAlg )
+  DECLARE_ALGORITHM( SCT_DCSConditionsTempCondAlg )
   DECLARE_ALGORITHM( SCT_DCSConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_MonitorConditionsCondAlg )
   DECLARE_ALGORITHM( SCT_MonitorConditionsTestAlg )
@@ -139,6 +152,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ReadoutTestAlg )
   DECLARE_ALGORITHM( SCT_LinkMaskingTestAlg )
   DECLARE_ALGORITHM( SCT_ConfigurationConditionsTestAlg )
+  DECLARE_ALGORITHM( SCT_MajorityCondAlg )
   DECLARE_ALGORITHM( SCT_MajorityConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsParameterTestAlg )
   DECLARE_ALGORITHM( SCT_SensorsTestAlg )

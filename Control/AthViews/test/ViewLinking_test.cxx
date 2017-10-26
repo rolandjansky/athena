@@ -109,6 +109,31 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
 
 }
 
+void testFallThrough( StoreGateSvc* sg , MsgStream& log) {
+  auto t = std::make_unique<TestClass>();
+  SG::WriteHandle<TestClass> wh( "inStore" );
+  wh.setProxyDict( sg );
+  auto status = wh.record( std::move( t ) );
+  VALUE( status.isSuccess() ) EXPECTED( true ); 
+    
+  // the whole trick is that the read handle is pointed to the view, 
+  // but should read from the main store if the fall though
+  // is enabled
+  {
+    auto opaqueView = new View( "OpaqueView", false );
+    SG::ReadHandle<TestClass> rh( "inStore" );
+    rh.setProxyDict( opaqueView ); 
+    VALUE( rh.isValid() ) EXPECTED( false );
+  }
+  {
+    auto transparentView = new View( "TransparentView" ); 
+    SG::ReadHandle<TestClass> rh( "inStore" );
+    rh.setProxyDict( transparentView ); 
+    VALUE( rh.isValid() ) EXPECTED( true );
+  }
+  log << MSG::INFO << "Fall through works as expected " << endmsg;
+}
+
 
 
 int main() {
@@ -127,9 +152,7 @@ int main() {
   }
   assert(pSvcLoc);
 
-
   StoreGateSvc* pStore(0);
-
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
     log << MSG::INFO << "SG pointer: " << pStore << endmsg;
@@ -138,10 +161,8 @@ int main() {
     return -1;
   }
 
-
-
-  testDataInView( pStore, log );
-  log << MSG::INFO << "linking function w/o overlap works" << endmsg;
-    
+  testDataInView( pStore, log );        
+  testFallThrough( pStore, log );
+  
   return 0;
 }

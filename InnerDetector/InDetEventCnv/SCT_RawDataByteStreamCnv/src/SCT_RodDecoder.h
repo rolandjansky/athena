@@ -57,24 +57,24 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
    *  with the RDO built by the makeRDO(..) method
    **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-				    SCT_RDO_Container& rdoIdc,
+                                    SCT_RDO_Container& rdoIdc,
                                     InDetBSErrContainer* errs,
-				    std::vector<IdentifierHash>* vecHash = 0)
+                                    std::vector<IdentifierHash>* vecHash = 0)
     override;
 
 
  private:
   /// method that builds the RawData RDO and add it to the collection 
   int makeRDO(int strip, int groupSize, int tbin, 
-	      uint32_t onlineId, int ERRORS,
-	      SCT_RDO_Container& rdoIdc,
-	      std::vector<IdentifierHash>* vecHash, 
-	      IdentifierHash& skipHash, IdentifierHash& lastHash,
+              uint32_t onlineId, int ERRORS,
+              SCT_RDO_Container& rdoIdc,
+              std::vector<IdentifierHash>* vecHash, 
+              IdentifierHash& skipHash, IdentifierHash& lastHash,
               const std::vector<int>& errorHit);
 
   /// add an error for each wafer in a problematic ROD.
   void addRODError(uint32_t rodid, int errorType,
-		   InDetBSErrContainer* errs);
+                   InDetBSErrContainer* errs);
 
   bool addSingleError(const IdentifierHash idHash,
                       const int bsErrorType,

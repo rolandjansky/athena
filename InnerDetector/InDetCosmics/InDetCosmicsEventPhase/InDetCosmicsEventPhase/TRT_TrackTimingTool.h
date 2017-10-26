@@ -21,11 +21,13 @@
 #include "TrkSpaceTimePoint/SpaceTimePoint.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "InDetCosmicsEventPhase/IInDetCosmicsEventPhaseTool.h"
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-
+#include "xAODEventInfo/EventInfo.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -74,6 +76,9 @@ class TRT_TrackTimingTool : virtual public ITRT_TrackTimingTool, public AthAlgTo
 
     bool m_doEtaCorrection;
     bool m_debug;
+    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey;  //!< Current event
+
+
 	
 	/** eta-dependent corrections, called if m_doEtaCorrection == true */ 
 	float etaCorrection(const Trk::Track& track) const;

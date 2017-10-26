@@ -81,7 +81,7 @@ int ReadProcs(pid_t mother_pid, unsigned long values[4], unsigned long long valu
             if(sscanf(buffer,      "wchar: %80llu", &twchar)==1) valuesIO[1]+=twchar; 
             if(sscanf(buffer, "read_bytes: %80llu", &trbyte)==1) valuesIO[2]+=trbyte; 
             if(sscanf(buffer,"write_bytes: %80llu", &twbyte)==1) valuesIO[3]+=twbyte; } 
-          fclose(file);
+          fclose(file2);
 	}
 
       } 

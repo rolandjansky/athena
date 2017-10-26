@@ -49,7 +49,6 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
-#include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"

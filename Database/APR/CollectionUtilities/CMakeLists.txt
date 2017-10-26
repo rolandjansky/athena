@@ -10,7 +10,6 @@ atlas_subdir( CollectionUtilities )
 atlas_depends_on_subdirs(
   PUBLIC
   Database/APR/CollectionBase
-  Database/APR/TrigCollQuery
   Database/PersistentDataModel
   PRIVATE
   Database/APR/FileCatalog
@@ -44,7 +43,6 @@ atlas_add_library( CollectionUtilities
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
   LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel
-  TrigCollQueryLib
   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES}
   FileCatalog POOLCore PersistencySvc )
 

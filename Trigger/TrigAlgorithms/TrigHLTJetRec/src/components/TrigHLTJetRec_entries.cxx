@@ -19,6 +19,7 @@
 #include "TrigHLTJetRec/TrigHLTJetDSSelector.h"
 #include "TrigHLTJetRec/TrigHLTJetRecGroomer.h"
 #include "TrigHLTJetRec/TrigJetFromPseudojet.h"
+#include "TrigHLTJetRec/TrigHLTTrackMomentHelpers.h"
 
 //DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
@@ -35,6 +36,7 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTEnergyDensity)
 DECLARE_ALGORITHM_FACTORY( TrigHLTSoftKiller)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDSSelector)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecGroomer)
+DECLARE_ALGORITHM_FACTORY( TrigHLTTrackMomentHelpers)
 
 DECLARE_TOOL_FACTORY(TriggerPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorAll)

@@ -38,14 +38,14 @@ MODIFIED:
 #include "xAODTracking/TrackParticleFwd.h"
 
 class IBeamCondSvc;
-class ICaloCluster_OnTrackBuilder;
 class AtlasDetectorID ;
 
 #include "VxVertex/RecVertex.h"
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 
 namespace Trk{
-  class IExtrapolator;
   class VxTrackAtVertex;
   class VertexOnTrack;
 }
@@ -124,26 +124,36 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   const Trk::Perigee          *m_rMeasPer;
   
   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
-  bool                        m_fitRIO_OnTrack;
+  Gaudi::Property<bool> m_fitRIO_OnTrack {this, 
+      "Fit_RIO_OnTrack", false, 
+      "Switch if refit should be made on PRD or ROT level"};
   
   /** @brief Run outlier removal when doing the track refit*/
-  Trk::RunOutlierRemoval      m_runOutlier;
+  Gaudi::Property<Trk::RunOutlierRemoval> m_runOutlier {this,
+      "runOutlier", false,
+      "Switch to control outlier finding in track fit"};
   
   /** @brief Add outlier to track hits into vector of hits*/
-  bool                        m_reintegrateOutliers;
+  Gaudi::Property<bool> m_reintegrateOutliers {this,
+      "ReintegrateOutliers", false,
+      "Switch to control addition of  outliers back for track fit"};
   
   /** @brief type of material interaction in extrapolation*/
-  int                         m_matEffects;         
+  Gaudi::Property<int> m_matEffects {this, "matEffects", 1,
+      "Type of material interaction in extrapolation (Default Electron)"};         
   
   /** @brief Minimum number of silicon hits on track before it is allowed to be refitted*/
-  int                         m_MinNoSiHits;
+  Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 3,
+      "Minimum number of silicon hits on track before it is allowed to be refitted"};
   
   /** @brief Particle Hypothesis*/
   Trk::ParticleHypothesis     m_ParticleHypothesis; 
 
   /** @brief The track refitter */
-  ToolHandle<Trk::ITrackFitter>  m_ITrackFitter;    
- 
+  ToolHandle<Trk::ITrackFitter> m_ITrackFitter {this,  
+      "FitterTool", "TrkKalmanFitter/AtlasKalmanFitter",
+      "ToolHandle for track fitter implementation"};
+
   /** @brief Returns the final track parameters (ie track parameters furthest from the perigee)  */
   const Trk::TrackParameters* lastTrackParameters(const Trk::Track* track);
 
@@ -156,18 +166,31 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   const Trk::VertexOnTrack*   provideVotFromBeamspot(const Trk::Track* track) const;
   const xAOD::TrackParticle*  getTrackParticle(Trk::VxTrackAtVertex*) const;
 
-  ToolHandle< Trk::IExtrapolator >                      m_extrapolator;    //!< track extrapolator
-  ToolHandle< Trk::IVertexLinearizedTrackFactory>       m_linFactory;
-  ServiceHandle<IBeamCondSvc>       m_beamCondSvc;     //!< condition service for beam-spot retrieval
+  /** @brief track extrapolator */
+  ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
+      "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
+      "Track extrapolator"};
+
+  ToolHandle<Trk::IVertexLinearizedTrackFactory> m_linFactory {this,
+      "LinearizedTrackFactory", "Trk::FullLinearizedTrackFactory"};
+
+  ServiceHandle<IBeamCondSvc> m_beamCondSvc;     //!< condition service for beam-spot retrieval
   
   /** @brief Option to use very simplistic beam spot constraint*/ 
-  bool m_useBeamSpot;
+  Gaudi::Property<bool> m_useBeamSpot {this, "useBeamSpot", false, 
+      "Switch to control use of Beam Spot Measurement"};
   
-  bool m_useClusterPosition;
-  ToolHandle< ICaloCluster_OnTrackBuilder >            m_CCOTBuilder;
+  Gaudi::Property<bool> m_useClusterPosition {this, 
+      "useClusterPosition", false, 
+      "Switch to control use of Cluster position measurement"};
+
+  ToolHandle<ICaloCluster_OnTrackBuilder> m_CCOTBuilder {this,
+      "CCOTBuilder", "CaloCluster_OnTrackBuilder"};
   
   /** @brief Option to remove TRT hits from track*/
-  bool m_RemoveTRT;
+  Gaudi::Property<bool> m_RemoveTRT {this, "RemoveTRTHits", false,
+      "RemoveTRT Hits"};
+
   const AtlasDetectorID*  m_idHelper  ;
 
   std::vector<const Trk::MeasurementBase*>  m_trash;

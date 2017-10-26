@@ -10,7 +10,6 @@
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadHandle.h"
 
-//using xAOD::EventInfo;
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /// -------------------------------------------------------
@@ -86,8 +85,8 @@ void SCTRawDataProviderTool::handle(const Incident& inc) {
 }
 
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
-					   SCT_RDO_Container& rdoIdc,
-					   InDetBSErrContainer* errs)
+                                           SCT_RDO_Container& rdoIdc,
+                                           InDetBSErrContainer* errs)
 {
   if(vecRobs.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
@@ -106,21 +105,21 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     /** check if this ROBFragment was already decoded (EF case in ROIs) */
     if (!m_robIdSet.insert(robid).second) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
-		    << std::hex<<robid << std::dec
-		    << " already decoded, skip"); 
+                    << std::hex<<robid << std::dec
+                    << " already decoded, skip"); 
     } else {
       sc = m_decoder->fillCollection(**rob_it, rdoIdc, errs);
       if (sc==StatusCode::FAILURE) {
-	if (DecodeErrCount < 100) {
-	  ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
-	  DecodeErrCount++;
-	} else if (100 == DecodeErrCount) {
-	  ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
-	  DecodeErrCount++;
-	}
+        if (DecodeErrCount < 100) {
+          ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
+          DecodeErrCount++;
+        } else if (100 == DecodeErrCount) {
+          ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
+          DecodeErrCount++;
+        }
       }
     }
-  }  
+  }
 
   if (sc==StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");

@@ -22,7 +22,6 @@
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
@@ -80,11 +79,10 @@ public:
 private:
   //Declare Storegate container
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IIOVDbSvc> m_IOVDbSvc; //!< Handle on the IOVDb service
   // list folders to be read as CondAttrListCollection*
   StringArrayProperty m_par_atrcollist;
   bool m_dataFilled;
-  int m_status;
+  //  int m_status;
   //DataHandle for callback
   const DataHandle<CondAttrListCollection> m_DCSData_HV;
   const DataHandle<CondAttrListCollection> m_DCSData_MT;
@@ -92,28 +90,25 @@ private:
   //Key for DataHandle
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;
-  BooleanProperty m_dropFolder; 
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  float m_hvLowLimit;
-  float m_hvUpLimit;
-  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
+  mutable const SCT_DCSStatCondData* m_pBadModules;
+  mutable const SCT_DCSFloatCondData* m_pModulesHV;
+  mutable const SCT_DCSFloatCondData* m_pModulesTemp0;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
   std::string m_folderPrefix;
-  std::string m_chanstatCut;
-  bool m_useHV;
-  float m_useHVLowLimit;
-  float  m_useHVUpLimit;
-  std::string m_useHVChanCut;
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;
+  bool getCondDataState() const;
+  bool getCondDataHV() const;
+  bool getCondDataTemp0() const;
 };
 
 #endif // SCT_DCSConditionsSvc_h 

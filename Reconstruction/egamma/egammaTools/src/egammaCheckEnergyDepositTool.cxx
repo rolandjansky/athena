@@ -26,34 +26,10 @@ UPDATED :
 egammaCheckEnergyDepositTool::egammaCheckEnergyDepositTool(const std::string& type, 
 							   const std::string& name, 
 							   const IInterface* parent) :
-  AthAlgTool(type, name, parent),
-  m_useThrFmax(false),
-  m_thrF0max(0.9),
-  m_thrF1max(0.8),
-  m_thrF2max(0.98),
-  m_thrF3max(0.65)
+  AthAlgTool(type, name, parent)
 {
   declareInterface<IegammaCheckEnergyDepositTool>(this);
 
-  // Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects
-  declareProperty("UseThrFmax", m_useThrFmax=false,
-                  "Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects");
-
-  // Threshold on maximal fraction of energy reconstructed in presampler
-  declareProperty("ThrF0max", m_thrF0max=0.9,
-                  "Threshold on maximal fraction of energy reconstructed in presampler");
-
-  // Threshold on maximal fraction of energy reconstructed in 1st sampling
-  declareProperty("ThrF1max", m_thrF1max=0.8,
-                  "Threshold on maximal fraction of energy reconstructed in 1st sampling");
-
-  // Threshold on maximal fraction of energy reconstructed in 2nd sampling
-  declareProperty("ThrF2max", m_thrF2max=0.98,
-                  "Threshold on maximal fraction of energy reconstructed in 2nd sampling");
-
-  // Threshold on maximal fraction of energy reconstructed in 3rd sampling
-  declareProperty("ThrF3max", m_thrF3max=0.65,
-                  "Threshold on maximal fraction of energy reconstructed in 3rd sampling");
 }
 
 // ===============================================================

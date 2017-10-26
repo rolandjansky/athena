@@ -19,6 +19,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfHLTData/HLTUtils.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 #include "./FakeRoI.h"
 

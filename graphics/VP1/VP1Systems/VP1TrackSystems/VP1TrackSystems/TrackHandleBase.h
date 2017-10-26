@@ -157,7 +157,7 @@ private:
 
   friend class AssocObjAttachmentHandle;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 
   //Here for inlining:
@@ -197,7 +197,7 @@ private:
   void trackMaterialChanged();
   void trackVisibilityChanged();
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 

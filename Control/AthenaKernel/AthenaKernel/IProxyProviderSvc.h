@@ -33,6 +33,8 @@ class IOpaqueAddress;
 
 class IProxyProviderSvc : virtual public IService {
 public:
+  DeclareInterfaceID (IProxyProviderSvc,1,0);
+
   /// add proxies to the store before Begin Event:
   virtual StatusCode preLoadProxies(IProxyRegistry& dataStore) = 0;
 
@@ -48,15 +50,8 @@ public:
   ///add a provider to the set of known ones. PROVIDER IS OWNED BY THE CLIENT
   virtual void addProvider(IAddressProvider* aProvider) = 0;
 
-  static const InterfaceID& interfaceID();
   virtual ~IProxyProviderSvc() {}
 };
 
-inline
-const InterfaceID&
-IProxyProviderSvc::interfaceID() {
-  static const InterfaceID ID("IProxyProviderSvc", 0 , 0);
-  return ID;
-}
 
 #endif // ATHENAKERNEL_IPROXYPROVIDERSVC_H

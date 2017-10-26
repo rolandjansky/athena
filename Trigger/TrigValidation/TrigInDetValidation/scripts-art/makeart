@@ -1,0 +1,29 @@
+#!/bin/bash
+
+
+# for job in $(grep TrigInDet ../TIDAbuild/makefile | grep -v \=| awk '{print $1}'); do 
+
+for job in $(grep include  ../TIDAbuild/TrigInDetValidation_TestConfiguration_main.xml | grep -v "<\!-"  | sed 's|.* \"||g' | sed 's|\".*||g'); do
+
+    echo
+    echo $job
+
+    SAMPLE=$(grep include ../TIDAbuild/$job | grep sample | grep -v "<\!-" | head -1 | sed 's|.* \"||g' | sed 's|\".*||g')
+
+    DATASET=$(grep dataset ../TIDAbuild/$SAMPLE | grep -v "<\!-" | head -1 | sed 's|.*<dataset>||g' | sed 's|</dataset>.*||g' )
+
+    echo "SAMPLE:  $SAMPLE"
+    echo "DATASET: $DATASET"
+
+#   ls -ld $DATASET
+
+    ../utils/mkart ../TIDAbuild/$job -d $DATASET -o . 
+
+    _job=test_$(echo $(basename $job .xml) | tr '[:upper:]' '[:lower:]' )
+
+    chmod 755 $_job.sh 
+    mv $_job.sh ../test
+    ls -ld ../test/$_job.sh
+
+done
+

@@ -498,19 +498,28 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
     }
 
     IdentifierHash v_idHash_corr = v_idHash[i];
+    
+    
+    Identifier tmp_id;
+    IdContext tmp_context = m_mdtIdHelper->module_context();
+    m_mdtIdHelper->get_id(v_idHash[i], tmp_id, &tmp_context);
+    Identifier ml_id = tmp_id;
     if( BMEpresent ) {
       // if there are BMEs the RDOs are registered with the detectorElement hash
-      Identifier tmp_id;
-      IdContext tmp_context = m_mdtIdHelper->module_context();
-       m_mdtIdHelper->get_id(v_idHash[i], tmp_id, &tmp_context);
-       // for BMEs the 2 CSMs are registered with the hashes of the 2 multilayers
-       Identifier ml_id = m_mdtIdHelper->multilayerID(tmp_id, processingDetEl);
-       m_mdtIdHelper->get_detectorElement_hash(ml_id, v_idHash_corr);
+      // for BMEs the 2 CSMs are registered with the hashes of the 2 multilayers
+      ml_id = m_mdtIdHelper->multilayerID(tmp_id, processingDetEl);
+      m_mdtIdHelper->get_detectorElement_hash(ml_id, v_idHash_corr);
     }
     MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash_corr);
     
     if( pCsmIt==pMdtCsmContainer->end() ) {
-      if(processingDetEl == 1) ++i;
+      if(processingDetEl == 1){
+	if ( m_mdtIdHelper->stationName(ml_id) == 53 ) processingDetEl = 2;   //if this is BME, the 2nd layer should be checked next
+	else ++i;
+      } else {
+	processingDetEl = 1;                //reset processingDetEl
+	++i;                              //and go to the next chamber
+      }
       continue;
     }
     if( BMEpresent ){

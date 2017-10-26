@@ -57,6 +57,17 @@ import AtlasGeoModel.GeoModelInit
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
+#--------------------------------------------------------------
+# Load conditions services and alg
+#--------------------------------------------------------------
+from IOVSvc.IOVSvcConf import CondSvc 
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq")
+
+#--------------------------------------------------------------
+# Load alg
+#--------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 
 job = AlgSequence()
@@ -69,11 +80,16 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
 
+#--- For Conditions algorithm for Athena MT (start)
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
+condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg", OutputLevel=2)
+#--- For Conditions algorithm for Athena MT (end)
+
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
-conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
+conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
 MajorityConditionsSvc = SCT_MajorityConditionsSvc(name = "SCT_MajorityConditionsSvc")

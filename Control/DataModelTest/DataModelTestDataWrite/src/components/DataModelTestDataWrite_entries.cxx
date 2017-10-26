@@ -6,7 +6,6 @@
  * @brief Gaudi algorithm factory declarations.
  */
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../DMTestWrite.h"
 #include "../AuxDataTestWrite.h"
 #include "../xAODTestWrite.h"
@@ -29,3 +28,4 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteSymlinks)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, HLTResultWriter)
 
 DECLARE_NAMESPACE_TOOL_FACTORY(DMTest, xAODTestWriteCInfoTool)
+

@@ -43,7 +43,8 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
                                                TrigHLTJetDebug,
                                                TrigHLTEnergyDensity,
-                                               TrigHLTJetDSSelector,)
+                                               TrigHLTJetDSSelector,
+                                               TrigHLTTrackMomentHelpers,)
 
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2
 

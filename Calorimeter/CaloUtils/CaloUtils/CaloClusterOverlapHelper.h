@@ -195,8 +195,8 @@ CaloClusterOverlapHelper::getOverlapCells(ITER fCell,
   // Recalculate here x,y,z of the Cluster 
   double clus_theta = 2 * atan(exp(-pClus->eta()));
   
-  double center_mag;
-  pClus->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag);
+  double center_mag = 0;
+  (void)pClus->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag);
   
   CxxUtils::sincos sc_phi(pClus->phi());
   CxxUtils::sincos sc_theta(clus_theta);

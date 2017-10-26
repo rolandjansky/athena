@@ -159,4 +159,20 @@ void DataProxyHolder::storeObjpointer (const_pointer_t p)
 }
 
 
+/**
+ * @brief Return the data source for this reference.
+ *
+ * If we're holding a pointer directly, rather than a proxy,
+ * then return 0 rather than raising an exception.
+ */
+inline
+IProxyDict* DataProxyHolder::source1() const
+{
+  if (!m_proxy || isObjpointer()) {
+    return 0;
+  }
+  return m_proxy->store();
+}
+
+
 } // namespace SG

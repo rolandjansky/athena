@@ -12,9 +12,10 @@
 #include <iostream>
 
 // local includes
-#include "LArG4Code/EnergySpot.h"
+// #include "LArG4Code/EnergySpot.h"
 
 #include "DataModel/DataVector.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 
 // Namespace for the ShowerLib related classes
 namespace ShowerLib {
@@ -32,7 +33,8 @@ namespace ShowerLib {
    *
    */
 
-  class Shower : public DataVector<EnergySpot> {
+  class Shower : public std::vector<ShowerEnergySpot*> {
+//  class Shower : public DataVector<ShowerEnergySpot> {
 
   public:
   

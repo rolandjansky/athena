@@ -91,7 +91,7 @@ public:
 TrackHandle_SimulationTrack::TrackHandle_SimulationTrack( TrackCollHandleBase* ch,
 						const SimBarCode& simBarCode,
 						const SimHitList& simHitList )
-  : TrackHandleBase(ch), d(new Imp(this,simBarCode,simHitList))
+  : TrackHandleBase(ch), m_d(new Imp(this,simBarCode,simHitList))
 {
   if (VP1Msg::verbose()) {
     //Check genparticle barcode is same as in simBarCode. (and event index in parent_event())
@@ -109,9 +109,9 @@ TrackHandle_SimulationTrack::~TrackHandle_SimulationTrack()
 {
   //Fixme: delete simhitlist here?
   setAscObjsVisible(false);
-  delete d->ascObjs;
-  delete d->trkTrack;
-  delete d;
+  delete m_d->ascObjs;
+  delete m_d->trkTrack;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -148,11 +148,11 @@ QStringList TrackHandle_SimulationTrack::clicked() const
   QStringList l;
   l << "Truth track";
   l << TrackHandleBase::baseInfo();
-  l << "Evt index = "+QString::number(d->simBarCode.evtIndex());
-  l << "BarCode = "+QString::number(d->simBarCode.barCode());
+  l << "Evt index = "+QString::number(m_d->simBarCode.evtIndex());
+  l << "BarCode = "+QString::number(m_d->simBarCode.barCode());
   //fixme - more info
-  //   l << "Truth track clicked [evt index = "+QString::number(d->simBarCode.second)
-  //     +", barcode = "+(d->simBarCode.barCode<0?QString("Unknown (G4 secondary)"):QString::number(d->simBarCode.first))+"]";//fixme - more info
+  //   l << "Truth track clicked [evt index = "+QString::number(m_d->simBarCode.second)
+  //     +", barcode = "+(m_d->simBarCode.barCode<0?QString("Unknown (G4 secondary)"):QString::number(m_d->simBarCode.first))+"]";//fixme - more info
   return l;
 }
 
@@ -160,28 +160,28 @@ QStringList TrackHandle_SimulationTrack::clicked() const
 //____________________________________________________________________
 const Trk::Track * TrackHandle_SimulationTrack::provide_pathInfoTrkTrack() const
 {
-  d->ensureInitTrkTracks();
-  return d->trkTrack;
+  m_d->ensureInitTrkTracks();
+  return m_d->trkTrack;
 }
 
 
 //____________________________________________________________________
 int TrackHandle_SimulationTrack::pdgCode() const
 {
-  return d->simBarCode.pdgCode();
+  return m_d->simBarCode.pdgCode();
 }
 
 //____________________________________________________________________
 bool TrackHandle_SimulationTrack::hasBarCodeZero() const
 {
-  return d->simBarCode.isNonUniqueSecondary();
+  return m_d->simBarCode.isNonUniqueSecondary();
 }
 
 //____________________________________________________________________
 Amg::Vector3D TrackHandle_SimulationTrack::momentum() const
 {
-  SimHitList::const_iterator it, itE(d->simHitList.end());
-  for ( it = d->simHitList.begin(); it != itE; ++it ) {
+  SimHitList::const_iterator it, itE(m_d->simHitList.end());
+  for ( it = m_d->simHitList.begin(); it != itE; ++it ) {
     if (it->second->momentum()>=0)
       return (it->second->momentum()) * (it->second->momentumDirection());
   }
@@ -192,29 +192,29 @@ Amg::Vector3D TrackHandle_SimulationTrack::momentum() const
 //____________________________________________________________________
 void TrackHandle_SimulationTrack::visibleStateChanged()
 {
-  if (visible()&&d->ascObjVis&&!d->ascObjs)
-    d->ensureInitAscObjs();
+  if (visible()&&m_d->ascObjVis&&!m_d->ascObjs)
+    m_d->ensureInitAscObjs();
 }
 
 //____________________________________________________________________
 void TrackHandle_SimulationTrack::setAscObjsVisible(bool b)
 {
-  if (d->ascObjVis==b)
+  if (m_d->ascObjVis==b)
     return;
-  d->ascObjVis=b;
-//   const bool visnow = visible()&&d->ascObjVis;
-//   const bool visbefore = visible()&&!d->ascObjVis;
+  m_d->ascObjVis=b;
+//   const bool visnow = visible()&&m_d->ascObjVis;
+//   const bool visbefore = visible()&&!m_d->ascObjVis;
 //   if (visnow==visbefore)
 //     return;
 //   VP1Msg::messageVerbose("TrackHandle_SimulationTrack::AscObjs visible state -> "+VP1Msg::str(b));
 
-  if (!d->ascObjs) {
+  if (!m_d->ascObjs) {
     if (!b||!visible())
       return;
-    d->ensureInitAscObjs();
+    m_d->ensureInitAscObjs();
   }
 
-  std::vector<AscObj_TruthPoint*>::iterator it(d->ascObjs->begin()), itE(d->ascObjs->end());
+  std::vector<AscObj_TruthPoint*>::iterator it(m_d->ascObjs->begin()), itE(m_d->ascObjs->end());
   for (;it!=itE;++it)
     (*it)->setVisible(b);
 }
@@ -243,9 +243,9 @@ void TrackHandle_SimulationTrack::Imp::ensureInitAscObjs()
 //____________________________________________________________________
 double TrackHandle_SimulationTrack::calculateCharge() const
 {
-  if (!d->simHitList.empty()) {
-    if (d->simHitList.at(0).second->hasCharge())
-      return d->simHitList.at(0).second->charge();
+  if (!m_d->simHitList.empty()) {
+    if (m_d->simHitList.at(0).second->hasCharge())
+      return m_d->simHitList.at(0).second->charge();
     else
       VP1Msg::messageVerbose("TrackHandle_SimulationTrack::calculateCharge() WARNING: Simhit did not have charge!");
   }
