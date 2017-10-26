@@ -44,19 +44,8 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    // file access method depends on whether we are in r20.7 or r21
-    int releaseSeries = atoi(getenv("ROOTCORE_RELEASE_SERIES"));
-    if(releaseSeries>=25){
-      // r21 with release <= 21.2.4
-      configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
-    }
-    else {
-      #ifdef ROOTCORE
-          configPath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
-      #else
-          configPath = PathResolverFindXMLFile(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
-      #endif
-    }
+    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
