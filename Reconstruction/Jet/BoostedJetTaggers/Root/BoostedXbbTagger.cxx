@@ -8,10 +8,6 @@
 
 #include "TEnv.h"
 
-// make all static accessors static to this file, like extern but hip
-SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> BoostedXbbTagger::parent("Parent");
-SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > >BoostedXbbTagger::ghostMatchedTrackJets("GhostAntiKt2TrackJet");
-
 BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
@@ -19,6 +15,8 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
   m_jetMassMaxTF1(nullptr),
   m_jetMassMinTF1(nullptr),
   m_jetSubCutTF1(nullptr),
+  m_parent("Parent"),
+  m_ghostMatchedTrackJets("GhostAntiKt2TrackJet"),
   m_dec_jetMassMin( "jetMassMin" ),
   m_dec_jetMassMax( "jetMassMax" ),
   m_dec_jssCut( "jssCut" ),
@@ -152,6 +150,10 @@ StatusCode BoostedXbbTagger::initialize()
             m_trackJetNConst                 = configReader.GetValue((m_wkpt+"TrackJetNConstituents").c_str(), m_trackJetNConst );
             m_trackJetContName               = configReader.GetValue((m_wkpt+"TrackJetContainer").c_str(),     m_trackJetContName.c_str() );
       }
+
+      // make all static accessors static to this file, like extern but hip
+      m_parent                = SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>>("Parent");
+      m_ghostMatchedTrackJets = SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostAntiKt2TrackJet");
 
       // get the decoration name
       m_decorationName = configReader.GetValue("DecorationName" ,"");
@@ -317,8 +319,8 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   // get the track jets from the parent
   bool problemWithParent = false;
   ElementLink<xAOD::JetContainer> parentEL;
-  if(!parent.isAvailable(jet)) problemWithParent = true;
-  else parentEL = parent(jet);
+  if(!m_parent.isAvailable(jet)) problemWithParent = true;
+  else parentEL = m_parent(jet);
   if(problemWithParent || !parentEL.isValid()){
     if(problemWithParent) ATH_MSG_ERROR("Parent decoration does not exist.");
     if(!parentEL.isValid()) ATH_MSG_ERROR("Parent link is not valid.");
@@ -327,10 +329,10 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   else {
     const xAOD::Jet* parentJet = *parentEL;
     // use accessor instead of getAssociatedObject in order to have EL
-    if (!ghostMatchedTrackJets.isAvailable(*parentJet)) {
+    if (!m_ghostMatchedTrackJets.isAvailable(*parentJet)) {
       ATH_MSG_ERROR("Ghostmatched jet collection does not exist.");
     }
-    associated_trackJets = ghostMatchedTrackJets(*parentJet);
+    associated_trackJets = m_ghostMatchedTrackJets(*parentJet);
   }
 
   // decorate all trackjets by default
@@ -526,11 +528,11 @@ StatusCode BoostedXbbTagger::decorateWithMuons(const xAOD::Jet& jet) const
     // retrieve ghost-associated track jets from large-R jet
     std::vector<const xAOD::Jet*> associated_trackJets;
     // get the element links to the parent, ungroomed jet
-    if(!parent.isAvailable(jet)) {
+    if(!m_parent.isAvailable(jet)) {
         ATH_MSG_ERROR("Parent (ungroomed) jet collection does not exist.");
         return StatusCode::FAILURE;
     }
-    ElementLink<xAOD::JetContainer> parentEL = parent(jet);
+    ElementLink<xAOD::JetContainer> parentEL = m_parent(jet);
     if(!parentEL.isValid()) {
         ATH_MSG_ERROR("Parent link is not valid.");
         return StatusCode::FAILURE;

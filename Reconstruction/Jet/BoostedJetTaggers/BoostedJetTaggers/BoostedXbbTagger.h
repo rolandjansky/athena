@@ -115,8 +115,8 @@ class BoostedXbbTagger : public JSSTaggerBase {
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
 
     // generic accessors used
-    static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> parent;
-    static SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghostMatchedTrackJets;
+    SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_parent;
+    SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > m_ghostMatchedTrackJets;
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
