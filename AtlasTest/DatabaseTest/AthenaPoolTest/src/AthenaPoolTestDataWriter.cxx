@@ -519,7 +519,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
 
     PileUpEventInfo* pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt, triggerInfo);
     //  register as sub event of the overlaid
-    const EventInfo * newEvt = new EventInfo(*evt);
+    auto newEvt = std::make_unique<EventInfo>(*evt);
 
     // get StoreGate service
     // StoreGateSvc* storeGate;
@@ -528,7 +528,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
     //     return StatusCode::FAILURE;
     // } 
     // pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, newEvt, storeGate);
-    pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, newEvt, 0);
+    pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, std::move(newEvt), 0);
     ATH_CHECK( evtStore()->record(pOverEvent, "OverlayEvent") );
 
     // Printout
