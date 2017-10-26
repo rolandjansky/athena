@@ -181,8 +181,8 @@ StatusCode MuonCPTools::setupScaleFactors() {
     // Add iso as a suffix (see above for consistency between tools :) )
     std::string muon_isolation = m_config->muonIsolation();
     muon_isolation += "Iso";
-    m_muonEfficiencyCorrectionsToolIso
-      = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
+    m_muonEfficiencyCorrectionsToolIso = 
+      setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
   }
 
@@ -206,6 +206,14 @@ StatusCode MuonCPTools::setupScaleFactors() {
   m_muonEfficiencyCorrectionsToolTTVA
     = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolTTVA",
                       "TTVA");
+
+  // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
+  //         - Hence we need to fail if this has occured
+  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolation() == "PromptLepton")
+      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationLoose() == "PromptLepton") ){
+    ATH_MSG_ERROR("Cannot use PromptLeptonIsolation on muons without using Loose quality - Scale factors are not available");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }

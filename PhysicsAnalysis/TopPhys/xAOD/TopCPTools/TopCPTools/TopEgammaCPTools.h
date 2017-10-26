@@ -82,6 +82,13 @@ class EgammaCPTools final : public asg::AsgTool {
   // egamma groups very long file names for SFs and efficiencies.
   std::string electronSFFilePath(const std::string& type, const std::string& ID = "", const std::string& isolation = "");
 
+  // Helper for using maps from egamma groups
+  IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type);
+
+  std::string electronSFMapFilePath(const std::string& type);
+
+  std::string mapWorkingPoints(const std::string& type);
+
 
 };
 }  // namespace top

@@ -70,6 +70,8 @@ StatusCode IsolationCPTools::setupIsolation() {
   std::set<std::string> electron_isolations;
   electron_isolations.insert(muon_isolations.begin(), muon_isolations.end());
   electron_isolations.insert("FixedCutTight");
+  electron_isolations.insert("FixedCutHighPtCaloOnly");
+
   // Photon Isolation WPs
   std::set<std::string> photon_isolations = {"FixedCutTightCaloOnly",
                                               "FixedCutTight",
