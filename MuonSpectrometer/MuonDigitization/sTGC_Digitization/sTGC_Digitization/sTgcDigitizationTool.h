@@ -1,4 +1,7 @@
-/* -*- C++ -*- */
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
 #define MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
 /** @class sTgcDigitizationTool
