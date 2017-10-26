@@ -131,24 +131,6 @@ if 'Y' in dir():
 # uncomment this for simulation with calibration hits
 #simFlags.CalibrationRun = 'Tile'
 
-# uncomment and modify any of options below to have non-standard simulation 
-from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
-tileSimInfoConfigurator=TileSimInfoConfigurator()
-# tileSimInfoConfigurator.DeltaTHit = [ 1. ]
-# tileSimInfoConfigurator.TimeCut = 200.5
-# tileSimInfoConfigurator.TileTB = True
-# tileSimInfoConfigurator.PlateToCell = True
-# tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoTileRow = False
-# tileSimInfoConfigurator.DoTOFCorrection = True
-# Birks' law
-if 'DoBirk' in dir():
-    tileSimInfoConfigurator.DoBirk = DoBirk
-# U-shape
-if 'TileUshape' in dir():
-    tileSimInfoConfigurator.Ushape = TileUshape
-
-print tileSimInfoConfigurator
 
 # avoid reading CaloTTMap from COOL
 include.block ( "CaloConditions/CaloConditions_jobOptions.py" )
@@ -240,5 +222,21 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+
+# uncomment and modify any of options below to have non-standard simulation 
+from AthenaCommon.AppMgr import ToolSvc
+SD = ToolSvc.SensitiveDetectorMasterTool.SensitiveDetectors[0]
+SD.TileTB=True
+# SD.DeltaTHit = [ 50. ]
+# SD.TimeCut = 200.5
+# SD.PlateToCell = True
+# SD.DoTileRow = False
+# SD.DoTOFCorrection = True
+# Birks' law
+if 'DoBirk' in dir():
+    SD.DoBirk = DoBirk
+if 'TileUshape' in dir():
+    SD.Ushape=TileUshape
+print SD
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------
