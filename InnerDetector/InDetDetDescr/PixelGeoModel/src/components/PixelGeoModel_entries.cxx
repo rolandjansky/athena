@@ -3,3 +3,4 @@
 
 DECLARE_TOOL_FACTORY(PixelDetectorTool)
 DECLARE_SERVICE_FACTORY(IBLParameterSvc)
+

@@ -3,3 +3,4 @@
 
 DECLARE_TOOL_FACTORY(InDetServMatTool)
 DECLARE_TOOL_FACTORY(InDetServMatBuilderToolSLHC)
+

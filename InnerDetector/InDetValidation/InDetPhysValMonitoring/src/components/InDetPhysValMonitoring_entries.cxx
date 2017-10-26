@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
 #include "InDetPhysValMonitoring/InDetPhysValLargeD0Tool.h"
 #include "../InDetPhysValTruthDecoratorTool.h"
@@ -31,23 +30,4 @@ DECLARE_TOOL_FACTORY(dRMatchingTool)
 DECLARE_TOOL_FACTORY(TrackSelectionTool)
 DECLARE_TOOL_FACTORY( DummyTrackSlimmingTool)
 DECLARE_TOOL_FACTORY( AthTruthSelectionTool)
-
-DECLARE_FACTORY_ENTRIES(InDetPhysValMonitoring){
-    DECLARE_ALGORITHM( InDetPhysValDecoratorAlg )
-    DECLARE_ALGORITHM( AlgTestHistoDefSvc )
-    DECLARE_SERVICE(HistogramDefinitionSvc)
-    DECLARE_TOOL(InDetPhysValMonitoringTool)
-    DECLARE_TOOL(InDetPhysValLargeD0Tool)
-    DECLARE_TOOL(ToolTestMonitoringPlots)
-    DECLARE_TOOL(InDetPhysValTruthDecoratorTool)
-    DECLARE_TOOL(InDetPhysHitDecoratorTool)
-    DECLARE_TOOL(ParameterErrDecoratorTool)
-    DECLARE_TOOL(TruthClassDecoratorTool)
-    DECLARE_TOOL(TrackTruthSelectionTool)
-    DECLARE_TOOL(dRMatchingTool)
-    DECLARE_TOOL(TrackSelectionTool)
-    DECLARE_TOOL( DummyTrackSlimmingTool)
-    DECLARE_TOOL( AthTruthSelectionTool)
-
-}
 

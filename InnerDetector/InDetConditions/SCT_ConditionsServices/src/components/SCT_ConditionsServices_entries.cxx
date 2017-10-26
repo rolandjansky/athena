@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../SCT_ConditionsSummarySvc.h"
 #include "../SCT_ModuleVetoSvc.h"
 #include "../SCT_StripVetoSvc.h"
@@ -112,57 +111,9 @@ DECLARE_SERVICE_FACTORY(SCT_RadDamageSummarySvc)
 DECLARE_TOOL_FACTORY(SCT_ReadoutTool)
 DECLARE_TOOL_FACTORY(SCT_ElectricFieldTool)
 
-DECLARE_FACTORY_ENTRIES(SCT_ConditionsServices) {
-  DECLARE_SERVICE( SCT_RODVetoSvc );
 
-  DECLARE_SERVICE( SCT_CachedSummarySvc);
-  DECLARE_SERVICE( SCT_ConditionsSummarySvc);
-  DECLARE_SERVICE( SCT_ModuleVetoSvc );
-  DECLARE_SERVICE( SCT_StripVetoSvc );
-  DECLARE_SERVICE( SCT_ConfigurationConditionsSvc );
-  DECLARE_SERVICE( SCT_DCSConditionsSvc );
-  DECLARE_SERVICE( SCT_ByteStreamErrorsSvc );
-  DECLARE_SERVICE( SCT_MonitorConditionsSvc );
-  DECLARE_SERVICE( SCT_FlaggedConditionSvc );
-  DECLARE_SERVICE( SCT_ReadCalibDataSvc )
-  DECLARE_SERVICE( SCT_ReadCalibChipDataSvc )
-  DECLARE_SERVICE( SCT_SiliconConditionsSvc )
-  DECLARE_SERVICE( SCT_LinkMaskingSvc )
-  DECLARE_SERVICE( SCT_TdaqEnabledSvc )
-  DECLARE_SERVICE( SCT_ConditionsParameterSvc )
-  DECLARE_SERVICE( SCT_SensorsSvc )
-  DECLARE_SERVICE( SCT_MajorityConditionsSvc )
-  DECLARE_SERVICE( SCT_ChargeTrappingSvc )
-  DECLARE_SERVICE( SCT_RadDamageSummarySvc )
 
-  DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
-  DECLARE_ALGORITHM( SCT_ModuleVetoTestAlg )
-  DECLARE_ALGORITHM( SCT_ConditionsSummaryTestAlg )
-  DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
 
-  DECLARE_ALGORITHM( SCT_DCSConditionsHVCondAlg )
-  DECLARE_ALGORITHM( SCT_DCSConditionsStatCondAlg )
-  DECLARE_ALGORITHM( SCT_DCSConditionsTempCondAlg )
-  DECLARE_ALGORITHM( SCT_DCSConditionsTestAlg )
-  DECLARE_ALGORITHM( SCT_MonitorConditionsCondAlg )
-  DECLARE_ALGORITHM( SCT_MonitorConditionsTestAlg )
-  DECLARE_ALGORITHM( SCT_ReadCalibDataTestAlg )
-  DECLARE_ALGORITHM( SCT_ReadCalibChipDataTestAlg )
-  DECLARE_ALGORITHM( SCT_SiliconConditionsTestAlg )
-  DECLARE_ALGORITHM( SCT_ReadoutTestAlg )
-  DECLARE_ALGORITHM( SCT_LinkMaskingTestAlg )
-  DECLARE_ALGORITHM( SCT_ConfigurationConditionsTestAlg )
-  DECLARE_ALGORITHM( SCT_MajorityCondAlg )
-  DECLARE_ALGORITHM( SCT_MajorityConditionsTestAlg )
-  DECLARE_ALGORITHM( SCT_ConditionsParameterTestAlg )
-  DECLARE_ALGORITHM( SCT_SensorsTestAlg )
-  DECLARE_ALGORITHM(SCT_TdaqEnabledCondAlg)
-  DECLARE_ALGORITHM(SCT_TdaqEnabledTestAlg)
   
   
-
-  DECLARE_TOOL(SCT_ReadoutTool)
-  DECLARE_TOOL(SCT_ElectricFieldTool)
-}
-
 

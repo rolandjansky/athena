@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../PixelOfflineCalibSvc.h"
 #include "../PixelCalibSvc.h"
 #include "../PixelCalibServiceTest.h"
@@ -28,23 +27,4 @@ DECLARE_SERVICE_FACTORY( PixelByteStreamErrorsSvc )
 DECLARE_SERVICE_FACTORY( PixelTDAQSvc )
 DECLARE_SERVICE_FACTORY( PixelRunConditionsDbSvc )
   //DECLARE_SERVICE_FACTORY( PixelConnCoolDbSvc )
-
-DECLARE_FACTORY_ENTRIES( PixelConditionsServices )
-{
-  DECLARE_SERVICE( PixelOfflineCalibSvc )
-  DECLARE_SERVICE( PixelCalibSvc )
-  DECLARE_ALGORITHM( PixelOfflineCalibServiceTest )
-  DECLARE_ALGORITHM( PixelCalibServiceTest )
-  DECLARE_SERVICE( SpecialPixelMapSvc )
-  DECLARE_ALGORITHM( PixelMapTestAlg )
-  DECLARE_ALGORITHM( PixelRunConditionsDbTest )
-  DECLARE_SERVICE( PixelDCSSvc )
-  DECLARE_ALGORITHM( PixelDCSTestSvc )
-  DECLARE_SERVICE( PixelConditionsSummarySvc )
-  DECLARE_SERVICE( PixelSiliconConditionsSvc )
-  DECLARE_SERVICE( PixelByteStreamErrorsSvc )
-  DECLARE_SERVICE( PixelTDAQSvc )
-  DECLARE_SERVICE( PixelRunConditionsDbSvc )
-    //DECLARE_SERVICE( PixelConnCoolDbSvc )    
-}
 

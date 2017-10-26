@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../SCT_Amp.h"
 #include "../SCT_FrontEnd.h"
 #include "SCT_Digitization/SCT_Digitization.h"
@@ -15,15 +13,4 @@ DECLARE_TOOL_FACTORY(SCT_DigitizationTool)
 DECLARE_TOOL_FACTORY(SCT_SurfaceChargesGenerator)
 DECLARE_TOOL_FACTORY(SCT_DetailedSurfaceChargesGenerator)
 DECLARE_TOOL_FACTORY(SCT_RandomDisabledCellGenerator)
-
-
-DECLARE_FACTORY_ENTRIES(SCT_Digitization) {
-  DECLARE_ALGORITHM(SCT_Digitization)
-  DECLARE_ALGTOOL(SCT_Amp)
-  DECLARE_ALGTOOL(SCT_FrontEnd)
-  DECLARE_ALGTOOL(SCT_DigitizationTool)
-  DECLARE_ALGTOOL(SCT_SurfaceChargesGenerator)
-  DECLARE_ALGTOOL(SCT_DetailedSurfaceChargesGenerator)
-  DECLARE_ALGTOOL(SCT_RandomDisabledCellGenerator)
-}
 

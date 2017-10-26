@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "src/PixelDigitization.h"
 #include "src/PixelDigitizationTool.h"
 #include "src/PixelNoisyCellGenerator.h"
@@ -27,20 +25,4 @@ DECLARE_TOOL_FACTORY(RD53SimTool)
 DECLARE_TOOL_FACTORY(FEI4SimTool)
 DECLARE_TOOL_FACTORY(FEI3SimTool)
 DECLARE_SERVICE_FACTORY(ChargeCollProbSvc)
-
-DECLARE_FACTORY_ENTRIES(PixelDigitization) {
-  DECLARE_ALGORITHM(PixelDigitization)
-  DECLARE_TOOL(EnergyDepositionTool)
-  DECLARE_TOOL(PixelDigitizationTool)
-  DECLARE_TOOL(PixelNoisyCellGenerator)
-  DECLARE_TOOL(PixelChargeSmearer)
-  DECLARE_TOOL(PixelDiodeCrossTalkGenerator)
-  DECLARE_TOOL(PixelRandomDisabledCellGenerator)
-  DECLARE_TOOL(SensorSimPlanarTool)
-  DECLARE_TOOL(SensorSim3DTool)
-  DECLARE_TOOL(RD53SimTool)
-  DECLARE_TOOL(FEI4SimTool)
-  DECLARE_TOOL(FEI3SimTool)
-  DECLARE_SERVICE(ChargeCollProbSvc)
-}
 

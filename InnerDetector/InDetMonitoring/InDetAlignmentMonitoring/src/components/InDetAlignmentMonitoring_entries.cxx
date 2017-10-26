@@ -10,7 +10,6 @@
 #include "src/TrackSelectionAlg.h" 
 #include "src/IDAlignMonPVBiases.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 DECLARE_TOOL_FACTORY(IDAlignMonPVBiases)
 DECLARE_TOOL_FACTORY(IDAlignMonEfficiencies)
 DECLARE_TOOL_FACTORY(IDAlignMonGenericTracks)
@@ -23,6 +22,3 @@ DECLARE_TOOL_FACTORY(IDAlignMonSivsTRT)
 DECLARE_NAMESPACE_TOOL_FACTORY(InDetAlignMon, TrackSelectionTool)
 DECLARE_ALGORITHM_FACTORY(TrackSelectionAlg)
 
-DECLARE_FACTORY_ENTRIES(InDetAlignmentMonitoring) {
-  DECLARE_NAMESPACE_TOOL(InDetAlignMon, TrackSelectionTool);
-}

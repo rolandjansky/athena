@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "src/TRT_ConditionsSummarySvc.h"
 #include "src/TRT_ConditionsTestSvc.h"
 #include "src/TRT_AlignDbSvc.h"
@@ -22,3 +21,4 @@ DECLARE_SERVICE_FACTORY( TRT_StrawNeighbourSvc )
 DECLARE_SERVICE_FACTORY( TRT_StrawStatusSummarySvc )
 DECLARE_SERVICE_FACTORY( TRT_ByteStream_ConditionsSvc )
 DECLARE_SERVICE_FACTORY( TRT_DAQ_ConditionsSvc )
+

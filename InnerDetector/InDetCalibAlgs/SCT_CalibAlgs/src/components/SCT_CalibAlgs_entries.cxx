@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "SCT_CalibAlgs/SCTCalib.h"
 #include "SCT_CalibAlgs/SCTCalibWriteSvc.h"
 #include "../SCT_CalibHitmapSvc.h"
@@ -17,14 +16,5 @@ DECLARE_SERVICE_FACTORY( SCT_CalibLbSvc )
 DECLARE_SERVICE_FACTORY( SCT_CalibModuleListSvc )
 DECLARE_SERVICE_FACTORY( SCT_CalibEventInfo )
 
-DECLARE_FACTORY_ENTRIES( SCT_CalibAlgs ) {
-  DECLARE_SERVICE( SCTCalibWriteSvc )
-  DECLARE_SERVICE( SCT_CalibHitmapSvc ) 
-  DECLARE_ALGORITHM( SCTCalib )
-  DECLARE_SERVICE( SCT_CalibBsErrorSvc )
-  DECLARE_SERVICE(SCT_CalibLbSvc)
-  DECLARE_SERVICE(SCT_CalibEventInfo)
-  DECLARE_SERVICE(SCT_CalibModuleListSvc)
   
-}
 

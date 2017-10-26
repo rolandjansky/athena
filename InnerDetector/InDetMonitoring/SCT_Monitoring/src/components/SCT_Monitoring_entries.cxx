@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 #include "SCT_Monitoring/SCTTracksMonTool.h"
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
@@ -18,16 +17,4 @@ DECLARE_TOOL_FACTORY(SCTErrMonTool)
 DECLARE_TOOL_FACTORY(SCTHitEffMonTool)
 DECLARE_TOOL_FACTORY(SCTHitsNoiseMonTool)
 DECLARE_TOOL_FACTORY(SCTSummaryMonTool)
-
-
-DECLARE_FACTORY_ENTRIES(SCT_Monitoring) {
-  DECLARE_ALGTOOL(SCTMotherTrigMonTool)
-  DECLARE_ALGTOOL(SCTTracksMonTool)
-  DECLARE_ALGTOOL(SCTLorentzMonTool)
-  DECLARE_ALGTOOL(SCTRatioNoiseMonTool)
-  DECLARE_ALGTOOL(SCTErrMonTool)
-  DECLARE_ALGTOOL(SCTHitEffMonTool)
-  DECLARE_ALGTOOL(SCTHitsNoiseMonTool)
-  DECLARE_ALGTOOL(SCTSummaryMonTool)
-}
 
