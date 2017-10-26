@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../CopyMcEventCollection.h"
 #include "../CopyObjects.h"
 #include "../CopyTimings.h"
@@ -25,20 +24,4 @@ DECLARE_ALGORITHM_FACTORY( DeepCopyObjects )
 DECLARE_ALGORITHM_FACTORY( RemoveTempBkgObjects )
 
 DECLARE_TOOL_FACTORY( ByteStreamMultipleOutputStreamCopyTool )
-
-DECLARE_FACTORY_ENTRIES( OverlayCommonAlgs ) {
-  DECLARE_ALGORITHM( CopyMcEventCollection )
-  DECLARE_ALGORITHM( CopyObjects )
-  DECLARE_ALGORITHM( CopyTimings )
-  DECLARE_ALGORITHM( CopyTruthInfo )
-  DECLARE_ALGORITHM( SaveInDetObjects )
-  DECLARE_ALGORITHM( RemoveObjects )
-  DECLARE_ALGORITHM( UpdateEventInfo )
-  DECLARE_ALGORITHM( BSFilter )
-  DECLARE_ALGORITHM( G4HitMerger )
-  DECLARE_ALGORITHM( DeepCopyObjects )  
-  DECLARE_ALGORITHM( RemoveTempBkgObjects )
-
-  DECLARE_TOOL( ByteStreamMultipleOutputStreamCopyTool )
-}
 
