@@ -99,7 +99,7 @@ namespace DerivationFramework {
 
     if(!m_jetPtAssociationTool.empty()) {
       CHECK(m_jetPtAssociationTool.retrieve());
-      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments \"" << m_momentPrefix << "Link,Fraction\"");
+      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments \"" << m_momentPrefix << " Link,Fraction\"");
       m_decorateptassociation = true;
       dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>(m_momentPrefix+"GhostTruthAssociationFraction");
     }
@@ -161,7 +161,7 @@ namespace DerivationFramework {
     }
 
     if(m_decoratetracksum){
-      if(m_jetTrackSumMomentsTool->modify(*jets_copy) )
+      if( m_jetTrackSumMomentsTool->modify(*jets_copy) )
       {
         ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
         return StatusCode::FAILURE;
@@ -169,7 +169,7 @@ namespace DerivationFramework {
     }
 
     if(m_decorateptassociation){
-      if(m_jetPtAssociationTool->modify(*jets_copy) )
+      if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
         ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
         return StatusCode::FAILURE;

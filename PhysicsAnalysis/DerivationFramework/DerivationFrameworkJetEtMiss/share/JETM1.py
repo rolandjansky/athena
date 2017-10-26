@@ -125,7 +125,10 @@ addDefaultTrimmedJets(jetm1Seq,"JETM1")
 
 if DerivationFrameworkIsMonteCarlo:
     addAntiKt4LowPtJets(jetm1Seq,"JETM1")
-    addJetPtAssociation()
+    ## Add GhostTruthAssociation information ##
+    addJetPtAssociation(jetalg="AntiKt4EMTopo")
+    addJetPtAssociation(jetalg="AntiKt4LCTopo")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets

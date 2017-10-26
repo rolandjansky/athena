@@ -270,18 +270,18 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
-def addJetPtAssociation(jetalg='AntiKt4EMTopo',algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob):
+def addJetPtAssociation(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
         extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
 
     jetptassociationtoolname = 'DFJetPtAssociation_'+jetalg
     from AthenaCommon.AppMgr import ToolSvc
-    from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
+#    from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
     if hasattr(ToolSvc,jetptassociationtoolname):
         jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
     else:
-        jetptassociationtool = CfgMgr.JetPtAssociationTool()
+        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer="AntiKt4TruthJets", AssociationName="GhostTruth")
         ToolSvc += jetptassociationtool
         jetaugtool.JetPtAssociationTool = jetptassociationtool
 
