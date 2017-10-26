@@ -26,7 +26,8 @@ class LArAccumulatedCalibDigitContainer : public DataVector<LArAccumulatedCalibD
   
  public :
   /** @brief Default Constructor */
-  LArAccumulatedCalibDigitContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
+  LArAccumulatedCalibDigitContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS,
+                                    double delayScale = 1*CLHEP::ns);
   /** @brief destructor */
   virtual ~LArAccumulatedCalibDigitContainer();
   
@@ -37,15 +38,14 @@ class LArAccumulatedCalibDigitContainer : public DataVector<LArAccumulatedCalibD
   inline double getDelayScale() const {return m_delayScale;}
   
  private:    
+  friend class LArAccumulatedConstCalibDigitContainer;
 
   /** @brief delayScale */
   double m_delayScale;
-
-  /** @brief SG ownership policy  */
-  //SG::OwnershipPolicy  m_ownPolicy ;
 };
 
 
 CLASS_DEF(LArAccumulatedCalibDigitContainer,1157958831,0)
+
 
 #endif
