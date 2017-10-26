@@ -59,14 +59,14 @@ StripsResponse::StripsResponse():
 /*******************************************************************************/
 void StripsResponse::loadGasFile(std::string fileName){
   Athena::MsgStreamMember log("StripsResponse::loadGasFile"); 
-  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
+  std::string fileWithPath = PathResolver::find_file (fileName, "CALIBPATH");
   if (fileWithPath == "") {
-    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endreq;
+    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endmsg;
     exit(1);
   }
   bool ok = gas->LoadGasFile(fileWithPath);
   if(!ok){
-    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not load file " << fileName << endreq;
+    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not load file " << fileName << endmsg;
     exit(1);
   }
   gas->PrintGas();
@@ -87,8 +87,8 @@ void StripsResponse::initFunctions()
   LongitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
   TransverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
   Athena::MsgStreamMember log("StripsResponse::initFunctions");
-  log << MSG::DEBUG << "StripsResponse::initFunctions DONE" << endreq;
-  // if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "\t \t StripsResponse::initFunctions DONE " << endreq;
+  log << MSG::DEBUG << "StripsResponse::initFunctions DONE" << endmsg;
+  // if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "\t \t StripsResponse::initFunctions DONE " << endmsg;
 }
 /*******************************************************************************/
 void StripsResponse::clearValues()
@@ -118,17 +118,17 @@ void StripsResponse::initializationFrom()
   gas = new GarfieldGas(); 
 
   Athena::MsgStreamMember log("StripsResponse::initializationFrom");
-  log << MSG::DEBUG << "StripsResponse::initializationFrom set values" << endreq;
+  log << MSG::DEBUG << "StripsResponse::initializationFrom set values" << endmsg;
   polya->SetParameter(0, 2.3);
   polya->SetParameter(1, 1.);
-  //  log << MSG::DEBUG << "StripsResponse::initializationFrom getRandom: " << polya->GetRandom() << endreq;
+  //  log << MSG::DEBUG << "StripsResponse::initializationFrom getRandom: " << polya->GetRandom() << endmsg;
 }
 /*******************************************************************************/
 MmStripToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiInput) 
 //MmElectronicsToolInput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiInput) 
 {
   Athena::MsgStreamMember log("StripsResponse::GetResponseFrom"); 
-  log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom start " << endreq;
+  log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom start " << endmsg;
 
   Lorentz_Angle = 0.0;
   Amg::Vector3D b = digiInput.magneticField()*1e+3;//kT->T
@@ -136,7 +136,7 @@ MmStripToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiI
   double vx,vy,vz;//X:#strip(radius,increasing to outer) Z:z(positive to IP)
   bool ok = gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz); 
   if(!ok){
-    log << MSG::INFO << "StripsResponse::GetResponseFrom failed to get drift velocity" << endreq;
+    log << MSG::INFO << "StripsResponse::GetResponseFrom failed to get drift velocity" << endmsg;
   }
   Lorentz_Angle = atan2(vx,-vz)*180./TMath::Pi();// positive to outer strips
 
@@ -147,14 +147,14 @@ MmStripToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiI
   crossTalk1=0.0; 
   crossTalk2=0.0; 
   Lorentz_Angle = 0.0; 
-  log << MSG::DEBUG << "\t \t StripsResponse::calculateResponseFrom call whichStrips " << endreq;
+  log << MSG::DEBUG << "\t \t StripsResponse::calculateResponseFrom call whichStrips " << endmsg;
   whichStrips(digiInput.positionWithinStrip(), digiInput.stripIDLocal(), digiInput.incomingAngle(), digiInput.stripMaxID(), digiInput);
 
-  log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom MmDigitToolOutput create " << endreq;
+  log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom MmDigitToolOutput create " << endmsg;
  
   MmStripToolOutput tmp(finalNumberofStrip, finalqStrip, finaltStrip); // T.Saito
 
-  //  log << MSG::DEBUG << "StripsResponse::GetResponseFrom -> hitWasEfficient(): " << tmp.hitWasEfficient() << endreq;
+  //  log << MSG::DEBUG << "StripsResponse::GetResponseFrom -> hitWasEfficient(): " << tmp.hitWasEfficient() << endmsg;
   return tmp;
 }
 //__________________________________________________________________________________________________
@@ -165,7 +165,8 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 {
 
   Athena::MsgStreamMember msglog("StripsResponse::whichStrips");
-  msglog << MSG::DEBUG << "\t \t StripsResponse::whichStrips start " << endreq;
+  msglog << MSG::DEBUG << "\t \t StripsResponse::whichStrips start " << endmsg;
+  float eventTime = digiInput.eventTime();
   float theta = thetaD*TMath::Pi()/180.0;
   
   pitch = get_stripWidth();
@@ -180,9 +181,9 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
   randomNum->SetSeed((int)fabs(hitx*10000));
   pt = randomNum->Uniform();
   ll = -lmean*log(pt);
-
+  
   while (ll < driftGap/TMath::Cos(theta)){
-    
+
     MM_IonizationCluster IonizationCluster(hitx, ll*sin(theta), ll*cos(theta));
     IonizationCluster.createElectrons(randomNum);
     //    IonizationCluster.diffuseElectrons(LogitundinalDiffusSigma, diffusSigma, randomNum);
@@ -205,7 +206,7 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
     double vx, vy, vz;
     bool ok = gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz);    
     if(!ok) {
-      msglog << MSG::WARNING << "StripsResponse::GetResponseFrom failed to get drift velocity " << endreq;
+      msglog << MSG::WARNING << "StripsResponse::GetResponseFrom failed to get drift velocity " << endmsg;
     }
 
     IonizationCluster.propagateElectrons(vx, -vz, driftVelocity);
@@ -215,6 +216,9 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
       polya->SetParameters(2.3, 1.0);
       gRandom = randomNum;
       Electron->setCharge(gain*polya->GetRandom());
+
+      // Add eventTime in Electron time
+      Electron->setTime(Electron->getTime() + eventTime);
     }
     //---
     IonizationClusters.push_back(IonizationCluster);
@@ -231,7 +235,7 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
   
   MM_StripResponse StripResponse(IonizationClusters, timeresolution, pitch, stripID, stripMaxID);
   StripResponse.timeOrderElectrons();
-  StripResponse.calculateTimeSeries();
+  StripResponse.calculateTimeSeries(thetaD, digiInput.gasgap());
   StripResponse.simulateCrossTalk(crossTalk1, crossTalk2);
   StripResponse.calculateSummaries(qThreshold);
   //Connect the output with the rest of the existing code

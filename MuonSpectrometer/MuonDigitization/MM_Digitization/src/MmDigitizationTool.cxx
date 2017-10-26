@@ -142,6 +142,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   , tofCorrection(-99999999.)
   , bunchTime(-99999999.)
   , globalHitTime(-99999999.)
+  , eventTime(-99999999.)
   , m_mergeSvc(0)
   , m_inputObjectName("")
   , m_outputObjectName("")
@@ -172,8 +173,8 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
  
   //Timing scheme                         
   declareProperty("UseTimeWindow",       m_useTimeWindow  =  true);
-  declareProperty("WindowLowerOffset",   m_timeWindowLowerOffset = -50.);
-  declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +50.);
+  declareProperty("WindowLowerOffset",   m_timeWindowLowerOffset = -300.); // processBunchXing between -250 and 150 ns (look at config file)
+  declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
   declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
  
   // electronics
@@ -195,18 +196,20 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   // crosstalk of neighbor strips, it's 6%
   declareProperty("crossTalk2",		     m_crossTalk2 = 0.0); 
   declareProperty("qThresholdForTrigger",    m_qThresholdForTrigger = 1.0); 
-  declareProperty("GasFileName",             m_gasFileName = "ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
+  declareProperty("GasFileName",             m_gasFileName = "MM_Digitization/ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
   // Constants vars for the ElectronicsResponse
   declareProperty("alpha",                   m_alpha = 2.5);
   declareProperty("RC",                      m_RC = 20.);
-  declareProperty("electronicsThreshold",    m_electronicsThreshold = 2500.0); // at gain=5000 in StripResponse
+  declareProperty("electronicsThreshold",    m_electronicsThreshold = 1250.0); // at gain=5000 in StripResponse
   //  declareProperty("electronicsThreshold",    m_electronicsThreshold = 0.000811174);
-  declareProperty("StripDeadTime",           m_stripdeadtime = 0.0);    
-  //  declareProperty("StripDeadTime",           m_stripdeadtime = 270.0); // default value ?
-  declareProperty("ARTDeadTime",             m_ARTdeadtime   = 0.0);    
-  //  declareProperty("ARTDeadTime",             m_ARTdeadtime   = 40.0);  // default value ?
+  // declareProperty("StripDeadTime",           m_stripdeadtime = 0.0);    
+   // declareProperty("StripDeadTime",           m_stripdeadtime = 270.0); // default value ?
+   declareProperty("StripDeadTime",           m_stripdeadtime = 3000.0); // default value ?
+  // declareProperty("ARTDeadTime",             m_ARTdeadtime   = 0.0);    
+   // declareProperty("ARTDeadTime",             m_ARTdeadtime   = 40.0);  // default value ?
+   declareProperty("ARTDeadTime",             m_ARTdeadtime   = 3000.0);  // default value ?
 
-  declareProperty("SaveInternalHistos",  m_saveInternalHistos = false   );
+  declareProperty("SaveInternalHistos",  m_saveInternalHistos = true   );
   declareProperty("ValidationSetup",     m_validationSetup = false   );
   declareProperty("EnergyThreshold",     m_energyThreshold = 50., "Minimal energy to produce a PRD"  );
 
@@ -420,6 +423,7 @@ StatusCode MmDigitizationTool::initialize() {
   m_ntuple->Branch("tofCorrection",&tofCorrection);
   m_ntuple->Branch("bunchTime",&bunchTime);
   m_ntuple->Branch("globalHitTime",&globalHitTime);
+  m_ntuple->Branch("eventTime",&eventTime);
   
   m_AngleDistr = new TH1I("m_AngleDistr", "m_AngleDistr", 360, -180., 180.);
   m_AbsAngleDistr = new TH1I("m_AbsAngleDistr", "m_AbsAngleDistr", 180, 0., 180.);
@@ -427,6 +431,7 @@ StatusCode MmDigitizationTool::initialize() {
   m_ClusterLength = new TH1I("m_ClusterLength", "m_ClusterLength", 100, 0., 100.);
   m_gasGap = new TH1I("m_gasGap", "m_gasGap", 100, 0., 100.);
   m_gasGapDir = new TH1I("m_gasGapDir", "m_gasGapDir", 20, -10., 10.);
+
  
   // m_thpcMM->reserve(20000);
  
@@ -456,26 +461,39 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
+#ifdef ATHENA_20_20
 StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 						PileUpEventInfo::SubEvent::const_iterator bSubEvents,
 						PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+#else
+  StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
+						  SubEventIterator bSubEvents,
+						  SubEventIterator eSubEvents) {
+#endif
 
   ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
   
+#ifdef ATHENA_20_20
   PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+#else
+  SubEventIterator iEvt = bSubEvents;
+#endif
  
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
+
+#ifdef ATHENA_20_20
     StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI(0);
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-		    << " bunch crossing : " << bunchXing
-		    << " time offset : " << iEvt->time()
-		    << " event number : " << pEI->event_ID()->event_number()
-		    << " run number : " << pEI->event_ID()->run_number() );
-    }
- 
+#else
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+#endif
+
+    ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
+                  << " bunch crossing : " << bunchXing );
+		  // << " time offset : " << iEvt->time()
+		  // << " event number : " << iEvt->ptr()->eventNumber()
+		  // << " run number : " << iEvt->ptr()->runNumber() );
+
     PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
       
     const GenericMuonSimHitCollection* seHitColl = 0;
@@ -691,15 +709,15 @@ StatusCode MmDigitizationTool::doDigitization() {
   
   GenericMuonSimHitCollection* inputSimHitColl=NULL;
  
-  if (m_validationSetup)
-    {  
-      inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
-      StatusCode status = m_sgSvc->record(inputSimHitColl,"InputMicroMegasHits");
-      if (status.isFailure())  {
-	ATH_MSG_ERROR ( "Unable to record Input MicromegasSensitiveDetector HIT collection in StoreGate"  );
+  //  if (m_validationSetup)
+  //    {  
+  inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
+  StatusCode status = m_sgSvc->record(inputSimHitColl,"InputMicroMegasHits");
+  if (status.isFailure())  {
+    ATH_MSG_ERROR ( "Unable to record Input MicromegasSensitiveDetector HIT collection in StoreGate"  );
 	return status;
-      }
-    }
+  }
+      //    }
         
   if( m_maskMultiplet == 3 ) {
    
@@ -733,6 +751,7 @@ StatusCode MmDigitizationTool::doDigitization() {
     while (i != e) {
 
       TimedHitPtr<GenericMuonSimHit> phit = *i++;
+      eventTime = phit.eventTime();      
       const GenericMuonSimHit& hit(*phit);
       //      std::cout << "hit.kineticEnergy() = " << hit.kineticEnergy() << std::endl;
       // SimHits without energy loss are not recorded.
@@ -751,20 +770,21 @@ StatusCode MmDigitizationTool::doDigitization() {
 
       globalHitTime = hit.globalpreTime();
       tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
-      bunchTime = globalHitTime - tofCorrection;
-      const float stripPropagationTime = 0.;
-      static const float jitter = 0.;
-      float MMDigitTime = bunchTime + jitter + stripPropagationTime;
-
+      bunchTime = globalHitTime - tofCorrection + eventTime; // T.Saito
+      //      bunchTime = globalHitTime - tofCorrection;
+      // const float stripPropagationTime = 0.;
+      // static const float jitter = 0.;
+      // float MMDigitTime = bunchTime + jitter + stripPropagationTime;
+      //      std::cout << "Validation:  globalHitTime, BCtime, eventTime, MMDigitTime = "<<globalHitTime<<" "<<bunchTime<<" "<<eventTime<<" "<<MMDigitTime  << std::endl;
       //     ATH_MSG_DEBUG ( "MMDigitTime " << timeOfBCID );
-
+      /* T.Saito
       const float timeWindowStrip = 120.; //driftvelocity gap;
       if (MMDigitTime < -timeWindowStrip || MMDigitTime > timeWindowStrip) {
 	exitcode = 4; m_ntuple->Fill();
 	std::cout << "exitcode = 4 " << std::endl;      
 	continue;
       }
-  
+      */  
       // SimHits without energy loss are not recorded.
       ///if(hit.depositEnergy()==0. && abs(hit.particleEncoding())!=13) continue;
 
@@ -777,7 +797,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
       const int idHit = hit.GenericId();
       // the G4 time or TOF from IP
-      double G4Time(hit.globalTime());
+      // double G4Time(hit.globalTime());
       // see what are the members of GenericMuonSimHit
       const Amg::Vector3D globPos = hit.globalPosition();
    
@@ -793,11 +813,11 @@ StatusCode MmDigitizationTool::doDigitization() {
       ATH_MSG_DEBUG ( "> idHit  " << idHit << " Hit bunch time  " << bunchTime << " tot " << globalHitTime << " tof/G4 time " << hit.globalTime() << " globalPosition " << globPos 
 		      << "hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink() << " station eta " << m_idHelper->stationEta(layid) << " station phi " << m_idHelper->stationPhi(layid) << " multiplet " << m_idHelper->multilayer(layid) ); 
 
-      if (m_validationSetup){
-	GenericMuonSimHit* copyHit = new GenericMuonSimHit(idHit, hit.globalpreTime(), hit.globalTime(), hit.globalPosition(), hit.localPosition(), hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() ); 
-	ATH_MSG_INFO("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime << "\n: " << copyHit->print() );
-        inputSimHitColl->Insert(*copyHit);
-      }
+      //      if (m_validationSetup){
+      GenericMuonSimHit* copyHit = new GenericMuonSimHit(idHit, globalHitTime+eventTime, eventTime, hit.globalPosition(), hit.localPosition(), hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() ); 
+      //	ATH_MSG_INFO("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime << "\n: " << copyHit->print() );
+      inputSimHitColl->Insert(*copyHit);
+      //      }
       // Important checks for hits (global time, position along strip, charge, masked chambers etc..) DO NOT SET THIS CHECK TO FALSE IF YOU DON'T KNOW WHAT YOU'RE DOING !
       if(m_checkMMSimHits) { if(checkMMSimHit(hit) == false) {
 	  exitcode = 8; m_ntuple->Fill();
@@ -808,6 +828,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       // sanity checks
       if( !m_idHelper->is_mm(layid) ){
 	ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelper->stationNameString(m_idHelper->stationName(layid)) );
+	continue;
       }		
 				
       std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
@@ -865,7 +886,9 @@ StatusCode MmDigitizationTool::doDigitization() {
       if(inAngle_XZ < 0.0) inAngle_XZ += 180;
       inAngle_XZ = 90. - inAngle_XZ ;
       //---------- ! This had been commented out.      
-      inAngle_XZ = (roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+      //      inAngle_XZ = (roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+      if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4)
+	inAngle_XZ = -1*inAngle_XZ ;
       //---------- 1
       ATH_MSG_DEBUG(" At eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) <<  "\n IncomingAngle: " <<  locDire.angleXZ() / CLHEP::degree << "\n inAngle_XZ, " << inAngle_XZ << " , " << inAngle_XZ * CLHEP::degree << "   ..   "  << CLHEP::degree );
  
@@ -880,35 +903,40 @@ StatusCode MmDigitizationTool::doDigitization() {
 
       Amg::Vector3D locdir(0., 0., 0.);
 
-      if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+      // drift direction in back-chamber should be opposite to the incident direction.
+      if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+      //      if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
       else locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
 
-      double scale, scaletop;
-      double gasgap = 5.;
+
+
+
+      double scale; // , scaletop;
+      // double gasgap = 5.;
       scale = -slpos.z()/locdir.z();
-      scaletop = (gasgap+slpos.z())/locdir.z();
+      //      scaletop = (gasgap+slpos.z())/locdir.z();
 
       Amg::Vector3D hitOnSurface = slpos + scale*locdir;
-      Amg::Vector3D hitOnTopSurface = slpos + scaletop*locdir;
+      //      Amg::Vector3D hitOnTopSurface = slpos + scaletop*locdir;
       Amg::Vector2D posOnSurf (hitOnSurface.x(), hitOnSurface.y());
-      Amg::Vector2D posOnTopSurf (hitOnTopSurface.x(),hitOnTopSurface.y());
+      //      Amg::Vector2D posOnTopSurf (hitOnTopSurface.x(),hitOnTopSurface.y());
 
       // account for time offset
-      double shiftTimeOffset = MMDigitTime* m_driftVelocity;
+      double shiftTimeOffset = (globalHitTime - tofCorrection)* m_driftVelocity; // T.Saito
+      //      double shiftTimeOffset = MMDigitTime* m_driftVelocity;
       Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
       Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/locdir.z())*locdir;
 	
-      ATH_MSG_DEBUG("slpos.z " << slpos.z() << ", locdir " << locdir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() << ", hitOnTopSurface.z " << hitOnTopSurface.z() );
+      //      ATH_MSG_DEBUG("slpos.z " << slpos.z() << ", locdir " << locdir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() << ", hitOnTopSurface.z " << hitOnTopSurface.z() );
 
       //      if( fabs(hitOnSurface.z()) < 4.9 ) ATH_MSG_WARNING("bad propagation to surface " << hitOnSurface.z() );
       //      if( fabs(hitOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface " << hitOnSurface );
       if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
       
- 
       if(hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) {
       	exitcode = 5;
       	m_ntuple->Fill();
-	std::cout << "------- exitcode = 5 " << std::endl;      
+	//	std::cout << "------- exitcode = 5 " << std::endl;      
       	continue;
       }
     
@@ -916,7 +944,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       if( !surf.insideBounds(posOnSurf) ){
 	exitcode = 1;
       	m_ntuple->Fill();
-	std::cout << "exitcode = 1 " << std::endl;      
+	std::cout << "exitcode = 1 : shiftTimeOffset = "<< shiftTimeOffset << "hitOnSurface.z  = " << hitOnSurface.z() << ", hitOnSurface.x  = " << hitOnSurface.x() << ", hitOnSurface.y  = " << hitOnSurface.y() << std::endl;      
       	continue;
       }
   		
@@ -924,7 +952,9 @@ StatusCode MmDigitizationTool::doDigitization() {
       m_gasGapDir->Fill((roParam.stereoAngel).at(m_n_Station_layer-1));
       
       int stripNumber = detEl->stripNumber(posOnSurf,layid);
-      int LastStripNumber = detEl->stripNumber(posOnTopSurf, layid);
+      //      int LastStripNumber = detEl->stripNumber(posOnTopSurf, layid);
+      Amg::Vector2D tmp (slpos.x(), slpos.y());      
+
       if( stripNumber == -1 ){
 	ATH_MSG_WARNING("!!! Failed to obtain strip number " << m_idHelper->print_to_string(layid) <<  "\n\t\t with pos " << posOnSurf 
 			<< " z " << slpos.z() << " eKin: " << hit.kineticEnergy() << " eDep: " << hit.depositEnergy() << " unprojectedStrip: " << detEl->stripNumber(posOnSurfUnProjected, layid));
@@ -932,7 +962,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	std::cout << "exitcode = 2 " << std::endl;      
 	continue;
       }
-      m_n_strip_multiplicity = LastStripNumber - stripNumber;
+      //      m_n_strip_multiplicity = LastStripNumber - stripNumber;
             
       
       // re-definition of ID
@@ -940,13 +970,6 @@ StatusCode MmDigitizationTool::doDigitization() {
       Identifier DigitId = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid), stripNumber);
       // ATH_MSG_DEBUG(" re-definition of ID; " << m_idHelper->print_to_string(id) );
 
-      int& counts = hitsPerChannel[DigitId];
-      ++counts;
-      if( counts > 1 ) {
-	exitcode = 11; m_ntuple->Fill();
-	std::cout << "exitcod = 11 " << std::endl;      
-	continue;
-      }
       ++nhits;
 
 
@@ -978,11 +1001,13 @@ StatusCode MmDigitizationTool::doDigitization() {
       m_magFieldSvc->getField(&hitOnSurfaceGlobal, &bxyz);
       // B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
       Amg::Vector3D bxyzLocal = surf.transform().inverse()*bxyz-surf.transform().inverse()*Amg::Vector3D(0,0,0);
-      if((roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); // 04062015 T.Saito
+      if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); 
+      //      if((roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); // 04062015 T.Saito
 
       //store local hit position + sign
       // ATH_MSG_DEBUG( " MmDigitToolInput create... " );
-      const MmDigitToolInput StripdigitInput(stripNumber, distToChannel, inAngle_XZ, bxyzLocal, detEl->numberOfStrips(layid));
+
+      const MmDigitToolInput StripdigitInput(stripNumber, distToChannel, inAngle_XZ, bxyzLocal, detEl->numberOfStrips(layid), m_idHelper->gasGap(layid), eventTime+globalHitTime);
       m_AngleDistr->Fill(inAngle_XZ);
       m_AbsAngleDistr->Fill(fabs(inAngle_XZ));
       
@@ -1005,6 +1030,29 @@ StatusCode MmDigitizationTool::doDigitization() {
       MmStripToolOutput tmp_StripOutput = m_StripsResponse->GetResponceFrom(StripdigitInput);
       MmElectronicsToolInput StripdigitOutput( tmp_StripOutput.NumberOfStripsPos(), tmp_StripOutput.chipCharge(), tmp_StripOutput.chipTime(), DigitId , hit.kineticEnergy()); 
 
+      //----------
+      for(size_t i = 0; i<tmp_StripOutput.NumberOfStripsPos().size(); i++){
+	int stripid = tmp_StripOutput.NumberOfStripsPos().at(i);
+	bool isValid;
+	Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layid), m_idHelper->stationPhi(layid), m_idHelper->multilayer(layid), m_idHelper->gasGap(layid), stripid, true, &isValid);
+        if (!isValid) {
+	  std::cout << "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << stripid << "; associated positions will be set to 0.0."<< std::endl;
+        } else {
+	  
+	  Amg::Vector2D cr_strip_pos(0., 0.);
+	  if ( !detEl->stripPosition(cr_id,cr_strip_pos) ) {
+	    ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << stripid
+			    << "; associated positions will be set to 0.0.");
+	  }
+	  // asking the detector element to transform this local to the global position
+	  
+
+	  Amg::Vector3D cr_strip_gpos(0., 0., 0.);
+	  detEl->surface(cr_id).localToGlobal(cr_strip_pos, Amg::Vector3D(0., 0., 0.), cr_strip_gpos);
+
+	}
+      }
+      //----------
       v_StripdigitOutput.push_back(StripdigitOutput);
 
       previousHit = &hit;
@@ -1014,10 +1062,12 @@ StatusCode MmDigitizationTool::doDigitization() {
       ATH_MSG_WARNING ( "MmDigitizationTool::doDigitization() -- there is no strip response." );
       continue;
     }
+
     //---
     // To get Information combined in all hits
     //---
     MmElectronicsToolInput StripdigitOutputAllhits = CombinedStripResponseAllhits(v_StripdigitOutput);
+
     //-----------------------------------------------------------
     // Create Electronics Output with peak finding algorithm
     //-----------------------------------------------------------
@@ -1031,31 +1081,43 @@ StatusCode MmDigitizationTool::doDigitization() {
     MmDigitToolOutput ElectronicThresholdOutput( m_ElectronicsResponse->GetThresholdResponceFrom(StripdigitOutputAllhits) );
     if(!ElectronicThresholdOutput.isValid()) ATH_MSG_WARNING ( "MmDigitizationTool::doDigitization() -- there is no electronics response for TRIGGER even though there is a strip response." );
     //
-    // The fastest strip signal in a common VMM id should be selected for trigger
+    // Apply Dead-time for strip
+    //
+    MmDigitToolOutput ElectronicsThresholdOutputAppliedStripDeadTime (m_ElectronicsResponse->ApplyDeadTimeStrip(ElectronicThresholdOutput));    
+    //
+    // ART:The fastest strip signal per VMM id should be selected for trigger
     //
     int chMax = m_idHelper->channelMax(layid);
     int stationEta = m_idHelper->stationEta(layid);
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutput (m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicThresholdOutput, chMax, stationEta));
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutput (m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
     //
-    // Apply Dead-time for strip
+    // Apply Dead-time in ART
     //
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedStripDeadTime (m_ElectronicsResponse->ApplyDeadTime(ElectronicsTriggerOutput, "strip"));    
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTime(ElectronicsTriggerOutputAppliedStripDeadTime, "ART"));    
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTimeART(ElectronicsTriggerOutput));    
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,38.,0.));    
     //go to MM_DigitContainer
+
+
+
+    // Test output
+
+    // MmElectronicsToolTriggerOutput ThresholdFastest(m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicThresholdOutput, chMax, stationEta));
+    MmElectronicsToolTriggerOutput PeakFastest(     m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicOutput, chMax, stationEta));
+
     MmDigit*  newDigit = new MmDigit(StripdigitOutputAllhits.DigitId(), 
      // --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
-				     ElectronicOutput.stripTime(), 
+             ElectronicOutput.stripTime(), 
 				     ElectronicOutput.stripPos(), 
 				     ElectronicOutput.stripCharge(), 
      // ---------------------
-				     ElectronicOutput.stripTime(),
+             ElectronicOutput.stripTime(),
 				     ElectronicOutput.stripPos(),
 				     ElectronicOutput.stripCharge(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.chipTime(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.NumberOfStripsPos(),    
-				     ElectronicsTriggerOutputAppliedARTDeadTime.chipCharge(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.VMMid(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.MMFEVMMid());
+				     ElectronicsTriggerOutputAppliedARTTiming.chipTime(),
+				     ElectronicsTriggerOutputAppliedARTTiming.NumberOfStripsPos(),    
+				     ElectronicsTriggerOutputAppliedARTTiming.chipCharge(),
+				     ElectronicsTriggerOutputAppliedARTTiming.VMMid(),
+				     ElectronicsTriggerOutputAppliedARTTiming.MMFEVMMid());
     // The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity. 
       IdentifierHash detIdhash ;
       // set RE hash id 
@@ -1084,6 +1146,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
 	digitCollection->push_back(newDigit);
       }
+
       v_StripdigitOutput.clear();    
 
   }//while(m_thpcMM->nextDetectorElement(i, e))
@@ -1110,6 +1173,7 @@ MmElectronicsToolInput MmDigitizationTool::CombinedStripResponseAllhits(const st
 
   Identifier DigitId;
   float max_kineticEnergy = 0.0;
+
   for(auto& i_StripdigitOutput:v_StripdigitOutput){
 
     //--- Just to get Digit id with the largest kinetic energy, but the Digit id is no longer meaningless
@@ -1139,6 +1203,7 @@ MmElectronicsToolInput MmDigitizationTool::CombinedStripResponseAllhits(const st
       }
     }
   }
+
   MmElectronicsToolInput StripdigitOutputAllhits(v_stripStripResponseAllhits, v_qStripResponseAllhits, v_timeStripResponseAllhits, DigitId, max_kineticEnergy ); 
 
   return StripdigitOutputAllhits;
