@@ -32,19 +32,23 @@ m_npassCC(0),
 m_tccSGKey(""),
 m_inDetSGKey("InDetTrackParticles"),
 m_calCTCSGKey("CaloCalTopoClusters"),
+m_oCalCTCSGKey("LCOriginTopoClusters"),
 m_jetSGKey("AntiKt10TrackCaloClusterJets"),
 // m_selectionString(""),
-m_and(false)
+m_and(false),
+m_thinO(false)
 // ,m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
-    declareProperty("TCCKey", m_tccSGKey);
-    declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
-    declareProperty("CaloCalTopoClustersKey", m_calCTCSGKey);
-    declareProperty("JetKey"                , m_jetSGKey);
+    declareProperty("ThinningService"               , m_thinningSvc);
+    declareProperty("TCCKey"                        , m_tccSGKey);
+    declareProperty("InDetTrackParticlesKey"        , m_inDetSGKey);
+    declareProperty("CaloCalTopoClustersKey"        , m_calCTCSGKey);
+    declareProperty("OriginCaloCalTopoClustersKey"  , m_oCalCTCSGKey);
+    declareProperty("JetKey"                        , m_jetSGKey);
 //     declareProperty("SelectionString", m_selectionString);
-    declareProperty("ApplyAnd", m_and);
+    declareProperty("ApplyAnd"                      , m_and);
+    declareProperty("ThinOriginCorrectedClusters"   , m_thinO);
 }
 
 // Destructor
@@ -65,6 +69,11 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::initialize()
         ATH_MSG_FATAL("No topocluster collection provided for thinning.");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_calCTCSGKey << "as the source collection for topoclusters");}
+    
+    if(m_thinO && m_oCalCTCSGKey=="") {
+        ATH_MSG_FATAL("No origin corrected topocluster collection provided for thinning.");
+        return StatusCode::FAILURE;
+    } else {ATH_MSG_INFO("Using " << m_oCalCTCSGKey << "as the source collection for origin corrected topoclusters");}
     
     if (m_jetSGKey=="") {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
@@ -115,6 +124,13 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
     const xAOD::CaloClusterContainer* importedCaloClusters;
     if (evtStore()->retrieve(importedCaloClusters,m_calCTCSGKey).isFailure()) {
         ATH_MSG_ERROR("No CaloCluster collection with name " << m_calCTCSGKey << " found in StoreGate!");
+        return StatusCode::FAILURE;
+    }
+    
+    // Retrieve origin corrected CaloCluster collection
+    const xAOD::CaloClusterContainer* importedOriginCaloClusters;
+    if (m_thinO && evtStore()->retrieve(importedOriginCaloClusters,m_oCalCTCSGKey).isFailure()) {
+        ATH_MSG_ERROR("No CaloCluster collection with name " << m_oCalCTCSGKey << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
     
@@ -195,6 +211,10 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
                 return StatusCode::FAILURE;
         }
         if (m_thinningSvc->filter(*importedCaloClusters, maskClusters, IThinningSvc::Operator::And).isFailure()) {
+                ATH_MSG_ERROR("Application of thinning service failed! ");
+                return StatusCode::FAILURE;
+        }
+        if (m_thinO && m_thinningSvc->filter(*importedOriginCaloClusters, maskClusters, IThinningSvc::Operator::And).isFailure()) {
                 ATH_MSG_ERROR("Application of thinning service failed! ");
                 return StatusCode::FAILURE;
         }
