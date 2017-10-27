@@ -14,7 +14,9 @@ using namespace std;
 
 //////////////////////////////////
 //constructor
-SCT_DCSStatCondData::SCT_DCSStatCondData() {
+SCT_DCSStatCondData::SCT_DCSStatCondData():
+  m_bad_channels{}
+{
 }
 //////////////////////////////////
 //destructor

@@ -12,7 +12,8 @@
 // Constructor
 SCT_MajorityCondData::SCT_MajorityCondData():
   m_majorityState{},
-  m_hvFraction{}
+  m_hvFraction{},
+  m_filled{false}
 {}
 
 //----------------------------------------------------------------------
