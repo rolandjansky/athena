@@ -22,7 +22,10 @@
 
 
 namespace Root {
-  class [[deprecated("please use TAcceptInfo+TAcceptData for multi-threaded code")]] TAccept
+  // this ought to be deprecated, but we have so many clients, that we
+  // are not doing it yet.
+  //class [[deprecated("please use TAcceptInfo+TAcceptData for multi-threaded code")]] TAccept
+  class TAccept
   {
 
   public: 
