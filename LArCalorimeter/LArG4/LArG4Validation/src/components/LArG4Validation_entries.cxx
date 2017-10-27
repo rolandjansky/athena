@@ -2,6 +2,6 @@
 #include "LArG4Validation/AODReader.h"
 
 
-DECLARE_ALGORITHM_FACTORY( SingleTrackValidation )
-DECLARE_ALGORITHM_FACTORY( AODReader )
+DECLARE_COMPONENT( SingleTrackValidation )
+DECLARE_COMPONENT( AODReader )
 

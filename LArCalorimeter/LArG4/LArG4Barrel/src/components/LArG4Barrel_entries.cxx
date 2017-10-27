@@ -9,14 +9,14 @@
 #include "../LArBarrelGeometry.h"
 #include "../LArBarrelPresamplerGeometry.h"
 
-DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationMixedCalculator)
-DECLARE_SERVICE_FACTORY(LArBarrelCalculator)
-DECLARE_SERVICE_FACTORY(LArBarrelPresamplerCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationLArCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::DM::CalibrationCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::Barrel::CalibrationCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::BarrelPresampler::CalibrationCalculator)
-DECLARE_SERVICE_FACTORY(LArG4::Barrel::Geometry)
-DECLARE_SERVICE_FACTORY(LArG4::BarrelPresampler::Geometry)
+DECLARE_COMPONENT( LArG4::BarrelCryostat::CalibrationCalculator )
+DECLARE_COMPONENT( LArG4::BarrelCryostat::CalibrationMixedCalculator )
+DECLARE_COMPONENT( LArBarrelCalculator )
+DECLARE_COMPONENT( LArBarrelPresamplerCalculator )
+DECLARE_COMPONENT( LArG4::BarrelCryostat::CalibrationLArCalculator )
+DECLARE_COMPONENT( LArG4::DM::CalibrationCalculator )
+DECLARE_COMPONENT( LArG4::Barrel::CalibrationCalculator )
+DECLARE_COMPONENT( LArG4::BarrelPresampler::CalibrationCalculator )
+DECLARE_COMPONENT( LArG4::Barrel::Geometry )
+DECLARE_COMPONENT( LArG4::BarrelPresampler::Geometry )
 

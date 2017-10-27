@@ -7,11 +7,11 @@
 #include "CaloCellCorrection/CaloCellTimeCorrTool.h"
 
 
-DECLARE_TOOL_FACTORY( CaloCellPedestalCorr )
-DECLARE_TOOL_FACTORY( CaloCellMBAverageCorr )
-DECLARE_TOOL_FACTORY( CaloCellNeighborsAverageCorr )
-DECLARE_TOOL_FACTORY( CaloCellRandomizer )
-DECLARE_TOOL_FACTORY( CaloCellRescaler )
-DECLARE_TOOL_FACTORY( CaloCellEnergyRescaler )
-DECLARE_TOOL_FACTORY ( CaloCellTimeCorrTool )
+DECLARE_COMPONENT( CaloCellPedestalCorr )
+DECLARE_COMPONENT( CaloCellMBAverageCorr )
+DECLARE_COMPONENT( CaloCellNeighborsAverageCorr )
+DECLARE_COMPONENT( CaloCellRandomizer )
+DECLARE_COMPONENT( CaloCellRescaler )
+DECLARE_COMPONENT( CaloCellEnergyRescaler )
+DECLARE_COMPONENT( CaloCellTimeCorrTool )
 

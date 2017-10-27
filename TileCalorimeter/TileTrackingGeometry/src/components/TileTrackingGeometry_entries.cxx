@@ -2,5 +2,5 @@
 
 using namespace Tile;
 
-DECLARE_TOOL_FACTORY( TileVolumeBuilder )
+DECLARE_COMPONENT( TileVolumeBuilder )
 

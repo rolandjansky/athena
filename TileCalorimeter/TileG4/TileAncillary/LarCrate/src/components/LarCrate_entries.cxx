@@ -1,3 +1,3 @@
 #include "../LArCrateTool.h"
-DECLARE_TOOL_FACTORY( LArCrateTool )
+DECLARE_COMPONENT( LArCrateTool )
 

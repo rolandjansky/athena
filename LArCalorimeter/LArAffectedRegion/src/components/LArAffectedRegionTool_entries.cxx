@@ -1,5 +1,5 @@
 #include "LArAffectedRegion/LArAffectedRegionAlg.h"
 
 
-DECLARE_ALGORITHM_FACTORY( LArAffectedRegionAlg )
+DECLARE_COMPONENT( LArAffectedRegionAlg )
 

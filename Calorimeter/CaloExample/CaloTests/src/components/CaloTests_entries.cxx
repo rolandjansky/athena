@@ -2,6 +2,6 @@
 #include "CaloTests/AnalysisCal.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( MyAnalysis, Analysis )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( MyAnalysisCal, AnalysisCal )
+DECLARE_COMPONENT( MyAnalysis::Analysis )
+DECLARE_COMPONENT( MyAnalysisCal::AnalysisCal )
 

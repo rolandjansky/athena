@@ -1,4 +1,4 @@
 #include "../LArDetectorToolH62003.h"
 
-DECLARE_TOOL_FACTORY(LArDetectorToolH62003)
+DECLARE_COMPONENT( LArDetectorToolH62003 )
 

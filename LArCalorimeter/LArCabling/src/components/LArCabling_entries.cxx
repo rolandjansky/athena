@@ -3,7 +3,7 @@
 #include "LArCabling/LArSuperCellCablingTool.h"
 
 
-DECLARE_TOOL_FACTORY( LArCablingService )
-DECLARE_TOOL_FACTORY( LArHVCablingTool )
-DECLARE_TOOL_FACTORY( LArSuperCellCablingTool )
+DECLARE_COMPONENT( LArCablingService )
+DECLARE_COMPONENT( LArHVCablingTool )
+DECLARE_COMPONENT( LArSuperCellCablingTool )
 

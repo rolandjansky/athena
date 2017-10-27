@@ -4,7 +4,7 @@
 
 using namespace Calo;
 
-DECLARE_TOOL_FACTORY( CaloTrackingGeometryBuilder )
-DECLARE_TOOL_FACTORY( CaloSurfaceBuilder )
-DECLARE_TOOL_FACTORY( CaloSurfaceHelper )
+DECLARE_COMPONENT( CaloTrackingGeometryBuilder )
+DECLARE_COMPONENT( CaloSurfaceBuilder )
+DECLARE_COMPONENT( CaloSurfaceHelper )
 

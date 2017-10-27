@@ -4,9 +4,9 @@
 #include "CaloCalibHitRec/CaloCalibClusterMomentsMaker2.h"
 
 
-DECLARE_ALGORITHM_FACTORY( CalibHitToCaloCell )
-DECLARE_ALGORITHM_FACTORY( CalibHitIDCheck )
+DECLARE_COMPONENT( CalibHitToCaloCell )
+DECLARE_COMPONENT( CalibHitIDCheck )
 
-DECLARE_TOOL_FACTORY( CaloCalibClusterMomentsMaker )
-DECLARE_TOOL_FACTORY( CaloCalibClusterMomentsMaker2 )
+DECLARE_COMPONENT( CaloCalibClusterMomentsMaker )
+DECLARE_COMPONENT( CaloCalibClusterMomentsMaker2 )
 

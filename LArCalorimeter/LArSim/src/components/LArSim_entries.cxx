@@ -3,8 +3,8 @@
 #include "LArSim/LArFakeHitProducer.h"
 #include "LArSim/LArHitReader.h"
 
-DECLARE_ALGORITHM_FACTORY( LArHitMaker )
-DECLARE_ALGORITHM_FACTORY( LArHitReader )
-DECLARE_ALGORITHM_FACTORY( LArFakeClusterProducer )
-DECLARE_ALGORITHM_FACTORY( LArFakeHitProducer )
+DECLARE_COMPONENT( LArHitMaker )
+DECLARE_COMPONENT( LArHitReader )
+DECLARE_COMPONENT( LArFakeClusterProducer )
+DECLARE_COMPONENT( LArFakeHitProducer )
 

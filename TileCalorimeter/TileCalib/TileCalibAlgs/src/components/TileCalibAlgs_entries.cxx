@@ -13,19 +13,19 @@
 #include "TileCalibAlgs/TileInfoDump.h"
 #include "TileCalibAlgs/TileExpertDump.h"
 
-DECLARE_ALGORITHM_FACTORY( TileTopCalibAlg )
-DECLARE_ALGORITHM_FACTORY( TileLaserCalibAlg )
-DECLARE_ALGORITHM_FACTORY( TileDigiNoiseCalibAlg )
-DECLARE_ALGORITHM_FACTORY( TileRawChNoiseCalibAlg )
-DECLARE_ALGORITHM_FACTORY( TileOFC2DBAlg )
-DECLARE_ALGORITHM_FACTORY( TileMuId2DBAlg )
-DECLARE_ALGORITHM_FACTORY( TileInfoDump )
-DECLARE_ALGORITHM_FACTORY( TileExpertDump )
+DECLARE_COMPONENT( TileTopCalibAlg )
+DECLARE_COMPONENT( TileLaserCalibAlg )
+DECLARE_COMPONENT( TileDigiNoiseCalibAlg )
+DECLARE_COMPONENT( TileRawChNoiseCalibAlg )
+DECLARE_COMPONENT( TileOFC2DBAlg )
+DECLARE_COMPONENT( TileMuId2DBAlg )
+DECLARE_COMPONENT( TileInfoDump )
+DECLARE_COMPONENT( TileExpertDump )
 
-DECLARE_TOOL_FACTORY( TileLaserDefaultCalibTool )
-DECLARE_TOOL_FACTORY( TileLaserLinearityCalibTool )
-DECLARE_TOOL_FACTORY( TileCisDefaultCalibTool )
-DECLARE_TOOL_FACTORY( TileTriggerDefaultCalibTool )
-DECLARE_TOOL_FACTORY( TileTOFTool )
-DECLARE_TOOL_FACTORY( TileLaserTimingTool )
+DECLARE_COMPONENT( TileLaserDefaultCalibTool )
+DECLARE_COMPONENT( TileLaserLinearityCalibTool )
+DECLARE_COMPONENT( TileCisDefaultCalibTool )
+DECLARE_COMPONENT( TileTriggerDefaultCalibTool )
+DECLARE_COMPONENT( TileTOFTool )
+DECLARE_COMPONENT( TileLaserTimingTool )
 

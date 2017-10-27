@@ -8,15 +8,15 @@
 //#include "CaloMonitoring/CaloCosmicsClusterMon.h"
 #include "CaloMonitoring/CaloTowerVecMon.h"
 #include "CaloMonitoring/CaloTransverseBalanceVecMon.h"
-//DECLARE_TOOL_FACTORY(CaloCellMonitoringTool )
-DECLARE_TOOL_FACTORY(CaloCellVecMon)
-//DECLARE_TOOL_FACTORY(CaloCellTimeMon)
-//DECLARE_TOOL_FACTORY(CaloClusterMon)
-DECLARE_TOOL_FACTORY(CaloClusterVecMon)
-  //DECLARE_TOOL_FACTORY(CaloClusterShwrMon)
-  //DECLARE_TOOL_FACTORY(CaloClusterTimeMon)
-//DECLARE_TOOL_FACTORY(CaloCosmicsClusterMon)
-DECLARE_TOOL_FACTORY(CaloTowerVecMon)
+//DECLARE_COMPONENT( CaloCellMonitoringTool )
+DECLARE_COMPONENT( CaloCellVecMon )
+//DECLARE_COMPONENT( CaloCellTimeMon )
+//DECLARE_COMPONENT( CaloClusterMon )
+DECLARE_COMPONENT( CaloClusterVecMon )
+  //DECLARE_COMPONENT( CaloClusterShwrMon )
+  //DECLARE_COMPONENT( CaloClusterTimeMon )
+//DECLARE_COMPONENT( CaloCosmicsClusterMon )
+DECLARE_COMPONENT( CaloTowerVecMon )
 
-DECLARE_TOOL_FACTORY(CaloTransverseBalanceVecMon)
+DECLARE_COMPONENT( CaloTransverseBalanceVecMon )
 

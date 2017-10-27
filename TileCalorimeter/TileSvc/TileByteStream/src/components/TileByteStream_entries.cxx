@@ -12,12 +12,12 @@
 #include "TileByteStream/TileLaserObjByteStreamTool.h"
 #include "TileByteStream/TileMuRcvContByteStreamTool.h"
 
-DECLARE_TOOL_FACTORY( TileDigitsContByteStreamTool )
-DECLARE_TOOL_FACTORY( TileRawChannelContByteStreamTool )
-DECLARE_TOOL_FACTORY( TileL2ContByteStreamTool )
-DECLARE_TOOL_FACTORY( TileLaserObjByteStreamTool )
-DECLARE_TOOL_FACTORY( TileMuRcvContByteStreamTool )
-DECLARE_TOOL_FACTORY( TileROD_Decoder )
+DECLARE_COMPONENT( TileDigitsContByteStreamTool )
+DECLARE_COMPONENT( TileRawChannelContByteStreamTool )
+DECLARE_COMPONENT( TileL2ContByteStreamTool )
+DECLARE_COMPONENT( TileLaserObjByteStreamTool )
+DECLARE_COMPONENT( TileMuRcvContByteStreamTool )
+DECLARE_COMPONENT( TileROD_Decoder )
 DECLARE_CONVERTER_FACTORY( TileRawChannelContByteStreamCnv )
 DECLARE_CONVERTER_FACTORY( TileBeamElemContByteStreamCnv )
 DECLARE_CONVERTER_FACTORY( TileDigitsContByteStreamCnv )

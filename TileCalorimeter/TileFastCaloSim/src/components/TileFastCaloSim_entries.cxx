@@ -1,4 +1,4 @@
 #include "../TileFCSmStepToTileHitVec.h"
 
-DECLARE_ALGORITHM_FACTORY( TileFCSmStepToTileHitVec )
+DECLARE_COMPONENT( TileFCSmStepToTileHitVec )
 

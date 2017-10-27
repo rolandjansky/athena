@@ -7,10 +7,10 @@
 
 
 
-DECLARE_ALGORITHM_FACTORY( LArRampValidationAlg )
-DECLARE_ALGORITHM_FACTORY( LArPedestalValidationAlg )
-DECLARE_ALGORITHM_FACTORY( LArCaliWaveValidationAlg )
-DECLARE_ALGORITHM_FACTORY( LArAutoCorrValidationAlg )
-DECLARE_ALGORITHM_FACTORY( LArBadChannelHunter )
-DECLARE_ALGORITHM_FACTORY( LArBadEventCatcher )
+DECLARE_COMPONENT( LArRampValidationAlg )
+DECLARE_COMPONENT( LArPedestalValidationAlg )
+DECLARE_COMPONENT( LArCaliWaveValidationAlg )
+DECLARE_COMPONENT( LArAutoCorrValidationAlg )
+DECLARE_COMPONENT( LArBadChannelHunter )
+DECLARE_COMPONENT( LArBadEventCatcher )
 

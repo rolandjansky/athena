@@ -3,7 +3,7 @@
 #include "LArClusterRec/LArClusterCollisionTimeAlg.h"
 
 
-DECLARE_TOOL_FACTORY( LArTBClusterBuilder )
-DECLARE_ALGORITHM_FACTORY( LArDigitThinnerFromEMClust )
-DECLARE_ALGORITHM_FACTORY( LArClusterCollisionTimeAlg )
+DECLARE_COMPONENT( LArTBClusterBuilder )
+DECLARE_COMPONENT( LArDigitThinnerFromEMClust )
+DECLARE_COMPONENT( LArClusterCollisionTimeAlg )
 

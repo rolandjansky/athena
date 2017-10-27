@@ -2,7 +2,7 @@
 #include "TileL2Algs/TileMuRODToNtuple.h"
 #include "TileL2Algs/TileL2Builder.h"
 
-DECLARE_ALGORITHM_FACTORY( TileRawChannelToL2 )
-DECLARE_ALGORITHM_FACTORY( TileMuRODToNtuple )
-DECLARE_TOOL_FACTORY( TileL2Builder )
+DECLARE_COMPONENT( TileRawChannelToL2 )
+DECLARE_COMPONENT( TileMuRODToNtuple )
+DECLARE_COMPONENT( TileL2Builder )
 

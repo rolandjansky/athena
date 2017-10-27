@@ -1,4 +1,4 @@
 #include "TileGeoModel/TileDetectorTool.h"
 
-DECLARE_TOOL_FACTORY(TileDetectorTool)
+DECLARE_COMPONENT( TileDetectorTool )
 

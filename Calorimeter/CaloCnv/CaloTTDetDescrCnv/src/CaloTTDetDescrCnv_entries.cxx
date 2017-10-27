@@ -1,4 +1,4 @@
 #include "CaloTTMgrDetDescrCnv.h"
 
-DECLARE_CONVERTER_FACTORY(CaloTTMgrDetDescrCnv)
+DECLARE_CONVERTER_FACTORY( CaloTTMgrDetDescrCnv )
 
