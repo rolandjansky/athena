@@ -8,8 +8,6 @@ viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-allViewAlgorithms = topSequence.allViewAlgorithms
-
 if viewTest:
   viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
   viewMaker.ViewBaseName = "testView"
