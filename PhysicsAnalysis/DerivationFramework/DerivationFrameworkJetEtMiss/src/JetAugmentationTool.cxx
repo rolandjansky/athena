@@ -173,7 +173,7 @@ namespace DerivationFramework {
 
     // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them //
     bool isMissingPtAssociation = true;
-    if( jets_copy->size() == 0 || !dec_GhostTruthAssociationFraction->isAvailable(*jets_copy->at(0)) ) {
+    if( !m_decorateptassociation || jets_copy->size() == 0 || dec_GhostTruthAssociationFraction->isAvailable(*jets_copy->at(0)) ) {
       isMissingPtAssociation = false;
     }
 

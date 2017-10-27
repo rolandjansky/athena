@@ -144,8 +144,6 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
 
 def getJetAugmentationTool(jetalg, suffix=''):
     jetaugtoolname = 'DFJetAug_'+jetalg+suffix
-#def getJetAugmentationTool(jetalg):
-#    jetaugtoolname = 'DFJetAug_'+jetalg
     jetaugtool = None
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,jetaugtoolname):
