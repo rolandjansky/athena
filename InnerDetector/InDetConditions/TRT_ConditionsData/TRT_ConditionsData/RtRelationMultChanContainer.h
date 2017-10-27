@@ -42,15 +42,11 @@ namespace TRTCond
     static const char* classname() { return "TRTCond::RtRelationMultChanContainer" ; }
   private:
   } ;
-REGISTER_CC( RtRelationMultChanContainer );
 }
 
-CLASS_DEF(TRTCond::RtRelationMultChanContainer,1169148363,1)
 
-CLASS_DEF(CondCont<TRTCond::RtRelationMultChanContainer>,163845982,1)
-//#include "SGTools/BaseInfo.h"
-//SG_BASE( CondCont<TRTCond::RtRelationMultChanContainer>, CondContBase );
-//REGISTER_CC( TRTCond::RtRelationMultChanContainer );
+CLASS_DEF(TRTCond::RtRelationMultChanContainer,1169148363,1)
+CONDCONT_DEF(TRTCond::RtRelationMultChanContainer,163845982);
 
 
 #endif
