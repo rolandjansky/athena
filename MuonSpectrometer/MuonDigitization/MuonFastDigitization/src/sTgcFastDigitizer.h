@@ -9,6 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandleKey.h"
 
 //Random
 #include "CLHEP/Random/RandomEngine.h"
@@ -27,6 +28,7 @@ namespace MuonGM {
 
 class IAtRndmGenSvc;
 class ActiveStoreSvc;
+class MuonSimDataCollection;
 
 class sTgcFastDigitizer : public AthAlgorithm {
 
@@ -131,6 +133,7 @@ class sTgcFastDigitizer : public AthAlgorithm {
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   std::string m_rndmEngineName;// name of random engine
   std::string m_inputObjectName; // name of the input objects
+  SG::WriteHandleKey<MuonSimDataCollection> m_sdoName; // name of the output SDO collection
   double m_timeWindowOffsetWire;
   double m_timeWindowOffsetStrip;
   double m_timeWindowWire;
