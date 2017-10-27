@@ -25,6 +25,8 @@
 
 // EDM include(s):
 #include "xAODTau/TauJet.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
 
 namespace TauAnalysisTools
 {
@@ -47,6 +49,9 @@ double tauLeadTrackEta(const xAOD::TauJet& xTau);
 bool testFileForEOFContainsCharacters(std::string sFileName);
 void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);
 void correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& correctedPi0s, TLorentzVector& TauP4);
+void truthHadrons(const xAOD::TruthParticle* xTruthTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons);
+void truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons);
+
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

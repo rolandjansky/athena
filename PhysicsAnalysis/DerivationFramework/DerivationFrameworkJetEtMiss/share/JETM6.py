@@ -28,23 +28,27 @@ muonTriggers = singleMuTriggers
 photonTriggers = singlePhotonTriggers
 
 # For first data
-jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
-#jetSelection = '(count( CamKt12LCTopoJets.pt > 150.*GeV ) >=1)'
+jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
+if DerivationFrameworkIsMonteCarlo:
+  jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
-elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) == 1',
+elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHLoose)) >= 1',
                             'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) == 1',
+muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
                             'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') ) '
+gammatrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(photonTriggers)
+gammaofflinesel = '(count(Photons.pt > 150*GeV) >= 1 && count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1)'
+photonSelection = ' ( (' + gammatrigsel + ') && (' + gammaofflinesel + ') ) '
 # MET filter wanted? : MET_Reference_AntiKt4LCTopo > 20*GeV # should use a different container
 
-lepSelection = '( ' + electronSelection + ' || ' + muonSelection + ' )'
+lepSelection = '( ' + electronSelection + ' || ' + muonSelection + ' || ' + photonSelection + ' )'
 
 
 expression = jetSelection + ' || '+ lepSelection
@@ -140,29 +144,52 @@ doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
 if doTruthThinning and DerivationFrameworkIsMonteCarlo:
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
-    truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                                                # Gluons
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                 # Photon
+  truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
+  truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
+  truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
+  truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                                                # Gluons
+  truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                 # Photon
 
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+' || '+truth_cond_Gluon+' || '+truth_cond_Photon+')'
+  truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+' || '+truth_cond_Gluon+' || '+truth_cond_Photon+')'
 
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    JETM6TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM6TruthThinningTool",
-                                                                        ThinningService        = "JETM6ThinningSvc",
-                                                                        ParticleSelectionString = truth_expression,
-                                                                        #PreserveDescendants     = preserveAllDescendants,
-                                                                        PreserveDescendants     = False,
-                                                                        PreserveGeneratorDescendants = not preserveAllDescendants,
-                                                                        #PreserveGeneratorDescendants = False,
-                                                                        PreserveAncestors = True)
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+  JETM6TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM6TruthThinningTool",
+                                                                      ThinningService        = "JETM6ThinningSvc",
+                                                                      ParticleSelectionString = truth_expression,
+                                                                      #PreserveDescendants     = preserveAllDescendants,
+                                                                      PreserveDescendants     = False,
+                                                                      PreserveGeneratorDescendants = not preserveAllDescendants,
+                                                                      #PreserveGeneratorDescendants = False,
+                                                                      PreserveAncestors = True)
 
+  ToolSvc += JETM6TruthThinningTool
+  thinningTools.append(JETM6TruthThinningTool)
 
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  JETM6TruthTopThinningTool = DerivationFramework__MenuTruthThinning( name                       = "JETM6TruthTopThinningTool",
+ 	                                                           ThinningService            = "JETM6ThinningSvc",
+ 		                                                   WritePartons               = True,
+ 		                                                   WriteHadrons               = False,
+ 		                                                   WriteBHadrons              = True,
+ 		                                                   WriteGeant                 = False,
+ 		                                                   GeantPhotonPtThresh        = -1.0,
+ 		                                                   WriteTauHad                = False,
+ 		                                                   PartonPtThresh             = 10e3,
+ 		                                                   WriteBSM                   = False,
+ 		                                                   WriteBosons                = True,
+ 		                                                   PhotonPtThresh             = 10e3,
+ 		                                                   WriteBSMProducts           = False,
+ 		                                                   WriteTopAndDecays          = True,
+ 		                                                   WriteEverything            = False,
+ 		                                                   WriteAllLeptons            = False,
+ 		                                                   WriteLeptonsNotFromHadrons = True,
+ 		                                                   WriteStatus3               = False,
+ 		                                                   WriteFirstN                = 10,
+ 		                                                   PreserveDescendants        = preserveAllDescendants,
+ 		                                                   PreserveAncestors          = True)  
 
-    ToolSvc += JETM6TruthThinningTool
-    thinningTools.append(JETM6TruthThinningTool)
-
+  ToolSvc += JETM6TruthTopThinningTool
+  thinningTools.append(JETM6TruthTopThinningTool)    
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
@@ -236,7 +263,8 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+					"BTagging_AntiKt2Track"
                                         ]
 JETM6SlimmingHelper.AllVariables = [
     "TruthParticles",  "TruthEvents", "TruthVertices",
@@ -247,7 +275,6 @@ JETM6SlimmingHelper.AllVariables = [
 
 JETM6SlimmingHelper.ExtraVariables = [
     'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG',
-    'BTagging_AntiKt2Track.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
     'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
     ]
 

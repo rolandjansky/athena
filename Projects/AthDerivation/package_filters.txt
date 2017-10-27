@@ -148,6 +148,8 @@
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
++ LArCalorimeter/LArCnv/LArAthenaPool
++ LArCalorimeter/LArCnv/LArTPCnv
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
 + LArCalorimeter/LArExample/LArConditionsCommon

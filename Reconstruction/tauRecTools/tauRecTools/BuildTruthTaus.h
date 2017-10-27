@@ -112,7 +112,8 @@ private:
 
   TLorentzVector m_vTruthVisTLV;
   TLorentzVector m_vTruthVisTLVCharged;
-  TLorentzVector m_vTruthVisTLVNeutral;
+  TLorentzVector m_vTruthVisTLVNeutralPions;
+  TLorentzVector m_vTruthVisTLVNeutralOthers;  
 
   bool m_bIsHadronicTau;
 

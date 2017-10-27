@@ -26,7 +26,8 @@ elseif( XAOD_ANALYSIS )
       Control/StoreGate
       Event/EventInfo
       Tools/PathResolver
-      AtlasTest/TestTools )
+      AtlasTest/TestTools
+      PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces)
 else()
    atlas_depends_on_subdirs(
       PUBLIC
@@ -41,7 +42,8 @@ else()
       DetectorDescription/DetDescrCond/DetectorStatus
       Event/EventInfo
       Tools/PathResolver
-      AtlasTest/TestTools )
+      AtlasTest/TestTools
+      PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces)
 endif()
 
 # External dependencies:

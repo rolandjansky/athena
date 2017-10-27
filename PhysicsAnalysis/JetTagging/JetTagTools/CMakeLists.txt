@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
     Reconstruction/egamma/egammaMVACalib
     Reconstruction/MVAUtils
     Tracking/TrkEvent/TrkParameters
+    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
 
     PRIVATE
     Control/AthenaKernel
@@ -95,7 +96,7 @@ atlas_add_library(
     JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
     TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib
     MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
-    InDetSVWithMuonToolLib
+    InDetSVWithMuonToolLib MuonAnalysisInterfacesLib
 
     PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
     Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
