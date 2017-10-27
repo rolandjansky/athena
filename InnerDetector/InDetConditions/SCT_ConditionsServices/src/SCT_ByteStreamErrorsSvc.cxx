@@ -415,7 +415,7 @@ SCT_ByteStreamErrorsSvc::isGoodChip(const Identifier& stripId) const {
   }
 
   // Check if the chip is bad
-  const bool badChip{badChips & (1<<chip)};
+  const bool badChip{static_cast<bool>(badChips & (1<<chip))};
 
   return (not badChip);
 }
