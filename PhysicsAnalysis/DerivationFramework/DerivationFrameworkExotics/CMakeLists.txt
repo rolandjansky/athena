@@ -39,13 +39,13 @@ atlas_add_library( DerivationFrameworkExoticsLib
                    PUBLIC_HEADERS DerivationFrameworkExotics
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps xAODJet PATInterfaces TrkExUtils TrigDecisionToolLib InDetTrackSelectionTool JetEDM
+                   LINK_LIBRARIES AthenaBaseComps xAODJet PATInterfaces TrkExUtils TrigDecisionToolLib InDetTrackSelectionToolLib JetEDM
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODCore xAODEventInfo GaudiKernel )
 
 atlas_add_component( DerivationFrameworkExotics
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel PATInterfaces TrkExUtils InDetTrackSelectionTool JetEDM DerivationFrameworkExoticsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel PATInterfaces TrkExUtils InDetTrackSelectionToolLib JetEDM DerivationFrameworkExoticsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
