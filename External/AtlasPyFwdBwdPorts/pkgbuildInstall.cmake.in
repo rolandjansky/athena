@@ -24,12 +24,16 @@ execute_process( COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
 
 # Read in the list of installed files, and select ones put into the
 # binary directory.
-file( READ @CMAKE_CURRENT_BINARY_DIR@/@name@_installed.files
-   _installedFiles LIMIT 10000000 )
-string( SUBSTRING "${_destdir}${CMAKE_INSTALL_PREFIX}/@CMAKE_INSTALL_BINDIR@"
-   1 -1 _binDir )
-string( REGEX MATCHALL "(^|\n)${_binDir}[^\n]+" _executables
-   ${_installedFiles} )
+if( EXISTS @CMAKE_CURRENT_BINARY_DIR@/@name@_installed.files )
+   file( READ @CMAKE_CURRENT_BINARY_DIR@/@name@_installed.files
+      _installedFiles LIMIT 10000000 )
+   string( SUBSTRING "${_destdir}${CMAKE_INSTALL_PREFIX}/@CMAKE_INSTALL_BINDIR@"
+      1 -1 _binDir )
+   string( REGEX MATCHALL "(^|\n)${_binDir}[^\n]+" _executables
+      ${_installedFiles} )
+else()
+   set( _executables )
+endif()
 
 # Loop over the installed executables:
 foreach( _exec ${_executables} )
