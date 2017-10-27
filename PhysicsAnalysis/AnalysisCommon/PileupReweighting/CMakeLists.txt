@@ -76,12 +76,12 @@ atlas_add_test( ut_PRWExample_test
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
 atlas_add_test( testPRW
-   SOURCES test/testPRW.C
+   SOURCES test/testPRW.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
 atlas_add_test( testPRWTool
-   SOURCES test/testPRWTool.C
+   SOURCES test/testPRWTool.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
