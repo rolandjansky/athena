@@ -44,8 +44,6 @@ public:
  
  
  
-protected:
- 
     friend class SvcFactory<ChargeCollProbSvc>;
  
     // Standard Constructor
