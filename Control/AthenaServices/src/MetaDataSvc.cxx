@@ -43,21 +43,14 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
    declareProperty("CnvSvc", m_addrCrtr = ServiceHandle<IAddressCreator>("AthenaPoolCnvSvc", name));
-   // MetaData that is skipped for 0-event files needs to be added manually
-   m_persToClid.insert(std::pair<std::string, CLID>("11DF1B8C-0DEE-4687-80D7-E74B520ACBB4",  167728019)); // EventStreamInfo
-   m_persToClid.insert(std::pair<std::string, CLID>("E0A5F063-F07D-4D2E-8D3B-49205CD712C1", 1076128893)); // ByteStreamMetadataContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("6C2DE6DF-6D52-43F6-B435-9F29812F40C0", 1316383046)); // IOVMetaDataContainer
+   // MetaData that is skipped by mother process (for 0-event files) needs to be added manually
    m_persToClid.insert(std::pair<std::string, CLID>("0EFE2D2C-9E78-441D-9A87-9EE2B908AC81",  243004407)); // xAOD::EventFormat
    m_persToClid.insert(std::pair<std::string, CLID>("AA55120B-11CF-44A3-B1E4-A5AB062207B7", 1107011239)); // xAOD::TriggerMenuContainer
    m_persToClid.insert(std::pair<std::string, CLID>("B8614CC5-8696-4170-8CCC-496DA7671246", 1212409402)); // xAOD::TriggerMenuAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("F2F90B2F-B879-43B8-AF9B-0F843E299A87", 1234982351)); // xAOD::CutBookkeeperContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("AF612BAA-20B8-40A3-A418-894A9FB8A61B", 1147935274)); // xAOD::CutBookkeeperAuxContainer
    m_persToClid.insert(std::pair<std::string, CLID>("9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0", 1115934851)); // xAOD::LumiBlockRangeContainer
    m_persToClid.insert(std::pair<std::string, CLID>("514696E1-A262-470A-BEB1-FF980CD8827A", 1251061086)); // xAOD::LumiBlockRangeAuxContainer
    m_persToClid.insert(std::pair<std::string, CLID>("C87E3828-4A7A-480A-95DE-0339539F6A0F",  178309087)); // xAOD::FileMetaData
    m_persToClid.insert(std::pair<std::string, CLID>("BEE2BECF-A936-4078-9FDD-AD703C9ADF9F",   73252552)); // xAOD::FileMetaDataAuxInfo
-   m_persToClid.insert(std::pair<std::string, CLID>("754BDA89-C0D9-43BF-B468-32E10C1690FE", 1188015687)); // xAOD::TruthMetaDataContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("E2EF5F89-DFFA-4225-823E-29E40130A7B2", 1094306618)); // xAOD::TruthMetaDataAuxContainer
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -376,6 +369,8 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    contName = contName.substr(0, contName.find(']'));
    std::size_t pos1 = contName.find('(');
    std::string keyName = contName.substr(pos1 + 1, contName.size() - pos1 - 2);
+   std::size_t pos2 = keyName.find('/');
+   if (pos2 != std::string::npos) keyName = keyName.substr(pos2 + 1);
    std::string numName = tokenStr.substr(tokenStr.find("[NUM=") + 5);
    numName = numName.substr(0, numName.find(']'));
    unsigned long num = 0;
