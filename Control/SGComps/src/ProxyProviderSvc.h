@@ -54,7 +54,9 @@ public:
   ///add proxies to the store to modify (during Begin Event)
   virtual StatusCode loadProxies(IProxyRegistry& storeToModify) override;
 
-  ///get the default proxy. Optionally add proxies to the store to modify
+  /// Use a provider to create a proxy for ID/KEY.
+  /// If successful, the new proxy will be added to DATASTORE
+  /// and returned; otherwise, return null.
   virtual SG::DataProxy* retrieveProxy(const CLID& id, const std::string& key,
 				       IProxyRegistry& storeToModify) override;
 

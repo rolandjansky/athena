@@ -276,15 +276,18 @@ MixingEventSelector::loadAddresses(StoreID::type  storeID,
     return StatusCode::SUCCESS;
 
   CLID mclid = ClassID_traits<MergedEventInfo>::ID();
-  auto addr = std::make_unique<GenericAddress> (0, mclid);
-  auto tad = std::make_unique<SG::TransientAddress> (mclid,
-                                                     m_mergedEventInfoKey,
-                                                     addr.release(),
-                                                     false);
-  auto dp = std::make_unique<SG::DataProxy> (tad.release(),
-                                             this,
-                                             true);
-  ATH_CHECK( m_pEventStore->addToStore (mclid, dp.release()) );
+  if (!m_pEventStore->contains (mclid, m_mergedEventInfoKey)) {
+    // We create the DataProxy here rather than relying on ProxyProvideSvc
+    // to do it because we want to set a non-default dataloader on the proxy.
+    SG::TransientAddress tad (mclid,
+                              m_mergedEventInfoKey,
+                              new GenericAddress (0, mclid),
+                              false);
+    auto dp = std::make_unique<SG::DataProxy> (std::move(tad),
+                                               this,
+                                               true);
+    ATH_CHECK( m_pEventStore->addToStore (mclid, dp.release()) );
+  }
   return StatusCode::SUCCESS;
 }
 

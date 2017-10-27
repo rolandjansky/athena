@@ -22,7 +22,7 @@
 
 
 namespace Root {
-  class TAccept
+  class [[deprecated("please use TAcceptInfo+TAcceptData for multi-threaded code")]] TAccept
   {
 
   public: 

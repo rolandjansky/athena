@@ -7,7 +7,6 @@
  * @brief  Implementation of the CoreDumpSvc
  * @author Frank Winklmeier
  *
- * $Id: CoreDumpSvc.cxx,v 1.12 2008-12-15 13:24:23 fwinkl Exp $
  */
 
 // System includes
@@ -34,9 +33,9 @@
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/System.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 
 // Athena includes
@@ -49,8 +48,6 @@
 #include "CxxUtils/SealDebug.h"
 #include "CxxUtils/read_athena_statm.h"
 
-
-using std::endl;
 
 /**
  * @brief  Signal handler for CoreDumpSvc
@@ -108,61 +105,20 @@ namespace CoreDumpSvcHandler
 // C'tor, D'tor, Property handler
 //================================================================================
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthService( name, pSvcLocator ),
-  m_siginfo(nullptr),
-  m_eventCounter(0),
-  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
+  base_class( name, pSvcLocator ),
+  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | 
+                                                                  Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
 {
   // Set us as the current instance
   CoreDumpSvcHandler::coreDumpSvc = this;
-  
-  declareProperty( "Signals", m_signals ,
-                   "List of signals to catch" );
-  
-  declareProperty( "CallOldHandler", m_callOldHandler = true ,
-                   "Call previous signal handler" );
-  
-  declareProperty( "CoreDumpStream", m_coreDumpStream = "stdout",
-                   "Stream to use for core dump [stdout,stderr,MsgStream]" );
-
-  /*
-    USR1_DUMP_CORE        =   1
-    FATAL_ON_QUIT         =   2 x
-    FATAL_ON_INT          =   4 x
-    FATAL_DUMP_CORE       =   8
-    FATAL_DUMP_SIG        =  16 x
-    FATAL_DUMP_STACK      =  32 x
-    FATAL_DUMP_LIBS       =  64 
-    FATAL_DUMP_CONTEXT    = 128 x
-    FATAL_AUTO_EXIT       = 256 x
-     ==> 438
-  */
-  declareProperty( "FatalHandler",
-		   m_fatalHandlerFlags = 0,
-		   "Flags given to the fatal handler this service installs"
-		   "\n"
-		   "if the flag is zero, no fatal handler is installed"
-		   );
-
-  declareProperty( "TimeOut",
-		   m_timeout=30.0*60* 1000* 1000* 1000,
-		   "Terminate job after it reaches the time out in Wallclock time, usually due to hanging during the stack unwinding. Timeout given in Nanoseconds (official ATLAS units), despite its millisecond resolution. Default is 30 minutes" );
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fatalHandlerFlags.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   
-  // Default signals to catch
-  std::vector<int> sigs;
-  sigs.push_back(SIGSEGV);
-  sigs.push_back(SIGBUS);
-  sigs.push_back(SIGILL);
-  sigs.push_back(SIGFPE);
-  m_signals.setValue(sigs);
   // Allocate for 2 slots just for now.
   m_usrCoreDumps.resize(2);
-  m_sysCoreDumps.resize(2);
-  
+  m_sysCoreDumps.resize(2); 
 }
 
 CoreDumpSvc::~CoreDumpSvc()
@@ -172,7 +128,7 @@ CoreDumpSvc::~CoreDumpSvc()
 
 void CoreDumpSvc::propertyHandler(Property& p)
 {
-  CoreDumpSvcHandler::callOldHandler = m_callOldHandler.value();
+  CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
 
   if ( p.name()==m_coreDumpStream.name() ) {
     const std::string val = p.toString();
@@ -184,9 +140,8 @@ void CoreDumpSvc::propertyHandler(Property& p)
     }
   } else if ( p.name() == m_fatalHandlerFlags.name() ) {
     if (m_fatalHandlerFlags.fromString(p.toString()).isSuccess()) {
-      const int flag = m_fatalHandlerFlags.value();
-      if (flag != 0) {
-	AthenaServices::SetFatalHandler(flag);
+      if (m_fatalHandlerFlags != 0) {
+        AthenaServices::SetFatalHandler( m_fatalHandlerFlags );
       }
     } else {
       ATH_MSG_INFO("could not convert [" << p.toString() << "] to integer");
@@ -200,21 +155,9 @@ void CoreDumpSvc::propertyHandler(Property& p)
 //================================================================================
 StatusCode CoreDumpSvc::initialize()
 {
-  // Reset members
-  //m_usrCoreDump.clear();
-  //m_sysCoreDump.clear();
-  m_eventCounter = 0;
-  
-  ATH_MSG_DEBUG
-    ("Initializing " << name()
-     << " package version " << PACKAGE_VERSION);
-   
-  {
-    int flag = m_fatalHandlerFlags.value();
-    if (flag != 0) {
-      ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << flag << ")");
-      AthenaServices::SetFatalHandler(flag);
-    }
+  if (m_fatalHandlerFlags != 0) {
+    ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
+    AthenaServices::SetFatalHandler(m_fatalHandlerFlags);
   }
 
   if ( installSignalHandler().isFailure() ) {
@@ -238,15 +181,9 @@ StatusCode CoreDumpSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CoreDumpSvc::start(){
-  auto numSlots=Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
-  numSlots=(1>numSlots)?1:numSlots;
-  if(numSlots>1000){
-    ATH_MSG_WARNING("Num Slots are greater than 1000. Is this correct? numSlots="<<
-		    numSlots);
-    numSlots=1000;
-    ATH_MSG_WARNING("Setting numSlots to "<<numSlots);
-  }
+StatusCode CoreDumpSvc::start()
+{
+  auto numSlots = std::max<size_t>(1, Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents());
   m_usrCoreDumps.resize(numSlots);
   m_sysCoreDumps.resize(numSlots);
   return StatusCode::SUCCESS;
@@ -264,19 +201,6 @@ StatusCode CoreDumpSvc::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( ppvInterface==nullptr ) return StatusCode::FAILURE;
-  
-  if ( ICoreDumpSvc::interfaceID().versionMatch(riid) )
-    *ppvInterface = static_cast<ICoreDumpSvc*>(this);
-  else return Service::queryInterface(riid, ppvInterface);
-  
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-
 //================================================================================
 // ICoreDumpSvc implementation
 //================================================================================
@@ -286,26 +210,28 @@ StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
 //----------------------------------------------------------------------
 void CoreDumpSvc::setCoreDumpInfo( const std::string& name, const std::string& value )
 {
-  auto currSlot=Gaudi::Hive::currentContext().slot();
-  if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
-  auto &usrCoreDump=m_usrCoreDumps.at(currSlot);
-  usrCoreDump[name] = value;
+  setCoreDumpInfo(Gaudi::Hive::currentContext(), name, value);
 }
 
+void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& name, const std::string& value )
+{
+  auto slot = ctx.valid() ? ctx.slot() : 0;  
+  m_usrCoreDumps.at(slot)[name] = value;
+}
 
 //----------------------------------------------------------------------
 // Print all core dump records
 //----------------------------------------------------------------------
 void CoreDumpSvc::print()
 {
-  if (m_coreDumpStream.value()=="MsgStream") {
-    ATH_MSG_FATAL ("Core dump follows:" << endl << dump());
+  if (m_coreDumpStream == "MsgStream") {
+    ATH_MSG_FATAL ("Core dump follows:" << std::endl << dump());
   }
-  else if (m_coreDumpStream.value()=="stderr") {
-    std::cerr << dump() << endl;
+  else if (m_coreDumpStream == "stderr") {
+    std::cerr << dump() << std::endl;
   }
   else {
-    std::cout << dump() << endl;
+    std::cout << dump() << std::endl;
   }  
 }
 
@@ -377,57 +303,73 @@ std::string CoreDumpSvc::dump() const
     os << "\n";
   }
   
-  //CoreDump_t::const_iterator iter;
-  // System core dump
   os << "Event counter: " << m_eventCounter << "\n";  
-  //this might be a little problematic since other threads may still be working
-  for(size_t t=0;t<m_sysCoreDumps.size();t++){
-    auto &sysrec=m_sysCoreDumps.at(t);
-    if (sysrec.LastInc.length()){
-      os<<"Slot "<<std::setw(3)<<t<<":"<<std::endl;
-      os<<"         : Last Incident = "<<sysrec.LastInc<<std::endl;
-      os<<"         : Event ID      = "<<sysrec.EvId<<std::endl;
-      }
-  }
-  // for ( iter=m_sysCoreDump.begin(); iter!=m_sysCoreDump.end(); ++iter ) {
-  //   os << iter->first << ": " << iter->second << "\n";
-  // }
-  // User core dump
 
-  for(size_t t=0;t<m_usrCoreDumps.size();t++){
-    auto &sUsr=m_usrCoreDumps.at(t);
-    if(!sUsr.empty()){
-      os<<"Slot "<<std::setw(3)<<t<<": (user dumps)"<<std::endl;
-      for(auto &s:sUsr){
-	os<<"         : "<<s.first<<" = "<<s.second<<std::endl;
+
+  IAlgExecStateSvc* algExecStateSvc(nullptr);
+  IAlgContextSvc* algContextSvc(nullptr);
+
+  // Use AlgExecStateSvc in MT, otherwise AlgContextSvc
+  if (Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 0) {
+    service("AlgExecStateSvc", algExecStateSvc, /*createIf=*/ false).ignore();
+  }
+  else {
+    service("AlgContextSvc", algContextSvc, /*createIf=*/ false).ignore();
+  }
+
+  // Loop over all slots
+  for (size_t t=0; t < m_sysCoreDumps.size(); ++t){
+
+    // Currently executing algorithm(s)
+    std::string currentAlg;
+    if (algExecStateSvc) {
+      ATH_MSG_DEBUG("Using AlgExecStateSvc to determine current algorithm(s)");
+      // We copy on purpose to avoid modification while we examine it
+      auto states = algExecStateSvc->algExecStates(EventContext(0,t));
+      for (const auto& kv : states) {
+        if (kv.second.state()==AlgExecState::State::Executing)
+          currentAlg += (kv.first + " ");
+      }      
+    }
+    else if (algContextSvc) {
+      ATH_MSG_DEBUG("Using AlgContextSvc to determine current algorithm");
+      IAlgorithm* alg = algContextSvc->currentAlg();
+      if (alg) currentAlg = alg->name();
+    }
+    else {
+      ATH_MSG_WARNING("AlgExecStateSvc or AlgContextSvc not available. Cannot determine current algorithm.");
+    }
+
+    if (currentAlg.empty()) currentAlg = "<NONE>";
+    os << "Slot " << std::setw(3) << t << " : Current algorithm = " << currentAlg << std::endl;
+        
+    // System core dump
+    auto &sys = m_sysCoreDumps.at(t);
+    if (!sys.LastInc.empty()) {
+      os << "         : Last Incident = " << sys.LastInc << std::endl
+         << "         : Event ID      = " << sys.EvId << std::endl;
+    }
+    
+    // User core dump
+    auto &usr = m_usrCoreDumps.at(t);
+    if (!usr.empty()) {
+      for (auto &s : usr) {
+        os << "         : (usr) " << s.first << " = " << s.second << std::endl;
       }
     }
   }
-  // for ( iter=m_usrCoreDump.begin(); iter!=m_usrCoreDump.end(); ++iter ) {
-  //   os << iter->first << ": " << iter->second << "\n";
-  // }
 
-  // Check if the AlgContextSvc is running
-  // This information is incorrect in MT world
-  IAlgContextSvc* algContextSvc(nullptr);
-  if (service("AlgContextSvc", algContextSvc, /*createIf=*/ false).isSuccess() && algContextSvc) {
-
-    IAlgorithm* alg = algContextSvc->currentAlg();
-    os << "Current algorithm: " << (alg ? alg->name() : "<NONE>") << "\n";
-
+  if (algContextSvc) {
     os << "Algorithm stack: ";
-    if ( !alg || algContextSvc->algorithms().size()==0 ) os << "<EMPTY>" << "\n";
+    if ( algContextSvc->algorithms().empty() ) os << "<EMPTY>" << "\n";
     else {
       os << "\n";
-      IAlgContextSvc::Algorithms::const_iterator iter;
-      for ( iter=algContextSvc->algorithms().begin();
-            iter!=algContextSvc->algorithms().end();
-            ++iter) {
-        if (*iter) os << "   " << (*iter)->name() << "\n";
+      for (auto alg : algContextSvc->algorithms()) {
+        if (alg) os << "   " << alg->name() << "\n";
       }
     }
-    algContextSvc->release();
   }
+
   os << "-------------------------------------------------------------------------------------\n";
   os << "| AtlasBaseDir : " << std::setw(66) << getenv("AtlasBaseDir")  << " |\n";
   os << "| AtlasVersion : " << std::setw(66) << getenv("AtlasVersion")  << " |\n";
@@ -443,7 +385,6 @@ std::string CoreDumpSvc::dump() const
     iass->setStatus(1);
     iass->createSummary().ignore();
   }
-
   
   return os.str();
 }
@@ -455,21 +396,18 @@ std::string CoreDumpSvc::dump() const
 void CoreDumpSvc::handle(const Incident& incident)
 {
   //handle is single threaded in context;
-  const auto &currCtx=incident.context();
-  auto currSlot=currCtx.slot();
-  if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
-  auto &currRec=m_sysCoreDumps.at(currSlot);
-  currRec.LastInc= incident.source() + ":" + incident.type();
+  auto slot = incident.context().valid() ? incident.context().slot() : 0;  
+  auto &currRec = m_sysCoreDumps.at(slot);
 
-  //m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
+  currRec.LastInc = incident.source() + ":" + incident.type();
+
   const EventIncident* eventInc(nullptr);
   if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
     const EventID* eventID = eventInc->eventInfo().event_ID();
     if (eventID) {
       std::ostringstream oss;
       oss << *eventID;
-      //m_sysCoreDump["EventID"] = oss.str();
-      currRec.EvId=oss.str();
+      currRec.EvId = oss.str();
     }
   }
 
@@ -477,13 +415,11 @@ void CoreDumpSvc::handle(const Incident& incident)
     ++m_eventCounter;
   } else if (incident.type() == "StoreCleared") {
     // Try to force reallocation.
-    //std::string newstr = m_sysCoreDump["EventID"];
-    auto newstr=currRec.EvId;
+    auto newstr = currRec.EvId;
     // Intentional:
     // cppcheck-suppress selfAssignment
     newstr[0] = newstr[0];
-    //m_sysCoreDump["EventID"] = newstr;
-    currRec.EvId=newstr;
+    currRec.EvId = newstr;
   }
 
 }
@@ -499,10 +435,8 @@ StatusCode CoreDumpSvc::installSignalHandler()
 {
   ATH_MSG_DEBUG ("Installing signal handler");
   std::ostringstream oss;
-  std::vector<int>::const_iterator iter;
 
-  for ( iter=m_signals.value().begin(); iter!=m_signals.value().end(); ++iter ) {
-    const int sig = *iter;
+  for (auto sig : m_signals) {
 #ifndef __APPLE__
     if (sig<1 || sig>SIGRTMAX) {
       ATH_MSG_WARNING ("Invalid signal number " << sig << ". Ignoring.");
@@ -520,7 +454,7 @@ StatusCode CoreDumpSvc::installSignalHandler()
     int ret = sigaction(sig, &sigact, &(CoreDumpSvcHandler::oldSigHandler[sig]));
     if ( ret!=0 ) {
       ATH_MSG_ERROR ("Error on installing handler for signal " << sig
-		     << ": " << strerror(errno));
+                     << ": " << strerror(errno));
       return StatusCode::FAILURE;
     }     
   }
@@ -537,16 +471,13 @@ StatusCode CoreDumpSvc::uninstallSignalHandler()
   ATH_MSG_DEBUG ("Uninstalling signal handler");
 
   StatusCode sc = StatusCode::SUCCESS;
-  CoreDumpSvcHandler::SigHandler_t::const_iterator iter;
-  for ( iter=CoreDumpSvcHandler::oldSigHandler.begin();
-        iter!=CoreDumpSvcHandler::oldSigHandler.end(); ++iter ) {
-    
-    int ret = sigaction(iter->first, &(iter->second), nullptr);
+
+  for (const auto& kv : CoreDumpSvcHandler::oldSigHandler) {
+    int ret = sigaction(kv.first, &(kv.second), nullptr);
     if ( ret!=0 ) {
       sc = StatusCode::FAILURE;
-      ATH_MSG_WARNING
-	("Error on uninstalling handler for signal " << iter->first
-	 << ": " << strerror(errno));
+      ATH_MSG_WARNING("Error on uninstalling handler for signal " << kv.first
+                      << ": " << strerror(errno));
     }
   }
   return sc;

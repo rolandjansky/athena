@@ -1232,13 +1232,13 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	try{
 	  m_timeoutCond.notify_all();
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock (m_statMutex);
 	    tStart=std::chrono::steady_clock::now();
 	  }
 	  m_dataSource->getL1Result(l1r,l1id,evId.globalId,evId.lbNumber);
 	  std::chrono::time_point<std::chrono::steady_clock> tL1=std::chrono::steady_clock::now();
 	  {
-	    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	    std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	    m_softTOTrigger=true;
 	    m_hardTOTrigger=false;
 	    m_TOTimerStart=tL1;
@@ -1247,7 +1247,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	  evId.l1Id=l1id;
 	  auto dtime=std::chrono::duration_cast<std::chrono::milliseconds>(tL1-tStart);
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock(m_statMutex);
 	    m_waitDuration+=dtime;
 	    m_waitDurationCum+=dtime;	    
 	  }
@@ -1261,7 +1261,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	    return false;
 	  }
 	  {
-	    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	    std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	    m_softTOTrigger=false;
 	    m_hardTOTrigger=false;
 	    if(m_childInfo->getIntField(m_CILongestWaitForL1Result)<deltaT){
@@ -1276,7 +1276,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	  m_dataSource->sendResult(accept,l1id,hltr);
 	  tProc=std::chrono::steady_clock::now();
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock(m_statMutex);
 	    m_procDuration+=dtime;
 	    m_procDurationCum+=dtime;
 	    m_eventsInInterval++;
@@ -1289,7 +1289,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	    GCIncrIntField(m_childInfo,m_CIAcceptedEvents,1);
 	    m_histos[1]->Fill(deltaT);
 	    {
-	      std::unique_lock<std::mutex>(m_statMutex);
+	      std::lock_guard<std::mutex> lock(m_statMutex);
 	      m_accDuration+=dtime;
 	      m_accDurationCum+=dtime;
 	      m_acceptedInInterval++;
@@ -1299,7 +1299,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	    GCIncrIntField(m_childInfo,m_CIRejectedEvents,1);
 	    m_histos[2]->Fill(deltaT);
 	    {
-	      std::unique_lock<std::mutex> lock(m_statMutex);
+	      std::lock_guard<std::mutex> lock(m_statMutex);
 	      m_rejDuration+=dtime;
 	      m_rejDurationCum+=dtime;
 	      m_rejectedInInterval++;
@@ -1309,7 +1309,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	  GCIncrIntField(m_childInfo,m_CINumEvents,1);
 	  dtime=std::chrono::duration_cast<std::chrono::milliseconds>(tProc-tL1);
 	  {
-	    std::unique_lock<std::mutex> lock(m_statMutex); 
+	    std::lock_guard<std::mutex> lock(m_statMutex); 
 	    m_sendDuration+=dtime;
 	    m_sendDurationCum+=dtime;
 	  }
@@ -1347,7 +1347,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	hltr.psc_errors.clear();   
 	hltr.hltResult_robs.clear();
 	{
-	  std::unique_lock<std::mutex>(m_statMutex); 
+	  std::lock_guard<std::mutex> lock(m_statMutex); 
 	  auto tdiff=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-tStart);
 	  m_totDuration+=tdiff;
 	  m_totDurationCum+=tdiff;
@@ -1366,7 +1366,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
       // do finalization.
       ERS_LOG("--ALP_Processing Ended. ");
       {
-	std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	m_timerWork=false;
 	m_softTOTrigger=false;
 	m_hardTOTrigger=false;
@@ -1754,7 +1754,7 @@ void ALP::statsPublisher(){
   //   }
   //   try{
   //     {
-  // 	std::unique_lock<std::mutex>(m_statMutex);
+  // 	std::lock_guard<std::mutex>(m_statMutex);
   // 	if(m_eventsInInterval){
   // 	  double ievts=1.0/m_eventsInInterval;
   // 	  m_childInfo->setFloatField(m_CIAverageL1ResultTime,m_waitDuration.count()*ievts);
@@ -1803,7 +1803,7 @@ void ALP::statsPublisher(){
   //     }
   //     try{
   // 	{
-  // 	  std::unique_lock<std::mutex>(m_statMutex);	  
+  // 	  std::lock_guard<std::mutex>(m_statMutex);	  
   // 	  if(m_eventsInInterval){
   // 	    double ievts=1.0/m_eventsInInterval;
   // 	    m_childInfo->setFloatField(m_CIAverageL1ResultTime,m_waitDuration.count()*ievts);

@@ -71,10 +71,8 @@ class LArCalibParams {
 
 };
 
-#ifndef __CINT__ 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArCalibParams, 228761010,1 )
-#endif
 
 
 #endif 

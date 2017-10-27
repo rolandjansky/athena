@@ -32,9 +32,8 @@ class LAruA2MeVSym: virtual public ILAruA2MeV {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LAruA2MeVSym, ILAruA2MeV);
 CLASS_DEF( LAruA2MeVSym,123298666,1)
-CLASS_DEF( CondCont<LAruA2MeVSym> ,131315182 , 1 )
+CONDCONT_DEF( LAruA2MeVSym,131315182, ILAruA2MeV );
 #endif 

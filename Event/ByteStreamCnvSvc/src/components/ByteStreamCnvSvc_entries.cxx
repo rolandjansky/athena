@@ -1,6 +1,3 @@
-//====================================================================
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "../EventSelectorByteStream.h"
 #include "../ByteStreamMergeOutputSvc.h"
@@ -28,18 +25,3 @@ DECLARE_SERVICE_FACTORY( ByteStreamAttListMetadataSvc )
 DECLARE_TOOL_FACTORY( ByteStreamOutputStreamCopyTool )
 DECLARE_TOOL_FACTORY( ByteStreamMetadataTool )
 
-DECLARE_FACTORY_ENTRIES( ByteStreamCnvSvc ) {
-    DECLARE_SERVICE    ( ByteStreamCnvSvc )
-    DECLARE_SERVICE    ( EventSelectorByteStream )
-    DECLARE_SERVICE    ( ByteStreamMergeOutputSvc )
-    DECLARE_SERVICE    ( ByteStreamRDP_OutputSvc )
-    DECLARE_CONVERTER  ( EventInfoByteStreamCnv )
-    DECLARE_SERVICE    ( ByteStreamEventStorageInputSvc )
-    DECLARE_SERVICE    ( ByteStreamEventStorageOutputSvc )
-    DECLARE_SERVICE    ( ByteStreamSingleEventInputSvc )
-    DECLARE_SERVICE    ( ByteStreamNavigationProviderSvc )
-    DECLARE_SERVICE    ( ByteStreamAttListMetadataSvc )
-
-    DECLARE_TOOL    ( ByteStreamOutputStreamCopyTool )
-    DECLARE_TOOL    ( ByteStreamMetadataTool )
-}

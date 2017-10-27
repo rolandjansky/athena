@@ -1,5 +1,3 @@
-// JetRec_entries.cxx
-
 #include "../JetAlgorithm.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
@@ -14,7 +12,6 @@
 #include "JetRec/JetPruner.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "JetRec/JetSorter.h"
 #include "JetRec/JetPseudojetRetriever.h"
@@ -23,49 +20,25 @@
 #include "JetRec/JetFilterTool.h"
 #include "JetRec/JetConstitRemover.h"
 
-DECLARE_TOOL_FACTORY(JetToolRunner)
-DECLARE_TOOL_FACTORY(JetRecTool)
-DECLARE_TOOL_FACTORY(JetDumper)
-DECLARE_TOOL_FACTORY(PseudoJetGetter)
-DECLARE_TOOL_FACTORY(MuonSegmentPseudoJetGetter)
-DECLARE_TOOL_FACTORY(JetFromPseudojet)
-DECLARE_TOOL_FACTORY(JetFinder)
-DECLARE_TOOL_FACTORY(JetByVertexFinder)
-DECLARE_TOOL_FACTORY(JetSorter)
-DECLARE_TOOL_FACTORY(JetFilterTool)
-DECLARE_TOOL_FACTORY(JetSplitter)
-DECLARE_TOOL_FACTORY(JetTrimmer)
-DECLARE_TOOL_FACTORY(JetPruner)
-DECLARE_TOOL_FACTORY(JetReclusterer)
-DECLARE_TOOL_FACTORY(FastJetInterfaceTool)
-DECLARE_TOOL_FACTORY(JetPseudojetRetriever)
-DECLARE_TOOL_FACTORY(JetConstituentsRetriever)
-DECLARE_TOOL_FACTORY(JetPseudojetCopier)
-DECLARE_TOOL_FACTORY(JetConstitRemover)
+DECLARE_COMPONENT( JetToolRunner )
+DECLARE_COMPONENT( JetRecTool )
+DECLARE_COMPONENT( JetDumper )
+DECLARE_COMPONENT( PseudoJetGetter )
+DECLARE_COMPONENT( MuonSegmentPseudoJetGetter )
+DECLARE_COMPONENT( JetFromPseudojet )
+DECLARE_COMPONENT( JetFinder )
+DECLARE_COMPONENT( JetByVertexFinder )
+DECLARE_COMPONENT( JetSorter )
+DECLARE_COMPONENT( JetFilterTool )
+DECLARE_COMPONENT( JetSplitter )
+DECLARE_COMPONENT( JetTrimmer )
+DECLARE_COMPONENT( JetPruner )
+DECLARE_COMPONENT( JetReclusterer )
+DECLARE_COMPONENT( FastJetInterfaceTool )
+DECLARE_COMPONENT( JetPseudojetRetriever )
+DECLARE_COMPONENT( JetConstituentsRetriever )
+DECLARE_COMPONENT( JetPseudojetCopier )
+DECLARE_COMPONENT( JetConstitRemover )
 
-DECLARE_ALGORITHM_FACTORY(JetAlgorithm)
-
-DECLARE_FACTORY_ENTRIES(JetRec) {
-  DECLARE_TOOL(JetToolRunner)
-  DECLARE_TOOL(JetRecTool)
-  DECLARE_TOOL(JetDumper)
-  DECLARE_TOOL(PseudoJetGetter)
-  DECLARE_TOOL(MuonSegmentPseudoJetGetter)
-  DECLARE_TOOL(JetFinder)
-  DECLARE_TOOL(JetByVertexFinder)
-  DECLARE_TOOL(JetFromPseudojet)
-  DECLARE_TOOL(JetSorter)
-  DECLARE_TOOL(JetFilterTool)
-  DECLARE_TOOL(JetSplitter)
-  DECLARE_TOOL(JetTrimmer)
-  DECLARE_TOOL(JetPruner)
-  DECLARE_TOOL(JetReclusterer)
-  DECLARE_TOOL(FastJetInterfaceTool)
-  DECLARE_TOOL(JetPseudojetRetriever)
-  DECLARE_TOOL(JetConstituentsRetriever)
-  DECLARE_TOOL(JetPseudojetCopier)
-  DECLARE_TOOL(JetConstitRemover)
-
-  DECLARE_ALGORITHM(JetAlgorithm)
-}
+DECLARE_COMPONENT( JetAlgorithm )
 

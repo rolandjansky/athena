@@ -8,7 +8,7 @@
 #define LArRawchannelContainer_H
 
 #include "LArRawEvent/LArRawChannel.h"
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include <vector>
 
 /**

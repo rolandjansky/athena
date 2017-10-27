@@ -1,18 +1,13 @@
 //#include "JetValidation/JetTests.h"
 //#include "JetValidation/JetCalibratorAthenaExample.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-//DECLARE_ALGORITHM_FACTORY( JetTests )
-//DECLARE_ALGORITHM_FACTORY( JetSkeletonAlg )
+//DECLARE_COMPONENT( JetTests )
+//DECLARE_COMPONENT( JetSkeletonAlg )
 
-//DECLARE_TOOL_FACTORY( JetCalibratorAthenaExample )
-//DECLARE_TOOL_FACTORY( JetCollectionTester )
+//DECLARE_COMPONENT( JetCalibratorAthenaExample )
+//DECLARE_COMPONENT( JetCollectionTester )
 
-DECLARE_FACTORY_ENTRIES( JetValidation ) {
-  //DECLARE_ALGORITHM( JetSkeletonAlg ) ;
 
-  //DECLARE_TOOL( JetCalibratorAthenaExample ) ;
-  //DECLARE_TOOL( JetCollectionTester ) ;
   
-}
+

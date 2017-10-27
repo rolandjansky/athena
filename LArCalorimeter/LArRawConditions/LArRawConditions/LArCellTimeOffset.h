@@ -5,7 +5,7 @@
 #ifndef LARCELLTIMEOFFSET_H
 #define LARCELLTIMEOFFSET_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include <map>
 

@@ -92,8 +92,8 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< (gettempworks?"successful":"failed") << endmsg;	
-  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< gettempworks << endmsg;	
+  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< (gettempworks?"successful":"failed") << endmsg;
+  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< gettempworks << endmsg;
  
 
   try{
@@ -106,8 +106,8 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (gethvworks?"successful":"failed") << endmsg;	
-  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)) << endmsg;	
+  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (gethvworks?"successful":"failed") << endmsg;
+  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)) << endmsg;
 
   try{
      isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(141015041),InDetConditions::SCT_STRIP));
@@ -119,11 +119,11 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
     return StatusCode::FAILURE;
   }
   
-  msg(MSG::INFO) << "fillData "<< (DCSfilled?"successful":"failed") << endmsg;	
-  msg(MSG::INFO) << "isGood(141015041,Strip) "<< (isgoodworks?"successful":"failed") << endmsg;	
+  msg(MSG::INFO) << "fillData "<< (DCSfilled?"successful":"failed") << endmsg;
+  msg(MSG::INFO) << "isGood(141015041,Strip) "<< (isgoodworks?"successful":"failed") << endmsg;
 
-  //msg(MSG::INFO) << "canReportAbout(Module) "<< (module?"successful":"failed") << endmsg;	
-  //msg(MSG::INFO) << "canReportAbout(Strip) "<< (strip?"successful":"failed") << endmsg;	
+  //msg(MSG::INFO) << "canReportAbout(Module) "<< (module?"successful":"failed") << endmsg;
+  //msg(MSG::INFO) << "canReportAbout(Strip) "<< (strip?"successful":"failed") << endmsg;
   return sc;
 } // SCT_DCSConditionsTestAlg::execute()
 

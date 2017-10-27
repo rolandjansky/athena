@@ -1,31 +1,17 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-// Top level tool
 #include "TrackVertexAssociationTool/LooseTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/TightTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/ElectronTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/MuonTrackVertexAssociationTool.h"
 
-// Algs
 #include "../TrackVertexAssoTestAlg.h"
 
 using namespace xAOD;
 
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,LooseTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,TightTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,BaseTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,ElectronTrackVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(CP,MuonTrackVertexAssociationTool)
-DECLARE_ALGORITHM_FACTORY(TrackVertexAssoTestAlg)
-//
+DECLARE_COMPONENT( CP::LooseTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::TightTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::BaseTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::ElectronTrackVertexAssociationTool )
+DECLARE_COMPONENT( CP::MuonTrackVertexAssociationTool )
+DECLARE_COMPONENT( TrackVertexAssoTestAlg )
 
-DECLARE_FACTORY_ENTRIES(TrackVertexAssociationTool) {
-  DECLARE_NAMESPACE_TOOL(CP,LooseTrackVertexAssociationTool)
-  DECLARE_NAMESPACE_TOOL(CP,TightTrackVertexAssociationTool)
-  DECLARE_NAMESPACE_TOOL(CP,BaseTrackVertexAssociationTool)
-  DECLARE_NAMESPACE_TOOL(CP,ElectronTrackVertexAssociationTool)
-  DECLARE_NAMESPACE_TOOL(CP,MuonTrackVertexAssociationTool)
-  // Algs
-  DECLARE_ALGORITHM(TrackVertexAssoTestAlg)
-}

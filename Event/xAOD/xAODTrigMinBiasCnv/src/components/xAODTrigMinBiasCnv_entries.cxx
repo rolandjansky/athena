@@ -1,9 +1,3 @@
-// $Id:$
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-// Local include(s):
 #include "../TrigSpacePointCountsCnvTool.h"
 #include "../TrigSpacePointCountsCnvAlg.h"
 
@@ -35,18 +29,3 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigVertexCountsCnvAlg )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvAlg )
 
-DECLARE_FACTORY_ENTRIES( xAODTrigMinBiasCnv ) {
-
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigSpacePointCountsCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigSpacePointCountsCnvAlg )
-//    DECLARE_NAMESPACE_TOOL( xAODMaker, TrigHisto2DCnvTool )
-//    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigHisto2DCnvAlg )
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigT2MbtsBitsCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigT2MbtsBitssCnvAlg)
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigTrackCountsCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigTrackCountssCnvAlg)
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigVertexCountsCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigVertexCountssCnvAlg)
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigT2ZdcSignalsCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigT2ZdcSignalssCnvAlg)
-}

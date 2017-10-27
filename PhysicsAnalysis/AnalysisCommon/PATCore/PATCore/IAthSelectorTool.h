@@ -27,7 +27,7 @@ class INavigable4Momentum;
 
 static const InterfaceID IID_IAthSelectorTool("IAthSelectorTool", 1, 0);
 
-class IAthSelectorTool
+class [[deprecated("do not use for multi-threaded code")]] IAthSelectorTool
   : virtual public ::IAlgTool
 { 
 

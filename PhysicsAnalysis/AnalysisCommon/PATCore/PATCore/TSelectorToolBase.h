@@ -35,7 +35,7 @@ class TObject;
 
 
 namespace Root {
-  class TSelectorToolBase
+  class [[deprecated("do not use for multi-threaded code")]] TSelectorToolBase
   {
 
   public: 

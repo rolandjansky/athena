@@ -32,9 +32,8 @@ class LArNoiseSym: virtual public ILArNoise {
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArNoiseSym, ILArNoise);
 CLASS_DEF( LArNoiseSym,235778925,1)
-CLASS_DEF( CondCont<LArNoiseSym> , 233925277, 1 )
+CONDCONT_DEF( LArNoiseSym, 233925277, ILArNoise );
 #endif 

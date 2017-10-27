@@ -22,7 +22,7 @@
 #define TILEEVENT_TILERAWDATACONTAINER_H
 
 #include "EventContainers/IdentifiableContainer.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileEvent/TileRawDataCollection.h"

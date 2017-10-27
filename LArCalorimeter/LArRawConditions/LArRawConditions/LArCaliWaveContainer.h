@@ -16,7 +16,7 @@
 #define LARCALIWAVECONTAINER_H
 
 #include "LArRawConditions/LArConditionsContainer.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRawConditions/LArCaliWave.h"
 
 #include <map>
