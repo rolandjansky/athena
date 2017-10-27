@@ -9,8 +9,8 @@ import D3PDMakerCoreComps
 
 from AthenaCommon.AlgSequence import AlgSequence
 
-import PyCintex
-PyCintex.loadDictionary('egammaInterfacesEnumsDict')
+import cppyy
+cppyy.loadDictionary('egammaInterfacesEnumsDict')
 from ROOT import egammaIsolationType
 
 

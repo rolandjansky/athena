@@ -2,8 +2,6 @@
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
 sequencer = AthSequencer("HSG5WH_Sequencer",

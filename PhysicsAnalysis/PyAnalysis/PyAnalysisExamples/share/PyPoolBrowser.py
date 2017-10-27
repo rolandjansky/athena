@@ -6,8 +6,8 @@ import re
 import time
 
 # import PyDataHeader and PyCLIDSvc
-import PyCintex
-PyCintex.loadDictionary("PyAnalysisCoreDict")
+import cppyy
+cppyy.loadDictionary("PyAnalysisCoreDict")
 
 #############################################################################
 
