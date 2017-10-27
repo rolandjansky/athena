@@ -6,9 +6,9 @@
 
 using namespace Trk ;
 
-DECLARE_TOOL_FACTORY ( MCTrueSeedFinder )
-DECLARE_TOOL_FACTORY ( CrossDistancesSeedFinder  )
-DECLARE_TOOL_FACTORY ( DummySeedFinder )
-DECLARE_TOOL_FACTORY ( ZScanSeedFinder )
-DECLARE_TOOL_FACTORY ( ImagingSeedFinder )
+DECLARE_COMPONENT( MCTrueSeedFinder )
+DECLARE_COMPONENT( CrossDistancesSeedFinder )
+DECLARE_COMPONENT( DummySeedFinder )
+DECLARE_COMPONENT( ZScanSeedFinder )
+DECLARE_COMPONENT( ImagingSeedFinder )
 

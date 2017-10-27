@@ -4,9 +4,9 @@
 #include "TrkTruthCreatorTools/TruthMatchRatio.h"
 #include "TrkTruthCreatorTools/TruthMatchTanimoto.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DetailedTrackTruthBuilder )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, ElasticTruthTrajectoryBuilder )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DecayInFlyTruthTrajectoryBuilder )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TruthMatchRatio )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TruthMatchTanimoto )
+DECLARE_COMPONENT( Trk::DetailedTrackTruthBuilder )
+DECLARE_COMPONENT( Trk::ElasticTruthTrajectoryBuilder )
+DECLARE_COMPONENT( Trk::DecayInFlyTruthTrajectoryBuilder )
+DECLARE_COMPONENT( Trk::TruthMatchRatio )
+DECLARE_COMPONENT( Trk::TruthMatchTanimoto )
 

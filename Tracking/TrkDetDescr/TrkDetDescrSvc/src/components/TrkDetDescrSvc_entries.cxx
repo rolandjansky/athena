@@ -3,6 +3,6 @@
 
 using namespace Trk;
 
-DECLARE_SERVICE_FACTORY( TrackingGeometrySvc )
-DECLARE_SERVICE_FACTORY( TrackingVolumesSvc )
+DECLARE_COMPONENT( TrackingGeometrySvc )
+DECLARE_COMPONENT( TrackingVolumesSvc )
 

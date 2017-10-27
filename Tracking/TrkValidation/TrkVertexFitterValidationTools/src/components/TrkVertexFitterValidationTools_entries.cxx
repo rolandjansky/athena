@@ -2,7 +2,7 @@
 #include "TrkVertexFitterValidationTools/TrueTracksNtupleTool.h"
 #include "TrkVertexFitterValidationTools/McEventNtupleTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, BasicVtxValidationNtupleTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrueTracksNtupleTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, McEventNtupleTool )
+DECLARE_COMPONENT( Trk::BasicVtxValidationNtupleTool )
+DECLARE_COMPONENT( Trk::TrueTracksNtupleTool )
+DECLARE_COMPONENT( Trk::McEventNtupleTool )
 

@@ -62,8 +62,6 @@ namespace Trk {
       /** @copydoc ITrackingVolumesSvc::volumeName() */
       const std::string& volumeName(const TrackingVolumeIdentifier& volumeId) const;
   
-    protected:
-  
       friend class SvcFactory<TrackingVolumesSvc>;
   
       /** Standard Constructor */

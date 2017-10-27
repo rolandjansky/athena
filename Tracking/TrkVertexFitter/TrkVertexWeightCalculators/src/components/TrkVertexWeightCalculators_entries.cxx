@@ -6,8 +6,8 @@
  
  using namespace Trk;
  
- DECLARE_TOOL_FACTORY(SumPtVertexWeightCalculator )
- DECLARE_TOOL_FACTORY(VxProbVertexWeightCalculator )
- DECLARE_TOOL_FACTORY(NNVertexWeightCalculator )
- DECLARE_TOOL_FACTORY(TrueVertexDistanceWeightCalculator)
+ DECLARE_COMPONENT( SumPtVertexWeightCalculator )
+ DECLARE_COMPONENT( VxProbVertexWeightCalculator )
+ DECLARE_COMPONENT( NNVertexWeightCalculator )
+ DECLARE_COMPONENT( TrueVertexDistanceWeightCalculator )
 

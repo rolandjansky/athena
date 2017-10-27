@@ -2,5 +2,5 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( TrackSummaryTool )
+DECLARE_COMPONENT( TrackSummaryTool )
 

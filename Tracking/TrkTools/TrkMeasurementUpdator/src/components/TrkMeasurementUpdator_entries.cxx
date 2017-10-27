@@ -3,8 +3,8 @@
 #include "TrkMeasurementUpdator/KalmanUpdatorAmg.h"
 #include "TrkMeasurementUpdator/KalmanWeightUpdator.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, KalmanUpdator )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, KalmanUpdatorSMatrix )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, KalmanUpdatorAmg )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, KalmanWeightUpdator )
+DECLARE_COMPONENT( Trk::KalmanUpdator )
+DECLARE_COMPONENT( Trk::KalmanUpdatorSMatrix )
+DECLARE_COMPONENT( Trk::KalmanUpdatorAmg )
+DECLARE_COMPONENT( Trk::KalmanWeightUpdator )
 

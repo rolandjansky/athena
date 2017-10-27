@@ -4,7 +4,7 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(SegmentRetriever)
-DECLARE_TOOL_FACTORY(TrackRetriever)
-DECLARE_TOOL_FACTORY(VertexRetriever)
+DECLARE_COMPONENT( SegmentRetriever )
+DECLARE_COMPONENT( TrackRetriever )
+DECLARE_COMPONENT( VertexRetriever )
 

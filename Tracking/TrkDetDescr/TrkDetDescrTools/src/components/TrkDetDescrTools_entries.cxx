@@ -14,19 +14,17 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( CylinderVolumeCreator )
-DECLARE_TOOL_FACTORY( BinnedLayerMaterialCreator )
-DECLARE_TOOL_FACTORY( CompoundLayerMaterialCreator )
-DECLARE_TOOL_FACTORY( CompressedLayerMaterialCreator )
-DECLARE_TOOL_FACTORY( GeometryBuilder )
-DECLARE_TOOL_FACTORY( GenericGeometryBuilder )
-DECLARE_TOOL_FACTORY( LayerArrayCreator )
-DECLARE_TOOL_FACTORY( LayerProvider )
-DECLARE_TOOL_FACTORY( LayerMaterialProvider )
-DECLARE_TOOL_FACTORY( LayerMaterialConverter )
-DECLARE_TOOL_FACTORY( InputLayerMaterialProvider )
-DECLARE_TOOL_FACTORY( TrackingVolumeArrayCreator )
-DECLARE_TOOL_FACTORY( TrackingVolumeHelper )
-
-/** factory entries need to have the name of the package */
+DECLARE_COMPONENT( CylinderVolumeCreator )
+DECLARE_COMPONENT( BinnedLayerMaterialCreator )
+DECLARE_COMPONENT( CompoundLayerMaterialCreator )
+DECLARE_COMPONENT( CompressedLayerMaterialCreator )
+DECLARE_COMPONENT( GeometryBuilder )
+DECLARE_COMPONENT( GenericGeometryBuilder )
+DECLARE_COMPONENT( LayerArrayCreator )
+DECLARE_COMPONENT( LayerProvider )
+DECLARE_COMPONENT( LayerMaterialProvider )
+DECLARE_COMPONENT( LayerMaterialConverter )
+DECLARE_COMPONENT( InputLayerMaterialProvider )
+DECLARE_COMPONENT( TrackingVolumeArrayCreator )
+DECLARE_COMPONENT( TrackingVolumeHelper )
 

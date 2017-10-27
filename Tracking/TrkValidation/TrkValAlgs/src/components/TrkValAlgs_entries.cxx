@@ -4,9 +4,9 @@
 #include "TrkValAlgs/SingleTrackDiffAlg.h"
 //#include "TrkValAlgs/MaterialOnTrackValidation.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, EventDataModelMonitor )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, TrackValidationNtupleWriter )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, SingleTrackDiffAlg )
-//DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, MaterialOnTrackValidation )
-//DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, RecMomentumQualityValidation )
+DECLARE_COMPONENT( Trk::EventDataModelMonitor )
+DECLARE_COMPONENT( Trk::TrackValidationNtupleWriter )
+DECLARE_COMPONENT( Trk::SingleTrackDiffAlg )
+//DECLARE_COMPONENT( Trk::MaterialOnTrackValidation )
+//DECLARE_COMPONENT( Trk::RecMomentumQualityValidation )
 

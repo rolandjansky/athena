@@ -7,12 +7,10 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( ExtrapolationEngine )
-DECLARE_TOOL_FACTORY( MaterialEffectsEngine )
-DECLARE_TOOL_FACTORY( StaticEngine )
-DECLARE_TOOL_FACTORY( StaticNavigationEngine )
-DECLARE_TOOL_FACTORY( PropagationEngine )
-DECLARE_TOOL_FACTORY( StepEngine )
-
-/** factory entries need to have the name of the package */
+DECLARE_COMPONENT( ExtrapolationEngine )
+DECLARE_COMPONENT( MaterialEffectsEngine )
+DECLARE_COMPONENT( StaticEngine )
+DECLARE_COMPONENT( StaticNavigationEngine )
+DECLARE_COMPONENT( PropagationEngine )
+DECLARE_COMPONENT( StepEngine )
 

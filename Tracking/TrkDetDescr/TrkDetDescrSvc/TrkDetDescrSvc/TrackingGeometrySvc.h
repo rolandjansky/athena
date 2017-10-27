@@ -69,8 +69,6 @@ namespace Trk {
       //!< Returns the name of the TrackingGeometry built with this Svc
       const std::string& trackingGeometryName() const;
   
-    protected:
-  
       friend class SvcFactory<TrackingGeometrySvc>;
   
       //!< Standard Constructor

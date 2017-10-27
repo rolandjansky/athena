@@ -7,10 +7,10 @@
 
 using namespace Trk;
 
-DECLARE_ALGORITHM_FACTORY( RiddersAlgorithm )
-DECLARE_ALGORITHM_FACTORY( ExtrapolatorTest )
-DECLARE_ALGORITHM_FACTORY( ExtrapolationValidation )
-DECLARE_ALGORITHM_FACTORY( EnergyLossExtrapolationValidation )
-DECLARE_ALGORITHM_FACTORY( CombinedExtrapolatorTest )
-DECLARE_ALGORITHM_FACTORY( CETmaterial )
+DECLARE_COMPONENT( RiddersAlgorithm )
+DECLARE_COMPONENT( ExtrapolatorTest )
+DECLARE_COMPONENT( ExtrapolationValidation )
+DECLARE_COMPONENT( EnergyLossExtrapolationValidation )
+DECLARE_COMPONENT( CombinedExtrapolatorTest )
+DECLARE_COMPONENT( CETmaterial )
 

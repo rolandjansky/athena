@@ -2,7 +2,7 @@
 #include "TrkDeterministicAnnealingFilter/DAF_WeightCalculator.h"
 #include "TrkDeterministicAnnealingFilter/DAF_SimpleWeightCalculator.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DeterministicAnnealingFilter )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DAF_WeightCalculator )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DAF_SimpleWeightCalculator )
+DECLARE_COMPONENT( Trk::DeterministicAnnealingFilter )
+DECLARE_COMPONENT( Trk::DAF_WeightCalculator )
+DECLARE_COMPONENT( Trk::DAF_SimpleWeightCalculator )
 

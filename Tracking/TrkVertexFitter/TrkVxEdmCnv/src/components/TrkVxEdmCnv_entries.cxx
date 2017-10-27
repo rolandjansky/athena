@@ -2,5 +2,5 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( VxCandidateXAODVertex )
+DECLARE_COMPONENT( VxCandidateXAODVertex )
 

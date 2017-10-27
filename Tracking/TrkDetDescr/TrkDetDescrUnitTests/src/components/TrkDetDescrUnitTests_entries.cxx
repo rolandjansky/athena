@@ -6,13 +6,9 @@
 
 using namespace Trk;
 
-DECLARE_ALGORITHM_FACTORY( BinUtilityTest )
-DECLARE_ALGORITHM_FACTORY( TrkDetDescrTPCnvTest )
-DECLARE_ALGORITHM_FACTORY( TrackingGeometryTest )
-DECLARE_ALGORITHM_FACTORY( SurfaceIntersectionTest )
-DECLARE_ALGORITHM_FACTORY( MappingTest )
-
-
-/** factory entries need to have the name of the package */
-    
+DECLARE_COMPONENT( BinUtilityTest )
+DECLARE_COMPONENT( TrkDetDescrTPCnvTest )
+DECLARE_COMPONENT( TrackingGeometryTest )
+DECLARE_COMPONENT( SurfaceIntersectionTest )
+DECLARE_COMPONENT( MappingTest )
 

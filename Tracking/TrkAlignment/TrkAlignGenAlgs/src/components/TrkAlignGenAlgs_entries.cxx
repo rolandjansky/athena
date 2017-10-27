@@ -3,8 +3,8 @@
 #include "TrkAlignGenAlgs/AlignSolve.h"
 #include "TrkAlignGenAlgs/AlignTrackCollSplitter.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, AlignAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, SelectEventNumber )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, AlignSolve )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, AlignTrackCollSplitter )
+DECLARE_COMPONENT( Trk::AlignAlg )
+DECLARE_COMPONENT( Trk::SelectEventNumber )
+DECLARE_COMPONENT( Trk::AlignSolve )
+DECLARE_COMPONENT( Trk::AlignTrackCollSplitter )
 

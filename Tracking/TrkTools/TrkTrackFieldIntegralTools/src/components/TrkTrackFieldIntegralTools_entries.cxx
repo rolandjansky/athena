@@ -1,4 +1,4 @@
 #include "../FieldIntegralByTrackQueryTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, FieldIntegralByTrackQueryTool )
+DECLARE_COMPONENT( Trk::FieldIntegralByTrackQueryTool )
 

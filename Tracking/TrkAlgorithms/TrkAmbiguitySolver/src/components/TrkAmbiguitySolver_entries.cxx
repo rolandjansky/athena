@@ -1,4 +1,4 @@
 #include "TrkAmbiguitySolver/TrkAmbiguitySolver.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trk, TrkAmbiguitySolver )
+DECLARE_COMPONENT( Trk::TrkAmbiguitySolver )
 

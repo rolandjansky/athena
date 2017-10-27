@@ -12,14 +12,14 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( KalmanVertexUpdator )
-DECLARE_TOOL_FACTORY( KalmanVertexTrackUpdator )
-DECLARE_TOOL_FACTORY( FullLinearizedTrackFactory )
-DECLARE_TOOL_FACTORY( DummyAnnealingMaker )
-DECLARE_TOOL_FACTORY( Chi2TrackCompatibilityEstimator )
-DECLARE_TOOL_FACTORY( DetAnnealingMaker )
-DECLARE_TOOL_FACTORY( ImpactPoint3dEstimator )
-DECLARE_TOOL_FACTORY( NeutralParticleParameterCalculator)
-DECLARE_TOOL_FACTORY( TrackToVertexIPEstimator )
-DECLARE_TOOL_FACTORY( Z0PVTrackCompatibilityEstimator )
+DECLARE_COMPONENT( KalmanVertexUpdator )
+DECLARE_COMPONENT( KalmanVertexTrackUpdator )
+DECLARE_COMPONENT( FullLinearizedTrackFactory )
+DECLARE_COMPONENT( DummyAnnealingMaker )
+DECLARE_COMPONENT( Chi2TrackCompatibilityEstimator )
+DECLARE_COMPONENT( DetAnnealingMaker )
+DECLARE_COMPONENT( ImpactPoint3dEstimator )
+DECLARE_COMPONENT( NeutralParticleParameterCalculator )
+DECLARE_COMPONENT( TrackToVertexIPEstimator )
+DECLARE_COMPONENT( Z0PVTrackCompatibilityEstimator )
 

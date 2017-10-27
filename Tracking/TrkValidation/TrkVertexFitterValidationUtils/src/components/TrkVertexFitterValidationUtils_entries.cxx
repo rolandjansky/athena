@@ -3,5 +3,5 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( TrkPriVxPurityTool )
+DECLARE_COMPONENT( TrkPriVxPurityTool )
 

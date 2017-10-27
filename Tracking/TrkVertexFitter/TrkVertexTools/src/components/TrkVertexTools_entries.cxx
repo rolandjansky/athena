@@ -6,11 +6,11 @@
  
 using namespace Trk;
  
-DECLARE_TOOL_FACTORY(VertexCollectionSortingTool)
-DECLARE_TOOL_FACTORY(VertexMergingTool)
-DECLARE_TOOL_FACTORY(DummyVertexSelectionTool)
-DECLARE_TOOL_FACTORY(TruthVertexSelectionTool)
-DECLARE_TOOL_FACTORY(VertexStoringTool)
+DECLARE_COMPONENT( VertexCollectionSortingTool )
+DECLARE_COMPONENT( VertexMergingTool )
+DECLARE_COMPONENT( DummyVertexSelectionTool )
+DECLARE_COMPONENT( TruthVertexSelectionTool )
+DECLARE_COMPONENT( VertexStoringTool )
     
  
 

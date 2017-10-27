@@ -8,11 +8,11 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( JetFitterHelper )
-DECLARE_TOOL_FACTORY( JetFitterInitializationHelper )
-DECLARE_TOOL_FACTORY( JetFitterRoutines )
-DECLARE_TOOL_FACTORY( KalmanVertexOnJetAxisSmoother )
-DECLARE_TOOL_FACTORY( KalmanVertexOnJetAxisUpdator )
-DECLARE_TOOL_FACTORY( TrkDistanceFinderNeutralCharged )
-DECLARE_TOOL_FACTORY( TrkDistanceFinderNeutralNeutral )
+DECLARE_COMPONENT( JetFitterHelper )
+DECLARE_COMPONENT( JetFitterInitializationHelper )
+DECLARE_COMPONENT( JetFitterRoutines )
+DECLARE_COMPONENT( KalmanVertexOnJetAxisSmoother )
+DECLARE_COMPONENT( KalmanVertexOnJetAxisUpdator )
+DECLARE_COMPONENT( TrkDistanceFinderNeutralCharged )
+DECLARE_COMPONENT( TrkDistanceFinderNeutralNeutral )
 
