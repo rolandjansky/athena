@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "TileCalibAlgs/TileDigiNoiseCalibAlg.h"
 #include "TileCalibAlgs/TileRawChNoiseCalibAlg.h"
 #include "TileCalibAlgs/TileTopCalibAlg.h"
@@ -30,21 +28,4 @@ DECLARE_TOOL_FACTORY( TileCisDefaultCalibTool )
 DECLARE_TOOL_FACTORY( TileTriggerDefaultCalibTool )
 DECLARE_TOOL_FACTORY( TileTOFTool )
 DECLARE_TOOL_FACTORY( TileLaserTimingTool )
-
-DECLARE_FACTORY_ENTRIES(TileCalibAlgs) {
-  DECLARE_ALGORITHM( TileTopCalibAlg )
-  DECLARE_ALGORITHM( TileLaserCalibAlg )
-  DECLARE_ALGORITHM( TileDigiNoiseCalibAlg )
-  DECLARE_ALGORITHM( TileRawChNoiseCalibAlg )
-  DECLARE_ALGORITHM( TileOFC2DBAlg )
-  DECLARE_ALGORITHM( TileMuId2DBAlg )
-  DECLARE_ALGORITHM( TileInfoDump )
-  DECLARE_ALGORITHM( TileExpertDump )
-  DECLARE_TOOL( TileLaserDefaultCalibTool )
-  DECLARE_TOOL( TileLaserLinearityCalibTool )
-  DECLARE_TOOL( TileCisDefaultCalibTool )
-  DECLARE_TOOL( TileTriggerDefaultCalibTool )
-  DECLARE_TOOL( TileTOFTool )
-  DECLARE_TOOL( TileLaserTimingTool )
-}
 

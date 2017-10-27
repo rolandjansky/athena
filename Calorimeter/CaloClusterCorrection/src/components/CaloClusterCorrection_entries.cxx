@@ -54,7 +54,6 @@
 
 #include "../CaloClusterTimeTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_TOOL_FACTORY( CaloClusterLocalCalibCone )
 DECLARE_TOOL_FACTORY( CaloClusterLocalCalib )

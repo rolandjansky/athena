@@ -30,7 +30,6 @@
 #include "../CaloClusterSnapshot.h"
 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( CaloTowerMonitor )
 DECLARE_ALGORITHM_FACTORY( CaloTowerAlgorithm )

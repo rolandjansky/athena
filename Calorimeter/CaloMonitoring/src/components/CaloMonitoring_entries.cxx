@@ -7,7 +7,6 @@
 //#include "CaloMonitoring/CaloClusterTimeMon.h"
 //#include "CaloMonitoring/CaloCosmicsClusterMon.h"
 #include "CaloMonitoring/CaloTowerVecMon.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "CaloMonitoring/CaloTransverseBalanceVecMon.h"
 //DECLARE_TOOL_FACTORY(CaloCellMonitoringTool )
 DECLARE_TOOL_FACTORY(CaloCellVecMon)
@@ -21,15 +20,3 @@ DECLARE_TOOL_FACTORY(CaloTowerVecMon)
 
 DECLARE_TOOL_FACTORY(CaloTransverseBalanceVecMon)
 
-DECLARE_FACTORY_ENTRIES(CaloMonitoring) {
-  //  DECLARE_ALGTOOL(CaloCellMonitoringTool )
-  DECLARE_ALGTOOL(CaloCellVecMon)
-    //  DECLARE_ALGTOOL(CaloCellTimeMon)
-    //  DECLARE_ALGTOOL(CaloClusterMon)
-  DECLARE_ALGTOOL(CaloClusterVecMon)
-    //  DECLARE_ALGTOOL(CaloClusterShwrMon)
-    //  DECLARE_ALGTOOL(CaloClusterTimeMon)
-    // DECLARE_ALGTOOL(CaloCosmicsClusterMon)
-  DECLARE_ALGTOOL(CaloTowerVecMon)
-  DECLARE_ALGTOOL(CaloTransverseBalanceVecMon)
-}

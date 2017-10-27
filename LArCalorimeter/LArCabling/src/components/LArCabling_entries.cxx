@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LArCabling/LArCablingService.h"
 #include "LArCabling/LArHVCablingTool.h"
 #include "LArCabling/LArSuperCellCablingTool.h"

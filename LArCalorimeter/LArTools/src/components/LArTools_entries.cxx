@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LArTools/LArMCSymTool.h"
 #include "LArTools/LArHVPathologyDbTool.h"
 

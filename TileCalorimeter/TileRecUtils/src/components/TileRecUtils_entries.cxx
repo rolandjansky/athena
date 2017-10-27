@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilterCool.h"
@@ -42,24 +40,3 @@ DECLARE_ALGORITHM_FACTORY( TileRawChannelMaker )
 DECLARE_ALGORITHM_FACTORY( TileRawChannelVerify )
 DECLARE_ALGORITHM_FACTORY( TileRawCorrelatedNoise )
 
-DECLARE_FACTORY_ENTRIES(TileRecUtils) {
-  DECLARE_TOOL( TileRawChannelBuilderFlatFilter )
-  DECLARE_TOOL( TileRawChannelBuilderFitFilter )
-  DECLARE_TOOL( TileRawChannelBuilderFitFilterCool )
-  DECLARE_TOOL( TileRawChannelBuilderOptFilter )
-  DECLARE_TOOL( TileRawChannelBuilderOpt2Filter )
-  DECLARE_TOOL( TileRawChannelBuilderQIEFilter )
-  DECLARE_TOOL( TileRawChannelBuilderManyAmps )
-  DECLARE_TOOL( TileRawChannelBuilderMF )
-  DECLARE_TOOL( TileBeamInfoProvider )
-  DECLARE_TOOL( TileCellBuilder )
-  DECLARE_TOOL( TileCellBuilderFromHit )
-  DECLARE_TOOL( TileCellFakeProb )
-  DECLARE_TOOL( TileCellMaskingTool )
-  DECLARE_TOOL( TileTowerBuilderTool )
-  DECLARE_TOOL( TileCellNoiseFilter )
-  DECLARE_TOOL( TileRawChannelNoiseFilter )
-  DECLARE_ALGORITHM( TileRawChannelMaker )
-  DECLARE_ALGORITHM( TileRawChannelVerify )
-  DECLARE_ALGORITHM( TileRawCorrelatedNoise )
-}

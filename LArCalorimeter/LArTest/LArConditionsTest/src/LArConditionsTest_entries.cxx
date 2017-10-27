@@ -1,8 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "LArConditionsTest/LArConditionsTestAlg.h"
 #include "LArConditionsTest/LArCondDataTest.h"
 //#include "LArConditionsTest/FixLArIdMap.h"
@@ -27,17 +22,3 @@ DECLARE_ALGORITHM_FACTORY ( LArFebRodMapConvert )
 DECLARE_ALGORITHM_FACTORY ( LArShapeToSCShape )
 DECLARE_ALGORITHM_FACTORY ( LArOFCtoOFC )
 
-
-DECLARE_FACTORY_ENTRIES( LArConditionsTest ) {
-  DECLARE_ALGORITHM( LArConditionsTestAlg )
-  DECLARE_ALGORITHM( LArCondDataTest )
-    //DECLARE_ALGORITHM( FixLArIdMap )
-  DECLARE_ALGORITHM( LArFecLvTempDcsTest )
-  DECLARE_ALGORITHM( FixLArElecCalib )
-  DECLARE_ALGORITHM( TestLArConditionsTools ) 
-  DECLARE_ALGORITHM (LArCablingTest )
-  DECLARE_ALGORITHM (LArIdMapConvert)
-  DECLARE_ALGORITHM (LArFebRodMapConvert)
-  DECLARE_ALGORITHM (LArShapeToSCShape)
-  DECLARE_ALGORITHM (LArOFCtoOFC)
-}

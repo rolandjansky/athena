@@ -17,7 +17,6 @@
 #include "LArCellRec/LArNoisyROTool.h"
 #include "LArCellRec/LArCollisionTimeAlg.h"
 #include "LArCellRec/LArTimeVetoAlg.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 DECLARE_ALGORITHM_FACTORY( LArNoisyROAlg )
@@ -40,28 +39,3 @@ DECLARE_TOOL_FACTORY (LArNoisyROTool)
 DECLARE_ALGORITHM_FACTORY ( LArCollisionTimeAlg )
 DECLARE_ALGORITHM_FACTORY ( LArTimeVetoAlg )
 
-
-
-DECLARE_FACTORY_ENTRIES(LArCellRec) {
-    DECLARE_ALGORITHM( LArNoisyROAlg )
-    DECLARE_TOOL( LArG3Escale_TDR )
-    DECLARE_TOOL( LArG3Escale )
-    DECLARE_TOOL( LArNonLinearity)
-    DECLARE_TOOL( LArCellBuilderFromLArHitTool )
-    DECLARE_TOOL( LArCellBuilderFromLArRawChannelTool )
-    DECLARE_TOOL( LArCellEmMiscalib )
-    DECLARE_TOOL( LArCellRescaler )
-    DECLARE_TOOL( LArCellMaskingTool )
-    DECLARE_TOOL( LArCellHVCorr )
-    DECLARE_TOOL( LArCellRecalibration) 
-    DECLARE_TOOL( LArCellNoiseMaskingTool)
-    DECLARE_TOOL( LArBadFebMaskingTool)
-    DECLARE_TOOL( LArCellGainPathology)
-    DECLARE_TOOL( LArCellMerger)
-    DECLARE_TOOL( LArCellDeadOTXCorr)
-    DECLARE_TOOL( LArNoisyROTool)
-    DECLARE_ALGORITHM (LArCollisionTimeAlg )
-    DECLARE_ALGORITHM (LArTimeVetoAlg )
-
-
-}

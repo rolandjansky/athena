@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LArRecUtils/LArADC2MeVTool.h"
 #include "LArRecUtils/LArAutoCorrNoiseTool.h"
 #include "LArRecUtils/LArAutoCorrTotalTool.h"
@@ -72,32 +70,3 @@ DECLARE_ALGORITHM_FACTORY( LArfSamplSymCondAlg )
 DECLARE_ALGORITHM_FACTORY( LArMinBiasSymCondAlg )
 DECLARE_ALGORITHM_FACTORY( LArNoiseSymCondAlg )
 
-/*
-DECLARE_FACTORY_ENTRIES(LArRecUtils) {
-	DECLARE_TOOL( LArADC2MeVTool )
-	DECLARE_TOOL( LArAutoCorrNoiseTool )
-	DECLARE_TOOL( LArAutoCorrTotalTool )
-	DECLARE_TOOL( LArCellFakeProbElectronics )
-	  //	DECLARE_TOOL( LArCellFakeProbHV )
-	DECLARE_TOOL( LArHVCorrTool )
-	  //	DECLARE_TOOL( LArHVGeometryTool )
-	DECLARE_TOOL( LArOFCTool )
-	DECLARE_TOOL( LArOFPeakRecoTool )
-	DECLARE_TOOL( LArParabolaPeakRecoTool )
-	DECLARE_TOOL( LArShapePeakRecoTool )
-        DECLARE_TOOL( LArTowerBuilderTool )
-        DECLARE_TOOL( LArFCalTowerBuilderTool )
-	DECLARE_TOOL(LArFEBConfigReader)
-	DECLARE_SERVICE( LArFlatConditionSvc )
-	DECLARE_ALGORITHM( LArFCalTowerBuilderToolTestAlg )
-  DECLARE_TOOL( LArHVScaleRetriever )
-
-	  DECLARE_ALGORITHM( LArFlatCondAlgHVScale)
-	  DECLARE_ALGORITHM( LArFlatCondAlgPedestal)
-	  
-}
-*/
-
-
-//needed for LArCellCorrection, which is the base class of LArG3Escale; 
-//LArG3Escale is declared as a factory in LArCellRec

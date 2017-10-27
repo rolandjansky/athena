@@ -1,6 +1,5 @@
 #include "../LArBadChannelToolTest.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "LArBadChannelTool/LArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadChanTool.h"
@@ -21,4 +20,3 @@ DECLARE_ALGORITHM_FACTORY( LArBadFeb2Ascii )
 DECLARE_ALGORITHM_FACTORY( LArBadChannelCondAlg )
 DECLARE_ALGORITHM_FACTORY( LArBadFebCondAlg )
 
- 

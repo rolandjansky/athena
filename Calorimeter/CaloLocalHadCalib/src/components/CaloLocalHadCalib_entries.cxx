@@ -8,7 +8,6 @@
 #include "CaloLocalHadCalib/CaloReadLCClassificationFile.h"
 #include "CaloLocalHadCalib/CaloReadLCOutOfClusterFile.h"
 #include "CaloLocalHadCalib/CaloReadLCJetEnergyScaleFile.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 DECLARE_ALGORITHM_FACTORY( GetLCClassification )
 DECLARE_ALGORITHM_FACTORY( GetLCWeights )
 DECLARE_ALGORITHM_FACTORY( GetLCOutOfCluster )
@@ -19,15 +18,4 @@ DECLARE_ALGORITHM_FACTORY( CaloReadLCWeightsFile )
 DECLARE_ALGORITHM_FACTORY( CaloReadLCClassificationFile )
 DECLARE_ALGORITHM_FACTORY( CaloReadLCOutOfClusterFile )
 DECLARE_ALGORITHM_FACTORY( CaloReadLCJetEnergyScaleFile )
-DECLARE_FACTORY_ENTRIES(CaloLocalHadCalib) {
-    DECLARE_ALGORITHM( GetLCClassification );
-    DECLARE_ALGORITHM( GetLCWeights );
-    DECLARE_ALGORITHM( GetLCOutOfCluster );
-    DECLARE_ALGORITHM( GetLCDeadMaterial );
-    DECLARE_ALGORITHM( GetLCDeadMaterialTree );
-    DECLARE_ALGORITHM( GetLCSinglePionsPerf );
-    DECLARE_ALGORITHM( CaloReadLCWeightsFile );
-    DECLARE_ALGORITHM( CaloReadLCClassificationFile );
-    DECLARE_ALGORITHM( CaloReadLCOutOfClusterFile );
-    DECLARE_ALGORITHM( CaloReadLCJetEnergyScaleFile );
-}
+

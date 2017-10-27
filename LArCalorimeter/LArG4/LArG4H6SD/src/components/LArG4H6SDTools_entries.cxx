@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../LArTBH6TriggerTimeTool.h"
 #include "../LArTBH6BeamInfo.h"
 #include "../LArGeoH62004EventActionTool.h"
@@ -72,3 +70,4 @@ DECLARE_SERVICE_FACTORY(LArG4H6COLDTCMod0Calculator)
 DECLARE_SERVICE_FACTORY(LArG4H6WarmTCCalculator)
 DECLARE_SERVICE_FACTORY(LArG4H62004DeadCalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4H6COLDTCMod0CalibCalculator)
+

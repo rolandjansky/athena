@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "CaloCondPhysAlgs/CaloCellNoiseAlg.h"
 #include "CaloCondPhysAlgs/CaloNoise2Ntuple.h"
 #include "CaloCondPhysAlgs/CaloRescaleNoise.h"
@@ -21,16 +20,4 @@ DECLARE_ALGORITHM_FACTORY( CaloCellCalcEnergyCorr )
 DECLARE_ALGORITHM_FACTORY( CaloCellEnergyCorr2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArMinBiasAlg)
   
-DECLARE_FACTORY_ENTRIES(CaloCondPhysAlgs) {
-  DECLARE_ALGORITHM( CaloCellNoiseAlg )
-  DECLARE_ALGORITHM( CaloNoise2Ntuple )
-  DECLARE_ALGORITHM( CaloRescaleNoise )
-  DECLARE_ALGORITHM( CaloFillCellPositionShift )
-  DECLARE_ALGORITHM( CaloCellPosition2Ntuple )
-  DECLARE_ALGORITHM( CaloAddCellPedShift )
-  DECLARE_ALGORITHM( FCAL_HV_Energy_Rescale )
-  DECLARE_ALGORITHM( CaloCellCalcEnergyCorr )
-  DECLARE_ALGORITHM( CaloCellEnergyCorr2Ntuple )
-  DECLARE_ALGORITHM( LArMinBiasAlg)
-}
 

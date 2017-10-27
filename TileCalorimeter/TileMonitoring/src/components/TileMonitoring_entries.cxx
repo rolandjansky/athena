@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TileMonitoring/TilePaterMonTool.h"
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileMonitoring/TileCellMonTool.h"
@@ -49,25 +48,3 @@ DECLARE_TOOL_FACTORY(TileTBBeamMonTool )
 DECLARE_TOOL_FACTORY(TileTBMonTool )
 DECLARE_TOOL_FACTORY(TileTBCellMonTool )
 
-DECLARE_FACTORY_ENTRIES(TileMonitoring) {
-  DECLARE_ALGTOOL(TileFatherMonTool )
-  DECLARE_ALGTOOL(TilePaterMonTool )
-  DECLARE_ALGTOOL(TileCellMonTool )
-  DECLARE_ALGTOOL(TileTowerMonTool )
-  DECLARE_ALGTOOL(TileClusterMonTool )
-  DECLARE_ALGTOOL(TileMuIdMonTool )
-  DECLARE_ALGTOOL(TileL2MonTool )
-  DECLARE_ALGTOOL(TileMuonFitMonTool )
-  DECLARE_ALGTOOL(TileDigitsMonTool )
-  DECLARE_ALGTOOL(TileRawChannelMonTool )
-  DECLARE_ALGTOOL(TileMBTSMonTool )
-  DECLARE_ALGTOOL(TileDQFragMonTool )
-  DECLARE_ALGTOOL(TileRODMonTool )
-  DECLARE_ALGTOOL(TileJetMonTool )
-  DECLARE_ALGTOOL(TileDigiNoiseMonTool )
-  DECLARE_ALGTOOL(TileTMDBDigitsMonTool )
-  DECLARE_ALGTOOL(TileTMDBRawChannelMonTool )
-  DECLARE_ALGTOOL(TileCellNoiseMonTool )
-  DECLARE_ALGTOOL(TileRawChannelTimeMonTool )
-  DECLARE_ALGTOOL(TileRawChannelNoiseMonTool )
-}

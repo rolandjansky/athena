@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../CalibrationCalculator.h"
 #include "../CryostatCalibrationLArCalculator.h"
 #include "../EMECSupportCalibrationCalculator.h"
@@ -17,3 +15,4 @@ DECLARE_SERVICE_FACTORY(LArG4::EndcapCryostat::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::EndcapCryostat::CalibrationMixedCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::EC::EnergyCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::EC::PresamplerCalibrationCalculator)
+

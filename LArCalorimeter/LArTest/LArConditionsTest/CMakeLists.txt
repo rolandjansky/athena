@@ -34,7 +34,6 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 # Component(s) in the package:
 atlas_add_component( LArConditionsTest
                      src/LArConditionsTest_entries.cxx
-                     src/LArConditionsTest_load.cxx
                      src/TestLArConditionsTools.cxx
                      src/FixLArElecCalib.cxx
                      src/LArCondDataTest.cxx

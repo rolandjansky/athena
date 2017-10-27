@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LArByteStream/LArRawChannelContByteStreamCnv.h"
 #include "LArByteStream/LArDigitContByteStreamCnv.h"
 #include "LArByteStream/LArCalibDigitContByteStreamCnv.h"
@@ -30,18 +28,3 @@ DECLARE_CONVERTER_FACTORY( LArFebHeaderContByteStreamCnv )
 //DECLARE_TOOL_FACTORY( LARCELLTOOL)  
 //DECLARE_CONVERTER_FACTORY( LArCellCollByteStreamCnv )
 
-DECLARE_FACTORY_ENTRIES(LArByteStream) {
-    DECLARE_CONVERTER(  LArRawChannelContByteStreamCnv )
-    DECLARE_CONVERTER(  LArDigitContByteStreamCnv )
-    DECLARE_CONVERTER(  LArCalibDigitContByteStreamCnv )
-    DECLARE_CONVERTER(  LArAccumulatedCalibDigitContByteStreamCnv )
-    DECLARE_CONVERTER(  LArAccumulatedDigitContByteStreamCnv )
-    DECLARE_CONVERTER( LArFebHeaderContByteStreamCnv )
-    DECLARE_TOOL ( LArRawDataContByteStreamTool )
-    DECLARE_TOOL ( LArRodDecoder)    
-
-//    DECLARE_CONVERTER( LArRawChannelCollByteStreamCnv )
-//    DECLARE_CONVERTER( LArCellCollByteStreamCnv )
-//    DECLARE_TOOL( LARRAWTOOL) 
-//    DECLARE_TOOL( LARCELLTOOL)  
-}

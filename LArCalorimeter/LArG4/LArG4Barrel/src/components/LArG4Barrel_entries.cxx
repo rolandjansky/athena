@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../CryostatCalibrationCalculator.h"
 #include "../CryostatCalibrationMixedCalculator.h"
 #include "../LArBarrelCalculator.h"
@@ -21,3 +19,4 @@ DECLARE_SERVICE_FACTORY(LArG4::Barrel::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::BarrelPresampler::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::Barrel::Geometry)
 DECLARE_SERVICE_FACTORY(LArG4::BarrelPresampler::Geometry)
+

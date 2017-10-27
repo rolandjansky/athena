@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TileConditions/TileInfoLoader.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
@@ -46,30 +45,4 @@ DECLARE_TOOL_FACTORY( TileCondProxyCoolBch )
 DECLARE_TOOL_FACTORY( TileCondProxyCoolOfc )
 DECLARE_TOOL_FACTORY( TileCondProxyFileFlt )
 DECLARE_TOOL_FACTORY( TileCondProxyFileBch )
-
-DECLARE_FACTORY_ENTRIES(TileConditions) {
-  DECLARE_SERVICE( TileInfoLoader )
-  DECLARE_SERVICE( TileCablingSvc )
-  DECLARE_SERVICE( TileDCSSvc )
-  DECLARE_ALGTOOL( TileCondIdTransforms )
-  DECLARE_ALGTOOL( TileBadChanTool )
-  DECLARE_ALGTOOL( TileCondToolOfc )
-  DECLARE_ALGTOOL( TileCondToolOfcCool )
-  DECLARE_ALGTOOL( TileCellNoiseTool )
-  DECLARE_ALGTOOL( TileCondToolEmscale )
-  DECLARE_ALGTOOL( TileExpertToolEmscale )
-  DECLARE_ALGTOOL( TileCondToolIntegrator )
-  DECLARE_ALGTOOL( TileCondToolMuID )
-  DECLARE_ALGTOOL( TileCondToolTiming )
-  DECLARE_ALGTOOL( TileCondToolPulseShape )
-  DECLARE_ALGTOOL( TileCondToolNoiseSample )
-  DECLARE_ALGTOOL( TileCondToolAutoCr )
-  DECLARE_ALGTOOL( TileCondToolNoiseRawChn )
-  DECLARE_ALGTOOL( TileCondProxyFltCoolFlt )
-  DECLARE_ALGTOOL( TileCondProxyFltCoolBch )
-  DECLARE_ALGTOOL( TileCondProxyFltCoolOfc )
-  DECLARE_ALGTOOL( TileCondProxyFltFileFlt )
-  DECLARE_ALGTOOL( TileCondProxyFltFileBch )
-
-}
 

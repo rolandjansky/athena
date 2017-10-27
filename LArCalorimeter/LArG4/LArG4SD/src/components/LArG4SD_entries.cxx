@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 // MT-friendly LAr SD tools
 #include "../EMBSDTool.h"
 #include "../EMECSDTool.h"
@@ -22,3 +20,4 @@ DECLARE_TOOL_FACTORY( LArG4::InactiveSDTool )
 DECLARE_TOOL_FACTORY( LArG4::DeadSDTool )
 
 DECLARE_SERVICE_FACTORY( LArG4::CalibrationDefaultCalculator )
+

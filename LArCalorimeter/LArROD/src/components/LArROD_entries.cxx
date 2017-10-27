@@ -25,7 +25,6 @@
 #include "LArROD/LArFebErrorSummaryMaker.h"
 #include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 typedef LArDigitPreProcessor<LArDigitContainer> LArDigProcessor;
 typedef LArDigitPreProcessor<TBLArDigitContainer> TBLArDigProcessor;
@@ -63,35 +62,4 @@ DECLARE_TOOL_FACTORY( LArRawChannelBuilderToolTileInfo )
 
 #include "../tests/SuperCellVsCaloCellTestAlg.h"
 DECLARE_ALGORITHM_FACTORY( SuperCellVsCaloCellTestAlg )
-
-DECLARE_FACTORY_ENTRIES(LArROD) {
-  DECLARE_ALGORITHM( SuperCellVsCaloCellTestAlg );
-    DECLARE_ALGORITHM(LArRawChannelBuilder )
-    DECLARE_ALGORITHM(ReadLArRaw )
-    DECLARE_ALGORITHM(ReadLArDigits )
-    DECLARE_ALGORITHM(LArDigProcessor )
-    DECLARE_ALGORITHM(TBLArDigProcessor )
-    DECLARE_ALGORITHM(TBLArCalDigProcessor )
-    DECLARE_ALGORITHM(LArRawChannelSimpleBuilder )
-    DECLARE_ALGORITHM(LArTimeChecker )
-    DECLARE_ALGORITHM(LArCalibDigitsAccumulator )
-    DECLARE_ALGORITHM(LArDigitsAccumulator )
-    DECLARE_ALGORITHM(LArRawChannelBuilderDriver)
-    DECLARE_ALGORITHM(LArDigitThinner)
-    DECLARE_ALGORITHM(LArFebErrorSummaryMaker)
-    DECLARE_ALGORITHM(LArCalibDigitsAccumulatorFreeGain)
-    DECLARE_ALGORITHM( LArSuperCellBuilderDriver)
-    DECLARE_TOOL( LArCellBuilderDriver)
-    DECLARE_TOOL( LArRawChannelBuilderToolOFC )
-    DECLARE_TOOL( LArRawChannelBuilderToolOFCIter )
-    DECLARE_TOOL( LArRawChannelBuilderToolParabola )
-    DECLARE_TOOL( LArRawChannelBuilderToolCubic )
-    DECLARE_TOOL( LArRawChannelBuilderToolAverage )
-    DECLARE_TOOL( LArRawChannelBuilderToolBadChannelTool )
-    DECLARE_TOOL( LArRawChannelBuilderADC2EDataBase )
-    DECLARE_TOOL( LArRawChannelBuilderADC2EConstants )
-    DECLARE_TOOL( LArRawChannelBuilderPedestalDataBase )
-    DECLARE_TOOL( LArRawChannelBuilderPedestalSampleZero )
-    DECLARE_TOOL( LArRawChannelBuilderToolTileInfo )  
-}
 

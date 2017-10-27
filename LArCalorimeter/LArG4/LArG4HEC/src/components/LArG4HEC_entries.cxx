@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../LArHECLocalCalculator.h"
 #include "../LocalCalibrationCalculator.h"
 #include "LArG4HEC/LocalGeometry.h"
@@ -13,3 +11,4 @@ DECLARE_SERVICE_FACTORY(LArG4::HEC::LocalGeometry)
 DECLARE_SERVICE_FACTORY(LArHECWheelCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::HEC::LArHECCalibrationWheelCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::HEC::HECGeometry)
+
