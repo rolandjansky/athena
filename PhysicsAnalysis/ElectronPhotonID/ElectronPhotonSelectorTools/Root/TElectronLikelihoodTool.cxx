@@ -1130,6 +1130,9 @@ int Root::TElectronLikelihoodTool::SafeTH1::FindBin(double value){
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinContent(int bin){
   int nbins = this->GetNbinsX();
+  // since we store the bin content in a vector we need a protection 
+  // for cases where we try to access a non-existing bin. In these 
+  // cases just go to the last bin
   return (bin>nbins) ? m_binContent[nbins-1] : m_binContent[bin];
 }
 
