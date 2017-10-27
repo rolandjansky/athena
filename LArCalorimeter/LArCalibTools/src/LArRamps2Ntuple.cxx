@@ -96,8 +96,14 @@ StatusCode LArRamps2Ntuple::stop() {
  //end-if m_rawRamp
 
  
- SG::ReadCondHandle<ILArRamp> readHandle{m_rampKey};
- const ILArRamp* ramp{*readHandle};
+ // For compatibility with existing configurations, look in the detector
+ // store first, then in conditions.
+ const ILArRamp* ramp =
+   detStore()->tryConstRetrieve<ILArRamp> (m_rampKey.key());
+ if (!ramp) {
+   SG::ReadCondHandle<ILArRamp> readHandle{m_rampKey};
+   ramp = *readHandle;
+ }
 
 
  if (ramp==nullptr) {

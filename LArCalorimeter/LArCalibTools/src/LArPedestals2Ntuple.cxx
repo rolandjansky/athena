@@ -25,11 +25,16 @@ StatusCode LArPedestals2Ntuple::initialize() {
   return LArCond2NtupleBase::initialize();
 }
 
-StatusCode LArPedestals2Ntuple::stop() {
-
-
-  SG::ReadCondHandle<ILArPedestal> pedHandle{m_pedKey};
-  const ILArPedestal* larPedestal{*pedHandle};
+StatusCode LArPedestals2Ntuple::stop()
+{
+  // For compatibility with existing configurations, look in the detector
+  // store first, then in conditions.
+  const ILArPedestal* larPedestal =
+    detStore()->tryConstRetrieve<ILArPedestal> (m_pedKey.key());
+  if (!larPedestal) {
+    SG::ReadCondHandle<ILArPedestal> pedHandle{m_pedKey};
+    larPedestal = *pedHandle;
+  }
 
   if (larPedestal==nullptr) {
     ATH_MSG_ERROR( "Unable to retrieve ILArPedestal with key " 
