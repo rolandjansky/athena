@@ -15,9 +15,11 @@
 #ifndef LARACCUMULATEDCDIGITCONTAINER_H
 #define LARACCUMULATEDCDIGITCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRawEvent/LArAccumulatedCalibDigit.h"
+#include "AthContainers/ConstDataVector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 
 class LArAccumulatedCalibDigitContainer : public DataVector<LArAccumulatedCalibDigit> {
