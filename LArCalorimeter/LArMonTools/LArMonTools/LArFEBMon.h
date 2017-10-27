@@ -57,7 +57,6 @@ private:
   std::string m_keyDSPThresholds;
   bool m_isOnline;
   unsigned int m_lumi_blocks; 
-  bool m_eventRejected;
   std::bitset<13> m_rejectionBits;
   bool m_currentFebStatus;
   unsigned int m_eventTime;
@@ -152,14 +151,6 @@ private:
   
   //  0->EMBC / 1->EMBA / 2->EMECC / 3->EMECA / 4->HECC / 5->HECA / 6->FCalC / 7->FCalA    
   std::vector<summaryPartition> m_partHistos; 
-  //summaryPartition m_barrelCSummary;
-  //summaryPartition m_barrelASummary;
-  //summaryPartition m_emecCSummary;
-  //summaryPartition m_emecASummary;
-  //summaryPartition m_hecCSummary;
-  //summaryPartition m_hecASummary;
-  //summaryPartition m_fcalCSummary;
-  //summaryPartition m_fcalASummary;
   
   TH2I_LW* m_LArAllErrors_dE;
   TH1F_LW* m_rejectedYield;

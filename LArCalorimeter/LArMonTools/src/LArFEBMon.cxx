@@ -46,7 +46,6 @@ LArFEBMon::LArFEBMon(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent) 
   : ManagedMonitorToolBase(type, name, parent), 
-    m_eventRejected(false),
     m_currentFebStatus(false),
     m_eventTime(0),
     m_eventTime_ns(0),
@@ -342,7 +341,6 @@ StatusCode LArFEBMon::bookHistograms() {
 //called on each event
 StatusCode LArFEBMon::fillHistograms() {
   
-  m_eventRejected = false;
   m_rejectionBits.reset();
   m_febInErrorTree.clear();
   m_febErrorTypeTree.clear();
@@ -488,64 +486,6 @@ StatusCode LArFEBMon::fillHistograms() {
       if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_partHistos[partitionNb_dE].missingTriggerType)->Fill(slot,ft);
       ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
 
-//      switch (partitionNb_dE){
-//	case 0:
-//	  (m_barrelCSummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_barrelCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelCSummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 1:
-//	  (m_barrelASummary.nbOfEvts)->Fill(slot,ft);
-//   	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_barrelASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_barrelASummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" EMBA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 2:
-//	  (m_emecCSummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_emecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecCSummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" EMECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 3:
-//	  (m_emecASummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_emecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_emecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_emecASummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" EMECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;	
-//	case 4:
-//	  (m_hecCSummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_hecCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecCSummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" HECC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 5:
-//	  (m_hecASummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_hecASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_hecASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_hecASummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" HECA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 6:
-//	  (m_fcalCSummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_fcalCSummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalCSummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" FCALC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//	case 7:
-//	  (m_fcalASummary.nbOfEvts)->Fill(slot,ft);
-//	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
-//	  if (firstEventType == 4) (m_fcalASummary.nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-//	  if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_fcalASummary.missingTriggerType)->Fill(slot,ft);
-//	  ATH_MSG_DEBUG(" FCALA : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
-//	  break;
-//      }      
     }//Test on FEBid
   }//end of loop over FEB headers
   
@@ -634,25 +574,6 @@ StatusCode LArFEBMon::fillHistograms() {
   m_rejectedHisto->Fill(7);
 
   if (m_isOnline) m_rejectedLBProfile->SetEntries(lumi_block);
-
-
-  // Test on number of FEBs obsolete 
-  //if (nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
-  //  // The nb of readout FEB is lower than the maximum number of FEBs observed in this run
-  //  m_rejectedHisto->Fill(1);
-  //}
-  //else{
-  //  // There was at least one FEB in error
-  //  if (m_eventRejected) {
-  //    m_rejectedHisto->Fill(2);
-  //    m_rejBitsHisto->Fill(m_rejectionBits.to_ulong());
-  //  }
-  //  // The event is accepted
-  //  else {
-  //    m_rejectedHisto->Fill(3);
-  //  }
-  //}
-  
     
   m_eventsLB->Fill(lumi_block);    
   m_totNbSw2->Fill(totNbOfSweet2);
@@ -666,25 +587,7 @@ StatusCode LArFEBMon::fillHistograms() {
   }
 
   if(m_anyfebIE) { m_CorruptTree->Fill(); }
-
-//  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
-//    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
-//
-//    if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
-//      m_rejectedYieldLBout->Fill(lumi_block,100);
-//    else
-//      m_rejectedYieldLBout->Fill(lumi_block,0);
-//
-//    if (m_isOnline) {
-//       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
-//    }
-//  } else{
-//    m_rejectedYieldLB->Fill(lumi_block,0);
-//    m_rejectedYieldLBout->Fill(lumi_block,0);
-//    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
-//  }
-  
-  
+    
 
   //Trigger part: Already done at the beginning of this function
   //uint m_l1Trig = (uint) (trig->level1TriggerType());
@@ -837,7 +740,6 @@ void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error,
   if (m_currentFebStatus){
     (m_partHistos[partitNb_2].LArAllErrors)->Fill(slot,ft);
     if (lar_inerror) {// LArinError
-       m_eventRejected = true;
        if (m_isOnline) (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,100);
     } else {
        if (m_isOnline)  (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,50);
@@ -1170,7 +1072,7 @@ LArFEBMon::fillFebInError(int partNb,int errorType)
       
       // Found a faulty FEB
       // If more than 33 FEBs in error in a partition, ignore other FEBs (mandatory to avoid 
-      // creation of 1500  histos when a run ***REMOVED***!).
+      // creation of 1500  histos when a run is bad!).
       if (binContent>0 && nbOfFEBErrors < 33){
 	HWIdentifier errorFebId = m_onlineHelper->feb_Id(barrel_ec,pos_neg,iy-1,ix);
 	IdentifierHash hashId = m_onlineHelper->feb_Hash(errorFebId);
