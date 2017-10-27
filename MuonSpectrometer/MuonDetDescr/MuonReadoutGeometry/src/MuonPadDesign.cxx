@@ -29,17 +29,15 @@ double MuonPadDesign::maxSensitiveY() const
 //----------------------------------------------------------
 double MuonPadDesign::maxAbsSensitiveX(const double &y) const
 {
-	double globalY = radialDistance + y;
-        double cutout_H = Size - yCutout;
 	double half_openingAngle = sectorOpeningAngle/2.0;
-	if (isLargeSector){
-		if (yCutout && y > 0) //In cutout region
+	if (isLargeSector && yCutout){ // if QL3
+		if (y > 0) //In cutout region
 			return 0.5*lPadWidth;
 		else
-			return 0.5*(y*(lPadWidth-sPadWidth)/cutout_H + lPadWidth); // use of angle is incorrect here
+			return y*tan(M_PI*half_openingAngle/180.) + 0.5*lPadWidth;
 	}
 	else
-		return globalY*tan(M_PI*half_openingAngle/180.);
+		return (y-Size*0.5)*tan(M_PI*half_openingAngle/180.) + 0.5*lPadWidth;
 
 	return -1;
 }
@@ -60,7 +58,7 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
     // padPhi
     // DT-2015-11-29 : currently easier: attribute 'phi pad fuzzy shift' to hit rather than to pad edge
     double locPhi = 180*atan(-1.0*pos.x()/(radialDistance + pos.y()))/M_PI;
-    double maxlocPhi = yCutout ? 180*atan(0.5*sPadWidth/(radialDistance + yCutout - Size))/M_PI : 180*atan(0.5*sPadWidth/(radialDistance - 0.5*Size))/M_PI;
+    double maxlocPhi = 180*atan(maxAbsSensitiveX(pos.y())/(radialDistance + pos.y()))/M_PI;
     // fuzziness for negative z takes negative of PadPhiShift
     double fuzziedX = pos.x() - (-1.0*PadPhiShift /cos(locPhi*M_PI/180));
     double fuzziedlocPhi = 180*atan(-1.0*fuzziedX/(radialDistance + pos.y()))/M_PI;
@@ -70,7 +68,7 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
     bool below_half_length = (y1<0);
     bool outside_phi_range = (std::abs(locPhi)>maxlocPhi) or (std::abs(fuzziedlocPhi)>maxlocPhi);
 
-    if(withinSensitiveArea(pos) and not below_half_length and not outside_phi_range) {
+    if(withinSensitiveArea(pos) and not below_half_length) {
         if(y1>firstRowPos) {
             //+1 for firstRow, +1 because a remainder means another row (3.1=4)
             padEtadouble =((y1-firstRowPos)/inputRowPitch)+1+1;
@@ -78,8 +76,13 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
         } else if(y1>0) {
             padEta=1;
         }
-
-        double padPhidouble = (fuzziedlocPhi-firstPhiPos)/inputPhiPitch;
+	double padPhidouble;
+	// These are separated as the hits on the pads closest to the side edges are not fuzzied
+	// We must do a correction in order to stay consistent with indexing
+	if (outside_phi_range)
+		padPhidouble = (locPhi-firstPhiPos)/inputPhiPitch;
+	else // Look for the index of the fuzzied hit
+		padPhidouble = (fuzziedlocPhi-firstPhiPos)/inputPhiPitch;
         int padPhi = padPhidouble+2; //(+1 because remainder means next column e.g. 1.1=2, +1 so rightmostcolumn=1)
 
         //std::cout << "\tMuonPadDesign::channelPosition fuzziedlocPhi " << fuzziedlocPhi << " firstPhiPos " << firstPhiPos << " inputPhiPitch " << inputPhiPitch << std::endl;  
