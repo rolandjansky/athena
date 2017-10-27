@@ -1,6 +1,3 @@
-// JetRec_entries.cxx
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
 #include "JetMomentTools/JetCaloQualityTool.h"
@@ -25,51 +22,26 @@
 #include "../JetCaloCellQualityTool.h"
 #endif
 
-DECLARE_TOOL_FACTORY(JetCaloEnergies)
-DECLARE_TOOL_FACTORY(JetCaloQualityTool)
-DECLARE_TOOL_FACTORY(JetWidthTool)
-DECLARE_TOOL_FACTORY(JetVertexFractionTool)
-DECLARE_TOOL_FACTORY(JetVertexTaggerTool)
-DECLARE_TOOL_FACTORY(JetForwardJvtTool)
-DECLARE_TOOL_FACTORY(JetTrackMomentsTool)
-DECLARE_TOOL_FACTORY(JetTrackSumMomentsTool)
-DECLARE_TOOL_FACTORY(JetClusterMomentsTool)
-DECLARE_TOOL_FACTORY(JetVoronoiMomentsTool)
-DECLARE_TOOL_FACTORY(JetMuonSegmentMomentsTool)
-DECLARE_TOOL_FACTORY(JetPtAssociationTool)
-DECLARE_TOOL_FACTORY(JetIsolationTool)
-DECLARE_TOOL_FACTORY(JetLArHVTool)
-DECLARE_TOOL_FACTORY(JetOriginCorrectionTool)
-DECLARE_TOOL_FACTORY(JetECPSFractionTool)
-DECLARE_TOOL_FACTORY(JetConstitFourMomTool)
+DECLARE_COMPONENT( JetCaloEnergies )
+DECLARE_COMPONENT( JetCaloQualityTool )
+DECLARE_COMPONENT( JetWidthTool )
+DECLARE_COMPONENT( JetVertexFractionTool )
+DECLARE_COMPONENT( JetVertexTaggerTool )
+DECLARE_COMPONENT( JetForwardJvtTool )
+DECLARE_COMPONENT( JetTrackMomentsTool )
+DECLARE_COMPONENT( JetTrackSumMomentsTool )
+DECLARE_COMPONENT( JetClusterMomentsTool )
+DECLARE_COMPONENT( JetVoronoiMomentsTool )
+DECLARE_COMPONENT( JetMuonSegmentMomentsTool )
+DECLARE_COMPONENT( JetPtAssociationTool )
+DECLARE_COMPONENT( JetIsolationTool )
+DECLARE_COMPONENT( JetLArHVTool )
+DECLARE_COMPONENT( JetOriginCorrectionTool )
+DECLARE_COMPONENT( JetECPSFractionTool )
+DECLARE_COMPONENT( JetConstitFourMomTool )
 
 #ifndef XAOD_ANALYSIS
-DECLARE_TOOL_FACTORY(JetBadChanCorrTool)
-DECLARE_TOOL_FACTORY(JetCaloCellQualityTool)
+DECLARE_COMPONENT( JetBadChanCorrTool )
+DECLARE_COMPONENT( JetCaloCellQualityTool )
 #endif
-
-DECLARE_FACTORY_ENTRIES(JetRec) {
-  DECLARE_TOOL(JetCaloEnergies)
-  DECLARE_TOOL(JetCaloQualityTool)
-  DECLARE_TOOL(JetWidthTool)
-  DECLARE_TOOL(JetMuonSegmentMomentsTool)
-  DECLARE_TOOL(JetTrackMomentsTool)
-  DECLARE_TOOL(JetTrackSumMomentsTool)
-  DECLARE_TOOL(JetClusterMomentsTool)
-  DECLARE_TOOL(JetVoronoiMomentsTool)
-  DECLARE_TOOL(JetVertexFractionTool)
-  DECLARE_TOOL(JetVertexTaggerTool)
-  DECLARE_TOOL(JetForwardJvtTool)
-  DECLARE_TOOL(JetPtAssociationTool)
-  DECLARE_TOOL(JetIsolationTool)
-  DECLARE_TOOL(JetLArHVTool)
-  DECLARE_TOOL(JetOriginCorrectionTool)
-  DECLARE_TOOL(JetECPSFractionTool)
-  DECLARE_TOOL(JetConstitFourMomTool)
-
-#ifndef XAOD_ANALYSIS
-  DECLARE_TOOL(JetBadChanCorrTool)
-  DECLARE_TOOL(JetCaloCellQualityTool)
-#endif
-}
 
