@@ -124,7 +124,8 @@ private:
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
 
-  std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+  // Not used any of the following...
+  //std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
   //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
   //
   /*! Event Wise offline ElectronContainer Access and end iterator */

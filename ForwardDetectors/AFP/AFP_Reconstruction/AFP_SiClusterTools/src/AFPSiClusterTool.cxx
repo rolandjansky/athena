@@ -27,7 +27,7 @@ AFPSiClusterTool::AFPSiClusterTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : ::AthAlgTool(type, name, parent),
-  m_clusterAlgToolHandle ("AFPSiClusterSingleHitTool"),
+  m_clusterAlgToolHandle ("AFPSiClusterBasicNearestNeighbour"),
   m_rowColToLocalCSToolHandle ("AFPSiRowColToLocalCSTool")
 {
   declareInterface<IAFPSiClusterTool>(this);
@@ -84,10 +84,14 @@ StatusCode AFPSiClusterTool::initialize()
     return StatusCode::SUCCESS;   
   }
 
+  ATH_MSG_INFO("Pixel clustering algorithm: "<<m_clusterAlgToolHandle);
+
   if (m_rowColToLocalCSToolHandle.retrieve().isFailure()) {
     ATH_MSG_WARNING("Failed to retrieve " << m_rowColToLocalCSToolHandle<<". Aborting AFPSiClusterTool initialisation");     
     return StatusCode::SUCCESS;   
   }
+
+  ATH_MSG_INFO("Transformation of rows and columns to coordinates tool: "<<m_rowColToLocalCSToolHandle);
 
   // prepare array of layers
   if (m_numberOfLayersInStations.size() == 0) {
@@ -96,7 +100,6 @@ StatusCode AFPSiClusterTool::initialize()
   }
 
   initLayers(m_numberOfLayersInStations);
-
 
   return StatusCode::SUCCESS;
 }

@@ -198,42 +198,6 @@ namespace VKalVrtAthena {
     m_ntupleVars->addNewVar< vector<double> > ( "Truth_AllRefitSVZ"        );
     m_ntupleVars->addNewVar< vector<double> > ( "Truth_AllRefitMass"       );
     
-    /*
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("bp",   m_avRad_bp) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("pix0", m_avRad_pix0) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("pix1", m_avRad_pix1) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("pix2", m_avRad_pix2) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("pix3", m_avRad_pix3) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("sct1", m_avRad_sct0) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_barrel("sct2", m_avRad_sct1) );
-    
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk1", m_ec_pix0, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk2", m_ec_pix1, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk3", m_ec_pix2, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk1", m_ec_sct0, m_ec_sct0_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk2", m_ec_sct1, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk3", m_ec_sct2, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk4", m_ec_sct3, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_RecoTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk5", m_ec_sct4, m_ec_sct_rmin, m_ec_sct_rmax) );
-    
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("bp",   m_avRad_bp) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("pix0", m_avRad_pix0) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("pix1", m_avRad_pix1) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("pix2", m_avRad_pix2) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("pix3", m_avRad_pix3) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("sct1", m_avRad_sct0) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_barrel("sct2", m_avRad_sct1) );
-    
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk1", m_ec_pix0, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk2", m_ec_pix1, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("pixDisk3", m_ec_pix2, m_ec_pix_rmin, m_ec_pix_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk1", m_ec_sct0, m_ec_sct0_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk2", m_ec_sct1, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk3", m_ec_sct2, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk4", m_ec_sct3, m_ec_sct_rmin, m_ec_sct_rmax) );
-    m_ntupleVars->m_SVTrk_Int.emplace_back( new IntersectionPos_endcap("sctDisk5", m_ec_sct4, m_ec_sct_rmin, m_ec_sct_rmax) );
-    */
-    
     return StatusCode::SUCCESS;
   }
   
@@ -295,12 +259,9 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::fillAANT_SelectedBaseTracks() {
     
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
-    
-    for ( const auto& trk : *m_selectedBaseTracks ) {
+    for ( const auto* trk : *m_selectedTracks ) {
       
-      if( m_FillNtuple ) {
+      if( m_jp.FillNtuple ) {
         uint8_t tmpT;
         if( !(trk->summaryValue(tmpT,xAOD::numberOfPixelHits)) )  tmpT=0;
         m_ntupleVars->get< vector<int> >( "SVTrk_PixHits" ).emplace_back( (int) tmpT);
@@ -319,17 +280,16 @@ namespace VKalVrtAthena {
       //
       // get perigee params
       //
-      const Trk::Perigee* perigee = GetPerigee( trk ) ;
-      if( perigee == nullptr ){ continue; } 
+      const auto& perigee = trk->perigeeParameters();
       
-      if( m_FillNtuple ) {
+      if( m_jp.FillNtuple ) {
       
-        double phi       = perigee->parameters()[Trk::phi];
-        double theta     = perigee->parameters()[Trk::theta];
-        double d0        = perigee->parameters()[Trk::d0];
-        double qOverP    = perigee->parameters()[Trk::qOverP];
-        double errqOverP = (*(perigee->covariance()))(Trk::qOverP,Trk::qOverP);
-        double errd0     = (*(perigee->covariance()))(Trk::d0,Trk::d0);
+        double phi       = perigee.parameters()[Trk::phi];
+        double theta     = perigee.parameters()[Trk::theta];
+        double d0        = perigee.parameters()[Trk::d0];
+        double qOverP    = perigee.parameters()[Trk::qOverP];
+        double errqOverP = (*(perigee.covariance()))(Trk::qOverP,Trk::qOverP);
+        double errd0     = (*(perigee.covariance()))(Trk::d0,Trk::d0);
         double ptrk      = (1./qOverP);
         double pT        = ptrk*sin(theta);
         double trketa    = -1.*log( tan(theta/2) );
@@ -343,11 +303,11 @@ namespace VKalVrtAthena {
         m_ntupleVars->get< vector<double> >( "SVTrk_phi" )  .emplace_back(phi);
         m_ntupleVars->get< vector<double> >( "SVTrk_eta" )  .emplace_back(trketa);
         m_ntupleVars->get< vector<double> >( "SVTrk_2dIP" ) .emplace_back(d0);
-        m_ntupleVars->get< vector<double> >( "SVTrk_ZIP" )  .emplace_back(perigee->parameters()[Trk::z0]);
+        m_ntupleVars->get< vector<double> >( "SVTrk_ZIP" )  .emplace_back(perigee.parameters()[Trk::z0]);
       
         double matchProb = -1;
         int barcode = 0;
-        if(m_doTruth) 
+        if(m_jp.doTruth) 
           {  
             //HepMC::GenParticle* aTemp_truth = getTrkGenParticle(trk, matchProb);
             const xAOD::TruthParticle* aTemp_truth = getTrkGenParticle( trk );
@@ -372,7 +332,7 @@ namespace VKalVrtAthena {
       
         m_ntupleVars->get< vector<double> >( "SVTrk_delp" )    .emplace_back( errp );
         m_ntupleVars->get< vector<double> >( "SVTrk_del2dIP" ) .emplace_back( errd0 );
-        m_ntupleVars->get< vector<double> >( "SVTrk_delzIP" )  .emplace_back( (*(perigee->covariance()))(Trk::z0,Trk::z0) );
+        m_ntupleVars->get< vector<double> >( "SVTrk_delzIP" )  .emplace_back( (*(perigee.covariance()))(Trk::z0,Trk::z0) );
       
       }
       
@@ -437,14 +397,14 @@ namespace VKalVrtAthena {
           
           ATH_MSG_VERBOSE(" >> fillAANT_SecondaryVertices : filling track vars wrt. SV (invalid values)");
           
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkPtWrtSV" )      .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkEtaWrtSV" )     .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkPhiWrtSV" )     .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_Trk2dIPWrtSV" )    .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkZIPWrtSV" )     .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkdelPWrtSV" )    .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_Trkdel2dIPWrtSV" ) .emplace_back( -9999. );
-          m_ntupleVars->get< vector<double> >( "SecVtx_TrkdelZIPWrtSV" )  .emplace_back( -9999. );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkPtWrtSV" )      .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkEtaWrtSV" )     .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkPhiWrtSV" )     .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_Trk2dIPWrtSV" )    .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkZIPWrtSV" )     .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkdelPWrtSV" )    .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_Trkdel2dIPWrtSV" ) .emplace_back( AlgConsts::invalidFloat );
+          m_ntupleVars->get< vector<double> >( "SecVtx_TrkdelZIPWrtSV" )  .emplace_back( AlgConsts::invalidFloat );
           
         }
         
@@ -459,14 +419,14 @@ namespace VKalVrtAthena {
       m_ntupleVars->get< vector<double> >( "SecVtxX" )                .emplace_back( vertex->x()     );
       m_ntupleVars->get< vector<double> >( "SecVtxY" )                .emplace_back( vertex->y()     );
       m_ntupleVars->get< vector<double> >( "SecVtxZ" )                .emplace_back( vertex->z()     );
-      m_ntupleVars->get< vector<double> >( "SecVtx_Mass" )            .emplace_back( vertex->isAvailable<float>("mass")            ? vertex->auxdataConst<float>("mass")            : -9999.);
-      m_ntupleVars->get< vector<double> >( "SecVtx_Mass_electron" )   .emplace_back( vertex->isAvailable<float>("mass_e")          ? vertex->auxdataConst<float>("mass_e")          : -9999.);
-      m_ntupleVars->get< vector<double> >( "SecVtx_pT" )              .emplace_back( vertex->isAvailable<float>("pT")              ? vertex->auxdataConst<float>("pT")              : -9999.);
-      m_ntupleVars->get< vector<double> >( "SecVtx_pZ" )              .emplace_back( vertex->isAvailable<float>("pz")              ? vertex->auxdataConst<float>("pz")              : -9999.);
-      m_ntupleVars->get< vector<int> >( "SecVtx_Charge" )             .emplace_back( vertex->isAvailable<float>("vtx_charge")      ? vertex->auxdataConst<float>("vtx_charge")      : -9999.);
-      m_ntupleVars->get< vector<int>    >( "SecVtx_SumBLayHits" )     .emplace_back( vertex->isAvailable<float>("sumBLayHits")     ? vertex->auxdataConst<float>("sumBLayHits")     : -9999.);
-      m_ntupleVars->get< vector<int>    >( "SecVtx_AllTrksBLayHits" ) .emplace_back( vertex->isAvailable<float>("allTrksBLayHits") ? vertex->auxdataConst<float>("allTrksBLayHits") : -9999.);
-      m_ntupleVars->get< vector<double> >( "SecVtx_MinOpAng" )        .emplace_back( vertex->isAvailable<float>("minOpAng")        ? vertex->auxdataConst<float>("minOpAng")        : -9999.);
+      m_ntupleVars->get< vector<double> >( "SecVtx_Mass" )            .emplace_back( vertex->isAvailable<float>("mass")            ? vertex->auxdataConst<float>("mass")            : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<double> >( "SecVtx_Mass_electron" )   .emplace_back( vertex->isAvailable<float>("mass_e")          ? vertex->auxdataConst<float>("mass_e")          : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<double> >( "SecVtx_pT" )              .emplace_back( vertex->isAvailable<float>("pT")              ? vertex->auxdataConst<float>("pT")              : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<double> >( "SecVtx_pZ" )              .emplace_back( vertex->isAvailable<float>("pz")              ? vertex->auxdataConst<float>("pz")              : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<int> >( "SecVtx_Charge" )             .emplace_back( vertex->isAvailable<float>("vtx_charge")      ? vertex->auxdataConst<float>("vtx_charge")      : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<int>    >( "SecVtx_SumBLayHits" )     .emplace_back( vertex->isAvailable<float>("sumBLayHits")     ? vertex->auxdataConst<float>("sumBLayHits")     : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<int>    >( "SecVtx_AllTrksBLayHits" ) .emplace_back( vertex->isAvailable<float>("allTrksBLayHits") ? vertex->auxdataConst<float>("allTrksBLayHits") : AlgConsts::invalidFloat);
+      m_ntupleVars->get< vector<double> >( "SecVtx_MinOpAng" )        .emplace_back( vertex->isAvailable<float>("minOpAng")        ? vertex->auxdataConst<float>("minOpAng")        : AlgConsts::invalidFloat);
       
       
     } // loop over vertices

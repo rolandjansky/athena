@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include <string>
-#include <set>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -42,10 +41,10 @@ public:
   StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer);
 
   /// returns true if provided link corresponds to time-of-flight information
-  bool isLinkToF (const unsigned int link) const {return s_linksToF.find(link) != s_linksToF.end();}
+  bool isLinkToF (const unsigned int link) const {return ( (link == 12) || (link == 13));}
 
   /// returns true if provided link corresponds to silicon detector information
-  bool isLinkSi (const unsigned int link) const {return s_linksSi.find(link) != s_linksSi.end();}
+  bool isLinkSi (const unsigned int link) const {return ( (link <= 3) || ( (link >= 8) && (link <= 11) ) );}
 
   /// @brief Adds new silicon collection to AFP_RawContainer
   ///
@@ -72,8 +71,6 @@ private:
   AFP_WordReadOut m_wordReadout;
   
   static const uint32_t s_siNoHitMarker = 15;
-  static const std::set<unsigned int> s_linksToF;
-  static const std::set<unsigned int> s_linksSi;
 };
 
 #endif //> !DECODER_AFP_DECODER_H

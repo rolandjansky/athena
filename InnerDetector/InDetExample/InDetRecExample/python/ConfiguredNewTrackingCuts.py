@@ -319,7 +319,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "LargeD0": 
       self.__extension          = "LargeD0" # this runs parallel to NewTracking
       self.__maxPT              = 1.0 * Units.TeV
-      self.__minPT              = 500 * Units.MeV
+      self.__minPT              = 900 * Units.MeV
       self.__maxEta             = 5
       self.__maxPrimaryImpact   = 300.0 * Units.mm
       self.__maxZImpact         = 1500.0 * Units.mm

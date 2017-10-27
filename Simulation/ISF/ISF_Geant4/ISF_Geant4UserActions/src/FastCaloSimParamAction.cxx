@@ -606,7 +606,10 @@ namespace G4UA{
         if (steps.size()>1)
           {
             //only when doing substeps, don't want to delete the original a4step
-            while(!steps.empty()) delete steps.back(), steps.pop_back();
+            for (std::vector<const G4Step*>::iterator it = steps.begin(); it!=steps.end(); ++it) {
+              delete *it;
+            }
+            steps.clear();
           }
       }
       ////////////////////////
