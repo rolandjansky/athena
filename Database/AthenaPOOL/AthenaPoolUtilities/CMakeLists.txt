@@ -10,8 +10,7 @@ atlas_subdir( AthenaPoolUtilities )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaKernel
-   Control/CLIDSvc
-   Control/DataModel
+   Control/AthContainers
    Database/AthenaPOOL/DBDataModel
    Database/PersistentDataModel )
 
@@ -24,7 +23,7 @@ atlas_add_library( AthenaPoolUtilities
    INTERFACE
    PUBLIC_HEADERS AthenaPoolUtilities
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel DataModel DBDataModel
+   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel AthContainers DBDataModel
    PersistentDataModel )
 
 atlas_add_dictionary( AthenaPoolUtilitiesCoralDict
