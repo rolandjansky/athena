@@ -20,3 +20,6 @@ target_link_libraries (SystematicsHandles_cc_SysCopyHandle SystematicsHandlesLib
 
 add_executable (SystematicsHandles_cc_SysWriteHandle test/cc_SysWriteHandle.cxx)
 target_link_libraries (SystematicsHandles_cc_SysWriteHandle SystematicsHandlesLib)
+
+add_executable (SystematicsHandles_cc_SysVectorProperty test/cc_SysVectorProperty.cxx)
+target_link_libraries (SystematicsHandles_cc_SysVectorProperty SystematicsHandlesLib)
