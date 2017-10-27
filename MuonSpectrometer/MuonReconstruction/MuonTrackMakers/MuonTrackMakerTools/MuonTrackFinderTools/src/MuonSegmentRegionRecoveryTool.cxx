@@ -345,6 +345,7 @@ namespace Muon {
     // loop over TSOSs
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+
     for( ; tsit!=tsit_end ; ++tsit ){
 
       const Trk::TrackParameters* pars = (*tsit)->trackParameters();
@@ -392,9 +393,14 @@ namespace Muon {
     phimin -= m_dphi;
     phimax += m_dphi;
 
+    ATH_MSG_DEBUG("Eta range: " << etamin << " " << etamax << " Phi range " << phimin << " " << phimax );
+    if(etamin>etamax){ //something went wrong with the fit and no hits were selected in the loop
+      ATH_MSG_DEBUG("no hits selected, nothing further will be done");
+      return;
+    }
+
     RoiDescriptor roi( etamin, etamax, phimin, phimax );
 
-    ATH_MSG_DEBUG("Eta range: " << etamin << " " << etamax << " Phi range " << phimin << " " << phimax );
     //    addHashes(MDT,etamin,etamax,phimin,phimax,data.mdt,data.mdtTrack);
     //    addHashes(RPC,etamin,etamax,phimin,phimax,data.rpc,data.rpcTrack);
     //    addHashes(TGC,etamin,etamax,phimin,phimax,data.tgc,data.tgcTrack);
