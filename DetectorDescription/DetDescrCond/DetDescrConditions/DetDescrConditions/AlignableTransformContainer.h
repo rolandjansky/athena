@@ -9,9 +9,7 @@
 // in conditions database
 // Richard Hawkings, 31/8/05
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "DetDescrConditions/AlignableTransform.h"
 

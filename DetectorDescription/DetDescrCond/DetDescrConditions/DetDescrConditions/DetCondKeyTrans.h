@@ -14,10 +14,7 @@
 #include <string>
 #include <map>
 #include "CLHEP/Geometry/Transform3D.h"
-
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 class DetCondKeyTrans {
  public:
