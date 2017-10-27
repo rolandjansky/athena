@@ -85,14 +85,14 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   SG::ReadHandle<xAOD::EventInfo> evt(m_evtKey);
   if ( not evt.isValid() ) {
     msg(MSG::ERROR) << "could not get event info " 
-	  << endmsg;
+                    << endmsg;
     return( StatusCode::FAILURE);
   }
   else {
     if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event: [" << evt->runNumber()
-	  << "," << evt->eventNumber()
-	  << ":" << evt->timeStamp()
-	  << "]" << endmsg;
+                                             << "," << evt->eventNumber()
+                                             << ":" << evt->timeStamp()
+                                             << "]" << endmsg;
   }
  
   // We create the conditions objects only for a specified run and event

@@ -101,7 +101,7 @@ SCT_MonitorConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvInte
 bool 
 SCT_MonitorConditionsSvc::canReportAbout(InDetConditions::Hierarchy h) {
   return ((h==InDetConditions::SCT_MODULE) or (h==InDetConditions::SCT_SIDE) or
-	  (h==InDetConditions::SCT_CHIP) or (h==InDetConditions::SCT_STRIP));
+          (h==InDetConditions::SCT_CHIP) or (h==InDetConditions::SCT_STRIP));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -192,8 +192,8 @@ SCT_MonitorConditionsSvc::badStrips(const Identifier & moduleId, std::set<Identi
     int stripNum{side==1 ? (*defectItr) - 768 : (*defectItr)};
    
     Identifier stripId{m_pHelper->strip_id(m_pHelper->barrel_ec(moduleId),  m_pHelper->layer_disk(moduleId),
-					   m_pHelper->phi_module(moduleId), m_pHelper->eta_module(moduleId),
-					   side, stripNum)};
+                                           m_pHelper->phi_module(moduleId), m_pHelper->eta_module(moduleId),
+                                           side, stripNum)};
 
     ATH_MSG_DEBUG("Bad Strip: Strip number in DB = " << *defectItr<< ", side/offline strip number = " << side << "/" << stripNum<< ", Identifier = " << stripId);
 
