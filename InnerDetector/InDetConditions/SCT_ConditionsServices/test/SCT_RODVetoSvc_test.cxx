@@ -68,6 +68,9 @@ class GaudiEnvironment : public ::testing::Environment {
         StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*> (i_svc);
         if (detStore) {
             StatusCode sc = detStore->record(pHelper, "SCT_ID");
+        } else {
+            delete pHelper;
+            pHelper = nullptr;
         }
     }
 };
