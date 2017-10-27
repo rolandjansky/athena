@@ -437,7 +437,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
-                  RootType classDesc = pool::DbReflex::forGuid(classId);
+                  RootType classDesc;
+                  if (classId != Guid::null()) {
+                     classDesc = pool::DbReflex::forGuid(classId);
+                  } else {
+                     classDesc = RootType::ByName(className);
+                  }
                   const Token* token = this->registerForWrite(&placement, obj, classDesc);
                   if (token == nullptr) {
                      ATH_MSG_ERROR("Failed to write Data for: " << className);
@@ -659,7 +664,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       if (formPos != std::string::npos) {
          placementStr = placementStr.substr(0, formPos) + "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]" + placementStr.substr(formPos);
       } else {
-         placementStr += "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]";
+         placementStr += "[CLID=" + classDesc.Name() + "]";
       }
       ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
