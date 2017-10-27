@@ -161,12 +161,10 @@ StatusCode BoostedXbbTagger::initialize()
     }
 
     // set up muon tools
-//     ASG_SET_ANA_TOOL_TYPE( m_muonSelectionTool, CP::MuonSelectionTool);
-//     m_muonSelectionTool.setName(m_name+"MuonSelection");
-//     m_muonSelectionTool.retrieve();
+    m_muonSelectionTool.setTypeAndName("CP::MuonSelectionTool/"+m_name+"MuonSelection");
+    m_muonSelectionTool.retrieve();
 
-    ASG_SET_ANA_TOOL_TYPE( m_muonCalibrationAndSmearingTool, CP::MuonCalibrationAndSmearingTool);
-    m_muonCalibrationAndSmearingTool.setName(m_name+"MuonCalibrationTool");
+    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+m_name+"MuonCalibration");
     m_muonCalibrationAndSmearingTool.retrieve();
 
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
@@ -426,8 +424,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
           }
           // muon quality selection
           if (muon->pt() < m_muonPtMin) continue;
-//UNCOMMENT ME
-//          if (m_muonSelectionTool->getQuality(*muon) > xAOD::Muon::Medium) continue;
+          if (m_muonSelectionTool->getQuality(*muon) > xAOD::Muon::Medium) continue;
           if (fabs(muon->eta()) > m_muonEtaMax) continue;
           // find clostest muon
           float DR( trackJet->p4().DeltaR(muon->p4()) );
