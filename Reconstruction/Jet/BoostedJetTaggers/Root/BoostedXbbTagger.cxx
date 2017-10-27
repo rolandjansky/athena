@@ -159,16 +159,16 @@ StatusCode BoostedXbbTagger::initialize()
       m_decorationName = configReader.GetValue("DecorationName" ,"");
 
     }
-/*
-    // set up muon tools
-    ASG_SET_ANA_TOOL_TYPE( m_muonSelectionTool, CP::MuonSelectionTool);
-    m_muonSelectionTool.setName(m_name+"MuonSelection");
-    m_muonSelectionTool.retrieve();
 
-    ASG_SET_ANA_TOOL_TYPE( m_muonCalibrationAndSmearingTool, CP::muonCalibrationAndSmearingTool);
+    // set up muon tools
+//     ASG_SET_ANA_TOOL_TYPE( m_muonSelectionTool, CP::MuonSelectionTool);
+//     m_muonSelectionTool.setName(m_name+"MuonSelection");
+//     m_muonSelectionTool.retrieve();
+
+    ASG_SET_ANA_TOOL_TYPE( m_muonCalibrationAndSmearingTool, CP::MuonCalibrationAndSmearingTool);
     m_muonCalibrationAndSmearingTool.setName(m_name+"MuonCalibrationTool");
     m_muonCalibrationAndSmearingTool.retrieve();
-*/
+
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
         ATH_MSG_ERROR( "Error setting mass calibration scheme to " << m_muonCorrectionSchemeName );
         return StatusCode::FAILURE;
@@ -214,8 +214,6 @@ StatusCode BoostedXbbTagger::initialize()
     // initialize decorators as decorationName+_decorator
     ATH_MSG_INFO( "Decorators that will be attached to jet :" );
     std::string dec_name;
-
-//m_dec = SG::AuxElement::Decorator< float >( decorationName );
 
     dec_name = m_decorationName+"_MassMin";
     ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
@@ -413,13 +411,12 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
           if (!(acc_innerDetectorPt.isAvailable(*muon) && acc_muonSpectrometerPt.isAvailable(*muon))) {
               ATH_MSG_DEBUG("No decorators for MuonSpectrometerPt or InnerDetectorPt found. Calibrate muons on-the-fly.");
               xAOD::Muon *muon_calib(nullptr);
-//UNCOMMENT ME
-/*
+
               if( m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib) != CP::CorrectionCode::Ok ){
                   ATH_MSG_ERROR("Could not get calibrated copy of muon.");
                   m_accept.setCutResult("ValidJetContent" , false);
               }
-*/
+
               if (m_decorate)
                   m_dec_calibratedMuon(*muon) = muon_calib->p4();
               // save the pointers for deletion later
