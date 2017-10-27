@@ -83,7 +83,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-77/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-79/"); // Hard-coding the CalibArea tag
   if(m_devMode){
     ATH_MSG_WARNING("Dev Mode is ON!!!");
     ATH_MSG_WARNING("Dev Mode is NOT RECOMMENDED!!!");
