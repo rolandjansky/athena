@@ -276,8 +276,8 @@ SCT_ByteStreamErrorsSvc::addRODHVCounter(bool HVisOn) {
  */
 
 bool 
-SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h){
-  return (h==InDetConditions::SCT_SIDE or InDetConditions::SCT_CHIP);
+SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h) {
+  return (h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_CHIP);
 }
 
 ///////////////////////////////////////////////////////////////////////////
