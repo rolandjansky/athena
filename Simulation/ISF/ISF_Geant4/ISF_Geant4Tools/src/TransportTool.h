@@ -22,6 +22,7 @@
 
 // Athena headers
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
@@ -67,8 +68,17 @@ namespace iGeant4
 
     /** AlgTool initialize method */
     virtual StatusCode initialize() override final;
+
+    /// G4 initialization called only by the first tool instance.
+    /// This is done (for now) because we get multiple tool instances in hive.
+    void initializeOnce();
+
     /** AlgTool finalize method */
     virtual StatusCode finalize() override final;
+
+    /// G4 finalization called only by the first tool instance.
+    /// This is done (for now) because we get multiple tool instances in hive.
+    void finalizeOnce();
 
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
     virtual StatusCode process(const ISF::ISFParticle& isp) override final;
@@ -77,9 +87,6 @@ namespace iGeant4
     virtual StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles) override final;
 
   private:
-
-    /** Converts ISF::ISFParticle to G4Event */
-    G4Event* ISF_to_G4Event(const ISF::ISFParticle& isp) const;
 
     HepMC::GenEvent* genEvent() const;
 
@@ -98,6 +105,8 @@ namespace iGeant4
     bool m_useMT;
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    /// G4AtlasSvc
+    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
     /// user action service
     ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
     /// Detector Geometry Service (builds G4 Geometry)

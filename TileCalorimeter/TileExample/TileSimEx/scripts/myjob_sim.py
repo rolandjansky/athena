@@ -240,5 +240,7 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------

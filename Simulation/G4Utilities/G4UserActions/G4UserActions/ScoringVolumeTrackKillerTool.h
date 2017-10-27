@@ -30,10 +30,6 @@ namespace G4UA
       virtual ISteppingAction* getSteppingAction() override final
       { return static_cast<ISteppingAction*>( getAction() ); }
 
-      /// Gaudi boiler plate
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
     protected:
 
       virtual std::unique_ptr<ScoringVolumeTrackKiller> makeAction() override final;

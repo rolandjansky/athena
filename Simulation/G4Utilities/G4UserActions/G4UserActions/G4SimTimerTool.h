@@ -51,10 +51,6 @@ namespace G4UA
       virtual IEndEventAction* getEndEventAction() override final
       { return static_cast<IEndEventAction*>( getAction() ); }
 
-      /// Query interface for gaudi
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
     protected:
 
       /// Create aciton for this thread
