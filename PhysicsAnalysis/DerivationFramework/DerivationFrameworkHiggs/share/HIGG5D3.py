@@ -17,12 +17,9 @@ if DerivationFrameworkIsMonteCarlo:
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-#print "Yoshikazu Nagai test: globalflags.DataSource()"
-#print globalflags.DataSource()  # this should be "data" or "geant4"
-is_MC = (globalflags.DataSource()=='geant4')
-print "is_MC = ",is_MC
+# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo :
   from DerivationFrameworkHiggs.TruthCategories import *
 
 
@@ -61,7 +58,7 @@ HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream)
 #     PreserveDescendants     = False,
 #     PreserveGeneratorDescendants = True,
 #     PreserveAncestors       = True)
-# if (is_MC) :
+# if DerivationFrameworkIsMonteCarlo :
 #     ToolSvc += HIGG5D3MCThinningTool
 #     thinningTools.append(HIGG5D3MCThinningTool)
 
@@ -236,7 +233,7 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
 #                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490"]
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG5VBF
-if (is_MC):
+if DerivationFrameworkIsMonteCarlo :
     HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
                                                                     JetContainerKey         = "AntiKt4EMTopoJets",
                                                                     # jet multiplicity requirement 2b + 2j
@@ -297,8 +294,6 @@ ToolSvc += HIGG5D3SkimmingTool
 #=======================================
 higg5d3Seq = CfgMgr.AthSequencer("HIGG5D3Sequence")
 
-# Jet calibration should come after fat jets
-applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -345,6 +340,9 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d3Seq )
 
+# Jet calibration should come after fat jets
+applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
+
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
@@ -373,23 +371,44 @@ HIGG5D3SlimmingHelper = SlimmingHelper("HIGG5D3SlimmingHelper")
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
+                                           "MET_Reference_AntiKt4EMTopo",
                                            "AntiKt4EMTopoJets",
+#                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                           "AntiKt4TruthJets",
                                            "BTagging_AntiKt4EMTopo",
                                            "BTagging_AntiKt2Track",
+#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo :
+    HIGG5D3SlimmingHelper.SmartCollections += [
+         "AntiKt4TruthJets"
+#          ,"AntiKt4TruthWZJets"
+#          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
+    ]
+
+
 
 HIGG5D3SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D3SlimmingHelper.AllVariables = ExtraContainers
-if (is_MC) :
+if DerivationFrameworkIsMonteCarlo :
     HIGG5D3SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D3SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
-addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"])
+slimmed_content=["HIGG5D3Jets",
+#                 ,"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                ]
+if DerivationFrameworkIsMonteCarlo :
+    slimmed_content+=[
+             "AntiKt4TruthJets",
+#              "AntiKt4TruthWZJets"
+             ]
+addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"],slimmed_content)
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D3SlimmingHelper,["AntiKt4EMTopo"])
+addMETOutputs(HIGG5D3SlimmingHelper,[],["AntiKt4EMTopo"])
 
 HIGG5D3SlimmingHelper.IncludeEGammaTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeJetTriggerContent = True

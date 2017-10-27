@@ -18,12 +18,9 @@ if DerivationFrameworkIsMonteCarlo:
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-#print "Yoshikazu Nagai test: globalflags.DataSource()"
-#print globalflags.DataSource()  # this should be "data" or "geant4"
-is_MC = (globalflags.DataSource()=='geant4')
-print "is_MC = ",is_MC
+# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo :
   from DerivationFrameworkHiggs.TruthCategories import *
 
 
@@ -63,7 +60,7 @@ HIGG5D2MCThinningTool = DerivationFramework__GenericTruthThinning(
     PreserveGeneratorDescendants = True,
     PreserveAncestors            = True)
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo :
     ToolSvc += HIGG5D2MCThinningTool
     thinningTools.append(HIGG5D2MCThinningTool)
 
@@ -265,8 +262,7 @@ if (beamEnergy > 6.0e+06): # 13 TeV, name should be HLT_xxx
     triglist.append("HLT_xe120_tc_lcw_wEFMu")
     triglist.append("HLT_xe120_tc_em")
     triglist.append("HLT_noalg_L1J400") # added on Nov 2016
-#print 'DEBUG projectName=%s [%s;%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName))
-print 'DEBUG projectName=%s [%s;%s; cond=%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName), rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV'] )
+# print 'DEBUG projectName=%s [%s;%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName))
 if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
     triglist.append("HLT_e28_lhtight_nod0_ivarloose")
     triglist.append("HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM")
@@ -350,8 +346,8 @@ if not "HIGG5D2Jets" in OutputJets:
     addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
     OutputJets["HIGG5D2Jets"].append("AntiKt4PV0TrackJets")
     #AntiKt10LCTopoJets
-    addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
-    OutputJets["HIGG5D2Jets"].append("AntiKt10LCTopoJets")
+    # addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
+    # OutputJets["HIGG5D2Jets"].append("AntiKt10LCTopoJets")
 
 #====================================================================
 # Special jets
@@ -453,26 +449,44 @@ HIGG5D2SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4LCTopo",
                                            "AntiKt4EMTopoJets",
-                                           "AntiKt4LCTopoJets",
+                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                           "AntiKt4TruthJets",
+#                                            "AntiKtVR30Rmax4Rmin02Track",
                                            "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4LCTopo",
+                                           "BTagging_AntiKt2Track",
+#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo :
+    HIGG5D2SlimmingHelper.SmartCollections += [
+         "AntiKt4TruthJets",
+         "AntiKt4TruthWZJets"
+#          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
+    ]
+
 
 HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D2SlimmingHelper.AllVariables = ExtraContainers
 # HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo :
     HIGG5D2SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D2SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
-addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"])
+slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+if DerivationFrameworkIsMonteCarlo :
+    slimmed_content+=[
+             "AntiKt4TruthJets",
+             "AntiKt4TruthWZJets"
+             ]
+addJetOutputs(HIGG5D@SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
+
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D2SlimmingHelper,["AntiKt4LCTopo","Track"])
+addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
+
 
 HIGG5D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D2SlimmingHelper.IncludeEGammaTriggerContent = True

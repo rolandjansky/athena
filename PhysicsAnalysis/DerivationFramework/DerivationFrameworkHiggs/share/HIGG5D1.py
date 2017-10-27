@@ -18,7 +18,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
+# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
 
 if DerivationFrameworkIsMonteCarlo :
   from DerivationFrameworkHiggs.TruthCategories import *
@@ -212,7 +212,7 @@ if (beamEnergy > 6.0e+06): # 13 TeV, name should be HLT_xxx
     triglist.append("HLT_xe120_tc_lcw_wEFMu")
     triglist.append("HLT_xe120_tc_em")
     triglist.append("HLT_noalg_L1J400") # added on Nov 2016
-print 'DEBUG projectName=%s [%s;%s; cond=%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName),rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV'] )
+# print 'DEBUG projectName=%s [%s;%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName))
 if (False and beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
     triglist.append("HLT_e28_lhtight_nod0_ivarloose")
     triglist.append("HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM")
@@ -385,21 +385,21 @@ HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
                                            "AntiKt4EMTopoJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                            "AntiKt4TruthJets",
+#                                            "AntiKtVR30Rmax4Rmin02Track",
                                            "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt2Track",                                           
+                                           "BTagging_AntiKt2Track",
 #                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
 if DerivationFrameworkIsMonteCarlo :
-    HIGG5D1SlimmingHelper.SmartCollections += [ 
+    HIGG5D1SlimmingHelper.SmartCollections += [
          "AntiKt4TruthJets",
          "AntiKt4TruthWZJets"
 #          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
     ]
 
 
-#                                            "AntiKtVR30Rmax4Rmin02Track",
-#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
 
 HIGG5D1SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D1SlimmingHelper.AllVariables = ExtraContainers

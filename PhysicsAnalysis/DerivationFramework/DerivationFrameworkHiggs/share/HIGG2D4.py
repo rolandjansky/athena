@@ -43,17 +43,10 @@ thinningTools=[]
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper 
 HIGG2D4ThinningHelper = ThinningHelper("HIGG2D4ThinningHelper") 
 #trigger navigation content  
-HIGG2D4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_j.*|HLT_b.*' 
+HIGG2D4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_xe.*|HLT_j.*|HLT_b.*' 
 HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream) 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG2D4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                         JetKey                 = "AntiKt4LCTopoJets",
-                                                                         InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D4JetTPThinningTool
-thinningTools.append(HIGG2D4JetTPThinningTool)
-
 HIGG2D4JetTPThinningTool2 = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool2",
                                                                           ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
                                                                           JetKey                 = "AntiKt4EMTopoJets",
@@ -322,11 +315,13 @@ HIGG2D4SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
-                                          "MET_Reference_AntiKt4LCTopo",
                                           "AntiKt4EMTopoJets",
-                                          "AntiKt4LCTopoJets",
+                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                          "AntiKt4TruthJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "BTagging_AntiKt2Track",
+#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
@@ -335,15 +330,22 @@ HIGG2D4SlimmingHelper.AllVariables = HIGG2D4ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D4SlimmingHelper.ExtraVariables += HIGG2D4ExtraContentTruth
     HIGG2D4SlimmingHelper.AllVariables += HIGG2D4ExtraContainersTruth
-HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPrompt!VariablesForDxAOD()
 
 # Add the jet containers to the stream
-addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"])
+slimmed_content=["HIGG2D4Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+if DerivationFrameworkIsMonteCarlo :
+    slimmed_content+=[
+             "AntiKt4TruthJets",
+             "AntiKt4TruthWZJets"
+             ]
+addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
 # Add MET_RefFinalFix
-addMETOutputs(HIGG2D4SlimmingHelper,["AntiKt4LCTopo","Track"])
+addMETOutputs(HIGG2D4SlimmingHelper,[],["Track"."AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 
 HIGG2D4SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeEGammaTriggerContent = True
+HIGG2D4SlimmingHelper.IncludeEtMissTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeJetTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeBJetTriggerContent = True
 
