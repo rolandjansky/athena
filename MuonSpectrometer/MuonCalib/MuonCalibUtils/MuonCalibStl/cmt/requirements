@@ -1,9 +1,0 @@
-package MuonCalibStl
-
-author Niels van Eldik
-
-use AtlasPolicy		AtlasPolicy-*
-
-include_dirs "$(MuonCalibStl_root)"
-
-#apply_pattern installed_library 

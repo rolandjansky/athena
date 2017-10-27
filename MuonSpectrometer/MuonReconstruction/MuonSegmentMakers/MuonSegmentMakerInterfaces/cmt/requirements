@@ -1,6 +1,0 @@
-package MuonSegmentMakerInterfaces
-
-author Edward Moyse <Edward.Moyse@cern.ch>
-
-use AtlasPolicy          AtlasPolicy-*
-use GaudiInterface       GaudiInterface-*       External 

@@ -1,7 +1,0 @@
-package MuonDigToolInterfaces
-
-author <ketevi@bnl.gov>
-
-use AtlasPolicy          AtlasPolicy-*
-use GaudiInterface       GaudiInterface-*       External 
-
