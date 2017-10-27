@@ -53,13 +53,13 @@ const xAOD::Vertex* CorrectPFOTool::getPrimaryVertex() const {
   // Retrieve Primary Vertices
   auto handle = SG::makeHandle(m_vertexContainer_key);
   if (!handle.isValid()){
-      ATH_MSG_WARNING(" This event has no primary vertices " );
+      ATH_MSG_WARNING(" This event has no primary vertex container" );
       return nullptr;
   }
     
   const xAOD::VertexContainer* pvtxs = handle.cptr();
   if(pvtxs->empty()){
-      ATH_MSG_WARNING(" This event has no primary vertices " );
+      ATH_MSG_WARNING(" Failed to retrieve valid primary vertex container" );
       return nullptr;
   } 
 
@@ -72,7 +72,7 @@ const xAOD::Vertex* CorrectPFOTool::getPrimaryVertex() const {
   }//iterate over the vertices and check their type
 
   // If we failed to find an appropriate vertex, return the dummy vertex
-  ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
+  ATH_MSG_DEBUG("Could not find a primary vertex in this event " );
   for (auto theVertex : *pvtxs) {
     if (theVertex->vertexType()==xAOD::VxType::NoVtx) {
       return theVertex;
@@ -80,6 +80,7 @@ const xAOD::Vertex* CorrectPFOTool::getPrimaryVertex() const {
   }
 
   // If there is no primary vertex, then we cannot do PV matching.
+  ATH_MSG_WARNING("Primary vertex container was empty");
   return nullptr;
 }
 

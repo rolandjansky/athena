@@ -41,6 +41,7 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
 
   const xAOD::Vertex* getPrimaryVertex() const;
   bool m_useTrackToVertexTool;
+  bool m_ignoreVertex;
 	
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key;

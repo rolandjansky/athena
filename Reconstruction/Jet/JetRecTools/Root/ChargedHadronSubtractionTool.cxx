@@ -14,6 +14,8 @@ ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& na
                   m_vertexContainer_key="PrimaryVertices",
                   "Datahandle key for the primary vertex container");
 
+  declareProperty("IgnoreVertex", m_ignoreVertex=false, "Dummy option for cosmics - accept everything");
+
 }
 
 StatusCode ChargedHadronSubtractionTool::initialize() {
@@ -23,7 +25,7 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
     return StatusCode::FAILURE;
   }
   // Only initialise the DataHandle we will use, to avoid superfluous dependencies
-  if(m_useTrackToVertexTool) {
+  if(m_useTrackToVertexTool && !m_ignoreVertex) {
     ATH_CHECK( m_trkVtxAssoc_key.initialize() );
   } else {
     ATH_CHECK( m_vertexContainer_key.initialize() );
@@ -43,13 +45,13 @@ const xAOD::Vertex* ChargedHadronSubtractionTool::getPrimaryVertex() const {
   // Retrieve Primary Vertices
   auto handle = SG::makeHandle(m_vertexContainer_key);
   if (!handle.isValid()){
-      ATH_MSG_WARNING(" This event has no primary vertices " );
+      ATH_MSG_WARNING(" This event has no primary vertex container" );
       return nullptr;
   }
     
   const xAOD::VertexContainer* pvtxs = handle.cptr();
   if(pvtxs->empty()){
-      ATH_MSG_WARNING(" This event has no primary vertices " );
+      ATH_MSG_WARNING(" Failed to retrieve valid primary vertex container" );
       return nullptr;
   } 
 
@@ -62,7 +64,7 @@ const xAOD::Vertex* ChargedHadronSubtractionTool::getPrimaryVertex() const {
   }//iterate over the vertices and check their type
 
   // If we failed to find an appropriate vertex, return the dummy vertex
-  ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
+  ATH_MSG_DEBUG("Could not find a primary vertex in this event" );
   for (auto theVertex : *pvtxs) {
     if (theVertex->vertexType()==xAOD::VxType::NoVtx) {
       return theVertex;
@@ -70,6 +72,7 @@ const xAOD::Vertex* ChargedHadronSubtractionTool::getPrimaryVertex() const {
   }
 
   // If there is no primary vertex, then we cannot do PV matching.
+  ATH_MSG_WARNING("Primary vertex container is empty");
   return nullptr;
 }
 
@@ -79,20 +82,24 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
   // Use only one of TVA or PV
   const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
   const xAOD::Vertex* vtx = nullptr;
-  if(m_useTrackToVertexTool) {
-    auto handle = SG::makeHandle(m_trkVtxAssoc_key);
-    if(!handle.isValid()){
-      ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
-      return StatusCode::FAILURE;
-    }
-    trkVtxAssoc = handle.cptr();
-  } else {
-    vtx = getPrimaryVertex();
-    if(vtx==nullptr) {
-      ATH_MSG_ERROR("Primary vertex container was empty or no valid vertex found!");
-      return StatusCode::FAILURE;
-    } else if (vtx->vertexType()==xAOD::VxType::NoVtx) {
-      ATH_MSG_VERBOSE("No genuine primary vertex found. Will consider all PFOs matched.");
+  if(!m_ignoreVertex) {
+    // In cosmics, there's no PV container so we need to avoid attempting
+    // to retrieve anything related to it
+    if(m_useTrackToVertexTool) {
+      auto handle = SG::makeHandle(m_trkVtxAssoc_key);
+      if(!handle.isValid()){
+	ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+	return StatusCode::FAILURE;
+      }
+      trkVtxAssoc = handle.cptr();
+    } else {
+      vtx = getPrimaryVertex();
+      if(vtx==nullptr) {
+	ATH_MSG_ERROR("Primary vertex container was empty or no valid vertex found!");
+	return StatusCode::FAILURE;
+      } else if (vtx->vertexType()==xAOD::VxType::NoVtx) {
+	ATH_MSG_VERBOSE("No genuine primary vertex found. Will consider all PFOs matched.");
+      }
     }
   }
 
@@ -101,25 +108,31 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
     if(fabs(ppfo->charge()) < FLT_MIN) continue;
 
     bool matchedToPrimaryVertex = false;
-    const xAOD::TrackParticle* ptrk = ppfo->track(0);
-    if(ptrk==nullptr) {
-      ATH_MSG_WARNING("Charged PFO with index " << ppfo->index() << " has no ID track!");
-      continue;
-    }
-    if(trkVtxAssoc) { // Use TrackVertexAssociation
-      const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
-      matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
-    } else { // Use Primary Vertex
-      if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
-	matchedToPrimaryVertex = true; // simply match all cPFOs in this case
-      } else { // Had a good reconstructed vertex.
-	// vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0).
-	// Thus we correct the track z0 to be w.r.t z = 0
-	float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
-	float theta = ptrk->theta();
-	matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+    if(m_ignoreVertex) {
+      // If we don't use vertex information, don't bother computing the decision
+      // Just pass every cPFO -- there shouldn't be many in cosmics!
+      matchedToPrimaryVertex = true;
+    } else {
+      const xAOD::TrackParticle* ptrk = ppfo->track(0);
+      if(ptrk==nullptr) {
+	ATH_MSG_WARNING("Charged PFO with index " << ppfo->index() << " has no ID track!");
+	continue;
       }
-    } // TVA vs PV decision
+      if(trkVtxAssoc) { // Use TrackVertexAssociation
+	const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
+	matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+      } else { // Use Primary Vertex
+	if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
+	  matchedToPrimaryVertex = true; // simply match all cPFOs in this case
+	} else { // Had a good reconstructed vertex.
+	  // vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0).
+	  // Thus we correct the track z0 to be w.r.t z = 0
+	  float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
+	  float theta = ptrk->theta();
+	  matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+	}
+      } // TVA vs PV decision
+    }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
   }
 
