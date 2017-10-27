@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkDetDescrTestTools/GeometryAsciiDumper.h"
 #include "TrkDetDescrTestTools/GeometryTTreeDumper.h"
 #include "TrkDetDescrTestTools/MaterialMapper.h"
@@ -24,18 +23,4 @@ DECLARE_TOOL_FACTORY( TrackingVolumeDisplayer )
 DECLARE_TOOL_FACTORY( GeometryJsonDumper )
 
 /** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( TrkDetDescrTestTools )
-{
-    DECLARE_TOOL( GeometryAsciiDumper )
-    DECLARE_TOOL( GeometryTTreeDumper )
-    DECLARE_TOOL( MaterialMapper )
-    DECLARE_TOOL( VertexMapper )
-    DECLARE_TOOL( LayerMaterialInspector )
-    DECLARE_TOOL( LayerMaterialAnalyser )
-    DECLARE_TOOL( RandomSurfaceBuilder )
-    DECLARE_TOOL( RecursiveGeometryProcessor )    
-    DECLARE_TOOL( TrackingVolumeDisplayer )
-    DECLARE_TOOL( GeometryJsonDumper )
-}
-
 

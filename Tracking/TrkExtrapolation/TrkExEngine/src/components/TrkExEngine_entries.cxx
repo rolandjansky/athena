@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkExEngine/ExtrapolationEngine.h"
 #include "TrkExEngine/StaticEngine.h"
 #include "TrkExEngine/StaticNavigationEngine.h"
@@ -16,14 +15,4 @@ DECLARE_TOOL_FACTORY( PropagationEngine )
 DECLARE_TOOL_FACTORY( StepEngine )
 
 /** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( TrkExEngine )
-{
-    DECLARE_TOOL( ExtrapolationEngine )
-    DECLARE_TOOL( MaterialEffectsEngine )        
-    DECLARE_TOOL( StaticEngine )
-    DECLARE_TOOL( StaticNavigationEngine )
-    DECLARE_TOOL( PropagationEngine )
-    DECLARE_TOOL( StepEngine )
-}
-
 

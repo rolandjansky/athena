@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkDetDescrUnitTests/TrkDetDescrTPCnvTest.h"
 #include "TrkDetDescrUnitTests/BinUtilityTest.h"
 #include "TrkDetDescrUnitTests/TrackingGeometryTest.h"
@@ -15,12 +14,5 @@ DECLARE_ALGORITHM_FACTORY( MappingTest )
 
 
 /** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( TrkDetDescrUnitTests )
-{
-    DECLARE_ALGORITHM( BinUtilityTest )
-    DECLARE_ALGORITHM( TrkDetDescrTPCnvTest )
-    DECLARE_ALGORITHM( TrackingGeometryTest )
-    DECLARE_ALGORITHM( SurfaceIntersectionTest )
-    DECLARE_ALGORITHM( MappingTest )
     
-}
+

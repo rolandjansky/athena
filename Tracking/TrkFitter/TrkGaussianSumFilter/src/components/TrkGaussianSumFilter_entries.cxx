@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
@@ -49,29 +47,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Trk, GsfExtrapolator )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, GsfSmoother )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, BremFind )
 
-DECLARE_FACTORY_ENTRIES( TrkGaussianSumFilter )
-{
-  DECLARE_NAMESPACE_TOOL( Trk, QuickCloseComponentsMultiStateMerger )
-  DECLARE_NAMESPACE_TOOL( Trk, MultiComponentStateModeCalculator )
-  DECLARE_NAMESPACE_TOOL( Trk, MultiStateMaterialEffectsAdapter )
-  DECLARE_NAMESPACE_TOOL( Trk, KullbackLeiblerComponentDistance )
-  DECLARE_NAMESPACE_TOOL( Trk, CloseComponentsMultiStateMerger )
-  DECLARE_NAMESPACE_TOOL( Trk, LargestWeightsMultiStateMerger )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfMaterialMixtureConvolution )
-  DECLARE_NAMESPACE_TOOL( Trk, MahalanobisComponentDistance )
-  DECLARE_NAMESPACE_TOOL( Trk, MultiComponentStateAssembler )
-  DECLARE_NAMESPACE_TOOL( Trk, MultiComponentStateCombiner )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfCombinedMaterialEffects )
-  DECLARE_NAMESPACE_TOOL( Trk, PosteriorWeightsCalculator )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfMaterialEffectsUpdator )
-  DECLARE_NAMESPACE_TOOL( Trk, MultipleScatterUpdator )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfBetheHeitlerEffects )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfMeasurementUpdator )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfEnergyLossUpdator )
-  DECLARE_NAMESPACE_TOOL( Trk, GaussianSumFitter )
-  DECLARE_NAMESPACE_TOOL( Trk, ForwardGsfFitter )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfOutlierLogic )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfExtrapolator )
-  DECLARE_NAMESPACE_TOOL( Trk, GsfSmoother )
-  DECLARE_NAMESPACE_TOOL( Trk, BremFind )  
-}

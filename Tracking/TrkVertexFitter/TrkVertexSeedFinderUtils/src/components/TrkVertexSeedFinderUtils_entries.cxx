@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
 #include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
 #include "TrkVertexSeedFinderUtils/FsmwMode1dFinder.h"
@@ -25,17 +24,3 @@ DECLARE_ALGORITHM_FACTORY( ImagingSeedTuningAlg )
 
 /** factory entries need to have the name of the package */
 
-DECLARE_FACTORY_ENTRIES( TrkVertexSeedFinderUtils )
-{
-  DECLARE_ALGORITHM( ImagingSeedTuningAlg );
-
-  DECLARE_TOOL( Trk2dDistanceSeeder );
-  DECLARE_TOOL( NewtonTrkDistanceFinder );
-  DECLARE_TOOL( Mode3dTo1dFinder );
-  DECLARE_TOOL( SeedNewtonTrkDistanceFinder );
-  DECLARE_TOOL( FsmwMode1dFinder );
-  DECLARE_TOOL( Trk2DDistanceFinderpwd );
-  DECLARE_TOOL( SimpleVertexClusterFinder );
-  DECLARE_TOOL( LocalMax1DClusterFinder );
-  DECLARE_TOOL( VertexImageMaker );
-}

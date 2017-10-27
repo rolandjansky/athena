@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkJetVxFitter/JetFitterHelper.h"
 #include "TrkJetVxFitter/JetFitterInitializationHelper.h"
 #include "TrkJetVxFitter/JetFitterRoutines.h"
@@ -17,14 +16,3 @@ DECLARE_TOOL_FACTORY( KalmanVertexOnJetAxisUpdator )
 DECLARE_TOOL_FACTORY( TrkDistanceFinderNeutralCharged )
 DECLARE_TOOL_FACTORY( TrkDistanceFinderNeutralNeutral )
 
-
-DECLARE_FACTORY_ENTRIES( TrkJetVxFitter )
-{
-  DECLARE_TOOL( JetFitterHelper )
-  DECLARE_TOOL( JetFitterInitializationHelper )
-  DECLARE_TOOL( JetFitterRoutines )
-  DECLARE_TOOL( KalmanVertexOnJetAxisSmoother )
-  DECLARE_TOOL( KalmanVertexOnJetAxisUpdator )
-  DECLARE_TOOL( TrkDistanceFinderNeutralCharged )
-  DECLARE_TOOL( TrkDistanceFinderNeutralNeutral )
-}

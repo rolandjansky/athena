@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkDetDescrTools/CylinderVolumeCreator.h"
 #include "TrkDetDescrTools/BinnedLayerMaterialCreator.h"
 #include "TrkDetDescrTools/CompoundLayerMaterialCreator.h"
@@ -30,19 +29,4 @@ DECLARE_TOOL_FACTORY( TrackingVolumeArrayCreator )
 DECLARE_TOOL_FACTORY( TrackingVolumeHelper )
 
 /** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( TrkDetDescrTools )
-{
-    DECLARE_TOOL( CylinderVolumeCreator )
-    DECLARE_TOOL( BinnedLayerMaterialCreator )
-    DECLARE_TOOL( CompoundLayerMaterialCreator )
-    DECLARE_TOOL( CompressedLayerMaterialCreator )
-    DECLARE_TOOL( GeometryBuilder )
-    DECLARE_TOOL( GenericGeometryBuilder )
-    DECLARE_TOOL( LayerArrayCreator )
-    DECLARE_TOOL( LayerProvider )
-    DECLARE_TOOL( LayerMaterialProvider )
-    DECLARE_TOOL( LayerMaterialConverter )
-    DECLARE_TOOL( InputLayerMaterialProvider )    
-    DECLARE_TOOL( TrackingVolumeArrayCreator )
-    DECLARE_TOOL( TrackingVolumeHelper )
-}
+
