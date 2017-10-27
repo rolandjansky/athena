@@ -642,7 +642,6 @@ DerivationFrameworkJob += BPHY7_Sequence
 #====================================================================
 # Slimming 
 #====================================================================
-## 16/
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
@@ -654,7 +653,7 @@ SmartCollections = ["MET_Reference_AntiKt4EMTopo"] # , "MET_Reference_AntiKt4LCT
 
 #for calculation of MET
 #if isSimulation:
-SmartCollections += ["Electrons", "Photons", "TauJets"]
+SmartCollections += ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo"]
 
 AllVariables = []
 
@@ -665,13 +664,8 @@ AllVariables += ['MET_Reference_AntiKt4EMTopo',
                  'MET_Track',
                  'MET_LocHadTopo']
 
-
-#Should maybe skim these??
-#Can be done with the example thinning tool (if based on Pt & || similar stuff)
-AllVariables += ["AntiKt4EMTopoJets"]
-AllVariables += ["BTagging_AntiKt4EMTopo"]
 AllVariables += ["Kt4EMTopoOriginEventShape"]
-
+AllVariables += ["Kt4EMTopoEventShape"]
 
 StaticContent = [] 
 
@@ -679,12 +673,8 @@ StaticContent = []
 BPHY7SlimmingHelper.IncludeMuonTriggerContent = True
 BPHY7SlimmingHelper.IncludeBPhysTriggerContent = True
 
-#Following instruction has no effect, since it is overruled by the smartSlimmer for MET (which takes extra information)
-BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink"]
+BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink", "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", "AntiKt4EMTopoJets.JvtJvfcorr", "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
-#AllVariables +=["Electrons", "Photons", "TauJets"]
-
-## primary vertices and add the refitted vertices!!
 AllVariables += ["PrimaryVertices"]
 StaticContent += ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
@@ -696,8 +686,6 @@ if isSimulation:
     StaticContent += ["xAOD::TruthParticleAuxContainer#TruthTausAux."]
     AllVariables += ["AntiKt4TruthJets"] 
 
-
-## ID track particlest
 AllVariables += ["InDetTrackParticles"]
 
 ## combined / extrapolated muon track particles 
