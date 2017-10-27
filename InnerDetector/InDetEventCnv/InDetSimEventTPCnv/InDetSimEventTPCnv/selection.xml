@@ -3,12 +3,18 @@
     <!-- InDetHits -->
     <class name="SiHit_p1" />
     <class name="std::vector<SiHit_p1>" />
+    <class name="SiHit_p2" />
+    <class name="std::vector<SiHit_p2>" />
     <class name="SiHitCollection_p1" id="36D1FF8E-5734-4A93-A133-F286CF47DB72" />
     <class name="SiHitCollection_p2" id="BD1469C5-C904-40B8-82B9-43D25888D884" />
+    <class name="SiHitCollection_p3" id="59E13FDA-2799-4362-8423-44D57F08734D" />
     <class name="TRT_Hit_p1" />
     <class name="std::vector<TRT_Hit_p1>" />
+    <class name="TRT_Hit_p2" />
+    <class name="std::vector<TRT_Hit_p2>" />
     <class name="TRT_HitCollection_p1" id="6688E934-157E-421A-B6D1-A35FC8BD651C" />
     <class name="TRT_HitCollection_p2" id="473FF621-3466-4D87-9469-4780A6A77023" />
     <class name="TRT_HitCollection_p3" id="FB5F5BFC-43E5-44E1-B79C-C330C1480E2E" />
+    <class name="TRT_HitCollection_p4" id="73BECF03-4C45-491E-A973-A1C4402AD018" />
      
 </lcgdict>
