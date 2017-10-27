@@ -4,9 +4,9 @@
 #include "../RpcRDO_Decoder.h"
 #include "../RPC_RawDataProviderTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, RpcRdoToPrepDataTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, RpcPadContByteStreamTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, RpcROD_Decoder )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, RPC_RawDataProviderTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, RpcRDO_Decoder )
+DECLARE_COMPONENT( Muon::RpcRdoToPrepDataTool )
+DECLARE_COMPONENT( Muon::RpcPadContByteStreamTool )
+DECLARE_COMPONENT( Muon::RpcROD_Decoder )
+DECLARE_COMPONENT( Muon::RPC_RawDataProviderTool )
+DECLARE_COMPONENT( Muon::RpcRDO_Decoder )
 

@@ -2,7 +2,7 @@
 // #include "MuonSegmMonitoring/CSCSegmValidation.h"
 // #include "MuonSegmMonitoring/CSCSegmValAlg.h"
 
-// DECLARE_TOOL_FACTORY(MuonSegmValidation)
-// DECLARE_TOOL_FACTORY(CSCSegmValidation)
-// DECLARE_TOOL_FACTORY(CSCSegmValAlg)
+// DECLARE_COMPONENT( MuonSegmValidation )
+// DECLARE_COMPONENT( CSCSegmValidation )
+// DECLARE_COMPONENT( CSCSegmValAlg )
  

@@ -1,6 +1,6 @@
 #include "MuonAssociationTools/MuonPatternSegmentAssociationTool.h"
 #include "../MuonPRD_Provider.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MuonPatternSegmentAssociationTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MuonPRD_Provider )
+DECLARE_COMPONENT( Muon::MuonPatternSegmentAssociationTool )
+DECLARE_COMPONENT( Muon::MuonPRD_Provider )
 

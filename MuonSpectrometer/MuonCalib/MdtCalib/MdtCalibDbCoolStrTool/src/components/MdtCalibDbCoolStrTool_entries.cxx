@@ -2,5 +2,5 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY( MdtCalibDbCoolStrTool )
+DECLARE_COMPONENT( MdtCalibDbCoolStrTool )
 

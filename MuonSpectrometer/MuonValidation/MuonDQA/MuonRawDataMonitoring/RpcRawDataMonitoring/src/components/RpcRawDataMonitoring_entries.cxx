@@ -4,9 +4,9 @@
 #include "RpcRawDataMonitoring/RpcLv1RawDataEfficiency.h"
 #include "RpcRawDataMonitoring/RPCStandaloneTracksMon.h"
   
-DECLARE_TOOL_FACTORY(RpcRawDataValAlg)
-DECLARE_TOOL_FACTORY(RpcLv1RawDataValAlg)
-DECLARE_TOOL_FACTORY(RpcLv1RawDataSectorLogic)
-DECLARE_TOOL_FACTORY(RpcLv1RawDataEfficiency)
-DECLARE_TOOL_FACTORY(RPCStandaloneTracksMon)
+DECLARE_COMPONENT( RpcRawDataValAlg )
+DECLARE_COMPONENT( RpcLv1RawDataValAlg )
+DECLARE_COMPONENT( RpcLv1RawDataSectorLogic )
+DECLARE_COMPONENT( RpcLv1RawDataEfficiency )
+DECLARE_COMPONENT( RPCStandaloneTracksMon )
 

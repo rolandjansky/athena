@@ -7,12 +7,12 @@
 #include "MuonByteStream/RpcPadContByteStreamCnv.h"
 #include "MuonByteStream/TgcRdoContByteStreamCnv.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Muon, MdtRawDataProvider )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Muon, RpcRawDataProvider )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Muon, TgcRawDataProvider )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Muon, CscRawDataProvider )
-DECLARE_CONVERTER_FACTORY (MdtCsmContByteStreamCnv)
-DECLARE_CONVERTER_FACTORY (CscRdoContByteStreamCnv)
-DECLARE_CONVERTER_FACTORY (RpcPadContByteStreamCnv)
-DECLARE_CONVERTER_FACTORY (TgcRdoContByteStreamCnv)
+DECLARE_COMPONENT( Muon::MdtRawDataProvider )
+DECLARE_COMPONENT( Muon::RpcRawDataProvider )
+DECLARE_COMPONENT( Muon::TgcRawDataProvider )
+DECLARE_COMPONENT( Muon::CscRawDataProvider )
+DECLARE_CONVERTER_FACTORY( MdtCsmContByteStreamCnv )
+DECLARE_CONVERTER_FACTORY( CscRdoContByteStreamCnv )
+DECLARE_CONVERTER_FACTORY( RpcPadContByteStreamCnv )
+DECLARE_CONVERTER_FACTORY( TgcRdoContByteStreamCnv )
 

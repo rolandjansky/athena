@@ -1,6 +1,6 @@
 // #include "MuonAlignMonitoring/MuonAlignValidation.h"
 // #include "MuonAlignMonitoring/MuonAlignSegment.h"
 
-// DECLARE_TOOL_FACTORY( MuonAlignValidation )
-// DECLARE_TOOL_FACTORY( MuonAlignSegment )
+// DECLARE_COMPONENT( MuonAlignValidation )
+// DECLARE_COMPONENT( MuonAlignSegment )
 

@@ -3,6 +3,6 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY(MuonClusterOnTrackCreator)
-DECLARE_TOOL_FACTORY(CscClusterOnTrackCreator)
+DECLARE_COMPONENT( MuonClusterOnTrackCreator )
+DECLARE_COMPONENT( CscClusterOnTrackCreator )
 

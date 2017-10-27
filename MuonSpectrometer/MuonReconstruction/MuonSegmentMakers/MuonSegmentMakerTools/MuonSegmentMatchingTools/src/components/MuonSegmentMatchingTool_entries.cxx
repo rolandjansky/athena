@@ -4,7 +4,7 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonSegmentInOverlapResolvingTool )
-DECLARE_TOOL_FACTORY( MuonSegmentMatchingTool )
-DECLARE_TOOL_FACTORY( MuonSegmentPairMatchingTool )
+DECLARE_COMPONENT( MuonSegmentInOverlapResolvingTool )
+DECLARE_COMPONENT( MuonSegmentMatchingTool )
+DECLARE_COMPONENT( MuonSegmentPairMatchingTool )
 

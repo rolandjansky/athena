@@ -2,6 +2,6 @@
 //#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 //#include "MdtRawDataMonitoring/MuonEventInfoMonTool.h"
  
-DECLARE_TOOL_FACTORY(MdtRawDataValAlg)   
-//DECLARE_TOOL_FACTORY(MuonEventInfoMonTool)
+DECLARE_COMPONENT( MdtRawDataValAlg )   
+//DECLARE_COMPONENT( MuonEventInfoMonTool )
    

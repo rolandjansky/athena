@@ -5,8 +5,8 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonHoughPatternTool )
-DECLARE_TOOL_FACTORY( MuonHoughPatternFinderTool )
-DECLARE_TOOL_FACTORY( MuonLayerHoughTool )
-DECLARE_ALGORITHM_FACTORY( MuonLayerHoughAlg )
+DECLARE_COMPONENT( MuonHoughPatternTool )
+DECLARE_COMPONENT( MuonHoughPatternFinderTool )
+DECLARE_COMPONENT( MuonLayerHoughTool )
+DECLARE_COMPONENT( MuonLayerHoughAlg )
 

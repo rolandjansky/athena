@@ -11,14 +11,14 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonTrackCleaner )
-DECLARE_TOOL_FACTORY( MuonChamberHoleRecoveryTool )
-DECLARE_TOOL_FACTORY( MuonSegmentRegionRecoveryTool )
-DECLARE_TOOL_FACTORY( MuonTrackToSegmentTool )
-DECLARE_TOOL_FACTORY( MuonTrackSelectorTool )
-DECLARE_TOOL_FACTORY( MuonSeededSegmentFinder )
-DECLARE_TOOL_FACTORY( MuonTrackScoringTool )
-DECLARE_TOOL_FACTORY( MuonTrackExtrapolationTool )
-DECLARE_TOOL_FACTORY( MuonRefitTool )
-DECLARE_TOOL_FACTORY( MuonErrorOptimisationTool )
+DECLARE_COMPONENT( MuonTrackCleaner )
+DECLARE_COMPONENT( MuonChamberHoleRecoveryTool )
+DECLARE_COMPONENT( MuonSegmentRegionRecoveryTool )
+DECLARE_COMPONENT( MuonTrackToSegmentTool )
+DECLARE_COMPONENT( MuonTrackSelectorTool )
+DECLARE_COMPONENT( MuonSeededSegmentFinder )
+DECLARE_COMPONENT( MuonTrackScoringTool )
+DECLARE_COMPONENT( MuonTrackExtrapolationTool )
+DECLARE_COMPONENT( MuonRefitTool )
+DECLARE_COMPONENT( MuonErrorOptimisationTool )
 

@@ -3,8 +3,8 @@
 #include "../MuonSegmentFinderAlg.h"
 #include "../NSWSectorRoadFinderAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( MooSegmentFinderAlg )
-DECLARE_ALGORITHM_FACTORY( MuonSegmentFinderAlg )
-DECLARE_ALGORITHM_FACTORY( NSWSectorRoadFinderAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MooSegmentCombinationFinder )
+DECLARE_COMPONENT( MooSegmentFinderAlg )
+DECLARE_COMPONENT( MuonSegmentFinderAlg )
+DECLARE_COMPONENT( NSWSectorRoadFinderAlg )
+DECLARE_COMPONENT( Muon::MooSegmentCombinationFinder )
 

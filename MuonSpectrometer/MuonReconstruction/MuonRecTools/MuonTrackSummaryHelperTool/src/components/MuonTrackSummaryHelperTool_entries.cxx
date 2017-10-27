@@ -3,6 +3,6 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonTrackSummaryHelperTool )
-DECLARE_TOOL_FACTORY( MuonHitSummaryTool )
+DECLARE_COMPONENT( MuonTrackSummaryHelperTool )
+DECLARE_COMPONENT( MuonHitSummaryTool )
 

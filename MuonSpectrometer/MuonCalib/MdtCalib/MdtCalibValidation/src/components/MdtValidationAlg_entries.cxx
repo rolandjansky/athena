@@ -2,6 +2,6 @@
  
 using namespace MuonCalib; 
 
-DECLARE_ALGORITHM_FACTORY ( MdtValidationAlg )
+DECLARE_COMPONENT( MdtValidationAlg )
  
 

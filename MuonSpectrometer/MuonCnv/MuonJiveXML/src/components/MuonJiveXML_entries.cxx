@@ -9,12 +9,12 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(CSCClusterRetriever)
-DECLARE_TOOL_FACTORY(TgcPrepDataRetriever)
-DECLARE_TOOL_FACTORY(CscPrepDataRetriever)
-DECLARE_TOOL_FACTORY(MdtPrepDataRetriever)
-DECLARE_TOOL_FACTORY(RpcPrepDataRetriever)
-//DECLARE_TOOL_FACTORY(MuidTrackRetriever)
-DECLARE_TOOL_FACTORY(TrigRpcDataRetriever)
-DECLARE_TOOL_FACTORY(TrigMuonROIRetriever)
+DECLARE_COMPONENT( CSCClusterRetriever )
+DECLARE_COMPONENT( TgcPrepDataRetriever )
+DECLARE_COMPONENT( CscPrepDataRetriever )
+DECLARE_COMPONENT( MdtPrepDataRetriever )
+DECLARE_COMPONENT( RpcPrepDataRetriever )
+//DECLARE_COMPONENT( MuidTrackRetriever )
+DECLARE_COMPONENT( TrigRpcDataRetriever )
+DECLARE_COMPONENT( TrigMuonROIRetriever )
 

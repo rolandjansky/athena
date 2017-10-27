@@ -2,5 +2,5 @@
 
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MuonCurvedSegmentCombiner )
+DECLARE_COMPONENT( Muon::MuonCurvedSegmentCombiner )
 

@@ -17,23 +17,23 @@
 
 using namespace MuonCalib;
 
-DECLARE_ALGORITHM_FACTORY ( CalibNtupleAnalysisAlg2 )
-DECLARE_ALGORITHM_FACTORY ( WriteMdtGeometry )
-DECLARE_ALGORITHM_FACTORY ( MuonCalibGeometryDumper )
+DECLARE_COMPONENT( CalibNtupleAnalysisAlg2 )
+DECLARE_COMPONENT( WriteMdtGeometry )
+DECLARE_COMPONENT( MuonCalibGeometryDumper )
 
 
 
 
-DECLARE_TOOL_FACTORY ( BarrelSecondCoordinatePreparationTool )
-DECLARE_TOOL_FACTORY ( BFieldCorrectionUpdateTool )
-DECLARE_TOOL_FACTORY ( UpdateBField )
-DECLARE_TOOL_FACTORY (CalibNtupleLoader)
-DECLARE_TOOL_FACTORY (SegmentRegionSelector)
-DECLARE_TOOL_FACTORY (SegmentRawdataSelector)
-DECLARE_TOOL_FACTORY (SegmentRecalibration)
-DECLARE_TOOL_FACTORY (InitialDqFilter)
-DECLARE_TOOL_FACTORY (SegmentRefitter)
-//DECLARE_TOOL_FACTORY (RpcTimingCorr)
-DECLARE_TOOL_FACTORY (ApplyRawTimes)
-DECLARE_TOOL_FACTORY (GoodRunListFilter)
+DECLARE_COMPONENT( BarrelSecondCoordinatePreparationTool )
+DECLARE_COMPONENT( BFieldCorrectionUpdateTool )
+DECLARE_COMPONENT( UpdateBField )
+DECLARE_COMPONENT( CalibNtupleLoader )
+DECLARE_COMPONENT( SegmentRegionSelector )
+DECLARE_COMPONENT( SegmentRawdataSelector )
+DECLARE_COMPONENT( SegmentRecalibration )
+DECLARE_COMPONENT( InitialDqFilter )
+DECLARE_COMPONENT( SegmentRefitter )
+//DECLARE_COMPONENT( RpcTimingCorr )
+DECLARE_COMPONENT( ApplyRawTimes )
+DECLARE_COMPONENT( GoodRunListFilter )
 

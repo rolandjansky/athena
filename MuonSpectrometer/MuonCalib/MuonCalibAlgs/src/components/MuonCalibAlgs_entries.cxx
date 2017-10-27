@@ -2,5 +2,5 @@
 
 using namespace MuonCalib;
 
-DECLARE_ALGORITHM_FACTORY ( MuonCalibAlg )
+DECLARE_COMPONENT( MuonCalibAlg )
 

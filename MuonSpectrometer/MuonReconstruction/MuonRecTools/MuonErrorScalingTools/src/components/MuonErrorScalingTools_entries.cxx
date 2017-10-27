@@ -3,6 +3,6 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonRIO_OnTrackErrorScalingTool )
-DECLARE_TOOL_FACTORY( MuonErrorScaleDbTool )
+DECLARE_COMPONENT( MuonRIO_OnTrackErrorScalingTool )
+DECLARE_COMPONENT( MuonErrorScaleDbTool )
 

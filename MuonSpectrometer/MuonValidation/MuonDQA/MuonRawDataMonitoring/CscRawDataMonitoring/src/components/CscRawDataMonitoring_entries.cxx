@@ -3,8 +3,8 @@
 #include "CscRawDataMonitoring/CscClusterValAlg.h"
 #include "CscRawDataMonitoring/CSCSegmValAlg.h"
   
-DECLARE_TOOL_FACTORY(CscRdoValAlg)
-DECLARE_TOOL_FACTORY(CscPrdValAlg)
-DECLARE_TOOL_FACTORY(CscClusterValAlg)
-DECLARE_TOOL_FACTORY(CSCSegmValAlg)
+DECLARE_COMPONENT( CscRdoValAlg )
+DECLARE_COMPONENT( CscPrdValAlg )
+DECLARE_COMPONENT( CscClusterValAlg )
+DECLARE_COMPONENT( CSCSegmValAlg )
 

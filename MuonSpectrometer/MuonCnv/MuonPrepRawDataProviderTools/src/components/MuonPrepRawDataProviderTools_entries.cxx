@@ -4,7 +4,7 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonLayerHashProviderTool )
-DECLARE_TOOL_FACTORY( MuonPrepRawDataCollectionProviderTool )
-DECLARE_TOOL_FACTORY( MuonPRDSelectionTool )
+DECLARE_COMPONENT( MuonLayerHashProviderTool )
+DECLARE_COMPONENT( MuonPrepRawDataCollectionProviderTool )
+DECLARE_COMPONENT( MuonPRDSelectionTool )
 

@@ -3,6 +3,6 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MSVertexTrackletTool )
-DECLARE_TOOL_FACTORY( MSVertexRecoTool )
+DECLARE_COMPONENT( MSVertexTrackletTool )
+DECLARE_COMPONENT( MSVertexRecoTool )
 

@@ -4,7 +4,7 @@
 
 using namespace MuonCalib;
 
-DECLARE_SERVICE_FACTORY ( RegionSelectionSvc )
-DECLARE_TOOL_FACTORY ( CalibrationDummyIOTool )
-DECLARE_TOOL_FACTORY ( CalibrationTeeIOTool )
+DECLARE_COMPONENT( RegionSelectionSvc )
+DECLARE_COMPONENT( CalibrationDummyIOTool )
+DECLARE_COMPONENT( CalibrationTeeIOTool )
 

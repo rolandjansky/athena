@@ -1,5 +1,5 @@
 #include "MuonTGMeasAssocAlg/MuonTGMeasAssocAlg.h"
 
 using namespace Muon;
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Muon, MuonTGMeasAssocAlg )
+DECLARE_COMPONENT( Muon::MuonTGMeasAssocAlg )
 

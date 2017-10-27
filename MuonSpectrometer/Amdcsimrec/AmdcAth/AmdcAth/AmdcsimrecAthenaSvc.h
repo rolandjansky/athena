@@ -101,15 +101,11 @@ public:
 
    friend class SvcFactory<AmdcsimrecAthenaSvc>;
 
-protected:
-///////////////////////////////////
+   // Standard Constructor
+   AmdcsimrecAthenaSvc(const std::string& name, ISvcLocator* svc);
 
-  // Standard Constructor
-  AmdcsimrecAthenaSvc(const std::string& name, ISvcLocator* svc);
-
-
-  // Standard Destructor
-  virtual ~AmdcsimrecAthenaSvc();
+   // Standard Destructor
+   virtual ~AmdcsimrecAthenaSvc();
 
 private:
 ///////////////////////////////////

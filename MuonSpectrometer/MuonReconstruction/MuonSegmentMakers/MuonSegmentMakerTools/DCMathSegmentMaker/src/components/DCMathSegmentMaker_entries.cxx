@@ -5,8 +5,8 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( DCMathSegmentMaker )
-DECLARE_TOOL_FACTORY( MdtMathSegmentFinder )
-DECLARE_TOOL_FACTORY( MuonSegmentFittingTool )
-DECLARE_TOOL_FACTORY( MuonClusterSegmentFinderTool )
+DECLARE_COMPONENT( DCMathSegmentMaker )
+DECLARE_COMPONENT( MdtMathSegmentFinder )
+DECLARE_COMPONENT( MuonSegmentFittingTool )
+DECLARE_COMPONENT( MuonClusterSegmentFinderTool )
 

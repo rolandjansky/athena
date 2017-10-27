@@ -2,7 +2,7 @@
 #include "MuonGeoModelTest/MuonGMTestOnPrd.h"
 #include "MuonGeoModelTest/MuonHitRelocation.h"
 
-DECLARE_ALGORITHM_FACTORY( MuonGMCheck )
-DECLARE_ALGORITHM_FACTORY( MuonGMTestOnPrd )
-DECLARE_ALGORITHM_FACTORY( MuonHitRelocation )
+DECLARE_COMPONENT( MuonGMCheck )
+DECLARE_COMPONENT( MuonGMTestOnPrd )
+DECLARE_COMPONENT( MuonHitRelocation )
 

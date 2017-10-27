@@ -1,6 +1,6 @@
 #include "MuonIdHelpersAlgs/TestMuonIdHelpers.h"
 #include "MuonIdHelpersAlgs/CscHashId.h"
 
-DECLARE_ALGORITHM_FACTORY( TestMuonIdHelpers )
-DECLARE_ALGORITHM_FACTORY( CscHashId )
+DECLARE_COMPONENT( TestMuonIdHelpers )
+DECLARE_COMPONENT( CscHashId )
 

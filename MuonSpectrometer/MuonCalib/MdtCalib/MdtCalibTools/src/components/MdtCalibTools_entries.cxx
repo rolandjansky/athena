@@ -8,10 +8,10 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY( DCSLFitterTool )
-DECLARE_TOOL_FACTORY( QuasianalyticLineReconstructionTool )
-DECLARE_TOOL_FACTORY( MdtCalibTool )
-DECLARE_TOOL_FACTORY( SimpleMdtSegmentSelectorTool )
-DECLARE_TOOL_FACTORY( SimplePatternSelectorTool )
-DECLARE_TOOL_FACTORY( MdtCalibNtupleMakerTool )
+DECLARE_COMPONENT( DCSLFitterTool )
+DECLARE_COMPONENT( QuasianalyticLineReconstructionTool )
+DECLARE_COMPONENT( MdtCalibTool )
+DECLARE_COMPONENT( SimpleMdtSegmentSelectorTool )
+DECLARE_COMPONENT( SimplePatternSelectorTool )
+DECLARE_COMPONENT( MdtCalibNtupleMakerTool )
 

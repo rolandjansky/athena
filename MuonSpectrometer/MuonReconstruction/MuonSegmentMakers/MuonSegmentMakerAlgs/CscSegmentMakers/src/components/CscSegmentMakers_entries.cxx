@@ -3,8 +3,8 @@
 #include "../Csc4dSegmentMaker.h"
 #include "../CscSegmentUtilTool.h"
 
-DECLARE_ALGORITHM_FACTORY(CscSegmentMaker)
-DECLARE_TOOL_FACTORY(Csc2dSegmentMaker)
-DECLARE_TOOL_FACTORY(Csc4dSegmentMaker)
-DECLARE_TOOL_FACTORY(CscSegmentUtilTool)
+DECLARE_COMPONENT( CscSegmentMaker )
+DECLARE_COMPONENT( Csc2dSegmentMaker )
+DECLARE_COMPONENT( Csc4dSegmentMaker )
+DECLARE_COMPONENT( CscSegmentUtilTool )
 

@@ -2,7 +2,7 @@
 #include "CSC_Digitization/CscDigitizationTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-DECLARE_ALGORITHM_FACTORY( CscDigitBuilder )
+DECLARE_COMPONENT( CscDigitBuilder )
 
-DECLARE_TOOL_FACTORY( CscDigitizationTool )
+DECLARE_COMPONENT( CscDigitizationTool )
 

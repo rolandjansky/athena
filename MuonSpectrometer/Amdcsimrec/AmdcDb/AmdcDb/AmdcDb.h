@@ -79,12 +79,8 @@ public:
    	                                    const std::string& connName = "ATLASDD") ;
   friend class SvcFactory<AmdcDb>;
 
-protected:
-///////////////////////////////////
-
   // Standard Constructor
   AmdcDb(const std::string& name, ISvcLocator* svc);
-
 
   // Standard Destructor
   virtual ~AmdcDb();

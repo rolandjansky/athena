@@ -4,5 +4,5 @@
 
 using namespace MuonDQA;
  
-DECLARE_TOOL_FACTORY(MuonEventInfoMonTool)
+DECLARE_COMPONENT( MuonEventInfoMonTool )
 

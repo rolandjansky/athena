@@ -5,10 +5,10 @@
 
 using namespace Muon;
 
-  DECLARE_TOOL_FACTORY(MuonDQAFitFunc)
-  DECLARE_TOOL_FACTORY(MuonSpectrometerProbeCollectorTool)
-  DECLARE_TOOL_FACTORY(InnerDetProbeCollectorTool)
-  DECLARE_TOOL_FACTORY(InsituTrackTools)
+  DECLARE_COMPONENT( MuonDQAFitFunc )
+  DECLARE_COMPONENT( MuonSpectrometerProbeCollectorTool )
+  DECLARE_COMPONENT( InnerDetProbeCollectorTool )
+  DECLARE_COMPONENT( InsituTrackTools )
 
  
  

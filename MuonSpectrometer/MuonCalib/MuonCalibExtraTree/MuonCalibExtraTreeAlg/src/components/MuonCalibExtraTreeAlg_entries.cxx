@@ -6,9 +6,9 @@
 
 using namespace MuonCalib;
 
-DECLARE_ALGORITHM_FACTORY ( MuonCalibExtraTreeAlg )
-DECLARE_ALGORITHM_FACTORY ( MuonCalibExtraTreeTriggerAlg )
-DECLARE_TOOL_FACTORY ( SegmentOnTrackSelector )
-DECLARE_TOOL_FACTORY ( ExtraTreeTrackFillerTool )
-DECLARE_TOOL_FACTORY (  ExtraTreeMuonFillerTool )
+DECLARE_COMPONENT( MuonCalibExtraTreeAlg )
+DECLARE_COMPONENT( MuonCalibExtraTreeTriggerAlg )
+DECLARE_COMPONENT( SegmentOnTrackSelector )
+DECLARE_COMPONENT( ExtraTreeTrackFillerTool )
+DECLARE_COMPONENT( ExtraTreeMuonFillerTool )
 

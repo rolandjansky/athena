@@ -8,11 +8,11 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY (CalibExtraNtupleLoader)
-DECLARE_TOOL_FACTORY (ExtraRegionSelector)
-DECLARE_TOOL_FACTORY (ExtraRegionSelectorFast)
-DECLARE_TOOL_FACTORY (ExtraRegionSelectorSuperFast)
-DECLARE_TOOL_FACTORY (TrackSecondCoordinateToSegment)
-DECLARE_TOOL_FACTORY (NtupleMdtDqaTool)
-DECLARE_TOOL_FACTORY (NtupleSplitterTool)
+DECLARE_COMPONENT( CalibExtraNtupleLoader )
+DECLARE_COMPONENT( ExtraRegionSelector )
+DECLARE_COMPONENT( ExtraRegionSelectorFast )
+DECLARE_COMPONENT( ExtraRegionSelectorSuperFast )
+DECLARE_COMPONENT( TrackSecondCoordinateToSegment )
+DECLARE_COMPONENT( NtupleMdtDqaTool )
+DECLARE_COMPONENT( NtupleSplitterTool )
 

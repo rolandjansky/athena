@@ -5,10 +5,10 @@
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-DECLARE_ALGORITHM_FACTORY ( MDT_Digitizer )
+DECLARE_COMPONENT( MDT_Digitizer )
 
-DECLARE_TOOL_FACTORY( MDT_Response_DigiTool )
-DECLARE_TOOL_FACTORY( RT_Relation_DigiTool )
-DECLARE_TOOL_FACTORY( RT_Relation_DB_DigiTool )
-DECLARE_TOOL_FACTORY( MdtDigitizationTool )
+DECLARE_COMPONENT( MDT_Response_DigiTool )
+DECLARE_COMPONENT( RT_Relation_DigiTool )
+DECLARE_COMPONENT( RT_Relation_DB_DigiTool )
+DECLARE_COMPONENT( MdtDigitizationTool )
 

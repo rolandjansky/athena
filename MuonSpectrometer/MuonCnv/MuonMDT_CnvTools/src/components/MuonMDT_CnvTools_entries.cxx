@@ -4,9 +4,9 @@
 #include "../MdtROD_Decoder.h"
 #include "../MdtRDO_Decoder.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MdtRdoToPrepDataTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MdtCsmContByteStreamTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MDT_RawDataProviderTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Muon, MdtRDO_Decoder )
-DECLARE_TOOL_FACTORY( MdtROD_Decoder )
+DECLARE_COMPONENT( Muon::MdtRdoToPrepDataTool )
+DECLARE_COMPONENT( Muon::MdtCsmContByteStreamTool )
+DECLARE_COMPONENT( Muon::MDT_RawDataProviderTool )
+DECLARE_COMPONENT( Muon::MdtRDO_Decoder )
+DECLARE_COMPONENT( MdtROD_Decoder )
 

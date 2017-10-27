@@ -2,5 +2,5 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY( MdtCalibDbAsciiTool )
+DECLARE_COMPONENT( MdtCalibDbAsciiTool )
 

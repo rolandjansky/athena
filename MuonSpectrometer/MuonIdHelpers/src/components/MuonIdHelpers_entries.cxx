@@ -5,5 +5,5 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonIdHelperTool )
+DECLARE_COMPONENT( MuonIdHelperTool )
 

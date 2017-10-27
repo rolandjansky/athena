@@ -10,15 +10,15 @@
 #include "../TGCSensitiveDetectorCosmicsTool.h"
 #include "../sTGCSensitiveDetectorTool.h"
 
-DECLARE_TOOL_FACTORY( CSCSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( CSCSensitiveDetectorCosmicsTool )
-DECLARE_TOOL_FACTORY( GenericMuonSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( MDTSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( MDTSensitiveDetectorCosmicsTool )
-DECLARE_TOOL_FACTORY( MicromegasSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( RPCSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( RPCSensitiveDetectorCosmicsTool )
-DECLARE_TOOL_FACTORY( TGCSensitiveDetectorTool )
-DECLARE_TOOL_FACTORY( TGCSensitiveDetectorCosmicsTool )
-DECLARE_TOOL_FACTORY( sTGCSensitiveDetectorTool )
+DECLARE_COMPONENT( CSCSensitiveDetectorTool )
+DECLARE_COMPONENT( CSCSensitiveDetectorCosmicsTool )
+DECLARE_COMPONENT( GenericMuonSensitiveDetectorTool )
+DECLARE_COMPONENT( MDTSensitiveDetectorTool )
+DECLARE_COMPONENT( MDTSensitiveDetectorCosmicsTool )
+DECLARE_COMPONENT( MicromegasSensitiveDetectorTool )
+DECLARE_COMPONENT( RPCSensitiveDetectorTool )
+DECLARE_COMPONENT( RPCSensitiveDetectorCosmicsTool )
+DECLARE_COMPONENT( TGCSensitiveDetectorTool )
+DECLARE_COMPONENT( TGCSensitiveDetectorCosmicsTool )
+DECLARE_COMPONENT( sTGCSensitiveDetectorTool )
 

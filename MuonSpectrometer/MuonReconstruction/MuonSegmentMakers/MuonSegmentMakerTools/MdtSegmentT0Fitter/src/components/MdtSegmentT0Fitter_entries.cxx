@@ -2,5 +2,5 @@
 
 using namespace TrkDriftCircleMath;
 
-DECLARE_TOOL_FACTORY(MdtSegmentT0Fitter)
+DECLARE_COMPONENT( MdtSegmentT0Fitter )
 

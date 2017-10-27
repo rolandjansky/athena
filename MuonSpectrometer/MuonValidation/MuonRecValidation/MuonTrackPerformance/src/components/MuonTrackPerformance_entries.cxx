@@ -7,10 +7,10 @@
 
 using namespace Muon;
 
-DECLARE_ALGORITHM_FACTORY( MuonTrackPerformanceAlg )
-DECLARE_ALGORITHM_FACTORY( MuonPerformanceAlg )
-DECLARE_ALGORITHM_FACTORY( MuonSegmentPerformanceAlg )
-DECLARE_ALGORITHM_FACTORY( MuonTrackStatisticsAlg )
-DECLARE_TOOL_FACTORY( MuonTrackStatisticsTool )
-DECLARE_TOOL_FACTORY( MuonRecoValidationTool )
+DECLARE_COMPONENT( MuonTrackPerformanceAlg )
+DECLARE_COMPONENT( MuonPerformanceAlg )
+DECLARE_COMPONENT( MuonSegmentPerformanceAlg )
+DECLARE_COMPONENT( MuonTrackStatisticsAlg )
+DECLARE_COMPONENT( MuonTrackStatisticsTool )
+DECLARE_COMPONENT( MuonRecoValidationTool )
 

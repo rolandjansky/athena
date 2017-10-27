@@ -4,6 +4,6 @@
 using namespace Muon;
 using namespace AdjT0;
 
-DECLARE_TOOL_FACTORY(MdtDriftCircleOnTrackCreator)
-DECLARE_TOOL_FACTORY(AdjustableT0Tool)
+DECLARE_COMPONENT( MdtDriftCircleOnTrackCreator )
+DECLARE_COMPONENT( AdjustableT0Tool )
 

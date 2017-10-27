@@ -3,6 +3,6 @@
 
 using namespace MuonCalib;
 
-DECLARE_ALGORITHM_FACTORY( CscCalcPed )
-DECLARE_ALGORITHM_FACTORY( CscCalcSlope )
+DECLARE_COMPONENT( CscCalcPed )
+DECLARE_COMPONENT( CscCalcSlope )
 

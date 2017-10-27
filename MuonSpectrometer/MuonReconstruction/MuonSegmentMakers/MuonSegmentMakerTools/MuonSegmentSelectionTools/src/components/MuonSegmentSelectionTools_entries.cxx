@@ -3,6 +3,6 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonSegmentSelectionTool )
-DECLARE_TOOL_FACTORY( MuonSegmentHitSummaryTool )
+DECLARE_COMPONENT( MuonSegmentSelectionTool )
+DECLARE_COMPONENT( MuonSegmentHitSummaryTool )
 

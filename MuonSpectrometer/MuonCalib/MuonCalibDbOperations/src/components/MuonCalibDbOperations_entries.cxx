@@ -6,10 +6,10 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY ( CalibrationDbIOTool )
-DECLARE_TOOL_FACTORY ( MuonCalibDbCalibrationSource )
-DECLARE_TOOL_FACTORY ( MuonCalibDefaultCalibrationSource )
+DECLARE_COMPONENT( CalibrationDbIOTool )
+DECLARE_COMPONENT( MuonCalibDbCalibrationSource )
+DECLARE_COMPONENT( MuonCalibDefaultCalibrationSource )
 
 
-DECLARE_ALGORITHM_FACTORY ( CoolInserter )
+DECLARE_COMPONENT( CoolInserter )
 
