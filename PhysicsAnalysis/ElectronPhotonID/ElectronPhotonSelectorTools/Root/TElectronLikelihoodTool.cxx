@@ -1129,7 +1129,8 @@ int Root::TElectronLikelihoodTool::SafeTH1::FindBin(double value){
 }
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinContent(int bin){
-  return m_binContent[bin];
+  int nbins = this->GetNbinsX();
+  return (bin>nbins) ? m_binContent[nbins-1] : m_binContent[bin];
 }
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinLowEdge(int bin){
