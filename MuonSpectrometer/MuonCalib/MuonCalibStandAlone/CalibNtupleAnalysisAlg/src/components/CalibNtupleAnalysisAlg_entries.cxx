@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "CalibNtupleAnalysisAlg/CalibNtupleAnalysisAlg2.h"
 #include "CalibNtupleAnalysisAlg/BarrelSecondCoordinatePreparationTool.h"
 #include "CalibNtupleAnalysisAlg/BFieldCorrectionUpdateTool.h"
@@ -22,17 +21,8 @@ DECLARE_ALGORITHM_FACTORY ( CalibNtupleAnalysisAlg2 )
 DECLARE_ALGORITHM_FACTORY ( WriteMdtGeometry )
 DECLARE_ALGORITHM_FACTORY ( MuonCalibGeometryDumper )
 
-DECLARE_FACTORY_ENTRIES(CalibNtupleAnalysisAlg) {
-  DECLARE_ALGORITHM(CalibNtupleAnalysisAlg2)
-}
 
-DECLARE_FACTORY_ENTRIES(WriteMdtGeometry) {
-  DECLARE_ALGORITHM(WriteMdtGeometry)
-}
 
-DECLARE_FACTORY_ENTRIES(MuonCalibGeometryDumper) {
-  DECLARE_ALGORITHM(MuonCalibGeometryDumper)
-}
 
 DECLARE_TOOL_FACTORY ( BarrelSecondCoordinatePreparationTool )
 DECLARE_TOOL_FACTORY ( BFieldCorrectionUpdateTool )
@@ -47,18 +37,3 @@ DECLARE_TOOL_FACTORY (SegmentRefitter)
 DECLARE_TOOL_FACTORY (ApplyRawTimes)
 DECLARE_TOOL_FACTORY (GoodRunListFilter)
 
-
-DECLARE_FACTORY_ENTRIES( CalibSegmentPreparationTools ) {
-  DECLARE_TOOL (BarrelSecondCoordinatePreparationTool)
-  DECLARE_TOOL (BFieldCorrectionUpdateTool)
-  DECLARE_TOOL (UpdateBField)
-  DECLARE_TOOL (CalibNtupleLoader)
-  DECLARE_TOOL (SegmentRegionSelector)
-  DECLARE_TOOL (SegmentRawdataSelector)
-  DECLARE_TOOL (SegmentRecalibration)
-  DECLARE_TOOL (InitialDqFilter)
-  DECLARE_TOOL (SegmentRefitter)
-//  DECLARE_TOOL (RpcTimingCorr)
-  DECLARE_TOOL (ApplyRawTimes)
-  DECLARE_TOOL (GoodRunListFilter)
-}

@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "MuonCondSvc/MuonAlignmentDbSvc.h"
 //#include "MuonCondSvc/MuonDetectorStatusDbSvc.h"
 
@@ -45,25 +43,3 @@ DECLARE_SERVICE_FACTORY( TriggerCoolSvc )
 DECLARE_SERVICE_FACTORY( TGC_STATUSConditionsSvc )
 DECLARE_SERVICE_FACTORY( MDT_DCSConditionsRun2Svc )
 
-DECLARE_FACTORY_ENTRIES( MuonCondSvc ){
-
-   DECLARE_SERVICE( MuonAlignmentDbSvc ) 
-   DECLARE_SERVICE( MuonAlignmentErrorDbSvc )
-   DECLARE_SERVICE( RPC_DCSConditionsSvc )
-   DECLARE_SERVICE( RpcDetectorStatusDbSvc )
-   DECLARE_SERVICE( CscCoolStrSvc )
-   DECLARE_SERVICE( MdtCoolStrSvc )
-   DECLARE_SERVICE( RpcCoolStrSvc )
-   DECLARE_SERVICE( MDT_DCSConditionsSvc )	
-   DECLARE_SERVICE( CSC_DCSConditionsSvc )	
-   DECLARE_SERVICE( MDTCondSummarySvc )
-   DECLARE_SERVICE( RPCCondSummarySvc )
-   DECLARE_SERVICE( TGCCondSummarySvc )
-   DECLARE_SERVICE( CSCCondSummarySvc )
-   DECLARE_SERVICE( MDT_DeadTubeConditionsSvc )
-   DECLARE_SERVICE( MDT_DQConditionsSvc )	
-   DECLARE_SERVICE( RPC_STATUSConditionsSvc )
-   DECLARE_SERVICE( TriggerCoolSvc )
-   DECLARE_SERVICE( TGC_STATUSConditionsSvc )
-   DECLARE_SERVICE( MDT_DCSConditionsRun2Svc )	
-}

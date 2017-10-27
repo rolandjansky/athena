@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../MuonTrackSteering.h"
 #include "../MuPatCandidateTool.h"
 #include "../MuPatHitTool.h"
@@ -15,12 +14,3 @@ DECLARE_TOOL_FACTORY( MooCandidateMatchingTool )
 DECLARE_TOOL_FACTORY( MooTrackFitter )
 DECLARE_TOOL_FACTORY( MooTrackBuilder )
 
-DECLARE_FACTORY_ENTRIES( MuonTrackSteeringTools ) 
-{
-  DECLARE_TOOL( MuonTrackSteering )
-  DECLARE_TOOL( MuPatHitTool )
-  DECLARE_TOOL( MuPatCandidateTool )
-  DECLARE_TOOL( MooCandidateMatchingTool )
-  DECLARE_TOOL( MooTrackFitter )
-  DECLARE_TOOL( MooTrackBuilder )
-}

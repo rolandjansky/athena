@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "MuonCalibStandAloneTools/NtupleMTT0Tool.h"
 #include "MuonCalibStandAloneTools/NtupleCalibADCTool.h"
 #include "MuonCalibStandAloneTools/NtupleClassicT0Tool.h"
@@ -34,24 +33,4 @@ DECLARE_TOOL_FACTORY ( NtupleWireCentricityTool )
 DECLARE_TOOL_FACTORY ( NtupleCurvedAutocalibrationTool )
 DECLARE_TOOL_FACTORY ( NtupleDbCheckTool )
 DECLARE_TOOL_FACTORY ( NtupleResidualVsTimeTool )
-
-DECLARE_FACTORY_ENTRIES(MuonCalibStandAloneTools) {
-  DECLARE_TOOL (NtupleMTT0Tool)
-  DECLARE_TOOL (NtupleCalibADCTool)
-  DECLARE_TOOL (NtupleClassicT0Tool)
-  DECLARE_TOOL (NtupleIntegrationTool)
-  DECLARE_TOOL (NtupleAnalyticAutocalibrationTool)
-  DECLARE_TOOL ( NtupleClassicAutocalibrationTool )
-  DECLARE_TOOL (NtupleChisqResolutionTool)
-  DECLARE_TOOL (NtupleSimpleResolutionTool)
-  DECLARE_TOOL (NtupleTubeEfficiencyTool)
-  DECLARE_TOOL (NtupleRunScanTool)
-  DECLARE_TOOL (NtupleControlHistogramsTool)
-  DECLARE_TOOL (NtupleResidualTool)
-  DECLARE_TOOL (NtupleDisplayTool)
-  DECLARE_TOOL (NtupleWireCentricityTool)
-  DECLARE_TOOL (NtupleCurvedAutocalibrationTool)
-  DECLARE_TOOL (NtupleDbCheckTool)
-  DECLARE_TOOL (NtupleResidualVsTimeTool)
-}
 

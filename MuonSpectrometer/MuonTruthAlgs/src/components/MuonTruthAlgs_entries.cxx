@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "MuonTruthAlgs/MuonPRD_MultiTruthMaker.h"
 #include "MuonTruthAlgs/MuonDetailedTrackTruthMaker.h"
 #include "MuonTruthAlgs/MuonPatternCombinationDetailedTrackTruthMaker.h"
@@ -28,18 +27,3 @@ DECLARE_TOOL_FACTORY( MuonTrackTruthTool )
 DECLARE_TOOL_FACTORY( MuonDecayTruthTrajectoryBuilder )
 DECLARE_TOOL_FACTORY( DetailedMuonPatternTruthBuilder )
 
-DECLARE_FACTORY_ENTRIES( MuonTruthAlgs ) 
-{
-  DECLARE_ALGORITHM( MuonTruthSummaryAlg );
-  DECLARE_ALGORITHM( MuonPRD_MultiTruthMaker )
-  DECLARE_ALGORITHM( MuonDetailedTrackTruthMaker )
-  DECLARE_ALGORITHM( MuonPatternCombinationDetailedTrackTruthMaker )
-  DECLARE_ALGORITHM( TrackParticleTruthMaker )
-  DECLARE_ALGORITHM( MuonTruthDecorationAlg )
-  DECLARE_ALGORITHM( MuonTruthAssociationAlg )
-  DECLARE_ALGORITHM( MuonSegmentTruthAssociationAlg )
-
-  DECLARE_TOOL( MuonTrackTruthTool )
-  DECLARE_TOOL( MuonDecayTruthTrajectoryBuilder )
-  DECLARE_TOOL( DetailedMuonPatternTruthBuilder )
-}

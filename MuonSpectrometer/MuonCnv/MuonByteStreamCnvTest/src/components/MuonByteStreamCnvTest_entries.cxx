@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "MuonByteStreamCnvTest/MdtDigitToMdtRDO.h"
 #include "MuonByteStreamCnvTest/RpcDigitToRpcRDO.h"
 #include "MuonByteStreamCnvTest/TgcDigitToTgcRDO.h"
@@ -37,27 +35,10 @@ DECLARE_ALGORITHM_FACTORY( MuonRdoToMuonDigit )
 
 DECLARE_TOOL_FACTORY( MuonRdoToMuonDigitTool )
 
-DECLARE_FACTORY_ENTRIES(MuonByteStreamCnvTest) {
 
-    DECLARE_ALGORITHM ( RpcDigitToRpcRDO )
-    DECLARE_ALGORITHM ( MdtDigitToMdtRDO )
-    DECLARE_ALGORITHM ( TgcDigitToTgcRDO )
-    DECLARE_ALGORITHM ( CscDigitToCscRDO )
 
-    DECLARE_ALGORITHM ( ReadRpcRDO )
-    DECLARE_ALGORITHM ( ReadMdtRDO )
-    DECLARE_ALGORITHM ( ReadTgcRDO )
 
-    DECLARE_ALGORITHM ( ReadRpcDigit )
-    DECLARE_ALGORITHM ( ReadMdtDigit )
-    DECLARE_ALGORITHM ( ReadTgcDigit )
-    DECLARE_ALGORITHM ( ReadCscDigit )
 
-    DECLARE_ALGORITHM ( ReadMdtPRD )
 
-    DECLARE_ALGORITHM ( MuonRdoToMuonDigit )
  
-    DECLARE_TOOL( CscDigitToCscRDOTool )
-    DECLARE_TOOL( MuonRdoToMuonDigitTool )
-}
 

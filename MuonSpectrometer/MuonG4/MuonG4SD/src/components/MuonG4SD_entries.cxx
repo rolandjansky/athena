@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../CSCSensitiveDetectorTool.h"
 #include "../CSCSensitiveDetectorCosmicsTool.h"
 #include "../GenericMuonSensitiveDetectorTool.h"
@@ -24,16 +22,3 @@ DECLARE_TOOL_FACTORY( TGCSensitiveDetectorTool )
 DECLARE_TOOL_FACTORY( TGCSensitiveDetectorCosmicsTool )
 DECLARE_TOOL_FACTORY( sTGCSensitiveDetectorTool )
 
-DECLARE_FACTORY_ENTRIES( MuonG4SD ) {
-  DECLARE_TOOL( CSCSensitiveDetectorTool )
-  DECLARE_TOOL( CSCSensitiveDetectorCosmicsTool )
-  DECLARE_TOOL( GenericMuonSensitiveDetectorTool )
-  DECLARE_TOOL( MDTSensitiveDetectorTool )
-  DECLARE_TOOL( MDTSensitiveDetectorCosmicsTool )
-  DECLARE_TOOL( MicromegasSensitiveDetectorTool )
-  DECLARE_TOOL( RPCSensitiveDetectorTool )
-  DECLARE_TOOL( RPCSensitiveDetectorCosmicsTool )
-  DECLARE_TOOL( TGCSensitiveDetectorTool )
-  DECLARE_TOOL( TGCSensitiveDetectorCosmicsTool )
-  DECLARE_TOOL( sTGCSensitiveDetectorTool )
-}

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../MuonTrackCleaner.h"
 #include "../MuonChamberHoleRecoveryTool.h"
 #include "../MuonSegmentRegionRecoveryTool.h"
@@ -23,16 +22,3 @@ DECLARE_TOOL_FACTORY( MuonTrackExtrapolationTool )
 DECLARE_TOOL_FACTORY( MuonRefitTool )
 DECLARE_TOOL_FACTORY( MuonErrorOptimisationTool )
 
-DECLARE_FACTORY_ENTRIES( MuonTrackFinderTools ) 
-{
-  DECLARE_TOOL( MuonTrackCleaner )
-  DECLARE_TOOL( MuonChamberHoleRecoveryTool )
-  DECLARE_TOOL( MuonSegmentRegionRecoveryTool )
-  DECLARE_TOOL( MuonTrackToSegmentTool )
-  DECLARE_TOOL( MuonTrackSelectorTool )
-  DECLARE_TOOL( MuonSeededSegmentFinder )
-  DECLARE_TOOL( MuonTrackScoringTool )
-  DECLARE_TOOL( MuonTrackExtrapolationTool )
-  DECLARE_TOOL( MuonRefitTool )
-  DECLARE_TOOL( MuonErrorOptimisationTool )
-}

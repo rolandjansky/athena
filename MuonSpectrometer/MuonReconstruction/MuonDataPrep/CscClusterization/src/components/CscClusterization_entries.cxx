@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../CscThresholdClusterBuilder.h"
 #include "../CscThresholdClusterBuilderTool.h"
 #include "../CscPeakThresholdClusterBuilderTool.h"
@@ -21,16 +19,4 @@ DECLARE_TOOL_FACTORY( CscSplitClusterFitter )
 DECLARE_TOOL_FACTORY( ParabolaCscClusterFitter )
 DECLARE_TOOL_FACTORY( CscClusterUtilTool )
 DECLARE_TOOL_FACTORY( CscAlignmentTool )
-  
-DECLARE_FACTORY_ENTRIES(CscClusterization) {
-    DECLARE_ALGORITHM ( CscThresholdClusterBuilder )
-    DECLARE_TOOL ( CscThresholdClusterBuilderTool )
-    DECLARE_TOOL ( CscPeakThresholdClusterBuilderTool )
-    DECLARE_TOOL ( CalibCscStripFitter )
-    DECLARE_TOOL ( SimpleCscClusterFitter )
-    DECLARE_TOOL ( QratCscClusterFitter )
-    DECLARE_TOOL ( CscSplitClusterFitter )
-    DECLARE_TOOL ( ParabolaCscClusterFitter )
-    DECLARE_TOOL ( CscClusterUtilTool )
-    DECLARE_TOOL ( CscAlignmentTool )
-}
+
