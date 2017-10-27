@@ -35,7 +35,7 @@
 #include "JetResolution/JERTool.h"
 #include "JetResolution/IJERTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "tauRecTools/ITauToolBase.h"
@@ -43,9 +43,9 @@
 #include "PathResolver/PathResolver.h"
 
 namespace met {
-    
+
     using std::vector;
-    
+
     using xAOD::MissingET;
     using xAOD::MissingETContainer;
     using xAOD::MissingETAssociation;
@@ -60,10 +60,10 @@ namespace met {
     using xAOD::JetConstituentVector;
     //
     using xAOD::TrackParticle;
-    
+
     typedef ElementLink<xAOD::IParticleContainer> iplink_t;
 
-    
+
   //static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
   //static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
   //static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
@@ -73,13 +73,13 @@ namespace met {
     static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
 
     static const SG::AuxElement::Decorator< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
-    
+
     const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
-    
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
-    
+
     // Constructors
     ////////////////
     METSignificance::METSignificance(const std::string& name) :
@@ -118,7 +118,7 @@ namespace met {
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
-      
+
       // properties to delete eventually
       declareProperty("IsData",      m_isData     = false   );
       declareProperty("IsAFII",      m_isAFII     = false   );
@@ -137,13 +137,13 @@ namespace met {
 	ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
       }
     }
-    
+
     // Destructor
     ///////////////
     METSignificance::~METSignificance()
     {
     }
-    
+
     // Athena algtool's Hooks
     ////////////////////////////
     StatusCode METSignificance::initialize()
@@ -178,20 +178,20 @@ namespace met {
 
         return StatusCode::SUCCESS;
     }
-    
+
     StatusCode METSignificance::finalize()
     {
         ATH_MSG_INFO ("Finalizing " << name() << "...");
 	delete h_phi_reso_pt20;
 	delete h_phi_reso_pt50;
 	delete h_phi_reso_pt100;
-        
+
         return StatusCode::SUCCESS;
     }
-    
-    
+
+
     // **** Rebuild generic MET term ****
-    
+
   StatusCode METSignificance::varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName)
     {
 
@@ -199,7 +199,7 @@ namespace met {
       m_VarL = 0.0;
       m_VarT = 0.0;
       m_CvLT = 0.0;
-	
+
       double particle_sum[2][2] = {{0.0,0.0},
 				   {0.0,0.0}};
       m_metphi = 0.0; //Angle for rotation of the cov matrix
@@ -223,25 +223,25 @@ namespace met {
 	m_sumet  = tot_met->sumet()/m_GeV;
 	m_ht     = m_sumet;
 	ATH_MSG_VERBOSE("total MET: " << m_met << " phi: " << m_metphi << " name: " << tot_met->name());
-	
-      }else{ 
+
+      }else{
 	ATH_MSG_ERROR("Could not find the total MET with name:" <<totalMETName);
-	return StatusCode::SUCCESS; 
+	return StatusCode::SUCCESS;
       }
       m_met_vect.SetPtEtaPhi(m_met, 0.0, m_metphi);
-      
+
       // Fill the remaining terms
       for(const auto& met : *metCont) {
-	
+
 	// skip the invisible and total MET
 	if(MissingETBase::Source::isTotalTerm(met->source())){
 	  continue;
 	}
 	if(met->source()==invisSource) continue;
-	
+
 	// Soft term collection
 	if(MissingETBase::Source::isSoftTerm(met->source())){
-	  
+
 	  if(!MissingETBase::Source::hasPattern(met->source(),MissingETBase::Source::Track)) continue;
 	  ATH_MSG_VERBOSE("Soft Name: " << met->name());
 	  // make sure the container name matches
@@ -251,8 +251,8 @@ namespace met {
 	  }
 	  ++nIterSoft;
 	  softSumET=(met->sumet()/m_GeV);
-	  
-	  AddSoftTerm(met, m_met_vect, particle_sum); 
+
+	  AddSoftTerm(met, m_met_vect, particle_sum);
 	  m_metsoft = met->met()/m_GeV;
 	  m_metsoftphi = met->phi();
 	  // done with the soft term. go to the next term.
@@ -265,12 +265,12 @@ namespace met {
 	  if(obj->type()==xAOD::Type::Muon){
 	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso));
 	  }else if(obj->type()==xAOD::Type::Jet){
-	    
+
 	    // make sure the container name matches
 	    if(met->name()!=jetTermName) continue;
-	    
+
 	    AddJet(obj, pt_reso, phi_reso);
-	    
+
 	  }else if(obj->type()==xAOD::Type::Electron){
 	    AddElectron(obj, pt_reso, phi_reso);
 	  }else if(obj->type()==xAOD::Type::Photon){
@@ -278,7 +278,7 @@ namespace met {
 	  }else if(obj->type()==xAOD::Type::Tau){
 	    AddTau(obj, pt_reso, phi_reso);
 	  }
-	  
+
 	  // compute NEW
 	  double particle_u[2][2]     = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
 					 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
@@ -288,15 +288,15 @@ namespace met {
 	  m_VarL+=particle_u_rot[0][0];
 	  m_VarT+=particle_u_rot[1][1];
 	  m_CvLT+=particle_u_rot[0][1];
-	  
+
 	  RotateXY (particle_u,   particle_u_rot, obj->p4().Phi()); // positive phi rotation
 	  AddMatrix(particle_sum, particle_u_rot, particle_sum);
-	  
+
 	  // END compute NEW
-	  
-	  
+
+
 	  ATH_MSG_VERBOSE("Resolution: " << pt_reso << " phi reso: " << phi_reso );
-	    
+
 	  /*
 	    if(acc_varX.isAvailable(*obj) && acc_varY.isAvailable(*obj) && acc_covXY.isAvailable(*obj)) {
 	    ATH_MSG_VERBOSE("Add object with vars " << acc_varX(*obj)<<","<<acc_varY(*obj)<<","<<acc_covXY(*obj));
@@ -307,7 +307,7 @@ namespace met {
 	    }*/
 	}
       }
-      
+
       /*
       //
       // Compute the significance
@@ -321,7 +321,7 @@ namespace met {
       double MET[2]={0.0,0.0};
       MET[0]=met_vect.Px();
       MET[1]=met_vect.Py();
-      
+
       double V1 = particle_sum_invert[0][0]*MET[0] + particle_sum_invert[1][0]*MET[1];
       double V2 = particle_sum_invert[0][1]*MET[0] + particle_sum_invert[1][1]*MET[1];
       double tmp_met_sig = V1*MET[0] + V2*MET[1];
@@ -331,7 +331,7 @@ namespace met {
       m_met_VarL=m_VarL;
       m_met_VarT=m_VarT;
       m_met_CvLT=m_CvLT;
-      
+
       if( m_VarL != 0 ){
 
 	if(m_applyBias){
@@ -341,18 +341,18 @@ namespace met {
 	  // should be done to reset the phi as well...
 	  if(m_softTermParam==met::TSTParam){
 	    Double_t Bias_TST = BiasPtSoftdir(m_metsoft);
-	    Double_t MEx = m_met * cos(m_metphi) - Bias_TST * cos(m_metsoftphi); 
+	    Double_t MEx = m_met * cos(m_metphi) - Bias_TST * cos(m_metsoftphi);
 	    Double_t MEy = m_met * sin(m_metphi) - Bias_TST * sin(m_metsoftphi);
 	    met_vect.SetXYZ(MEx,MEy,0.0);
 
 	  }else if(m_softTermParam==met::PthardParam){
 	    m_soft_vect.SetPtEtaPhi(m_metsoft, 0.0, m_metsoftphi);
 	    m_pthard_vect = m_soft_vect - m_met_vect;
-	    Double_t PtSoftparaPH = m_pthard_vect.Mag()>0.0 ? (m_soft_vect.Dot(m_pthard_vect))/m_pthard_vect.Mag() : 0.0; 
+	    Double_t PtSoftparaPH = m_pthard_vect.Mag()>0.0 ? (m_soft_vect.Dot(m_pthard_vect))/m_pthard_vect.Mag() : 0.0;
 	    Double_t Bias_pthard = Bias_PtSoftParall(PtSoftparaPH);
 	    Double_t MEx = m_met * cos(m_metphi) - Bias_pthard * cos(m_metsoftphi);
 	    Double_t MEy = m_met * sin(m_metphi) - Bias_pthard * sin(m_metsoftphi);
-	    met_vect.SetXYZ(MEx,MEy,0.0); 
+	    met_vect.SetXYZ(MEx,MEy,0.0);
 	  }
 	  // Rotate  & compute
 	  RotateToPhi(met_vect.Phi());
@@ -363,7 +363,7 @@ namespace met {
 	  m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
 	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
 	}
-	m_ht-=softSumET;	
+	m_ht-=softSumET;
 	ATH_MSG_VERBOSE("     Significance (squared): " << m_significance << " rho: " << GetRho()
 			<< " MET: " << m_met << " phi: " << m_metphi << " SUMET: " << m_sumet << " HT: " << m_ht << " sigmaL: " << GetVarL()
 			<< " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
@@ -377,7 +377,7 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-  
+
   // Add access to rotate the direction of the MET resolution to a new phi position
   StatusCode METSignificance::RotateToPhi(float phi){
 
@@ -388,9 +388,9 @@ namespace met {
       m_significance = Significance_LT(m_met,m_VarL,m_VarT,m_CvLT );
       m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
     }
-    ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance 
+    ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance
 		    << " rho: " << GetRho()
-		    << " MET: " << m_met 
+		    << " MET: " << m_met
 		    << " sigmaL: " << GetVarL()
 		    << " sigmaT: " << GetVarT() );
 
@@ -404,19 +404,23 @@ namespace met {
   // Muon propagation of resolution
   //
   StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
-    const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj)); 
-	      
-    int dettype=-1;
+    const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj));
+
+    std::string dettype = "";
     if(muon->muonType()==0){//Combined
-      dettype=3;//CB
+      dettype="CB";//CB
     }
-    if(muon->muonType()==1){//MuonStandAlone
-      dettype=1;//MS
+    else if(muon->muonType()==1){//MuonStandAlone
+      dettype="MS";//MS
     }
-    if(muon->muonType()>1){//Segment, Calo, Silicon
-      dettype=2;//ID
+    else if(muon->muonType()>1){//Segment, Calo, Silicon
+      dettype="ID";//ID
     }
-    
+    else{
+      ATH_MSG_VERBOSE("This muon had none of the normal muon types (ID,MS,CB) - check this in detail");
+      return StatusCode::FAILURE;
+    }
+
     xAOD::Muon *my_muon = NULL;
     ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
     pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isData);
@@ -432,7 +436,7 @@ namespace met {
   //
   void METSignificance::AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
-    const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj)); 
+    const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj));
     const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
     pt_reso=m_egammaCalibTool->resolution(ele->e(),ele->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron);
     if(m_doPhiReso) phi_reso = ele->pt()*0.004;
@@ -446,7 +450,7 @@ namespace met {
   void METSignificance::AddPhoton(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     // photons
-    const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj)); 
+    const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj));
     pt_reso=m_egammaCalibTool->getResolution(*pho);
     if(m_doPhiReso) phi_reso = pho->pt()*0.004;
     ATH_MSG_VERBOSE("pho: " << pt_reso << " " << pho->pt() << " " << pho->p4().Eta() << " " << pho->p4().Phi());
@@ -485,7 +489,7 @@ namespace met {
   void METSignificance::AddTau(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     // tau objects
-    const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj)); 
+    const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
     pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
     //for taus, this is not a relative resolution. so we divide by pT
     pt_reso /=tau->pt();
@@ -499,16 +503,16 @@ namespace met {
   void METSignificance::AddSoftTerm(const xAOD::MissingET* soft, const TVector3 &met_vect, double (&particle_sum)[2][2]){
 
     if(m_softTermParam==met::Random){
-      
+
       ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
 
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
-      
+
       double particle_u[2][2] = {{m_softTermReso*m_softTermReso,0.0},
 				 {0.0,m_softTermReso*m_softTermReso}};
       double particle_u_rot[2][2] = {{m_softTermReso*m_softTermReso,0.0},
 				     {0.0,m_softTermReso*m_softTermReso}};
-      
+
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
       m_VarT+=particle_u_rot[1][1];
@@ -518,15 +522,15 @@ namespace met {
       AddMatrix(particle_sum, particle_u_rot,     particle_sum);
 
       ATH_MSG_VERBOSE("SOFT " << soft->name() <<" - pt_reso: " << m_softTermReso << " soft: " << soft->met() << " phi: " << soft->phi()
-		      << " Var_L: " << particle_u_rot[0][0] << " Var_T: " << particle_u_rot[1][1] 
+		      << " Var_L: " << particle_u_rot[0][0] << " Var_T: " << particle_u_rot[1][1]
 		      << " " << particle_u_rot[0][1]);
-      
+
     }else if (m_softTermParam==met::PthardParam){
 
       ATH_MSG_VERBOSE("Resolution Soft term parameterized in pthard direction");
 
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
-      
+
       m_pthard_vect =  m_soft_vect - met_vect;
 
       double varTST = Var_Ptsoft(soft->met()/m_GeV);
@@ -535,7 +539,7 @@ namespace met {
 				 {0.0,varTST}};
       double particle_u_rot[2][2] = {{varTST,0.0},
 				     {0.0,varTST}};
-      
+
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_pthard_vect));
       m_VarL+=particle_u_rot[0][0];
       m_VarT+=particle_u_rot[1][1];
@@ -549,14 +553,14 @@ namespace met {
       ATH_MSG_VERBOSE("Resolution Soft term parameterized in TST");
 
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
-      
+
       double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
 
       double particle_u[2][2] = {{varTST,0.0},
 				 {0.0,varTST}};
       double particle_u_rot[2][2] = {{varTST,0.0},
 				     {0.0,varTST}};
-      
+
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
       m_VarT+=particle_u_rot[1][1];
@@ -576,7 +580,7 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
   double METSignificance::GetPUProb(double jet_eta, double /*jet_phi*/,
 				    double jet_pt,  double jet_jvt) {
-    
+
     double unc=0.0;
     if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0e3){
       unc=0.95;
@@ -592,8 +596,8 @@ namespace met {
     return unc;
     /*
     //  etaBins = [-4.5,-3.8,-3.5,-3.0,-2.7,-2.4,-1.5,-0.5,0.0,
-    //           0.5,1.5,2.4,2.7,3.0,3.5,3.8,4.5]  
-    //pTBins = [0, 20.0, 30.0, 40.0, 60.0, 100.0, 150.0, 200.0] 
+    //           0.5,1.5,2.4,2.7,3.0,3.5,3.8,4.5]
+    //pTBins = [0, 20.0, 30.0, 40.0, 60.0, 100.0, 150.0, 200.0]
     unsigned xbin=0, ybin=0, zbin=0;
     if(-4.5<jet_eta && -3.8>=jet_eta)      xbin=1;
     else if(-3.8<jet_eta && -3.5>=jet_eta) xbin=2;
@@ -602,7 +606,7 @@ namespace met {
     else if(-2.7<jet_eta && -2.4>=jet_eta) xbin=5;
     else if(-2.4<jet_eta && -1.5>=jet_eta) xbin=6;
     else if(-1.5<jet_eta && -0.5>=jet_eta) xbin=7;
-    else if(-0.5<jet_eta &&  0.0>=jet_eta) xbin=8;   
+    else if(-0.5<jet_eta &&  0.0>=jet_eta) xbin=8;
     else if(0.0<jet_eta  &&  0.5>=jet_eta) xbin=9;
     else if(0.5<jet_eta  &&  1.5>=jet_eta) xbin=10;
     else if(1.5<jet_eta  &&  2.4>=jet_eta) xbin=11;
@@ -611,7 +615,7 @@ namespace met {
     else if(3.0<jet_eta  &&  3.5>=jet_eta) xbin=14;
     else if(3.5<jet_eta  &&  3.8>=jet_eta) xbin=15;
     else if(3.8<jet_eta                  ) xbin=16;
-    
+
     ybin = jet_phi>0.0? int(jet_phi/0.4)+9:int(jet_phi/0.4)+8;
     if(0.0<jet_pt && 20.0>=jet_pt)         zbin=1;
     else if(20.0<jet_pt  && 30.0>=jet_pt)  zbin=2;
@@ -634,7 +638,7 @@ namespace met {
 
   double METSignificance::GetPhiUnc(double jet_eta, double jet_phi,double jet_pt)
   {
-    
+
     unsigned xbin=0, ybin=0;
     if(-4.5<jet_eta && -3.8>=jet_eta)      xbin=1;
     else if(-3.8<jet_eta && -3.5>=jet_eta) xbin=2;
@@ -652,10 +656,10 @@ namespace met {
     else if(3.0<jet_eta  &&  3.5>=jet_eta) xbin=14;
     else if(3.5<jet_eta  &&  3.8>=jet_eta) xbin=15;
     else if(3.8<jet_eta                  ) xbin=16;
-    
+
     ybin = jet_phi>0.0? int(jet_phi/0.4)+9:int(jet_phi/0.4)+8;
 
-    // Stored as bin content = Mean, error = RMS, we want to use the RMS.  
+    // Stored as bin content = Mean, error = RMS, we want to use the RMS.
     if(!h_phi_reso_pt20 || !h_phi_reso_pt50 || !h_phi_reso_pt100){
       ATH_MSG_ERROR("Jet Phi Resolution histograms are invalid.");
       return 0.0;
@@ -673,13 +677,13 @@ namespace met {
 
   std::tuple<double,double,double> METSignificance::CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi)
   {
-    //Covariance matrix parallel and transverse to the Phi direction 
+    //Covariance matrix parallel and transverse to the Phi direction
     Double_t V11 = pow(cos(Phi),2)*var_x + 2*sin(Phi)*cos(Phi)*cv_xy + pow(sin(Phi),2)*var_y;
     Double_t V22 = pow(sin(Phi),2)*var_x - 2*sin(Phi)*cos(Phi)*cv_xy + pow(cos(Phi),2)*var_y;
     Double_t V12 = pow(cos(Phi),2)*cv_xy -sin(Phi)*cos(Phi)*var_x + sin(Phi)*cos(Phi)*var_y - pow(sin(Phi),2)*cv_xy;   // rho is equal to one for just one jet
     return  std::make_tuple( V11, V22, V12);
   }
-  
+
   double METSignificance::Significance_LT(double Numerator, double var_parall, double var_perpen, double cov)
   {
 
@@ -694,23 +698,23 @@ namespace met {
     {
       Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall * ( 1 - pow(rho,2) ) ) ;
     }
-    
+
     if( fabs(Significance) >= 10e+15)
       {
 	ATH_MSG_WARNING("warning -->"<< Significance);
       }
-    
+
     return Significance;
   }
 
     ///////////////////////////////////////////////////////////////////
     // Non-const methods:
     ///////////////////////////////////////////////////////////////////
-    
+
     ///////////////////////////////////////////////////////////////////
     // Protected methods:
     ///////////////////////////////////////////////////////////////////
-    
+
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
@@ -722,14 +726,14 @@ namespace met {
   {
     // determinant
     double det = mat[0][0]*mat[1][1]-mat[0][1]*mat[1][0];
-    
+
     m[0][0]=0.0;
     m[0][1]=0.0;
     m[1][0]=0.0;
     m[1][1]=0.0;
 
     if(det==0.0) return;
-    
+
     m[0][0]= 1.0/det*(mat[1][1]);
     m[1][0]=-1.0/det*(mat[1][0]);
     m[0][1]=-1.0/det*(mat[0][1]);
@@ -759,13 +763,13 @@ namespace met {
     double V12 = mat[0][1]*cc - mat[1][0]*ss + cs*(mat[0][0] - mat[1][1]);
     double V21 = mat[1][0]*cc - mat[0][1]*ss + cs*(mat[0][0] - mat[1][1]);
     double V22 = mat[0][0]*ss + mat[1][1]*cc + cs*(mat[1][0] + mat[0][1]);
-    
+
     mat_new[0][0]=V11;
     mat_new[0][1]=V12;
     mat_new[1][0]=V21;
     mat_new[1][1]=V22;
   }
-    
+
   /// Parameterization with PtSoft Direction //
   double METSignificance::BiasPtSoftdir(const double PtSoft) //DeltaMet_Parall-(0.14-0.45*TST_Soft
   {
@@ -791,7 +795,7 @@ namespace met {
     if (PtSoft<45.) return 40. + 2*PtSoft + 0.1*pow(PtSoft,2);
     else return 40. + 2*45 + 0.1*pow(45,2);
   }
-  double METSignificance::Bias_PtSoftParall(const double PtSoft_Parall) 
+  double METSignificance::Bias_PtSoftParall(const double PtSoft_Parall)
   {
     if (-60.<=PtSoft_Parall && PtSoft_Parall<0.) return -8. -0.4*PtSoft_Parall;
     if (-60.>PtSoft_Parall) return -8. -0.4 * (-60.);
