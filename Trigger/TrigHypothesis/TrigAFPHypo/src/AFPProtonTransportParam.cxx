@@ -4,9 +4,9 @@
 
 #include "TrigAFPHypo/AFPProtonTransportParam.h"
 
-AFPProtonTransportParam::AFPProtonTransportParam(double E0_, AFPProtonTransportPolynomial* p_[8]) {
-  m_energy = E0_;
-  for (int i = 0; i < 8; i++) m_polynomial[i] = p_[i];
+AFPProtonTransportParam::AFPProtonTransportParam(double beam_energy, AFPProtonTransportPolynomial* poly_array[8]) {
+  m_energy = beam_energy;
+  for (int i = 0; i < 8; i++) m_polynomial[i] = poly_array[i];
 }
 
 AFPProtonTransportParam::~AFPProtonTransportParam () {
