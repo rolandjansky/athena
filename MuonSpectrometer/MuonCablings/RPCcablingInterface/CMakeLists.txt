@@ -21,10 +21,6 @@ atlas_add_library( RPCcablingInterfaceLib
                    PUBLIC_HEADERS RPCcablingInterface
                    LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools CablingTools MuonIdHelpersLib StoreGateLib SGtests )
 
-atlas_add_component( RPCcablingInterface
-                     src/components/*.cxx
-                     LINK_LIBRARIES AthenaKernel Identifier GaudiKernel MuonCablingTools CablingTools MuonIdHelpersLib StoreGateLib SGtests RPCcablingInterfaceLib )
-
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py )
 
