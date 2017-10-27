@@ -9,6 +9,7 @@
 #include "SGTools/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
+namespace Muon {
 /*
 */
 class sTGC_RawDataContainer
@@ -24,8 +25,10 @@ public:
   /** return class ID */
   virtual const CLID& clID() const {return classID();}
 };
+}
 
-CLASS_DEF( sTGC_RawDataContainer , 1303509372 , 1 )
+CLASS_DEF( Muon::sTGC_RawDataContainer , 1194130261 , 1 )
+// CONTAINER_IS_IDENTCONT(Muon::sTGC_RawDataContainer)
 
 #endif
 

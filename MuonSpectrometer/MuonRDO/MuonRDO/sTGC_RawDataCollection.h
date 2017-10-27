@@ -10,17 +10,18 @@
 #include "SGTools/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
-class sTGC_RawDataCollection : public DataVector<sTGC_RawData>
-{
-public:
-  sTGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
+namespace Muon {
+  class sTGC_RawDataCollection : public DataVector<sTGC_RawData>
+  {
+  public:
+    sTGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 
-  const IdentifierHash& identifierHash() const { return m_idHash; }
-private:
+    const IdentifierHash& identifierHash() const { return m_idHash; }
+  private:
   
-  /** Offline IdentifierHash for this collection*/
-  IdentifierHash m_idHash;
-  
-};
+    /** Offline IdentifierHash for this collection*/
+    IdentifierHash m_idHash;
+  };
+}
 
 #endif

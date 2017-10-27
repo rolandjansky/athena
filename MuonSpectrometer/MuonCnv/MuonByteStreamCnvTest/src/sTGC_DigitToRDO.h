@@ -31,7 +31,7 @@ private:
 protected:
   
   const sTgcIdHelper*  m_idHelper;
-  SG::WriteHandleKey<sTGC_RawDataContainer> m_rdoContainer{this,"RDOContainerName","sTGCRDO","sTGC_RawDataContainer handle key"};
+  SG::WriteHandleKey<Muon::sTGC_RawDataContainer> m_rdoContainer{this,"RDOContainerName","sTGCRDO","sTGC_RawDataContainer handle key"};
   SG::ReadHandleKey<sTgcDigitContainer> m_digitContainer{this,"DigitContainerName","sTGC_DIGITS","sTgcDigitContainer handle key"};
 };
 

@@ -33,6 +33,7 @@ StatusCode sTGC_DigitToRDO::initialize()
 
 StatusCode sTGC_DigitToRDO::execute()
 {  
+  using namespace Muon;
   ATH_MSG_DEBUG( "in execute()"  );
   SG::WriteHandle<sTGC_RawDataContainer> rdos (m_rdoContainer);
   SG::ReadHandle<sTgcDigitContainer> digits (m_digitContainer);

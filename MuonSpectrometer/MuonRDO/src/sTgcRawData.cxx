@@ -9,19 +9,19 @@
 
 // P1 ------------------------
 // Constructor for Hit
-sTGC_RawData::sTGC_RawData(const Identifier id)
+Muon::sTGC_RawData::sTGC_RawData(const Identifier id)
   :m_id(id)
 {
 }
 
-MsgStream& operator<<(MsgStream& sl, const sTGC_RawData& data)
+MsgStream& operator<<(MsgStream& sl, const Muon::sTGC_RawData& data)
 {
   sl << "sTGC_RawData ("<< &data <<") "
   << ", Strip ID=" << data.identify();
   return sl;
 }
 
-std::ostream& operator<<(std::ostream& sl, const sTGC_RawData& data)
+std::ostream& operator<<(std::ostream& sl, const Muon::sTGC_RawData& data)
 {
   sl << "sTGC_RawData ("<< &data <<") "
   << ", Strip ID=" << data.identify();

@@ -10,22 +10,26 @@
 
 class MsgStream;
 
+namespace Muon {
 class sTGC_RawData {
-
+ friend class StgcRawDataCnv_p1;
+ 
  private:
    Identifier m_id;
 
  public:
    sTGC_RawData (const Identifier id);
+   sTGC_RawData (); //!< TODO remove this. Currently have problems with convertor if I do though.
    virtual ~sTGC_RawData() {}
    const Identifier& identify() const { return m_id; }
 };
+}
 
 /**Overload of << operator for MsgStream for debug output*/
-MsgStream& operator << ( MsgStream& sl, const sTGC_RawData& coll);
+MsgStream& operator << ( MsgStream& sl, const Muon::sTGC_RawData& coll);
 
 /**Overload of << operator for std::ostream for debug output*/ 
-std::ostream& operator << ( std::ostream& sl, const sTGC_RawData& coll);
+std::ostream& operator << ( std::ostream& sl, const Muon::sTGC_RawData& coll);
 
 #endif
 
