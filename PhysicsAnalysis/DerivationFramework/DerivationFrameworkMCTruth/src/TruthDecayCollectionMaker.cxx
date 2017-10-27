@@ -187,6 +187,7 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::
     if (generations==0) return my_index;
     // Add all the outgoing particles
     for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
+        if (!old_vert.outgoingParticle(n)) continue; // Just in case we removed some truth particles, e.g. G4 decays
         int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles, generations-1);
         ElementLink<xAOD::TruthParticleContainer> eltp( *part_cont, part_index);
         xTruthVertex->addOutgoingParticleLink( eltp );
