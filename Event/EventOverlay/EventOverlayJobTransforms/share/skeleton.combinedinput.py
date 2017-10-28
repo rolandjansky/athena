@@ -163,6 +163,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 
 ## Add AMITag MetaData to TagInfoMgr

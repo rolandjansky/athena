@@ -23,7 +23,7 @@ Trig_AFPSiTrkReco::Trig_AFPSiTrkReco(const std::string& name,
   declareProperty("AFP_TrackContainerName", m_trackContainerName = "AFPTrackContainer", "Name of the AFP tracks container to be called in the hypothesis algorithm with the same name");
   declareProperty("RawDataProviderTool", m_rawDataTool, "AFP_RawDataProviderTool used to reconstruct raw data from ROB data");
   declareProperty("DigiTool", m_digiTool, "AFP_Raw2DigiTool used to reconstruct Silicon pixel hits from raw data");
-  declareProperty("SiDTool", m_trackRecoTool, "AFPSiDLocRecoTool used to reconstruct AFP tracks from Si hits");
+  declareProperty("SiDTool", m_trackRecoTool, "AFPSiDLocRecoTool used to reconstruct AFP tracks from pixel clusters");
 }
 
 Trig_AFPSiTrkReco::~Trig_AFPSiTrkReco() {}
@@ -107,13 +107,14 @@ HLT::ErrorCode Trig_AFPSiTrkReco::hltExecute(const HLT::TriggerElement* /*inputT
   }
 
   //Reconstructing AFP tracks in case a container is not present in evtStore, in which case there would be a conflict
-  if (!evtStore()->contains<xAOD::AFPTrackContainer>(m_trackContainerName)) {
-    if (m_trackRecoTool->reconstructTracks().isFailure()) {
+  if(!evtStore()->contains<xAOD::AFPTrackContainer>("AFPTrackContainer")) {
+    StatusCode scTracks = m_trackRecoTool->execute();
+    if (scTracks.isFailure()) {
       ATH_MSG_WARNING("Tracks reconstruction failed");
-      return HLT::ERROR;
+      return HLT::OK;
     }
   }
-
+  
   return HLT::OK;
 }
 

@@ -10,6 +10,8 @@
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p1.h"
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollection_p2.h"
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p2.h"
+#include "InDetSimEventTPCnv/InDetHits/SiHitCollection_p3.h"
+#include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p3.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"

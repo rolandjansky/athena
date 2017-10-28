@@ -4,7 +4,6 @@
 
 
 import ROOT
-import PyCintex
 import os
 import sys
 import re

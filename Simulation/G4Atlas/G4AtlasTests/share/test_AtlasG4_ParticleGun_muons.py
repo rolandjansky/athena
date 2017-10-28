@@ -58,6 +58,8 @@ simFlags.ReleaseGeoModel = False
 ## Add the G4 sim to the alg sequence after the generator
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 job += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 
 ## User algorithms

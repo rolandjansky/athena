@@ -17,8 +17,6 @@ atlas_depends_on_subdirs( PRIVATE
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
 atlas_add_library( D3PDMakerReaderLib
                    src/*.cxx

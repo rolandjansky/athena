@@ -157,6 +157,8 @@ else:
 #==============================================================
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # Adding TB specific output
 from AthenaCommon import CfgMgr

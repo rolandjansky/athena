@@ -40,8 +40,8 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 # IsEM selections and also the author selections
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
+import cppyy
+cppyy.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 from ROOT import egammaParameters
 
@@ -49,7 +49,7 @@ from ROOT import egammaParameters
 # This is needed to always be up-to-date with the tau
 # ID selections and also the author selections
 # This only works starting with tauEvent-00-05-21!!!
-#PyCintex.loadDictionary('tauEventEnumsDict')
+#cppyy.loadDictionary('tauEventEnumsDict')
 #from ROOT import TauJetParameters
 
 

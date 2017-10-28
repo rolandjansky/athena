@@ -2,6 +2,7 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm, addTool
 
+
 addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaTrackingActionTool",
         "G4UA::AthenaTrackingActionTool")
 addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaStackingActionTool",

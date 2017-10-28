@@ -11,11 +11,15 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  G4SimTimerTool::G4SimTimerTool(const std::string& type, const std::string& name,
+  G4SimTimerTool::G4SimTimerTool(const std::string& type,
+                                 const std::string& name,
                                  const IInterface* parent)
     : ActionToolBaseReport<G4SimTimer>(type, name, parent)
-  {}
-  
+  {
+    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IEndEventActionTool>(this);
+  }
+
   //---------------------------------------------------------------------------
   // Initialize - temporarily here for debugging
   //---------------------------------------------------------------------------
@@ -24,16 +28,16 @@ namespace G4UA
     ATH_MSG_DEBUG("initialize");
     return StatusCode::SUCCESS;
   }
-  
+
   //---------------------------------------------------------------------------
   // Merge results from all threads
   //---------------------------------------------------------------------------
   StatusCode G4SimTimerTool::finalize()
   {
     ATH_MSG_DEBUG("finalize");
-    
+
     mergeReports();
-    
+
     // Report the results
     auto meanSigma = m_report.meanAndSigma();
     ATH_MSG_INFO("Finalized timing results for " << m_report.nEvent <<
@@ -43,7 +47,7 @@ namespace G4UA
                  std::setprecision(4) << meanSigma.second);
     return StatusCode::SUCCESS;
   }
-  
+
   //---------------------------------------------------------------------------
   // Create the action on request
   //---------------------------------------------------------------------------
@@ -54,24 +58,5 @@ namespace G4UA
     auto action = CxxUtils::make_unique<G4SimTimer>();
     return std::move(action);
   }
-  
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode G4SimTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    return ActionToolBase<G4SimTimer>::queryInterface(riid, ppvIf);
-  }
-  
+
 }

@@ -105,6 +105,8 @@ SimFlags.RunNumber = options.runNumber
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSequence += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from LArG4Validation.LArG4ValidationConf import SingleTrackValidation
 topSequence += SingleTrackValidation()

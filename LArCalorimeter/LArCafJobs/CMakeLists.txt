@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecUtils
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools
                           LArCalorimeter/LArCabling
 			   LArCalorimeter/LArBadChannelTool
                           PhysicsAnalysis/AnalysisCommon/AnalysisTools
