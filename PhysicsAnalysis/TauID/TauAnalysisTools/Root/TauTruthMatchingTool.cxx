@@ -409,7 +409,7 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_xTruthMuonContainerConst)
+  if (!xTruthMatch and m_bTruthMuonAvailable and m_xTruthMuonContainerConst)
   {
     double dPtMax = 0;
     for (auto xTruthMuonIt : *m_xTruthMuonContainerConst)
@@ -426,7 +426,7 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_xTruthElectronContainerConst)
+  if (!xTruthMatch and m_bTruthElectronAvailable and m_xTruthElectronContainerConst)
   {
     double dPtMax = 0;
     for (auto xTruthElectronIt : *m_xTruthElectronContainerConst)
@@ -442,7 +442,7 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (m_xTruthJetContainerConst)
+  if (m_bTruthJetAvailable and m_xTruthJetContainerConst)
   {
     double dPtMax = 0;
     for (auto xTruthJetIt : *m_xTruthJetContainerConst)
