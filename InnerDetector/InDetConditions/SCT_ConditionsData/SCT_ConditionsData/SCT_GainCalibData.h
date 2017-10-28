@@ -23,10 +23,6 @@ typedef boost::array<SCT_ModuleGainCalibData, SCT_ConditionsServices::NUMBER_OF_
 CLASS_DEF( SCT_GainCalibData , 221029672 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_GainCalibData> , 46251018 , 1 )
-
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_GainCalibData>, CondContBase );
-
+CONDCONT_DEF( SCT_GainCalibData, 46251018 );
 
 #endif // SCT_GAINCALIBDATA_H
