@@ -173,7 +173,7 @@ PP="$PP"'|^...1034h$'
 PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
 PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
-PP="$PP"'|^RootDatabase.open I[nN][fF][oO]'
+PP="$PP"'|^RootDatabase.open *I[nN][fF][oO]'
 PP="$PP"'|Unable to locate catalog'
 
 # StoreGate INFO messages changed to VERBOSE
