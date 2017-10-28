@@ -133,7 +133,7 @@ _add_test( AthenaPoolExample_RFilter
 # Read all (including bad files, skipped for now expected failure)
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired|BYTES_READ"
+   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired|BYTES_READ|endTransaction|Bytes:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
@@ -198,7 +198,8 @@ _add_test( AthenaPoolExample_AMeta
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest
+   EXTRA_PATTERNS "Bytes:" )
 
 # Testing APR/POOL 'fast' merge
 _add_test( AthenaPoolExample_WriteFast
