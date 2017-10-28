@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS
+  collaboration */
 
 /**
    @class AthElectronEfficiencyCorrectionTool
-   @brief Calculate the egamma scale factors in Athena
+   @brief Calculate the egamma scale factors 
 */
 
 // Include this class's header
@@ -270,6 +270,8 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   if (m_correlation_model == correlationModel::FULL) {
     m_nUncorrSyst = m_rootTool->getNbins(m_pteta_bins);
   }
+
+
   //
   //
   //
@@ -412,7 +414,6 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
       func(efficiencyScaleFactor, sys);
     }
   }
-
 
   // =======================================================================
   // Then the uncorrelated, we just need to see if the applied matches the current electron pt and eta
@@ -693,7 +694,6 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     ATH_MSG_DEBUG("Running on simulation");
     return StatusCode::SUCCESS;
   }
-
   // Determine Fast/FullSim
   if (dataType == "IS_SIMULATION") {
     std::string simType("");
@@ -703,7 +703,6 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     return StatusCode::SUCCESS;
   }
 #endif
-
   //Here's how things will work dual use, when file metadata is available in files
   if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
     const xAOD::FileMetaData* fmd = 0;
@@ -727,11 +726,83 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     ATH_MSG_DEBUG("no metadata found in the file");
     return StatusCode::FAILURE;
   }
+}
 
+int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
+  int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
+  int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+  int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
+  return reg;
+}
+
+int AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(const double cluster_eta, const double et) const {
+  int etabin=0;
+  int reg = 0; 
+  bool found = false;
+  float cluster_eta_electron = 0;
+  std::map<float, std::vector<float> >::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
+  std::map<float, std::vector<float> >::const_iterator itr_ptEND = m_pteta_bins.end();
+  // Consider using std::map::lower_bound, returns the iterator to the first element that is greater-or-equal to a pt
+  for (; itr_ptBEGIN != itr_ptEND; ++itr_ptBEGIN) {
+    std::map<float, std::vector<float> >::const_iterator itr_ptBEGINplusOne = itr_ptBEGIN;
+    itr_ptBEGINplusOne++;
+    //Find the pt bin : Larger or equal from the current and (the next one is the last or the next one is larger).
+    if ( et >= itr_ptBEGIN->first 
+	 && (itr_ptBEGINplusOne == itr_ptEND || et <itr_ptBEGINplusOne->first)) {
+      if ((itr_ptBEGIN->second).at(0) >= 0) {
+	cluster_eta_electron = fabs(cluster_eta);
+      }else {
+	cluster_eta_electron = (cluster_eta);
+      };
+      for (unsigned int etab = 0; etab <((itr_ptBEGIN->second).size()); ++etab) {
+	unsigned int etabnext=etab+1;
+	//Find the eta bin : Larger or equal from the current and (the next one is the last or the next one is larger).
+	if ((cluster_eta_electron) >= (itr_ptBEGIN->second).at(etab) && 
+	    (etabnext==itr_ptBEGIN->second.size() || cluster_eta_electron < itr_ptBEGIN->second.at(etabnext) ) ) {
+	  found = true;
+	  break;
+	}
+	//We did not find it. Increment eta and continue looking
+	etabin++;       
+      }
+    }
+    if (found) {
+      break;
+    }
+    //Add the full size of the "passed" eta row
+    reg += (itr_ptBEGIN->second).size();
+  }
+  if(!found){
+    ATH_MSG_WARNING("No index for the uncorrelated systematic was found, returning the maximum index");
+    return m_nCorrSyst;
+  }
+  reg = reg + etabin;
+  return reg;
+}
+
+int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron &inputObject) const{
+  int currentSystRegion=-999;
+  double cluster_eta(-9999.9);
+  double et(0.0);
+
+  et = inputObject.pt();
+  const xAOD::CaloCluster *cluster = inputObject.caloCluster();
+  if (cluster) {
+    cluster_eta = cluster->etaBE(2);
+  }
+
+  if (m_correlation_model == correlationModel::SIMPLIFIED) {
+    currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
+  }
+
+  if (m_correlation_model == correlationModel::FULL) {
+    currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
+  }
+  return currentSystRegion;
 }
 
 //===============================================================================
-// Map Key Feature
+// Map Key Feature for the finding the correct input files 
 //===============================================================================
 // Gets the correction filename from map
 StatusCode
@@ -756,26 +827,20 @@ AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const s
   ATH_MSG_DEBUG("Full File Name is " + value);
   return StatusCode::SUCCESS;
 }
-
 // Convert reco, ID, iso and trigger key values into a
 // single key according to the map file key format
 std::string
 AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) const {
 
   std::string key;
-
   // Reconstruction Key
   if (recokey != ""){ key = recokey; }
-
   // Identification Key
   if (idkey != "" && (recokey == "" && isokey == "" && trigkey == "")){ key = idkey; }
-
   // Isolation Key
   if ((idkey != "" && isokey != "") && recokey == "" && trigkey == ""){ key = std::string(idkey + "_" + isokey); }
-
   // Trigger Key
   if (trigkey != "" && idkey != "") {
-
     // Trigger SF file with isolation
     if (isokey != "") {
       key = std::string (trigkey + "_" + idkey + "_" + isokey);
@@ -845,77 +910,3 @@ AsgElectronEfficiencyCorrectionTool::getValue(const std::string& strKey, std::st
   }
   return "";
 }
-
-int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
-  int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
-  int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
-  int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
-  return reg;
-}
-
-
-
-int AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(const double cluster_eta, const double et) const {
-  int etabin = -1;
-  int reg = 0; 
-  bool found = false;
-  float cluster_eta_electron = 0;
-  std::map<float, std::vector<float> >::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
-  std::map<float, std::vector<float> >::const_iterator itr_ptEND = m_pteta_bins.end();
-  // Consider using std::map::lower_bound, returns the iterator to the first element that is greater-or-equal to a pt
-  for (; itr_ptBEGIN != itr_ptEND; itr_ptBEGIN++) {
-    std::map<float, std::vector<float> >::const_iterator itr_ptBEGINplusOne = itr_ptBEGIN;
-    itr_ptBEGINplusOne++;
-
-    if ((et > itr_ptBEGIN->first && itr_ptBEGINplusOne == itr_ptEND) ||
-	(et > itr_ptBEGIN->first && et <= itr_ptBEGINplusOne->first)) {// find the pt bin
-      etabin=0;
-      // if it is ordered in eta from smaller to larger ascending order
-      // consider using std::lower_bound(begin,end) to find the position?
-      if ((itr_ptBEGIN->second).at(0) >= 0) {
-	cluster_eta_electron = fabs(cluster_eta);
-      }else {
-	cluster_eta_electron = (cluster_eta);
-      };
-      for (unsigned int etab = 0; etab < ((itr_ptBEGIN->second).size() - 1); ++etab) {// find the eta bin
-	etabin++;       
-	if ((cluster_eta_electron) > (itr_ptBEGIN->second).at(etab) &&
-	    (cluster_eta_electron) <= (itr_ptBEGIN->second).at(etab + 1)) {
-	  found = true;
-	  break;
-	} // if ( (cluster_eta_electron)
-      } // for (unsigned int etab=0;etab<((itr_ptBEGIN->second).size()-1) ; ++etab)
-    } 
-    if (found) {
-      break;
-    } 
-    reg = reg + (itr_ptBEGIN->second).size();
-  } 
-  reg = reg + etabin;
-  return reg;
-}
-
-int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron &inputObject) const{
-  int currentSystRegion=-999;
-  double cluster_eta(-9999.9);
-  double et(0.0);
- 
-  et = inputObject.pt();
-  const xAOD::CaloCluster *cluster = inputObject.caloCluster();
-  if (cluster) {
-    cluster_eta = cluster->etaBE(2);
-  }
-
-
-
-  if (m_correlation_model == correlationModel::SIMPLIFIED) {
-    currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-  }
-
-  if (m_correlation_model == correlationModel::FULL) {
-    currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
-  }
-
-  return currentSystRegion;
-}
-
