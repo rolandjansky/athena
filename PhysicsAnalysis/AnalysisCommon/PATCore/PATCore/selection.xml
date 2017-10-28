@@ -11,5 +11,6 @@
     <class name="IUserDataCalcTool" />
     <class name="IAthHistogramTool" />
     <class name="IAsgSelectionTool" />
+    <class name="IAsgMTSelectionTool" />
     <class name="IAsgSelectionWithVertexTool" />
 </lcgdict>
