@@ -80,6 +80,10 @@ protected:
   bool m_bIsTruthMatchedAvailableChecked;
   bool m_bNewEvent;
 
+  bool m_bTruthMuonAvailable;
+  bool m_bTruthElectronAvailable;
+  bool m_bTruthJetAvailable;
+  
 private:
 
   const xAOD::TruthParticleContainer* m_xTruthParticleContainer;
@@ -94,9 +98,6 @@ private:
   std::string m_sTruthJetContainerName;
   std::string m_sTruthParticlesContainerName;
 
-  bool m_bTruthMuonAvailable;
-  bool m_bTruthElectronAvailable;
-  bool m_bTruthJetAvailable;
 
   bool m_bWriteInvisibleFourMomentum;
   bool m_bWriteVisibleChargedFourMomentum;
