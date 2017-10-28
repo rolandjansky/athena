@@ -22,17 +22,15 @@ class AODFix_r210(AODFix_base):
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
 
-        # items in this list will be excluded from the metadata, so will always rerun
-        excludeFromMetadata = ["btagging"] 
-
         metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys()) 
                         if ("_" in item and "__" not in item)]
 
-        for excl in excludeFromMetadata:
-            if excl in metadataList:
-                metadataList.remove(excl)
-
         return "-".join(metadataList)
+
+    @staticmethod
+    def excludeFromMetadata():
+        """Which item should be excluded from metadata written, so will always rerun"""
+        return ["btagging"]
 
 
     def postSystemRec(self):
