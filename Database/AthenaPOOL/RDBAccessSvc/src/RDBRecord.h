@@ -36,6 +36,9 @@ class RDBRecord final : public IRDBRecord
 
  public:
 
+  RDBRecord (const RDBRecord&) = delete;
+  RDBRecord& operator= (const RDBRecord&) = delete;
+
   /// Destructor
   ~RDBRecord() override;
 
