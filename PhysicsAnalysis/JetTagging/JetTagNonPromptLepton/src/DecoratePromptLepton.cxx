@@ -642,22 +642,22 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
     // Add LLR vars to VarHolder
     //
     vars.AddVar(var.first, var.second);
-
-    //
-    // Add duplicated rnnip var to VarHolder for tau trainings
-    //
-    if(var.first == Prompt::Def::rnnip) {
-      vars.AddVar(Prompt::Def::BTagrnnip, var.second);
-    }
   }
 
   //
   // r21 MV2 vars
   //
-  double BTagMV2c10rnn = -100.0;
+  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2c10rnn, -100.0)};
 
-  if(!btag->MVx_discriminant("MV2c10rnn", BTagMV2c10rnn)) {	
-    msg(MSG::WARNING) << "Missing MV2c10rnn" << endmsg;
+  for(VarPair &var: MV2Vars) {
+    if(!btag->MVx_discriminant(Prompt::Def::AsStr(var.first), var.second)) {	
+      ATH_MSG_WARNING("Missing " << Prompt::Def::AsStr(var.first));
+    }
+
+    //
+    // Add MV2 vars to VarHolder
+    //
+    vars.AddVar(var.first, var.second);
   }
   
   //
@@ -671,7 +671,6 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   vars.AddVar(Prompt::Def::ip2_cu,         ip2_cu);
   vars.AddVar(Prompt::Def::ip3,            ip3);
   vars.AddVar(Prompt::Def::ip3_cu,         ip3_cu);
-  vars.AddVar(Prompt::Def::BTagMV2c10rnn,  BTagMV2c10rnn);
   vars.AddVar(Prompt::Def::SV1,            SV1);
   vars.AddVar(Prompt::Def::JetF,           JetF);
 
@@ -813,10 +812,7 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
     double val = 0.0;
 
     if(vars.GetVar(dec.first, val)) {
-      // Decorate only if variable is not already saved
-      if(!dec.second.isAvailable(*particle)) {
-	dec.second(*particle) = static_cast<short>(val);
-      }
+      dec.second(*particle) = static_cast<short>(val);
     }    
     else {
       ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
@@ -833,10 +829,7 @@ void Prompt::DecoratePromptLepton::decorateAuxLepton(const xAOD::IParticle* part
     double val = 0.0;
 
     if(vars.GetVar(dec.first, val)) {
-      // Decorate only if variable is not already saved
-      if(!dec.second.isAvailable(*particle)) {
-	dec.second(*particle) = val;
-      }
+      dec.second(*particle) = val;
     }
     else {
       ATH_MSG_WARNING("Variable " << Prompt::Def::AsStr(dec.first) << " not decorated to lepton");
@@ -903,6 +896,7 @@ void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau,
 
   //
   // Decorate lepton with classifier response, if goodJet and ntracktau = 1 or 3
+  // Different trainings/readers for different ntracktau
   //
   if(goodJet && (ntracktau == 1 || ntracktau == 3)) {
     if(ntracktau == 1) {
@@ -913,7 +907,9 @@ void Prompt::DecoratePromptLepton::decorateAuxTau(const xAOD::TauJet* tau,
     }
   }
   else {
+    //
     // Decorate with default values
+    //
     if(!(ntracktau == 1 || ntracktau == 3)) {
       ATH_MSG_DEBUG("Tau does not have 1 or 3 tracks");
       (*m_decoratorBDT)(*tau) = float(-1.2);

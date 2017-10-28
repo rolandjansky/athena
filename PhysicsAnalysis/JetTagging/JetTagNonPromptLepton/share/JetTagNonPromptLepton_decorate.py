@@ -67,10 +67,10 @@ def getDecorateIso(lepton_name, track_jet_name):
     elif lepton_name == 'Muons':
         part_type = 'Muon'
 
-    alg.OutputLevel           = INFO
+    alg.OutputLevel           = DEBUG
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/PromptLeptonIso' %part_type
+    alg.ConfigFileVersion     = 'InputData-2017-10-27/%s/PromptLeptonIso' %part_type
     alg.MethodTitleMVA        = 'BDT_%s_PromptLeptonIso' %part_type
     alg.AuxVarPrefix          = 'PromptLeptonInput_'
     alg.BDTName               = 'PromptLeptonIso'
@@ -117,7 +117,7 @@ def getDecorateVeto(lepton_name, track_jet_name):
     alg.OutputLevel           = DEBUG
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
-    alg.ConfigFileVersion     = 'InputData-2017-10-24/%s/%s' %(part_type, BDT_name)
+    alg.ConfigFileVersion     = 'InputData-2017-10-27/%s/%s' %(part_type, BDT_name)
     alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)  
     alg.BDTName               = '%s' %BDT_name
     alg.AuxVarPrefix          = 'PromptLeptonInput_'

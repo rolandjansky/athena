@@ -265,8 +265,7 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( PtRel,           "PtRel");
   result += RegisterVar( DL1mu,           "DL1mu");
   result += RegisterVar( rnnip,           "rnnip");
-  result += RegisterVar( BTagrnnip,       "BTagrnnip");
-  result += RegisterVar( BTagMV2c10rnn,   "BTagMV2c10rnn");
+  result += RegisterVar( MV2c10rnn,       "MV2c10rnn");
   result += RegisterVar( SV1,             "SV1");
   result += RegisterVar( JetF,            "JetF");
   
