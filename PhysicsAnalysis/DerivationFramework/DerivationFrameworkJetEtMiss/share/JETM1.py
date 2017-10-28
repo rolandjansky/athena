@@ -1,6 +1,6 @@
 #====================================================================
-# JETM1.py 
-# reductionConf flag JETM1 in Reco_tf.py   
+# JETM1.py
+# reductionConf flag JETM1 in Reco_tf.py
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 from DerivationFrameworkJetEtMiss.TriggerLists import *
 triggers = jetTriggers
@@ -25,7 +25,7 @@ JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1Ski
 ToolSvc += JETM1SkimmingTool
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_JETM1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
@@ -39,7 +39,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
 JETM1ThinningHelper.AppendToStream( JETM1Stream )
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 thinningTools = []
 
@@ -72,7 +72,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                # Gluons
     truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                # Photon
     truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+'||'+truth_cond_Gluon+' || '+truth_cond_Photon+')'
-    
+
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM1TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM1TruthThinningTool",
                                                                         ThinningService = "JETM1ThinningSvc",
@@ -82,7 +82,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,
                                                                         PreserveAncestors = True)
-    
+
     ToolSvc += JETM1TruthThinningTool
     thinningTools.append(JETM1TruthThinningTool)
 
@@ -94,7 +94,7 @@ jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
 DerivationFrameworkJob += jetm1Seq
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -125,6 +125,12 @@ addDefaultTrimmedJets(jetm1Seq,"JETM1")
 
 if DerivationFrameworkIsMonteCarlo:
     addAntiKt4LowPtJets(jetm1Seq,"JETM1")
+    ## Add GhostTruthAssociation information ##
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets

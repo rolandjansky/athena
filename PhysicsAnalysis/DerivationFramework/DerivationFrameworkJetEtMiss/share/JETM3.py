@@ -185,6 +185,12 @@ if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm3Seq,"JETMX")
+    ## Add GhostTruthAssociation information ##
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
