@@ -498,7 +498,7 @@ namespace EL
           if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
           // 21.2
           if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
-          defaultSetupCommand << "if [ -z \"${AtlasBuildStamp}\" ]; then\n";
+          defaultSetupCommand << "if [ \"${AtlasReleaseType}\" == \"stable\" ]; then\n";
           defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
           defaultSetupCommand << "else\n";
           defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasBuildBranch},${AtlasBuildStamp} || abortJob\n";
