@@ -8,8 +8,11 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+#if DerivationFrameworkIsMonteCarlo:
+#    from DerivationFrameworkMCTruth.MCTruthCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -263,8 +266,8 @@ SeqSUSY9 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 OutputJets["SUSY9"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY9, "SUSY9")
@@ -273,21 +276,21 @@ replaceAODReducedJets(reducedJetList, SeqSUSY9, "SUSY9")
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
     
 
 #==============================================================================
 # SUSY background generator filters
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-      "SUSY9GenFilt",
-      SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-      )
-  AugmentationTools.append(ToolSvc.SUSY9GenFilt)
+#if DerivationFrameworkIsMonteCarlo:
+#
+#  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
+#      "SUSY9GenFilt",
+#      SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
+#      )
+#  AugmentationTools.append(ToolSvc.SUSY9GenFilt)
     
 
 #==============================================================================
