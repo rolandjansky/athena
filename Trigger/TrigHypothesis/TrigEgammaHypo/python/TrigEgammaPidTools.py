@@ -37,6 +37,7 @@ from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import Con
 from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
+from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
 mlog = logging.getLogger ('TrigEgammaPidTools')
 # Path for versioned configuration
@@ -54,7 +55,13 @@ ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
     'lhvloose':'AsgElectronLHVLooseSelector',
     'lhloose':'AsgElectronLHLooseSelector',
     'lhmedium':'AsgElectronLHMediumSelector',
-    'lhtight':'AsgElectronLHTightSelector',}
+    'lhtight':'AsgElectronLHTightSelector',
+    'bloose': 'AsgElectronIsEMBLooseSelector',
+    'bloose1': 'AsgElectronIsEMBLooseSelector',
+    'bloose2': 'AsgElectronIsEMBLooseSelector',
+    'bloose3': 'AsgElectronIsEMBLooseSelector',
+
+                        }
 
 ElectronCaloToolName = {'vloose':'AsgElectronIsEMVLooseCaloSelector',
     'loose':'AsgElectronIsEMLooseCaloSelector',
@@ -64,7 +71,52 @@ ElectronCaloToolName = {'vloose':'AsgElectronIsEMVLooseCaloSelector',
     'lhvloose':'AsgElectronLHVLooseCaloSelector',
     'lhloose':'AsgElectronLHLooseCaloSelector',
     'lhmedium':'AsgElectronLHMediumCaloSelector',
-    'lhtight':'AsgElectronLHTightCaloSelector',}
+    'lhtight':'AsgElectronLHTightCaloSelector',
+    'bloose': 'AsgElectronIsEMBLooseSelector',
+    'bloose1': 'AsgElectronIsEMBLooseSelector',
+    'bloose2': 'AsgElectronIsEMBLooseSelector',
+    'bloose3': 'AsgElectronIsEMBLooseSelector',
+
+                            }
+
+# Here we select our isEM bits used by bphys selection. Once ready this part should go to ElectronPhotonSelectorTools/python/TrigEGammaPIDdefs.py
+# anynew tag needs to be added to SignatureDict
+
+#in order, 1-8:
+#electronCutNames = ["HadLeakage","Reta37","Weta2c","Wtot","DEmaxs1","TrkPix","TrkSi","DeltaEta"]
+#electronCutNames_Long = [
+#    1 "ClusterHadronicLeakage_Electron",
+#    2 "ClusterMiddleEratio37_Electron",
+#    3 "ClusterMiddleWidth_Electron",
+#    4 "ClusterStripsWtot_Electron"
+#    5 ,"ClusterStripsDEmaxs1_Electron",
+#    6 "TrackPixel_Electron",
+#    7 "TrackSi_Electron",
+#    8 "TrackMatchEta_Electron"]
+
+# The cuts in TrigL2CaloHypoCutDefs.py also have to be tuned. Disable them for now
+    
+BLooseISEMBits = {
+    'bloose' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
+                        0x1 << BitDefElectron.TrackPixel_Electron |
+                        0x1 << BitDefElectron.TrackSi_Electron 
+                    ),
+    'bloose1' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
+                        0x1 << BitDefElectron.TrackPixel_Electron |
+                        0x1 << BitDefElectron.TrackSi_Electron 
+                    ),
+    'bloose2' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
+                        0x1 << BitDefElectron.TrackPixel_Electron |
+                        0x1 << BitDefElectron.TrackSi_Electron 
+                    ),
+    'bloose3' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
+                        0x1 << BitDefElectron.TrackPixel_Electron |
+                        0x1 << BitDefElectron.TrackSi_Electron 
+                    ),
+    }
+
+
+    
 
 # Electron LH tools for alignment / commisioning
 ElectronLHVLooseToolName = {'cutd0dphideta':'AsgElectronLHVeryLooseCutD0DphiDetaSelector',
@@ -117,7 +169,8 @@ ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf',
     'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig2015.conf',
     'lhloose':'ElectronLikelihoodLooseTriggerConfig2015.conf',
     'lhmedium':'ElectronLikelihoodMediumTriggerConfig2015.conf',
-    'lhtight':'ElectronLikelihoodTightTriggerConfig2015.conf',}
+    'lhtight':'ElectronLikelihoodTightTriggerConfig2015.conf',
+                              }
 
 ElectronCaloToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
@@ -177,6 +230,12 @@ def ElectronPidTools():
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
             tool.usePVContainer = False
             addToToolSvc( tool )
+        elif( 'bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key):
+            tool=CfgMgr.AsgElectronIsEMSelector(ElectronToolName[key])
+            tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile['loose']  # use loose isEMconfig for all bloose settings and just change isEM bit           
+            tool.isEMMask = BLooseISEMBits[key]
+            addToToolSvc( tool )
+            
         else:
             tool=CfgMgr.AsgElectronIsEMSelector(ElectronToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
@@ -192,6 +251,13 @@ def ElectronPidTools():
             tool.usePVContainer = False
             tool.caloOnly = True
             addToToolSvc( tool )
+        elif('bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key):
+            tool=CfgMgr.AsgElectronIsEMSelector(ElectronCaloToolName[key])
+            tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile['loose']  # use loose isEMconfig for all bloose settings and just change isEM bit           
+            tool.caloOnly = True
+            tool.isEMMask = BLooseISEMBits[key]
+            addToToolSvc( tool )
+            
         else: 
             tool=CfgMgr.AsgElectronIsEMSelector(ElectronCaloToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]

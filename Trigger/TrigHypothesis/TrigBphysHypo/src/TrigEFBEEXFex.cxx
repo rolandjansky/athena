@@ -567,12 +567,16 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
     // OI : here we probably should check that electron object has passed identification at the previous step
     for ( const auto muel : lepContainerEF1 ) {
+   
       //if ( (*muel)->lepType() != xAOD::Lep::Combined && (*muel)->lepType() != xAOD::Lep::SegmentTagged) {
       //  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Lep from roi1 is neither Combined or SegmentTagged - reject" << endmsg;
       //  continue;
       //}
       const xAOD::Electron* lep = *muel;
       if(!lep) continue;
+      msg() << MSG::INFO << "electron! " << lep->pt() << ", " << lep->eta() << ", " << lep->phi() << endmsg;
+      if ( lep->pt() < 5000.) continue; 
+
       const xAOD::TrackParticle* idtp(0);
         const ElementLink<xAOD::TrackParticleContainer> & idtpEl = lep->trackParticleLink();
       if( idtpEl.isValid() ) idtp = *idtpEl;

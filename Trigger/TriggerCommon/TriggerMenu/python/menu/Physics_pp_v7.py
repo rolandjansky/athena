@@ -1751,11 +1751,31 @@ def setupMenu():
         #['e9_lhloose_nod0_e5_lhloose_nod0_bBeex',                'L1_EM7_2EM3',      ['L1_EM3','L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         #['2e5_lhloose_nod0_bBeex_L1JPSI-1M5',     'L1_JPSI-1M5',      ['L1_EM3','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         #['e9_lhloose_nod0_e4_etcute5_lhloose_nod0_bBeex_L1JPSI-1M5-EM7', 'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_etcut_e4_etcut_bBeex',                'L1_EM7_2EM3',      ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['2e5_cut12_bBeex',            'L1_JPSI-1M5-EM7_J12_MU6',      ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
+        ['e9_etcut_e5_etcut_bBeex',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_loose_e5_loose_bBeex_L1JPSI-1M5-EM7',               'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_loose_e5_loose_bBeex_L1EM8VH',                      'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_mergedtight_e5_mergedtight_bBeex_L1JPSI-1M5-EM7',   'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_mergedtight_e5_mergedtight_bBeex_L1EM8VH',          'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeex_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
-        
+        ['e9_bloose1_e5_bloose1_bBeex_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose1_e5_bloose1_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose2_e5_bloose2_bBeex_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose2_e5_bloose2_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose3_e5_bloose3_bBeex_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose3_e5_bloose3_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+
+        ['e9_bloose_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose1_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose2_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose3_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        #['e9_blooseR_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        #['e9_blooseR1_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        #['e9_blooseR2_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        #['e9_blooseR3_bBeex_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['g0_perf_L1EM15',                'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 

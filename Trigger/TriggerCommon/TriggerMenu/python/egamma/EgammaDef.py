@@ -548,7 +548,7 @@ class EgammaHypoBuilder(object):
         if self._properties['hiptrt']:   
             return [None,None]
         
-        if 'merged' in idinfo:  
+        if 'merged' in idinfo or 'bloose' in idinfo or 'bloose1' in idinfo or 'bloose2' in idinfo or 'bloose3' in idinfo  :  
             fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
         elif self._properties['perf']:
             if(tt == 'e'):

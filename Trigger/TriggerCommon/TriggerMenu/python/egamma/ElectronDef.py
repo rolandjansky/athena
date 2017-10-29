@@ -136,6 +136,8 @@ class L2EFChain_e(L2EFChainDef):
             log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
             if 'merged' in self.chainPart['IDinfo']:
                 self._ringer_selection=False
+            elif 'bloose' or 'bloose1' or 'bloose2' or 'bloose3' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
             elif float(thr)>15.0:
                 self._ringer_selection=True
             else:

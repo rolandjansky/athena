@@ -71,7 +71,7 @@ if [ -z "$TMXML_DEBUG" ]; then
 else
     MSGLVL="-lDEBUG"
 fi
-athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
+athena.py "-lDEBUG" -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
 athena_exit=$?
 
 cp $logfile $logfiletopo ${dest}
