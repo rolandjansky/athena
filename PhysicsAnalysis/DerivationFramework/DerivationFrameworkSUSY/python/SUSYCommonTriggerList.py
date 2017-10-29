@@ -39,7 +39,7 @@ SingleLepton_2017 = [
 'HLT_mu60_0eta105_msonly',
 ]
 
-Dilepton_2017 = [
+DiLepton_2017 = [
 'HLT_2e17_lhvloose_nod0_L12EM15VHI',
 'HLT_2e24_lhvloose_nod0',
 'HLT_e17_lhloose_nod0_mu14',
