@@ -4,7 +4,6 @@
 from AthenaCommon.SystemOfUnits import GeV
 from TrigCaloHypo.TrigCaloHypoConf import TrigEFCaloHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 
 class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
     __slots__ = []

@@ -25,7 +25,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -133,7 +133,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int m_lowqfactor;
    int m_medqfactor;
    int m_hiqfactor;
-   long m_noisycell;
+   long n_noisycell;
    int  m_nt_larcellsize;
    int  m_nt_cellsize;
    int  m_nt_run ;
@@ -142,7 +142,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int  m_nt_evtTime_ns;
    int  m_nt_lb;
    int  m_nt_bcid;
-   //int  m_nt_ntracks;
+   int  m_nt_ntracks;
    int  m_nt_isbcidFilled;
    int  m_nt_isbcidInTrain;
    std::vector<int> m_nt_isBunchesInFront;
@@ -155,9 +155,6 @@ class LArNoiseBursts : public AthAlgorithm  {
    short  m_nt_larnoisyro;
    short  m_nt_larnoisyro_opt;
    short  m_nt_larnoisyro_satTwo;
-   short  m_nt_larmnbnoisy;
-   short  m_nt_larmnbnoisy_sat;
-
 
    //event info veto variables
 //   short  m_nt_veto_mbts;

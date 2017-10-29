@@ -41,7 +41,7 @@ from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
     jobproperties.Global.DetDescrVersion = runArgs.geometryVersion
 else:
-    defaultGeoVersion="ATLAS-R2-2015-04-00-00"
+    defaultGeoVersion="ATLAS-R2-2015-02-00-00"
     print "No geometryVersion given, use default value of",defaultGeoVersion
     jobproperties.Global.DetDescrVersion = defaultGeoVersion
     
@@ -186,39 +186,25 @@ include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 tf.readBS=True
 tf.doID=False
-tf.doTriggerConfigOnly.set_Value_and_Lock(True)
 
 # trigger configuration
-#from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-#cfg = TriggerConfigGetter()
-from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-cfg = T0TriggerGetter()
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+cfg = TriggerConfigGetter()
 
-
-#from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
-#lvl1 = Lvl1ResultBuilderGetter()
+from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
+lvl1 = Lvl1ResultBuilderGetter()
 
 from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
 bsu=ByteStreamUnpackGetter()
 
-############################
-from TrigConfigSvc.TrigConfigSvcConfig import DSConfigSvc, SetupTrigConfigSvc
-dscfg = DSConfigSvc()
-svcMgr += dscfg
-
-#trigcfg = SetupTrigConfigSvc()
-#trigcfg.SetStates('ds')
-#trigcfg.InitialiseSvc()
-
 # TDT
-#from AthenaCommon.AppMgr import ToolSvc
-#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#ToolSvc += tdt
-ToolSvc.TrigDecisionTool.Navigation.ReadonlyHolders = True
+from AthenaCommon.AppMgr import ToolSvc
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+ToolSvc += tdt
 
-#from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-#trigDecWriter = WriteTrigDecision()
+from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
+trigDecWriter = WriteTrigDecision()
 
 
 #This tool is apparently instanciated by TrkDetElementSurface/ DetElementSurfaceCnv_p1.h
@@ -254,7 +240,7 @@ if hasattr(runArgs,"outputNTUP_SAMPLESMONFile"):
     from LArCafJobs.LArCafJobsConfig import DefaultShapeDumper
     DefaultShapeDumper('LArShapeDumper', 'FREE', noiseSignifCut = 5, doShape = True, doTrigger = True, caloType = 'EMHECFCAL')
     topSequence.LArShapeDumper.CaloNoiseTool=theCaloNoiseTool
-    #topSequence.LArShapeDumper.TrigDecisionTool=tdt
+    topSequence.LArShapeDumper.TrigDecisionTool=tdt
     topSequence.LArShapeDumper.FileName=runArgs.outputNTUP_SAMPLESMONFile
     topSequence.LArShapeDumper.OutputLevel=DEBUG
     topSequence.LArShapeDumper.BunchCrossingTool=BunchCrossingTool()

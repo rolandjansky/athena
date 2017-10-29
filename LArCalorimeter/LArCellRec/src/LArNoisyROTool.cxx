@@ -1,8 +1,9 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////// -*- C++ -*- /////////////////////////////
 // LArNoisyROTool.cxx 
 // Implementation file for class LArNoisyROTool
 /////////////////////////////////////////////////////////////////// 
@@ -19,16 +20,12 @@
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
-#include "LArRecConditions/LArBadChannel.h"
 
 LArNoisyROTool::LArNoisyROTool( const std::string& type, 
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_calo_id(0), m_onlineID(0) , 
-  m_badFEBsTool(0), m_badMNBFEBsTool(0), 
-  m_invocation_counter(0),
-  m_SaturatedCellTightCutEvents(0),
+  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
@@ -38,7 +35,7 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
   declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
   declareProperty( "BadFEBCut", m_MinBadFEB=3 );
-  //declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
+  declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
   // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
   // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
   // 3a480000   EndcapCFT02RSpePresampler   ECC02RSpePs      EndcapCFT09Slot01     [4.4.1.0.9.1]   
@@ -57,21 +54,17 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   // 3bb08000   EndcapAFT12LEMInner2        ECA12LEMI2       EndcapAFT22Slot02     [4.4.1.1.22.2]  
   // 3bc00000   EndcapAFT13LStdPresampler   ECA13LStdPs      EndcapAFT24Slot01     [4.4.1.1.24.1]  
 
-  // LArBadChanTool to give known bad FEBS, must be defined in Jo, no defaults:
-  declareProperty( "KnownBADFEBsTool", m_badFEBsTool);
-  //declareProperty( "KnownMNBFEBs", m_knownMNBFEBsVec={951255040, // EMBC FT 22 Slot 7
-  //	                                              953810944, // EMBC FT 27 Slot 5
-  //     	                                              954105856, // EMBC FT 27 Slot 14
-  //	                                              961052672, // EMBA FT 9 Slot 2
-  // 	                                              961839104, // EMBA FT 10 Slot 10
-  //	                                              961970176, // EMBA FT 10 Slot 14
-  //	                                              972980224  // EMBA FT 31 Slot 14
-  //	                                             });
-  // LArBadChanTool to give known MNB bad FEBS, must be defined in Jo, no defaults:
-  declareProperty( "KnownMNBFEBsTool", m_badMNBFEBsTool);
+  declareProperty( "KnownMNBFEBs", m_knownMNBFEBsVec={951255040, // EMBC FT 22 Slot 7
+	                                              953810944, // EMBC FT 27 Slot 5
+       	                                              954105856, // EMBC FT 27 Slot 14
+	                                              961052672, // EMBA FT 9 Slot 2
+  	                                              961839104, // EMBA FT 10 Slot 10
+	                                              961970176, // EMBA FT 10 Slot 14
+	                                              972980224  // EMBA FT 31 Slot 14
+	                                             });
 
-  declareProperty( "MNBLooseCut",m_MNBLooseCut=9,"Number of cells above CellQualityCut");
-  declareProperty( "MNBTightCut",m_MNBTightCut=33,"Number of cells above CellQualityCut");
+  declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");
+  declareProperty( "MNBTightCut",m_MNBTightCut=17,"Number of cells above CellQualityCut");
 
   
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
@@ -104,16 +97,12 @@ StatusCode LArNoisyROTool::initialize() {
   CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
   ATH_CHECK( m_cablingService.retrieve() );
-  if(m_badFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badFEBsTool.retrieve() );
-  if(m_badMNBFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badMNBFEBsTool.retrieve() );
 
   //convert std::vector (jobO) to std::set (internal representation)
-  //m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
-  // moved further, m_badFEBsTool doesn't have an info yet
+  m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
 
-  //for (unsigned fID : m_knownMNBFEBsVec) 
-  //  m_knownMNBFEBs.insert(HWIdentifier(fID));
-  // moved further, m_badMNBFEBsTool doesn't have an info yet
+  for (unsigned fID : m_knownMNBFEBsVec) 
+    m_knownMNBFEBs.insert(HWIdentifier(fID));
 
   return StatusCode::SUCCESS;
 }
@@ -136,25 +125,6 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   unsigned int NsaturatedTightCutFCALA = 0;
   unsigned int NsaturatedTightCutFCALC = 0;
 
-  if(m_badFEBsTool.name() != "ILArBadChanTool"){ // fill it from the tool
-         std::vector<HWIdentifier> badfebVec = m_badFEBsTool->missingFEBs();
-         if(badfebVec.size() == 0) {
-            ATH_MSG_ERROR("List of known Bad FEBs empty ? ");
-         } else {
-            for(unsigned int i=0; i<badfebVec.size(); ++i) m_knownBadFEBs.insert(badfebVec[i].get_identifier32().get_compact());
-            //m_knownBadFEBs.insert(badfebVec.begin(), badfebVec.end());
-         }
-         ATH_MSG_INFO("Number of known Bad FEBs: "<<m_knownBadFEBs.size());
-  }       
-  if(m_badMNBFEBsTool.name() != "ILArBadChanTool"){ // fill it from the tool
-         std::vector<HWIdentifier> MNBfebVec = m_badMNBFEBsTool->missingFEBs();
-         if(MNBfebVec.size() == 0) {
-            ATH_MSG_ERROR("List of known MNB FEBs empty ? ");
-         } else {
-            m_knownMNBFEBs.insert(MNBfebVec.begin(), MNBfebVec.end());
-         }
-         ATH_MSG_INFO("Number of known MNB FEBs: "<<m_knownMNBFEBs.size());
-  }       
 
   CaloCellContainer::const_iterator cellItr    = cellContainer->begin();
   CaloCellContainer::const_iterator cellItrEnd = cellContainer->end();
