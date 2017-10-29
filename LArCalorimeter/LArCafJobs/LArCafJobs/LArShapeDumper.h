@@ -18,7 +18,7 @@
 #include "LArCafJobs/DataStore.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"

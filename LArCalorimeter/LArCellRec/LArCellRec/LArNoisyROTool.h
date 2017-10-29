@@ -1,8 +1,9 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////// -*- C++ -*- /////////////////////////////
 // LArNoisyROTool.h 
 // Header file for class LArNoisyROTool
 // Author: S.Binet<binet@cern.ch>
@@ -21,7 +22,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CaloInterface/ILArNoisyROTool.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -118,8 +118,6 @@ class LArNoisyROTool:
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
   ToolHandle<LArCablingService> m_cablingService;
-  ToolHandle<ILArBadChanTool> m_badFEBsTool;
-  ToolHandle<ILArBadChanTool> m_badMNBFEBsTool;
 
   //** Qfactor value above which a channel is considered bad */
   unsigned int m_CellQualityCut;

@@ -54,7 +54,7 @@ StatusCode LArShapeDumperTool::initialize() {
   if (m_doShape) {
     StatusCode sc = detStore()->regHandle(m_shape, m_shapeKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register handle for LArShape with key " << m_shapeKey << endl << detStore()->dump() << endmsg;
+      msg(MSG::ERROR) << "Cannot register handle for LArShape with key " << m_shapeKey << endl << detStore()->dump() << endreq;
       return sc;
     }
   }
@@ -98,7 +98,7 @@ CellInfo* LArShapeDumperTool::makeCellInfo(const HWIdentifier& channelID, const 
     msg(MSG::WARNING) << "LArDigit Id "<< MSG::hex << id.get_identifier32().get_compact() << MSG::dec 
 		      << " (FT: " << m_onlineHelper->feedthrough(channelID) << " FEBSlot: " 
 		      << m_onlineHelper->slot(channelID) << " Chan: " << m_onlineHelper->channel(channelID)
-		      << ") appears to be neither EM nor HEC nor FCAL." << endmsg;
+		      << ") appears to be neither EM nor HEC nor FCAL." << endreq;
     return 0;
   }
 
@@ -127,12 +127,12 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
 {
   if (!m_shape) return 0;
   if (!m_shape.cptr()) {
-    msg(MSG::WARNING) << "Could not retrieve shape object!" << endmsg;
+    msg(MSG::WARNING) << "Could not retrieve shape object!" << endreq;
     return 0;
   }        
   const LArShapeComplete* shapeObj = dynamic_cast<const LArShapeComplete*>(m_shape.cptr());
   if (!shapeObj) {
-    msg(MSG::INFO) << "Shape object is not of type LArShapeComplete!" << endmsg;
+    msg(MSG::INFO) << "Shape object is not of type LArShapeComplete!" << endreq;
     return 0;
   }
   //const std::vector< std::vector<float> >& fullShape = shapeObj->get(channelID, gain).m_vShape;
@@ -142,7 +142,7 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
   const size_t nPhases=shapeObj->nTimeBins(channelID,gain);
   if (nPhases == 0) {
     msg(MSG::WARNING) << "Shape object for channel " << channelID << " and gain " << gain 
-             << " has 0 phases !" << endmsg;
+             << " has 0 phases !" << endreq;
     return 0;
   }    
 
@@ -151,7 +151,7 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
      //const std::vector<float>& shape_i = fullShape[iPhase];
      if (!(shape_i.valid() && shape_i.size()>0)) {
        msg(MSG::WARNING) << "Shape object for channel " << channelID << " and gain " << gain 
-			 << " has no data in phase " << iPhase << " !" << endmsg;
+			 << " has no data in phase " << iPhase << " !" << endreq;
        delete shape;
        return 0;
      }

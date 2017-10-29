@@ -27,6 +27,6 @@
    <enum name="LArSamples::CaloId"/>
    <enum name="LArSamples::PartitionId"/>
    <enum name="LArSamples::L1Item"/>
-   <!--<enum name="CaloGain::CaloGain"/>-->
+   <enum name="CaloGain::CaloGain"/>
 
 </lcgdict>

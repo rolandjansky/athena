@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumper.h"
@@ -456,7 +456,7 @@ StatusCode LArShapeDumper::execute()
 //     }
 //     else
 //       msg() << MSG::INFO << "OFResult for channel 0x" << MSG::hex << channelID << MSG::dec 
-//           << " not found. (size was " << ofcResultPosition.size() << ")" << endmsg;
+//           << " not found. (size was " << ofcResultPosition.size() << ")" << endreq;
     
    
     const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(channelID,gain); //dudu
@@ -466,7 +466,7 @@ StatusCode LArShapeDumper::execute()
     histCont->add(data);
   }
   
-  //msg() << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endmsg;
+  //msg() << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -493,15 +493,15 @@ StatusCode LArShapeDumper::finalize()
       if (m_samples->historyContainer(i)->cellInfo() == 0)
 	ATH_MSG_INFO ( "Cell with no cellInfo at index " << i << " !!" );
       //else if (m_samples->historyContainer(i)->cellInfo()->shape() == 0)
-	//msg() << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endmsg;
-      //msg() << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endmsg;
+	//msg() << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endreq;
+      //msg() << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endreq;
       n++;
     }
 
   //for (unsigned int i = 0; i < m_samples->nEvents(); i++) {
   //   msg() << MSG::INFO << "Event " << i << " = " 
   //            << m_samples->eventData(i)->run() << " " << m_samples->eventData(i)->event()
-  //            << "trigger = " << m_samples->eventData(i)->triggers() << ", nRoIs = " << m_samples->eventData(i)->nRoIs() << endmsg;
+  //            << "trigger = " << m_samples->eventData(i)->triggers() << ", nRoIs = " << m_samples->eventData(i)->nRoIs() << endreq;
   // }
   ATH_MSG_INFO ( "Non-zero cells = " << n << ", footprint = " << m_samples->footprint() );
   ATH_MSG_INFO ( "Writing..." );
@@ -509,13 +509,13 @@ StatusCode LArShapeDumper::finalize()
   if (!m_doStream) {
     m_samples->writeTrees(m_fileName.c_str());
 /*    TFile* f = TFile::Open(m_fileName.c_str(), "RECREATE");
-    msg() << MSG::INFO << "Writing (2)..." << endmsg;
+    msg() << MSG::INFO << "Writing (2)..." << endreq;
     f->WriteObjectAny(m_samples, "Container", "LArSamples");
-    msg() << MSG::INFO << "Closing..." << endmsg;
+    msg() << MSG::INFO << "Closing..." << endreq;
     f->Close();
-    msg() << MSG::INFO << "Deleting..." << endmsg;
+    msg() << MSG::INFO << "Deleting..." << endreq;
     delete m_samples;*/
-    msg() << MSG::INFO << "Done!" << endmsg;
+    msg() << MSG::INFO << "Done!" << endreq;
   }
 
   return StatusCode::SUCCESS;
@@ -542,12 +542,12 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
       while (triggerWords.size() <= bit->second/32) triggerWords.push_back(0);
       if (m_trigDec->isPassed(bit->first.Data())) {
 	triggerWords[bit->second/32] |= (0x1 << (bit->second % 32));
-      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endmsg;
+      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endreq;
       }
     }
     //msg() << MSG::INFO << "Trigger words : ";
     //for (unsigned int i = 0; i < triggerWords.size(); i++) msg() << MSG::INFO << triggerWords[i] << " ";
-    //msg() << MSG::INFO << endmsg;
+    //msg() << MSG::INFO << endreq;
   }
   
   eventData = new EventData(event, 0, lumiBlock, bunchXing);
@@ -555,7 +555,7 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   eventData->setRunData(m_runData);
   eventData->setTriggerData(triggerWords);
   if (m_doRoIs) {
-    //msg() << MSG::INFO << "Filling RoI list" << endmsg;
+    //msg() << MSG::INFO << "Filling RoI list" << endreq;
     for (std::vector<const Trig::ChainGroup*>::const_iterator group = m_triggerGroups.begin();
 	 group != m_triggerGroups.end(); group++) {
       std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = (*group)->features().get<TrigRoiDescriptor>();
@@ -563,9 +563,9 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
 	//msg() << MSG::INFO << "Found an roi for chain ";
         //for (unsigned int i = 0; i < (*group)->getListOfTriggers().size(); i++) cout << (*group)->getListOfTriggers()[i] << " ";
         //cout << "@ " << roI->cptr()->eta() << ", " << roI->cptr()->phi() << ", TE = " 
-	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endmsg;
+	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endreq;
 	eventData->addRoI(roI->cptr()->eta(), roI->cptr()->phi(), (*group)->getListOfTriggers()[0].c_str(), roI->label().c_str());
-	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endmsg;
+	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endreq;
       }
     }
   }
