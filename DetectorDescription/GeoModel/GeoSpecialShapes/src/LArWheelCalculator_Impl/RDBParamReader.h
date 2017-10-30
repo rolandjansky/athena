@@ -5,8 +5,6 @@
 #ifndef __GeoSpecialShapes_LAr_RDBParamReader_H__
 #define __GeoSpecialShapes_LAr_RDBParamReader_H__
 
-//#include "RDBAccessSvc/IRDBRecord.h"
-//#include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 class RDBParamRecords;

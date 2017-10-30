@@ -6,7 +6,6 @@
 #include "RDBParamRecords.h"
 
 // Helper class to simplify parameter reading
-//#include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include <iostream>
