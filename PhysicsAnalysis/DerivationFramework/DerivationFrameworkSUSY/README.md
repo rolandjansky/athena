@@ -43,17 +43,25 @@ Reco_tf.py \
     --reductionConf $TRAIN
 
 ```
+Note that the preexec for MC and data is different.
 * Check your file staging status `git status`
 * Commit changes `git commit -am "useful comments"`
 * Push `git push --set-upstream origin <your branch>`
 
-Note: 
+*Note:* 
 The `--set-upstream`, or just `-u`, associates your branch with the copy on your fork. So subsequent pushes can be a plain `git push`.
 
 * In case you need a specific tag:
 ```
 git fetch upstream --tags
 git checkout -b your_branch_name tags/release/21.2.3.0
+```
+
+* At every time login:
+```
+cd Athena/
+asetup --restore
+cd build/ && source x86_64-slc6-gcc62-opt/setup.sh && cd -
 ```
 
 PreExec
@@ -65,3 +73,4 @@ References
 ==========
 https://atlassoftwaredocs.web.cern.ch/gittutorial/env-setup/
 https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/SUSYxAODDerivationsr20#Release_21_2_X_git
+

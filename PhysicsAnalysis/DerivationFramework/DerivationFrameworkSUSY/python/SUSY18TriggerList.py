@@ -75,7 +75,7 @@ class SUSY18Triggers(object):
 
         #tau+electron+MET
         self.__electron_tau_met_triggers_2016_A = [ #ETMT
-            "HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50 "
+            "HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50"
             ]
         self.__electron_tau_met_triggers_2016_B_End = [ #ETMT
             "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50"
@@ -134,11 +134,15 @@ class SUSY18Triggers(object):
                                                  self.__single_electron_triggers_2016 + \
                                                  self.__single_electron_triggers_2017 )
 
-        self.__unique_triggers            = set( self.__lepton_triggers + \
-                                                     self.__lepton_tau_triggers + \
-                                                     self.__lepton_tau_met_triggers )
+        self.__unique_triggers            = self.trim_whitespaces( set( self.__lepton_triggers + \
+                                                                            self.__lepton_tau_triggers + \
+                                                                            self.__lepton_tau_met_triggers )
+                                                                   )
 
         self.__all_triggers_bitwise_or    = '|'.join(self.__unique_triggers)
+
+    def trim_whitespaces(self, iset = set() ):
+        return [x.strip(' ') for x in iset]
 
     @property
     def SMT_OR_2015(self):
