@@ -5,11 +5,9 @@
 /**
    @class TElectronEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in pure ROOT
-
-   @author Karsten Koeneke, Felix Buehrer
+   @author Karsten Koeneke, Felix Buehrer, Kristin Lohwasser
    @date   July 2012
 */
-
 
 // This class header
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
