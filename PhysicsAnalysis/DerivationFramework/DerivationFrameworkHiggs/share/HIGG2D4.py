@@ -154,23 +154,88 @@ print "HIGG2D4.py thinningTools", thinningTools
 
 ## Trigger requirement 
 from AthenaCommon.BeamFlags import jobproperties
-print "HIGG2D4.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
+beamEnergy = jobproperties.Beam.energy()
+print "HIGG2D4.py jobproperties.Beam.energy()", beamEnergy
+
 # 13 TeV
 singleElectronTriggerRequirement=["HLT_e.*"]
 diElectronTriggerRequirement=["HLT_2e.*"]
 singleMuonTriggerRequirement=["HLT_mu.*"]
 diMuonTriggerRequirement=["HLT_2mu.*"]
+metTriggerRequirement=[]
+# add MET trigger to recover muon trigger efficiency at high pt
+if True :
+    triglist=[]
+    triglist.append("HLT_xe80_tc_lcw_L1XE50") # added on Apr 2016
+    triglist.append("HLT_xe90_tc_lcw_L1XE50")
+    triglist.append("HLT_xe100_tc_lcw_L1XE50")
+    triglist.append("HLT_xe110_tc_lcw_L1XE60")
+    triglist.append("HLT_xe80_mht_L1XE50")
+    triglist.append("HLT_xe90_mht_L1XE50")
+    triglist.append("HLT_xe100_mht_L1XE50")
+    triglist.append("HLT_xe100_mht_L1XE60")
+    triglist.append("HLT_xe110_mht_L1XE50") # added on Aug 2016
+    triglist.append("HLT_xe110_mht_L1XE50_AND_xe70_L1XE50") # added on Sep 2016
+    triglist.append("HLT_xe130_mht_L1XE50") # added on Aug 2016
+    triglist.append("HLT_xe90_L1XE50")
+    triglist.append("HLT_xe100_L1XE50")
+    triglist.append("HLT_xe110_L1XE60")
+    triglist.append("HLT_xe80_tc_em_L1XE50")
+    triglist.append("HLT_xe90_tc_em_L1XE50")
+    triglist.append("HLT_xe100_tc_em_L1XE50")
+    triglist.append("HLT_xe80_tc_lcw")
+    triglist.append("HLT_xe90_tc_lcw")
+    triglist.append("HLT_xe100_tc_lcw")
+    triglist.append("HLT_xe90_mht")
+    triglist.append("HLT_xe100_mht")
+    triglist.append("HLT_xe90_tc_lcw_wEFMu_L1XE50")
+    triglist.append("HLT_xe90_mht_wEFMu_L1XE50")
+    triglist.append("HLT_xe120_pueta")
+    triglist.append("HLT_xe120_pufit")
+    triglist.append("HLT_xe100_tc_lcw_L1XE60") # added on Jun 2016
+    triglist.append("HLT_xe110_tc_em_L1XE50")
+    triglist.append("HLT_xe110_tc_em_wEFMu_L1XE50")
+    triglist.append("HLT_xe120_pueta_wEFMu")
+    triglist.append("HLT_xe120_mht")
+    triglist.append("HLT_xe120_tc_lcw")
+    triglist.append("HLT_xe120_mht_wEFMu")
+    triglist.append("HLT_xe110_L1XE50")
+    triglist.append("HLT_xe100_L1XE60")
+    triglist.append("HLT_xe120_pufit_wEFMu")
+    triglist.append("HLT_xe120_tc_lcw_wEFMu")
+    triglist.append("HLT_xe120_tc_em")
+    triglist.append("HLT_noalg_L1J400") # added on Nov 2016
+    if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
+        triglist.append("HLT_e28_lhtight_nod0_ivarloose")
+        triglist.append("HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM")
+        triglist.append("HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM")
+        triglist.append("HLT_e60_lhmedium_nod0_L1EM24VHI")
+        triglist.append("HLT_e140_lhloose_nod0_L1EM24VHI")
+        triglist.append("HLT_e300_etcut_L1EM24VHI")
+        triglist.append("HLT_mu60")
+        triglist.append("HLT_xe110_pufit_L1XE60")
+        triglist.append("HLT_xe120_pufit_L1XE60")
+        triglist.append("HLT_xe120_mht_xe80_L1XE60")
+        triglist.append("HLT_xe110_pufit_L1XE55")
+        triglist.append("HLT_xe120_pufit_L1XE55")
+        triglist.append("HLT_xe120_mht_xe80_L1XE55")
+        triglist.append("HLT_xe110_pufit_L1XE50")
+        triglist.append("HLT_xe120_pufit_L1XE50")
+        triglist.append("HLT_xe120_mht_xe80_L1XE50")
+    metTriggerRequirement+=triglist
+
+
 electronMuonTriggerRequirement=[]
-if jobproperties.Beam.energy()==4000000.0:
+if beamEnergy==4000000.0:
     # 8 TeV
     singleElectronTriggerRequirement=["EF_e24vhi_medium1", "EF_e60_medium1"]
     diElectronTriggerRequirement=["EF_2e12Tvh_loose1", "EF_2e12Tvh_loose1_L2StarB"]
     singleMuonTriggerRequirement=["EF_mu24i_tight", "EF_mu36_tight"]
     diMuonTriggerRequirement=["EF_2mu13", "EF_mu18_tight_mu8_EFFS"]
     electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
-triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
+triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement+metTriggerRequirement
 # 8 TeV MC does not have trigger information
-SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (jobproperties.Beam.energy()==4000000.0))
+SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (beamEnergy==4000000.0))
 print "HIGG2D4.py SkipTriggerRequirement", SkipTriggerRequirement
 if SkipTriggerRequirement:
     triggerRequirement=[]
@@ -330,7 +395,7 @@ HIGG2D4SlimmingHelper.AllVariables = HIGG2D4ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D4SlimmingHelper.ExtraVariables += HIGG2D4ExtraContentTruth
     HIGG2D4SlimmingHelper.AllVariables += HIGG2D4ExtraContainersTruth
-HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPrompt!VariablesForDxAOD()
+HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
 slimmed_content=["HIGG2D4Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
@@ -341,7 +406,7 @@ if DerivationFrameworkIsMonteCarlo :
              ]
 addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
 # Add MET_RefFinalFix
-addMETOutputs(HIGG2D4SlimmingHelper,[],["Track"."AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
+addMETOutputs(HIGG2D4SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 
 HIGG2D4SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeEGammaTriggerContent = True
