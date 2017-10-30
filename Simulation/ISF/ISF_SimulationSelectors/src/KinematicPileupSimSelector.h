@@ -1,39 +1,38 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 ///////////////////////////////////////////////////////////////////
-// PileupSimSelector.h, (c) ATLAS Detector software
+// KinematicPileupSimSelector.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ISF_TOOLS_PILEUPMUSIMFILTER_H
-#define ISF_TOOLS_PILEUPMUSIMFILTER_H 1
+#ifndef ISF_TOOLS_KINEMATICPILEUPSIMSELECTOR_H
+#define ISF_TOOLS_KINEMATICPILEUPSIMSELECTOR_H 1
 
 // ISF includes
+#include "ISF_Event/KinematicParticleCuts.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
 
 // Barcode interpretation
 #include "BarcodeServices/BitCalculator.h"
 
-namespace ISF
-{
+namespace ISF {
 
-  /** @class PileupSimSelector
-
-      This SimlationSelector implementation will select all particles that are handed to it.
-      ( passFilter() always returns true )
-
+  /** @class KinematicPileupSimSelector
+  
+      Simplistic pileup filter with cuts on energy and pseudorapidity.
+  
       @author Elmar.Ritsch -at- cern.ch
-  */
-  class PileupSimSelector : public ISimulationSelector
-  {
+      @author Artem.Basalaev -at- cern.ch
+     */
+  class KinematicPileupSimSelector : public ISimulationSelector, public KinematicParticleCuts {
+      
+    public: 
+     /** Constructor with parameters */
+     KinematicPileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-  public:
-    /** Constructor with parameters */
-    PileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+     /** Destructor */
+     ~KinematicPileupSimSelector();
 
-    /** Destructor */
-    ~PileupSimSelector();
 
     // Athena algtool's Hooks
     StatusCode  initialize() override final;
@@ -47,12 +46,8 @@ namespace ISF
 
     std::vector<int> m_pileupbcid; // vector of BCIDs to select
 
-    mutable int m_npass; // number of particles filter accepts
-    mutable int m_nfail; // number of particles filter rejects
-
   };
 
 }
 
-
-#endif //> !ISF_TOOLS_PILEUPMUSIMFILTER_H
+#endif //> !ISF_TOOLS_KINEMATICPILEUPSIMSELECTOR_H

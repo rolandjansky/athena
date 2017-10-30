@@ -36,27 +36,27 @@ class CaloHitAnalysis : public AthAlgorithm {
  private:
 
    /** Simple variables by Ketevi */
-   TH1* h_cell_eta;
-   TH1* h_cell_phi;
-   TH1* h_cell_e;
-   TH1* h_cell_radius;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH2* h_etaphi;
-   TH2* h_time_e;
-   TH2* h_eta_e;
-   TH2* h_phi_e;
-   TH2* h_r_e;
-   TH1* h_calib_eta;
-   TH1* h_calib_phi;
-   TH2* h_calib_rz;
-   TH2* h_calib_etaphi;
-   TH1* h_calib_eEM;
-   TH1* h_calib_eNonEM;
-   TH1* h_calib_eInv;
-   TH1* h_calib_eEsc;
-   TH1* h_calib_eTot;
-   TH1* h_calib_eTotpartID;
+   TH1* m_h_cell_eta;
+   TH1* m_h_cell_phi;
+   TH1* m_h_cell_e;
+   TH1* m_h_cell_radius;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH2* m_h_etaphi;
+   TH2* m_h_time_e;
+   TH2* m_h_eta_e;
+   TH2* m_h_phi_e;
+   TH2* m_h_r_e;
+   TH1* m_h_calib_eta;
+   TH1* m_h_calib_phi;
+   TH2* m_h_calib_rz;
+   TH2* m_h_calib_etaphi;
+   TH1* m_h_calib_eEM;
+   TH1* m_h_calib_eNonEM;
+   TH1* m_h_calib_eInv;
+   TH1* m_h_calib_eEsc;
+   TH1* m_h_calib_eTot;
+   TH1* m_h_calib_eTotpartID;
 
    const TileID * m_tileID;
    const TileDetDescrManager * m_tileMgr;
