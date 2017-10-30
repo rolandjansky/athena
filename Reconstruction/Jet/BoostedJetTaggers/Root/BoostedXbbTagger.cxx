@@ -8,8 +8,8 @@
 
 #include "TEnv.h"
 
-static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_parent("Parent");                                                                        
-static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > m_ghostMatchedTrackJets("GhostAntiKt2TrackJet"); 
+static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> acc_parent("Parent");                                                                        
+static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc_ghostMatchedTrackJets("GhostAntiKt2TrackJet"); 
 
 BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
@@ -312,8 +312,8 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   // get the track jets from the parent
   bool problemWithParent = false;
   ElementLink<xAOD::JetContainer> parentEL;
-  if(!m_parent.isAvailable(jet)) problemWithParent = true;
-  else parentEL = m_parent(jet);
+  if(!acc_parent.isAvailable(jet)) problemWithParent = true;
+  else parentEL = acc_parent(jet);
   if(problemWithParent || !parentEL.isValid()){
     if(problemWithParent) ATH_MSG_ERROR("Parent decoration does not exist.");
     if(!parentEL.isValid()) ATH_MSG_ERROR("Parent link is not valid.");
@@ -322,10 +322,10 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   else {
     const xAOD::Jet* parentJet = *parentEL;
     // use accessor instead of getAssociatedObject in order to have EL
-    if (!m_ghostMatchedTrackJets.isAvailable(*parentJet)) {
+    if (!acc_ghostMatchedTrackJets.isAvailable(*parentJet)) {
       ATH_MSG_ERROR("Ghostmatched jet collection does not exist.");
     }
-    associated_trackJets = m_ghostMatchedTrackJets(*parentJet);
+    associated_trackJets = acc_ghostMatchedTrackJets(*parentJet);
   }
 
   // decorate all trackjets by default
@@ -519,11 +519,11 @@ StatusCode BoostedXbbTagger::decorateWithMuons(const xAOD::Jet& jet) const
     // retrieve ghost-associated track jets from large-R jet
     std::vector<const xAOD::Jet*> associated_trackJets;
     // get the element links to the parent, ungroomed jet
-    if(!m_parent.isAvailable(jet)) {
+    if(!acc_parent.isAvailable(jet)) {
         ATH_MSG_ERROR("Parent (ungroomed) jet collection does not exist.");
         return StatusCode::FAILURE;
     }
-    ElementLink<xAOD::JetContainer> parentEL = m_parent(jet);
+    ElementLink<xAOD::JetContainer> parentEL = acc_parent(jet);
     if(!parentEL.isValid()) {
         ATH_MSG_ERROR("Parent link is not valid.");
         return StatusCode::FAILURE;
