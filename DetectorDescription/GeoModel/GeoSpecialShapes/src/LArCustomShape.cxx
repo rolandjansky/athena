@@ -13,53 +13,53 @@ const std::string LArCustomShape::s_classType = "CustomShape";
 const ShapeType LArCustomShape::s_classTypeID = 500;
 
 const LArCustomShape::ShapeCalc_typemap LArCustomShape::s_calculatorTypes = {
-	{ "LAr::EMEC::InnerWheel::Absorber",		{LArG4::InnerAbsorberWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Absorber",	{LArG4::InnerAbsorberWheel, 1} },
+  { "LAr::EMEC::InnerWheel::Absorber",          {LArG4::InnerAbsorberWheel, 1} },
+  { "LAr::EMEC::Pos::InnerWheel::Absorber",     {LArG4::InnerAbsorberWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Absorber",		{LArG4::OuterAbsorberWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Absorber",	{LArG4::OuterAbsorberWheel, 1} },
+  { "LAr::EMEC::OuterWheel::Absorber",          {LArG4::OuterAbsorberWheel, 1} },
+  { "LAr::EMEC::Pos::OuterWheel::Absorber",     {LArG4::OuterAbsorberWheel, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Electrode",		{LArG4::InnerElectrodWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Electrode",	{LArG4::InnerElectrodWheel, 1} },
+  { "LAr::EMEC::InnerWheel::Electrode",         {LArG4::InnerElectrodWheel, 1} },
+  { "LAr::EMEC::Pos::InnerWheel::Electrode",    {LArG4::InnerElectrodWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Electrode",		{LArG4::OuterElectrodWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Electrode",	{LArG4::OuterElectrodWheel, 1} },
+  { "LAr::EMEC::OuterWheel::Electrode",         {LArG4::OuterElectrodWheel, 1} },
+  { "LAr::EMEC::Pos::OuterWheel::Electrode",    {LArG4::OuterElectrodWheel, 1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Absorber",	{LArG4::InnerAbsorberWheel, -1} },
+  { "LAr::EMEC::Neg::InnerWheel::Absorber",     {LArG4::InnerAbsorberWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Absorber",	{LArG4::OuterAbsorberWheel, -1} },
+  { "LAr::EMEC::Neg::OuterWheel::Absorber",     {LArG4::OuterAbsorberWheel, -1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Electrode",	{LArG4::InnerElectrodWheel, -1} },
+  { "LAr::EMEC::Neg::InnerWheel::Electrode",    {LArG4::InnerElectrodWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Electrode",	{LArG4::OuterElectrodWheel, -1} },
+  { "LAr::EMEC::Neg::OuterWheel::Electrode",    {LArG4::OuterElectrodWheel, -1} },
 
-	{ "LAr::EMEC::InnerModule::Absorber",		{LArG4::InnerAbsorberModule, 1} },
+  { "LAr::EMEC::InnerModule::Absorber",         {LArG4::InnerAbsorberModule, 1} },
 
-	{ "LAr::EMEC::OuterModule::Absorber",		{LArG4::OuterAbsorberModule, 1} },
+  { "LAr::EMEC::OuterModule::Absorber",         {LArG4::OuterAbsorberModule, 1} },
 
-	{ "LAr::EMEC::InnerModule::Electrode",		{LArG4::InnerElectrodModule, 1} },
+  { "LAr::EMEC::InnerModule::Electrode",        {LArG4::InnerElectrodModule, 1} },
 
-	{ "LAr::EMEC::OuterModule::Electrode",	{LArG4::OuterElectrodModule, 1} },
+  { "LAr::EMEC::OuterModule::Electrode",        {LArG4::OuterElectrodModule, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Glue",			{LArG4::InnerGlueWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Glue",		{LArG4::InnerGlueWheel, 1} },
+  { "LAr::EMEC::InnerWheel::Glue",              {LArG4::InnerGlueWheel, 1} },
+  { "LAr::EMEC::Pos::InnerWheel::Glue",         {LArG4::InnerGlueWheel, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Lead",			{LArG4::InnerLeadWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Lead",		{LArG4::InnerLeadWheel, 1} },
+  { "LAr::EMEC::InnerWheel::Lead",              {LArG4::InnerLeadWheel, 1} },
+  { "LAr::EMEC::Pos::InnerWheel::Lead",         {LArG4::InnerLeadWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Glue",			{LArG4::OuterGlueWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Glue",		{LArG4::OuterGlueWheel, 1} },
+  { "LAr::EMEC::OuterWheel::Glue",              {LArG4::OuterGlueWheel, 1} },
+  { "LAr::EMEC::Pos::OuterWheel::Glue",         {LArG4::OuterGlueWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Lead",			{LArG4::OuterLeadWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Lead",		{LArG4::OuterLeadWheel, 1} },
+  { "LAr::EMEC::OuterWheel::Lead",              {LArG4::OuterLeadWheel, 1} },
+  { "LAr::EMEC::Pos::OuterWheel::Lead",         {LArG4::OuterLeadWheel, 1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Glue",		{LArG4::InnerGlueWheel, -1} },
+  { "LAr::EMEC::Neg::InnerWheel::Glue",         {LArG4::InnerGlueWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Glue",		{LArG4::OuterGlueWheel, -1} },
+  { "LAr::EMEC::Neg::OuterWheel::Glue",         {LArG4::OuterGlueWheel, -1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Lead",		{LArG4::InnerLeadWheel, -1} },
+  { "LAr::EMEC::Neg::InnerWheel::Lead",         {LArG4::InnerLeadWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Lead",		{LArG4::OuterLeadWheel, -1} }
+  { "LAr::EMEC::Neg::OuterWheel::Lead",         {LArG4::OuterLeadWheel, -1} }
 };
 
 LArCustomShape::LArCustomShape(const std::string& a_shapeName)
@@ -159,48 +159,49 @@ LArCustomShape::LArCustomShape(const std::string& a_shapeName)
 
 LArCustomShape::~LArCustomShape()
 {
-	//delete m_calculator;
+  //delete m_calculator;
 }
 
-StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef) { // LArG4::LArWheelCalculator_t wheelType, int zside
-	LArG4::LArWheelCalculator_t wheelType = cdef.first;
-	int zside = cdef.second;
-	
-	m_calculator = new LArWheelCalculator(wheelType, zside); 
-	std::string calcDSname = std::string("LAr::EMEC::")+ (zside>0?"Pos::":"Neg::")+LArWheelCalculator::LArWheelCalculatorTypeString(wheelType);
-	
-	//std::cout << "-->>> LArCustomShape::createCalculator:  m_calculator=" << m_calculator << ", name="<< calcDSname <<"\n";
-	// ownership is passed to detStore
-	return detStore()->record(m_calculator,  calcDSname);
-}
+StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef)
+{
+  LArG4::LArWheelCalculator_t wheelType = cdef.first;
+  int zside = cdef.second;
 
+  m_calculator = new LArWheelCalculator(wheelType, zside);
+  std::string calcDSname = std::string("LAr::EMEC::") + (zside>0?"Pos::":"Neg::") +
+                           LArWheelCalculator::LArWheelCalculatorTypeString(wheelType);
+
+  //std::cout << "-->>> LArCustomShape::createCalculator:  m_calculator=" << m_calculator << ", name="<< calcDSname <<"\n";
+  // ownership is passed to detStore
+  return detStore()->record(m_calculator, calcDSname);
+}
 
 const LArWheelCalculator *LArCustomShape::calculator() const
 {
-	return m_calculator;
+  return m_calculator;
 }
 
 double LArCustomShape::volume() const
 {
-	return 0;
+  return 0;
 }
 
 const std::string& LArCustomShape::type() const
 {
-	return s_classType;
+  return s_classType;
 }
 
 ShapeType LArCustomShape::typeID() const
 {
-	return s_classTypeID;
+  return s_classTypeID;
 }
 
 const std::string& LArCustomShape::name() const
 {
-	return m_shapeName;
+  return m_shapeName;
 }
 
 void LArCustomShape::exec(GeoShapeAction* action) const
 {
-	action->handleLArCustom(this);
+  action->handleLArCustom(this);
 }
