@@ -75,60 +75,59 @@ void LArWheelCalculator::fill_sincos_parameterization()
 #if LARWC_SINCOS_POLY > 4 && DEBUGPRINT
   std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
 #endif
-	const Int_t nBasisFunctions = nrPolyDegree + 1;
+  const Int_t nBasisFunctions = nrPolyDegree + 1;
 
-	static bool filled[2] = { false, false };
-	static double sin_parametrization[2][nBasisFunctions];
-	static double cos_parametrization[2][nBasisFunctions];
+  static bool filled[2] = { false, false };
+  static double sin_parametrization[2][nBasisFunctions];
+  static double cos_parametrization[2][nBasisFunctions];
 
-	size_t S = m_isInner? 0: 1;
-	if(filled[S]){
-		for(Int_t i = 0; i < nBasisFunctions; ++ i){
-			m_sin_parametrization[i] = sin_parametrization[S][i];
-			m_cos_parametrization[i] = cos_parametrization[S][i];
-		}
-		return;
-	}
-/*
-	const Double_t Rmin = m_isInner? 290.*mm: 600.*mm;
-	const Double_t Rmax = m_isInner? 710.*mm: 2050.*mm;*/
-	const Double_t Rmin = m_isInner? 250.*mm: 560.*mm;
-	const Double_t Rmax = m_isInner? 750.*mm: 2090.*mm;
-/*	const Double_t Rmin = m_isInner? 220.*mm: 530.*mm;
-	const Double_t Rmax = m_isInner? 780.*mm: 2120.*mm;*/
-	const Double_t Rstep = 1.*mm;
-	const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
-	const Int_t dataLen = nrPoints + 1;
+  size_t S = m_isInner? 0: 1;
+  if(filled[S]){
+    for(Int_t i = 0; i < nBasisFunctions; ++ i){
+      m_sin_parametrization[i] = sin_parametrization[S][i];
+      m_cos_parametrization[i] = cos_parametrization[S][i];
+    }
+    return;
+  }
+  //const Double_t Rmin = m_isInner? 290.*mm: 600.*mm;
+  //const Double_t Rmax = m_isInner? 710.*mm: 2050.*mm;
+  const Double_t Rmin = m_isInner? 250.*mm: 560.*mm;
+  const Double_t Rmax = m_isInner? 750.*mm: 2090.*mm;
+  //const Double_t Rmin = m_isInner? 220.*mm: 530.*mm;
+  //const Double_t Rmax = m_isInner? 780.*mm: 2120.*mm;
+  const Double_t Rstep = 1.*mm;
+  const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
+  const Int_t dataLen = nrPoints + 1;
 
-	TVectorD x(dataLen);  // angle points
-	TVectorD ysin(dataLen);  // to be approximated function values at angle points - sin
-	TVectorD ycos(dataLen);  // to be approximated function values at angle points - cos
-	TMatrixD bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
+  TVectorD x(dataLen);  // angle points
+  TVectorD ysin(dataLen);  // to be approximated function values at angle points - sin
+  TVectorD ycos(dataLen);  // to be approximated function values at angle points - cos
+  TMatrixD bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
 
-	for(Int_t i = 0; i < dataLen; ++ i){
-		const Double_t a = Rmin + i * Rstep;
-		x[i] = a;
-		CxxUtils::sincos scalpha(parameterized_slant_angle(a));
-		ysin[i] = scalpha.sn;
-		ycos[i] = scalpha.cs;
-		for(Int_t n = 0; n < nBasisFunctions; ++ n) {
-			bf(n, i) = pow(a, n);
-		}
-	}
+  for(Int_t i = 0; i < dataLen; ++ i){
+    const Double_t a = Rmin + i * Rstep;
+    x[i] = a;
+    CxxUtils::sincos scalpha(parameterized_slant_angle(a));
+    ysin[i] = scalpha.sn;
+    ycos[i] = scalpha.cs;
+    for(Int_t n = 0; n < nBasisFunctions; ++ n) {
+      bf(n, i) = pow(a, n);
+    }
+  }
 
-	TVectorD params_sin =
-		findLinearApproximation(dataLen, nBasisFunctions, ysin, bf);
-	TVectorD params_cos =
-		findLinearApproximation(dataLen, nBasisFunctions, ycos, bf);
+  TVectorD params_sin =
+    findLinearApproximation(dataLen, nBasisFunctions, ysin, bf);
+  TVectorD params_cos =
+    findLinearApproximation(dataLen, nBasisFunctions, ycos, bf);
 
-	for(Int_t i = 0; i < nBasisFunctions; ++ i){
-		m_sin_parametrization[i] = params_sin[i];
-		m_cos_parametrization[i] = params_cos[i];
-		sin_parametrization[S][i] = params_sin[i];
-		cos_parametrization[S][i] = params_cos[i];
-	}
+  for(Int_t i = 0; i < nBasisFunctions; ++ i){
+    m_sin_parametrization[i] = params_sin[i];
+    m_cos_parametrization[i] = params_cos[i];
+    sin_parametrization[S][i] = params_sin[i];
+    cos_parametrization[S][i] = params_cos[i];
+  }
 
-	filled[S] = true;
+  filled[S] = true;
 
 #if DEBUGPRINT
   std::cout << "sin params:" << params_sin << std::endl;

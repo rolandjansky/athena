@@ -14,11 +14,16 @@ using namespace Gaudi::Units;
 #undef HARDDEBUG
 #endif
 
-namespace LArWheelCalculator_Impl {
-    ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc, IRDBAccessSvc* /*rdbAccess*/, const DecodeVersionKey & /*larVersionKey*/) :
-    		m_lwc(lwc)
-    {
-    }
+namespace LArWheelCalculator_Impl
+{
+
+  ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc,
+                                           IRDBAccessSvc* /*rdbAccess*/,
+                                           const DecodeVersionKey & /*larVersionKey*/)
+    : m_lwc(lwc)
+  {
+  }
+
 
 	double ModuleFanCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const {
 		int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
