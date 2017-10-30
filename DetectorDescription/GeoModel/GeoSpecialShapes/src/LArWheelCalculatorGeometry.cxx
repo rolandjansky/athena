@@ -119,12 +119,8 @@ CLHEP::Hep3Vector LArWheelCalculator::NearestPointOnNeutralFibre(const CLHEP::He
 
 std::vector<double> LArWheelCalculator::NearestPointOnNeutralFibre_asVector(const CLHEP::Hep3Vector &p, int fan_number) const
 {
-  std::vector<double> v(3, 0.0);
   CLHEP::Hep3Vector np = NearestPointOnNeutralFibre(p, fan_number);
-  v[0] = np.x();
-  v[1] = np.y();
-  v[2] = np.z();
-  return v;
+  return std::vector<double> { np.x(), np.y(), np.z() };
 }
 
 /*
