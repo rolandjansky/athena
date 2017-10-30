@@ -1,4 +1,4 @@
 #include "../ForwardTransportModelTool.h"
 
-DECLARE_TOOL_FACTORY( ForwardTransportModelTool )
+DECLARE_COMPONENT( ForwardTransportModelTool )
 

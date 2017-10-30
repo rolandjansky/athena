@@ -20,24 +20,24 @@
 #include "../xAODCnv.h"
 #include "../xAODEventSelector.h"
 
-DECLARE_NAMESPACE_SERVICE_FACTORY(Athena, NtupleCnvSvc)
-//DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, LeafCnv)
+DECLARE_COMPONENT( Athena::NtupleCnvSvc )
+//DECLARE_CONVERTER_FACTORY( Athena::LeafCnv )
 
-//DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, RootCnv)
-DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, RootCnvSvc )
-DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, RootSvc )
-DECLARE_NAMESPACE_TOOL_FACTORY( Athena, RootOutputStreamTool )
+//DECLARE_CONVERTER_FACTORY( Athena::RootCnv )
+DECLARE_COMPONENT( Athena::RootCnvSvc )
+DECLARE_COMPONENT( Athena::RootSvc )
+DECLARE_COMPONENT( Athena::RootOutputStreamTool )
 
-DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, xAODCnvSvc )
+DECLARE_COMPONENT( Athena::xAODCnvSvc )
 
-DECLARE_NAMESPACE_SERVICE_FACTORY(Athena, RootNtupleEventSelector)
-DECLARE_NAMESPACE_SERVICE_FACTORY(Athena, xAODEventSelector)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(Athena, RootNtupleOutputStream)
-DECLARE_NAMESPACE_TOOL_FACTORY( Athena, RootNtupleOutputMetadataTool )
+DECLARE_COMPONENT( Athena::RootNtupleEventSelector )
+DECLARE_COMPONENT( Athena::xAODEventSelector )
+DECLARE_COMPONENT( Athena::RootNtupleOutputStream )
+DECLARE_COMPONENT( Athena::RootNtupleOutputMetadataTool )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Athena, RootAsciiDumperAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Athena, RootAsciiDumperAlgHandle )
+DECLARE_COMPONENT( Athena::RootAsciiDumperAlg )
+DECLARE_COMPONENT( Athena::RootAsciiDumperAlgHandle )
 
 
-DECLARE_SERVICE_FACTORY( IoSvc )
+DECLARE_COMPONENT( IoSvc )
 

@@ -3,8 +3,8 @@
 #include "../AFPSiRowColToLocalCSTool.h"
 #include "../AFPSiClusterBasicNearestNeighbour.h"
 
-DECLARE_TOOL_FACTORY(AFPSiClusterTool)
-DECLARE_TOOL_FACTORY(AFPSiClusterSingleHitTool)
-DECLARE_TOOL_FACTORY(AFPSiRowColToLocalCSTool)
-DECLARE_TOOL_FACTORY(AFPSiClusterBasicNearestNeighbour)
+DECLARE_COMPONENT( AFPSiClusterTool )
+DECLARE_COMPONENT( AFPSiClusterSingleHitTool )
+DECLARE_COMPONENT( AFPSiRowColToLocalCSTool )
+DECLARE_COMPONENT( AFPSiClusterBasicNearestNeighbour )
 

@@ -5,10 +5,10 @@
 #include "../EventInfoAttListTool.h"
 #include "../EventInfoTagBuilder.h"
 
-DECLARE_TOOL_FACTORY(AthenaPoolOutputStreamTool)
-DECLARE_TOOL_FACTORY(MakeEventStreamInfo)
-DECLARE_TOOL_FACTORY(CopyEventStreamInfo)
-DECLARE_TOOL_FACTORY(EventInfoAttListTool)
-DECLARE_ALGORITHM_FACTORY(MakeInputDataHeader)
-DECLARE_ALGORITHM_FACTORY(EventInfoTagBuilder)
+DECLARE_COMPONENT( AthenaPoolOutputStreamTool )
+DECLARE_COMPONENT( MakeEventStreamInfo )
+DECLARE_COMPONENT( CopyEventStreamInfo )
+DECLARE_COMPONENT( EventInfoAttListTool )
+DECLARE_COMPONENT( MakeInputDataHeader )
+DECLARE_COMPONENT( EventInfoTagBuilder )
 

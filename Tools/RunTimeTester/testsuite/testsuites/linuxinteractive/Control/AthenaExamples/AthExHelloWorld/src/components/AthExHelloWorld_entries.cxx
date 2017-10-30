@@ -2,6 +2,6 @@
 #include "../HelloTool.h"
 
 
-DECLARE_ALGORITHM_FACTORY( HelloAlg )
-DECLARE_TOOL_FACTORY( HelloTool )
+DECLARE_COMPONENT( HelloAlg )
+DECLARE_COMPONENT( HelloTool )
 

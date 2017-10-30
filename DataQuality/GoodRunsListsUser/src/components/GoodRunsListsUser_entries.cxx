@@ -3,8 +3,8 @@
 #include "GoodRunsListsUser/GoodRunsListSelectorAlg.h"
 #include "GoodRunsListsUser/GRLTriggerSelectorAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( DummyDumperAlg )
-DECLARE_ALGORITHM_FACTORY( TriggerSelectorAlg )
-DECLARE_ALGORITHM_FACTORY( GoodRunsListSelectorAlg )
-DECLARE_ALGORITHM_FACTORY( GRLTriggerSelectorAlg )
+DECLARE_COMPONENT( DummyDumperAlg )
+DECLARE_COMPONENT( TriggerSelectorAlg )
+DECLARE_COMPONENT( GoodRunsListSelectorAlg )
+DECLARE_COMPONENT( GRLTriggerSelectorAlg )
 

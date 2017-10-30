@@ -1,4 +1,4 @@
 #include "ByteStreamEmonSvc/ByteStreamEmonInputSvc.h"
 
-DECLARE_SERVICE_FACTORY( ByteStreamEmonInputSvc )
+DECLARE_COMPONENT( ByteStreamEmonInputSvc )
 

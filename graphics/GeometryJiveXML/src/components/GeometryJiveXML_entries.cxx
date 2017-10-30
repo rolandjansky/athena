@@ -3,6 +3,6 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(GeometryWriter)
-DECLARE_TOOL_FACTORY(MuonGeometryWriter)
+DECLARE_COMPONENT( GeometryWriter )
+DECLARE_COMPONENT( MuonGeometryWriter )
 

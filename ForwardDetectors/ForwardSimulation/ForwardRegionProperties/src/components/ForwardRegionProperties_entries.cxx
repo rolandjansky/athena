@@ -1,4 +1,4 @@
 #include "ForwardRegionProperties/ForwardRegionProperties.h"
 
-DECLARE_TOOL_FACTORY(ForwardRegionProperties)
+DECLARE_COMPONENT( ForwardRegionProperties )
 

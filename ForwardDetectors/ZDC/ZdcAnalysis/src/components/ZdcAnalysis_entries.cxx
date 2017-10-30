@@ -2,7 +2,7 @@
 
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
 
-DECLARE_TOOL_FACTORY            (ZDC::ZdcAnalysisTool)
+DECLARE_COMPONENT( ZDC::ZdcAnalysisTool )
 
 
 #endif

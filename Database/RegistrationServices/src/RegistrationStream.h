@@ -75,13 +75,13 @@ public:
 /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
     virtual StatusCode io_reinit();
 
-private:
-    
     /// Standard RegistrationStream Constructor
     RegistrationStream(const std::string& name, ISvcLocator* pSvcLocator); 
 
     /// Standard Destructor
     virtual ~RegistrationStream();
+
+private:
 
     /// PRIVATE METHODS
     /// Handler for ItemNames Property

@@ -2,11 +2,11 @@
 #include "GoodRunsLists/TriggerRegistryTool.h"
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 
-DECLARE_TOOL_FACTORY( GoodRunsListSelectorTool )
-DECLARE_TOOL_FACTORY( GoodRunsListSelectionTool )
-DECLARE_TOOL_FACTORY( TriggerRegistryTool )
+DECLARE_COMPONENT( GoodRunsListSelectorTool )
+DECLARE_COMPONENT( GoodRunsListSelectionTool )
+DECLARE_COMPONENT( TriggerRegistryTool )
 
 
 #include "../GRLSelectorAlg.h"
-DECLARE_ALGORITHM_FACTORY( GRLSelectorAlg )
+DECLARE_COMPONENT( GRLSelectorAlg )
 

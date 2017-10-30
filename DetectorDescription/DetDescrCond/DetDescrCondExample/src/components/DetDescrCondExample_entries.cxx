@@ -3,8 +3,8 @@
 #include "DetDescrCondExample/ReadWriteCoolStrFile.h"
 #include "DetDescrCondExample/CoolHistExample.h"
 
-DECLARE_ALGORITHM_FACTORY( ReadAlignTrans )
-DECLARE_ALGORITHM_FACTORY( ReadTopTrans )
-DECLARE_ALGORITHM_FACTORY( ReadWriteCoolStrFile )
-DECLARE_ALGORITHM_FACTORY( CoolHistExample )
+DECLARE_COMPONENT( ReadAlignTrans )
+DECLARE_COMPONENT( ReadTopTrans )
+DECLARE_COMPONENT( ReadWriteCoolStrFile )
+DECLARE_COMPONENT( CoolHistExample )
 

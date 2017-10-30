@@ -1,4 +1,4 @@
 #include "TBCaloGeometry/TBCaloCoordinate.h"
 
-DECLARE_TOOL_FACTORY( TBCaloCoordinate )
+DECLARE_COMPONENT( TBCaloCoordinate )
 

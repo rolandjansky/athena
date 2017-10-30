@@ -6,10 +6,10 @@
 #include "../RegistrationStreamLCGTool.h"
 #include "../RegistrationStreamTagTool.h"
 
-DECLARE_ALGORITHM_FACTORY(RegistrationStream)
-DECLARE_ALGORITHM_FACTORY(RegistrationStreamDefMeta)
-DECLARE_ALGORITHM_FACTORY(OutputConditionsAlg)
-DECLARE_TOOL_FACTORY(InputCollectionMetadataCopy)
-DECLARE_TOOL_FACTORY(RegistrationStreamLCGTool)
-DECLARE_TOOL_FACTORY(RegistrationStreamTagTool)
+DECLARE_COMPONENT( RegistrationStream )
+DECLARE_COMPONENT( RegistrationStreamDefMeta )
+DECLARE_COMPONENT( OutputConditionsAlg )
+DECLARE_COMPONENT( InputCollectionMetadataCopy )
+DECLARE_COMPONENT( RegistrationStreamLCGTool )
+DECLARE_COMPONENT( RegistrationStreamTagTool )
 

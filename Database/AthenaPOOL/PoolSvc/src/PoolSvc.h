@@ -173,7 +173,6 @@ public: // Non-static members
    /// Setup Frontier cache for given logical or physical connection name
    StatusCode setFrontierCache(const std::string& conn) const;
 
-protected: // constructor and destructor
    /// Standard Service Constructor
    PoolSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor

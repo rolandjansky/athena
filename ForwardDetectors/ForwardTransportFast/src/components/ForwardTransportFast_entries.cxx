@@ -1,4 +1,4 @@
 #include "ForwardTransportFast/ForwardTransportFast.h"
 
-DECLARE_ALGORITHM_FACTORY( ForwardTransportFast )
+DECLARE_COMPONENT( ForwardTransportFast )
 

@@ -14,12 +14,12 @@
 #include "ZdcByteStream/ZdcL1CaloErrorByteStreamTool.h"
 
 
-DECLARE_TOOL_FACTORY      (ZdcByteStreamTool)
-DECLARE_TOOL_FACTORY      (ZdcByteStreamReadV1V2Tool)
-DECLARE_TOOL_FACTORY      (ZdcL1CaloErrorByteStreamTool)
-DECLARE_TOOL_FACTORY (ZdcDataAccessV2)
-DECLARE_CONVERTER_FACTORY (ZdcByteStreamCnv)
-DECLARE_ALGORITHM_FACTORY (ZdcByteStreamTester)
-DECLARE_ALGORITHM_FACTORY (ZdcByteStreamRawData)
-DECLARE_ALGORITHM_FACTORY (ZdcByteStreamRawDataV2)
+DECLARE_COMPONENT( ZdcByteStreamTool )
+DECLARE_COMPONENT( ZdcByteStreamReadV1V2Tool )
+DECLARE_COMPONENT( ZdcL1CaloErrorByteStreamTool )
+DECLARE_COMPONENT( ZdcDataAccessV2 )
+DECLARE_CONVERTER_FACTORY( ZdcByteStreamCnv )
+DECLARE_COMPONENT( ZdcByteStreamTester )
+DECLARE_COMPONENT( ZdcByteStreamRawData )
+DECLARE_COMPONENT( ZdcByteStreamRawDataV2 )
 

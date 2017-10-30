@@ -1,5 +1,5 @@
 #include "../TBCaloPosTool.h" 
 #include "../TBCaloCoolPosTool.h" 
-DECLARE_TOOL_FACTORY( TBCaloPosTool ) 
-DECLARE_TOOL_FACTORY( TBCaloCoolPosTool ) 
+DECLARE_COMPONENT( TBCaloPosTool ) 
+DECLARE_COMPONENT( TBCaloCoolPosTool ) 
 

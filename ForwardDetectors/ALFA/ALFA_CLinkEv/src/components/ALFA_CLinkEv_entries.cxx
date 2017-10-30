@@ -1,4 +1,4 @@
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 
-DECLARE_ALGORITHM_FACTORY(ALFA_CLinkEvent)
+DECLARE_COMPONENT( ALFA_CLinkEvent )
 

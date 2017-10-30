@@ -1,4 +1,4 @@
 #include "../IOVDbMetaDataTool.h"
 
-DECLARE_TOOL_FACTORY( IOVDbMetaDataTool )
+DECLARE_COMPONENT( IOVDbMetaDataTool )
 

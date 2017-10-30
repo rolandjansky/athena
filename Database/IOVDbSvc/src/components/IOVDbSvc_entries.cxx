@@ -1,4 +1,4 @@
 #include "../IOVDbSvc.h"
 
-DECLARE_SERVICE_FACTORY(IOVDbSvc)
+DECLARE_COMPONENT( IOVDbSvc )
 

@@ -1,6 +1,6 @@
 #include "AthenaDBTestRec/TestCoolRecRead.h"
 #include "AthenaDBTestRec/DetStoreDump.h"
 
-DECLARE_ALGORITHM_FACTORY( TestCoolRecRead )
-DECLARE_ALGORITHM_FACTORY( DetStoreDump )
+DECLARE_COMPONENT( TestCoolRecRead )
+DECLARE_COMPONENT( DetStoreDump )
 

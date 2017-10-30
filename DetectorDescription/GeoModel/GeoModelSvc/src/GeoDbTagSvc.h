@@ -20,11 +20,12 @@ class GeoDbTagSvc : public AthService, virtual public IGeoDbTagSvc
 
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
- protected:
   friend class SvcFactory<GeoDbTagSvc>;
 
   GeoDbTagSvc(const std::string& name, ISvcLocator* svc);
   virtual ~GeoDbTagSvc();
+
+ protected:
 
   void setAtlasVersion(const std::string& tag)                     { m_AtlasVersion=tag; }
   void setInDetVersionOverride(const std::string& tag)             { m_InDetVersionOverride=tag; }

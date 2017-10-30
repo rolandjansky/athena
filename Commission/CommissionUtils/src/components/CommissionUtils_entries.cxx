@@ -1,5 +1,5 @@
 #include "CommissionUtils/CosmicTriggerTimeTool.h"
 
 
-DECLARE_TOOL_FACTORY( CosmicTriggerTimeTool ) 
+DECLARE_COMPONENT( CosmicTriggerTimeTool ) 
 

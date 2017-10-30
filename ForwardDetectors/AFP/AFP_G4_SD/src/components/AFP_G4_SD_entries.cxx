@@ -2,7 +2,7 @@
 #include "../AFP_SiDSensitiveDetectorTool.h"
 #include "../AFP_TDSensitiveDetectorTool.h"
 
-DECLARE_TOOL_FACTORY(AFP_SensitiveDetectorTool) //TODO remove once separate versions tested
-DECLARE_TOOL_FACTORY(AFP_SiDSensitiveDetectorTool)
-DECLARE_TOOL_FACTORY(AFP_TDSensitiveDetectorTool)
+DECLARE_COMPONENT( AFP_SensitiveDetectorTool ) //TODO remove once separate versions tested
+DECLARE_COMPONENT( AFP_SiDSensitiveDetectorTool )
+DECLARE_COMPONENT( AFP_TDSensitiveDetectorTool )
 

@@ -3,8 +3,8 @@
 #include "CoolLumiUtilities/BunchLumisTool.h"
 #include "CoolLumiUtilities/OnlineLumiCalibrationTool.h"
 
-DECLARE_TOOL_FACTORY( FillParamsTool )
-DECLARE_TOOL_FACTORY( BunchGroupTool )
-DECLARE_TOOL_FACTORY( BunchLumisTool )
-DECLARE_TOOL_FACTORY( OnlineLumiCalibrationTool )
+DECLARE_COMPONENT( FillParamsTool )
+DECLARE_COMPONENT( BunchGroupTool )
+DECLARE_COMPONENT( BunchLumisTool )
+DECLARE_COMPONENT( OnlineLumiCalibrationTool )
 
