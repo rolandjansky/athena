@@ -7,6 +7,7 @@
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
+
 using namespace Gaudi::Units;
 
 #ifdef HARDDEBUG

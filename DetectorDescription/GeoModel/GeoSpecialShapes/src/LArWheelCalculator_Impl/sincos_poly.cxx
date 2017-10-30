@@ -18,12 +18,13 @@
 #define DEBUGPRINT 0
 
 template<typename T>
-std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v) {
+std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v)
+{
   std::ios_base::fmtflags save_flags(ostr.flags());
   ostr << '[';
   ostr << std::scientific;
   for(Int_t idx=v.GetLwb();idx<v.GetUpb();idx++) {
-	ostr << v[idx] << ", ";
+    ostr << v[idx] << ", ";
   }
   ostr << v[v.GetUpb()];
   ostr << ']';
@@ -34,44 +35,45 @@ std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v) {
 
 // find best approximation of y values using linear combination of basis functions in bf
 static TVectorD findLinearApproximation(
-	const Int_t dataLen, const Int_t nBasisFuntions,
-	const TVectorD &y, const TMatrixD & bf)
+    const Int_t dataLen, const Int_t nBasisFuntions,
+    const TVectorD &y, const TMatrixD & bf)
 {
-	TMatrixDSym A(nBasisFuntions);
-	TVectorD vY(nBasisFuntions);
+  TMatrixDSym A(nBasisFuntions);
+  TVectorD vY(nBasisFuntions);
 
-	for(Int_t j = 0; j < nBasisFuntions; ++ j){
-		for(Int_t k = 0; k < nBasisFuntions; ++ k){
-			Double_t Ajk = 0.0;
-			for(Int_t i = 0; i < dataLen; ++ i){
-				Ajk += bf(j, i) * bf(k, i);
-			}
-			A(j, k) = Ajk;
-		}
-	}
+  for(Int_t j = 0; j < nBasisFuntions; ++ j){
+    for(Int_t k = 0; k < nBasisFuntions; ++ k){
+      Double_t Ajk = 0.0;
+      for(Int_t i = 0; i < dataLen; ++ i){
+        Ajk += bf(j, i) * bf(k, i);
+      }
+      A(j, k) = Ajk;
+    }
+  }
 
-	for(Int_t k = 0; k < nBasisFuntions; ++ k){
-		Double_t vYk = 0.0;
-		for(Int_t i = 0; i < dataLen; ++ i){
-			vYk += y[i]*bf(k,i);
-		}
-		vY[k] = vYk;
-	}
+  for(Int_t k = 0; k < nBasisFuntions; ++ k){
+    Double_t vYk = 0.0;
+    for(Int_t i = 0; i < dataLen; ++ i){
+      vYk += y[i]*bf(k,i);
+    }
+    vY[k] = vYk;
+  }
 
-	TMatrixDSym Ainv(A);
-	Ainv.Invert();
-	return Ainv*vY;
+  TMatrixDSym Ainv(A);
+  Ainv.Invert();
+  return Ainv*vY;
 }
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include <CxxUtils/sincos.h>
+
 using namespace CLHEP;
 
-void LArWheelCalculator::fill_sincos_parameterization(void)
+void LArWheelCalculator::fill_sincos_parameterization()
 {
-	const Int_t nrPolyDegree = LARWC_SINCOS_POLY;
+  const Int_t nrPolyDegree = LARWC_SINCOS_POLY;
 #if LARWC_SINCOS_POLY > 4 && DEBUGPRINT
-	std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
+  std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
 #endif
 	const Int_t nBasisFunctions = nrPolyDegree + 1;
 
@@ -129,80 +131,81 @@ void LArWheelCalculator::fill_sincos_parameterization(void)
 	filled[S] = true;
 
 #if DEBUGPRINT
-	std::cout << "sin params:" << params_sin << std::endl;
-	std::cout << "cos params:" << params_cos << std::endl;
+  std::cout << "sin params:" << params_sin << std::endl;
+  std::cout << "cos params:" << params_cos << std::endl;
 
-	double dsinr = 0., dcosr = 0.;
-        double dtrigr = 0;
+  double dsinr = 0., dcosr = 0.;
+  double dtrigr = 0;
 #endif
 
-	double dsin = 0., dcos = 0.;
-	double dtrig = 0.;
-	for(double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.){
-		CxxUtils::sincos scalpha(parameterized_slant_angle(r));
-		double sin_a, cos_a;
-		parameterized_sincos(r, sin_a, cos_a);
-		double ds = fabs(scalpha.sn - sin_a);
-		if(ds > dsin){
-			dsin = ds;
+  double dsin = 0., dcos = 0.;
+  double dtrig = 0.;
+  for(double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.){
+    CxxUtils::sincos scalpha(parameterized_slant_angle(r));
+    double sin_a, cos_a;
+    parameterized_sincos(r, sin_a, cos_a);
+    double ds = fabs(scalpha.sn - sin_a);
+    if(ds > dsin){
+      dsin = ds;
 #if DEBUGPRINT
-			dsinr = r;
+      dsinr = r;
 #endif
-		}
-		double dc = fabs(scalpha.cs - cos_a);
-		if(dc > dcos){
-			dcos = dc;
+    }
+    double dc = fabs(scalpha.cs - cos_a);
+    if(dc > dcos){
+      dcos = dc;
 #if DEBUGPRINT
-			dcosr = r;
+      dcosr = r;
 #endif
-		}
-		double dt = fabs(sin_a*sin_a + cos_a*cos_a - 1.);
-		if(dt > dtrig){
-			dtrig = dt;
+    }
+    double dt = fabs(sin_a*sin_a + cos_a*cos_a - 1.);
+    if(dt > dtrig){
+      dtrig = dt;
 #if DEBUGPRINT
-			dtrigr = r;
+      dtrigr = r;
 #endif
-		}
-	}
+    }
+  }
 
 #if DEBUGPRINT
-	std::cout << "Max. difference: " << std::endl
-	          << "\tsin: " << dsin << " at " << dsinr << std::endl
-	          << "\tcos: " << dcos << " at " << dcosr << std::endl
-	          << "\tsin^2+cos^2: " << dtrig << " at " << dtrigr << std::endl;
+  std::cout << "Max. difference: " << std::endl
+            << "\tsin: " << dsin << " at " << dsinr << std::endl
+            << "\tcos: " << dcos << " at " << dcosr << std::endl
+            << "\tsin^2+cos^2: " << dtrig << " at " << dtrigr << std::endl;
 #endif
 
 #ifdef HARDDEBUG
-	TVectorD y_test(dataLen);
-	const Int_t nIter=10000;
-	std::cout << "Perfomance test started, " << nIter << " iterations" << std::endl;
+  TVectorD y_test(dataLen);
+  const Int_t nIter=10000;
+  std::cout << "Perfomance test started, " << nIter << " iterations" << std::endl;
 
-	double y_testsin[dataLen];
-	double y_testcos[dataLen];
-	struct timeval tvsincos_start, tvsincos_stop;
-	gettimeofday(&tvsincos_start, 0);
-	for(Int_t iIter=0;iIter<nIter;iIter++) {
-		for(Int_t i=0;i<dataLen;i++) {
-			sincos(parameterized_slant_angle(x[i]), &y_testsin[i], &y_testcos[i]);
-		}
-	}
-	gettimeofday(&tvsincos_stop, 0);
-	double timeSinCos=(tvsincos_stop.tv_sec-tvsincos_start.tv_sec + 1E-6*(tvsincos_stop.tv_usec-tvsincos_start.tv_usec))/nIter;
+  double y_testsin[dataLen];
+  double y_testcos[dataLen];
+  struct timeval tvsincos_start, tvsincos_stop;
+  gettimeofday(&tvsincos_start, 0);
+  for(Int_t iIter=0;iIter<nIter;iIter++) {
+    for(Int_t i=0;i<dataLen;i++) {
+      sincos(parameterized_slant_angle(x[i]), &y_testsin[i], &y_testcos[i]);
+    }
+  }
+  gettimeofday(&tvsincos_stop, 0);
+  double timeSinCos=(tvsincos_stop.tv_sec-tvsincos_start.tv_sec + 1E-6*(tvsincos_stop.tv_usec-tvsincos_start.tv_usec))/nIter;
 
-	std::cout.unsetf ( std::ios::fixed | std::ios::scientific );
-	std::cout << "Time to fill 2x" << dataLen << " elements using sincos function: " << timeSinCos << std::endl;
+  std::cout.unsetf ( std::ios::fixed | std::ios::scientific );
+  std::cout << "Time to fill 2x" << dataLen << " elements using sincos function: " << timeSinCos << std::endl;
 
-	struct timeval tvpoly_start, tvpoly_stop;
-	gettimeofday(&tvpoly_start, 0);
-	for(Int_t iIter=0;iIter<nIter;iIter++) {
-		for(Int_t i=0;i<dataLen;i++) {
-			parameterized_sincos(x[i], y_testsin[i], y_testcos[i]);
-		}
-	}
-	gettimeofday(&tvpoly_stop, 0);
-	double timePoly=(tvpoly_stop.tv_sec - tvpoly_start.tv_sec + 1E-6*(tvpoly_stop.tv_usec - tvpoly_start.tv_usec))/nIter;
-	std::cout << "Time to fill 2x" << dataLen << " elements using approximation sin&cos: " << timePoly << std::endl;
-	std::cout.unsetf ( std::ios::fixed | std::ios::scientific );
-	std::cout << "Approximation is " << timeSinCos/timePoly << " faster " << std::endl;
+  struct timeval tvpoly_start, tvpoly_stop;
+  gettimeofday(&tvpoly_start, 0);
+  for(Int_t iIter=0;iIter<nIter;iIter++) {
+    for(Int_t i=0;i<dataLen;i++) {
+      parameterized_sincos(x[i], y_testsin[i], y_testcos[i]);
+    }
+  }
+  gettimeofday(&tvpoly_stop, 0);
+  double timePoly=(tvpoly_stop.tv_sec - tvpoly_start.tv_sec + 1E-6*(tvpoly_stop.tv_usec - tvpoly_start.tv_usec))/nIter;
+  std::cout << "Time to fill 2x" << dataLen << " elements using approximation sin&cos: " << timePoly << std::endl;
+  std::cout.unsetf ( std::ios::fixed | std::ios::scientific );
+  std::cout << "Approximation is " << timeSinCos/timePoly << " faster " << std::endl;
 #endif
+
 }

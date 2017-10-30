@@ -18,72 +18,77 @@
 #undef HARDDEBUG
 #endif
 
-namespace LArWheelCalculator_Impl {
+namespace LArWheelCalculator_Impl
+{
+
   // mode marker classes
   class SaggingOn_t {};
   class SaggingOff_t {};
 
+  template <typename SaggingType>
+  class DistanceToTheNeutralFibre_OfFan {};
 
-template <typename SaggingType>
-class DistanceToTheNeutralFibre_OfFan {
-};
+  template<>
+  class DistanceToTheNeutralFibre_OfFan<SaggingOn_t>
+  {
+    public:
+      static inline double calculate(const LArWheelCalculator* lwc, int fan_number,     CLHEP::Hep3Vector &p) {
+        //lwc->set_m_fan_number(fan_number);
+        return lwc->DistanceToTheNeutralFibre(p, lwc->adjust_fan_number(fan_number));
+      }
+  };
 
-template<>
-class DistanceToTheNeutralFibre_OfFan<SaggingOn_t> {
-  public:
-	static inline double calculate(const LArWheelCalculator* lwc, int fan_number,     CLHEP::Hep3Vector &p) {
-		//lwc->set_m_fan_number(fan_number);
-		return lwc->DistanceToTheNeutralFibre(p, lwc->adjust_fan_number(fan_number));
-	}
-};
+  template<> class DistanceToTheNeutralFibre_OfFan<SaggingOff_t>
+  {
+    public:
+      static inline double calculate(const LArWheelCalculator* lwc, int /*fan_number*/, CLHEP::Hep3Vector &p) {
+        // saggingOff distance calculations does not use fan_number, use arbitrary recognisible magic number
+        return lwc->DistanceToTheNeutralFibre(p, -531135);
+      }
+  };
 
-template<>
-class DistanceToTheNeutralFibre_OfFan<SaggingOff_t> {
-  public:
-	static inline double calculate(const LArWheelCalculator* lwc, int /*fan_number*/, CLHEP::Hep3Vector &p) {
-		return lwc->DistanceToTheNeutralFibre(p, -531135); // saggingOff distance calculations does not use fan_number, use arbitrary recognisible magic number
-	}
-};
-
-enum FanSearchDirection_t {
-  FORWARD = 1,    // delta =  1
-  BACKWARD = -1   // delta = -1
-};
-
-
-template <typename SaggingType, FanSearchDirection_t dir >
- class StepFan {};
+  enum FanSearchDirection_t {
+    FORWARD = 1,    // delta =  1
+    BACKWARD = -1   // delta = -1
+  };
 
 
-template <FanSearchDirection_t dir >
- class StepFan<SaggingOff_t, dir> {
-   public:
-  static inline void next(int &/*fan_number*/) {}
-  static inline void adjust(int &/*fan_number*/) {}
-};
+  template <typename SaggingType, FanSearchDirection_t dir >
+  class StepFan {};
 
 
-template <>
- class StepFan<SaggingOn_t, FORWARD> {
-   public:
-  static inline void next(int &fan_number) {
-	  fan_number++;
-  }
-  static inline void adjust(int &fan_number) {
-	  fan_number--;
-  }
-};
+  template <FanSearchDirection_t dir >
+  class StepFan<SaggingOff_t, dir>
+  {
+    public:
+      static inline void next(int &/*fan_number*/) {}
+      static inline void adjust(int &/*fan_number*/) {}
+  };
 
-template <>
- class StepFan<SaggingOn_t, BACKWARD> {
-   public:
-  static inline void next(int &fan_number) {
-	  fan_number--;
-  }
-  static inline void adjust(int &/*fan_number*/) {  }
-};
 
-template <FanSearchDirection_t dir>
+  template <>
+  class StepFan<SaggingOn_t, FORWARD>
+  {
+    public:
+      static inline void next(int &fan_number) {
+        fan_number++;
+      }
+      static inline void adjust(int &fan_number) {
+        fan_number--;
+      }
+  };
+
+  template <>
+  class StepFan<SaggingOn_t, BACKWARD>
+  {
+    public:
+      static inline void next(int &fan_number) {
+        fan_number--;
+      }
+      static inline void adjust(int &/*fan_number*/) {}
+  };
+
+  template <FanSearchDirection_t dir>
   class DoSearch {};
 
 template <>
@@ -130,7 +135,8 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 
 
   template <typename SaggingType>
-  class WheelFanCalculator : public IFanCalculator {
+  class WheelFanCalculator : public IFanCalculator
+  {
     public:
 	  WheelFanCalculator(LArWheelCalculator* lwc, IRDBAccessSvc* /*rdbAccess*/, const DecodeVersionKey & /*larVersionKey*/) : m_lwc(lwc)
 	  {
@@ -244,4 +250,5 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
   };
 
 }
+
 #endif // LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H

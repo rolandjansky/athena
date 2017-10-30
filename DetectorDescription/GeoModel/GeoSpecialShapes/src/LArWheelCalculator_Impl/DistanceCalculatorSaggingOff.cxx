@@ -18,34 +18,37 @@
 
 using namespace Gaudi::Units;
 
+namespace LArWheelCalculator_Impl
+{
 
-namespace LArWheelCalculator_Impl {
-    	DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c, IRDBAccessSvc* /*rdbAccess*/, const DecodeVersionKey & /*larVersionKey*/) :
-    		m_lwc(c)
-    	{
-			m_EndQuarterWave = lwc()->m_ActiveLength - lwc()->m_QuarterWaveLength;
-    	}
+  DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c,
+                                                             IRDBAccessSvc* /*rdbAccess*/,
+                                                             const DecodeVersionKey & /*larVersionKey*/)
+    : m_lwc(c)
+  {
+    m_EndQuarterWave = lwc()->m_ActiveLength - lwc()->m_QuarterWaveLength;
+  }
 
 #ifndef LARWC_DTNF_NEW
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
+  double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #else
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
+  double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #endif
-	{
-		assert(P.y() > 0.);
-		double distance = 0.;
-		double z = P.z() - lwc()->m_StraightStartSection;
-		double x = P.x();
+  {
+    assert(P.y() > 0.);
+    double distance = 0.;
+    double z = P.z() - lwc()->m_StraightStartSection;
+    double x = P.x();
 
 #ifdef LWC_PARAM_ANGLE //old variant
-		const double alpha = lwc()->parameterized_slant_angle(P.y());
-//		double cos_a, sin_a;
-//		::sincos(alpha, &sin_a, &cos_a);
-		CxxUtils::sincos scalpha(alpha);
-		const double cos_a = scalpha.cs, sin_a = scalpha.sn;
+    const double alpha = lwc()->parameterized_slant_angle(P.y());
+    //double cos_a, sin_a;
+    //::sincos(alpha, &sin_a, &cos_a);
+    CxxUtils::sincos scalpha(alpha);
+    const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
-		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+    double cos_a, sin_a;
+    lwc()->parameterized_sin(P.y(), sin_a, cos_a);
 #endif
 
 	// determination of the nearest quarter-wave number
@@ -126,35 +129,35 @@ namespace LArWheelCalculator_Impl {
 			if (nqwave == 0) distance = -distance;
 		}
 #ifdef HARDDEBUG
-		double dd = DistanceToTheNeutralFibre_ref(P);
-		if(fabs(dd - distance) > 0.000001){
-			//static int cnt = 0;
-			std::cout << "DTNF MISMATCH " << this << " " << P << " "
-			          << dd << " vs " << distance << std::endl;
-			//cnt ++;
-			//if(cnt > 100) exit(0);
-		}
+    double dd = DistanceToTheNeutralFibre_ref(P);
+    if(fabs(dd - distance) > 0.000001){
+      //static int cnt = 0;
+      std::cout << "DTNF MISMATCH " << this << " " << P << " "
+                << dd << " vs " << distance << std::endl;
+      //cnt ++;
+      //if(cnt > 100) exit(0);
+    }
 #endif
-	 	return distance;
-	}
+    return distance;
+  }
 
-	// IMPROVED PERFORMANCE
+  // IMPROVED PERFORMANCE
 #ifdef LARWC_DTNF_NEW
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
+  double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #else
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
+  double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #endif
-	{
-		double z = P.z() - lwc()->m_StraightStartSection;
-		double x = P.x();
+  {
+    double z = P.z() - lwc()->m_StraightStartSection;
+    double x = P.x();
 
 #ifdef LWC_PARAM_ANGLE //old variant
-		const double alpha = lwc()->parameterized_slant_angle(P.y());
-		CxxUtils::sincos scalpha(alpha);
-		double cos_a = scalpha.cs, sin_a = scalpha.sn;
+    const double alpha = lwc()->parameterized_slant_angle(P.y());
+    CxxUtils::sincos scalpha(alpha);
+    double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
-		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+    double cos_a, sin_a;
+    lwc()->parameterized_sin(P.y(), sin_a, cos_a);
 #endif
 
 		bool sqw = false;
@@ -239,12 +242,12 @@ namespace LArWheelCalculator_Impl {
 		double y = P.y();
 
 #ifdef LWC_PARAM_ANGLE //old variant
-		const double alpha = lwc()->parameterized_slant_angle(P.y());
-		CxxUtils::sincos scalpha(alpha);
-		const double cos_a = scalpha.cs, sin_a = scalpha.sn;
+    const double alpha = lwc()->parameterized_slant_angle(P.y());
+    CxxUtils::sincos scalpha(alpha);
+    const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
-		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+    double cos_a, sin_a;
+    lwc()->parameterized_sin(P.y(), sin_a, cos_a);
 #endif
 
 		int nqwave;
@@ -323,12 +326,12 @@ namespace LArWheelCalculator_Impl {
 		double y = P.y();
 
 #ifdef LWC_PARAM_ANGLE //old variant
-		const double alpha = lwc()->parameterized_slant_angle(P.y());
-		CxxUtils::sincos scalpha(alpha);
-		double cos_a = scalpha.cs, sin_a = scalpha.sn;
+    const double alpha = lwc()->parameterized_slant_angle(P.y());
+    CxxUtils::sincos scalpha(alpha);
+    double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
-		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+    double cos_a, sin_a;
+    lwc()->parameterized_sin(P.y(), sin_a, cos_a);
 #endif
 
 		bool sqw = false;
@@ -411,15 +414,15 @@ namespace LArWheelCalculator_Impl {
 		double z = P.z() - lwc()->m_StraightStartSection;
 
 #ifdef LWC_PARAM_ANGLE //old variant
-		const double alpha = lwc()->parameterized_slant_angle(P.y());
-//		double cos_a, sin_a;
-//		::sincos(alpha, &sin_a, &cos_a);
-		CxxUtils::sincos scalpha(alpha);
-		const double cos_a = scalpha.cs, sin_a = scalpha.sn;
-// parameterized sine
+    const double alpha = lwc()->parameterized_slant_angle(P.y());
+    //double cos_a, sin_a;
+    //::sincos(alpha, &sin_a, &cos_a);
+    CxxUtils::sincos scalpha(alpha);
+    const double cos_a = scalpha.cs, sin_a = scalpha.sn;
+    // parameterized sine
 #else
-		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+    double cos_a, sin_a;
+    lwc()->parameterized_sin(P.y(), sin_a, cos_a);
 #endif
 
 	// determination of the nearest quarter-wave number
@@ -503,4 +506,3 @@ namespace LArWheelCalculator_Impl {
 	}
 
 }
-

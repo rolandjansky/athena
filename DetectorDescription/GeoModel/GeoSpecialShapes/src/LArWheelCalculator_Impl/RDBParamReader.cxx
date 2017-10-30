@@ -12,21 +12,25 @@
 #include <iostream>
 
 
-RDBParamReader::RDBParamReader(IRDBAccessSvc* rdbAccess) :
-	m_rdbAccess(rdbAccess)
+RDBParamReader::RDBParamReader(IRDBAccessSvc* rdbAccess)
+  : m_rdbAccess(rdbAccess)
 {
 }
-
 
 RDBParamReader::~RDBParamReader() {
 }
 
-RDBParamRecords  RDBParamReader::data(const std::string& node, const std::string& tag, const std::string& tag2node) {
-	IRDBRecordset_ptr recset = _getRecordsetPtr(node, tag, tag2node);
-	return RDBParamRecords(this, recset);
+RDBParamRecords RDBParamReader::data(const std::string& node,
+                                     const std::string& tag,
+                                     const std::string& tag2node)
+{
+  IRDBRecordset_ptr recset = _getRecordsetPtr(node, tag, tag2node);
+  return RDBParamRecords(this, recset);
 }
 
-IRDBRecordset_ptr  RDBParamReader::_getRecordsetPtr(const std::string& node, const std::string& tag, const std::string& tag2node) {
-	return m_rdbAccess->getRecordsetPtr(node, tag, tag2node);
+IRDBRecordset_ptr RDBParamReader::_getRecordsetPtr(const std::string& node,
+                                                   const std::string& tag,
+                                                   const std::string& tag2node)
+{
+  return m_rdbAccess->getRecordsetPtr(node, tag, tag2node);
 }
-
