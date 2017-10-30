@@ -44,8 +44,6 @@ public:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArPedestalFlat,ILArPedestal);
 CLASS_DEF( LArPedestalFlat,69859981,1  )
-//ConditionsContainer clid for athenaMT
-CLASS_DEF( CondCont<LArPedestalFlat> , 151238349 , 1 )
+CONDCONT_DEF( LArPedestalFlat, 151238349, ILArPedestal );
 #endif 
