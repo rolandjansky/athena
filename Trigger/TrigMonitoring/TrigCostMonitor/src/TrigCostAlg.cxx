@@ -188,7 +188,7 @@ void TrigCostAlg::ExtractConfig(const std::string &key)
   ATH_MSG_DEBUG("Found TrigMonConfigCollection: " << key << ", size=" << mon_col->size());
     
   for(TrigMonConfigCollection::const_iterator it = mon_col->begin(); it != mon_col->end(); ++it) {
-    TrigMonConfig *ptr = *it;
+    const TrigMonConfig *ptr = *it;
     if(!ptr) continue;
   }
 }
