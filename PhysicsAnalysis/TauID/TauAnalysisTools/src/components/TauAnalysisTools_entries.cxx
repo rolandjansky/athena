@@ -15,21 +15,21 @@
 #include "../TauAnalysisToolsExampleAthena.h"
 #include "TauAnalysisTools/BuildTruthTaus.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonEfficiencyTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonSmearingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauSelectionTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauSmearingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauSmearingRun1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauTruthMatchingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauTruthTrackMatchingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyCorrectionsTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyContJetIDTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyEleIDTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyJetIDTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyTriggerTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauOverlappingElectronLLHDecorator )
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, BuildTruthTaus)
+DECLARE_COMPONENT( TauAnalysisTools::CommonEfficiencyTool )
+DECLARE_COMPONENT( TauAnalysisTools::CommonSmearingTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauSelectionTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauSmearingTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauSmearingRun1Tool )
+DECLARE_COMPONENT( TauAnalysisTools::TauTruthMatchingTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauTruthTrackMatchingTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauEfficiencyCorrectionsTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauEfficiencyContJetIDTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauEfficiencyEleIDTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauEfficiencyJetIDTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauEfficiencyTriggerTool )
+DECLARE_COMPONENT( TauAnalysisTools::TauOverlappingElectronLLHDecorator )
+DECLARE_COMPONENT( TauAnalysisTools::BuildTruthTaus )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( TauAnalysisTools, TauAnalysisToolsExampleAthena )
+DECLARE_COMPONENT( TauAnalysisTools::TauAnalysisToolsExampleAthena )
 
 

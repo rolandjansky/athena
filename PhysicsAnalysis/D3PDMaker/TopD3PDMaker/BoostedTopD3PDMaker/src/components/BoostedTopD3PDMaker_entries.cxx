@@ -2,6 +2,6 @@
 //#include "../../BoostedTopD3PDMaker/MiniIsolationMuonFillerTool.h"
 
 
-//DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MiniIsolationElectronFillerTool)
-//DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MiniIsolationMuonFillerTool)
+//DECLARE_COMPONENT( D3PD::MiniIsolationElectronFillerTool )
+//DECLARE_COMPONENT( D3PD::MiniIsolationMuonFillerTool )
 

@@ -4,7 +4,7 @@
 
 using namespace PMGTools;
 
-DECLARE_TOOL_FACTORY( PMGSherpa22VJetsWeightTool )
-DECLARE_TOOL_FACTORY( PMGSherpaVjetsSysTool )
-DECLARE_TOOL_FACTORY( PMGCrossSectionTool )
+DECLARE_COMPONENT( PMGSherpa22VJetsWeightTool )
+DECLARE_COMPONENT( PMGSherpaVjetsSysTool )
+DECLARE_COMPONENT( PMGCrossSectionTool )
 

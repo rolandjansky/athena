@@ -1,4 +1,4 @@
 #include "MCTruthClassifier/MCTruthClassifier.h"
 
-DECLARE_TOOL_FACTORY     ( MCTruthClassifier )
+DECLARE_COMPONENT( MCTruthClassifier )
  

@@ -1,3 +1,3 @@
 #include "WZSkims/WZSkimsMain.h"
-DECLARE_ALGORITHM_FACTORY( WZSkimsMain )
+DECLARE_COMPONENT( WZSkimsMain )
 

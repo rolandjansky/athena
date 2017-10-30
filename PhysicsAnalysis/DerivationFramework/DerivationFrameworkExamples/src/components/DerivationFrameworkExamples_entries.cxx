@@ -3,7 +3,7 @@
 #include "DerivationFrameworkExamples/AugmentationToolExample.h"
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( SkimmingToolExample )
-DECLARE_TOOL_FACTORY( ThinningToolExample )
-DECLARE_TOOL_FACTORY( AugmentationToolExample )
+DECLARE_COMPONENT( SkimmingToolExample )
+DECLARE_COMPONENT( ThinningToolExample )
+DECLARE_COMPONENT( AugmentationToolExample )
 

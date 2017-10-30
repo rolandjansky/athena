@@ -5,12 +5,12 @@
 #include "../SumOfWeightsAlg.h"
 
 
-DECLARE_TOOL_FACTORY( McEventWeight )
-DECLARE_TOOL_FACTORY( PDFWeight )
-DECLARE_TOOL_FACTORY( WeightsAgregator )
-DECLARE_ALGORITHM_FACTORY( SumOfWeightsAlg )
+DECLARE_COMPONENT( McEventWeight )
+DECLARE_COMPONENT( PDFWeight )
+DECLARE_COMPONENT( WeightsAgregator )
+DECLARE_COMPONENT( SumOfWeightsAlg )
 
 
 #include "ReweightUtils/ParticleScaleFactorTool.h"
-DECLARE_TOOL_FACTORY( ParticleScaleFactorTool )
+DECLARE_COMPONENT( ParticleScaleFactorTool )
 

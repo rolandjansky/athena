@@ -3,8 +3,8 @@
 #include "TauDiscriminant/TauMuonVeto.h"
 #include "TauDiscriminant/TauScoreFlatteningTool.h"
 
-DECLARE_TOOL_FACTORY( TauJetBDT )
-DECLARE_TOOL_FACTORY( TauEleBDT )
-DECLARE_TOOL_FACTORY( TauMuonVeto )
-DECLARE_TOOL_FACTORY( TauScoreFlatteningTool )
+DECLARE_COMPONENT( TauJetBDT )
+DECLARE_COMPONENT( TauEleBDT )
+DECLARE_COMPONENT( TauMuonVeto )
+DECLARE_COMPONENT( TauScoreFlatteningTool )
 

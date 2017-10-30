@@ -5,9 +5,9 @@
 #include "AraToolExample/AraToolUsingToolWrapper.h"
 
 
-DECLARE_TOOL_FACTORY( AnExampleAraToolWrapper )
-DECLARE_TOOL_FACTORY( AraToolUsingToolWrapper )
+DECLARE_COMPONENT( AnExampleAraToolWrapper )
+DECLARE_COMPONENT( AraToolUsingToolWrapper )
 
-DECLARE_ALGORITHM_FACTORY( AraToolExampleAlg )
-DECLARE_ALGORITHM_FACTORY( AraToolUsingToolAlg )
+DECLARE_COMPONENT( AraToolExampleAlg )
+DECLARE_COMPONENT( AraToolUsingToolAlg )
 

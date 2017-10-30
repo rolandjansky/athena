@@ -4,8 +4,8 @@
 #include "../ToolTester.h"
 // Should probably alter the namespace 
 
-DECLARE_TOOL_FACTORY( BTaggingEfficiencyTool)
-DECLARE_TOOL_FACTORY( BTaggingSelectionTool)
+DECLARE_COMPONENT( BTaggingEfficiencyTool )
+DECLARE_COMPONENT( BTaggingSelectionTool )
 
-DECLARE_ALGORITHM_FACTORY( BTagToolTester )
+DECLARE_COMPONENT( BTagToolTester )
 

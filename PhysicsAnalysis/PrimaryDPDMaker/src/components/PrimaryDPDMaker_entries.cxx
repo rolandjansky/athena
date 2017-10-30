@@ -9,12 +9,12 @@
 
 using namespace DerivationFramework;
 
-DECLARE_ALGORITHM_FACTORY( PrimaryDPDPrescaler )
-DECLARE_ALGORITHM_FACTORY( ThinContainers )
-DECLARE_ALGORITHM_FACTORY( CollisionFilterAlg )
-DECLARE_ALGORITHM_FACTORY( muonTrkTrackThinTool )
-DECLARE_TOOL_FACTORY( MBTSTimeFilterTool )
-DECLARE_TOOL_FACTORY( CaloTimeFilterTool )
-DECLARE_TOOL_FACTORY( BCIDFilterTool )
-DECLARE_TOOL_FACTORY( CaloCellThinningTool )
+DECLARE_COMPONENT( PrimaryDPDPrescaler )
+DECLARE_COMPONENT( ThinContainers )
+DECLARE_COMPONENT( CollisionFilterAlg )
+DECLARE_COMPONENT( muonTrkTrackThinTool )
+DECLARE_COMPONENT( MBTSTimeFilterTool )
+DECLARE_COMPONENT( CaloTimeFilterTool )
+DECLARE_COMPONENT( BCIDFilterTool )
+DECLARE_COMPONENT( CaloCellThinningTool )
 

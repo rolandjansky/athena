@@ -6,9 +6,9 @@
 
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( Truth3CollectionMaker )
-DECLARE_TOOL_FACTORY( SUSYSignalTagger )
-DECLARE_TOOL_FACTORY( SUSYGenFilterTool )
-DECLARE_TOOL_FACTORY( TrackParticleCaloCellDecorator )
-DECLARE_TOOL_FACTORY( trackIsolationDecorator )
+DECLARE_COMPONENT( Truth3CollectionMaker )
+DECLARE_COMPONENT( SUSYSignalTagger )
+DECLARE_COMPONENT( SUSYGenFilterTool )
+DECLARE_COMPONENT( TrackParticleCaloCellDecorator )
+DECLARE_COMPONENT( trackIsolationDecorator )
 

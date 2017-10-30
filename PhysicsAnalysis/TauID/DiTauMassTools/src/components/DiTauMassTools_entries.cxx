@@ -1,4 +1,4 @@
 #include "DiTauMassTools/MissingMassTool.h"
 
-DECLARE_TOOL_FACTORY( MissingMassTool )
+DECLARE_COMPONENT( MissingMassTool )
 

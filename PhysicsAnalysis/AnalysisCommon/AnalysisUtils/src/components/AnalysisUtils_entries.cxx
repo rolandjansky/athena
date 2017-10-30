@@ -5,10 +5,10 @@
 #include "AnalysisUtils/ParticleBaseSelector.h"
 #include "AnalysisUtils/IParticleSelector.h"
 
-DECLARE_TOOL_FACTORY( KinematicSelector )
-DECLARE_TOOL_FACTORY( ElectronIDSelector )
-DECLARE_TOOL_FACTORY( ISelector )
-DECLARE_TOOL_FACTORY( ContainerFilter )
-DECLARE_ALGORITHM_FACTORY( ParticleBaseSelector )
-DECLARE_ALGORITHM_FACTORY( IParticleSelector )
+DECLARE_COMPONENT( KinematicSelector )
+DECLARE_COMPONENT( ElectronIDSelector )
+DECLARE_COMPONENT( ISelector )
+DECLARE_COMPONENT( ContainerFilter )
+DECLARE_COMPONENT( ParticleBaseSelector )
+DECLARE_COMPONENT( IParticleSelector )
 

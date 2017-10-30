@@ -6,10 +6,10 @@
 #include "UserAnalysisUtils/UserAnalysisOverlapRemovalTool.h"
 
  
-//DECLARE_TOOL_FACTORY( UserMuonTool )
+//DECLARE_COMPONENT( UserMuonTool )
 
-DECLARE_TOOL_FACTORY( UserAnalysisPreparationTool )
-DECLARE_TOOL_FACTORY( UserAnalysisSelectionTool )
-DECLARE_TOOL_FACTORY( UserAnalysisOverlapCheckingTool )
-DECLARE_TOOL_FACTORY( UserAnalysisOverlapRemovalTool )
+DECLARE_COMPONENT( UserAnalysisPreparationTool )
+DECLARE_COMPONENT( UserAnalysisSelectionTool )
+DECLARE_COMPONENT( UserAnalysisOverlapCheckingTool )
+DECLARE_COMPONENT( UserAnalysisOverlapRemovalTool )
 

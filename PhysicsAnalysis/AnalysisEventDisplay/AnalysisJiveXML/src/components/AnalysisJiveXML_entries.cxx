@@ -13,15 +13,15 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(BJetRetriever)
-DECLARE_TOOL_FACTORY(ElectronRetriever)
-DECLARE_TOOL_FACTORY(MuonRetriever)
-DECLARE_TOOL_FACTORY(AODJetRetriever)
-DECLARE_TOOL_FACTORY(PhotonRetriever)
-DECLARE_TOOL_FACTORY(TauJetRetriever)
-DECLARE_TOOL_FACTORY(TrackParticleRetriever)
-DECLARE_TOOL_FACTORY(AODCaloClusterRetriever)
-DECLARE_TOOL_FACTORY(CompositeParticleRetriever)
-DECLARE_TOOL_FACTORY(TruthParticleRetriever)
-DECLARE_TOOL_FACTORY(TrigEMClusterRetriever)
+DECLARE_COMPONENT( BJetRetriever )
+DECLARE_COMPONENT( ElectronRetriever )
+DECLARE_COMPONENT( MuonRetriever )
+DECLARE_COMPONENT( AODJetRetriever )
+DECLARE_COMPONENT( PhotonRetriever )
+DECLARE_COMPONENT( TauJetRetriever )
+DECLARE_COMPONENT( TrackParticleRetriever )
+DECLARE_COMPONENT( AODCaloClusterRetriever )
+DECLARE_COMPONENT( CompositeParticleRetriever )
+DECLARE_COMPONENT( TruthParticleRetriever )
+DECLARE_COMPONENT( TrigEMClusterRetriever )
 

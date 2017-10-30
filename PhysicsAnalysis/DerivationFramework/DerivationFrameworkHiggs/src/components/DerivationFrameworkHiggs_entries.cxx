@@ -3,7 +3,7 @@
 #include "DerivationFrameworkHiggs/SkimmingToolHIGG5VBF.h"
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( SkimmingToolHIGG1 )
-DECLARE_TOOL_FACTORY( SkimmingToolHIGG2 )
-DECLARE_TOOL_FACTORY( SkimmingToolHIGG5VBF )
+DECLARE_COMPONENT( SkimmingToolHIGG1 )
+DECLARE_COMPONENT( SkimmingToolHIGG2 )
+DECLARE_COMPONENT( SkimmingToolHIGG5VBF )
 

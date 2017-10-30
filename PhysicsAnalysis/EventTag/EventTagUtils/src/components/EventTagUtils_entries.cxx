@@ -7,10 +7,10 @@
 
 
  
-DECLARE_TOOL_FACTORY( RawInfoSummaryForTagTool )
-DECLARE_TOOL_FACTORY( EventInfoTagTool )
-DECLARE_TOOL_FACTORY( GlobalEventTagTool )
-DECLARE_TOOL_FACTORY( GlobalTriggerTagTool )
-DECLARE_ALGORITHM_FACTORY( RegistrationStreamTrig )
+DECLARE_COMPONENT( RawInfoSummaryForTagTool )
+DECLARE_COMPONENT( EventInfoTagTool )
+DECLARE_COMPONENT( GlobalEventTagTool )
+DECLARE_COMPONENT( GlobalTriggerTagTool )
+DECLARE_COMPONENT( RegistrationStreamTrig )
  
 

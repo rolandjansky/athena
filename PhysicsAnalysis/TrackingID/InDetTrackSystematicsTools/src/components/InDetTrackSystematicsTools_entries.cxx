@@ -6,10 +6,10 @@
 
 #include "../InDetTrackSmearingToolTester.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetTrackSmearingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetTrackTruthOriginTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetTrackTruthFilterTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, InDetTrackBiasingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( InDet, JetTrackFilterTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( InDet, InDetTrackSmearingToolTester )
+DECLARE_COMPONENT( InDet::InDetTrackSmearingTool )
+DECLARE_COMPONENT( InDet::InDetTrackTruthOriginTool )
+DECLARE_COMPONENT( InDet::InDetTrackTruthFilterTool )
+DECLARE_COMPONENT( InDet::InDetTrackBiasingTool )
+DECLARE_COMPONENT( InDet::JetTrackFilterTool )
+DECLARE_COMPONENT( InDet::InDetTrackSmearingToolTester )
 

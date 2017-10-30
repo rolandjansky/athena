@@ -1,5 +1,5 @@
 #include "HIEventUtils/HIEventShapeSummaryTool.h"
 
 
-DECLARE_TOOL_FACTORY(HIEventShapeSummaryTool)
+DECLARE_COMPONENT( HIEventShapeSummaryTool )
 

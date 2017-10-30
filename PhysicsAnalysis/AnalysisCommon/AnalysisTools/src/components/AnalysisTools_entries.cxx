@@ -3,7 +3,7 @@
 #include "AnalysisTools/AANTEventSelector.h"
 #include "AnalysisTools/AnalysisTools.h"
  
-DECLARE_TOOL_FACTORY( AnalysisTools )
-DECLARE_SERVICE_FACTORY( AANTEventSelector )
-DECLARE_ALGORITHM_FACTORY( AANTupleStream )
+DECLARE_COMPONENT( AnalysisTools )
+DECLARE_COMPONENT( AANTEventSelector )
+DECLARE_COMPONENT( AANTupleStream )
 

@@ -1,4 +1,4 @@
 #include "IsolationCorrections/IsolationCorrectionTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, IsolationCorrectionTool )
+DECLARE_COMPONENT( CP::IsolationCorrectionTool )
 

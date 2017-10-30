@@ -5,13 +5,13 @@
 #include "../MuonEfficiencyCorrectionsProvider.h"
 #include "../TestTrigSF.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonEfficiencyScaleFactors )
+DECLARE_COMPONENT( CP::MuonEfficiencyScaleFactors )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonTriggerScaleFactors )
+DECLARE_COMPONENT( CP::MuonTriggerScaleFactors )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( CP, MuonEfficiencyCorrections_TestAlg )
+DECLARE_COMPONENT( CP::MuonEfficiencyCorrections_TestAlg )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( CP, MuonEfficiencyCorrectionsProvider )
+DECLARE_COMPONENT( CP::MuonEfficiencyCorrectionsProvider )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trig, TestTrigSF )
+DECLARE_COMPONENT( Trig::TestTrigSF )
 

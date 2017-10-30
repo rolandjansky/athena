@@ -6,8 +6,8 @@
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 
   
-DECLARE_ALGORITHM_FACTORY( McAodSymLinkTests  )
+DECLARE_COMPONENT( McAodSymLinkTests )
 using namespace McAod;
-DECLARE_ALGORITHM_FACTORY( McTopAna )
-DECLARE_ALGORITHM_FACTORY( McTopAnaSolution )
+DECLARE_COMPONENT( McTopAna )
+DECLARE_COMPONENT( McTopAnaSolution )
 

@@ -2,5 +2,5 @@
 
 using namespace Analysis ;
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CalibrationBroker )
+DECLARE_COMPONENT( Analysis::CalibrationBroker )
 

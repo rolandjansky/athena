@@ -1,4 +1,4 @@
 #include "../TrileptonSkimmer.h"
 
-DECLARE_ALGORITHM_FACTORY(TrileptonSkimmer)
+DECLARE_COMPONENT( TrileptonSkimmer )
 

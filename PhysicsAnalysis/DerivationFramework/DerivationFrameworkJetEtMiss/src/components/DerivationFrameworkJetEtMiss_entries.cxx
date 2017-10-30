@@ -7,10 +7,10 @@
 
 using namespace DerivationFramework;
  
-DECLARE_ALGORITHM_FACTORY( JetDecorAlg )
-DECLARE_TOOL_FACTORY( JetAugmentationTool )
-DECLARE_TOOL_FACTORY( PFlowAugmentationTool )
-DECLARE_TOOL_FACTORY( METTriggerAugmentationTool )
-DECLARE_TOOL_FACTORY( ViewContainerThinning )
-DECLARE_TOOL_FACTORY( JetExternalAssocTool )
+DECLARE_COMPONENT( JetDecorAlg )
+DECLARE_COMPONENT( JetAugmentationTool )
+DECLARE_COMPONENT( PFlowAugmentationTool )
+DECLARE_COMPONENT( METTriggerAugmentationTool )
+DECLARE_COMPONENT( ViewContainerThinning )
+DECLARE_COMPONENT( JetExternalAssocTool )
 

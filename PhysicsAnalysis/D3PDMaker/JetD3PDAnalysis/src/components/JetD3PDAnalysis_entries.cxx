@@ -2,5 +2,5 @@
 
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, JetVertexFractionAlg)
+DECLARE_COMPONENT( D3PD::JetVertexFractionAlg )
 

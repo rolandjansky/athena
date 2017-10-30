@@ -6,11 +6,11 @@
 #include "../GenEventAsciiReader.h"
 #include "../McAodTupleWriter.h"
 
-DECLARE_ALGORITHM_FACTORY( TruthParticleBuilder )
-DECLARE_ALGORITHM_FACTORY( McAodFilter )
-DECLARE_ALGORITHM_FACTORY( McAodValidationAlg )
-DECLARE_ALGORITHM_FACTORY( GenEventTupleWriter )
-DECLARE_ALGORITHM_FACTORY( GenEventAsciiWriter )
-DECLARE_ALGORITHM_FACTORY( GenEventAsciiReader )
-DECLARE_ALGORITHM_FACTORY( McAodTupleWriter )
+DECLARE_COMPONENT( TruthParticleBuilder )
+DECLARE_COMPONENT( McAodFilter )
+DECLARE_COMPONENT( McAodValidationAlg )
+DECLARE_COMPONENT( GenEventTupleWriter )
+DECLARE_COMPONENT( GenEventAsciiWriter )
+DECLARE_COMPONENT( GenEventAsciiReader )
+DECLARE_COMPONENT( McAodTupleWriter )
 

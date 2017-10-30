@@ -1,4 +1,4 @@
 #include "TopPhysValMonitoring/TopPhysValMonitoring.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( TopPhysVal, TopPhysValMonitoring )
+DECLARE_COMPONENT( TopPhysVal::TopPhysValMonitoring )
 

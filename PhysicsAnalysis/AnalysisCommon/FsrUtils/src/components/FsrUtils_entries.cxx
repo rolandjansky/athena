@@ -2,7 +2,7 @@
 #include "../ToolTester.h"
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( FSR, FsrPhotonTool)
+DECLARE_COMPONENT( FSR::FsrPhotonTool )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( FSR, ToolTester )
+DECLARE_COMPONENT( FSR::ToolTester )
 

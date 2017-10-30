@@ -2,7 +2,7 @@
 #include "CalibrationDataInterface/CalibrationDataUpdater.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceTester.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Analysis, CalibrationDataUpdater )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Analysis, CalibrationDataInterfaceTester )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CalibrationDataInterfaceTool )
+DECLARE_COMPONENT( Analysis::CalibrationDataUpdater )
+DECLARE_COMPONENT( Analysis::CalibrationDataInterfaceTester )
+DECLARE_COMPONENT( Analysis::CalibrationDataInterfaceTool )
 

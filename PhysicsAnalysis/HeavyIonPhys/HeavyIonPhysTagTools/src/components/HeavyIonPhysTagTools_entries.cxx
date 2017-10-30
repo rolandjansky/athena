@@ -1,6 +1,6 @@
 #include "HeavyIonPhysTagTools/HeavyIonPhysTagTool.h"
 
  
-DECLARE_TOOL_FACTORY( HeavyIonPhysTagTool )
+DECLARE_COMPONENT( HeavyIonPhysTagTool )
  
 

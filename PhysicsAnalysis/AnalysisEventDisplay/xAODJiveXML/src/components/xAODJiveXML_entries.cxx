@@ -11,13 +11,13 @@
 
 using namespace JiveXML;
 
-DECLARE_TOOL_FACTORY(xAODCaloClusterRetriever)
-DECLARE_TOOL_FACTORY(xAODElectronRetriever)
-DECLARE_TOOL_FACTORY(xAODMissingETRetriever)
-DECLARE_TOOL_FACTORY(xAODMuonRetriever)
-DECLARE_TOOL_FACTORY(xAODPhotonRetriever)
-DECLARE_TOOL_FACTORY(xAODJetRetriever)
-DECLARE_TOOL_FACTORY(xAODTauRetriever)
-DECLARE_TOOL_FACTORY(xAODTrackParticleRetriever)
-DECLARE_TOOL_FACTORY(xAODVertexRetriever)
+DECLARE_COMPONENT( xAODCaloClusterRetriever )
+DECLARE_COMPONENT( xAODElectronRetriever )
+DECLARE_COMPONENT( xAODMissingETRetriever )
+DECLARE_COMPONENT( xAODMuonRetriever )
+DECLARE_COMPONENT( xAODPhotonRetriever )
+DECLARE_COMPONENT( xAODJetRetriever )
+DECLARE_COMPONENT( xAODTauRetriever )
+DECLARE_COMPONENT( xAODTrackParticleRetriever )
+DECLARE_COMPONENT( xAODVertexRetriever )
 

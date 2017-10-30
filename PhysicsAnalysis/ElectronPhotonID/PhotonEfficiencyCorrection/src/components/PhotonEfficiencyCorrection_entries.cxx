@@ -2,7 +2,7 @@
 
 #include "../testAthenaPhotonAlg.h"
 
-DECLARE_TOOL_FACTORY( AsgPhotonEfficiencyCorrectionTool )
+DECLARE_COMPONENT( AsgPhotonEfficiencyCorrectionTool )
 
-DECLARE_ALGORITHM_FACTORY( testAthenaPhotonAlg )
+DECLARE_COMPONENT( testAthenaPhotonAlg )
 

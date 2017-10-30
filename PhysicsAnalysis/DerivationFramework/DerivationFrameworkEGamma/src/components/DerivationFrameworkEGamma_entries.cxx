@@ -7,12 +7,12 @@
 
 
 using namespace DerivationFramework; 
-DECLARE_TOOL_FACTORY( PhotonsDirectionTool )
-DECLARE_TOOL_FACTORY( EGammaPassSelectionWrapper )
-DECLARE_TOOL_FACTORY( EGInvariantMassTool )
-DECLARE_TOOL_FACTORY( EGTransverseMassTool )
-DECLARE_TOOL_FACTORY( EGSelectionToolWrapper )
-DECLARE_TOOL_FACTORY( BkgElectronClassification )
+DECLARE_COMPONENT( PhotonsDirectionTool )
+DECLARE_COMPONENT( EGammaPassSelectionWrapper )
+DECLARE_COMPONENT( EGInvariantMassTool )
+DECLARE_COMPONENT( EGTransverseMassTool )
+DECLARE_COMPONENT( EGSelectionToolWrapper )
+DECLARE_COMPONENT( BkgElectronClassification )
 
  
 

@@ -16,20 +16,20 @@
 
 using namespace Analysis;
 
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetTrackTruthMatching ) */
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetQuarkLabel )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetConeLabeling )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetPartonTruthLabel )
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetQGPartonLabel ) */
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ParticleToJetAssociator )
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, FindLeptonTruth ) */
+/* DECLARE_COMPONENT( Analysis::JetTrackTruthMatching ) */
+DECLARE_COMPONENT( Analysis::JetQuarkLabel )
+DECLARE_COMPONENT( Analysis::JetConeLabeling )
+DECLARE_COMPONENT( Analysis::JetPartonTruthLabel )
+/* DECLARE_COMPONENT( Analysis::JetQGPartonLabel ) */
+DECLARE_COMPONENT( Analysis::ParticleToJetAssociator )
+/* DECLARE_COMPONENT( Analysis::FindLeptonTruth ) */
 /// @todo Convert to namespace, tool, etc?
-DECLARE_TOOL_FACTORY( CopyFlavorLabelTruthParticles )
-DECLARE_TOOL_FACTORY( CopyBosonTopLabelTruthParticles )
-DECLARE_TOOL_FACTORY( CopyTruthPartons )
-DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
-DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
-DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
-DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
-DECLARE_ALGORITHM_FACTORY( JetParticleAssociationAlg )
+DECLARE_COMPONENT( CopyFlavorLabelTruthParticles )
+DECLARE_COMPONENT( CopyBosonTopLabelTruthParticles )
+DECLARE_COMPONENT( CopyTruthPartons )
+DECLARE_COMPONENT( CopyTruthJetParticles )
+DECLARE_COMPONENT( ParticleJetDeltaRLabelTool )
+DECLARE_COMPONENT( JetParticleShrinkingConeAssociation )
+DECLARE_COMPONENT( JetParticleCenterOfMassAssociation )
+DECLARE_COMPONENT( JetParticleAssociationAlg )
 

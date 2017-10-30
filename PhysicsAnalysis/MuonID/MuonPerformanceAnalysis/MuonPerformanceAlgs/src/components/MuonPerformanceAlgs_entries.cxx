@@ -7,10 +7,10 @@
 #include "../MuonTPMetaDataAlg.h"
 #include "../MuonTPJpsiVertexFittingAlg.h"
 
-DECLARE_ALGORITHM_FACTORY(MuonTPAlg)
-DECLARE_ALGORITHM_FACTORY(HighPtTrackPicker)
-DECLARE_ALGORITHM_FACTORY(MuonResonanceAlg)
-DECLARE_ALGORITHM_FACTORY(TrackIsolationDecorAlg)
-DECLARE_ALGORITHM_FACTORY(MuonTPMetaDataAlg)
-DECLARE_ALGORITHM_FACTORY(MuonTPJpsiVertexFittingAlg)
+DECLARE_COMPONENT( MuonTPAlg )
+DECLARE_COMPONENT( HighPtTrackPicker )
+DECLARE_COMPONENT( MuonResonanceAlg )
+DECLARE_COMPONENT( TrackIsolationDecorAlg )
+DECLARE_COMPONENT( MuonTPMetaDataAlg )
+DECLARE_COMPONENT( MuonTPJpsiVertexFittingAlg )
 

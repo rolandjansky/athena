@@ -3,8 +3,8 @@
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 
  
-DECLARE_TOOL_FACTORY( EgammaTagTool )
-DECLARE_TOOL_FACTORY( ElectronTagTool )
-DECLARE_TOOL_FACTORY( PhotonTagTool )
+DECLARE_COMPONENT( EgammaTagTool )
+DECLARE_COMPONENT( ElectronTagTool )
+DECLARE_COMPONENT( PhotonTagTool )
  
 

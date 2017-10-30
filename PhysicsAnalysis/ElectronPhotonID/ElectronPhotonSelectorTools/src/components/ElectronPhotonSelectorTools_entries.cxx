@@ -6,11 +6,11 @@
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 
-DECLARE_TOOL_FACTORY( AsgElectronIsEMSelector )
-DECLARE_TOOL_FACTORY( AsgElectronMultiLeptonSelector )
-DECLARE_TOOL_FACTORY( AsgElectronLikelihoodTool )
-DECLARE_TOOL_FACTORY( AsgPhotonIsEMSelector )
-DECLARE_TOOL_FACTORY( AsgForwardElectronIsEMSelector )
-DECLARE_TOOL_FACTORY( EGammaAmbiguityTool )
-DECLARE_TOOL_FACTORY( AsgElectronChargeIDSelectorTool )
+DECLARE_COMPONENT( AsgElectronIsEMSelector )
+DECLARE_COMPONENT( AsgElectronMultiLeptonSelector )
+DECLARE_COMPONENT( AsgElectronLikelihoodTool )
+DECLARE_COMPONENT( AsgPhotonIsEMSelector )
+DECLARE_COMPONENT( AsgForwardElectronIsEMSelector )
+DECLARE_COMPONENT( EGammaAmbiguityTool )
+DECLARE_COMPONENT( AsgElectronChargeIDSelectorTool )
 

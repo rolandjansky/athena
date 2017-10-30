@@ -6,9 +6,9 @@
 
 using namespace xAOD;
 
-DECLARE_NAMESPACE_TOOL_FACTORY(CP, IsolationSelectionTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(CP, TestIsolationAthenaAlg)
+DECLARE_COMPONENT( CP::IsolationSelectionTool )
+DECLARE_COMPONENT( CP::TestIsolationAthenaAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY(CP, IsolationCloseByCorrectionTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(CP, TestIsolationCloseByCorrAthenaAlg)
+DECLARE_COMPONENT( CP::IsolationCloseByCorrectionTool )
+DECLARE_COMPONENT( CP::TestIsolationCloseByCorrAthenaAlg )
 

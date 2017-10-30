@@ -1,6 +1,6 @@
 #include "HiggsPhysTagTools/HiggsPhysTagTool.h"
 
  
-DECLARE_TOOL_FACTORY( HiggsPhysTagTool )
+DECLARE_COMPONENT( HiggsPhysTagTool )
  
 

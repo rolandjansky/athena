@@ -3,6 +3,6 @@
 
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( SkimmingToolEXOT14 )
-DECLARE_TOOL_FACTORY( SkimmingToolEXOT5 )
+DECLARE_COMPONENT( SkimmingToolEXOT14 )
+DECLARE_COMPONENT( SkimmingToolEXOT5 )
 

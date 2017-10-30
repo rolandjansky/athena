@@ -2,7 +2,7 @@
 #include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 
  
-DECLARE_TOOL_FACTORY( JetMissingEtIdentificationTagTool )
-DECLARE_TOOL_FACTORY( JetMetTagTool )
+DECLARE_COMPONENT( JetMissingEtIdentificationTagTool )
+DECLARE_COMPONENT( JetMetTagTool )
  
 

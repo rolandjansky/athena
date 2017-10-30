@@ -2,7 +2,7 @@
 #include "../QuadrupletVertexAssociationTool.h"
 #include "../QuadrupletCompositeParticleAssociationTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, QuadrupletFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, QuadrupletVertexAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, QuadrupletCompositeParticleAssociationTool)
+DECLARE_COMPONENT( D3PD::QuadrupletFillerTool )
+DECLARE_COMPONENT( D3PD::QuadrupletVertexAssociationTool )
+DECLARE_COMPONENT( D3PD::QuadrupletCompositeParticleAssociationTool )
 

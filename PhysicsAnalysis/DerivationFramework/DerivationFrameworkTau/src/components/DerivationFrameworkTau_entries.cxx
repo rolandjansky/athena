@@ -6,9 +6,9 @@
 
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( TauSelectionWrapper )
-DECLARE_TOOL_FACTORY( TauTruthMatchingWrapper )
-DECLARE_TOOL_FACTORY( TauPVRefitTool )
-DECLARE_TOOL_FACTORY( TauPVTrkSelectionTool )
-DECLARE_TOOL_FACTORY( TauOverlappingElectronLLHDecoratorWrapper )
+DECLARE_COMPONENT( TauSelectionWrapper )
+DECLARE_COMPONENT( TauTruthMatchingWrapper )
+DECLARE_COMPONENT( TauPVRefitTool )
+DECLARE_COMPONENT( TauPVTrkSelectionTool )
+DECLARE_COMPONENT( TauOverlappingElectronLLHDecoratorWrapper )
 

@@ -1,4 +1,4 @@
 #include "JetSelectorTools/JetCleaningTool.h"
 
-DECLARE_TOOL_FACTORY( JetCleaningTool )
+DECLARE_COMPONENT( JetCleaningTool )
 

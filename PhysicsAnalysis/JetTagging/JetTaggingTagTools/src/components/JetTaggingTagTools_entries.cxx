@@ -1,6 +1,6 @@
 #include "JetTaggingTagTools/JetTaggingTagTool.h"
 
  
-DECLARE_TOOL_FACTORY( JetTaggingTagTool )
+DECLARE_COMPONENT( JetTaggingTagTool )
  
 

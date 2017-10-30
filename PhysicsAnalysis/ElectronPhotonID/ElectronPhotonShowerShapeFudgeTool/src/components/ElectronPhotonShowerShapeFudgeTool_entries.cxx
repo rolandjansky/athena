@@ -1,4 +1,4 @@
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
 
-DECLARE_TOOL_FACTORY( ElectronPhotonShowerShapeFudgeTool )
+DECLARE_COMPONENT( ElectronPhotonShowerShapeFudgeTool )
 

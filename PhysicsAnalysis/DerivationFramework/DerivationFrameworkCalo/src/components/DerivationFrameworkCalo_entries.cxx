@@ -7,12 +7,12 @@
 
 using namespace DerivationFramework;
  
-DECLARE_TOOL_FACTORY( CaloClusterThinning )
-DECLARE_TOOL_FACTORY( JetCaloClusterThinning )
-DECLARE_TOOL_FACTORY( CellsInConeThinning )
-DECLARE_TOOL_FACTORY( GainDecorator )
-DECLARE_TOOL_FACTORY( MaxCellDecorator )
-DECLARE_TOOL_FACTORY( ClusterEnergyPerLayerDecorator )
+DECLARE_COMPONENT( CaloClusterThinning )
+DECLARE_COMPONENT( JetCaloClusterThinning )
+DECLARE_COMPONENT( CellsInConeThinning )
+DECLARE_COMPONENT( GainDecorator )
+DECLARE_COMPONENT( MaxCellDecorator )
+DECLARE_COMPONENT( ClusterEnergyPerLayerDecorator )
 
  
 

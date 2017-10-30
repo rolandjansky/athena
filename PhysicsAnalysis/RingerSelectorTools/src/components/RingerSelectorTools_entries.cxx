@@ -2,6 +2,6 @@
 
 using namespace Ringer;
 
-DECLARE_TOOL_FACTORY( AsgElectronRingerSelector   )
-//DECLARE_TOOL_FACTORY( AsgPhotonRingerSelector     )
+DECLARE_COMPONENT( AsgElectronRingerSelector )
+//DECLARE_COMPONENT( AsgPhotonRingerSelector )
 

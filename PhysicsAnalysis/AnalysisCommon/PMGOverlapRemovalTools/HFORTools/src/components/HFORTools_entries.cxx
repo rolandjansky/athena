@@ -1,7 +1,7 @@
 #include "HFORTools/HFORSelectionTool.h"
 #include "../HFORSelectionAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( HFORSelectionAlg )
+DECLARE_COMPONENT( HFORSelectionAlg )
 
-DECLARE_TOOL_FACTORY( HFORSelectionTool )
+DECLARE_COMPONENT( HFORSelectionTool )
 

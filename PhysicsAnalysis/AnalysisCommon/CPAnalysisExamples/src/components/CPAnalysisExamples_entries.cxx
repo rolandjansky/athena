@@ -5,28 +5,28 @@
 
 #include "../ToolTester.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonEfficiencyToolExample )
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonSmearingToolExample )
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MuonSelectionToolExample )
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, JetCalibrationToolExample )
+DECLARE_COMPONENT( CP::MuonEfficiencyToolExample )
+DECLARE_COMPONENT( CP::MuonSmearingToolExample )
+DECLARE_COMPONENT( CP::MuonSelectionToolExample )
+DECLARE_COMPONENT( CP::JetCalibrationToolExample )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( CP, ToolTester )
+DECLARE_COMPONENT( CP::ToolTester )
 
 
 #include "CPAnalysisExamples/xAthExample.h"
-DECLARE_ALGORITHM_FACTORY( xAthExample )
+DECLARE_COMPONENT( xAthExample )
 
 
 #include "../Test__TrackLinkTest.h"
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Test, TrackLinkTest )
+DECLARE_COMPONENT( Test::TrackLinkTest )
 
 #include "CPAnalysisExamples/ToolExamplesAlg.h"
-DECLARE_ALGORITHM_FACTORY( ToolExamplesAlg )
+DECLARE_COMPONENT( ToolExamplesAlg )
 
 #include "../Test__EgammaCalibrationAndSmearingTool.h"
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Test, EgammaCalibrationAndSmearingTool )
+DECLARE_COMPONENT( Test::EgammaCalibrationAndSmearingTool )
 
 
 #include "CPAnalysisExamples/MetadataToolExample.h"
-DECLARE_NAMESPACE_TOOL_FACTORY( CP, MetadataToolExample )
+DECLARE_COMPONENT( CP::MetadataToolExample )
 
