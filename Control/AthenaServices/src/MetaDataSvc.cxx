@@ -393,6 +393,14 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/SHM_CopyEventStreamInfo");
             return(StatusCode::FAILURE);
          }
+         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
+         if (cfSvc.retrieve().isSuccess()) {
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
+            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
+            m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
+            cfSvc.release().ignore();
+         }
          if (!m_outputDataStore->clearStore().isSuccess()) {
             ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
          }
