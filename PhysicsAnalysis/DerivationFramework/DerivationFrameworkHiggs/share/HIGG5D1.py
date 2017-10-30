@@ -213,7 +213,7 @@ if (beamEnergy > 6.0e+06): # 13 TeV, name should be HLT_xxx
     triglist.append("HLT_xe120_tc_em")
     triglist.append("HLT_noalg_L1J400") # added on Nov 2016
 # print 'DEBUG projectName=%s [%s;%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName))
-if (False and beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
+if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
     triglist.append("HLT_e28_lhtight_nod0_ivarloose")
     triglist.append("HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM")
     triglist.append("HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM")

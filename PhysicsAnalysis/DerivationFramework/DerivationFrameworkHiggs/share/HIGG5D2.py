@@ -482,7 +482,7 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"
              ]
-addJetOutputs(HIGG5D@SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
+addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
 
 # Add the MET containers to the stream
 addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
