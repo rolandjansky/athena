@@ -43,13 +43,8 @@ ElectronicsResponse::ElectronicsResponse()
   stripdeadtime = get_stripdeadtime();
   ARTdeadtime = get_ARTdeadtime();
 
-//  if(stripObject) delete stripObject;
-//  clearValues();
   alpha = 2.5;
-   // RC = 80.0;
-  //  RC = 40.0;
-  // RC = 10.0;
-   RC = 20.0;
+  RC = 20.0;
 
   electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(alpha,alpha)*TMath::Exp(-alpha)) ) ;
   //---------------------------------------------------------
