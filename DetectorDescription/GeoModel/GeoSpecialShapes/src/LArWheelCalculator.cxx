@@ -425,82 +425,82 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
 /* converts module gap number into wheel gap number */
 int LArWheelCalculator::PhiGapNumberForWheel(int i) const
 {
-	return m_fanCalcImpl->PhiGapNumberForWheel(i);
+  return m_fanCalcImpl->PhiGapNumberForWheel(i);
 }
 
 void LArWheelCalculator::inner_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
 {
-  for(int i = 0; i < 5; ++ i) m_slant_parametrization[i] = default_slant_parametrization[0][i];
+  for(int i = 0; i < 5; ++ i) {
+    m_slant_parametrization[i] = default_slant_parametrization[0][i];
+  }
   m_slant_use_default = true;
 
   EmecWheelParameters_recs.
     param(m_NumberOfFans,  "NABS", 0).
-    param(m_NumberOfWaves, "NACC", 0)
-    ;
+    param(m_NumberOfWaves, "NACC", 0);
 
   m_FanFoldRadius = 3.25*mm;
   m_ZeroGapNumber = 64; // internal constant, should not be taken from DB
   m_FanStepOnPhi = twopi / m_NumberOfFans;
   m_isInner = true;
-
 }
 
 void LArWheelCalculator::outer_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
 {
-  for(int i = 0; i < 5; ++ i) m_slant_parametrization[i] = default_slant_parametrization[1][i];
+  for(int i = 0; i < 5; ++ i) {
+    m_slant_parametrization[i] = default_slant_parametrization[1][i];
+  }
   m_slant_use_default = true;
   EmecWheelParameters_recs.
     param(m_NumberOfFans,  "NABS", 1).
-    param(m_NumberOfWaves, "NACC", 1)
-    ;
+    param(m_NumberOfWaves, "NACC", 1);
 
   m_FanFoldRadius = 3.0*mm;
   m_ZeroGapNumber = 192; // internal constant, should not be taken from DB
   m_FanStepOnPhi = twopi / m_NumberOfFans;
   m_isInner = false;
-
 }
 
 double LArWheelCalculator::GetFanHalfThickness(LArG4::LArWheelCalculator_t t)
 {
   switch(t){
-     case LArG4::BackInnerBarretteWheelCalib:
-     case LArG4::BackInnerBarretteModuleCalib:
-     case LArG4::BackInnerBarretteWheel:
-     case LArG4::BackInnerBarretteModule:
-     case LArG4::InnerAbsorberWheel:
-     case LArG4::InnerAbsorberModule:
-     //              return (2.2 / 2 + 0.2 + 0.15) * mm;
-          return (2.2 / 2 + 0.2 + 0.1)*0.997 * mm; // new values, 02.11.06 J.T. with contraction in cold
-     // lead / 2 + steel + glue
-     case LArG4::InnerGlueWheel:
-          return (2.2 / 2 + 0.1)*0.997 * mm;
-     case LArG4::InnerLeadWheel:
-          return 2.2 / 2 * 0.997 * mm;
+    case LArG4::BackInnerBarretteWheelCalib:
+    case LArG4::BackInnerBarretteModuleCalib:
+    case LArG4::BackInnerBarretteWheel:
+    case LArG4::BackInnerBarretteModule:
+    case LArG4::InnerAbsorberWheel:
+    case LArG4::InnerAbsorberModule:
+      //return (2.2 / 2 + 0.2 + 0.15) * mm;
+      return (2.2 / 2 + 0.2 + 0.1)*0.997 * mm; // new values, 02.11.06 J.T. with contraction in cold
+      // lead / 2 + steel + glue
+    case LArG4::InnerGlueWheel:
+      return (2.2 / 2 + 0.1)*0.997 * mm;
+    case LArG4::InnerLeadWheel:
+      return 2.2 / 2 * 0.997 * mm;
 
-     case LArG4::BackOuterBarretteWheelCalib:
-     case LArG4::BackOuterBarretteModuleCalib:
-     case LArG4::BackOuterBarretteWheel:
-     case LArG4::BackOuterBarretteModule:
-     case LArG4::OuterAbsorberWheel:
-     case LArG4::OuterAbsorberModule:
-          //return (1.7 / 2 + 0.2 + 0.15) * mm;
-          return (1.69 / 2 + 0.2 + 0.1)*0.997 * mm;  // new values, 02.11.06 J.T.
-     case LArG4::OuterGlueWheel:
-          return (1.69 / 2 + 0.1)*0.997 * mm;
-     case LArG4::OuterLeadWheel:
-          return 1.69 / 2 * 0.997 * mm;
+    case LArG4::BackOuterBarretteWheelCalib:
+    case LArG4::BackOuterBarretteModuleCalib:
+    case LArG4::BackOuterBarretteWheel:
+    case LArG4::BackOuterBarretteModule:
+    case LArG4::OuterAbsorberWheel:
+    case LArG4::OuterAbsorberModule:
+      //return (1.7 / 2 + 0.2 + 0.15) * mm;
+      return (1.69 / 2 + 0.2 + 0.1)*0.997 * mm;  // new values, 02.11.06 J.T.
+    case LArG4::OuterGlueWheel:
+      return (1.69 / 2 + 0.1)*0.997 * mm;
+    case LArG4::OuterLeadWheel:
+      return 1.69 / 2 * 0.997 * mm;
 
-     case LArG4::InnerElectrodWheel:
-     case LArG4::OuterElectrodWheel:
-     case LArG4::InnerElectrodModule:
-     case LArG4::OuterElectrodModule:
-          return 0.275/1.0036256 *mm * 0.5;  //new values, 02.11.06 J.T
+    case LArG4::InnerElectrodWheel:
+    case LArG4::OuterElectrodWheel:
+    case LArG4::InnerElectrodModule:
+    case LArG4::OuterElectrodModule:
+      return 0.275/1.0036256 *mm * 0.5;  //new values, 02.11.06 J.T
   }
   throw std::runtime_error("LArWheelCalculator::GetFanHalfThickness: wrong wheel type");
 }
 
-void LArWheelCalculator::module_init(void)
+void LArWheelCalculator::module_init()
 {
   m_isModule = true;
   m_LastFan = m_NumberOfFans / 8;
@@ -554,4 +554,3 @@ void LArWheelCalculator::GetWheelOuterRadius(double *r) const
     r[2] = m_rOuterCutoff;
   }
 }
-

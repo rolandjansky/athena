@@ -150,11 +150,12 @@ LArCustomShape::LArCustomShape(const std::string& a_shapeName)
 //	}
 	
 	
-	if ( createCalculator( s_calculatorTypes.at(a_shapeName) ).isFailure() ) { // map.at throws std::out_of_range exception on unknown shape name
-		std::string error = std::string("Can't create LArWheelCalculator for name ") + a_shapeName + " in LArCustomShape constructor";
-		throw std::runtime_error(error);
-	}
-	//std::cout << "-->>> LArCustomShape::m_calculator=" << m_calculator << "\n";
+  // map.at throws std::out_of_range exception on unknown shape name
+  if ( createCalculator( s_calculatorTypes.at(a_shapeName) ).isFailure() ) {
+    std::string error = std::string("Can't create LArWheelCalculator for name ") + a_shapeName + " in LArCustomShape constructor";
+    throw std::runtime_error(error);
+  }
+  //std::cout << "-->>> LArCustomShape::m_calculator=" << m_calculator << "\n";
 }
 
 LArCustomShape::~LArCustomShape()
