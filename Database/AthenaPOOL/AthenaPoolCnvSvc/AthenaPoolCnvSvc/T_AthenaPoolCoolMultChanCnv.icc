@@ -83,6 +83,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
 	// CondAttrListCollection from the CondMultChanCollImpl
 	StatusCode sc = condMultChanCollImplToObject( *(pAddr->par()), obj);
 	if (sc != StatusCode::SUCCESS) {
+            delete obj ; obj = 0;
 	    ATH_MSG_ERROR("Unable to read in CondMultChanCollImpl");
 	    return(StatusCode::FAILURE);
 	}
