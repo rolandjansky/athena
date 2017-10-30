@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopObjectSelection.h 808170 2017-07-12 18:19:57Z tpelzer $
+// $Id: TopObjectSelection.h 810745 2017-09-29 14:03:01Z iconnell $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 
@@ -12,8 +12,8 @@
   * @brief TopObjectSelection
   *   Selects top objects according to the ObjectLoaderBase type
   * 
-  * $Revision: 808170 $
-  * $Date: 2017-07-12 19:19:57 +0100 (Wed, 12 Jul 2017) $
+  * $Revision: 810745 $
+  * $Date: 2017-09-29 15:03:01 +0100 (Fri, 29 Sep 2017) $
   * 
   **/ 
 
@@ -39,7 +39,6 @@
 
 // b-tagging
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
-
 #include "TopEvent/Event.h"
 
 // forward declare
@@ -206,6 +205,11 @@ private:
                                 std::vector<unsigned int>& goodElectrons,
                                 std::vector<unsigned int>& goodMuons,
                                 std::vector<unsigned int>& goodTrackJets);  
+
+    void decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
+					 const xAOD::JetContainer* xaod_jet,
+					 std::vector<unsigned int>& goodMuons,
+					 std::vector<unsigned int>& goodJets);
   
     /**
      * @brief Pointer to the configuration object so we can check which objects

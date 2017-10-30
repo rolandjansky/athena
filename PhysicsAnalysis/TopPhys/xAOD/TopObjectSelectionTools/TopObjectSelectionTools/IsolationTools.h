@@ -239,6 +239,8 @@ protected:
     std::string m_looseLeptonIsolation;
     bool m_doTightIsolation;
     bool m_doLooseIsolation;
+    bool m_doTightPromptLeptonIso;
+    bool m_doLoosePromptLeptonIso;
 };
 
 }
