@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkExAlgs/ExtrapolatorTest.h"
 #include "TrkExAlgs/CombinedExtrapolatorTest.h"
 #include "TrkExAlgs/CETmaterial.h"
@@ -8,18 +7,10 @@
 
 using namespace Trk;
 
-DECLARE_ALGORITHM_FACTORY( RiddersAlgorithm )
-DECLARE_ALGORITHM_FACTORY( ExtrapolatorTest )
-DECLARE_ALGORITHM_FACTORY( ExtrapolationValidation )
-DECLARE_ALGORITHM_FACTORY( EnergyLossExtrapolationValidation )
-DECLARE_ALGORITHM_FACTORY( CombinedExtrapolatorTest )
-DECLARE_ALGORITHM_FACTORY( CETmaterial )
+DECLARE_COMPONENT( RiddersAlgorithm )
+DECLARE_COMPONENT( ExtrapolatorTest )
+DECLARE_COMPONENT( ExtrapolationValidation )
+DECLARE_COMPONENT( EnergyLossExtrapolationValidation )
+DECLARE_COMPONENT( CombinedExtrapolatorTest )
+DECLARE_COMPONENT( CETmaterial )
 
-DECLARE_FACTORY_ENTRIES( TrkExAlgs ) {
-  DECLARE_ALGORITHM( RiddersAlgorithm )
-  DECLARE_ALGORITHM( ExtrapolatorTest )
-  DECLARE_ALGORITHM( ExtrapolationValidation )
-  DECLARE_ALGORITHM( EnergyLossExtrapolationValidation )
-  DECLARE_ALGORITHM( CombinedExtrapolatorTest )
-  DECLARE_ALGORITHM( CETmaterial )
-}   

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkAlignGenTools/MatrixTool.h"
 #include "TrkAlignGenTools/IPCMatrixTool.h"
 #include "TrkAlignGenTools/TrkAlignDBTool.h"
@@ -14,36 +13,18 @@
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
 #include "TrkAlignGenTools/ConstrainedTrackProvider.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, MatrixTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, IPCMatrixTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrkAlignDBTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AnalyticalDerivCalcTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, ShiftingDerivCalcTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AlignTrackPreProcessor )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrackCollectionProvider )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, MSConstraintTracksProvider )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AlignTrackCreator )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AlignTrackDresser )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AlignModuleTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, AlignResidualCalculator )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, BeamspotVertexPreProcessor )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trk, ConstrainedTrackProvider )
+DECLARE_COMPONENT( Trk::MatrixTool )
+DECLARE_COMPONENT( Trk::IPCMatrixTool )
+DECLARE_COMPONENT( Trk::TrkAlignDBTool )
+DECLARE_COMPONENT( Trk::AnalyticalDerivCalcTool )
+DECLARE_COMPONENT( Trk::ShiftingDerivCalcTool )
+DECLARE_COMPONENT( Trk::AlignTrackPreProcessor )
+DECLARE_COMPONENT( Trk::TrackCollectionProvider )
+DECLARE_COMPONENT( Trk::MSConstraintTracksProvider )
+DECLARE_COMPONENT( Trk::AlignTrackCreator )
+DECLARE_COMPONENT( Trk::AlignTrackDresser )
+DECLARE_COMPONENT( Trk::AlignModuleTool )
+DECLARE_COMPONENT( Trk::AlignResidualCalculator )
+DECLARE_COMPONENT( Trk::BeamspotVertexPreProcessor )
+DECLARE_COMPONENT( Trk::ConstrainedTrackProvider )
 
-
-DECLARE_FACTORY_ENTRIES( TrkAlignGenTools )
-{
-  DECLARE_NAMESPACE_TOOL( Trk, MatrixTool )
-  DECLARE_NAMESPACE_TOOL( Trk, IPCMatrixTool )
-  DECLARE_NAMESPACE_TOOL( Trk, TrkAlignDBTool )
-  DECLARE_NAMESPACE_TOOL( Trk, AnalyticalDerivCalcTool )
-  DECLARE_NAMESPACE_TOOL( Trk, ShiftingDerivCalcTool )
-  DECLARE_NAMESPACE_TOOL( Trk, TrackCollectionProvider )
-  DECLARE_NAMESPACE_TOOL( Trk, MSConstraintTracksProvider )
-  DECLARE_NAMESPACE_TOOL( Trk, AlignTrackPreProcessor )
-  DECLARE_NAMESPACE_TOOL( Trk, AlignTrackCreator )
-  DECLARE_NAMESPACE_TOOL( Trk, AlignTrackDresser )
-  DECLARE_NAMESPACE_TOOL( Trk, AlignModuleTool )
-  DECLARE_NAMESPACE_TOOL( Trk, AlignResidualCalculator )
-  DECLARE_NAMESPACE_TOOL( Trk, BeamspotVertexPreProcessor )
-  DECLARE_NAMESPACE_TOOL( Trk, ConstrainedTrackProvider )
-}
