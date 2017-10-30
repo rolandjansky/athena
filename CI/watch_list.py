@@ -46,4 +46,5 @@ WATCH_LIST['TrkVertexAnalysisUtils'] = set(['bouhova'])
 WATCH_LIST['InDetV0Finder'] = set(['bouhova'])
 WATCH_LIST['JpsiUpsilonTools'] = set(['abarton', 'wwalko'])
 WATCH_LIST['xAODBPhys'] = set(['abarton', 'wwalko'])
+WATCH_LIST['(SCT(?!Extension))|(DerivationFrameworkHiggs)'] = set(['oda'])
 
