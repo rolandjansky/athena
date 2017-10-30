@@ -215,6 +215,13 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
     sc = sc && summaryGroup.regHist(m_eventsLB);
     
+    // Number of events with >=1 FEB in errors per LB
+    m_oneErrorYieldLB = TProfile_LW::create("YieldOfOneErrorEventsVsLB","Yield of events with >=1 FEB in error",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
+    (m_oneErrorYieldLB->GetXaxis())->SetTitle("Luminosity Block");
+    (m_oneErrorYieldLB->GetYaxis())->SetTitle("Yield(%)");
+    m_oneErrorYieldLB->SetMinimum(-5.);
+    sc = sc && summaryGroup.regHist(m_oneErrorYieldLB);
+
     // Number of events rejected per LB
     m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events (DATACORRUPTED)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
@@ -546,6 +553,7 @@ StatusCode LArFEBMon::fillHistograms() {
   // Fill global event histograms
   if (m_febInErrorTree.size()>=1){
     m_rejectedHisto->Fill(1);
+    m_oneErrorYieldLB->Fill(lumi_block,100);
     if (m_febInErrorTree.size()>=4) m_rejectedHisto->Fill(2);
   }
 

@@ -159,6 +159,7 @@ private:
   TH1I_LW* m_rejBitsHisto;
   
   TH1I_LW* m_eventsLB;
+  TProfile_LW* m_oneErrorYieldLB;
   TProfile_LW* m_rejectedYieldLB;
   TProfile_LW* m_rejectedYieldLBout;
   TProfile_LW* m_eventSizeLB;
