@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "TBCnv/TBDataCnv.h"
 #include "TBCnv/TBByteStreamCnvTool.h"
 #include "TBCnv/ReadTBLArDigits.h"
@@ -45,19 +43,3 @@ DECLARE_ALGORITHM_FACTORY( ReadTBLArCalibDigits )
 DECLARE_ALGORITHM_FACTORY( TBCheckBCIDs )
  
 
-DECLARE_FACTORY_ENTRIES( TBCnv ) {
-  DECLARE_TOOL( TBByteStreamCnvTool )
-  DECLARE_CONVERTER( TBTDCCnv )
-  DECLARE_CONVERTER( TBTDCRawContCnv )
-  DECLARE_CONVERTER( TBLArDigitContainerCnv )
-  DECLARE_CONVERTER( TBLArCalibDigitContainerCnv )
-  DECLARE_CONVERTER( TBADCRawContCnv )
-  DECLARE_CONVERTER( TBBPCRawContCnv )
-  DECLARE_CONVERTER( TBScintillatorRawContCnv )
-  DECLARE_CONVERTER( TBTriggerPatternUnitCnv )
-  DECLARE_CONVERTER( TBTailCatcherRawCnv )
-  DECLARE_CONVERTER( TBEventInfoCnv )
-  DECLARE_ALGORITHM( ReadTBLArDigits )
-  DECLARE_ALGORITHM( ReadTBLArCalibDigits )
-  DECLARE_ALGORITHM( TBCheckBCIDs )
-}

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../NtupleCnvSvc.h"
 //#include "../LeafCnv.h"
 #include "../RootOutputStreamTool.h"
@@ -42,25 +41,3 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( Athena, RootAsciiDumperAlgHandle )
 
 DECLARE_SERVICE_FACTORY( IoSvc )
 
-DECLARE_FACTORY_ENTRIES( AthenaRootComps ) {
-  DECLARE_NAMESPACE_SERVICE(Athena, NtupleCnvSvc)
-  DECLARE_NAMESPACE_CONVERTER(Athena, LeafCnv)
-  DECLARE_NAMESPACE_CONVERTER(Athena, xAODCnv)
-
-  DECLARE_NAMESPACE_CONVERTER(Athena, RootCnv)
-  DECLARE_NAMESPACE_SERVICE( Athena, RootCnvSvc )
-  DECLARE_NAMESPACE_CONVERTER(Athena, RootCnv)
-  DECLARE_NAMESPACE_SERVICE( Athena, xAODCnvSvc )
-  DECLARE_NAMESPACE_TOOL(Athena, RootOutputStreamTool)
-
-  DECLARE_NAMESPACE_SERVICE(Athena, RootNtupleEventSelector)
-  DECLARE_NAMESPACE_SERVICE(Athena, xAODEventSelector)
-  DECLARE_NAMESPACE_ALGORITHM(Athena, RootNtupleOutputStream)
-  DECLARE_NAMESPACE_TOOL(Athena, RootNtupleOutputMetadataTool)
-
-  DECLARE_NAMESPACE_ALGORITHM(Athena, RootAsciiDumperAlg)
-  DECLARE_NAMESPACE_ALGORITHM(Athena, RootAsciiDumperAlgHandle)
-
-
-  DECLARE_SERVICE( IoSvc )
-}

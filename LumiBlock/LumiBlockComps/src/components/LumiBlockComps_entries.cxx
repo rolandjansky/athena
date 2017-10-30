@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
 //#include "LumiBlockComps/CreateAANTFromLumiBlockCollection.h"
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
@@ -27,20 +26,4 @@ DECLARE_TOOL_FACTORY( LumiBlockMetaDataTool )
 
 #include "../xAOD2NtupLumiSvc.h"
 DECLARE_SERVICE_FACTORY( xAOD2NtupLumiSvc )
-
-DECLARE_FACTORY_ENTRIES(LumiBlockComps) {
-  DECLARE_ALGORITHM( CreateLumiBlockCollectionFromFile );
-  //  DECLARE_ALGORITHM( CreateAANTFromLumiBlockCollection );
-  DECLARE_ALGTOOL( LumiBlockMetaDataTool);
-  DECLARE_SERVICE( xAOD2NtupLumiSvc );
-
-#ifndef XAOD_ANALYSIS
-  DECLARE_ALGORITHM( LumiBlockMuWriter );
-  DECLARE_ALGORITHM( LumiBlockTester );
-  DECLARE_ALGTOOL( LumiBlockMuTool);
-  DECLARE_ALGTOOL( LuminosityTool);
-  DECLARE_ALGTOOL( TrigLivefractionTool);
-  DECLARE_SERVICE( LumiCalcSvc );
-#endif
-}
 

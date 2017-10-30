@@ -1,6 +1,3 @@
-
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "AFP_ByteStream2RawCnv/RawDataProvider.h"
 
 DECLARE_ALGORITHM_FACTORY( RawDataProvider )
@@ -17,10 +14,3 @@ DECLARE_TOOL_FACTORY( AFP_RawDataProviderTool )
 #include "AFP_ByteStream2RawCnv/AFP_RawDataProvider.h"
 DECLARE_ALGORITHM_FACTORY( AFP_RawDataProvider )
 
-DECLARE_FACTORY_ENTRIES( AFP_ByteStream2RawCnv ) 
-{
-  DECLARE_ALGORITHM( AFP_RawDataProvider );
-  DECLARE_TOOL( AFP_RawDataProviderTool );
-  DECLARE_TOOL( AFP_ByteStream2RawCnv );
-  DECLARE_ALGORITHM( RawDataProvider );
-}

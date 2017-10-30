@@ -1,8 +1,3 @@
-/**
- * @file AthenaPoolMultiTest_entries.cxx
- * @brief Required by Gaudi class factory
- */
-  
 #include "../StoreDump.h"
 #include "../PassAllFilter.h"
 #include "../PassNoneFilter.h"
@@ -14,7 +9,6 @@
 #include "../RunEventTagWriter.h"
 #include "../RunEventMetaWriter.h"
 #include "../DummyLumirangeTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY(StoreDump)
 DECLARE_ALGORITHM_FACTORY(PassAllFilter)
@@ -28,16 +22,3 @@ DECLARE_ALGORITHM_FACTORY(RunEventTagWriter)
 DECLARE_ALGORITHM_FACTORY(RunEventMetaWriter)
 DECLARE_ALGORITHM_FACTORY(DummyLumirangeTool)
 
-DECLARE_FACTORY_ENTRIES(AthenaPoolMultiTest) {
-   DECLARE_ALGORITHM(StoreDump)
-   DECLARE_ALGORITHM(PassAllFilter)
-   DECLARE_ALGORITHM(PassNoneFilter)
-   DECLARE_ALGORITHM(AddTrigMap)
-   DECLARE_ALGORITHM(EventSplit)
-   DECLARE_ALGORITHM(EventTagReader)
-   DECLARE_ALGORITHM(EventTagWriter)
-   DECLARE_ALGORITHM(TagEventTagWriter)
-   DECLARE_ALGORITHM(RunEventTagWriter)
-   DECLARE_ALGORITHM(RunEventMetaWriter)
-   DECLARE_ALGORITHM(DummyLumirangeTool)
-}

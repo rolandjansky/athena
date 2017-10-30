@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "ZdcByteStream/ZdcByteStreamCnv.h"
 #include "ZdcByteStream/ZdcByteStreamTool.h"
 #include "ZdcByteStream/ZdcDataAccessV2.h"
@@ -24,15 +22,4 @@ DECLARE_CONVERTER_FACTORY (ZdcByteStreamCnv)
 DECLARE_ALGORITHM_FACTORY (ZdcByteStreamTester)
 DECLARE_ALGORITHM_FACTORY (ZdcByteStreamRawData)
 DECLARE_ALGORITHM_FACTORY (ZdcByteStreamRawDataV2)
-
-DECLARE_FACTORY_ENTRIES (ZdcByteStream) {
-	 DECLARE_CONVERTER (ZdcByteStreamCnv)
-	 DECLARE_TOOL      (ZdcByteStreamTool)
-	 DECLARE_TOOL      (ZdcByteStreamReadV1V2Tool)
-	 DECLARE_TOOL    (ZdcL1CaloErrorByteStreamTool)
-	 DECLARE_TOOL (ZdcDataAccessV2)
-	 DECLARE_ALGORITHM (ZdcByteStreamTester)
-	 DECLARE_ALGORITHM (ZdcByteStreamRawData)
-	 DECLARE_ALGORITHM (ZdcByteStreamRawDataV2)
-}
 

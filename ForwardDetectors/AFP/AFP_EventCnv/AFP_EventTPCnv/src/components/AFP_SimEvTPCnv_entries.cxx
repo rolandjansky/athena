@@ -38,7 +38,6 @@
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvCollection_p1.h"
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvCollectionCnv_p1.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( AFP_TDSimHit_p1 )
 DECLARE_ALGORITHM_FACTORY( AFP_TDSimHitCnv_p1 )
@@ -79,43 +78,11 @@ DECLARE_ALGORITHM_FACTORY( AFP_SIDLocRecoEvCollection_p1 )
 DECLARE_ALGORITHM_FACTORY( AFP_SIDLocRecoEvCollectionCnv_p1 )
 
 
-DECLARE_FACTORY_ENTRIES(AFP_EventTPCnv) {
-	DECLARE_ALGORITHM( AFP_TDSimHit_p1 )
-	DECLARE_ALGORITHM( AFP_TDSimHitCnv_p1 )
-	DECLARE_ALGORITHM( AFP_TDSimHitCollection_p1 )
-	DECLARE_ALGORITHM( AFP_TDSimHitCollectionCnv_p1 )
 
-        DECLARE_ALGORITHM( AFP_TDDigi_p1 )
-        DECLARE_ALGORITHM( AFP_TDDigiCnv_p1 )
-        DECLARE_ALGORITHM( AFP_TDDigiCollection_p1 )
-        DECLARE_ALGORITHM( AFP_TDDigiCollectionCnv_p1 )
 
-        DECLARE_ALGORITHM( AFP_RawData_p1 )
-        DECLARE_ALGORITHM( AFP_RawDataCnv_p1 )
-        DECLARE_ALGORITHM( AFP_RawDataCollection_p1 )
-        DECLARE_ALGORITHM( AFP_RawDataCollectionCnv_p1 )
-        DECLARE_ALGORITHM( AFP_RawDataContainer_p1 )
-        DECLARE_ALGORITHM( AFP_RawDataContainerCnv_p1 )
 
-	DECLARE_ALGORITHM( AFP_SIDSimHit_p1 )
-	DECLARE_ALGORITHM( AFP_SIDSimHitCnv_p1 )
-	DECLARE_ALGORITHM( AFP_SIDSimHitCollection_p1 )
-	DECLARE_ALGORITHM( AFP_SIDSimHitCollectionCnv_p1 )
 
-        DECLARE_ALGORITHM( AFP_SiDigi_p1 )
-        DECLARE_ALGORITHM( AFP_SiDigiCnv_p1 )
-        DECLARE_ALGORITHM( AFP_SiDigiCollection_p1 )
-        DECLARE_ALGORITHM( AFP_SiDigiCollectionCnv_p1 )
 
 	
-	DECLARE_ALGORITHM( AFP_TDLocRecoEvent_p1 )
-	DECLARE_ALGORITHM( AFP_TDLocRecoEventCnv_p1 )
-	DECLARE_ALGORITHM( AFP_TDLocRecoEvCollection_p1 )
-	DECLARE_ALGORITHM( AFP_TDLocRecoEvCollectionCnv_p1 )
 	
-	DECLARE_ALGORITHM( AFP_SIDLocRecoEvent_p1 )
-	DECLARE_ALGORITHM( AFP_SIDLocRecoEventCnv_p1 )
-	DECLARE_ALGORITHM( AFP_SIDLocRecoEvCollection_p1 )
-	DECLARE_ALGORITHM( AFP_SIDLocRecoEvCollectionCnv_p1 )
-}
 

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigServices/TrigMessageSvc.h"
 #include "../TrigMonTHistSvc.h"
 #include "TrigServices/HltEventLoopMgr.h"
@@ -17,14 +16,3 @@ DECLARE_TOOL_FACTORY( TrigISHelper )
 DECLARE_TOOL_FACTORY( TrigPreFlightCheck )
 DECLARE_TOOL_FACTORY( TrigCOOLUpdateHelper )  
 
-
-DECLARE_FACTORY_ENTRIES( TrigServices ) {
-  DECLARE_SERVICE( TrigMessageSvc );
-  DECLARE_SERVICE( TrigMonTHistSvc );
-  DECLARE_SERVICE( TrigIS );  
-  DECLARE_SERVICE( HltEventLoopMgr );
-  DECLARE_SERVICE( HltROBDataProviderSvc );
-  DECLARE_TOOL( TrigISHelper );
-  DECLARE_TOOL( TrigPreFlightCheck );
-  DECLARE_TOOL( TrigCOOLUpdateHelper );
-}
