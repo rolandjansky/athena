@@ -5,10 +5,10 @@
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-LArAccumulatedCalibDigitContainer::LArAccumulatedCalibDigitContainer(SG::OwnershipPolicy ownPolicy ) : 
+LArAccumulatedCalibDigitContainer::LArAccumulatedCalibDigitContainer(SG::OwnershipPolicy ownPolicy,
+                                                                     double delayScale) : 
   DataVector<LArAccumulatedCalibDigit>(ownPolicy), 
-  m_delayScale(1*CLHEP::ns)
-  //m_ownPolicy(ownPolicy)
+  m_delayScale(delayScale)
 {}
 
 LArAccumulatedCalibDigitContainer::~LArAccumulatedCalibDigitContainer() 
