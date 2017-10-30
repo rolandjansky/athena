@@ -1,4 +1,4 @@
-Sat Oct 28 00:38:49 CEST 2017
+Mon Oct 30 16:31:12 CET 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -13,7 +13,7 @@ Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus091.cern.ch on Sat Oct 28 00:39:01 2017
+                                          running on lxplus012.cern.ch on Mon Oct 30 16:31:22 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -34,8 +34,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2254/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus091.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-29T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -130,9 +130,6 @@ ReadData            DEBUG Data Deps for ReadData
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-RootDatabase.close  DEBUG I/O READ  Bytes: 3279
-RootDatabase.close  DEBUG I/O WRITE Bytes: 0
-RootDatabase.close  DEBUG I/O OTHER Bytes: 0
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 EventSelector       DEBUG Try item: "SimplePoolFromRaw.root" from the collection list.
 DbSession            INFO     Open     DbSession    
@@ -289,9 +286,6 @@ ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14382, run #20720 3 events processed so far  <<<===
-RootDatabase.close  DEBUG I/O READ  Bytes: 5156
-RootDatabase.close  DEBUG I/O WRITE Bytes: 0
-RootDatabase.close  DEBUG I/O OTHER Bytes: 0
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ToolSvc.ByteStr...   INFO handle() EndInputFile, filename = FID:????
@@ -313,9 +307,9 @@ ToolSvc.ByteStr...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max= 1.67(+- 3.73)/    0/   10 [ms] #= 12
-cObj_ALL             INFO Time User   : Tot=  110 [ms] Ave/Min/Max=   11(+- 15.1)/    0/   50 [ms] #= 10
-ChronoStatSvc        INFO Time User   : Tot= 1.92  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.833(+- 2.76)/    0/   10 [ms] #= 12
+cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=    4(+- 9.17)/    0/   30 [ms] #= 10
+ChronoStatSvc        INFO Time User   : Tot=  0.9  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

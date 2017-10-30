@@ -1,4 +1,4 @@
-Sat Oct 28 00:57:09 CEST 2017
+Mon Oct 30 16:32:26 CET 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -13,7 +13,7 @@ Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus091.cern.ch on Sat Oct 28 00:57:21 2017
+                                          running on lxplus012.cern.ch on Mon Oct 30 16:32:34 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -39,8 +39,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog2.xml) [ok
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2254/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus091.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-29T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -713,21 +713,6 @@ ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for m
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving handle
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-CollectionTree(...  DEBUG endTransaction: go to finish
-CollectionTree(...  DEBUG endTransaction: go to finish
-MetaData(EventS...  DEBUG endTransaction: go to finish
-MetaData(Exampl...  DEBUG endTransaction: go to finish
-MetaDataHdr(Dat...  DEBUG endTransaction: go to finish
-MetaDataHdrForm...  DEBUG endTransaction: go to finish
-POOLContainer(D...  DEBUG endTransaction: go to finish
-POOLContainer(b...  DEBUG endTransaction: go to finish
-POOLContainerFo...  DEBUG endTransaction: go to finish
-##Params            DEBUG endTransaction:  tree AutoSave
-##Shapes            DEBUG endTransaction:  tree AutoSave
-##Links             DEBUG endTransaction:  tree AutoSave
-RootDatabase.close  DEBUG I/O READ  Bytes: 0
-RootDatabase.close  DEBUG I/O WRITE Bytes: 45031
-RootDatabase.close  DEBUG I/O OTHER Bytes: 0
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
@@ -745,11 +730,11 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
+commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 83
-commitOutput         INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.952(+- 2.94)/    0/   10 [ms] #= 21
-cRepR_ALL            INFO Time User   : Tot=   80 [ms] Ave/Min/Max=0.645(+- 3.04)/    0/   20 [ms] #=124
-cRep_ALL             INFO Time User   : Tot=  270 [ms] Ave/Min/Max= 3.25(+- 14.7)/    0/  110 [ms] #= 83
-ChronoStatSvc        INFO Time User   : Tot= 2.03  [s]                                             #=  1
+cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.242(+- 1.54)/    0/   10 [ms] #=124
+cRep_ALL             INFO Time User   : Tot=  110 [ms] Ave/Min/Max= 1.33(+- 6.73)/    0/   50 [ms] #= 83
+ChronoStatSvc        INFO Time User   : Tot= 0.88  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
