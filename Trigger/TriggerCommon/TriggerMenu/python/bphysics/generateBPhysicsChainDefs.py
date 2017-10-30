@@ -152,13 +152,24 @@ def getBphysElectronThresholds(chainDict) :
 
     for part in chainDict['chainParts'] :
         mult = mult + int(part['multiplicity'])
-
+    
+    pid = None
+    maxThreshold = 0
+    print "OI Analysing ",  chainDict["chainName"]
     for dictpart in chainDict['chainParts']:
+        print "OI chainParts for ", dictpart
         #if 'noL1' in  dictpart['extra'] : continue
         if 'e' in dictpart['trigType']:
+            print " OI prinrting e dictpart ", dictpart
             for x in range(0,int(dictpart['multiplicity'])):
                 if dictpart['threshold']!='0':
-                    dthr = float(dictpart['threshold'] ) 
+                    dthr = float(dictpart['threshold'] )
+                    
+                    if dthr > maxThreshold :
+                        maxThreshold = dthr
+                        print "OI got Idinfo = ", dictpart['IDinfo'], " for threshold = ", dthr, " replacing previous pid ", pid
+                        pid = dictpart['IDinfo']
+                    
                     thr= dthr * 1000.  # in MeV; 
                     #lower to match EF muon threshols
                     if dthr < 9.5 :
@@ -174,7 +185,9 @@ def getBphysElectronThresholds(chainDict) :
                     thr = 900.
                 trkelectrons.append(thr)
                 fexNameExt = fexNameExt + "_"+str(int(dictpart['threshold']))
-    return fexNameExt, trkelectrons, mult
+    if pid == None :
+        log.error( " failed to decode pid for chain "+chainDict['chainName'] )
+    return fexNameExt, trkelectrons, mult, pid
 
 ###################################################################################
 
@@ -1504,7 +1517,8 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
 ###################################################################################
 
 # the FTK part here was not tested
-    
+
+
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     topoAlgs = chainDict["topo"]
@@ -1516,10 +1530,16 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item']
     EFTEname = "EF_" + chainDict['chainName']
 
+
+    print "OI calling bBeexTopos on ", chainDict['chainName']
+    print "L2 name " , L2TEname
+    print "EF name " , EFTEname
+
+    
     print " OI myTopoString " , myTopoString
 
     
-    fexNameExt,trkelectrons, mult  = getBphysElectronThresholds(chainDict)
+    fexNameExt,trkelectrons, mult, pid  = getBphysElectronThresholds(chainDict)
 
     print "fexNameExt,trkelectrons, mult ", fexNameExt, trkelectrons, mult 
     
@@ -1539,68 +1559,42 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     # Note - may need to change oppsign and vtx requirements
     # noL2 option to skip dimuon selection at L2
 
-    if   1 : #  here we have only L2 with MultiTrack doL2MultiTrack :
-        from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
+    L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so chanching name is sufficient
+    L2Fex.setTrackThresholds( trkelectrons )
+
+    if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
-        L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so chanching name is sufficient
-        L2Fex.setTrackThresholds( trkelectrons )
         L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Bmumux")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
-         
-        print " OI L2 fex is setup "
         
-    if 'Ftk' in topoAlgs:
-       from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_FTK
-       from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_FTK
-       EFFex  =  EFBMuMuXFex_FTK()
-       EFHypo = EFBMuMuXHypo_FTK()
-    else:
-       from TrigBphysHypo.TrigEFBEEXFexConfig import EFBEEXFex_1
-       from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
-       EFFex  =  EFBEEXFex_1()     # here we really need FEX specific to EE final state
-       EFHypo = EFBMuMuXHypo_1("EFBEEXHypo_1")
-       EFHypo.bphysCollectionKey = "EFBEEXFex"
+    elif  'bBeexM2700' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu2700
+        L2Hypo = EFMultiMuHypo_DiMu2700("EFMultiMuHypo_BeeM2700")    # 
+        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        
+    elif  'bBeexM6000' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
+        L2Hypo = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_BeeM6000")    # 
+        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+    else :
+        log.error( " Unknown Bphysics B->eeX chain "+ chainDict['chainName']+" do not know how to set up")
+        return theChainDef
 
-    print " OI EF is setup "
-
-    if 'Ftk' in topoAlgs:
-    
+    # setup EF FEX+Hypo
+        
     #------- L2 Sequences -------
     # create the individual outputTEs together with the first sequences that are run
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname)
-        theChainDef.addSignatureL2([L2TEname])
+    theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname)
+    theChainDef.addSignatureL2([L2TEname])
 
 
-    #------- EF Sequences -------
-        from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
-        dummyAlgo = PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")
-        trkFTK=[dummyAlgo]+trkftk[0]
-        EFTEcount = 0; EFoutputTEsftk = [];
-        for EFinputTE in inputTEsEF:
-            EFTEcount = EFTEcount + 1
-            EFoutputTEftk = EFinputTE+'_ftk'+str(EFTEcount)
-            EFoutputTEsftk.append(EFoutputTEftk)
-        EFoutputTEftk = inputTEsEF[0]+'_ftk'
-
-        theChainDef.addSequence(trkFTK , L2TEname, EFoutputTEftk)
-
-        inputTEs_ftk = [EFoutputTEftk]+inputTEsEF
-
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFoutputTEftk])
-
-
-
-        theChainDef.addSequence([EFFex, EFHypo], inputTEs_ftk , EFTEname)
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])        
-
-
-    else:
-    #------- L2 Sequences -------
-    # create the individual outputTEs together with the first sequences that are run
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname)
-        theChainDef.addSignatureL2([L2TEname])
-
-
+    if  'bBeexv2' in topoAlgs  :
+        from TrigBphysHypo.TrigEFBEEXFexConfig import EFBEEXFex_1
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
+        EFFex  =  EFBEEXFex_1()     # here we really need FEX specific to EE final state
+        EFHypo = EFBMuMuXHypo_1("EFBEEXHypo_1")
+        EFHypo.bphysCollectionKey = "EFBEEXFex"
     #------- EF Sequences -------
         EFTEcount = 0; EFoutTEsfast = []; 
         for EFinputTE in inputTEsEF:
@@ -1619,6 +1613,18 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsprec)
         theChainDef.addSequence([EFFex, EFHypo], EFoutTEsprec, EFTEname)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])
+
+    else :  # add BphysElectron counter\
+        print "OI : adding bNe fex"
+        # add step that counts EF electrons above required thresholds
+        from TrigBphysHypo.TrigBphysElectronCounterConfig import  TrigBphysElectronCounter_bBee
+        if pid == None :
+            EFFexE = TrigBphysElectronCounter_bBee("TrigBphysElectronCounter"+fexNameExt, trkelectrons, pid)
+        else :
+            EFFexE = TrigBphysElectronCounter_bBee("TrigBphysElectronCounter_"+pid+fexNameExt, trkelectrons, pid)
+        EFFexE.setEFElectronThresholds( trkelectrons )
+        theChainDef.addSequence([EFFexE],inputTEsEF, EFTEname+"_eCounter")
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
 
     return theChainDef

@@ -62,6 +62,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
+                                           TrigCaloCellMaker_eGamma_LargeRoI,
                                            TrigCaloTowerMaker_eGamma)
 
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
@@ -273,14 +274,18 @@ class EgammaFexBuilder(object):
     
     def _get_precisecalo(self,chainDict):
         chain_part = chainDict['chainParts']
+        idinfo = chain_part['IDinfo']
         calo_ion = False
         seq=[]
 
+        
         if 'extra' in chain_part:
             if chain_part['extra'] == 'ion':
                 calo_ion = True
         if calo_ion: 
             seq = [theTrigCaloCellMaker_eGammaHI, self._tower_maker_ion, self._cluster_maker] 
+        elif 'bloose' in idinfo  :
+            seq = [TrigCaloCellMaker_eGamma_LargeRoI(), self._tower_maker_ion, self._cluster_maker] 
         else:
             seq = [self._cell_maker,self._tower_maker,self._cluster_maker]
         

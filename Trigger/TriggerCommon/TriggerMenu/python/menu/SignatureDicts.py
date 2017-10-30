@@ -52,7 +52,7 @@ ChainDictTemplate = {
 #==========================================================
 # ----- Allowed HLT Topo Keywords (in addition to generic topos like DR, DETA, DPHI...)
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg", "bBeex"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg", "bBeexv2", "bBeexM2700", "bBeexM6000"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi10', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2', 'bVertex3',
