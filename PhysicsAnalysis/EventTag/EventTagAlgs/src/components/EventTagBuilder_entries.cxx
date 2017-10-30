@@ -11,7 +11,6 @@
 
 #include "EventTagAlgs/EventSplitter.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( AnalysisTagBuilder )
 DECLARE_ALGORITHM_FACTORY( RawInfoSummaryTagBuilder )
@@ -27,18 +26,3 @@ DECLARE_ALGORITHM_FACTORY( MissingETTagBuilder )
 
 DECLARE_ALGORITHM_FACTORY( EventSplitter )
 
-DECLARE_FACTORY_ENTRIES( EventTagAlgs ) {
-
-  DECLARE_ALGORITHM( AnalysisTagBuilder )  
-  DECLARE_ALGORITHM( RawInfoSummaryTagBuilder )
-  DECLARE_ALGORITHM( ElectronTagBuilder )
-  DECLARE_ALGORITHM( GlobalEventTagBuilder )
-  DECLARE_ALGORITHM( GlobalTriggerTagBuilder )
-  DECLARE_ALGORITHM( MuonTagBuilder )
-  DECLARE_ALGORITHM( PhotonTagBuilder )
-  DECLARE_ALGORITHM( TauJetTagBuilder )
-  DECLARE_ALGORITHM( ParticleJetTagBuilder )
-  DECLARE_ALGORITHM( MissingETTagBuilder )
-
-  DECLARE_ALGORITHM( EventSplitter )
-}

@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../ParticleSortingTool.h"
 #include "../ParticleSortingAlg.h"
 #include "../AddVarTool.h"
@@ -29,3 +27,4 @@ DECLARE_ALGORITHM_FACTORY( EventQualityFilterAlg )
 DECLARE_ALGORITHM_FACTORY( ParticleRemoverAlg )
 DECLARE_ALGORITHM_FACTORY( TriggerSelectionAlg )
 DECLARE_ALGORITHM_FACTORY( EventDecisionAlg )
+

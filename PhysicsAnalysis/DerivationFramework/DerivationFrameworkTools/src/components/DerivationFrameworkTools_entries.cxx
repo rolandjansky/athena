@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkTools/xAODStringSkimmingTool.h"
 #include "DerivationFrameworkTools/NTUPStringSkimmingTool.h"
 #include "DerivationFrameworkTools/InvariantMassTool.h"
@@ -22,17 +21,4 @@ DECLARE_TOOL_FACTORY( FilterCombinationOR )
 DECLARE_TOOL_FACTORY( TriggerSkimmingTool )
 DECLARE_TOOL_FACTORY( PrescaleTool )
 DECLARE_TOOL_FACTORY( GenericObjectThinning )
-
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
-   DECLARE_TOOL( xAODStringSkimmingTool )
-   DECLARE_TOOL( NTUPStringSkimmingTool )
-   DECLARE_TOOL( InvariantMassTool )
-   DECLARE_TOOL( DeltaRTool )
-   DECLARE_TOOL( AsgSelectionToolWrapper )
-   DECLARE_TOOL( FilterCombinationAND )
-   DECLARE_TOOL( FilterCombinationOR )
-   DECLARE_TOOL( TriggerSkimmingTool )
-   DECLARE_TOOL( PrescaleTool )
-   DECLARE_TOOL( GenericObjectThinning )
-}
 

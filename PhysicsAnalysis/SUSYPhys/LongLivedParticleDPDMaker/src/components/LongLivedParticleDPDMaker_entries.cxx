@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LongLivedParticleDPDMaker/RpvElectronD0Tool.h"
 #include "LongLivedParticleDPDMaker/RpvMuonD0Tool.h"
 #include "LongLivedParticleDPDMaker/RpvEgammaIDTool.h"
@@ -31,24 +29,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkZeeTagTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, HVJetMETFilterTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, EmergingJetsFilterTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, EmergingJetsHighPtFilterTool )
-
-DECLARE_FACTORY_ENTRIES( LongLivedParticleDPDMaker ) {
-
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, RpvElectronD0Tool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, RpvMuonD0Tool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, RpvEgammaIDTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, DiLepFilters );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, DiLepSkim );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, HnlSkimmingTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, DVMissingETFilterTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, DVMeffFilterTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, DVTracklessJetFilterTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkSingleJetMetFilterTool );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkZmumuTagTool );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkZmeeagTool );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, HVJetMETFilterTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, EmergingJetsFilterTool  );
-  DECLARE_NAMESPACE_TOOL( DerivationFramework, EmergingJetsHighPtFilterTool  );
-
-}
 

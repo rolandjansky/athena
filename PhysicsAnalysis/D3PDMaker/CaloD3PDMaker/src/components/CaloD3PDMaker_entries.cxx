@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file CaloD3PDMaker/src/components/CaloD3PDMaker_entries.cxx
- * @author maarten boonekamp <maarten.boonekamp@cea.fr>
- * @date Sep, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "../ClusterSamplingFillerTool.h"
 #include "../ClusterEMSamplingFillerTool.h"
 #include "../ClusterTimeFillerTool.h"
@@ -49,7 +40,6 @@
 #include "../TileCosmicMuonTileCellAssociationTool.h"
 #include "../JetTileAssociationTool.h"
 #include "../CaloCalibHitFillerTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "../SCFillerTool.h"
 #include "../LArSCHitFillerTool.h"
@@ -104,54 +94,3 @@ DECLARE_ALGORITHM_FACTORY        (ClusterFilter)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, SCFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, LArSCHitFillerTool)
 
-
-DECLARE_FACTORY_ENTRIES(CaloD3PDMaker) {
-  DECLARE_NAMESPACE_TOOL   (D3PD, ClusterSamplingFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, ClusterEMSamplingFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, ClusterTimeFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, ClusterMomentFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, ClusterPositionInCaloFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, MBTSFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, MBTSTimeFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CellFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloCellDetailsFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloCellRawFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileCellDetailsFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileModuleBitsFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, SGTileModuleBitsGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileDigitFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, SGTileDigitsGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileRawChannelFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, JetTileAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileCellRawAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileCellDigitAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, SGTileRawChannelGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileCosmicMuonFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileCosmicMuonTileCellAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileMuFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileL2FillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileTTL1FillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileTriggerFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileHitFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TileHitInfoFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, SGTileHitGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TowerFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloInfoFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArDigitFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArCollisionTimeFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArNoisyROFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArRawChannelFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArRawChannelContainerGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloClusterCellAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloClusterExtendedCellAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArHitFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArHitContainerGetterTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloCalibHitFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CaloCalibrationHitContainerGetterTool)
-  DECLARE_ALGORITHM        (CaloCellFilterAlg)
-  DECLARE_ALGORITHM        (ClusterFilter)
-
-  DECLARE_NAMESPACE_TOOL   (D3PD, SCFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, LArSCHitFillerTool)
-
-}

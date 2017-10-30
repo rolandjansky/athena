@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../TruthParticleCnvTool.h"
 #include "../McVtxFilterTool.h"
 
@@ -42,26 +40,3 @@ DECLARE_TOOL_FACTORY( HepMcReaderTool )
 DECLARE_TOOL_FACTORY( McAodWriterTool )
 DECLARE_TOOL_FACTORY( McAodTupleWriterTool )
 
-DECLARE_FACTORY_ENTRIES(McParticleTools) {
-    
-  DECLARE_TOOL( TruthParticleCnvTool )
-  DECLARE_TOOL( McVtxFilterTool )
-	  	
-  DECLARE_TOOL( NoopFilterTool )
-  DECLARE_TOOL( OldSpclMcFilterTool )
-  DECLARE_TOOL( PileupFilterTool )
-  DECLARE_TOOL( EtaPtFilterTool )
-  DECLARE_TOOL( VtxBasedFilterTool )
-
-  DECLARE_TOOL( TruthIsolationTool )
-
-  DECLARE_TOOL( GenAodValidationTool )
-  DECLARE_TOOL( SpclMcValidationTool )
-
-  DECLARE_TOOL( HepMcTupleWriterTool )
-  DECLARE_TOOL( HepMcFloatWriterTool )
-  DECLARE_TOOL( HepMcWriterTool )
-  DECLARE_TOOL( HepMcReaderTool )
-  DECLARE_TOOL( McAodWriterTool )
-  DECLARE_TOOL( McAodTupleWriterTool )
-}

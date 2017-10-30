@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "DerivationFrameworkSUSY/Truth3CollectionMaker.h"
 #include "DerivationFrameworkSUSY/SUSYSignalTagger.h"
 #include "DerivationFrameworkSUSY/SUSYGenFilterTool.h"
@@ -14,10 +12,3 @@ DECLARE_TOOL_FACTORY( SUSYGenFilterTool )
 DECLARE_TOOL_FACTORY( TrackParticleCaloCellDecorator )
 DECLARE_TOOL_FACTORY( trackIsolationDecorator )
 
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkSUSY ) {
-   DECLARE_TOOL( Truth3CollectionMaker )
-   DECLARE_TOOL( SUSYSignalTagger )
-   DECLARE_TOOL( SUSYGenFilterTool )
-   DECLARE_TOOL( TrackParticleCaloCellDecorator )
-   DECLARE_TOOL( trackIsolationDecorator )
-}

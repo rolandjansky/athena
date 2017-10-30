@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkEGamma/PhotonsDirectionTool.h"
 #include "DerivationFrameworkEGamma/EGammaPassSelectionWrapper.h"
 #include "DerivationFrameworkEGamma/EGInvariantMassTool.h"
@@ -15,12 +14,5 @@ DECLARE_TOOL_FACTORY( EGTransverseMassTool )
 DECLARE_TOOL_FACTORY( EGSelectionToolWrapper )
 DECLARE_TOOL_FACTORY( BkgElectronClassification )
 
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkEGamma ) {
-   DECLARE_TOOL( PhotonsDirectionTool )
-   DECLARE_TOOL( EGammaPassSelectionWrapper ) 
-   DECLARE_TOOL( EGInvariantMassTool )
-   DECLARE_TOOL( EGTransverseMassMassTool )
-   DECLARE_TOOL( EGSelectionToolWrapper )
-   DECLARE_TOOL( BkgElectronClassification )
-}
  
+

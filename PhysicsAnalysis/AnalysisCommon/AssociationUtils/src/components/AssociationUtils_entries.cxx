@@ -1,7 +1,3 @@
-// Gaudi/Athena includes
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-// Local includes
 #include "AssociationUtils/OverlapRemovalTool.h"
 #include "AssociationUtils/DeltaROverlapTool.h"
 #include "AssociationUtils/EleEleOverlapTool.h"
@@ -38,24 +34,7 @@ DECLARE_TOOL_FACTORY( ORUtils::TauAntiTauJetOverlapTool )
 DECLARE_ALGORITHM_FACTORY( OverlapRemovalTestAlg )
 DECLARE_ALGORITHM_FACTORY( ORToolBoxTestAlg )
 
-DECLARE_FACTORY_ENTRIES( AssociationUtils ) 
-{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  DECLARE_TOOL( OverlapRemovalTool )
 #pragma GCC diagnostic pop
-  DECLARE_TOOL( ORUtils::OverlapRemovalTool )
-  DECLARE_TOOL( ORUtils::DeltaROverlapTool )
-  DECLARE_TOOL( ORUtils::EleEleOverlapTool )
-  DECLARE_TOOL( ORUtils::EleJetOverlapTool )
-  DECLARE_TOOL( ORUtils::EleMuSharedTrkOverlapTool )
-  DECLARE_TOOL( ORUtils::MuJetOverlapTool )
-  DECLARE_TOOL( ORUtils::AltMuJetOverlapTool )
-  DECLARE_TOOL( ORUtils::ObjLinkOverlapTool )
-  DECLARE_TOOL( ORUtils::TauLooseEleOverlapTool )
-  DECLARE_TOOL( ORUtils::TauLooseMuOverlapTool )
-  DECLARE_TOOL( ORUtils::TauJetOverlapTool )
-  DECLARE_TOOL( ORUtils::TauAntiTauJetOverlapTool )
-  DECLARE_ALGORITHM( OverlapRemovalTestAlg )
-  DECLARE_ALGORITHM( ORToolBoxTestAlg )
-}
+

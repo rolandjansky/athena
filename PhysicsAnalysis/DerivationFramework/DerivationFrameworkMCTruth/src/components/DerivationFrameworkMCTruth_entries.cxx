@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkMCTruth/TruthDressingTool.h"
 #include "DerivationFrameworkMCTruth/TruthIsolationTool.h"
 #include "DerivationFrameworkMCTruth/MenuTruthThinning.h"
@@ -26,21 +25,4 @@ DECLARE_TOOL_FACTORY( HardTruthThinning )
 
 DECLARE_TOOL_FACTORY( HadronOriginDecorator )
 DECLARE_TOOL_FACTORY(  HadronOriginClassifier )
-
-
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
-   DECLARE_TOOL( TruthDressingTool )
-   DECLARE_TOOL( TruthIsolationTool )
-   DECLARE_TOOL( MenuTruthThinning )
-   DECLARE_TOOL( GenericTruthThinning )
-   DECLARE_TOOL( TruthCollectionMaker )
-   DECLARE_TOOL( TruthCollectionMakerTau )
-   DECLARE_TOOL( TruthClassificationDecorator )
-   DECLARE_ALGORITHM( CompactHardTruth )
-   DECLARE_TOOL( HardTruthThinning )
-   DECLARE_TOOL( HadronOriginDecorator )
-   DECLARE_TOOL(  HadronOriginClassifier )
-
-
-}
 

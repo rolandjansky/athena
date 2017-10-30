@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file MuonD3PDMaker/src/components/MuonD3PDMaker_entries.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Aug, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "../MuonTrkHitFillerTool.h" //Serhan
 #include "../MuonNumberOfSegmentsFillerTool.h"
 #include "../MuonTrackParticleAssociationTool.h"
@@ -44,7 +35,6 @@
 #include "../MuonTruthHitsFillerTool.h"
 #include "../TrackRecordCollectionGetterTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MuonTrkHitFillerTool) // Serhan
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MuonNumberOfSegmentsFillerTool)

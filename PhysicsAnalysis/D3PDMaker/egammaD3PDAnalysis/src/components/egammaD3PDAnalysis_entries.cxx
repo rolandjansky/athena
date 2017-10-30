@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file egammaD3PDAnalysis/src/components/egammaD3PDAnalysis_entries.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Aug, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "../egammaDeltaEmax2Alg.h"
 #include "../egammaShowerDepthAlg.h"
 #include "../PhotonTruthAlg.h"
@@ -24,7 +15,6 @@
 #include "../egammaTimeCorrAlg.h"
 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaDeltaEmax2Alg)
@@ -43,6 +33,4 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaMaxECellAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaSumCellsGainAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaNbCellsGainAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaTimeCorrAlg)
-
-
 

@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file egammaD3PDMaker/src/components/egammaD3PDMaker_entries.cxx
- * @author Haifeng Li, scott snyder <snyder@bnl.gov>
- * @date Aug, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "../egammaLayer1ExtraFillerTool.h"
 #include "../egammaRetaphiFillerTool.h"
 #include "../egammaConversionFillerTool.h"
@@ -27,7 +18,6 @@
 #include "../ConversionVertexAssociationTool.h"
 #include "../egammaTraversedMaterialFillerTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, egammaLayer1ExtraFillerTool)
@@ -49,7 +39,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, xAODElectronObjectDecisionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, xAODPhotonObjectDecisionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ConversionVertexAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, egammaTraversedMaterialFillerTool)
-
-
-
 

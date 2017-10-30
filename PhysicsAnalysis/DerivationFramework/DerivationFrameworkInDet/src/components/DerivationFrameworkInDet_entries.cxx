@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkInDet/TrackToVertexWrapper.h"
 #include "DerivationFrameworkInDet/TrackParticleThinning.h"
 #include "DerivationFrameworkInDet/MuonTrackParticleThinning.h"
@@ -38,25 +37,4 @@ DECLARE_TOOL_FACTORY( EGammaTracksThinning )
 DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
 DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
 DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
-
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
-   DECLARE_TOOL( TrackToVertexWrapper )
-   DECLARE_TOOL( TrackParticleThinning )
-   DECLARE_TOOL( MuonTrackParticleThinning )
-   DECLARE_TOOL( EgammaTrackParticleThinning )
-   DECLARE_TOOL( TauTrackParticleThinning )
-   DECLARE_TOOL( DiTauTrackParticleThinning )
-   DECLARE_TOOL( JetTrackParticleThinning )
-   DECLARE_TOOL( TrackParametersAtPV )
-   DECLARE_TOOL( TrackStateOnSurfaceDecorator )
-   DECLARE_TOOL( TrackParametersForTruthParticles )
-   DECLARE_TOOL( EventInfoBSErrDecorator )
-   DECLARE_TOOL( UnassociatedHitsDecorator )
-   DECLARE_NAMESPACE_TOOL(DerivationFramework, UnassociatedHitsGetterTool)
-   DECLARE_TOOL( LArCollisionTimeDecorator )
-   DECLARE_TOOL( EGammaTracksThinning )
-   DECLARE_TOOL( EGammaPrepRawDataThinning )
-   DECLARE_TOOL( TrackMeasurementThinning )
-   DECLARE_TOOL( EventInfoPixelDecorator )
-}
 

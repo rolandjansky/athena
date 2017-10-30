@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "JetTagTools/IPTag.h"
 #include "JetTagTools/RNNIPTag.h"
 #include "JetTagTools/SVTag.h"
@@ -35,9 +33,7 @@
 #include "JetTagTools/ExKtbbTag.h"
 #include "JetTagTools/ExKtbbTagTool.h"
 
-//
 //#include "JetTagTools/SharedHitMapper.h"
-//
 //#include "JetTagTools/EmulTag.h"
 #include "JetTagTools/DummyTag.h"
 
@@ -95,52 +91,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ExKtbbTagTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, EmulTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DummyTag )
 
-/** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( JetTagTools )
-{
-  // DECLARE_NAMESPACE_TOOL( Analysis, LifetimeTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, SecVtxTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, IPTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, SVTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, JetProbTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, SoftElectronTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, CombinerTool );
-  // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodTool );
-  // DECLARE_NAMESPACE_TOOL( Analysis, CombinerToolTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodMultiDTool );
-  DECLARE_NAMESPACE_TOOL( Analysis, NewLikelihoodTool );
-  DECLARE_NAMESPACE_TOOL( Analysis, TrackSelector );
-  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNtupleWriter );
-  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterLikelihood );
-  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterVariablesFactory );
-  DECLARE_NAMESPACE_TOOL( Analysis, MSVVariablesFactory );
-  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmVariablesFactory );
-  // DECLARE_NAMESPACE_TOOL( Analysis, GaiaVariablesFactory );
-  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNNTool );
-  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmNNTool );
-  //DECLARE_NAMESPACE_TOOL( Analysis, GaiaNNTool );
-  DECLARE_NAMESPACE_TOOL( Analysis, DL1Tag );
-  DECLARE_NAMESPACE_TOOL( Analysis, TagNtupleDumper );
-  DECLARE_NAMESPACE_TOOL( Analysis, MultivariateTagManager );
-  DECLARE_NAMESPACE_TOOL( Analysis, SVForIPTool );
-  DECLARE_NAMESPACE_TOOL( Analysis, BasicTrackGradeFactory );
-  DECLARE_NAMESPACE_TOOL( Analysis, DetailedTrackGradeFactory );
-  // DECLARE_NAMESPACE_TOOL( Analysis, TrackCounting );
-  // DECLARE_NAMESPACE_TOOL( Analysis, GbbNNTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, HadFlavorTag )
-  DECLARE_NAMESPACE_TOOL( Analysis, MV1Tag );
-  DECLARE_NAMESPACE_TOOL( Analysis, MV2Tag );
-  DECLARE_NAMESPACE_TOOL( Analysis, MyTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
-  DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
-  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTagTool );
-  // //
-  // DECLARE_ALGORITHM( SharedHitMapper );
-  // //
-  // DECLARE_NAMESPACE_TOOL( Analysis, EmulTag );
-  DECLARE_NAMESPACE_TOOL( Analysis, DummyTag );
-}

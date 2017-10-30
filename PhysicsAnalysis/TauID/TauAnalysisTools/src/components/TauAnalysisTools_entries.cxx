@@ -1,7 +1,3 @@
-// Gaudi/Athena include(s):
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-// Local include(s):
 #include "TauAnalysisTools/CommonEfficiencyTool.h"
 #include "TauAnalysisTools/CommonSmearingTool.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
@@ -36,22 +32,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, BuildTruthTaus)
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( TauAnalysisTools, TauAnalysisToolsExampleAthena )
 
-DECLARE_FACTORY_ENTRIES( TauAnalysisTools )
-{
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, CommonEfficiencyTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, CommonSmearingTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauSelectionTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauSmearingTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauSmearingRun1Tool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauTruthMatchingTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauTruthTrackMatchingTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyCorrectionsTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyContJetIDTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyEleIDTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyJetIDTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyTriggerTool )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauOverlappingElectronLLHDecorator )
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, BuildTruthTaus )
 
-  DECLARE_NAMESPACE_ALGORITHM( TauAnalysisTools, TauAnalysisToolsExampleAthena )
-}

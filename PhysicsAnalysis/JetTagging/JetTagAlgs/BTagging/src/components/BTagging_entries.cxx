@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 //#include "BTagging/BJetBuilder.h"
 //#include "BTagging/BJetBuilderFast.h"
 #include "BTagging/BTagTool.h"
@@ -24,16 +23,4 @@ DECLARE_TOOL_FACTORY( BTagTool )
 DECLARE_TOOL_FACTORY( JetBTaggerTool )
 
 /** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( BTagging )
-{
-//  DECLARE_ALGORITHM( BJetBuilder );
-//  DECLARE_ALGORITHM( BJetBuilderFast );
-  DECLARE_ALGORITHM( StandAloneJetBTaggerAlg );
-  DECLARE_TOOL( BTagLabeling );
-  DECLARE_TOOL( BTagTrackAssociation );
-  DECLARE_TOOL( BTagSecVertexing );
-  DECLARE_TOOL( BTagJetPtScaling );
-//  DECLARE_TOOL( BTagRemoving );
-  DECLARE_TOOL( BTagTool );
-  DECLARE_TOOL( JetBTaggerTool );
-}
+

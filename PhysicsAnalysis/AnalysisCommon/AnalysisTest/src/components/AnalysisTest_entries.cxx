@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "AnalysisTest/ReadMuon.h"
 #include "AnalysisTest/ReadElectron.h"
 #include "AnalysisTest/ReadPhoton.h"
@@ -28,23 +26,4 @@ DECLARE_ALGORITHM_FACTORY ( NavTest )
 
 DECLARE_ALGORITHM_FACTORY ( WriteINav4MomAssocs )
 DECLARE_ALGORITHM_FACTORY ( ReadINav4MomAssocs )
-
-DECLARE_FACTORY_ENTRIES (AnalysisTest) {
-
-  DECLARE_ALGORITHM ( ReadMuon )
-  DECLARE_ALGORITHM ( ReadElectron )
-  DECLARE_ALGORITHM ( ReadPhoton )
-  DECLARE_ALGORITHM ( ReadTauJet )
-  DECLARE_ALGORITHM ( ReadTruthParticle )
-  DECLARE_ALGORITHM ( ReadTrigger )
-  DECLARE_ALGORITHM ( ReadTau )
-  DECLARE_ALGORITHM ( Readegamma )
-  DECLARE_ALGORITHM ( ReadVxContainer )
-  DECLARE_ALGORITHM ( ReadTrackParticle )
-  DECLARE_ALGORITHM ( NavTest )
-
-  DECLARE_ALGORITHM ( WriteINav4MomAssocs )
-  DECLARE_ALGORITHM ( ReadINav4MomAssocs )
-
-}
 

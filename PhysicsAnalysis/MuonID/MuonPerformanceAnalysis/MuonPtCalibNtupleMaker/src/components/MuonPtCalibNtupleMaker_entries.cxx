@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "MuonPtCalibNtupleMaker/CalibMuonsNtupleMaker.h"
 #include "MuonPtCalibNtupleMaker/CalibMuonsSelectorTool.h"
 

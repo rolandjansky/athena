@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../ReducePileUpEventInfoAlg.h"
 #include "../ThinIParticlesAlg.h"
 #include "../ThinIParticlesTool.h"
@@ -34,22 +32,3 @@ DECLARE_TOOL_FACTORY( ThinCaloClustersTool )
 DECLARE_ALGORITHM_FACTORY( ThinTrackParticlesAlg )
 DECLARE_TOOL_FACTORY( ThinTrackParticlesTool )
 
-DECLARE_FACTORY_ENTRIES( ThinningUtils )
-{
-  DECLARE_ALGORITHM( ThinGeantTruthAlg );
-  DECLARE_ALGORITHM( ThinNegativeEnergyCaloClustersAlg);
-  DECLARE_ALGORITHM( ThinNegativeEnergyNeutralPFOsAlg);
-  DECLARE_ALGORITHM( ReducePileUpEventInfoAlg );
-  DECLARE_ALGORITHM( ThinIParticlesAlg );
-  DECLARE_TOOL( ThinIParticlesTool );
-  DECLARE_ALGORITHM( ThinCaloCellsAlg );
-// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
-#ifndef XAOD_ANALYSIS
-  DECLARE_TOOL( ThinCaloCellsTool );
-  DECLARE_ALGORITHM ( ThinTrkTrackAlg );
-#endif
-  DECLARE_ALGORITHM( ThinCaloClustersAlg );
-  DECLARE_TOOL( ThinCaloClustersTool );
-  DECLARE_ALGORITHM( ThinTrackParticlesAlg );
-  DECLARE_TOOL( ThinTrackParticlesTool );
-}

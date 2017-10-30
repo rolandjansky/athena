@@ -1,15 +1,4 @@
-// $Id$
-/**
- * @file TriggerD3PDMaker/src/components/TriggerD3PDMaker_entries.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Sep, 2009
- * @brief List Gaudi components.
- */
-
 #define TRIGGERD3PDMAKER_ENTRIES_FILE
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Local include(s):
 #include "../TriggerBitFillerTool.h"

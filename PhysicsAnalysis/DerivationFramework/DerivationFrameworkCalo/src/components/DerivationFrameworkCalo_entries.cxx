@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
 #include "DerivationFrameworkCalo/JetCaloClusterThinning.h"
 #include "DerivationFrameworkCalo/CellsInConeThinning.h"
@@ -15,12 +14,5 @@ DECLARE_TOOL_FACTORY( GainDecorator )
 DECLARE_TOOL_FACTORY( MaxCellDecorator )
 DECLARE_TOOL_FACTORY( ClusterEnergyPerLayerDecorator )
 
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkCalo ) {
-   DECLARE_TOOL( CaloClusterThinning )
-   DECLARE_TOOL( JetCaloClusterThinning )
-   DECLARE_TOOL( CellsInConeThinning )
-   DECLARE_TOOL( GainDecorator )
-   DECLARE_TOOL( MaxCellDecorator )
-   DECLARE_TOOL( ClusterEnergyPerLayerDecorator )   
-}
  
+

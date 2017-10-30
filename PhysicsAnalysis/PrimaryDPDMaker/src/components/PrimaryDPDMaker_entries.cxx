@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../PrimaryDPDPrescaler.h"
 #include "PrimaryDPDMaker/ThinContainers.h"
 #include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
@@ -20,14 +18,3 @@ DECLARE_TOOL_FACTORY( CaloTimeFilterTool )
 DECLARE_TOOL_FACTORY( BCIDFilterTool )
 DECLARE_TOOL_FACTORY( CaloCellThinningTool )
 
-DECLARE_FACTORY_ENTRIES( PrimaryDPDMaker )
-{
-  DECLARE_ALGORITHM( PrimaryDPDPrescaler );
-  DECLARE_ALGORITHM( ThinContainers );
-  DECLARE_ALGORITHM( CollisionFilterAlg );
-  DECLARE_ALGORITHM( muonTrkTrackThinTool );
-  DECLARE_TOOL( MBTSTimeFilterTool );
-  DECLARE_TOOL( CaloTimeFilterTool );
-  DECLARE_TOOL( BCIDFilterTool );
-  DECLARE_TOOL( CaloCellThinningTool );
-}

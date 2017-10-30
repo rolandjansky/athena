@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 //#include "ParticleJetTools/JetTrackTruthMatching.h"
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/JetConeLabeling.h"
@@ -34,22 +33,3 @@ DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
 DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
 DECLARE_ALGORITHM_FACTORY( JetParticleAssociationAlg )
 
-/** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
-/*    DECLARE_NAMESPACE_TOOL( Analysis, JetTrackTruthMatching ) */
-    DECLARE_NAMESPACE_TOOL( Analysis, JetQuarkLabel )
-    DECLARE_NAMESPACE_TOOL( Analysis, JetConeLabeling )
-    DECLARE_NAMESPACE_TOOL( Analysis, JetPartonTruthLabel )
-/*    DECLARE_NAMESPACE_TOOL( Analysis, JetQGPartonLabel ) */
-    DECLARE_NAMESPACE_TOOL( Analysis, ParticleToJetAssociator )
-/*    DECLARE_NAMESPACE_TOOL( Analysis, FindLeptonTruth ) */
-    /// @todo Convert to namespace, tool, etc?
-    DECLARE_TOOL( CopyFlavorLabelTruthParticles )
-    DECLARE_TOOL( CopyBosonTopLabelTruthParticles )
-    DECLARE_TOOL( CopyTruthPartons )
-    DECLARE_TOOL( CopyTruthJetParticles )
-    DECLARE_TOOL( ParticleJetDeltaRLabelTool )
-    DECLARE_TOOL( JetParticleShrinkingConeAssociation )
-    DECLARE_TOOL( JetParticleCenterOfMassAssociation )
-    DECLARE_ALGORITHM( JetParticleAssociationAlg )
-}
