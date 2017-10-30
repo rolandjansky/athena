@@ -56,12 +56,16 @@ CLASS_DEF( TObject,    74939790 , 1 )
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 
 // Package includes
 #include "RootNtupleEventSelector.h"
 #include "RootBranchAddress.h"
 #include "RootGlobalsRestore.h"
+
+#include "boost/tokenizer.hpp"
 
 namespace {
   std::string
@@ -141,8 +145,11 @@ private:
   /// the file container managed by this context
   //FileNames_t m_files;
 
-  /// the index into the container of file names
-  //std::size_t m_fidx;
+  /// current collection index (into `m_inputCollectionsName`)
+  long m_collIdx;
+
+  /// current tuple index (into `m_tupleNames')
+  long m_tupleIdx;
 
   /// current entry of current file
   //int64_t m_entry;
@@ -159,7 +166,8 @@ public:
   RootNtupleEventContext(const RootNtupleEventSelector* sel) :
     m_evtsel(sel),
     //m_files(),
-    //m_fidx(0),
+    m_collIdx(0),
+    m_tupleIdx(0),
     //m_entry(-1),
     //m_tree(NULL),
     m_fid("")
@@ -185,11 +193,17 @@ public:
 
   /// access to the file iterator
   std::size_t fileIndex() const
-  { return m_evtsel->m_collIdx; }
+  { return m_collIdx; }
 
   /// set file iterator
-  // void setFileIndex(std::size_t idx) 
-  // { m_fidx = idx; }
+  void setFileIndex(std::size_t idx) 
+  { m_collIdx = idx; }
+
+  std::size_t tupleIndex() const
+  { return m_tupleIdx; }
+
+  void setTupleIndex(std::size_t idx) 
+  { m_tupleIdx = idx; }
 
   /// access to the current event entry number
   int64_t entry() const { return m_evtsel->m_curEvt; }
@@ -243,7 +257,6 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
   m_incsvc   ( "IncidentSvc", name ),
   m_nbrEvts  ( 0 ),
   m_curEvt   ( 0 ),
-  m_collIdx  ( 0 ),
   m_collEvts (   ),
   m_tuple    (NULL),
   m_needReload (true),
@@ -269,7 +282,8 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
 
   declareProperty( "TupleName",
                    m_tupleName = "CollectionTree",
-                   "Name of the TTree to load/read from input file(s)" );
+                   "Name of the TTree to load/read from input file(s).  "
+                   "May be a semicolon-separated string to read multiple TTrees.");
 
   declareProperty( "SkipEvents",           
                    m_skipEvts = 0,
@@ -303,7 +317,12 @@ StatusCode RootNtupleEventSelector::initialize()
     return StatusCode::FAILURE;
   }
 
-  if ( m_tupleName.value().empty() ) {
+  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+  boost::char_separator<char> sep (" ;");
+  tokenizer tokens (m_tupleName.value(), sep);
+  m_tupleNames.assign (tokens.begin(), tokens.end());
+
+  if ( m_tupleNames.empty() ) {
     ATH_MSG_ERROR
       ("You have to give a TTree name to read from the ROOT files !");
     return StatusCode::FAILURE;
@@ -431,10 +450,41 @@ StatusCode RootNtupleEventSelector::finalize()
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
+StatusCode RootNtupleEventSelector::endInputFile (RootNtupleEventContext* rctx) const
+{
+  const FileNames_t& fnames = rctx->files();
+  std::size_t fidx = rctx->fileIndex();
+  m_incsvc->fireIncident(FileIncident(name(), "EndInputFile", fnames[fidx]));
+
+  // prepare for next file, if any...
+  // std::cout << "=========================================================="
+  //           << std::endl;
+  // std::cerr << "::switch to next file...\n";
+
+  // iterate over proxies and
+  // mark as garbage and drop the RootBranchAddress (as a side effect of
+  // ::setAddress(NULL).
+  // this way, the next time we hit ::createRootBranchAddress or ::updateAddress
+  // all internal states are kosher.
+  for (const SG::DataProxy* cdp : m_dataStore->proxies()) {
+    if (dynamic_cast<Athena::RootBranchAddress*> (cdp->address()) != nullptr) {
+      if (SG::DataProxy* dp = m_dataStore->proxy_exact (cdp->sgkey())) {
+        dp->setAddress (nullptr);
+      }
+    }
+  }
+
+  const bool forceRemove = false;
+  CHECK( m_dataStore->clearStore(forceRemove) ); //must clear the storegate so that any tampering user did in EndInputFile incident is cleared
+  m_needReload = true;m_fireBIF=true;
+
+  return StatusCode::SUCCESS;
+}
+
 StatusCode
 RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
 {
-  // std::cout << "::next(fidx=" << m_collIdx << ", eidx=" << m_curEvt << ")"
+  // std::cout << "::next(fidx=" << ctx->fileIndex() << ", eidx=" << m_curEvt << ")"
   //           << std::endl;
   ATH_MSG_DEBUG ("next() : iEvt " << m_curEvt);
 
@@ -452,35 +502,49 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
     rctx->setTree(NULL);
     //rctx->setEntry(-1);
 
-    if (fidx < rctx->files().size()) {
-      const std::string& fname = fnames[fidx];
-      tree = fetchNtuple(fname);
-      if (!tree) {
-	throw "RootNtupleEventSelector: Unable to get tree";
-      }
-      rctx->setTree(tree);
+    while (!tree && rctx->tupleIndex() < m_tupleNames.size()) {
+      if (fidx < rctx->files().size()) {
+        const std::string& fname = fnames[fidx];
+        tree = fetchNtuple(fname, m_tupleNames[rctx->tupleIndex()]);
+        if (!tree) {
+          throw "RootNtupleEventSelector: Unable to get tree";
+        }
+        rctx->setTree(tree);
 
-    } else {
-      // end of collections
+      }
+      else {
+        // end of collections; go to next tuple.
+        rctx->setTupleIndex (rctx->tupleIndex()+1);
+        rctx->setFileIndex (0);
+        fidx = 0;
+      }
+    }
+
+    if (!tree) {
       return StatusCode::FAILURE;
     }
   }
   int64_t global_entry = rctx->entry();
+  size_t collIdx = rctx->fileIndex();
+  size_t tupleIdx = rctx->tupleIndex();
   int64_t entry = global_entry;
-  if (m_collEvts[m_collIdx].min_entries < 0) {
+  if (m_collEvts[tupleIdx][collIdx].min_entries < 0) {
     // need to trigger collmetadata...
-    const_cast<RootNtupleEventSelector*>(this)->find_coll_idx(entry);
+    long coll_idx, tuple_idx;
+    const_cast<RootNtupleEventSelector*>(this)->find_coll_idx(entry,
+                                                              coll_idx,
+                                                              tuple_idx);
   }
   // rctx::entry is the *global* entry number.
   // we need the local one...
-  entry = global_entry - m_collEvts[m_collIdx].min_entries;
+  entry = global_entry - m_collEvts[tupleIdx][collIdx].min_entries;
 
   Long64_t nentries = tree->GetEntriesFast();
   // std::cout << "::entry=" << global_entry 
   //           << ", nentries=" << nentries
   //           << ", local=" << entry
-  //           << " (min=" << m_collEvts[m_collIdx].min_entries
-  //           << ", max=" << m_collEvts[m_collIdx].max_entries << ")"
+  //           << " (min=" << m_collEvts[collIdx].min_entries
+  //           << ", max=" << m_collEvts[collIdx].max_entries << ")"
   //           << " (tree=" << tree << ")"
   //           << std::endl;
   if ( nentries > entry ) {
@@ -508,6 +572,23 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
       delete evtInfo; evtInfo = 0;
       return StatusCode::FAILURE;
     }
+
+    {
+      auto ei = std::make_unique<xAOD::EventInfo>();
+      auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
+      ei->setStore (ei_store.get());
+      ei->setRunNumber (runNbr);
+      ei->setEventNumber (global_entry);
+
+      static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+      static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
+      tupleName(*ei) = m_tupleNames[tupleIdx];
+      collName(*ei) = m_inputCollectionsName[collIdx];
+      
+      CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
+      CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
+    }
+    
     // now the data has been loaded into the store, we can
     // notify clients and fire the BeginInputFile incident
    //MOVED TO handle method
@@ -525,34 +606,8 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
 
   } else {
     // file is depleted
-    const FileNames_t& fnames = rctx->files();
-    std::size_t fidx = rctx->fileIndex();
-    m_incsvc->fireIncident(FileIncident(name(), "EndInputFile", fnames[fidx]));
-
-    // prepare for next file, if any...
-    // std::cout << "=========================================================="
-    //           << std::endl;
-    // std::cerr << "::switch to next file...\n";
-
-    // iterate over proxies and
-    // mark as garbage and drop the RootBranchAddress (as a side effect of
-    // ::setAddress(NULL).
-    // this way, the next time we hit ::createRootBranchAddress or ::updateAddress
-    // all internal states are kosher.
-    for (const SG::DataProxy* cdp : m_dataStore->proxies()) {
-      if (dynamic_cast<Athena::RootBranchAddress*> (cdp->address()) != nullptr) {
-        if (SG::DataProxy* dp = m_dataStore->proxy_exact (cdp->sgkey())) {
-          dp->setAddress (nullptr);
-        }
-      }
-    }
-
-    const bool forceRemove = false;
-    CHECK( m_dataStore->clearStore(forceRemove) ); //must clear the storegate so that any tampering user did in EndInputFile incident is cleared
-    m_needReload = true;m_fireBIF=true;
-
-
-    m_collIdx += 1;
+    CHECK( endInputFile (rctx) );
+    rctx->setFileIndex (rctx->fileIndex() + 1);
     rctx->setTree(NULL);
     return next(*rctx);
   }
@@ -643,34 +698,41 @@ RootNtupleEventSelector::resetCriteria( const std::string&, Context& ) const
  * @param evtnum  The event number to which to seek.
  */
 StatusCode
-RootNtupleEventSelector::seek (Context& /*refCtxt*/, int evtnum) const
+RootNtupleEventSelector::seek (Context& ctx, int evtnum) const
 {
+  RootNtupleEventContext* rctx = dynamic_cast<RootNtupleEventContext*>(&ctx);
+
   // std::cout << "::seek - evtnum=" << evtnum 
   //           << " curevt=" << m_curEvt 
-  //           << " curcol=" << m_collIdx
+  //           << " curcol=" << rctx->fileIndex()
   //           << std::endl;
-  long coll_idx = find_coll_idx(evtnum);
+  long coll_idx, tuple_idx;
+  find_coll_idx(evtnum, coll_idx, tuple_idx);
   // std::cout << "::seek - evtnum=" << evtnum 
   //           << " curevt=" << m_curEvt 
-  //           << " curcol=" << m_collIdx
+  //           << " curcol=" << rctx->fileIndex()
   //           << " colidx=" << coll_idx
   //           << std::endl;
-  if (coll_idx == -1 && evtnum < m_curEvt) {
-    coll_idx = m_collIdx;
+  if ((coll_idx == -1 || tuple_idx == -1) && evtnum < m_curEvt) {
+    coll_idx = rctx->fileIndex();
+    tuple_idx = rctx->tupleIndex();
   }
 
-  if (coll_idx == -1) {
+  if (coll_idx == -1 || tuple_idx == -1) {
     ATH_MSG_INFO("seek: reached end of input.");
     return StatusCode::RECOVERABLE;
   }
 
-  if (coll_idx != m_collIdx) {
+  if (coll_idx != static_cast<int>(rctx->fileIndex()) ||
+      tuple_idx != static_cast<int>(rctx->tupleIndex()))
+  {
     // tell everyone we switched files...
     m_tuple = NULL;
-
+    CHECK( endInputFile (rctx) );
   }
 
-  m_collIdx = coll_idx;
+  rctx->setFileIndex (coll_idx);
+  rctx->setTupleIndex (tuple_idx);
   m_curEvt = evtnum;
 
   return StatusCode::SUCCESS;
@@ -872,8 +934,8 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
         continue;
       }
       Athena::RootBranchAddress* addr = new Athena::RootBranchAddress
-        (ROOT_StorageType, id, 
-         m_tupleName.value(), 
+        (ROOT_StorageType, id,
+         m_tuple->GetName(),
          br_name, 
          (unsigned long)(value_ptr),
          (unsigned long)(m_curEvt-1));
@@ -1015,7 +1077,8 @@ RootNtupleEventSelector::createMetaDataRootBranchAddresses(StoreGateSvc *store,
 }
 
 TTree*
-RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
+RootNtupleEventSelector::fetchNtuple(const std::string& fname,
+                                     const std::string& tupleName) const
 {
   // std::cout << "::fetchNtuple(" << fname << ")..." << std::endl;
   TTree* tree = NULL;
@@ -1039,9 +1102,9 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
     return tree;
   }
   // std::cout << "::TFile::GetTree(" << m_tupleName << ")..." << std::endl;
-  tree = (TTree*)f->Get(m_tupleName.value().c_str());
+  tree = (TTree*)f->Get(tupleName.c_str());
   if (!tree) {
-    ATH_MSG_ERROR("could not retrieve tree [" << m_tupleName << "]"
+    ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
                   << " from file [" << fname << "]");
     f->Close();
     return tree;
@@ -1059,7 +1122,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
     return tree;
   }
 
-  addMetadataFromDirectoryName(m_tupleName.value()+"Meta", f);
+  addMetadataFromDirectoryName(tupleName+"Meta", f);
   addMetadataFromDirectoryName("Lumi", f, "Lumi");
   return tree;
 }
@@ -1144,11 +1207,15 @@ RootNtupleEventSelector::do_init_io()
     CollMetaData zero; 
     zero.min_entries = -1;
     zero.max_entries = -1;
-    m_collEvts.resize(m_inputCollectionsName.value().size(), zero);
-    m_collIdx = 0;
+    zero.entries = -1;
+    m_collEvts.resize (m_tupleNames.size());
+    for (size_t i = 0; i < m_collEvts.size(); i++) {
+      m_collEvts[i].resize(m_inputCollectionsName.value().size(), zero);
+    }
   }
 
-  m_tuple = fetchNtuple(m_inputCollectionsName.value()[m_collIdx]);
+  m_tuple = fetchNtuple(m_inputCollectionsName.value()[0],
+                        m_tupleNames[0]);
   if (!m_tuple) {
     throw "RootNtupleEventSelector: Unable to fetch Ntuple";
   }
@@ -1166,47 +1233,58 @@ RootNtupleEventSelector::do_init_io()
 }
 
 /// helper method to get the collection index (into `m_inputCollectionsName`)
+/// and tuple index (into `m_tupleNames')
 /// for a given event index `evtidx`.
 /// returns -1 if not found.
-int 
-RootNtupleEventSelector::find_coll_idx(int evtidx) const
+void
+RootNtupleEventSelector::find_coll_idx (int evtidx,
+                                        long& coll_idx,
+                                        long& tuple_idx) const
 {
+  coll_idx = -1;
+  tuple_idx = -1;
+
   // std::cout << "--find_coll_idx(" << evtidx << ")..." << std::endl
   //           << "--collsize: " << m_collEvts.size() << std::endl;
-  for (std::size_t i = 0, imax = m_collEvts.size();
-       i < imax;
-       ++i) {
-    // std::cout << "--[" << i << "]...\n";
-    CollMetaData &itr = m_collEvts[i];
-    if (itr.min_entries == -1) {
-      TTree *tree = fetchNtuple(m_inputCollectionsName.value()[i]);
-      if (tree) {
-        long offset = 0;
-        if (i > 0) {
-          CollMetaData &jtr = m_collEvts[i-1];
-          offset += jtr.max_entries;
+  for (size_t ituple = 0; ituple < m_collEvts.size(); ++ituple) {
+    for (size_t icoll = 0; icoll < m_collEvts[ituple].size(); ++icoll) {
+      CollMetaData &itr = m_collEvts[ituple][icoll];
+      if (itr.min_entries == -1) {
+        TTree *tree = fetchNtuple(m_inputCollectionsName.value()[icoll],
+                                  m_tupleNames[ituple]);
+        if (tree) {
+          long offset = 0;
+          if (icoll > 0) {
+            offset = m_collEvts[ituple][icoll-1].max_entries;
+          }
+          else if (ituple > 0) {
+            offset = m_collEvts[ituple-1].back().max_entries;
+          }
+          itr.entries = tree->GetEntriesFast();
+          itr.min_entries = offset;
+          itr.max_entries = offset + itr.entries;
+        } else {
+          throw "RootNtupleEventSelector: Unable to fetch ntuple";
         }
-        itr.min_entries = offset;
-        itr.max_entries = offset + tree->GetEntriesFast();
-      } else {
-	throw "RootNtupleEventSelector: Unable to fetch ntuple";
+      }
+      // std::cout << "--[" << i << "] => [" << itr.min_entries << ", "
+      //           << itr.max_entries << ") evtidx=[" << evtidx << "]"
+      //           << std::endl;
+      if (itr.min_entries <= evtidx && evtidx < itr.max_entries) {
+        coll_idx = icoll;
+        tuple_idx = ituple;
+        return;
       }
     }
-    // std::cout << "--[" << i << "] => [" << itr.min_entries << ", "
-    //           << itr.max_entries << ") evtidx=[" << evtidx << "]"
-    //           << std::endl;
-    if (itr.min_entries <= evtidx && evtidx < itr.max_entries) {
-      return i;
-    }
   }
-  return -1;
 }
 
 ///return total number of events in all TTree
 int RootNtupleEventSelector::size (Context& /*refCtxt*/) const {
-  //use find_coll_idx to trigger a population of the m_collEvts 
-  find_coll_idx(-1);
-  return m_collEvts.back().max_entries;
+  //use find_coll_idx to trigger a population of the m_collEvts
+  long coll_idx, tuple_idx;
+  find_coll_idx(-1, coll_idx, tuple_idx);
+  return m_collEvts.back().back().max_entries;
 }
 
 
