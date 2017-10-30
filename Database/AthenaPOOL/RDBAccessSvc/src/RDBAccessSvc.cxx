@@ -182,8 +182,8 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
     return it->second;
   }
 
-  IRDBRecordset_ptr rec(new RDBRecordset(this));
-  RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
+  RDBRecordset* recConcrete = new RDBRecordset(this);
+  IRDBRecordset_ptr rec(recConcrete);
   coral::ISessionProxy* session = m_sessions[connName];
 
   try {
