@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "MuonCalibStandAloneTools/NtupleMTT0Tool.h"
 #include "MuonCalibStandAloneTools/NtupleCalibADCTool.h"
 #include "MuonCalibStandAloneTools/NtupleClassicT0Tool.h"
@@ -18,40 +17,20 @@
 
 using namespace MuonCalib;
 
-DECLARE_TOOL_FACTORY ( NtupleMTT0Tool ) 
-DECLARE_TOOL_FACTORY ( NtupleCalibADCTool ) 
-DECLARE_TOOL_FACTORY ( NtupleClassicT0Tool ) 
-DECLARE_TOOL_FACTORY ( NtupleIntegrationTool ) 
-DECLARE_TOOL_FACTORY ( NtupleAnalyticAutocalibrationTool )
-DECLARE_TOOL_FACTORY ( NtupleChisqResolutionTool )
-DECLARE_TOOL_FACTORY ( NtupleSimpleResolutionTool )
-DECLARE_TOOL_FACTORY ( NtupleTubeEfficiencyTool )
-DECLARE_TOOL_FACTORY ( NtupleRunScanTool )
-DECLARE_TOOL_FACTORY ( NtupleControlHistogramsTool )
-DECLARE_TOOL_FACTORY ( NtupleResidualTool )
-DECLARE_TOOL_FACTORY ( NtupleDisplayTool )
-DECLARE_TOOL_FACTORY ( NtupleWireCentricityTool )
-DECLARE_TOOL_FACTORY ( NtupleCurvedAutocalibrationTool )
-DECLARE_TOOL_FACTORY ( NtupleDbCheckTool )
-DECLARE_TOOL_FACTORY ( NtupleResidualVsTimeTool )
-
-DECLARE_FACTORY_ENTRIES(MuonCalibStandAloneTools) {
-  DECLARE_TOOL (NtupleMTT0Tool)
-  DECLARE_TOOL (NtupleCalibADCTool)
-  DECLARE_TOOL (NtupleClassicT0Tool)
-  DECLARE_TOOL (NtupleIntegrationTool)
-  DECLARE_TOOL (NtupleAnalyticAutocalibrationTool)
-  DECLARE_TOOL ( NtupleClassicAutocalibrationTool )
-  DECLARE_TOOL (NtupleChisqResolutionTool)
-  DECLARE_TOOL (NtupleSimpleResolutionTool)
-  DECLARE_TOOL (NtupleTubeEfficiencyTool)
-  DECLARE_TOOL (NtupleRunScanTool)
-  DECLARE_TOOL (NtupleControlHistogramsTool)
-  DECLARE_TOOL (NtupleResidualTool)
-  DECLARE_TOOL (NtupleDisplayTool)
-  DECLARE_TOOL (NtupleWireCentricityTool)
-  DECLARE_TOOL (NtupleCurvedAutocalibrationTool)
-  DECLARE_TOOL (NtupleDbCheckTool)
-  DECLARE_TOOL (NtupleResidualVsTimeTool)
-}
+DECLARE_COMPONENT( NtupleMTT0Tool ) 
+DECLARE_COMPONENT( NtupleCalibADCTool ) 
+DECLARE_COMPONENT( NtupleClassicT0Tool ) 
+DECLARE_COMPONENT( NtupleIntegrationTool ) 
+DECLARE_COMPONENT( NtupleAnalyticAutocalibrationTool )
+DECLARE_COMPONENT( NtupleChisqResolutionTool )
+DECLARE_COMPONENT( NtupleSimpleResolutionTool )
+DECLARE_COMPONENT( NtupleTubeEfficiencyTool )
+DECLARE_COMPONENT( NtupleRunScanTool )
+DECLARE_COMPONENT( NtupleControlHistogramsTool )
+DECLARE_COMPONENT( NtupleResidualTool )
+DECLARE_COMPONENT( NtupleDisplayTool )
+DECLARE_COMPONENT( NtupleWireCentricityTool )
+DECLARE_COMPONENT( NtupleCurvedAutocalibrationTool )
+DECLARE_COMPONENT( NtupleDbCheckTool )
+DECLARE_COMPONENT( NtupleResidualVsTimeTool )
 
