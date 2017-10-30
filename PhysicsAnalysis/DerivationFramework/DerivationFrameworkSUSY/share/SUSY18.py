@@ -226,15 +226,21 @@ MuTau_SMT_2015        = mu18p0+' && '+tau18p0+' && ('+trig.SMT_OR_2015+')'
 MuTau_SMT_2016_A      = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_A+')'
 MuTau_SMT_2016_B_D3   = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_B_D3+')'
 MuTau_SMT_2016_D4_End = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2016_D4_End+')'
+MuTau_SMT_2017	      = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2017+')'
 
 #Ele triggers
 # conservative pT offline derivations = pT online x 0.9
 ElTau_SET_2015 = e21p6+' && '+tau18p0+' && ('+trig.SET_OR_2015+')'
 ElTau_SET_2016 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2016+')'
+ElTau_SET_2017 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2017+')'
 
 # tau + lepton triggers
 MuTau_MTT = mu12p6+' && '+tau22p5+' && ('+trig.MTT_OR+')'
 ElTau_ETT = e15p3+' && '+tau22p5+' && ('+trig.ETT_OR+')'
+
+# tau + lepton + met triggers
+MuTau_MTMT = mu12p6+' && '+tau22p5+' && ('+trig.MTMT_OR+')'
+ElTau_ETMT = e15p3+' && '+tau22p5+' && ('+trig.ETMT_OR+')'
 
 #final skim: object+trigger selection
 ORdelim = '||'
@@ -243,10 +249,14 @@ skim_expression = \
 '('+MuTau_SMT_2016_A+')' + ORdelim + \
 '('+MuTau_SMT_2016_B_D3+')' + ORdelim + \
 '('+MuTau_SMT_2016_D4_End+')' + ORdelim + \
+'('+MuTau_SMT_2017+')' + ORdelim + \
 '('+ElTau_SET_2015+')' + ORdelim + \
 '('+ElTau_SET_2016+')' + ORdelim + \
+'('+ElTau_SET_2017+')' + ORdelim + \
 '('+MuTau_MTT+')' + ORdelim + \
-'('+ElTau_ETT+')'
+'('+ElTau_ETT+')' + ORdelim + \
+'('+MuTau_MTMT+')' + ORdelim + \
+'('+ElTau_ETMT+')'
 
 print "SUSY18 skimming expression", skim_expression
 
