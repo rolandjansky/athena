@@ -8,6 +8,9 @@
 
 #include "TEnv.h"
 
+static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_parent("Parent");                                                                        
+static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > m_ghostMatchedTrackJets("GhostAntiKt2TrackJet"); 
+
 BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
@@ -15,8 +18,6 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
   m_jetMassMaxTF1(nullptr),
   m_jetMassMinTF1(nullptr),
   m_jetSubCutTF1(nullptr),
-  m_parent("Parent"),
-  m_ghostMatchedTrackJets("GhostAntiKt2TrackJet"),
   m_dec_jetMassMin( "jetMassMin" ),
   m_dec_jetMassMax( "jetMassMax" ),
   m_dec_jssCut( "jssCut" ),
@@ -150,10 +151,6 @@ StatusCode BoostedXbbTagger::initialize()
             m_trackJetNConst                 = configReader.GetValue((m_wkpt+"TrackJetNConstituents").c_str(), m_trackJetNConst );
             m_trackJetContName               = configReader.GetValue((m_wkpt+"TrackJetContainer").c_str(),     m_trackJetContName.c_str() );
       }
-
-      // make all static accessors static to this file, like extern but hip
-      m_parent                = SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>>("Parent");
-      m_ghostMatchedTrackJets = SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostAntiKt2TrackJet");
 
       // get the decoration name
       m_decorationName = configReader.GetValue("DecorationName" ,"");
