@@ -41,6 +41,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -58,6 +59,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+    m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
     m_lumiTool("LuminosityTool"),
     m_moduleTemperature(new dcsDataHolder()),
     m_coolingPipeTemperatureInlet(new dcsDataHolder()),
@@ -74,6 +76,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
+  declareProperty("TrackSelectionTool", m_trackSelTool);
   declareProperty("LuminosityTool", m_lumiTool);
 
   declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
@@ -237,21 +240,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
   memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
 
-  // module histo
-  m_track_chi2_bcl1 = 0;
-  m_track_chi2_bcl0 = 0;
-  m_track_chi2_bclgt1 = 0;
-  m_track_chi2_bcl1_highpt = 0;
-  m_track_chi2_bcl0_highpt = 0;
-  m_track_chi2_bclgt1_highpt = 0;
-  m_clustot_vs_pt = 0;
-  m_clustot_lowpt = 0;
-  m_1hitclustot_lowpt = 0;
-  m_2hitclustot_lowpt = 0;
-  m_clustot_highpt = 0;
-  m_1hitclustot_highpt = 0;
-  m_2hitclustot_highpt = 0;
-
   // cluster histograms
   m_clusters_per_lumi = 0;
   memset(m_clusters_per_lumi_mod, 0, sizeof(m_clusters_per_lumi_mod));
@@ -340,7 +328,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_cluster_ToT_LB = 0;
   m_num_clusters_LB = 0;
 
-  // DCS monitorning
+  // DCS monitoring
   m_hist_moduleTemperatureEtaPhi = 0;
   memset(m_hist_moduleTemperature2Dscatter, 0, sizeof(m_hist_moduleTemperature2Dscatter));
   memset(m_hist_moduleTemperatureLB, 0, sizeof(m_hist_moduleTemperatureLB));
@@ -479,6 +467,9 @@ StatusCode PixelMainMon::initialize() {
     }
   }
 
+  if (m_doOnTrack) {
+    ATH_CHECK(m_trackSelTool.retrieve());
+  }
   if (m_lumiTool.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
     return StatusCode::FAILURE;
@@ -809,7 +800,7 @@ StatusCode PixelMainMon::fillHistograms() {
     }
   }
 
- // hits
+  // hits
   if (m_doRDO) {
     if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
       if (fillHitsMon().isFailure()) {
