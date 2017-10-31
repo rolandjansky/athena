@@ -6,7 +6,7 @@
 // TGC_CnvTool.cxx, (c) ATLAS Detector software
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sTGC_RDOtoPrepDataTool.h"
+#include "STGC_RawDatatoPrepDataTool.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 
@@ -26,7 +26,7 @@
 
 //================ Constructor =================================================
 
-Muon::sTGC_RDOtoPrepDataTool::sTGC_RDOtoPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
+Muon::STGC_RawDatatoPrepDataTool::STGC_RawDatatoPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
     m_muonMgr(0),
     m_sTGC_Helper(0),
@@ -41,11 +41,11 @@ Muon::sTGC_RDOtoPrepDataTool::sTGC_RDOtoPrepDataTool(const std::string& t, const
 
 //================ Destructor =================================================
 
-Muon::sTGC_RDOtoPrepDataTool::~sTGC_RDOtoPrepDataTool()
+Muon::STGC_RawDatatoPrepDataTool::~STGC_RawDatatoPrepDataTool()
 {}
 
 //___________________________________________________________________________
-StatusCode Muon::sTGC_RDOtoPrepDataTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+StatusCode Muon::STGC_RawDatatoPrepDataTool::queryInterface(const InterfaceID& riid, void** ppvIf)
 {
   if(riid==IMuonRdoToPrepDataTool::interfaceID()) {
     *ppvIf = (IMuonRdoToPrepDataTool*)this;
@@ -59,7 +59,7 @@ StatusCode Muon::sTGC_RDOtoPrepDataTool::queryInterface(const InterfaceID& riid,
 
 //================ Initialization =================================================
 
-StatusCode Muon::sTGC_RDOtoPrepDataTool::initialize()
+StatusCode Muon::STGC_RawDatatoPrepDataTool::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
   if(sc.isFailure()) return sc;
@@ -82,14 +82,14 @@ StatusCode Muon::sTGC_RDOtoPrepDataTool::initialize()
 
 //================ Finalization =================================================
 
-StatusCode Muon::sTGC_RDOtoPrepDataTool::finalize()
+StatusCode Muon::STGC_RawDatatoPrepDataTool::finalize()
 {
   StatusCode sc = AthAlgTool::finalize();
   return sc;
 }
 
 //================ Decoding =================================================
-StatusCode Muon::sTGC_RDOtoPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
+StatusCode Muon::STGC_RawDatatoPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
 					      std::vector<IdentifierHash>& selectedIdHashVect)
 {
   int sizeVectorRequested = requestedIdHashVect.size();
@@ -121,12 +121,12 @@ StatusCode Muon::sTGC_RDOtoPrepDataTool::decode(std::vector<IdentifierHash>& req
   return StatusCode::SUCCESS;
 }
 
-void Muon::MdtRdoToPrepDataTool::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds ){
+void Muon::STGC_RawDatatoPrepDataTool::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds ){
   
   // get RDO container
   
-  SG::ReadHandle<sTGC_RawDataContainer> rdos(m_RDO_Key);
-  const sTGC_RawDataContainer* rdoContainer = *rdos;
+  SG::ReadHandle<STGC_RawDataContainer> rdos(m_RDO_Key);
+  const STGC_RawDataContainer* rdoContainer = *rdos;
     
   if(!rdoContainer) {
     return;
@@ -139,16 +139,16 @@ void Muon::MdtRdoToPrepDataTool::processPRDHashes( const std::vector<IdentifierH
   }//ends loop over chamberhash  
 }
 
-bool Muon::MdtRdoToPrepDataTool::handlePRDHash( IdentifierHash hash, const sTGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds ) {
+bool Muon::STGC_RawDatatoPrepDataTool::handlePRDHash( IdentifierHash hash, const STGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds ) {
   
   // if in prep data the chamber already exists ... do nothing
   if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ) return true;
   
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   // process CSM if data was found
-  sTGC_RawDataContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
+  STGC_RawDataContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
   if( rdoColli != rdoContainer.end() ) {
-    rdoColli->push_back(new sTGC_RawData() );
+    rdoColli->push_back(new STGC_RawData() );
   } else {
     ATH_MSG_DEBUG("handlePRDHash: hash id " << (unsigned int)(hash) << " not found in RDO container");
   }

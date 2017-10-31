@@ -2,19 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONRDO_STGC_RAWDATACOLLECTION_H
-#define MUONRDO_STGC_RAWDATACOLLECTION_H
+#ifndef MUONRDO_STGC_RawDataCOLLECTION_H
+#define MUONRDO_STGC_RawDataCOLLECTION_H
 
-#include "MuonRDO/sTGC_RawData.h"
+#include "MuonRDO/STGC_RawData.h"
 #include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
 namespace Muon {
-  class sTGC_RawDataCollection : public DataVector<sTGC_RawData>
+  class STGC_RawDataCollection : public DataVector<STGC_RawData>
   {
   public:
-    sTGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
+    STGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 
     const IdentifierHash& identifyHash() const { return m_idHash; }
   private:

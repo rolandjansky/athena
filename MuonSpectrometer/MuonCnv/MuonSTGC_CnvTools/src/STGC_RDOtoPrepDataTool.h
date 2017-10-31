@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// sTGC_RDOtoPrepDataTool.h, (c) ATLAS Detector software
+// STGC_RawDatatoPrepDataTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
@@ -38,7 +38,7 @@ namespace Muon
   class IMuonRawDataProviderTool;
   class TgcCoinData;
 
-  /** @class sTGC_RDOtoPrepDataTool 
+  /** @class STGC_RawDatatoPrepDataTool 
    *  This is the algorithm that convert TGCRdo To TGCPrepdata as a tool.
    * 
    * @author Susumu Oda <Susumu.Oda@cern.ch> 
@@ -47,14 +47,14 @@ namespace Muon
    * This class was developed by Takashi Kubota. 
    */  
 
-  class sTGC_RDOtoPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class STGC_RawDatatoPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
     {
     public:
       /** Constructor */
-      sTGC_RDOtoPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
+      STGC_RawDatatoPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~sTGC_RDOtoPrepDataTool();
+      virtual ~STGC_RawDatatoPrepDataTool();
       
       /** Query the IMuonRdoToPrepDataTool interface */
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
@@ -78,7 +78,7 @@ namespace Muon
     private:
       
       void processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds );
-      bool handlePRDHash( IdentifierHash hash, const sTGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds );
+      bool handlePRDHash( IdentifierHash hash, const STGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds );
       
       /** muon detector manager */
       const MuonGM::MuonDetectorManager * m_muonMgr;

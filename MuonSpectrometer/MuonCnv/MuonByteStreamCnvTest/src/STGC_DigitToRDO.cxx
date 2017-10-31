@@ -6,18 +6,18 @@
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
-#include "sTGC_DigitToRDO.h"
+#include "STGC_DigitToRDO.h"
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
-sTGC_DigitToRDO::sTGC_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocator)
+STGC_DigitToRDO::STGC_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_idHelper(0)
 {
 }
 
-StatusCode sTGC_DigitToRDO::initialize()
+StatusCode STGC_DigitToRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_rdoContainer.initialize() );
@@ -31,18 +31,18 @@ StatusCode sTGC_DigitToRDO::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode sTGC_DigitToRDO::execute()
+StatusCode STGC_DigitToRDO::execute()
 {  
   using namespace Muon;
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::WriteHandle<sTGC_RawDataContainer> rdos (m_rdoContainer);
+  SG::WriteHandle<STGC_RawDataContainer> rdos (m_rdoContainer);
   SG::ReadHandle<sTgcDigitContainer> digits (m_digitContainer);
-  ATH_CHECK( rdos.record(std::unique_ptr<sTGC_RawDataContainer>(new sTGC_RawDataContainer(m_idHelper->module_hash_max())) ) );
+  ATH_CHECK( rdos.record(std::unique_ptr<STGC_RawDataContainer>(new STGC_RawDataContainer(m_idHelper->module_hash_max())) ) );
 
   for (auto digitColl : *digits ){
     // Making some assumptions here that digit hash == RDO hash. 
     IdentifierHash hash = digitColl->identifierHash();
-    sTGC_RawDataCollection* coll = new sTGC_RawDataCollection(hash);
+    STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
     if (rdos->addCollection(coll,hash).isFailure() ){
       ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
       delete coll;
@@ -51,7 +51,7 @@ StatusCode sTGC_DigitToRDO::execute()
     
     for (auto digit : *digitColl ){
       Identifier id = digit->identify();
-      sTGC_RawData* rdo = new sTGC_RawData(id);
+      STGC_RawData* rdo = new STGC_RawData(id);
       coll->push_back(rdo);
     }
   }
@@ -60,6 +60,6 @@ StatusCode sTGC_DigitToRDO::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode sTGC_DigitToRDO::finalize() {
+StatusCode STGC_DigitToRDO::finalize() {
   return StatusCode::SUCCESS;
 }

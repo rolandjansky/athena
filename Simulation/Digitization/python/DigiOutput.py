@@ -161,7 +161,7 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
             StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
-            StreamRDO_ItemList+=["Muon::sTGC_RawDataContainer#*"]
+            StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
         if DetFlags.writeRDOPool.Micromegas_on():
             StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["MM_RawDataContainer#*"]
