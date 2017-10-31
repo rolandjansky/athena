@@ -226,7 +226,8 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::finalize()
 MsgStream&  InDet::SiCombinatorialTrackFinder_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  { return dumpevent(out);      }
+  else          { return dumpconditions(out); }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -617,7 +618,8 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   bool TWO     = false;
 
   if     (Sp.size() > 1) {
-    if(!spacePointsToClusters(Sp,Cl)) return false; if(Sp.size()<=2) TWO = true;
+    if(!spacePointsToClusters(Sp,Cl)) { return false; }
+    if(Sp.size()<=2) { TWO = true; }
   }
   else if(Gp.size() > 2) {
     if(!m_trajectory.globalPositionsToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Gp,DEL,PT,Cl)) return false;
@@ -640,7 +642,8 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
     Q=Qr=true;
   }
 
-  if(!Qr) ++m_roadbug; if(!Q) return false;
+  if(!Qr) { ++m_roadbug; }
+  if(!Q)  { return false; }
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
   int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_heavyion) itmax = 50;
