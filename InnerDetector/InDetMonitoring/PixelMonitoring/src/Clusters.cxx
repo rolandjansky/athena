@@ -568,6 +568,16 @@ StatusCode PixelMainMon::fillClustersMon(void) {
 
       if (pixlayer != 99) nclusters_all++;  // count all (no DBM) clusters on and off track
 
+      if (isOnTrack(clusID, true)) {
+        if (m_cluseff_mod) m_cluseff_mod->fill(m_manager->lumiBlockNumber(), 1., clusID, m_pixelid);
+        if (m_clusize_ontrack_mod[pixlayer]) m_clusize_ontrack_mod[pixlayer]->Fill(cluster.rdoList().size());
+        if (pixlayer == PixLayer::kIBL && m_clusize_ontrack_mod[pixlayeribl2d3d]) m_clusize_ontrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
+      } else {
+        if (m_cluseff_mod) m_cluseff_mod->fill(m_manager->lumiBlockNumber(), 0., clusID, m_pixelid);
+        if (m_clusize_offtrack_mod[pixlayer]) m_clusize_offtrack_mod[pixlayer]->Fill(cluster.rdoList().size());
+        if (pixlayer == PixLayer::kIBL && m_clusize_offtrack_mod[pixlayeribl2d3d]) m_clusize_offtrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
+      }
+
       double cosalpha(0.);
       if (m_doOnTrack && !isOnTrack(clusID, cosalpha)) {
         continue;
@@ -617,16 +627,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       if (cluster.rdoList().size() == 2 && m_2cluster_Q_mod[pixlayer]) m_2cluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
       if (cluster.rdoList().size() == 3 && m_3cluster_Q_mod[pixlayer]) m_3cluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
       if (cluster.rdoList().size() > 3 && m_bigcluster_Q_mod[pixlayer]) m_bigcluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
-
-      if (isOnTrack(clusID, true)) {
-        if (m_cluseff_mod) m_cluseff_mod->fill(m_manager->lumiBlockNumber(), 1., clusID, m_pixelid);
-        if (m_clusize_ontrack_mod[pixlayer]) m_clusize_ontrack_mod[pixlayer]->Fill(cluster.rdoList().size());
-        if (pixlayer == PixLayer::kIBL && m_clusize_ontrack_mod[pixlayeribl2d3d]) m_clusize_ontrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
-      } else {
-        if (m_cluseff_mod) m_cluseff_mod->fill(m_manager->lumiBlockNumber(), 0., clusID, m_pixelid);
-        if (m_clusize_offtrack_mod[pixlayer]) m_clusize_offtrack_mod[pixlayer]->Fill(cluster.rdoList().size());
-        if (pixlayer == PixLayer::kIBL && m_clusize_offtrack_mod[pixlayeribl2d3d]) m_clusize_offtrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
-      }
 
       // Fill the number of pixel hits in a cluster
       if (m_cluster_groupsize) m_cluster_groupsize->Fill(npixHitsInClusterRaw);
