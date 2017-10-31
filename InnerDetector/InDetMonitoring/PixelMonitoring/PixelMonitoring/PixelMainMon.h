@@ -352,7 +352,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_occupancy_L0_B11_S2_C6;
 
   // module histograms
-  std::unique_ptr<PixelMonModules1D> m_hit_num_mod;
   std::unique_ptr<PixelMonModulesProf> m_hiteff_mod;
   std::unique_ptr<PixelMonModules1D> m_FE_chip_hit_summary;
   std::unique_ptr<PixelMonModules2D> m_pixel_occupancy;
@@ -471,7 +470,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH2F_LW* m_clusters_offTrack_L0_B11_S2_C6;
 
   // status histograms
-  std::unique_ptr<PixelMonModules1D> m_Status_modules;
   std::unique_ptr<PixelMon2DProfilesLW> m_status;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_mon;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_LB;
