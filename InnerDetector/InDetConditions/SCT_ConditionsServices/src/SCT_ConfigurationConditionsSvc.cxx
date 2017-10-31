@@ -168,7 +168,7 @@ bool SCT_ConfigurationConditionsSvc::isGoodChip(const Identifier& stripId) const
   }
 
   // Check if the chip is bad
-  const bool badChip{v_badChips & (1<<chip)};
+  const bool badChip{static_cast<bool>(v_badChips & (1<<chip))};
 
   return (not badChip);
 }
