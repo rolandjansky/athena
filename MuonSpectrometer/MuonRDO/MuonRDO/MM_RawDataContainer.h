@@ -9,6 +9,7 @@
 #include "SGTools/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
+namespace Muon {
 /**
 */
 class MM_RawDataContainer
@@ -25,8 +26,9 @@ public:
   virtual const CLID& clID() const {return classID();}
 
 };
+}
 
-CLASS_DEF( MM_RawDataContainer , 1314812033 , 1 )
+CLASS_DEF( Muon::MM_RawDataContainer , 1155093320 , 1 )
 
 #endif
 

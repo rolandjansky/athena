@@ -6,11 +6,11 @@
 #define STGCRAWDATACONTAINER_P1_H
 
 #include <vector>
-#include "StgcRawData_p1.h"
+#include "StgcRawDataCollection_p1.h"
 
 namespace Muon {
   class StgcRawDataContainer_p1
-     : public std::vector<Muon::StgcRawData_p1>
+     : public std::vector< Muon::StgcRawDataCollection_p1>
   {
   public:
     // Default constructor

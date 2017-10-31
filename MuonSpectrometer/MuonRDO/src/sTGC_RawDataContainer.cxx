@@ -25,7 +25,7 @@ const CLID& Muon::sTGC_RawDataContainer::classID()
 std::ostream& operator<<(std::ostream& lhs, const Muon::sTGC_RawDataContainer& rhs) {
   lhs << "sTGC_RawDataContainer has " << rhs.size() << " collections:" << std::endl;
   for (auto col : rhs ){
-    lhs << "Collection with hash ["<<col->identifierHash()<<"] : " << std::endl;
+    lhs << "Collection with hash ["<<col->identifyHash()<<"] : " << std::endl;
     for (auto rdo : *col ){
       lhs << *rdo;
     }

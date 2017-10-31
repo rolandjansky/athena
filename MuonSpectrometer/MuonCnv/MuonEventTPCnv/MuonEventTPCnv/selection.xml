@@ -122,6 +122,12 @@
     <class name="std::pair<unsigned int, Muon::CscSimData_p1>" />
     <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p1> >" />
     <class name="Muon::CscSimDataCollection_p1" id="DD2A8397-4435-4DA2-AD14-ADD7294694B2"/>
+    
+    <!-- MuonRDO -->
+    <class name="StgcRawData_p1" />
+    <class name="std::vector<Muon::StgcRawData_p1>" />
+    <class name="std::vector<Muon::StgcRawDataCollection_p1>" />
+    <class name="Muon::StgcRawDataContainer_p1" id="BE18B3FA-4D25-470A-B8FE-3B438488803C" />
 
     <class name="Muon::CscSimData_p2" />
     <class name="std::pair<HepMcParticleLink_p2, Muon::CscMcData_p1>" />

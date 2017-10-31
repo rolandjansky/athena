@@ -16,7 +16,7 @@ namespace Muon {
   public:
     sTGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 
-    const IdentifierHash& identifierHash() const { return m_idHash; }
+    const IdentifierHash& identifyHash() const { return m_idHash; }
   private:
   
     /** Offline IdentifierHash for this collection*/
