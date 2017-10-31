@@ -23,7 +23,7 @@ void compare (const sTgcDigit& p1,
 {
   assert (p1.identify() == p2.identify());
   assert (p1.bcTag() == p2.bcTag());
-  assert (p2.time() == 0); // not saved
+  assert (p1.time() == p2.time());
   assert (p1.charge() == p2.charge());
 }
 
@@ -46,7 +46,7 @@ void test1()
   Athena_test::Leakcheck check;
 
   sTgcDigit trans1 (Identifier (1234),
-                    123, 4.5, 6.5);
+                    123, 4.5, 6.5, false, false);
   testit (trans1);
 }
 
