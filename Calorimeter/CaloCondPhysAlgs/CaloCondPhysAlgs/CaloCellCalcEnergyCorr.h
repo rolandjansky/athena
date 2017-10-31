@@ -14,6 +14,9 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
+#include "GaudiKernel/ToolHandle.h"
+class LArHVMapTool;
+
 
 
 class CaloCellCalcEnergyCorr: public AthAlgorithm
@@ -53,7 +56,8 @@ private:
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;
 
-  std::vector<int> GetHVLines(const Identifier& id) ;
+  ToolHandle<LArHVMapTool> m_hvtool;
+  //std::vector<int> GetHVLines(const Identifier& id) ;
 }; 
 
 #endif //> !CALOCONDPHYSALGS_CALOCELLCALCENERGYCORR_H

@@ -65,6 +65,10 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
             PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
             ServiceMgr += PixelSiPropertiesSvc
+        if not hasattr(ServiceMgr, "PixelOfflineCalibSvc"):
+            from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
+            ServiceMgr +=PixelOfflineCalibSvc()
+            ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)

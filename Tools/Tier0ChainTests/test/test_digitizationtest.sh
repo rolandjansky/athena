@@ -20,3 +20,6 @@ NIGHTLY_TAG=$8
 
 art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD_ttbar_2.AOD.pool.root myESD_ttbar_2.pool.root
 echo "art-result: $?"
+
+art.py compare grid --days=3 $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD_ttbar_2.AOD.pool.root myESD_ttbar_2.pool.root
+echo "art-result: $?"

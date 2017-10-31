@@ -443,7 +443,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()  #Switched off to avoid geometry

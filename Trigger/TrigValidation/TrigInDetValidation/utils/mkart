@@ -56,15 +56,24 @@ done
 echo "FILES:  $FILES"
 echo "OUTDIR: $OUTDIR"
 
+COUNTER=0
 
 for xmlfile in $FILES; do  
 
-   _file=$(basename $xmlfile .xml)
-      
-#  echo "xmlfile $xmlfile  $_file"
+    _file=$(basename $xmlfile .xml)
 
-   outfile="$OUTDIR/$_file.sh"
+    file=test_$(echo $_file | tr '[:upper:]' '[:lower:]' )
+      
+
+    outfile="$OUTDIR/$file.sh"
  
+
+    if [ -z $DATASET ]; then 
+	SAMPLE=$(grep include $xmlfile | grep sample | grep -v "<\!-" | head -1 | sed 's|.* \"||g' | sed 's|\".*||g')
+	DATASET=$(grep dataset ../TIDAbuild/$SAMPLE | grep -v "<\!-" | head -1 | sed 's|.*<dataset>||g' | sed 's|</dataset>.*||g' )
+    fi 
+
+
     if [ -e $outfile ]; then 
       if [ $NOGLOB -eq 0 ]; then 
          echo "file $outfile already exists, moving to " $outfile.bak
@@ -83,7 +92,6 @@ for xmlfile in $FILES; do
 
     duff=$(grep dataset /tmp/$_file.xml)
 
-
     [ "x$duff" != "x" ] || continue
  
     file=$(echo $_file | $SED 's/\.xml//g')
@@ -97,7 +105,7 @@ for xmlfile in $FILES; do
     echo "# art-output: *.root" >>  $outfile 
     echo "# art-output: *.log"  >>  $outfile 
     echo "" >>  $outfile 
-    echo "export RTTJOBNAME=$(basename $outfile .sh)" >> $outfile
+    echo "export RTTJOBNAME=$(basename $_file .sh)" >> $outfile
 
 
     chmod u+x $outfile
@@ -127,7 +135,13 @@ for xmlfile in $FILES; do
 
 #	 DATASET=$(dirname $DATASET) 
 #        echo  "athena.py  -c 'import glob;from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=glob.glob(\"$DATASET/*\");$cmdlineflags' $joboptions.py" >> $outfile
-        echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+         echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+
+	 echo  "JOBSTATUS_$COUNTER=\$?" >> $outfile
+	 echo  "" >> $outfile
+
+	 ((COUNTER++))
+
 
     fi
   
@@ -164,8 +178,10 @@ for xmlfile in $FILES; do
 	        "$arg" == "RunTrigCostD3PDe" ]; then 
 
                if [ "$command" != "" ]; then 
-                  echo "$command" >> $outfile
-                  echo  ""        >> $outfile
+                  echo "$command"                >> $outfile
+		  echo  "JOBSTATUS_$COUNTER=\$?" >> $outfile
+                  echo  ""                       >> $outfile
+		  ((COUNTER++))
                fi
                command="$arg"
 
@@ -195,10 +211,10 @@ for xmlfile in $FILES; do
                      if [ "$command" != "TIDArun.sh" -a "$command" != "TIDArun" -a "$command" != "TIDArun-art.sh" ]; then
                         $(echo $ffile | grep -q "\*") || echo "get_files -data $ffile" >> $outfile
                         if [ "$ext" == "dat" ]; then 
-			    get_files -data $ffile
+			    [ -e $ffile ] || get_files -data $ffile
                             for DATFILE in $(grep "^# *include" $ffile | sed 's|.*include ||g' | sed 's|\"||g' ); do 
                                 echo "get_files -data $DATFILE" >> $outfile
-   			        get_files -data $DATFILE
+   			        [ -e $DATFILE ] || get_files -data $DATFILE
                                 for EXTRAFILE in $(grep "^# *include" $DATFILE | sed 's|.*include ||g' | sed 's|\"||g' ); do 
                                    echo "get_files -data $EXTRAFILE" >> $outfile
                                 done
@@ -216,8 +232,10 @@ for xmlfile in $FILES; do
     done
 
     if [ "$command" != "" ]; then 
-          echo  "$command"  >> $outfile
-          echo  ""          >> $outfile
+          echo  "$command"               >> $outfile
+	  echo  "JOBSTATUS_$COUNTER=\$?" >> $outfile
+          echo  ""                       >> $outfile
+	  ((COUNTER++))
     fi
 
     if [ -e  $outfile ]; then 
