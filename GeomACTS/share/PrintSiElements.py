@@ -68,15 +68,15 @@ job += alg
 from G4AtlasApps.SimFlags import simFlags
 simFlags.OptionalUserActionList.addAction('G4UA::VolumeDebuggerTool',['BeginOfRun'])
 
-from AthenaCommon.CfgGetter import getPublicTool
-getPublicTool('G4UA::VolumeDebuggerTool', tryDefaultConfigurable=True).OutputPath="./test.gdml"
-getPublicTool('G4UA::VolumeDebuggerTool').TargetVolume='IDET::IDET'
-getPublicTool('G4UA::VolumeDebuggerTool').Resolution=1000000 # Default = 1000$
-getPublicTool('G4UA::VolumeDebuggerTool').Tolerance=0.000001
-getPublicTool('G4UA::VolumeDebuggerTool').Verbose=True
-getPublicTool('G4UA::VolumeDebuggerTool').RunGeoTest=False
+# from AthenaCommon.CfgGetter import getPublicTool
+# getPublicTool('G4UA::VolumeDebuggerTool', tryDefaultConfigurable=True).OutputPath="./test.gdml"
+# getPublicTool('G4UA::VolumeDebuggerTool').TargetVolume='IDET::IDET'
+# getPublicTool('G4UA::VolumeDebuggerTool').Resolution=1000000 # Default = 1000$
+# getPublicTool('G4UA::VolumeDebuggerTool').Tolerance=0.000001
+# getPublicTool('G4UA::VolumeDebuggerTool').Verbose=True
+# getPublicTool('G4UA::VolumeDebuggerTool').RunGeoTest=False
 
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+# from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 # job += PyG4AtlasAlg()
 
 # #--------------------------------------------------------------
