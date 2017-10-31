@@ -60,7 +60,7 @@ def lbStr(lb):
   
 
 # Main===========================================================================================================
-parser = argparse.ArgumentParser(description='Process some integers.',formatter_class=RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-r','--run',type=int,dest='arg1',default='267599',help="Run number",action='store')
 parser.add_argument('-ll','--lowerlb',type=int,dest='arg2',default='0',help="Lower lb",action='store')
 parser.add_argument('-ul','--upperlb',type=int,dest='arg3',default='999999',help="Upper lb",action='store')
