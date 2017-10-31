@@ -342,6 +342,7 @@ if not "HIGG5D2Jets" in OutputJets:
     #AntiKt2PV0TrackJets
     addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
     OutputJets["HIGG5D2Jets"].append("AntiKt2PV0TrackJets")
+
     #AntiKt4PV0TrackJets
     addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
     OutputJets["HIGG5D2Jets"].append("AntiKt4PV0TrackJets")
@@ -390,7 +391,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 # must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
 # also, re-tag R=0.2 track jets
-FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d2Seq )
+# FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d2Seq )
 
 
 # Jet calibration should come after fat jets
