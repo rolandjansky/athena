@@ -7,6 +7,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #undef NDEBUG
 #include <cassert>
+#include <iostream>
 #include <cmath>
 namespace Athena_test {
 
