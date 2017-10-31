@@ -267,7 +267,12 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
-JETM8SlimmingHelper.ExtraVariables = []
+
+JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
+                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
+JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+
+#JETM8SlimmingHelper.ExtraVariables = []
 
 for truthc in [
     "TruthMuons",

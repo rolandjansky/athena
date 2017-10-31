@@ -1,8 +1,8 @@
 import os
 
-makeDataDAODs=True
-makeMCDAODs=True
-makeTruthDAODs=True
+makeDataDAODs=False
+makeMCDAODs=False
+makeTruthDAODs=False
 makeTrains=True
 
 formatList = [#'PHYSVAL',
@@ -17,7 +17,7 @@ formatList = [#'PHYSVAL',
               'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY13', 'SUSY14', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
-              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT14', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21',
+              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT14', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
@@ -68,6 +68,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC):
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
+   outputFile.write("# art-output: checkFile.txt"+"\n")
    outputFile.write("\n")
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
@@ -114,7 +115,4 @@ if (makeTruthDAODs):
 if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
-      #generateTrains(train,mcLabel,mcFile,True)
-
-
-
+      generateTrains(train,mcLabel,mcFile,True)

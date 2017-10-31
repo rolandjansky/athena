@@ -31,12 +31,13 @@
 #include <functional>
 #include <string>
 
-//static const double commonSystMTSG = 0.01;
-static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
-    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
-
+    //static const double commonSystMTSG = 0.01;
+    static const double muon_barrel_endcap_boundary = 1.05;
+    unsigned int MuonTriggerScaleFactors::getFallBackRunNumber() const{
+        return 311481;
+    }
     // ==================================================================================
     // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
     // ==================================================================================
@@ -225,14 +226,7 @@ namespace CP {
     // Public functions  //
     ///////////////////////
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::setRunNumber
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t) {
-        ATH_MSG_WARNING("MuonTriggerScaleFactors has now learned how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
-        return CorrectionCode::Ok;
-    }
-
+    
     // ==================================================================================
     // == MuonTriggerScaleFactors::getTriggerScaleFactor
     // ==================================================================================
@@ -677,14 +671,16 @@ namespace CP {
             else if (runNumber >= 309311 && runNumber <= 309759) return "K";
             else if (runNumber >= 310015 && runNumber <= 311481) return "L";
         }
+    
         //Return some  default  value
-        return std::string();
+        return getDataPeriod(getFallBackRunNumber() , getYear(getFallBackRunNumber() ));
     }
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
+        static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
         const xAOD::EventInfo* info = nullptr;
-        if (!evtStore()->retrieve(info, "EventInfo")) {
-            ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 311481");
-            return 311481;
+        if (!evtStore()->contains<xAOD::EventInfo>("EventInfo") || !evtStore()->retrieve(info, "EventInfo").isSuccess()) {
+            ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo. Return "<<getFallBackRunNumber() );
+            return getFallBackRunNumber() ;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
@@ -692,10 +688,10 @@ namespace CP {
         }
         if (!acc_rnd.isAvailable(*info)) {
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
-            return 311481;
+            return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
-            return 311481;
+            return getFallBackRunNumber() ;
         }
         return acc_rnd(*info);
     }

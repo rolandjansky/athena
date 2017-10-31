@@ -10,4 +10,4 @@ Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Deri
 
 DAODMerge_tf.py --maxEvents 5 --inputDAOD_PHYSVALFile DAOD_PHYSVAL.art.pool.root --outputDAOD_PHYSVAL_MRGFile art_merged.pool.root
 
-Reco_tf.py --inputAODFile DAOD_PHYSVAL.art.pool.root --preExec "all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" --valid="True" --validationFlags doExample,doMET,doPFlow,doEgamma,doInDet,doTau,doJet,doBtag,doZee,doMuon,doClusters --outputNTUP_PHYSVALFile NTUP_PHYSVAL.art.root
+Reco_tf.py --inputAODFile DAOD_PHYSVAL.art.pool.root --preExec "all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" --valid="True" --validationFlags doExample,doInDet,doMuon,doTopoCluster,doPFlow,doJet,doBtag,doMET,doEgamma,doTau, --outputNTUP_PHYSVALFile NTUP_PHYSVAL.art.root

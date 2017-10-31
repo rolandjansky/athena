@@ -70,7 +70,8 @@ namespace CP {
 
         declareProperty("CoreCone", m_coreCone, "This is the size of the core cone for the topoetcone variables.");
         declareProperty("PtvarconeRadius", m_ptvarconeRadius, "This is the kT parameter for the ptvarcone variables.");
-        declareProperty("MaxClusterFrac", m_maxTopoPolution);
+        declareProperty("MaxClusterFrac", m_maxTopoPolution, "Maximum energy fraction a single cluster can make up to be considered as contributed to the isolation");
+        declareProperty("ExtrapolationConeSize", m_ConeSizeVariation, "Constant factor to be multiplied on top of the topo-etcone size if the reference particle is not a calorimeter particle in order to account for extrapolation effects");
 
     }
 
@@ -321,7 +322,10 @@ namespace CP {
         for (const auto& cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
             //Consider also the cluster of Egamma if they are in the container
-            if (isSame(Ref, cluster) || overlap(cluster, Ref, m_coreCone)) clusters.push_back(cluster);
+            if (isSame(Ref, cluster) || overlap(cluster, Ref, m_coreCone)){
+                 ATH_MSG_DEBUG("Add cluster with pt: "<<cluster->pt()/1.e3<<" GeV, eta: "<<cluster->eta()<<" phi: "<<cluster->phi()<< " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi());
+                 clusters.push_back(cluster);
+            }
         }
         return clusters;
     }
@@ -423,9 +427,12 @@ namespace CP {
         double MaxDR = coneSize(par, type) * (Ref->type() == xAOD::Type::ObjectType::CaloCluster ? 1. : m_ConeSizeVariation);
         for (auto& cluster : clusters) {
             ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(deltaR2(cluster, par)) << " (" << MaxDR << ")");
-            bool Subtract = false;
-            if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) Subtract = (overlap(cluster, Ref, MaxDR) && !overlap(cluster, Ref, m_coreCone));
-            else {
+            bool Subtract = false;            
+            if (overlap(cluster, Ref, m_coreCone)){
+                ATH_MSG_DEBUG("The cluster belongs to the core cone");
+            } else if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) {
+                Subtract = overlap(cluster, Ref, MaxDR);
+            }else {
                 float Polution = clusterEtMinusTile(cluster) / (correction != 0 ? correction : 1.);
                 if (Polution > m_maxTopoPolution || Polution < 0.) {
                     ATH_MSG_VERBOSE("The cluster could not contributed to the isolation cone. As it has " << Polution << " times more energy");

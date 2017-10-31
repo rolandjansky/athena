@@ -81,3 +81,4 @@ atlas_add_test( ut_PRWExample_test
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.root )
+atlas_install_runtime( scripts/*.py )
