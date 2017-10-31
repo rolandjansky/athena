@@ -105,8 +105,8 @@ class L2CaloHypo_e_ID (TrigL2CaloHypoBase):
         super( L2CaloHypo_e_ID, self ).__init__( name ) 
         self.AcceptAll = False
  
-        self.dETACLUSTERthr = 0.3
-        self.dPHICLUSTERthr = 0.3
+        self.dETACLUSTERthr = 0.1
+        self.dPHICLUSTERthr = 0.1
 
         # 3 GeV within HLT threshold 
         self.ETthr          = [(float(threshold) - 3)*GeV]*9

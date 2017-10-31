@@ -69,6 +69,7 @@ class TrigBphysElectronCounter_bBee (TrigBphysElectronCounterPy):
         self.nEfElectron = 2
         self.ptElectronMin = []
         self.setEFElectronThresholds( self.ptElectronMin, defaultThreshold )
+        self.electronCollectionKey = "egamma_Electrons"
 
         # set up PID - defined in TrigHypothesis/TrigEgammaHypo/python/TrigEgammaPidTools
         from TrigEgammaHypo.TrigEgammaPidTools import (ElectronToolName,BLooseISEMBits)

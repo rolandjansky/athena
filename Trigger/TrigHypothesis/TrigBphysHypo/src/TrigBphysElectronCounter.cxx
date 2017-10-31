@@ -23,7 +23,9 @@
 
 // Define the bins for acceptance-monitoring histogram
 #define ACCEPT_hltExecute         0
-#define ACCEPT_PassNEFElectrons   1
+#define ACCEPT_PassNElectrons     1
+#define ACCEPT_PassPtcut          2
+#define ACCEPT_PassIsEM           3
 
 
 
@@ -143,18 +145,31 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
 
   //========  check if we have enough EF electrons :  =====================
   std::vector<ElementLink<xAOD::ElectronContainer> > efelectrons; // just a collection of pointers, not copies
-  bool passElectron = passNObjects<xAOD::ElectronContainer, 
+  int failedCut = passNObjects<xAOD::ElectronContainer, 
 				   std::vector<ElementLink<xAOD::ElectronContainer> > >( m_nEfElectron, m_ptElectronMin, m_IsEMrequiredBits,
 											 inputTE, efelectrons,  m_electronCollectionKey, m_mindR);
-  if( !passElectron ){
+  if( failedCut != 0 ){
     if ( timerSvc() )  m_BmmHypTot->stop();
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efelectrons.size() <<" EF electrons - fail (either number or pts or isEM are insufficient)"<<  endmsg; 
+    if( failedCut == 1 ){
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efelectrons.size() <<" EF electrons - fail N object cut "<<  endmsg;
+    }else if( failedCut == 2 ){
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " fail pt cuts "<<  endmsg;
+       m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
+    }else if( failedCut == 3 ){
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " fail isEM cuts "<<  endmsg;
+       m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
+       m_mon_Acceptance.push_back( ACCEPT_PassPtcut );
+    }else {
+      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << " unknown return code!! Please contact developers "<<  endmsg;
+    }    
     afterExecMonitors().ignore();   
     return HLT::OK;
   }else{
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efelectrons.size() <<" EF electrons, require "<<m_nEfElectron<<" - accept "<<  endmsg; 
   }
-  m_mon_Acceptance.push_back( ACCEPT_PassNEFElectrons );
+  m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
+  m_mon_Acceptance.push_back( ACCEPT_PassPtcut );
+  m_mon_Acceptance.push_back( ACCEPT_PassIsEM );
   m_mon_nEFElectrons = m_nEfElectron;
 
 

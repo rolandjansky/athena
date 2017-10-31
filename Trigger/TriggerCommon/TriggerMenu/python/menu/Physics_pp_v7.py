@@ -1769,7 +1769,8 @@ def setupMenu():
 
         #['e9_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose1_bBeexv2_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose1_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_blooseCalo_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose1_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         #['e9_bloose2_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         #['e9_bloose3_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        

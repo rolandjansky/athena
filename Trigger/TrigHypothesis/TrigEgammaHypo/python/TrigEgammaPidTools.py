@@ -60,6 +60,7 @@ ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
     'bloose1': 'AsgElectronIsEMBLooseSelector',
     'bloose2': 'AsgElectronIsEMBLooseSelector',
     'bloose3': 'AsgElectronIsEMBLooseSelector',
+    'blooseCalo': 'AsgElectronIsEMBLooseSelector',
 
                         }
 
@@ -73,6 +74,7 @@ ElectronCaloToolName = {'vloose':'AsgElectronIsEMVLooseCaloSelector',
     'lhmedium':'AsgElectronLHMediumCaloSelector',
     'lhtight':'AsgElectronLHTightCaloSelector',
     'bloose': 'AsgElectronIsEMBLooseSelector',
+    'blooseCalo': 'AsgElectronIsEMBLooseSelector',
     'bloose1': 'AsgElectronIsEMBLooseSelector',
     'bloose2': 'AsgElectronIsEMBLooseSelector',
     'bloose3': 'AsgElectronIsEMBLooseSelector',
@@ -98,6 +100,10 @@ ElectronCaloToolName = {'vloose':'AsgElectronIsEMVLooseCaloSelector',
     
 BLooseISEMBits = {
     'bloose' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
+                        0x1 << BitDefElectron.TrackPixel_Electron |
+                        0x1 << BitDefElectron.TrackSi_Electron 
+                    ),
+    'blooseCalo' :   (   0x1 << BitDefElectron.ClusterMiddleWidth_Electron |
                         0x1 << BitDefElectron.TrackPixel_Electron |
                         0x1 << BitDefElectron.TrackSi_Electron 
                     ),
@@ -230,7 +236,7 @@ def ElectronPidTools():
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
             tool.usePVContainer = False
             addToToolSvc( tool )
-        elif( 'bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key):
+        elif( 'bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key or 'blooseCalo' in key):
             tool=CfgMgr.AsgElectronIsEMSelector(ElectronToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile['loose']  # use loose isEMconfig for all bloose settings and just change isEM bit           
             tool.isEMMask = BLooseISEMBits[key]
@@ -251,7 +257,7 @@ def ElectronPidTools():
             tool.usePVContainer = False
             tool.caloOnly = True
             addToToolSvc( tool )
-        elif('bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key):
+        elif('bloose' in key or 'bloose1' in key or 'bloose2' in key or 'bloose3' in key or 'blooseCalo' in key):
             tool=CfgMgr.AsgElectronIsEMSelector(ElectronCaloToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile['loose']  # use loose isEMconfig for all bloose settings and just change isEM bit           
             tool.caloOnly = True
