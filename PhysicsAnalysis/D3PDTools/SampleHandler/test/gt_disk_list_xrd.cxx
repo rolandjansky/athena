@@ -22,6 +22,7 @@
 #include <TFile.h>
 #include <RootCoreUtils/Assert.h>
 #include <SampleHandler/DiskListXRD.h>
+#include <gtest/gtest.h>
 
 //
 // main program
@@ -29,22 +30,24 @@
 
 using namespace SH;
 
-int main ()
+TEST (DiskListTest, DISABLED_all)
 {
-  if (getenv ("ROOTCORE_AUTO_UT") != 0)
-    return EXIT_SUCCESS;
-
   DiskListXRD list1 ("eosatlas", "/eos/atlas/user/k/krumnack");
   bool valid = true;
   while ((valid = list1.next()) && list1.fileName() != "EventLoop-UnitTest") {};
-  RCU_ASSERT (valid);
+  ASSERT_TRUE (valid);
   std::auto_ptr<DiskList> list2 (list1.openDir());
-  RCU_ASSERT (list2.get() != 0);
+  ASSERT_TRUE (list2.get() != 0);
   if (!list2->next())
-    RCU_ASSERT0 ("empty dir");
+    ADD_FAILURE() << "empty dir";
   std::auto_ptr<TFile> file
     (TFile::Open (list2->path().c_str(), "READ"));
-  RCU_ASSERT (file.get() != 0);
+  ASSERT_NE (nullptr, file.get());
   while (list1.next()) {};
-  return EXIT_SUCCESS;
+}
+
+int main (int argc, char **argv)
+{
+  ::testing::InitGoogleTest (&argc, argv);
+  return RUN_ALL_TESTS();
 }
