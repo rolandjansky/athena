@@ -20,6 +20,22 @@ usage() {
     echo "    -e url: Optional source URL to use for the checkout"
 }
 
+_max_retry_=5
+
+_retry_ () {
+    local cmd="$*"
+    local n=0
+    while ! $cmd ; do
+        if test $n -eq $_max_retry_ ; then
+            echo "ERROR: $cmd FAILED $_max_retry_ times. EXIT(1)" >&2
+            exit 1
+        fi
+        echo "WARNING: $cmd FAILED, retry in 30 sec ... "
+        sleep 30s
+        n=`expr $n + 1`
+    done
+}
+
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
@@ -65,12 +81,12 @@ echo "   from: $EXTERNALSURL"
 
 if [ ! -d "${SOURCEDIR}" ]; then
     # Clone the repository:
-    git clone ${EXTERNALSURL} ${SOURCEDIR}
+    _retry_ git clone ${EXTERNALSURL} ${SOURCEDIR}
 else
     echo "${SOURCEDIR} already exists -> assume previous checkout"
 fi
 
 # Get the appropriate version of it:
 cd ${SOURCEDIR}
-git fetch --prune origin
-git checkout -f ${TAGBRANCH}
+_retry_ git fetch --prune origin
+_retry_ git checkout -f ${TAGBRANCH}
