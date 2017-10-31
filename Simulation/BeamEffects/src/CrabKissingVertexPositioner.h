@@ -14,19 +14,23 @@
 #include <utility>
 #include <vector>
 #include <map>
+
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
+
 // InDetBeamSpotService
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
+// Forward declarations
 namespace CLHEP {
     class HepRandomEngine;
 }
 
-namespace Simulation {
+namespace Simulation
+{
 
   /** @class CrabKissingVertexPositioner
 
@@ -37,9 +41,11 @@ namespace Simulation {
       @author John.Chapman -at- cern.ch, Elmar.Ritsch -at- cern.ch, Daniele.Ruini -at- poltechnique.edu
      */
   class CrabKissingVertexPositioner : public AthAlgTool,
-                                 virtual public ILorentzVectorGenerator {
+                                      virtual public ILorentzVectorGenerator
+  {
 
     public:
+
       /** Constructor with parameters */
       CrabKissingVertexPositioner( const std::string& t, const std::string& n, const IInterface* p );
 
@@ -53,7 +59,7 @@ namespace Simulation {
       /** computes the vertex displacement */
       CLHEP::HepLorentzVector  *generate() const override final;
 
-  private:
+    private:
 
       inline double heaviside(double val) const {return (val >= 0.0) ? 1.0 : 0.0;};
       double getDisplacement(double bunchSize, double angle1, double angle2) const;
