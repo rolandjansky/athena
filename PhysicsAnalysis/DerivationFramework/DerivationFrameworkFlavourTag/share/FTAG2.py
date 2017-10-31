@@ -12,9 +12,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm
@@ -36,6 +33,14 @@ FTAG2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FT
 
 ToolSvc += FTAG2StringSkimmingTool
 print FTAG2StringSkimmingTool
+
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================                                                                                                                   
 # AUGMENTATION TOOLS

@@ -11,9 +11,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
@@ -59,6 +56,14 @@ FTAG4TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG
                                                                     TriggerListOR = triggersSkim)
 ToolSvc += FTAG4TriggerSkimmingTool
 print FTAG4TriggerSkimmingTool
+
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================
 # CREATE PRIVATE SEQUENCE
