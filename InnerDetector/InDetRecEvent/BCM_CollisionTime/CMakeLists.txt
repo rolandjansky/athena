@@ -7,8 +7,7 @@ atlas_subdir( BCM_CollisionTime )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           PRIVATE
                           GaudiKernel )
 
