@@ -336,7 +336,7 @@ jtm += WeightPFOTool("pflowweighter")
 # this applies four-momentum corrections to PFlow objects:
 #  - points neutral PFOs to the selected vertex
 #  - weights charged PFOs to smoothly turn off shower subtraction at high pt
-ctm.add( CorrectPFOTool("correctPFOTool",
+ctm.add( CorrectPFOTool("CorrectPFOTool",
                         WeightPFOTool = jtm.pflowweighter,
                         InputIsEM = True,
                         CalibratePFO = False,
@@ -354,6 +354,12 @@ jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
                                       InputContainer = "JetETMiss",
                                       OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
                                       modList = ['correctPFO', 'chsPFO'] )
+
+# Options to disable dependence on primary vertex container
+# for PFO corrections (e.g. when running cosmics)
+if not jetFlags.useTracks:
+  ctm.modifiersMap['correctPFO'].CorrectNeutral=False
+  ctm.modifiersMap['chsPFO'].IgnoreVertex=True
 
 # EM-scale pflow.
 jtm += PFlowPseudoJetGetter(
