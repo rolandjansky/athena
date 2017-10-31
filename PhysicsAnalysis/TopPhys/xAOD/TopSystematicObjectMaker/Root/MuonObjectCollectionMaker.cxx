@@ -25,6 +25,7 @@ namespace top{
     m_recommendedSystematics(),
 
     m_calibrationTool("CP::MuonCalibrationAndSmearingTool"),
+    m_calibrationTool2017("CP::MuonCalibrationAndSmearingTool2017"),
     m_isolationTool_LooseTrackOnly("CP::IsolationTool_LooseTrackOnly"),
     m_isolationTool_Loose("CP::IsolationTool_Loose"),
     m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
@@ -35,7 +36,8 @@ namespace top{
   {
     declareProperty( "config" , m_config );  
     
-    declareProperty( "MuonCalibrationAndSmearingTool" , m_calibrationTool );
+    declareProperty( "MuonCalibrationAndSmearingTool" ,       m_calibrationTool );
+    declareProperty( "MuonCalibrationAndSmearingTool2017" ,   m_calibrationTool2017 );
     declareProperty( "IsolationTool_LooseTrackOnly" ,         m_isolationTool_LooseTrackOnly );
     declareProperty( "IsolationTool_Loose" ,                  m_isolationTool_Loose );
     declareProperty( "IsolationTool_Gradient" ,               m_isolationTool_Gradient );
@@ -49,7 +51,9 @@ namespace top{
   {
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker initialize" );  
     
-    top::check( m_calibrationTool.retrieve() , "Failed to retrieve muon calibration tool" );
+    top::check( m_calibrationTool.retrieve()     , "Failed to retrieve muon calibration tool" );
+    top::check( m_calibrationTool2017.retrieve() , "Failed to retrieve muon 2017 calibration tool" );
+
     top::check( m_isolationTool_LooseTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Loose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Gradient.retrieve() , "Failed to retrieve Isolation Tool" );

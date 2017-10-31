@@ -35,9 +35,13 @@ class MuonCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
+  int m_release_series = 25;  // Default to R21
 
   ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
+  // This is a new tool handle required to manage different sagitta correction recommendations re:2017 data
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d
+  ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool2017;
+
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolLoose;
   // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
