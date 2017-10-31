@@ -254,8 +254,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_doModules) {
-    m_hit_num_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15, -0.5, 149.5));
-    sc = m_hit_num_mod->regHist(this, (path + "/Modules_NumberOfHits").c_str(), run);
     m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
     sc = m_hiteff_mod->regHist(this, (path + "/Modules_HitEff").c_str(), run);
     m_FE_chip_hit_summary = std::make_unique<PixelMonModules1D>(PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16, -0.5, 15.5));
@@ -765,27 +763,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
       for (; idIt != idItEnd; ++idIt) {
         Identifier WaferID = *idIt;
-        if (m_pixelid->barrel_ec(WaferID) == 2) {
-          m_hit_num_mod->fill(m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
-        }
-        if (m_pixelid->barrel_ec(WaferID) == -2) {
-          m_hit_num_mod->fill(m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
-        }
-        if (m_pixelid->barrel_ec(WaferID) == 0) {
-          if (m_doIBL && m_pixelid->layer_disk(WaferID) == 0) {
-            m_hit_num_mod->fill(m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 10], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 0 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 1 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 2 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-        }
-
         if (m_doLumiBlock) {
           if (m_pixelid->barrel_ec(WaferID) == 2) m_hit_num_mod_LB->fill(m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
           if (m_pixelid->barrel_ec(WaferID) == -2) m_hit_num_mod_LB->fill(m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
