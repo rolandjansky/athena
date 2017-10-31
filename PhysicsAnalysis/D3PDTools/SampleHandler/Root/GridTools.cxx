@@ -203,7 +203,12 @@ namespace SH
   std::vector<std::string>
   faxListFilesGlob (const std::string& name, const std::string& filter)
   {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     return faxListFilesRegex (name, RCU::glob_to_regexp (filter));
+#pragma GCC diagnostic pop
   }
 
 
