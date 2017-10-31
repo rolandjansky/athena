@@ -34,15 +34,15 @@
 import os, sys  
 import string
 import argparse
-from argparse import RawTextHelpFormatter
 
 import pathExtract         
 
 import ROOT
 from ROOT import *
-ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-gROOT.Reset()
+# Line below commented to work with release 21. 
+# Not sure what was its purpose...
+#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
 
