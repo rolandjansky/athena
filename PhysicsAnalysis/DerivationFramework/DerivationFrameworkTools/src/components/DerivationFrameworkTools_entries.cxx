@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkTools/xAODStringSkimmingTool.h"
 #include "DerivationFrameworkTools/NTUPStringSkimmingTool.h"
 #include "DerivationFrameworkTools/InvariantMassTool.h"
@@ -12,27 +11,14 @@
 
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( xAODStringSkimmingTool )
-DECLARE_TOOL_FACTORY( NTUPStringSkimmingTool )
-DECLARE_TOOL_FACTORY( InvariantMassTool )
-DECLARE_TOOL_FACTORY( DeltaRTool )
-DECLARE_TOOL_FACTORY( AsgSelectionToolWrapper )
-DECLARE_TOOL_FACTORY( FilterCombinationAND )
-DECLARE_TOOL_FACTORY( FilterCombinationOR )
-DECLARE_TOOL_FACTORY( TriggerSkimmingTool )
-DECLARE_TOOL_FACTORY( PrescaleTool )
-DECLARE_TOOL_FACTORY( GenericObjectThinning )
-
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
-   DECLARE_TOOL( xAODStringSkimmingTool )
-   DECLARE_TOOL( NTUPStringSkimmingTool )
-   DECLARE_TOOL( InvariantMassTool )
-   DECLARE_TOOL( DeltaRTool )
-   DECLARE_TOOL( AsgSelectionToolWrapper )
-   DECLARE_TOOL( FilterCombinationAND )
-   DECLARE_TOOL( FilterCombinationOR )
-   DECLARE_TOOL( TriggerSkimmingTool )
-   DECLARE_TOOL( PrescaleTool )
-   DECLARE_TOOL( GenericObjectThinning )
-}
+DECLARE_COMPONENT( xAODStringSkimmingTool )
+DECLARE_COMPONENT( NTUPStringSkimmingTool )
+DECLARE_COMPONENT( InvariantMassTool )
+DECLARE_COMPONENT( DeltaRTool )
+DECLARE_COMPONENT( AsgSelectionToolWrapper )
+DECLARE_COMPONENT( FilterCombinationAND )
+DECLARE_COMPONENT( FilterCombinationOR )
+DECLARE_COMPONENT( TriggerSkimmingTool )
+DECLARE_COMPONENT( PrescaleTool )
+DECLARE_COMPONENT( GenericObjectThinning )
 
