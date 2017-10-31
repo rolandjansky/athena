@@ -14,19 +14,19 @@
 #include "../TrigEgammaAnalysisAlg.h"
 #include "../TrigEgammaTDToolTest.h"
 
-DECLARE_TOOL_FACTORY(TrigEgammaAnalysisBaseTool)
-DECLARE_TOOL_FACTORY(TrigEgammaMonTool)
-DECLARE_TOOL_FACTORY(TrigEgammaPhysValMonTool)
-DECLARE_TOOL_FACTORY(TrigEgammaNavTPBaseTool)
-DECLARE_TOOL_FACTORY(TrigEgammaNavTPNtuple)
-DECLARE_TOOL_FACTORY(TrigEgammaNavAnalysisTool)
-DECLARE_TOOL_FACTORY(TrigEgammaNavTPAnalysisTool)
-DECLARE_TOOL_FACTORY(TrigEgammaNavNtuple)
-DECLARE_TOOL_FACTORY(EfficiencyTool) 
-DECLARE_TOOL_FACTORY(TrigEgammaResolutionTool) 
-DECLARE_TOOL_FACTORY(TrigEgammaDistTool) 
-DECLARE_TOOL_FACTORY(TrigEgammaPlotTool) 
-DECLARE_ALGORITHM_FACTORY(TrigEgammaAnalysisAlg)
-DECLARE_ALGORITHM_FACTORY(TrigEgammaTDToolTest)
+DECLARE_COMPONENT( TrigEgammaAnalysisBaseTool )
+DECLARE_COMPONENT( TrigEgammaMonTool )
+DECLARE_COMPONENT( TrigEgammaPhysValMonTool )
+DECLARE_COMPONENT( TrigEgammaNavTPBaseTool )
+DECLARE_COMPONENT( TrigEgammaNavTPNtuple )
+DECLARE_COMPONENT( TrigEgammaNavAnalysisTool )
+DECLARE_COMPONENT( TrigEgammaNavTPAnalysisTool )
+DECLARE_COMPONENT( TrigEgammaNavNtuple )
+DECLARE_COMPONENT( EfficiencyTool ) 
+DECLARE_COMPONENT( TrigEgammaResolutionTool ) 
+DECLARE_COMPONENT( TrigEgammaDistTool ) 
+DECLARE_COMPONENT( TrigEgammaPlotTool ) 
+DECLARE_COMPONENT( TrigEgammaAnalysisAlg )
+DECLARE_COMPONENT( TrigEgammaTDToolTest )
     
 

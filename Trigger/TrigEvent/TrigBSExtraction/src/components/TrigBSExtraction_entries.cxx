@@ -3,7 +3,7 @@
 #include "TrigBSExtraction/TrigHLTtoxAODConversion.h"
 #include "TrigBSExtraction/TrigBStoxAODTool.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigBSExtraction )
-DECLARE_ALGORITHM_FACTORY( TrigHLTtoxAODConversion )
-DECLARE_TOOL_FACTORY( TrigBStoxAODTool )
+DECLARE_COMPONENT( TrigBSExtraction )
+DECLARE_COMPONENT( TrigHLTtoxAODConversion )
+DECLARE_COMPONENT( TrigBStoxAODTool )
 

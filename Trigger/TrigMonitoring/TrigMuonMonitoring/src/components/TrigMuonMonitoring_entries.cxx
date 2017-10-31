@@ -2,5 +2,5 @@
 #include "TrigMuonMonitoring/HLTMuonMonTool.h"
 
 
-DECLARE_TOOL_FACTORY(HLTMuonMonTool )
+DECLARE_COMPONENT( HLTMuonMonTool )
 

@@ -3,5 +3,5 @@
 
 
 
-DECLARE_TOOL_FACTORY( TrigTSerializer )
+DECLARE_COMPONENT( TrigTSerializer )
 

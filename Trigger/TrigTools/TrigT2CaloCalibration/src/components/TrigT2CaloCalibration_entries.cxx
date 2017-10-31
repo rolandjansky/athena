@@ -7,12 +7,12 @@
 #include "TrigT2CaloCalibration/EgammaSshapeCalibration.h"
 #include "TrigT2CaloCalibration/EgammaTransitionRegions.h"
 
-DECLARE_TOOL_FACTORY( T2JESCalibTool )
-DECLARE_TOOL_FACTORY( T2GSCalibTool )
-DECLARE_TOOL_FACTORY( T2SampCalibTool )
-DECLARE_TOOL_FACTORY( EgammaHitsCalibration )
-DECLARE_TOOL_FACTORY( EgammaLWCalibration )
-DECLARE_TOOL_FACTORY( EgammaGapCalibration )
-DECLARE_TOOL_FACTORY( EgammaSshapeCalibration )
-DECLARE_TOOL_FACTORY( EgammaTransitionRegions )
+DECLARE_COMPONENT( T2JESCalibTool )
+DECLARE_COMPONENT( T2GSCalibTool )
+DECLARE_COMPONENT( T2SampCalibTool )
+DECLARE_COMPONENT( EgammaHitsCalibration )
+DECLARE_COMPONENT( EgammaLWCalibration )
+DECLARE_COMPONENT( EgammaGapCalibration )
+DECLARE_COMPONENT( EgammaSshapeCalibration )
+DECLARE_COMPONENT( EgammaTransitionRegions )
 

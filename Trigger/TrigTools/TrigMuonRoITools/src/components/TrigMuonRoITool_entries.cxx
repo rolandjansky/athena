@@ -1,4 +1,4 @@
 #include "../TrigMuonRoITool.h"
 
-DECLARE_TOOL_FACTORY(TrigMuonRoITool)
+DECLARE_COMPONENT( TrigMuonRoITool )
 
