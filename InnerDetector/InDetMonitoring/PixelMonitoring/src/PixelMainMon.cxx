@@ -800,6 +800,19 @@ StatusCode PixelMainMon::fillHistograms() {
     }
   }
 
+  // track
+  if (m_doTrack) {
+    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
+      if (fillTrackMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+      }
+    } else if (m_storegate_errors) {
+      m_storegate_errors->Fill(4., 2.);
+    }
+  } else {
+    if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
+  }
+
   // hits
   if (m_doRDO) {
     if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
@@ -823,19 +836,6 @@ StatusCode PixelMainMon::fillHistograms() {
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(5., 1.);
-  }
-
-  // track
-  if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
-      if (fillTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(4., 2.);
-    }
-  } else {
-    if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
   }
 
   // cluster
