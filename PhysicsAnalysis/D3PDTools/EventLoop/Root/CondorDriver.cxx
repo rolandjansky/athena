@@ -86,7 +86,7 @@ namespace EL
 	  file << "should_transfer_files   = YES\n";
 	  file << "when_to_transfer_output = ON_EXIT\n";
 	  file << "transfer_input_files    = submit/" << tarballName << ", submit/segments, submit/config.root\n";
-	  file << "transfer_output_files   = fetch\n";
+	  file << "transfer_output_files   = fetch, status\n";
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}
       file << "arguments               = $(Process)\n";
