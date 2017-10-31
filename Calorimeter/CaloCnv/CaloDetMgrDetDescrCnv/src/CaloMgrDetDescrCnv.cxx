@@ -790,13 +790,12 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
   if(isTestBeam) 
   { 
-    const CaloDetDescrElementContainer *cDDEvec;
+    CaloDetDescrElementContainer *cDDEvec;
     if(detStore->retrieve(cDDEvec) == StatusCode::SUCCESS) 
     { // We have additional elements
-      CaloDetDescrElementContainer::const_iterator c_begin = cDDEvec->begin();
-      CaloDetDescrElementContainer::const_iterator c_end = cDDEvec->end();
-      for( ; c_begin != c_end; ++c_begin) 
-	caloMgr->add(*c_begin);
+      for (CaloDetDescrElement* elt : *cDDEvec) {
+	caloMgr->add (elt);
+      }
     }
   }
 
