@@ -146,7 +146,7 @@ namespace EL
       std::ostringstream job_name;
       job_name << job_id;
       Driver::saveOutput (job->location + "/fetch", segment->name, output);
-      std::ofstream completed ((job->location + "/fetch/completed-" + job_name.str()).c_str());
+      std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
     } catch (std::exception& e)
     {
       std::cout << "exception caught: " << e.what() << std::endl;
