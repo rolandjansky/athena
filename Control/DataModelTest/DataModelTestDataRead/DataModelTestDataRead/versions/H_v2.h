@@ -19,7 +19,7 @@
 
 
 #include "AthContainers/AuxElement.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 namespace DMTest {
