@@ -2,6 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GeoSpecialShapes/LArWheelCalculator.h"
+
+#include "CxxUtils/sincos.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include "TMath.h"
 #include "TMatrixD.h"
 #include "TVectorD.h"
@@ -14,7 +20,6 @@
 #include <iomanip>
 #include <math.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
 #define DEBUGPRINT 0
 
 template<typename T>
@@ -64,9 +69,6 @@ static TVectorD findLinearApproximation(
   return Ainv*vY;
 }
 
-#include "GeoSpecialShapes/LArWheelCalculator.h"
-#include <CxxUtils/sincos.h>
-
 using namespace CLHEP;
 
 void LArWheelCalculator::fill_sincos_parameterization()
@@ -81,6 +83,7 @@ void LArWheelCalculator::fill_sincos_parameterization()
   static double sin_parametrization[2][nBasisFunctions];
   static double cos_parametrization[2][nBasisFunctions];
 
+  // Reuse the computation if already performed
   size_t S = m_isInner? 0: 1;
   if(filled[S]){
     for(Int_t i = 0; i < nBasisFunctions; ++ i){
@@ -89,6 +92,7 @@ void LArWheelCalculator::fill_sincos_parameterization()
     }
     return;
   }
+
   //const Double_t Rmin = m_isInner? 290.*mm: 600.*mm;
   //const Double_t Rmax = m_isInner? 710.*mm: 2050.*mm;
   const Double_t Rmin = m_isInner? 250.*mm: 560.*mm;
@@ -128,6 +132,8 @@ void LArWheelCalculator::fill_sincos_parameterization()
   }
 
   filled[S] = true;
+
+  // FIXME: nothing below is needed unless debug printing
 
 #if DEBUGPRINT
   std::cout << "sin params:" << params_sin << std::endl;
