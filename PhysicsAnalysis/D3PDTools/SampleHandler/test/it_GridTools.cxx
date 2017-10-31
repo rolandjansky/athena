@@ -32,6 +32,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace sh = RCU::Shell;
 
 //
