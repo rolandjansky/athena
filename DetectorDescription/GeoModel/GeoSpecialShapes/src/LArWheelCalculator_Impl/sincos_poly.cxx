@@ -19,6 +19,7 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
+#include <mutex>
 
 #define DEBUGPRINT 0
 
@@ -78,6 +79,13 @@ void LArWheelCalculator::fill_sincos_parameterization()
   std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
 #endif
   const Int_t nBasisFunctions = nrPolyDegree + 1;
+
+  // We compute the polynomial approximations once per side, and store them in
+  // the static variables below for reuse in successive calculator instances.
+  // For multi-threading, then, this code needs to be mutex locked.
+  // FIXME: this could done in a cleaner way.
+  static std::mutex fillParamMutex;
+  std::lock_guard<std::mutex> lock(fillParamMutex);
 
   static bool filled[2] = { false, false };
   static double sin_parametrization[2][nBasisFunctions];
