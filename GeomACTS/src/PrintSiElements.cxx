@@ -123,7 +123,6 @@ PrintSiElements::printElements(const std::string & managerName){
           det = 1;
           bec = pixIdHelper->barrel_ec(id);
           layer_disk = pixIdHelper->layer_disk(id);
-          layer_disk_max = pixIdHelper->layer_disk_max(id);
           phi_module = pixIdHelper->phi_module(id);
           eta_module = pixIdHelper->eta_module(id);
           side = 0;
@@ -134,7 +133,6 @@ PrintSiElements::printElements(const std::string & managerName){
           det = 2;
           bec = sctIdHelper->barrel_ec(id);
           layer_disk = sctIdHelper->layer_disk(id);
-          layer_disk_max = sctIdHelper->layer_disk_max(id);
           phi_module = sctIdHelper->phi_module(id);
           eta_module = sctIdHelper->eta_module(id);
           side = sctIdHelper->side(id);
