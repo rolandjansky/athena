@@ -1,9 +1,0 @@
-package DCSCalculator2
-
-author Peter Waller <peter.waller@cern.ch>
-
-use AtlasPolicy          AtlasPolicy-* 
-
-apply_pattern declare_python_modules files="*.py subdetectors"
-apply_pattern declare_scripts files="*.py"
-

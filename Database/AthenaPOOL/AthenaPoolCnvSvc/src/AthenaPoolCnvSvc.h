@@ -157,7 +157,6 @@ public:
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);
 
-protected: // constructor and destructor
    /// Standard Service Constructor
    AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor

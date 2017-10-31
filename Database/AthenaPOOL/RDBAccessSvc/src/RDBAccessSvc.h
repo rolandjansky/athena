@@ -120,8 +120,6 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
   StatusCode finalize() override;
   StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
- protected:
-
   friend class SvcFactory<RDBAccessSvc>;
 
   /// Standard Service Constructor

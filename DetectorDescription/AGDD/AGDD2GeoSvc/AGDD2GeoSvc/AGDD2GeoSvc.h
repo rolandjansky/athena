@@ -38,8 +38,6 @@ public:
 		
 	void addHandler(XMLHandler* v) { m_handlerVector.push_back(v);}
 	
-protected:
-
 	friend class SvcFactory<AGDDtoGeoSvc>;
 
     // Standard Constructor
