@@ -3,6 +3,10 @@
 */
 
 #include "MuonEventTPCnv/MuonRDO/StgcRawDataContainerCnv_p1.h"
+
+#include "MuonRDO/sTGC_RawDataContainer.h"
+// #include "MuonEventTPCnv/MuonRDO/StgcRawData_p1.h"
+#include "MuonEventTPCnv/MuonRDO/StgcRawDataContainer_p1.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 // #include "MuonReadoutGeometry/MuonDetectorManager.h"
 // #include "MuonEventTPCnv/MuonRDO/StgcRawDataCnv_p1.h"
@@ -10,15 +14,16 @@
 
 void Muon::StgcRawDataContainerCnv_p1::transToPers(const Muon::sTGC_RawDataContainer* transCont,  Muon::StgcRawDataContainer_p1* persCont, MsgStream &log) 
 {
+  std::cout<<"StgcRawDataContainerCnv_p1::transToPers"<<std::endl;
 
 //
 // //  std::cout<<"Starting transToPers"<<std::endl;
 //    typedef Muon::sTGC_RawDataContainer TRANS;
 //     //typedef ITPConverterFor<Trk::PrepRawData> CONV;
 //
-//     sTgcPrepDataCnv_p1  chanCnv;
-//     TRANS::const_iterator it_Coll     = transCont->begin();
-//     TRANS::const_iterator it_CollEnd  = transCont->end();
+    StgcRawDataCnv_p1  chanCnv;
+    auto it_Coll     = transCont->begin();
+    auto it_CollEnd  = transCont->end();
 //     unsigned int pcollIndex; // index to the persistent collection we're filling
 //     unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent PRDs
 //     unsigned int pcollEnd = 0; // index to end
@@ -33,7 +38,7 @@ void Muon::StgcRawDataContainerCnv_p1::transToPers(const Muon::sTGC_RawDataConta
 //         // Add in new collection
 //       if (log.level() <= MSG::DEBUG)
 //           log << MSG::DEBUG<<"New collection"<<endmsg;
-//         const Muon::sTgcPrepDataCollection& collection = (**it_Coll);
+//         const Muon::StgcRawDataCollection& collection = (**it_Coll);
 //         Muon::MuonPRD_Collection_p2& pcollection = persCont->m_collections[pcollIndex]; //get ref to collection we're going to fill
 //
 //         pcollBegin  = pcollEnd; // Next collection starts at end of previous one.
@@ -52,9 +57,9 @@ void Muon::StgcRawDataContainerCnv_p1::transToPers(const Muon::sTGC_RawDataConta
 //         unsigned int lastPRDIdHash = 0;
 //         for (unsigned int i = 0; i < collection.size(); ++i) {
 //             unsigned int pchanIndex=i+pcollBegin;
-//             const sTgcPrepData* chan = collection[i]; // channel being converted
+//             const StgcRawData* chan = collection[i]; // channel being converted
 //             StgcRawData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
-//             chanCnv.transToPers(chan, pchan, log); // convert from sTgcPrepData to StgcRawData_p1
+//             chanCnv.transToPers(chan, pchan, log); // convert from StgcRawData to StgcRawData_p1
 //
 //             unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
 //             unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
@@ -87,6 +92,8 @@ void Muon::StgcRawDataContainerCnv_p1::transToPers(const Muon::sTGC_RawDataConta
 
 void  Muon::StgcRawDataContainerCnv_p1::persToTrans(const Muon::StgcRawDataContainer_p1* persCont, Muon::sTGC_RawDataContainer* transCont, MsgStream &log) 
 {
+  std::cout<<"StgcRawDataContainerCnv_p1::persToTrans"<<std::endl;
+  
 //
 //     // The transient model has a container holding collections and the
 //     // collections hold channels.
@@ -102,9 +109,9 @@ void  Muon::StgcRawDataContainerCnv_p1::persToTrans(const Muon::StgcRawDataConta
 //     // So here we loop over all collection and extract their channels
 //     // from the vector.
 //
-//     Muon::sTgcPrepDataCollection* coll = 0;
+//     Muon::StgcRawDataCollection* coll = 0;
 //
-//     sTgcPrepDataCnv_p1  chanCnv;
+    StgcRawDataCnv_p1  chanCnv;
 //     unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop
 //     unsigned int pCollEnd = persCont->m_collections.size();
 //     if (log.level() <= MSG::DEBUG)
@@ -112,7 +119,7 @@ void  Muon::StgcRawDataContainerCnv_p1::persToTrans(const Muon::StgcRawDataConta
 //     for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
 //         const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];
 //         IdentifierHash collIDHash(pcoll.m_hashId);
-//         coll = new Muon::sTgcPrepDataCollection(collIDHash);
+//         coll = new Muon::StgcRawDataCollection(collIDHash);
 //         // Identifier firstChanId = persCont->m_prds[collBegin].m_clusId;
 //         // Identifier collId = m_TgcId->parentID(firstChanId);
 //         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -149,8 +156,8 @@ void  Muon::StgcRawDataContainerCnv_p1::persToTrans(const Muon::StgcRawDataConta
 //               continue;
 //             }
 //
-//             auto chan = CxxUtils::make_unique<sTgcPrepData>
-//               (chanCnv.createsTgcPrepData (pchan,
+//             auto chan = CxxUtils::make_unique<StgcRawData>
+//               (chanCnv.createStgcRawData (pchan,
 //                                            clusId,
 //                                            detEl,
 //                                            log));

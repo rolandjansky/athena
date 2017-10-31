@@ -37,7 +37,11 @@
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
+<<<<<<< HEAD
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
+=======
+#include "MuonEventTPCnv/MuonRDO/StgcRawDataContainer_p1.h"
+>>>>>>> Digit to RDO now runs for STGCs, as does persistency.
 
 struct MuonEventTPCnvDict 
 {
@@ -75,10 +79,7 @@ struct MuonEventTPCnvDict
     Muon::MuonDigitContainer_p1<Muon::MM_Digit_p1>      m_v22;
     Muon::MuonDigitContainer_p1<Muon::STGC_Digit_p1>      m_v23;
     Muon::MuonDigitContainer_p2<Muon::MM_Digit_p2>      m_v24;
-<<<<<<< HEAD
     Muon::STGC_RawDataContainer_p1      m_v25;
-=======
->>>>>>> Move some stuff to Muon namespace because why on earth is it not done already, and minor cleanup
 };
 
 #endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
