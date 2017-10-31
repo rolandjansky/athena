@@ -473,7 +473,9 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
         if (getErrorState(bit, is_ibl) != 99) {
           num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
-          num_errors_per_stateIBL[getErrorState(bit, is_ibl)]++;
+          if (is_ibl) {
+            num_errors_per_stateIBL[getErrorState(bit, is_ibl) - kNumErrorStates]++;
+          }
           if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
           if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->fill(kLumiBlock, WaferID, m_pixelid, 1);
         }
