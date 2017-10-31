@@ -232,7 +232,7 @@ JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets"])
+addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets","AntiKt2LCTopoJets","AntiKt6LCTopoJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 
