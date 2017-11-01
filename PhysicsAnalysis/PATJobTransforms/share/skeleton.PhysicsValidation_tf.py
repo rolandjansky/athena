@@ -108,6 +108,7 @@ for validationType, enabled in validationDict.iteritems():
             rec.UserAlgs += [JOFile]
         else:
             skelLog.fatal("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
+            raise RuntimeError('Cannot find JobOptions for {0} slice -- is the name correct?'.format(validationType))
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
