@@ -70,9 +70,17 @@ if [ $? = 0 ]; then
     exit 1
 fi
 
-# Stop on errors from here on out:
+# Stop on errors from here on out
 set -e
 set -o pipefail
+
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test -x $scriptsdir_nightly_status/externals_status_on_exit.sh  && trap $scriptsdir_nightly_status/externals_status_on_exit.sh EXIT
+ }
+}
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -130,8 +138,6 @@ ${scriptsdir}/checkout_atlasexternals.sh \
  timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
 
  test "X${NIGHTLY_STATUS}" != "X" && {
-    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
-    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status
    (set +e 
     touch ${BUILDDIR}/.${timestamp_tmp}
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
