@@ -5,8 +5,6 @@
 #ifndef LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 #define LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 
-// This is an interface of distance calculation to parts of the LAr endcap.
-
 #include "IFanCalculator.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -139,6 +137,8 @@ namespace LArWheelCalculator_Impl
   }
 
 
+  /// LAr wheel fan calculator, templated for sagging settings.
+  ///
   template <typename SaggingType>
   class WheelFanCalculator : public IFanCalculator
   {
@@ -149,7 +149,9 @@ namespace LArWheelCalculator_Impl
       {
       }
 
-      // geometry methods:
+      /// @name Geometry methods
+      /// @{
+
       virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const
       {
         using Gaudi::Units::halfpi;
@@ -252,6 +254,8 @@ namespace LArWheelCalculator_Impl
 #endif
         return std::pair<int, int>(a_fan_number, side);
       }
+
+      /// @}
 
       inline const LArWheelCalculator *lwc() const { return m_lwc; };
 

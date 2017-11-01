@@ -20,7 +20,7 @@
 class GeoShapeAction;
 
 /// @class LArCustomShape
-/// @todo NEEDS DOCUMENTATION
+/// @brief The GeoModel representation of the custom LAr endcap shapes.
 ///
 class LArCustomShape : public GeoShape
 {

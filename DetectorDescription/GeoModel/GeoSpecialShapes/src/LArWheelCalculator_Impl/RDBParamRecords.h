@@ -9,12 +9,13 @@
 
 class RDBParamReader;
 
+/// @class RDBParamRecords
 /// Helper class to simplify parameter reading
 /// Fully independent from other parts of package
 class RDBParamRecords
 {
   public:
-    /// ???
+    // ???
     typedef RDBParamRecords self_t;
 
     RDBParamRecords(RDBParamReader* rdbParAcc, IRDBRecordset_ptr initRecSet);

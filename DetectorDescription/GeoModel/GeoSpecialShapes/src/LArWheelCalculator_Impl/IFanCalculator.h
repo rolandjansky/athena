@@ -11,17 +11,32 @@
 namespace LArWheelCalculator_Impl
 {
 
-  // This is an interface of distance calculation to parts of the LAr endcap.
+  /// @class IFanCalculator
+  /// Abstract interface for fan calculator classes that handle distance
+  /// calculation to parts of the LAr endcap.
+  ///
   class IFanCalculator
   {
+
     public:
+
+      /// Virtual destructor
       virtual ~IFanCalculator() {};
 
-      // geometry methods:
-      virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const = 0;
+      /// @name Geometry methods
+      /// @{
+
+      virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p,
+                                             int & out_fan_number) const = 0;
+
       virtual int PhiGapNumberForWheel(int i) const = 0;
+
       virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const = 0;
+
+      /// @}
+
   };
 
 }
+
 #endif // __LArWheelCalculator_Impl_IFanCalculator_H__

@@ -5,10 +5,6 @@
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
 #define GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
 
-// This class separates some of the geometry details of the LAr
-// endcap.
-// 26-May-2009 AMS: remove all previous comments from here as obsoleted
-
 #include <vector>
 
 #include "CLHEP/Vector/ThreeVector.h"
@@ -24,6 +20,7 @@ class RDBParamRecords;
 
 //#define HARDDEBUG
 
+// Forward declarations
 namespace LArWheelCalculator_Impl {
   class IDistanceCalculator;
   class DistanceCalculatorSaggingOff;
@@ -35,6 +32,11 @@ namespace LArWheelCalculator_Impl {
   template <typename SaggingType> class DistanceToTheNeutralFibre_OfFan;
 }
 
+/// @class LArWheelCalculator
+/// This class separates some of the geometry details of the LAr
+/// endcap.
+/// 26-May-2009 AMS: remove all previous comments from here as obsoleted
+///
 class LArWheelCalculator
 {
 
@@ -95,16 +97,29 @@ class LArWheelCalculator
     int GetStartGapNumber() const { return m_ZeroGapNumber; }
     void SetStartGapNumber(int n) { m_ZeroGapNumber = n; }
 
-    // geometry methods:
-    // DistanceToTheNearestFan - rotates point p to the localFan coordinates and returns the fan number to out_fan_number parameter
+    /// @name geometry methods
+    /// @{
+
+    /// Determines the nearest to the input point fan.
+    /// Rotates point p to the localFan coordinates and returns the
+    /// fan number to out_fan_number parameter.
     double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const;
+
+    /// Calculates aproximate, probably underestimate, distance to the
+    /// neutral fibre of the vertical fan. Sign of return value means
+    /// side of the fan; negative - lower phi.
     double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
-    CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
-    std::vector<double> NearestPointOnNeutralFibre_asVector(const CLHEP::Hep3Vector &p, int fan_number) const;
+
+    CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p,
+                                                 int fan_number) const;
+    std::vector<double> NearestPointOnNeutralFibre_asVector(const CLHEP::Hep3Vector &p,
+                                                            int fan_number) const;
     int GetPhiGap(const CLHEP::Hep3Vector &p) const { return GetPhiGapAndSide(p).first; }
     int PhiGapNumberForWheel(int) const;
     std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const;
     double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
+
+    /// @}
 
   private:
     LArG4::LArWheelCalculator_t m_type;
@@ -177,6 +192,8 @@ class LArWheelCalculator
       return res_fan_number;
     }
 
+    /// Calculates wave slant angle using parametrization for current wheel
+    /// for given distance from calorimeter axis
     double parameterized_slant_angle(double) const;
 
   private:

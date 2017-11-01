@@ -5,8 +5,6 @@
 #ifndef __LArWheelCalculator_Impl_FanCalculatorFactory_H__
 #define __LArWheelCalculator_Impl_FanCalculatorFactory_H__
 
-// FanCalculator factory
-// calculator creation depends on sagging mode and wheel/module calo
 
 #include "IFanCalculator.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -17,7 +15,11 @@ class LArWheelCalculator;
 namespace LArWheelCalculator_Impl
 {
 
-  /// @todo Why is this a class???
+  /// @class FanCalculatorFactory
+  /// @brief A factory for FanCalculators
+  ///
+  /// Calculator creation depends on sagging mode and wheel/module calo.
+  ///
   class FanCalculatorFactory
   {
     public:

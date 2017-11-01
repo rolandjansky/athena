@@ -12,7 +12,10 @@ class LArWheelCalculator;
 namespace LArWheelCalculator_Impl
 {
 
-  // This class implements details of distance calculation to parts of the LAr endcap with sagging taken into account.
+  /// @class DistanceCalculatorSaggingOn
+  /// @brief Implements details of distance calculation to parts of the
+  /// LAr endcap with sagging taken into account.
+  ///
   class DistanceCalculatorSaggingOn : public DistanceCalculatorSaggingOff
   {
 
@@ -20,15 +23,18 @@ namespace LArWheelCalculator_Impl
 
       typedef DistanceCalculatorSaggingOff parent;
 
+      /// Constructor
       DistanceCalculatorSaggingOn(const std::string& saggingOptions,
                                   LArWheelCalculator* lwc,
                                   IRDBAccessSvc* rdbAccess,
                                   const DecodeVersionKey & larVersionKey);
 
-      /// geometry methods:
+      /// @name Geometry methods
+      /// @{
       virtual double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
       virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
       virtual double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
+      /// @}
 
     private:
 
@@ -41,5 +47,5 @@ namespace LArWheelCalculator_Impl
   };
 
 }
-#endif // __LArWheelCalculator_Impl_IDistanceCalculatorOn_H__
 
+#endif // __LArWheelCalculator_Impl_IDistanceCalculatorOn_H__
