@@ -16,16 +16,16 @@
 #include "../TrigT2ZdcSignalsCnvTool.h"
 #include "../TrigT2ZdcSignalsCnvAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigSpacePointCountsCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigSpacePointCountsCnvAlg )
-// DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigHisto2DCnvTool )
-// DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigHisto2DCnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigT2MbtsBitsCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigT2MbtsBitsCnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigTrackCountsCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigTrackCountsCnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigVertexCountsCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigVertexCountsCnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigSpacePointCountsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigSpacePointCountsCnvAlg )
+// DECLARE_COMPONENT( xAODMaker::TrigHisto2DCnvTool )
+// DECLARE_COMPONENT( xAODMaker::TrigHisto2DCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigT2MbtsBitsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigT2MbtsBitsCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigTrackCountsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigTrackCountsCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigVertexCountsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigVertexCountsCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigT2ZdcSignalsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigT2ZdcSignalsCnvAlg )
 

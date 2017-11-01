@@ -5,10 +5,10 @@
 #include "EventBookkeeperTools/BookkeeperTool.h"
 #include "../EventCounterAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( myCppFilterTest )
-DECLARE_ALGORITHM_FACTORY( SkimDecisionMultiFilter )
-DECLARE_ALGORITHM_FACTORY( EventCounterAlg )
-DECLARE_TOOL_FACTORY( BookkeeperTool )
-DECLARE_SERVICE_FACTORY( CutFlowSvc )
-DECLARE_SERVICE_FACTORY( FileCutFlowSvc )
+DECLARE_COMPONENT( myCppFilterTest )
+DECLARE_COMPONENT( SkimDecisionMultiFilter )
+DECLARE_COMPONENT( EventCounterAlg )
+DECLARE_COMPONENT( BookkeeperTool )
+DECLARE_COMPONENT( CutFlowSvc )
+DECLARE_COMPONENT( FileCutFlowSvc )
 

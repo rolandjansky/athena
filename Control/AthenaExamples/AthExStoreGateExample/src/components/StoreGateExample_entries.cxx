@@ -16,9 +16,9 @@
 #include "../WriteDataReentrant.h"
 #include "../ReadDataReentrant.h"
 
-DECLARE_ALGORITHM_FACTORY( ReadData )
-DECLARE_ALGORITHM_FACTORY( ReadPileUpData )
-DECLARE_ALGORITHM_FACTORY( WriteData )
-DECLARE_ALGORITHM_FACTORY( WriteDataReentrant )
-DECLARE_ALGORITHM_FACTORY( ReadDataReentrant )
+DECLARE_COMPONENT( ReadData )
+DECLARE_COMPONENT( ReadPileUpData )
+DECLARE_COMPONENT( WriteData )
+DECLARE_COMPONENT( WriteDataReentrant )
+DECLARE_COMPONENT( ReadDataReentrant )
 

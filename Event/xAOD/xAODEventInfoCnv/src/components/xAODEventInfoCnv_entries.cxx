@@ -6,11 +6,11 @@
 
 #include "../EventInfoMCWeightFixAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoCnvTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoSelectorTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EventInfoCnvAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventInfoReaderAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventDuplicateFinderAlg )
+DECLARE_COMPONENT( xAODMaker::EventInfoCnvTool )
+DECLARE_COMPONENT( xAODMaker::EventInfoSelectorTool )
+DECLARE_COMPONENT( xAODMaker::EventInfoCnvAlg )
+DECLARE_COMPONENT( xAODReader::EventInfoReaderAlg )
+DECLARE_COMPONENT( xAODReader::EventDuplicateFinderAlg )
 
-DECLARE_ALGORITHM_FACTORY( EventInfoMCWeightFixAlg )
+DECLARE_COMPONENT( EventInfoMCWeightFixAlg )
 

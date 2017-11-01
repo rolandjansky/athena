@@ -8,5 +8,5 @@
 
 #include "DataModelAthenaPool/DataModelCompatSvc.h"
 
-DECLARE_SERVICE_FACTORY(DataModelCompatSvc)
+DECLARE_COMPONENT( DataModelCompatSvc )
 

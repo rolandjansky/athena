@@ -1,4 +1,4 @@
 #include "../DFStreamEventSelector.h"
 
-DECLARE_SERVICE_FACTORY( DFStreamEventSelector )
+DECLARE_COMPONENT( DFStreamEventSelector )
 

@@ -11,17 +11,17 @@
 #include "../DeepCopyObjects.h"
 #include "../RemoveTempBkgObjects.h"
 
-DECLARE_ALGORITHM_FACTORY( CopyMcEventCollection )
-DECLARE_ALGORITHM_FACTORY( CopyObjects )
-DECLARE_ALGORITHM_FACTORY( CopyTimings )
-DECLARE_ALGORITHM_FACTORY( CopyTruthInfo )
-DECLARE_ALGORITHM_FACTORY( SaveInDetObjects )
-DECLARE_ALGORITHM_FACTORY( RemoveObjects )
-DECLARE_ALGORITHM_FACTORY( UpdateEventInfo )
-DECLARE_ALGORITHM_FACTORY( BSFilter )
-DECLARE_ALGORITHM_FACTORY( G4HitMerger )
-DECLARE_ALGORITHM_FACTORY( DeepCopyObjects )
-DECLARE_ALGORITHM_FACTORY( RemoveTempBkgObjects )
+DECLARE_COMPONENT( CopyMcEventCollection )
+DECLARE_COMPONENT( CopyObjects )
+DECLARE_COMPONENT( CopyTimings )
+DECLARE_COMPONENT( CopyTruthInfo )
+DECLARE_COMPONENT( SaveInDetObjects )
+DECLARE_COMPONENT( RemoveObjects )
+DECLARE_COMPONENT( UpdateEventInfo )
+DECLARE_COMPONENT( BSFilter )
+DECLARE_COMPONENT( G4HitMerger )
+DECLARE_COMPONENT( DeepCopyObjects )
+DECLARE_COMPONENT( RemoveTempBkgObjects )
 
-DECLARE_TOOL_FACTORY( ByteStreamMultipleOutputStreamCopyTool )
+DECLARE_COMPONENT( ByteStreamMultipleOutputStreamCopyTool )
 

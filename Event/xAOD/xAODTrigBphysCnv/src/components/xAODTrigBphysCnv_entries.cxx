@@ -7,13 +7,13 @@
 #include "../TrigEFBphysCnvAlg.h"
 #include "../TrigxAODBphysReaderAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigL2BphysCnvTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker,  TrigL2BphysContainerCnvTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigL2BphysCnvAlg)
+DECLARE_COMPONENT( xAODMaker::TrigL2BphysCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigL2BphysContainerCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigL2BphysCnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker,  TrigEFBphysCnvTool)
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker,  TrigEFBphysContainerCnvTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigEFBphysCnvAlg)
+DECLARE_COMPONENT( xAODMaker::TrigEFBphysCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigEFBphysContainerCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigEFBphysCnvAlg )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigxAODBphysReaderAlg)
+DECLARE_COMPONENT( xAODMaker::TrigxAODBphysReaderAlg )
 

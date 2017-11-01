@@ -3,6 +3,6 @@
 #include "../ReadDataWithUserData.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( UserDataExamples, CreateDataWithUserData )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( UserDataExamples, ReadDataWithUserData )
+DECLARE_COMPONENT( UserDataExamples::CreateDataWithUserData )
+DECLARE_COMPONENT( UserDataExamples::ReadDataWithUserData )
 

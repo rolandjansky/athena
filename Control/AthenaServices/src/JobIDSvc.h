@@ -16,7 +16,6 @@
 #include "AthenaKernel/IJobIDSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-template<class TYPE> class SvcFactory;
 
 /** @class JobIDSvc 
  * @brief a service to distribute unique job identifier
@@ -42,9 +41,6 @@ public:
 	virtual StatusCode queryInterface(const InterfaceID& riid,
 			void** ppvInterface);
 	//@}
-
-protected:
-	friend class SvcFactory<JobIDSvc>;
 
 	// Standard Constructor
 	JobIDSvc(const std::string& name, ISvcLocator* svc);

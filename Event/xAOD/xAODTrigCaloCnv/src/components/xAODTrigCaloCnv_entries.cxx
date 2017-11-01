@@ -3,8 +3,8 @@
 #include "../TrigEMClusterCnvTool.h"
 #include "../TrigEMClusterCnvAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigCaloClusterCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigCaloClusterCnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigEMClusterCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigEMClusterCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigCaloClusterCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigCaloClusterCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigEMClusterCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigEMClusterCnvAlg )
 

@@ -2,8 +2,8 @@
 #include "../JetCnvTool.h"
 #include "../JetGlobalEventSetup.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, JetCnvAlg ) 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, JetCnvTool ) 
+DECLARE_COMPONENT( xAODMaker::JetCnvAlg ) 
+DECLARE_COMPONENT( xAODMaker::JetCnvTool ) 
 
-DECLARE_ALGORITHM_FACTORY(  JetGlobalEventSetup ) 
+DECLARE_COMPONENT( JetGlobalEventSetup ) 
 

@@ -3,7 +3,7 @@
 #include "../TauJetReaderAlg.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TauJetCnvAlg ) 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TauJetCnvTool ) 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TauJetReaderAlg )
+DECLARE_COMPONENT( xAODMaker::TauJetCnvAlg ) 
+DECLARE_COMPONENT( xAODMaker::TauJetCnvTool ) 
+DECLARE_COMPONENT( xAODMaker::TauJetReaderAlg )
 
