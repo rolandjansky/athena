@@ -68,15 +68,6 @@ SUSY18JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning(name  
 ToolSvc += SUSY18JetEMTPThinningTool
 thinningTools.append(SUSY18JetEMTPThinningTool)
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-SUSY18JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "SUSY18JetTPThinningTool",
-                                                                          ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
-                                                                          JetKey                  = "AntiKt4LCTopoJets",
-                                                                          SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY18JetLCTPThinningTool
-thinningTools.append(SUSY18JetLCTPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY18MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY18MuonTPThinningTool",
@@ -342,7 +333,6 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "Muons",
                                          "TauJets",
                                          "AntiKt4EMTopoJets",
-                                         "AntiKt4LCTopoJets",
                                          "MET_Reference_AntiKt4EMTopo",
                                          "BTagging_AntiKt4EMTopo",
                                          "InDetTrackParticles",
