@@ -6,8 +6,8 @@
 #include "../TrigL2CaloViewsMergerTool.h"
 
 
-DECLARE_ALGORITHM_FACTORY( EventViewCreatorAlgorithm )
-DECLARE_ALGORITHM_FACTORY( MergeViews )
-DECLARE_TOOL_FACTORY( TrigL2ElectronViewsMergerTool )
-DECLARE_TOOL_FACTORY( TrigL2CaloViewsMergerTool )
+DECLARE_COMPONENT( EventViewCreatorAlgorithm )
+DECLARE_COMPONENT( MergeViews )
+DECLARE_COMPONENT( TrigL2ElectronViewsMergerTool )
+DECLARE_COMPONENT( TrigL2CaloViewsMergerTool )
 

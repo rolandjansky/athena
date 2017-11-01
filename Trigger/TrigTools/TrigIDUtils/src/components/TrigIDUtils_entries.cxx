@@ -1,5 +1,5 @@
 #include "../TestPixelModuleDisablingSvc.h"
 
 
-DECLARE_SERVICE_FACTORY( TestPixelModuleDisablingSvc )
+DECLARE_COMPONENT( TestPixelModuleDisablingSvc )
 

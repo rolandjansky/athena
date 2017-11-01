@@ -4,6 +4,6 @@
 using TrigT1CTMonitoring::BSMonitoring;
 using TrigT1CTMonitoring::DeriveSimulationInputs;
 
-DECLARE_TOOL_FACTORY( BSMonitoring )
-DECLARE_ALGORITHM_FACTORY( DeriveSimulationInputs )
+DECLARE_COMPONENT( BSMonitoring )
+DECLARE_COMPONENT( DeriveSimulationInputs )
 

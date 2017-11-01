@@ -8,12 +8,12 @@
 #include "../TrigL2LayerNumberTool.h"
 #include "../TrigSpacePointConversionTool.h"
 
-DECLARE_TOOL_FACTORY(PixelSpacePointTool)
-DECLARE_TOOL_FACTORY(SCT_SpacePointTool)
-DECLARE_TOOL_FACTORY(PixelClusterCacheTool)
-DECLARE_TOOL_FACTORY(SCT_ClusterCacheTool)
-DECLARE_TOOL_FACTORY(FastSCT_RodDecoder)
-DECLARE_TOOL_FACTORY(OnlineSpacePointProviderTool)
-DECLARE_TOOL_FACTORY(TrigL2LayerNumberTool)
-DECLARE_TOOL_FACTORY(TrigSpacePointConversionTool)
+DECLARE_COMPONENT( PixelSpacePointTool )
+DECLARE_COMPONENT( SCT_SpacePointTool )
+DECLARE_COMPONENT( PixelClusterCacheTool )
+DECLARE_COMPONENT( SCT_ClusterCacheTool )
+DECLARE_COMPONENT( FastSCT_RodDecoder )
+DECLARE_COMPONENT( OnlineSpacePointProviderTool )
+DECLARE_COMPONENT( TrigL2LayerNumberTool )
+DECLARE_COMPONENT( TrigSpacePointConversionTool )
 

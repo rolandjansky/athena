@@ -5,8 +5,8 @@
 #include "../BphysTrigDiMuDecoratorTool.h"
 #include "../BphysTrigDecoratorAlg.h"
 
-DECLARE_TOOL_FACTORY( HLTXAODBphysMonTool )
-//DECLARE_TOOL_FACTORY( IBphysTrigDiMuDecoratorTool )
-DECLARE_TOOL_FACTORY( BphysTrigDiMuDecoratorTool )
-DECLARE_ALGORITHM_FACTORY( BphysTrigDecoratorAlg )
+DECLARE_COMPONENT( HLTXAODBphysMonTool )
+//DECLARE_COMPONENT( IBphysTrigDiMuDecoratorTool )
+DECLARE_COMPONENT( BphysTrigDiMuDecoratorTool )
+DECLARE_COMPONENT( BphysTrigDecoratorAlg )
 

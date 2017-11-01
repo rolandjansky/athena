@@ -7,12 +7,12 @@
 #include "../MCBunchCrossingTool.h"
 #include "../LHCBunchCrossingTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, StaticBunchCrossingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, WebBunchCrossingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, D3PDBunchCrossingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, xAODBunchCrossingTool )
+DECLARE_COMPONENT( Trig::StaticBunchCrossingTool )
+DECLARE_COMPONENT( Trig::WebBunchCrossingTool )
+DECLARE_COMPONENT( Trig::D3PDBunchCrossingTool )
+DECLARE_COMPONENT( Trig::xAODBunchCrossingTool )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigConfBunchCrossingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, MCBunchCrossingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, LHCBunchCrossingTool )
+DECLARE_COMPONENT( Trig::TrigConfBunchCrossingTool )
+DECLARE_COMPONENT( Trig::MCBunchCrossingTool )
+DECLARE_COMPONENT( Trig::LHCBunchCrossingTool )
 

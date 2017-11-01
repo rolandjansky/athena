@@ -2,6 +2,6 @@
 #include "../TrigIDTPMonitorElectron.h"
 
 
-DECLARE_ALGORITHM_FACTORY( TrigIDTPMonitor )
-DECLARE_ALGORITHM_FACTORY( TrigIDTPMonitorElectron )
+DECLARE_COMPONENT( TrigIDTPMonitor )
+DECLARE_COMPONENT( TrigIDTPMonitorElectron )
 

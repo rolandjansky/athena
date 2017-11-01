@@ -1,4 +1,4 @@
 #include "src/TrigFTKAvailableHypo.h"
 
-DECLARE_ALGORITHM_FACTORY(TrigFTKAvailableHypo)
+DECLARE_COMPONENT( TrigFTKAvailableHypo )
 

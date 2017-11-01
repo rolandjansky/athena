@@ -3,6 +3,6 @@
 #include "src/MuonRoiWithExtendedBunches.h"
 
 
-DECLARE_TOOL_FACTORY(TrigEffJpsiTools)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(MuComm, MuonRoiWithExtendedBunches)
+DECLARE_COMPONENT( TrigEffJpsiTools )
+DECLARE_COMPONENT( MuComm::MuonRoiWithExtendedBunches )
 
