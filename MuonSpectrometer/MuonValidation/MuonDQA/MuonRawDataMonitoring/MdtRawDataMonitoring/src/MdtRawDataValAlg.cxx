@@ -47,11 +47,12 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackingPrimitives.h"
+
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "TrkTrackSummary/TrackSummary.h"
 
 //root includes
 #include <TH1.h>
@@ -562,16 +563,17 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	  if(!trk){
 	    continue;
 	  }
-	  //	  int nMDT= trk->trackSummary()->get(Trk::numberOfMdtHits);   int nCSC= trk->trackSummary()->get(Trk::numberOfCscEtaHits);    
-	  int nTGC= trk->trackSummary()->get(Trk::numberOfTgcPhiHits) +  trk->trackSummary()->get(Trk::numberOfTgcEtaHits); 
-	  int nRPC= trk->trackSummary()->get(Trk::numberOfRpcPhiHits) + trk->trackSummary()->get(Trk::numberOfRpcEtaHits);    
-	  //	  int nBL= trk->trackSummary()->get(Trk::numberOfBLayerHits);
-	  //	  int nPixel= trk->trackSummary()->get(Trk::numberOfPixelHits);       int nSCT= trk->trackSummary()->get(Trk::numberOfSCTHits);
-	  if(nTGC+nRPC==0) continue;
+
+	  uint8_t ntri_eta=0;
+	  uint8_t n_phi=0; 
+	  tp->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers); 
+	  tp->summaryValue(n_phi, xAOD::numberOfPhiLayers); 
+	  if(ntri_eta+n_phi==0) continue;
 	  
 	  std::vector< const Trk::MeasurementBase* >::const_iterator hit = trk->measurementsOnTrack()->begin();
 	  std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = trk->measurementsOnTrack()->end();
 	  for( ;hit!=hit_end;++hit ){
+	   
 	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
 	    if(!rot_from_track) continue;
 	    //              rot_from_track->dump(msg());
