@@ -160,7 +160,11 @@ namespace NSWL1 {
 
         // evInf_entry truth_info(Event_Info.find(pevt->event_ID()->event_number())->second);
 
-        double tent=truth_info.theta_ent,tpos=truth_info.theta_pos,ppos=truth_info.phi_pos,pent=truth_info.phi_ent,dt=truth_info.dtheta;
+        double tent=truth_info.theta_ent;
+        double tpos=truth_info.theta_pos;
+        double ppos=truth_info.phi_pos;
+        // double pent=truth_info.phi_ent;
+        double dt=truth_info.dtheta;
         m_trigger_trueThe->push_back(tent);
         m_trigger_truePhi->push_back(ppos);
         m_trigger_trueDth->push_back(dt);
@@ -222,7 +226,7 @@ namespace NSWL1 {
           //First loop over the roads and planes and apply the fitter
           int fits_occupied=0;
           const int nfit_max=1;  //MOVE THIS EVENTUALLY
-          int correct_bcid=2;    //THIS TOO
+          // int correct_bcid=2;    //THIS TOO
           int roads = m_find.get_roads();
 
           vector<evFit_entry> road_fits = vector<evFit_entry>(roads,evFit_entry());
@@ -269,7 +273,7 @@ namespace NSWL1 {
           //////////////////////////////////////////////////////////////
 
 
-          bool did_clean_fit=false,did_bg_fit=false,has_6hits=false;
+          // bool did_clean_fit=false,did_bg_fit=false,has_6hits=false;
           if(road_fits.size()==0 and hdsts.size()==8 ) {
             ATH_MSG_DEBUG( "TruthRF0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
           }
@@ -371,7 +375,7 @@ namespace NSWL1 {
     }
     bool allLarge = true;
     bool allSmall = true;
-    for(int i=0; i<isLargeWedge.size(); i++){
+    for(unsigned int i=0; i<isLargeWedge.size(); i++){
       if (isLargeWedge.at(i)) allSmall = false;
       else allLarge = false;
     }

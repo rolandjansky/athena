@@ -196,9 +196,9 @@ int MMT_Fitter::track_to_index(const vector<Hit>&track)const{
 
 double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track)const{
   vector<vector<double> > z_hit;
-  for(int i = 0; i<m_par->z_large.size(); i++){
+  for(unsigned int i = 0; i<m_par->z_large.size(); i++){
     vector<double> temp;
-    for(int j = 0; j<m_par->z_large[i].size(); j++)
+    for(unsigned int j = 0; j<m_par->z_large[i].size(); j++)
       temp.push_back(m_par->z_large[i][j].getFloat());
     z_hit.push_back(temp);
   }

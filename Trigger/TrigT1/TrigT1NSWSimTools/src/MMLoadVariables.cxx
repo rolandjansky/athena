@@ -51,7 +51,12 @@ MMLoadVariables::~MMLoadVariables() {
 
       std::string wedgeType = getWedgeType(nsw_MmDigitContainer);
 
-      float phiEntry = 0, phiPosition = 0, etaEntry = 0, etaPosition = 0, chargeThreshold = m_par->chargeThreshold, theTheta = 0;//, avTheta = 0;
+      float phiEntry = 0;
+      float phiPosition = 0;
+      float etaEntry = 0;
+      float etaPosition = 0;
+      // float chargeThreshold = m_par->chargeThreshold;
+      // float theTheta = 0;
 
       TLorentzVector thePart, theInfo;
       TVector3 vertex;int pdg=0;
@@ -131,7 +136,7 @@ MMLoadVariables::~MMLoadVariables() {
 
 
       //Second loop in MMT_loader
-      int TruthDigit_n = 0;
+      // int TruthDigit_n = 0;
       // if(nsw_MmDigitContainer->size()==0) {cout <<"EMPTY";}
       for(auto dit : *nsw_MmDigitContainer) {
         // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
@@ -218,7 +223,7 @@ MMLoadVariables::~MMLoadVariables() {
               }//end particle loop
             }//end truth container loop (1 iteration) for matching
 
-            theTheta = truthPart.Theta(); //not used yet??
+            // theTheta = truthPart.Theta(); //not used yet??
 
             std::vector<double> localPosX;
             std::vector<double> localPosY;
@@ -265,8 +270,8 @@ MMLoadVariables::~MMLoadVariables() {
 
                   // check if local and global position are congruent with the transform
                   Amg::Vector3D lpos = rdoEl->transform(cr_id).inverse() * cr_strip_gpos;
-                  double dx = cr_strip_pos.x() - lpos.x();
-                  double dy = cr_strip_pos.y() - lpos.y();
+                  // double dx = cr_strip_pos.x() - lpos.x();
+                  // double dy = cr_strip_pos.y() - lpos.y();
                 }
 
             }//end of strip position loop
@@ -399,8 +404,8 @@ MMLoadVariables::~MMLoadVariables() {
         int minIndice=-999;
         for(unsigned int j=0; j<entries.size(); j++){
           bool notmindex = true;
-          for (int k=0; k<indices.size(); k++){
-            if(j==indices[k]) notmindex=false;
+          for (unsigned int k=0; k<indices.size(); k++){
+            if(j==(unsigned int) indices[k]) notmindex=false;
           }
           if(notmindex){
             if(min > entries[j].gtime ){
@@ -423,10 +428,10 @@ MMLoadVariables::~MMLoadVariables() {
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
       // if(!particle_info.pass_cut)cout<<"event FAIL at max hit mark...nent="<<nent<<endl;
       //double theta_min = m_par->minimum_large_theta,theta_max =m_par->maximum_large_theta,phi_min = m_par->minimum_large_phi,phi_max = m_par->maximum_large_phi;
-      double theta_min = m_par->minimum_large_theta.getFloat();
-      double theta_max =m_par->maximum_large_theta.getFloat();
-      double phi_min = m_par->minimum_large_phi.getFloat();
-      double phi_max = m_par->maximum_large_phi.getFloat();
+      // double theta_min = m_par->minimum_large_theta.getFloat();
+      // double theta_max =m_par->maximum_large_theta.getFloat();
+      // double phi_min = m_par->minimum_large_phi.getFloat();
+      // double phi_max = m_par->maximum_large_phi.getFloat();
       double tru_phi = -999;
       if (entries.size() >0) tru_phi=phi_shift(thePart.Phi(),wedgeType,entries.at(0).phi_station);
       double tru_theta=thePart.Theta();
@@ -447,7 +452,8 @@ MMLoadVariables::~MMLoadVariables() {
 
       //Hit information in Stephen's code... Starts getting a little weird.
       map<hdst_key,hdst_entry> hit_info; //Originally "targaryen"
-      vector<hdst_key> keys;int fstation=0;
+      vector<hdst_key> keys;
+      // int fstation=0;
 
       //Loop over entries, which has digitization info for each event
       for(unsigned int ient=0; ient<entries.size(); ient++){
@@ -475,20 +481,25 @@ MMLoadVariables::~MMLoadVariables() {
         }
         double charge = examine.charge;
         int strip = Get_Strip_ID(recon.X(),recon.Y(),plane), strip_pos=examine.strip_pos, station=examine.eta_station;  //theta_strip_id,module_y_center,plane); // true_x,true_y,plane);
-        fstation=station;
+        // fstation=station;
         string schar=m_par->setup.substr(plane,1);
         strip=strip_number(station,plane,strip_pos);
         //diagnostics Stephen used (not needed ?)
-        if(m_par->H<recon.Y()&&m_par->diag){
-          double width=m_par->strip_width.getFloat(),base=m_par->ybases[plane][station-1].getFloat(),yhere=recon.Y(),xhere=truth.X(),msl=0;//recon.Y();//(schar.compare("x")==0?recon.Y():truth.Y());
-          if(schar=="u"||schar=="v")width/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-          if(schar=="u"){
-            msl=-tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-          }
-          if(schar=="v"){
-            msl=tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-          }
-        }
+        // if(m_par->H<recon.Y()&&m_par->diag){
+        //   // double width=m_par->strip_width.getFloat();
+        //   // double base=m_par->ybases[plane][station-1].getFloat();
+        //   // double yhere=recon.Y();
+        //   // double xhere=truth.X();
+        //   // double msl=0;
+        //   //recon.Y();//(schar.compare("x")==0?recon.Y():truth.Y());
+        //   // if(schar=="u"||schar=="v")width/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
+        //   // if(schar=="u"){
+        //   //   msl=-tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
+        //   // }
+        //   // if(schar=="v"){
+        //   //   msl=tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
+        //   // }
+        // }
         int VMM_chip = Get_VMM_chip(strip);
 
         //we're doing everything by the variable known as "athena_event" to reflect C++ vs MATLAB indexing
@@ -508,7 +519,7 @@ MMLoadVariables::~MMLoadVariables() {
       particle_info.N_hits_preVMM=hit_info.size();
 
       particle_info.N_hits_postVMM=0;
-      unsigned int ir=0;
+      // unsigned int ir=0;
 
       //might want to move these somewhere smarter in future
       VMM_deadtime = 100;
@@ -569,7 +580,7 @@ MMLoadVariables::~MMLoadVariables() {
 
   double MMLoadVariables::phi_shift(double athena_phi,std::string wedgeType, int stationPhi) const{
     float n = 2*(stationPhi-1);
-    float index = stationPhi;
+    // float index = stationPhi;
     // std::cout << "BEFORE PHI " << athena_phi << " STATION " << stationPhi << std::endl;
     if(wedgeType=="Small") n+=1;
     float sectorPi = n*TMath::Pi()/8.;
@@ -657,19 +668,19 @@ MMLoadVariables::~MMLoadVariables() {
     }
     bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFloat()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFloat();
-    if(do_auto){
-      //-log(tan(0.5(atan(y/z))))=eta
-      //this is the even y spacing
-      if(m_par->dlm_new) ybase=H+1100.*(station-1);
-      else ybase=H+950.*(station-1);
-      /*//this is the even eta spacing version
-      double etalo=-log(tan(0.5*atan((h+H)/z))),etahi=-log(tan(0.5*atan(H/z))),inc=(etahi-etalo)/m_par->n_stations_eta;
-      double this_eta=etalo+inc*(station-1);
-      ybase=z*tan(2*atan(exp(-1.*this_eta)));
-      */
-    }
-    double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
+    double H=m_par->H.getFloat();
+    // double ybase=m_par->ybases[plane][station-1].getFloat();
+    // if(do_auto){
+    //   //-log(tan(0.5(atan(y/z))))=eta
+    //   //this is the even y spacing
+    //   if(m_par->dlm_new) ybase=H+1100.*(station-1);
+    //   else ybase=H+950.*(station-1);
+    //   //this is the even eta spacing version
+    //   double etalo=-log(tan(0.5*atan((h+H)/z))),etahi=-log(tan(0.5*atan(H/z))),inc=(etahi-etalo)/m_par->n_stations_eta;
+    //   double this_eta=etalo+inc*(station-1);
+    //   ybase=z*tan(2*atan(exp(-1.*this_eta)));
+    // }
+    // double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
   //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
     int base_strip=/*ceil(ybase/width)+*/spos;
     return base_strip;
@@ -693,7 +704,7 @@ MMLoadVariables::~MMLoadVariables() {
     }
     bool allLarge = true;
     bool allSmall = true;
-    for(int i=0; i<isLargeWedge.size(); i++){
+    for(unsigned int i=0; i<isLargeWedge.size(); i++){
       if (isLargeWedge.at(i)) allSmall = false;
       else allLarge = false;
     }
