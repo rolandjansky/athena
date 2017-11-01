@@ -487,7 +487,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);
       int pixlayerdbm = getPixLayerIDDBM(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);
       int pixlayeribl2d3d = pixlayer;
-      if (pixlayeribl2d3d == PixLayer::kIBL) {
+      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
         pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_pixelid->eta_module(rdoID), m_doIBL);
       }
       int pixlayeribl2d3ddbm = pixlayerdbm;
