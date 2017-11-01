@@ -17,6 +17,9 @@ namespace G4UA
     : ActionToolBase<LengthIntegrator>(type, name, parent),
       m_hSvc("THistSvc", name)
   {
+    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IEndEventActionTool>(this);
+    declareInterface<ISteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
   }
 
@@ -39,32 +42,7 @@ namespace G4UA
   LengthIntegratorTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<LengthIntegrator>( m_hSvc.name() );
-    return std::move(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode LengthIntegratorTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    return ActionToolBase<LengthIntegrator>::queryInterface(riid, ppvIf);
+    return CxxUtils::make_unique<LengthIntegrator>( m_hSvc.name() );
   }
 
 }

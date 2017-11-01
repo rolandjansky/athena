@@ -9,10 +9,7 @@
 ## Description: Retrieve selector from mask mapping 
 ##=============================================================================
 
-try:
-  import cppyy
-except ImportError:
-  import PyCintex as cppyy
+import cppyy
 
 try :
   cppyy.loadDictionary('RingerSelectorToolsDict')

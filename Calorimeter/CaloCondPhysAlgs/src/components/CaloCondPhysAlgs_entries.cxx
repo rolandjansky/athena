@@ -9,6 +9,7 @@
 #include "CaloCondPhysAlgs/CaloCellCalcEnergyCorr.h"
 #include "CaloCondPhysAlgs/CaloCellEnergyCorr2Ntuple.h"
 #include "CaloCondPhysAlgs/LArMinBiasAlg.h"
+#include "CaloCondPhysAlgs/LArHVMapTool.h"
 
 DECLARE_ALGORITHM_FACTORY( CaloCellNoiseAlg )
 DECLARE_ALGORITHM_FACTORY( CaloNoise2Ntuple )
@@ -20,6 +21,7 @@ DECLARE_ALGORITHM_FACTORY( FCAL_HV_Energy_Rescale )
 DECLARE_ALGORITHM_FACTORY( CaloCellCalcEnergyCorr )
 DECLARE_ALGORITHM_FACTORY( CaloCellEnergyCorr2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArMinBiasAlg)
+DECLARE_TOOL_FACTORY(LArHVMapTool)
   
 DECLARE_FACTORY_ENTRIES(CaloCondPhysAlgs) {
   DECLARE_ALGORITHM( CaloCellNoiseAlg )
@@ -32,5 +34,6 @@ DECLARE_FACTORY_ENTRIES(CaloCondPhysAlgs) {
   DECLARE_ALGORITHM( CaloCellCalcEnergyCorr )
   DECLARE_ALGORITHM( CaloCellEnergyCorr2Ntuple )
   DECLARE_ALGORITHM( LArMinBiasAlg)
+  DECLARE_ALGTOOL( LArHVMapTool)
 }
 

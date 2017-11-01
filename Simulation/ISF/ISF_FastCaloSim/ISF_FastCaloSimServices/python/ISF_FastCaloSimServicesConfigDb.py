@@ -10,6 +10,7 @@ from AthenaCommon.CfgGetter import addTool, addService, addAlgorithm
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getNIMatEffUpdator",                 "ISF_NIMatEffUpdator")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getNIPropagator",                    "ISF_NIPropagator")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getNITimedExtrapolator",             "ISF_NITimedExtrapolator")
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getTimedExtrapolator",               "TimedExtrapolator")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
@@ -30,5 +31,4 @@ addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSim
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",                   "ISF_LegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcV2",                           "ISF_FastCaloSimSvcV2")
-
-
+addTool("ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfig.getFastCaloSimCaloExtrapolation" , "FastCaloSimCaloExtrapolation"   )
