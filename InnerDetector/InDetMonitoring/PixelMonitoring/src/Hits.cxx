@@ -744,11 +744,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 }
 
 StatusCode PixelMainMon::procHitsMon(void) {
-  double events = m_event;
-  if (events == 0) {
-    // if no events, the rest of the test is pointless and would divide by 0
-    return StatusCode::SUCCESS;
-  }
 
   if (m_doOffline) {
     fillSummaryHistos(m_occupancy.get(),
@@ -758,10 +753,6 @@ StatusCode PixelMainMon::procHitsMon(void) {
                       m_occupancy_summary_mod[PixLayer::kB0],
                       m_occupancy_summary_mod[PixLayer::kB1],
                       m_occupancy_summary_mod[PixLayer::kB2]);
-  }
-
-  if (m_average_pixocc && m_num_hits->GetEntries() == m_event) {
-    m_event2 = m_num_hits->GetEntries();
   }
 
   return StatusCode::SUCCESS;

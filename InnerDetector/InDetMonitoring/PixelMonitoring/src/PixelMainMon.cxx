@@ -132,7 +132,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nActive_mod, 0, sizeof(m_nActive_mod));
   m_pixelid = 0;
   m_event = 0;
-  m_event2 = 0;
   m_startTime = 0;
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;

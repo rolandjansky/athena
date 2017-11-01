@@ -171,7 +171,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   const PixelID* m_pixelid;
   uint64_t m_event;
-  uint64_t m_event2;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled

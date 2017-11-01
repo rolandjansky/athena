@@ -757,10 +757,5 @@ StatusCode PixelMainMon::procClustersMon(void) {
                       m_cluster_occupancy_summary_mod[PixLayer::kB2]);
   }
 
-  double events = m_event;
-  // if no events, the rest of the test is pointless and would divide by 0
-  if (events == 0) return StatusCode::SUCCESS;
-  if (m_event != m_event2) events = m_event2;
-
   return StatusCode::SUCCESS;
 }
