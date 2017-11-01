@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef NSWL1SIMULATION_H
-#define NSWL1SIMULATION_H
+#ifndef TRIGT1NSW_NSWL1SIMULATION_H
+#define TRIGT1NSW_NSWL1SIMULATION_H
 
 // Basic includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -73,7 +73,6 @@ namespace NSWL1 {
     //! handle to result builder (for easy data access), now returning a dummy int
     int resultBuilder() const;
 
-    StoreGateSvc *m_detStore;
   
 
   private:

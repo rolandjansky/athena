@@ -31,7 +31,7 @@ namespace NSWL1 {
       m_strip_segment("NSWL1::StripSegmentTool",this),
       m_mmstrip_tds("NSWL1::MMStripTdsOfflineTool",this),
       m_mmtrigger("NSWL1::MMTriggerTool",this),
-      m_tree(0),
+      m_tree(nullptr),
       m_current_run(-1),
       m_current_evt(-1)
   {
@@ -75,7 +75,7 @@ namespace NSWL1 {
 
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
-      ITHistSvc* tHistSvc; 
+      ITHistSvc* tHistSvc;
       sc = service("THistSvc", tHistSvc);
       if(sc.isFailure()) {
         ATH_MSG_FATAL("Unable to retrieve THistSvc");
@@ -89,7 +89,7 @@ namespace NSWL1 {
       // create Ntuple and the branches
       m_tree = new TTree(ntuple_name, "Ntuple of NSWL1Simulation");
       m_tree->Branch("runNumber",   &m_current_run, "runNumber/i");
-      m_tree->Branch("eventNumber", &m_current_evt, "eventNumber/i");      
+      m_tree->Branch("eventNumber", &m_current_evt, "eventNumber/i");
 
 
       char tdir_name[80];
@@ -124,7 +124,7 @@ namespace NSWL1 {
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_INFO (m_strip_tds.propertyName() << ": Retrieved tool " << m_strip_tds.type());
-    } 
+    }
     if ( m_mmtrigger.retrieve().isFailure() ) {
       ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
       return StatusCode::FAILURE;
@@ -193,11 +193,7 @@ namespace NSWL1 {
 
     // retrieve the current run number and event number
     const EventInfo* pevt = 0;
-    StatusCode sc = evtStore()->retrieve(pevt);
-    if ( !sc.isSuccess() ) {
-      ATH_MSG_ERROR( "Could not retrieve the EventInfo, so cannot assess if the cache is still valid for this event!" );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve(pevt) );
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();
 
@@ -213,37 +209,21 @@ namespace NSWL1 {
         // PadTriggerLogicOfflineTool (since all the pad and
         // pad-trigger info is per-sector...)
       std::vector<PadData*> pads;
-      sc = m_pad_tds->gather_pad_data(pads);
-      if ( sc.isFailure() ) {
-          ATH_MSG_ERROR( "Could not gather the PAD hit data" );
-          return sc;
-      }
-      
+      ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
+
       std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
       if(m_doPadTrigger){
-          sc = m_pad_trigger->compute_pad_triggers(pads, padTriggers);
-          if(sc.isFailure()) {
-              ATH_MSG_ERROR("Could not compute pad triggers; will read all strips");
-          }
+          ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
 
+      // retrieve the STRIP hit data
+      std::vector<StripData*> strips;
+      ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
+      std::vector< NSWL1::StripClusterData* > clusters;
+      // Cluster STRIPs readout by TDS
+      ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      ATH_CHECK( m_strip_segment->find_segments(clusters) );
 
-    // retrieve the STRIP hit data
-    std::vector<StripData*> strips;
-    sc = m_strip_tds->gather_strip_data(strips,padTriggers);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Could not gather the STRIP hit data" );
-      return sc;
-    }
-    std::vector< NSWL1::StripClusterData* > clusters;
-    // Cluster STRIPs readout by TDS 
-    sc = m_strip_cluster->cluster_strip_data(strips,clusters);
-    sc = m_strip_segment->find_segments(clusters);     
-
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Could cluster strip data" );
-      return sc;
-    }
     } // if(dosTGC)
 
 
@@ -255,11 +235,7 @@ namespace NSWL1 {
 	// ATH_MSG_ERROR( "Could not gather the MM Strip hit data" );
 	// return sc;
  //      }
-      sc = m_mmtrigger->runTrigger();
-      if ( sc.isFailure() ) {
-        ATH_MSG_ERROR( "Could not gather the MM Strip hit data" );
-        return sc;
-      }
+      ATH_CHECK( m_mmtrigger->runTrigger() );
     }
 
     //

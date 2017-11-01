@@ -72,29 +72,16 @@ namespace NSWL1 {
       std::string algo_name = pnamed->name();
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
-        StatusCode sc = service("THistSvc", tHistSvc);
-        if(sc.isFailure()) {
-          ATH_MSG_FATAL("Unable to retrieve THistSvc");
-          return sc;
-        }
+        ATH_CHECK( service("THistSvc", tHistSvc) );
 
         char ntuple_name[40];
         memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;
-        sc = tHistSvc->getTree(ntuple_name,m_tree);
-        if (sc.isFailure()) {
-          this->clear_ntuple_variables();
-          ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
-          return sc;
-        } else {
-          ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
-          sc = this->book_branches();
-          if (sc.isFailure()) {
-            ATH_MSG_ERROR("Cannot book the branches for the analysis ntuple");
-          }
-        }
+        ATH_CHECK( tHistSvc->getTree(ntuple_name,m_tree) );
+        ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
+        ATH_CHECK( this->book_branches() );
 
       } else this->clear_ntuple_variables();
 
@@ -136,7 +123,7 @@ namespace NSWL1 {
 
         //Retrieve the current run number and event number
         const EventInfo* pevt = 0;
-        StatusCode sc = evtStore()->retrieve(pevt);
+        ATH_CHECK( evtStore()->retrieve(pevt) );
         int event = pevt->event_ID()->event_number();
 
         //////////////////////////////////////////////////////////////
@@ -150,7 +137,7 @@ namespace NSWL1 {
         map<int,evInf_entry> Event_Info;
 
         const MmDigitContainer *nsw_MmDigitContainer = nullptr;
-        StatusCode sc_digit = evtStore()->retrieve(nsw_MmDigitContainer,"MM_DIGITS");
+        ATH_CHECK( evtStore()->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
 
         std::string wedgeType = getWedgeType(nsw_MmDigitContainer);
         if(wedgeType=="Large") m_par = m_par_large;
@@ -193,6 +180,8 @@ namespace NSWL1 {
 
           //Initialization of the finder: defines all the roads
           MMT_Finder m_find = MMT_Finder(m_par);
+
+          ATH_MSG_DEBUG(  "Number of Roads Configured " <<  m_find.get_roads()  );
 
           //Convert hits to slopes and fill the buffer
           map<pair<int,int>,finder_entry> hitBuffer;
