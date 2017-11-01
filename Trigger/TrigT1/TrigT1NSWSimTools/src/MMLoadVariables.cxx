@@ -13,6 +13,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 
 // using namespace std;
 
@@ -84,7 +86,7 @@ MMLoadVariables::~MMLoadVariables() {
                 etaEntry = mumomentum.getEta();
                 phiPosition = muposition.getPhi();
                 etaPosition = muposition.getEta();
-                std::cout << "THEPARTXY " << thePart.X() << " " << thePart.Y() << " " << thePart.Phi() << std::endl;
+                // std::cout << "THEPARTXY " << thePart.X() << " " << thePart.Y() << " " << thePart.Phi() << std::endl;
 
               }
             }//muentry loop
@@ -112,7 +114,7 @@ MMLoadVariables::~MMLoadVariables() {
       StatusCode sc = m_evtStore->retrieve(pevt);
 
       int event = pevt->event_ID()->event_number();
-      if(j==0){cout << "ZERO PARTICLES IN EVENT";} //debug
+      // if(j==0){cout << "ZERO PARTICLES IN EVENT";} //debug
       int TruthParticle_n = j;
       evFit_entry fit;fit.athena_event=event;//-1;  **May not be necessary
 
@@ -130,14 +132,14 @@ MMLoadVariables::~MMLoadVariables() {
 
       //Second loop in MMT_loader
       int TruthDigit_n = 0;
-      if(nsw_MmDigitContainer->size()==0) {cout <<"EMPTY";}
+      // if(nsw_MmDigitContainer->size()==0) {cout <<"EMPTY";}
       for(auto dit : *nsw_MmDigitContainer) {
         // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
         const MmDigitCollection* coll = dit;
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        cout << "ITEMSIZE  " << coll->size() << endl;
+        // cout << "ITEMSIZE  " << coll->size() << endl;
         for (unsigned int item=0; item<coll->size(); item++) {
           //*******THIS COULD BE AN ISSUE SEE MMDIGITVARIABLES IF VALIDATIONS DON'T MATCH
 
@@ -419,7 +421,7 @@ MMLoadVariables::~MMLoadVariables() {
       //Number of hits cut
       if(!particle_info.bad_wedge)particle_info.pass_cut=true;//default is false
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
-      if(!particle_info.pass_cut)cout<<"event FAIL at max hit mark...nent="<<nent<<endl;
+      // if(!particle_info.pass_cut)cout<<"event FAIL at max hit mark...nent="<<nent<<endl;
       //double theta_min = m_par->minimum_large_theta,theta_max =m_par->maximum_large_theta,phi_min = m_par->minimum_large_phi,phi_max = m_par->maximum_large_phi;
       double theta_min = m_par->minimum_large_theta.getFloat();
       double theta_max =m_par->maximum_large_theta.getFloat();
@@ -431,16 +433,16 @@ MMLoadVariables::~MMLoadVariables() {
 
 
       //Theta cut //ALTER THIS FOR BACKGROUND!!!!!
-      cout<<"tru_theta is "<<tru_theta<<" which should be in ["<<theta_min<<","<<theta_max<<"]"<<endl;
+      // cout<<"tru_theta is "<<tru_theta<<" which should be in ["<<theta_min<<","<<theta_max<<"]"<<endl;
       //TESTING
       //if(tru_theta<theta_min||tru_theta>theta_max) particle_info.pass_cut=false;//*** do a theta cut?
-      if(!particle_info.pass_cut)cout<<"THETAFAIL"<<endl;
+      // if(!particle_info.pass_cut)cout<<"THETAFAIL"<<endl;
 
       //Phi cut
-      cout<<"tru_phi is "<<tru_phi<<" which should be in ["<<phi_min<<","<<phi_max<<"]"<<endl;
+      // cout<<"tru_phi is "<<tru_phi<<" which should be in ["<<phi_min<<","<<phi_max<<"]"<<endl;
       //TESTING
       //if(tru_phi<phi_min||tru_phi>phi_max) particle_info.pass_cut=false;
-      if(!particle_info.pass_cut)cout<<"PHIPHAIL"<<endl;
+      // if(!particle_info.pass_cut)cout<<"PHIPHAIL"<<endl;
 
 
       //Hit information in Stephen's code... Starts getting a little weird.
@@ -548,7 +550,7 @@ MMLoadVariables::~MMLoadVariables() {
       //X and UV hits minumum cut
       if(xhit<m_par->CT_x) particle_info.pass_cut=false;//return;
       if(uvhit<m_par->CT_uv) particle_info.pass_cut=false;//return;
-      if(!particle_info.pass_cut) cout<<"event FAIL at CT cut"<<endl;
+      // if(!particle_info.pass_cut) cout<<"event FAIL at CT cut"<<endl;
       //*** place any cuts on n_x, n_uv, n_postvmm here...
 
 
@@ -558,7 +560,7 @@ MMLoadVariables::~MMLoadVariables() {
 
 
 
-      cout<<"Event "<<event<<" did "<<(particle_info.pass_cut?"":"(NOT) ")<<"pass cuts."<<endl;
+      // cout<<"Event "<<event<<" did "<<(particle_info.pass_cut?"":"(NOT) ")<<"pass cuts."<<endl;
 
       histVars = fillVars;
 
@@ -568,11 +570,11 @@ MMLoadVariables::~MMLoadVariables() {
   double MMLoadVariables::phi_shift(double athena_phi,std::string wedgeType, int stationPhi) const{
     float n = 2*(stationPhi-1);
     float index = stationPhi;
-    std::cout << "BEFORE PHI " << athena_phi << " STATION " << stationPhi << std::endl;
+    // std::cout << "BEFORE PHI " << athena_phi << " STATION " << stationPhi << std::endl;
     if(wedgeType=="Small") n+=1;
     float sectorPi = n*TMath::Pi()/8.;
     if(n>8) sectorPi = (16.-n)*TMath::Pi()/8.;
-    std::cout << "N " << n << " SHIFT "<< sectorPi << std::endl;
+    // std::cout << "N " << n << " SHIFT "<< sectorPi << std::endl;
 
     if(n<8)       return (athena_phi-sectorPi);
     else if(n==8) return (athena_phi + (athena_phi >= 0? -1:1)*sectorPi);
@@ -625,13 +627,13 @@ MMLoadVariables::~MMLoadVariables() {
     else if(xuv=="v"){
       if(striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = -X*sin(degree)+Y*cos(degree);
-      cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
+      // cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
     }
     else if(xuv!="x"){
       cerr<<"Invalid plane option " << xuv << endl; exit(2);
     }
     double strip_hit = ceil(y_hit*1./strip_width);
-    cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
+    // cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
     return strip_hit;
   }
 

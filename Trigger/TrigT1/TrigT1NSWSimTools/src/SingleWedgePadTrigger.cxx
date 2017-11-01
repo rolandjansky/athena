@@ -57,7 +57,7 @@ Swpt::EtaPhiHalf Swpt::halfPadCoordinates() const {
   bool missMiddle(l0==STGC_LAYER_1 && l2==STGC_LAYER_4);
   bool missFirst (l0==STGC_LAYER_2 && l1==STGC_LAYER_3);
   bool validLayerCombination(missLast || missMiddle || missFirst);
-  if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
+  // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
   EtaPhiHalf pos(-999,-999);
   EtaPhi posA(-999,-999), posB(-999,-999);
@@ -115,7 +115,7 @@ EtaPhiRectangle Swpt::padOverlap(const vpads_t &pads)
   bool hasL1L4(l0==STGC_LAYER_1 && l2==STGC_LAYER_4);
   bool hasL2L3(l0==STGC_LAYER_2 && l1==STGC_LAYER_3);
   bool validLayerCombination(hasL1L2 || hasL1L4 || hasL2L3);
-  if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
+  // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
   const PadWithHits &padA = pad0;
   const PadWithHits &padB = (hasL1L4 ? pad2 : pad1);
@@ -168,11 +168,11 @@ bool Swpt::areInnerOuterConsistent(const EtaPhiHalf &inner, const EtaPhiHalf &ou
   bool mismatchEta(outer.ieta < inner.ieta - 4 || outer.ieta > inner.ieta + 4);
   bool mismatchPhi(outer.iphi < inner.iphi - 4 || outer.iphi > inner.iphi + 4);
   bool mismatch(mismatchEta || mismatchPhi);
-  if(verbose) std::cout<<"areConsistent ? "
-                       <<(mismatch ? "no":"yes")
-                       <<" : inner "<<inner.str()<<", outer "<<outer.str()
-                       <<"(mismatchEta|mismatchPhi) = ("<<mismatchEta<<" | "<<mismatchPhi<<")"
-                       <<std::endl;
+  // if(verbose) std::cout<<"areConsistent ? "
+  //                      <<(mismatch ? "no":"yes")
+  //                      <<" : inner "<<inner.str()<<", outer "<<outer.str()
+  //                      <<"(mismatchEta|mismatchPhi) = ("<<mismatchEta<<" | "<<mismatchPhi<<")"
+  //                      <<std::endl;
   return !mismatch;
 }
 

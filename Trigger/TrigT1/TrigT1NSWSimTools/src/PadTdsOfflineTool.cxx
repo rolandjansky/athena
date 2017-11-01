@@ -469,19 +469,19 @@ void PadTdsOfflineTool::simulateDeadTime(std::vector<PadHits>& h) const {
 void PadTdsOfflineTool::printStgcGeometryFromAgdd() const
 {
     if(true) {
-        cout<<"Trying to use the geometry service"<<endl;
+        // cout<<"Trying to use the geometry service"<<endl;
         const std::vector<AGDDDetector*> &stgcList = AGDDDetectorStore::GetDetectorStore()->GetDetectorsByType("sTGC");
         std::vector<AGDDDetector*>::const_iterator it = stgcList.begin();
         std::vector<AGDDDetector*>::const_iterator end = stgcList.end();
-        std::cout<<"AGDDsTGCStore::PrintAllsTGC"
-                 <<" ("<<stgcList.size()<<" elements)"<<std::endl
-                 <<" name \t subType \t tech"<<std::endl;
-        for( ; it!=end; ++it) {
-            std::cout<<" "<<(*it)->GetName()
-                     <<" "<<(*it)->subType()
-                     <<" "<<(*it)->tech
-                     <<std::endl;
-        }
+        // std::cout<<"AGDDsTGCStore::PrintAllsTGC"
+        //          <<" ("<<stgcList.size()<<" elements)"<<std::endl
+        //          <<" name \t subType \t tech"<<std::endl;
+        // for( ; it!=end; ++it) {
+        //     std::cout<<" "<<(*it)->GetName()
+        //              <<" "<<(*it)->subType()
+        //              <<" "<<(*it)->tech
+        //              <<std::endl;
+        // }
 
     }
 }

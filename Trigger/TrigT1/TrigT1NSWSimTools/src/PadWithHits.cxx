@@ -68,7 +68,7 @@ namespace nsw {
   float midSectorPhi(int sector){
     float nSectors=16.0;
     float sectorDphi(TMath::TwoPi()/nSectors);
-    if(sector<1) cout<<"sector "<<sector<<endl;
+    // if(sector<1) cout<<"sector "<<sector<<endl;
     assert(sector>0); // we are assuming that the sector N starts from 1
     return (sector-1)*sectorDphi;
   }
@@ -118,13 +118,13 @@ namespace nsw {
   //-------------------------------------
   bool layerIsInvalid(int layer, bool verbose){
     bool invalid(layer<1 || layer>4);
-    if(invalid && verbose) cout<<"invalid layer "<<layer<<endl;
+    // if(invalid && verbose) cout<<"invalid layer "<<layer<<endl;
     return invalid;
   }
   //-------------------------------------
   bool sectorIsInvalid(int sector, bool verbose){
     bool invalid(sector<1 || sector>16);
-    if(invalid && verbose) cout<<"invalid sector "<<sector<<endl;
+    // if(invalid && verbose) cout<<"invalid sector "<<sector<<endl;
     return invalid;
   }
 /*

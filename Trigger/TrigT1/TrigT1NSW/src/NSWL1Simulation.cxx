@@ -112,13 +112,6 @@ namespace NSWL1 {
       ATH_MSG_INFO (m_pad_tds.propertyName() << ": Retrieved tool " << m_pad_tds.type());
     }
 
-    // if ( m_mmstrip_tds.retrieve().isFailure() ) {
-    //   ATH_MSG_FATAL (m_mmstrip_tds.propertyName() << ": Failed to retrieve tool " << m_mmstrip_tds.type());
-    //   return StatusCode::FAILURE;
-    // } else {
-    //   ATH_MSG_INFO (m_mmstrip_tds.propertyName() << ": Retrieved tool " << m_mmstrip_tds.type());
-    // }
-
     if ( m_pad_trigger.retrieve().isFailure() ) {
       ATH_MSG_FATAL (m_pad_trigger.propertyName() << ": Failed to retrieve tool " << m_pad_trigger.type());
       return StatusCode::FAILURE;
