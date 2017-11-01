@@ -139,39 +139,4 @@ TTreeBranchMap::getCLIDAliases (CLID clid) const
   return ret;
 }
 
-
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TTreeBranchMap::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("AthenaROOTAccess::TTreeBranchMap");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TTreeBranchMap::ShowMembers (TMemberInspector& R__insp)
-{
-  TTree::ShowMembers (R__insp);
-}
-#endif
-
-
-void TTreeBranchMap::Streamer (TBuffer& b)
-{
-  TTree::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TTreeBranchMap::fgIsA;
-#else
-TClass* TTreeBranchMap::fgIsA = 0;
-#endif
-
-
 } // namespace AthenaROOTAccess

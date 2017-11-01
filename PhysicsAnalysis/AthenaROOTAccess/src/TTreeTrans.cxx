@@ -567,39 +567,4 @@ unsigned long TTreeTrans::addRef() { std::abort(); }
 unsigned long TTreeTrans::release() { std::abort(); }
 
 
-
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TTreeTrans::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("AthenaROOTAccess::TTreeTrans");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TTreeTrans::ShowMembers (TMemberInspector& R__insp)
-{
-  TTreeBranchMap::ShowMembers (R__insp);
-}
-#endif
-
-
-void TTreeTrans::Streamer (TBuffer& b)
-{
-  TTreeBranchMap::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TTreeTrans::fgIsA;
-#else
-TClass* TTreeTrans::fgIsA = 0;
-#endif
-
-
 } // namespace AthenaROOTAccess
