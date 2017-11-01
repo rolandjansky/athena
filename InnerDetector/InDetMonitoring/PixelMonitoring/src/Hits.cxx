@@ -254,8 +254,10 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_doModules) {
-    m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
-    sc = m_hiteff_mod->regHist(this, (path + "/Modules_HitEff").c_str(), run);
+    if (m_doOnTrack) {
+      m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
+      sc = m_hiteff_mod->regHist(this, (path + "/Modules_HitEff").c_str(), run);
+    }
     m_FE_chip_hit_summary = std::make_unique<PixelMonModules1D>(PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16, -0.5, 15.5));
     sc = m_FE_chip_hit_summary->regHist(this, (path + "/Modules_FEChipSummary").c_str(), run);
   }
@@ -481,6 +483,15 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
     for (p_rdo = PixelCollection->begin(); p_rdo != PixelCollection->end(); ++p_rdo) {
       rdoID = (*p_rdo)->identify();
+
+      if (m_hiteff_mod) {
+        if (isOnTrack(rdoID, false)) {
+          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 1., rdoID, m_pixelid);
+        } else {
+          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 0., rdoID, m_pixelid);
+        }
+      }
+
       if (m_doOnTrack && !isOnTrack(rdoID, false)) {
         // if we only want hits on track, and the hit is NOT on the track, skip filling
         continue;
@@ -531,14 +542,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (pixlayer != 99 && m_diff_ROD_vs_Module_BCID_mod[pixlayer]) m_diff_ROD_vs_Module_BCID_mod[pixlayer]->Fill((pix_rod_bcid & 0x000000ff) - (*p_rdo)->getBCID());
 
       if (m_FE_chip_hit_summary) m_FE_chip_hit_summary->fill(m_pixelCableSvc->getFE(&rdoID, rdoID), rdoID, m_pixelid);
-
-      if (m_hiteff_mod) {
-        if (isOnTrack(rdoID, false)) {
-          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 1., rdoID, m_pixelid);
-        } else {
-          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 0., rdoID, m_pixelid);
-        }
-      }
 
       // Fill ToT
       if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm]) m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
