@@ -412,8 +412,8 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   //Only changes for small or large and per module. Phi, layer, etc don't matter (just set to 1)
 //const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
   std::string wedgeString = (wedgeSize=='L' ? "MML" : "MMS");
-  Identifier id_top    = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 2,1,1, 1, 1);
-  Identifier id_bottom = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 1,1,1, 1, 1);
+  // Identifier id_top    = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 2,1,1, 1, 1);
+  // Identifier id_bottom = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 1,1,1, 1, 1);
 
   // int chMax_top    = m_detManager->mmIdHelper()->channelMax(id_top);
   // int chMax_bottom = m_detManager->mmIdHelper()->channelMax(id_bottom);
@@ -481,10 +481,10 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   vertical_strip_width_UV = strip_width.getFloat()/cos(degree.getFloat());
   ybases=vector<vector<float32fixed<18> > >(setup.size(),vector<float32fixed<18> >(n_stations_eta,float32fixed<18>(0.)));
 
-  double xP_top    = ( 0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1-tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
-  double xM_top    = (-0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1+tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
-  double xP_bottom = ( 0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1-tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
-  double xM_bottom = (-0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1+tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
+  // double xP_top    = ( 0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1-tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
+  // double xM_top    = (-0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1+tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
+  // double xP_bottom = ( 0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1-tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
+  // double xM_bottom = (-0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1+tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
 
   // double stereo_strip_separation_top = .5*(xP_top+xM_top);
   // double stereo_strip_separation_bottom = .5*(xP_bottom+xM_bottom);
@@ -505,7 +505,7 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   float sin_rotation = sin(-2*TMath::Pi() / 16.0);
   float x_rotated = 0.0;
   float y_rotated = 0.0;
-  float z_rotated = 0.0;
+  // float z_rotated = 0.0;
 
   float st_angle = 0.0;
 
@@ -520,12 +520,12 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
       if (wedgeString=="MMS"){
         x_rotated = pos.x()*cos_rotation - pos.y()*sin_rotation;
         y_rotated = pos.x()*sin_rotation + pos.y()*cos_rotation;
-        z_rotated = pos.z();
+        // z_rotated = pos.z();
       }
       else{
         x_rotated = pos.x();
         y_rotated = pos.y();
-        z_rotated = pos.z();
+        // z_rotated = pos.z();
       }
 
       if      (is_u(layer)) st_angle = -1*abs(stereo_degree.getFloat());
@@ -1236,7 +1236,10 @@ hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,cons
   char schar=m_par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
   // ATH_MSG_DEBUG("We have a "<<(horizontal?"horizontal":"stereo")<<" hit in plane "<<plane<<", station_eta "<<station_eta<<", strip# "<<strip);
-  double swidth=m_par->strip_width.getFloat(), base=m_par->ybases[plane][station_eta-1].getFloat(),zplane=m_par->z_nominal[plane].getFloat(),planebase=m_par->ybases[plane].front().getFloat();
+  double swidth=m_par->strip_width.getFloat();
+  double base=m_par->ybases[plane][station_eta-1].getFloat();
+  // double zplane=m_par->z_nominal[plane].getFloat();
+  // double planebase=m_par->ybases[plane].front().getFloat();
   if(!horizontal)swidth/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
   //The correction portion of delta_y is done in in the calculations on the ybases object in m_par
