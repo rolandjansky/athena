@@ -19,6 +19,9 @@
 
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : asg::AsgTool( name ),  JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_rhkEvtInfo("EventInfo"),
+    m_rhkRhoKey(""),
+    m_rhkPV("PrimaryVertices"),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), 
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
