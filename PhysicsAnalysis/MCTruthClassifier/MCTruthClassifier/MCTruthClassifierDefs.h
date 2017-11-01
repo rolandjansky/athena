@@ -20,7 +20,7 @@ Updated:
 #include <string>
 //
 #define PARTICLETYPES   40
-#define PARTICLEORIGIN  47
+#define PARTICLEORIGIN  48
 #define PARTICLEOUTCOME 12
 
 namespace MCTruthPartClassifier {
@@ -118,6 +118,7 @@ namespace MCTruthPartClassifier {
     PiZero        = 42,
     DiBoson       = 43,
     ZorHeavyBoson = 44,
+    MultiBoson    = 47,
     QCD           = 45
   };
 
@@ -240,6 +241,7 @@ namespace MCTruthPartClassifier {
       sParticleOrigin.push_back("ZorHeavyBoson");
       sParticleOrigin.push_back("QCD");
       sParticleOrigin.push_back("OtherBSM");
+      sParticleOrigin.push_back("MultiBoson");
 
       sParticleOutCome.reserve(PARTICLEOUTCOME);
       sParticleOutCome.push_back("NonDefinedOutCome");
