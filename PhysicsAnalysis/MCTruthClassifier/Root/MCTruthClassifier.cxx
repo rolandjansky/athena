@@ -821,7 +821,7 @@ ParticleType MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig){
       EleOrig == HeavyBoson || EleOrig == WBosonLRSM || EleOrig == NuREle    ||
       EleOrig == NuRMu      || EleOrig == NuRTau     || EleOrig == LQ        ||
       EleOrig == SUSY       || EleOrig == DiBoson    || EleOrig == ZorHeavyBoson ||
-      EleOrig == OtherBSM   || m_isPrompt ) {
+      EleOrig == OtherBSM   || EleOrig == MultiBoson || m_isPrompt ) {
     return IsoElectron;
   }
   if (EleOrig == JPsi          || EleOrig == BottomMeson  ||
@@ -1138,6 +1138,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
   }
 
+  //--Sherpa VVV
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //New Sherpa Z->ee
   if(partOriVert==m_MothOriVert&&partOriVert!=0){
     int NumOfEleLoop=0;
@@ -1224,7 +1233,7 @@ ParticleType MCTruthClassifier::defTypeOfMuon(ParticleOrigin MuOrig){
       MuOrig == HeavyBoson || MuOrig == WBosonLRSM || MuOrig == NuREle    ||
       MuOrig == NuRMu      || MuOrig == NuRTau     || MuOrig == LQ        ||
       MuOrig == SUSY       || MuOrig == DiBoson    || MuOrig == ZorHeavyBoson ||
-      MuOrig == OtherBSM   || m_isPrompt)  {
+      MuOrig == OtherBSM   || MuOrig == MultiBoson || m_isPrompt)  {
     return IsoMuon;
   }
   if (MuOrig == JPsi          || MuOrig == BottomMeson  ||
@@ -1457,6 +1466,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
   }
 
 
+  //--Sherpa VVV
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //--New Sherpa Z->mumu
   if(partOriVert==m_MothOriVert){
     int NumOfMuLoop=0;
@@ -1535,7 +1553,8 @@ ParticleType MCTruthClassifier::defTypeOfTau(ParticleOrigin TauOrig){
       TauOrig == SingleMuon || TauOrig == Higgs      || TauOrig == HiggsMSSM ||
       TauOrig == HeavyBoson || TauOrig == WBosonLRSM || TauOrig ==  NuREle   ||
       TauOrig == NuRMu      || TauOrig ==  NuRTau    || TauOrig == SUSY      ||
-      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson || TauOrig == OtherBSM )
+      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson || TauOrig == OtherBSM ||
+      TauOrig == MultiBoson )
     return IsoTau;
 
   if (TauOrig == JPsi          || TauOrig == BottomMeson  ||
@@ -1698,6 +1717,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfTau(const xAOD::TruthParticleContaine
     int pdg2=partOriVert->incomingParticle(1)->pdgId();
     if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
+  }
+
+  //--Sherpa VVV
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
   }
 
   //New Sherpa Z->tautau
@@ -2337,6 +2365,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
     int pdg2=partOriVert->incomingParticle(1)->pdgId();
     if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
+  }
+
+  //--Sherpa VVV
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon)==6&&
+     (NumOfEl+NumOfMu+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
   }
 
   //New Sherpa Z->nunu
