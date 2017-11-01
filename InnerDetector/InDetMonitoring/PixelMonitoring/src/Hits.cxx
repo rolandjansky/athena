@@ -308,29 +308,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     sc = rdoExpert.regHist(m_Details_mod4_ToT = TH1F_LW::create(("Details_ToT_" + m_DetailsMod4).c_str(), ("ToT mod4" + m_histTitleExt).c_str(), 300, -0.5, 299.5));
   }
 
-  if (m_doOfflineAnalysis) {
-    // Quick Status
-    hname = makeHistname("Hits_per_lumi_L0_B11_S2_C6", false);
-    htitles = makeHisttitle("Number of hits, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
-    sc = rdoShift.regHist(m_nhits_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-    m_nhits_L0_B11_S2_C6->SetOption("colz");
-
-    hname = makeHistname("Occupancy_per_lumi_L0_B11_S2_C6", false);
-    htitles = makeHisttitle("Average pixel occupancy per event, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits/pixel/event", false);
-    sc = rdoShift.regHist(m_occupancy_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-    m_occupancy_L0_B11_S2_C6->SetOption("colz");
-
-    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      hname = makeHistname(("AvgOcc_per_BCID_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-      htitles = makeHisttitle(("Average pixel occupancy per BCID per lumi, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_BCID + atext_occ), false);
-      sc = rdoExpert.regHist(m_avgocc_per_bcid_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5 + 2000, nbins_BCID, min_BCID, max_BCID));
-
-      hname = makeHistname(("Hit_ToT_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-      htitles = makeHisttitle(("Hit ToT per lumi, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_tot + atext_occ), false);
-      sc = rdoExpert.regHist(m_hit_ToT_per_lumi_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5 + 2000, nbins_tot3, min_tot3, max_tot3));
-    }
-  }
-
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms");
   return StatusCode::SUCCESS;
 }
@@ -423,7 +400,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
   double nhits = 0;
   double nhits_mod[PixLayerIBL2D3D::COUNT] = {0};
-  int nhits_L0_B11_S2_C6[96] = {0};
 
   int fewithHits_EA[nmod_phi[PixLayer::kECA]][nmod_eta[PixLayer::kECA]][16];
   int fewithHits_EC[nmod_phi[PixLayer::kECC]][nmod_eta[PixLayer::kECC]][16];
@@ -611,21 +587,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       // Quick Status
       int fephi = 0;
       int feeta = 0;
-      if (m_doOfflineAnalysis) {
-        if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta)) {
-          if (m_pixelid->phi_module(rdoID) == 0 && m_pixelid->eta_module(rdoID) < 0 && m_nhits_L0_B11_S2_C6) {
-            m_nhits_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), (16 * fabs(6 + m_pixelid->eta_module(rdoID))) + (8.0 * fephi) + feeta);
-            nhits_L0_B11_S2_C6[(int)(16 * fabs(6 + m_pixelid->eta_module(rdoID))) + (8 * fephi) + feeta]++;
-          }
-        }
-        // for Pixel Operation TF
-        if (pixlayer != 99 && m_hit_ToT_per_lumi_mod[pixlayer] && nGoodChannels_layer[pixlayer] > 0) {
-          m_hit_ToT_per_lumi_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0 / nGoodChannels_layer[pixlayer]);
-        }
-        if (pixlayer == PixLayer::kIBL && m_hit_ToT_per_lumi_mod[pixlayeribl2d3d] && nGoodChannels_layer[pixlayeribl2d3d] > 0) {
-          m_hit_ToT_per_lumi_mod[pixlayeribl2d3d]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0 / nGoodChannels_layer[pixlayeribl2d3d]);
-        }
-      }
       if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta)) {
         fewithHits_B0[m_pixelid->phi_module(rdoID)][(int)(fabs(6 + m_pixelid->eta_module(rdoID)))][(int)((8 * fephi) + feeta)] = 1;
       }
@@ -678,11 +639,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
   if (nGoodChannels_total > 0) avgocc = nhits / nGoodChannels_total;
   if (m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
-  if (m_doOfflineAnalysis) {
-    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      if (m_avgocc_per_bcid_per_lumi_mod[i]) m_avgocc_per_bcid_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), pix_rod_bcid, avgocc_mod[i]);
-    }
-  }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     if (nGoodChannels_layer[i] > 0) avgocc_mod[i] = nhits_mod[i] / nGoodChannels_layer[i];
@@ -776,13 +732,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       }
     }  // if (m_doModules)
   }    // if (!m_majorityDisabled)
-
-  // Quick Status
-  if (m_doOfflineAnalysis && m_occupancy_L0_B11_S2_C6) {
-    for (int i = 0; i < 96; i++) {
-      m_occupancy_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), i, (1.0 * nhits_L0_B11_S2_C6[i] / (18.0 * 164.0)));
-    }
-  }
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
     for (int phi = 0; phi < nmod_phi[i]; phi++) {

@@ -407,21 +407,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     }
   }
 
-  // Quick Status
-  if (m_doOfflineAnalysis) {
-    if (m_doOnTrack) {
-      hname = makeHistname("Clusters_onTrack_per_lumi_L0_B11_S2_C6", false);
-      htitles = makeHisttitle("Number of clusters on track, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
-      sc = clusterExpert.regHist(m_clusters_onTrack_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-      m_clusters_onTrack_L0_B11_S2_C6->SetOption("colz");
-
-      hname = makeHistname("Clusters_offTrack_per_lumi_L0_B11_S2_C6", false);
-      htitles = makeHisttitle("Number of clusters not on track, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
-      sc = clusterExpert.regHist(m_clusters_offTrack_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-      m_clusters_offTrack_L0_B11_S2_C6->SetOption("colz");
-    }
-  }
-
   if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Pixel cluster monitoring histograms not booked" << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -549,23 +534,9 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         npixHitsInCluster = (int)(m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->getXMax() - 0.5);
       }
 
-      // Quick Status
       int fephi = 0;
       int feeta = 0;
-      if (m_doOfflineAnalysis) {
-        if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta)) {
-          if (m_doOnTrack) {
-            if (m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) < 0) {
-              if (isOnTrack(clusID, true)) {
-                if (m_clusters_onTrack_L0_B11_S2_C6) m_clusters_onTrack_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), (16 * fabs(6 + m_pixelid->eta_module(clusID))) + (8.0 * fephi) + feeta);
-              } else {
-                if (m_clusters_offTrack_L0_B11_S2_C6) m_clusters_offTrack_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), (16 * fabs(6 + m_pixelid->eta_module(clusID))) + (8.0 * fephi) + feeta);
-              }
-            }
-          }
-        }
-      }
-
+     
       if (pixlayer != 99) nclusters_all++;  // count all (no DBM) clusters on and off track
 
       if (isOnTrack(clusID, true)) {

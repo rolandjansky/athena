@@ -240,17 +240,6 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     }
   }
 
-  if (m_doOfflineAnalysis) {
-    for (int j = 0; j < kNumErrorStates; j++) {
-      m_errhist_expert_LB_maps[j] = std::make_unique<PixelMon2DLumiMaps>(PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kPix));
-      sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
-    }
-    for (int j = kNumErrorStates; j < kNumErrorStates + kNumErrorStatesIBL; j++) {
-      m_errhist_expert_LB_maps[j] = std::make_unique<PixelMon2DLumiMaps>(PixelMon2DLumiMaps(error_state_labelsIBL[j - kNumErrorStates].first + "_int_LB", error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kIBL));
-      sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
-    }
-  }
-
   for (int j = 0; j < kNumErrorStates; j++) {
     for (int i = 0; i < PixLayer::COUNT - 1; i++) {
       hname = makeHistname((error_state_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
@@ -477,7 +466,6 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             num_errors_per_stateIBL[getErrorState(bit, is_ibl) - kNumErrorStates]++;
           }
           if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
-          if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->fill(kLumiBlock, WaferID, m_pixelid, 1);
         }
 
         if (kLayer == PixLayer::kIBL) {
@@ -550,7 +538,6 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             if (getErrorState(bit, is_ibl) != 99) {
               num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
               if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
-              if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->fill(kLumiBlock, WaferID, m_pixelid, 1);
             }
           }  // end bit shifting
         }    // end for loop over bits
