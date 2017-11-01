@@ -14,18 +14,19 @@ The recommended tags are on the [background forum TWiki page](https://twiki.cern
 AnalysisBase / AthAnalysisBase Setup
 ------------------------------------
 
-Because these two releases are becoming more similar, most of the instructions are the same.  These instructions refer to 21.2.5 as an example, but you should pick the appropriate version when setting up.  Set up the latest recommended AnalysisBase release::
+Because these two releases are becoming more similar, most of the instructions are the same.  These instructions refer to 21.2.8 as an example, but you should pick the appropriate version when setting up.  Set up the latest recommended AnalysisBase release::
 
 ```bash
 setupATLAS
-asetup AnalysisBase,21.2.5
+lsetup git
+asetup AnalysisBase,21.2.8
 ```
 
 Or the latest AthAnalysis release::
 
 ```bash
 setupATLAS
-asetup AthAnalysis,21.2.5
+asetup AthAnalysis,21.2.8
 ```
 
 For working with code, a sparse checkout is pretty straightforward.  
@@ -39,7 +40,7 @@ And then the version of SUSYTools in the release can be checked out via::
 
 ```bash
 cd athena
-git checkout 21.2.5
+git checkout 21.2.8
 git atlas addpkg SUSYTools
 ```
 
