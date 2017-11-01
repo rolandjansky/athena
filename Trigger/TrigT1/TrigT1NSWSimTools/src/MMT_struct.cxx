@@ -600,14 +600,14 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
 
   //////////  for cut applications  /////////////////
   double tol = 0;  //0.02;
-//   minimum_large_theta = atan((cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)/z_nominal.front())+tol;
-//   ATH_MSG_DEBUG("Old min theta has dist_T of "<<(cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)<<" for a min angle of "<<minimum_large_theta<<" eta="<<-log(tan(0.5*minimum_large_theta)));
-//   maximum_large_theta = atan((H+h1)/z_nominal.back())-tol;
+  //   minimum_large_theta = atan((cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)/z_nominal.front())+tol;
+  //   ATH_MSG_DEBUG("Old min theta has dist_T of "<<(cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)<<" for a min angle of "<<minimum_large_theta<<" eta="<<-log(tan(0.5*minimum_large_theta)));
+  //   maximum_large_theta = atan((H+h1)/z_nominal.back())-tol;
 
   //BLC had some interesting bounds...let's do the ones that make sense to me
   minimum_large_theta = float32fixed<4>(atan(H.getFloat()/z_nominal.back().getFloat())+tol);
   maximum_large_theta = float32fixed<4>(atan(sqrt(pow(Hnom+h1,2)+0.25*pow(w1.getFloat(),2))/z_nominal.back().getFloat())-tol);
-//   minimum_large_phi = float32fixed<4>(TMath::Pi()/2-TMath::DegToRad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(TMath::Pi()/2+TMath::DegToRad(0.5*wedge_opening_angle.getFloat())-tol);
+  //   minimum_large_phi = float32fixed<4>(TMath::Pi()/2-TMath::DegToRad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(TMath::Pi()/2+TMath::DegToRad(0.5*wedge_opening_angle.getFloat())-tol);
   minimum_large_phi = float32fixed<4>(-TMath::DegToRad()*0.5*wedge_opening_angle.getFloat())+tol;  maximum_large_phi = float32fixed<4>(TMath::DegToRad()*(0.5*wedge_opening_angle.getFloat())-tol);
   ///////////////////////////////////////////////////
 
@@ -643,15 +643,19 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   //////////////////////////////
 
   /////// Front Filter /////////////
-  double theta_max=maximum_large_theta.getFloat(),theta_min=minimum_large_theta.getFloat();
+  double theta_max=maximum_large_theta.getFloat();
+  double theta_min=minimum_large_theta.getFloat();
+
   slope_max = float32fixed<3>(tan(theta_max));
   slope_min = float32fixed<3>(tan(theta_min));
+  
   //--- the following slope road and thresholds are often re-defined immediately in any master script running the file
-//   h = 0.0009;//2.5e-4;  //10^(-3);
-//   CT_x = 3;
+  //   h = 0.0009;//2.5e-4;  //10^(-3);
+  //   CT_x = 3;
+  
   CT_u = 0;
   CT_v = 0;
-//   CT_uv = 2;//3 in Run_File.m
+  //   CT_uv = 2;//3 in Run_File.m
   CT = CT_x + CT_uv;
   x_error = .0035;//h*0.5;
   //uv_error = 0.0035;//3.5e-3;
