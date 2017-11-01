@@ -94,9 +94,9 @@ nsw::vswptrig_t L1stl::buildSingleWedgeTriggers(const vpads_t &pads,
     const vsize_t &hitIdxs2 = padIndicesLayer2;
     const vsize_t &hitIdxs3 = padIndicesLayer3;
     bool isL1(isLayer1), isL2(isLayer2), isL3(isLayer3), isL4(isLayer4);
-    if(verbose)
-      cout<<" layer mask  ["<<isL1<<" "<< isL2 <<" "<<isL3<<" "<<isL4<<"]"
-          <<" nHits/layer "<<hitIdxs0.size()<<" "<<hitIdxs1.size()<<" "<<hitIdxs2.size()<<" "<<hitIdxs3.size()<<endl;
+    // if(verbose)
+    //   cout<<" layer mask  ["<<isL1<<" "<< isL2 <<" "<<isL3<<" "<<isL4<<"]"
+    //       <<" nHits/layer "<<hitIdxs0.size()<<" "<<hitIdxs1.size()<<" "<<hitIdxs2.size()<<" "<<hitIdxs3.size()<<endl;
     size_t nHL1 = (isL1 ? hitIdxs0.size() : 1);
     size_t nHL2 = (isL2 ? hitIdxs1.size() : 1);
     size_t nHL3 = (isL3 ? hitIdxs2.size() : 1);

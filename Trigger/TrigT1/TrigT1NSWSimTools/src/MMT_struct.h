@@ -77,7 +77,7 @@ template<unsigned char T> class float32fixed
   //these operators might not be generic enough, but we're not sure about the ones defined below, so we keep them
   float operator+(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to add floating point and fixed point numbers, will add as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to add floating point and fixed point numbers, will add as float" );
       return other.floatp_content+this->floatp_content;
     }
     if(useFloat)
@@ -87,7 +87,7 @@ template<unsigned char T> class float32fixed
   }
   float operator-(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to subtract floating point and fixed point numbers, will subtract as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to subtract floating point and fixed point numbers, will subtract as float" );
       return this->floatp_content-other.floatp_content;
     }
     if(useFloat)
@@ -97,7 +97,7 @@ template<unsigned char T> class float32fixed
   }
   float operator*(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to multiply floating point and fixed point numbers, will multiply as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to multiply floating point and fixed point numbers, will multiply as float" );
       return other.floatp_content*this->floatp_content;
     }
     if(useFloat)
@@ -107,7 +107,7 @@ template<unsigned char T> class float32fixed
   }
   float operator/(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return this->floatp_content/other.floatp_content;
     }
     if(useFloat)
@@ -152,7 +152,7 @@ template<unsigned char T> class float32fixed
 
   bool operator<(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return this->floatp_content<other.floatp_content;
     }
     if(useFloat)
@@ -162,7 +162,7 @@ template<unsigned char T> class float32fixed
   }
   bool operator>(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return this->floatp_content>other.floatp_content;
     }
     if(useFloat)
@@ -172,7 +172,7 @@ template<unsigned char T> class float32fixed
   }
   bool operator<=(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return other.floatp_content>=this->floatp_content;
     }
     if(useFloat)
@@ -182,7 +182,7 @@ template<unsigned char T> class float32fixed
   }
   bool operator>=(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return other.floatp_content<=this->floatp_content;
     }
     if(useFloat)
@@ -216,7 +216,7 @@ template<unsigned char T> class float32fixed
   }
   bool operator==(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
-      std::cout << "WARNING: Trying to divide floating point and fixed point numbers, will divide as float" << std::endl;
+      ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
       return other.floatp_content==this->floatp_content;
     }
     if(useFloat)

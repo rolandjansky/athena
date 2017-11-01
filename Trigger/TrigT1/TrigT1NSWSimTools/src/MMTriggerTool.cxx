@@ -325,9 +325,6 @@ namespace NSWL1 {
 
             }//fit roi > 0
           } // end road_fits
-
-          cout<<"MMT::p_e::END EVENT #"<<event<<endl;
-
         }//end if HDSTS EMPTY
       }//end if PASS_CUTS
 

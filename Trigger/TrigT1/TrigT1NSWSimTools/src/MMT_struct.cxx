@@ -477,7 +477,7 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   strip_width = float32fixed<4>(roParam_top_mult1.stripPitch);  // 0.5;
   stereo_degree = float32fixed<4>(TMath::RadToDeg()*roParam_top_mult1.stereoAngel.at(2)); //0.75 //3 in degrees!
   float32fixed<2> degree=roParam_top_mult1.stereoAngel.at(2);
-  std::cout << "DEGREE" << degree.getFloat()  << " " << stereo_degree.getFloat() << std::endl;
+  // std::cout << "DEGREE" << degree.getFloat()  << " " << stereo_degree.getFloat() << std::endl;
   vertical_strip_width_UV = strip_width.getFloat()/cos(degree.getFloat());
   ybases=vector<vector<float32fixed<18> > >(setup.size(),vector<float32fixed<18> >(n_stations_eta,float32fixed<18>(0.)));
 
