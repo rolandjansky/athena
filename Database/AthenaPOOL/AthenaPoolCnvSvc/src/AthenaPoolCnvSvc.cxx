@@ -32,9 +32,6 @@
 
 #include "AuxDiscoverySvc.h"
 
-static const std::string s_DH_guid("D82968A1-CF91-4320-B2DD-E0F739CBC7E6");
-static const std::string s_DHF_guid("3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE");
-
 //______________________________________________________________________________
 // Initialize the service.
 StatusCode AthenaPoolCnvSvc::initialize() {
@@ -406,6 +403,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             std::string contName = strstr(placementStr, "[CONT=");
             tokenStr = tokenStr.substr(0, tokenStr.find("[CONT=")) + contName.substr(contName.find(']') + 1);
             contName = contName.substr(6, contName.find(']') - 6);
+            std::string className = strstr(placementStr, "[PNAME=");
+            className = className.substr(7, className.find(']') - 7);
+            RootType classDesc = RootType::ByName(className);
             void* obj = nullptr;
             std::string::size_type len = m_metadataContainerProp.value().size();
             // For Metadata fire incident to read object into store
@@ -419,10 +419,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             } else {
                Token readToken;
                readToken.setOid(Token::OID_t(num, 0));
-               std::string className = strstr(placementStr, "[CLID=");
-               className = className.substr(6, className.find(']') - 6);
-               Guid classId(className);
-               readToken.setClassID(classId);
+               readToken.setAuxString("[PNAME=" + className + "]");
                this->setObjPtr(obj, &readToken); // Pull/read Obbject out of shared memory
                if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()) {
                   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
@@ -437,12 +434,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
-                  RootType classDesc;
-                  if (classId != Guid::null()) {
-                     classDesc = pool::DbReflex::forGuid(classId);
-                  } else {
-                     classDesc = RootType::ByName(className);
-                  }
                   const Token* token = this->registerForWrite(&placement, obj, classDesc);
                   if (token == nullptr) {
                      ATH_MSG_ERROR("Failed to write Data for: " << className);
@@ -452,7 +443,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   delete token; token = nullptr;
 
                   // For DataHeaderForm, Token needs to be inserted to DataHeader Object
-                  if (className == s_DHF_guid) {
+                  if (className == "DataHeaderForm_p5") {
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
                      IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                      if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
@@ -460,7 +451,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                         return(StatusCode::FAILURE);
                      }
                   // Found DataHeader
-                  } else if (className == s_DH_guid) {
+                  } else if (className == "DataHeader_p5") {
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
                      IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                      if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
@@ -468,7 +459,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                         return(StatusCode::FAILURE);
                      }
                      commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
-                  } else if (className != "E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A" && !classDesc.IsFundamental()) {
+                  } else if (className != "Token" && !classDesc.IsFundamental()) {
                      commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
                   }
 
@@ -662,11 +653,9 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       std::string placementStr = placement->toString();
       std::size_t formPos = placementStr.find("[FORM=");
       if (formPos != std::string::npos) {
-         placementStr = placementStr.substr(0, formPos) + "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]" + placementStr.substr(formPos);
-      } else if (!classDesc.IsFundamental()) {
-         placementStr += "[CLID=" + pool::DbReflex::guid(classDesc).toString() + "]";
+         placementStr = placementStr.substr(0, formPos) + "[PNAME=" + classDesc.Name() + "]" + placementStr.substr(formPos);
       } else {
-         placementStr += "[CLID=" + classDesc.Name() + "]";
+         placementStr += "[PNAME=" + classDesc.Name() + "]";
       }
       ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
@@ -724,6 +713,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       }
       Token* tempToken = new Token();
       tempToken->fromString(tokenStr); tokenStr = nullptr;
+      tempToken->setClassID(pool::DbReflex::guid(classDesc));
       token = tempToken; tempToken = nullptr;
    } else {
       if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
@@ -737,11 +727,6 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          Token* tempToken = new Token();
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
-         if (token->classID().toString() == s_DH_guid) {
-            ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
-            FileIncident proxyIncident(name(), "ShmMap", token->toString());
-            incSvc->fireIncident(proxyIncident);
-         }
       } else {
          token = m_poolSvc->registerForWrite(placement, obj, classDesc);
       }
@@ -777,8 +762,12 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             RootType cltype(pool::DbReflex::forGuid(token->classID()));
             obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
          } else {
-            obj = new char[nbytes];
-            std::memcpy(obj, buffer, nbytes); buffer = nullptr;
+            // Deserialize object
+            std::string className = token->auxString();
+            className = className.substr(className.find("[PNAME="));
+            className = className.substr(7, className.find(']') - 7);
+            RootType cltype(RootType::ByName(className));
+            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
          }
          AuxDiscoverySvc auxDiscover;
          if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
@@ -845,7 +834,9 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (par[0] == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
-      token->setClassID(Guid(par[1]));
+      token->setAuxString("[PNAME=" + par[1] + "]");
+      RootType classDesc = RootType::ByName(par[1]);
+      token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
       addressToken.setDb(par[0].substr(4));

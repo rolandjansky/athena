@@ -43,14 +43,25 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
    declareProperty("CnvSvc", m_addrCrtr = ServiceHandle<IAddressCreator>("AthenaPoolCnvSvc", name));
-   // MetaData that is skipped by mother process (for 0-event files) needs to be added manually
-   m_persToClid.insert(std::pair<std::string, CLID>("0EFE2D2C-9E78-441D-9A87-9EE2B908AC81",  243004407)); // xAOD::EventFormat
-   m_persToClid.insert(std::pair<std::string, CLID>("AA55120B-11CF-44A3-B1E4-A5AB062207B7", 1107011239)); // xAOD::TriggerMenuContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("B8614CC5-8696-4170-8CCC-496DA7671246", 1212409402)); // xAOD::TriggerMenuAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0", 1115934851)); // xAOD::LumiBlockRangeContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("514696E1-A262-470A-BEB1-FF980CD8827A", 1251061086)); // xAOD::LumiBlockRangeAuxContainer
-   m_persToClid.insert(std::pair<std::string, CLID>("C87E3828-4A7A-480A-95DE-0339539F6A0F",  178309087)); // xAOD::FileMetaData
-   m_persToClid.insert(std::pair<std::string, CLID>("BEE2BECF-A936-4078-9FDD-AD703C9ADF9F",   73252552)); // xAOD::FileMetaDataAuxInfo
+   // persistent class name to transient CLID map
+   m_persToClid.insert(std::pair<std::string, CLID>("DataHeader_p5", 222376821));
+   m_persToClid.insert(std::pair<std::string, CLID>("EventStreamInfo_p3", 167728019));
+   m_persToClid.insert(std::pair<std::string, CLID>("ByteStreamMetadataContainer_p1", 1076128893));
+   m_persToClid.insert(std::pair<std::string, CLID>("IOVMetaDataContainer_p1", 1316383046));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::EventFormat_v1", 243004407));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::CutBookkeeperContainer_v1", 1234982351));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::CutBookkeeperAuxContainer_v1", 1147935274));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuContainer_v1", 1107011239));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TriggerMenu_v1>", 1107011239));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuAuxContainer_v1", 1212409402));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeContainer_v1", 1115934851));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::LumiBlockRange_v1>", 1115934851));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeAuxContainer_v1", 1251061086));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::FileMetaData_v1", 178309087));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::FileMetaDataAuxInfo_v1", 73252552));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::RingSetConfContainer_v1", 1157997427));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::RingSetConf_v1>", 1157997427));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::RingSetConfAuxContainer_v1", 1307745126));
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -105,7 +116,6 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "EndTagFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
    m_incSvc->addListener(this, "ShmProxy", 90);
-   m_incSvc->addListener(this, "ShmMap", 90);
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -297,22 +307,6 @@ void MetaDataSvc::handle(const Incident& inc) {
       if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
          ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
       }
-   } else if (inc.type() == "ShmMap") {
-      std::vector<std::string> keys;
-      m_outputDataStore->keys<DataHeader>(keys);
-      for (const auto &key : keys) {
-         const DataHeader* dataHeader;
-         if (!m_outputDataStore->retrieve(dataHeader, key).isSuccess()) {
-            ATH_MSG_ERROR("Could not find DataObject in output: " << key);
-         }
-         for (std::vector<DataHeaderElement>::const_iterator dhIter = dataHeader->begin(),
-		         dhLast = dataHeader->end(); dhIter != dhLast; dhIter++) {
-            if (dhIter->getToken() != nullptr) {
-               ATH_MSG_DEBUG("Registering Persistent: " << dhIter->getToken()->classID().toString() << " to Transient: " << dhIter->getPrimaryClassID());
-               m_persToClid.insert(std::pair<std::string, CLID>(dhIter->getToken()->classID().toString(), dhIter->getPrimaryClassID()));
-            }
-         }
-      }
    }
 }
 //__________________________________________________________________________
@@ -363,7 +357,7 @@ StatusCode MetaDataSvc::rootOpenAction(FILEMGR_CALLBACK_ARGS) {
 StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr) {
    std::string fileName = tokenStr.substr(tokenStr.find("[FILE=") + 6);
    fileName = fileName.substr(0, fileName.find(']'));
-   std::string className = tokenStr.substr(tokenStr.find("[CLID=") + 6);
+   std::string className = tokenStr.substr(tokenStr.find("[PNAME=") + 7);
    className = className.substr(0, className.find(']'));
    std::string contName = tokenStr.substr(tokenStr.find("[CONT=") + 6);
    contName = contName.substr(0, contName.find(']'));
