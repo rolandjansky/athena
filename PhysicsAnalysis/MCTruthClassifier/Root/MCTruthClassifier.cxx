@@ -1474,21 +1474,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
     int pdg2=partOriVert->incomingParticle(1)->pdgId();
     if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
-    std::cout << "First part was good..." << std::endl;
   }
-  else std::cout << "Fell through..." << m_NumOfParents << " " << m_NumOfDaug-NumOfquark-NumOfgluon << " " << NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut << std::endl;
-
-    if( DaugType      == 11 ) NumOfEl++;
-    if( DaugType      ==-11 ) NumOfPos++;
-    if( DaugType      == 13 ) NumOfMuMin++;
-    if( DaugType      ==-13 ) NumOfMuPl++;
-    if( abs(DaugType) == 12 ) NumOfElNeut++;
-    if( abs(DaugType) == 14 ) NumOfMuNeut++;
-    if( abs(DaugType) == 15 ) NumOfTau++;
-    if( abs(DaugType) == 16 ) NumOfTauNeut++;
-    if( abs(DaugType) == 42 ) NumOfLQ++;
-    if( abs(DaugType)  < 7  ) NumOfquark++;
-    if( abs(DaugType) == 21 ) NumOfgluon++;
 
   //--New Sherpa Z->mumu
   if(partOriVert==m_MothOriVert){
