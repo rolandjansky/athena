@@ -40,16 +40,8 @@ And then the version of SUSYTools in the release can be checked out via::
 
 ```bash
 cd athena
-git checkout 21.2.8
 git atlas addpkg SUSYTools
-```
-
-or the latest version (which lives in the 21.2 branch)::
-
-```bash
-cd athena
-git checkout 21.2
-git atlas addpkg SUSYTools
+git checkout -b my21.2 remotes/origin/21.2
 ```
 
 Then, to compile::
