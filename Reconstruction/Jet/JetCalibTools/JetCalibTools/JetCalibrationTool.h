@@ -83,6 +83,11 @@ private:
 
 //Private members
 private:
+  // ReadHandleKey(s)
+  SG::ReadHandleKey<xAOD::EventInfo>        m_rhkEvtInfo;
+  SG::ReadHandleKey<xAOD::EventShape>       m_rhkRhoKey;
+  SG::ReadHandleKey<xAOD::VertexContainer>  m_rhkPV;
+
   //Variables for configuration
   std::string m_jetAlgo;
   std::string m_config;

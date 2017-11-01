@@ -56,6 +56,13 @@ JetCalibrationTool::~JetCalibrationTool() {
 StatusCode JetCalibrationTool::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
   ATH_CHECK( this->initializeTool( name() ) );
+
+  // Initialise ReadHandle(s)
+  ATH_CHECK( m_rhkEvtInfo.initialize() );
+  ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
+  ATH_CHECK( m_rhkRhoKey.initialize() );
+  ATH_CHECK( m_rhkPV.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -393,11 +400,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
   double rho=0;
   const xAOD::EventShape * eventShape = 0;
-  if ( m_doJetArea && evtStore()->contains<xAOD::EventShape>(m_rhoKey) ) {
+
+  SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
+
+  if ( m_doJetArea && rhRhoKey.isValid() ) {
     ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
-    if ( evtStore()->retrieve(eventShape, m_rhoKey).isFailure() || !eventShape ) {
+    eventShape = rhRhoKey.cptr();
+    if ( !rhRhoKey.isValid() ) {
       ATH_MSG_VERBOSE("  Event shape container not found.");
-      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape from evtStore.");
+      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
       return StatusCode::FAILURE;
     } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
       ATH_MSG_VERBOSE("  Event density not found in container.");
@@ -406,9 +417,9 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     } else {
       ATH_MSG_VERBOSE("  Event density retrieved.");
     }
-  } else if ( m_doJetArea && !evtStore()->contains<xAOD::EventShape>(m_rhoKey) ) {
+  } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
     ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
-    ATH_MSG_FATAL("Could not retrieve xAOD::EventShape from evtStore.");
+    ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
     return StatusCode::FAILURE;
   }
   jetEventInfo.setRho(rho);
@@ -418,7 +429,10 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   if ( m_doResidual || m_doGSC ) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
-    if ( evtStore()->retrieve(eventObj,m_eInfoName).isFailure() || !eventObj ) {
+    SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_rhkEvtInfo);
+    if ( rhEvtInfo.isValid() ) {
+      eventObj = rhEvtInfo.cptr();
+    } else {
       ++eventInfoWarnings;
       if ( eventInfoWarnings < 20 )
         ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve event information.");
@@ -454,7 +468,11 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       //Retrieve VertexContainer object, use it to obtain NPV for the residual correction or check validity of GSC non-PV0 usage
       const xAOD::VertexContainer * vertices = 0;
       static unsigned int vertexContainerWarnings = 0;
-      if ( evtStore()->retrieve(vertices,"PrimaryVertices").isFailure() || !vertices ) {
+
+      SG::ReadHandle<xAOD::VertexContainer> rhPV(m_rhkPV);
+      if (rhPV.isValid()) {
+        vertices = rhPV.cptr(); 
+      } else {
         ++vertexContainerWarnings;
         if ( vertexContainerWarnings < 20 )
           ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");
