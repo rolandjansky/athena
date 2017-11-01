@@ -57,9 +57,13 @@ public:
   /// to schedule an Athena algorithm (see python/EventDensityConfig).
   void renameEventDensities();
 protected:
+  // DataHandles
+  SG::ReadHandleKey<xAOD::EventShape>       m_outputEventShapeIn;
+  SG::ReadHandleKey<xAOD::EventShape>       m_inputEventShape;
+  SG::WriteHandleKey<xAOD::EventShape>      m_outputEventShape;
   
-  std::string m_inputEventShape;
-  std::string m_outputEventShape;
+  //std::string m_inputEventShape;
+  //std::string m_outputEventShape;
   std::string m_eventDensityName;
 
 }; 
