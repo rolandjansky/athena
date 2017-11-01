@@ -442,7 +442,6 @@ private:
 #define CONCATUNF(x,y) CONCATUNF_(x,y)
 #define UNIQUEVARNAME CONCATUNF(CONCATUNF(REGCCM_,__COUNTER__),__LINE__)
 
-#define REGISTER_CC(T) static CondContainer::CondContMaker<T> UNIQUEVARNAME {}
 
 /// Declare a conditions container along with its CLID.
 // For a conditions container not deriving from another, do
