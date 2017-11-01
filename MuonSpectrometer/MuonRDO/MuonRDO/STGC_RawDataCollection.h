@@ -10,9 +10,13 @@
 #include "Identifier/IdentifierHash.h"
 
 namespace Muon {
+  class STGC_RawDataContainerCnv_p1;
+    
   class STGC_RawDataCollection : public DataVector<STGC_RawData>
   {
   public:
+    friend class Muon::STGC_RawDataContainerCnv_p1;
+    
     STGC_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 
     const IdentifierHash& identifyHash() const { return m_idHash; }

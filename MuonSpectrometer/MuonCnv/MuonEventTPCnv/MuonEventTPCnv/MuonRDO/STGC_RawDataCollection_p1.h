@@ -15,7 +15,6 @@ namespace Muon {
   public:
     // Default constructor
     STGC_RawDataCollection_p1 () : m_idHash(0) {}
-  private:
     unsigned int m_idHash; 
   };
 }
