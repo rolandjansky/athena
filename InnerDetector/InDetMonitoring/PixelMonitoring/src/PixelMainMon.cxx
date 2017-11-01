@@ -179,7 +179,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_hit_ToT, 0, sizeof(m_hit_ToT));
   memset(m_hit_ToT_tmp_mod, 0, sizeof(m_hit_ToT_tmp_mod));
   memset(m_hit_ToT_Mon_mod, 0, sizeof(m_hit_ToT_Mon_mod));
-  memset(m_ToT_etaphi_mod, 0, sizeof(m_ToT_etaphi_mod));
   memset(m_hit_ToTMean_mod, 0, sizeof(m_hit_ToTMean_mod));
 
   // timing

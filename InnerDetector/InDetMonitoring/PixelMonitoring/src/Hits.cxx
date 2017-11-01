@@ -197,19 +197,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     }
   }
 
-  if (m_doModules && !m_doOnline) {
-    for (int i = 0; i < PixLayer::COUNT; i++) {
-      tmp = "ToT_etaphi";
-      tmp2 = "Average Hit ToT Map";
-      atitles = ";Module eta;Module phi;Avg. ToT";
-      float xmin = -0.5;
-      float xmax = xmin + (1.0 * nmod_eta[i]);
-      float ymin = -0.5;
-      float ymax = ymin + (1.0 * nmod_phi[i]);
-      sc = rdoExpert.regHist(m_ToT_etaphi_mod[i] = TProfile2D_LW::create((tmp + "_" + m_modLabel_PixLayerIBL2D3D[i]).c_str(), (tmp2 + ", " + m_modLabel_PixLayerIBL2D3D[i] + m_histTitleExt + atitles).c_str(), nmod_eta[i], xmin, xmax, nmod_phi[i], ymin, ymax));
-    }
-  }
-
   if (m_doTiming) {
     sc = timeExpert.regHist(m_Lvl1ID_PIX = TH1I_LW::create("LvlID_PIX", ("Level 1 ID (PIX)" + m_histTitleExt + ";level 1 ID" + atext_nhit).c_str(), 20, -0.5, 19.5));
     sc = timeExpert.regHist(m_Lvl1ID_IBL = TH1I_LW::create("LvlID_IBL", ("Level 1 ID (IBL)" + m_histTitleExt + ";level 1 ID" + atext_nhit).c_str(), 40, -0.5, 39.5));
@@ -551,7 +538,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_doLumiBlock && pixlayer != 99 && m_hit_ToT_LB_mod[pixlayer]) {
         m_hit_ToT_LB_mod[pixlayer]->Fill((*p_rdo)->getToT());
       }
-      if (pixlayer != 99 && m_ToT_etaphi_mod[pixlayer]) m_ToT_etaphi_mod[pixlayer]->Fill(m_pixelid->eta_module(rdoID), m_pixelid->phi_module(rdoID), (*p_rdo)->getToT());
 
       if (m_doOnline && pixlayer != 99 && m_hit_ToT_tmp_mod[pixlayer]) {
         m_hit_ToT_tmp_mod[pixlayer]->Fill((*p_rdo)->getToT());

@@ -326,7 +326,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1F_LW* m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
   TH1F_LW* m_hit_ToT_tmp_mod[PixLayer::COUNT];
   TH1F_LW* m_hit_ToT_Mon_mod[PixLayer::COUNT];
-  TProfile2D_LW* m_ToT_etaphi_mod[PixLayer::COUNT];
   TProfile_LW* m_hit_ToTMean_mod[PixLayer::COUNT];
 
   // timing
