@@ -27,7 +27,7 @@ atlas_add_component( TrigT1NSW
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} 
-                     AthenaBaseComps GaudiKernel TrigInterfaces TrigT1NSWSimTools AthenaMonitoringLib
+                     AthenaBaseComps GaudiKernel TrigInterfacesLib TrigT1NSWSimTools AthenaMonitoringLib
                      StoreGateLib SGtests EventInfo )
 
 # Install files from the package:
