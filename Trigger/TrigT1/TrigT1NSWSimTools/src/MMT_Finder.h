@@ -16,8 +16,8 @@ class MMT_Finder{
   MMT_Finder(MMT_Parameters *par);
   ~MMT_Finder(){}
   int Coincidence_Gate(const vector<bool>& plane_hits) const;
-  void set_roads(int _roads) { roads=_roads; }
-  int get_roads() const {return roads;}
+  void set_roads(int _roads) { m_nRoads=_roads; }
+  int get_roads() const {return m_nRoads;}
   void fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const Hit& hit) const;
   void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const;
 
@@ -30,11 +30,12 @@ class MMT_Finder{
  private:
   vector<int> q_planes(const string& type) const;
   //Finder components
-  double clock,max_age;
-  int roads;
-  double slope_min,slope_max;
-  vector<vector<double> > Gate_Flags; 
-  vector<vector<finder_entry> > Finder;
+  double m_clock,m_max_age;
+  int m_nRoads;
+  double m_slope_min;
+  double m_slope_max;
+  vector<vector<double> > m_gateFlags;
+  vector<vector<finder_entry> > m_finder;
   MMT_Parameters* m_par;
 
   /// Private message stream member

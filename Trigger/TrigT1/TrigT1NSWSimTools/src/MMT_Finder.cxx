@@ -8,14 +8,19 @@
 #include "MMT_Finder.h"
 
 MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
+
   m_par = par;
+
   ATH_MSG_DEBUG("MMT_Find::building finder");
-  roads=ceil(1.*(m_par->slope_max-m_par->slope_min)/m_par->h.getFloat());//initialization, can use floats
+
+  m_nRoads = ceil(1.*(m_par->slope_max-m_par->slope_min)/m_par->h.getFloat()); //initialization, can use floats
   int nplanes=m_par->setup.size();
-  ATH_MSG_DEBUG("MMT_Find::finder entries " << roads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
-  Gate_Flags=vector<vector<double> >(roads,(vector<double>(2,0)));// sloperoad,
-  //plane, [10*xhits+uvhits,hit yes/no]//[hit yes/no, time_stamp]
-  Finder=vector<vector<finder_entry> >(roads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
+
+  ATH_MSG_DEBUG("MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
+
+  m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
+  m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
+
   ATH_MSG_DEBUG("MMT_Find::built finder");
 }
 
@@ -52,8 +57,8 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
     int road_min = round((s_min - m_par->slope_min)/h.getFloat());
     int road_max = round((s_max - m_par->slope_min)/h.getFloat());
 
-    if(road_min<0)road_min=0;
-    if(road_max>=roads){ road_max=roads-1; }
+    if( road_min < 0 ) road_min = 0 ;
+    if( road_max >= m_nRoads ){ road_max = m_nRoads - 1 ; }
 
     // road_min / max represent a range of roads that I will consider hit
 
@@ -64,10 +69,10 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
       key.first = road;
 
       if( evFinder.find(key) == evFinder.end() ){ // If this road+plane combination is not already in the buffer
-        evFinder[key]=finder_entry(true,clock,hit); // Put it in there!
+        evFinder[key]=finder_entry(true,m_clock,hit); // Put it in there!
       }
       else if( hit.key < evFinder.find(key)->second.hit.key ){ // Or if this hit's key is smaller than the key that's in there...
-        evFinder[key]=finder_entry(true,clock,hit);
+        evFinder[key]=finder_entry(true,m_clock,hit);
       }
 
     } // road loop
