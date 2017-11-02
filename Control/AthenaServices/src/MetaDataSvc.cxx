@@ -38,6 +38,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_clearedInputDataStore(true),
 	m_allowMetaDataStop(false),
 	m_persToClid(),
+	m_toolForClid(),
 	m_streamForKey() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
@@ -62,6 +63,15 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::RingSetConfContainer_v1", 1157997427));
    m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::RingSetConf_v1>", 1157997427));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::RingSetConfAuxContainer_v1", 1307745126));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TruthMetaDataContainer_v1", 1188015687));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TruthMetaData_v1>", 1188015687));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TruthMetaDataAuxContainer_v1", 1094306618));
+   // some classes need to have new/different tools added for metadata propagation
+   m_toolForClid.insert(std::pair<CLID, std::string>(167728019, "CopyEventStreamInfo"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(243004407, "xAODMaker::EventFormatMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -374,19 +384,12 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const std::string par[2] = { "SHM" , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
-
-   if (clid == 167728019) { // EventStreamInfo, needs to change tool to combine input metadata
+   if (clid == 167728019) { // EventStreamInfo, will change tool to combine input metadata, clearing things before...
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
-         if ((*iter)->name() == "ToolSvc.SHM_CopyEventStreamInfo") foundTool = true;
+         if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo") foundTool = true;
       }
       if (!foundTool) {
-         ToolHandle<IAlgTool> copyTool("CopyEventStreamInfo/SHM_CopyEventStreamInfo");
-         m_metaDataTools.push_back(copyTool);
-         if (!copyTool.retrieve().isSuccess()) {
-            ATH_MSG_FATAL("Cannot get CopyEventStreamInfo/SHM_CopyEventStreamInfo");
-            return(StatusCode::FAILURE);
-         }
          ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
          if (cfSvc.retrieve().isSuccess()) {
             m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
@@ -399,28 +402,19 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
          }
       }
-   } else if (clid == 1234982351) { // xAOD::CutBookkeeperContainer, needs to change tool to combine input metadata
+   }
+   const std::string toolName = m_toolForClid[clid];
+   if (!toolName.empty()) {
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
-         if ((*iter)->name() == "ToolSvc.SHM_BookkeeperTool") foundTool = true;
+         if ((*iter)->name() == "ToolSvc." + toolName) foundTool = true;
       }
       if (!foundTool) {
-         ToolHandle<IAlgTool> bookkeeperTool("BookkeeperTool/SHM_BookkeeperTool");
-         m_metaDataTools.push_back(bookkeeperTool);
-         if (!bookkeeperTool.retrieve().isSuccess()) {
-            ATH_MSG_FATAL("Cannot get BookkeeperTool/SHM_BookkeeperTool");
+         ToolHandle<IAlgTool> metadataTool(toolName);
+         m_metaDataTools.push_back(metadataTool);
+         if (!metadataTool.retrieve().isSuccess()) {
+            ATH_MSG_FATAL("Cannot get " << toolName);
             return(StatusCode::FAILURE);
-         }
-         if (!m_outputDataStore->clearStore().isSuccess()) {
-            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
-         }
-         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
-         if (cfSvc.retrieve().isSuccess()) {
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
-            m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
-            cfSvc.release().ignore();
          }
       }
    }

@@ -106,6 +106,7 @@ private: // data
    bool m_clearedInputDataStore;
    bool m_allowMetaDataStop;
    std::map<std::string, CLID> m_persToClid;
+   std::map<CLID, std::string> m_toolForClid;
    std::map<std::string, std::string> m_streamForKey;
 
 private: // properties
