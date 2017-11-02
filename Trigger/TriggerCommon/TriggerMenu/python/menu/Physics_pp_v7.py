@@ -1748,15 +1748,20 @@ def setupMenu():
 
 
         # B->eeK* final state, while it is chain for Bphys program, for a technical reason it resides here.  ATR-XXX
-        ['e9_etcut_e5_etcut_bBeexM2700',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_etcut_e5_etcut',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM2700_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM6000_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
-        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-
-        ['e9_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7_MU6_J15','L1_JPSI-1M5-EM7_MU6_J15',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH_MU6_J15',       'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7_MU6_J15','L1_JPSI-1M5-EM7_MU6_J15',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH_MU6_J15',       'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM2700_L1EM8VH_MU6_J15',                 'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM6000_L1EM8VH_MU6_J15',                 'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
@@ -4233,59 +4238,7 @@ def setupMenu():
         ['eb_low_L1RD2_FILLED',               'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ]
-
-####### Olya hack disable everything, make our own menu!
-    oiPID = [ "etcut", "loose", "bloose", "blooseCalo", "mergedtight","bloose1","bloose2","bloose3"]
-    oiFEX = [ "", "_bBeexv2", "_bBeexM2700", "_bBeexM6000"]
-
-    TriggerFlags.Slices_all_setOff()
-    TriggerFlags.EgammaSlice.setAll()
-    TriggerFlags.MuonSlice.setAll()
-    TriggerFlags.BphysicsSlice.setAll()
-    TriggerFlags.MuonSlice.signatures = [
-        ['mu26_ivarmedium',	     'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu22',                   'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu20',                   'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu14',                   'L1_MU10',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu6',                    'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu6_msonly',             'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu4',                    'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu4_nomucomb',                   'L1_MU4',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu6_nomucomb',                   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu10_nomucomb',                   'L1_MU10',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu11_nomucomb',                   'L1_MU11',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-
-        ]
-
-
-    TriggerFlags.EgammaSlice.signatures = []
     
-    for pid in oiPID :
-        for fex in oiFEX :
-            TriggerFlags.EgammaSlice.signatures += [
-        ['e9_'+pid+'_e5_'+pid+fex,                    'L1_EM7_2EM3',    ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_'+pid+'_e5_'+pid+fex+'_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_'+pid+'_e5_'+pid+fex+'_L1EM7',           'L1_EM7',       [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_'+pid+'_e5_'+pid+fex+'_L1EM8VH',         'L1_EM8VH',       [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_'+pid+'_e5_'+pid+fex+'_L1JPSI-1M5-EM7_MU6_J15', 'L1_JPSI-1M5-EM7_MU6_J15',['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_'+pid+'_e5_'+pid+fex+'_L1EM8VH_MU6_J15',        'L1_EM8VH_MU6_J15',       [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_'+pid+fex+'_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_'+pid+fex+'_L1EM8VH',         'L1_EM8VH',       [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ]
-    
-    TriggerFlags.BphysicsSlice.signatures = [
-        ['mu6_mu4_bBmumuxv2',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_mu4_bBmumux_BpmumuKp',      'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],        
-        ['mu6_mu4_bDimu',                 'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_mu4_bDimu2700',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_mu4_bJpsimumu_Lxy0',        'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_mu4_bDimu_Lxy0',            'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu11_mu6_bBmumuxv2',             'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu11_mu6_bJpsimumu_Lxy0',        'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu11_mu6_bJpsimumu',             'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu11_mu6_bDimu',                 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
-         ]
-
     
     ###############################################################
     #################################################################
