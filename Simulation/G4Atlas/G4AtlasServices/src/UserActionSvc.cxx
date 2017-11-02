@@ -28,13 +28,17 @@ namespace G4UA
       m_eventActionTools(),
       m_stackingActionTools(),
       m_trackingActionTools(),
-      m_steppingActionTools()
+      m_steppingActionTools(),
+      m_userActionTools(this)
   {
     declareProperty("RunActionTools", m_runActionTools);
     declareProperty("EventActionTools", m_eventActionTools);
     declareProperty("StackingActionTools", m_stackingActionTools);
     declareProperty("TrackingActionTools", m_trackingActionTools);
     declareProperty("SteppingActionTools", m_steppingActionTools);
+
+    // New user action tools
+    declareProperty("UserActionTools", m_userActionTools);
   }
 
   //---------------------------------------------------------------------------
@@ -64,13 +68,20 @@ namespace G4UA
     for(auto& action : m_steppingActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
+    ATH_MSG_INFO( "  general: " << m_userActionTools.size() );
+    for(const auto& action : m_userActionTools) {
+      ATH_MSG_INFO( "      -> " << action.name() );
+    }
+
     ATH_CHECK( m_runActionTools.retrieve() );
     ATH_CHECK( m_eventActionTools.retrieve() );
     ATH_CHECK( m_stackingActionTools.retrieve() );
     ATH_CHECK( m_trackingActionTools.retrieve() );
     ATH_CHECK( m_steppingActionTools.retrieve() );
 
-   return StatusCode::SUCCESS;
+    ATH_CHECK( m_userActionTools.retrieve() );
+
+    return StatusCode::SUCCESS;
   }
 
   //---------------------------------------------------------------------------
@@ -108,6 +119,12 @@ namespace G4UA
       return StatusCode::FAILURE;
     }
 
+    // Retrieve the new user actions
+    G4AtlasUserActions actions;
+    for(auto& tool : m_userActionTools) {
+      ATH_CHECK( tool->fillUserAction(&actions) );
+    }
+
     // Initialize the ATLAS run action.
     if(m_runActions.get()) {
       ATH_MSG_ERROR("Run action already exists for current thread!");
@@ -117,6 +134,8 @@ namespace G4UA
     // Assign run plugins
     for(auto& runTool : m_runActionTools)
       runAction->addRunAction( runTool->getRunAction() );
+    for(auto* action : actions.runActions)
+      runAction->addRunAction(action);
     G4RunManager::GetRunManager()->SetUserAction( runAction.get() );
     m_runActions.set( std::move(runAction) );
 
@@ -129,6 +148,8 @@ namespace G4UA
     // Assign event plugins
     for(auto& eventTool : m_eventActionTools)
       eventAction->addEventAction( eventTool->getEventAction() );
+    for(auto* action : actions.eventActions)
+      eventAction->addEventAction(action);
     G4RunManager::GetRunManager()->SetUserAction( eventAction.get() );
     m_eventActions.set( std::move(eventAction) );
 
@@ -143,6 +164,8 @@ namespace G4UA
       auto stackPlugin = stackTool->getStackingAction();
       stackAction->addAction( stackPlugin );
     }
+    for(auto* action : actions.stackingActions)
+      stackAction->addAction(action);
     G4RunManager::GetRunManager()->SetUserAction( stackAction.get() );
     m_stackingActions.set( std::move(stackAction) );
 
@@ -155,6 +178,8 @@ namespace G4UA
     // Assign tracking plugins
     for(auto& trackTool : m_trackingActionTools)
       trackAction->addTrackAction( trackTool->getTrackingAction() );
+    for(auto* action : actions.trackingActions)
+      trackAction->addTrackAction(action);
     G4RunManager::GetRunManager()->SetUserAction( trackAction.get() );
     m_trackingActions.set( std::move(trackAction) );
 
@@ -167,6 +192,8 @@ namespace G4UA
     // Assign stepping plugins
     for(auto& stepTool : m_steppingActionTools)
       stepAction->addAction( stepTool->getSteppingAction() );
+    for(auto* action : actions.steppingActions)
+      stepAction->addAction(action);
     G4RunManager::GetRunManager()->SetUserAction( stepAction.get() );
     m_steppingActions.set( std::move(stepAction) );
 
