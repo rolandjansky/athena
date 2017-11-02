@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -14,15 +13,14 @@
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include <string>
 
-namespace MuonCombined {
-  class IInDetCandidateTool;
+namespace Trk {
+  class ITrackSelectorTool;
 }
 
 class MuonCombinedInDetCandidateAlg : public AthAlgorithm
 {
  public:
   MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
-
   ~MuonCombinedInDetCandidateAlg();
 
   StatusCode initialize();
@@ -30,16 +28,26 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  ToolHandle<MuonCombined::IInDetCandidateTool> m_indetCandidateTool;
-  ToolHandle<MuonCombined::IInDetCandidateTool> m_indetForwardCandidateTool;
+  bool m_doSiliconForwardMuons;
   
   SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
   SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_indetForwardTrackParticleLocation;
-  // SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName;
   SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName;
+  ToolHandle <Trk::ITrackSelectorTool> m_trackSelector;
+  ToolHandle <Trk::ITrackSelectorTool> m_forwardTrackSelector;
+  ToolHandle <Trk::ITrackSelectorTool> m_currentTrackSelector;
 
-  bool m_doSiliconForwardMuons;
+  void create(const xAOD::TrackParticleContainer& indetTrackParticles,
+	      InDetCandidateCollection& outputContainer,
+	      bool flagCandidateAsSiAssociated=false) const;
+  StatusCode create(const SG::ReadHandleKey<xAOD::TrackParticleContainer>& location,
+		    std::unique_ptr<InDetCandidateCollection>& collection,
+		    bool flagCandidateAsSiAssociate=false) const;
 
+  bool isValidTrackParticle(const xAOD::TrackParticle* const tp) const;
+  void printTrackParticleInfo(const xAOD::TrackParticle* const tp, const std::string& what) const;
+
+  int getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const;
 };
 
 
