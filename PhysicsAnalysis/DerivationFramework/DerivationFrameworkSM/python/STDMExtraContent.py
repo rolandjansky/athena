@@ -7,7 +7,7 @@ ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.pt
 
 ExtraContentMuons=["Muons.DFCommonGoodMuon.charge.ptcone20.ptcone30.ptcone40.topoetcone20.topoetcone30.topoetcone40"]
 
-ExtraContentTaus=["TauJets.BDTEleScore.BDTJetScore.eta.jetLink.m.phi.pt.charge.isTauFlags"]
+ExtraContentTaus=["TauJets.BDTEleScore.BDTJetScore.eta.jetLink.m.phi.pt.charge.isTauFlags.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink"]
 
 ExtraContentBtag=["BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
 
