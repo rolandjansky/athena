@@ -1552,7 +1552,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
 
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
-        L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Bmumux")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
+        L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Beexv2")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
         
     elif  'bBeexM2700' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
@@ -1602,13 +1602,14 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])
 
     else :  # add BphysElectron counter\
+
+        #add L1 name to make sure name is unique
+        
+    
         # add step that counts EF electrons above required thresholds
         from TrigBphysHypo.TrigBphysElectronCounterConfig import  TrigBphysElectronCounter_bBee
-        if pid == None :
-            EFFexE = TrigBphysElectronCounter_bBee("TrigBphysElectronCounter"+fexNameExt, trkelectrons, pid)
-        else :
-            EFFexE = TrigBphysElectronCounter_bBee("TrigBphysElectronCounter_"+pid+fexNameExt, trkelectrons, pid)
-        EFFexE.setEFElectronThresholds( trkelectrons )
+        EFFexE = TrigBphysElectronCounter_bBee("TrigBphysECounter"+chainDict['chainName'], trkelectrons, pid,  4650. )
+        EFFexE.setEFElectronThresholds( trkelectrons, 4650. )
         theChainDef.addSequence([EFFexE],inputTEsEF, EFTEname+"_eCounter")
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
