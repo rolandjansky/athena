@@ -1,7 +1,0 @@
-package LArDetMgrDetDescrCnv
-
-author Claire Adam <claire.bourdarios@cern.ch>
-
-use AtlasPolicy         AtlasPolicy-*
-
-apply_pattern declare_joboptions files=" *.py"

@@ -17,51 +17,25 @@
 #include "LArCellRec/LArNoisyROTool.h"
 #include "LArCellRec/LArCollisionTimeAlg.h"
 #include "LArCellRec/LArTimeVetoAlg.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
-DECLARE_ALGORITHM_FACTORY( LArNoisyROAlg )
-DECLARE_TOOL_FACTORY( LArG3Escale )
-DECLARE_TOOL_FACTORY( LArG3Escale_TDR )
-DECLARE_TOOL_FACTORY( LArNonLinearity )
-DECLARE_TOOL_FACTORY( LArCellBuilderFromLArHitTool )
-DECLARE_TOOL_FACTORY( LArCellBuilderFromLArRawChannelTool )
-DECLARE_TOOL_FACTORY (LArCellEmMiscalib)
-DECLARE_TOOL_FACTORY (LArCellRescaler)
-DECLARE_TOOL_FACTORY (LArCellMaskingTool)
-DECLARE_TOOL_FACTORY (LArCellHVCorr)
-DECLARE_TOOL_FACTORY (LArCellRecalibration)
-DECLARE_TOOL_FACTORY (LArCellNoiseMaskingTool)
-DECLARE_TOOL_FACTORY (LArBadFebMaskingTool)
-DECLARE_TOOL_FACTORY (LArCellGainPathology)
-DECLARE_TOOL_FACTORY (LArCellMerger)
-DECLARE_TOOL_FACTORY (LArCellDeadOTXCorr)
-DECLARE_TOOL_FACTORY (LArNoisyROTool)
-DECLARE_ALGORITHM_FACTORY ( LArCollisionTimeAlg )
-DECLARE_ALGORITHM_FACTORY ( LArTimeVetoAlg )
+DECLARE_COMPONENT( LArNoisyROAlg )
+DECLARE_COMPONENT( LArG3Escale )
+DECLARE_COMPONENT( LArG3Escale_TDR )
+DECLARE_COMPONENT( LArNonLinearity )
+DECLARE_COMPONENT( LArCellBuilderFromLArHitTool )
+DECLARE_COMPONENT( LArCellBuilderFromLArRawChannelTool )
+DECLARE_COMPONENT( LArCellEmMiscalib )
+DECLARE_COMPONENT( LArCellRescaler )
+DECLARE_COMPONENT( LArCellMaskingTool )
+DECLARE_COMPONENT( LArCellHVCorr )
+DECLARE_COMPONENT( LArCellRecalibration )
+DECLARE_COMPONENT( LArCellNoiseMaskingTool )
+DECLARE_COMPONENT( LArBadFebMaskingTool )
+DECLARE_COMPONENT( LArCellGainPathology )
+DECLARE_COMPONENT( LArCellMerger )
+DECLARE_COMPONENT( LArCellDeadOTXCorr )
+DECLARE_COMPONENT( LArNoisyROTool )
+DECLARE_COMPONENT( LArCollisionTimeAlg )
+DECLARE_COMPONENT( LArTimeVetoAlg )
 
-
-
-DECLARE_FACTORY_ENTRIES(LArCellRec) {
-    DECLARE_ALGORITHM( LArNoisyROAlg )
-    DECLARE_TOOL( LArG3Escale_TDR )
-    DECLARE_TOOL( LArG3Escale )
-    DECLARE_TOOL( LArNonLinearity)
-    DECLARE_TOOL( LArCellBuilderFromLArHitTool )
-    DECLARE_TOOL( LArCellBuilderFromLArRawChannelTool )
-    DECLARE_TOOL( LArCellEmMiscalib )
-    DECLARE_TOOL( LArCellRescaler )
-    DECLARE_TOOL( LArCellMaskingTool )
-    DECLARE_TOOL( LArCellHVCorr )
-    DECLARE_TOOL( LArCellRecalibration) 
-    DECLARE_TOOL( LArCellNoiseMaskingTool)
-    DECLARE_TOOL( LArBadFebMaskingTool)
-    DECLARE_TOOL( LArCellGainPathology)
-    DECLARE_TOOL( LArCellMerger)
-    DECLARE_TOOL( LArCellDeadOTXCorr)
-    DECLARE_TOOL( LArNoisyROTool)
-    DECLARE_ALGORITHM (LArCollisionTimeAlg )
-    DECLARE_ALGORITHM (LArTimeVetoAlg )
-
-
-}
