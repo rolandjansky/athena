@@ -51,7 +51,8 @@ namespace Analysis {
       // if this option is set, run tagging on the named collection
       // already attached to the jet instead of performing the
       // association.
-      declareProperty( "TracksToTagList",                         m_TracksToTagList=std::vector<std::string>() );
+      declareProperty( "ParticlesToAssociateList",            m_ParticlesToAssociateList=std::vector<std::string>() );
+      declareProperty( "MuonsToAssociateList",            m_MuonsToAssociateList=std::vector<std::string>() );
   }
 
   BTagTrackAssociation::~BTagTrackAssociation() {
@@ -125,34 +126,102 @@ namespace Analysis {
       /*               Particle to Jet Associations                                          */
       /* ----------------------------------------------------------------------------------- */
 
-      // new style associations
+    // new style associations
+    if ( m_ParticlesToAssociateList.size() || m_MuonsToAssociateList.size() ) { 
+      StatusCode sc;
+      int i = 0;
+      for (const std::string& trackColName : m_ParticlesToAssociateList) {
 
-      if ( m_TracksToTagList.size() ) {
-          for (const std::string& trackColName : m_TracksToTagList) {
-              for (const xAOD::Jet* jet : *theJets) {
-                  xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
+        for (const xAOD::Jet* jet : *theJets) {
+          xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
+          if (!tagInfo) {
+            ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
+            return StatusCode::FAILURE;
+          }   
 
-                  if (!tagInfo) {
-                      ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
-                      return StatusCode::FAILURE;
-                  }
+          std::vector< ElementLink< xAOD::IParticleContainer > > tmp;
+          if (!jet->getAttribute(trackColName, tmp)) {
+            ATH_MSG_FATAL("Unable to read track collection " + trackColName + " from jets for b-tagging.");
+            return StatusCode::FAILURE;
+          }   
 
-                  std::vector< ElementLink< xAOD::TrackParticleContainer > > tmp;
-                  if (!jet->getAttribute(trackColName, tmp)) {
-                      ATH_MSG_FATAL("Unable to read track collection " + trackColName + " from jets for b-tagging.");
-                      return StatusCode::FAILURE;
-                  }
+          std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
+          const xAOD::TrackParticleContainer * tpContainer( 0 );
+          sc = evtStore()->retrieve( tpContainer, m_TrackContainerNameList[i]);
+          if ( sc.isFailure() || tpContainer==0) {
+            ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles through name: " << m_TrackContainerNameList[i]);
+            return StatusCode::SUCCESS;
+          }   
 
-                  tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(trackColName) = tmp;
-              }
+          for( const auto& link : tmp ) { 
+            const xAOD::IParticle* ipart = *link;
 
-          }
+            if( ipart->type() != xAOD::Type::TrackParticle ) { 
+              ATH_MSG_ERROR("#BTAG# Failed to change xAOD::IParticle type to xAOD::Type::TrackParticle "); 
+            }   
+            const xAOD::TrackParticle* tpart = static_cast< const xAOD::TrackParticle* >( ipart );
+            ElementLink<xAOD::TrackParticleContainer> EL; 
+            EL.toContainedElement(*tpContainer, tpart);
+            associationLinks.push_back(EL);
 
-          return StatusCode::SUCCESS;
+          }   
+          tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_TrackToJetAssocNameList[i]) = associationLinks;
+        } 
+
+        i++;
+      }
+
+      // Muons association
+      i = 0;
+      for (const std::string& muonColName : m_MuonsToAssociateList) {
+
+        for (const xAOD::Jet* jet : *theJets) {
+          xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
+          if (!tagInfo) {
+            ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
+            return StatusCode::FAILURE;
+          }   
+
+          std::vector< ElementLink< xAOD::IParticleContainer > > tmp;
+          if (!jet->getAttribute(muonColName, tmp)) {
+            ATH_MSG_FATAL("Unable to read track collection " + muonColName + " from jets for b-tagging.");
+            return StatusCode::FAILURE;
+          }   
+
+          std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
+
+          const xAOD::MuonContainer * tpContainer( 0 );
+          sc = evtStore()->retrieve( tpContainer, m_MuonContainerNameList[i]);
+          if ( sc.isFailure() || tpContainer==0) {
+            ATH_MSG_ERROR("#BTAG# Failed to retrieve Muons through name: " << m_MuonContainerNameList[i]);
+            return StatusCode::SUCCESS;
+          }   
+
+          for( const auto& link : tmp ) { 
+            const xAOD::IParticle* ipart = *link;
+            if( ipart->type() != xAOD::Type::Muon ) { 
+              ATH_MSG_ERROR("#BTAG# Failed to change xAOD::IParticle type to xAOD::Type::Muon "); 
+            }   
+            const xAOD::Muon* tpart = static_cast< const xAOD::Muon* >( ipart );
+            ElementLink<xAOD::MuonContainer> EL; 
+            EL.toContainedElement(*tpContainer, tpart);
+            associationLinks.push_back(EL);
+          }   
+
+          tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_MuonToJetAssocNameList[i]) = associationLinks;
+
+        } 
+
+        i++;
       }
 
 
-      StatusCode sc;
+      // TODO
+      // should break based on getting aux items
+      return sc;
+    }
+
+
       // ----- associate tracks
       const xAOD::TrackParticleContainer * tpContainer( 0 );
       ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator tAssocIter = m_TrackToJetAssociatorList.begin();
@@ -160,7 +229,7 @@ namespace Analysis {
       std::vector< std::string >::const_iterator tNameIter = m_TrackContainerNameList.begin();
       std::vector< std::string >::const_iterator tAssocNameIter = m_TrackToJetAssocNameList.begin();
 
-      //if (MyjetBasis == "Cells" || (MyjetBasis == "Tracks" && m_BTagAssociation) ) {
+      StatusCode sc;
       for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
           if (tracks) {
               tpContainer = tracks;

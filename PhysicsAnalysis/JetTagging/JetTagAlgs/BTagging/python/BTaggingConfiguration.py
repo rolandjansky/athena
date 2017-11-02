@@ -919,6 +919,16 @@ class Configuration:
              ContainerName:       Name of the muon container in SG. If left blank BTaggingFlags.MuonCollectionName will be used.
 
       output: The tool."""
+
+      if "ParticlesToAssociateList" in options:
+          # actually not used???
+
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          self._BTaggingConfig_MuonAssociators[(MuonCollectionName, JetCollection)] = 1
+          self._BTaggingConfig_MuonConCol[(MuonCollectionName, JetCollection)] = (ContainerName, MuonCollectionName)
+          return 1
+
       options = dict(options)
       options['name'] = self.getToolName('BTagMuonToJetAssociator', MuonCollectionName, JetCollection)
       tool = self.getTool('BTagMuonToJetAssociator', MuonCollectionName, JetCollection)
@@ -956,6 +966,13 @@ class Configuration:
                                      A warning will be printed in this case. If this name is also already taken (this means someone is royally
                                      messing things up) an exception will be raised.
       output: The tool."""
+
+      if "ParticlesToAssociateList" in options:
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          return 1
+
+
       options = dict(options)
       options['name'] = self.getToolName('BTagElectronToJetAssociator', ElectronCollectionName, JetCollection)
       tool = self.getTool('BTagElectronToJetAssociator', ElectronCollectionName, JetCollection)
@@ -1005,6 +1022,11 @@ class Configuration:
       output: The tool."""
       options = dict(options)
       options['name'] = self.getToolName('BTagTrackToJetAssociator', TrackCollection, JetCollection)
+
+      if "ParticlesToAssociateList" in options:
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          options.pop("ParticlesToAssociateList")
 
 
       if "TracksToTagList" in options:
@@ -1356,10 +1378,13 @@ class Configuration:
       BTagAssociation                              default: BTaggingFlags.doStandardAssoc
 
       output: The tool."""
+
       options = dict(options)
       options['name'] = name
       options.setdefault('BTagAssociation', BTaggingFlags.doStandardAssoc)
       from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
+      options["ParticlesToAssociateList"] = ["MatchedTracks"]
+      options["MuonsToAssociateList"] = ["MatchedMuons"]
       tool = Analysis__BTagTrackAssociation(**options)
       ToolSvc += tool
       return tool
