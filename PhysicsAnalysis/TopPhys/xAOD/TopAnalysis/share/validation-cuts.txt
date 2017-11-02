@@ -34,7 +34,7 @@ OutputFilename output.root
 PerfStats No
 
 Systematics Nominal
-JetUncertainties_NPModel GlobalReduction
+JetUncertainties_NPModel CategoryReduction
 JetUncertainties_BunchSpacing 25ns
 LargeRJESUncertaintyConfig Split23,Tau32WTA
 
