@@ -51,8 +51,8 @@ private:
     
     typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
     
-    std::vector<m_pair_t> m_hists1P;
-    std::vector<m_pair_t> m_hists3P;
+    std::vector<m_pair_t> m_hists1P; //!
+    std::vector<m_pair_t> m_hists3P; //!
 
     // Limits, probably not needed
     std::map<int, double> m_xmin;
