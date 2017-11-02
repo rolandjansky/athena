@@ -1605,7 +1605,28 @@ class useDynamicAlignFolders(_modifier):
         from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;
         GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
-    
+
+class PixelOnlyZFinder(_modifier):
+    """
+    use only Pixel information in the ZFinder
+    it affects the operation of the beamspot
+    it should not be used in special runs:
+    evaluation of the beamspot w/o stable beams for example
+    """
+    def postSetup(self):
+        try:
+            from AthenaCommon.AppMgr import ToolSvc
+            zf = ToolSvc.TrigZFinder
+            zf.NumberOfPeaks = 4
+            zf.TripletMode = 1
+            zf.TripletDZ = 1
+            zf.PhiBinSize = 0.1
+            zf.MaxLayer = 3
+            zf.MinVtxSignificance = 10
+            zf.Percentile = 0.95
+        except:
+            log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
+
 ###############################################################
 # Modifiers believed to be obsolete.
 ###############################################################
