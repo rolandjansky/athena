@@ -102,15 +102,6 @@ def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwa
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupOTSvc')
     return getPileupSimSelector(name, **kwargs )
 
-### RandomSimSelector Configurations
-
-def getRandomSimSelector(name="ISF_RandomSimSelector", **kwargs):
-    return CfgMgr.ISF__RandomSimSelector(name, **kwargs )
-
-def getFatrasRandomSelector(name="ISF_FatrasRandomSelector", **kwargs):
-    kwargs.setdefault("Simulator"   , 'ISF_FatrasSimSvc')
-    return getRandomSimSelector(name, **kwargs )
-
 ### KinematicSimSelector Configurations
 
 def getElectronGeant4Selector(name="ISF_ElectronGeant4Selector", **kwargs):
