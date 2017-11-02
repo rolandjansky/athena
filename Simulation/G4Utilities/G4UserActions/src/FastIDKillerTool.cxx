@@ -13,8 +13,8 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBaseReport<FastIDKiller>(type, name, parent)
   {
-    declareInterface<IBeginRunActionTool>(this);
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4RunActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
 
     declareProperty("R", m_config.R);
     declareProperty("Z", m_config.Z);

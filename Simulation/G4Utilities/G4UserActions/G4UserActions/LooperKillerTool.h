@@ -9,7 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -26,7 +26,7 @@ namespace G4UA
   /// @author Andrea Di Simone
   ///
   class LooperKillerTool : public ActionToolBaseReport<LooperKiller>,
-                           public ISteppingActionTool
+                           public IG4SteppingActionTool
   {
 
     public:
@@ -40,8 +40,8 @@ namespace G4UA
       virtual StatusCode finalize() override;
 
       /// Retrieve the begin-event action interface
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 

@@ -13,7 +13,7 @@ namespace G4UA
                                const IInterface* parent)
     : ActionToolBase<HIPKiller>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------

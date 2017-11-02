@@ -15,7 +15,7 @@
 namespace G4UA
 {
 
-  void MomentumConservation::endOfEvent(const G4Event* anEvent)
+  void MomentumConservation::EndOfEventAction(const G4Event* anEvent)
   {
 
     // Energy conservation:
@@ -53,7 +53,7 @@ namespace G4UA
 
   }
 
-  void MomentumConservation::processStep(const G4Step* aStep){
+  void MomentumConservation::UserSteppingAction(const G4Step* aStep){
 
     if (aStep->GetPostStepPoint()->GetPhysicalVolume() != 0) {
       const double edep = aStep->GetTotalEnergyDeposit();

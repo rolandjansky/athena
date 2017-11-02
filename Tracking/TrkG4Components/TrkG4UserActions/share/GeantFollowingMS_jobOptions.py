@@ -329,8 +329,7 @@ ToolSvc += GeantFollowerMSHelper
 # higher precision for stepping
 SimFlags.TightMuonStepping=True
 
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun'])
+SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','Event','Run'])
 
 ############### The output collection #######################
 

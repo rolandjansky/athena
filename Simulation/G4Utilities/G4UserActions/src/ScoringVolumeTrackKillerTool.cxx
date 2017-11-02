@@ -14,8 +14,8 @@ namespace G4UA
                                                              const IInterface* parent)
     : ActionToolBase<ScoringVolumeTrackKiller>(type, name, parent)
   {
-    declareInterface<IEndEventActionTool>(this);
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------

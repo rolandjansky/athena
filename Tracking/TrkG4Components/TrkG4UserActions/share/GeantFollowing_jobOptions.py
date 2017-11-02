@@ -326,8 +326,7 @@ GeantFollowerHelper.ExtrapolateIncrementally = True
 GeantFollowerHelper.OutputLevel = VERBOSE
 ToolSvc += GeantFollowerHelper
 
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun'])
+SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerTool',['Step','Event','Run'])
 
 ############### The output collection #######################
 
