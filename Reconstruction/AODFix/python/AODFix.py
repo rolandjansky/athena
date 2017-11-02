@@ -144,12 +144,13 @@ def AODFix_Init():
     if len(curReleaseSplit) >= 2 and (rec.doApplyAODFix.is_locked() or len(prevReleaseSplit) >= 2):
         ### If adding an AODFix for a release family that does not have it,
         ### please add it to the if-elif... statement below
-        if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2') and 
-              (rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '21' and (prevReleaseSplit[1] == '0' or prevReleaseSplit[1] == '2')))):
-            _aodFixInstance = AODFix_r210(prevAODFix, isMC, rec.doApplyAODFix.is_locked())
-        else:
-            logAODFix.info("No AODFix scheduled for this release.")
+        # if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2') and 
+        #       (rec.doApplyAODFix.is_locked() or 
+        #        (prevReleaseSplit[0] == '21' and (prevReleaseSplit[1] == '0' or prevReleaseSplit[1] == '2')))):
+        #     _aodFixInstance = AODFix_r210(prevAODFix, isMC, rec.doApplyAODFix.is_locked())
+        # else:
+        #     logAODFix.info("No AODFix scheduled for this release.")
+        logAODFix.info("AODFix disabled.")
 
     else:
         logAODFix.info("Current release is of strange form: %s" % curRelease)
