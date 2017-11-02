@@ -31,9 +31,9 @@ int main ()
 
   EL::AnaAlgorithm *alg = nullptr;
   EL::SysCopyHandle<xAOD::EventInfo> algHandle (alg, "test", "test", "test");
-  algHandle.retrieve (object1, *sys);
+  algHandle.getCopy (object1, *sys);
 
   asg::AsgTool *tool = nullptr;
   EL::SysCopyHandle<xAOD::JetContainer> toolHandle (tool, "test", "test", "test");
-  toolHandle.retrieve (object2, *sys);
+  toolHandle.getCopy (object2, *sys);
 }

@@ -49,8 +49,8 @@ namespace EL
 
     /// \brief retrieve the object for the given name
   public:
-    ::StatusCode retrieve (T*& object,
-                           const CP::SystematicSet& sys) const;
+    ::StatusCode getCopy (T*& object,
+                          const CP::SystematicSet& sys) const;
 
 
 

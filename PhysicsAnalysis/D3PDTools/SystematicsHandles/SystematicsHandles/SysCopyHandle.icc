@@ -35,7 +35,7 @@ namespace EL
 
 
   template<typename T> ::StatusCode SysCopyHandle<T> ::
-  retrieve (T*& object, const CP::SystematicSet& sys) const
+  getCopy (T*& object, const CP::SystematicSet& sys) const
   {
     auto cache = m_nameCache.find (sys);
     if (cache == m_nameCache.end())
