@@ -1774,15 +1774,12 @@ def setupMenu():
         ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_etcut_bBeexM2700_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_etcut_bBeexv2_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_etcut_bBeexM6000_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+
         ['e9_bloose_bBeexM2700_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose_bBeexM6000_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-
-        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7_MU6_J15','L1_JPSI-1M5-EM7_MU6_J15',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH_MU6_J15',       'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7_MU6_J15','L1_JPSI-1M5-EM7_MU6_J15',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH_MU6_J15',       'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_bBeexM2700_L1EM8VH_MU6_J15',                 'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_bBeexM6000_L1EM8VH_MU6_J15',                 'L1_EM8VH_MU6_J15',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
