@@ -112,9 +112,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderToo
 //
 // Covariance Matrix if there is a BLayer Hit
 //
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderTool::findVertex(std::vector<MyTrack>& mytrk)
 {
-
   MsgStream athenaLog(msgSvc(), name());
   double mGkx=0.0001;
   double mGky=0.0001;
