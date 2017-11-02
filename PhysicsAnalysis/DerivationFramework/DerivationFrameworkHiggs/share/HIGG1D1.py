@@ -226,6 +226,8 @@ from DerivationFrameworkJetEtMiss import METCommon
 METCommon.scheduleMETCustomVertex ( "Hgg", "AntiKt4EMTopo",outputlist = "HggMET" )
 scheduleMETAssocAlg(HIGG1D1Seq)
 
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+addOriginCorrection("AntiKt4EMTopo", HIGG1D1Seq, "jetaug_HggVtx", "Hgg")
 
 
 # Before any custom jet reconstruction, it's good to set up the output list

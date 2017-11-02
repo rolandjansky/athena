@@ -9,10 +9,10 @@
 
 namespace jet {
 
-  xAOD::JetFourMom_t clusterOriginCorrection(const xAOD::Jet& jet, const xAOD::Vertex & vx){
+  xAOD::JetFourMom_t clusterOriginCorrection(const xAOD::Jet& jet, const xAOD::Vertex & vx, const xAOD::CaloCluster::State & state){
     
-
-    xAOD::CaloCluster::State  constitScale = (xAOD::CaloCluster::State) jet.getConstituentsSignalState();
+    xAOD::CaloCluster::State  constitScale = state;
+    if(constitScale==xAOD::CaloCluster::UNKNOWN) {(xAOD::CaloCluster::State) jet.getConstituentsSignalState();}
     int numC = jet.numConstituents();
     const Amg::Vector3D& vxpos= vx.position();
 

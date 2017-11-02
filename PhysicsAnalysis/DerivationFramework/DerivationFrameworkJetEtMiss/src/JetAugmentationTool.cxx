@@ -33,7 +33,14 @@ namespace DerivationFramework {
     m_jetTrackSumMomentsTool(""),
     m_decoratetracksum(false),
     m_jetPtAssociationTool(""),
-    m_decorateptassociation(false)
+    m_decorateptassociation(false),
+    m_jetOriginCorrectionTool(""),
+    m_decorateorigincorrection(false),
+    dec_originpt(0),
+    dec_origineta(0),
+    dec_originphi(0),
+    dec_originm(0),
+    dec_origincorrection(0)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -47,6 +54,7 @@ namespace DerivationFramework {
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
+    declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -106,6 +114,17 @@ namespace DerivationFramework {
       dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
 
+    if(!m_jetOriginCorrectionTool.empty()) {
+      CHECK(m_jetOriginCorrectionTool.retrieve());
+      ATH_MSG_DEBUG("Augmenting jets with origin corrections \"" << m_momentPrefix << "Origin\"");
+      m_decorateorigincorrection = true;
+      dec_origincorrection = new SG::AuxElement::Decorator<ElementLink<xAOD::VertexContainer>>(m_momentPrefix+"OriginVertex");
+      dec_originpt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+"pt");
+      dec_origineta = new SG::AuxElement::Decorator<float>(m_momentPrefix+"eta");
+      dec_originphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+"phi");
+      dec_originm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"m");  
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -136,6 +155,14 @@ namespace DerivationFramework {
     if(m_decorateptassociation){
       delete dec_GhostTruthAssociationFraction;
       delete dec_GhostTruthAssociationLink;
+    }
+    
+    if(m_decorateorigincorrection){
+      delete dec_origincorrection;
+      delete dec_originpt;
+      delete dec_originphi;
+      delete dec_origineta;
+      delete dec_originm; 
     }
 
     return StatusCode::SUCCESS;
@@ -169,6 +196,14 @@ namespace DerivationFramework {
         ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
         return StatusCode::FAILURE;
       }
+    }
+
+    if(m_decorateorigincorrection){
+      if(m_jetOriginCorrectionTool->modify(*jets_copy))
+	{
+	  ATH_MSG_WARNING("Problem applying the origin correction tool");
+	  return StatusCode::FAILURE;
+	}
     }
 
     // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them //
@@ -221,6 +256,15 @@ namespace DerivationFramework {
         (*dec_tracksumpt)(jet_orig)   = jet->getAttribute<float>("TrackSumPt");
         ATH_MSG_VERBOSE("TrackSumMass: " << (*dec_tracksummass)(jet_orig) );
         ATH_MSG_VERBOSE("TrackSumPt: "   << (*dec_tracksummass)(jet_orig) );
+      }
+
+      if(m_decorateorigincorrection) {  
+	(*dec_originpt)(jet_orig)  = jet->pt();
+        (*dec_origineta)(jet_orig) = jet->eta();
+        (*dec_originphi)(jet_orig) = jet->phi();
+        (*dec_originm)(jet_orig)   = jet->m();
+        (*dec_origincorrection)(jet_orig) = jet->getAttribute<ElementLink<xAOD::VertexContainer> >("OriginVertex");
+	ATH_MSG_VERBOSE("OriginCorrection: " << (*dec_origincorrection)(jet_orig) );
       }
 
       if(m_decorateptassociation && isMissingPtAssociation){
