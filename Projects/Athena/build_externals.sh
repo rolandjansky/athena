@@ -74,13 +74,6 @@ fi
 set -e
 set -o pipefail
 
-{
- test "X${NIGHTLY_STATUS}" != "X" && {
-    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
-    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
-    test -x $scriptsdir_nightly_status/externals_status_on_exit.sh  && trap $scriptsdir_nightly_status/externals_status_on_exit.sh EXIT
- }
-}
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -88,6 +81,14 @@ thisdir=$(cd ${thisdir};pwd)
 
 # Go to the main directory of the repository:
 cd ${thisdir}/../..
+
+{ 
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test -x $scriptsdir_nightly_status/externals_status_on_exit.sh  && trap $scriptsdir_nightly_status/externals_status_on_exit.sh EXIT
+ }
+}
 
 # Check if the user specified any source/build directories:
 if [ "$BUILDDIR" = "" ]; then
