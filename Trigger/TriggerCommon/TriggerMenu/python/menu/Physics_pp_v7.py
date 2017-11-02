@@ -1748,36 +1748,15 @@ def setupMenu():
 
 
         # B->eeK* final state, while it is chain for Bphys program, for a technical reason it resides here.  ATR-XXX
-        #['e9_lhloose_nod0_e5_lhloose_nod0_bBeex',                'L1_EM7_2EM3',      ['L1_EM3','L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        #['2e5_lhloose_nod0_bBeex_L1JPSI-1M5',     'L1_JPSI-1M5',      ['L1_EM3','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        #['e9_lhloose_nod0_e4_etcute5_lhloose_nod0_bBeex_L1JPSI-1M5-EM7', 'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-
         ['e9_etcut_e5_etcut_bBeexM2700',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        #['e9_loose_e5_loose_bBeexM2700_L1JPSI-1M5-EM7',               'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_loose_e5_loose_bBeexM2700_L1EM8VH',                      'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_mergedtight_e5_mergedtight_bBeexM2700_L1JPSI-1M5-EM7',   'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_mergedtight_e5_mergedtight_bBeexM2700_L1EM8VH',          'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
-        ['e9_bloose1_e5_bloose1_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose1_e5_bloose1_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose2_e5_bloose2_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose2_e5_bloose2_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose3_e5_bloose3_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose3_e5_bloose3_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',             'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
-        #['e9_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose1_bBeexv2_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
         ['e9_bloose_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_blooseCalo_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose1_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose2_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_bloose3_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_blooseR_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_blooseR1_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_blooseR2_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        #['e9_blooseR3_bBeexM2700_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
+        ['e9_bloose_bBeexM6000_L1EM8VH',                    'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
 
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
