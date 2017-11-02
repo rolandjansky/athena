@@ -297,15 +297,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
                                   options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
                                            'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
-  # Setup associators
-  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator(
-                                  'BTagTrackToJetAssociator'
-                                , JetCollection
-                                , ToolSvc
-                                , Verbose = BTaggingFlags.OutputLevel < 3
-                                )
-
-
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
@@ -401,6 +392,7 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #            addTool('SoftElectronTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'SoftMu' in TaggerList:
     ConfInstance.addTool('SoftMuonTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
 #          if BTaggingFlags.SoftMuChi2:
 #            addTool('SoftMuonTagChi2', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 

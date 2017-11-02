@@ -49,7 +49,8 @@ namespace Analysis
           std::vector<std::string> m_PhotonContainerNameList;
           std::vector<std::string> m_MuonContainerNameList;
 
-          std::vector<std::string> m_TracksToTagList;
+          std::vector<std::string> m_ParticlesToAssociateList;
+          std::vector<std::string> m_MuonsToAssociateList;
 
           std::string m_collectionAppendix ;
 

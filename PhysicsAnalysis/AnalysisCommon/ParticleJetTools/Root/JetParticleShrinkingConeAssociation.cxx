@@ -46,11 +46,12 @@ JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const
         for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
             const xAOD::Jet& jet = *jets[iJet];
 
-            double match_dr = coneSize(jet.pt());
             double dr = jet.p4().DeltaR(part.p4());
 
+/*
             if (dr > match_dr)
                 continue;
+*/
 
             // if there is more than one matching jet, take the
             // closest
@@ -62,6 +63,9 @@ JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const
 
 
         if (matchjetidx >= 0) {
+            double match_dr = coneSize( (*jets[matchjetidx]).pt() );
+            if( drmin > match_dr ) continue;
+
             ElementLink<IParticleContainer> EL; 
             EL.toContainedElement(*parts, *part_itr);
             (*matchedparts)[matchjetidx].push_back(EL);
