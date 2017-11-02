@@ -26,7 +26,7 @@ class RecoFix_base(object):
         """
         return []
 
-    def __init__(addMetadata = True):
+    def __init__(self, addMetadata = True):
         """ The default constructor.
         """
         self.addMetadata = addMetadata
@@ -35,7 +35,7 @@ class RecoFix_base(object):
     def addMetaData(self):
         '''standard function to apply metadata, can overload if necessary for complicated scenarios.'''
         if self.addMetadata:
-            logAODFix.debug("in addMetaData")
+            logRecoFix.debug("in addMetaData")
 
             from RecExConfig.RecFlags import rec
 
