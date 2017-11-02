@@ -3,10 +3,10 @@
 # vim: tabstop=4:shiftwidth=4:expandtab
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
-ERROR_labels = ' No_EventInfo : Not_2_InputTEs : No_RoIs : No_MuonEFInfoContainer : No_MuonCandidate : SameMuon : DiMuVtxFitFails : DiMuVtxMass_Fails : No_TrackColl : BplusVtxFit_Fails : BplusVtxMass_Fails : WrongDecayID : XVtxFit_Fails : XVtxMass_Fails : XEEVtxFit_Fails : XEEVtxMass_Fails : BphysCollStore_Fails : No_MuonTrackMatch : TooManyCom_Acc : TooManyComb_Rej : MaxNumBpReached : MaxNumBdReached : MaxNumBsReached : MaxNumLbReached : MaxNumBcReached'
+ERROR_labels = ' No_EventInfo : Not_2_InputTEs : No_RoIs : No_ElectronEFInfoContainer : No_ElectronCandidate : SameElectron : DiEVtxFitFails : DiEVtxMass_Fails : No_TrackColl : BplusVtxFit_Fails : BplusVtxMass_Fails : WrongDecayID : XVtxFit_Fails : XVtxMass_Fails : XEEVtxFit_Fails : XEEVtxMass_Fails : BphysCollStore_Fails : No_ElectronTrackMatch : TooManyCom_Acc : TooManyComb_Rej : MaxNumBpReached : MaxNumBdReached : MaxNumBsReached : MaxNumLbReached : MaxNumBcReached'
 ERROR_number = 25
 
-#ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoIs : Got_Muons : Got_TrackColl : Full_TrackColl : Full_IDTracks : Pass_OppChargeC : MuonTracks_Added : Muon_Vertexing : CalcInvMass : MuonVtx_Part : EE_mass : MotherVtxCreated : BphysCollParticle '
+#ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoIs : Got_Electrons : Got_TrackColl : Full_TrackColl : Full_IDTracks : Pass_OppChargeC : ElectronTracks_Added : Electron_Vertexing : CalcInvMass : ElectronVtx_Part : EE_mass : MotherVtxCreated : BphysCollParticle '
 #ACCEPTANCE_number = 15
 
 class EFBEEXFexValidationMonitoring(TrigGenericMonitoringToolConfig):
@@ -49,40 +49,40 @@ class EFBEEXFexValidationMonitoring(TrigGenericMonitoringToolConfig):
                                               title = 'EFBEEXFex - ROIs direction difference ; d#eta ; d#phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        # Muons
-        self.Histograms += [ defineHistogram ( 'DiMu_n', type = 'TH1F',
-                                              title = 'EFBEEXFex - number of muons in RoIs; n(#mu) ; # Events',
+        # Electrons
+        self.Histograms += [ defineHistogram ( 'DiE_n', type = 'TH1F',
+                                              title = 'EFBEEXFex - number of electrons in RoIs; n(#mu) ; # Events',
                                               xbins = 10, xmin = -0.5, xmax = 10-0.5 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu1', type = 'TH1F',
-                                              title = 'EFBEEXFex - Positive muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Pt_Mu1', type = 'TH1F',
+                                              title = 'EFBEEXFex - Positive electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu2', type = 'TH1F',
-                                              title = 'EFBEEXFex - Negative muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Pt_Mu2', type = 'TH1F',
+                                              title = 'EFBEEXFex - Negative electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_pTsumEE', type = 'TH1F',
-                                              title = 'EFBEEXFex - sum of two muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_pTsumEE', type = 'TH1F',
+                                              title = 'EFBEEXFex - sum of two electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu1, DiMu_Phi_Mu1', type = 'TH2F',
-                                              title = 'EFBEEXFex - Eta vs. phi of muon1 tracks (no vertexing); #eta ; #phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_Eta_Mu1, DiE_Phi_Mu1', type = 'TH2F',
+                                              title = 'EFBEEXFex - Eta vs. phi of electron1 tracks (no vertexing); #eta ; #phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu2, DiMu_Phi_Mu2', type = 'TH2F',
-                                              title = 'EFBEEXFex - Eta vs. phi of muon2 tracks (no vertexing); #eta ; #phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_Eta_Mu2, DiE_Phi_Mu2', type = 'TH2F',
+                                              title = 'EFBEEXFex - Eta vs. phi of electron2 tracks (no vertexing); #eta ; #phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_dEtaEE, DiMu_dPhiEE', type = 'TH2F',
-                                              title = 'EFBEEXFex - dEta vs. dPhi between muon tracks (no vertexing); d#eta ; d#phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_dEtaEE, DiE_dPhiEE', type = 'TH2F',
+                                              title = 'EFBEEXFex - dEta vs. dPhi between electron tracks (no vertexing); d#eta ; d#phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_InvMassEE, DiMu_VtxMassEE', type = 'TH2F',
-                                              title = 'EFBEEXFex - InvMass vs. VtxMass of muon pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_InvMassEE, DiE_VtxMassEE', type = 'TH2F',
+                                              title = 'EFBEEXFex - InvMass vs. VtxMass of electron pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
                                               xbins = 80, xmin = 0., xmax = 20.,
                                               ybins = 80, ymin = 0., ymax = 20. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_InvMassEE', type = 'TH1F',
-                                              title = 'EFBEEXFex - InvMass of muon pair ; InvMass [GeV] ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_InvMassEE', type = 'TH1F',
+                                              title = 'EFBEEXFex - InvMass of electron pair ; InvMass [GeV] ; # Events',
                                               xbins = 100, xmin = 0., xmax = 10. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Chi2EE', type = 'TH1F',
-                                              title = 'EFBEEXFex - dimuon vertex chi2 ; #chi^{2} ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Chi2EE', type = 'TH1F',
+                                              title = 'EFBEEXFex - dielectron vertex chi2 ; #chi^{2} ; # Candidates',
                                               xbins = 300, xmin = 0., xmax = 300. ) ]
         # Tracks
         self.Histograms += [ defineHistogram ( 'Tracks_n', type = 'TH1F',
@@ -235,40 +235,40 @@ class EFBEEXFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                               title = 'EFBEEXFex - ROIs direction difference ; d#eta ; d#phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        # Muons
-        self.Histograms += [ defineHistogram ( 'DiMu_n', type = 'TH1F',
-                                              title = 'EFBEEXFex - number of muons in RoIs; n(#mu) ; # Events',
+        # Electrons
+        self.Histograms += [ defineHistogram ( 'DiE_n', type = 'TH1F',
+                                              title = 'EFBEEXFex - number of electrons in RoIs; n(#mu) ; # Events',
                                               xbins = 10, xmin = -0.5, xmax = 10-0.5 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu1', type = 'TH1F',
-                                              title = 'EFBEEXFex - Positive muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Pt_Mu1', type = 'TH1F',
+                                              title = 'EFBEEXFex - Positive electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu2', type = 'TH1F',
-                                              title = 'EFBEEXFex - Negative muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Pt_Mu2', type = 'TH1F',
+                                              title = 'EFBEEXFex - Negative electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_pTsumEE', type = 'TH1F',
-                                              title = 'EFBEEXFex - sum of two muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_pTsumEE', type = 'TH1F',
+                                              title = 'EFBEEXFex - sum of two electrons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu1, DiMu_Phi_Mu1', type = 'TH2F',
-                                              title = 'EFBEEXFex - Eta vs. phi of muon1 tracks (no vertexing); #eta ; #phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_Eta_Mu1, DiE_Phi_Mu1', type = 'TH2F',
+                                              title = 'EFBEEXFex - Eta vs. phi of electron1 tracks (no vertexing); #eta ; #phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu2, DiMu_Phi_Mu2', type = 'TH2F',
-                                              title = 'EFBEEXFex - Eta vs. phi of muon2 tracks (no vertexing); #eta ; #phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_Eta_Mu2, DiE_Phi_Mu2', type = 'TH2F',
+                                              title = 'EFBEEXFex - Eta vs. phi of electron2 tracks (no vertexing); #eta ; #phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_dEtaEE, DiMu_dPhiEE', type = 'TH2F',
-                                              title = 'EFBEEXFex - dEta vs. dPhi between muon tracks (no vertexing); d#eta ; d#phi ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_dEtaEE, DiE_dPhiEE', type = 'TH2F',
+                                              title = 'EFBEEXFex - dEta vs. dPhi between electron tracks (no vertexing); d#eta ; d#phi ; # Events',
                                               xbins = 60, xmin = -3.0, xmax = 3.0,
                                               ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_InvMassEE, DiMu_VtxMassEE', type = 'TH2F',
-                                              title = 'EFBEEXFex - InvMass vs. VtxMass of muon pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_InvMassEE, DiE_VtxMassEE', type = 'TH2F',
+                                              title = 'EFBEEXFex - InvMass vs. VtxMass of electron pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
                                               xbins = 80, xmin = 0., xmax = 20.,
                                               ybins = 80, ymin = 0., ymax = 20. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_InvMassEE', type = 'TH1F',
-                                              title = 'EFBEEXFex - InvMass of muon pair ; InvMass [GeV] ; # Events',
+        self.Histograms += [ defineHistogram ( 'DiE_InvMassEE', type = 'TH1F',
+                                              title = 'EFBEEXFex - InvMass of electron pair ; InvMass [GeV] ; # Events',
                                               xbins = 100, xmin = 0., xmax = 10. ) ]
-        self.Histograms += [ defineHistogram ( 'DiMu_Chi2EE', type = 'TH1F',
-                                              title = 'EFBEEXFex - dimuon vertex chi2 ; #chi^{2} ; # Candidates',
+        self.Histograms += [ defineHistogram ( 'DiE_Chi2EE', type = 'TH1F',
+                                              title = 'EFBEEXFex - dielectron vertex chi2 ; #chi^{2} ; # Candidates',
                                               xbins = 300, xmin = 0., xmax = 300. ) ]
         # Tracks
         self.Histograms += [ defineHistogram ( 'Tracks_n', type = 'TH1F',
