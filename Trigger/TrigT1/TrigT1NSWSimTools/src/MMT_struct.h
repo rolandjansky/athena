@@ -311,7 +311,22 @@ struct gcm_key{
 };
 
 struct par_par{
-  par_par(double _h,int xct=0,int uvct=0,double uver=0,const string& setup="",bool ql=true,bool q_dlm=false,bool qbg=0,double _qt=1.,std_align mis=std_align(0),std_align cor=std_align(0),bool fill_tab=true,int cs=0,const string&pd="",const string&tg="");
+  par_par(double _h,
+          int xct=0,
+          int uvct=0,
+          double uver=0,
+          const string& setup="",
+          bool ql=true,
+          bool q_dlm=false,
+          bool qbg=0,
+          double _qt=1.,
+          std_align mis=std_align(0),
+          std_align cor=std_align(0),
+          bool fill_tab=true,
+          int cs=0,
+          const string&pd="",
+          const string&tg="");
+
   par_par();
   void set_parameter(const string&par);
   void set_misalign(double tx=0,double ty=0,double tz=0,double rx=0,double ry=0,double rz=0);
@@ -337,7 +352,6 @@ struct par_par{
   bool fill_val;
   int colskip;
   string pcrep_dir,tag;
-
 
   // /// Log a message using the Athena controlled logging system
   // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
