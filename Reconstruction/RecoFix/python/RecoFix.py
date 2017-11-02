@@ -45,13 +45,6 @@ def RecoFix_Init():
 
     from RecExConfig.RecFlags import rec
 
-    ##################
-    # exit if locked to false
-    ##################
-    if rec.doApplyRecoFix.is_locked() and rec.doApplyRecoFix.get_Value() == False:
-        logRecoFix.info("doApplyRecoFix is locked to False; not applying anything")
-        return
-
 
     ##################
     # deterimine in what release we are running (and fill some rec variables
@@ -84,7 +77,7 @@ def RecoFix_Init():
             prevAODFix=''
 
     logRecoFix.info("Summary of MetaData for RecoFix:")
-    logRecoFix.info("AODFix version <%s> was previously applied." % prevRecoFix)
+    logRecoFix.info("AODFix version <%s> was previously applied." % prevAODFix)
 
     ##################
     # determine which RecoFix to run (if actually running--to be determined later)
@@ -104,7 +97,7 @@ def RecoFix_Init():
     if len(curReleaseSplit) >= 2:
         ### If adding an RecoFix for a release family that does not have it,
         ### please add it to the if-elif... statement below
-        if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2'):
+        if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2')):
             _recoFixInstance = RecoFix_r210()
         else:
             logRecoFix.info("No RecoFix scheduled for this release.")
