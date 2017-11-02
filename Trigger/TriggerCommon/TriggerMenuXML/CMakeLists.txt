@@ -109,4 +109,5 @@ atlas_install_xmls( data/*.xml )
 # List of menus to be created:
 
 atlas_build_trigger_menu( Physics_pp_v7 )
+atlas_build_trigger_menu( MC_pp_v7 )
 
