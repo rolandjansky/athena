@@ -13,48 +13,67 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
   roads=ceil(1.*(m_par->slope_max-m_par->slope_min)/m_par->h.getFloat());//initialization, can use floats
   int nplanes=m_par->setup.size();
   ATH_MSG_DEBUG("MMT_Find::finder entries " << roads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
-  Gate_Flags=vector<vector<double> >(roads,(vector<double>(2,0)));// sloperoad,   
+  Gate_Flags=vector<vector<double> >(roads,(vector<double>(2,0)));// sloperoad,
   //plane, [10*xhits+uvhits,hit yes/no]//[hit yes/no, time_stamp]
   Finder=vector<vector<finder_entry> >(roads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
   ATH_MSG_DEBUG("MMT_Find::built finder");
 }
 
-void MMT_Finder::fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const Hit& hit) const{
+void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, // Map (road,plane) -> Finder entry
+                                const Hit& hit) const {
+  // This function takes in the Hit object and places it into the hit buffer evFinder, putting it in any relevant (road,plane)
+
   //Get initial parameters: tolerance, step size (h), slope of hit
   float32fixed<3> tol;
   float32fixed<3> h=m_par->h.getFloat();
+
   //Conver hit to slope here
   float32fixed<3> slope=hit.info.slope.getFloat();
   ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFloat() );
 
   //Plane and key info of the hit
-  hdst_key hkey=hit.key;
-  int plane=hit.info.plane;
+  int plane=hit.info.plane;\
+
   string plane_type=m_par->setup.substr(plane,1);
+
   if(plane_type=="x") tol=m_par->x_error.getFloat();
   else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error.getFloat();
-  else return;//if it's an unsupported plane option, don't fill
+  else return;  //if it's an unsupported plane option, don't fill
 
-  //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
-  float32fixed<3> s_min = slope - tol, s_max = slope + tol;
-  
-  //how is this division done in the hardware?
-  int road_max = round((s_max - m_par->slope_min)/h.getFloat());
-  if(road_max>=roads){
-    road_max=roads-1;
-  }
-  //how is this division done in the hardware?
-  int road_min = round((s_min - m_par->slope_min)/h.getFloat());
-  if(road_min<0)road_min=0;
-  
-  //----fill buffer----
-  for(int road = road_min; road<=road_max; road++){
-    pair<int,int> key(road,plane);
-    if(evFinder.find(key)==evFinder.end()) {evFinder[key]=finder_entry(true,clock,hit);
+  if(0){ // Implementation of UV road setup.
+
+  } else {
+
+    //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
+    float32fixed<3> s_min = slope - tol, s_max = slope + tol;
+
+    // Now I have a slope range representing the hit.
+
+    int road_min = round((s_min - m_par->slope_min)/h.getFloat());
+    int road_max = round((s_max - m_par->slope_min)/h.getFloat());
+
+    if(road_min<0)road_min=0;
+    if(road_max>=roads){ road_max=roads-1; }
+
+    // road_min / max represent a range of roads that I will consider hit
+
+    //----fill buffer----
+    pair<int,int> key(0,plane);
+    for(int road = road_min; road<=road_max; road++){ // road loop
+
+      key.first = road;
+
+      if( evFinder.find(key) == evFinder.end() ){ // If this road+plane combination is not already in the buffer
+        evFinder[key]=finder_entry(true,clock,hit); // Put it in there!
       }
-    else if(hkey<evFinder.find(key)->second.hit.key) {evFinder[key]=finder_entry(true,clock,hit);
-    }
-  }
+      else if( hit.key < evFinder.find(key)->second.hit.key ){ // Or if this hit's key is smaller than the key that's in there...
+        evFinder[key]=finder_entry(true,clock,hit);
+      }
+
+    } // road loop
+
+  } // UV roads vs standard
+
 }
 
 void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const{

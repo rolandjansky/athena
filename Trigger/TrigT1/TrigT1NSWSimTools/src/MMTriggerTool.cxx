@@ -190,7 +190,8 @@ namespace NSWL1 {
           //Convert hits to slopes and fill the buffer
           map<pair<int,int>,finder_entry> hitBuffer;
           for(int ihds=0; ihds<(int)hdsts.size(); ihds++){
-            m_find.fillHitBuffer(hitBuffer,hdsts[ihds].entry_hit(m_par));
+            m_find.fillHitBuffer( hitBuffer,                       // Map (road,plane) -> Finder entry
+                                  hdsts[ihds].entry_hit(m_par) );  // Hit object
 
             hdst_info hitInfo = hdsts[ihds].entry_hit(m_par).info;
 
@@ -256,9 +257,10 @@ namespace NSWL1 {
             if(road_num>0){
 
               if(fits_occupied>=nfit_max) break;
+
               //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
               evFit_entry candidate=m_fit.fit_event(event,track,hdsts,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
-              //HERE IS THE PROBLEM
+
               ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getValue() << " PHI " << candidate.fit_phi.getValue() << " DTH " << candidate.fit_dtheta.getValue() );
               road_fits[iRoad]=candidate;
               fillmxl = mxl;
