@@ -56,17 +56,20 @@ double perp2( const Amg::Vector3D& v1, const Amg::Vector3D& v2 ) {
 InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
 (const std::string& t,const std::string& n,const IInterface* p)
         : AthAlgTool(t,n,p),
+	    m_trtcontainer(nullptr),
             mjo_trtcontainername("TRT_DriftCircles"),
             mjo_roadwidth(10.),
             mjo_simpleExtension(true),
             mjo_maxGroupDistance(5.),
             mjo_minGroupDistance(1.),
+            m_siliconTrkParams(nullptr),
             m_compROTcreator("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
             mjo_annealingFactor(81.),
             m_roadtool("InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker"),
             m_propagator("Trk::RungeKuttaPropagator/Propagator"),
             m_fieldServiceHandle("AtlasFieldSvc",n),
-            m_fieldmode("MapSolenoid")
+            m_fieldmode("MapSolenoid"),
+            m_trtID(nullptr)
 {
     m_measurement.reserve(200);
 
