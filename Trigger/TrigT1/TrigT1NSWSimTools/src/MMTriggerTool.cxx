@@ -227,9 +227,9 @@ namespace NSWL1 {
           int fits_occupied=0;
           const int nfit_max=1;  //MOVE THIS EVENTUALLY
           // int correct_bcid=2;    //THIS TOO
-          int roads = m_find.get_roads();
+          int nRoads = m_find.get_roads();
 
-          vector<evFit_entry> road_fits = vector<evFit_entry>(roads,evFit_entry());
+          vector<evFit_entry> road_fits = vector<evFit_entry>(nRoads,evFit_entry());
 
           //Variables saved for Alex T. for hardware validation
           double mxl;
@@ -238,14 +238,18 @@ namespace NSWL1 {
           double mvGlobal;
           vector<pair<double,double> > mxmy;
 
-          for(int road=0; road<roads; road++){
+          for(int iRoad=0; iRoad<nRoads; iRoad++){
 
             vector<bool> plane_is_hit;
             vector<Hit> track;
-            pair<int,int>key(road,0);
 
             //Check if there are hits in the buffer
-            m_find.checkBufferForHits(plane_is_hit, track, key, hitBuffer);
+            m_find.checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
+                                        track, // Empty, To be filled by function.
+                                        iRoad, // roadID
+                                        hitBuffer // All hits. Map ( (road,plane) -> finder_entry  )
+                                      );
+
             //Look for coincidences
             int road_num=m_find.Coincidence_Gate(plane_is_hit);
 
@@ -256,13 +260,13 @@ namespace NSWL1 {
               evFit_entry candidate=m_fit.fit_event(event,track,hdsts,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
               //HERE IS THE PROBLEM
               ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getValue() << " PHI " << candidate.fit_phi.getValue() << " DTH " << candidate.fit_dtheta.getValue() );
-                road_fits[road]=candidate;
-                fillmxl = mxl;
-                fits_occupied++;
+              road_fits[iRoad]=candidate;
+              fillmxl = mxl;
+              fits_occupied++;
 
             }
 
-            road_fits[road].hcode=road_num;
+            road_fits[iRoad].hcode=road_num;
 
           } //end roads
 
