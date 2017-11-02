@@ -3,8 +3,7 @@ package D3PDMakerTest
 use AtlasPolicy                AtlasPolicy-*     
 use AtlasROOT                  AtlasROOT-*             External
 use AthContainers              AthContainers-*         Control
-use CLIDSvc                    CLIDSvc-*               Control
-use SGTools                    SGTools-*               Control
+use AthenaKernel               AthenaKernel-*          Control
 use Navigation                 Navigation-*            Control
 use FourMom                    FourMom-*               Event
 use ParticleEvent              ParticleEvent-*         PhysicsAnalysis/AnalysisCommon
