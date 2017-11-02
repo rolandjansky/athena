@@ -371,6 +371,7 @@ def defineMenu():
     
     Lvl1Flags.items = [
 
+
         # single EM
 
         'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH',
@@ -994,7 +995,6 @@ def defineMenu():
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
 
-
         'L1_2TAU20IM_3J20' : 486, 
         'L1_2TAU20IM_J25_3J20' : 479, 
         'L1_TAU25IM_2TAU12IM_J25_3J12' : 481,
@@ -1592,8 +1592,8 @@ def defineMenu():
          'L1_ALFA_B7R1L' : 496,
 
         
-        'L1_MU6_FTK'    : 499,
-        'L1_MU20_FTK'     : 500,
+        'L1_MU6_FTK'                           : 499,
+        'L1_MU20_FTK'                          : 500,
         'L1_MU21_FTK'                          : 497,
         'L1_TAU12IM_FTK'                       : 501,
         'L1_TAU20IM_FTK'                       : 86,
