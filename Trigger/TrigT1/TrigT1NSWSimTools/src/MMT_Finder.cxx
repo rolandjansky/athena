@@ -57,10 +57,13 @@ void MMT_Finder::fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const 
   }
 }
 
-void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, pair<int,int>& key, map<pair<int,int>,finder_entry> hitBuffer) const{
+void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const{
   //Loops through the buffer which should have entries = nplanes
   //Takes the hit and bool for each plane (if it exists)
   int nplanes=m_par->setup.size();
+
+  pair<int,int> key (road,0);
+
   for(int plane=0; plane<nplanes; plane++){
     key.second=plane;
     Hit hit;

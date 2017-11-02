@@ -19,7 +19,7 @@ class MMT_Finder{
   void set_roads(int _roads) { roads=_roads; }
   int get_roads() const {return roads;}
   void fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const Hit& hit) const;
-  void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, pair<int,int>& key, map<pair<int,int>,finder_entry> hitBuffer) const;
+  void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const;
 
 
   /// Log a message using the Athena controlled logging system
