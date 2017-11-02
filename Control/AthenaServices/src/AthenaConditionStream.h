@@ -20,15 +20,13 @@
 
 class AthenaConditionStream : public AthenaOutputStream
 {
-  friend class AlgFactory<AthenaConditionStream>;
 
-protected:
+public:
   /// Standard algorithm Constructor
   AthenaConditionStream(const std::string& name, ISvcLocator* pSvcLocator); 
   /// Standard Destructor
   virtual ~AthenaConditionStream();
 
-public:
   // Initialize OutputStream
   //virtual StatusCode initialize();
   /// Terminate OutputStream

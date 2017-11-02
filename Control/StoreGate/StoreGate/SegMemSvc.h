@@ -16,8 +16,6 @@
 
 #include <string>
 
-// Forward declarations
-template <class TYPE> class SvcFactory;
 
 /** @class SegMemSvc
  * @brief Service to access an arena caching allocator
@@ -77,8 +75,6 @@ public:
   //@}
   
   
-protected:
-  
   SegMemSvc( const std::string& name, ISvcLocator* svc ); 
   
   // Destructor.
@@ -86,7 +82,6 @@ protected:
   
   
 private:
-  friend class SvcFactory<SegMemSvc>;
   
   ServiceHandle<IIncidentSvc> p_incSvc;
 

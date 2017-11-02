@@ -59,7 +59,6 @@ class EventContext;
 ////class ActiveStoreSvc;
 
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 
 /** @class AthenaEventLoopMgr
@@ -80,8 +79,6 @@ class AthenaEventLoopMgr
             public Athena::TimeoutMaster
 {
 public:
-  /// Creator friend class
-  friend class SvcFactory<AthenaEventLoopMgr>;
   typedef IEvtSelector::Context   EvtContext;
 
 protected:
@@ -158,12 +155,6 @@ protected:
   /// value.
   void setClearStorePolicy(Property& clearStorePolicy);
 
-  /// Standard Constructor
-  AthenaEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
- 
-  /// Standard Destructor
-  virtual ~AthenaEventLoopMgr();
-
   /// Dump out histograms as needed
   virtual StatusCode writeHistograms(bool force=false);
 
@@ -184,6 +175,10 @@ protected:
   SmartIF<IAlgExecStateSvc>  m_aess;
 
 public:
+  /// Standard Constructor
+  AthenaEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
+  /// Standard Destructor
+  virtual ~AthenaEventLoopMgr();
   /// implementation of IAppMgrUI::initalize
   virtual StatusCode initialize();
   /// implementation of IAppMgrUI::finalize

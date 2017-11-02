@@ -36,7 +36,6 @@ class IProxyRegistry; //this is DataStore
 class IConversionSvc;
 class IOpaqueAddress;
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 ///manages the address providers and add proxies on demand to the store
 class ProxyProviderSvc : public extends<AthService, IProxyProviderSvc>
@@ -75,9 +74,6 @@ public:
   virtual StatusCode initialize() override;
   //@}
 
-protected:    
-  /// the Service Factory
-  friend class SvcFactory<ProxyProviderSvc>;
   /// Standard Service Constructor
   ProxyProviderSvc(const std::string& name, ISvcLocator* svcLoc);
   virtual ~ProxyProviderSvc();

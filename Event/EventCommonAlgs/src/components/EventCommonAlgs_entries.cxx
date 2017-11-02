@@ -3,7 +3,7 @@
 //#include "../INav4MomSymLinkBuilder.h"
 
   
-DECLARE_ALGORITHM_FACTORY( I4MomDumper  )
-DECLARE_ALGORITHM_FACTORY( INav4MomDumper  )
-//DECLARE_ALGORITHM_FACTORY( INav4MomSymLinkBuilder  )
+DECLARE_COMPONENT( I4MomDumper )
+DECLARE_COMPONENT( INav4MomDumper )
+//DECLARE_COMPONENT( INav4MomSymLinkBuilder )
 

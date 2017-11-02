@@ -1,4 +1,4 @@
 #include "../ClassIDSvc.h"
 
-DECLARE_SERVICE_FACTORY( ClassIDSvc )
+DECLARE_COMPONENT( ClassIDSvc )
 

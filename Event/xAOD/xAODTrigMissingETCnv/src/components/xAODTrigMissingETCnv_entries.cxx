@@ -1,6 +1,6 @@
 #include "../TrigMissingETCnvTool.h"
 #include "../TrigMissingETCnvAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigMissingETCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigMissingETCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigMissingETCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigMissingETCnvAlg )
 

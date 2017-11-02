@@ -5,9 +5,9 @@
 #include "../AthPrescaler.h"
 
 
-DECLARE_ALGORITHM_FACTORY( AthRetrySequencer )
-DECLARE_ALGORITHM_FACTORY( AthSequencer )
-DECLARE_ALGORITHM_FACTORY( AthAnalysisSequencer )
-DECLARE_ALGORITHM_FACTORY( AthEventCounter )
-DECLARE_ALGORITHM_FACTORY( AthPrescaler )
+DECLARE_COMPONENT( AthRetrySequencer )
+DECLARE_COMPONENT( AthSequencer )
+DECLARE_COMPONENT( AthAnalysisSequencer )
+DECLARE_COMPONENT( AthEventCounter )
+DECLARE_COMPONENT( AthPrescaler )
 

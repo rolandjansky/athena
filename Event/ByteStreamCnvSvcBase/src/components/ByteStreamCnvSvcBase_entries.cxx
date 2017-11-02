@@ -2,7 +2,7 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddressProviderSvc.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 
-DECLARE_SERVICE_FACTORY( ByteStreamCnvSvcBase )
-DECLARE_SERVICE_FACTORY( ByteStreamAddressProviderSvc )
-DECLARE_SERVICE_FACTORY( ROBDataProviderSvc )
+DECLARE_COMPONENT( ByteStreamCnvSvcBase )
+DECLARE_COMPONENT( ByteStreamAddressProviderSvc )
+DECLARE_COMPONENT( ROBDataProviderSvc )
 

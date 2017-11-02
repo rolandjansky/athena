@@ -27,7 +27,6 @@
 #include "GaudiKernel/IIoComponent.h"
 
 // forward declarations
-template <class ConcreteAlgorithm> class AlgFactory;
 class IClassIDSvc;
 class OutputStreamSequencerSvc;
 class StoreGateSvc;
@@ -51,7 +50,6 @@ namespace SG {
 class AthenaOutputStream : public FilteredAlgorithm,
                            virtual public IIncidentListener,
                            virtual public IIoComponent {
-   friend class AlgFactory<AthenaOutputStream>;
    friend class UserDataSvc;
 
 public:
@@ -132,10 +130,6 @@ protected:
    ToolHandleArray<IAthenaOutputTool> m_helperTools;
 
 protected:
-   /// Standard algorithm Constructor
-   AthenaOutputStream(const std::string& name, ISvcLocator* pSvcLocator); 
-   /// Standard Destructor
-   virtual ~AthenaOutputStream();
    /// Handler for ItemNames Property
    void itemListHandler(Property& /* theProp */);
    /// Handler for ItemNames Property
@@ -143,6 +137,12 @@ protected:
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;
+   
+   /// Standard algorithm Constructor
+   AthenaOutputStream(const std::string& name, ISvcLocator* pSvcLocator); 
+   /// Standard Destructor
+   virtual ~AthenaOutputStream();
+
    /// \name implement IAlgorithm
    //@{
    virtual StatusCode initialize();

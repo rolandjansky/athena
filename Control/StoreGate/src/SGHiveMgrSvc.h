@@ -22,7 +22,6 @@
 class StoreGateSvc;
 class ISvcLocator;
 
-template <class TYPE> class SvcFactory;
 
 /** @class HiveMgrSvc
  *  @brief A service that manages a multi-event collection of StoreGateSvc
@@ -32,7 +31,6 @@ template <class TYPE> class SvcFactory;
  **/
 namespace SG {
   class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service,  public IIncidentListener {
-  friend class SvcFactory<HiveMgrSvc>;
   friend class TestSGHiveMgrSvc;
 public:
   //@{ @name IHiveWhiteBoard implementation
@@ -107,19 +105,19 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
-    //handle incidents
-    virtual void handle(const Incident&) override final;    
+  //handle incidents
+  virtual void handle(const Incident&) override final;    
+
+  /// Standard Service Constructor. sets active store to default event store
+  HiveMgrSvc(const std::string& name, ISvcLocator* svc);
+
+  virtual ~HiveMgrSvc() {}
 
 private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
-protected:
-  /// Standard Service Constructor. sets active store to default event store
-  HiveMgrSvc(const std::string& name, ISvcLocator* svc);
-
-  virtual ~HiveMgrSvc() {}
 
 };
 } //namespace SG

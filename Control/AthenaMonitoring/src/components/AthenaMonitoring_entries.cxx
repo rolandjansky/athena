@@ -9,13 +9,13 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 
-DECLARE_ALGORITHM_FACTORY(AthenaMon)
-DECLARE_ALGORITHM_FACTORY(AthenaMonManager)
-DECLARE_TOOL_FACTORY(ManagedMonitorToolTest)
-DECLARE_TOOL_FACTORY(DQAtlasReadyFilterTool)
-DECLARE_TOOL_FACTORY(DQFilledBunchFilterTool)
-DECLARE_TOOL_FACTORY(DQDummyFilterTool)
-DECLARE_TOOL_FACTORY(DQBadLBFilterTool)
-DECLARE_TOOL_FACTORY(TriggerTranslatorToolSimple)
-DECLARE_TOOL_FACTORY(GenericMonitoringTool)
+DECLARE_COMPONENT( AthenaMon )
+DECLARE_COMPONENT( AthenaMonManager )
+DECLARE_COMPONENT( ManagedMonitorToolTest )
+DECLARE_COMPONENT( DQAtlasReadyFilterTool )
+DECLARE_COMPONENT( DQFilledBunchFilterTool )
+DECLARE_COMPONENT( DQDummyFilterTool )
+DECLARE_COMPONENT( DQBadLBFilterTool )
+DECLARE_COMPONENT( TriggerTranslatorToolSimple )
+DECLARE_COMPONENT( GenericMonitoringTool )
 

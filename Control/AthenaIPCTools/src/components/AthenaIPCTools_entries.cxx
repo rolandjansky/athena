@@ -1,6 +1,6 @@
 #include "../AthenaSharedMemoryTool.h"
 #include "../AthenaYamplTool.h"
 
-DECLARE_TOOL_FACTORY( AthenaSharedMemoryTool )
-DECLARE_TOOL_FACTORY( AthenaYamplTool )
+DECLARE_COMPONENT( AthenaSharedMemoryTool )
+DECLARE_COMPONENT( AthenaYamplTool )
 
