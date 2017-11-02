@@ -155,19 +155,15 @@ def getBphysElectronThresholds(chainDict) :
     
     pid = None
     maxThreshold = 0
-    print "OI Analysing ",  chainDict["chainName"]
     for dictpart in chainDict['chainParts']:
-        print "OI chainParts for ", dictpart
         #if 'noL1' in  dictpart['extra'] : continue
         if 'e' in dictpart['trigType']:
-            print " OI prinrting e dictpart ", dictpart
             for x in range(0,int(dictpart['multiplicity'])):
                 if dictpart['threshold']!='0':
                     dthr = float(dictpart['threshold'] )
                     
                     if dthr > maxThreshold :
                         maxThreshold = dthr
-                        print "OI got Idinfo = ", dictpart['IDinfo'], " for threshold = ", dthr, " replacing previous pid ", pid
                         pid = dictpart['IDinfo']
                     
                     thr= dthr * 1000.  # in MeV; 
@@ -1531,18 +1527,8 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     EFTEname = "EF_" + chainDict['chainName']
 
 
-    print "OI calling bBeexTopos on ", chainDict['chainName']
-    print "L2 name " , L2TEname
-    print "EF name " , EFTEname
-
-    
-    print " OI myTopoString " , myTopoString
-
-    
     fexNameExt,trkelectrons, mult, pid  = getBphysElectronThresholds(chainDict)
 
-    print "fexNameExt,trkelectrons, mult ", fexNameExt, trkelectrons, mult 
-    
     if 'Ftk' in topoAlgs:
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
         trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
@@ -1560,8 +1546,9 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     # noL2 option to skip dimuon selection at L2
 
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-    L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so chanching name is sufficient
-    L2Fex.setTrackThresholds( trkelectrons )
+    L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so changing the name is sufficient
+    L2Fex.setElectronTrackThresholds( trkelectrons )   # however, we need only energetic tracks unlike in muons.
+    L2Fex.trkMass= 0.511 # otherwise mass cut will not remove comversions
 
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
@@ -1615,7 +1602,6 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])
 
     else :  # add BphysElectron counter\
-        print "OI : adding bNe fex"
         # add step that counts EF electrons above required thresholds
         from TrigBphysHypo.TrigBphysElectronCounterConfig import  TrigBphysElectronCounter_bBee
         if pid == None :

@@ -64,7 +64,7 @@ class TrigEFCaloHypo_e_ID (TrigEFCaloHypoBase):
         if( 'lh' in IDinfo):
             self.LHSelectorToolName='AsgElectronLikelihoodTool/'+ElectronCaloToolName[IDinfo]
             self.ApplyLH = True
-        elif( 'bloose' in IDinfo or 'bloose1' in IDinfo or 'bloose2' in IDinfo or 'bloose3' in IDinfo  or 'blooseCalo' in IDinfo   ):
+        elif( 'bloose' in IDinfo    ):
             self.ApplyIsEM = True
             from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
             self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
