@@ -620,10 +620,6 @@ class ItemDef:
             ### ATR-15524
             LVL1MenuItem('L1_EM18VH_3J20' ).setLogic( EM18VH  & J20.x(3)  & physcond).setTriggerType(TT.calo)      # noqa: F821
   
-        #BeeK items
-        LVL1MenuItem('L1_EM8VH_MU6_J15'   ).setLogic( EM8VH & MU6 & J15 & physcond).setTriggerType(TT.calo)       # noqa: F821
-        LVL1MenuItem("L1_JPSI-1M5-EM7_MU6_J15" ).setLogic( TOPO_1INVM5_EM7s1_EMs6 & MU6 & J15 & physcond)         # noqa: F821
-
         # combined mu - jet
         LVL1MenuItem('L1_MU4_J12'   ).setLogic( MU4 & J12    & physcond).setTriggerType(TT.calo)       # noqa: F821
         LVL1MenuItem('L1_MU6_J20'   ).setLogic( MU6 & J20    & physcond).setTriggerType(TT.calo)       # noqa: F821
