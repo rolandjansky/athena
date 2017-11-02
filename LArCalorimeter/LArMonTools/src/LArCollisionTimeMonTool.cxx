@@ -265,7 +265,7 @@ LArCollisionTimeMonTool::fillHistograms()
     m_ECTimeAvg  = (larTime->timeC() + larTime->timeA()) / 2.0;
     if (larTime->ncellA() > m_minCells && larTime->ncellC() > m_minCells && std::fabs(m_ECTimeDiff) < m_timeCut ) { // Only fill histograms if a minimum number of cells were found and time difference was sensible
       double weight = 1;
-      if (m_eWeighted) weight = (larTime->energyA()+larTime->energyC())/1000; 
+      if (m_eWeighted) weight = (larTime->energyA()+larTime->energyC())*1e-3; 
       m_LArCollTime_h[0]->Fill(m_ECTimeDiff,weight);
       m_LArCollTime_lb_h[0]->Fill(m_ECTimeDiff,weight);
       m_LArCollTime_vs_LB_h[0]->Fill(lumi_block, m_ECTimeDiff,weight);

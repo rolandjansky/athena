@@ -3,6 +3,10 @@
 # version of the externals.
 #
 
+# Make sure that an RPM dependency is set up for the correct version of
+# Gaudi:
+set( GAUDI_VERSION @GAUDI_VERSION@
+   CACHE STRING "Version of Gaudi used for the RPM dependency setup" )
 
 # Find Gaudi:
 find_package( Gaudi REQUIRED )

@@ -97,10 +97,6 @@ elif TileUseCOOL:
         TileUseCOOLPULSE=True; # read pulse from COOL
 
     tileInfoConfigurator.setupCOOL(type=(TileGapTiming+TilePulse))
-    if TileUseCOOLOFC:
-        tileInfoConfigurator.setupCOOLOFC(type=TilePulse)
-    if TileUseCOOLPULSE:
-        tileInfoConfigurator.setupCOOLPULSE(type=TilePulse)
 
     if TileUseDCS:
         tileInfoConfigurator.setupCOOLDCS();

@@ -364,7 +364,7 @@ $(INSTALLDIR)/TIDA% : $(EXEDIR)/%
 
 INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
 
-ginstall : install $(INSTALLDIR)/TIDA$(patsubst %,%,$(INSTALLFILES))
+ginstall : install $(patsubst %,$(INSTALLDIR)/TIDA%,$(INSTALLFILES))
 
 install : all 
 	cp $(EXEDIR)/comparitor $(HOME)/bin

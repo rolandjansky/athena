@@ -305,6 +305,14 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
       return 0;
+   } else if(configName=="MC16") {
+     AddPeriod(284500,222222,324300); //MC16a: 2015 + 2016
+     AddPeriod(300000,324300,999999); //MC16c: 2017+  ... will need to update this when we know end of 2017 
+     //AddPeriod(310000,xxxxxx,999999); //MC16d: 2018+ .. to be added at end of 2017
+     
+     SetUniformBinning(100,0,100);
+     Info("UsePeriodConfig","Using MC16 Period configuration");
+     return 0;
    }
    Error("UsePeriodConfig","Unrecognized period config");
    return -1;
@@ -645,7 +653,8 @@ void CP::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
       TString weightName(customName);
       if(loadedHistos.find(sHistName)==loadedHistos.end()) {
          loadedHistos[sHistName]=true;
-         if(!m_ignoreFilePeriods && isMC) {
+         if(( (!m_ignoreFilePeriods) || m_periods.find(runNbr)==m_periods.end()) && isMC) {
+            //if ignoring file periods, will still add the period if it doesnt exist!
             for(unsigned int j=0;j<pStarts->size();j++) {
                unsigned int start = pStarts->at(j);unsigned int end = pEnds->at(j);
                AddPeriod(runNbr,start,end);

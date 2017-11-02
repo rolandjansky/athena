@@ -3,6 +3,9 @@
 # Script building all the externals necessary for the nightly build.
 #
 
+# Stop on errors:
+set -e
+
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
@@ -51,28 +54,6 @@ while getopts ":t:b:fch" opt; do
     esac
 done
 
-# Version comparison function. Taken from a StackOverflow article.
-verlte() {
-    if [ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; then
-        return 1
-    fi
-    return 0
-}
-
-# First off, check that we are using a new enough version of Git. We need
-# at least version 1.8.1.
-git_min_version=1.8.1
-git_version=`git --version | awk '{print $3}'`
-verlte "${git_min_version}" "${git_version}"
-if [ $? = 0 ]; then
-    echo "Detected git version (${git_version}) not new enough."
-    echo "Need at least: ${git_min_version}"
-    exit 1
-fi
-
-# Stop on errors from here on out:
-set -e
-
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
 thisdir=$(cd ${thisdir};pwd)
@@ -95,7 +76,7 @@ if [ "$FORCE" = "1" ]; then
 fi
 
 # Create some directories:
-mkdir -p ${BUILDDIR}/install
+mkdir -p ${BUILDDIR}/{src,install}
 
 # Set some environment variables that the builds use internally:
 export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
@@ -118,10 +99,14 @@ fi
 # Read in the tag/branch to use for AthAnalysisExternals:
 AthAnalysisExternalsVersion=$(awk '/^AthAnalysisExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
+# Don't let re-direction swallow error codes:
+set -o pipefail
+
 # Check out AthAnalysisExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthAnalysisExternalsVersion} \
-    -s ${BUILDDIR}/src/AthAnalysisExternals
+    -s ${BUILDDIR}/src/AthAnalysisExternals 2>&1 | \
+    tee ${BUILDDIR}/src/checkout.AthAnalysisExternals.log
 
 # Build AthAnalysisExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthAnalysisExternals
@@ -142,7 +127,8 @@ GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 # Check out Gaudi from the right branch/tag:
 ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI
+    -s ${BUILDDIR}/src/GAUDI 2>&1 | \
+    tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI

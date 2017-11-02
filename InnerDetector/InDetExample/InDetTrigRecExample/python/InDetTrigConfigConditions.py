@@ -631,7 +631,7 @@ class TRTConditionsServicesSetup:
     if self._print:
       print InDetTRTConditionsSummaryService 
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_ActiveFractionSvc
+    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
     InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name=self.instanceName("InDetTRTActiveFractionSvc"),
                                                        #missing link to TRTSummarySvc
                                                        )

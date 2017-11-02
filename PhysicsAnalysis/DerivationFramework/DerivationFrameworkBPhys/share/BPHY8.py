@@ -73,9 +73,9 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300402,300426,300430,300432,300433,300434,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300997,300999,300404,300405,300406,300437]
-BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300401,300438,300448,300449]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300432,300433,300434,300446,300447]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
+BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
 BPHY8cf.mcBhh             = [300431]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
@@ -345,7 +345,8 @@ BPHY8cf.DebugTrkToVtxMaxEvents = 0
 #====================================================================
 # run number
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-BPHY8_f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+import PyUtils.AthFile as BPHY8_af
+BPHY8_f = BPHY8_af.fopen(athenaCommonFlags.PoolAODInput()[0])
 if len(BPHY8_f.run_numbers) > 0:
     BPHY8cf.runNumber = int(BPHY8_f.run_numbers[0])
 

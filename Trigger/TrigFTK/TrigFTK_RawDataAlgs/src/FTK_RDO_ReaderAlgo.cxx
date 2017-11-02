@@ -290,13 +290,13 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
       int itpr=0;
       for ( auto ptpr =  tpr->begin(); ptpr !=  tpr->end(); ptpr++, itpr++) {
 	double p = 1.e10;
-	if ((*ptpr)->qOverP()!=0.) p = 1./(*ptpr)->qOverP();
+	if (fabs((*ptpr)->qOverP())>1.e-9) p = 1./(*ptpr)->qOverP();
 	//uint8_t NumOfPixHits = 0;
 	//uint8_t NumOfSCTHits = 0;
 	//if (!(*ptpr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << MSG::DEBUG << "Could not retrieve number of SCT hits");
 	//if (!(*ptpr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << MSG::DEBUG << "Could not retrieve number of Pixel hits");
 	ATH_MSG_VERBOSE( itpr << ": q*pT " << (*ptpr)->pt()*(*ptpr)->charge() << " eta " << (*ptpr)->eta() << " phi " << (*ptpr)->phi0() <<
-			 " d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << (*ptpr)->z0() );
+			 " d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << " z0 " << (*ptpr)->z0() );
       }
       delete (tpr);
     }

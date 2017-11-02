@@ -177,6 +177,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         // Just for counting
         ATH_MSG_DEBUG("Probes " << m_probeElectrons.size() << " Pairs " << m_pairObj.size() );
         for( const auto& tool : m_tools) {
+	    ATH_MSG_DEBUG("Running tool " << tool);
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
             tool->setEmulation(getEmulation());
@@ -190,17 +191,21 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             continue; //Account for L1 and HLT prescale, discard event
         }
         for(unsigned int i=0;i<m_pairObj.size();i++){
+            ATH_MSG_DEBUG("Savin efficiencies...");    
 
             const xAOD::Electron* offEl = static_cast<const xAOD::Electron *> (m_pairObj[i].first);
             float et = getEt(offEl)/1e3;
-            if(et < info.trigThrHLT-5.0) continue; 
+            if(et < info.trigThrHLT-5.0) continue;
+	    ATH_MSG_DEBUG(" probe et = " << et << "  >=  info.trigThrHLT-5.0 = " << info.trigThrHLT-5.0 );
             if(!offEl->auxdecor<bool>(info.trigPidDecorator)) continue; 
+	    ATH_MSG_DEBUG("offEl->auxdecor<bool>(" << info.trigPidDecorator <<  ") True" );
             const HLT::TriggerElement* feat = m_pairObj[i].second;
             setAccept(feat,info); //Sets the trigger accepts
             cd(m_dir+"/Expert/Event");
             if(et > info.trigThrHLT + 1.0)
                 hist1(m_anatype+"_nProbes")->Fill(cprobeTrigger,1);
             if ( feat ) {
+		ATH_MSG_DEBUG(" Saving efficiencies for " << cprobeTrigger  << " for " << m_anatype);
                 if(et > info.trigThrHLT + 1.0){
                     hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,getAccept().getCutResult("L1Calo"));
                     hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,getAccept().getCutResult("L2Calo"));
@@ -224,8 +229,10 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                     }
                 }
             } // Features
+
             // Fill TProfile for no feature found (means no match)
             else {
+		ATH_MSG_DEBUG(" No Feature!!!  Filling " << cprobeTrigger << " with 0");
                 hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,0);
                 hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,0);
                 hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,0);

@@ -101,7 +101,7 @@ StatusCode EgammaCPTools::setupCalibration() {
                                 "decorrelationModel",
                                 m_config->egammaSystematicModel()),
                 "Failed to set decorrelationModel for " + egamma_calib_name);
-    
+
     if(m_config->isAFII())
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                   "useAFII", 1),
@@ -116,14 +116,14 @@ StatusCode EgammaCPTools::setupCalibration() {
   // The only supported working point is Medium with 97% integrated efficiency
   // Note: this working point is to be applied on top of MediumLLH + d0z0 cuts + isolFixedCutTight
   // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
-  std::string toolName="ECIDS_medium"; 
+  std::string toolName="ECIDS_medium";
   AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = new AsgElectronChargeIDSelectorTool(toolName);
   std::string trainingfile="ElectronPhotonSelectorTools/ChargeID/ECIDS_20161125for2017Moriond.root";
   float BDT_OP=-0.28087; //Set your operating point with the table above.
   top::check( electronChargeIDSelectorTool->setProperty("TrainingFile",trainingfile) , "Failed to setProperty" );
   top::check( electronChargeIDSelectorTool->setProperty("CutOnBDT",BDT_OP) , "Failed to setProperty" );
   top::check( electronChargeIDSelectorTool->initialize() , "Failed to initialize" );
-  
+
   // The terribly named ElectronPhotonShowerShapeFudgeTool...
   // We apply this only to photons to correct the shower shape
   // This should only be applied on MC
@@ -204,8 +204,8 @@ StatusCode EgammaCPTools::setupCalibration() {
   // N.B. Naming for isolation working points for AsgPhotonEfficiencyCorrectionTool isolation scale factors
   // are different than those for the IsolationCorrectionTool (preceded by FixedCut)
   std::set<std::string> photon_isolations = {"TightCaloOnly",
-                                              "Tight",
-                                              "Loose"};
+					     "Tight",
+					     "Loose",};
   for (const std::string& isoWP : photon_isolations) {
     std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
     if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
@@ -240,140 +240,83 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   std::string electronID = m_config->electronID();
   electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
   std::string electronIDLoose = m_config->electronIDLoose();
-  electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file 
+  electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
+  std::string electronIsolation = m_config->electronIsolation();
+  std::string electronIsolationLoose = m_config->electronIsolationLoose();
 
-  m_electronEffSFRecoFile = electronSFFilePath("reco");
-  m_electronEffSFIDFile = electronSFFilePath("ID", electronID);
-  m_electronEffSFTriggerFile = electronSFFilePath("triggerSF", electronID,
-                                                  m_config->electronIsolation());
-  if (m_electronEffSFTriggerFile.empty()) {
-    m_electronEffSFTriggerFile = electronSFFilePath("triggerSF", electronID,
-                                                    "None");
-  }
-  m_electronEffTriggerFile = electronSFFilePath("triggerEff", electronID,
-                                                m_config->electronIsolation());
-  if (m_electronEffTriggerFile.empty()) {
-    m_electronEffTriggerFile = electronSFFilePath("triggerEff", electronID,
-                                                  "None");
-  }
-  if (m_config->electronIsolation() != "None") {
-    m_electronEffSFIsoFile = electronSFFilePath("isolation", electronID,
-                                                m_config->electronIsolation());
-  }
-  // Loose SFs
-  m_electronEffSFIDLooseFile = electronSFFilePath("ID", electronIDLoose);
-  m_electronEffSFTriggerLooseFile = electronSFFilePath("triggerSF", electronIDLoose,
-                                                        m_config->electronIsolationLoose());
-  if (m_electronEffSFTriggerLooseFile.empty()) {
-    m_electronEffSFTriggerLooseFile = electronSFFilePath("triggerSF", electronIDLoose,
-                                                          "None");
-  }
-  m_electronEffTriggerLooseFile = electronSFFilePath("triggerEff", electronIDLoose,
-                                                      m_config->electronIsolationLoose());
-  if (m_electronEffTriggerLooseFile.empty()) {
-    m_electronEffTriggerLooseFile = electronSFFilePath("triggerEff", electronIDLoose,
-                                                        "None");
-  }
-  if (m_config->electronIsolationLoose() != "None") {
-    m_electronEffSFIsoLooseFile = electronSFFilePath("isolation", electronIDLoose,
-                                                      m_config->electronIsolationLoose());
-  }
-  // for the moment only for MediumLH and FixedCutTight isolation
-  // either at Tight or Loose level
-  if ( ( electronIDLoose == "MediumLLH" && m_config->electronIsolationLoose() == "FixedCutTight" )
-    || ( electronID == "MediumLLH" && m_config->electronIsolation() == "FixedCutTight" ) ) {
-    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH",
-                                              "FixedCutTight");
-  }
+  // Retrieve full path to maps for different types of tool
+  m_electronEffSFRecoFile         = electronSFMapFilePath("reco");
+  // - Tight
+  m_electronEffSFIDFile           = electronSFMapFilePath("ID");
+  m_electronEffSFTriggerFile      = electronSFMapFilePath("trigger");
+  m_electronEffTriggerFile        = electronSFMapFilePath("trigger");
+  m_electronEffSFIsoFile          = electronSFMapFilePath("isolation");
+  // - Loose
+  m_electronEffSFIDLooseFile      = electronSFMapFilePath("ID");
+  m_electronEffSFTriggerLooseFile = electronSFMapFilePath("trigger");
+  m_electronEffTriggerLooseFile   = electronSFMapFilePath("trigger");
+  m_electronEffSFIsoLooseFile     = electronSFMapFilePath("isolation");
 
-  // The tools want the files in vectors: remove this with function
-  std::vector<std::string> inRecoSF {m_electronEffSFRecoFile};
-  std::vector<std::string> inIDSF {m_electronEffSFIDFile};
-  std::vector<std::string> inTriggerSF {m_electronEffSFTriggerFile};
-  std::vector<std::string> inTrigger {m_electronEffTriggerFile};
-
-  std::vector<std::string> inIDSFLoose {m_electronEffSFIDLooseFile};
-  std::vector<std::string> inTriggerSFLoose {m_electronEffSFTriggerLooseFile};
-  std::vector<std::string> inTriggerLoose {m_electronEffTriggerLooseFile};
-  std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
-
-  /**********************************************************************
-    * Electron Isolation
-    * Some WPs aren't supported at the moment...
-    * As people want to use e.g. LooseLH electrons, we will allow
-    * everything to procede without the isolation SFs, although they
-    * should be careful and have to set ElectronIsoSFs False in their config
-    **********************************************************************/
-  std::vector< std::string > inIso;
-  std::vector< std::string > inIsoLoose;
-
-  if (m_config->electronIsolation() != "None") {
-    if (m_electronEffSFIsoFile.empty()) {
-      ATH_MSG_WARNING("Electron isolation configuration not found");
-      if (m_config->electronIsoSFs()) {
-        ATH_MSG_WARNING("If you really want to run with this electron "
-                        "ID/Isolation setup then you can add:"
-                        "\tElectronIsoSFs False\tto your config file");
-        return StatusCode::FAILURE;
-      }
+  // Perform check on the isolation WP and identify if there are cases where the SF is not available
+  if( (electronIsolation != "None" && m_electronEffSFIsoFile == "") || (electronIsolationLoose != "None" && m_electronEffSFIsoLooseFile == "") ){
+    ATH_MSG_WARNING("Electron isolation configuration not found");
+    if (m_config->electronIsoSFs()) {
+      ATH_MSG_WARNING("If you really want to run with this electron "
+                      "ID/Isolation setup then you can add:"
+                      "\tElectronIsoSFs False\tto your config file");
+      return StatusCode::FAILURE;
+    }
+    else{
       ATH_MSG_INFO("Isolation SFs will be set to 1.0");
-    } else {
-      inIso.push_back( m_electronEffSFIsoFile );
-    }
-  }
-  if (m_config->electronIsolationLoose() != "None") {
-    if (m_electronEffSFIsoLooseFile.empty()) {
-      ATH_MSG_WARNING("Loose Electron isolation configuration not found");
-      if (m_config->electronIsoSFs()) {
-        ATH_MSG_WARNING("If you really want to run with this (loose) "
-                        "electron ID/Isolation setup then you can add:"
-                        "\tElectronIsoSFs False\tto your config file");
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO("Loose Isolation SFs will be set to 1.0");
-    } else {
-      inIsoLoose.push_back( m_electronEffSFIsoLooseFile );
     }
   }
 
-  // data type
-  // 0 : Data
-  // 1 : MC FullSim
-  // 3 : MC AFII
+  // Define the trigger string for scale factors
+  const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
+                                     "OR_e60_lhmedium_"
+                                     "OR_e120_lhloose_"
+                                     "2016_e26_lhtight_nod0_ivarloose_"
+                                     "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+
+  // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
   int dataType(0);
   if (m_config->isMC()) {
-    dataType = (m_config->isAFII()) ? 3 : 1;
+     dataType = (m_config->isAFII()) ? 3 : 1;
   }
-  
+
+  // Define the tool prefix name
   const std::string elSFPrefix = "AsgElectronEfficiencyCorrectionTool_";
 
+  // Configure the tools with the maps - Name, map, reco_key, ID_key, iso_key, trigger_key, data_type
   // Reco SFs
-  m_electronEffSFReco = setupElectronSFTool(elSFPrefix + "Reco", inRecoSF, dataType);
-  // Trigger SFs
-  m_electronEffSFTrigger = setupElectronSFTool(elSFPrefix + "TriggerSF", inTriggerSF, dataType);
-  m_electronEffSFTriggerLoose = setupElectronSFTool(elSFPrefix + "TriggerSFLoose", inTriggerSFLoose, dataType);
-  // Trigger Efficiencies (wow- this is bad naming!)
-  m_electronEffTrigger = setupElectronSFTool(elSFPrefix + "Trigger", inTrigger, dataType);
-  m_electronEffTriggerLoose = setupElectronSFTool(elSFPrefix + "TriggerLoose", inTriggerLoose, dataType);
+  m_electronEffSFReco         = setupElectronSFToolWithMap(elSFPrefix + "Reco", m_electronEffSFRecoFile, "Reconstruction", "", "", "", dataType);
   // ID SFs
-  m_electronEffSFID = setupElectronSFTool(elSFPrefix + "ID", inIDSF, dataType);
-  m_electronEffSFIDLoose = setupElectronSFTool(elSFPrefix + "IDLoose", inIDSFLoose, dataType);
+  m_electronEffSFID           = setupElectronSFToolWithMap(elSFPrefix + "ID", m_electronEffSFIDFile, "", electronID, "", "", dataType);
+  m_electronEffSFIDLoose      = setupElectronSFToolWithMap(elSFPrefix + "IDLoose", m_electronEffSFIDLooseFile, "", electronIDLoose, "", "", dataType);
+  // Trigger SFs
+  m_electronEffSFTrigger      = setupElectronSFToolWithMap(elSFPrefix + "TriggerSF", m_electronEffSFTriggerFile, "", electronID, electronIsolation, trigger_string, dataType);
+  m_electronEffSFTriggerLoose = setupElectronSFToolWithMap(elSFPrefix + "TriggerSFLoose", m_electronEffSFTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, trigger_string, dataType);
+  // Trigger Efficiencies
+  m_electronEffTrigger        = setupElectronSFToolWithMap(elSFPrefix + "Trigger", m_electronEffTriggerFile, "", electronID, electronIsolation, "Eff_"+trigger_string, dataType);
+  m_electronEffTriggerLoose   = setupElectronSFToolWithMap(elSFPrefix + "TriggerLoose", m_electronEffTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, "Eff_"+trigger_string, dataType);
   // Isolation SFs
-  m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inIso, dataType);
-  m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inIsoLoose, dataType);
-  
-  // ChargeID SFs (if using Electron Charge ID Selector Tool)
+  m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
+  m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
+
+  // Charge ID cannot use maps at the moment so we defualt to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
-  if ( ( electronIDLoose == "MediumLLH" && m_config->electronIsolationLoose() == "FixedCutTight" )
-    || ( electronID == "MediumLLH" && m_config->electronIsolation() == "FixedCutTight" ) ) {
+  if ( ( electronIDLoose == "MediumLLH" && electronIsolationLoose == "FixedCutTight" ) || ( electronID == "MediumLLH" && electronIsolation == "FixedCutTight" ) ) {
+    // Charge ID file (no maps)
+    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "FixedCutTight");
+    // The tools want the files in vectors: remove this with function
+    std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
     // Charge Id efficiency scale factor
     m_electronEffSFChargeID = setupElectronSFTool(elSFPrefix + "ChargeID", inChargeID, dataType);
-
     // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
     CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
     //top::check( ChargeMisIDCorrections->setProperty("OutputLevel",  MSG::VERBOSE ) , "Failed to setProperty" );
-    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTightIso_CFTMedium.root") , "Failed to setProperty" );
+    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeIDFile) , "Failed to setProperty" );
     top::check( ChargeMisIDCorrections->initialize() , "Failed to setProperty" );
   }
   return StatusCode::SUCCESS;
@@ -400,35 +343,65 @@ EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<st
   return tool;
 }
 
+IAsgElectronEfficiencyCorrectionTool*
+EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type) {
+  std::string infoStr = "Configuring : " + name + " " + map_path;
+  ATH_MSG_INFO(infoStr);
+  IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
+  if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
+    tool = asg::ToolStore::get<IAsgElectronEfficiencyCorrectionTool>(name);
+  } else {
+      tool = new AsgElectronEfficiencyCorrectionTool(name);
+      // Give the full map path
+      top::check(asg::setProperty(tool, "MapFilePath", map_path), "Failed to set MapFilePath to " + name);
+      // Set the data type for all tools
+      top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
+      // Set the correlation model for all tools
+      top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"), "Failed to set CorrelationModel to " + name);
+      // Before settings the keys, we need to take into account FixedCutHighPtCaloOnly does not have any trigger isolation scale factors
+      if(trigger_key != "" && trigger_key != "None" && iso_key == "FixedCutHighPtCaloOnly"){
+	iso_key = ""; // Remove isolation from trigger key configuration (only valid with triggers which are not isolation dependent)
+      }
+      // Set the keys which configure the tool options (empty string means we do not include this key)
+      if(reco_key != "" && reco_key != "None"){
+	ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
+        top::check(asg::setProperty(tool, "RecoKey", reco_key), "Failed to set RecoKey to " + name);
+      }
+      if(ID_key != "" && ID_key != "None"){	
+	ID_key = mapWorkingPoints(ID_key);
+	ATH_MSG_INFO(" Adding IDKey      : " + ID_key);
+        top::check(asg::setProperty(tool, "IdKey", ID_key), "Failed to set IdKey to " + name);
+      }
+      if(iso_key != "" && iso_key != "None"){
+	ATH_MSG_INFO(" Adding IsoKey     : " + iso_key);
+        top::check(asg::setProperty(tool, "IsoKey", iso_key), "Failed to set IsoKey to " + name);
+      }
+      if(trigger_key != "" && trigger_key != "None"){
+	ATH_MSG_INFO(" Adding TriggerKey : " + trigger_key);
+        top::check(asg::setProperty(tool, "TriggerKey", trigger_key), "Failed to set TriggerKey to " + name);
+      }
+      // Initialise this tool
+      top::check(tool->initialize(), "Failed to initialize " + name);
+  }
+  return tool;
+}
+
 std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& isolation) {
-  const std::string el_calib_path
-      = "ElectronEfficiencyCorrection/" 
-      "2015_2016/rel20.7/Moriond_February2017_v1/";
 
-  const std::string ridiculous_trigger_string
-    = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
-    "OR_e60_lhmedium_"
-    "OR_e120_lhloose_"
-    "2016_e26_lhtight_nod0_ivarloose_"
-    "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
-
-  std::string new_iso = (isolation == "None") ? "" : "_isol" + isolation;
+  const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/";
 
   std::string file_path;
-  
+
   if (type == "reco") {
-    file_path = "offline/efficiencySF.offline.RecoTrk.root";
+    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ID") {
-    file_path = "offline/efficiencySF.offline." + ID + "_d0z0_v11.root";
+    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "isolation") {
-    file_path = "isolation/efficiencySF.Isolation."
-      + ID + "_d0z0_v11" + new_iso + ".root";
+    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "triggerSF") {
-    file_path = "trigger/efficiencySF." + ridiculous_trigger_string
-      + "." + ID + "_d0z0_v11" + new_iso + ".root";
+    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "triggerEff") {
-    file_path = "trigger/efficiency." + ridiculous_trigger_string
-      + "." + ID + "_d0z0_v11" + new_iso + ".root";
+    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ChargeID") {
     if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
     file_path = "charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolFixedCutTight_MediumCFT.root";
@@ -436,6 +409,52 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
     ATH_MSG_ERROR("Unknown electron SF type");
   }
   return PathResolverFindCalibFile(el_calib_path + file_path);
+}
+
+std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
+    // Store here the paths to maps which may be updated with new recommendations
+    // Currently can use maps for reco, id, iso, trigger but not ChargeID
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/";
+    std::string file_path;
+    if(type == "reco") {
+      file_path = "Moriond_February2017_v1/map0.txt";
+    }
+    else if(type == "ID"){
+      file_path = "Moriond_February2017_v1/map0.txt";
+    }
+    else if(type == "isolation"){
+      file_path = "Moriond_February2017_v2/map0.txt";
+    }
+    else if(type == "trigger"){
+      file_path = "Moriond_February2017_v3/map1.txt";
+    }
+    else if(type == "ChargeID") {
+      ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");
+    }
+    else{
+      ATH_MSG_ERROR("Unknown electron SF type");
+    }
+    return PathResolverFindCalibFile(el_calib_path + file_path);
+}
+
+std::string EgammaCPTools::mapWorkingPoints(const std::string& type) {
+  // Ian Connelly - 27 Sept 2017
+  // When moving to the maps, the working points are converted to a nicer format
+  // We will provide a mapping from the names used by analysers and the map WP names to prevent cutfiles breaking
+  // See : https://twiki.cern.ch/twiki/bin/view/AtlasProtected/XAODElectronEfficiencyCorrectionTool#Configuration_of_the_tool_using
+  std::string working_point = "";
+  // ID
+  if(type == "LooseAndBLayerLLH" || type == "LooseBLayer"){
+    working_point = "LooseBLayer";
+  }
+  if(type == "MediumLLH" || type == "Medium"){
+    working_point = "Medium";
+  }
+  if(type == "TightLLH" || type == "Tight"){
+    working_point = "Tight";
+  }
+
+  return working_point;
 }
 
 }  // namespace top

@@ -7,14 +7,21 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+import DerivationFrameworkEGamma.EGammaCommon
+import DerivationFrameworkMuons.MuonsCommon
+import DerivationFrameworkTau.TauCommon
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
+# for debugging output
+from AthenaCommon.Constants import INFO,DEBUG,WARNING
+
 ##################################################################
 # Jet helpers for large-radius groomed jets
-##################################################################              
+##################################################################
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
@@ -23,9 +30,13 @@ def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
-##################################################################              
+def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+    addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+
+##################################################################
 # Jet helpers for ungroomed jets (removed in xAOD reduction)
-##################################################################              
+##################################################################
 
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
@@ -39,6 +50,9 @@ from JetRec.JetRecStandard import jtm
 
 def addAntiKt10LCTopoJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "LCTopo", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist)
+
+def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
+    addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
     btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
@@ -99,10 +113,12 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
         addAntiKt10TruthWZJets(sequence,outputlist)
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
+    if "AntiKt10TrackCaloClusterJets" in jetlist:
+        addAntiKt10TrackCaloClusterJets(sequence,outputlist)
 
-##################################################################              
+##################################################################
 # Jet helpers for adding low-pt jets needed for calibration
-##################################################################              
+##################################################################
 
 
 def addAntiKt4LowPtJets(sequence,outputlist):
@@ -126,8 +142,8 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
     if not jetaugtool in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
 
-def getJetAugmentationTool(jetalg):
-    jetaugtoolname = 'DFJetAug_'+jetalg
+def getJetAugmentationTool(jetalg, suffix=''):
+    jetaugtoolname = 'DFJetAug_'+jetalg+suffix
     jetaugtool = None
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,jetaugtoolname):
@@ -138,6 +154,18 @@ def getJetAugmentationTool(jetalg):
         ToolSvc += jetaugtool
 
     return jetaugtool
+
+def getJetCleaningTool(cleaningLevel):
+    jetcleaningtoolname = 'JetCleaningTool_'+cleaningLevel
+    jetcleaningtool = None
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,jetcleaningtoolname):
+        jetcleaningtool = getattr(ToolSvc,jetcleaningtoolname)
+    else:
+        jetcleaningtool = CfgMgr.JetCleaningTool(jetcleaningtoolname,CutLevel=cleaningLevel)
+        ToolSvc += jetcleaningtool
+
+    return jetcleaningtool
 
 def getJetExternalAssocTool(jetalg, extjetalg, **options):
     jetassoctoolname = 'DFJetExternalAssoc_%s_From_%s' % (jetalg, extjetalg)
@@ -245,6 +273,23 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
+def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
+    jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
+    if(jetaugtool==None):
+        extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
+
+    jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,jetptassociationtoolname):
+        jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
+    else:
+        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+        ToolSvc += jetptassociationtool
+        jetaugtool.JetPtAssociationTool = jetptassociationtool
+
+    extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
+    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
 def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob,btagtooldict={}):
     jetaugtool = getJetAugmentationTool(jetalg)
 
@@ -264,31 +309,65 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
-    #from AssociationUtils.AssociationUtilsConf import ORUtils__OverlapRemovalTool as OverlapRemovalTool
     from AssociationUtils.config import recommended_tools
-    from AssociationUtils.AssociationUtilsConf import OverlapRemovalTestAlg
+    from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = 'isBJet'
-    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel,doMuons=False)
-    algOR = OverlapRemovalTestAlg('OverlapRemovalTestAlg',
+    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
+    algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
                             OverlapRemovalTool=orTool,
                             BJetLabel=bJetLabel)
     sequence += algOR
 
-def eventClean_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    ecTool = EventCleaningTool('EventCleaningTool')
-    ecTool.JetCleanPrefix = "DFCommonJets_"
-    algClean = EventCleaningTestAlg('EventCleaningTestAlg',
-                            EventCleaningTool=ecTool,
-                            JetCollectionName="AntiKt4EMTopoJets")
-    sequence += algClean
+    jetcleaningtoolname = "EventCleaningTool_Loose"
+    prefix = "DFCommonJets_"
+    ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
+    ecToolLoose.JetCleanPrefix = prefix
+    ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
+    algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_loose',
+                            EventCleaningTool=ecToolLoose,
+                            JetCollectionName="AntiKt4EMTopoJets",
+			    EventCleanPrefix=prefix)
+    sequence += algCleanLoose
 
+def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_Tight"
+    prefix = "DFCommonJets_"
+    ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
+    ecToolTight.JetCleanPrefix = prefix
+    ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
+    algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_tight',
+                            EventCleaningTool=ecToolTight,
+                            JetCollectionName="AntiKt4EMTopoJets",
+			    EventCleanPrefix=prefix,
+			    CleaningLevel="TightBad",
+		  	    doEvent=False)
+    sequence += algCleanTight
+
+def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
+    jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
+    algname = "jetalg"+jetname
+
+    if not hasattr(sequence,algname):
+        if inputtype == "Truth":
+            addStandardJets(jetalg, radius, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+        if inputtype == "TruthWZ":
+            addStandardJets(jetalg, radius, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+        elif inputtype == "LCTopo":
+            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
+                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
-eventClean_xAODColl("AntiKt4EMTopo")
+eventCleanLoose_xAODColl("AntiKt4EMTopo")
+eventCleanTight_xAODColl("AntiKt4EMTopo")
+

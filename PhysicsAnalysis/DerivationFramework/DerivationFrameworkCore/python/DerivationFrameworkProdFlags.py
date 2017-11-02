@@ -919,18 +919,18 @@ class WriteDAOD_SUSY8Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY8Stream)
 listAODtoDPD.append(WriteDAOD_SUSY8Stream.StreamName)
 
-#class WriteDAOD_SUSY9Stream(JobProperty):
-#    """SUSY9 derivation"""
-#    statusOn = True
-#    allowedTypes = ['bool']
-#    StoredValue = False
-#    StreamName = 'StreamDAOD_SUSY9'
-#    FileName = ''
-#    isVirtual = False
-#    DPDMakerScript = "DerivationFrameworkSUSY/SUSY9.py"
-#    pass
-#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY9Stream)
-#listAODtoDPD.append(WriteDAOD_SUSY9Stream.StreamName)
+class WriteDAOD_SUSY9Stream(JobProperty):
+    """SUSY9 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY9'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY9.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY9Stream)
+listAODtoDPD.append(WriteDAOD_SUSY9Stream.StreamName)
 
 class WriteDAOD_SUSY10Stream(JobProperty):
     """SUSY10 derivation"""
@@ -1235,18 +1235,18 @@ class WriteDAOD_EXOT13Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT13Stream)
 listAODtoDPD.append(WriteDAOD_EXOT13Stream.StreamName)
 
-class WriteDAOD_EXOT14Stream(JobProperty):
-    """EXOT14 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT14'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
-listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
+#class WriteDAOD_EXOT14Stream(JobProperty):
+#    """EXOT14 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT14'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
 
 class WriteDAOD_EXOT15Stream(JobProperty):
     """EXOT15 derivation"""
@@ -1339,7 +1339,18 @@ class WriteDAOD_EXOT21Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT21Stream)
 listAODtoDPD.append(WriteDAOD_EXOT21Stream.StreamName)
 
-## EXOT22 in progress ##
+class WriteDAOD_EXOT22Stream(JobProperty):
+    """EXOT22 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT22'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT22.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT22Stream)
+listAODtoDPD.append(WriteDAOD_EXOT22Stream.StreamName)
 
 class WriteDAOD_EXOT23Stream(JobProperty):
     """EXOT23 derivation"""

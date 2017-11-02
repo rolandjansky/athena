@@ -1062,6 +1062,9 @@ if rec.doFileMetaData():
         # FileMetaData tool
         ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool( "FileMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataTool ]
+        # TruthMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1475,6 +1478,11 @@ if rec.doWriteAOD():
             ToolSvc += \
                 CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool" )
             svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+
+            # TruthMetaData tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
             pass
 
         # Put MetaData in AOD stream via AugmentedPoolStream_

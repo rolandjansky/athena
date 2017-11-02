@@ -1,6 +1,6 @@
 #====================================================================
-# JETM4.py 
-# reductionConf flag JETM4 in Reco_tf.py   
+# JETM4.py
+# reductionConf flag JETM4 in Reco_tf.py
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -15,7 +15,7 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 # NOTE: need to add isSimulation as OR with trigger
 
@@ -31,7 +31,7 @@ JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4Sk
 ToolSvc += JETM4SkimmingTool
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_JETM4Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM4Stream )
@@ -48,7 +48,7 @@ JETM4ThinningHelper = ThinningHelper( "JETM4ThinningHelper" )
 JETM4ThinningHelper.AppendToStream( JETM4Stream )
 
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
 thinningTools = []
 
@@ -106,9 +106,9 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
     truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                                                # Gluons
     truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                 # Photon
-    
+
     truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+'||'+truth_cond_Gluon+' || '+truth_cond_Photon+')'
-    
+
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM4TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM4TruthThinningTool",
                                                                         ThinningService        = JETM4ThinningHelper.ThinningSvc(),
@@ -116,9 +116,9 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,
                                                                         PreserveAncestors = True)
-    
+
     ToolSvc += JETM4TruthThinningTool
-    thinningTools.append(JETM4TruthThinningTool)    
+    thinningTools.append(JETM4TruthThinningTool)
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -128,7 +128,7 @@ jetm4Seq = CfgMgr.AthSequencer("JETM4Sequence")
 DerivationFrameworkJob += jetm4Seq
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -163,6 +163,9 @@ if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm4Seq,"JETMX")
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

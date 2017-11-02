@@ -7,6 +7,11 @@
 set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" )
 set( TDAQ-COMMON_ROOT "@TDAQ-COMMON_ROOT@" )
 
+# Make sure that an RPM dependency is set up for the correct version of
+# Gaudi:
+set( GAUDI_VERSION @GAUDI_VERSION@
+   CACHE STRING "Version of Gaudi used for the RPM dependency setup" )
+
 # Find Gaudi:
 find_package( Gaudi REQUIRED )
 

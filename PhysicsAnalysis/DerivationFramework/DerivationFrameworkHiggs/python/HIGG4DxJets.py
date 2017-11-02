@@ -12,20 +12,21 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
 def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
     
-    jet_collection = HIGG4DxName+"Jets"
-    if not jet_collection in OutputJets:
-        # AntiKt10*PtFrac5Rclus20 jets
+    if not HIGG4DxName in OutputJets:
+        reducedJetList = ["AntiKt4TruthJets",
+                          "AntiKt4TruthWZJets",
+                          ]
+      
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
             
-            reducedJetList = ["AntiKt4PV0TrackJets", 
-                              "AntiKt2PV0TrackJets",
-                              "AntiKt4TruthJets",
-                              "AntiKt4TruthWZJets",
-                              "AntiKt10LCTopoJets"
-                              ]
+            reducedJetList += ["AntiKt4PV0TrackJets", 
+                               "AntiKt2PV0TrackJets",
+                               "AntiKt10LCTopoJets"
+                               ]
                               
-            replaceAODReducedJets(reducedJetList,HIGG4DxSequence,HIGG4DxName)
+        replaceAODReducedJets(reducedJetList,HIGG4DxSequence,HIGG4DxName)
             
-            # default trimmed jets. Does this still work?
-            addDefaultTrimmedJets(HIGG4DxSequence, jet_collection, True)
+        if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
+            # default trimmed jets.
+            addDefaultTrimmedJets(HIGG4DxSequence, HIGG4DxName, True)
 

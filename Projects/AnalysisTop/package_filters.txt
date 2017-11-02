@@ -19,6 +19,7 @@
 - Event/xAOD/.*AthenaPool
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
++ Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 + Generators/TruthUtils

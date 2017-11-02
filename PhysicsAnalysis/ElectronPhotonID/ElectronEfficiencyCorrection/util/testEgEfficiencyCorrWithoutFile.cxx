@@ -397,7 +397,8 @@ CHECK( myEgCorrections.setProperty("CorrelationModel", "FULL" ));
   double total_up = sqrt(total2_up);
   double total_down = -sqrt(total2_down); 
 
-  MSG_INFO( "total up " << total_up  <<" total down " << total_down );
+  MSG_INFO( "total up " << total_up  <<" total down " << total_down  );
+  MSG_INFO( "Index " << myEgCorrections.systUncorrVariationIndex(*el) );
 
   /*
   //==================================================================================

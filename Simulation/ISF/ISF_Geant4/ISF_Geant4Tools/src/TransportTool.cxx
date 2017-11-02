@@ -186,7 +186,8 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   // Send UI commands
   for (auto g4command : m_g4commands){
-    ui->ApplyCommand( g4command );
+    int the_return = ui->ApplyCommand(g4command);
+    ATH_MSG_INFO("Returned " << the_return << " from G4 Command: " << g4command);
   }
 
   /*

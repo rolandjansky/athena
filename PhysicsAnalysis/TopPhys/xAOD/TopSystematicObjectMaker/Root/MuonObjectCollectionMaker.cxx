@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonObjectCollectionMaker.cxx 799839 2017-03-08 11:07:28Z grancagn $
+// $Id: MuonObjectCollectionMaker.cxx 810751 2017-09-29 14:41:39Z iconnell $
 #include "TopSystematicObjectMaker/MuonObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -144,6 +144,14 @@ namespace top{
         muon->auxdecor<char>("AnalysisTop_Isol_GradientLoose") = passIsol_GradientLoose; 	
 	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutTightTrackOnly") = passIsol_FixedCutTightTrackOnly;
 	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose") = passIsol_FixedCutLoose;
+	// PromptLeptonIsolation - Some protection incase things change in R21
+	if(muon->isAvailable<float>("PromptLeptonIso_TagWeight")){
+	  muon->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (muon->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;
+	}
+	else{
+	  muon->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = 0;
+	}
+
       }
 
       ///-- set links to original objects- needed for MET calculation --///

@@ -1,224 +1,156 @@
-#====================================================================
-# EXOT22.py 
-# reductionConf flag EXOT22 in Reco_tf.py   
-#====================================================================
+#********************************************************************
+# EXOT22.py
+# reductionConf flag EXOT22 in Reco_tf.py
+#********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-### not working in current release -- update later ##
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-#  addStandardTruthContents()
-### ---------------------------------------------- ##
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 
-
-#=======================================
-# SET UP STREAM
-#=======================================
-streamName   = derivationFlags.WriteDAOD_EXOT22Stream.StreamName
-fileName     = buildFileName( derivationFlags.WriteDAOD_EXOT22Stream )
-EXOT22Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-
-# attach output stream to kernel
-EXOT22Stream.AcceptAlgs(["EXOT22KernelSkim"])
-
-# create sequence for specific stream
-SeqEXOT22 = CfgMgr.AthSequencer("SeqEXOT22")
-DerivationFrameworkJob += SeqEXOT22
-
+exot22Seq = CfgMgr.AthSequencer("EXOT22Sequence")
 
 #====================================================================
 # THINNING TOOLS
 #====================================================================
-# initilize ThinningHelper
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EXOT22ThinningHelper = ThinningHelper( "EXOT22ThinningHelper" )
+
 thinningTools = []
 
-# adding unconfigured thinning helper
-EXOT22ThinningHelper.AppendToStream( EXOT22Stream )
+# Tracks associated with Muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+EXOT22MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT22MuonTPThinningTool",
+                                                                            ThinningService         = "EXOT22ThinningSvc",
+                                                                            MuonKey                 = "Muons",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                            ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+ToolSvc += EXOT22MuonTPThinningTool
+thinningTools.append(EXOT22MuonTPThinningTool)
 
-# TrackParticle thinning
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# require pt > 0.5 GeV tracks
-EXOT22TPThinningTool = DerivationFramework__TrackParticleThinning(
-                         name                   = "EXOT22TPThinningTool",
-                         ThinningService        = EXOT22ThinningHelper.ThinningSvc(),
-                         SelectionString        = "InDetTrackParticles.pt > 0.5*GeV",
-                         InDetTrackParticlesKey = "InDetTrackParticles" )
+# Tracks associated with Electrons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EXOT22ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT22ElectronTPThinningTool",
+                                                                                        ThinningService         = "EXOT22ThinningSvc",
+                                                                                        SGKey                   = "Electrons",
+                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                        ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+ToolSvc += EXOT22ElectronTPThinningTool
+thinningTools.append(EXOT22ElectronTPThinningTool)
 
-ToolSvc += EXOT22TPThinningTool
-thinningTools.append(EXOT22TPThinningTool)
+# Tracks associated with Photons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EXOT22PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT22PhotonTPThinningTool",
+                                                                              ThinningService         = "EXOT22ThinningSvc",
+                                                                              SGKey                   = "Photons",
+                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                              ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+ToolSvc += EXOT22PhotonTPThinningTool
+thinningTools.append(EXOT22PhotonTPThinningTool)
 
+# truth thinning
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT22TruthTool",
+                                                        ThinningService       = "EXOT22ThinningSvc",
+                                                        WritePartons          = False,
+                                                        WriteHadrons          = False,
+                                                        WriteBHadrons         = False,
+                                                        WriteGeant            = False,
+                                                        GeantPhotonPtThresh   = -1.0,
+                                                        WriteTauHad           = False,
+                                                        PartonPtThresh        = -1.0,
+                                                        WriteBSM              = True,
+                                                        WriteBosons           = True,
+                                                        WriteBSMProducts      = True,
+                                                        WriteBosonProducts    = True,
+                                                        WriteTopAndDecays     = True,
+                                                        WriteEverything       = False,
+                                                        WriteAllLeptons       = False,
+                                                        WriteStatus3          = False,
+                                                        PreserveGeneratorDescendants  = False,
+                                                        PreserveAncestors     = True,
+                                                        WriteFirstN           = -1)
 
-##====================================================================
-## AUGMENTATION TOOLS
-##====================================================================
-AugmentationTools = []
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.DataSource()=='geant4':
+  ToolSvc += EXOT22TruthTool
+  thinningTools.append(EXOT22TruthTool)
 
-# based on SUSY15 truth augs
-if DerivationFrameworkIsMonteCarlo:
-    # -- decorate truth particles with track parameters -- #
-    # decorator tool
-    from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValTruthDecoratorTool
-    IDPV_TruthDecoratorTool = InDetPhysValTruthDecoratorTool()
-    ToolSvc += IDPV_TruthDecoratorTool
-    # augmentation tool
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles as TrkParam4TruthPart
-    TrkParam4Truth = TrkParam4TruthPart( name = "TrkParam4Truth",
-                                         OnlyDressPrimaryTracks = False )
+truth_cond = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))" # lepton conditions
 
-    
-    ToolSvc += TrkParam4Truth
-    AugmentationTools.append( TrkParam4Truth )
-
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+EXOT22TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT22TruthTool2",
+                                                            ThinningService              = "EXOT22ThinningSvc",
+                                                            ParticleSelectionString      = truth_cond,
+                                                            PreserveDescendants          = False,
+                                                            PreserveGeneratorDescendants = True,
+                                                            PreserveAncestors            = True)
+if globalflags.DataSource()=='geant4':
+  ToolSvc += EXOT22TruthTool2
+  thinningTools.append(EXOT22TruthTool2)
 
 #====================================================================
-# SKIMMING TOOLS
+# SKIMMING TOOL
 #====================================================================
-# trigger skimming
-triggers = ["HLT_4j90",
-            "HLT_4j100",
-            "HLT_4j110",
-            "HLT_4j120",
-            "HLT_4j130",
-            "HLT_4j140",
-            "HLT_4j150"]
-expression = "(" + " || ".join(triggers) + ")"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT22SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT22SkimmingTool",
-                                                                 expression = expression)
-
+mu_exp = '(Muons.pt > 20*GeV && Muons.DFCommonGoodMuon && Muons.muonType == 0)' # pass ID cuts and be a combined muon
+expression = '(count(' + mu_exp + ') >= 1)'
+EXOT22SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT22SkimmingTool1", expression = expression)
 ToolSvc += EXOT22SkimmingTool
 
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += exot22Seq
+exot22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel_skim", SkimmingTools = [EXOT22SkimmingTool])
+exot22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel", ThinningTools = thinningTools)
 
-SeqEXOT22 += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT22KernelSkim",
-                                                          SkimmingTools = [EXOT22SkimmingTool])
-SeqEXOT22 += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT5KernelAug",
-                                                          AugmentationTools = AugmentationTools,
-                                                          ThinningTools = thinningTools)
+#=======================================
+# JETS
+#=======================================
 
-
-#====================================================================
-# TRUTH DARK JETS
-#====================================================================
-from JetRec.JetRecStandard import jtm
-from JetRec.JetRecConf import JetAlgorithm
-
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT22"] = []
+reducedJetList = [
+  "AntiKt4TruthJets",
+  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,exot22Seq,"EXOT22")
 
-# "truthpartcopydark" ADDED TO rtools IN JetRec/JetAlgorithm.py ##
-# select truth dark hadrons for jet clustering
-from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-from JetRec.JetRecStandardTools import truthClassifier
-
-jtm += CopyTruthJetParticles("truthpartcopydark",
-                             OutputName = "JetInputTruthParticlesDarkHad",
-                             MCTruthClassifier = truthClassifier,
-                             IncludeSMParts = False,
-                             IncludeDarkHads = True)
-
-# add JetToolRunner instance for new truthpartcopydark tool
-jtm += CfgMgr.JetToolRunner("jetrun_copytruthpartdark",
-                            EventShapeTools = [],
-                            Tools = [jtm.truthpartcopydark])
-
-# import pseudojet getter
-from JetRec.JetRecConf import PseudoJetGetter
-
-# build truth dark pseudojets
-jtm += PseudoJetGetter("truthdarkget",
-                       Label = "Truth",
-                       InputContainer = jtm.truthpartcopydark.OutputName,
-                       OutputContainer = "PseudoJetTruthDark",
-                       GhostScale = 0.0,
-                       SkipNegativeEnergy = True)
-
-# add truth dark pseudojet getters
-truthdarkgetters = [jtm.truthdarkget]
-# add truth cone matching and truth flavor ghosts for truth dark jets
-from JetRec.JetRecStandardToolManager import flavorgetters
-truthdarkgetters += flavorgetters
-
-# add truth dark getters list to jtm
-jtm.gettersMap["truthdark"] = list(truthdarkgetters)
-
-# build list of truth dark jet modifiers
-jtm.modifiersMap["truthdarkmods"] = [jtm.truthpartondr,
-                                     jtm.partontruthlabel]
-
-
-# define truth dark jets helper
-# analogous to addRscanJets in JETM9
-# calls addStandardJets in JetCommon -- modified to include custom pseudojetgetter inputs
-def addTruthDarkJets(jetalg, radius, sequence, outputlist):
-    inputtype = "TruthDark"
-    jetname = "{0}{1}{2}Jets".format(jetalg, int(radius*10), inputtype)
-    algname = "jetalg" + jetname
-
-    if not hasattr(sequence, algname):
-        # add JetAlgorithm instance for truth dark jets before scheduling jet finder
-        if not hasattr(sequence, "jetalg_copytruthpartdark"):
-            sequence += CfgMgr.JetAlgorithm("jetalg_copytruthpartdark",
-                                            Tools = [jtm.jetrun_copytruthpartdark])
-        # call standard jet helper to schedule jet finder
-        addStandardJets(jetalg, radius, "TruthDark", mods="truthdarkmods",
-                        ptmin=5000., algseq=sequence, outputGroup=outputlist,
-                        customGetters='truthdark')
-
-
-# call truth dark helper
-if jetFlags.useTruth:
-    addTruthDarkJets("AntiKt", 0.4, SeqEXOT22, "EXOT22")
-    addTruthDarkJets("AntiKt", 1.0, SeqEXOT22, "EXOT22")
-
-    
 #====================================================================
-# CONTENT LIST
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT22Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT22Stream )
+EXOT22Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT22Stream.AcceptAlgs(["EXOT22Kernel"])
+
+#=====================
+# TRIGGER NAV THINNING
+#=====================
+#Establish the thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT22ThinningHelper = ThinningHelper("EXOT22ThinningHelper")
+#trigger navigation content
+EXOT22ThinningHelper.TriggerChains = 'HLT_mu.*'
+EXOT22ThinningHelper.AppendToStream( EXOT22Stream )
+
+#====================================================================
+# Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+from DerivationFrameworkExotics.EXOT22ContentList import *
 EXOT22SlimmingHelper = SlimmingHelper("EXOT22SlimmingHelper")
+EXOT22SlimmingHelper.StaticContent = EXOT22Content
+EXOT22SlimmingHelper.AllVariables = EXOT22AllVariables
+EXOT22SlimmingHelper.ExtraVariables = EXOT22ExtraVariables
+EXOT22SlimmingHelper.SmartCollections = EXOT22SmartCollections
+if globalflags.DataSource()=='geant4':
+  EXOT22SlimmingHelper.AllVariables += EXOT22AllVariablesTruth
+  EXOT22SlimmingHelper.ExtraVariables += EXOT22ExtraVariablesTruth
 
-EXOT22SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
-                                         "AntiKt4LCTopoJets",
-                                         "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4LCTopo",
-                                         "InDetTrackParticles",
-                                         "PrimaryVertices"]
-EXOT22SlimmingHelper.AllVariables = [ "AntiKt4EMTopoJets",
-                                      "AntiKt4LCTopoJets",
-                                      "BTagging_AntiKt4EMTopo",
-                                      "BTagging_AntiKt4LCTopo",
-                                      "InDetTrackParticles",
-                                      "PrimaryVertices",
-                                      "VrtSecInclusive_SecondaryVertices",
-                                      "VrtSecInclusive_SelectedTrackParticles",
-                                      "VrtSecInclusive_All2TrksVertices",
-                                      "TruthParticles",
-                                      "TruthEvents",
-                                      "TruthVertices",
-                                      "AntiKt4TruthJets" ]
-# based on SUSY15 extra variables
-EXOT22SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                        "BTagging_AntiKt4LCTopo.MV1_discriminant.MV1c_discriminant",
-                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
-                                        "AntiKt4LCTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
-                                        "InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY",
-                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType" ]
-
-
-# Trigger content
-EXOT22SlimmingHelper.IncludeJetTriggerContent = True
-
-# Add the jet containers to the stream
-addJetOutputs(EXOT22SlimmingHelper, ["EXOT22"])
-
+EXOT22SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT22SlimmingHelper.AppendContentToStream(EXOT22Stream)

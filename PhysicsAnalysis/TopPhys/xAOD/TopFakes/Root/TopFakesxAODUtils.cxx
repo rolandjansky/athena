@@ -110,9 +110,9 @@ void top::fakes::GetClosestJet (const xAOD::Muon& mu,
 void top::fakes::GetdPhiLepMET (const xAOD::Electron& el, const xAOD::MissingET& met, float& dPhi)
 {
   dPhi = -999.;
-  if (met.mpx()!=0. && met.mpx()!=0.) {
+  if (met.mpx()!=0. && met.mpy()!=0.) {
     TLorentzVector met_4vect;
-    met_4vect.SetPxPyPzE(met.mpx(),met.mpx(),0.,0.);
+    met_4vect.SetPxPyPzE(met.mpx(),met.mpy(),0.,0.);
     dPhi = el.p4().DeltaPhi(met_4vect);
   }
 }
@@ -121,9 +121,9 @@ void top::fakes::GetdPhiLepMET (const xAOD::Electron& el, const xAOD::MissingET&
 void top::fakes::GetdPhiLepMET (const xAOD::Muon& mu, const xAOD::MissingET& met, float& dPhi)
 {
   dPhi = -999.;
-  if (met.mpx()!=0. && met.mpx()!=0.) {
+  if (met.mpx()!=0. && met.mpy()!=0.) {
     TLorentzVector met_4vect;
-    met_4vect.SetPxPyPzE(met.mpx(),met.mpx(),0.,0.);
+    met_4vect.SetPxPyPzE(met.mpx(),met.mpy(),0.,0.);
     dPhi = mu.p4().DeltaPhi(met_4vect);
   }
 }

@@ -6,7 +6,9 @@ recoMetadataItemList = CfgItemList("RecoMetadata",
 	                                     "xAOD::LumiBlockRangeAuxContainer#*",
                                              "xAOD::CutBookkeeperContainer#*",
                                              "xAOD::CutBookkeeperAuxContainer#*",
-                                             "ByteStreamMetadataContainer#*"], 
+                                             "ByteStreamMetadataContainer#*",
+                                             "xAOD::TruthMetaDataContainer#TruthMetaData",
+                                             "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux."], 
                                     allowWildCard = True )
 
 dfMetadataItemList = CfgItemList("DerivedMetadata",

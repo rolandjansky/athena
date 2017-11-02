@@ -15,6 +15,9 @@
 #include "xAODTruth/TruthMetaDataAuxContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
+// For accessing the tagInfo
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 // Service for the weights
 #include "GenInterfaces/IHepMCWeightSvc.h"
 
@@ -96,7 +99,39 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
        
         md->setMcChannelNumber(mcChannelNumber);
         md->setWeightNames( std::move(orderedWeightNameVec) );
-    } 
-    
+
+        // Shamelessly stolen from the file meta data tool
+        const CondAttrListCollection* tagInfo(nullptr);
+        ATH_CHECK( detStore()->retrieve( tagInfo, "/TagInfo" ) );
+
+        // Access the first, and only channel of the object:
+        const CondAttrListCollection::AttributeList& al = tagInfo->attributeList( 0 );
+
+        if (al.exists("lhefGenerator")){
+            md->setLhefGenerator( al["lhefGenerator"].data< std::string >() );
+        }
+
+        if (al.exists("generators")){
+            md->setGenerators( al["generators"].data< std::string >() );
+        }
+
+        if (al.exists("evgenProcess")){
+            md->setEvgenProcess( al["evgenProcess"].data< std::string >() );
+        }
+
+        if (al.exists("evgenTune")){
+            md->setEvgenTune( al["evgenTune"].data< std::string >() );
+        }
+
+        if (al.exists("hardPDF")){
+            md->setHardPDF( al["hardPDF"].data< std::string >() );
+        }
+
+        if (al.exists("softPDF")){
+            md->setSoftPDF( al["softPDF"].data< std::string >() );
+        }
+        // Done getting things from the TagInfo
+
+    } // Done making the new truth metadata object    
     return StatusCode::SUCCESS;
 }

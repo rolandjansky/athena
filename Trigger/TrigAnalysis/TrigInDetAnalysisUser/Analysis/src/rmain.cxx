@@ -40,7 +40,6 @@
 
 #include "ConfVtxAnalysis.h"
 
-
 #include "lumiList.h"
 #include "lumiParser.h"
 #include "dataset.h"
@@ -166,19 +165,45 @@ TIDARoiDescriptor makeCustomRefRoi( const TIDARoiDescriptor& roi,
 // Small function to be used in sorting tracks in track vectors
 bool trackPtGrtr( TIDA::Track* trackA, TIDA::Track* trackB) { return ( std::fabs(trackA->pT()) > std::fabs(trackB->pT()) ); }
 
-template<class T>
-std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) { 
+
+template<typename T>
+std::ostream& operator<<( std::ostream& s, const std::vector<T*>& v ) { 
+  for ( size_t i=0 ; i<v.size() ; i++ ) s << "\t" << *v[i] << "\n";
+  return s;
+}
+
+
+template<typename T>
+std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) {
   if ( v.size()<5 ) for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
   else              for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\n\t" << v[i];
   return s;
 }
 
-template<class T>
-std::ostream& operator<<(std::ostream& s, const std::vector<T*>& v ) { 
-  for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << *v[i] << std::endl;
-  return s;
-}
 
+const std::vector<TIDA::Track> replaceauthor( const std::vector<TIDA::Track>& tv, int a0=5, int a1=4 ) { 
+
+  if ( a0==a1 ) return tv;
+
+  std::vector<TIDA::Track> tr;
+  tr.reserve(tv.size());
+  
+  for ( size_t i=0 ; i<tv.size() ; i++ ) {
+    const TIDA::Track& t = tv[i];
+    int a = t.author();
+    if ( a==a0 ) a=a1;
+    tr.push_back( TIDA::Track( t.eta(),   t.phi(),  t.z0(),  t.a0(),  t.pT(),  t.chi2(), t.dof(), 
+                               t.deta(),  t.dphi(), t.dz0(), t.da0(), t.dpT(),
+                               t.bLayerHits(), t.pixelHits(), t.sctHits(), t.siHits(), 
+                               t.strawHits(),  t.trHits(), 
+                               t.hitPattern(), t.multiPattern(), a, t.hasTruth(),
+                               t.barcode(), t.match_barcode(), t.expectBL(), t.id() ) );
+
+  }
+
+  return tr;
+
+}
 	
 
 
@@ -395,13 +420,15 @@ int main(int argc, char** argv)
 
   double pT     = 1000;
   double eta    = 2.5;
-  double zed    = 200;
+  double zed    = 2000;
 
   int npix = 1;
   int nsct = 6;
   int nbl = -1;
 
   int nsiholes = 2;
+
+  bool expectBL = false;
 
   double chi2prob = 0;
 
@@ -452,6 +479,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
   if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
+  if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
   if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
@@ -577,7 +605,8 @@ int main(int argc, char** argv)
   
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
-    goodrunslist.read( inputdata.GetString("GRL") ); 
+    std::cout << "Reading GRL from: " <<  inputdata.GetString("GRL") << std::endl;
+    goodrunslist.read( inputdata.GetString("GRL") );
     //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
@@ -775,21 +804,19 @@ int main(int argc, char** argv)
   //                int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,
   //                int minStrawHits, int minTrHits, double prob=0 ) :
 
-  Filter_Track filter_kine( eta, 1000,  zed, pT, -1, -1,   -1, -1,  -2, -2);
-
   /// filters for true selection for efficiency
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob, 20, 20, nsiholes  ); /// include chi2 probability cut 
+  Filter_Track filter_offline( eta, 1000, zed, pT, 
+                               npix, nsct, -1, nbl, 
+                               -2, -2, chi2prob, 
+                               20, 20, nsiholes, expectBL ); /// include chi2 probability cut 
+
   if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
   if ( pTMax>pT )        filter_offline.maxpT( pTMax );
 
   Filter_etaPT filter_etaPT(eta,pT);
-  //  Filter_True filter_passthrough;
-  // use an actual filter requiring at least 1 silicon hit
-  // to get rid of the EF trt only tracks 
-  Filter_Track filter_passthrough( 10, 1000,  2000, 0, -2, -2, 1, -2,  -2, -2);
 
 
   //  std::cout << "pdgId " << pdgId << std::endl;
@@ -798,8 +825,8 @@ int main(int argc, char** argv)
 
   // select inside-out offline tracking
 
-  //Filter_TruthParticle filter_passthrough(&filter_offline);
-  Filter_Track filter_track( eta, 1000,  2000,     pT, npix, nsct,   -1, -1,  -2, -2);
+  //  Filter_TruthParticle filter_passthrough(&filter_offline);
+  //  Filter_Track filter_track( eta, 1000,  2000,     pT, npix, nsct,   -1, -1,  -2, -2);
 
   Filter_Author    filter_inout(0);
 
@@ -807,32 +834,16 @@ int main(int argc, char** argv)
 
   Filter_Author    filter_auth(author);
 
-  Filter_Combined  filter_kineoff( &filter_inout, &filter_offline );
-  //Filter_Combined  filter_off (&filter_passthrough, &filter_vertex);
   Filter_TrackQuality filter_q(0.01);  
-  //Filter_Combined  filter_c(&filter_q, &filter_offline);
-  //Filter_Combined  filter_off (&filter_c, &filter_vertex);
   Filter_Combined   filter_off (&filter_offline, &filter_vertex);
-  //  Filter_Combined   filter_off (&filter_offline, &filter_auth);
-  //Filter_Combined   filter_off (&filter_offline, &filter_auth);
-  Filter_Track      filter_onlinekine(  eta_rec, 1000, 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
-  /// filter to select all tracks without filtering
-  //Filter_Combined  filter_off( &filter_kineoff, &filter_vertex);
-  //Filter_Combined  filter_truth( &filter_kineoff, &filter_passthrough);
-  //Filter_Combined  filter_truth( &filter_passthrough, &filter_kineoff);
-  //Filter_Combined  filter_truth( &filter_passthrough, &filter_etaPT);
+
   Filter_Combined  filter_truth( &filter_pdgtruth, &filter_etaPT);
-
-
-
 
   Filter_Combined  filter_muon( &filter_offline, &filter_vertex);
 
-
+  Filter_Track      filter_onlinekine(  eta_rec, 1000, 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
   Filter_Vertex     filter_onlinevertex(a0vrec, z0vrec);
-  //Filter_Track      filter_onlinekine(  eta_rec, 1000, 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
   Filter_Combined   filter_online( &filter_onlinekine, &filter_onlinevertex ); 
-
 
   Filter_Track      filter_offkinetight(  5, 1000, 2000, pT,    -1,  0,  0, -1,  -2, -2);
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
@@ -841,14 +852,11 @@ int main(int argc, char** argv)
   /// track selectors so we can select multiple times with different 
   /// filters if we want (simpler then looping over vectors each time 
 
-  //  NtupleTrackSelector  offlineTracks(&filter_offline);
-  // NtupleTrackSelector  refTracks(&filter_off); 
   TrackFilter* refFilter;
   TrackFilter* truthFilter;
   if      ( refChain=="Offline" )            refFilter = &filter_off;
   else if ( contains(refChain,"Electrons") ) refFilter = &filter_off;
-  //  else if ( refChain=="ElectronsMedium" )    refFilter = &filter_off;
-  else if ( refChain=="Muons" )              refFilter = &filter_muon;
+  else if ( contains( refChain, "Muons" ) )  refFilter = &filter_muon;
   else if ( contains( refChain,"1Prong" ) )  refFilter = &filter_off;  // tau ref chains
   else if ( contains( refChain,"3Prong" ) )  refFilter = &filter_off;  // tau ref chains
   else if ( refChain=="Truth" && pdgId!=0 )  refFilter = &filter_truth;
@@ -860,7 +868,15 @@ int main(int argc, char** argv)
 
   if (pdgId==0) truthFilter = &filter_off;
   else truthFilter = &filter_truth;
-  
+ 
+
+  // use an actual filter requiring at least 1 silicon hit
+  // to get rid of the EF trt only tracks 
+
+  std::cout << "filter_passthrough" << std::endl;
+
+  Filter_Track filter_passthrough( 10, 1000,  2000, 0, -2, -2, 1, -2,  -2, -2);
+
   TrackFilter* testFilter = &filter_passthrough;
 
 
@@ -1395,7 +1411,7 @@ int main(int argc, char** argv)
     if ( truthMatch ) { 
       for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
 	if ( chains[ic].name()=="Truth" ) {
-	  truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
+ 	  truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
 	  break;
 	}
       }
@@ -1486,7 +1502,6 @@ int main(int argc, char** argv)
      	foundReference = true;
 	//Get tracks from within reference roi
 	refTracks.selectTracks( chains[ic].rois()[0].tracks() );
-	//	std::cout << "refTracks " << refTracks.size() << " tracks from " << chains[ic].rois()[0].tracks().size() << std::endl;
 	break;
       }
     }
@@ -1636,8 +1651,8 @@ int main(int argc, char** argv)
 	
 	testTracks.selectTracks( troi.tracks() );
 	
-	/// trigger tracks already restricted by roi 
-	std::vector<TIDA::Track*> testp = testTracks.tracks();
+	/// trigger tracks already restricted by roi - so no roi filtering required 
+        std::vector<TIDA::Track*> testp = testTracks.tracks();
 	
 	/// here we set the roi for the filter so we can request only those tracks 
 	/// inside the roi

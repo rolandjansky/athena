@@ -11,7 +11,6 @@ EXOT7SmartCollections = [
     "Electrons",
     "Muons",
     "MET_Reference_AntiKt4EMTopo",
-    "InDetTrackParticles",
     "PrimaryVertices",
     'MET_Reference_AntiKt4EMTopo',
     'AntiKt4EMTopoJets',

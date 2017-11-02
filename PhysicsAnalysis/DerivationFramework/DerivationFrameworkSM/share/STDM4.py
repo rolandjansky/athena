@@ -169,8 +169,8 @@ muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DF
 electronsRequirements = '(Electrons.pt > 20*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 offlineexpression = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 1'
 
-singleElectronTriggerRequirement = '('+" || ".join(STDMTriggers.single_e_triggers)+')'
-singleMuonTriggerRequirement='('+" || ".join(STDMTriggers.single_mu_triggers)+')'
+singleElectronTriggerRequirement = STDMTriggers.list_combine_OR(STDMTriggers.single_e_triggers)
+singleMuonTriggerRequirement     = STDMTriggers.list_combine_OR(STDMTriggers.single_mu_triggers)
 triggerRequirement='('+singleElectronTriggerRequirement+'||'+singleMuonTriggerRequirement+')'
 expression = triggerRequirement+' || '+offlineexpression
 

@@ -47,8 +47,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIDLoose", "Type of electron for background. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , FULL_ETACORRELATED_v1 , 1NP_v1 (default)","1NP_v1");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, None","None");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly,  None","Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, None","None");
     registerParameter("ElectronIsoSFs", "True/False. Set to False to allow unsupported ID/isolation WP combinations to be used.", "True");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
 
@@ -64,8 +64,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, None","Gradient");
-    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, None","None");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None,","None");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
@@ -75,7 +75,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
-    registerParameter("JetUncertainties_NPModel","AllNuisanceParameters, CategoryReduction, GlobalReduction (default), StrongReduction - for JetUncertainties","GlobalReduction");
+    registerParameter("JetUncertainties_NPModel","AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties","CategoryReduction");
     registerParameter("JetUncertainties_QGFracFile","To specify a root file with quark/gluon fractions,"
                       " in order to reduce FlavourComposition and response uncertainties."
                       " Default: None (i.e. no file is used and default flat 50+/-50% fraction is used).","None");
@@ -282,12 +282,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
-    
+
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
     registerParameter("KLFitterJetSelectionMode","kLeadingFour , kLeadingFive , kBtagPriorityFourJets , kBtagPriorityFiveJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
-    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar or ttH.", "ttbar");
+    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
 

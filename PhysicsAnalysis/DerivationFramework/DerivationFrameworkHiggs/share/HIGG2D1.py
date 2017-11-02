@@ -54,13 +54,6 @@ ToolSvc += HIGG2D1TPThinningTool
 thinningTools.append(HIGG2D1TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-# HIGG2D1LCJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D1LCJetTPThinningTool",
-#                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
-#                                                                            JetKey                 = "AntiKt4LCTopoJets",
-#                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
-#                                                                            ApplyAnd               = True)
-# ToolSvc += HIGG2D1LCJetTPThinningTool
-# thinningTools.append(HIGG2D1LCJetTPThinningTool)
 HIGG2D1EMJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D1EMJetTPThinningTool",
                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                            JetKey                 = "AntiKt4EMTopoJets",
@@ -261,6 +254,13 @@ higg2d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D1Kernel",
 
 DerivationFrameworkJob += higg2d1Seq
 
+#===================================================================
+# Tag custom or pre-built jet collections
+#===================================================================
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg2d1Seq)
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -273,10 +273,11 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
-                                          "MET_Reference_AntiKt4LCTopo",
+                                          "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMTopoJets",
-                                          "AntiKt4LCTopoJets",
+                                          "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
+                                          "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
@@ -285,7 +286,9 @@ HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth
-    HIGG2D1SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer',
+    HIGG2D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
+                                                'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+                                                'TruthTop':'xAOD::TruthParticleContainer',
                                                 'TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthBSM':'xAOD::TruthParticleContainer',
                                                 'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
@@ -293,7 +296,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                 'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 # Add MET_RefFinalFix
-addMETOutputs(HIGG2D1SlimmingHelper,["AntiKt4LCTopo","Track"])
+addMETOutputs(HIGG2D1SlimmingHelper,["Track"])
 
 HIGG2D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D1SlimmingHelper.IncludeEGammaTriggerContent = True

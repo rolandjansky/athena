@@ -479,7 +479,7 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                 # NTUPs are a bit special as they can take a treeName to count events
                 if issubclass(dpd.argclass, trfArgClasses.argNTUPFile):
                     parser.add_argument('--output' + dpd.name + 'File', 
-                                        type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
+                                        type=argFactory(dpd.argclass, name=dpd.name.upper(), multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
                                         help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 else:

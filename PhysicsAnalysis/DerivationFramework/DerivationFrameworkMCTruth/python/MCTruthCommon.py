@@ -52,12 +52,14 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "Truth", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
-        # WZ Truth Jets - handle dressed and non-dressed cases
+        # WZ Truth Jets - handle non-dressed case
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-        if decorationDressing is not None:
-            addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthDressedWZJets") and decorationDressing is not None:
+        # WZ Dressed Truth Jets - handle dressed case
+        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+        addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
@@ -246,3 +248,37 @@ def addEgammaAndDownstreamParticles(kernel=None):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonEgammasAndDecaysKernel",
                                                              AugmentationTools = [DFCommonEgammasAndDecaysTool] )
+
+# Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
+def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
+    DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonHFAndDecaysTool",
+                                                                   NewCollectionName="TruthHFWithDecay",
+                                                                        KeepBHadrons=addB,
+                                                                        KeepCHadrons=addC)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonHFAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonHFAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonHFAndDecaysTool] )
+
+# Add a one-vertex-per event "primary vertex" container
+def addPVCollection(kernel=None):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    # Set up a tool to keep the primary vertices
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthPVCollectionMaker
+    DFCommonTruthPVCollTool = DerivationFramework__TruthPVCollectionMaker( name="DFCommonTruthPVCollTool",
+                                                                      NewCollectionName="TruthPrimaryVertices")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonTruthPVCollTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTruthPVCollKernel",
+                                                             AugmentationTools = [DFCommonTruthPVCollTool] )

@@ -53,6 +53,14 @@ namespace top {
     // currently implemented only for this working point
     if (m_operatingPoint == "MediumLH" && (m_isolation->tightLeptonIsolation() == "FixedCutTight" || m_isolation->looseLeptonIsolation() == "FixedCutTight"))
       m_applyChargeIDCut = true;
+    
+    // We cannot allow the HighPtCaloOnly isolation to be implemented for pt cut which is lower than the non-isolation triggers
+    if( (m_isolation->tightLeptonIsolation() == "FixedCutHighPtCaloOnly" || m_isolation->looseLeptonIsolation() == "FixedCutHighPtCaloOnly") && m_ptcut < 60000){
+      std::cerr <<  "ElectronLikelihoodMC15 - Cannot use FixedCutHighPtCaloOnly isolation with pt cut below 60 GeV due to lack of isolation trigger scale factors" << std::endl;
+      std::cerr <<  "ElectronLikelihoodMC15 - If you need two different isolation/trigger/pt thresholds, please open an ANALYSISTO JIRA ticket" << std::endl;
+      throw 1; // ATH_MSG_ERROR is not working, so just throw and quit
+    }
+
   }
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,

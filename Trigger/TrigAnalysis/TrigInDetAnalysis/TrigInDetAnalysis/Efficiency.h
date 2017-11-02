@@ -171,11 +171,12 @@ public:
       yeup   *= scale;
       yedown *= scale;
    
-      /// ***REMOVED*** - can't just get/set specific y values
-      /// I mean - why *some* functions to get x or y only get *all* the x values, 
-      /// but the functions to return the errors only get ONE AT A TIME ?
-      /// why isn't there a simple ScaleX() function? ***REMOVED*** 
-      /// cares about, and basic functions missing
+      /// root is just such a pain - can't just get/set specific y values
+      /// I mean - why *some* functions to get an x or y value and others 
+      /// only get *all* the x values, but the functions to return the errors 
+      /// only get ONE AT A TIME ?
+      /// why isn't there a simple ScaleX() function? All this functionality 
+      /// no one cares about, and basic functionality missing
  
       tg->SetPoint( i, x[i], y[i] ); 
       
