@@ -129,6 +129,9 @@ from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
 
+from RecoFix.RecoFix import *
+RecoFix_Init()
+
 
 ###################
 # Common Services #
@@ -178,6 +181,7 @@ else:
 
 
 AODFix_addMetaData()
+RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
     print "RecExCommon_flags.py flags values:"
