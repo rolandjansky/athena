@@ -112,17 +112,3 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
         
     return CfgMgr.ISF__FastCaloSimSvcV2(name, **kwargs )
-
-
-def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwargs):
-    from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimCaloExtrapolation
-    kwargs.setdefault("CaloBoundaryR"             , 1148.0 )
-    kwargs.setdefault("CaloBoundaryZ"             , 3549.5 )
-    kwargs.setdefault("CaloMargin"                , 100    )
-    kwargs.setdefault("Extrapolator"              , "TimedExtrapolator" )
-    kwargs.setdefault("CaloSurfaceHelper"         , "CaloSurfaceHelper" )
-    kwargs.setdefault("CaloGeometryHelper"        , "FastCaloSimGeometryHelper" )
-    kwargs.setdefault("CaloEntrance"              , "InDet::Containers::InnerDetector"     )
-    return CfgMgr.FastCaloSimCaloExtrapolation(name, **kwargs) 
-
-
