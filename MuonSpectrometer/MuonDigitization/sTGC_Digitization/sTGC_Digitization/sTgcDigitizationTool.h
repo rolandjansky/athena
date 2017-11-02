@@ -83,15 +83,9 @@ public:
   //
   //   /** When being run from PileUpToolsAlgs, this method is called for each active
   //       bunch-crossing to process current SubEvents bunchXing is in ns */
-#ifdef ATHENA_20_20
-  StatusCode  processBunchXing(int bunchXing,
-			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-			       PileUpEventInfo::SubEvent::const_iterator eSubEvents);
-#else
   StatusCode  processBunchXing(int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents);
-#endif  
 
   //   /** When being run from PileUpToolsAlgs, this method is called at the end of
   //       the subevts loop. Not (necessarily) able to access SubEvents */
