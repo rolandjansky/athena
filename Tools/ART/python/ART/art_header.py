@@ -31,6 +31,7 @@ class ArtHeader(object):
         self.add('art-description', StringType, '')
         self.add('art-type', StringType, None, ['build', 'grid'])
         self.add('art-ci', ListType, [])
+        self.add('art-output', ListType, [])
 
         self.read(filename)
 
@@ -52,6 +53,9 @@ class ArtHeader(object):
             if line_match:
                 key = line_match.group(1)
                 value = line_match.group(2)
+                if self.type[key] == StringType:
+                    value = value.strip()
+
                 if self.is_list(key):
                     self.value[key].append(value)
                 else:

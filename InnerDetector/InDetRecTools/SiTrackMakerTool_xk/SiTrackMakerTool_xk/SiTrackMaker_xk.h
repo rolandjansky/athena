@@ -176,7 +176,7 @@ namespace InDet{
       bool globalPosition(const Trk::SpacePoint*,double*,double*);
       void globalDirections(double*,double*,double*,double*,double*,double*);
       void setTrackQualityCuts();
-      void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
+      void detectorElementsSelection(std::vector<const InDetDD::SiDetectorElement*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
       bool isNewTrack(Trk::Track*);
       bool isCaloCompatible   ();

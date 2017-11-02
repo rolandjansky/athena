@@ -104,8 +104,8 @@ def defineMenu():
         # 8 x TE
         #'TE3', 'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40',
         #'TE5', 'TE30', 'TE40', 'TE45', 'TE50', 'TE55', 'TE60', 'TE65',
-        #'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
-        'TE2', 'TE3', 'TE4', 'TE5', 'TE10', 'TE20', 'TE30', 'TE70',
+        'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
+        #'TE2', 'TE3', 'TE4', 'TE5', 'TE10', 'TE20', 'TE30', 'TE70',
 
         # 8 x XE (for standard XE)
         #'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
@@ -538,39 +538,39 @@ def defineMenu():
         # TE
         #"L1_TE3",        "L1_TE5",        "L1_TE10",        "L1_TE15",        "L1_TE20",        "L1_TE25",        "L1_TE30",        "L1_TE40",
         #"L1_TE5",        "L1_TE30",        "L1_TE40",        "L1_TE45",        "L1_TE50",        "L1_TE55",        "L1_TE60",        "L1_TE65",
-        #"L1_TE5",        "L1_TE10",   "L1_TE20",  "L1_TE30",        "L1_TE40",        "L1_TE50",        "L1_TE60",      "L1_TE70",      
-        "L1_TE2",        "L1_TE3",   "L1_TE4",  "L1_TE5",        "L1_TE10",        "L1_TE20",        "L1_TE30",      "L1_TE70",
+        "L1_TE5", "L1_TE10", "L1_TE20", "L1_TE30", "L1_TE40", "L1_TE50", "L1_TE60", "L1_TE70",
+        #"L1_TE2",        "L1_TE3",   "L1_TE4",  "L1_TE5",        "L1_TE10",        "L1_TE20",        "L1_TE30",      "L1_TE70",
 
         #"L1_TE3.0ETA24", "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE15.0ETA24", "L1_TE20.0ETA24", "L1_TE25.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", 
         #"L1_TE5.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", "L1_TE45.0ETA24", "L1_TE50.0ETA24", "L1_TE55.0ETA24", "L1_TE60.0ETA24", "L1_TE65.0ETA24", 
         #"L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE15.0ETA24", "L1_TE20.0ETA24", "L1_TE25.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24","L1_TE70.0ETA24",
-        "L1_VTE2",        "L1_VTE3",   "L1_VTE4",  "L1_VTE5",        "L1_VTE10",
+        #"L1_VTE2",        "L1_VTE3",   "L1_VTE4",  "L1_VTE5",        "L1_VTE10",
 
         #VTE + MBTS
-        "L1_MBTS_1_VTE2", "L1_MBTS_1_VTE3", "L1_MBTS_1_VTE4", "L1_MBTS_1_VTE5", "L1_MBTS_1_VTE10", "L1_MBTS_2_VTE2", "L1_MBTS_2_VTE3", "L1_MBTS_2_VTE4", "L1_MBTS_2_VTE5", "L1_MBTS_2_VTE10", 
+        #"L1_MBTS_1_VTE2", "L1_MBTS_1_VTE3", "L1_MBTS_1_VTE4", "L1_MBTS_1_VTE5", "L1_MBTS_1_VTE10", "L1_MBTS_2_VTE2", "L1_MBTS_2_VTE3", "L1_MBTS_2_VTE4", "L1_MBTS_2_VTE5", "L1_MBTS_2_VTE10", 
         
         #TE + MU
-        "L1_MU4_TE10",
+        "L1_MU4_TE10", "L1_MU4_TE40", "L1_MU4_TE50",
 
         # MBTS
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
         "L1_MBTS_1_EMPTY", "L1_MBTS_1_UNPAIRED_ISO", 
         "L1_MBTS_2_EMPTY", "L1_MBTS_2_UNPAIRED_ISO",
         "L1_MBTS_1_1_EMPTY", "L1_MBTS_1_1_UNPAIRED_ISO","L1_MBTS_4_A_UNPAIRED_ISO","L1_MBTS_4_C_UNPAIRED_ISO",
-        'L1_MBTSA0' ,'L1_MBTSA1' ,'L1_MBTSA2' ,'L1_MBTSA3' ,'L1_MBTSA4' ,
-        'L1_MBTSA5' ,'L1_MBTSA6' ,'L1_MBTSA7' ,'L1_MBTSA8' ,
-        'L1_MBTSA10','L1_MBTSA12','L1_MBTSA14',
-        'L1_MBTSC0' ,'L1_MBTSC1' ,'L1_MBTSC2' ,'L1_MBTSC3' ,'L1_MBTSC4' ,
-        'L1_MBTSC5' ,'L1_MBTSC6' ,'L1_MBTSC7' ,'L1_MBTSC8' ,
-        'L1_MBTSC10','L1_MBTSC12','L1_MBTSC14',
+         'L1_MBTSA0' ,'L1_MBTSA1' ,'L1_MBTSA2' ,'L1_MBTSA3' ,'L1_MBTSA4' ,
+         'L1_MBTSA5' ,'L1_MBTSA6' ,'L1_MBTSA7' ,'L1_MBTSA8' ,
+         'L1_MBTSA10','L1_MBTSA12','L1_MBTSA14',
+         'L1_MBTSC0' ,'L1_MBTSC1' ,'L1_MBTSC2' ,'L1_MBTSC3' ,'L1_MBTSC4' ,
+         'L1_MBTSC5' ,'L1_MBTSC6' ,'L1_MBTSC7' ,'L1_MBTSC8' ,
+         'L1_MBTSC10','L1_MBTSC12','L1_MBTSC14',
         # beam splashes
         "L1_MBTS_4_A", "L1_MBTS_4_C",
         
         #Overlay
-        "L1_MBTS_1_OVERLAY","L1_TE20_OVERLAY",
+#        "L1_MBTS_1_OVERLAY","L1_TE20_OVERLAY",
         
         #BeamSpot
-        "L1_MBTS_1_VTE70",
+#        "L1_MBTS_1_VTE70",
 
         #BGRP9
         'L1_MBTS_1_BGRP9','L1_MBTS_2_BGRP9',
@@ -1079,10 +1079,6 @@ def defineMenu():
         'L1_J30.0ETA49_2J20.0ETA49' : 137,
 
        
-        'L1_TE3' : 138,
-        'L1_TE20' : 82,
-        'L1_TE30' : 143,
-
         'L1_5J15.0ETA25' : 140,
         'L1_2J15_XE55' : 141,
         'L1_J40_XE50' : 142,
@@ -1106,8 +1102,15 @@ def defineMenu():
 
         'L1_TE5' : 157,
         'L1_TE10' : 158,
-        'L1_TE70' : 159,
-        'L1_MBTS_1_VTE2' : 160,
+        'L1_TE20' : 159,
+        'L1_TE30' : 138,
+        'L1_TE40' : 82,
+        'L1_TE50' : 143,
+        'L1_TE60' : 160,
+        'L1_TE70' : 152,
+
+
+#        'L1_MBTS_1_VTE2' : 160,
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
         'L1_BCM_AC_CA_UNPAIRED_ISO' : 162,
         'L1_BCM_AC_UNPAIRED_ISO' : 163,
@@ -1133,30 +1136,30 @@ def defineMenu():
         'L1_TAU60_2TAU40' : 458,
         'L1_MU10_2J15_J20' : 255,
 # freeing some CTPIDs  (used for the Xe pilot run)
-        'L1_MBTSA0' : 134,
-        'L1_MBTSA1' : 152,
-        'L1_MBTSA2' : 153,
-        'L1_MBTSA3' : 156,
-        'L1_MBTSA4' : 178,
-        'L1_MBTSA5' : 239,
-        'L1_MBTSA6' : 244,
-        'L1_MBTSA7' : 265,
-        'L1_MBTSA8' : 274,
-        'L1_MBTSA10' : 284,
-        'L1_MBTSA12' : 287,
-        'L1_MBTSA14' : 289,
-        'L1_MBTSC0' : 296,
-        'L1_MBTSC1' : 297,
-        'L1_MBTSC2' : 298,
-        'L1_MBTSC3' : 306,
-        'L1_MBTSC4' : 307,
-        'L1_MBTSC5' : 310,
-        'L1_MBTSC6' : 311,
-        'L1_MBTSC7' : 331,
-        'L1_MBTSC8' : 359,
-        'L1_MBTSC10' : 360,
-        'L1_MBTSC12' : 361,
-        'L1_MBTSC14' : 435,
+         'L1_MBTSA0' : 134,
+         'L1_MBTSA1' : 445,
+         'L1_MBTSA2' : 153,
+         'L1_MBTSA3' : 156,
+         'L1_MBTSA4' : 178,
+         'L1_MBTSA5' : 239,
+         'L1_MBTSA6' : 244,
+         'L1_MBTSA7' : 265,
+         'L1_MBTSA8' : 274,
+         'L1_MBTSA10' : 284,
+         'L1_MBTSA12' : 287,
+         'L1_MBTSA14' : 289,
+         'L1_MBTSC0' : 296,
+         'L1_MBTSC1' : 297,
+         'L1_MBTSC2' : 298,
+         'L1_MBTSC3' : 306,
+         'L1_MBTSC4' : 307,
+         'L1_MBTSC5' : 310,
+         'L1_MBTSC6' : 311,
+         'L1_MBTSC7' : 331,
+         'L1_MBTSC8' : 359,
+         'L1_MBTSC10' : 360,
+         'L1_MBTSC12' : 361,
+         'L1_MBTSC14' : 435,
 
         
         'L1_BPH-8M15-MU6MU4' : 179,
@@ -1437,11 +1440,11 @@ def defineMenu():
         'L1_RD0_ABORTGAPNOTCALIB':372,
         'L1_3J25.0ETA23' : 373,
         'L1_3J35.0ETA23' : 425,
-        'L1_TE4' : 374,
-        'L1_VTE3' : 375,
-        'L1_VTE4' : 48,
-        'L1_VTE5' : 376,
-        'L1_VTE10' : 409,
+#        'L1_TE4' : 374,
+##         'L1_VTE3' : 375,
+##         'L1_VTE4' : 48,
+##         'L1_VTE5' : 376,
+##         'L1_VTE10' : 409,
         #'L1_XS40' : 377,
         #'L1_XS50' : 378,
         #'L1_XS60' : 379,
@@ -1477,10 +1480,10 @@ def defineMenu():
         "L1_2MU6_3MU4" :404,
         "L1_BGRP9"     :405,
         #'L1_TE50'       :406,
-        'L1_TE2'       :407,
+        #'L1_TE2'       :407,
         #'L1_TE60'      :408,
         #'L1_TE50.0ETA24':409,
-        'L1_VTE2':410, 
+#        'L1_VTE2':410, 
         'L1_EM20VH_FIRSTEMPTY':411, 
         'L1_EM22VHI_FIRSTEMPTY':412, 
         'L1_MU20_FIRSTEMPTY':413, 
@@ -1488,20 +1491,20 @@ def defineMenu():
         'L1_J100_FIRSTEMPTY':414, 
         'L1_J100.31ETA49_FIRSTEMPTY':415, 
         #'L1_TE60.0ETA24':416, 
-        'L1_MBTS_1_VTE4':417, 
-        'L1_MBTS_1_VTE3':418,
+#        'L1_MBTS_1_VTE4':417, 
+#        'L1_MBTS_1_VTE3':418,
         
-        'L1_MBTS_1_VTE5':77, 
-        'L1_MBTS_1_VTE10':79,
-        'L1_MBTS_2_VTE2':80, 
-        'L1_MBTS_2_VTE3':108,
-        'L1_MBTS_2_VTE4':124, 
-        'L1_MBTS_2_VTE5':127,
-        'L1_MBTS_2_VTE10':129,  
+##         'L1_MBTS_1_VTE5':77, 
+##         'L1_MBTS_1_VTE10':79,
+##         'L1_MBTS_2_VTE2':80, 
+##         'L1_MBTS_2_VTE3':108,
+##         'L1_MBTS_2_VTE4':124, 
+##         'L1_MBTS_2_VTE5':127,
+##         'L1_MBTS_2_VTE10':129,  
 
         'L1_2EM3_VTE70' : 474,
         
-        'L1_MBTS_1_VTE70' : 477,
+#        'L1_MBTS_1_VTE70' : 477,
 
         # 3 x ZDC
         'L1_ZDC_A':419,
@@ -1509,13 +1512,15 @@ def defineMenu():
         'L1_ZDC_AND':421, 
         'L1_ZDC_A_C':422, 
         'L1_MU4_TE10':470,
+        'L1_MU4_TE40':108,
+        'L1_MU4_TE50':124,
 
         'L1_LUCID_BGRP9' : 471,
         'L1_LUCID_BGRP11' : 472,
         
         #Overlay
-        'L1_MBTS_1_OVERLAY' : 445,
-        'L1_TE20_OVERLAY' : 455,
+#        'L1_MBTS_1_OVERLAY' : 445,
+#        'L1_TE20_OVERLAY' : 455,
         
 #ATR-13743        'L1_ALFA_ELAST1'  : 424,
 #        'L1_ALFA_ELAST2'  : 425,

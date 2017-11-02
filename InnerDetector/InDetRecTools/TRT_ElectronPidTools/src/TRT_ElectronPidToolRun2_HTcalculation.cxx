@@ -189,11 +189,13 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  parent.msg(MSG::DEBUG) << "check       "
-                         << "  GammaOccupan: " << correctionPGOG
-                         << "  correctionSL: " << correctionSL
-                         << "  correctionZR: " << correctionZR
-                         << "  correctionTW: " << correctionTW << endmsg;
+  if (parent.msgLvl(MSG::DEBUG)) {
+    parent.msg(MSG::DEBUG) << "check       "
+                           << "  GammaOccupan: " << correctionPGOG
+                           << "  correctionSL: " << correctionSL
+                           << "  correctionZR: " << correctionZR
+                           << "  correctionTW: " << correctionTW << endmsg;
+  }
   
   // Jared - Development output 
   //std::cout  << "check       "
