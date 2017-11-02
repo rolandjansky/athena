@@ -118,14 +118,6 @@ StatusCode G4AtlasAlg::initialize()
   // FIXME TOO EARLY???
   ATH_CHECK(m_g4atlasSvc.retrieve());
 
-  if(m_useMT) {
-    // Retrieve the python service to trigger its initialization. This is done
-    // here just to make sure things are initialized in the proper order.
-    // Hopefully we can drop this at some point.
-    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
-    ATH_CHECK( pyG4Svc.retrieve() );
-  }
-
   ATH_CHECK( m_truthRecordSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
   ATH_CHECK( m_geoIDSvc.retrieve() );
