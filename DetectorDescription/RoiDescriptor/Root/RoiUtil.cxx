@@ -200,7 +200,7 @@ bool operator==( const IRoiDescriptor& roi0,  const IRoiDescriptor& roi1 ) {
     /// check geometry 
     if ( std::fabs(roi0.zed()     -roi1.zed()     )>1e-7 ) return false;
     if ( std::fabs(roi0.zedPlus() -roi1.zedPlus() )>1e-7 ) return false;
-    if ( std::fabs(roi0.zedMinus()-roi1.zedMinus())>1e-7 ) return false;
+    if ( std::fabs(roi0.zedMinus()-roi1.zedMinus())<1e-7 ) return false;
    
     if ( std::fabs(roi0.eta()     -roi1.eta()     )>1e-7 ) return false;
     if ( std::fabs(roi0.etaPlus() -roi1.etaPlus() )>1e-7 ) return false;
