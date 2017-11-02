@@ -371,7 +371,7 @@ def defineMenu():
     
     Lvl1Flags.items = [
 
-
+        
         # single EM
 
         'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH',
@@ -908,7 +908,7 @@ def defineMenu():
 # 509-511 are reserved for CALREQ
 
     Lvl1Flags.CtpIdMap = {
-
+ 
         'L1_EM3' : 0,
         'L1_EM7' : 1,
         'L1_EM12' : 2,
