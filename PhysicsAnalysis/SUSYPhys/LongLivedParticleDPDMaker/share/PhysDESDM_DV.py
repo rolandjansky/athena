@@ -339,6 +339,17 @@ topSequence += kernel( "RPVLL_DV_MultiJet3JHighPtFilterKernel",
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_MultiJet3JHighPtFilterKernel"])
 
+
+DV_Multi3_2JetHighPtFilter = DerivationFramework__FilterCombinationAND( name = "DV_Multi3_2JetHighPtFilter",
+                                                               FilterList=[DV_MultiJet2JHighPtFilter,DV_MultiJet3JHighPtFilter],
+##                                                                    OutputLevel=DEBUG
+                                                               )
+ToolSvc+=DV_Multi3_2JetHighPtFilter
+topSequence += kernel( "RPVLL_DV_Multi3_2JetHighPtFilter",
+                       SkimmingTools = [DV_Multi3_2JetHighPtFilter],
+                       )
+RPVLLfilterNames.extend(["RPVLL_DV_Multi3_2JetHighPtFilter"])
+
 DV_MultiJet4JHighPtFilter = skimtool( name = "DV_MultiJet4JHighPtFilter",
                              expression = DVSelectionString(primRPVLLDESDM.DV_4JetFilterFlags_HighpTCut, jetContainer),
                              )
@@ -436,3 +447,4 @@ RPVLLfilterNames.extend(["RPVLL_DV_METFilterKernel"])
 #                       SkimmingTools = [DV_MeffFinalFilter],
 #                       )
 #RPVLLfilterNames.extend(["RPVLL_DV_MeffFilterKernel"])
+
