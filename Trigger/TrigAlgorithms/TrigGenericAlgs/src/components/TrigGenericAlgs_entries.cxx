@@ -16,7 +16,6 @@
 #include "../AcceptAnyInput.h"
 #include "../TrigRoiUpdater.h"
 #include "../MergeTopoStarts.h"
-#include "../AcceptL1TopoMonitor.h"
 
 
 using namespace PESA;
@@ -38,7 +37,6 @@ DECLARE_ALGORITHM_FACTORY( AcceptAnyInput )
 DECLARE_ALGORITHM_FACTORY( SeededSuperRoiAllTEAlgo )
 DECLARE_ALGORITHM_FACTORY( TrigRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( MergeTopoStarts )
-DECLARE_ALGORITHM_FACTORY( AcceptL1TopoMonitor )
 
 
 DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
@@ -59,5 +57,4 @@ DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( SeededSuperRoiAllTEAlgo )      
     DECLARE_ALGORITHM( TrigRoiUpdater )
     DECLARE_ALGORITHM( MergeTopoStarts )
-    DECLARE_ALGORITHM( AcceptL1TopoMonitor )
 }
