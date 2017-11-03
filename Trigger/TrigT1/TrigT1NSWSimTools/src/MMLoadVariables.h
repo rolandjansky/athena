@@ -97,7 +97,7 @@ namespace MuonGM {
 
     //Import_Athena..._.m stuff
     double phi_shift(double athena_phi,std::string wedgeType, int stationPhi) const;
-    // int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough
+    int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough
     int strip_number(int station,int plane,int spos)const;
     int Get_Strip_ID(double X,double Y,int plane) const;
 

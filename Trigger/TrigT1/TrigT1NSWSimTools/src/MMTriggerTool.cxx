@@ -135,7 +135,6 @@ namespace NSWL1 {
       //                                                          //
       //////////////////////////////////////////////////////////////
 
-      std::vector<athena_entry> entries;
       map<hdst_key,hdst_entry> Hits_Data_Set_Time;
       map<int,evInf_entry> Event_Info;
 
@@ -151,6 +150,9 @@ namespace NSWL1 {
       }
 
       MMLoadVariables m_load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, m_par);
+
+      std::vector<athena_entry> entries;
+
       m_load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
       this->fillNtuple(m_load);
 

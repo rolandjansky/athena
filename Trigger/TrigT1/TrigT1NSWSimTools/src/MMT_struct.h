@@ -676,7 +676,18 @@ struct athena_header{
 
 struct athena_entry{
   //make a well-behaved constructor
-  athena_entry(int mul=0, int gg=0, double gt=0, double t=0, const TVector3& trp=TVector3(), const TVector3& stl=TVector3(), const TVector3& stg=TVector3(), double q=0,int str=0,int esta=0,int psta=0);
+  athena_entry(int muliplet=0,
+               int gasGap=0,
+               double gTime=0,
+               double time=0,
+               const TVector3& truthLPos=TVector3(),
+               const TVector3& stripLPos=TVector3(),
+               const TVector3& stripGPos=TVector3(),
+               double charge=0,
+               int stripPos=0,
+               int etaStation=0,
+               int phiStation=0
+               );
 
   //the members:
   int multiplet, gas_gap;
