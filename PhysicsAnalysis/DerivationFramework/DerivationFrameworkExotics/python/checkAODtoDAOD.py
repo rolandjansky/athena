@@ -93,7 +93,7 @@ def checkAODtoDAOD(args):
         
     print '\nDAODs:'
     for i,d in enumerate(derivation):
-        print '  %s  \t%s\t%.1f MB\t%s\t%.3f kb'%(d, daod[i], daodsize[i]/1024., daodevents[i], daodeventssize[i]/daodevents[i])
+        print '  %s  \t%s\t%.1f MB\t%s\t%.3f kb'%(d, daod[i], daodsize[i]/1024./1024., daodevents[i], daodeventssize[i]/daodevents[i])
         
     #------------------------------------------
     #results table

@@ -136,6 +136,29 @@ print EXOT7StringSkimmingTool
 # define thinning tool 
 thinningTools=[]
 
+# tracks associated with Muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+EXOT7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT7MuonTPThinningTool",
+                                                                         ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                         SelectionString         = "Muons.pt > 7*GeV",
+                                                                         ConeSize                = 0.4)
+ToolSvc += EXOT7MuonTPThinningTool
+thinningTools.append(EXOT7MuonTPThinningTool)
+
+# tracks associated with Electrons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EXOT7ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT7ElectronTPThinningTool",
+                                                                               ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
+                                                                               SGKey                   = "Electrons",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                               GSFTrackParticlesKey    = "GSFTrackParticles",
+                                                                               SelectionString         = "Electrons.pt > 7*GeV",
+                                                                               ConeSize                = 0.4)
+ToolSvc += EXOT7ElectronTPThinningTool
+thinningTools.append(EXOT7ElectronTPThinningTool)
+
 # calo cluster thinning for electrons only (only affects egClusterCollection)
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT7ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name                    = "EXOT7ElectronCCThinningTool",
