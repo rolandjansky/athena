@@ -28,7 +28,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 MMLoadVariables::~MMLoadVariables() {
 }
 
-    void MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
+    void MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hitData_key,hitData_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
       //*******Following MuonPRD code to access all the variables**********
 
       histogramVariables fillVars;
@@ -451,8 +451,8 @@ MMLoadVariables::~MMLoadVariables() {
 
 
       //Hit information in Stephen's code... Starts getting a little weird.
-      map<hdst_key,hdst_entry> hit_info; //Originally "targaryen"
-      vector<hdst_key> keys;
+      map<hitData_key,hitData_entry> hit_info; //Originally "targaryen"
+      vector<hitData_key> keys;
       // int fstation=0;
 
       //Loop over entries, which has digitization info for each event
@@ -519,7 +519,7 @@ MMLoadVariables::~MMLoadVariables() {
         particle_info.NUV_bg_preVMM = 0;   //thisSignal.gtime;
         int special_time = thisTime + (event+1)*100;
 
-        hdst_entry hit_entry(event,
+        hitData_entry hit_entry(event,
                              thisSignal.gTime,
                              thisCharge,
                              thisVMM,
@@ -555,7 +555,7 @@ MMLoadVariables::~MMLoadVariables() {
       int xhit=0,uvhit=0,strip_X_tot=0,strip_UV_tot=0;
       vector<bool>plane_hit(m_par->setup.size(),false);
 
-      for(map<hdst_key,hdst_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
+      for(map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
         int plane=it->second.plane;
         plane_hit[plane]=true;
         particle_info.N_hits_postVMM++;

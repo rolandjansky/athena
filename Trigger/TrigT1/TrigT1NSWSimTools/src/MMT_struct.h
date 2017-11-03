@@ -30,8 +30,8 @@ const bool use_fix_point = true;
 const double crep_pt=200.;
 /*
   Potential indexing problems that might slip through the cracks:
-  --athena_event/event (hdst_entry)
-  --VMM_chip (hdst_entry)
+  --athena_event/event (hitData_entry)
+  --VMM_chip (hitData_entry)
   --road (Finder in MMT_Finder)
 */
 
@@ -520,19 +520,19 @@ struct evInf_entry{
 
 };
 
-struct hdst_key{
-  hdst_key(int bct=0, double t=0, double gt=0, int vmm=-1,int ev=-1);
-  hdst_key(const hdst_key& key){BC_time=key.BC_time;time=key.time;gtime=key.gtime;VMM_chip=key.VMM_chip;event=key.event;}
+struct hitData_key{
+  hitData_key(int bct=0, double t=0, double gt=0, int vmm=-1,int ev=-1);
+  hitData_key(const hitData_key& key){BC_time=key.BC_time;time=key.time;gtime=key.gtime;VMM_chip=key.VMM_chip;event=key.event;}
   //for these operators, "less" means what you think it means
   //with precedence of quantities the same as order in the constructor
   //in the context of "earlier," it might make sense to say that a hit is earlier if,
   //when all times tied, the larger plane is earlier, but this assumes a everything is signal like
-  bool operator==(const hdst_key& merp) const;
-  bool operator!=(const hdst_key& merp) const;
-  bool operator<(const hdst_key& merp) const;
-  bool operator>(const hdst_key& merp) const;
-  bool operator<=(const hdst_key& merp) const;
-  bool operator>=(const hdst_key& merp) const;
+  bool operator==(const hitData_key& merp) const;
+  bool operator!=(const hitData_key& merp) const;
+  bool operator<(const hitData_key& merp) const;
+  bool operator>(const hitData_key& merp) const;
+  bool operator<=(const hitData_key& merp) const;
+  bool operator>=(const hitData_key& merp) const;
   string hdr()const;
   string str()const;
   void print() const;
@@ -558,7 +558,7 @@ struct evFit_entry{
   int fit_roi,X_hits_in_fit,UV_hits_in_fit,bg_X_fit,bg_UV_fit;
   float32fixed<2> dtheta_nodiv;
   int hcode,truth_planes_hit,bg_planes_hit;
-  vector<hdst_key> fit_hit_keys;
+  vector<hitData_key> fit_hit_keys;
 
 
 };
@@ -571,15 +571,15 @@ struct evAna_entry{
   int bg_X_fit,bg_UV_fit;
 };
 
-struct hdst_info{
-  hdst_info(int plane,int station_eta,int strip,MMT_Parameters *m_par,const TVector3& tru,double tpos,double ppos);
-  hdst_info(int pl=0,double _y=0,double _z=-999);
-  hdst_info(const hdst_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
+struct hitData_info{
+  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *m_par,const TVector3& tru,double tpos,double ppos);
+  hitData_info(int pl=0,double _y=0,double _z=-999);
+  hitData_info(const hitData_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   string hdr()const;
   string str()const;
   void print()const;
-  bool operator==(const hdst_info& rhs) const;
+  bool operator==(const hitData_info& rhs) const;
 
   //members
   int plane;
@@ -601,26 +601,26 @@ struct hdst_info{
 struct Hit{
   //make a well-behaved constructor
 /*   Hit(int _plane=-1, int _strip=0, int _station_eta=0, double _slope=0, int bct=0, double t=0, double gt=0, int vmm=0); */
-  Hit(const hdst_key&k=hdst_key(),const hdst_info&i=hdst_info());
+  Hit(const hitData_key&k=hitData_key(),const hitData_info&i=hitData_info());
 /*   double slope()const {return info.slope();} */
   bool operator==(const Hit& rhs) const;
   void print_track(const vector<Hit>& track) const;
   void print() const;
 
   //the members:
-  hdst_key key;
-  hdst_info info;
+  hitData_key key;
+  hitData_info info;
 };
 
-struct hdst_entry{
-  hdst_entry(int ev=0, double gt=0, double q=0, int vmm=0, int pl=0, int st=0, int est=0, double tr_the=0, double tru_phi=0,
+struct hitData_entry{
+  hitData_entry(int ev=0, double gt=0, double q=0, int vmm=0, int pl=0, int st=0, int est=0, double tr_the=0, double tru_phi=0,
 	     bool q_tbg=0, int bct=0, double time=0,const TVector3& tru=TVector3(), const TVector3& rec=TVector3(),
 	     double fit_the=0, double fit_phi=0, double fit_dth=0, double tru_dth=0,// double tru_thl=0, double tru_thg=0,
 	     double mxg=0, double mug=0, double mvg=0, double mxl=0, double _mx=0, double _my=0, int _roi=0);
 
   Hit entry_hit(MMT_Parameters *m_par)const;
-  hdst_key entry_key() const;
-  hdst_info entry_info(MMT_Parameters *m_par)const;
+  hitData_key entry_key() const;
+  hitData_info entry_info(MMT_Parameters *m_par)const;
   void fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg=0., float32fixed<2> mug=0., float32fixed<2> mvg=0., float32fixed<2> mxl=0., float32fixed<2> m_x=0., float32fixed<2> m_y=0., int king=0);
   void print() const;
 
