@@ -326,8 +326,7 @@ namespace G4UA{
         EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
         VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
         const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-        const int numNewSecondaries = aStep->GetSecondaryInCurrentStep()->size();
-        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, numNewSecondaries, eventInfo);
+        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
         unsigned int nSec = truth.numberOfChildren();
         if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
           //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;

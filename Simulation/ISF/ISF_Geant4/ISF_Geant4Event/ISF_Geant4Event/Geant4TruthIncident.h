@@ -41,7 +41,6 @@ namespace iGeant4 {
       Geant4TruthIncident( const G4Step*,
                            const ISF::ISFParticle& baseISP,
                            AtlasDetDescr::AtlasRegion geoID,
-                           int numChildren,
                            EventInformation* eventInfo);
       virtual ~Geant4TruthIncident() {};
 

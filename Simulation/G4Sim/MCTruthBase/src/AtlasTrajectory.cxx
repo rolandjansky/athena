@@ -40,7 +40,7 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
         {
           TruthStrategyManager* sManager =
             TruthStrategyManager::GetStrategyManager();
-          sManager->CreateTruthIncident(aStep,numNewSec);
+          sManager->CreateTruthIncident(aStep);
         }
     }
 

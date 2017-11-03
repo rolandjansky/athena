@@ -62,9 +62,8 @@
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
                                                const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
-                                               int numChildren,
                                                EventInformation *eventInfo) :
-  ITruthIncident(geoID, numChildren),
+  ITruthIncident(geoID, step->GetSecondaryInCurrentStep()->size()), // switch to G4Step::GetNumberOfSecondariesInCurrentStep() once we're using G4 10.2 or later
   m_positionSet(false),
   m_position(),
   m_step(step),
