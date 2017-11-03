@@ -82,16 +82,16 @@ namespace MuonGM {
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par);
    ~MMLoadVariables();
 
-    void getMMDigitsInfo(vector<digitWrapper>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info);
+    void getMMDigitsInfo(vector<digitWrapper>& entries, map<hitData_key,hitData_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info);
 
     string nom;
 
-    //map<hdst_key,hdst_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
+    //map<hitData_key,hitData_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
 
     //VMM info
     vector<vector<bool> > VMM_chip_status;
     vector<vector<int> > VMM__chip_last_hit_time;
-    bool Mimic_VMM_Chip_Deadtime(hdst_entry& candy);
+    bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
     double VMM_deadtime;
     int num_VMM_per_plane;
 

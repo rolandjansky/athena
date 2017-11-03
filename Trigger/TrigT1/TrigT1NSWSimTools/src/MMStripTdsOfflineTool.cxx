@@ -767,10 +767,10 @@ namespace NSWL1 {
     }
   }
 
-  vector<hdst_key> MMStripTdsOfflineTool::event_hdst_keys(int find_event) const{
-    vector<hdst_key> ravel;
+  vector<hitData_key> MMStripTdsOfflineTool::event_hitData_keys(int find_event) const{
+    vector<hitData_key> ravel;
     int fnd_entries=0;
-    for(map<hdst_key,hdst_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         ravel.push_back(entry->first);
         fnd_entries++;
@@ -847,7 +847,7 @@ namespace NSWL1 {
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
   }
-  bool MMStripTdsOfflineTool::Mimic_VMM_Chip_Deadtime(hdst_entry& candy){//** ASK BLC IF THERE'S A WAY TO DO THIS SINGLE ENTRY
+  bool MMStripTdsOfflineTool::Mimic_VMM_Chip_Deadtime(hitData_entry& candy){//** ASK BLC IF THERE'S A WAY TO DO THIS SINGLE ENTRY
     
     if(candy.strip<=0){
 
@@ -876,10 +876,10 @@ namespace NSWL1 {
     return true;
   }
 
-  vector<hdst_entry> MMStripTdsOfflineTool::event_hdsts(int find_event) const{
-    vector<hdst_entry> bolero;
+  vector<hitData_entry> MMStripTdsOfflineTool::event_hitDatas(int find_event) const{
+    vector<hitData_entry> bolero;
     int fnd_entries=0;
-    for(map<hdst_key,hdst_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         bolero.push_back(entry->second);
         fnd_entries++;

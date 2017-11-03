@@ -1024,17 +1024,17 @@ evFit_entry::evFit_entry(int event,float32fixed<4> fthe,float32fixed<4> fphi,flo
 void evFit_entry::print()const{
 }
 
-hdst_key::hdst_key(int bct, double t, double gt, int vmm, int ev):BC_time(bct),time(t),gtime(gt),VMM_chip(vmm),event(ev) {}
+hitData_key::hitData_key(int bct, double t, double gt, int vmm, int ev):BC_time(bct),time(t),gtime(gt),VMM_chip(vmm),event(ev) {}
 
-bool hdst_key::operator==(const hdst_key& rhs) const{
+bool hitData_key::operator==(const hitData_key& rhs) const{
   if(this->BC_time==rhs.BC_time&&this->time==rhs.time&&this->gtime==rhs.gtime&&this->VMM_chip==rhs.VMM_chip&&this->event==rhs.event) return true;
   return false;
 }
 
-bool hdst_key::operator!=(const hdst_key& rhs) const{
+bool hitData_key::operator!=(const hitData_key& rhs) const{
   return !(*this==rhs);
 }
-bool hdst_key::operator<(const hdst_key& rhs) const{
+bool hitData_key::operator<(const hitData_key& rhs) const{
   if(this->BC_time<rhs.BC_time) return true;
   else if(this->BC_time==rhs.BC_time&&this->time<rhs.time) return true;
   else if(this->BC_time==rhs.BC_time&&this->time==rhs.time&&this->gtime<rhs.gtime) return true;
@@ -1043,7 +1043,7 @@ bool hdst_key::operator<(const hdst_key& rhs) const{
   return false;
 }
 
-bool hdst_key::operator>(const hdst_key& rhs) const{
+bool hitData_key::operator>(const hitData_key& rhs) const{
   if(this->BC_time>rhs.BC_time) return true;
   else if(this->BC_time==rhs.BC_time&&this->time>rhs.time) return true;
   else if(this->BC_time==rhs.BC_time&&this->time==rhs.time&&this->gtime>rhs.gtime) return true;
@@ -1052,31 +1052,31 @@ bool hdst_key::operator>(const hdst_key& rhs) const{
   return false;
 }
 
-bool hdst_key::operator<=(const hdst_key& rhs) const{
+bool hitData_key::operator<=(const hitData_key& rhs) const{
   return(*this<rhs || *this==rhs);
 }
 
-bool hdst_key::operator>=(const hdst_key& rhs) const{
+bool hitData_key::operator>=(const hitData_key& rhs) const{
   return(*this>rhs || *this==rhs);
 }
 
-string hdst_key::hdr()const{
+string hitData_key::hdr()const{
   ostringstream out;
   out<<setw(9)<<"BC_t"<<setw(9)<<"t"<<setw(9)<<"g_t"<<setw(9)<<"VMM"<<setw(9)<<"event";
   return out.str();
 }
-string hdst_key::str()const{
+string hitData_key::str()const{
   ostringstream out;
   out<<setw(9)<<this->BC_time<<setw(9)<<this->time<<setw(9)<<this->gtime<<setw(9)<<this->VMM_chip<<setw(9)<<this->event;
   return out.str();
 }
-void hdst_key::print()const{
-  // ATH_MSG_INFO("^^^^^^hdst_key"<<hdr());
+void hitData_key::print()const{
+  // ATH_MSG_INFO("^^^^^^hitData_key"<<hdr());
 }
 
 
-hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
-  // ATH_MSG_DEBUG( "BEGIN hdst_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
+hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
+  // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
   // ATH_MSG_DEBUG(tru.Print() );
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.
   //We start by assigning the plane dependent strip width (the stereo planes come in skew and so get divided by cos(stereo_angle)
@@ -1123,7 +1123,7 @@ hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,cons
 
 }
 
-double hdst_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos)const{
+double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos)const{
   // bool quack=false&&debug;
   if(m_par->misal.type!=1||plane>3)return 0.;
   // double swidth=m_par->strip_width.getFloat();
@@ -1170,31 +1170,31 @@ double hdst_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos
   return zetayf_yhatf-zeta_y0;
 }
 
-hdst_info::hdst_info(int pl,double _y,double _z):plane(pl),y(_y),z(_z){
+hitData_info::hitData_info(int pl,double _y,double _z):plane(pl),y(_y),z(_z){
   if(_z==0||_z==-999)slope=-999;
   else slope=_y/_z;
 }
 
-string hdst_info::hdr()const{
+string hitData_info::hdr()const{
   ostringstream out;
   out<<setw(9)<<"plane"<<setw(9)<<"y"<<setw(9)<<"z"<<setw(9)<<"slope";
   return out.str();
 }
-string hdst_info::str()const{
+string hitData_info::str()const{
   ostringstream out;
   out<<setprecision(4)<<setw(9)<<plane<<setw(9)<<y.getFloat()<<setw(9)<<z.getFloat()<<setw(9)<<slope.getFloat();
   return out.str();
 }
-void hdst_info::print()const{
-  // ATH_MSG_INFO("------- hdst_info: "<<hdr() );
+void hitData_info::print()const{
+  // ATH_MSG_INFO("------- hitData_info: "<<hdr() );
 }
 
-bool hdst_info::operator==(const hdst_info& rhs) const{
+bool hitData_info::operator==(const hitData_info& rhs) const{
   if(this->plane==rhs.plane&&this->y==rhs.y&&this->z==rhs.z&&this->slope==rhs.slope)return true;
   return false;
 }
 
-Hit::Hit(const hdst_key& k,const hdst_info&i):key(k),info(i) {}
+Hit::Hit(const hitData_key& k,const hitData_info&i):key(k),info(i) {}
 
 bool Hit::operator==(const Hit& rhs) const{
   if(this->key==rhs.key&&this->info==rhs.info)return true;
@@ -1212,7 +1212,7 @@ void Hit::print() const{
   // ATH_MSG_INFO( key.str()<<info.str());
 }
 
-hdst_entry::hdst_entry(int ev, double gt, double q, int vmm, int pl, int st, int est, double tr_the, double tru_phi,
+hitData_entry::hitData_entry(int ev, double gt, double q, int vmm, int pl, int st, int est, double tr_the, double tru_phi,
 		       bool q_tbg, int bct, double t, const TVector3& tru, const TVector3& rec,
 		       double fit_the, double fit_ph, double fit_dth, double tru_dth,// double tru_thl, double tru_thg,
 		       double mxg, double mug, double mvg, double mxl, double _mx, double _my, int _roi):
@@ -1220,23 +1220,23 @@ hdst_entry::hdst_entry(int ev, double gt, double q, int vmm, int pl, int st, int
   BC_time(bct),time(t),truth(tru),recon(rec),fit_theta(fit_the),fit_phi(fit_ph),fit_dtheta(fit_dth),tru_dtheta(tru_dth),
   /*tru_theta_local(tru_thl),tru_theta_global(tru_thg),*/M_x_global(mxg),M_u_global(mug),M_v_global(mvg),M_x_local(mxl),mx(_mx),my(_my),roi(_roi) {}
 
-Hit hdst_entry::entry_hit(MMT_Parameters *m_par)const{
+Hit hitData_entry::entry_hit(MMT_Parameters *m_par)const{
   return Hit(entry_key(),entry_info(m_par));
 }
-hdst_key hdst_entry::entry_key() const{
-  return hdst_key(BC_time,time,gtime,VMM_chip,event);
+hitData_key hitData_entry::entry_key() const{
+  return hitData_key(BC_time,time,gtime,VMM_chip,event);
 }
 
-hdst_info hdst_entry::entry_info(MMT_Parameters *m_par)const{
-  hdst_info spade(plane,station_eta,strip,m_par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
+hitData_info hitData_entry::entry_info(MMT_Parameters *m_par)const{
+  hitData_info spade(plane,station_eta,strip,m_par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
 //   spade.y=recon.Y();
   return spade;
 }
-void hdst_entry::fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg, float32fixed<2> mug, float32fixed<2> mvg, float32fixed<2> mxl, float32fixed<2> m_x, float32fixed<2> m_y, int king){
+void hitData_entry::fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg, float32fixed<2> mug, float32fixed<2> mvg, float32fixed<2> mxl, float32fixed<2> m_x, float32fixed<2> m_y, int king){
   this->fit_theta=fthe; this->fit_phi=fphi; this->fit_dtheta=fdth; this->M_x_global=mxg; this->M_u_global=mug; this->M_v_global=mvg; this->M_x_local=mxl; this->mx=m_x; this->my=m_y; this->roi=king;
 }
 
-void hdst_entry::print() const{
+void hitData_entry::print() const{
   // ATH_MSG_INFO( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
   //     <<"(Event,BC_time,time): ("<<event<<","<<BC_time<<","<<time<<"), "<<(truth_nbg?"truth":"bg")<<", charge: "<<charge<<endl
   //     <<"Wedge Coord---plane: "<<plane<<", strip: "<<strip<<", est: "<<station_eta<<", vmm: "<<VMM_chip<<", ip theta: "<<tru_theta_ip<<", ip phi: "<<tru_phi_ip<<endl

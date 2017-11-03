@@ -113,6 +113,7 @@ namespace NSWL1 {
 
     const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
     const par_par xxuvuvxx=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
+    const par_par xxuvuvxx_uvroads=par_par(0.0009,4,4,0.0035,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
     // par_par pars=dlm;
     m_par_large = new MMT_Parameters(xxuvuvxx,'L', m_detManager); // Need to figure out where to delete this!! It's needed once per run
@@ -135,7 +136,7 @@ namespace NSWL1 {
       //                                                          //
       //////////////////////////////////////////////////////////////
 
-      map<hdst_key,hdst_entry> Hits_Data_Set_Time;
+      map<hitData_key,hitData_entry> Hits_Data_Set_Time;
       map<int,evInf_entry> Event_Info;
 
       const MmDigitContainer *nsw_MmDigitContainer = nullptr;
@@ -175,11 +176,11 @@ namespace NSWL1 {
       m_trigger_trueDth->push_back(dt);
 
       //from MMT_Loader >>>> If entry matches find(event) adds element to vector
-      std::vector<hdst_entry> hdsts(event_hdsts(event,Hits_Data_Set_Time));
+      std::vector<hitData_entry> hitDatas(event_hitDatas(event,Hits_Data_Set_Time));
       //Only consider fits if they satisfy CT and fall in wedge
       if(pass_cuts){
       //Make sure hit info is not empy
-      if(!hdsts.empty()){
+      if(!hitDatas.empty()){
 
         //////////////////////////////////////////////////////////////
         //                                                          //
@@ -188,26 +189,26 @@ namespace NSWL1 {
         //////////////////////////////////////////////////////////////
 
         //Initialization of the finder: defines all the roads
-        MMT_Finder m_find = MMT_Finder(m_par,false);
+        MMT_Finder m_find = MMT_Finder(m_par, 10);
 
         ATH_MSG_DEBUG(  "Number of Roads Configured " <<  m_find.get_roads()  );
 
         //Convert hits to slopes and fill the buffer
         map<pair<int,int>,finder_entry> hitBuffer;
-        for(int ihds=0; ihds<(int)hdsts.size(); ihds++){
+        for(int ihds=0; ihds<(int)hitDatas.size(); ihds++){
           m_find.fillHitBuffer( hitBuffer,                       // Map (road,plane) -> Finder entry
-                                hdsts[ihds].entry_hit(m_par) );  // Hit object
+                                hitDatas[ihds].entry_hit(m_par) );  // Hit object
 
-          hdst_info hitInfo = hdsts[ihds].entry_hit(m_par).info;
+          hitData_info hitInfo = hitDatas[ihds].entry_hit(m_par).info;
 
-          m_trigger_VMM->push_back(hdsts[ihds].VMM_chip);
-          m_trigger_plane->push_back(hdsts[ihds].plane);
-          m_trigger_station->push_back(hdsts[ihds].station_eta);
-          m_trigger_strip->push_back(hdsts[ihds].strip);
+          m_trigger_VMM->push_back(hitDatas[ihds].VMM_chip);
+          m_trigger_plane->push_back(hitDatas[ihds].plane);
+          m_trigger_station->push_back(hitDatas[ihds].station_eta);
+          m_trigger_strip->push_back(hitDatas[ihds].strip);
           m_trigger_slope->push_back(hitInfo.slope.getFloat());
 
         }
-        if(hdsts.size()==8){
+        if(hitDatas.size()==8){
           m_trigger_trueEtaRange->push_back(trueta);
           m_trigger_truePtRange->push_back(trupt);
           if(wedgeType=="Large") {
@@ -264,7 +265,7 @@ namespace NSWL1 {
             if(fits_occupied>=nfit_max) break;
 
             //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
-            evFit_entry candidate=m_fit.fit_event(event,track,hdsts,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
+            evFit_entry candidate=m_fit.fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
 
             ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getValue() << " PHI " << candidate.fit_phi.getValue() << " DTH " << candidate.fit_dtheta.getValue() );
             road_fits[iRoad]=candidate;
@@ -285,11 +286,11 @@ namespace NSWL1 {
 
 
         // bool did_clean_fit=false,did_bg_fit=false,has_6hits=false;
-        if(road_fits.size()==0 and hdsts.size()==8 ) {
+        if(road_fits.size()==0 and hitDatas.size()==8 ) {
           ATH_MSG_DEBUG( "TruthRF0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
         }
         for(unsigned int i=0; i<road_fits.size(); i++){
-          if(road_fits[i].fit_roi==0 and hdsts.size()==8) {
+          if(road_fits[i].fit_roi==0 and hitDatas.size()==8) {
             ATH_MSG_DEBUG( "TruthROI0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
           }
           if(road_fits[i].fit_roi>0){
@@ -329,23 +330,23 @@ namespace NSWL1 {
 
           }//fit roi > 0
         } // end road_fits
-      }//end if HDSTS EMPTY
+      }//end if hitDataS EMPTY
     }//end if PASS_CUTS
 
     //clear pointers, filled hit info
 
     Event_Info.erase(Event_Info.find(event));
-    vector<hdst_key> kill_keys(event_hdst_keys(event,Hits_Data_Set_Time));
+    vector<hitData_key> kill_keys(event_hitData_keys(event,Hits_Data_Set_Time));
     return StatusCode::SUCCESS;
   }
 
   //Function that find the hits information and hits keys that get stored throughout the run.
   //The data structures are defined in MMT_struct
 
-  vector<hdst_key> MMTriggerTool::event_hdst_keys(int find_event, map<hdst_key,hdst_entry>& Hits_Data_Set_Time) const{
-    vector<hdst_key> ravel;
+  vector<hitData_key> MMTriggerTool::event_hitData_keys(int find_event, map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const{
+    vector<hitData_key> ravel;
     int fnd_entries=0;
-    for(map<hdst_key,hdst_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         ravel.push_back(entry->first);
         fnd_entries++;
@@ -355,10 +356,10 @@ namespace NSWL1 {
     return ravel;
   }
 
-  vector<hdst_entry> MMTriggerTool::event_hdsts(int find_event, map<hdst_key,hdst_entry>& Hits_Data_Set_Time) const{
-    vector<hdst_entry> bolero;
+  vector<hitData_entry> MMTriggerTool::event_hitDatas(int find_event, map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const{
+    vector<hitData_entry> bolero;
     int fnd_entries=0;
-    for(map<hdst_key,hdst_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         bolero.push_back(entry->second);
         fnd_entries++;

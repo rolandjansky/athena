@@ -14,13 +14,13 @@ class MMT_Fitter{
  public:
   MMT_Fitter(MMT_Parameters *par, int nlg=256, double LG_min=0., double LG_max=0.5);
   ~MMT_Fitter(){}
-  void Get_Fit(vector<Hit>& track, map<int,evFit_entry>& Event_Fit, map<hdst_key,hdst_entry>& Hits_Data_Set_Time);
-  evFit_entry fit_event(int event, vector<Hit>& track, vector<hdst_entry>& hdsts, int& nfit, vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
+  void Get_Fit(vector<Hit>& track, map<int,evFit_entry>& Event_Fit, map<hitData_key,hitData_entry>& Hits_Data_Set_Time);
+  evFit_entry fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit, vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
   int get_last() const {return last;}
   int SC_ROI_n_x() const {return m_par->n_x;}
   int SC_ROI_n_y() const {return m_par->n_y;}
 /*   vector<int> xent,yent; */
-  int find_hdst(const vector<hdst_entry>& hdsts, const hdst_key& key) const;
+  int find_hitData(const vector<hitData_entry>& hitDatas, const hitData_key& key) const;
 
 
   /// Log a message using the Athena controlled logging system

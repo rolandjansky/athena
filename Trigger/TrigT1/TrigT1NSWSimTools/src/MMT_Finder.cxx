@@ -7,14 +7,19 @@
 
 #include "MMT_Finder.h"
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, bool useUVRoads): m_msg("MMT_Finder"){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads): m_msg("MMT_Finder"){
 
   m_par = par;
-  m_useUVRoads = useUVRoads;
+  m_nUVRoads = nUVRoads;
 
   ATH_MSG_DEBUG("MMT_Find::building finder");
 
-  m_nRoads = ceil(1.*(m_par->slope_max-m_par->slope_min)/m_par->h.getFloat()); //initialization, can use floats
+  m_nRoads = ceil( ( m_par->slope_max - m_par->slope_min ) / m_par->h.getFloat()    ); //initialization, can use floats
+
+  if(m_nUVRoads>1){
+    m_nRoads *= m_nUVRoads; // This should probably be configurable and dynamic based on the geometry of the chamber
+  }
+
   int nplanes=m_par->setup.size();
 
   ATH_MSG_DEBUG("MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
@@ -49,24 +54,67 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
   else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error.getFloat();
   else return;  //if it's an unsupported plane option, don't fill
 
-  if(m_useUVRoads){ // Implementation of UV road setup.
+
+  //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
+  float32fixed<3> s_min = slope - tol, s_max = slope + tol;
+
+  int road_min = round((s_min - m_par->slope_min)/h.getFloat());
+  int road_max = round((s_max - m_par->slope_min)/h.getFloat());
+
+  if( road_min < 0 ) road_min = 0 ;
+  if( road_max >= (m_nRoads/m_nUVRoads) ){ road_max = (m_nRoads/m_nUVRoads) - 1 ; }
+
+  if(m_nUVRoads > 1){ // Implementation of UV road setup.
 
     // For each road in x (which is what happens by default)
     // define a bunch of extra roads, for each UV setup.
 
+    // I have a hit's slope from above and the kind of plane this is
+    // So let's loop over the roads...
 
+
+    //----fill buffer----
+    pair<int,int> key(0,plane);
+
+    if (plane_type=="x"){
+      for(int iRoadGroup = road_min; iRoadGroup<=road_max; iRoadGroup++){ // road loop
+
+        for(int iRoadOffset = 0; iRoadOffset < m_nUVRoads; iRoadOffset++){
+          int iRoad = iRoadGroup*m_nUVRoads + iRoadOffset;
+          key.first = iRoad;
+
+          // If this road+plane combination is not already in the buffer
+          // Or if this hit's key is smaller than the key that's in there...
+          if( hitBuffer.find(key) == hitBuffer.end() || hit.key < hitBuffer.find(key)->second.hit.key ){
+            hitBuffer[key]=finder_entry(true,m_clock,hit); // Put it in there!
+          }
+
+        } // road offset
+      } // road group
+    } // x planes
+    else { // uv planes
+
+      int planeDirection = 0;
+      if (plane_type=="u") planeDirection = 1;
+      else if (plane_type=="v") planeDirection = -1;
+
+      for(int iRoadGroup = road_min; iRoadGroup<=road_max; iRoadGroup++){ // road loop
+
+        // for(int iRoadOffset = 0; iRoadOffset < m_nUVRoads; iRoadOffset++){
+        //   int iRoad = iRoadGroup*m_nUVRoads + iRoadOffset;
+        //   key.first = iRoad;
+
+        //   // If this road+plane combination is not already in the buffer
+        //   // Or if this hit's key is smaller than the key that's in there...
+        //   if( hitBuffer.find(key) == hitBuffer.end() || hit.key < hitBuffer.find(key)->second.hit.key ){
+        //     hitBuffer[key]=finder_entry(true,m_clock,hit); // Put it in there!
+        //   }
+
+      } // road offset
+    } // road group
   } else {
 
-    //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
-    float32fixed<3> s_min = slope - tol, s_max = slope + tol;
-
     // Now I have a slope range representing the hit.
-
-    int road_min = round((s_min - m_par->slope_min)/h.getFloat());
-    int road_max = round((s_max - m_par->slope_min)/h.getFloat());
-
-    if( road_min < 0 ) road_min = 0 ;
-    if( road_max >= m_nRoads ){ road_max = m_nRoads - 1 ; }
 
     // road_min / max represent a range of roads that I will consider hit
 
@@ -82,16 +130,14 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
       else if( hit.key < hitBuffer.find(key)->second.hit.key ){ // Or if this hit's key is smaller than the key that's in there...
         hitBuffer[key]=finder_entry(true,m_clock,hit);
       }
-
     } // road loop
-
   } // UV roads vs standard
 
 }
 
-void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, 
-                                    vector<Hit>& track, 
-                                    int road, 
+void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit,
+                                    vector<Hit>& track,
+                                    int road,
                                     map<pair<int,int>,finder_entry> hitBuffer
                                     ) const{
   //Loops through the buffer which should have entries = nplanes
@@ -113,9 +159,12 @@ void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit,
 }
 
 int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
+
+  // This function should be updated to include the clock and age of the hits...
+
   //8 for eight detector planes
   if(plane_hits.size()!=8){
-    ATH_MSG_DEBUG("HITS NOT EQUAL TO 8!" );
+    ATH_MSG_DEBUG("Coincidence_Gate: Don't have 8 plane hit!" );
   }
   //Might want to establish a heirarchy of gates
   //Eg, 4X+4UV > 3+3.   Also,
@@ -136,12 +185,12 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;
-    if(value<-10) ATH_MSG_INFO("CG hit count fail with value: "<<value);
+    if(value<-10) ATH_MSG_INFO("Coincidence_Gate: hit count fail with value: "<<value);
   }
   else if(!fbpass&&X_count+UV_count>0){
     if(value>0)value*=-1;
     value-=5;
-    ATH_MSG_INFO("CG quadruplet fail with value: "<<value);
+    ATH_MSG_INFO("Coincidence_Gate: quadruplet fail with value: "<<value);
   }
   return value;
 }

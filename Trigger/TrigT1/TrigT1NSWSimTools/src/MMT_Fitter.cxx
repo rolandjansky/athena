@@ -19,7 +19,7 @@ MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax)
 }
 
 
-evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hdst_entry>& hdsts, int& nfit,vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const{
+evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit,vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const{
   ATH_MSG_DEBUG("Begin fit event!");
   bool did_fit=false;
   int check=Filter_UV(track);
@@ -52,9 +52,9 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hdst_ent
   //@@@@@@@@ Begin Info Storage for Later Analysis @@@@@@@@@@@@@@@@@@@@@@@
   vector<bool> planes_hit_tr(8,false),planes_hit_bg(8,false);
   for(unsigned int ihit=0; ihit<track.size(); ihit++){
-    int hdst_pos=find_hdst(hdsts,track[ihit].key);
-    if(hdst_pos==-1) continue;
-    if(hdsts[hdst_pos].truth_nbg) planes_hit_tr[track[ihit].info.plane]=true;
+    int hitData_pos=find_hitData(hitDatas,track[ihit].key);
+    if(hitData_pos==-1) continue;
+    if(hitDatas[hitData_pos].truth_nbg) planes_hit_tr[track[ihit].info.plane]=true;
     else planes_hit_bg[track[ihit].info.plane]=true;
   }
   int n_xpl_tr=0,n_xpl_bg=0,n_uvpl_tr=0,n_uvpl_bg=0;
@@ -94,13 +94,13 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hdst_ent
   int nplanes=m_par->setup.size();
   for(int plane=0; plane<nplanes; plane++){
     if(track[plane].info.slope==-999) continue; //&& Delta_Theta_division~=-999
-    int hdst_pos=find_hdst(hdsts,track[plane].key);
-    if(hdst_pos==-1) continue;
+    int hitData_pos=find_hitData(hitDatas,track[plane].key);
+    if(hitData_pos==-1) continue;
     did_fit=true;
-    hdsts[hdst_pos].fit_fill(ROI.theta,ROI.phi,Delta_Theta,M_x_global,M_u_global,M_v_global,M_x_local,ROI.m_x,ROI.m_y,ROI.roi);
+    hitDatas[hitData_pos].fit_fill(ROI.theta,ROI.phi,Delta_Theta,M_x_global,M_u_global,M_v_global,M_x_local,ROI.m_x,ROI.m_y,ROI.roi);
     aemon.fit_hit_keys.push_back(track[plane].key);
-//     ATH_MSG_DEBUG("hdst fit_theta="<<hdsts[hdst_pos].fit_theta<<"...";
-    if(hdsts[hdst_pos].truth_nbg) aemon.truth_planes_hit+=pow(10,nplanes-plane-1);
+//     ATH_MSG_DEBUG("hitData fit_theta="<<hitDatas[hitData_pos].fit_theta<<"...";
+    if(hitDatas[hitData_pos].truth_nbg) aemon.truth_planes_hit+=pow(10,nplanes-plane-1);
     else aemon.bg_planes_hit+=pow(10,nplanes-plane-1);
   }
   if(did_fit) nfit++;
@@ -109,9 +109,9 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hdst_ent
   return aemon;
 }
 
-int MMT_Fitter::find_hdst(const vector<hdst_entry>& hdsts, const hdst_key& key) const{
-  for(unsigned int i=0;i<hdsts.size();i++){
-    if(hdsts[i].BC_time==key.BC_time&&hdsts[i].time==key.time&&hdsts[i].gtime==key.gtime&&hdsts[i].VMM_chip==key.VMM_chip) return i;
+int MMT_Fitter::find_hitData(const vector<hitData_entry>& hitDatas, const hitData_key& key) const{
+  for(unsigned int i=0;i<hitDatas.size();i++){
+    if(hitDatas[i].BC_time==key.BC_time&&hitDatas[i].time==key.time&&hitDatas[i].gtime==key.gtime&&hitDatas[i].VMM_chip==key.VMM_chip) return i;
   }
   return -1;
 }

@@ -123,18 +123,18 @@ namespace NSWL1 {
     //MMT_Finder m_find;
 
     //load event stuff
-    vector<hdst_entry> event_hdsts(int find_event) const;
-    vector<hdst_key> event_hdst_keys(int find_event) const;
+    vector<hitData_entry> event_hitDatas(int find_event) const;
+    vector<hitData_key> event_hitData_keys(int find_event) const;
 
     map<int,evFit_entry> Event_Fit;//key is event no.
     map<int,evInf_entry> Event_Info;//key is event no.
     map<int,evAna_entry> Event_Analysis;//key is event no.
-    map<hdst_key,hdst_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
+    map<hitData_key,hitData_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
 
     //VMM info
     vector<vector<bool> > VMM_chip_status;
     vector<vector<int> > VMM__chip_last_hit_time;
-    bool Mimic_VMM_Chip_Deadtime(hdst_entry& candy);
+    bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
     double VMM_deadtime;
     int num_VMM_per_plane;
 
