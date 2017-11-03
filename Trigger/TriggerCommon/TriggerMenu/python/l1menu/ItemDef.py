@@ -1120,6 +1120,8 @@ class ItemDef:
 
         # LUT 24 (9 Outputs)
         ALFA_ANY          = ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L | ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L # 0      # noqa: F821
+        ALFA_B1          = ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L  # 0      # noqa: F821
+        ALFA_B2          = ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L # 0      # noqa: F821
         #NOT_ALFA_ANY_A    = Not(ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L)  #  1-4     # noqa: F821
         #NOT_ALFA_ANY_C    = Not(ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L)  #  5-8     # noqa: F821
 
@@ -1340,6 +1342,8 @@ class ItemDef:
         
         LVL1MenuItem('L1_ALFA_BGT' ).setLogic(RNDM3 & physcond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_BGT_UNPAIRED_ISO' ).setLogic(RNDM3 & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_BGT_BGRP1').setLogic(RNDM3 & physcond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_BGT_BGRP4').setLogic(RNDM3 & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_BGT_BGRP10').setLogic(RNDM3 & alfacalib).setTriggerType(TT.alfa)    # noqa: F821
 
         LVL1MenuItem('L1_ALFA_SHOWSYST5').setLogic( (ALFA_ANY_A & ALFA_ANY_C) & physcond).setTriggerType(TT.alfa)    # noqa: F821
@@ -1352,7 +1356,8 @@ class ItemDef:
         LVL1MenuItem('L1_ALFA_SYST18').setLogic( ALFA_LL & ALFA_RL & physcond).setTriggerType(TT.alfa)    # noqa: F821
        
         LVL1MenuItem('L1_ALFA_ANY').setLogic(ALFA_ANY & physcond).setTriggerType(TT.alfa)    # noqa: F821
-        
+        LVL1MenuItem('L1_ALFA_B1_EMPTY').setLogic(ALFA_B1 & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_B2_EMPTY').setLogic(ALFA_B2 & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821        
         LVL1MenuItem('L1_ALFA_ANY_EMPTY').setLogic(ALFA_ANY & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_ANY_FIRSTEMPTY').setLogic(ALFA_ANY & firstempty).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_ANY_UNPAIRED_ISO').setLogic(ALFA_ANY & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
