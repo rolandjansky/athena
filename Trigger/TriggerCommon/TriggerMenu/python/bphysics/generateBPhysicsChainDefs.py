@@ -1517,8 +1517,8 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
 # the FTK part here was not tested
 
 
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
+    #L2ChainName = "L2_" + chainDict['chainName']
+    #EFChainName = "EF_" + chainDict['chainName']
     topoAlgs = chainDict["topo"]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     
@@ -1532,8 +1532,9 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     fexNameExt,trkelectrons, mult, pid  = getBphysElectronThresholds(chainDict)
 
     if 'Ftk' in topoAlgs:
-        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
+        log.error("BPhysicsChainDefs not setup for ftk in beex topos yet!") 
+        #from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+        #trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
     else:
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
