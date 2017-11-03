@@ -174,6 +174,14 @@ namespace SH
         RCU_THROW_MSG ("failed to convert " + line + " into an unsigned");
       return result;
     }
+
+
+
+    /// \brief the command for setting up rucio
+    std::string rucioSetupCommand ()
+    {
+      return "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force 'rucio -w'";
+    }
   }
 
 
@@ -195,7 +203,12 @@ namespace SH
   std::vector<std::string>
   faxListFilesGlob (const std::string& name, const std::string& filter)
   {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     return faxListFilesRegex (name, RCU::glob_to_regexp (filter));
+#pragma GCC diagnostic pop
   }
 
 
@@ -209,7 +222,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<std::string> result;
 
     ANA_MSG_INFO ("querying FAX for dataset " << name);
@@ -247,13 +260,74 @@ namespace SH
 
 
 
+  std::vector<std::string>
+  rucioDirectAccessGlob (const std::string& name, const std::string& filter)
+  {
+    return rucioDirectAccessRegex (name, RCU::glob_to_regexp (filter));
+  }
+
+
+
+  std::vector<std::string>
+  rucioDirectAccessRegex (const std::string& name, const std::string& filter)
+  {
+    RCU_REQUIRE_SOFT (!name.empty());
+    RCU_REQUIRE_SOFT (name.find('*') == std::string::npos);
+    RCU_REQUIRE_SOFT (!filter.empty());
+
+    ensureVomsProxy ();
+
+    static const std::string separator = "------- SampleHandler Split -------";
+
+    ANA_MSG_INFO ("querying rucio for dataset " << name);
+    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas --pfns --protocols root " + sh::quote (name));
+    auto split = output.rfind (separator + "\n");
+    if (split == std::string::npos)
+      RCU_THROW_MSG ("couldn't find separator in: " + output);
+    std::istringstream str (output.substr (split + separator.size() + 1));
+
+    // this is used to avoid getting two copies of the same file.  we
+    // first fill them in a map by filename, then copy them into a
+    // vector
+    std::map<std::string,std::string> resultMap;
+
+    boost::regex pattern (filter);
+    std::string line;
+    while (std::getline (str, line))
+    {
+      if (!line.empty())
+      {
+	if (line.find ("root:") != 0)
+	  RCU_THROW_MSG ("couldn't parse line: " + line);
+
+	std::string::size_type split = line.rfind ("/");
+	if (split != std::string::npos)
+	{
+          std::string filename = line.substr (split+1);
+	  if (RCU::match_expr (pattern, filename))
+	    resultMap[filename] = line;
+	} else
+	  RCU_THROW_MSG ("couldn't parse line: " + line);
+      }
+    }
+
+    std::vector<std::string> result;
+    for (const auto& file : resultMap)
+      result.push_back (file.second);
+    if (result.size() == 0)
+      ANA_MSG_WARNING ("dataset " + name + " did not contain any files.  this is likely not right");
+    return result;
+  }
+
+
+
   std::vector<RucioListDidsEntry> rucioListDids (const std::string& dataset)
   {
     RCU_REQUIRE_SOFT (!dataset.empty());
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListDidsEntry> result;
 
     ANA_MSG_INFO ("querying rucio for dataset " << dataset);
@@ -289,7 +363,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListFileReplicasEntry> result;
 
     std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset);
@@ -331,7 +405,7 @@ namespace SH
 
     ensureVomsProxy ();
 
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::map<std::string,std::unique_ptr<MetaObject> > result;
 
     std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio get-metadata";
@@ -399,7 +473,7 @@ namespace SH
   {
     ensureVomsProxy ();
     
-    const std::string separator = "------- SampleHandler Split -------";
+    static const std::string separator = "------- SampleHandler Split -------";
     std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && cd " + sh::quote (location) + " && rucio download " + sh::quote (dataset) + " 2>&1";
 
     ANA_MSG_INFO ("starting rucio download " + dataset + " into " + location);

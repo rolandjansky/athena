@@ -30,7 +30,7 @@
 
 using namespace SH;
 
-TEST (MANUAL_DiskListEOSTest, all)
+TEST (DiskListTest, DISABLED_all)
 {
   DiskListEOS list1 ("/eos/atlas/user/k/krumnack", "root://eosatlas//eos/atlas/user/k/krumnack");
   bool valid = true;
