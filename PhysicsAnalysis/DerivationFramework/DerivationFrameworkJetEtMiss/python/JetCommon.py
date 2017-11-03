@@ -308,7 +308,7 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets"):
+                    outputGroup="CustomJets", customGetters=None):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -355,14 +355,20 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         #finderArgs.pop('modifiersin') # leave the default modifiers.
     
         # map the input to the jtm code for PseudoJetGetter
-        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo'  , EMPFlow = 'empflow'              , EMCPFlow = 'emcpflow', 
-                          Truth = 'truth'  , TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', PV0Track = 'pv0track', 
-                          TrackCaloCluster = 'tcc' )
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
+                          Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', 
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc' )
 
-        # create the finder for the temporary collection.
-        finderTool= jtm.addJetFinder(jetname, jetalg, rsize, getterMap[inputtype] ,
-                                     **finderArgs   # pass the prepared arguments
-                                     )
+        # set input pseudojet getter -- allows for custom getters
+        if customGetters is None:
+            inGetter = getterMap[inputtype]
+        else:
+            inGetter = customGetters
+            
+        # create the finder for the temporary collection
+        finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter,
+                                      **finderArgs   # pass the prepared arguments
+                                      )
 
         from JetRec.JetRecConf import JetAlgorithm
         alg = JetAlgorithm(algname, Tools = [finderTool])
