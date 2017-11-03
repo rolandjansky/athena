@@ -3,13 +3,45 @@
 # reductionConf flag EXOT20 in Reco_tf.py   
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
+#====================================================================
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT20Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_EXOT20Stream )
+EXOT20Stream = MSMgr.NewPoolRootStream(streamName, fileName )
+EXOT20Stream.AcceptAlgs(["EXOT20Kernel"])
+
+# Init
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT20ThinningHelper = ThinningHelper( "EXOT20ThinningHelper" )
+thinningTools = []
+AugmentationTools = []
+
 exot20Seq = CfgMgr.AthSequencer("EXOT20Sequence")
+DerivationFrameworkJob += exot20Seq
+
+EXOT20ThinningHelper.AppendToStream( EXOT20Stream )
+
+#====================================================================
+# THINNING TOOLS
+#====================================================================
+
+# Tracks associated with Muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+EXOT0MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT20MuonTPThinningTool",
+                                                                         ThinningService         = EXOT20ThinningHelper.ThinningSvc(),
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                         ConeSize                =  0.4)
+ToolSvc += EXOT20MuonTPThinningTool
+thinningTools.append(EXOT20MuonTPThinningTool)
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -22,14 +54,11 @@ EXOT20SkimmingTool = DerivationFramework__SkimmingToolEXOT20(
                                                 Triggers = [
                                                     "HLT_mu60_0eta105_msonly",
                                                     "HLT_3mu6_msonly",
-                                                    "HLT_mu20_msonly_mu6noL1_msonly_nscan05",
-                                                    "HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb",
-                                                    "HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb",
                                                     "HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb",
-                                                    "HLT_xe80_mht_L1XE50",
-                                                    "HLT_xe90_mht_L1XE50",
-                                                    "HLT_xe100_mht_L1XE50",
-                                                    "HLT_xe110_mht_L1XE50"],
+                                                    "HLT_xe90_pufit_L1XE50",
+						    "HLT_xe100_pufit_L1XE50",
+						    "HLT_xe100_pufit_L1XE55",
+						    "HLT_xe110_pufit_L1XE55"]
                                                 MinPtMSTP = 3.0,
                                                 MinNumMSTP = 2,
                                                 StartDirection = -1,
@@ -42,16 +71,11 @@ ToolSvc += EXOT20SkimmingTool
 
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot20Seq
 exot20Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT20Kernel", SkimmingTools = [EXOT20SkimmingTool])
+exot20Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT20KernelThin", ThinningTools = thinningTools)
 
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT20Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_EXOT20Stream )
-EXOT20Stream = MSMgr.NewPoolRootStream(streamName, fileName )
-EXOT20Stream.AcceptAlgs(["EXOT20Kernel"])
+# Add sumOfWeights metadata for LHE3 multiweights
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # CONTENT LIST  
