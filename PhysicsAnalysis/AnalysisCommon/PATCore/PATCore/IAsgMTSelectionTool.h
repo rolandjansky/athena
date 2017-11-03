@@ -51,6 +51,10 @@ class IAsgMTSelectionTool
       is passed to the tool. */
   virtual const Root::TAcceptInfo& getAcceptInfo() const = 0;
 
+  /** Backward compatibility method */
+  [[deprecated("please use getAcceptInfo() instead")]]
+  inline const Root::TAcceptInfo& getTAccept () const {
+    return getAcceptInfo();};
 
   /** The main accept method: the actual cuts are applied here */
   virtual Root::TAcceptData accept( const xAOD::IParticle* /*part*/ ) const = 0;
