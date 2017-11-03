@@ -127,76 +127,45 @@ MMLoadVariables::~MMLoadVariables() {
       double theta_pos=atan(exp(-etaPosition))*2,theta_ent=atan(exp(-etaEntry))*2,phi_pos=phiPosition;
 
 
-      //may need rename
-      // vector<athena_entry> entries;
-
       //get hits container
       const GenericMuonSimHitCollection *nswContainer = nullptr;
       StatusCode sc5 = m_evtStore->retrieve(nswContainer,"MicromegasSensitiveDetector");
 
 
-      //Second loop in MMT_loader
-      // int TruthDigit_n = 0;
-      // if(nsw_MmDigitContainer->size()==0) {cout <<"EMPTY";}
       for(auto dit : *nsw_MmDigitContainer) {
         // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
         const MmDigitCollection* coll = dit;
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        // cout << "ITEMSIZE  " << coll->size() << endl;
         for (unsigned int item=0; item<coll->size(); item++) {
-          //*******THIS COULD BE AN ISSUE SEE MMDIGITVARIABLES IF VALIDATIONS DON'T MATCH
-
-
           // get specific digit and identify it
           const MmDigit* digit = coll->at(item);
           Identifier Id = digit->identify();
 
-
-          //if (nsw_MmSdoContainer /* && nsw_MmSdoContainer->size()*/) {
-
-            // search the truth container with the Id of the digit
-            //const MuonSimData mm_sdo = (nsw_MmSdoContainer->find(Id))->second;
-            //std::vector<MuonSimData::Deposit> deposits;
-            // get the truth deposits
-            //mm_sdo.deposits(deposits);
-            // use the information of the first deposit
-            // int    truth_barcode   = deposits[0].first.barcode();
-            // double truth_localPosX = deposits[0].second.firstEntry();
-            // double truth_localPosY = deposits[0].second.secondEntry();
-            // float  truth_angle     = mm_sdo.word()/1000.;
-
-
-
-
-            //Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
             Amg::Vector3D hit_gpos(0., 0., 0.);
 
-
             std::string stName   = m_MmIdHelper->stationNameString(m_MmIdHelper->stationName(Id));
+            int stationName      = m_MmIdHelper->stationName(Id);
             int stationEta       = m_MmIdHelper->stationEta(Id);
             int stationPhi       = m_MmIdHelper->stationPhi(Id);
             int multiplet        = m_MmIdHelper->multilayer(Id);
             int gas_gap          = m_MmIdHelper->gasGap(Id);
-
             int channel          = m_MmIdHelper->channel(Id);
-
-
 
             int isSmall = (stName[2] == 'S');
             const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
-            std::vector<float>  time          = digit->chipResponseTime();
-            std::vector<float>  charge        = digit->chipResponseCharge();
-            std::vector<int>    stripPosition = digit->chipResponsePosition();
+            std::vector<float>  time          = digit->stripTimeForTrigger();
+            std::vector<float>  charge        = digit->stripChargeForTrigger();
+            std::vector<int>    stripPosition = digit->stripPositionForTrigger();
+
+            std::vector<int>    MMFE_VMM = digit->MMFE_VMM_idForTrigger();
+            std::vector<int>    VMM = digit->VMM_idForTrigger();
 
             bool isValid;
-            int stationName  = m_MmIdHelper->stationName(Id);
 
-            string sname(stName);
-
-            int mult=m_MmIdHelper->multilayer(Id),gap=m_MmIdHelper->gasGap(Id);
+            int gap=m_MmIdHelper->gasGap(Id);
 
             fillVars.NSWMM_dig_stationEta.push_back(stationEta);
             fillVars.NSWMM_dig_stationPhi.push_back(stationPhi);
@@ -275,6 +244,8 @@ MMLoadVariables::~MMLoadVariables() {
                 }
 
             }//end of strip position loop
+
+
             //NTUPLE FILL DIGITS
             fillVars.NSWMM_dig_time.push_back(time);
             fillVars.NSWMM_dig_charge.push_back(charge);
@@ -356,20 +327,19 @@ MMLoadVariables::~MMLoadVariables() {
 
               if(digit_count==hit_count) {
 
-                entries.push_back(athena_entry(mult,gap, hit.globalTime(),time[indForPos],
-                TVector3(-999,-99,-999),//Digits_MM_truth_localPosZ->at(i)),
-                TVector3(localPosX[indForPos],localPosY[indForPos],-999),//Digits_MM_stripLposZ->at(i)[indForPos]),
-                TVector3(globalPosX[indForPos],globalPosY[indForPos],globalPosZ[indForPos]),
-                charge[indForPos],stripPosition[indForPos],abs(stationEta),stationPhi));
-
-                // cout << "HITX    " << globalPosition.x() << " HITY " << globalPosition.y() << endl;
-                // cout << "HITPHI  " << atan2(globalPosition.y(),globalPosition.x())  << " " << phi_shift(atan2(globalPosition.y(),globalPosition.x()),wedgeType,stationPhi) << endl;
-                // cout << "LOCALX  " << localPosX[indForPos] << " LOCALY " << localPosY[indForPos] << endl;
-                // cout << "GLOBALX " << globalPosX[indForPos] << " GLOBALY " << globalPosY[indForPos] << endl;
-                // cout << "CHARGE  " << charge[indForPos] << " STRIPPOS " << stripPosition[indForPos] << " STATIONETA " << stationEta << endl;
-                // cout << "MULT    " << mult << " GAP " << gap << " GLOBALTIME " << hit.globalTime() << " TIME " << time[indForPos] << endl;
-                // cout << "GLOBALZ " << globalPosZ[indForPos] << std::endl;
-                // cout << "STATIONPHI " << stationPhi << std::endl;
+                entries.push_back(
+                  athena_entry(multiplet,
+                               gap,
+                               hit.globalTime(),
+                               time[indForPos],
+                               TVector3(-999,-99,-999),//Digits_MM_truth_localPosZ->at(i)),
+                               TVector3(localPosX[indForPos],localPosY[indForPos],-999),//Digits_MM_stripLposZ->at(i)[indForPos]),
+                               TVector3(globalPosX[indForPos],globalPosY[indForPos],globalPosZ[indForPos]),
+                               charge[indForPos],
+                               stripPosition[indForPos],
+                               abs(stationEta),
+                               stationPhi)
+                  );
 
               }
               hit_count++;
@@ -481,25 +451,8 @@ MMLoadVariables::~MMLoadVariables() {
         }
         double charge = examine.charge;
         int strip = Get_Strip_ID(recon.X(),recon.Y(),plane), strip_pos=examine.strip_pos, station=examine.eta_station;  //theta_strip_id,module_y_center,plane); // true_x,true_y,plane);
-        // fstation=station;
         string schar=m_par->setup.substr(plane,1);
         strip=strip_number(station,plane,strip_pos);
-        //diagnostics Stephen used (not needed ?)
-        // if(m_par->H<recon.Y()&&m_par->diag){
-        //   // double width=m_par->strip_width.getFloat();
-        //   // double base=m_par->ybases[plane][station-1].getFloat();
-        //   // double yhere=recon.Y();
-        //   // double xhere=truth.X();
-        //   // double msl=0;
-        //   //recon.Y();//(schar.compare("x")==0?recon.Y():truth.Y());
-        //   // if(schar=="u"||schar=="v")width/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-        //   // if(schar=="u"){
-        //   //   msl=-tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-        //   // }
-        //   // if(schar=="v"){
-        //   //   msl=tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
-        //   // }
-        // }
         int VMM_chip = Get_VMM_chip(strip);
 
         //we're doing everything by the variable known as "athena_event" to reflect C++ vs MATLAB indexing
@@ -514,10 +467,7 @@ MMLoadVariables::~MMLoadVariables() {
 
       }//end entries loop
 
-      //Did not include Stephen's generate bkg
-
       particle_info.N_hits_preVMM=hit_info.size();
-
       particle_info.N_hits_postVMM=0;
       // unsigned int ir=0;
 
@@ -648,10 +598,10 @@ MMLoadVariables::~MMLoadVariables() {
     return strip_hit;
   }
 
-  int MMLoadVariables::Get_VMM_chip(int strip) const{  //Not Finished... Rough
-    int strips_per_VMM = 64;
-    return ceil(1.*strip/strips_per_VMM);
-  }
+  // int MMLoadVariables::Get_VMM_chip(int strip) const{  //Not Finished... Rough
+  //   int strips_per_VMM = 64;
+  //   return ceil(1.*strip/strips_per_VMM);
+  // }
 
   int MMLoadVariables::strip_number(int station,int plane,int spos)const{
     //assert(station>0&&station<=m_par->n_stations_eta);

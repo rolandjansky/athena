@@ -28,9 +28,9 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par, bool useUVRoads): m_msg("MMT_Finder"
 
 }
 
-void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, // Map (road,plane) -> Finder entry
+void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer, // Map (road,plane) -> Finder entry
                                 const Hit& hit) const {
-  // This function takes in the Hit object and places it into the hit buffer evFinder, putting it in any relevant (road,plane)
+  // This function takes in the Hit object and places it into the hit buffer hitBuffer, putting it in any relevant (road,plane)
 
   //Get initial parameters: tolerance, step size (h), slope of hit
   float32fixed<3> tol;
@@ -41,7 +41,7 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
   ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFloat() );
 
   //Plane and key info of the hit
-  int plane=hit.info.plane;\
+  int plane=hit.info.plane;
 
   string plane_type=m_par->setup.substr(plane,1);
 
@@ -52,7 +52,7 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
   if(m_useUVRoads){ // Implementation of UV road setup.
 
     // For each road in x (which is what happens by default)
-    // define a bunch of extra rows
+    // define a bunch of extra roads, for each UV setup.
 
 
   } else {
@@ -76,11 +76,11 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
 
       key.first = road;
 
-      if( evFinder.find(key) == evFinder.end() ){ // If this road+plane combination is not already in the buffer
-        evFinder[key]=finder_entry(true,m_clock,hit); // Put it in there!
+      if( hitBuffer.find(key) == hitBuffer.end() ){ // If this road+plane combination is not already in the buffer
+        hitBuffer[key]=finder_entry(true,m_clock,hit); // Put it in there!
       }
-      else if( hit.key < evFinder.find(key)->second.hit.key ){ // Or if this hit's key is smaller than the key that's in there...
-        evFinder[key]=finder_entry(true,m_clock,hit);
+      else if( hit.key < hitBuffer.find(key)->second.hit.key ){ // Or if this hit's key is smaller than the key that's in there...
+        hitBuffer[key]=finder_entry(true,m_clock,hit);
       }
 
     } // road loop
@@ -89,7 +89,11 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
 
 }
 
-void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const{
+void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, 
+                                    vector<Hit>& track, 
+                                    int road, 
+                                    map<pair<int,int>,finder_entry> hitBuffer
+                                    ) const{
   //Loops through the buffer which should have entries = nplanes
   //Takes the hit and bool for each plane (if it exists)
   int nplanes=m_par->setup.size();
