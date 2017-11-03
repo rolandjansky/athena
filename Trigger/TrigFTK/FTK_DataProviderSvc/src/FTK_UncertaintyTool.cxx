@@ -31,10 +31,11 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
   m_noIBL(false),
-  m_ftknew(false)
+  m_ftkparversion("OCT2017_V1")
 {
   declareInterface< IFTK_UncertaintyTool >( this );
   declareProperty( "NoIBL",  m_noIBL);
+  declareProperty( "ftkparversion",  m_ftkparversion);
 }
 
 StatusCode FTK_UncertaintyTool::initialize() {
@@ -45,14 +46,17 @@ StatusCode FTK_UncertaintyTool::initialize() {
   //
   //   Load Constants
   //
+  
   if(m_noIBL)
     LoadConstants_NoIBL();
   else
-    if(m_ftknew)
-      LoadConstants_ftknew();
-    else
+    if(m_ftkparversion == "LEGACY")
       LoadConstants();
-
+    else if(m_ftkparversion == "OCT2017_V1")
+      LoadConstants_OCT2017_V1();
+    else 
+      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default OCT2017_V1 parameters");
+      LoadConstants_OCT2017_V1();
 
   athenaLog << MSG::INFO << "FTK_UncertaintyTool initialized "<< endmsg;
   return sc;
@@ -418,7 +422,7 @@ void FTK_UncertaintyTool::LoadConstants_NoIBL()
 
 
 
-void FTK_UncertaintyTool::LoadConstants_ftknew()
+void FTK_UncertaintyTool::LoadConstants_OCT2017_V1()
 {
   //////////////////////////////////////////////////
   // constants for tracks with an Inner B Layer hit.
