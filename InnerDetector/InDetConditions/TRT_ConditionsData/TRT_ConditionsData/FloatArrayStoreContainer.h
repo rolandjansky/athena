@@ -7,9 +7,7 @@
 /** Container for FloatArrayStore objects using the COOL
     CondMultChannCollection */
  
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "TRT_ConditionsData/FloatArrayStore.h"
 
