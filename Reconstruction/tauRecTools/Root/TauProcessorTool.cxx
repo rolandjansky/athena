@@ -222,107 +222,129 @@ StatusCode TauProcessorTool::execute(){
 #ifdef XAOD_ANALYSIS //perhaps this should be ROOTCORE
 
   typedef std::vector< ElementLink< xAOD::PFOContainer > >  PFOLinks_t;
+  typedef std::vector< ElementLink< xAOD::TauTrackContainer > >  TauTrackLinks_t;
   const xAOD::PFOContainer* hadronicPFOs(0);
   const xAOD::PFOContainer* chargedPFOs(0);
   const xAOD::PFOContainer* neutralPFOs(0);
-  //  const xAOD::PFOContainer* shotPFOs(0);
+  const xAOD::PFOContainer* shotPFOs(0);
+  const xAOD::TauTrackContainer* tauTracks(0);
 
   if(evtStore()->contains<xAOD::PFOContainer>("TauHadronicParticleFlowObjectsFix"))
     ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjects"));
 
   if(evtStore()->contains<xAOD::PFOContainer>("TauChargedParticleFlowObjectsFix"))
     ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjects"));
 
   if(evtStore()->contains<xAOD::PFOContainer>("TauNeutralParticleFlowObjectsFix"))
     ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjects"));
 
-  // if(evtStore()->contains<xAOD::PFOContainer>("TauShotParticleFlowObjectsFix"))
-  //   ATH_CHECK(evtStore()->retrieve(shotPFOs, "TauShotParticleFlowObjectsFix"));
-  // else
-  //   ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauShotParticleFlowObjects"));
+  if(evtStore()->contains<xAOD::PFOContainer>("TauShotParticleFlowObjectsFix"))
+    ATH_CHECK(evtStore()->retrieve(shotPFOs, "TauShotParticleFlowObjectsFix"));
+
+  if(evtStore()->contains<xAOD::TauTrackContainer>("TauTracksFix"))
+    ATH_CHECK(evtStore()->retrieve(tauTracks, "TauTracksFix"));
 
 
   for(xAOD::TauJet* tau : *pContainer ) {    
 
-    const PFOLinks_t hadronicPFOLinks=tau->hadronicPFOLinks();
-    PFOLinks_t new_hadronicPFOLinks;
-    for( auto link : hadronicPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *hadronicPFOs, hadronicPFOs->at(link.index()) );
-      new_hadronicPFOLinks.push_back(new_link);
+    if (hadronicPFOs) {
+      const PFOLinks_t hadronicPFOLinks=tau->hadronicPFOLinks();
+      PFOLinks_t new_hadronicPFOLinks;
+      for( const auto& link : hadronicPFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *hadronicPFOs, hadronicPFOs->at(link.index()) );
+        new_hadronicPFOLinks.push_back(new_link);
+      }
+      tau->setHadronicPFOLinks(new_hadronicPFOLinks);    
     }
-    tau->setHadronicPFOLinks(new_hadronicPFOLinks);    
-
-    const PFOLinks_t chargedPFOLinks=tau->chargedPFOLinks();
-    PFOLinks_t new_chargedPFOLinks;
-    for( auto link : chargedPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
-      new_chargedPFOLinks.push_back(new_link);
+    
+    if (chargedPFOs){
+      const PFOLinks_t chargedPFOLinks=tau->chargedPFOLinks();
+      PFOLinks_t new_chargedPFOLinks;
+      for( const auto& link : chargedPFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
+        new_chargedPFOLinks.push_back(new_link);
+      }
+      tau->setChargedPFOLinks(new_chargedPFOLinks);    
     }
-    tau->setChargedPFOLinks(new_chargedPFOLinks);    
-
+    
+  if (neutralPFOs){
     const PFOLinks_t neutralPFOLinks=tau->neutralPFOLinks();
     PFOLinks_t new_neutralPFOLinks;
-    for( auto link : neutralPFOLinks ){
+    for( const auto& link : neutralPFOLinks ){
       ElementLink< xAOD::PFOContainer > new_link;
       new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
       new_neutralPFOLinks.push_back(new_link);
     }
     tau->setNeutralPFOLinks(new_neutralPFOLinks);    
-
-    const PFOLinks_t pi0PFOLinks=tau->pi0PFOLinks();
-    PFOLinks_t new_pi0PFOLinks;
-    for( auto link : pi0PFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_pi0PFOLinks.push_back(new_link);
+  }
+    
+    if (neutralPFOs){
+      const PFOLinks_t pi0PFOLinks=tau->pi0PFOLinks();
+      PFOLinks_t new_pi0PFOLinks;
+      for( const auto& link : pi0PFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+        new_pi0PFOLinks.push_back(new_link);
+      }
+      tau->setPi0PFOLinks(new_pi0PFOLinks);    
     }
-    tau->setPi0PFOLinks(new_pi0PFOLinks);    
-
-    const PFOLinks_t protoChargedPFOLinks=tau->protoChargedPFOLinks();
-    PFOLinks_t new_protoChargedPFOLinks;
-    for( auto link : protoChargedPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
-      new_protoChargedPFOLinks.push_back(new_link);
+    
+    if (chargedPFOs){
+      const PFOLinks_t protoChargedPFOLinks=tau->protoChargedPFOLinks();
+      PFOLinks_t new_protoChargedPFOLinks;
+      for( const auto& link : protoChargedPFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
+        new_protoChargedPFOLinks.push_back(new_link);
+      }
+      tau->setProtoChargedPFOLinks(new_protoChargedPFOLinks);    
     }
-    tau->setProtoChargedPFOLinks(new_protoChargedPFOLinks);    
-
-    const PFOLinks_t protoNeutralPFOLinks=tau->protoNeutralPFOLinks();
-    PFOLinks_t new_protoNeutralPFOLinks;
-    for( auto link : protoNeutralPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_protoNeutralPFOLinks.push_back(new_link);
+    
+    if (neutralPFOs){
+      const PFOLinks_t protoNeutralPFOLinks=tau->protoNeutralPFOLinks();
+      PFOLinks_t new_protoNeutralPFOLinks;
+      for( const auto& link : protoNeutralPFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+        new_protoNeutralPFOLinks.push_back(new_link);
+      }
+      tau->setProtoNeutralPFOLinks(new_protoNeutralPFOLinks);    
     }
-    tau->setProtoNeutralPFOLinks(new_protoNeutralPFOLinks);    
-
-    const PFOLinks_t protoPi0PFOLinks=tau->protoPi0PFOLinks();
-    PFOLinks_t new_protoPi0PFOLinks;
-    for( auto link : protoPi0PFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_protoPi0PFOLinks.push_back(new_link);
+    
+    if (neutralPFOs){
+      const PFOLinks_t protoPi0PFOLinks=tau->protoPi0PFOLinks();
+      PFOLinks_t new_protoPi0PFOLinks;
+      for( const auto& link : protoPi0PFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+        new_protoPi0PFOLinks.push_back(new_link);
+      }
+      tau->setProtoPi0PFOLinks(new_protoPi0PFOLinks);    
     }
-    tau->setProtoPi0PFOLinks(new_protoPi0PFOLinks);    
+    
+    if (shotPFOs){
+      const PFOLinks_t shotPFOLinks=tau->shotPFOLinks();
+      PFOLinks_t new_shotPFOLinks;
+      for( const auto& link : shotPFOLinks ){
+        ElementLink< xAOD::PFOContainer > new_link;
+        new_link.toContainedElement( *shotPFOs, shotPFOs->at(link.index()) );
+        new_shotPFOLinks.push_back(new_link);
+      }
+      tau->setShotPFOLinks(new_shotPFOLinks);    
+    }
 
-    // const PFOLinks_t shotPFOLinks=tau->shotPFOLinks();
-    // PFOLinks_t new_shotPFOLinks;
-    // for( auto link : shotPFOLinks ){
-    //   ElementLink< xAOD::PFOContainer > new_link;
-    //   new_link.toContainedElement( *shotPFOs, shotPFOs->at(link.index()) );
-    //   new_shotPFOLinks.push_back(new_link);
-    // }
-    // tau->setShotPFOLinks(new_shotPFOLinks);    
-
-
+    if (tauTracks){
+      const TauTrackLinks_t tauTrackLinks=tau->allTauTrackLinks();
+      TauTrackLinks_t new_tauTrackLinks;
+      for( const auto& link : tauTrackLinks ){
+        ElementLink< xAOD::TauTrackContainer > new_link;
+        new_link.toContainedElement( *tauTracks, tauTracks->at(link.index()) );
+        new_tauTrackLinks.push_back(new_link);
+      }
+      tau->setAllTauTrackLinks(new_tauTrackLinks);    
+    }
   }
 
 #endif
@@ -396,14 +418,8 @@ StatusCode TauProcessorTool::execute(){
   // Finalize tools for this event
   //-------------------------------------------------------------------------
 
-  itT = m_tools.begin();
-  itTE = m_tools.end();
-  for (; itT != itTE; ++itT) {
-    sc = (*itT)->eventFinalize();
-    if (sc != StatusCode::SUCCESS)
-      return StatusCode::FAILURE;
-  }
-
+  for (auto tool : m_tools)
+    ATH_CHECK(tool->eventFinalize());
 
   ///////////////////////////////////////////////////////
   // locking of containers is moved to separate tau tool
@@ -414,6 +430,10 @@ StatusCode TauProcessorTool::execute(){
 
 //________________________________________
 StatusCode TauProcessorTool::finalize(){
+#if defined(ASGTOOL_STANDALONE)
+  for (auto tool : m_tools)
+    ATH_CHECK(tool->finalize());
+#endif // ASGTOOL_STANDALONE
 
   return StatusCode::SUCCESS;
 }
@@ -421,8 +441,8 @@ StatusCode TauProcessorTool::finalize(){
 //________________________________________
 //TODO: Inherit this, don't reimplement it
 std::string TauProcessorTool::find_file(const std::string& fname) const {
-  static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
-  std::string full_path = PathResolverFindCalibFile(m_tauRecToolsTag+fname);
+  static const std::string tauRecToolsTag="tauRecTools/00-00-00/";
+  std::string full_path = PathResolverFindCalibFile(tauRecToolsTag+fname);
   if(full_path=="") full_path = PathResolverFindCalibFile(fname);
   return full_path;
 }

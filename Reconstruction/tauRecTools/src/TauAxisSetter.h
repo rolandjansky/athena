@@ -38,7 +38,7 @@ public:
 
 
 private:
-    std::string tauContainerKey;
+    std::string m_tauContainerKey;
     
     double m_clusterCone;
     /** 

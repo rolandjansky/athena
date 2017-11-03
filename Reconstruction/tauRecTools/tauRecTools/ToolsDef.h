@@ -18,6 +18,7 @@
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
+#include "tauRecTools/TauProcessorTool.h"
 #include "tauRecTools/BuildTruthTaus.h"
 
 REGISTER_TOOL(TauCalibrateLC)
@@ -36,4 +37,5 @@ REGISTER_TOOL(TauWPDecorator)
 REGISTER_TOOL(TauJetBDTEvaluator)
 REGISTER_TOOL(TauEleOLRDecorator)
 REGISTER_TOOL(TauIDVarCalculator)
+REGISTER_TOOL(TauProcessorTool)
 REGISTER_TOOL(tauRecTools::BuildTruthTaus)

@@ -35,7 +35,6 @@ class TauJetBDTEvaluator
 
   std::string m_weightsFile;
   std::string m_outputVarName;
-  SG::AuxElement::Accessor<float>* m_outputVar=0;
 
   tauRecTools::TRTBDT* m_myBdt=0;
   int m_minNTracks;

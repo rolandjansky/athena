@@ -29,7 +29,7 @@ m_doCellCorrection(false),
 m_doAxisCorrection(true)
 {
     declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("tauContainerKey", tauContainerKey = "TauJets");
+    declareProperty("tauContainerKey", m_tauContainerKey = "TauJets");
     declareProperty("CellCorrection", m_doCellCorrection);
     declareProperty("AxisCorrection", m_doAxisCorrection = true);
 }
