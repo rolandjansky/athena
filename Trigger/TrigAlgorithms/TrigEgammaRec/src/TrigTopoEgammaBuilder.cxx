@@ -551,10 +551,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 
   //Build the initial egamma Rec objects for all copied Topo Clusters
   EgammaRecContainer* egammaRecs = new EgammaRecContainer();
-//  if (evtStore()->record(egammaRecs, m_egammaRecContainerName).isFailure()){
-//    ATH_MSG_ERROR("Could not record egammaRecContainer");
-//    return HLT::ERROR;
-//  }
     {
         std::string _egrContSGKey = "";
         const std::string _tKey = "";
@@ -630,16 +626,25 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   ////////////////////////////////////////////////
   //Now all info should be added  the initial topoClusters build SuperClusters
   //Electron superclusters Builder
+
+  // prepare output objects for SuperCluster Builder
+    //Create new EgammaRecContainer
+    EgammaRecContainer *electronSuperRecs = new EgammaRecContainer();
+
+    // Electrons
+    xAOD::CaloClusterContainer* electron_CSCContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer electron_CSCAux;
+    electron_CSCContainer->setStore(&electron_CSCAux);
+
   {
     smallChrono timer(m_timingProfile, this->name()+"_"+m_electronSuperClusterBuilder->name());
-    TRIG_CHECK_SC(m_electronSuperClusterBuilder->execute());
+    TRIG_CHECK_SC(m_electronSuperClusterBuilder->hltExecute(egammaRecs,
+                                                            electronSuperRecs,
+                                                            electron_CSCContainer));
   }
 
   //Track Match the final electron SuperClusters
-  EgammaRecContainer *electronSuperRecs(0);
-  if( evtStore()->contains<EgammaRecContainer>( m_electronSuperClusterRecContainerName)) {
-    TRIG_CHECK_SC(evtStore()->retrieve(electronSuperRecs,  m_electronSuperClusterRecContainerName));
-    ATH_MSG_DEBUG("Size of "  <<m_electronSuperClusterRecContainerName << " : " << electronSuperRecs->size());
+    ATH_MSG_DEBUG("Size of electronSuperClusterRecContainer: " << electronSuperRecs->size());
 
     if (m_doTrackMatching){
       smallChrono timer(m_timingProfile,this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters");
@@ -650,18 +655,26 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         }
       }
     }
-  }
+
+
   //Photon superclusters Builder
+  // prepare output objects for SuperCluster Builder
+    //Create new EgammaRecContainer
+    EgammaRecContainer *photonSuperRecs = new EgammaRecContainer();
+    // Photons
+    xAOD::CaloClusterContainer* photon_CSCContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer photon_CSCAux;
+    photon_CSCContainer->setStore(&photon_CSCAux);
+
+
   {
-  smallChrono timer(m_timingProfile,this->name()+"_"+m_photonSuperClusterBuilder->name());
-  TRIG_CHECK_SC(m_photonSuperClusterBuilder->execute());
+    smallChrono timer(m_timingProfile,this->name()+"_"+m_photonSuperClusterBuilder->name());
+    TRIG_CHECK_SC(m_photonSuperClusterBuilder->hltExecute(egammaRecs,
+                                                          photonSuperRecs,
+                                                          photon_CSCContainer));
   }
 
-  EgammaRecContainer *photonSuperRecs(0);
-  if( evtStore()->contains<EgammaRecContainer>( m_photonSuperClusterRecContainerName)) {
-    //Else retrieve them
-    TRIG_CHECK_SC(evtStore()->retrieve(photonSuperRecs,  m_photonSuperClusterRecContainerName));
-    ATH_MSG_DEBUG("Size of "  <<m_photonSuperClusterRecContainerName << " : " << photonSuperRecs->size());
+    ATH_MSG_DEBUG("Size of photonSuperClusterRecContainer: " << photonSuperRecs->size());
 
     //Redo conversion matching given the super cluster
     if (m_doConversions) {
@@ -673,7 +686,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         }
       }
     }
-  }
+
   //
   //
   //For now naive double loops bases on the seed (constituent at position 0)
