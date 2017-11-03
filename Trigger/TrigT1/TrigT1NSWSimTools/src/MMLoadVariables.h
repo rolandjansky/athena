@@ -82,7 +82,7 @@ namespace MuonGM {
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par);
    ~MMLoadVariables();
 
-    void getMMDigitsInfo(vector<athena_entry>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info);
+    void getMMDigitsInfo(vector<digitWrapper>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info);
 
     string nom;
 

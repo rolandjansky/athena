@@ -1110,10 +1110,11 @@ hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,cons
 //     double angle=m_par->correct.rotate.X();
 // //     yflt=planebase+fltyup*cos(angle);
 // //     zflt=zplane+0.5*fltyup*sin(angle)*cos(angle)*(1-tan(angle)*base/zplane)/(1-tan(angle)*1.*yflt/zplane);
-//   }
-  y=yflt/MMTStructConst;z=zflt/MMTStructConst;
+// //   }
+//   y = yflt / MMTStructConst;
+//   z = zflt / MMTStructConst;
 
-  slope=y/z;
+  slope =  (zflt!=0.) ? yflt / zflt : 0.;
   // double oslope=(base+(strip)*swidth)/zplane,mslope=yflt/zplane;
   // ATH_MSG_DEBUG("....after correction for a y value of "<<yflt<<", with a z of "<<zflt<<" for slopes....");
   // ATH_MSG_DEBUG("an ORIGINAL slope: "<<oslope );
@@ -1270,29 +1271,31 @@ ROI::ROI(double _theta, double _phi, double _m_x, double _m_y, int _roi):
 athena_header::athena_header(const TLorentzVector& par, int tpn, double etp, double ete, double php, double phe, int mun, const TVector3& ver):
   the_part(par),trupart_n(tpn),etapos(etp),etaent(ete),phipos(php),phient(phe),muent_n(mun),vertex(ver) {}
 
-athena_entry::athena_entry(int multiplet, 
-                           int gasGap, 
-                           double gTime, 
-                           double time, 
-                           const TVector3& truthLPos, 
-                           const TVector3& stripLPos, 
-                           const TVector3& stripGPos, 
-                           double charge,
-                           int stripPos,
-                           int etaStation,
-                           int phiStation
+// digitWrapper::digitWrapper(int multiplet, 
+//                            int gasGap, 
+//                            double gTime, 
+//                            double time, 
+//                            const TVector3& truthLPos, 
+//                            const TVector3& stripLPos, 
+//                            const TVector3& stripGPos, 
+//                            double charge,
+//                            int stripPos,
+//                            int etaStation,
+//                            int phiStation
+//                            ):
+
+
+digitWrapper::digitWrapper(const MmDigit* digit,
+                           double gTime,
+                           const TVector3& truthLPos,
+                           const TVector3& stripLPos,
+                           const TVector3& stripGPos
                            ):
-  multiplet(multiplet),
-  gas_gap(gasGap),
-  gtime(gTime),
-  time(time),
+  digit(digit),
+  gTime(gTime),
   truth_lpos(truthLPos),
   strip_lpos(stripLPos),
-  strip_gpos(stripGPos),
-  charge(charge),
-  strip_pos(stripPos),
-  eta_station(etaStation),
-  phi_station(phiStation){}
+  strip_gpos(stripGPos){}
 
 track_address::track_address(int bct,bool big,int wed,int pl,int sh,const TVector3& chr):
   BC(bct),islarge(big),wedge(wed),plane(pl),strip_hit(sh),cart_hit(chr) {}

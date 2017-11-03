@@ -28,7 +28,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 MMLoadVariables::~MMLoadVariables() {
 }
 
-    void MMLoadVariables::getMMDigitsInfo(vector<athena_entry>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
+    void MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
       //*******Following MuonPRD code to access all the variables**********
 
       histogramVariables fillVars;
@@ -139,9 +139,9 @@ MMLoadVariables::~MMLoadVariables() {
         int digit_count =0;
 
         for (unsigned int item=0; item<coll->size(); item++) {
-          // get specific digit and identify it
-          const MmDigit* digit = coll->at(item);
-          Identifier Id = digit->identify();
+            // get specific digit and identify it
+            const MmDigit* digit = coll->at(item);
+            Identifier Id = digit->identify();
 
             Amg::Vector3D hit_gpos(0., 0., 0.);
 
@@ -162,6 +162,11 @@ MMLoadVariables::~MMLoadVariables() {
 
             std::vector<int>    MMFE_VMM = digit->MMFE_VMM_idForTrigger();
             std::vector<int>    VMM = digit->VMM_idForTrigger();
+
+            // std::cout << "The length of these vectors for triggers is: " << time.size()          << std::endl;
+            // std::cout << "The length of these vectors for triggers is: " << charge.size()        << std::endl;
+            // std::cout << "The length of these vectors for triggers is: " << stripPosition.size() << std::endl;
+
 
             bool isValid;
 
@@ -199,9 +204,6 @@ MMLoadVariables::~MMLoadVariables() {
             std::vector<double> globalPosX;
             std::vector<double> globalPosY;
             std::vector<double> globalPosZ;
-
-
-            std::cout << "The length of these vectors for triggers is: " << stripPosition.size() << std::endl;
 
             for (unsigned int i=0; i<stripPosition.size(); i++) {
               // take strip index form chip information
@@ -344,21 +346,31 @@ MMLoadVariables::~MMLoadVariables() {
 
 
                 entries.push_back(
-                  athena_entry(multiplet,
-                               gap,
+                  // digitWrapper(multiplet,
+                  //              gap,
+                  //              hit.globalTime(),
+                  //              time.at(indexOfFastestSignal),
+                  //              TVector3(-999, -99, -999),//Digits_MM_truth_localPosZ->at(i)),
+                  //              TVector3(localPosX.at(indexOfFastestSignal),
+                  //                       localPosY.at(indexOfFastestSignal),
+                  //                       -999),  //Digits_MM_stripLposZ->at(i).at(indexOfFastestSignal)),
+                  //              TVector3(globalPosX.at(indexOfFastestSignal),
+                  //                       globalPosY.at(indexOfFastestSignal),
+                  //                       globalPosZ.at(indexOfFastestSignal) ),
+                  //              charge.at(indexOfFastestSignal),
+                  //              stripPosition.at(indexOfFastestSignal),
+                  //              abs(stationEta),
+                  //              stationPhi)
+                  digitWrapper(digit,
                                hit.globalTime(),
-                               time.at(indexOfFastestSignal),
                                TVector3(-999, -99, -999),//Digits_MM_truth_localPosZ->at(i)),
                                TVector3(localPosX.at(indexOfFastestSignal),
                                         localPosY.at(indexOfFastestSignal),
                                         -999),  //Digits_MM_stripLposZ->at(i).at(indexOfFastestSignal)),
                                TVector3(globalPosX.at(indexOfFastestSignal),
                                         globalPosY.at(indexOfFastestSignal),
-                                        globalPosZ.at(indexOfFastestSignal) ),
-                               charge.at(indexOfFastestSignal),
-                               stripPosition.at(indexOfFastestSignal),
-                               abs(stationEta),
-                               stationPhi)
+                                        globalPosZ.at(indexOfFastestSignal) )
+                               )
                   );
 
               }
@@ -369,46 +381,47 @@ MMLoadVariables::~MMLoadVariables() {
         } //end iterator digit loop
       } // end digit container loop (1 for event?)
 
-      vector<athena_entry> dummy;
+      vector<digitWrapper> dummy;
       vector<int> indices;
       //Truth info for particle (originally primer)
       int phiSt = 0;
-      if(entries.size() > 0) phiSt = entries.at(0).phi_station;
+      if(entries.size() > 0) phiSt = m_MmIdHelper->stationPhi( entries.at(0).id() );
       evInf_entry particle_info(event,pdg,thePart.E(),thePart.Pt(),thePart.Eta(),etaPosition,etaEntry,phi_shift(thePart.Phi(),wedgeType,phiSt),phi_shift(phi_pos,wedgeType,phiSt),phi_shift(phiEntry,wedgeType,phiSt),thePart.Theta(),theta_pos,theta_ent,theta_ent-theta_pos,TruthParticle_n,MuEntry_Particle_n,vertex);
       if(wedgeType == "Neither") particle_info.bad_wedge=true;
       else particle_info.bad_wedge=false;
 
-      vector<athena_entry> origEntries = entries;
+      vector<digitWrapper> origEntries = entries;
+
       for(unsigned int i=0; i<entries.size(); i++){
         if(entries.size() < 8) continue;
-        if(entries[i].multiplet==1 and entries[i].gas_gap==1) entries[i].gtime = origEntries[0].gtime;
-        if(entries[i].multiplet==1 and entries[i].gas_gap==2) entries[i].gtime = origEntries[1].gtime;
-        if(entries[i].multiplet==1 and entries[i].gas_gap==3) entries[i].gtime = origEntries[2].gtime;
-        if(entries[i].multiplet==1 and entries[i].gas_gap==4) entries[i].gtime = origEntries[3].gtime;
-        if(entries[i].multiplet==2 and entries[i].gas_gap==1) entries[i].gtime = origEntries[4].gtime;
-        if(entries[i].multiplet==2 and entries[i].gas_gap==2) entries[i].gtime = origEntries[5].gtime;
-        if(entries[i].multiplet==2 and entries[i].gas_gap==3) entries[i].gtime = origEntries[6].gtime;
-        if(entries[i].multiplet==2 and entries[i].gas_gap==4) entries[i].gtime = origEntries[7].gtime;
+        Identifier tmpID = entries.at(i).id();
+        if     ( m_MmIdHelper->multilayer( tmpID )==1 and m_MmIdHelper->gasGap(tmpID)==1) entries.at(i).gTime = origEntries.at(0).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==1 and m_MmIdHelper->gasGap(tmpID)==2) entries.at(i).gTime = origEntries.at(1).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==1 and m_MmIdHelper->gasGap(tmpID)==3) entries.at(i).gTime = origEntries.at(2).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==1 and m_MmIdHelper->gasGap(tmpID)==4) entries.at(i).gTime = origEntries.at(3).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==2 and m_MmIdHelper->gasGap(tmpID)==1) entries.at(i).gTime = origEntries.at(4).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==2 and m_MmIdHelper->gasGap(tmpID)==2) entries.at(i).gTime = origEntries.at(5).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==2 and m_MmIdHelper->gasGap(tmpID)==3) entries.at(i).gTime = origEntries.at(6).gTime;
+        else if( m_MmIdHelper->multilayer( tmpID )==2 and m_MmIdHelper->gasGap(tmpID)==4) entries.at(i).gTime = origEntries.at(7).gTime;
       }
       for(unsigned int i=0; i<entries.size(); i++){
         float min = 100000;
-        int minIndice=-999;
+        int minIndex=-999;
         for(unsigned int j=0; j<entries.size(); j++){
           bool notmindex = true;
           for (unsigned int k=0; k<indices.size(); k++){
             if(j==(unsigned int) indices[k]) notmindex=false;
           }
           if(notmindex){
-            if(min > entries[j].gtime ){
-              minIndice = j;
-              min = entries[minIndice].gtime ;
+            if(min > entries.at(j).gTime ){
+              minIndex = j;
+              min = entries.at(minIndex).gTime ;
             }
           }
         }
-        if(minIndice < 0) minIndice = i;
-        dummy.push_back(entries[minIndice]);
-        indices.push_back(minIndice);
-
+        if(minIndex < 0) { minIndex = i; }
+        dummy.push_back(entries.at(minIndex));
+        indices.push_back(minIndex);
       }
 
       entries = dummy;
@@ -420,7 +433,7 @@ MMLoadVariables::~MMLoadVariables() {
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
 
       double tru_phi = -999;
-      if (entries.size() >0) tru_phi=phi_shift(thePart.Phi(),wedgeType,entries.at(0).phi_station);
+      if (entries.size() >0) tru_phi=phi_shift(thePart.Phi(),wedgeType,phiSt );
       double tru_theta=thePart.Theta();
 
 
@@ -444,42 +457,86 @@ MMLoadVariables::~MMLoadVariables() {
 
       //Loop over entries, which has digitization info for each event
       for(unsigned int ient=0; ient<entries.size(); ient++){
-        athena_entry examine=entries[ient];
+        digitWrapper thisSignal=entries.at(ient);
+
+        Identifier tmpID      = thisSignal.id();
+        int thisMultiplet     = m_MmIdHelper->multilayer( tmpID );
+        int thisGasGap        = m_MmIdHelper->gasGap( tmpID );
+        int thisTime          = thisSignal.digit->stripTimeForTrigger().at(0);
+        int thisCharge        = 2; //thisSignal.digit->stripChargeForTrigger().at(0);
+        int thisStripPosition = thisSignal.digit->stripPositionForTrigger().at(0);
+        int thisStationEta    = m_MmIdHelper->stationEta( tmpID );
+        // int thisVMM           = thisSignal.digit->VMM_idForTrigger().at(0);
+
+
         //DLM_NEW plane assignments
         //stated [3,2,1,0;7,6,5,4]
-        int plane=(examine.multiplet-1)*4+examine.gas_gap-1;
-        // cout<<"SUBSTR CALL MMT_L--0...plane: "<<plane<<", multiplet: "<<examine.multiplet<<endl;
-        int BC_id=ceil(examine.time/25.);
+        int thisPlane = (thisMultiplet-1)*4+thisGasGap-1;
 
-        TVector3 mazin_check(examine.strip_gpos.X(),examine.strip_gpos.Y(),examine.strip_gpos.Z());
-        TVector3 athena_tru(examine.strip_gpos.X(),examine.strip_gpos.Y()-examine.truth_lpos.Y(),examine.strip_gpos.Z());
+        int strip = strip_number(thisStationEta,
+                                 thisPlane,
+                                 thisStripPosition);
+        int thisVMM = Get_VMM_chip(strip);
+
+        // cout<<"SUBSTR CALL MMT_L--0...plane: "<<plane<<", multiplet: "<<thisSignal.multiplet<<endl;
+        int BC_id = ceil( thisTime / 25. );
+
+        TVector3 mazin_check(
+          thisSignal.strip_gpos.X(),
+          thisSignal.strip_gpos.Y(),
+          thisSignal.strip_gpos.Z()
+          );
+
+        TVector3 athena_tru(
+          thisSignal.strip_gpos.X(),
+          thisSignal.strip_gpos.Y()-thisSignal.truth_lpos.Y(),
+          thisSignal.strip_gpos.Z());
+
         if(m_par->dlm_new){
-          athena_tru.SetX(examine.strip_gpos.X()-examine.strip_lpos.X());
-        //       cerr<<"IT'S THE NEW TIME!"<<endl;
+          athena_tru.SetX(thisSignal.strip_gpos.X()-thisSignal.strip_lpos.X());
         }
-        TVector3 athena_rec(examine.strip_gpos);
+
+        TVector3 athena_rec(thisSignal.strip_gpos);
         //now store some variables BLC initializes; we might trim this down for efficiency later
         //the following line should be rather easy to one-to-one replace
 
         TVector3 truth(athena_tru.Y(),-athena_tru.X(),athena_tru.Z()), recon(athena_rec.Y(),-athena_rec.X(),athena_rec.Z());
 
         if(uvxxmod){
-          xxuv_to_uvxx(truth,plane);xxuv_to_uvxx(recon,plane);
+          xxuv_to_uvxx(truth,thisPlane);xxuv_to_uvxx(recon,thisPlane);
         }
-        double charge = examine.charge;
-        int strip = Get_Strip_ID(recon.X(),recon.Y(),plane), strip_pos=examine.strip_pos, station=examine.eta_station;  //theta_strip_id,module_y_center,plane); // true_x,true_y,plane);
-        string schar=m_par->setup.substr(plane,1);
-        strip=strip_number(station,plane,strip_pos);
-        int VMM_chip = Get_VMM_chip(strip);
+
+
+        // int strip = Get_Strip_ID(recon.X(),recon.Y(),plane);
+        // int strip_pos=thisSignal.strip_pos;
+        // int station=thisSignal.eta_station;
+
+        // string schar=m_par->setup.substr(plane,1);
+        // string planeOrientation = m_par->setup.substr(plane,1);
 
         //we're doing everything by the variable known as "athena_event" to reflect C++ vs MATLAB indexing
         int btime=(event+1)*10+(BC_id-1);
-        particle_info.NUV_bg_preVMM = 0;   //examine.gtime;
-        int special_time = examine.time + (event+1)*100;
-        // Originally shaka
-        hdst_entry hit_entry(event,examine.gtime,charge,VMM_chip,plane,strip_pos,station,tru_theta,tru_phi,true,btime,special_time,mazin_check,mazin_check);//truth,recon);//leave the rest of the info as 0's
+        particle_info.NUV_bg_preVMM = 0;   //thisSignal.gtime;
+        int special_time = thisTime + (event+1)*100;
+
+        hdst_entry hit_entry(event,
+                             thisSignal.gTime,
+                             thisCharge,
+                             thisVMM,
+                             thisPlane,
+                             thisStripPosition,
+                             thisStationEta,
+                             tru_theta,
+                             tru_phi,
+                             true,
+                             btime,
+                             special_time,
+                             mazin_check,
+                             mazin_check);
+
         hit_info[hit_entry.entry_key()]=hit_entry;
     //     if(debug){ cout<<"Filling hit_info slot: "; hit_entry.entry_key().print();}
+
         keys.push_back(hit_entry.entry_key()); //may be only used when "incoherent background" is generated (not included for now)
 
       }//end entries loop
@@ -502,15 +559,13 @@ MMLoadVariables::~MMLoadVariables() {
         int plane=it->second.plane;
         plane_hit[plane]=true;
         particle_info.N_hits_postVMM++;
-    //     if(Hits_Data_Set_Time.find(aegon)!=Hits_Data_Set_Time.end()) continue;
         Hits_Data_Set_Time[it->first]=it->second;
         if(m_par->setup.substr(plane,1).compare("x")==0){//if(debug)cout<<"ADD X STRIP VALUE "<<it->second.strip<<endl;
           strip_X_tot+=it->second.strip;
         }
-        else{//if(debug)cout<<"ADD UV STRIP VALUE "<<it->second.strip<<endl;
+        else{
           strip_UV_tot+=it->second.strip;
         }
-    //     if(debug)cout<<"(hit"<<rae<<",pl"<<rhaegar[rae].plane<<")...";
       }//end map iterator loop
 
       for(unsigned int ipl=0;ipl<plane_hit.size();ipl++){

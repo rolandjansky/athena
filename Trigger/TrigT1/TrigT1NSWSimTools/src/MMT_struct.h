@@ -10,6 +10,8 @@
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonDigitContainer/MmDigit.h"
+#include "MuonSimEvent/GenericMuonSimHitCollection.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 
@@ -674,28 +676,42 @@ struct athena_header{
   TVector3 vertex;
 };
 
-struct athena_entry{
+struct digitWrapper{
   //make a well-behaved constructor
-  athena_entry(int muliplet=0,
-               int gasGap=0,
+  // digitWrapper(int muliplet=0,
+  //              int gasGap=0,
+  //              double gTime=0,
+  //              double time=0,
+  //              const TVector3& truthLPos=TVector3(),
+  //              const TVector3& stripLPos=TVector3(),
+  //              const TVector3& stripGPos=TVector3(),
+  //              double charge=0,
+  //              int stripPos=0,
+  //              int etaStation=0,
+  //              int phiStation=0
+  //              );
+  digitWrapper(const MmDigit* digit=0,
                double gTime=0,
-               double time=0,
                const TVector3& truthLPos=TVector3(),
                const TVector3& stripLPos=TVector3(),
-               const TVector3& stripGPos=TVector3(),
-               double charge=0,
-               int stripPos=0,
-               int etaStation=0,
-               int phiStation=0
+               const TVector3& stripGPos=TVector3()
                );
 
   //the members:
-  int multiplet, gas_gap;
-  double gtime, time;//0-3
+  // int multiplet, gas_gap;
+  // double gtime, time;//0-3
   TVector3 truth_lpos;//4,5
-  TVector3 strip_lpos,strip_gpos;//6-11
-  double charge;
-  int strip_pos,eta_station,phi_station;
+  TVector3 strip_lpos;
+  TVector3 strip_gpos;//6-11
+  // double charge;
+  // int strip_pos,eta_station,phi_station;
+
+  const MmDigit* digit;
+
+  double gTime;
+
+  inline Identifier id(){ return digit->identify(); };
+
 };
 
 struct track_address{//cartesian_hit_rot entry
