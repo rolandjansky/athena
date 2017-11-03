@@ -13,14 +13,9 @@
 #include "ISF_Interfaces/IParticleHelper.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
-//#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
-
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 #ifndef MAXCHILDREN
 #define MAXCHILDREN 40
@@ -84,9 +79,7 @@ namespace G4UA{
     private:
 
       Config m_config;
-      
-      SecondaryTracksHelper m_sHelper;
-      
+
       /** access to the central ISF GeoID serice*/
       ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
       

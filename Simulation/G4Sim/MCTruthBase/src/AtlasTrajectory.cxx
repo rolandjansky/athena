@@ -42,7 +42,6 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
             TruthStrategyManager::GetStrategyManager();
           if (sManager->IsApplicable())
             {
-              sManager->SetNrOfSecondaries(numNewSec);
               sManager->AnalyzeVertex(aStep);
             }
         }

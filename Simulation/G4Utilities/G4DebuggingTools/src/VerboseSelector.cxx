@@ -6,7 +6,6 @@
 
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruthBase/TruthStrategyManager.h"
 
 #include "G4EventManager.hh"
 #include "G4LogicalVolume.hh"
@@ -112,7 +111,8 @@ namespace G4UA{
 	G4Track *itr=const_cast<G4Track*>(aTrack);
 	TrackHelper trackHelper(itr);
 
-	EventInformation* eventInfo=TruthStrategyManager::GetStrategyManager()->GetEventInformation();
+	EventInformation* eventInfo=static_cast<EventInformation*>
+          (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
 	//int primaryBarcode(0);
 	int currentBarcode(0);

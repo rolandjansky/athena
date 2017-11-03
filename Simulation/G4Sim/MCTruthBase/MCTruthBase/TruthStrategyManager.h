@@ -16,9 +16,6 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
-// Truth-related includes
-#include "SimHelpers/SecondaryTracksHelper.h"
-
 /// Forward declarations
 class TruthStrategy;
 class G4Step;
@@ -50,12 +47,6 @@ public:
   TruthStrategy* GetStrategy(const std::string&);
   void ListStrategies(); // Non-const as logger may need to be grabbed
 
-  /// Get/set some parameters
-  void SetNrOfSecondaries(int i) {nSecondaries=i;}
-  int GetNrOfSecondaries() {return nSecondaries;}
-  void SetSecondarySavingLevel(int i) {secondarySavingLevel=i;}
-  int GetSecondarySavingLevel() const {return secondarySavingLevel;}
-
   /// Get and set truth parameters.
   void SetTruthParameter(const std::string&, double);
   double GetTruthParameter(const std::string&);
@@ -63,9 +54,6 @@ public:
 
   /// Retrieves EventInformation from G4 EventManager.
   EventInformation* GetEventInformation() const;
-
-  /// Retrieves secondaries from a static SecondaryTracksHelper.
-  std::vector<G4Track*> GetSecondaries();
 
   /// Construct and return a GenVertex from the space-time 4-vector of the step point.
   HepMC::GenVertex* StepPoint2Vertex(G4StepPoint*) const;
@@ -93,13 +81,6 @@ private:
   std::map<std::string, TruthStrategy*> theStrategies;
   bool isEmpty;
 
-  int secondarySavingLevel;
-
-  /// cache the nr. of secondaries produced in an interaction here, on
-  /// request, to avoid too many tours in the G4 meanders...
-  int nSecondaries;
-  //std::vector<G4Track*> theSecondaries; // not used..
-
   /// Here go the parameters needed by all various strategies
   std::map<std::string, double> truthParams;
 
@@ -113,7 +94,6 @@ private:
   /// ISF Services the TruthStrategyManager talks to
   ISF::ITruthSvc* m_truthSvc;
   ISF::IGeoIDSvc* m_geoIDSvc;
-  SecondaryTracksHelper m_sHelper; // needed for the Geant4TruthIncident
 
   /// The level in the G4 volume hierarchy at which can we find the sub-detector name
   int m_subDetVolLevel;

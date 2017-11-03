@@ -22,7 +22,11 @@
 #include "G4TrackingManager.hh"
 #include "G4Trajectory.hh"
 #include "G4EventManager.hh"
-#include "G4RunManagerKernel.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Step.hh"
+#include "G4TransportationManager.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VSolid.hh"
 
 // Truth-related includes
 #include "HepMC/GenEvent.h"
@@ -39,23 +43,14 @@
 #include "ISF_Geant4Event/Geant4TruthIncident.h"
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
-//G4 includes
-#include "G4PhysicalVolumeStore.hh"
-#include "G4TransportationManager.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4VSolid.hh"
-
 //#include <stdlib.h>
 
 
 TruthStrategyManager::TruthStrategyManager()
   : isEmpty(true),
-    secondarySavingLevel(0),
-    nSecondaries(0),
     m_msg("TruthStrategyManager"),
     m_truthSvc(nullptr),
     m_geoIDSvc(),
-    m_sHelper(),
     m_subDetVolLevel(-1) // please crash if left unset
 {
 }
@@ -129,9 +124,6 @@ StatusCode TruthStrategyManager::InitializeWorldVolume() {
 
 bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
 {
-  G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
-  m_sHelper.SetTrackingManager(rmk->GetTrackingManager());
-  
   AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
 
   auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
@@ -139,7 +131,7 @@ bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
   // This is pretty ugly and but necessary because the Geant4TruthIncident
   // requires an ISFParticle at this point.
   // TODO: cleanup Geant4TruthIncident to not require an ISFParticle instance any longer
-  int numSecondaries = GetNrOfSecondaries();
+  const int numSecondaries = aStep->GetSecondaryInCurrentStep()->size();
   const Amg::Vector3D myPos(0,0,0);
   const Amg::Vector3D myMom(0,0,0);
   double myMass = 0.0;
@@ -150,7 +142,7 @@ bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
   int myBCID = 0;
   ISF::ISFParticle myISFParticle(myPos, myMom, myMass, myCharge, myPdgCode, myTime, origin, myBCID);
 
-  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, numSecondaries, m_sHelper, eventInfo);
+  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, numSecondaries, eventInfo);
 
   m_truthSvc->registerTruthIncident(truth);
   return false;
@@ -160,12 +152,6 @@ EventInformation* TruthStrategyManager::GetEventInformation() const
 {
   return static_cast<EventInformation*>
     (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-}
-
-std::vector<G4Track*> TruthStrategyManager::GetSecondaries()
-{
-  static SecondaryTracksHelper helper;
-  return helper.GetSecondaries(nSecondaries);
 }
 
 void TruthStrategyManager::SetTruthParameter(const std::string& n, double val)
