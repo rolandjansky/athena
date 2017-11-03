@@ -171,7 +171,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   const PixelID* m_pixelid;
   uint64_t m_event;
-  uint64_t m_event2;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled
@@ -255,7 +254,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doRefresh;
   bool m_doRefresh5min;
   bool m_isFirstBook;
-  bool m_doOfflineAnalysis;
 
   bool m_doHeavyIonMon;
 
@@ -309,7 +307,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-  TProfile2D_LW* m_avgocc_per_bcid_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_modocc_per_lumi[PixLayer::COUNT];
@@ -326,10 +323,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // hit tot
   TH1F_LW* m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
-  TH2F_LW* m_hit_ToT_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_hit_ToT_tmp_mod[PixLayer::COUNT];
   TH1F_LW* m_hit_ToT_Mon_mod[PixLayer::COUNT];
-  TProfile2D_LW* m_ToT_etaphi_mod[PixLayer::COUNT];
   TProfile_LW* m_hit_ToTMean_mod[PixLayer::COUNT];
 
   // timing
@@ -347,12 +342,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_diff_mod_ATLAS_per_LB;
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
 
-  // quick status
-  TH2F_LW* m_nhits_L0_B11_S2_C6;
-  TProfile2D_LW* m_occupancy_L0_B11_S2_C6;
-
   // module histograms
-  std::unique_ptr<PixelMonModules1D> m_hit_num_mod;
   std::unique_ptr<PixelMonModulesProf> m_hiteff_mod;
   std::unique_ptr<PixelMonModules1D> m_FE_chip_hit_summary;
   std::unique_ptr<PixelMonModules2D> m_pixel_occupancy;
@@ -466,12 +456,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_clus_LVL1A_sizenot1;
   TProfile_LW* m_clustersOnOffTrack_per_lumi;
 
-  // quick status
-  TH2F_LW* m_clusters_onTrack_L0_B11_S2_C6;
-  TH2F_LW* m_clusters_offTrack_L0_B11_S2_C6;
-
   // status histograms
-  std::unique_ptr<PixelMonModules1D> m_Status_modules;
   std::unique_ptr<PixelMon2DProfilesLW> m_status;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_mon;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_LB;
@@ -502,7 +487,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
 
   // Histograms in 'ErrorsExpert' folder
-  std::unique_ptr<PixelMon2DLumiMaps> m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
   TProfile_LW* m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
