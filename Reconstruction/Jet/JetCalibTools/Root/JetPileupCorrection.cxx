@@ -32,6 +32,9 @@ JetPileupCorrection::~JetPileupCorrection() {
 //bool JetPileupCorrection::initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData) {
 StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
 
+  m_originScale = m_config->GetValue("OriginScale","JetOriginConstitScaleMomentum");
+  ATH_MSG_INFO("OriginScale: " << m_originScale);
+
   m_jetStartScale = m_config->GetValue("PileupStartingScale","JetConstitScaleMomentum");
   ATH_MSG_INFO("JetPileupCorrection: Starting scale: " << m_jetStartScale);
   if ( m_jetStartScale == "DO_NOT_USE" ) {
@@ -114,11 +117,11 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     if ( m_doOrigin ) { 
       xAOD::JetFourMom_t jetOriginP4;
       static unsigned int originWarnings = 0;
-      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+      if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.Data(),jetOriginP4) )
 	calibP4 = jetOriginP4*pileup_SF;
       else {
 	if ( originWarnings < 20 ) {
-	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ATH_MSG_WARNING("Could not retrieve " << m_originScale << " jet attribute, origin correction will not be applied.");
 	  ++originWarnings;
 	}
 	calibP4 = jetStartP4*pileup_SF;
@@ -143,11 +146,11 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     if ( m_doOrigin ) { 
       xAOD::JetFourMom_t jetOriginP4;
       static unsigned int originWarnings = 0;
-      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+      if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.Data(),jetOriginP4) )
 	calibP4 = jetOriginP4*area_SF;
       else {
 	if ( originWarnings < 20 ) {
-	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ATH_MSG_WARNING("Could not retrieve " << m_originScale << " jet attribute, origin correction will not be applied.");
 	  ++originWarnings;
 	}
 	calibP4 = jetStartP4*area_SF;

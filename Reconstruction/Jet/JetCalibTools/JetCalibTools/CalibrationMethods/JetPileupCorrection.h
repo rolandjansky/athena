@@ -47,6 +47,7 @@ class JetPileupCorrection
   bool m_isData;
 
   bool m_useFull4vectorArea;
+  TString m_originScale;
   ResidualOffsetCorrection * m_residualOffsetCorr;
 
 };
