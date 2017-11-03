@@ -12,10 +12,10 @@
 //   Iakovidis George        <george.iakovidis@cern.ch>
 //   Karakostas Konstantinos <konstantinos.karakostas@cern.ch>
 //   Leontsinis Stefanos     <stefanos.leontsinis@cern.ch>
-//   Nektarios Chr. Benekos  <nbenekos@cern.ch> 
+//   Nektarios Chr. Benekos  <nbenekos@cern.ch>
 //   Jessica Metcalfe        <jessica.metcalfe@gmail.com>
 //////////////////////////////////////////////////////////////////////////////
- 
+
 Comments to be added here....
 
 
@@ -59,10 +59,10 @@ class TH1F;
 class TH2F;
 
 class ElectronicsResponse {
-  
+
 private:
   /** power of responce function */
-  float alpha; 
+  float alpha;
   /**  */
   float RC ;
   /** hreshold "Voltage" for histoBNL */
@@ -76,7 +76,7 @@ private:
   float m_StripResponse_driftVelocity;
 
   TF1 *intFn;
-  StripsResponse* stripObject ;  
+  StripsResponse* stripObject ;
   ElectronicsResponse & operator=(const ElectronicsResponse &right);
   ElectronicsResponse(const ElectronicsResponse&);
 public :
@@ -111,7 +111,7 @@ public :
   inline void set_electronicsThreshold(float val) {electronicsThreshold = val;};
   inline void set_stripdeadtime(float val) {stripdeadtime = val;};
   inline void set_ARTdeadtime(float val) {ARTdeadtime = val;};
- 
+
   float get_alpha() const { return alpha;};
   float get_RC () const { return RC;};
   float get_timeWindowLowerOffset() const { return timeWindowLowerOffset ;};
@@ -119,11 +119,11 @@ public :
   float get_electronicsThreshold() const { return electronicsThreshold;};
   float get_stripdeadtime() const { return stripdeadtime;};
   float get_ARTdeadtime() const { return ARTdeadtime;};
-   
+
   float get_tMinFromIntegration () const { return tMinFromIntegration;};
   float get_tminFromIntegrationAboveThreshold () const { return tminFromIntegrationAboveThreshold;};
   float get_tMinFromFirstPeak () const { return tMinFromFirstPeak;};
- 
+
   vector <float>  get_tStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
   vector <float>  get_qStripElectronics () const { return qStripElectronics;};
   vector <int>  get_nStripElectronics () const { return nStripElectronics;};
