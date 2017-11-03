@@ -34,6 +34,65 @@ class DV_MultiJetTriggerFlags(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
+### Additional multijet filter for DV+Jets
+
+class DV_2JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=450.0*Units.GeV
+    nPassed=2
+    pass
+primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags_HighpTCut)
+
+class DV_3JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=150.0*Units.GeV
+    nPassed=3
+    pass
+primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags_HighpTCut)
+
+class DV_4JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=220.0*Units.GeV
+    nPassed=4
+    pass
+primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags_HighpTCut)
+
+class DV_5JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=150.0*Units.GeV
+    nPassed=5
+    pass
+primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags_HighpTCut)
+
+class DV_6JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=100.0*Units.GeV
+    nPassed=6
+    pass
+primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags_HighpTCut)
+
+class DV_7JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=75.0*Units.GeV
+    nPassed=7
+    pass
+primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags_HighpTCut)
+
+
+
+
 ### multi-jet filter just to verify trigger - 4j80 OR 5j55 OR 6j45
 
 class DV_2JetFilterFlags(JobProperty):
