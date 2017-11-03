@@ -31,7 +31,7 @@ namespace NSWL1 {
         this->clear_ntuple_variables();
       }
     }
-  
+
     StatusCode MMTriggerTool::book_branches() {
 
       m_trigger_fitThe       = new std::vector<double>();
@@ -87,7 +87,7 @@ namespace NSWL1 {
       m_NSWMM_dig_multiplet   = new std::vector<int>();
       m_NSWMM_dig_gas_gap     = new std::vector<int>();
       m_NSWMM_dig_channel     = new std::vector<int>();
- 
+
       m_NSWMM_dig_time          = new std::vector< std::vector<float> >;
       m_NSWMM_dig_charge        = new std::vector< std::vector<float> >;
       m_NSWMM_dig_stripPosition = new std::vector< std::vector<int> >;
@@ -96,7 +96,7 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposX    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_stripGposY    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_stripGposZ    = new std::vector< std::vector<double> >;
- 
+
       m_NSWMM_dig_sr_time          = new std::vector< std::vector<float> >;
       m_NSWMM_dig_sr_charge        = new std::vector< std::vector<float> >;
       m_NSWMM_dig_sr_stripPosition = new std::vector< std::vector<int> >;
@@ -105,7 +105,7 @@ namespace NSWL1 {
       m_NSWMM_dig_sr_stripGposX    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_sr_stripGposY    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_sr_stripGposZ    = new std::vector< std::vector<double> >;
- 
+
       m_NSWMM_dig_truth_barcode    = new std::vector<int>;
       m_NSWMM_dig_truth_localPosX  = new std::vector<double>;
       m_NSWMM_dig_truth_localPosY  = new std::vector<double>;
@@ -113,8 +113,8 @@ namespace NSWL1 {
       m_NSWMM_dig_truth_globalPosX = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
- 
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;      
+
+      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
       //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
 
 
@@ -130,38 +130,38 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionX = new std::vector<double>;
       m_NSWMM_hitGlobalDirectionY = new std::vector<double>;
       m_NSWMM_hitGlobalDirectionZ = new std::vector<double>;
-    
+
       m_NSWMM_hitLocalPositionX = new std::vector<double>;
       m_NSWMM_hitLocalPositionY = new std::vector<double>;
       m_NSWMM_hitLocalPositionZ = new std::vector<double>;
-    
+
       m_NSWMM_detector_globalPositionX = new std::vector<double>;
       m_NSWMM_detector_globalPositionY = new std::vector<double>;
       m_NSWMM_detector_globalPositionZ = new std::vector<double>;
       m_NSWMM_detector_globalPositionR = new std::vector<double>;
       m_NSWMM_detector_globalPositionP = new std::vector<double>;
-    
+
       m_NSWMM_hitToDsurfacePositionX = new std::vector<double>;
       m_NSWMM_hitToDsurfacePositionY = new std::vector<double>;
       m_NSWMM_hitToDsurfacePositionZ = new std::vector<double>;
-    
+
       m_NSWMM_hitToRsurfacePositionX = new std::vector<double>;
       m_NSWMM_hitToRsurfacePositionY = new std::vector<double>;
       m_NSWMM_hitToRsurfacePositionZ = new std::vector<double>;
-    
+
       m_NSWMM_particleEncoding = new std::vector<int>;
       m_NSWMM_kineticEnergy = new std::vector<double>;
       m_NSWMM_depositEnergy = new std::vector<double>;
       m_NSWMM_StepLength = new std::vector<double>;
-    
-    
+
+
       m_NSWMM_sim_stationName = new std::vector<std::string>;
       m_NSWMM_sim_stationEta  = new std::vector<int>;
       m_NSWMM_sim_stationPhi  = new std::vector<int>;
       m_NSWMM_sim_multilayer  = new std::vector<int>;
       m_NSWMM_sim_layer       = new std::vector<int>;
       m_NSWMM_sim_side        = new std::vector<int>;
-    
+
       m_NSWMM_off_stationName = new std::vector<std::string>;
       m_NSWMM_off_stationEta  = new std::vector<int>;
       m_NSWMM_off_stationPhi  = new std::vector<int>;
@@ -172,7 +172,7 @@ namespace NSWL1 {
       if (m_tree) {
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
-        
+
         m_tree->Branch(TString::Format("%s_trigger_fitThe",n).Data(),&m_trigger_fitThe);
         m_tree->Branch(TString::Format("%s_trigger_fitPhi",n).Data(),    &m_trigger_fitPhi);
         m_tree->Branch(TString::Format("%s_trigger_fitDth",n).Data(),    &m_trigger_fitDth);
@@ -265,39 +265,39 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_hitGlobalDirectionX", &m_NSWMM_hitGlobalDirectionX);
         m_tree->Branch("Hits_MM_hitGlobalDirectionY", &m_NSWMM_hitGlobalDirectionY);
         m_tree->Branch("Hits_MM_hitGlobalDirectionZ", &m_NSWMM_hitGlobalDirectionZ);
-    
+
         m_tree->Branch("Hits_MM_hitLocalPositionX", &m_NSWMM_hitLocalPositionX);
         m_tree->Branch("Hits_MM_hitLocalPositionY", &m_NSWMM_hitLocalPositionY);
         m_tree->Branch("Hits_MM_hitLocalPositionZ", &m_NSWMM_hitLocalPositionZ);
-    
+
         m_tree->Branch("Hits_MM_detector_globalPositionX", &m_NSWMM_detector_globalPositionX);
         m_tree->Branch("Hits_MM_detector_globalPositionY", &m_NSWMM_detector_globalPositionY);
         m_tree->Branch("Hits_MM_detector_globalPositionZ", &m_NSWMM_detector_globalPositionZ);
         m_tree->Branch("Hits_MM_detector_globalPositionR", &m_NSWMM_detector_globalPositionR);
         m_tree->Branch("Hits_MM_detector_globalPositionP", &m_NSWMM_detector_globalPositionP);
-    
+
         m_tree->Branch("Hits_MM_hitToDsurfacePositionX", &m_NSWMM_hitToDsurfacePositionX);
         m_tree->Branch("Hits_MM_hitToDsurfacePositionY", &m_NSWMM_hitToDsurfacePositionY);
         m_tree->Branch("Hits_MM_hitToDsurfacePositionZ", &m_NSWMM_hitToDsurfacePositionZ);
-    
+
         m_tree->Branch("Hits_MM_hitToRsurfacePositionX", &m_NSWMM_hitToRsurfacePositionX);
         m_tree->Branch("Hits_MM_hitToRsurfacePositionY", &m_NSWMM_hitToRsurfacePositionY);
         m_tree->Branch("Hits_MM_hitToRsurfacePositionZ", &m_NSWMM_hitToRsurfacePositionZ);
-         
-    
+
+
         m_tree->Branch("Hits_MM_particleEncoding", &m_NSWMM_particleEncoding);
         m_tree->Branch("Hits_MM_kineticEnergy", &m_NSWMM_kineticEnergy);
         m_tree->Branch("Hits_MM_depositEnergy", &m_NSWMM_depositEnergy);
         m_tree->Branch("Hits_MM_StepLength", &m_NSWMM_StepLength);
-    
-    
+
+
         m_tree->Branch("Hits_MM_sim_stationName", &m_NSWMM_sim_stationName);
         m_tree->Branch("Hits_MM_sim_stationEta", &m_NSWMM_sim_stationEta);
         m_tree->Branch("Hits_MM_sim_stationPhi", &m_NSWMM_sim_stationPhi);
         m_tree->Branch("Hits_MM_sim_multilayer", &m_NSWMM_sim_multilayer);
         m_tree->Branch("Hits_MM_sim_layer", &m_NSWMM_sim_layer);
         m_tree->Branch("Hits_MM_sim_side", &m_NSWMM_sim_side);
-    
+
         m_tree->Branch("Hits_MM_off_stationName", &m_NSWMM_off_stationName);
         m_tree->Branch("Hits_MM_off_stationEta", &m_NSWMM_off_stationEta);
         m_tree->Branch("Hits_MM_off_stationPhi", &m_NSWMM_off_stationPhi);
@@ -309,9 +309,9 @@ namespace NSWL1 {
         //m_tree->Branch("Digits_MM_stripForTrigger",     &m_NSWMM_dig_stripForTrigger);
        // m_tree->Branch("Digits_MM_stripTimeForTrigger", &m_NSWMM_dig_stripTimeForTrigger);
 
-        
 
-      } else { 
+
+      } else {
         return StatusCode::FAILURE;
       }
 
@@ -368,7 +368,7 @@ namespace NSWL1 {
       m_trigger_my->clear();
       m_trigger_mu->clear();
       m_trigger_mv->clear();
-      
+
       // information of the module down to the channel closest to the initial G4 hit
       // size of vector is m_NSWMM_nDigits
       m_NSWMM_dig_stationName->clear();
@@ -424,42 +424,42 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionX->clear();
       m_NSWMM_hitGlobalDirectionY->clear();
       m_NSWMM_hitGlobalDirectionZ->clear();
-    
+
       m_NSWMM_hitLocalPositionX->clear();
       m_NSWMM_hitLocalPositionY->clear();
       m_NSWMM_hitLocalPositionZ->clear();
-    
+
       m_NSWMM_detector_globalPositionX->clear();
       m_NSWMM_detector_globalPositionY->clear();
       m_NSWMM_detector_globalPositionZ->clear();
       m_NSWMM_detector_globalPositionR->clear();
       m_NSWMM_detector_globalPositionP->clear();
-    
+
       m_NSWMM_hitToDsurfacePositionX->clear();
       m_NSWMM_hitToDsurfacePositionY->clear();
       m_NSWMM_hitToDsurfacePositionZ->clear();
-    
+
       m_NSWMM_hitToRsurfacePositionX->clear();
       m_NSWMM_hitToRsurfacePositionY->clear();
       m_NSWMM_hitToRsurfacePositionZ->clear();
-    
+
       //m_NSWMM_FastDigitRsurfacePositionX->clear();
       //m_NSWMM_FastDigitRsurfacePositionY->clear();
-    
-    
+
+
       m_NSWMM_particleEncoding->clear();
       m_NSWMM_kineticEnergy->clear();
       m_NSWMM_depositEnergy->clear();
       m_NSWMM_StepLength->clear();
-    
-    
+
+
       m_NSWMM_sim_stationName->clear();
       m_NSWMM_sim_stationEta->clear();
       m_NSWMM_sim_stationPhi->clear();
       m_NSWMM_sim_multilayer->clear();
       m_NSWMM_sim_layer->clear();
       m_NSWMM_sim_side->clear();
-    
+
       m_NSWMM_off_stationName->clear();
       m_NSWMM_off_stationEta->clear();
       m_NSWMM_off_stationPhi->clear();
@@ -498,8 +498,8 @@ namespace NSWL1 {
       *m_NSWMM_dig_truth_globalPosX = loadedVariables.histVars.NSWMM_dig_truth_globalPosX;
       *m_NSWMM_dig_truth_globalPosY = loadedVariables.histVars.NSWMM_dig_truth_globalPosY;
       *m_NSWMM_dig_truth_globalPosZ = loadedVariables.histVars.NSWMM_dig_truth_globalPosZ;
- 
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;      
+
+      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
       //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
 
 

@@ -327,20 +327,20 @@ MMLoadVariables::~MMLoadVariables() {
 
               if(digit_count==hit_count) {
 
-                std::cout << "time size: " << time.size() << std::endl;
-                std::cout << "charge size: " << charge.size() << std::endl;
-                std::cout << "stripPosition size: " << stripPosition.size() << std::endl;
-                
-                std::cout << "localPosX size: " << localPosX.size() << std::endl;
-                std::cout << "localPosY size: " << localPosY.size() << std::endl;
+                // std::cout << "time size: " << time.size() << std::endl;
+                // std::cout << "charge size: " << charge.size() << std::endl;
+                // std::cout << "stripPosition size: " << stripPosition.size() << std::endl;
 
-                std::cout << "globalPosX size: " << globalPosX.size() << std::endl;
-                std::cout << "globalPosY size: " << globalPosY.size() << std::endl;
-                std::cout << "globalPosZ size: " << globalPosZ.size() << std::endl;
+                // std::cout << "localPosX size: " << localPosX.size() << std::endl;
+                // std::cout << "localPosY size: " << localPosY.size() << std::endl;
 
-                std::cout << "digit->stripChargeForTrigger() size: " << digit->stripChargeForTrigger().size() << std::endl;
-                std::cout << "digit->stripResponseCharge() size: " << digit->stripResponseCharge().size() << std::endl;
-                std::cout << "digit->chipResponseCharge() size: " << digit->chipResponseCharge().size() << std::endl;
+                // std::cout << "globalPosX size: " << globalPosX.size() << std::endl;
+                // std::cout << "globalPosY size: " << globalPosY.size() << std::endl;
+                // std::cout << "globalPosZ size: " << globalPosZ.size() << std::endl;
+
+                // std::cout << "digit->stripChargeForTrigger() size: " << digit->stripChargeForTrigger().size() << std::endl;
+                // std::cout << "digit->stripResponseCharge() size: " << digit->stripResponseCharge().size() << std::endl;
+                // std::cout << "digit->chipResponseCharge() size: " << digit->chipResponseCharge().size() << std::endl;
 
 
                 entries.push_back(
@@ -349,8 +349,12 @@ MMLoadVariables::~MMLoadVariables() {
                                hit.globalTime(),
                                time.at(indexOfFastestSignal),
                                TVector3(-999, -99, -999),//Digits_MM_truth_localPosZ->at(i)),
-                               TVector3(localPosX.at(indexOfFastestSignal),  localPosY.at(indexOfFastestSignal),  -999),  //Digits_MM_stripLposZ->at(i).at(indexOfFastestSignal)),
-                               TVector3(globalPosX.at(indexOfFastestSignal),  globalPosY.at(indexOfFastestSignal),  globalPosZ.at(indexOfFastestSignal)),
+                               TVector3(localPosX.at(indexOfFastestSignal),
+                                        localPosY.at(indexOfFastestSignal),
+                                        -999),  //Digits_MM_stripLposZ->at(i).at(indexOfFastestSignal)),
+                               TVector3(globalPosX.at(indexOfFastestSignal),
+                                        globalPosY.at(indexOfFastestSignal),
+                                        globalPosZ.at(indexOfFastestSignal) ),
                                charge.at(indexOfFastestSignal),
                                stripPosition.at(indexOfFastestSignal),
                                abs(stationEta),
@@ -364,6 +368,7 @@ MMLoadVariables::~MMLoadVariables() {
         digit_count++;
         } //end iterator digit loop
       } // end digit container loop (1 for event?)
+
       vector<athena_entry> dummy;
       vector<int> indices;
       //Truth info for particle (originally primer)
@@ -405,12 +410,13 @@ MMLoadVariables::~MMLoadVariables() {
         indices.push_back(minIndice);
 
       }
+
       entries = dummy;
       int min_hits = 1,max_hits = 10000,nent=entries.size();
 
       uvxxmod=(m_par->setup.compare("xxuvuvxx")==0);
       //Number of hits cut
-      if(!particle_info.bad_wedge)particle_info.pass_cut=true;//default is false
+      if(!particle_info.bad_wedge)     particle_info.pass_cut=true; //default is false
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
 
       double tru_phi = -999;
