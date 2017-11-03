@@ -14,6 +14,16 @@ rec.doInDet=True
 rec.doMuon=False
 rec.doCalo=True
 
+# If muons are not present, then eflow is not configured,
+# which causes jet finding to fail.
+rec.doJetMissingETTag = False
+
+
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
