@@ -65,11 +65,11 @@ void ElectronicsResponse::clearValues()
   nStripElectronics.clear();
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponse::GetPeakResponceFrom(const MmElectronicsToolInput & digiInput)
+MmDigitToolOutput ElectronicsResponse::GetPeakResponseFrom(const MmElectronicsToolInput & digiInput)
 {
     clearValues();
 
-    bnlPeakResponceFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
+    bnlPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
     /// ToDo: include loop for calculating Trigger study vars
     // MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
@@ -78,15 +78,15 @@ MmDigitToolOutput ElectronicsResponse::GetPeakResponceFrom(const MmElectronicsTo
     return tmp;
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponse::GetThresholdResponceFrom(const MmElectronicsToolInput & digiInput)
+MmDigitToolOutput ElectronicsResponse::GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput)
 {
     clearValues();
-    bnlThresholdResponceFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
+    bnlThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
     MmDigitToolOutput tmp(true, nStripElectronics, tStripElectronicsAbThr, qStripElectronics, 5, 0.3);
     return tmp;
 }
 /*******************************************************************************/
-void ElectronicsResponse::bnlPeakResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void ElectronicsResponse::bnlPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
   //    electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(alpha,alpha)*TMath::Exp(-alpha)) ) ;
     
@@ -104,7 +104,7 @@ void ElectronicsResponse::bnlPeakResponceFunction(const vector <int> & numberofS
         double maxChargeLeftNeighbor = 0;
         double maxChargeRightNeighbor = 0;
         
-        Athena::MsgStreamMember log("ElectronicsResponse::bnlResponceFunction");
+        Athena::MsgStreamMember log("ElectronicsResponse::bnlResponseFunction");
         // find the maximum charge:
         if ( ii > 0 ) {
             log << MSG::DEBUG << "for Left neighbor:   tStrip.at(ii-1) "<< tStrip.at(ii-1) << " qStrip.at(ii-1) " << qStrip.at(ii-1) << endmsg;
@@ -181,16 +181,16 @@ void ElectronicsResponse::bnlPeakResponceFunction(const vector <int> & numberofS
     //   if (tMinFromFirstPeak>tStripElectronicsAbThr.at(j)) tMinFromFirstPeak = tStripElectronicsAbThr.at(j);
     // }
     //delete spectrum;
-}///end of bnl responce function
+}///end of bnl response function
 /*******************************************************************************/
-void ElectronicsResponse::bnlThresholdResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void ElectronicsResponse::bnlThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
   //    float tmp_Stripq = 0;
   //    float tmp_Stript = 9999.0;
     
     for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
-      Athena::MsgStreamMember log("ElectronicsResponse::bnlTriggerResponceFunction");
+      Athena::MsgStreamMember log("ElectronicsResponse::bnlTriggerResponseFunction");
             
       shaperInputTime = tStrip.at(ii);
       shaperInputCharge = qStrip.at(ii);
@@ -223,7 +223,7 @@ void ElectronicsResponse::bnlThresholdResponceFunction(const vector <int> & numb
 	}
       }
     }
-}///end of bnl responce function
+}///end of bnl response function
 /*******************************************************************************/
 MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
       const MmDigitToolOutput & ElectronicThresholdOutput,
