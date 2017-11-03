@@ -4,11 +4,11 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef PATCORE_TACCEPT_DATA_H
-#define PATCORE_TACCEPT_DATA_H
+#ifndef PATCORE_ACCEPT_DATA_H
+#define PATCORE_ACCEPT_DATA_H
 
 /**
-   @class TAcceptData
+   @class AcceptData
    @brief Object to encode the result of several cuts
 
    @author Karsten Koeneke (CERN)
@@ -21,24 +21,24 @@
 #include <string>
 #include <map>
 #include <bitset>
-#include <PATCore/TAcceptInfo.h>
+#include <PATCore/AcceptInfo.h>
 
 
-namespace Root {
-  class TAcceptData final
+namespace asg {
+  class AcceptData final
   {
 
   public: 
     /** The number of bits for cuts */
-    static const unsigned int NBITS=TAcceptInfo::NBITS;
+    static const unsigned int NBITS=AcceptInfo::NBITS;
 
     /** Standard constructor */
-    inline explicit TAcceptData(const TAcceptInfo* val_info)
+    inline explicit AcceptData(const AcceptInfo* val_info)
       : m_info (val_info)
     {}
   
   public:
-    /** Overload the boolean cast; allows for: if(myTAcceptData) */
+    /** Overload the boolean cast; allows for: if(myAcceptData) */
     explicit inline operator bool() const
     {
       return m_accept == m_info->getCutMask();
@@ -146,14 +146,14 @@ namespace Root {
     // Private members
   private:
     /** the info structure describing us */
-    const TAcceptInfo *m_info = nullptr;
+    const AcceptInfo *m_info = nullptr;
 
     /** The cut bits */
     std::bitset<NBITS> m_accept;
 
   }; // End: class definition
 
-} // End: namespace Root
+} // End: namespace asg
 
 
 #endif

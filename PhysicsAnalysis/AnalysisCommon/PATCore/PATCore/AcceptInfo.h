@@ -4,11 +4,11 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef PATCORE_TACCEPT_INFO_H
-#define PATCORE_TACCEPT_INFO_H
+#ifndef PATCORE_ACCEPT_INFO_H
+#define PATCORE_ACCEPT_INFO_H
 
 /**
-   @class TAcceptInfo
+   @class AcceptInfo
    @brief Object to describe a series of cuts
 
    @author Karsten Koeneke (CERN)
@@ -23,8 +23,8 @@
 #include <bitset>
 
 
-namespace Root {
-  class TAcceptInfo final
+namespace asg {
+  class AcceptInfo final
   {
 
   public: 
@@ -32,7 +32,7 @@ namespace Root {
     static const unsigned int NBITS=32;
 
     /** Standard constructor */
-    TAcceptInfo(const char* name="TAcceptInfo");
+    AcceptInfo(const char* name="AcceptInfo");
   
   public:
 
@@ -95,7 +95,7 @@ namespace Root {
 
   }; // End: class definition
 
-} // End: namespace Root
+} // End: namespace asg
 
 
 #endif
