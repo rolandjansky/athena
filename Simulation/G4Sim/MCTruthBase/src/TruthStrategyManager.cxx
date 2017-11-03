@@ -86,7 +86,7 @@ StatusCode TruthStrategyManager::InitializeWorldVolume()
   return StatusCode::FAILURE;
 }
 
-bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int numSecondaries)
+bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep)
 {
   AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
 
@@ -105,7 +105,7 @@ bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int numSecon
   int myBCID = 0;
   ISF::ISFParticle myISFParticle(myPos, myMom, myMass, myCharge, myPdgCode, myTime, origin, myBCID);
 
-  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, numSecondaries, eventInfo);
+  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, eventInfo);
 
   m_truthSvc->registerTruthIncident(truth);
   return false;

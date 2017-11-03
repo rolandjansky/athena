@@ -54,6 +54,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 
   // only use truth service if there are new any secondaries
   const int numSecondaries = aStep->GetSecondaryInCurrentStep()->size();
+  //const int numSecondaries = aStep->GetNumberOfSecondariesInCurrentStep(); //Once we switch to G4 10.2 or later
 
   if (numSecondaries) {
 
@@ -101,7 +102,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
     auto* eventInfo = ISFG4Helper::getEventInformation();
-    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, numSecondaries, eventInfo);
+    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, eventInfo);
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);

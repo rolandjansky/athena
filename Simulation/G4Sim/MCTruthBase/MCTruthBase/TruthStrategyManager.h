@@ -32,7 +32,7 @@ public:
   static TruthStrategyManager* GetStrategyManager();
 
   /// Returns true if any of the truth strategies return true
-  bool CreateTruthIncident(const G4Step*, int numSecondaries);
+  bool CreateTruthIncident(const G4Step*);
 
   /// Define which ISF TruthService to use
   void SetISFTruthSvc(ISF::ITruthSvc *truthSvc);
