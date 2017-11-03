@@ -72,7 +72,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   double min_tot4 = -0.5;
   double max_tot4 = min_tot4 + (1.0 * nbins_tot4);
 
-  static constexpr int nmod_phi[PixLayer::COUNT] = {48, 48, 22, 38, 52, 14};
   static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
 
   std::string atext_LB = ";lumi block";
