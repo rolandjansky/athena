@@ -7,9 +7,10 @@
 
 #include "MMT_Finder.h"
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, bool useUVRoads): m_msg("MMT_Finder"){
 
   m_par = par;
+  m_useUVRoads = useUVRoads;
 
   ATH_MSG_DEBUG("MMT_Find::building finder");
 
@@ -22,6 +23,8 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
   ATH_MSG_DEBUG("MMT_Find::built finder");
+
+  return;
 
 }
 
@@ -46,7 +49,11 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, 
   else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error.getFloat();
   else return;  //if it's an unsupported plane option, don't fill
 
-  if(0){ // Implementation of UV road setup.
+  if(m_useUVRoads){ // Implementation of UV road setup.
+
+    // For each road in x (which is what happens by default)
+    // define a bunch of extra rows
+
 
   } else {
 

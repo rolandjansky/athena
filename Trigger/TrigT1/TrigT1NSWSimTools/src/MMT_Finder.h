@@ -13,7 +13,7 @@
 
 class MMT_Finder{
  public:
-  MMT_Finder(MMT_Parameters *par);
+  MMT_Finder(MMT_Parameters *par, bool useUVRoads = false);
   ~MMT_Finder(){}
   int Coincidence_Gate(const vector<bool>& plane_hits) const;
   void set_roads(int _roads) { m_nRoads=_roads; }
@@ -37,6 +37,8 @@ class MMT_Finder{
   vector<vector<double> > m_gateFlags;
   vector<vector<finder_entry> > m_finder;
   MMT_Parameters* m_par;
+
+  bool m_useUVRoads;
 
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
