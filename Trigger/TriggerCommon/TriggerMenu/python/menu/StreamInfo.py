@@ -54,8 +54,7 @@ calibStreams = [
                 'BphysPEB',
                 'RPCNoise',
                 'IDprescaledL1',
-                'LArPEB',
-                'L1TopoMismatches'
+                'LArPEB'
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

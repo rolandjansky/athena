@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma GCC diagnostic ignored "-Woverflow" // to avoid warning from test14
-
 #undef NDEBUG
 #include "L1TopoRDO/L1TopoRDO.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
@@ -327,7 +325,7 @@ void test14()
   std::cout << c << std::endl;
   assert (c.module()==1 && c.link()==0 && c.isDAQ());
 
-  L1Topo::ModuleID d(0x00910091); // expect build warning due to implicit truncation to 16 bits; disabled with pragma on first line
+  L1Topo::ModuleID d(0x00910091); // expect build warning due to implicit truncation to 16 bits
   std::cout << d << std::endl;
   assert (d.module()==1 && d.link()==1 && d.isROI());
 
