@@ -54,3 +54,6 @@ atlas_add_dictionary( CaloDetDescrDict
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+atlas_add_test( CaloConstIteratorAdaptor_test
+  SOURCES test/CaloConstIteratorAdaptor_test.cxx
+  LINK_LIBRARIES CaloDetDescrLib )
