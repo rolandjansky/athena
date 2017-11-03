@@ -151,7 +151,7 @@ namespace NSWL1 {
 
       MMLoadVariables m_load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, m_par);
 
-      std::vector<athena_entry> entries;
+      std::vector<digitWrapper> entries;
 
       m_load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
       this->fillNtuple(m_load);
