@@ -40,7 +40,6 @@ iGeant4::ISFTrajectory::ISFTrajectory()
 iGeant4::ISFTrajectory::ISFTrajectory(const G4Track* aTrack,
                                       ISF::ITruthSvc* truthSvc)
   : G4Trajectory(aTrack)
-    //, m_sHelper(FADS::FadsTrackingAction::GetTrackingAction()->GetTrackingManager())
   , m_truthRecordSvcQuick(truthSvc)
 {
 }
@@ -54,7 +53,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 {
 
   // only use truth service if there are new any secondaries
-  int numSecondaries = m_sHelper.NrOfNewSecondaries();
+  const int numSecondaries = aStep->GetSecondaryInCurrentStep()->size();
 
   if (numSecondaries) {
 
@@ -102,7 +101,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
     auto* eventInfo = ISFG4Helper::getEventInformation();
-    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, numSecondaries, m_sHelper, eventInfo);
+    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, numSecondaries, eventInfo);
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);

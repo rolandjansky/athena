@@ -5,19 +5,11 @@
 #ifndef MCTruthBase_TruthStrategyManager_H
 #define MCTruthBase_TruthStrategyManager_H
 
-// #include <string>
-// #include <map>
-// #include <vector>
-
-// #include "HepMC/GenEvent.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
 // ISF include
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
-
-// Truth-related includes
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 /// Forward declarations
 class G4Step;
@@ -60,7 +52,6 @@ private:
   /// ISF Services the TruthStrategyManager talks to
   ISF::ITruthSvc* m_truthSvc;
   ISF::IGeoIDSvc* m_geoIDSvc;
-  SecondaryTracksHelper m_sHelper; /// needed for the Geant4TruthIncident
 
   /// The level in the G4 volume hierarchy at which can we find the sub-detector name
   int m_subDetVolLevel;
