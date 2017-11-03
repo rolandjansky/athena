@@ -206,7 +206,7 @@ def applyJetCalibration(jetalg,algname,sequence):
         if isMC:
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
         if isMC and isAF2:
-            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015.config',
+            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config', 
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
