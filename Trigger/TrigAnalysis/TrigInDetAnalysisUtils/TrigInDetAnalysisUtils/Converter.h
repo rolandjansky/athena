@@ -1,4 +1,4 @@
-/** @file Converter.h */
+/** @file TrigInDetAnalysisUtils/Converter.h */
 
 #ifndef TrigInDetAnalysis_Converter_H
 #define TrigInDetAnalysis_Converter_H

@@ -10,8 +10,8 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "AFP_GeoModel/AFP_GeoModelTool.h"
-#include "AFP_GeoModel/AFP_GeoModelFactory.h"
+#include "AFP_GeoModelTool.h"
+#include "AFP_GeoModelFactory.h"
 #include "AFP_GeoModel/AFP_GeoModelManager.h"
 
 /**
@@ -180,7 +180,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
 	return bRes? StatusCode::SUCCESS:StatusCode::FAILURE;
 }
 
-StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
+StatusCode AFP_GeoModelTool::create()
 { 
     MsgStream log(msgSvc(), name());
     //CHECK(m_iovSvc.retrieve()); //-- REMOVE THIS WHEN IOVSVC IS TO BE USED
@@ -189,7 +189,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
     // Locate the top level experiment node
     //
     DataHandle<GeoModelExperiment> theExpt;
-    StatusCode sc = detStore->retrieve( theExpt, "ATLAS" );
+    StatusCode sc = detStore()->retrieve( theExpt, "ATLAS" );
     if (StatusCode::SUCCESS != sc)
     {
         log << MSG::ERROR<< "Could not find GeoModelExperiment ATLAS"<< endmsg;
@@ -199,7 +199,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
     CHECK(CheckPropertiesSettings());
 
     m_pGeometry=new AFP_Geometry(&m_CfgParams);
-    m_pAFPDetectorFactory=new AFP_GeoModelFactory(detStore, m_pGeometry);
+    m_pAFPDetectorFactory=new AFP_GeoModelFactory(detStore().operator->(), m_pGeometry);
 
     if ( 0 == m_detector ) {
         // Create the DetectorNode instance
@@ -220,7 +220,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
 
         // Register the DetectorNode instance with the Transient Detector Store
         theExpt->addManager(m_pAFPDetectorFactory->getDetectorManager());
-        sc = detStore->record(m_pAFPDetectorFactory->getDetectorManager(),m_pAFPDetectorFactory->getDetectorManager()->getName());
+        sc = detStore()->record(m_pAFPDetectorFactory->getDetectorManager(),m_pAFPDetectorFactory->getDetectorManager()->getName());
         //theExpt->addManager(theFactory.getDetectorManager());
         //sc = detStore->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
         if (StatusCode::SUCCESS != sc) {

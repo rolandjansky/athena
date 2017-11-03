@@ -7,12 +7,12 @@
 #include "StoreGate/DataHandle.h"
 
 #include "eflowRec/eflowRecTrack.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "Particle/TrackParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
 class eflowTrackExtrapolatorBaseAlgTool;
-namespace InDet { class IInDetTrackSelectionTool; }
 
 class PFTrackSelector : public AthAlgorithm {
 
@@ -37,27 +37,26 @@ private:
   /** check if track belongs to an muon */
   bool isMuon(const xAOD::TrackParticle* track);
 
-  /** ReadHandle for the TrackParticleContainer to be used as input */
-  SG::ReadHandle<xAOD::TrackParticleContainer> m_tracksReadHandle;
+  /** ReadHandleKey for the TrackParticleContainer to be used as input */
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksReadHandleKey{this,"tracksName","InDetTrackParticles","ReadHandleKey for the TrackParticleContainer to be used as input"};
 
-  /** ReadHandle for the ElectronContainer to be used as input */
-  SG::ReadHandle<xAOD::ElectronContainer> m_electronsReadHandle;
+  /** ReadHandleKey for the ElectronContainer to be used as input */
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsReadHandleKey{this,"electronsName","eflowRec_selectedElectrons","ReadHandleKey for the ElectronContainer to be used as input"};
 
-  /** ReadHandle for the MuonContainer to be used as input */
-  SG::ReadHandle<xAOD::MuonContainer> m_muonsReadHandle;
+  /** ReadHandleKey for the MuonContainer to be used as input */
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsReadHandleKey{this,"muonsName","eflowRec_selectedMuons","ReadHandleKey for the MuonContainer to be used as input"};
 
-  /** WriteHandle for the eflowRecTrackContainer to write out: */
-  SG::WriteHandle<eflowRecTrackContainer> m_eflowRecTracksWriteHandle;
+  /** WriteHandleKey for the eflowRecTrackContainer to write out */
+  SG::WriteHandleKey<eflowRecTrackContainer> m_eflowRecTracksWriteHandleKey{this,"eflowRecTracksOutputName","eflowRecTracks","WriteHandleKey for the eflowRecTrackContainer to write out"};
 
-  /** Handle to interface on TrackToCalo tool. */
-  ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
+  /** ToolHandle for track extrapolation to calorimeter tool */
+  ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool{this,"trackExtrapolatorTool","Trk::ParticleCaloExtensionTool","ToolHandle for track extrapolation to calorimeter tool"};
 
-  /** New track selection tool */
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool;
+  /** ToolHandle to track selection tool provided by tracking CP */
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool{this,"trackSelectionTool","","ToolHandle to track selection tool provided by tracking CP"};
 
   /** Upper limit on track Pt for input tracks */
-  float m_upperTrackPtCut;
+  Gaudi::Property<float> m_upperTrackPtCut{this,"upperTrackPtCut",100.0,"Upper limit on track Pt for input tracks"};
 
-  
 };
 #endif

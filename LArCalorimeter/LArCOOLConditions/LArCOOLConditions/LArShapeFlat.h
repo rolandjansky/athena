@@ -68,12 +68,8 @@ class LArShapeFlat: public ILArShape,
   virtual float timeBinWidth(const Identifier&  CellID, int gain) const;
 
 };  
-  
-CLASS_DEF( LArShapeFlat , 192810633 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArShapeFlat> , 264124099 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArShapeFlat>, CondContBase );
+CLASS_DEF( LArShapeFlat , 192810633 , 1 )
+CONDCONT_DEF( LArShapeFlat, 264124099, ILArShape );
 
 #endif 

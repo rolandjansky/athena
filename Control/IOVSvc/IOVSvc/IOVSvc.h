@@ -68,8 +68,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ICondSvc.h"
 
-// Forward declarations
-template <class TYPE> class SvcFactory;
 
 
 class StoreGateSvc;
@@ -88,6 +86,9 @@ class IOVSvc: virtual public AthService,
               virtual public IIOVSvc {
 
 public:
+
+  IOVSvc( const std::string& name, ISvcLocator* svc );
+  virtual ~IOVSvc();
 
   virtual StatusCode initialize();
   virtual StatusCode reinitialize();
@@ -182,13 +183,6 @@ public:
                                    const EventIDBase&);
 
 
-protected:
-
-  IOVSvc( const std::string& name, ISvcLocator* svc );
-  
-  /// Destructor.
-  virtual ~IOVSvc();
-
 private:
 
   bool createIOVTool(const std::string& storeName, IIOVSvcTool*& tool) const;
@@ -201,8 +195,6 @@ private:
   std::string fullProxyName( const SG::DataProxy* proxy ) const;
   std::string fullProxyName( const CLID& clid, const std::string& key ) const;
   
-  // Allow SvcFactory to instantiate the service.
-  friend class SvcFactory<IOVSvc>;
 
   typedef std::map< std::string, IIOVSvcTool* > toolMap;
 

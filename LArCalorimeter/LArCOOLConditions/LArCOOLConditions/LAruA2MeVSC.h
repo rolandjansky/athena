@@ -35,11 +35,7 @@ private:
 
   
 };
-
-CLASS_DEF( LAruA2MeVSC ,142345128  , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LAruA2MeVSC> , 155224118 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LAruA2MeVSC>, CondContBase );
+CLASS_DEF( LAruA2MeVSC ,142345128  , 1 )
+CONDCONT_DEF( LAruA2MeVSC, 155224118, ILAruA2MeV );
 #endif 

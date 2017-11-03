@@ -88,6 +88,21 @@ namespace xAOD {
       /// Renew the object in memory
       void renew();
 
+      /// Cache whether the type is a DataVector or an AuxElement.
+      /// Allows removing repeated calls to TClass::InheritsFrom()
+      /// in TEvent::setAuxStore().
+      enum TypeKind {
+        OTHER,
+        DATAVECTOR,
+        AUXELEMENT
+      };
+      TypeKind typeKind() const { return m_typeKind; }
+
+
+   private:
+      static TypeKind setTypeKind (const TClass* type);
+      TypeKind m_typeKind;
+
    protected:
       /// Internal function used to delete the managed object from memory
       void deleteObject();

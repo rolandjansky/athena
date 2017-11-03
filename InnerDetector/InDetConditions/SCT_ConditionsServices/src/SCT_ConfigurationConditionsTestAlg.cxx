@@ -104,9 +104,9 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
   msg(MSG::INFO) << "Number of bad strips                           = " << nBadStrips           << endmsg;
   msg(MSG::INFO) << "Number of bad strips exclusive                 = " << nBadStripsExclusive  << endmsg;
   msg(MSG::INFO) << "Number of bad strips exclusive (ECC, B, ECA)   = " 
- 		 << nBadStripsExclusiveBEC[0] << ", "
-		 << nBadStripsExclusiveBEC[1] << ", "
-		 << nBadStripsExclusiveBEC[2] << ", " << endmsg;
+                 << nBadStripsExclusiveBEC[0] << ", "
+                 << nBadStripsExclusiveBEC[1] << ", "
+                 << nBadStripsExclusiveBEC[2] << ", " << endmsg;
 
   msg(MSG::INFO) << "-----------------------------------------------------------------------" << endmsg;
 

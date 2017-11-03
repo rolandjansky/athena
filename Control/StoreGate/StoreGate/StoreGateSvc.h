@@ -887,6 +887,7 @@ private:
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
+  ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; ///< property
 
   friend class SG::TestHiveStoreSvc;
   static SG::HiveEventSlot* currentSlot();

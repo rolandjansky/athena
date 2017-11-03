@@ -3,7 +3,7 @@
 */
 
 /**
- * @file Config.cxx
+ * @file TrigPSC/src/Config.cxx
  * @author Frank Winklmeier, Werner Wiedenmann, Ricardo Abreu
  *
  * @brief PSC Configuration type

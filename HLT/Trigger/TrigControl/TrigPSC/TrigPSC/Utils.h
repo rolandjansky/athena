@@ -3,7 +3,7 @@
 */
 
 /**
- * @file Utils.h
+ * @file TrigPSC/Utils.h
  * @author Frank Winklmeier
  * $Author: ricab $
  * $Revision: 11 $

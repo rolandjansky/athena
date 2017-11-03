@@ -26,9 +26,9 @@ protected:
   virtual DetailedTrackTruthCollection* createTransient();
   virtual DetailedTrackTruthCollectionPERS* createPersistent(DetailedTrackTruthCollection*);
 private:
-  static pool::Guid p0_guid;
-  static pool::Guid p1_guid;
-  static pool::Guid p2_guid;
+  static pool::Guid s_p0_guid;
+  static pool::Guid s_p1_guid;
+  static pool::Guid s_p2_guid;
   DetailedTrackTruthCollectionCnv_p1 m_converter_p1;
   DetailedTrackTruthCollectionCnv_p2 m_converter_p2;
 };

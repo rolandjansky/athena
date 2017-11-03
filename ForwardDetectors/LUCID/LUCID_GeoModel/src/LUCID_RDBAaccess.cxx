@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LUCID_GeoModel/LUCID_RDBAaccess.h"
+#include "LUCID_RDBAaccess.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

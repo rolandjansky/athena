@@ -73,7 +73,7 @@ SCT_DetectorTool::~SCT_DetectorTool()
 //
 
 StatusCode
-SCT_DetectorTool::create( StoreGateSvc* detStore )
+SCT_DetectorTool::create()
 { 
 
   StatusCode result = StatusCode::SUCCESS;
@@ -178,7 +178,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       // Locate the top level experiment node 
       // 
       GeoModelExperiment * theExpt; 
-      if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+      if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
 	msg(MSG::ERROR) 
 	    << "Could not find GeoModelExperiment ATLAS" 
 	    << endmsg; 
@@ -194,13 +194,13 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
 
       // Pass athena services to factory, etc
       m_athenaComps = new SCT_GeoModelAthenaComps;
-      m_athenaComps->setDetStore(detStore);
+      m_athenaComps->setDetStore(detStore().operator->());
       m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
       m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
       m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
       m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
       const SCT_ID* idHelper;
-      if (detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
+      if (detStore()->retrieve(idHelper, "SCT_ID").isFailure()) {
 	msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
 	return StatusCode::FAILURE;
       } else {
@@ -236,7 +236,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endmsg;
       
-      result = detStore->record(m_manager, m_manager->getName());
+      result = detStore()->record(m_manager, m_manager->getName());
       
       if (result.isFailure() ) {
 	msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endmsg;
@@ -246,7 +246,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       
       // Create a symLink to the SiDetectorManager base class
       const SiDetectorManager * siDetManager = m_manager;
-      result = detStore->symLink(m_manager, siDetManager);
+      result = detStore()->symLink(m_manager, siDetManager);
       if (result.isFailure() ) {
 	msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and SiDetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
@@ -278,18 +278,19 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
 }
 
 StatusCode 
-SCT_DetectorTool::clear(StoreGateSvc* detStore)
+SCT_DetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
+
     m_manager = 0;
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode 
-SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
+SCT_DetectorTool::registerCallback()
 {
 
   StatusCode sc = StatusCode::FAILURE;
@@ -297,10 +298,10 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 
     {
       std::string folderName = "/Indet/AlignL1/ID";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	StatusCode ibltmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
 	if (ibltmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
@@ -313,10 +314,10 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
       }
 
       folderName = "/Indet/AlignL2/SCT";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	StatusCode ibltmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
 	if (ibltmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
@@ -329,10 +330,10 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
       }
 
       folderName = "/Indet/AlignL3";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
@@ -349,10 +350,10 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 
     {
       std::string folderName = "/Indet/Align";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp =  detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	StatusCode sctmp =  detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {

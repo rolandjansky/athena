@@ -15,31 +15,31 @@ namespace FADS {
 template <class T> 
 class EqOfMotionFactory : public EqOfMotionFactoryBase {
 private:
-	T* theEqOfMotion;
+	T* m_theEqOfMotion;
 public:
-	 EqOfMotionFactory(std::string n): EqOfMotionFactoryBase(n) , theEqOfMotion(0)
+	 EqOfMotionFactory(std::string n): EqOfMotionFactoryBase(n) , m_theEqOfMotion(0)
 	{
 		RegisterToStore();
 	}
 	void Create() 
 	{
-		if (!theEqOfMotion) 
+		if (!m_theEqOfMotion) 
 		{
-			theEqOfMotion=
+			m_theEqOfMotion=
 			new T(FieldManager::GetFieldManager()->GetMagneticFieldMap());
 		}
 	}
 	void Delete()
 	{
-		if (theEqOfMotion) 
+		if (m_theEqOfMotion) 
 		{
-			delete theEqOfMotion;
-			theEqOfMotion=0;
+			delete m_theEqOfMotion;
+			m_theEqOfMotion=0;
 		}
 	}
 	virtual G4Mag_EqRhs* Build() 
 	{
-		Create(); return theEqOfMotion;
+		Create(); return m_theEqOfMotion;
 	}
 	void RegisterToStore() {FieldManager::GetFieldManager()->RegisterEqOfMotion(this);}
 };

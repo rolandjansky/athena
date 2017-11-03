@@ -36,17 +36,11 @@ class IProxyRegistry; //this is DataStore
 class IConversionSvc;
 class IOpaqueAddress;
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 ///manages the address providers and add proxies on demand to the store
-class ProxyProviderSvc : virtual public IProxyProviderSvc,
-                         public AthService
+class ProxyProviderSvc : public extends<AthService, IProxyProviderSvc>
 {
 public:
-
-  // fwd compat w/ gaudi-v21
-  using AthMessaging::msg;
-
   typedef std::list<IAddressProvider*>::iterator  pAPiterator;
   typedef std::list<SG::TransientAddress*> TAdList;
   typedef TAdList::iterator TAdIterator;
@@ -59,13 +53,15 @@ public:
   ///add proxies to the store to modify (during Begin Event)
   virtual StatusCode loadProxies(IProxyRegistry& storeToModify) override;
 
-  ///get the default proxy. Optionally add proxies to the store to modify
+  /// Use a provider to create a proxy for ID/KEY.
+  /// If successful, the new proxy will be added to DATASTORE
+  /// and returned; otherwise, return null.
   virtual SG::DataProxy* retrieveProxy(const CLID& id, const std::string& key,
 				       IProxyRegistry& storeToModify) override;
 
   ///create a new Proxy, overriding CLID and/or key
   SG::DataProxy* addAddress(IProxyRegistry& storeToModify, 
-			    SG::TransientAddress* tad);
+			    SG::TransientAddress&& tad);
   //@}
 
 
@@ -76,12 +72,8 @@ public:
   /// Service boilerplate
   //@{
   virtual StatusCode initialize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
-protected:    
-  /// the Service Factory
-  friend class SvcFactory<ProxyProviderSvc>;
   /// Standard Service Constructor
   ProxyProviderSvc(const std::string& name, ISvcLocator* svcLoc);
   virtual ~ProxyProviderSvc();

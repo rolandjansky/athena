@@ -155,6 +155,9 @@ namespace InDet {
     mutable std::atomic<int> m_numberOfEvents;
     mutable std::atomic<int> m_numberOfPixel;
     mutable std::atomic<int> m_numberOfSCT;
+    mutable std::atomic<int> m_sctCacheHits;
+    mutable std::atomic<int> m_pixCacheHits;
+    bool m_cachemode; //used for online MT counters
     const InDetDD::SCT_DetectorManager* m_manager; 
     // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused
     const SCT_ID* m_idHelper;

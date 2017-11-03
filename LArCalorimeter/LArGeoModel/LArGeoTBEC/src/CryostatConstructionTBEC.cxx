@@ -4,7 +4,7 @@
 
 // CryostatConstructionTBEC
 
-#include "LArGeoTBEC/CryostatConstructionTBEC.h"
+#include "CryostatConstructionTBEC.h"
 
 #include "GeoModelKernel/GeoElement.h"  
 #include "GeoModelKernel/GeoMaterial.h"  

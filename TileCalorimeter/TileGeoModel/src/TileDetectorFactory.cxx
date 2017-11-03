@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileGeoModel/TileDetectorFactory.h"
+#include "TileDetectorFactory.h"
+#include "TileGeoSectionBuilder.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileDetDescr/TileDetDescriptor.h"
-#include "TileGeoModel/TileGeoSectionBuilder.h"
 #include "CaloIdentifier/TileID.h"
 
 #include "GeoModelKernel/GeoPcon.h"

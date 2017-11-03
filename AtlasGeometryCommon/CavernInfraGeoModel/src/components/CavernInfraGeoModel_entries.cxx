@@ -1,8 +1,3 @@
-#include "CavernInfraGeoModel/CavernInfraDetectorTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../CavernInfraDetectorTool.h"
 
-DECLARE_TOOL_FACTORY(CavernInfraDetectorTool)
-
-DECLARE_FACTORY_ENTRIES(CavernInfraGeoModel) {
-    DECLARE_ALGTOOL  ( CavernInfraDetectorTool )
-}
+DECLARE_COMPONENT( CavernInfraDetectorTool )

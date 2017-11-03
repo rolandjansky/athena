@@ -1,4 +1,4 @@
-## @file MuonReadBS_jobOptions.py
+## @file MuonCnvExample/share/MuonReadBS_jobOptions.py
 #
 # @brief jobOptions for data conversion from bytestream to RDO for offline (i.e. decode full event)
 #

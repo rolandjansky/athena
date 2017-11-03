@@ -1,4 +1,3 @@
-
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../MuonCandidateTool.h"
 #include "../MuonCombinedTool.h"

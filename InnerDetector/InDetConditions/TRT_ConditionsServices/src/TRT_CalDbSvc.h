@@ -5,21 +5,28 @@
 #ifndef TRT_CALDBSVC_H
 #define TRT_CALDBSVC_H
 /** @file TRT_CalDbSvc.h
- * @brief interface to TRT calibration constants
+ * @brief  interface to TRT calibration constants
  * @author Peter Hansen <phansen@nbi.dk>, Wouter hulsbergen
  */
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+//Gaudi Includes
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "GaudiKernel/ICondSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
 #include "InDetIdentifier/TRT_ID.h"
-
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
+
+template <class TYPE> class SvcFactory;
+class ISvcLocator;
 class StoreGateSvc;
+//namespace InDetDD {class TRT_DetectorManager; }
 
 /** @class TRT_CalDbSvc
  *  interface to TRT calibration constants
@@ -90,14 +97,13 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   // methods for persistence
   
   /// write calibration constants to flat text file 
-  StatusCode writeTextFile(const std::string& file, int format=0) const;
   StatusCode writeTextFile_Format0(std::ostream&) const;
   StatusCode writeTextFile_Format1(std::ostream&) const;
   StatusCode writeTextFile_Format2(std::ostream&) const;
   StatusCode writeTextFile_Format3(std::ostream&) const;
 
   /// read calibration from text file into TDS
-  StatusCode readTextFile(const std::string& file);
+  StatusCode readTextFile(const std::string& file, int& format);
   StatusCode readTextFile_Format0(std::istream&) ;
   StatusCode readTextFile_Format1(std::istream&) ;
   StatusCode readTextFile_Format2(std::istream&) ;
@@ -108,16 +114,21 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   
   /// register calibration objects with the IoV service
   StatusCode registerCalibObjects
-    (std::string tag, int run1, int event1, int run2, int event2) const;
+    (std::string tag, unsigned int run1, unsigned int event1, unsigned int run2, unsigned int event2) const;
 
-  /// IOV call back for rt and t0 objects. normally this doesn't do anything.
-  StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
 
-  /// access to containers (for calibration code)
+  /// access to calibration constant containers
   RtRelationContainer* getRtContainer() const ;
   RtRelationContainer* getErrContainer() const ;
   RtRelationContainer* getSlopeContainer() const ;
   StrawT0Container* getT0Container() const ;
+  // Access via a cached ContextSpecificPtr is used for text file input
+  void setRtContainer(RtRelationContainer* rc);
+  void setErrContainer(RtRelationContainer* rc);
+  void setSlopeContainer(RtRelationContainer* rc);
+  void setT0Container(StrawT0Container* rc);
+  void useCachedPtr(const bool& useit);
+
   
  private:
   std::string par_rtcontainerkey ;       //!< folder name for rt relation 
@@ -125,23 +136,24 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   std::string par_slopecontainerkey ;       //!< folder name for rt slopes
   std::string par_t0containerkey ;       //!< folder name for t0 
   std::string par_caltextfile;           //!< input text error file
-  ServiceHandle<StoreGateSvc> m_detstore;
+
   const TRT_ID* m_trtid;                 //!< id helper
-  
-  // pointers to calibration data
-  const DataHandle<RtRelationContainer> m_rtcontainer ; //!< persistifiable rt constants
-  const DataHandle<RtRelationContainer> m_errcontainer ; //!< persistifiable rt errors
-  const DataHandle<RtRelationContainer> m_slopecontainer ; //!< persistifiable rt slopes
-  const DataHandle<StrawT0Container> m_t0container ;    //!< persistifiable t0 constants
-  bool m_ownsrtcontainer ;
-  bool m_ownserrcontainer ;
-  bool m_ownsslopecontainer ;
-  bool m_existserrcontainer ;
-  bool m_existsslopecontainer ;
-  bool m_ownst0container ;
-
-
   ToolHandle<IAthenaOutputStreamTool> m_streamer;        //!< OutputStreamTool
+  ServiceHandle<StoreGateSvc> m_detstore;
+
+  ServiceHandle<ICondSvc> m_condSvc;
+  //  ReadHandle  keys
+  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","in","r-t relation in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","in","error on r in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","in","slope of error in-key"};
+  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","in","t0 in-key"};
+
+  bool m_useCachedPtr;  
+  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_rtContainer;
+  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_errContainer;
+  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_slopeContainer;
+  Gaudi::Hive::ContextSpecificPtr<StrawT0Container> m_t0Container;
+  
 
   /// Keep track of the number of instances
   /*  If multiple instances of this service are instantiated and configured
@@ -149,31 +161,12 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
    */
   static unsigned int s_numberOfInstances;
 
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //  inline methods
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-inline TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getRtContainer() const {
-  const RtRelationContainer* rc = &(*m_rtcontainer) ;
-  return const_cast<RtRelationContainer*>(rc) ; 
-}
-
-inline TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getErrContainer() const {
-  const RtRelationContainer* rc = &(*m_errcontainer) ;
-  return const_cast<RtRelationContainer*>(rc) ;
-}
-
-inline TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getSlopeContainer() const {
-  const RtRelationContainer* rc = &(*m_slopecontainer) ;
-  return const_cast<RtRelationContainer*>(rc) ;
-}
-
-inline TRT_CalDbSvc::StrawT0Container* TRT_CalDbSvc::getT0Container() const {
-  const StrawT0Container* rc = &(*m_t0container) ;
-  return const_cast<StrawT0Container*>(rc) ; 
-}
 
 inline TRTCond::ExpandedIdentifier 
 TRT_CalDbSvc::trtcondid( const Identifier& id, int level) const
@@ -186,25 +179,32 @@ TRT_CalDbSvc::trtcondid( const Identifier& id, int level) const
 inline const TRTCond::RtRelation*
 TRT_CalDbSvc::getRtRelation( const Identifier& id, int level ) const 
 { 
-  return m_rtcontainer->get(trtcondid(id,level)) ; 
+  const RtRelationContainer* rc = getRtContainer();
+  if(!rc) return 0;
+  return rc->get(trtcondid(id,level)) ; 
 }
 
 inline const TRTCond::RtRelation*
 TRT_CalDbSvc::getErrors( const Identifier& id, int level ) const 
 { 
-  return m_errcontainer->get(trtcondid(id,level)) ; 
+  const RtRelationContainer* rc = getErrContainer();
+  if(!rc) return 0;
+  return rc->get(trtcondid(id,level)) ; 
 }
 
 inline const TRTCond::RtRelation*
 TRT_CalDbSvc::getSlopes( const Identifier& id, int level ) const
 {
-  return m_slopecontainer->get(trtcondid(id,level)) ;
+  const RtRelationContainer* rc = getSlopeContainer();
+  if(!rc) return 0;
+  return rc->get(trtcondid(id,level)) ;
 }
 
 inline float 
 TRT_CalDbSvc::getT0( const Identifier& id, int level ) const 
 {
-  return m_t0container->getT0(trtcondid(id,level)) ; 
+  const StrawT0Container* rc = getT0Container();
+  return rc->getT0(trtcondid(id,level)) ; 
 }
 
 
@@ -237,6 +237,13 @@ TRT_CalDbSvc::setRtSlopes( const TRTCond::ExpandedIdentifier& id, const TRTCond:
   // Temporarily remove the const.
   getSlopeContainer()->set( id,const_cast<TRTCond::RtRelation*>(rtr));
 }
+
+inline void
+TRT_CalDbSvc::useCachedPtr( const bool& useit)
+{
+  m_useCachedPtr=useit;
+}
+
 
 /// Query Interface
 inline StatusCode TRT_CalDbSvc::queryInterface( const InterfaceID& riid, void** ppvIf )

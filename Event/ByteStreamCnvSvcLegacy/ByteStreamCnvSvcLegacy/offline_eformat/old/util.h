@@ -6,7 +6,7 @@
 #define BYTESTREAMCNVSVC_OFFLINE_EFORMAT_OLD_UTIL_H 1
 
 /**
- * @file util.h
+ * @file offline_eformat/old/util.h
  *
  * @brief Declarations of methods for working with old eformat versions.
  *

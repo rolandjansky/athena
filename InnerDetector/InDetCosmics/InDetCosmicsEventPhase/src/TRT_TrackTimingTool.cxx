@@ -14,7 +14,6 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
-#include "xAODEventInfo/EventInfo.h"
 
 using CLHEP::GeV;
 
@@ -34,6 +33,7 @@ InDet::TRT_TrackTimingTool::TRT_TrackTimingTool(const std::string& t,
 	  declareProperty("TRTCalDbSvc", m_trtconddbsvc); 	  
   declareProperty("DoEtaCorrection", m_doEtaCorrection);
   declareProperty("DebugMissingMeasurement", m_debug);	  	  
+  declareProperty("EventInfoKey", m_EventInfoKey = "ByteStreamEventInfo" );	  	  
 }
 
 //================ Destructor ==================================================
@@ -54,7 +54,10 @@ StatusCode InDet::TRT_TrackTimingTool::initialize() {
     return StatusCode::FAILURE;
   } else 
     msg(MSG::INFO) << "Retrieved tool " << m_ITrackFitter << endmsg;
-  
+ 
+  ATH_CHECK( m_EventInfoKey.initialize() );
+
+ 
   ATH_MSG_INFO("InDet::TRT_TrackTimingTool::initialize() successful in " << name() << ", do eta correction: " << (m_doEtaCorrection?"true":"false"));
   return StatusCode::SUCCESS;
 }
@@ -313,9 +316,13 @@ void InDet::TRT_TrackTimingTool::print(const Trk::Track* track, float time) cons
 	static int last_event = 0; // code to remove duplicates - do not print if this track was already called
         if (last_event==0) { FILE *f = fopen("tmp.txt", "w"); fclose(f); } // first call, reset file
 	static std::vector<double> pT_list;
-	const xAOD::EventInfo *eventInfo = 0;
-	StatusCode sc = evtStore()->retrieve(eventInfo); 
-	if ( sc.isFailure() ) { msg(MSG::ERROR) << "Unable to retrieve Event Info " << endmsg; return; }
+
+        SG::ReadHandle<xAOD::EventInfo> eventInfo(m_EventInfoKey);
+        if ( not eventInfo.isValid() ) {
+		(msg(MSG::ERROR) << "Could not get event info" << endmsg) ;
+		return;
+	}
+
 	int event = (int) eventInfo->eventNumber();
 	if (event != last_event) {
 		last_event = event;

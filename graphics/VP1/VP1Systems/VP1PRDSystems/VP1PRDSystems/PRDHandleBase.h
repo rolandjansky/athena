@@ -80,7 +80,7 @@ private:
   PRDHandleBase & operator= (const PRDHandleBase & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   PRDSysCommonData * m_common;
 //   inline void registerTransform(SoTransform*);
   bool m_visible;//Here for inlining

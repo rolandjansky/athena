@@ -20,13 +20,13 @@ class RegionInformation : public G4VUserRegionInformation
   void Print() const;
 
  private:
-  FADS::FieldIntParameters* fieldIntPara;
+  FADS::FieldIntParameters* m_fieldIntPara;
 
  public:
   inline FADS::FieldIntParameters* GetFieldIntParameters() const
-  { return fieldIntPara; }
+  { return m_fieldIntPara; }
   inline void SetFieldIntParameters(FADS::FieldIntParameters* fip)
-  { fieldIntPara = fip; }
+  { m_fieldIntPara = fip; }
 };
 
 }

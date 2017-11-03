@@ -220,120 +220,120 @@ typedef JepReadByteStreamV1V2Cnv<JEMEtSumsCollection>  JepReadESByteStreamV1V2Cn
 // ============================================================================
 // RUN2
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiByteStreamV2Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadCRByteStreamV2CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiByteStreamV2Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadCRByteStreamV2CnvT )
 
 // ============================================================================
 // RUN1
 // ============================================================================
 
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpByteStreamV1Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpmRoiByteStreamV1Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadCHByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadCCByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepByteStreamV1Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiByteStreamV1Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadCJByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadCEByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadJHByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadJRByteStreamV1CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadCRByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpByteStreamV1Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpmRoiByteStreamV1Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadCHByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadCCByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepByteStreamV1Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiByteStreamV1Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadCJByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadCEByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadJHByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadJRByteStreamV1CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadCRByteStreamV1CnvT )
 
 // ============================================================================
 // RUN1 & RUN2
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadByteStreamV1V2Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadJEByteStreamV1V2CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadESByteStreamV1V2CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, RodHeaderByteStreamCnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, L1CaloErrorByteStreamCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadByteStreamV1V2Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadJEByteStreamV1V2CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadESByteStreamV1V2CnvT )
+DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::L1CaloErrorByteStreamCnv )
 // ============================================================================
 // PPM
 // ============================================================================
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamV1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamReadV1V2Tool )
+DECLARE_COMPONENT( LVL1BS::PpmByteStreamV1Tool )
+DECLARE_COMPONENT( LVL1BS::PpmByteStreamReadV1V2Tool )
 
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamV1Cnv )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamV1Cnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamAuxCnv )
 // ============================================================================
 // CPM
 // ============================================================================
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpByteStreamV2Tool )
+DECLARE_COMPONENT( LVL1BS::CpByteStreamV2Tool )
 
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpmTowerByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpmTowerByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTowerByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTowerByteStreamAuxCnv )
 // ============================================================================
 // CMXCPTOB
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxCpTobByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxCpTobByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpTobByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpTobByteStreamAuxCnv )
 // ============================================================================
 // CMXCPHITS
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxCpHitsByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxCpHitsByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpHitsByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpHitsByteStreamAuxCnv )
 // ============================================================================
 // CMXJETTOB
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxJetTobByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxJetTobByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetTobByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetTobByteStreamAuxCnv )
 // ============================================================================
 // CMXJETHITS
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxJetHitsByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxJetHitsByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetHitsByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetHitsByteStreamAuxCnv )
 // ============================================================================
 // CMXETSUMS
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxEtSumsByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxEtSumsByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxEtSumsByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxEtSumsByteStreamAuxCnv )
 // ============================================================================
 // JEMETSUMS
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JemEtSumsByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JemEtSumsByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::JemEtSumsByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JemEtSumsByteStreamAuxCnv )
 // ============================================================================
 // CPMTOBROI
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpmTobRoiByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpmTobRoiByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTobRoiByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTobRoiByteStreamAuxCnv )
 // ============================================================================
 // JEMTOBROI
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JemTobRoiByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JemTobRoiByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::JemTobRoiByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JemTobRoiByteStreamAuxCnv )
 // ============================================================================
 // JETELEMENT
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JetElementByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JetElementByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::JetElementByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::JetElementByteStreamAuxCnv )
 // ============================================================================
 // CMXROI
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxRoIByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CmxRoIByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxRoIByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::CmxRoIByteStreamAuxCnv )
 // ============================================================================
 // RODHEADER
 // ============================================================================
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, RodHeaderByteStreamxAODCnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, RodHeaderByteStreamAuxCnv)
+DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamxAODCnv )
+DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamAuxCnv )
 // ============================================================================
 
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpmRoiByteStreamV2Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, JepByteStreamV2Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, JepRoiByteStreamV2Tool )
+DECLARE_COMPONENT( LVL1BS::CpmRoiByteStreamV2Tool )
+DECLARE_COMPONENT( LVL1BS::JepByteStreamV2Tool )
+DECLARE_COMPONENT( LVL1BS::JepRoiByteStreamV2Tool )
 // Pre-LS1
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpByteStreamV1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpmRoiByteStreamV1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, JepByteStreamV1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, JepRoiByteStreamV1Tool )
+DECLARE_COMPONENT( LVL1BS::CpByteStreamV1Tool )
+DECLARE_COMPONENT( LVL1BS::CpmRoiByteStreamV1Tool )
+DECLARE_COMPONENT( LVL1BS::JepByteStreamV1Tool )
+DECLARE_COMPONENT( LVL1BS::JepRoiByteStreamV1Tool )
 
 // Both
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, RodHeaderByteStreamTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, L1CaloErrorByteStreamTool )
+DECLARE_COMPONENT( LVL1BS::RodHeaderByteStreamTool )
+DECLARE_COMPONENT( LVL1BS::L1CaloErrorByteStreamTool )
 
 
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TriggerTowerSelectionTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TrigT1CaloDataAccess )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TrigT1CaloDataAccessV2 )
+DECLARE_COMPONENT( LVL1BS::TriggerTowerSelectionTool )
+DECLARE_COMPONENT( LVL1BS::TrigT1CaloDataAccess )
+DECLARE_COMPONENT( LVL1BS::TrigT1CaloDataAccessV2 )

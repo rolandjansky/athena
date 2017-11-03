@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62004Algs/MiddleBeamConstructionH62004.h"
+#include "MiddleBeamConstructionH62004.h"
 #include "LArGeoH6Cryostats/BPCConstruction.h"
 
 #include "GeoModelKernel/GeoElement.h"  

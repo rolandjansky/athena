@@ -16,7 +16,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /// Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
-				       ISvcLocator* pSvcLocator) :
+                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},

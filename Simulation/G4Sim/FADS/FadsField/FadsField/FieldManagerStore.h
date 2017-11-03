@@ -23,7 +23,7 @@ private:
 	FieldManagerStore();
 	FieldManagerStore(const FieldManagerStore&);
 	static FieldManagerStore* GetFMStore();
-	static FieldManagerStore* p_fieldManagerStore;
+	static FieldManagerStore* s_fieldManagerStore;
 	void RegisterFieldManager(FadsFieldManager*);
 	fmList m_fieldManagerList;
 };

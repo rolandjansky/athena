@@ -6,7 +6,7 @@
 # define EVENTINFO_EVENTID_H
 
 /**
- * @file EventID.h
+ * @file EventInfo/EventID.h
  *
  * @brief This class provides a unique identification for each event,
  * in terms of run/event number and/or a time stamp.

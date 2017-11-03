@@ -27,23 +27,23 @@ public:
 //____________________________________________________________________
 TrackCollHandle_RefittedTracks::TrackCollHandle_RefittedTracks(TrackSysCommonData *cd,
 							       const QString& name, QList<const Trk::Track*> fittedtracks)
-  : TrackCollHandle_TrkTrack(cd,name,TrackType::RefittedTrack), d(new Imp)
+  : TrackCollHandle_TrkTrack(cd,name,TrackType::RefittedTrack), m_d(new Imp)
 {
-  d->fittedtracks = fittedtracks;
+  m_d->fittedtracks = fittedtracks;
 }
 
 //____________________________________________________________________
 TrackCollHandle_RefittedTracks::~TrackCollHandle_RefittedTracks()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 bool TrackCollHandle_RefittedTracks::load()
 {
-  hintNumberOfTracksInEvent(d->fittedtracks.count());
+  hintNumberOfTracksInEvent(m_d->fittedtracks.count());
   int i(0);
-  foreach (const Trk::Track * trk, d->fittedtracks) {
+  foreach (const Trk::Track * trk, m_d->fittedtracks) {
     if (trk) {
       messageDebug("ADDTRACK.");
       addTrackHandle(new TrackHandle_TrkTrack(this,trk));

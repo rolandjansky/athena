@@ -39,7 +39,7 @@ PRDDetType::Type PRDDetType::stringToType(const QString&str, bool & status)
   if (str=="MM") return MM;
   if (str=="SpacePoints") return SpacePoints;
   status = false;
-  return Pixel;//***REMOVED*** - people better watch the return status!
+  return Pixel;//people better watch the return status!
 }
 
 
@@ -80,6 +80,6 @@ PRDDetType::Type PRDDetType::intToType(const qint32&i, bool & status)
   case 10: return MM;
   default:
     status = false;
-    return Pixel;//***REMOVED*** - people better watch the return status!
+    return Pixel;//people better watch the return status!
   }
 }

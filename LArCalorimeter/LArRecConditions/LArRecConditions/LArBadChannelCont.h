@@ -97,14 +97,11 @@ typedef LArBadXCont<LArBadChannel> LArBadChannelCont;
 CLASS_DEF(LArBadChannelCont,64272230,1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArBadChannelCont>,144954956 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArBadChannelCont>, CondContBase );
 
 //Template instantiation for LArBadFeb
 typedef LArBadXCont<LArBadFeb> LArBadFebCont;
 CLASS_DEF(LArBadFebCont,60500160,1)
 CLASS_DEF(CondCont<LArBadFebCont>,18499682, 1)
-SG_BASE( CondCont<LArBadFebCont>, CondContBase );
 
 
 #endif

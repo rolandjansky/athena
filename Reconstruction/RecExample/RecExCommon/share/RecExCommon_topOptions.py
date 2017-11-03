@@ -139,12 +139,6 @@ from IOVDbSvc.CondDB import conddb
 if len(globalflags.ConditionsTag())!=0:
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
-# Conditions Service for reading conditions data in serial and MT Athena
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc()
-
-
-
 # Detector geometry and magnetic field
 if rec.LoadGeometry():
     include("RecExCond/AllDet_detDescr.py")
@@ -250,8 +244,6 @@ if globalflags.InputFormat()=='pool':
                 svcMgr.EventSelector.RefName="StreamESD"
             elif not rec.readAOD() and not rec.TAGFromRDO() : # == read RDO
                 svcMgr.EventSelector.RefName="StreamRDO"
-
-            protectedInclude("TrigCollQuery/TrigCollQuery_jobOptions.py")
         elif rec.readAOD():
             svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
         else:
@@ -482,13 +474,6 @@ if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     condSeq+=xAODMaker__EventInfoCnvAlg()
     pass
-
-# Conditions data access infrastructure for serial and MT Athena
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader( "CondInputLoader")
-
-import StoreGate.StoreGateConf as StoreGateConf
-svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
 # bytestream reading need to shedule some algorithm
 

@@ -9,29 +9,13 @@
 //as well as eventually performing it. This will be the most modular, fundamental element of the
 //routine, capable (in principle) of being used outside of EMFourMomBuilder.cxx.
 
+#include "egammaInterfaces/IFourMomCombiner.h"
+
 // XAOD INCLUDES:
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
-
-// INCLUDE HEADER FILES:
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-#include "egammaUtils/EigenVectorAndMatrix.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "egammaInterfaces/IFourMomCombiner.h"
-#include "egammaBaseTool.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-//#include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
-
-class IEMExtrapolCaloConversion;
-
-namespace Trk {
-  class TrackParticleBase;
-}
 
 namespace CombinationFlags {
   enum DownWeightPar   {INVALID=999, D0=0, Z0=1, PHI=2, ETA=3, PMOM=4};
@@ -92,14 +76,6 @@ class FourMomCombiner : public AthAlgTool, virtual public IFourMomCombiner {
   bool   fillTrackVectorElements        (xAOD::Egamma*, int index);
   bool   fillTrackMatrixElements        (xAOD::Egamma*, int index, int charge);
 
-  //Variables for making decisions.
-  bool m_usedPoverP, m_dPoverP, m_useCombination, m_applyTrackOnly;
-  double m_EPsigmacut, m_dPoverPcut, m_EPoverPcut, m_applytrackOnlyEcut;
-  double m_minPtTRT;
-
-  //Energy rescaler tool for cluster energy resolution.
-  //AtlasRoot::egammaEnergyCorrectionTool *eRescaler;
-
   //Track/cluster parameter vectors and matrices.
   Amg::VectorX    m_trkVector;
   Amg::MatrixX    m_trkMatrix;
@@ -113,9 +89,10 @@ class FourMomCombiner : public AthAlgTool, virtual public IFourMomCombiner {
   //Downweighting/combination parameters.
   int m_par1, m_par2, m_par3;
   int m_combFlag;
-  int m_combType;
 
-  int m_NumberofSiHits;
+  Gaudi::Property<int> m_combType {this, 
+      "combType", CombinationTypes::COVMAT,
+      "Decides whether to do full covariance method, or single-shot Kalman update"};
 
   double m_DEFAULT_QOVERP_ERROR;
   double m_DEFAULT_MOMENTUM;

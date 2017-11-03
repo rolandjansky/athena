@@ -3,7 +3,7 @@
 */
 
 /**
- * @file PassNoneFilter.cxx
+ * @file AthenaPoolMultiTest/src/PassNoneFilter.cxx
  * @brief Implementation of class PassNoneFilter
  */
  

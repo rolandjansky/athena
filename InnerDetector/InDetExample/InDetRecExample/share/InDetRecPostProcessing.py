@@ -457,10 +457,8 @@ if InDetFlags.doConversions():
   # --- we need the driving algorithm
   InDetConversionFinding.addAlgorithm()
 
-  from egammaTrackTools.egammaTrackToolsConf import EMExtrapolationTools
-  egammaExtrapolationTool = EMExtrapolationTools(name = 'egammaExtrapolationTool')
-  ToolSvc += egammaExtrapolationTool
-  topSequence.InDetConversionFinder.ExtrapolationTool  =  egammaExtrapolationTool
+  from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+  topSequence.InDetConversionFinder.ExtrapolationTool  =  EMExtrapolationTools.copyPublic('egammaExtrapolationTool')()
   topSequence.InDetConversionFinder.doExtrapolation = True
 
 

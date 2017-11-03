@@ -72,6 +72,10 @@
 #include <map>
 
 
+#include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/PerfStats.h"
+#include "xAODCore/tools/IOStats.h"
+
 namespace Athena {
 
 /** @class xAODEventContext 
@@ -130,6 +134,8 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
    declareProperty( "AccessMode", m_accessMode = -1, "-1 = use TEvent Default; 0 = BranchAccess; 1 = ClassAccess; 2 = AthenaAccess" );
 
    declareProperty( "FillEventInfo", m_fillEventInfo=false,"If True, will fill old EDM EventInfo with xAOD::EventInfo content, necessary for database reading (IOVDbSvc)");
+
+   declareProperty( "PrintPerfStats", m_printPerfStats=false,"If True, at end of job will print the xAOD perf stats");
 
 //Expert Properties:
   declareProperty( "EvtStore", m_dataStore,       "Store where to publish data");
@@ -308,6 +314,8 @@ StatusCode xAODEventSelector::initialize()
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
+  if(m_printPerfStats) xAOD::PerfStats::instance().start();
+
 
   return StatusCode::SUCCESS;
 }
@@ -318,6 +326,13 @@ StatusCode xAODEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  if(m_printPerfStats) {
+    xAOD::PerfStats::instance().stop();
+    xAOD::IOStats::instance().stats().Print();
+  }
+  
+
   return StatusCode::SUCCESS;
 }
 

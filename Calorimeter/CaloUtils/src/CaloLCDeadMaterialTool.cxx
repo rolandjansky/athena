@@ -182,7 +182,11 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
 
   double pi0Prob = 0;
   if ( m_useHadProbability) {
-    theCluster->retrieveMoment(CaloCluster::EM_PROBABILITY,pi0Prob);
+    if (!theCluster->retrieveMoment(CaloCluster::EM_PROBABILITY,pi0Prob)) {
+      ATH_MSG_ERROR("Cannot retrieve EM_PROBABILITY cluster moment, "
+                    << " cluster energy " << theCluster->e() << " remains the same."  );
+      return StatusCode::FAILURE;
+    }
     if ( pi0Prob < 0 ) {
       pi0Prob = 0;
     } else if ( pi0Prob > 1 ) {
@@ -192,9 +196,9 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
     pi0Prob = 1;
   }
 
-  double center_lambda;
+  double center_lambda = 0;
   if ( !theCluster->retrieveMoment(CaloCluster::CENTER_LAMBDA, center_lambda) ){
-    ATH_MSG_ERROR("Cannot retreive CENTER_LAMBDA cluster moment, "
+    ATH_MSG_ERROR("Cannot retrieve CENTER_LAMBDA cluster moment, "
                   << " cluster energy " << theCluster->e() << " remains the same."  );
     return StatusCode::FAILURE;
   }

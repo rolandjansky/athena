@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file ReadData.cxx
+/** @file AthenaPoolExampleAlgorithms/src/ReadData.cxx
  *  @brief This file contains the implementation for the ReadData class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ReadData.cxx,v 1.26 2009-03-14 22:05:57 gemmeren Exp $

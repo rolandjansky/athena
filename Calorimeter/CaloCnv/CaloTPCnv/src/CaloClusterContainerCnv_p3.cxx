@@ -6,7 +6,7 @@
 
 #include "AthAllocators/DataPool.h"
     
-#include "EventCommonTPCnv/Compressor.h"
+#include "AthenaPoolCnvSvc/Compressor.h"
 #include "AthenaKernel/errorcheck.h"
 
 void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers, 

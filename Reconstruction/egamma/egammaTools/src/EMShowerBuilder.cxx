@@ -4,6 +4,7 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "EMShowerBuilder.h"
 
@@ -39,7 +40,6 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_ShowerShapeTool("egammaShowerShape/egammashowershape"),
     m_cellcoll(0),
     m_clus(0),
     m_caloSelection(false),
@@ -51,38 +51,6 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
 
   // declare interface
   declareInterface<IEMShowerBuilder>(this);
-  
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-  
-  // Names of containers which contain cells  
-  declareProperty("CellsName",m_cellsName="AllCalo", "Names of containers which contain cells ");
-
-  // list of calo to treat
-  declareProperty("CaloNums",m_caloNums, "list of calo to treat");
-
-  // Boolean to call shower shape calculation and filling
-  // (NB: this could be important when redoing calculation from AODs)
-  declareProperty("UseShowerShapeTool", m_UseShowerShapeTool=true, "Boolean to call shower shape calculation and filling");
-  
-  // Boolean to call isolation variables calculation and filling
-  // (NB: this could be important when redoing calculation from AODs)
-  declareProperty("UseCaloIsoTool", m_UseCaloIsoTool=true, "Boolean to call hadronic leakage calculation and filling");
-  
-  // Handles of instance of egammaShowerShape Tool to be run 
-  declareProperty("ShowerShapeTool", m_ShowerShapeTool, "Handle of instance of egammaShowerShape Tool to be run");
-
-  // Handle of the calorimetric isolation tool
-  declareProperty("HadronicLeakageTool", m_HadronicLeakageTool, "Handle of the EMCaloIsolationTool for Hadronic leakage");
-
-  // Boolean for use of cosmics
-  declareProperty("isCosmics",m_isCosmics=false,"Boolean for use of cosmics");
-
-  // in case we want some extra print
-  declareProperty("Print",m_Print=false,"in case of extra prints");
-
-  // in case we want some extra print
-  declareProperty("Timing",m_timing=false,"do extra timing");      
 }
 
 // ===============================================================
@@ -100,8 +68,11 @@ StatusCode EMShowerBuilder::initialize()
   // initialize method
   //
 
-  ATH_MSG_DEBUG(" Initializing EMShowerBuilder");;
+  ATH_MSG_DEBUG(" Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
  
+  ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) && 
+				  m_cellsKey.key() != ""));
+
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
   //check calo number specified
   m_caloSelection = false ;
@@ -237,7 +208,7 @@ StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg){
 StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll)
 { 
   // 
-  // execute method as used by Offline reconstruction
+  // execute method as used by online reconstruction
   // 
   
   ATH_MSG_DEBUG("Executing recoExecute");
@@ -264,11 +235,17 @@ StatusCode EMShowerBuilder::retrieveContainers()
 
   // retrieve Calo Cell Container
   if (m_UseShowerShapeTool || m_UseCaloIsoTool) {
-    StatusCode sc = evtStore()->retrieve(m_cellcoll, m_cellsName) ; 
-    if(sc.isFailure() || !m_cellcoll) {
-      ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
-      return sc;
+    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+
+    // check is only used for serial running; remove when MT scheduler used
+    if(!cellcoll.isValid()) {
+      ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+      return StatusCode::FAILURE;
     }
+
+    m_cellcoll = cellcoll.cptr();
+  } else {
+    m_cellcoll = nullptr;
   }
 
   return StatusCode::SUCCESS;

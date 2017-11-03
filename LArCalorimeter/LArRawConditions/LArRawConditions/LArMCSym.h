@@ -7,39 +7,55 @@
 
 
 /** Helper class to handle z-phi symmetry of calibration constants in MC
- *
- * @author S. Laplace
- * @version  0-0-1 , 02/02/2004
  */
 
 #include "Identifier/HWIdentifier.h"
-
-class StoreGateSvc; 
-class LArCablingService ;
-class LArEM_ID;
-class LArHEC_ID;
-class LArFCAL_ID;
+#include "Identifier/IdentifierHash.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 class LArMCSym {
 
  public:
+  LArMCSym() = delete;
+  LArMCSym(const LArOnlineID* onlId, 
+	   const CaloCell_ID* caloId,
+	   std::vector<HWIdentifier>&& oflHashtoSymOnl,
+	   std::vector<HWIdentifier>&& onlHashtoSymOnl
+	   ); 
+   
+  HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
+    const IdentifierHash h=m_caloCellID->calo_cell_hash(notSymOffId);
+    return ZPhiSymOfl(h);
+  }
 
-  LArMCSym();
-  virtual ~LArMCSym() ;
+  HWIdentifier ZPhiSymOfl(const IdentifierHash notSymOffHash) const {
+    assert(notSymOffHash < m_oflHashtoSymOnl.size());
+    return m_oflHashtoSymOnl[notSymOffHash];
+  }
   
-  // method to handle z-phi symmetry
-  HWIdentifier ZPhiSym(const HWIdentifier& NotSymOnId) const;
+  HWIdentifier ZPhiSymOnl(const HWIdentifier notSymOnlId) const {
+    const IdentifierHash h=m_onlineID->channel_Hash(notSymOnlId);
+    return ZPhiSymOnl(h);
+  }
   
-  Identifier ZPhiSym(const Identifier& NotSymOffId) const;
-  
+
+  HWIdentifier ZPhiSymOnl(const IdentifierHash notSymOnlHash) const {
+    assert(notSymOnlHash < m_onlHashtoSymOnl.size());
+    return m_onlHashtoSymOnl[notSymOnlHash];
+  }
+
  private:
-
-  const LArEM_ID*           m_lar_em_id; 
-  const LArHEC_ID*          m_lar_hec_id;   
-  const LArFCAL_ID*         m_lar_fcal_id; 
-  LArCablingService*        m_cablingService;
-  StoreGateSvc*             m_detStore;
+  const LArOnlineID* m_onlineID;
+  const CaloCell_ID* m_caloCellID;
+  const std::vector<HWIdentifier> m_oflHashtoSymOnl;
+  const std::vector<HWIdentifier> m_onlHashtoSymOnl;
 
 };
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( LArMCSym , 33771274 , 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( LArMCSym, 159334782 );
 
 #endif 

@@ -29,13 +29,13 @@ class PixelDetectorTool : public GeoModelTool {
   // Standard Constructor
   PixelDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
   // Standard Destructor
-  virtual ~PixelDetectorTool();
+  virtual ~PixelDetectorTool() override final;
 
-  virtual StatusCode create( StoreGateSvc* detStore );
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode create() override final;
+  virtual StatusCode clear() override final;
 
   // Register callback function on ConDB object
-  virtual StatusCode registerCallback( StoreGateSvc* detStore );
+  virtual StatusCode registerCallback() override final;
 
   // Callback function itself
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS);

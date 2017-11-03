@@ -81,8 +81,8 @@ class MDT_Response {
   double     m_pathLength;          // path length of particle in tube
  
   double m_clusterDensity;          // clusters per mm
-  std::vector<double> gammaFactorVec; // gamma	
-  std::vector<double> numberOfClustersPerCmVec; // clusters per cm 
+  std::vector<double> m_gammaFactorVec; // gamma	
+  std::vector<double> m_numberOfClustersPerCmVec; // clusters per cm 
 
   double m_attLength;               // attenuation length of tube
   double m_signalSpeed;             // propagation speed along wire

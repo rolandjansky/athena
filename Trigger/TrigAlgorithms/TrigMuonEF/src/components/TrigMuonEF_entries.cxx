@@ -7,15 +7,15 @@
 #include "../TrigMuonEFCaloIsolation.h"
 #include "../TrigMuonEFIDTrackRoiMaker.h"
 
-DECLARE_TOOL_FACTORY(TrigMuonEFTrackIsolationTool)
-DECLARE_TOOL_FACTORY(TrigMuonEFStandaloneTrackTool)
+DECLARE_COMPONENT( TrigMuonEFTrackIsolationTool )
+DECLARE_COMPONENT( TrigMuonEFStandaloneTrackTool )
 
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFTrackIsolation)
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFRoiAggregator)
-DECLARE_ALGORITHM_FACTORY(InDetTrkRoiMaker)
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFCaloIsolation)
+DECLARE_COMPONENT( TrigMuonEFTrackIsolation )
+DECLARE_COMPONENT( TrigMuonEFRoiAggregator )
+DECLARE_COMPONENT( InDetTrkRoiMaker )
+DECLARE_COMPONENT( TrigMuonEFCaloIsolation )
 
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFFSRoiMaker)
+DECLARE_COMPONENT( TrigMuonEFFSRoiMaker )
 
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFIDTrackRoiMaker)
+DECLARE_COMPONENT( TrigMuonEFIDTrackRoiMaker )
 

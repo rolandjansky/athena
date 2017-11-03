@@ -48,5 +48,7 @@ class LArfSamplMC: public LArfSamplComplete {
 
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArfSamplMC, 164984905,1)
+CONDCONT_DEF( LArfSamplMC, 24657825, ILArfSampl );
 #endif 

@@ -28,9 +28,9 @@ protected:
 private:
   PRD_MultiTruthCollectionCnv_p1 m_converter_p1;
   PRD_MultiTruthCollectionCnv_p2 m_converter_p2;
-  static pool::Guid p0_guid;
-  static pool::Guid p1_guid;
-  static pool::Guid p2_guid;
+  static pool::Guid s_p0_guid;
+  static pool::Guid s_p1_guid;
+  static pool::Guid s_p2_guid;
 };
 
 #endif/*CALOATHENAPOOL_CALOCELLLINKCONTAINERCNV_H*/

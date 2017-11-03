@@ -12,7 +12,7 @@
  * $Id: LArGeoCheckerDict.h 653855 2015-03-13 09:00:06Z dmaximov $
  */
 #ifndef GeoSpecialShapes_LArGeoCheckerDICT_H
-# define GeoSpecialShapes_LArGeoCheckerDICT_H
+#define GeoSpecialShapes_LArGeoCheckerDICT_H
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 

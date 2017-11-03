@@ -395,6 +395,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                  SummaryTool          = InDetTrackSummaryTool)
          else:
             from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
             InDetAmbiScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetAmbiScoringTool'+NewTrackingCuts.extension(),
                                                                Extrapolator            = InDetExtrapolator,
                                                                SummaryTool             = InDetTrackSummaryTool,
@@ -414,7 +415,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                usePixel                = NewTrackingCuts.usePixel(),
                                                                useSCT                  = NewTrackingCuts.useSCT(),
                                                                InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                                                               doEmCaloSeed            = True and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn(),
+                                                               doEmCaloSeed            = have_calo_rois,
                                                                minTRTonTrk             = 0,
                                                                minTRTPrecisionFraction = 0);
             if not InDetAmbiScoringTool.doEmCaloSeed:

@@ -66,6 +66,8 @@ namespace SG {
     EventIDRange m_range;
     
     const SG::ReadCondHandleKey<T>& m_hkey;
+
+    StoreGateSvc* m_cs {nullptr};
   };
 
 
@@ -85,7 +87,8 @@ namespace SG {
     SG::VarHandleBase( key, &ctx ),
     m_eid( ctx.eventID() ),
     m_cc( key.getCC() ),
-    m_hkey(key)
+    m_hkey(key),
+    m_cs ( key.getCS() )
   {
     EventIDBase::number_type conditionsRun =
       ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
@@ -104,11 +107,38 @@ namespace SG {
     }
 
     if (m_cc == 0) {
-      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      msg << MSG::ERROR
-          << "ReadCondHandle : ptr to CondCont<T> is zero"
-          << endmsg;
-      throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+      // try to retrieve it
+      CondContBase *cb(nullptr);
+      if (m_cs->retrieve(cb, SG::VarHandleKey::key()).isFailure()) {
+        MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
+        msg << MSG::ERROR
+            << "can't retrieve " << Gaudi::DataHandle::fullKey() 
+            << " via base class" << endmsg;
+        throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+      } else {
+        m_cc = dynamic_cast< CondCont<T>* > (cb);
+        if (m_cc == 0) {
+          MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
+          msg << MSG::ERROR
+              << "can't dcast CondContBase to " << Gaudi::DataHandle::fullKey() 
+              << endmsg;
+          throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+        }
+      }
+          
+
+
+
+      // if ( m_cs->retrieve(m_cc, SG::VarHandleKey::key()).isFailure() ) {
+      //   MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
+      //   msg << MSG::ERROR
+      //       << "ReadCondHandle : unable to retrieve ReadCondHandle of type"
+      //       << Gaudi::DataHandle::fullKey() << " from "
+      //       << StoreID::storeName(StoreID::CONDITION_STORE)
+      //       << " with key " << SG::VarHandleKey::key()
+      //       << endmsg;
+      //   throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+      // }
     }
   
   }

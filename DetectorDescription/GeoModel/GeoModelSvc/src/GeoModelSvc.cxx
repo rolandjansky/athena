@@ -136,7 +136,7 @@ StatusCode GeoModelSvc::initialize()
     for (; itPriv!=itPrivEnd; ++itPriv) {
       IGeoModelTool* theTool = &(**itPriv);
 	
-      if(StatusCode::SUCCESS != theTool->registerCallback(m_detStore.operator->())) {
+      if(StatusCode::SUCCESS != theTool->registerCallback()) {
 	ATH_MSG_DEBUG("IGeoModelTool::align() was not registerred on CondDB object for the tool " << theTool->name());
       }
       else {
@@ -338,7 +338,7 @@ StatusCode GeoModelSvc::geoInit()
     mem = GeoPerfUtils::getMem();
     cpu = GeoPerfUtils::getCpu();
       
-    if(theTool->create(m_detStore.operator->()).isFailure()) {
+    if(theTool->create().isFailure()) {
       ATH_MSG_ERROR("Unable to create detector " << theTool->name());
       return StatusCode::FAILURE;
     }
@@ -628,7 +628,7 @@ StatusCode GeoModelSvc::clear()
   ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin();
   for(; itPriv!=m_detectorTools.end(); itPriv++) {
     IGeoModelTool* theTool = &(**itPriv);
-    if(theTool->clear(m_detStore.operator->()).isFailure()) {
+    if(theTool->clear().isFailure()) {
       ATH_MSG_ERROR("clear() failed for the tool: " << theTool->name());
       return StatusCode::FAILURE;
     } else {

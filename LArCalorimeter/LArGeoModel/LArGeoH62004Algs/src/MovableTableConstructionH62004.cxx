@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62004Algs/MovableTableConstructionH62004.h"
+#include "MovableTableConstructionH62004.h"
 #include "LArGeoH6Cryostats/MWPCConstruction.h"
 #include "LArGeoH6Cryostats/BPCConstruction.h"
 

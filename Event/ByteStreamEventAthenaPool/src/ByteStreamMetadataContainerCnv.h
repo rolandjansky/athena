@@ -5,7 +5,7 @@
 #ifndef BYTESTREAMMETADATACONTAINERCNV_H
 #define BYTESTREAMMETADATACONTAINERCNV_H
 
-/** @file ByteStreamMetadataContainerCnv.h
+/** @file ByteStreamEventAthenaPool/src/ByteStreamMetadataContainerCnv.h
  *  @brief This file contains the class definition for the ByteStreamMetadataContainerCnv class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ByteStreamMetadataContainerCnv.h,v 1.3 2009-03-18 17:48:04 gemmeren Exp $

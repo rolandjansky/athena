@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubePHPWriter.py
+# @file DCubeClient/python/DCubePHPWriter.py
 # @author Krzyszotf Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubePHPWriter and test_DCubePHPWriter classes
 

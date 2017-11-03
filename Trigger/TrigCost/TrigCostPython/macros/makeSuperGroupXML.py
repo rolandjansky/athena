@@ -380,7 +380,7 @@ def MakeGroups(trig_list, level) :
     return groups
 
 
-# Fill the group list with a ***REMOVED***    
+# Fill the group list with a bunch of rubbish    
 def MakeCumulativeGroups(group_dict) :
 
     cumu_group = dict()

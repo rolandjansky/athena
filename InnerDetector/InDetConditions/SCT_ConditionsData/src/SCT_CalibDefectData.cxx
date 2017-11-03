@@ -16,13 +16,14 @@ using namespace std;
 
 //----------------------------------------------------------------------
 //constructor
-SCT_CalibDefectData::SCT_CalibDefectData()
+SCT_CalibDefectData::SCT_CalibDefectData():
+  m_defectMap{}
 {}
 
 //----------------------------------------------------------------------
 //destructor
 SCT_CalibDefectData::~SCT_CalibDefectData()
-{ }
+{}
 
 //----------------------------------------------------------------------
 // Add map entries of defects on module

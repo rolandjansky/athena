@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62003Algs/LArDetectorFactoryH62003.h"
-#include "LArGeoH62003Algs/LArDetectorConstructionH62003.h"
+#include "LArDetectorFactoryH62003.h"
+#include "LArDetectorConstructionH62003.h"
 
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "LArReadoutGeometry/FCALModule.h"

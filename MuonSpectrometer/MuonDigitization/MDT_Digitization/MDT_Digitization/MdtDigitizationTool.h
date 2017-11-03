@@ -166,7 +166,7 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   MDT_SortedHitVector        m_hits;
   
   const MdtIdHelper*         m_idHelper;
-  MdtHitIdHelper*            muonHelper;
+  MdtHitIdHelper*            m_muonHelper;
   
   MDTSimHit applyDeformations(const MDTSimHit&,const MuonGM::MdtReadoutElement*,const Identifier&);
     

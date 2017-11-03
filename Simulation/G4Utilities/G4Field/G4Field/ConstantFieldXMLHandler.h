@@ -15,7 +15,7 @@ public:
         ConstantFieldXMLHandler(std::string s,ConstantField *);
         void BuildDescription();
 private:
-	ConstantField *theField;
+	ConstantField *m_theField;
 };
 
 #endif

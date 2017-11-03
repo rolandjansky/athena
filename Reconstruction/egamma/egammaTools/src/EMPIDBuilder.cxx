@@ -7,11 +7,7 @@
 
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "PATCore/IAsgSelectionTool.h"
-#include "LumiBlockComps/LumiBlockMuTool.h"
+//#include "LumiBlockComps/LumiBlockMuTool.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
 
@@ -27,35 +23,6 @@ EMPIDBuilder::EMPIDBuilder(const std::string& type,
 
   // declare interface
   declareInterface<IegammaBaseTool>(this);
-
-  declareProperty("electronIsEMselectors", m_electronIsEMselectors,
-    "The selectors that we need to apply to the Electron object");
-  declareProperty("electronIsEMselectorResultNames", m_electronIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("electronLHselectors", m_electronLHselectors,
-    "The selectors that we need to apply to the LH electron object");
-  declareProperty("electronLHselectorResultNames", m_electronLHselectorResultNames,
-    "The selector result names");
-
-  declareProperty("genericIsEMselectors", m_genericIsEMselectors,
-    "The selectors that we need to apply to the generic object");
-  declareProperty("genericIsEMselectorResultNames", m_genericIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("photonIsEMselectors", m_photonIsEMselectors,
-    "The selectors that we need to apply to the pothon object");
-  declareProperty("photonIsEMselectorResultNames", m_photonIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("LHValueName", m_LHValueName="LHValue",
-    "The LH Value name");
-
-  /** Luminosity tool */
-  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
-  //** Flag *//
-  declareProperty("UseLuminosityTool", m_UselumiBlockMuTool = false, 
-		  "Use Luminosity Tool instead of value stored in xAOD");
 
 }
 

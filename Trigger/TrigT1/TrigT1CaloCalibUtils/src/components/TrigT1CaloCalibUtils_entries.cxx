@@ -9,16 +9,16 @@
 #include "TrigT1CaloCalibUtils/L1CaloPprPhos4ShapeMaker.h"
 #include "TrigT1CaloCalibUtils/L1CaloPprMonitoring.h"
 
-DECLARE_ALGORITHM_FACTORY( L1CaloHVCorrectionsForDB )
-DECLARE_ALGORITHM_FACTORY( L1CaloHVDummyContainers )
-DECLARE_ALGORITHM_FACTORY( L1CaloLinearCalibration )
-DECLARE_ALGORITHM_FACTORY( L1CaloPedestalMaker )
-DECLARE_ALGORITHM_FACTORY( L1CaloPedestalGenerator )
-DECLARE_ALGORITHM_FACTORY( L1CaloRampMaker )
-DECLARE_ALGORITHM_FACTORY( L1CaloTriggerTowerSelector )
-DECLARE_ALGORITHM_FACTORY( L1CaloPprPhos4ShapeMaker )
-DECLARE_ALGORITHM_FACTORY( L1CaloPprMonitoring )
+DECLARE_COMPONENT( L1CaloHVCorrectionsForDB )
+DECLARE_COMPONENT( L1CaloHVDummyContainers )
+DECLARE_COMPONENT( L1CaloLinearCalibration )
+DECLARE_COMPONENT( L1CaloPedestalMaker )
+DECLARE_COMPONENT( L1CaloPedestalGenerator )
+DECLARE_COMPONENT( L1CaloRampMaker )
+DECLARE_COMPONENT( L1CaloTriggerTowerSelector )
+DECLARE_COMPONENT( L1CaloPprPhos4ShapeMaker )
+DECLARE_COMPONENT( L1CaloPprMonitoring )
 
 #include "../L1CaloDumpRampData.h"
-DECLARE_ALGORITHM_FACTORY( L1CaloDumpRampData )
+DECLARE_COMPONENT( L1CaloDumpRampData )
 

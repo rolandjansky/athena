@@ -77,7 +77,7 @@ StatusCode LArADC2MeVCondAlg::initialize() {
   ATH_CHECK( m_ADC2MeVKey.initialize() );
 
   // Register write handle
-  if (m_condSvc->regHandle(this, m_ADC2MeVKey, m_ADC2MeVKey.dbKey()).isFailure()) {
+  if (m_condSvc->regHandle(this, m_ADC2MeVKey).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_ADC2MeVKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

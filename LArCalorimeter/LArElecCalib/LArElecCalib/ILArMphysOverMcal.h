@@ -37,7 +37,5 @@ CLASS_DEF( ILArMphysOverMcal,128308807,1)
 //ConditionsContainer clid for athenaMT"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILArMphysOverMcal> , 251728243 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILArMphysOverMcal>, CondContBase );
 
 #endif 

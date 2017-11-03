@@ -113,23 +113,23 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
 
  private:
   enum ErrorWords{TIMEOUT_ERR=(1<<11),
-		  L1_ERR=(1<<10),
-		  BCID_ERR=(1<<9),
-		  PREAMBLE_ERR=(1<<12),
-		  FORMATTER_ERR=12,
-		  TRAILER_ERR=(1<<12),
-		  NULL_HEADER_ERR=0,
-		  HEADER_TRAILER_ERR=(1<<11),
-		  TRAILER_OVFLW_ERR=(1<<10),
-		  ABCD_ERR=0,
-		  RAWDATA_ERR=(3<<13),
-		  NULL_TRAILER_ERR=0}; 
+                  L1_ERR=(1<<10),
+                  BCID_ERR=(1<<9),
+                  PREAMBLE_ERR=(1<<12),
+                  FORMATTER_ERR=12,
+                  TRAILER_ERR=(1<<12),
+                  NULL_HEADER_ERR=0,
+                  HEADER_TRAILER_ERR=(1<<11),
+                  TRAILER_OVFLW_ERR=(1<<10),
+                  ABCD_ERR=0,
+                  RAWDATA_ERR=(3<<13),
+                  NULL_TRAILER_ERR=0}; 
   void addHeadersWithErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			    ErrorWords errType, std::vector<uint16_t>& v16data);
+                            ErrorWords errType, std::vector<uint16_t>& v16data);
   void addTrailersWithErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			     ErrorWords errType, std::vector<uint16_t>& v16data);
+                             ErrorWords errType, std::vector<uint16_t>& v16data);
   void addSpecificErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			 ErrorWords errType, std::vector<uint16_t>& v16data);
+                         ErrorWords errType, std::vector<uint16_t>& v16data);
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrs;
   const SCT_ID* m_sct_id;

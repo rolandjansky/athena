@@ -1,8 +1,4 @@
-#include "LArGeoH62004Algs/LArDetectorToolH62004.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../LArDetectorToolH62004.h"
 
-DECLARE_TOOL_FACTORY(LArDetectorToolH62004)
+DECLARE_COMPONENT( LArDetectorToolH62004 )
 
-DECLARE_FACTORY_ENTRIES(LArGeoH62004Algs) {
-    DECLARE_ALGTOOL  ( LArDetectorToolH62004 )
-}

@@ -44,7 +44,6 @@
 + Control/DataModelRoot
 + Control/GaudiSequencer
 + Control/IOVSvc
-+ Control/MinimalRunTime
 + Control/Navigation
 + Control/PerformanceMonitoring/PerfMonAna
 + Control/PerformanceMonitoring/PerfMonComps
@@ -71,7 +70,6 @@
 + Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
-+ Database/APR/TrigCollQuery
 + Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolKernel
@@ -134,8 +132,6 @@
 + Event/EventBookkeeperAthenaPool
 + Event/EventBookkeeperMetaData
 + Event/EventBookkeeperTPCnv
-+ Event/EventCommonAthenaPool
-+ Event/EventCommonTPCnv
 + Event/EventContainers
 + Event/EventInfo
 + Event/EventInfoMgt
@@ -143,8 +139,6 @@
 + Event/EventPTCnv
 + Event/EventPrimitives
 + Event/EventTPCnv
-+ Event/FourMom
-+ Event/NavFourMom
 + Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
@@ -161,7 +155,6 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/AtlasPyFwdBwdPorts
-+ External/CheckerGccPlugins
 + External/pyAMI
 + Generators/GenInterfaces
 + Generators/GeneratorObjects
@@ -312,7 +305,6 @@
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Services
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-+ Simulation/ISF/ISF_HepMC/ISF_HepMC_Services
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
@@ -358,7 +350,6 @@
 + Tracking/TrkEvent/TrkEventPrimitives
 + Tracking/TrkEvent/TrkNeutralParameters
 + Tracking/TrkEvent/TrkParametersBase
-+ Tracking/TrkEvent/TrkTrackLink
 
 
 # Ignore everything else

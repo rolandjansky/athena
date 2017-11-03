@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeoModelEnvelopes/ForDetEnvelopeFactory.h"
+#include "ForDetEnvelopeFactory.h"
 
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"

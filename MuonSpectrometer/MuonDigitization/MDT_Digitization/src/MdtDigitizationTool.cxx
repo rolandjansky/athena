@@ -76,7 +76,7 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_digitContainer(0)
   , m_sdoContainer(0)
   , m_idHelper(0)
-  , muonHelper(0)
+  , m_muonHelper(0)
   , m_MuonGeoMgr(0)
   , m_digiTool("MDT_Response_DigiTool", this)
   , m_inv_c_light(1./(CLHEP::c_light))
@@ -237,7 +237,7 @@ StatusCode MdtDigitizationTool::initialize() {
   m_digitContainer->addRef();
   
   //simulation identifier helper	
-  muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper();
   
   //get the r->t conversion tool
   if( m_digiTool.retrieve().isFailure() ) {
@@ -570,12 +570,12 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   double driftRadius = hit.driftRadius();
   ATH_MSG_DEBUG ( "Hit bunch time  " << globalHitTime - hit.globalTime() << " tot " << globalHitTime << " tof " << hit.globalTime() << " driftRadius " << driftRadius );
 
-  std::string stationName = muonHelper->GetStationName(id);
-  int stationEta = muonHelper->GetZSector(id);
-  int stationPhi  = muonHelper->GetPhiSector(id);
-  int multilayer = muonHelper->GetMultiLayer(id);
-  int layer = muonHelper->GetLayer(id);
-  int tube = muonHelper->GetTube(id);
+  std::string stationName = m_muonHelper->GetStationName(id);
+  int stationEta = m_muonHelper->GetZSector(id);
+  int stationPhi  = m_muonHelper->GetPhiSector(id);
+  int multilayer = m_muonHelper->GetMultiLayer(id);
+  int layer = m_muonHelper->GetLayer(id);
+  int tube = m_muonHelper->GetTube(id);
 
   //construct Atlas identifier from components
   Identifier DigitId = m_idHelper-> channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
@@ -823,12 +823,12 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 	
   //get the hit Identifier and info
   const int id = hit.MDTid();
-  std::string stationName = muonHelper->GetStationName(id);
-  int stationEta = muonHelper->GetZSector(id);
-  int stationPhi  = muonHelper->GetPhiSector(id);
-  int multilayer = muonHelper->GetMultiLayer(id);
-  int layer = muonHelper->GetLayer(id);
-  int tube = muonHelper->GetTube(id);
+  std::string stationName = m_muonHelper->GetStationName(id);
+  int stationEta = m_muonHelper->GetZSector(id);
+  int stationPhi  = m_muonHelper->GetPhiSector(id);
+  int multilayer = m_muonHelper->GetMultiLayer(id);
+  int layer = m_muonHelper->GetLayer(id);
+  int tube = m_muonHelper->GetTube(id);
   
   Identifier DigitId = m_idHelper->channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
   ATH_MSG_DEBUG("Working on hit: " << m_idHelper->show_to_string(DigitId) << "  "<< m_idHelper->stationNameString(m_idHelper->stationName(DigitId))<< " "<< stationEta << " "<< stationPhi);

@@ -3,7 +3,7 @@
 #include "../AthExCreateCondAlg.h"
 
 
-DECLARE_ALGORITHM_FACTORY( BeginRunAlg )
-DECLARE_ALGORITHM_FACTORY( AthExCreateCondAlg )
-DECLARE_TOOL_FACTORY( BeginRunTool )
+DECLARE_COMPONENT( BeginRunAlg )
+DECLARE_COMPONENT( AthExCreateCondAlg )
+DECLARE_COMPONENT( BeginRunTool )
 

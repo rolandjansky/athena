@@ -13,13 +13,14 @@
 #undef NDEBUG
 #include "AthLinks/DataLink.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/StorableConversions.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/ClassID_traits.h"
 #include "SGTools/TransientAddress.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -52,7 +53,7 @@ const unsigned int barclid = 23423557;
 CLASS_DEF (Bar, barclid, 1)
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -242,7 +243,7 @@ public:
 
 
 // toTransient, toPersistent
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -289,7 +290,7 @@ void test2()
 
 
 // default store setting
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
 
@@ -301,7 +302,7 @@ void test3()
 
 
 // dummy proxy creation.
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
@@ -357,7 +358,7 @@ void test4()
 
 
 // references to pointers not in SG.
-void test5()
+void test5 (SGTest::TestStore& store)
 {
   std::cout << "test5\n";
 
@@ -391,15 +392,15 @@ void test5()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   initTestStore();
 
-  test1();
-  test2();
-  test3();
-  test4();
-  test5();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
+  test5 (store);
   return 0;
 }

@@ -38,6 +38,8 @@
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
+#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
+
 #include "SCT_Cabling/ISCT_CablingSvc.h" 
 
 #include "AthenaKernel/IIOVDbSvc.h"  // Why can't forward declare 
@@ -93,7 +95,7 @@ public:
   virtual bool                          canFillDuringInitialize(){ return false; }
 
   /**List of bad modules*/
-  virtual const std::set<Identifier>*   badModules() { return &m_badModuleIds; }
+  virtual const std::set<Identifier>*   badModules() { return m_data.getBadModuleIds(); }
   /**List of bad strips*/
   virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false);
   /**List of bad strips for a given module*/
@@ -101,20 +103,16 @@ public:
   /**List of bad links*/
   virtual std::pair<bool, bool>         badLinks(const Identifier & moduleId);
   /**Bad links for a given module*/
-  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks() {return &m_badLinks;}
+  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks() {return m_data.getBadLinks();}
   /**List of bad chips*/
-  virtual const std::map<Identifier, unsigned int>*           badChips() {return &m_badChips;}
+  virtual const std::map<Identifier, unsigned int>*           badChips() {return m_data.getBadChips();}
   /**Bad chips for a given module*/
-  virtual unsigned int                  badChips(const Identifier & moduleId);
+  virtual unsigned int                  badChips(const Identifier & moduleId) const;
   /** Get the chip number containing a particular strip*/
-  int                                   getChip(const Identifier & stripId);
+  int                                   getChip(const Identifier & stripId) const;
 
 private:
-  std::set<Identifier> m_badChannelIds;                 //!< Set of bad strip identifiers (not those in bad strips)
-  std::set<Identifier> m_badModuleIds;                  //!< Set of bad module identifiers
-  std::set<Identifier> m_badWaferIds;                   //!< Set of bad wafer identifiers
-  std::map<Identifier, std::pair<bool, bool>> m_badLinks;                //!< Map of the state of the 2 links in a module by truncated serial number
-  std::map<Identifier, unsigned int>    m_badChips;                      //!< Map of bad chips per module
+  SCT_ConfigurationCondData             m_data;                          //!< Contain bad module/wafer/link/chip/strip information
   bool                                  m_filled;                        //!< Had the data been filled?
   ServiceHandle<StoreGateSvc>           m_detStore;                      //!< Handle on the detector store
   ServiceHandle<IIOVSvc>                m_IOVSvc;                        //!< Handle on the IOV service
@@ -144,8 +142,8 @@ private:
   /** Is a wafer in a bad module*/
   bool                                  isWaferInBadModule(const Identifier& waferId);
   
-  ///** Get the chip number containing a particular strip*/
-  //int                                   getChip(Identifier stripId);
+  /**Is a chip with this Identifier good?*/
+  bool isGoodChip(const Identifier& stripId) const;
 
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
-# @file:   Utils.py
+# @file:   TrigValTools/python/Utils.py
 # @brief:  Python utilties for TrigValTools scripts
 # @author: Frank Winklmeier, Will Buttinger
 #

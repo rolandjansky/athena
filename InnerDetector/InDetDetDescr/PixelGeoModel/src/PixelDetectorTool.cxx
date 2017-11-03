@@ -82,7 +82,7 @@ PixelDetectorTool::~PixelDetectorTool()
 /**
  ** Create the Detector Node corresponding to this tool
  **/
-StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
+StatusCode PixelDetectorTool::create()
 { 
   StatusCode result = StatusCode::SUCCESS;
 
@@ -204,7 +204,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     switches.setServices(m_services); //Overwrite there for the time being.
 
     const PixelID * idHelper = 0;
-    if (detStore->retrieve(idHelper, "PixelID").isFailure()) {
+    if (detStore()->retrieve(idHelper, "PixelID").isFailure()) {
       msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
@@ -219,7 +219,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
     // Pass athena services to factory, etc
     m_athenaComps = new PixelGeoModelAthenaComps;
-    m_athenaComps->setDetStore(detStore);
+    m_athenaComps->setDetStore(detStore().operator->());
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
@@ -287,7 +287,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // Locate the top level experiment node 
     // 
     GeoModelExperiment * theExpt; 
-    if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+    if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
       msg(MSG::ERROR) 
 	<< "Could not find GeoModelExperiment ATLAS" 
 	<< endmsg; 
@@ -331,7 +331,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     }
 
     // Register the manager to the Det Store    
-    if (StatusCode::FAILURE == detStore->record(m_manager, m_manager->getName()) ) {
+    if (StatusCode::FAILURE == detStore()->record(m_manager, m_manager->getName()) ) {
       msg(MSG::ERROR) << "Could not register Pixel detector manager" << endmsg;
       return( StatusCode::FAILURE );
     }
@@ -340,7 +340,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     
     // Symlink the manager
     const SiDetectorManager * siDetManager = m_manager;
-    if (StatusCode::FAILURE == detStore->symLink(m_manager, siDetManager) ) { 
+    if (StatusCode::FAILURE == detStore()->symLink(m_manager, siDetManager) ) { 
       msg(MSG::ERROR) << "Could not make link between PixelDetectorManager and SiDetectorManager" << endmsg;
       return( StatusCode::FAILURE );
     }
@@ -366,9 +366,9 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
   return result;
 }
 
-StatusCode PixelDetectorTool::clear(StoreGateSvc* detStore)
+StatusCode PixelDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
     m_manager = 0;
@@ -377,7 +377,7 @@ StatusCode PixelDetectorTool::clear(StoreGateSvc* detStore)
 }
   
 StatusCode   
-PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
+PixelDetectorTool::registerCallback()
 {
 
   StatusCode sc = StatusCode::FAILURE;
@@ -385,10 +385,10 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
 
     {  
       std::string folderName = "/Indet/AlignL1/ID";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	StatusCode ibltmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
 	if (ibltmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
@@ -401,10 +401,10 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
       }
 
       folderName = "/Indet/AlignL2/PIX";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	StatusCode ibltmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
 	if (ibltmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
@@ -417,10 +417,10 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
       }
 
       folderName = "/Indet/AlignL3";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
@@ -437,10 +437,10 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     
     {
       std::string folderName = "/Indet/Align";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+      if (detStore()->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	StatusCode sctmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
@@ -457,10 +457,10 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     if (m_tweakIBLDist) {
       //IBLDist alignment should be made optional; Will not be available prior to period G in Run2
       std::string ibl_folderName = "/Indet/IBLDist";
-      if (detStore->contains<CondAttrListCollection>(ibl_folderName)) {
+      if (detStore()->contains<CondAttrListCollection>(ibl_folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on IBLDist with folder " << ibl_folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, ibl_folderName);
+	StatusCode ibltmp = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, ibl_folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (ibltmp.isFailure()) {
 	  msg(MSG::ERROR) << "Problem when register callback on IBLDist with folder " << ibl_folderName <<endmsg;

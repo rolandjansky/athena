@@ -16,7 +16,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 
 namespace InDet

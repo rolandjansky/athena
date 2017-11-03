@@ -4,7 +4,7 @@
 
 #ifndef ATHENAKERNEL_CLASSID_TRAITS_H
 #define ATHENAKERNEL_CLASSID_TRAITS_H
-/** @file ClassID_traits.h
+/** @file AthenaKernel/ClassID_traits.h
  * @brief  a traits class that associates a CLID to a type T
  * It also detects whether T inherits from Gaudi DataObject
  *

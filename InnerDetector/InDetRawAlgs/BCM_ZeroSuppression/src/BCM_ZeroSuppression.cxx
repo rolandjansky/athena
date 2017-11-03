@@ -87,7 +87,7 @@ StatusCode BCM_ZeroSuppression::execute() {
 
   for (; BCM_RDO_itr!=BCM_RDO_itr_end; ++BCM_RDO_itr) {
 
-    my_collection = new BCM_RDO_Collection();
+    m_my_collection = new BCM_RDO_Collection();
     bool contains_hit = false;
 
     if ((*BCM_RDO_itr)->size() != 0){
@@ -100,7 +100,7 @@ StatusCode BCM_ZeroSuppression::execute() {
         int bcm_pulse2width = (*RDO_element)->getPulse2Width();
         if ((bcm_pulse1width != 0) || (bcm_pulse2width !=0)) {
 	  contains_hit = true;
-	  my_collection->push_back((new BCM_RawData(**RDO_element)));
+	  m_my_collection->push_back((new BCM_RawData(**RDO_element)));
 	}
 
       }//end of collection loop
@@ -108,9 +108,9 @@ StatusCode BCM_ZeroSuppression::execute() {
 
     if (contains_hit) {
       msg(MSG::VERBOSE) << "Container '" << m_bcmOutputName  << "' is being filled" << endmsg;
-      m_bcmCompactDO->push_back(my_collection);
+      m_bcmCompactDO->push_back(m_my_collection);
     } else {
-      delete my_collection;
+      delete m_my_collection;
     }     
     
   }//end of container loop

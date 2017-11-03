@@ -27,12 +27,6 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
-// Include Event Info 
-#include "EventInfo/EventInfo.h"
-
-///Read Handle
-#include "StoreGate/ReadHandleKey.h"
-
 // Include boost stuff
 #include "boost/array.hpp"
 
@@ -124,9 +118,6 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   const DataHandle<CondAttrListCollection> m_CalibDefects_NO;
   // Key for DataHandle
   std::string m_key;
-
-  // Read Handle Key
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 };
 
 //---------------------------------------------------------------------- 

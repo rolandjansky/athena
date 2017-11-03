@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Factories to instantiate Tools and Algorithms"
-__author__ = "Bruno Lenzi"
+__doc__ = "Factories to lazy instantiate Private/Public Tools and Algorithms"
+__authors__ = "Bruno Lenzi, Christos Anastopoulos, Jovan Mitrevski"
 from AthenaCommon.Logging import logging
 from AthenaCommon.Resilience import treatException
 
@@ -75,10 +75,10 @@ class FullNameWrapper( FcnWrapper ):
 
 class Factory:
   """Factory: base class of ToolFactory and AlgFactory.
-  To instantiate tools (algs) and add them to ToolSvc (TopSequence).
-  Allows to set default values to c-tor and call postInit methods, such that the default
-  configuration of the tool / alg, including other tools that are used is defined before
-  the actual instantiation and can be overridden:
+  Allows to "lazy" instantiate tools (algs) and add them to ToolSvc (TopSequence) if needed.
+  Allows to set properties in the c-tor , including other factories,tools and also define preInit/postInit methods.
+  The end result is that the configuration can be defined/formed/composed before the actual instantiation  
+  which happens when needed, i.e at demand  via () (__call__())  method.
   
   # Definition
   from MyPkg import MyPkgConf
@@ -91,18 +91,18 @@ class Factory:
   # default via FcnWrapper or ToolFactory instance, called when the tool is instantiated
   def getNameOfTool2(): return MyTool2().getFullName()
   MyTool3 = ToolFactory(MyPkgConf.MyTool3, 
-    Tool1 = MyTool1, # ToolFactory instance, not actual tool instance which will be created later
+    Tool1 = MyTool1, # ToolFactory instance, not actual tool instance (the tool intantiated when needed)
     NameOfTool2 = FcnWrapper(getNameOfTool2), # could have used FullNameWrapper( MyTool2 )
   ) 
   
-  # Tool instantiation. All will be added to ToolSvc
-  MyTool1() # create default instance with default values
-  MyTool2(propertyY = 'xx') # create default instance overriding default propertyY. At this point setPropertyX will be called
-  MyTool3() # create default instance, will try to instantiate MyTool1 (already done, no effect)
+  # Actual tool instantiation at demand
+  MyTool1() # create tool instance with default values
+  MyTool2(propertyY = 'xx') # create a tool instance overriding default propertyY. At this point setPropertyX will be called
+  MyTool3() # create default instance, will all try to instantiate MyTool1 (effect depends on Private/Public usage)
   
-  tool2a = MyTool2('myTool2a') # create another instance with default properties set above ('x')
-  tool3a = MyTool3('myTool3a', Tool1 = MyTool1('myTool1a', propertyA = 'B'),
-  NameOfTool2 = 'myTool2a') # create another instance overriding defaults of both properties set above
+  tool2a = MyTool2('myTool2a') # create another factory instance with the same properties as MyTool2 above ('x')
+  tool3a = MyTool3('myTool3a', Tool1 = MyTool1('myTool1a', propertyA = 'B'),NameOfTool2 = 'myTool2a') 
+  # create another factory instance overriding  both properties set above for MyTool3
   """
 
   def __init__(self, iclass, **defaults ):
@@ -122,7 +122,7 @@ class Factory:
     "copy(self, name, **kw) --> return a new instance of the factory with new name and defaults"
     kw['name'] = name
     return self.__class__(self.iclass, **dict(self.defaults, **kw) )
-  
+
   def __call__(self, name = '', **kw ):
     """Call preInit functions, instantiate tool (alg), call postInit functions and add
        to ToolSvc (TopSequence)"""
@@ -146,7 +146,7 @@ class Factory:
     
     # Call FcnWrapper or ToolFactory parameters 
     # (or if they are inside a list, for ToolHandleArray)
-    classes = (FcnWrapper, ToolFactory)
+    classes = (FcnWrapper, ToolFactory, PublicToolFactory)
     for paramName, value in params.items():
       if isinstance(value, classes) or \
         (isinstance(value, list) and any(isinstance(v, classes) for v in value) ):
@@ -176,6 +176,7 @@ class Factory:
     if doAdd:
       self.add(obj)
     
+    # Print, perhaps at some point could use a functio so as to override the behavioue
     if doPrint:
       print obj
     
@@ -185,7 +186,34 @@ class Factory:
     pass
 
 class ToolFactory( Factory ):
-  """ToolFactory: to instantiate tools and add them to TopSequence. See Factory"""
+  """ToolFactory: to instantiate tools. Does not add in ToolSvc (private tools). See Factory"""
+
+  def __init__(self, iclass, **defaults ):
+    self.iclass = iclass
+    self.defaults = dict({'doAdd': False}, **defaults)
+
+  def add(self, obj):
+      factoriesInfo("Tool with name ==> %s  will not be added in ToolSvc, use PublicToolFactory for public tools" %  obj.getFullName() )
+      pass
+
+  def copyPublic(self, name, **kw):
+    "copy(self, name, **kw) --> return a new instance of the factory as a puclic tool with new name and defaults"
+
+    deflt = dict(self.defaults, **kw)
+
+    deflt['name'] = name
+    deflt['doAdd'] = True
+
+    return PublicToolFactory(self.iclass, **deflt )
+
+
+class PublicToolFactory( Factory ):
+  """ToolFactory: to instantiate tools. Adds in ToolSvc (public tools). See Factory"""
+
+  def __init__(self, iclass, **defaults ):
+    self.iclass = iclass
+    self.defaults = dict({'doAdd': True}, **defaults)
+
   def add(self, obj):
     if not isAlreadyInToolSvc(obj.getName()):
       factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
@@ -195,6 +223,10 @@ class ToolFactory( Factory ):
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""
+  def __init__(self, iclass, **defaults ):
+    self.iclass = iclass
+    self.defaults = dict({'doAdd': True}, **defaults)
+    
   def add(self, obj):
     factoriesInfo("Adding new Algorithm ==> %s " %obj.getFullName())
     addToTopSequence(obj)

@@ -21,6 +21,7 @@
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/RCUObject.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <unordered_map>
 
@@ -375,7 +376,7 @@ public:
    * @brief Set map used for performing input renaming in toTransient.
    * @param map The new map, or nullptr for no renmaing.
    */
-  static void setInputRenameMap (const InputRenameRCU_t* map);
+  static void setInputRenameMap ATLAS_NOT_THREAD_SAFE (const InputRenameRCU_t* map);
 
 
 private:

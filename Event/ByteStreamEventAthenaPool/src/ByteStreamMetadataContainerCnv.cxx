@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file ByteStreamMetadataContainerCnv.cxx
+/** @file ByteStreamEventAthenaPool/src/ByteStreamMetadataContainerCnv.cxx
  *  @brief This file contains the implementation for the ByteStreamMetadataContainerCnv class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ByteStreamMetadataContainerCnv.cxx,v 1.3 2009-03-18 17:48:03 gemmeren Exp $

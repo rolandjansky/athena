@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_GeoModel/TRT_DetDescrDB_ParameterInterface.h"
+#include "TRT_DetDescrDB_ParameterInterface.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"

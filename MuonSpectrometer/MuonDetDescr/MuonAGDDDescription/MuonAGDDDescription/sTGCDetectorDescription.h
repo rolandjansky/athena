@@ -42,7 +42,6 @@ struct sTGCReadoutParameters {
     std::vector<int> StripsInBandsLayer4;
     std::vector<int> nWireGroups;
     std::vector<int> firstWireGroup;
-
 };
 
 class sTGCDetectorDescription: public AGDDDetector {
@@ -83,8 +82,7 @@ public:
 	static sTGCDetectorDescription* GetCurrent() {return current;}
 	
 	sTGC_Technology* GetTechnology();
-	
-	
+
 protected:
 
 	double _yCutout;

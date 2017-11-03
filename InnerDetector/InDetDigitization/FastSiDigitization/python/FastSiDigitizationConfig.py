@@ -65,6 +65,10 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
             PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
             ServiceMgr += PixelSiPropertiesSvc
+        if not hasattr(ServiceMgr, "PixelOfflineCalibSvc"):
+            from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
+            ServiceMgr +=PixelOfflineCalibSvc()
+            ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
@@ -92,15 +96,32 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
 
     # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-    if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-    if not conddb.folderRequested('/SCT/DCS/HV'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
-
+    sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
+    sctDCSTempFolder = '/SCT/DCS/MODTEMP'
+    sctDCSHVFolder = '/SCT/DCS/HV'
+    if not conddb.folderRequested(sctDCSStateFolder):
+        conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
+    if not conddb.folderRequested(sctDCSTempFolder):
+        conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
+    if not conddb.folderRequested(sctDCSHVFolder):
+        conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+            condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                       ReadKey = sctDCSHVFolder)
+        if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+            condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                         ReadKeyHV = sctDCSHVFolder,
+                                                         ReadKeyState = sctDCSStateFolder)
+        if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+            condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                         ReadKey = sctDCSTempFolder)
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
         ServiceMgr += InDetSCT_DCSConditionsSvc

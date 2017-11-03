@@ -2,5 +2,5 @@
 #include "TrigMETMonitoring/HLTMETMonTool.h"
 
 
-DECLARE_TOOL_FACTORY(HLTMETMonTool )
+DECLARE_COMPONENT( HLTMETMonTool )
 

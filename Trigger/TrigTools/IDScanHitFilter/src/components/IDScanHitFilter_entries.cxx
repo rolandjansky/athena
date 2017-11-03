@@ -6,5 +6,5 @@
 
 #include "IDScanHitFilter/IDScanHitFilter.h"
 
-DECLARE_TOOL_FACTORY( IDScanHitFilter )
+DECLARE_COMPONENT( IDScanHitFilter )
 

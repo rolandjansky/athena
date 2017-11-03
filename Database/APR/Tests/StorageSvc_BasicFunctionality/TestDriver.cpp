@@ -36,7 +36,6 @@ static const int nObjects = 100;
 
 TestDriver::TestDriver()
 {
-//   coral::MessageStream::setMsgVerbosity(coral::Info);
 }
 
 TestDriver::~TestDriver()

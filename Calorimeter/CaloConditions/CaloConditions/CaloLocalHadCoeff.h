@@ -305,8 +305,6 @@ class CaloLocalHadCoeff {
 CLASS_DEF(CaloLocalHadCoeff, 29079131, 1)
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<CaloLocalHadCoeff> , 82862607 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<CaloLocalHadCoeff>, CondContBase );
+CONDCONT_DEF( CaloLocalHadCoeff, 82862607 );
 
 #endif

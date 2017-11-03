@@ -21,7 +21,7 @@
 #ifndef RAPIDJSON_READER_H_
 #define RAPIDJSON_READER_H_
 
-/*! \file reader.h */
+/*! \file AthenaMP/src/memory-monitor/rapidjson/reader.h */
 
 #include "rapidjson.h"
 #include "encodings.h"

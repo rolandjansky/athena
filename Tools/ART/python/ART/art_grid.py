@@ -15,7 +15,9 @@ import sys
 import tarfile
 import tempfile
 
+
 from art_base import ArtBase
+from art_header import ArtHeader
 from art_misc import mkdir_p, make_executable, check, run_command
 
 
@@ -43,6 +45,10 @@ class ArtGrid(ArtBase):
             self.script_directory = os.path.join(self.script_directory, os.listdir(self.script_directory)[0])  # e.g. 21.0.3
             self.script_directory = os.path.join(self.script_directory, os.listdir(self.script_directory)[0], self.platform)  # InstallArea/x86_64-slc6-gcc62-opt
         return self.script_directory
+
+    def is_script_directory_in_cvmfs(self):
+        """Return true if the script directory is in cvmfs."""
+        return self.get_script_directory().startswith(self.cvmfs_directory)
 
     def task_list(self, type, sequence_tag):
         """TBD."""
@@ -92,6 +98,7 @@ class ArtGrid(ArtBase):
                     art_python_directory = os.path.join(self.art_directory, '..', 'python', 'ART')
 
                     shutil.copy(os.path.join(self.art_directory, 'art.py'), run)
+                    shutil.copy(os.path.join(self.art_directory, 'art-get-tar.sh'), run)
                     shutil.copy(os.path.join(self.art_directory, 'art-internal.py'), run)
                     shutil.copy(os.path.join(art_python_directory, '__init__.py'), ART)
                     shutil.copy(os.path.join(art_python_directory, 'art_base.py'), ART)
@@ -105,12 +112,22 @@ class ArtGrid(ArtBase):
                     shutil.copy(os.path.join(art_python_directory, 'serialScheduler.py'), ART)
 
                     make_executable(os.path.join(run, 'art.py'))
+                    make_executable(os.path.join(run, 'art-get-tar.sh'))
                     make_executable(os.path.join(run, 'art-internal.py'))
+
+                    # copy a local test directory if needed (only for 'art grid')
+                    if not self.is_script_directory_in_cvmfs():
+                        local_test_dir = os.path.join(run, os.path.basename(os.path.normpath(self.get_script_directory())))
+                        print "Copying script directory for grid submission to ", local_test_dir
+                        shutil.copytree(self.get_script_directory(), local_test_dir)
 
                     command = os.path.join(self.art_directory, 'art-internal.py') + ' task grid ' + ('--skip-setup' if self.skip_setup else '') + ' ' + submit_directory + ' ' + self.get_script_directory() + ' ' + package + ' ' + type + ' ' + sequence_tag + ' ' + self.nightly_release + ' ' + self.project + ' ' + self.platform + ' ' + self.nightly_tag
                     print command
                     sys.stdout.flush()
-                    out = check(run_command(command))
+
+                    env = os.environ.copy()
+                    env['PATH'] = '.:' + env['PATH']
+                    out = check(run_command(command, env=env))
                     print out
                     sys.stdout.flush()
         return 0
@@ -122,12 +139,19 @@ class ArtGrid(ArtBase):
 
         number_of_tests = len(self.get_list(self.get_script_directory(), package, type))
 
-        print self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag + " " + sequence_tag + " " + package + " " + type + " " + str(number_of_tests)
+        config = None if self.skip_setup else self.get_config()
+        grid_options = self.grid_option(config, package, 'grid-exclude-sites', '--excludedSite=')
+        grid_options += ' ' + self.grid_option(config, package, 'grid-sites', '--site=')
+
+        print self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag + " " + sequence_tag + " " + package + " " + type + " " + str(number_of_tests) + "  " + grid_options
         sys.stdout.flush()
 
         # run task from Bash Script as is needed in ATLAS setup
         # FIXME we need to parse the output
-        out = check(run_command(os.path.join(self.art_directory, 'art-task-grid.sh') + " " + ('--skip-setup' if self.skip_setup else '') + " " + self.submit_directory + " " + self.get_script_directory() + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag))
+        env = os.environ.copy()
+        env['PATH'] = '.:' + env['PATH']
+        env['ART_GRID_OPTIONS'] = grid_options
+        out = check(run_command(os.path.join(self.art_directory, 'art-task-grid.sh') + " " + ('--skip-setup' if self.skip_setup else '') + " " + self.submit_directory + " " + self.get_script_directory() + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag, env=env))
         print out
         sys.stdout.flush()
         return 0
@@ -157,19 +181,31 @@ class ArtGrid(ArtBase):
         sys.stdout.flush()
 
         # run the test
-        print check(run_command(com))
+        env = os.environ.copy()
+        env['PATH'] = '.:' + env['PATH']
+        print check(run_command(com, env=env))
         sys.stdout.flush()
 
-        # pick up the output
-        # FIXME for other outputs
+        # pick up the outputs
         tar_file = tarfile.open(out, mode='w')
+
+        # pick up explicitly named output files
         with open(test_file, "r") as f:
             for line in f:
-                for word in line.split():
-                    out_name = re.findall("--output.*=(.*)", word)
-                    if (out_name):
-                        if os.path.exists(out_name[0]):
-                            tar_file.add(out_name[0])
+                out_names = re.findall(r"--output[^\s=]*[= ]*(\S*)", line)
+                print out_names
+                for out_name in out_names:
+                    out_name = out_name.strip('\'"')
+                    if os.path.exists(out_name):
+                        print 'Tar file contain: ', out_name
+                        tar_file.add(out_name)
+
+        # pick up art-header named outputs
+        for path_name in ArtHeader(test_file).get('art-output'):
+            for out_name in glob.glob(path_name):
+                print 'Tar file contain: ', out_name
+                tar_file.add(out_name)
+
         tar_file.close()
         return 0
 
@@ -216,7 +252,8 @@ class ArtGrid(ArtBase):
         print "Previous Nightly Tag:", str(previous_nightly_tag)
         if previous_nightly_tag is None:
             print "ERROR: No previous nightly tag found"
-            return 1
+            # do not flag as error, to make sure tar file gets uploaded
+            return 0
 
         ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
         mkdir_p(ref_dir)
@@ -224,7 +261,8 @@ class ArtGrid(ArtBase):
         tar = self.get_tar(package, test_name, '_EXT0', previous_nightly_tag)
         if tar is None:
             print "ERROR: No comparison tar file found"
-            return 1
+            # do not flag as error, to make sure tar file gets uploaded
+            return 0
 
         for member in tar.getmembers():
             if member.name in file_names:
@@ -238,6 +276,7 @@ class ArtGrid(ArtBase):
                 self.compare_ref(file_name, ref_file, 10)
             else:
                 print "ERROR:", ref_file, "not found in tar file"
+        # do not flag as error, to make sure tar file gets uploaded
         return 0
 
     #
@@ -245,23 +284,56 @@ class ArtGrid(ArtBase):
     #
     def excluded(self, config, package):
         """Based on config, decide if a release is excluded from testing."""
+        # NOTE changes in here should be reflected in art-submit/art-gitlab.py
         if config is None:
             return False
 
-        if self.nightly_release not in config.keys():
+        if self.nightly_release not in config['releases'].keys():
             return True
 
-        if self.project not in config[self.nightly_release].keys():
+        if self.project not in config['releases'][self.nightly_release].keys():
             return True
 
-        if self.platform not in config[self.nightly_release][self.project].keys():
+        if self.platform not in config['releases'][self.nightly_release][self.project].keys():
             return True
 
-        excludes = config[self.nightly_release][self.project][self.platform]
-        if excludes is not None and package in excludes:
-            return True
+        # no packages listed -> included
+        if config['releases'][self.nightly_release][self.project][self.platform] is None:
+            return False
 
-        return False
+        # package not listed -> included
+        if package not in config['releases'][self.nightly_release][self.project][self.platform].keys():
+            return False
+
+        return config['releases'][self.nightly_release][self.project][self.platform][package].get('excluded', False)
+
+    def grid_option(self, config, package, key, option_key):
+        """Based on config, return value for key, or ''."""
+        if config is None:
+            return ''
+
+        if self.nightly_release not in config['releases'].keys():
+            return ''
+
+        if self.project not in config['releases'][self.nightly_release].keys():
+            return ''
+
+        if self.platform not in config['releases'][self.nightly_release][self.project].keys():
+            return ''
+
+        if config['releases'][self.nightly_release][self.project][self.platform] is None:
+            return ''
+
+        prefix = config.get(key, None)
+        if package not in config['releases'][self.nightly_release][self.project][self.platform].keys():
+            return '' if prefix is None else option_key + prefix
+
+        value = config['releases'][self.nightly_release][self.project][self.platform][package].get(key, None)
+
+        if prefix is None:
+            return '' if value is None else option_key + value
+        else:
+            return option_key + prefix + ('' if value is None else ', ' + value)
 
     def get_tar(self, package, test_name, extension, nightly_tag=None):
         """Open tar file for particular release."""
@@ -271,14 +343,13 @@ class ArtGrid(ArtBase):
         try:
             type = self.get_type(self.get_test_directories(self.get_script_directory())[package], test_name)
             print "Type:", type
-            index = self.get_list(self.get_script_directory(), package, type).index(test_name)
+            files = self.get_list(self.get_script_directory(), package, type)
+            number_of_tests = len(files)
+            index = files.index(test_name)
             print "Index:", index
         except KeyError:
             print package, "does not exist in tests of ", self.get_script_directory()
             return None
-
-        # Grid counts from 1
-        index += 1
 
         try:
             tmpdir = os.environ['TMPDIR']
@@ -286,29 +357,38 @@ class ArtGrid(ArtBase):
             tmpdir = '.'
         print "Using", tmpdir, "for tar file download"
 
-        container_list = 'user.artprod.atlas.' + self.nightly_release + '.' + self.project + '.' + self.platform + '.' + nightly_tag + '.*.' + package + extension
-        print "ContainerList:", container_list
+        # run in correct environment
+        env = os.environ.copy()
+        env['PATH'] = '.:' + env['PATH']
 
-        # print "rucio list-dids"
-        (code, out, err) = run_command("rucio list-dids " + container_list + " --filter type=container | grep " + nightly_tag + " | sort -r | cut -d ' ' -f 2 | head -n 1", tmpdir)
-        if code != 0 or out == '':
-            return None
-        container = out.strip()
-        print "Container:", container
+        # Grid counts from 1, retries will up that number every time by total number of jobs
+        index += 1
+        retries = 3
+        retry = 0
 
-        # print "rucio list-files"
-        (code, out, err) = run_command("rucio list-files --csv " + container + " | grep " + "_{0:0>6}.tar".format(index), tmpdir)
-        if code != 0 or out == '':
-            return None
-        entry = out.strip()
-        print "Entry:", entry
+        (code, out, err) = (0, "", "")
+        while retry < retries:
+            try_index = (retry * number_of_tests) + index
+            print (retry + 1), ": Get tar for index ", try_index
+            # run art-get-tar.sh
+            (code, out, err) = run_command(os.path.join(self.art_directory, "art-get-tar.sh") + " " + package + " " + str(try_index) + " _EXT0 " + self.nightly_release + " " + self.project + " " + self.platform + " " + nightly_tag, dir=tmpdir, env=env)
+            if code == 0 and out != '':
 
-        tar_name = entry.split(',')[0]
-        print "Tar Name:", tar_name
-        # print "rucio download"
-        (code, out, err) = run_command("rucio download " + tar_name, tmpdir)
-        if code != 0:
-            print code, out, err
+                match = re.search(r"TAR_NAME=(.*)", out)
+                if match:
+                    tar_name = match.group(1)
+                    print "Matched TAR_NAME ", tar_name
+
+                    if tar_name != "":
+                        print "Tar Name:", tar_name
+                        break
+
+            retry += 1
+
+        if retry >= retries:
+            print "Code: " + str(code)
+            print "Err: " + err
+            print "Out: " + out
             return None
 
         return tarfile.open(os.path.join(tmpdir, tar_name.replace(':', '/', 1)))

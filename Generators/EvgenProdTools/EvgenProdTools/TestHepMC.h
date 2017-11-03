@@ -17,7 +17,6 @@
 
 #include<fstream>
 
-using namespace std;
 
 /// Filtering algorithm to sanity check HepMC event features.
 ///
@@ -84,11 +83,11 @@ public:
 
   std::string m_paramFile;
   
-  std::ifstream G4file;
-  std::ifstream susyFile;
-  vector<int> m_G4pdgID_tab;
-  vector<int> m_SusyPdgID_tab;
-  TruthHelper::IsGenNonInteracting nonint;
+  std::ifstream m_G4file;
+  std::ifstream m_susyFile;
+  std::vector<int> m_G4pdgID_tab;
+  std::vector<int> m_SusyPdgID_tab;
+  TruthHelper::IsGenNonInteracting m_nonint;
 
   /// @todo Can we use the GenAnalysis / AthHistoAlg methods for histo management?
   ServiceHandle<ITHistSvc> m_thistSvc;

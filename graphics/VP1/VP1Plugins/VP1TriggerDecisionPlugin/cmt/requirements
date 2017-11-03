@@ -1,8 +1,0 @@
-package VP1TriggerDecisionPlugin
-
-author Weiyi Zhang  <wyizhang@cern.ch>
-
-use AtlasPolicy        		AtlasPolicy-*
-use VP1TriggerDecisionSystems   VP1TriggerDecisionSystems-*    graphics/VP1/VP1Systems
-
-apply_pattern vp1plugin

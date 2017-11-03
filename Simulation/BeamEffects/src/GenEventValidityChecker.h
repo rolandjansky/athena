@@ -41,5 +41,4 @@ namespace Simulation {
 
 }
 
-
 #endif //> !BEAMEFFECTS_GENEVENTVALIDITYCHECK_H

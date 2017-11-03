@@ -19,51 +19,40 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
                                            ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   m_detStore{"DetectorStore", name},
-  m_IOVDbSvc{"IOVDbSvc", name},
   m_dataFilled{false},
-  m_status{0},
   m_readAllDBFolders{true},
   m_returnHVTemp{true},
-  m_dropFolder{true},
   m_barrel_correction{-3.7},
   m_ecInner_correction{-13.1},
   m_ecOuter_correction{-15.5},
-  m_hvLowLimit{0.0},
-  m_hvUpLimit{1000000.0},
   m_pBadModules{nullptr},
   m_pModulesHV{nullptr},
   m_pModulesTemp0{nullptr},
-  m_pModulesTemp1{nullptr},
-  m_pHelper{nullptr}, 
-  m_folderPrefix{"/SCT/DCS"},
-  m_chanstatCut{"NORM"},
-  m_useHV{false},
-  m_useHVLowLimit{19.},
-  m_useHVUpLimit{1000000.0},
-  m_useHVChanCut{"LOOSE"} { 
+  m_condKeyState{"SCT_DCSStatCondData"},
+  m_condKeyHV{"SCT_DCSHVCondData"},
+  m_condKeyTemp0{"SCT_DCSTemp0CondData"},
+  m_pHelper{nullptr},
+  m_folderPrefix{"/SCT/DCS"}
+{ 
     //declare variables which will be filled by jobOptions
     declareProperty("DetectorStore", m_detStore);
     declareProperty("AttrListCollFolders", m_par_atrcollist);
     declareProperty("ReadAllDBFolders", m_readAllDBFolders);
     declareProperty("ReturnHVTemp", m_returnHVTemp);
-    declareProperty("DropDCSFolders", m_dropFolder);
     declareProperty("TempBarrelCorrection", m_barrel_correction);
     declareProperty("TempEcInnerCorrection", m_ecInner_correction);
-    declareProperty("HVCutLow", m_hvLowLimit);
-    declareProperty("HVCutUp", m_hvUpLimit);
     declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
     declareProperty("FolderLocation", m_folderPrefix);
-    declareProperty("StateCut", m_chanstatCut);
-    declareProperty("UseDefaultHV", m_useHV);
-    declareProperty("useHVLow", m_useHVLowLimit);
-    declareProperty("useHVUp", m_useHVUpLimit);
-    declareProperty("useHVChan", m_useHVChanCut);
-  }
+}
 
 StatusCode SCT_DCSConditionsSvc::initialize() {
   if (AthService::initialize().isFailure()) return StatusCode::FAILURE;
   if (m_detStore.retrieve().isFailure()) {
     ATH_MSG_ERROR(" Cannot retrieve detector store ");
+    return StatusCode::FAILURE;
+  }
+  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
+    ATH_MSG_ERROR("SCT helper failed to retrieve ");
     return StatusCode::FAILURE;
   }
   if (m_readAllDBFolders and m_returnHVTemp) {
@@ -85,20 +74,8 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
     ATH_MSG_INFO("Please check jobOptions, SCT_DCSConditionsSvs does nothing as set up.");
   }
   ATH_MSG_INFO("Test: How many folders in Coll: " << m_par_atrcollist.value().size());
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
-    ATH_MSG_ERROR("SCT helper failed to retrieve ");
-    return StatusCode::FAILURE;
-  }
   
-  if (m_useHV) {
-    m_hvLowLimit = m_useHVLowLimit;
-    m_hvUpLimit = m_useHVUpLimit;
-    m_chanstatCut = m_useHVChanCut;
-    ATH_MSG_INFO("Using HV and Chanstat"<< m_chanstatCut << " for marking modules bad. >=Hvlow: " <<
-		 m_hvLowLimit<< " and <=Hv Up: " <<  m_hvUpLimit << m_par_atrcollist.value().size() <<
-		 ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!");
-  }
-
+  // These callbacks are still needed for SiLonrentzAngleSvc (2017-09-29)
   //Register callbacks for folders in CondAttrListCollection using vector of keys (not hard-coded)
   std::vector<std::string>::const_iterator itr{m_par_atrcollist.value().begin()};
   std::vector<std::string>::const_iterator end{m_par_atrcollist.value().end()};
@@ -107,43 +84,36 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
     ATH_MSG_INFO(key);
     if (key==m_folderPrefix+std::string("/HV")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_HV, key)) {
-	ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
       } else {
-	ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
       }
     } else if (key==m_folderPrefix+std::string("/MODTEMP")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_MT, key)) {
-	ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
       } else {
-	ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
       }
     } else if (key==m_folderPrefix+std::string("/CHANSTAT")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_CS, key)) {
-	ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << *itr);
       } else {
-	ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
       }
     } else { 
       ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
     }
   }
-  m_pBadModules = std::make_unique<SCT_DCSStatCondData>();
-  m_pModulesHV = std::make_unique<SCT_DCSFloatCondData>();
-  m_pModulesTemp0 = std::make_unique<SCT_DCSFloatCondData>();
-  m_pModulesTemp1 = std::make_unique<SCT_DCSFloatCondData>();
+
+  // Read Cond Handle Keys
+  ATH_CHECK(m_condKeyState.initialize());
+  ATH_CHECK(m_condKeyHV.initialize());
+  ATH_CHECK(m_condKeyTemp0.initialize());
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_DCSConditionsSvc::finalize() { 
-  if (m_pModulesHV) {
-    m_pModulesHV->clear();
-  }
-  if (m_pModulesTemp0) {
-    m_pModulesTemp0->clear();
-  }
-  if (m_pModulesTemp1) {
-    m_pModulesTemp1->clear();
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -196,6 +166,7 @@ Identifier SCT_DCSConditionsSvc::getModuleID(const Identifier& elementId, InDetC
 bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId=getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return true; // not canreportabout
+  else if (not getCondDataState()) return false; // no cond data
   else if (m_pBadModules->output(castId(m_moduleId))==0) return true; //No params are listed as bad
   else return false;
 }
@@ -214,6 +185,8 @@ bool SCT_DCSConditionsSvc::isGood(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
+
+  if (not getCondDataHV()) return s_defaultHV; // no cond data
 
   float hvval{s_defaultHV};
   if (m_pModulesHV->getValue(castId(m_moduleId), hvval) and isGood(elementId, h)) {
@@ -234,6 +207,8 @@ float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDet
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
+  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
+
   float temperature{s_defaultTemperature};
   if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
     return temperature;
@@ -252,6 +227,8 @@ float SCT_DCSConditionsSvc::hybridTemperature(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
+
+  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
   if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
@@ -279,100 +256,47 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 
 ///////////////////////////////////
 
-//The actual function which puts a error code in a map for each DCS parameter/folder
-StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& keys) {
- 
-  m_dataFilled=false;
+// This is kept for SiLorentzAngleSvc callback of SCT_SiliconConditionsSvc and SCT_DCSConditionsSvc
+// (2017-09-29)
+StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& /*keys*/) {
+   return StatusCode::SUCCESS;
+}
+
+bool
+SCT_DCSConditionsSvc::getCondDataState() const {
   if (!m_pBadModules) {
-    ATH_MSG_ERROR("Bad modules data object has NULL pointer");
-    return StatusCode::FAILURE;
-  }
-
-  std::list<std::string>::const_iterator itr_key{keys.begin()};
-  // Retrieve CondAttrListCollection
-  const CondAttrListCollection* attrListCollection;
-  for (; itr_key!=keys.end(); ++itr_key) {
-    const std::string& thisFolder{*itr_key};
-    if (m_detStore->retrieve(attrListCollection,thisFolder).isSuccess()) {
-      // loop over collection
-      CondAttrListCollection::const_iterator attrList{attrListCollection->begin()};
-      CondAttrListCollection::const_iterator end{attrListCollection->end()};
-      //std::ostringstream attrStr1;
-      for (; attrList!=end; ++attrList) {
-        //A CondAttrListCollection is a map of ChanNum and AttributeList
-        CondAttrListCollection::ChanNum channelNumber{(*attrList).first};
-        const CondAttrListCollection::AttributeList& payload{attrList->second};
-        //loop over AttributeListSpecification
-        coral::AttributeList::const_iterator attrspecb{payload.begin()};
-        coral::AttributeList::const_iterator attrspece{payload.end()};
-        for (; attrspecb!=attrspece; ++attrspecb) {
-          std::string param{(*attrspecb).specification().name()};
-	  //Check if modules was not ok (1 or 16 for HV and LV) and not set manually (3 or 48). Both LV and HV must be either for module to be good.  
-          if (param=="STATE") {
-	    try {
-	      unsigned int hvstate{(*attrList).second[param].data<unsigned int>() bitand 240};
-	      unsigned int lvstate{(*attrList).second[param].data<unsigned int>() bitand 15};
-	      if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3)) )
-		 or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2)) )
-       	         or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )
-		 ) {  //Option for no cut is m_chanstatCut == 'NONE'
-		m_pBadModules->fill(channelNumber, param);
-	      } else {
-		m_pBadModules->remove(channelNumber, param);
-	      }
-	    } catch(...) {
-	      ATH_MSG_DEBUG("Exception caught while trying to access STATE");
-	    }
-	  } else if (param=="CCtagON_Name" or param=="CCtagON_Send" or param=="CCtagON_Recv" or param=="LVCHSTAT_RECV" or param=="HVCHCURR_RECV") {
-	    //Set to ignore all parameters, except HV and LV
-	    continue;
-	  } 
-
-	  // if we are asked to return the HV and temp, then we need to fill these strucures. 
-	  if (param=="HVCHVOLT_RECV") {
-	    try {
-	      float hvval{(*attrList).second[param].data<float>()};
-	      if ((hvval<m_hvLowLimit) or (hvval>m_hvUpLimit)) {
-		m_pBadModules->fill(channelNumber, param);
-	      } else {
-		m_pBadModules->remove(channelNumber, param);
-	      }
-	      if (m_returnHVTemp) {
-		m_pModulesHV->setValue(channelNumber, hvval);
-	      }
-	    } catch(...) {
-	      ATH_MSG_DEBUG("Exception caught while trying to access HVCHVOLT_RECV");
-	    }
-	  } else if (m_returnHVTemp and param=="MOCH_TM0_RECV") {
-	    try {
-              m_pModulesTemp0->setValue(channelNumber, (*attrList).second[param].data<float>());
-	    } catch(...) {
-	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM0_RECV");
-	    }
-	  } else if (m_returnHVTemp and param=="MOCH_TM1_RECV") { //2 temp sensors per module
-	    try {
-	      m_pModulesTemp1->setValue(channelNumber, (*attrList).second[param].data<float>());
-	    } catch(...) {
-	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM1_RECV");
-	    }
-	  }
-	}
-
-      }
+    SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState};
+    if((not condData.isValid()) or !(*condData)) {
+      ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
+      return false;
     }
-    m_dataFilled=true;
+    m_pBadModules = *condData;
   }
+  return true;
+}
 
-  //we are done with the db folders and have the data locally. 
-  if (not m_dropFolder) {
-    std::list<std::string>::const_iterator itr2_key{keys.begin()};
-    std::list<std::string>::const_iterator end2_key{keys.end()};
-    for (; itr2_key!=end2_key; ++itr2_key) {
-      const std::string& aFolder{*itr2_key};
-      // loop over collection
-      m_IOVDbSvc->dropObject(aFolder, false); //"false" here keeps the data in the cache, so SG doesn't have to go back to the DB each time  
+bool
+SCT_DCSConditionsSvc::getCondDataHV() const {
+  if(!m_pModulesHV) {
+    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
+    if ((not condData.isValid()) or !(*condData)) {
+      ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
+      return false;
     }
+    m_pModulesHV = *condData;
   }
+  return true;
+}
 
-  return StatusCode::SUCCESS;
+bool
+SCT_DCSConditionsSvc::getCondDataTemp0() const {
+  if (!m_pModulesTemp0) {
+    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
+    if ((not condData.isValid()) or !(*condData)) {
+      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
+      return false;
+    }
+    m_pModulesTemp0 = *condData;
+  }
+  return true;
 }

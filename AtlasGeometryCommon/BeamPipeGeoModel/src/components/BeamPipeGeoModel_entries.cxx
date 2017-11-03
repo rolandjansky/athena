@@ -1,8 +1,4 @@
-#include "BeamPipeGeoModel/BeamPipeDetectorTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "../BeamPipeDetectorTool.h"
 
-DECLARE_TOOL_FACTORY(BeamPipeDetectorTool)
+DECLARE_COMPONENT( BeamPipeDetectorTool )
 
-DECLARE_FACTORY_ENTRIES(BeamPipeGeoModel) {
-    DECLARE_ALGTOOL  ( BeamPipeDetectorTool )
-}

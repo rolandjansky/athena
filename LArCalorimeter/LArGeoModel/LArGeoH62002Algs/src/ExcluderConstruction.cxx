@@ -7,7 +7,7 @@
 // Feb-2006 JPA; 
 // 
 
-#include "LArGeoH62002Algs/ExcluderConstruction.h"
+#include "ExcluderConstruction.h"
 
 
 #include "GeoModelKernel/GeoElement.h"  

@@ -348,7 +348,10 @@ if opt.enableViews:
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
     InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
                                         Pixel_ClusterKey = "PixelTrigClustersCache",
-                                        SCT_ClusterKey   = "SCT_ClustersCache", OutputLevel=INFO)
+                                        SCT_ClusterKey   = "SCT_ClustersCache",
+                                        SpacePointCachePix = "PixelSpacePointCache",
+                                        SpacePointCacheSCT   = "SctSpacePointCache",
+                                        OutputLevel=DEBUG)
     topSequence += InDetCacheCreatorTrigViews    
     
     # Set of view algs
@@ -366,7 +369,16 @@ if opt.enableViews:
     # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
     # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
     # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
-
+else:
+    #This is to workaround the problem CondHandle bug, this can be removed once a proper solution is made
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                        Pixel_ClusterKey = "",
+                                        SCT_ClusterKey   = "",
+                                        SpacePointCachePix = "",
+                                        SpacePointCacheSCT   = "",
+                                        OutputLevel=INFO)
+    topSequence += InDetCacheCreatorTrigViews    
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------

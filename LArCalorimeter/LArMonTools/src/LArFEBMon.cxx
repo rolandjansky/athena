@@ -1205,7 +1205,7 @@ LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_
     for (unsigned int iy=1; iy <= (summ.parity)->GetNbinsY();iy++){
       // Found a faulty FEB
       // If more than 15 FEBs in error in a partition, ignore other FEBs (mandatory to avoid 
-      // creation of 1500  histos when a run ***REMOVED***!).
+      // creation of 1500  histos when a run is bad!).
       double binContent =0;
       switch (errorType){
 	case 1:

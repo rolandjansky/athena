@@ -25,7 +25,7 @@ class DataLink;
 EXIT_ROOT_SELECTION_NS
 
 /// @short DataLink implementation for ROOT usage
-///
+/// @file AthLinksSA/AthLinks/DataLink.h
 /// This is an implementation of DataLink<T> for vanilla ROOT.
 /// The code is quite simple, leaving most of the work for the
 /// xAOD::TEvent class.

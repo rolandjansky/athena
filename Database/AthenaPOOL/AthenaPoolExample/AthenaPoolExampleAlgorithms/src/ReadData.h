@@ -5,7 +5,7 @@
 #ifndef ATHENAPOOLEXAMPLEALGORITHMS_READDATA_H
 #define ATHENAPOOLEXAMPLEALGORITHMS_READDATA_H
 
-/** @file ReadData.h
+/** @file AthenaPoolExampleAlgorithms/src/ReadData.h
  *  @brief This file contains the class definition for the ReadData class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ReadData.h,v 1.2 2009-03-11 20:08:50 gemmeren Exp $

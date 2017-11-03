@@ -223,11 +223,11 @@ StatusCode LUCID_DigitizationToolBox::fillDigitContainer(LUCID_SimHitCollection*
 
 
 //--------------------------------------------------------------------------
-StatusCode LUCID_DigitizationToolBox::recordContainers(ServiceHandle<StoreGateSvc> m_digitsStore, std::string m_key_digitCnt) {
+StatusCode LUCID_DigitizationToolBox::recordContainers(ServiceHandle<StoreGateSvc> digitsStore, std::string key_digitCnt) {
   
   m_digitContainer = new LUCID_DigitContainer();
 
-  StatusCode sc = m_digitsStore->record(m_digitContainer, m_key_digitCnt);
+  StatusCode sc = digitsStore->record(m_digitContainer, key_digitCnt);
   
   return sc;
 }

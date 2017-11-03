@@ -61,7 +61,6 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   declareProperty("TRTCalDbSvc",           m_trtcaldbSvc);
   declareProperty("NeighbourSvc",          m_neighbourSvc);
   declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
-  declareProperty("NeighbourSvc",          m_neighbourSvc);
 
 }
 

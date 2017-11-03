@@ -15,21 +15,21 @@ namespace FADS {
   class IntegratorStepperBase {
   public:
 	IntegratorStepperBase(const std::string& n)
-      : stepperName(n)
+      : m_stepperName(n)
     {  }
 
 	virtual G4MagIntegratorStepper* Build() = 0;
 
 	std::string GetName() const {
-      return stepperName;
+      return m_stepperName;
     }
 
 	void SetName(const std::string& n) {
-      stepperName = n;
+      m_stepperName = n;
     }
 
   protected:
-	std::string stepperName;
+	std::string m_stepperName;
   };
 
 

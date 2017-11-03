@@ -22,10 +22,10 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include "CommissionEvent/ComTime.h"
 #include "VxVertex/VxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "TROOT.h"
+#include "StoreGate/ReadHandle.h"
 
 TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm   (name, pSvcLocator),
@@ -46,11 +46,10 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   m_AccumulatorTools.push_back("TRTCalAccumulator");
   m_TRTCalibTools.push_back("TRTCalibrator");
   m_FitTools.push_back("FitTool");
-  m_TrkCollections.push_back("Tracks");
+  m_TrkCollections.emplace_back("Tracks");
   declareProperty("TRTCalDBTool", m_trtcaldbSvc);
   // declare algorithm parameters
-  m_TrkCollections.push_back("ConvertedIPatTracks");
-  declareProperty("TrkCollections",m_TrkCollections);
+  m_TrkCollections.emplace_back("ConvertedIPatTracks");
 
   declareProperty("AlignTrkTools",m_TrackInfoTools);
   declareProperty("AccumulatorTools",m_AccumulatorTools);
@@ -61,6 +60,7 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DoRefit",m_dorefit);
   declareProperty("TrackSelectorTool",    m_trackSelector,            "Tool for the selection of tracks");
   declareProperty("DoCalibrate",m_docalibrate);
+
 }
 
 //---------------------------------------------------------------------
@@ -96,6 +96,10 @@ StatusCode TRTCalibrationMgr::initialize()
     return StatusCode::FAILURE;
   }
 
+  //Initialize ReadHandles and ReadHandleKeys
+  ATH_CHECK(m_verticesKey.initialize());
+  ATH_CHECK(m_EventInfoKey.initialize());
+  ATH_CHECK(m_TrkCollections.initialize());
   // Each ROI/road may create its own collection....
   msg(MSG::INFO) << "Tracks from Trk::Track collection(s):";
   for (unsigned int i=0;i<m_TrkCollections.size();i++)
@@ -151,14 +155,14 @@ StatusCode TRTCalibrationMgr::execute()
 */
 
   // Get Primary vertex
-  const xAOD::VertexContainer* vertices =  evtStore()->retrieve< const xAOD::VertexContainer >("PrimaryVertices");
-  if(!vertices) {
+  SG::ReadHandle<xAOD::VertexContainer> vertices(m_verticesKey);
+  if (not vertices.isValid()) {
         ATH_MSG_ERROR ("Couldn't retrieve VertexContainer with key: PrimaryVertices");
         return StatusCode::FAILURE;
   }
 
   int countVertices(0);
-  for (const xAOD::Vertex* vx : *vertices) {
+  for (const xAOD::Vertex* vx : *(vertices.cptr()) ) {
     if (vx->vertexType() == xAOD::VxType::PriVtx) {
       if ( vx-> nTrackParticles() >= 3) countVertices++;
     }
@@ -169,43 +173,22 @@ StatusCode TRTCalibrationMgr::execute()
   }
 
   // get event info pointer
-  if ((evtStore()->retrieve(m_EventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> m_EventInfo(m_EventInfoKey);
+  if (not m_EventInfo.isValid()) {
     msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endmsg;
     return StatusCode::FAILURE;
   }
   
   // Loop over tracks; get track info and accumulate it
   const Trk::Track* aTrack;
-  const TrackCollection* trks;
   //const DataVector<Trk::Track>* trks;
-  //Get the Event phase:
-  
-  double eventPhase = 0;
-  
-  ComTime* theComTime(0);
-  StatusCode sc = evtStore()->retrieve(theComTime, "TRT_Phase");
-  if(sc.isFailure()){
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
-    eventPhase = -1;//invalid, reject track 
-  }
-  
-  if(theComTime){
-    eventPhase = theComTime->getTime();
-  }
-  
-  if(eventPhase==0) {
-    msg(MSG::INFO) << "no skipping event, event phase = 0" << endmsg; 
-//    return StatusCode::SUCCESS;
-  }
-
-  //if(eventPhase!=0 && m_TrkCollections.size()>=3){
     
   TrackCollection::const_iterator t;
-  for (unsigned int i=0;i<m_TrkCollections.size();i++){
+
+  for (SG::ReadHandle<TrackCollection>& trks : m_TrkCollections.makeHandles()) {
     // retrieve all tracks from TDS
-    //sc=evtStore()->retrieve(trks,m_TrkCollections[i]);
-    if (!(evtStore()->retrieve(trks,m_TrkCollections[i])).isFailure()){
-      
+
+    if (trks.isValid()){  
       //      if (trks->size()>100){
       
       if(trks->size()<3) {

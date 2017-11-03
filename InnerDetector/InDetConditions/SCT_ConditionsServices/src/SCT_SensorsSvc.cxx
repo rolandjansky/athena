@@ -28,7 +28,7 @@ StatusCode SCT_SensorsSvc::initialize(){
   if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endmsg, StatusCode::FAILURE;
   // Register callback function
   if (m_detStore->regFcn(&SCT_SensorsSvc::fillSensorsData, this, 
-			 m_sensorsData,sensorsFolderName).isFailure()) {
+                         m_sensorsData,sensorsFolderName).isFailure()) {
     return msg(MSG::FATAL) << "Failed to register callback function for sensors" << endmsg, StatusCode::FAILURE;
   }
   

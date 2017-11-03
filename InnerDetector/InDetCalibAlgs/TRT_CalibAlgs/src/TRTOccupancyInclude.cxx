@@ -11,6 +11,8 @@
 #include "TRT_CalibAlgs/TRTOccupancyInclude.h"
 #include "xAODEventInfo/EventInfo.h"
 
+#include "StoreGate/ReadHandle.h"
+
 TRTOccupancyInclude::TRTOccupancyInclude(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm   (name, pSvcLocator),
   m_LocalOccTool()
@@ -35,6 +37,8 @@ StatusCode TRTOccupancyInclude::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
   }
 
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -44,11 +48,13 @@ StatusCode TRTOccupancyInclude::execute()
 {
   msg(MSG::DEBUG) << "execute()" << endmsg;
 
-  const xAOD::EventInfo* eventInfo = 0;
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
+  if (not evtInfo.isValid()) {
     ATH_MSG_WARNING(" Cannot access to event info.");
     return StatusCode::SUCCESS;
   } 
+  
+  const xAOD::EventInfo* eventInfo = evtInfo.cptr();
 
   std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
   if (TRTOccu.size() > 6) {

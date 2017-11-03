@@ -26,7 +26,6 @@
 
 #include "CscCalibTools/ICscCalibTool.h"
 
-using namespace MuonGM;
 class IAtRndmGenSvc;
 
 // Author: Ketevi A. Assamagan
@@ -51,7 +50,7 @@ public:
   CSC_Digitizer() {};
 
   // full constructor
-  CSC_Digitizer(CscHitIdHelper * cscHitHelper, const MuonDetectorManager* muonMgr, ICscCalibTool* pcalib);
+  CSC_Digitizer(CscHitIdHelper * cscHitHelper, const MuonGM::MuonDetectorManager* muonMgr, ICscCalibTool* pcalib);
 
   // Destructor
   ~CSC_Digitizer() {
@@ -81,16 +80,16 @@ public:
   // digitize a single hit
   StatusCode digitize_hit(const CSCSimHit * cscHit, std::vector<IdentifierHash> & hashVec,
 			  std::map<IdentifierHash, std::pair<double,double> >& data_map,
-			  CLHEP::HepRandomEngine* m_rndmEngine);
+			  CLHEP::HepRandomEngine* rndmEngine);
   StatusCode digitize_hit (const CSCSimHit * cscHit, 
                            std::vector<IdentifierHash>& hashVec,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMapOddPhase,
-                           CLHEP::HepRandomEngine* m_rndmEngine);
+                           CLHEP::HepRandomEngine* rndmEngine);
   StatusCode digitize_hit (const CSCSimHit * cscHit, 
                            std::vector<IdentifierHash>& hashVec,
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
-                           CLHEP::HepRandomEngine* m_rndmEngine);
+                           CLHEP::HepRandomEngine* rndmEngine);
 
   // input parameters should be as form of cscHelper returned value....
   IdentifierHash getHashId(int eta, int phiSector, int chamberLayer, int chamberType, int wireLayer, int stripId, int maxStrip, int measuresPhi) {
@@ -111,7 +110,7 @@ private:
   double qStripR       (const double x, const std::string stationType) const;
   double qStripPhi     (const double x, const std::string stationType) const;
   double fparamPhi     (const double x, const int N, const double * p) const;   
-  double getDriftTime(const CscReadoutElement* descriptor, const Amg::Vector3D& pos) const;
+  double getDriftTime(const MuonGM::CscReadoutElement* descriptor, const Amg::Vector3D& pos) const;
 
   bool outsideWindow(double time) const; // default +-50...
   void fillMaps(const IdentifierHash hash, const double driftTime, const double stripCharge,
@@ -129,7 +128,7 @@ private:
   // private data members
   CscHitIdHelper * m_cscHitHelper;
   const   CscIdHelper * m_cscIdHelper;
-  const   MuonDetectorManager * m_muonMgr;
+  const   MuonGM::MuonDetectorManager * m_muonMgr;
   ICscCalibTool* m_pcalib;
   // Calibration tool.
   bool    m_pointingPhiStrips;
@@ -327,7 +326,7 @@ bool CSC_Digitizer::outsideWindow(double driftTime) const {
   return time < m_timeWindowLowerOffset || time > m_timeWindowUpperOffset;
 }
 
-inline double CSC_Digitizer::getDriftTime(const CscReadoutElement* descriptor, const Amg::Vector3D& pos) const {
+inline double CSC_Digitizer::getDriftTime(const MuonGM::CscReadoutElement* descriptor, const Amg::Vector3D& pos) const {
   // need to be calculated correct - Garfield?
   // assumption on the field lines not good but of for pileup stuff!
   double time = -1000.0;

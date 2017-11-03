@@ -3,10 +3,10 @@
 */
 
 // ModulesConstructionH62004
-#include "LArGeoH62004Algs/ModulesConstructionH62004.h"
-#include "LArGeoH62004Algs/ExcluderConstructionH62004.h"
-#include "LArGeoH62004Algs/HECConstructionH62004.h"
-#include "LArGeoH62004Algs/FCALConstructionH62004.h"
+#include "ModulesConstructionH62004.h"
+#include "ExcluderConstructionH62004.h"
+#include "HECConstructionH62004.h"
+#include "FCALConstructionH62004.h"
 
 // need if we want tu use EMEC from LArGeoTBEC:
 #include "LArGeoTBEC/EMECModuleConstruction.h"

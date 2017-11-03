@@ -94,10 +94,6 @@ private:
   float m_minPtCut;
   /** @brief Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits **/
   float m_maxDeltaR_innermost;
-  /** @brief Electron container name */
-  std::string m_electronContainerName;
-  /** @brief Photon container name */
-  std::string m_photonContainerName;
   
 }; // End: class definition
 

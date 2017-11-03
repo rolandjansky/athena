@@ -35,12 +35,8 @@ private:
   //static const float errorcode;
 
 };
-
-CLASS_DEF( LArHVScaleCorrSC ,9991567 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArHVScaleCorrSC> , 123730893 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArHVScaleCorrSC>, CondContBase );
+CLASS_DEF( LArHVScaleCorrSC ,9991567 , 1 )
+CONDCONT_DEF( LArHVScaleCorrSC, 123730893, ILArHVScaleCorr );
 
 #endif 

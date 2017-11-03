@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ##
-# @file DCubeConfig.py
+# @file DCubeClient/python/DCubeConfig.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubeConfig and test_DCubeConfig classes
 

@@ -26,12 +26,12 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
-#include "LUCID_GeoModel/LUCID_DetectorFactory.h"
-#include "LUCID_GeoModel/GetReflectivity.h"
-#include "LUCID_GeoModel/GetRefIndex.h"
-#include "LUCID_GeoModel/GetAbsLength.h"
+#include "LUCID_DetectorFactory.h"
+#include "GetReflectivity.h"
+#include "GetRefIndex.h"
+#include "GetAbsLength.h"
 
-#include "LUCID_GeoModel/LUCID_RDBAaccess.h"
+#include "LUCID_RDBAaccess.h"
 
 #include <iomanip>
 

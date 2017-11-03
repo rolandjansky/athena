@@ -3,7 +3,7 @@
 */
 
 /**
- * @file UtilityFuncs.h
+ * @file CollectionUtilities/UtilityFuncs.h
  * @brief prototypes for utility POOL collection funcs
  * @author Jack.Cranshaw@cern.ch
  * $Id: UtilityFuncs.h 495625 2012-04-13 13:54:17Z mnowak $ 

@@ -15,7 +15,7 @@ namespace FADS {
 
 class DocumentationRecord {
 private:
-	std::vector<std::string> theDoc;
+	std::vector<std::string> m_theDoc;
 public:
 	inline void AddDocumentationLine(std::string);
 	inline void PrintDocumentation();

@@ -1038,8 +1038,7 @@ namespace TrigSim {
             // this duplicates what is already done in Algorithm::sysExecute, which
             // calls Algorithm::setExecuted, but eventually we plan to remove that 
             // function
-            m_aess->algExecState(*it,m_eventContext).setExecuted(true);
-            m_aess->algExecState(*it,m_eventContext).setExecStatus(sc);
+            m_aess->algExecState(*it,m_eventContext).setState(AlgExecState::State::Done, sc);
 
             if(sc.isFailure()) {
                 m_log << MSG::ERROR << "Algorithm failed in sysExecute(): "

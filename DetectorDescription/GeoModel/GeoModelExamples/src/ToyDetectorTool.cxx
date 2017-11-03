@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeoModelExamples/ToyDetectorTool.h"
-#include "GeoModelExamples/ToyDetectorFactory.h" 
+#include "ToyDetectorTool.h"
+#include "ToyDetectorFactory.h" 
 #include "GeoModelExamples/ToyDetectorManager.h" 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -36,21 +36,21 @@ ToyDetectorTool::~ToyDetectorTool()
  ** Create the Detector Node corresponding to this tool
  **/
 StatusCode
-ToyDetectorTool::create( StoreGateSvc* detStore )
+ToyDetectorTool::create()
 { 
   MsgStream log(msgSvc(), name()); 
   // 
   // Locate the top level experiment node 
   // 
   DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
 	<< endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
-  ToyDetectorFactory theToyFactory(detStore);
+  ToyDetectorFactory theToyFactory(detStore().operator->());
   if ( 0 == m_detector ) {
     // Create the ToyDetectorNode instance
     try {   
@@ -66,7 +66,7 @@ ToyDetectorTool::create( StoreGateSvc* detStore )
     }
     // Register the ToyDetectorNode instance with the Transient Detector Store
     theExpt->addManager(theToyFactory.getDetectorManager());
-    if (detStore->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName())!=StatusCode::SUCCESS) return StatusCode::FAILURE;
+    if (detStore()->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName())!=StatusCode::SUCCESS) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;

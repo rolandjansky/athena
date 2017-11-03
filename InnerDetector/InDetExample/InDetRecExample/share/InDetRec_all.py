@@ -74,12 +74,6 @@ else:
     ServiceMgr.EventSelector.SkipEvents         = athenaCommonFlags.SkipEvents()
 
 
-# --- Conditions input loader.
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq = AthSequencer("AthCondSeq")
-condSeq += CondInputLoader()
-
-
 # ---- Beam Spot service
 include("InDetBeamSpotService/BeamCondSvc.py")
 # --- particle property service

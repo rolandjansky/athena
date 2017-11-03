@@ -18,11 +18,6 @@ This package provides data classes used to access data in the conditions
 
 @section SCT_ConditionsData_SCT_ConditionsDataOverview Class overview
  
-
-  - SCT_DCSConditionsData: Container for DCS conditions, such as module temperature.
-  
-  - SCT_CalibData: Container for Calibration data
-  
   - SCT_CalibDefectData: Container with a list of defects derived from calibration data
   
   - StringifyVector: Local utility function to tokenise and stream a string to a vector.

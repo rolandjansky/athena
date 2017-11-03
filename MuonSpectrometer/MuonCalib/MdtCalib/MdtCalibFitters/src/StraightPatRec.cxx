@@ -44,33 +44,33 @@ using namespace std;
 
 //*****************************************************************************
 
-//:::::::::::::::::::
-//:: METHOD m_init ::
-//:::::::::::::::::::
+//:::::::::::::::::
+//:: METHOD init ::
+//:::::::::::::::::
 
-void StraightPatRec::m_init(void) {
+void StraightPatRec::init(void) {
 
-	m_init(0.5*CLHEP::mm); // default road width = 0.5 CLHEP::mm
+	init(0.5*CLHEP::mm); // default road width = 0.5 CLHEP::mm
 	return;
 
 }
 
 //*****************************************************************************
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: METHOD m_init(const double & r_road_width) ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::
+//:: METHOD init(const double & r_road_width) ::
+//::::::::::::::::::::::::::::::::::::::::::::::
 
-void StraightPatRec::m_init(const double & r_road_width) {
+void StraightPatRec::init(const double & r_road_width) {
 
 
 //coverity
 	m_b_x1_err=0.0;
 	m_b_x2_err=0.0;
 	m_b_x2=0.0;
-	m_m_x1_err=0.0;
-	m_m_x2_err=0.0;
-	m_m_x2=0.0;
+	m_a_x1_err=0.0;
+	m_a_x2_err=0.0;
+	m_a_x2=0.0;
 
 
 //:::::::::::::::
@@ -110,7 +110,7 @@ void StraightPatRec::m_init(const double & r_road_width) {
 //:: USER-DEFINED VALUES)                                             ::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-	m_m_x1 = 1.0; m_b_x1 = 0.0;
+	m_a_x1 = 1.0; m_b_x1 = 0.0;
 
 	m_fix_selection = false;
 
@@ -218,8 +218,8 @@ MTStraightLine StraightPatRec::tangent(
 		direction[2] = (1.0e-99);
 		tang = MTStraightLine(p1, direction, null_vec, null_vec);	
 	}
-	mx1 = tang.m_x1(); bx2 = tang.b_x1();
-	mx2 = tang.m_x2(); bx2 = tang.b_x2();
+	mx1 = tang.a_x1(); bx2 = tang.b_x1();
+	mx2 = tang.a_x2(); bx2 = tang.b_x2();
 	tang = MTStraightLine(mx1, bx1, mx2, bx2,1.0, 1.0, 
 			sqrt(r_sigma12+r_sigma22)/fabs(p2.z()-p1.z()),
 			sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/

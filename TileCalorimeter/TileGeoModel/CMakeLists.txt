@@ -41,6 +41,7 @@ atlas_add_component( TileGeoModel
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities TileDetDescr CaloDetDescrLib CaloIdentifier SGTools GaudiKernel TileConditionsLib TileIdentifier TileGeoModelLib )
 
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 

@@ -17,9 +17,9 @@ TrigJpsi::TrigJpsi()
     m_jpsimuon[1] = nullptr;
 }
 
-TrigJpsi::TrigJpsi(const CombinedMuonFeature* m_jpsimuon1, const CombinedMuonFeature* m_jpsimuon2)
+TrigJpsi::TrigJpsi(const CombinedMuonFeature* jpsimuon1, const CombinedMuonFeature* jpsimuon2)
 {
-    setDaughters(m_jpsimuon1,m_jpsimuon2);
+    setDaughters(jpsimuon1,jpsimuon2);
 }
 
 TrigJpsi::~TrigJpsi() 
@@ -33,10 +33,10 @@ const CombinedMuonFeature* TrigJpsi::getDaughter(const int i) const
         return 0;
 }
 
-void TrigJpsi::setDaughters( const CombinedMuonFeature* m_jpsimuon1, const CombinedMuonFeature* m_jpsimuon2)
+void TrigJpsi::setDaughters( const CombinedMuonFeature* jpsimuon1, const CombinedMuonFeature* jpsimuon2)
 { 
-    m_jpsimuon[0]=m_jpsimuon1;
-    m_jpsimuon[1]=m_jpsimuon2;
+    m_jpsimuon[0]=jpsimuon1;
+    m_jpsimuon[1]=jpsimuon2;
     CLHEP::HepLorentzVector hlv[2];
     
     for ( int i=0 ; i<2 ; ++i )

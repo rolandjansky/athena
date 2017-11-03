@@ -18,6 +18,9 @@
 #include "HepMC/GenVertex.h"
 #include "InDetSegmentDriftCircleAssValidation/SegmentDriftCircleAssValidation.h"
 
+// ReadHandle
+#include "StoreGate/ReadHandle.h"
+
 using HepGeom::Point3D;
 
 ///////////////////////////////////////////////////////////////////
@@ -30,18 +33,12 @@ InDet::SegmentDriftCircleAssValidation::SegmentDriftCircleAssValidation
 
   // SegmentDriftCircleAssValidation steering parameters
   //
-  m_circlesTRTname    = "TRT_DriftCircles"      ;
   m_pTmin             = 500.                    ;
   m_rapcut            = 2.1                     ;
   m_dccut             = 10                      ;
   m_rmin              = 0.                      ;
   m_rmax              = 20.                     ;
-  m_PRDTruthNameTRT   = "PRD_MultiTruthTRT"     ;
-  m_origtracklocation = "TRTSegments"           ;
 
-  declareProperty("OrigTracksLocation" ,    m_origtracklocation );
-  declareProperty("TruthNameTRT",           m_PRDTruthNameTRT   );
-  declareProperty("TRT_DriftCirclesName",   m_circlesTRTname    );
   declareProperty("pTmin",                  m_pTmin             );
   declareProperty("Pseudorapidity",         m_rapcut            );
   declareProperty("MinNumberDCs"  ,         m_dccut             );
@@ -87,6 +84,11 @@ StatusCode InDet::SegmentDriftCircleAssValidation::initialize()
 
   for(int i=0; i!=5; ++i) m_efficiency[i] = 0;
 
+  // Initialize ReadHandleKey
+  ATH_CHECK( m_origtrackKey.initialize() );
+  ATH_CHECK( m_PRDTruthTRTKey.initialize() );
+  ATH_CHECK( m_circlesTRTKey.initialize() );
+
   return sc;
 }
 
@@ -98,36 +100,28 @@ StatusCode InDet::SegmentDriftCircleAssValidation::execute()
 { 
   msg(MSG::DEBUG)    << " InDetSegmentDriftCircleAssValidation execute()" << endmsg;
 
-  StatusCode sc = evtStore()->retrieve(m_origColTracks,m_origtracklocation);
+  SG::ReadHandle<Trk::SegmentCollection> origColTracks( m_origtrackKey );
   
-  if(sc.isFailure()){
-    msg(MSG::FATAL) << "No TRT tracks with name " << m_origtracklocation << " found in StoreGate!" << endmsg;
-    return sc;
+  if( !origColTracks.isValid() ){
+    msg(MSG::FATAL) << "No TRT tracks with name " << m_origtrackKey.key() << " found in StoreGate!" << endmsg;
+    return StatusCode::FAILURE;
   }else{
-    msg(MSG::DEBUG) << "Found TRT trak collection " << m_origtracklocation << " in StoreGate!" << endmsg;
+    msg(MSG::DEBUG) << "Found TRT trak collection " << m_origtrackKey.key() << " in StoreGate!" << endmsg;
   }
 
-  //***************************************************************************************************
-  //  std::vector<const PRD_MultiTruthCollection*> prdCollectionVector(3);
-  m_prdCollectionVector.clear();
-  const PRD_MultiTruthCollection*     prdCollectionVector;
+  SG::ReadHandle<PRD_MultiTruthCollection> prdCollection( m_PRDTruthTRTKey );
 
-  if(!m_PRDTruthNameTRT.empty()) {
-    sc = evtStore()->retrieve(prdCollectionVector, m_PRDTruthNameTRT);
-    if (sc.isFailure()){
-      msg(MSG::WARNING) << "TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT<<" NOT found"<< endmsg;
-    } else {
-      msg(MSG::DEBUG) << "Got TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT <<endmsg;
-    }
+  if ( !prdCollection.isValid() ){
+    msg(MSG::FATAL) << "TRT PRD_MultiTruthCollection " << m_PRDTruthTRTKey.key() << " NOT found!" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg(MSG::DEBUG) << "Got TRT PRD_MultiTruthCollection " << m_PRDTruthTRTKey.key() << endmsg;
   }
-  m_prdCollectionVector.push_back(prdCollectionVector);
-  //****************************************************************************************************
-  msg(MSG::DEBUG) << " prdCollectionVector size  " << m_prdCollectionVector.size() << endmsg;
 
-  newCirclesEvent();
+  newCirclesEvent( prdCollection.cptr() );
   m_nqsegments = QualityTracksSelection();
 
-  tracksComparison                   ();
+  tracksComparison( origColTracks.cptr(), prdCollection.cptr() );
   
   if(m_particles.size() > 0) {
   
@@ -218,18 +212,18 @@ MsgStream& InDet::SegmentDriftCircleAssValidation::dumptools( MsgStream& out ) c
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
      <<std::endl;
-  n     = 65-m_origtracklocation.size();
+  n     = 65-m_origtrackKey.key().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-  n     = 65-m_circlesTRTname.size();
+  n     = 65-m_circlesTRTKey.key().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 65-m_PRDTruthNameTRT.size();
+  n     = 65-m_PRDTruthTRTKey.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   
-  out<<"| Location of input segmentss                     | "<<m_origtracklocation   <<s1
+  out<<"| Location of input segmentss                     | "<<m_origtrackKey.key()   <<s1
      <<std::endl;
-  out<<"| TRT      clusters                               | "<<m_circlesTRTname      <<s2
+  out<<"| TRT      clusters                               | "<<m_circlesTRTKey.key()      <<s2
      <<std::endl;
-  out<<"| Truth location  for trt                         | "<<m_PRDTruthNameTRT     <<s3
+  out<<"| Truth location  for trt                         | "<<m_PRDTruthTRTKey.key()     <<s3
      <<std::endl;
   out<<"|         pT cut                                  | "
      <<std::setw(14)<<std::setprecision(5)<<m_pTmin
@@ -294,7 +288,7 @@ std::ostream& InDet::SegmentDriftCircleAssValidation::dump( std::ostream& out ) 
 // New event for drift circles information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SegmentDriftCircleAssValidation::newCirclesEvent()
+void InDet::SegmentDriftCircleAssValidation::newCirclesEvent( const PRD_MultiTruthCollection* prdCollection )
 {
   m_ncircles = 0;
   m_kinecircle.erase(m_kinecircle.begin(),m_kinecircle.end());
@@ -302,15 +296,14 @@ void InDet::SegmentDriftCircleAssValidation::newCirclesEvent()
 
   // Get Drift Circles container
   //
-  m_trtcontainer = 0;
-  StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_circlesTRTname);
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer( m_circlesTRTKey );
 
   // Loop through all pixel clusters
   //
-  if(m_trtcontainer) {
+  if( trtcontainer.isValid() ) {
 
-    InDet::TRT_DriftCircleContainer::const_iterator w  =  m_trtcontainer->begin();
-    InDet::TRT_DriftCircleContainer::const_iterator we =  m_trtcontainer->end  ();
+    InDet::TRT_DriftCircleContainer::const_iterator w  =  trtcontainer->begin();
+    InDet::TRT_DriftCircleContainer::const_iterator we =  trtcontainer->end  ();
 
     for(; w!=we; ++w) {
       
@@ -319,18 +312,17 @@ void InDet::SegmentDriftCircleAssValidation::newCirclesEvent()
       
       for(; c!=ce; ++c) {
 
-	++m_ncircles;
+        ++m_ncircles;
 
-	std::list<int> lk = kine((*c)); 
+        std::list<int> lk = kine((*c), prdCollection );
         if(int(lk.size())==0) continue;
-	std::list<int>::iterator ik,ike=lk.end();
+        std::list<int>::iterator ik,ike=lk.end();
         for(ik=lk.begin();ik!=ike;++ik){
           if(!isTheSameStrawElement((*ik),(*c))) {
             m_kinecircle.insert(std::make_pair((*ik),(*c)));
             bool isThere = false;
-	    std::list<int>::iterator ii, iie=m_allBarcodes.end();
+            std::list<int>::iterator ii, iie=m_allBarcodes.end();
             for(ii=m_allBarcodes.begin();ii!=iie;++ii) {
-
               if((*ik)==(*ii)) isThere = true;
             }
             if(!isThere) m_allBarcodes.push_back((*ik));
@@ -339,7 +331,6 @@ void InDet::SegmentDriftCircleAssValidation::newCirclesEvent()
       }
     }
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -385,7 +376,7 @@ int InDet::SegmentDriftCircleAssValidation::QualityTracksSelection()
 // Recontructed segment comparison with kine information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SegmentDriftCircleAssValidation::tracksComparison()
+void InDet::SegmentDriftCircleAssValidation::tracksComparison( const Trk::SegmentCollection* origColTracks, const PRD_MultiTruthCollection* prdCollection )
 {
   if(!m_nqsegments) return;
 
@@ -399,8 +390,8 @@ void InDet::SegmentDriftCircleAssValidation::tracksComparison()
     GENPAR[i] = 0;
   }
 
-  Trk::SegmentCollection::const_iterator iseg = m_origColTracks->begin();
-  Trk::SegmentCollection::const_iterator isegEnd = m_origColTracks->end();
+  Trk::SegmentCollection::const_iterator iseg = origColTracks->begin();
+  Trk::SegmentCollection::const_iterator isegEnd = origColTracks->end();
   for(; iseg != isegEnd; ++ iseg) {
 
     ///Get the track segment
@@ -419,28 +410,41 @@ void InDet::SegmentDriftCircleAssValidation::tracksComparison()
       const InDet::TRT_DriftCircle* RawDataClus=dynamic_cast<const InDet::TRT_DriftCircle*>(trtcircle->prepRawData());
       if(!RawDataClus) continue;
 
-      std::list<PRD_MultiTruthCollection::const_iterator> lk = kinpart(RawDataClus); if(int(lk.size())==0) continue;
+      std::list<PRD_MultiTruthCollection::const_iterator> lk = kinpart(RawDataClus, prdCollection );
+      if (int(lk.size())==0) continue;
       std::list<PRD_MultiTruthCollection::const_iterator>::iterator ik, ike=lk.end();
-     
+
       //* looping over the returned list of genParticles
       for(ik=lk.begin(); ik!=ike; ++ik){
-        int k = (*ik)->second.barcode(); if(k<=0) continue;
-	int m  = -1      ;
+        int k = (*ik)->second.barcode();
+        if (k<=0) continue;
+        int m = -1;
 
-	for(int n=0; n!=NK; ++n) {
-	  if(k==KINE[n]) {++NKINE[n]; m=n;  break;}
-	}
-	if(m<0) {KINE[NK] = k; NKINE[NK] = 1; GENPAR[NK]=(*ik)->second.cptr(); if(NK < 200) ++NK;}
+        for(int n=0; n!=NK; ++n) {
+          if(k==KINE[n]) {
+            ++NKINE[n];
+            m=n;
+            break;
+          }
+        }
+
+        if(m<0) {
+          KINE[NK] = k;
+          NKINE[NK] = 1;
+          GENPAR[NK]=(*ik)->second.cptr();
+          if(NK < 200) ++NK;
+        }
       }
-	
     }
     int nm = 0, m = 0;
     for(int n=0; n!=NK; ++n) {
-      if(NKINE[n] > m) {nm = n; m=NKINE[n];}
+      if(NKINE[n] > m) {
+        nm = n;
+        m=NKINE[n];
+      }
     }
     m_tracks.insert(std::make_pair(KINE[nm],m) );   //* if m=0, the KINE[nm] will be set to the previous one
     m_genPars.insert(std::make_pair(GENPAR[nm],m));
-
   }
 }
 
@@ -483,11 +487,11 @@ void InDet::SegmentDriftCircleAssValidation::efficiencyReconstruction()
 ///////////////////////////////////////////////////////////////////
 
 std::list<int> InDet::SegmentDriftCircleAssValidation::kine
-(const InDet::TRT_DriftCircle* d) 
+(const InDet::TRT_DriftCircle* d, const PRD_MultiTruthCollection* prdCollection ) 
 {
   std::list<int> lk;
   bool find;
-  std::list<PRD_MultiTruthCollection::const_iterator> mc = findTruth(d,find);
+  std::list<PRD_MultiTruthCollection::const_iterator> mc = findTruth(d,find, prdCollection );
   if(!find) return lk;
   std::list<PRD_MultiTruthCollection::const_iterator>::iterator imc, imce=mc.end();
   for(imc=mc.begin();imc!=imce;++imc){ 
@@ -535,12 +539,12 @@ std::list<int> InDet::SegmentDriftCircleAssValidation::kine
 ///////////////////////////////////////////////////////////////////
 
 std::list<PRD_MultiTruthCollection::const_iterator> InDet::SegmentDriftCircleAssValidation::kinpart
-(const InDet::TRT_DriftCircle* d) 
+(const InDet::TRT_DriftCircle* d, const PRD_MultiTruthCollection* prdCollection ) 
 {
   
   std::list<PRD_MultiTruthCollection::const_iterator> lk;
   bool find;
-  std::list<PRD_MultiTruthCollection::const_iterator> mc = findTruth(d,find);
+  std::list<PRD_MultiTruthCollection::const_iterator> mc = findTruth(d,find, prdCollection );
   if(!find) return lk;
 
   std::list<PRD_MultiTruthCollection::const_iterator>::iterator imc, imce=mc.end();
@@ -607,7 +611,7 @@ bool InDet::SegmentDriftCircleAssValidation::isTheSameStrawElement
 // Drift Circle truth information
 ///////////////////////////////////////////////////////////////////
 std::list<PRD_MultiTruthCollection::const_iterator>
-InDet::SegmentDriftCircleAssValidation::findTruth (const InDet::TRT_DriftCircle* d,bool& Q)
+InDet::SegmentDriftCircleAssValidation::findTruth (const InDet::TRT_DriftCircle* d,bool& Q, const PRD_MultiTruthCollection* prdCollection )
 {
   Q = true;
   
@@ -616,9 +620,9 @@ InDet::SegmentDriftCircleAssValidation::findTruth (const InDet::TRT_DriftCircle*
   if(d){
     typedef PRD_MultiTruthCollection::const_iterator TruthIter;
 
-    std::pair<TruthIter, TruthIter> r = m_prdCollectionVector[0]->equal_range(d->identify());
+    std::pair<TruthIter, TruthIter> r = prdCollection->equal_range(d->identify());
     for(TruthIter i=r.first; i!=r.second;i++){
-      if(i==m_prdCollectionVector[0]->end()) continue;
+      if(i==prdCollection->end()) continue;
       mc.push_back(i);
     }
   }

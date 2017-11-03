@@ -7,7 +7,7 @@
 
 namespace FADS {
 
-FieldManagerStore* FieldManagerStore::p_fieldManagerStore=0;
+FieldManagerStore* FieldManagerStore::s_fieldManagerStore=0;
 
 FieldManagerStore::FieldManagerStore()
 {
@@ -19,13 +19,13 @@ FieldManagerStore::FieldManagerStore(const FieldManagerStore& )
 
 FieldManagerStore* FieldManagerStore::GetFMStore()
 {
-	if (!p_fieldManagerStore) p_fieldManagerStore=new FieldManagerStore;
-	return p_fieldManagerStore;
+	if (!s_fieldManagerStore) s_fieldManagerStore=new FieldManagerStore;
+	return s_fieldManagerStore;
 }
 
 FieldManagerStore* FieldManagerStore::GetFieldManagerStore()
 {
-	return p_fieldManagerStore;
+	return s_fieldManagerStore;
 }
 
 void FieldManagerStore::RegisterFieldManager(FadsFieldManager* fm)

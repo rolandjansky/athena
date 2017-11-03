@@ -45,7 +45,5 @@ CLASS_DEF( ILAruA2MeV,154639332,1)
 //ConditionsContainer clid for athenaMT"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILAruA2MeV> , 263271148 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILAruA2MeV>, CondContBase );
 
 #endif 

@@ -25,42 +25,42 @@ public:
 	{
 		std::cout<<"Setting X component for field "<<GetName()<< 
 			" to "<<xf/CLHEP::tesla<<" Tesla"<<std::endl;
-		FieldValueX=xf;
+		m_FieldValueX=xf;
 	}
 	void SetYComponent(double yf) 
 	{
 		std::cout<<"Setting Y component for field "<<GetName()<< 
 			" to "<<yf/CLHEP::tesla<<" Tesla"<<std::endl;
-		FieldValueY=yf;
+		m_FieldValueY=yf;
 	}
 	void SetZComponent(double zf) 
 	{
 		std::cout<<"Setting Z component for field "<<GetName()<< 
 			" to "<<zf/CLHEP::tesla<<" Tesla"<<std::endl;
-		FieldValueZ=zf;
+		m_FieldValueZ=zf;
 	}
-	void SetXMinField(double xm) {checkXdim=true;xMinField=xm;}
-	void SetYMinField(double ym) {checkYdim=true;yMinField=ym;}
-	void SetZMinField(double zm) {checkZdim=true;zMinField=zm;}
-	void SetXMaxField(double xm) {checkXdim=true;xMaxField=xm;}
-	void SetYMaxField(double ym) {checkYdim=true;yMaxField=ym;}
-	void SetZMaxField(double zm) {checkZdim=true;zMaxField=zm;}
+	void SetXMinField(double xm) {m_checkXdim=true;m_xMinField=xm;}
+	void SetYMinField(double ym) {m_checkYdim=true;m_yMinField=ym;}
+	void SetZMinField(double zm) {m_checkZdim=true;m_zMinField=zm;}
+	void SetXMaxField(double xm) {m_checkXdim=true;m_xMaxField=xm;}
+	void SetYMaxField(double ym) {m_checkYdim=true;m_yMaxField=ym;}
+	void SetZMaxField(double zm) {m_checkZdim=true;m_zMaxField=zm;}
 	
 private:
-	ConstantFieldXMLHandler *theHandler;
-	double FieldValueX;
-	double FieldValueY;
-	double FieldValueZ;
+	ConstantFieldXMLHandler *m_theHandler;
+	double m_FieldValueX;
+	double m_FieldValueY;
+	double m_FieldValueZ;
 	
-	bool checkXdim;
-	bool checkYdim;
-	bool checkZdim;
-	double xMinField;
-	double xMaxField;
-	double yMinField;
-	double yMaxField;
-	double zMinField;
-	double zMaxField;
+	bool m_checkXdim;
+	bool m_checkYdim;
+	bool m_checkZdim;
+	double m_xMinField;
+	double m_xMaxField;
+	double m_yMinField;
+	double m_yMaxField;
+	double m_zMinField;
+	double m_zMaxField;
 };
 
 #endif

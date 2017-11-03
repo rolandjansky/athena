@@ -50,7 +50,17 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_fieldService(nullptr),
+    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
+    m_nprint(0),
+    m_sctId(nullptr),
+    r_size(0),
+    m_ns(0),
+    m_fNmax(0),
+    m_nr(0),
+    m_nrf(0),
+    m_sF(0.)    
+    
 {
   m_fieldmode = "MapSolenoid"              ;
   m_ptmin     =   500.  ;  //Lowest pT of track.Up to 2000MeV bending in (r,phi) is +-4
@@ -473,6 +483,25 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 ///////////////////////////////////////////////////////////////////
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
+namespace {
+    class StreamState
+    {
+    public:
+      StreamState(std::ostream& out)
+           : m_out(out), m_prec(out.precision())
+       {
+       }
+
+       ~StreamState()
+       {
+           m_out.precision(m_prec);
+       }
+
+    private:
+       std::ostream& m_out;
+       std::streamsize m_prec;
+    };
+}
 
 MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) const
 {
@@ -500,14 +529,13 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) co
   
   double sF1 = pi2/double(m_fNmax+1);
   
-  std::ios_base::fmtflags original_flags=std::cout.flags(); 
+  StreamState restore_precision(cout); 
   for(int f=0; f<=m_fNmax; ++f) {
     out<<"|  "
        <<std::setw(10)<<std::setprecision(4)<<sF1*double(f)<<" | "
        <<std::setw(6)<<rf_map[f]<<" |";
     out<<std::endl;
   }
-  std::cout.flags(original_flags);
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
@@ -702,7 +730,7 @@ void
 InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters& tP,int phi)
 { 
   uint64_t spcount = 0;
-  // // // // // // <Fille the invar_bypass // // // // // // //
+  // // // // // // <Fill the invar_bypass // // // // // // //
 
   //const Trk::MeasuredAtaStraightLine &ntP = 
   //dynamic_cast<const Trk::MeasuredAtaStraightLine&>(tP);
@@ -717,12 +745,13 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   double sp = (*vCM)(4,4)    ; //Sigma on TRT segment inverse momentum estimate
 
   double ipdelta = sqrt(xiC*sp);
-  
-  invar_bypass.invp_min = pTS[4] - ipdelta;
-  invar_bypass.invp_max = pTS[4] + ipdelta;
 
-  invar_bypass.invp_min2 = invar_bypass.invp_min*invar_bypass.invp_min;
-  invar_bypass.invp_max2 = invar_bypass.invp_max*invar_bypass.invp_max;
+  invar_bypass_struct tmp_invar_bypass;
+  tmp_invar_bypass.invp_min = pTS[4] - ipdelta;
+  tmp_invar_bypass.invp_max = pTS[4] + ipdelta;
+
+  tmp_invar_bypass.invp_min2 = tmp_invar_bypass.invp_min*tmp_invar_bypass.invp_min;
+  tmp_invar_bypass.invp_max2 = tmp_invar_bypass.invp_max*tmp_invar_bypass.invp_max;
 
   double theta_center = pTS[3];
   double theta_delta = sqrt(xiTC*sTheta);
@@ -731,11 +760,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   double phi_delta = sqrt(xiFC*sPhi);
 
   bracket_angle(theta_center, theta_delta,
-		&(invar_bypass.min_theta), &(invar_bypass.max_theta));
+		&(tmp_invar_bypass.min_theta), &(tmp_invar_bypass.max_theta));
   bracket_angle(phi_center, phi_delta,
-		&(invar_bypass.min_phi), &(invar_bypass.max_phi));
+		&(tmp_invar_bypass.min_phi), &(tmp_invar_bypass.max_phi));
 
-  // // // // // // Fille the invar_bypass> // // // // // // //
+  // // // // // // Fill the invar_bypass> // // // // // // //
 
   ///Get the momentum information from the track parameters 
   double x0=tP.position().x()  ; 
@@ -810,13 +839,14 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   r  = newRfi_Sorted.begin();
   re = newRfi_Sorted.end();
 
-  prod_bypass = new bypass_struct[spcount];
+  std::vector<bypass_struct> tmp_prod_bypass;
+  tmp_prod_bypass.reserve(spcount);
   Trk::SpacePoint const**vrp = new Trk::SpacePoint const*[spcount];
   double *rk = new double[spcount];
   long *geo_info = new long[spcount];
   double *zSP = new double[spcount];
 
-  if (prod_bypass != 0 && vrp != 0 && rk != 0 && geo_info != 0 && zSP != 0) {
+  if (vrp != 0 && rk != 0 && geo_info != 0 && zSP != 0) {
 
     // // // // // // <Fill prod_bypass and the local array // // // //
     for (long i = 0; r != re; i++, r++) {
@@ -838,17 +868,17 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 
       double a = X*invR;
       double b = Y*invR;
+     
+      tmp_prod_bypass.push_back(bypass_struct()); 
+      tmp_prod_bypass.back().X = X;
+      tmp_prod_bypass.back().Y = Y;
+      tmp_prod_bypass.back().Z = Z;
       
-      prod_bypass[i].X = X;
-      prod_bypass[i].Y = Y;
-      prod_bypass[i].Z = Z;
-      
-      prod_bypass[i].RR = RR;
-      prod_bypass[i].R = R;
-      prod_bypass[i].invR = invR;
+      tmp_prod_bypass.back().R = R;
+      tmp_prod_bypass.back().invR = invR;
 
-      prod_bypass[i].a = a;
-      prod_bypass[i].b = b;
+      tmp_prod_bypass.back().a = a;
+      tmp_prod_bypass.back().b = b;
     }
 
     // // // // // // Fill prod_bypass and the local array> // // // //
@@ -915,7 +945,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 	    continue;//Should be within the +-2.5 pseudorapidity range
 	  }
 	  if(m_fieldServiceHandle->solenoidOn()) {
-	    if(!cutTPb(i, j, H[2])) {
+	    if(!cutTPb(tmp_invar_bypass, tmp_prod_bypass,i, j, H[2])) {
 	      continue;
 	    }
 	  }
@@ -938,8 +968,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   delete []rk;
   delete []vrp;
 
-  delete []prod_bypass;
-
   newRfi_Sorted.erase(newRfi_Sorted.begin(),newRfi_Sorted.end());
 }
 
@@ -950,17 +978,20 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 //#define ANGLE_DISCO_COMPAT
 
 bool
-InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(long bSP1, long bSP2, double H) {
+InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_invar_bypass,
+                                              const std::vector<bypass_struct> &tmp_prod_bypass,
+                                              long bSP1, long bSP2, double H) 
+{
 
-  double inv_r2 = prod_bypass[bSP2].invR;
-  double inv_r1 = prod_bypass[bSP1].invR; // == u1 in original cutTP
-  double r1 = prod_bypass[bSP1].R;
+  double inv_r2 = tmp_prod_bypass[bSP2].invR;
+  double inv_r1 = tmp_prod_bypass[bSP1].invR; // == u1 in original cutTP
+  double r1 = tmp_prod_bypass[bSP1].R;
 
   double inv_rr2 = inv_r2*inv_r2;
-  double x2 = prod_bypass[bSP2].X;
-  double y2 = prod_bypass[bSP2].Y;
-  double a1 = prod_bypass[bSP1].a;
-  double b1 = prod_bypass[bSP1].b;
+  double x2 = tmp_prod_bypass[bSP2].X;
+  double y2 = tmp_prod_bypass[bSP2].Y;
+  double a1 = tmp_prod_bypass[bSP1].a;
+  double b1 = tmp_prod_bypass[bSP1].b;
 
   double u2 = (a1*x2 + b1*y2)*inv_rr2;
   double v2 = (a1*y2 - b1*x2)*inv_rr2;
@@ -969,7 +1000,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(long bSP1, long bSP2, double H) {
   double B = 2.0*(v2 - A*u2);
   double CC = B*B/(1.0 + A*A);
   double rcrc = CC*r1*r1;
-  double z1 =  prod_bypass[bSP1].Z;
+  double z1 =  tmp_prod_bypass[bSP1].Z;
   double T = -z1/(r1*(1.0 + 0.04*rcrc));
 
   if(H==0.) return false;
@@ -982,11 +1013,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(long bSP1, long bSP2, double H) {
     return false;
   }
 
-  double invp_min = invar_bypass.invp_min;
-  double invp_max = invar_bypass.invp_max;
+  double invp_min = tmp_invar_bypass.invp_min;
+  double invp_max = tmp_invar_bypass.invp_max;
 
-  double invp_min2 = invar_bypass.invp_min2;
-  double invp_max2 = invar_bypass.invp_max2;
+  double invp_min2 = tmp_invar_bypass.invp_min2;
+  double invp_max2 = tmp_invar_bypass.invp_max2;
   
   if (invp_min >= 0) {
     if (invpSignature < 0 || invP2 < invp_min2) {
@@ -1012,8 +1043,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(long bSP1, long bSP2, double H) {
   //Estimate the seed polar angle. Make a chi2 cut based on that suggested by the TRT segment
 
   double theta_rating = rotrating(1.0, T);
-  double tmin = invar_bypass.min_theta;
-  double tmax = invar_bypass.max_theta;
+  double tmin = tmp_invar_bypass.min_theta;
+  double tmax = tmp_invar_bypass.max_theta;
 
   if (tmin > tmax) {
 #ifndef ANGLE_DISCO_COMPAT
@@ -1042,8 +1073,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(long bSP1, long bSP2, double H) {
   }
 
   double phi_rating = rotrating(-(b1 + a1*A), -(a1 - b1*A));
-  double pmin = invar_bypass.min_phi;
-  double pmax = invar_bypass.max_phi;
+  double pmin = tmp_invar_bypass.min_phi;
+  double pmax = tmp_invar_bypass.max_phi;
 
   if (pmin > pmax) {
 #ifndef ANGLE_DISCO_COMPAT

@@ -56,7 +56,7 @@ class LArWaveHelper {
 
   // the following returns a linear master waveform and a "dac0" intercept
   // [0] is dac0, [1] is master waveform
-  std::vector<LArWave> linearMasterWave(const std::vector<LArWave*>& vWaves,const std::vector<double> vAmpli) const;
+  std::vector<LArWave> linearMasterWave(const std::vector<const LArWave*>& vWaves,const std::vector<double> vAmpli) const;
 
  private:
 

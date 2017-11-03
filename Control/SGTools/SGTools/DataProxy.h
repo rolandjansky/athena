@@ -38,6 +38,7 @@ class IProxyDict;
 
 namespace SG {
   class T2pMap;
+class DataStore;
 
   class DataProxy : public IRegistry, public IRegisterTransient
   {
@@ -66,9 +67,17 @@ namespace SG {
               IConverter* pDataLoader,
               bool constFlag=false, bool resetOnly=true);
 
+    DataProxy(TransientAddress&& tAddr,
+              IConverter* pDataLoader,
+              bool constFlag=false, bool resetOnly=true);
+
     ///build from DataObject
     DataProxy(DataObject* dObject, 
               TransientAddress* tAddr,
+              bool constFlag=false, bool resetOnly=true);
+
+    DataProxy(DataObject* dObject, 
+              TransientAddress&& tAddr,
               bool constFlag=false, bool resetOnly=true);
 
     // Destructor
@@ -77,32 +86,32 @@ namespace SG {
     ///\name IRegistry implementation
     //@{
     /// Add reference to object
-    virtual unsigned long addRef() override;
+    virtual unsigned long addRef() override final;
 
     /// release reference to object
-    virtual unsigned long release() override;
+    virtual unsigned long release() override final;
 
     /// return refCount
     unsigned long refCount() const;
 
     /// Retrieve data object key == string
-    virtual const name_type& name() const override;
+    virtual const name_type& name() const override final;
 
     /// Retrieve data object key == string
     /// duplicated for Gaudi folks does same as name()
-    virtual const id_type& identifier() const override;
+    virtual const id_type& identifier() const override final;
 
     /// Retrieve DataObject
-    virtual DataObject* object ATLAS_NOT_CONST_THREAD_SAFE () const override;
+    virtual DataObject* object ATLAS_NOT_CONST_THREAD_SAFE () const override final;
 
     /// set an IOpaqueAddress
-    virtual void setAddress(IOpaqueAddress* ioa) override;
+    virtual void setAddress(IOpaqueAddress* ioa) override final;
 
     /// Retrieve IOpaqueAddress
-    virtual IOpaqueAddress* address() const override;
+    virtual IOpaqueAddress* address() const override final;
 
     /// set DataSvc (Gaudi-specific); do nothing for us
-    virtual IDataProviderSvc* dataSvc() const override;
+    virtual IDataProviderSvc* dataSvc() const override final;
     //@}
 
     ///< Get the primary (hashed) SG key.
@@ -155,11 +164,6 @@ namespace SG {
     void reset (bool hard = false);
     void finalReset(); ///called by destructor
 
-    /// release or reset according to resetOnly flag
-    /// If FORCE is true, then always release.
-    /// See IResetable.h for HARD.
-    bool requestRelease(bool force, bool hard);
-
     /// am I valid?
     bool isValid() const;
 
@@ -182,9 +186,6 @@ namespace SG {
  
     /// Retrieve clid
     CLID clID() const;
-
-    /// Retrieve storage type
-    unsigned char svcType() const;
 
     /// Check if it is a const object
     bool isConst() const;
@@ -217,7 +218,7 @@ namespace SG {
      *
      * (@c IRegisterTransient interface.)
      */
-    virtual void registerTransient (void* p) override;
+    virtual void registerTransient (void* p) override final;
 
     /// Set the store of which we're a part.
     void setStore (IProxyDict* store);
@@ -237,25 +238,61 @@ namespace SG {
     IConverter* loader();
 
   private:
+    /// For access to requestRelease.
+    friend class SG::DataStore;
+
     DataProxy(const DataProxy&) = delete;
     DataProxy& operator=(const DataProxy&) = delete;
 
-    std::unique_ptr<TransientAddress> m_tAddress;
 
-    unsigned long m_refCount;
+    /**
+     * @brief Reset/release a proxy at the end of an event.
+     * @param force If true, force a release rather than a reset.
+     * @param hard Do a hard reset if true.
+     * @returns True if the caller should release the proxy.
+     *
+     * This is usually called at the end of an event.
+     * No locking is done, so there should be no other threads accessing
+     * this proxy.
+     *
+     * `Release' means that we want to remove the proxy from the store.
+     * `Reset' means that we keep the proxy, but remove the data object
+     * that it references.
+     * Each proxy has a flag saying whether it wants to do a release or a reset.
+     * This can be forced via the FORCE argument; this would typically be done
+     * when deleting the store.
+     * This function does not actually release the proxy.  If it returns
+     * true, the caller is expected to release the proxy.
+     *
+     * See AthenaKernel/IResetable.h for the meaning of HARD.
+     */
+    bool requestRelease(bool force, bool hard);
 
-    std::atomic<DataObject*> m_dObject;
-    IConverter* m_dataLoader;
+    /// Drop the reference to the data object.
+    void resetRef();
+
+    unsigned int m_refCount;
+
+    ///reset and not delete: default is true
+    bool m_resetFlag;        
+
+    /// True if there are any bound handles.
+    // Strictly redundant with m_handles below, but put here to speed up the
+    // test for m_handles.empty() --- both by eliminating the pointer
+    // comparison and by moving the data into the part of DataProxy covered
+    // by the first cache line.
+    bool m_boundHandles;
 
     /// Is the proxy currently const?
     bool m_const;
     /// Was the proxy created as const?
     bool m_origConst;
 
-    unsigned char m_storageType;
+    std::atomic<DataObject*> m_dObject;
 
-    ///reset and not delete: default is true
-    bool m_resetFlag;        
+    TransientAddress m_tAddress;
+
+    IConverter* m_dataLoader;
 
     /// list of bound DataHandles
     typedef std::vector<IResetable*> handleList_t;
@@ -334,6 +371,41 @@ namespace SG {
   //@}
 
 } //end namespace SG
+
+
+// DP+ 0: two vptrs
+// DP+10: int m_refCount
+// DP+14: bool m_resetFlag
+// DP+15: bool m_boundHandles
+// DP+16: bool m_const
+// DP+17: bool m_origConst
+// DP+18: DataObject* m_dObject
+
+// TA = DP+20
+//  + 0:  CLID m_clid
+//  + 4:  sgkey_t m_sgkey
+//  + 8:  type m_storeID (size 4)
+//  + c:  bool m_clearAddress
+//  + d:  bool m_consultProvider
+//  + e:  padding
+//  +10:  IOpaqueAddress* m_address
+//  +18:  std::string m_name         <== 2nd cache line starts at +20
+//  +38:  vector m_transientID 
+//  +50:  set m_transientAlias       <== 3rd cache line starts at +60
+//  +80:  IAddressProvider* m_pAddressProvider 
+//  +88.. 
+
+// DP+a8: IConverter* m_dataLoader
+// DP+b0: vector m_handles           <== 4th cache line starts at +c0
+// DP+c8: T2PMap* m_t2p
+// DP+d0: IMessageSvc* m_ims
+// DP+d8: ErrNo m_errno
+// DP+dc: padding
+// DP+e0: m_store
+// DP+e8: m_mutex                    <== 5th cache line starts at +100
+// DP+110: m_objMutex
+// DP+138: end
+
 
 #include "SGTools/DataProxy.icc"
 

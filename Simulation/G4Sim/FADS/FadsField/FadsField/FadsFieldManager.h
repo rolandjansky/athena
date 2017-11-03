@@ -24,9 +24,9 @@ public:
 	void SetStepper(G4MagIntegratorStepper* );
 private:
 	std::string m_name;
-	FADS::FieldIntParameters* defaultParameters;
-    const G4Track* previousTrack;
-    G4Region* previousRegion;
+	FADS::FieldIntParameters* m_defaultParameters;
+    const G4Track* m_previousTrack;
+    G4Region* m_previousRegion;
  
 };
 

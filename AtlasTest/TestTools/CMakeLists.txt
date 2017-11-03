@@ -32,3 +32,14 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/runUnitTests.sh share/post.sh scripts/nightlies/TestHelloWorld.sh share/skip_if_libraryMissing.sh )
+
+if( NOT XAOD_STANDALONE )
+
+   find_package( TBB )
+
+   atlas_add_test( ParallelCallTest_test
+      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
+      SOURCES test/test_ParallelCallTestExample.cxx
+      LINK_LIBRARIES ${TBB_LIBRARIES}  TestTools  )
+
+endif()

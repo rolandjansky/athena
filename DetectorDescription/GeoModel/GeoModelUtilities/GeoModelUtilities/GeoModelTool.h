@@ -22,9 +22,9 @@ public:
 
     virtual GeoVDetectorManager* manager() const;
 
-    virtual StatusCode clear(StoreGateSvc* detStore);	
-    virtual StatusCode registerCallback( StoreGateSvc* );
-    virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
+    virtual StatusCode clear() override;	
+    virtual StatusCode registerCallback() override;
+    virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
 
 protected:
 

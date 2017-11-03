@@ -6,7 +6,7 @@
 #define LARFEBTIMEOFFSET_H
 
 #include "LArElecCalib/ILArFEBTimeOffset.h"
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include <map>
 

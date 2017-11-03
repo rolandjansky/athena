@@ -11,15 +11,17 @@
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaBaseTool.h"
 
+#include "egammaInterfaces/IegammaSwTool.h"
+#include "egammaMVACalib/IegammaMVATool.h"
+
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
+#include "StoreGate/WriteHandleKey.h"
 
-class IegammaSwTool;
-class IegammaMVATool;
-class StoreGateSvc;
 class CaloCellDetPos;
+class CaloClusterCellLink;
 
 /**
    @class EMClusterTool
@@ -54,11 +56,12 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   virtual ~EMClusterTool();
 
   /** @brief initialize method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** @brief execute on container */
-  virtual StatusCode contExecute();
+  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) override;
   /** @brief finalize method */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
  private:
@@ -89,14 +92,26 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief creation of new super cluster based on existing one */
   xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg);  
 
-  /** @brief Name of the output cluster container **/
-  std::string m_outputClusterContainerName;
+  /** @brief Key of the output cluster container **/
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey {this,
+      "OutputClusterContainerName", "", 
+      "Name of the output cluster container"};
 
-  /** @brief Name of the output cluster container for topo-seeded clusters **/
-  std::string m_outputTopoSeededClusterContainerName;
+  /** @brief Key of the output cluster container cell links: name taken from containter name **/
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputClusterContainerCellLinkKey;
+
+  /** @brief Key of the output cluster container for topo-seeded clusters **/
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputTopoSeededClusterContainerKey {this,
+      "OutputTopoSeededClusterContainerName", ""
+      "Name of the output cluster container for topo-seeded clusters (can be the same as the other clusters)"};
+
+  /** @brief Key of the output cluster container cell links for topo-seeded clusters: 
+    * name taken from containter name */
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey;
 
   /** Handle to the MVA calibration Tool **/
-  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+  PublicToolHandle<IegammaMVATool> m_MVACalibTool {this,
+      "MVACalibTool", "egammaMVATool", "calibration tool"};
 
   /** @brief Name of the input electron container **/
   std::string m_electronContainerName;
@@ -105,19 +120,24 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   std::string m_photonContainerName;  
  
   /** @brief Tool to handle cluster corrections */
-  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
-  
-  /** @brief Name of tool for cluster corrections */
-  std::string            m_ClusterCorrectionToolName;
+  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
+      "ClusterCorrectionTool", "egammaSwTool/egammaswtool",
+      "tool that applies cluster corrections"};
   
   /** @brief do super clusters **/ 
-  bool m_doSuperClusters;
+  Gaudi::Property<bool> m_doSuperClusters {this, "doSuperCluster", true, 
+      "Do Super Cluster Reco"};
 
   /** @brief flag to protect against applying the MVA to super Clusters **/ 
-  bool m_applySuperClusters;
+  Gaudi::Property<bool> m_applySuperClusters {this, "applyMVAToSuperCluster", true, 
+      "Protection to not do anything for superClusters"};
 
   /** @brief Position in Calo frame**/  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;
+
+  // derived variable (not set by JOs)
+  bool m_doTopoSeededContainer;
+
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H

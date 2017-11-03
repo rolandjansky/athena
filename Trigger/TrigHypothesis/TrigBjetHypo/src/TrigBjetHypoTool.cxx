@@ -16,6 +16,7 @@
 
 #include "TrigBjetHypoTool.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 
 TrigBjetHypoTool::TrigBjetHypoTool( const std::string& type, 

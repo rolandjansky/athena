@@ -4,5 +4,5 @@
 #endif
 
 #ifndef XAOD_ANALYSIS
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, L1TopoValDataCnvAlg )
+DECLARE_COMPONENT( xAODMaker::L1TopoValDataCnvAlg )
 #endif

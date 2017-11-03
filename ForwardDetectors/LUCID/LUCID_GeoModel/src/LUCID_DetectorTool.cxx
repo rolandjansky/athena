@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LUCID_GeoModel/LUCID_DetectorTool.h"
-#include "LUCID_GeoModel/LUCID_DetectorFactory.h" 
+#include "LUCID_DetectorTool.h"
+#include "LUCID_DetectorFactory.h" 
 #include "LUCID_GeoModel/LUCID_DetectorManager.h" 
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
@@ -29,7 +29,7 @@ LUCID_DetectorTool::LUCID_DetectorTool(const std::string& type,
 
 LUCID_DetectorTool::~LUCID_DetectorTool() {}
 
-StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) { 
+StatusCode LUCID_DetectorTool::create() { 
   
   MsgStream log(msgSvc(), name()); 
   
@@ -55,7 +55,7 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
 
   GeoModelExperiment* theExpt; 
 
-  if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve(theExpt, "ATLAS")) { 
     
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return StatusCode::FAILURE; 
@@ -65,13 +65,13 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
 
     GeoPhysVol* world = &*theExpt->getPhysVol();
         
-    LUCID_DetectorFactory theLUCID_Factory(detStore,raccess);
+    LUCID_DetectorFactory theLUCID_Factory(detStore().operator->(),raccess);
 
     theLUCID_Factory.create(world);
     m_manager = theLUCID_Factory.getDetectorManager();
     theExpt->addManager(m_manager);
 
-    sc = detStore->record(m_manager,
+    sc = detStore()->record(m_manager,
 			  m_manager->getName());
     
     if (sc.isFailure()) { log << MSG::ERROR << "Could not register LUCID detector manager" << endmsg; return StatusCode::FAILURE; }
@@ -82,16 +82,16 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
   return StatusCode::FAILURE;
 }
 
-StatusCode LUCID_DetectorTool::clear(StoreGateSvc* detStore) {
+StatusCode LUCID_DetectorTool::clear() {
 
-  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<LUCID_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<LUCID_DetectorManager>::ID(),m_manager->getName());
 
   if(proxy) {
     proxy->reset();
     m_manager = 0;
   }
   
-  proxy = detStore->proxy(ClassID_traits<GeoBorderSurfaceContainer>::ID(), "LUCID", false);
+  proxy = detStore()->proxy(ClassID_traits<GeoBorderSurfaceContainer>::ID(), "LUCID", false);
   
   if(proxy) {
     proxy->reset();

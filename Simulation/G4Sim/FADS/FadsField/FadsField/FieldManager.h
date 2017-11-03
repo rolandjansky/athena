@@ -27,7 +27,7 @@ namespace FADS {
 
   class FieldManager {
   private:
-    static FieldManager* thePointer;
+    static FieldManager* s_thePointer;
     FieldManager();
 
   public:
@@ -46,8 +46,8 @@ namespace FADS {
 
     void RegisterStepper(IntegratorStepperBase* stepper);
     void ListSteppers() const;
-    const StepperMap Steppers() const { return theSteppers; }
-    std::string CurrentStepper() const { return currentStepperName; }
+    const StepperMap Steppers() const { return m_theSteppers; }
+    std::string CurrentStepper() const { return m_currentStepperName; }
     void SetCurrentStepper(const std::string& name);
     void UseCurrentStepper();
     void UseStepper(const std::string& name);
@@ -58,22 +58,22 @@ namespace FADS {
     static void SetDeltaIntersection(double);
     static void SetMinimumEpsilonStep(double);
     static void SetMaximumEpsilonStep(double);
-    void EquationOfMotion(const std::string s) {eqOfMotion=s;}
-    std::string EquationOfMotion() const {return eqOfMotion;}
-    G4MagneticField* GetMagneticFieldMap() {return currentField;}
+    void EquationOfMotion(const std::string s) {m_eqOfMotion=s;}
+    std::string EquationOfMotion() const {return m_eqOfMotion;}
+    G4MagneticField* GetMagneticFieldMap() {return m_currentField;}
 
-    G4MagIntegratorStepper* GetCurrentStepper() {return currentStepper;}
+    G4MagIntegratorStepper* GetCurrentStepper() {return m_currentStepper;}
 
   private:
-    FieldMap fieldCatalog;
-    StepperMap theSteppers;
-    EquationMap theEquations;
-    MagneticFieldMap* currentField;
-    G4MagIntegratorStepper* currentStepper;
-    std::string currentStepperName;
-    G4Mag_EqRhs* theEquation;
-    G4ChordFinder* theChordFinder;
-    std::string eqOfMotion;
+    FieldMap m_fieldCatalog;
+    StepperMap m_theSteppers;
+    EquationMap m_theEquations;
+    MagneticFieldMap* m_currentField;
+    G4MagIntegratorStepper* m_currentStepper;
+    std::string m_currentStepperName;
+    G4Mag_EqRhs* m_theEquation;
+    G4ChordFinder* m_theChordFinder;
+    std::string m_eqOfMotion;
   };
 
 }

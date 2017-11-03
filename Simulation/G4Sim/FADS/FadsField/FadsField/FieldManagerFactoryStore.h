@@ -19,7 +19,7 @@ public:
 	FieldManagerFactory *GetFieldManagerFactory(std::string n);
 private:
 	FieldManagerFactoryStore();
-	factoryMap theFactories;
+	factoryMap m_theFactories;
 };
 
 }

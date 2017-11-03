@@ -98,7 +98,7 @@ private:
   MuonChamberProjectionHelper & operator= (const MuonChamberProjectionHelper & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

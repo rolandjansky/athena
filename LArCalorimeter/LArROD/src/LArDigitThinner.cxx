@@ -30,6 +30,7 @@ LArDigitThinner::LArDigitThinner(const std::string& name,
   declareProperty("EnergyCut_FCAL",  m_energyCut_fcal = 20000);
   declareProperty("InputContainerName", m_inputContainerName);
   declareProperty("OutputContainerName",m_outputContainerName);
+  declareProperty("RawChannelContainerName",m_rawChannelContainerName);
 }
 
 LArDigitThinner::~LArDigitThinner() {

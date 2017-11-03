@@ -120,7 +120,7 @@ private:
   MuonSimDataCollection*      m_sdoContainer;
   const MuonGM::MuonDetectorManager*  m_GMmgr;
   const RpcIdHelper*          m_idHelper;
-  RpcHitIdHelper*             muonHelper;
+  RpcHitIdHelper*             m_muonHelper;
   std::list<RPCSimHitCollection*> m_RPCHitCollList;
   TimedHitCollection<RPCSimHit>* m_thpcRPC;
   ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
@@ -222,8 +222,8 @@ private:
 
   std::vector<Identifier> m_DeadStripPanel; 
         
-  bool SetPhiOn ;    
-  bool SetEtaOn ;
+  bool m_SetPhiOn ;    
+  bool m_SetEtaOn ;
   bool m_muonOnlySDOs;
 protected:  
   PileUpMergeSvc *m_mergeSvc; // Pile up service
@@ -250,8 +250,8 @@ protected:
   bool	      m_PanelId_OK_fromlist    ; // Turn-on PanelId from file m_FileName_GoodPanels
   std::string m_FileName_GoodPanels    ; // File with Good panel PanelId list 
 
-  std::map<Identifier , int> DeadPanel_fromlist;
-  std::map<Identifier , int> GoodPanel_fromlist;
+  std::map<Identifier , int> m_DeadPanel_fromlist;
+  std::map<Identifier , int> m_GoodPanel_fromlist;
 
   bool	      m_RPCInfoFromDb     ;
   bool	      m_DumpFromDbFirst   ; 

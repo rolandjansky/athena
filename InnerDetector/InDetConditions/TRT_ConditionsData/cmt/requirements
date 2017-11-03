@@ -7,8 +7,8 @@ package TRT_ConditionsData
 author                  Peter Hansen <phansen@nbi.dk>
 
 use AtlasPolicy                AtlasPolicy-*
-use GaudiInterface	       GaudiInterface-*       External
-use CLIDSvc                    CLIDSvc-*               Control
+use GaudiInterface	       GaudiInterface-*        External
+use AthenaKernel               AthenaKernel-*          Control
 use Identifier                 Identifier-*            DetectorDescription
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use DetDescrConditions DetDescrConditions-* DetectorDescription/DetDescrCond

@@ -647,7 +647,7 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
 // 	display_segment(&seg, display&(m_tracker->curvedTrack()));
 
 //reject tracks with silly parameters
-  if (fabs(m_tracker->curvedTrack().getTangent(seg.mdtHOT()[0]->localPosition().z()).m_x2())>8.0e8) {
+  if (fabs(m_tracker->curvedTrack().getTangent(seg.mdtHOT()[0]->localPosition().z()).a_x2())>8.0e8) {
     return true;
   }
 
@@ -669,7 +669,7 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
     
     F[h] = CLHEP::HepVector(m_M_track.num_row());
     for (int p=0; p<F[h].num_row(); p++) {
-      double x = sqrt(1.0+std::pow(track.getTangent( (m_tracker->trackHits()[h]->localPosition()).z() ).m_x2(), 2));
+      double x = sqrt(1.0+std::pow(track.getTangent( (m_tracker->trackHits()[h]->localPosition()).z() ).a_x2(), 2));
       if( x ) {
 	(F[h])[p] = m_Legendre->value(p, (m_tracker->trackHits()[h]->localPosition()).z())/x;
       } else {
@@ -737,26 +737,26 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
 // //                       +(m_tracker->trackHits()[h]->localPosition()).y()
 // //                        /sqrt(1.0+std::pow((track.getTangent(
 // //                                        (m_tracker->trackHits(
-// //                                        )[h]->localPosition()).z())).m_x2(), 2))
+// //                                        )[h]->localPosition()).z())).a_x2(), 2))
 // //                      )
 // //                      /(
 // //                        (m_tracker->trackHits()[h])->sigma2DriftRadius()
 // //                        *sqrt(1.0+std::pow((track.getTangent(
 // //                                        (m_tracker->trackHits(
-// //                                        )[h]->localPosition()).z())).m_x2(), 2))
+// //                                        )[h]->localPosition()).z())).a_x2(), 2))
 // //                        );
 //             my_b[p] = my_b[p]+((m_tracker->trackHits()[h]->localPosition()).y()
 //                             +(2*(d_track[h]>=0)-1)
 //                              *sqrt(1.0+std::pow((track.getTangent(
 //                                        (m_tracker->trackHits(
-//                                        )[h]->localPosition()).z())).m_x2() ,2))
+//                                        )[h]->localPosition()).z())).a_x2() ,2))
 //                              *m_tracker->trackHits()[h]->driftRadius())
 //                              *m_Legendre->value(p, (m_tracker->trackHits(
 //                                             )[h]->localPosition()).z())
 //                              /((m_tracker->trackHits()[h])->sigma2DriftRadius()
 //                                 *(1.0+std::pow((track.getTangent(
 //                                        (m_tracker->trackHits(
-//                                        )[h]->localPosition()).z())).m_x2() ,2)));
+//                                        )[h]->localPosition()).z())).a_x2() ,2)));
 //         }
 //     }
 //     CLHEP::HepVector my_alpha(3);
@@ -811,28 +811,28 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
   }
 
    // autocalibration matrix and autocalibration vector //
-  CLHEP::HepSymMatrix m_A_tmp(m_A);
+  CLHEP::HepSymMatrix A_tmp(m_A);
 
    // autocalibration objects //
   for (unsigned int p=0; p<m_order; p++) {
     for (unsigned int pp=p; pp<m_order; pp++) {
-      m_A_tmp[p][pp] = m_A[p][pp]+dot(D*m_U_weighted[p], D*m_U_weighted[pp]);
-      if (std::isnan(m_A_tmp[p][pp])) {
+      A_tmp[p][pp] = m_A[p][pp]+dot(D*m_U_weighted[p], D*m_U_weighted[pp]);
+      if (std::isnan(A_tmp[p][pp])) {
 	return true;
       }
     }
   }
 
-  CLHEP::HepVector m_b_tmp(m_b);
+  CLHEP::HepVector b_tmp(m_b);
   for (unsigned int p=0; p<m_order; p++) {
-    m_b_tmp[p] = m_b[p]+dot(D*m_U_weighted[p], weighted_residual);
-    if (std::isnan(m_b_tmp[p])) { 
+    b_tmp[p] = m_b[p]+dot(D*m_U_weighted[p], weighted_residual);
+    if (std::isnan(b_tmp[p])) { 
       return true;
     }
   }
   
-  m_A = m_A_tmp;
-  m_b=m_b_tmp;
+  m_A = A_tmp;
+  m_b=b_tmp;
   
   return true;
 
@@ -1462,9 +1462,9 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment * segment,
     MTStraightLine aux_track(segment->position(), segment->direction(),
 			     null, null);
     outfile << "SET PLCI 4\n"
-	    << "LINE " << aux_track.m_x2()*(z_min-30.0)+aux_track.b_x2() 
+	    << "LINE " << aux_track.a_x2()*(z_min-30.0)+aux_track.b_x2() 
 	    << " " << z_min-30.0
-	    << " " << aux_track.m_x2()*(z_max+30.0)+aux_track.b_x2() 
+	    << " " << aux_track.a_x2()*(z_max+30.0)+aux_track.b_x2() 
 	    << " " << z_max+30.0 << "\n";
   }
 

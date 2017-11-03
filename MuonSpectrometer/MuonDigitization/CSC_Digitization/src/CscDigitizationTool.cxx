@@ -24,6 +24,8 @@
 
 #include "EventInfo/EventInfo.h"
 
+using namespace MuonGM;
+
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool"), m_container(0)
   , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0), m_run(0), m_evt(0), m_mergeSvc(0)

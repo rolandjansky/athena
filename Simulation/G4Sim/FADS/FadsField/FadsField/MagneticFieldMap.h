@@ -19,13 +19,13 @@ public:
 	virtual void Terminate() {}
 	virtual MagneticFieldMap* Create() {return this;}
 	virtual MagneticFieldMap* Create(std::string) {return this;}
-	bool IsInitialized() {return initialized;}
+	bool IsInitialized() {return m_initialized;}
 	virtual void FieldValue( const double *xyzPos, double *xyzField) const = 0;
-	std::string GetName() {return name;}
+	std::string GetName() {return m_name;}
 	void SetInitialValues();
 protected:
-	std::string name;
-	bool initialized;
+	std::string m_name;
+	bool m_initialized;
 };
 
 }	// end namespace

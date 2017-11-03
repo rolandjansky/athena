@@ -26,9 +26,9 @@ namespace FADS {
     FieldManagerStore* fms=FieldManagerStore::GetFMStore();
     fms->RegisterFieldManager(this);
 
-    defaultParameters = new FADS::FieldIntParameters();
-    previousTrack = NULL;
-    previousRegion = NULL;
+    m_defaultParameters = new FADS::FieldIntParameters();
+    m_previousTrack = NULL;
+    m_previousRegion = NULL;
   }
 
 

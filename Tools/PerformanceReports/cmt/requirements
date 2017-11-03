@@ -1,8 +1,0 @@
-package PerformanceReports
-author Ilija Vukotic <ilija@vukotic.me>
-
-use AtlasPolicy AtlasPolicy-*
-
-apply_pattern declare_python_modules files="*.py"
-apply_pattern declare_scripts files="*.py"
-

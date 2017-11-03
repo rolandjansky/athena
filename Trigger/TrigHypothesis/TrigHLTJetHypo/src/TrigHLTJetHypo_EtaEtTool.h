@@ -18,7 +18,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigHLTJetHypo_EtaEtTool: virtual public ITrigHLTJetHypoTool,
-  private TrigHLTJetHypoTool {
+  public TrigHLTJetHypoTool {
  public:
 
   TrigHLTJetHypo_EtaEtTool(const std::string& type, 

@@ -71,7 +71,9 @@ class egammaBackShape : public AthAlgTool, virtual public IegammaBackShape {
   /** @brief Cell container*/ 
   const CaloCellContainer* m_cellContainer;
   /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
+  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
+      "egammaEnergyPositionAllSamplesTool", 
+      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
   /** @brief energy in all samplings*/
   double m_eallsamples;
@@ -94,7 +96,10 @@ class egammaBackShape : public AthAlgTool, virtual public IegammaBackShape {
   double m_f3core;
 
   /** @brief boolean to calculate less important variables*/
-  bool m_ExecOtherVariables;
+  Gaudi::Property<bool> m_ExecOtherVariables {this, 
+      "ExecOtherVariables", true,
+      "Calculate some less important variables"};
+
   /** @brief (eta,phi) around which estimate the shower shapes */
   double m_eta;
   double m_phi;

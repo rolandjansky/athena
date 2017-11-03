@@ -40,9 +40,7 @@ private:
 CLASS_DEF( SCT_DCSFloatCondData , 234553277 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_DCSFloatCondData> , 257878639 , 1 )
+CONDCONT_DEF( SCT_DCSFloatCondData, 257878639 );
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_DCSFloatCondData>, CondContBase );
 
 #endif // SCT_DCSFLOATCONDDATA_H

@@ -7,9 +7,11 @@
 #include "CaloIdentifier/CaloGain.h"
 
 
-LArPedestals2Ntuple::LArPedestals2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator)
-{ 
-  declareProperty("ContainerKey",m_contKey);
+LArPedestals2Ntuple::LArPedestals2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
+  LArCond2NtupleBase(name, pSvcLocator),
+  m_pedKey("Pedestal"){
+ 
+  declareProperty("ContainerKey",m_pedKey);
   m_ntTitle="Pedestals";
   m_ntpath="/NTUPLES/FILE1/PEDESTALS";
     
@@ -18,22 +20,34 @@ LArPedestals2Ntuple::LArPedestals2Ntuple(const std::string& name, ISvcLocator* p
 LArPedestals2Ntuple::~LArPedestals2Ntuple() 
 {}
 
-StatusCode LArPedestals2Ntuple::stop() {
-  StatusCode sc;
-  const ILArPedestal* larPedestal;
-  sc=m_detStore->retrieve(larPedestal,m_contKey);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log)  << MSG::ERROR << "Unable to retrieve ILArPedestal with key " 
-	      << m_contKey << " from DetectorStore" << endmsg;
+StatusCode LArPedestals2Ntuple::initialize() {
+  ATH_CHECK(m_pedKey.initialize());
+  return LArCond2NtupleBase::initialize();
+}
+
+StatusCode LArPedestals2Ntuple::stop()
+{
+  // For compatibility with existing configurations, look in the detector
+  // store first, then in conditions.
+  const ILArPedestal* larPedestal =
+    detStore()->tryConstRetrieve<ILArPedestal> (m_pedKey.key());
+  if (!larPedestal) {
+    SG::ReadCondHandle<ILArPedestal> pedHandle{m_pedKey};
+    larPedestal = *pedHandle;
+  }
+
+  if (larPedestal==nullptr) {
+    ATH_MSG_ERROR( "Unable to retrieve ILArPedestal with key " 
+		   << m_pedKey.key() << " from DetectorStore");
     return StatusCode::FAILURE;
-    } 
+  } 
 
   NTuple::Item<long> cellIndex,gain;
   NTuple::Item<double> ped;
   NTuple::Item<double> rms;
 
 
-  sc=m_nt->addItem("icell",cellIndex,0,200000);
+  StatusCode sc=m_nt->addItem("icell",cellIndex,0,200000);
   if (sc!=StatusCode::SUCCESS)
     {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
     return StatusCode::FAILURE;

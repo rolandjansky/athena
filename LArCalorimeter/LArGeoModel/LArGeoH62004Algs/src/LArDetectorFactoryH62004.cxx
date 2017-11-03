@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArGeoH62004Algs/LArDetectorFactoryH62004.h"
-#include "LArGeoH62004Algs/ModulesConstructionH62004.h"
-#include "LArGeoH62004Algs/WarmTCConstructionH62004.h"
+#include "LArDetectorFactoryH62004.h"
+#include "ModulesConstructionH62004.h"
+#include "WarmTCConstructionH62004.h"
+#include "FrontBeamConstructionH62004.h"
+#include "MiddleBeamConstructionH62004.h"
+#include "MovableTableConstructionH62004.h"
 #include "LArGeoH6Cryostats/H6CryostatConstruction.h"
-#include "LArGeoH62004Algs/FrontBeamConstructionH62004.h"
-#include "LArGeoH62004Algs/MiddleBeamConstructionH62004.h"
-#include "LArGeoH62004Algs/MovableTableConstructionH62004.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"

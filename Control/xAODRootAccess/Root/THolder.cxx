@@ -10,6 +10,8 @@
 
 // EDM include(s):
 #include "AthContainers/normalizedTypeinfoName.h"
+#include "AthContainers/AuxVectorBase.h"
+#include "AthContainers/AuxElement.h"
 
 // Local include(s):
 #include "xAODRootAccess/tools/THolder.h"
@@ -20,12 +22,14 @@
 namespace xAOD {
 
    THolder::THolder()
-      : m_object( 0 ), m_type( 0 ), m_typeInfo( 0 ), m_owner( kFALSE ) {
+      : m_typeKind (OTHER),
+        m_object( 0 ), m_type( 0 ), m_typeInfo( 0 ), m_owner( kFALSE ) {
 
    }
 
    THolder::THolder( void* object, ::TClass* type, ::Bool_t owner )
-      : m_object( object ), m_type( type ),
+     :  m_typeKind( setTypeKind(type) ),
+        m_object( object ), m_type( type ),
         m_typeInfo( type ? m_type->GetTypeInfo() : 0 ), m_owner( owner ) {
 
       // Complain if the passed dictionary will be unusable later on:
@@ -41,7 +45,8 @@ namespace xAOD {
    }
 
    THolder::THolder( void* object, const std::type_info& type, ::Bool_t owner )
-      : m_object( object ), m_type( 0 ), m_typeInfo( &type ), m_owner( owner ) {
+     :  m_typeKind (OTHER),
+        m_object( object ), m_type( 0 ), m_typeInfo( &type ), m_owner( owner ) {
 
       // Increase the object count:
       if( m_object && m_owner ) {
@@ -56,7 +61,8 @@ namespace xAOD {
    /// @param parent The parent object that should be copied
    ///
    THolder::THolder( const THolder& parent )
-      : m_object( parent.m_object ), m_type( parent.m_type ),
+     :  m_typeKind( parent.m_typeKind ),
+        m_object( parent.m_object ), m_type( parent.m_type ),
         m_typeInfo (parent.m_typeInfo),
         m_owner( parent.m_owner ) {
 
@@ -77,7 +83,8 @@ namespace xAOD {
    /// @param parent The parent object that should be moved
    ///
    THolder::THolder( THolder&& parent )
-      : m_object( parent.m_object ), m_type( parent.m_type ),
+     :  m_typeKind( parent.m_typeKind ),
+        m_object( parent.m_object ), m_type( parent.m_type ),
         m_typeInfo (parent.m_typeInfo),
         m_owner( parent.m_owner ) {
 
@@ -113,6 +120,7 @@ namespace xAOD {
 
       // Do the copy:
       m_object   = rhs.m_object;
+      m_typeKind = rhs.m_typeKind;
       m_type     = rhs.m_type;
       m_typeInfo = rhs.m_typeInfo;
       m_owner    = rhs.m_owner;
@@ -148,6 +156,7 @@ namespace xAOD {
 
       // Do the copy:
       m_object   = rhs.m_object;
+      m_typeKind = rhs.m_typeKind;
       m_type     = rhs.m_type;
       m_typeInfo = rhs.m_typeInfo;
       m_owner    = rhs.m_owner;
@@ -370,6 +379,25 @@ namespace xAOD {
       }
 
       return;
+   }
+
+
+   THolder::TypeKind THolder::setTypeKind( const TClass* type )
+   {
+      static const TClass* dvClass =
+         TClass::GetClass( typeid( SG::AuxVectorBase ) );
+      static const TClass* aeClass =
+         TClass::GetClass( typeid( SG::AuxElement ) );
+
+      if (type) {
+        if (type->InheritsFrom( dvClass )) {
+          return DATAVECTOR;
+        }
+        if (type->InheritsFrom( aeClass )) {
+          return AUXELEMENT;
+        }
+      }
+      return OTHER;
    }
 
 } // namespace xAOD

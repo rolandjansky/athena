@@ -10,8 +10,6 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamData/RawEvent.h"
 
-template <class TYPE> class SvcFactory;
-
 /**
   @class ByteStreamCnvSvcBase
   @brief base class for ByteStream conversion service.
@@ -23,10 +21,13 @@ template <class TYPE> class SvcFactory;
 class ByteStreamCnvSvcBase : public ::AthCnvSvc,
 		public virtual IIncidentListener,
 		public virtual IByteStreamEventAccess {
-   // Allow the factory class access to the constructor
-   friend class SvcFactory<ByteStreamCnvSvcBase>;
 
 public:
+   /// Standard Service Constructor
+   ByteStreamCnvSvcBase(const std::string& name, ISvcLocator* pSvcLocator);
+   /// Destructor
+
+   virtual ~ByteStreamCnvSvcBase();
    /// Required of all Gaudi Services
    StatusCode initialize();
 
@@ -41,12 +42,6 @@ public:
 
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    virtual void handle(const Incident&);
-
-protected: // constructor and destructor
-   /// Standard Service Constructor
-   ByteStreamCnvSvcBase(const std::string& name, ISvcLocator* pSvcLocator);
-   /// Destructor
-   virtual ~ByteStreamCnvSvcBase();
 
 protected: // data
    RawEventWrite* m_rawEventWrite;

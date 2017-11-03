@@ -6,7 +6,7 @@
 
 // $Id: errorcheck.h,v 1.6 2009-04-09 15:11:16 ssnyder Exp $
 /**
- * @file  errorcheck.h
+ * @file  AthenaKernel/errorcheck.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2006
  * @brief Helpers for checking error return status codes and reporting errors.

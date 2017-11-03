@@ -45,11 +45,11 @@ private:
 	std::vector<int> m_index; // indices
 
 // initialization methods //
-	void m_init(void);
+	void init(void);
 	  // default initiailization method; the number of indices is set to 0
-	void m_init(const unsigned int & r_nb_indices);
+	void init(const unsigned int & r_nb_indices);
 	  // initialization method; the number of indices is set to r_nb_indices
-	void m_init(const unsigned int & r_nb_indices,
+	void init(const unsigned int & r_nb_indices,
 					const std::vector<int> r_index);
 	  // initialization method; the number of indices is set to 
 	  // r_nb_indices, the vector r_index contains the indices
@@ -57,18 +57,18 @@ private:
 public:
 // Constructors //
 	IndexSet(void) {
-		m_init();
+		init();
 		}
 	///< default constructor: the number of indices is set to 0
 
 	IndexSet(const unsigned int & r_nb_indices) {
-		m_init(r_nb_indices);
+		init(r_nb_indices);
 		}
 	///< constructor: the number of indices is set to r_nb_indices
 
 	IndexSet(const unsigned int & r_nb_indices,
 					const std::vector<int> r_index) {
-		m_init(r_nb_indices, r_index);
+		init(r_nb_indices, r_index);
 		}
 	///< constructor: the number of indices is set to r_nb_indices,
 	///<              the vector r_index contains the indices

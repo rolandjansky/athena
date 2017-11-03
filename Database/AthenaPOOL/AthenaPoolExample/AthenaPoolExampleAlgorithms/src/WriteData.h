@@ -5,7 +5,7 @@
 #ifndef ATHENAPOOLEXAMPLEALGORITHMS_WRITEDATA_H
 #define ATHENAPOOLEXAMPLEALGORITHMS_WRITEDATA_H
 
-/** @file WriteData.h
+/** @file AthenaPoolExampleAlgorithms/src/WriteData.h
  *  @brief This file contains the class definition for the WriteData class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: WriteData.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $

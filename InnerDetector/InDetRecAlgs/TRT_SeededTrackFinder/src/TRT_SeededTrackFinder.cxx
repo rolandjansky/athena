@@ -728,16 +728,15 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 {
   ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
-  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
-
   //Get the track segment information and build the initial track parameters
-  const AmgVector(5)&                         p = tS.localParameters();
-  AmgSymMatrix(5)*  ep = new AmgSymMatrix(5)(tS.localCovariance());
   const Trk::StraightLineSurface*       surf = dynamic_cast<const Trk::StraightLineSurface*>(&(tS.associatedSurface()));
   if (!surf) {
     throw std::logic_error("Unhandled surface.");
   }
+  const AmgVector(5)&                         p = tS.localParameters();
+  AmgSymMatrix(5)*  ep = new AmgSymMatrix(5)(tS.localCovariance());
   
+  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
   std::unique_ptr<const Trk::TrackParameters> segPar( surf->createParameters<5,Trk::Charged>(p(0),p(1),p(2),p(3),p(4),ep) );
   if(segPar){

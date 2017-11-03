@@ -12,12 +12,12 @@ namespace FADS {
 
 class FieldManagerFactory {
 public:
-	FieldManagerFactory(std::string n):name(n) { RegisterToStore(); }
-	std::string GetName() {return name;}
+	FieldManagerFactory(std::string n):m_name(n) { RegisterToStore(); }
+	std::string GetName() {return m_name;}
 	virtual FadsFieldManager *CreateFieldManager(std::string) = 0;
 	virtual ~FieldManagerFactory() {}
 private:
-	std::string name;
+	std::string m_name;
 	void RegisterToStore();
 };
 

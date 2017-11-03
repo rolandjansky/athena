@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeoModelEnvelopes/ForDetEnvelopeTool.h"
-#include "GeoModelEnvelopes/ForDetEnvelopeFactory.h" 
+#include "ForDetEnvelopeTool.h"
+#include "ForDetEnvelopeFactory.h" 
 #include "GeoModelEnvelopes/ForDetEnvelopeManager.h" 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 
@@ -25,12 +25,12 @@ ForDetEnvelopeTool::~ForDetEnvelopeTool()
 }
 
 
-StatusCode ForDetEnvelopeTool::create(StoreGateSvc* detStore)
+StatusCode ForDetEnvelopeTool::create()
 { 
   ATH_MSG_INFO("Building Forward Detectors Envelope");
 
   GeoModelExperiment* theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve(theExpt,"ATLAS")) { 
+  if (StatusCode::SUCCESS != detStore()->retrieve(theExpt,"ATLAS")) { 
     ATH_MSG_ERROR("Could not find GeoModelExperiment ATLAS");
     return StatusCode::FAILURE; 
   } 
@@ -38,12 +38,12 @@ StatusCode ForDetEnvelopeTool::create(StoreGateSvc* detStore)
   if(0==m_manager) {
     GeoPhysVol *world=&*theExpt->getPhysVol();
 
-    ForDetEnvelopeFactory theFactory(detStore);
+    ForDetEnvelopeFactory theFactory(detStore().operator->());
     theFactory.create(world);
 
     m_manager = theFactory.getDetectorManager();
     theExpt->addManager(m_manager);
-    StatusCode sc = detStore->record(m_manager,
+    StatusCode sc = detStore()->record(m_manager,
 			  m_manager->getName());
     
     if (sc.isFailure()) {
@@ -55,9 +55,9 @@ StatusCode ForDetEnvelopeTool::create(StoreGateSvc* detStore)
   return StatusCode::FAILURE;
 }
 
-StatusCode ForDetEnvelopeTool::clear(StoreGateSvc* detStore)
+StatusCode ForDetEnvelopeTool::clear()
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<ForDetEnvelopeManager>::ID(),m_manager->getName());
+  SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits<ForDetEnvelopeManager>::ID(),m_manager->getName());
   if(_proxy) {
     _proxy->reset();
     m_manager = 0;

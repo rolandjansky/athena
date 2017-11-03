@@ -8,42 +8,30 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloEvent/CaloCellContainer.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
 
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 
-
+#include "StoreGate/ReadHandle.h"
 
 
 CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calosurf("CaloSurfaceBuilder"),
-  m_cellContainer(0),
-  m_eta(0),
-  m_phi(0),
   m_deta(0),
   m_dphi(0),
   m_calo_dd(0),
   m_emid(0),
   m_sam(CaloSampling::EMB2),
-  m_subcalo(CaloCell_ID::LAREM),
-  m_barrel(0)
+  m_subcalo(CaloCell_ID::LAREM)
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
-  declareProperty( "CaloSurfaceBuilder",     m_calosurf      );
-  declareProperty( "InputCellContainerName", m_caloCellContainerName = "AODCellContainer");
-  declareProperty( "UseClusterEnergy",       m_useClusterEnergy =  true);
-  declareProperty( "UseClusterPhi" ,         m_useClusterPhi    = true);
-  declareProperty( "UseClusterEta" ,         m_useClusterEta    = true);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -56,6 +44,9 @@ StatusCode CaloCluster_OnTrackBuilder::initialize() {
 //--------------------------------------------------------------------------------------------
   
   ATH_MSG_INFO("Initializing CaloCluster_OnTrackBuilder");
+
+
+  ATH_CHECK(m_caloCellContainerKey.initialize());
  
   // Retrieve the updator CaloSurfaceBuilder
   if ( m_calosurf.retrieve().isFailure() ){
@@ -411,23 +402,23 @@ bool CaloCluster_OnTrackBuilder::FindPosition(const xAOD::CaloCluster* cluster) 
 
   // eta max and averaged eta 
   
-
-  
-  m_eta = cluster->etaSample(m_sam);
-  m_phi = cluster->phiSample(m_sam);
-  if ((m_eta==0. && m_phi==0.) || fabs(m_eta)>100) return false;
+  /** @brief (eta,phi) around which estimate the shower shapes */
+  const double eta = cluster->etaSample(m_sam);
+  const double phi = cluster->phiSample(m_sam);
+  if ((eta==0. && phi==0.) || fabs(eta)>100) return false;
 
   int sampling_or_module;
+  bool barrel;
 
   // granularity in (eta,phi) in the pre sampler
   // CaloCellList needs both enums: subCalo and CaloSample
-  m_calo_dd->decode_sample(m_subcalo, m_barrel, sampling_or_module, 
+  m_calo_dd->decode_sample(m_subcalo, barrel, sampling_or_module, 
          (CaloCell_ID::CaloSample) m_sam);
 
   // Get the corresponding grannularities : needs to know where you are
   //                  the easiest is to look for the CaloDetDescrElement
   const CaloDetDescrElement* dde;
-  dde = m_calo_dd->get_element(m_subcalo,sampling_or_module,m_barrel,m_eta,m_phi);
+  dde = m_calo_dd->get_element(m_subcalo,sampling_or_module,barrel,eta,phi);
   // if object does not exist then return
   if (!dde) return false;
 
@@ -453,18 +444,22 @@ double  CaloCluster_OnTrackBuilder::CalculatePhis(const xAOD::CaloCluster* clust
   // (sampling, barrel/end-cap, granularity)
   if (!FindPosition(cluster)) return 0.;
 
-  if (evtStore()->retrieve( m_cellContainer, m_caloCellContainerName ).isFailure())
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_caloCellContainerKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!cellContainer.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_caloCellContainerKey.key());
     return 0.;
-  
+  }
+
   CaloLayerCalculator calc;
-  if (calc.fill(m_cellContainer,cluster->etaSample(m_sam),cluster->phiSample(m_sam),
+  if (calc.fill(cellContainer.cptr(),cluster->etaSample(m_sam),cluster->phiSample(m_sam),
                 7*m_deta,7*m_dphi,m_sam).isFailure() )
      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
   
   double etamax = calc.etarmax();
   double phimax = calc.phirmax();
 
-  if (calc.fill(m_cellContainer,etamax,phimax,3.*m_deta,7.*m_dphi,m_sam).isFailure())
+  if (calc.fill(cellContainer.cptr(),etamax,phimax,3.*m_deta,7.*m_dphi,m_sam).isFailure())
     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
    
   return calc.phis(); 

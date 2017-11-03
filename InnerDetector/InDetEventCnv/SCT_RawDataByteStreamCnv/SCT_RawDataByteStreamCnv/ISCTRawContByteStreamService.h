@@ -29,7 +29,7 @@ class ISCTRawContByteStreamService: virtual public IInterface {
   /** convert() method */
 
   virtual StatusCode convert(SCT_RDO_Container* cont, 
-			     RawEventWrite* re, MsgStream& log) = 0 ; 
+                             RawEventWrite* re, MsgStream& log) = 0 ; 
   
 };
 

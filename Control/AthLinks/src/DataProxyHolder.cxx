@@ -25,7 +25,8 @@ namespace {
 
 
 /// Current input renaming map.
-const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap = nullptr;
+const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap ATLAS_THREAD_SAFE
+  = nullptr;
 
 
 }
@@ -129,8 +130,8 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
   m_proxy = sg->proxy (link_clid, dataID);
   if (m_proxy == 0) {
     // Didn't find a proxy; make a dummy.
-    auto tad = std::make_unique<SG::TransientAddress> (link_clid, dataID);
-    tad->setSGKey (sg->stringToKey (dataID, link_clid));
+    SG::TransientAddress tad (link_clid, dataID);
+    tad.setSGKey (sg->stringToKey (dataID, link_clid));
     m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (link_clid, m_proxy).isFailure())
       std::abort();
@@ -191,12 +192,11 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
   
   if (m_proxy == 0) {
     // Still didn't find it --- make a dummy.
-    std::unique_ptr<SG::TransientAddress> tad;
-    if (key)
-      tad = std::make_unique<SG::TransientAddress> (clid, *key);
-    else
-      tad = std::make_unique<SG::TransientAddress>();
-    tad->setSGKey (sgkey);
+    SG::TransientAddress tad;
+    if (key) {
+      tad = SG::TransientAddress (clid, *key);
+    }
+    tad.setSGKey (sgkey);
     m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (clid, m_proxy).isFailure())
       std::abort();
@@ -223,7 +223,7 @@ DataProxyHolder::dataID() const
   if (dp)
     return dp->name();
 
-  static std::string dummy;
+  static const std::string dummy;
   return dummy;
 }
 
@@ -561,20 +561,6 @@ SG::DataProxy* DataProxyHolder::proxy1(bool nothrow) const
 
 
 /**
- * @brief Return the data source for this reference.
- *
- * If we're holding a pointer directly, rather than a proxy,
- * then return 0 rather than raising an exception.
- */
-IProxyDict* DataProxyHolder::source1() const
-{
-  if (!m_proxy || (reinterpret_cast<unsigned long>(m_proxy) & 1) == 1)
-    return 0;
-  return m_proxy->store();
-}
-
-
-/**
  * @brief Compare for equality.
  */
 bool DataProxyHolder::operator== (const DataProxyHolder& other) const
@@ -608,7 +594,7 @@ bool DataProxyHolder::operator== (const DataProxyHolder& other) const
  * @brief Set map used for performing input renaming in toTransient.
  * @param map The new map, or nullptr for no renmaing.
  */
-void DataProxyHolder::setInputRenameMap (const InputRenameRCU_t* map)
+void DataProxyHolder::setInputRenameMap ATLAS_NOT_THREAD_SAFE (const InputRenameRCU_t* map)
 {
   s_inputRenameMap = map;
 }

@@ -13,7 +13,6 @@ int main( int argc, char** ) {
 
     std::cout << "[OVAL] Loading the shared libraries." << std::endl;
     std::vector< std::string > libraries;
-    //libraries.push_back( "test_TestDictionaryDict" );
     libraries.push_back( "test_StorageSvc_AuxStoreDict" );
     driver.loadLibraries( libraries );
 

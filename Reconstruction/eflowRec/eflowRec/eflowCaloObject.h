@@ -54,12 +54,12 @@ public:
   }
 
   /* Track accessor methods */
-  eflowRecTrack* efRecTrack(int i) { return m_eflowRecTracks[i]; }
+  eflowRecTrack* efRecTrack(int i) const { return m_eflowRecTracks[i]; }
   unsigned nTracks() const{ return m_eflowRecTracks.size(); }
   void clearTracks() { m_eflowRecTracks.clear(); }
 
   /* Cluster accessor methods */
-  eflowRecCluster* efRecCluster(int i) { return m_eflowRecClusters[i]; }
+  eflowRecCluster* efRecCluster(int i) const { return m_eflowRecClusters[i]; }
   unsigned nClusters() const{ return m_eflowRecClusters.size(); }
   void clearClusters() { m_eflowRecClusters.clear(); }
 

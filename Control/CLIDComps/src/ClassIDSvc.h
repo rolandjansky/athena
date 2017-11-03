@@ -28,7 +28,6 @@
 
 #include "SGTools/CLIDRegistry.h"
 
-template <class TYPE> class SvcFactory;
 
 /** @class ClassIDSvc 
  * @brief a service to manage and verify CLID assignments in athena.
@@ -104,9 +103,6 @@ public:
   void handle(const Incident &inc) override;
 
   
-protected:
-  friend class SvcFactory<ClassIDSvc>;
-
   // Standard Constructor
   ClassIDSvc(const std::string& name, ISvcLocator* svc);
         

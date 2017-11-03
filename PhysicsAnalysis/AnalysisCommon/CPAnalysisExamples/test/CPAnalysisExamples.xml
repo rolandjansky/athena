@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <atn>
    <TEST name="ut_ath_checkTrigger_test" type="script" suite="ASGTests">
-      <options_atn>ut_ath_checkTrigger_test.exe</options_atn>
+      <options_atn>skip_if_libraryMissing.sh CPAnalysisExamples
+      ut_ath_checkTrigger_test.exe</options_atn>
       <timelimit>10</timelimit>
       <author> Will Buttinger </author>
       <mailto> will@cern.ch </mailto>
@@ -14,8 +15,8 @@
 </postscript>
    </TEST>
 
-   <TEST name="Test__EgammaCalibrationAndSmearingTool" type="athena" suite="ASGTests">
-      <options_atn>CPAnalysisExamples/Test__EgammaCalibrationAndSmearingToolJobOptions.py</options_atn>
+   <TEST name="Test__EgammaCalibrationAndSmearingTool" type="script" suite="ASGTests">
+      <options_atn>skip_if_libraryMissing.sh CPAnalysisExamples athena.py CPAnalysisExamples/Test__EgammaCalibrationAndSmearingToolJobOptions.py</options_atn>
       <timelimit>10</timelimit>
       <author> Egamma CP Group </author>
       <mailto> ruggero.turra@cern.ch </mailto>
@@ -27,8 +28,8 @@
       <postscript>rootcomp.py --atnMode --output rootcomp_Test_EgammaCalibrationAndSmearingTool.results.root Test_EgammaCalibrationAndSmearingTool.results.root &amp;&amp; root2html.py *.root</postscript>
    </TEST>
 
-   <TEST name="Test__TrackLinkTest" type="athena" suite="ASGTests">
-      <options_atn>CPAnalysisExamples/Test__TrackLinkTestJobOptions.py</options_atn>
+   <TEST name="Test__TrackLinkTest" type="script" suite="ASGTests">
+      <options_atn>skip_if_libraryMissing.sh CPAnalysisExamples athena.py CPAnalysisExamples/Test__TrackLinkTestJobOptions.py</options_atn>
       <timelimit>5</timelimit>
       <author> Thomas Maier </author>
       <mailto> tmaier@cern.ch </mailto>

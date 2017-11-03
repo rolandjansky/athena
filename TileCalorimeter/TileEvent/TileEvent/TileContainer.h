@@ -20,8 +20,8 @@
 #ifndef TILEEVENT_TILECONTAINER_H
 #define TILEEVENT_TILECONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 // #include "TileEvent/TileDeposit.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileTTL1.h"

@@ -56,6 +56,8 @@ class LArAutoCorrComplete: public ILArAutoCorr,
   
 };
 
-
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArAutoCorrComplete, 255786016,1)
+CONDCONT_DEF( LArAutoCorrComplete, 122986158, ILArAutoCorr );
+
 #endif 

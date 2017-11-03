@@ -208,8 +208,8 @@ StatusCode McEventSelector::queryInterface(const InterfaceID& riid,
     *ppvIf = (IEvtSelector*)this;
     addRef();
     return SUCCESS;
-  } else if (riid == IEventSeek::interfaceID() ) {
-    *ppvIf = dynamic_cast<IEventSeek*>(this);
+  } else if (riid == IEvtSelectorSeek::interfaceID() ) {
+    *ppvIf = dynamic_cast<IEvtSelectorSeek*>(this);
     addRef();
     return SUCCESS;
   }
@@ -450,7 +450,7 @@ McEventSelector::resetCriteria(const std::string&, Context& ) const {
 }
 
 StatusCode
-McEventSelector::seek(int evtNum) {
+McEventSelector::seek(Context& /*refCtxt*/, int evtNum) const {
 
   ATH_MSG_DEBUG ("............. seek(" << evtNum << ") .............");
 
@@ -464,10 +464,17 @@ McEventSelector::seek(int evtNum) {
 }
 
 int
-McEventSelector::curEvent() const {
+McEventSelector::curEvent (const Context& /*refCtxt*/) const {
 
   ATH_MSG_DEBUG ("............. curEvent .............");
 
 
   return m_ctx->serialEventNumber();
 }
+
+int
+McEventSelector::size (Context& /*refCtxt*/) const
+{
+  return -1;
+}
+

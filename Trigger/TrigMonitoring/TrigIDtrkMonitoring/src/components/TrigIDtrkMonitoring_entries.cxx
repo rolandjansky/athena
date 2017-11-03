@@ -3,6 +3,6 @@
 // #include "TrigIDtrkMonitoring/TIDAMonTool.h"
 
 
-// DECLARE_TOOL_FACTORY(HLTIDtrkMonTool )
-// DECLARE_TOOL_FACTORY(HLTIDZeeTagProbe )
+// DECLARE_COMPONENT( HLTIDtrkMonTool )
+// DECLARE_COMPONENT( HLTIDZeeTagProbe )
 

@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../CscThresholdClusterBuilder.h"
 #include "../CscThresholdClusterBuilderTool.h"
 #include "../CscPeakThresholdClusterBuilderTool.h"
@@ -11,26 +9,14 @@
 #include "../CscClusterUtilTool.h"
 #include "../CscAlignmentTool.h"
 
-DECLARE_ALGORITHM_FACTORY( CscThresholdClusterBuilder )
-DECLARE_TOOL_FACTORY( CscThresholdClusterBuilderTool )
-DECLARE_TOOL_FACTORY( CscPeakThresholdClusterBuilderTool )
-DECLARE_TOOL_FACTORY( CalibCscStripFitter )
-DECLARE_TOOL_FACTORY( SimpleCscClusterFitter )
-DECLARE_TOOL_FACTORY( QratCscClusterFitter )
-DECLARE_TOOL_FACTORY( CscSplitClusterFitter )
-DECLARE_TOOL_FACTORY( ParabolaCscClusterFitter )
-DECLARE_TOOL_FACTORY( CscClusterUtilTool )
-DECLARE_TOOL_FACTORY( CscAlignmentTool )
-  
-DECLARE_FACTORY_ENTRIES(CscClusterization) {
-    DECLARE_ALGORITHM ( CscThresholdClusterBuilder )
-    DECLARE_TOOL ( CscThresholdClusterBuilderTool )
-    DECLARE_TOOL ( CscPeakThresholdClusterBuilderTool )
-    DECLARE_TOOL ( CalibCscStripFitter )
-    DECLARE_TOOL ( SimpleCscClusterFitter )
-    DECLARE_TOOL ( QratCscClusterFitter )
-    DECLARE_TOOL ( CscSplitClusterFitter )
-    DECLARE_TOOL ( ParabolaCscClusterFitter )
-    DECLARE_TOOL ( CscClusterUtilTool )
-    DECLARE_TOOL ( CscAlignmentTool )
-}
+DECLARE_COMPONENT( CscThresholdClusterBuilder )
+DECLARE_COMPONENT( CscThresholdClusterBuilderTool )
+DECLARE_COMPONENT( CscPeakThresholdClusterBuilderTool )
+DECLARE_COMPONENT( CalibCscStripFitter )
+DECLARE_COMPONENT( SimpleCscClusterFitter )
+DECLARE_COMPONENT( QratCscClusterFitter )
+DECLARE_COMPONENT( CscSplitClusterFitter )
+DECLARE_COMPONENT( ParabolaCscClusterFitter )
+DECLARE_COMPONENT( CscClusterUtilTool )
+DECLARE_COMPONENT( CscAlignmentTool )
+

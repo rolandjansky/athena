@@ -27,6 +27,7 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_defaultStore(0),
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
+  m_activeStoreSvc("ActiveStoreSvc", name),
   m_pIOVSvc(nullptr)
 {
   //our properties
@@ -204,6 +205,10 @@ StatusCode StoreGateSvc::initialize()    {
     error() << "Could not locate IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // Don't retrieve m_activeStoreSvc here to prevent a possible
+  // initialization loop.
+
   const int PRIORITY=100;
   m_incSvc->addListener(this, "EndEvent",PRIORITY);
   m_incSvc->addListener(this, "BeginEvent", PRIORITY);
@@ -497,10 +502,8 @@ StoreGateSvc::clearProxyPayload(SG::DataProxy* proxy) {
 
 StatusCode 
 StoreGateSvc::loadEventProxies() {
-  ActiveStoreSvc* pActive(0);
-  const bool CREATEIF(true);
-  if (!(serviceLocator()->service("ActiveStoreSvc", pActive, CREATEIF)).isSuccess()) return StatusCode::FAILURE;
-  pActive->setStore(this);
+  CHECK( m_activeStoreSvc.retrieve() );
+  m_activeStoreSvc->setStore(this);
   _SGXCALL(loadEventProxies, (), StatusCode::FAILURE);
 }
 

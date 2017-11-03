@@ -2905,13 +2905,6 @@ namespace xAOD {
          return TReturnCode::kSuccess;
       }
 
-      // The classes whose children can have an auxiliary store attached
-      // to them:
-      static const TClass* dvClass =
-         TClass::GetClass( typeid( SG::AuxVectorBase ) );
-      static const TClass* aeClass =
-         TClass::GetClass( typeid( SG::AuxElement ) );
-
       // Look up the auxiliary object's manager:
       Object_t::const_iterator auxMgr = objects.find( key + "Aux." );
       if( auxMgr == objects.end() ) {
@@ -2964,12 +2957,19 @@ namespace xAOD {
       // Access the auxiliary base class of the object/vector:
       SG::AuxVectorBase* vec = 0;
       SG::AuxElement* aux = 0;
-      if( mgr.holder()->getClass()->InheritsFrom( dvClass ) ) {
+      switch (mgr.holder()->typeKind()) {
+      case THolder::DATAVECTOR: {
          void* vvec = mgr.holder()->getAs( typeid( SG::AuxVectorBase ) );
          vec = reinterpret_cast< SG::AuxVectorBase* >( vvec );
-      } else if( mgr.holder()->getClass()->InheritsFrom( aeClass ) ) {
+         break;
+      }
+      case THolder::AUXELEMENT: {
          void* vaux = mgr.holder()->getAs( typeid( SG::AuxElement ) );
          aux = reinterpret_cast< SG::AuxElement* >( vaux );
+         break;
+      }
+      default:
+        break;
       }
 
       // Check whether index tracking is enabled for the type. If not, let's not

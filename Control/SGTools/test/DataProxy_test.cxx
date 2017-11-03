@@ -259,12 +259,42 @@ void test4()
 }
 
 
+// Test move from TransientAddress.
+void test5()
+{
+  std::cout << "test5\n";
+
+  TestOpaqueAddress ad1;
+  SG::TransientAddress tad1 (123, "key", &ad1);
+  tad1.setSGKey (876);
+  tad1.setTransientID (124);
+  tad1.setAlias ("key2");
+
+  Test3Loader loader;
+  SG::DataProxy dp1 (std::move (tad1), &loader);
+  assert (dp1.name() == "key");
+  assert (dp1.clID() == 123);
+  assert (dp1.address() == &ad1);
+  assert (dp1.storeID() == StoreID::UNKNOWN);
+  assert (dp1.sgkey() == 876);
+  assert (dp1.transientID().size() == 2);
+  assert (dp1.transientID (123));
+  assert (dp1.transientID (124));
+  assert (dp1.alias() == std::set<std::string> {"key2"});
+
+  assert (tad1.address() == nullptr);
+  assert (tad1.transientID().empty());
+  assert (tad1.alias().empty());
+}
+
+
 int main()
 {
   test1();
   test2();
   test3();
   test4();
+  test5();
 
   // FIXME: INCOMPLETE!
 

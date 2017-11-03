@@ -132,11 +132,17 @@ namespace Muon {
     for(unsigned int i=0; i<seeds.size(); ++i) {
       std::vector< const Muon::MuonClusterOnTrack* > rioVec = getClustersOnSegment(orderedClusters,seeds[i]);
       if(rioVec.size() <= 6) continue;
+      int nMM = 0;
+      for(unsigned int k=0; k<rioVec.size(); ++k) {
+        if(m_idHelperTool->isMM(rioVec[k]->identify())) nMM++;
+      }
+
       //fit the segment!!
       std::vector<const Trk::MeasurementBase*> vec2;
       vec2.reserve(rioVec.size()+2);
       //create a psuedo phi hit
       double errPos = 0.1;
+      if(nMM>0) errPos = 1000.;
       Amg::MatrixX cov(1,1);
       cov(0,0) = errPos*errPos;
       Trk::PseudoMeasurementOnTrack* pseudoSegPhi1 = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters( Trk::DefinedParameter(0,Trk::locY) ),
@@ -183,7 +189,31 @@ namespace Muon {
       }
       Trk::Track* segtrack = fit(vec2,*startpar);
       delete startpar;
-      if(segtrack) segTrkColl->push_back( segtrack );
+      if(segtrack) {
+        segTrkColl->push_back( segtrack );
+
+        // Peter NEW calculate distance of segment to all muon clusters
+        if( msgLvl(MSG::VERBOSE) ) {
+          Amg::Vector3D  pos = segtrack->perigeeParameters()->position();
+          Amg::Vector3D  dir = segtrack->perigeeParameters()->momentum();
+          dir = dir / dir.mag();
+          ATH_MSG_VERBOSE(" 2D eta segment found position " << pos << " direction " << dir << " hits " << vec2.size());
+          for(unsigned int k=0; k<muonClusters.size(); ++k) {
+             const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*> (&(muonClusters[k]->associatedSurface()));
+             if(surf) {
+               Amg::Vector3D posOnSurf = intersectPlane( *surf, pos, dir );
+               Amg::Vector2D lpos;
+               surf->globalToLocal(posOnSurf,posOnSurf,lpos);
+               double residual = muonClusters[k]->localParameters()[Trk::locX] - lpos[0];
+               double error = Amg::error(muonClusters[k]->localCovariance(),Trk::locX);
+               double pull = residual / error;
+               ATH_MSG_VERBOSE(" lay " << k << " residual " << residual  << " error  " << error
+                               << " pull " << pull << "  " << m_idHelperTool->toString(muonClusters[k]->identify()) );
+             }
+          }
+        }
+
+      }
       else ATH_MSG_DEBUG( "segment fit failed" );
       //delete the pseudo hits
       delete pseudoSegPhi1;
@@ -329,6 +359,28 @@ namespace Muon {
 	  //store the track segment in track collection
 	  segTrkColl->push_back( segtrack );
 	  is3Dseg = true;
+
+          // Peter NEW calculate distance of segment to all muon clusters
+          if( msgLvl(MSG::VERBOSE) ) {
+            Amg::Vector3D  pos = segtrack->perigeeParameters()->position();
+            Amg::Vector3D  dir = segtrack->perigeeParameters()->momentum();
+            dir = dir / dir.mag();
+            ATH_MSG_VERBOSE("3D eta-phi segment found position " << pos << " direction " << dir << " hits " << vec2.size());
+            for(unsigned int k=0; k<muonClusters.size(); ++k) {
+               const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*> (&(muonClusters[k]->associatedSurface()));
+               if(surf) {
+                 Amg::Vector3D posOnSurf = intersectPlane( *surf, pos, dir );
+                 Amg::Vector2D lpos;
+                 surf->globalToLocal(posOnSurf,posOnSurf,lpos);
+                 double residual = muonClusters[k]->localParameters()[Trk::locX] - lpos[0];
+                 double error = Amg::error(muonClusters[k]->localCovariance(),Trk::locX);
+                 double pull = residual / error;
+                 ATH_MSG_VERBOSE(" lay " << k << " residual " << residual  << " error  " << error
+                                 << " pull " << pull << "  " << m_idHelperTool->toString(muonClusters[k]->identify()) );
+               }
+            }
+          }
+
 	} else {
 	  ATH_MSG_DEBUG( "segment fit failed" );
 	}		
@@ -487,9 +539,11 @@ namespace Muon {
       double bestDist(9999.);      
       for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
 	double dist = clusterDistanceToSeed( *cit, seed);
-	ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/Amg::error((*cit)->localCovariance(),Trk::locX) 
+	double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+	if(m_idHelperTool->isMM((*cit)->identify())) error += 25.;
+	ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
 			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	if( fabs(dist/Amg::error((*cit)->localCovariance(),Trk::locX)) < m_maxClustDist) {
+	if( fabs(dist/error) < m_maxClustDist) {
 	  if(fabs(dist) < bestDist) {
 	    bestDist = fabs(dist);
 	    rio = (*cit);
@@ -521,6 +575,7 @@ namespace Muon {
     const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*>(&clus->associatedSurface());
     double dist(-99999);
     if( !surf ) {
+      ATH_MSG_DEBUG(" clusterDistanceToSeed: no Trk::PlaneSurface found on cluster ");
       return dist;
     }
     Amg::Vector3D  piOnPlane = intersectPlane(*surf,seed.first,seed.second);
@@ -530,7 +585,10 @@ namespace Muon {
     //check if the MuonCluster is pad hit
     if(m_idHelperTool->issTgc( clus->identify() ) && m_idHelperTool->stgcIdHelper().channelType( clus->identify() ) == 0 ) {
       const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>(clus->prepRawData());
-      if (!prd) return dist;
+      if (!prd) {
+         ATH_MSG_DEBUG(" clusterDistanceToSeed: no sTgcPrepData found ");
+         return dist;
+      }
       const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( clus->identify() );
       if(!design) {	
 	ATH_MSG_WARNING( "MuonPadDesign not found for " << m_idHelperTool->toString( clus->identify() ) );
@@ -539,13 +597,20 @@ namespace Muon {
       //check the alignment in locX 
       double chWidth1 = 0.5*design->channelWidth(prd->localPosition(),false);
       double chWidth2 = 0.5*design->channelWidth(prd->localPosition(),true);
+      chWidth1 = fabs(chWidth1);
+      chWidth2 = fabs(chWidth2);
       Amg::Vector2D lp1(prd->localPosition().x()-chWidth2,prd->localPosition().y()-chWidth1);
       Amg::Vector2D lp2(prd->localPosition().x()+chWidth2,prd->localPosition().y()+chWidth1);
+      ATH_MSG_DEBUG(" chWidth2 locX " << chWidth2 << " chWidth1 locY" << chWidth1 << " design->sPadWidth " << design->sPadWidth << " design->lPadWidth " << design->lPadWidth );
+      ATH_MSG_DEBUG(" cluster locX " << prd->localPosition().x() << " lpos.x() " << lpos.x() << " cluster locY " << prd->localPosition().y() << " lpos.y() " << lpos.y());
       if(lp1.y() < lpos.y() && lp2.y() > lpos.y() && lp1.x() < lpos.x() && lp2.x() > lpos.x() ) {
 	dist = 0;
       }            
     }
-    else dist = clus->localParameters()[Trk::locX] - lpos[Trk::locX];
+    else {
+      dist = clus->localParameters()[Trk::locX] - lpos[Trk::locX];
+      ATH_MSG_DEBUG(" clus [locX] " << clus->localParameters()[Trk::locX] << " clus [LocY] " << clus->localParameters()[Trk::locY] << " lpos[locX] " << lpos[Trk::locX] << " lpos[locY] " << lpos[Trk::locY] );
+    }
 
     return dist;
   }
@@ -603,6 +668,9 @@ namespace Muon {
       if(m_idHelperTool->stgcIdHelper().multilayer(hits.front()->identify()) == 1) sTgc1.push_back(hits);
       else sTgc2.push_back( hits );
     }
+
+    ATH_MSG_DEBUG(" sTgc1.size() " << sTgc1.size() << " sTgc2.size() " << sTgc2.size());
+
     if(sTgc1.size() == 0 || sTgc2.size() == 0) return seeds;
     //store reference surfaces
     const sTgcPrepData* prdL1 = dynamic_cast<const sTgcPrepData*>(sTgc1.front().front()->prepRawData());
@@ -664,6 +732,7 @@ namespace Muon {
       seeds.push_back(seedPair);
     }
 
+    ATH_MSG_DEBUG(" segmentSeedFromPads: seeds.size() " << seeds.size());
     return seeds;
 
   }

@@ -46,7 +46,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //Here for inlines:
   bool m_highlightHT;

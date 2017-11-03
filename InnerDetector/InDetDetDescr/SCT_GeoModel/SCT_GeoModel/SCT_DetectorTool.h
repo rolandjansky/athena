@@ -28,13 +28,13 @@ public:
   SCT_DetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
 
   // Standard Destructor
-  virtual ~SCT_DetectorTool();
+  virtual ~SCT_DetectorTool() override final;
 
-  virtual StatusCode create( StoreGateSvc* detStore );
-  virtual StatusCode clear(StoreGateSvc* detStore);
+  virtual StatusCode create() override final;
+  virtual StatusCode clear() override final;
 
   // Register callback function on ConDB object
-  virtual StatusCode registerCallback( StoreGateSvc* detStore );
+  virtual StatusCode registerCallback() override final;
 
   // Callback function itself
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS);

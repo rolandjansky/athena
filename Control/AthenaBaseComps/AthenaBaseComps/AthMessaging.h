@@ -14,6 +14,7 @@
 // STL includes
 #include <iosfwd>
 #include <string>
+#include <atomic>
 
 // framework includes
 #include "GaudiKernel/IMessageSvc.h"
@@ -75,6 +76,11 @@ class AthMessaging
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
+  /** Change the current logging level.
+   *  Use this rather than msg().setLevel() for proper operation with MT.
+   */
+  void setLevel (MSG::Level lvl);
+
   /////////////////////////////////////////////////////////////////// 
   // Private methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -89,6 +95,9 @@ class AthMessaging
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
+
+  /// Current logging level.
+  std::atomic<MSG::Level> m_lvl;
 
   /// MsgStream instance (a std::cout like with print-out levels)
   mutable boost::thread_specific_ptr<MsgStream> m_msg_tls;
@@ -106,7 +115,7 @@ inline
 bool
 AthMessaging::msgLvl (const MSG::Level lvl) const
 {
-  if (msg().level() <= lvl) {
+  if (m_lvl <= lvl) {
     msg() << lvl;
     return true;
   } else {
@@ -118,11 +127,14 @@ inline
 MsgStream&
 AthMessaging::msg() const 
 {
-  if (!m_msg_tls.get()) {
-    m_msg_tls.reset( new MsgStream(m_imsg,m_nm) );
+  MsgStream* ms = m_msg_tls.get();
+  if (!ms) {
+    ms = new MsgStream(m_imsg,m_nm);
+    m_msg_tls.reset( ms );
   }
 
-  return *m_msg_tls;
+  ms->setLevel (m_lvl);
+  return *ms;
 }
 
 inline

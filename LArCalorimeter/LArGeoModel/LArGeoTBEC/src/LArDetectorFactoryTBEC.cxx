@@ -6,9 +6,9 @@
 // 24-Aug-2006 : V. Niess. Put back initialisation for
 // VDetectorParameters according to J. Toth scheme. 
 
-#include "LArGeoTBEC/LArDetectorFactoryTBEC.h"
+#include "LArDetectorFactoryTBEC.h"
 
-#include "LArGeoTBEC/LArDetectorConstructionTBEC.h"
+#include "LArDetectorConstructionTBEC.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoTransform.h"

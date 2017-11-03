@@ -6,11 +6,12 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
-if globalflags.isOverlay():
+if globalflags.isOverlay() and isData :
   if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    if isData:
-      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+    eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+  else :
+    eventInfoKey = "McEventInfo"
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
@@ -239,8 +240,7 @@ if DetFlags.haveRIO.SCT_on():
 
     # Load calibration conditions service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc",
-                                                     EventInfoKey = eventInfoKey)
+    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
     ServiceMgr += InDetSCT_ReadCalibDataSvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ReadCalibDataSvc
@@ -268,24 +268,45 @@ if DetFlags.haveRIO.SCT_on():
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ModuleVetoSvc
 
-    # Load bytestream errors service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-    InDetSCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "InDetSCT_ByteStreamErrorsSvc")
-    ServiceMgr += InDetSCT_ByteStreamErrorsSvc
+    # Load bytestream errors service (use default instance without "InDet")
+    # @TODO find a better to solution to get the correct service for the current job.
+    if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
+        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
+        ServiceMgr += SCT_ByteStreamErrorsSvc
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ByteStreamErrorsSvc
+        print ServiceMgr.SCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
-        if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-        if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-        if not conddb.folderRequested('/SCT/DCS/HV'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
-               
+        sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
+        sctDCSTempFolder = '/SCT/DCS/MODTEMP'
+        sctDCSHVFolder = '/SCT/DCS/HV'
+        if not conddb.folderRequested(sctDCSStateFolder):
+            conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSTempFolder):
+            conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSHVFolder):
+            conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+            condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                       ReadKey = sctDCSHVFolder)
+        if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+            condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                         ReadKeyHV = sctDCSHVFolder,
+                                                         ReadKeyState = sctDCSStateFolder)
+        if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+            condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                         ReadKey = sctDCSTempFolder)
+        
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
-        if InDetFlags.useHVForSctDCS(): InDetSCT_DCSConditionsSvc.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
+        if InDetFlags.useHVForSctDCS():
+            SCT_DCSConditionsStatCondAlg.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         ServiceMgr += InDetSCT_DCSConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_DCSConditionsSvc
@@ -317,7 +338,7 @@ if DetFlags.haveRIO.SCT_on():
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc",
                                                             "InDetSCT_TdaqEnabledSvc"]
         if not athenaCommonFlags.isOnline():
@@ -334,7 +355,7 @@ if DetFlags.haveRIO.SCT_on():
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             "InDetSCT_MonitorConditionsSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc"]
 
 
@@ -364,22 +385,23 @@ if DetFlags.haveRIO.TRT_on():
     if (globalflags.DataSource() == 'data'): 
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
             conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+
     # Calibration constants
+    # Block folders if they are to be read in from text files
+    #conddb.blockFolder("/TRT/Calib/RT")
+    #conddb.blockFolder("/TRT/Calib/T0")
+
     if not conddb.folderRequested('/TRT/Calib/RT'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/T0'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0")
-
-    # --- reenambe new TRT errors      
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d")
-
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/slopes'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes")
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
         
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
-#        conddb.addFolder("TRT_OFL","/TRT/Calib/ToTCalib")
 
     if not conddb.folderRequested('/TRT/Calib/HTCalib'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
@@ -390,6 +412,20 @@ if DetFlags.haveRIO.TRT_on():
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc
+
+    # Calibration folder management
+    # Use this for reading folders from text files
+
+    #from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
+    #TRTCondWrite = TRTCondWrite( name = "TRTCondWrite",
+    #                                            CalibInputFile = "dbconst.336630.txt",
+    #                                            CalibOutputFile = "")
+    # use as CalibOutputFile the name calibout_n, where n=0,1,2,3 is the format
+    #
+    #topSequence += TRTCondWrite
+    #if (InDetFlags.doPrintConfigurables()):
+    #   print TRTCondWrite
+
     
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):

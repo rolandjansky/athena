@@ -29,6 +29,11 @@ class TestProvider
   : public IAddressProvider
 {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
 				   SG::TransientAddress* /*pTAd*/,
                                    const EventContext& /*ctx*/) override
@@ -87,7 +92,7 @@ void test_addToStore ATLAS_NOT_THREAD_SAFE ()
   SG::StringPool::sgkey_t sgkey2b = pool.stringToKey ("dp2", 124);
   assert (store.proxy_exact (sgkey2b) == dp2);
   assert (store.proxy_exact (sgkey2a) == 0);
-  assert (dp2->sgkey() == sgkey2a);
+  assert (dp2->sgkey() == sgkey2b);
 }
 
 
@@ -185,7 +190,10 @@ void test_proxy()
   assert (store.proxy (123, "dp1") == dp1);
   assert (store.proxy (123, "") == dp1);
 
-  assert (store.proxy (new SG::TransientAddress (123, "dp1")) == dp1);
+  {
+    SG::TransientAddress ta (123, "dp1");
+    assert (store.proxy (&ta) == dp1);
+  }
 
   assert (store.addAlias ("dp1a", dp1).isSuccess());
   assert (store.addAlias ("dp1b", dp1).isSuccess());

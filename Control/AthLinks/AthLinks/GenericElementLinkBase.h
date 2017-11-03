@@ -18,7 +18,9 @@
 
 
 #include "AthLinks/tools/DataProxyHolder.h"
+#include "AthLinks/tools/CachedValue.h"
 #include "AthLinks/tools/selection_ns.h"
+#include "CxxUtils/checker_macros.h"
 
 
 // Forward declaration(s):
@@ -421,6 +423,13 @@ protected:
 
 
   /**
+   * @brief Set the cached element stored in the link.
+   * @param elt New value for the cached element.
+   */
+  void storeCachedElement (const ElementType& elt);
+
+
+  /**
    * @brief Retrieve the cached element from the link.
    * @param elt[out] The cached element.
    * @returns True if an element was cached; false otherwise.
@@ -453,12 +462,10 @@ private:
   /// SG proxy for this link.
   SG::DataProxyHolder m_proxy;  //! Transient
 
-  /// Do we have a cached element?
-  mutable bool m_cacheValid; //! Transient
+  /// Cached element.
+  CachedValue<ElementType> m_element; //! Transient
 
-  /// Cached copy of the element to which this link refers.
-  mutable ElementType m_element;  //! Transient
-
+  
   /// Connect to selection rules.
   typedef typename
   ROOT_SELECTION_NS::SG::GenericElementLinkBase<INDEXING_POLICY>::self DictSel;

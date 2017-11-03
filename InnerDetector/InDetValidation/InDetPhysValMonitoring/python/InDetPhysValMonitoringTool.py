@@ -85,6 +85,29 @@ class InDetPhysValMonitoringTool(object) :
             from RecExConfig.RecFlags import rec
             rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValMonitoringTool import removePhysValExample;removePhysValExample();']
 
+
+  class InDetPhysValMonitoringToolLoose(InDetPhysValMonitoringTool) :
+      '''
+      InDetPhysValMonitoringTool for track particles which pass the loose selection
+      '''
+      #@injectNameArgument
+      #def __new__(cls, *args, **kwargs) :
+      #    return InDetPhysValMonitoringTool.InDetPhysValMonitoringTool.__new__(cls,*args,**kwargs)
+
+      @checkKWArgs
+      def __init__(self, **kwargs) :
+          super(InDetPhysValMonitoringTool.InDetPhysValMonitoringToolLoose,self)\
+                        .__init__(**_args( kwargs,
+                                           name = self.__class__.__name__))
+
+          # special parameters of the InDetPhysValMonitoringTool for monitoring loose tracks
+          self.SubFolder='Loose/'
+          self.useTrackSelection = True
+
+          from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
+          self.TrackSelectionTool = toolFactory(InDetTrackSelectionTool.InDetTrackSelectionToolLoose)
+
+
   class InDetPhysValMonitoringToolTightPrimary(InDetPhysValMonitoringTool) :
       '''
       InDetPhysValMonitoringTool for track particles which pass the tight primary selection
@@ -105,7 +128,6 @@ class InDetPhysValMonitoringTool(object) :
 
           from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
           self.TrackSelectionTool = toolFactory(InDetTrackSelectionTool.InDetTrackSelectionToolTightPrimary)
-
 
   class InDetPhysValMonitoringToolGSF(InDetPhysValMonitoringTool) :
       '''

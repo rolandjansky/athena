@@ -41,7 +41,7 @@ StatusCode SCT_TdaqEnabledCondAlg::initialize()
   // Write Cond Handle
   ATH_CHECK( m_writeKey.initialize() );
   // Register write handle
-  if(m_condSvc->regHandle(this, m_writeKey, m_writeKey.dbKey()).isFailure()) {
+  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -111,11 +111,11 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
       if(SCT_OnlineId::rodIdInRange(rodNumber)) {
-	if((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
-	  ATH_MSG_WARNING("Set insertion failed for rod "<<rodNumber);
-	}
+        if((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
+          ATH_MSG_WARNING("Set insertion failed for rod "<<rodNumber);
+        }
       } else {
-	ATH_MSG_WARNING("Names in "<<m_readKey.key()<<" should be of the form ROL-SCT-BA-00-210000 this channel, number "<<channelNumber<<", is: "<<chanName);
+        ATH_MSG_WARNING("Names in "<<m_readKey.key()<<" should be of the form ROL-SCT-BA-00-210000 this channel, number "<<channelNumber<<", is: "<<chanName);
       }
     }
 
@@ -140,9 +140,9 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       std::vector<IdentifierHash> tmpIdVec{0};
       tmpIdVec.reserve(s_modulesPerRod);
       for(const auto & thisRod : writeCdo->getGoodRods()) {
-	tmpIdVec.clear();
-	m_cablingSvc->getHashesForRod(tmpIdVec, thisRod);
-	writeCdo->setGoodModules(tmpIdVec);
+        tmpIdVec.clear();
+        m_cablingSvc->getHashesForRod(tmpIdVec, thisRod);
+        writeCdo->setGoodModules(tmpIdVec);
       }
       writeCdo->setFilled(true);
     } 
@@ -156,8 +156,8 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
   if(writeHandle.record(rangeW, writeCdo).isFailure()) {
     ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key() 
-		  << " with EventRange " << rangeW
-		  << " into Conditions Store");
+                  << " with EventRange " << rangeW
+                  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
@@ -209,7 +209,7 @@ std::string SCT_TdaqEnabledCondAlg::inWords(const unsigned int aNumber) const {
   case 1:
     return std::string("One SCT rod was");
     break;
-   default:
+  default:
     return std::to_string(aNumber) + " SCT rods were"; //C++11
     break;
   }

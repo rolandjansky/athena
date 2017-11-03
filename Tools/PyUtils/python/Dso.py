@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
-## @file : Dso.py
+## @file : PyUtils/python/Dso.py
 ## @purpose: a set of classes to model so-called 'rootmap' files
 
 __version__ = "$Revision$"

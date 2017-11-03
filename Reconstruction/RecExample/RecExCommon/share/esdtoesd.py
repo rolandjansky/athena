@@ -11,6 +11,14 @@ rec.doWriteTAG.set_Value_and_Lock(False)
 #jp.AthenaCommonFlags.PoolESDInput=["ESD.pool.root"]
 if not 'jp.AthenaCommonFlags.PoolESDOutput' in dir():
     jp.AthenaCommonFlags.PoolESDOutput="copy_ESD.pool.root"
+
+
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
+
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 

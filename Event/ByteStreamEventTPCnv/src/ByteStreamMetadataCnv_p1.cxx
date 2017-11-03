@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file ByteStreamMetadataCnv_p1.cxx
+/** @file ByteStreamEventTPCnv/src/ByteStreamMetadataCnv_p1.cxx
  *  @brief This file contains the implementation for the ByteStreamMetadataCnv_p1 class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: ByteStreamMetadataCnv_p1.cxx,v 1.1 2009-03-18 17:42:45 gemmeren Exp $

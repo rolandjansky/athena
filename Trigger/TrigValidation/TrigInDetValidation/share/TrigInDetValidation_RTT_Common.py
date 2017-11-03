@@ -19,6 +19,10 @@ def importRTTdatasets(jobID):
     return datasetList
 #--------------------------------------------------------------------------------------------------
 
+if 'ARTConfig' in dir(): 
+   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+   athenaCommonFlags.FilesInput=ARTConfig
+
 if 'XMLDataSet' in dir() and XMLDataSet!="":
    print XMLDataSet
    athenaCommonFlags.FilesInput = importRTTdatasets(XMLDataSet)

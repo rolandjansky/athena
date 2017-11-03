@@ -106,8 +106,8 @@ StatusCode AddressRemappingSvc::initialize() {
                    << "#" << newTad.name()
                    << " -> " << oldTad.clID()
                    << "#" << oldTad.name());
-      m_oldTads.push_back(oldTad);
-      m_newTads.push_back(newTad);
+      m_oldTads.push_back(std::move(oldTad));
+      m_newTads.push_back(std::move(newTad));
    }
 
    m_inputRenames = m_RCUSvc->newrcu<InputRenameMap_t>();

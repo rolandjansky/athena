@@ -1078,8 +1078,9 @@ class athenaExecutor(scriptExecutor):
             ignorePatterns = trfValidation.ignorePatterns(files = athenaExecutor._defaultIgnorePatternFile, extraSearch=igPat)
         
         # Now actually scan my logfile
-        msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
-        self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
+        msg.info('Scanning logfile {0} for errors in substep {1}'.format(self._logFileName, self._substep))
+        self._logScan = trfValidation.athenaLogFileReport(logfile=self._logFileName, substepName=self._substep,
+                                                          ignoreList=ignorePatterns)
         worstError = self._logScan.worstError()
         self._dbMonitor = self._logScan.dbMonitor()
         

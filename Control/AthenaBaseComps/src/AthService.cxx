@@ -147,5 +147,5 @@ AthService::queryInterface( const InterfaceID& riid,
 void 
 AthService::msg_update_handler(Property& /*m_outputLevel*/) 
 {
-  msg().setLevel (outputLevel());
+  this->setLevel (static_cast<MSG::Level> (outputLevel()));
 }

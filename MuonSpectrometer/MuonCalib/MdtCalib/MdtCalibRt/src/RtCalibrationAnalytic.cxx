@@ -340,9 +340,9 @@ void RtCalibrationAnalytic::display_segment(MuonCalibSegment * segment,	ofstream
   MTStraightLine aux_track(segment->position(), segment->direction(),
 			   null, null);
   outfile << "SET PLCI 4\n"
-	  << "LINE " << aux_track.m_x2()*(z_min-30.0)+aux_track.b_x2() 
+	  << "LINE " << aux_track.a_x2()*(z_min-30.0)+aux_track.b_x2() 
 	  << " " << z_min-30.0
-	  << " " << aux_track.m_x2()*(z_max+30.0)+aux_track.b_x2() 
+	  << " " << aux_track.a_x2()*(z_max+30.0)+aux_track.b_x2() 
 	  << " " << z_max+30.0 << "\n";
   
   // add a wait statement //
@@ -922,7 +922,7 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
     }
 	
     MTStraightLine track(m_tracker.track());
-    if(std::isnan(track.m_x1()) || std::isnan(track.m_x2()) || std::isnan(track.b_x1()) || std::isnan(track.b_x2())) {
+    if(std::isnan(track.a_x1()) || std::isnan(track.a_x2()) || std::isnan(track.b_x1()) || std::isnan(track.b_x2())) {
       continue;
     }
 
@@ -940,11 +940,11 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
     }
 
 //reject tracks with silly parameters
-    if (fabs(m_tracker.track().m_x2()) > 8e8) continue;
+    if (fabs(m_tracker.track().a_x2()) > 8e8) continue;
 
 //for filling into data class
     if(m_iteration==0) {
-      m_track_slope.Insert(m_tracker.track().m_x2());
+      m_track_slope.Insert(m_tracker.track().a_x2());
       m_track_position.Insert(m_tracker.track().b_x2());
     }
 
@@ -990,8 +990,8 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
 
 	// analytic calculation of G //
       for (unsigned int m=0; m<m_tracker.numberOfTrackHits(); m++) {
-	zeta[m] = sqrt(1.0+std::pow(track.m_x2(), 2))*
-	  (w[m].positionVector()).z()-track.m_x2()*d_track[m];
+	zeta[m] = sqrt(1.0+std::pow(track.a_x2(), 2))*
+	  (w[m].positionVector()).z()-track.a_x2()*d_track[m];
       }
       for (unsigned int m=0; m<m_tracker.numberOfTrackHits(); m++) {
 	double sum1(0.0), sum2(0.0), sum3(0.0), sum4(0.0);
@@ -1010,23 +1010,23 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
 	  G[m] = (l==m)+m_full_matrix*sum1/(sum2*sum2-sum3*sum4);
 	}
       }
-      CLHEP::HepSymMatrix m_A_tmp(m_A);
+      CLHEP::HepSymMatrix A_tmp(m_A);
       // autocalibration objects //
       for (unsigned int p=0; p<m_order; p++) {
 	for (unsigned int pp=p; pp<m_order; pp++) {
-	  m_A_tmp[p][pp] = m_A[p][pp] + (dot(G, m_U[p])*dot(G, m_U[pp]))/
+	  A_tmp[p][pp] = m_A[p][pp] + (dot(G, m_U[p])*dot(G, m_U[pp]))/
 	    m_tracker.trackHits()[l]->sigma2DriftRadius();
-	  if(std::isnan(m_A_tmp[p][pp])) return true;
+	  if(std::isnan(A_tmp[p][pp])) return true;
 	}
       }
-      m_A = m_A_tmp;
-      CLHEP::HepVector m_b_tmp(m_b);
+      m_A = A_tmp;
+      CLHEP::HepVector b_tmp(m_b);
       for (unsigned int p=0; p<m_order; p++) {
-	m_b_tmp[p] = m_b[p]-residual_value[l]*dot(G, m_U[p])/
+	b_tmp[p] = m_b[p]-residual_value[l]*dot(G, m_U[p])/
 	  m_tracker.trackHits()[l]->sigma2DriftRadius();
-	if(std::isnan(m_b_tmp[p])) return true;
+	if(std::isnan(b_tmp[p])) return true;
       }
-      m_b=m_b_tmp;
+      m_b=b_tmp;
     }
 
 //-----------------------------------------------------------------------------

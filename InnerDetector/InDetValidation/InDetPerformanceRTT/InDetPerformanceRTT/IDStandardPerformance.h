@@ -790,7 +790,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     
     std::string m_PixeltracksName;
     SG::ReadHandleKey<TrackCollection> m_SCTtracksName;
-    std::string m_TRTtracksName;
+    SG::ReadHandleKey<TrackCollection> m_TRTtracksKey{ this, "TRTtracksName", "StandaloneTRTTracks", "Container name for the Standalone TRT Tracks" };
 
     typedef std::multimap<HepMcParticleLink,float> recoToTruthMap;//!< map containing reco track and matched truth track barcode
     recoToTruthMap rttMap;

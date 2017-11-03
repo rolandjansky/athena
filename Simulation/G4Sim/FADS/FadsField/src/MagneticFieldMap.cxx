@@ -11,13 +11,13 @@ namespace FADS {
 
 MagneticFieldMap::MagneticFieldMap()
 {
-	name="GenericFieldMap";
-	initialized=false;
+	m_name="GenericFieldMap";
+	m_initialized=false;
 }
 
-MagneticFieldMap::MagneticFieldMap(std::string n): name(n)
+MagneticFieldMap::MagneticFieldMap(std::string n): m_name(n)
 {
-	initialized=false;
+	m_initialized=false;
 }
 
 void MagneticFieldMap::GetFieldValue(const double *xyzPos, double *xyzField) const {
@@ -27,7 +27,7 @@ void MagneticFieldMap::GetFieldValue(const double *xyzPos, double *xyzField) con
 void MagneticFieldMap::SetInitialValues()
 {
 	Initialize();
-	initialized=true;
+	m_initialized=true;
 }
 
 }	// end namespace

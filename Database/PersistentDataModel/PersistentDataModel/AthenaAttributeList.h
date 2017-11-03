@@ -3,7 +3,7 @@
 */
 
 /**
- * @file AthenaAttributeList.h
+ * @file PersistentDataModel/AthenaAttributeList.h
  *
  * @brief An AttributeList represents a logical row of attributes in a
  * metadata table.  The name and type of each attribute is given in an
@@ -67,9 +67,6 @@ public:
 
 CLASS_DEF(AthenaAttributeList, 40774348, 0)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<AthenaAttributeList>, 211215482 , 0)
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<AthenaAttributeList>, CondContBase );
-
+CONDCONT_DEF(AthenaAttributeList, 211215482);
 
 #endif // PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H

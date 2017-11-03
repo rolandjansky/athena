@@ -6,7 +6,7 @@
 
 
 /**
- * @file Event.cxx
+ * @file HLTTestApps/src/Event.cxx
  * @author <a href="mailto:Andre.dos.Anjos@cern.ch">Andre DOS ANJOS</a> 
  * $Author: ricab $
  * $Revision: 64 $

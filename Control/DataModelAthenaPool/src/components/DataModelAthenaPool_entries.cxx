@@ -6,11 +6,7 @@
  * @brief Gaudi algorithm factory declarations.
  */
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DataModelAthenaPool/DataModelCompatSvc.h"
 
-DECLARE_SERVICE_FACTORY(DataModelCompatSvc)
+DECLARE_COMPONENT( DataModelCompatSvc )
 
-DECLARE_FACTORY_ENTRIES(DataModelAthenaPool) {
-  DECLARE_SERVICE(DataModelCompatSvc)
-}

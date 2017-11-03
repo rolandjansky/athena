@@ -1,6 +1,6 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../PhantomBarrelSDTool.hh"
 #include "../PhantomBarrelTool.hh"
 
-DECLARE_TOOL_FACTORY( PhantomBarrelSDTool )
-DECLARE_TOOL_FACTORY( PhantomBarrelTool )
+DECLARE_COMPONENT( PhantomBarrelSDTool )
+DECLARE_COMPONENT( PhantomBarrelTool )
+

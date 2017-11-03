@@ -641,6 +641,14 @@ class ParticleID(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class RecordStepInfo(JobProperty):
+    """
+    Should FCS_StepInfoCollections be recorded
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class RecordFlux(JobProperty):
     """
     Record flux through the entirety of the detector

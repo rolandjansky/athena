@@ -12,6 +12,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "SGAudCore/ISGAudSvc.h"
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace std;
 using SG::DataStore;
@@ -60,40 +61,22 @@ void DataStore::setSGAudSvc() {
 
 
 //////////////////////////////////////////////////////////////
-void DataStore::clearStore(bool force, bool hard, MsgStream* pmlog)
+void DataStore::clearStore(bool force, bool hard, MsgStream* /*pmlog*/)
 {
-
-  for (StoreMap::value_type& m : m_storeMap)
-  {
-
-    ProxyMap& pmap = m.second;
-
-    ProxyIterator iter = pmap.begin();
-    ProxyIterator end   = pmap.end();
-
-    while (iter != end) {
-
-      if (pmlog) {
-	*pmlog << MSG::VERBOSE 
-	       << "DataStore::clearStore() " 
-	       << (force ? "forcing" : "requesting")
-	       << " release of DataProxy @" << iter->second
-	       << ", recorded with key=" << iter->second->name() 
-	       << ", CLID=" << iter->second->clID()
-	       << ", containing data object @" << iter->second->object();
-	pmlog->flush(); //make sure this is printed now
+  /// Go through the list of unique proxies, and run requestRelease()
+  /// on each.  If that returns true, then we're meant to remove this
+  /// proxy from the store.  Be careful that removing a proxy from the
+  /// store will modify the m_proxies list, so if the proxy is successfully
+  /// removed, we should not bump the index.
+  for (size_t i = 0; i < m_proxies.size(); ) {
+    SG::DataProxy* dp = m_proxies[i];
+    if (ATH_UNLIKELY (dp->requestRelease (force, hard))) {
+      if (removeProxy (dp, true, true).isFailure()) {
+        ++i;
       }
-      if (iter->second->requestRelease(force, hard)) { //request proxy deletion
-	//proxy was released, remove map entry
-        sgkey_t sgkey = m_pool.stringToKey (iter->first, m.first);
-        m_keyMap.erase (sgkey);
-        
-	pmap.erase(iter++);  //increment the pre-erase iterator (Effective STL Item 9)
-      } else {
-	//proxy was reset, keep map entry
-	++iter;
-      }
-      if(pmlog) *pmlog << MSG::VERBOSE << "  ... -> DONE" << endmsg;
+    }
+    else {
+      ++i;
     }
   }
 
@@ -131,44 +114,56 @@ void DataStore::keys(const CLID& id, std::vector<std::string>& vkeys,
 StatusCode 
 DataStore::addToStore(const CLID& id, DataProxy* dp)
 {
-  StatusCode sc(StatusCode::FAILURE);
-  if (0 != dp) {
-
-    if (id == 0 && dp->clID() == 0 && dp->sgkey() != 0) {
-      // Handle a dummied proxy.
-      m_keyMap[dp->sgkey()] = dp;
-    }
-    else {
-      ProxyMap& pmap = m_storeMap[id];
-
-      // Set the primary key.
-      sgkey_t primary_sgkey = m_pool.stringToKey (dp->name(), dp->clID());
-      dp->setSGKey (primary_sgkey);
-
-      pmap.insert(ProxyMap::value_type(dp->name(), dp));
-
-      sgkey_t sgkey = primary_sgkey;
-      if (id != dp->clID())
-        sgkey = m_pool.stringToKey (dp->name(), id);
-      m_keyMap[sgkey] = dp;
-    }
-
-    // Note : No checking if proxy already exists in store because it
-    // is already checked in StoreGateSvc.  
-    //  if (pmap.find(dp->name()) == pmap.end()) {
-    dp->addRef();   // The store now owns this
-    dp->setT2p(&m_t2p);
-    dp->setStore(&m_pool);
-
-    sc =  StatusCode::SUCCESS;
-    //  } else {
-    //    std::cout << "!!!!!!!!!!!! Dupe found in store " << this << "CLID/KEY" << id << "/" << dp->name() << std::endl;
-    //  }
+  if (!dp) {
+    return StatusCode::FAILURE;
   }
-  return sc;
 
+  /// If this proxy has not yet been added to the store, then make
+  /// an entry for it in m_proxies.  Remember the index in that list.
+  int index = -1;
+  if (dp->store() == nullptr) {
+    index = m_proxies.size();
+    m_proxies.push_back (dp);
+  }
+
+  if (id == 0 && dp->clID() == 0 && dp->sgkey() != 0) {
+    // Handle a dummied proxy.
+    m_keyMap[dp->sgkey()] = std::make_pair (index, dp);
+  }
+  else {
+    ProxyMap& pmap = m_storeMap[id];
+
+    // Set the primary key.
+    sgkey_t primary_sgkey = m_pool.stringToKey (dp->name(), dp->clID());
+    sgkey_t sgkey = primary_sgkey;
+    if (id != dp->clID()) {
+      sgkey = m_pool.stringToKey (dp->name(), id);
+    }
+    if (dp->sgkey() == 0) {
+      dp->setSGKey (sgkey);
+    }
+
+    if (!m_keyMap.emplace (sgkey, std::make_pair (index, dp)).second) {
+      if (index != -1) {
+        m_proxies.pop_back();
+      }
+      return StatusCode::FAILURE;
+    }
+
+    pmap.insert(ProxyMap::value_type(dp->name(), dp));
+  }
+
+  // Note : No checking if proxy already exists in store because it
+  // is already checked in StoreGateSvc.  
+  //  if (pmap.find(dp->name()) == pmap.end()) {
+  dp->addRef();   // The store now owns this
+  dp->setT2p(&m_t2p);
+  dp->setStore(&m_pool);
+
+  return StatusCode::SUCCESS;
 }
- 
+
+
 //////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------//
 // if Proxy is a resettable proxy only then reset it, otherwise
@@ -183,43 +178,72 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     proxy->reset (hard);
     sc =  StatusCode::SUCCESS;
   } else {
+
+    proxy->setStore (nullptr);
     
     SG::DataProxy::CLIDCont_t clids = proxy->transientID();
     std::string name = proxy->name();
     sgkey_t primary_sgkey = proxy->sgkey();
 
-    StoreIterator storeIter = m_storeMap.find(proxy->clID());
+    CLID clid = proxy->clID();
+    ProxyMap* pmap = nullptr;
+    StoreIterator storeIter = m_storeMap.find(clid);
     if (storeIter != m_storeMap.end()) {
-      CLID clid = proxy->clID();
-      // first remove the alias key:
-      ProxyMap& pmap = m_storeMap[clid];
-      SG::DataProxy::AliasCont_t alias_set = proxy->alias();
-      for (SG::DataProxy::AliasCont_t::const_iterator i = alias_set.begin();
-	   i != alias_set.end(); ++i)
-      {
-        m_keyMap.erase (m_pool.stringToKey (*i, clid));
-	if (1 == pmap.erase(*i)) proxy->release();
-      }
-      
-      // then remove the primary key
-      m_keyMap.erase (primary_sgkey);
-      if (1 == storeIter->second.erase(name)) {
-	proxy->release();
-	sc = StatusCode::SUCCESS;
-      }
+      pmap = &m_storeMap[clid];
+    }
 
-      // Remove all symlinks too.
-      for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-	   i != clids.end(); ++i)
-      {
-	storeIter = m_storeMap.find(*i);
-	if (storeIter != m_storeMap.end()) {
-          m_keyMap.erase (m_pool.stringToKey (name, *i));
-	  if (1 == storeIter->second.erase(name))
-	    proxy->release();
-	}
-      } //symlinks loop
-    } //proxy there
+    // first remove the alias key:
+    SG::DataProxy::AliasCont_t alias_set = proxy->alias();
+    for (SG::DataProxy::AliasCont_t::const_iterator i = alias_set.begin();
+         i != alias_set.end(); ++i)
+    {
+      m_keyMap.erase (m_pool.stringToKey (*i, clid));
+      if (pmap && 1 == pmap->erase(*i)) proxy->release();
+    }
+      
+    // then remove the primary key
+    KeyMap_t::iterator it = m_keyMap.find (primary_sgkey);
+    if (it == m_keyMap.end()) {
+      return StatusCode::FAILURE;
+    }
+    // Remember the index of this proxy in m_proxies.
+    int index = it->second.first;
+    sc = StatusCode::SUCCESS;
+
+    m_keyMap.erase (it);
+    if (storeIter != m_storeMap.end()) {
+      if (1 == storeIter->second.erase(name)) {
+        proxy->release();
+      }
+    }
+
+    // Remove all symlinks too.
+    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
+         i != clids.end(); ++i)
+    {
+      if (*i == clid) continue;
+      m_keyMap.erase (m_pool.stringToKey (name, *i));
+      storeIter = m_storeMap.find(*i);
+      if (storeIter != m_storeMap.end()) {
+        SG::ProxyIterator it = storeIter->second.find (name);
+        if (it != storeIter->second.end() && it->second == proxy) {
+          storeIter->second.erase (it);
+          proxy->release();
+        }
+      }
+    } //symlinks loop
+
+    if (index != -1 && !m_proxies.empty()) {
+      // Remove the proxy from m_proxies.  If it's not at the end, then
+      // move the proxy at the end to this proxy's index (and update the
+      // index for the other proxy stored in m_keyMap).
+      if (index != (int)m_proxies.size() - 1) {
+        SG::DataProxy* dp = m_proxies.back();
+        m_proxies[index] = dp;
+        m_keyMap[dp->sgkey()].first = index;
+      }
+      m_proxies.pop_back();
+    }
   } //reset only
   return sc;
 }
@@ -267,7 +291,8 @@ DataStore::addAlias(const std::string& aliasKey, DataProxy* dp)
   dp->setAlias(aliasKey);
   dp->addRef();
   pmap[aliasKey] = dp;
-  m_keyMap[m_pool.stringToKey (aliasKey, dp->clID())] = dp;
+
+  m_keyMap[m_pool.stringToKey (aliasKey, dp->clID())] = std::make_pair (-1, dp);
   //  pmap.insert(ProxyMap::value_type(aliasKey, dp));
   // use [] as it overwrites, .insert ignores second entry
 
@@ -401,7 +426,7 @@ DataProxy* DataStore::proxy_exact(sgkey_t sgkey) const
   }
   KeyMap_t::const_iterator i = m_keyMap.find (sgkey);
   if (i != m_keyMap.end())
-    return i->second;
+    return i->second.second;
   return 0;
 }
 

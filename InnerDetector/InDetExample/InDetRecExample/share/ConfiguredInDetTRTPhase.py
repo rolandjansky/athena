@@ -86,14 +86,13 @@ class ConfiguredInDetTRTPhase:
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetCosmicsEventPhase
             InDetCosmicsEventPhase = InDet__InDetCosmicsEventPhase(name              = "InDetCosmicsEventPhase",
                                                                    InputTracksNames  = InputTrackCollections,
-                                                                 #  InputSegmentsName = TRT_Segments_EC,
                                                                    TrackSummaryTool  = InDetTrackSummaryTool,
                                                                    #EventPhaseTool    = InDetCosmicsEventPhaseTool)
                                                                    #EventPhaseTool    = InDetFixedWindowTrackTimeTool)
                                                                    EventPhaseTool    = InDetSlidingWindowTrackTimeTool)
             if InDetFlags.doCosmics():
                 InDetCosmicsEventPhase.EventPhaseTool=InDetCosmicsEventPhaseTool
-            topSequence += InDetCosmicsEventPhase
+                topSequence += InDetCosmicsEventPhase  # indented here: do not calculate the phase in collisions 
             if (InDetFlags.doPrintConfigurables()):
                 print InDetCosmicsEventPhase
     
