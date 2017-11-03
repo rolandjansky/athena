@@ -21,7 +21,6 @@
 #include "xAODEgamma/Photon.h"
 
 #include "AthContainers/ConstDataVector.h"
-//#include "CaloUtils/CaloClusterStoreHelper.h"
 #include "xAODCore/ShallowCopy.h"
 
 #include "egammaInterfaces/IegammaBaseTool.h"
@@ -440,6 +439,96 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         return HLT::OK;
   }
 
+    //**********************************************************************
+    // If TrackMatchBuilder tool is going to be run 
+    // get pointer to TrackParticleContainer from the trigger element and set flag for execution
+
+    const xAOD::TrackParticleContainer* pTrackParticleContainer = 0;
+//    xAOD::Vertex leadTrkVtx;
+//    leadTrkVtx.makePrivateStore();
+//    std::string TrkCollKey="";
+    if (m_doTrackMatching){
+        std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+        stat = getFeatures(inputTE, vectorTrackParticleContainer);
+        // in case a TrackParticleContainer is retrieved from the TE
+        if (stat != HLT::OK) {
+            m_doTrackMatching=false;
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
+                << " REGTEST: no TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+
+        } else {
+            // check that it is not empty
+            if (vectorTrackParticleContainer.size() < 1) {
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+                    << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+
+            } else {
+                // Get the pointer to last TrackParticleContainer 
+                pTrackParticleContainer = vectorTrackParticleContainer.back();
+                m_doTrackMatching = true;
+                if(!pTrackParticleContainer){
+                    m_doTrackMatching = false;
+                    msg() << MSG::ERROR
+                        << " REGTEST: Retrieval of TrackParticleContainer from vector failed"
+                        << endreq;
+                }
+                //ATH_MSG_DEBUG("m_doTrackMatching: " << m_doTrackMatching);
+                //if ( getStoreGateKey( pTrackParticleContainer, TrkCollKey) != HLT::OK) {
+                //    ATH_MSG_ERROR("Failed to get key for TrackContainer");
+                //}
+                //else ATH_MSG_DEBUG("Track Collection key in SG: " << TrkCollKey);
+            }
+        }
+
+        // // Create vertex from leading track in RoI
+        // float leadTrkpt=0.0;
+        // const xAOD::TrackParticle *leadTrk=NULL;
+        // for (const xAOD::TrackParticle *trk:*pTrackParticleContainer) {
+        //     if(trk->pt() > leadTrkpt) {
+        //         leadTrkpt = trk->pt();
+        //         leadTrk=trk;
+        //     }
+        // }
+        // set z vertex position to leading track and shift by vz
+        // if(leadTrk!=NULL) leadTrkVtx.setZ(leadTrk->z0()+leadTrk->vz());
+        // else ATH_MSG_DEBUG("REGTEST: Lead track pointer null");
+
+    }//m_trackMatching
+
+    //**********************************************************************
+    // If Conversion Builder or EMFourMomBuilder are going to be run
+    const xAOD::VertexContainer* pVxContainer= 0;
+    std::vector<const xAOD::VertexContainer*> vectorVxContainer;
+    stat = getFeatures(inputTE,vectorVxContainer);
+    // in case a VxContainer is retrieved from the TE
+    if (stat != HLT::OK) {
+        m_doConversions = false;
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+            << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+    } else {
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorVxContainer.size()
+            << " VertexContainers associated to the TE " << endreq;
+        // check that it is not empty
+        if (vectorVxContainer.size() < 1) {
+            m_doConversions= false;
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+                << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+        } else {
+            // Get the pointer to last VxContainer 
+            pVxContainer = vectorVxContainer.back();
+            if(!pVxContainer){
+                m_doConversions = false;
+                msg() << MSG::ERROR
+                    << " REGTEST: Retrieval of VxContainer from vector failed"
+                    << endreq;
+            }
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_doConversions " << m_doConversions << endreq;
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
+    // Following offline code
+
    //Create a shallow copy, the elements of this can be modified ,
    //but no need to recreate the cluster
    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*input_topoclusters );
@@ -503,16 +592,18 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
       return HLT::ERROR;
     }
   }
+
   ///Append track Matching information
   if (m_doTrackMatching){
     smallChrono timer(m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters");
     for (auto egRec : *egammaRecs) {
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-	return HLT::ERROR;
+      if (m_trackMatchBuilder->trackExecute(egRec, pTrackParticleContainer).isFailure()){
+        ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+        return HLT::ERROR;
       }
     }
   }
+
   ///Append vertex matching /conversion information
   if (m_doVertexCollection){
     ATH_MSG_DEBUG("Running VertexBuilder");
@@ -523,16 +614,19 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
       return HLT::ERROR;
     }
   }
+
   //Do the conversion matching
   if (m_doConversions){
     ATH_MSG_DEBUG("Running ConversionBuilder");
     smallChrono timer(m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters");
-    if (m_conversionBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-      return HLT::ERROR;
+    for (auto egRec : *egammaRecs) {
+        if (m_conversionBuilder->hltExecute(egRec, pVxContainer).isFailure()){
+          ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
+          return HLT::ERROR;
+        }
     }
   }
-  //
+
   ////////////////////////////////////////////////
   //Now all info should be added  the initial topoClusters build SuperClusters
   //Electron superclusters Builder
@@ -550,10 +644,10 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     if (m_doTrackMatching){
       smallChrono timer(m_timingProfile,this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters");
       for (auto egRec : *electronSuperRecs) {
-	if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-	  ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-	  return HLT::ERROR;
-	}
+        if (m_trackMatchBuilder->trackExecute(egRec, pTrackParticleContainer).isFailure()){
+          ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+          return HLT::ERROR;
+        }
       }
     }
   }
@@ -573,10 +667,10 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     if (m_doConversions) {
       smallChrono timer(m_timingProfile,this->name()+"_"+m_conversionBuilder->name()+"_FinalClusters");
       for (auto egRec : *photonSuperRecs) {
-	if (m_conversionBuilder->executeRec(egRec).isFailure()){
-	  ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
-	  return HLT::ERROR;
-	}
+        if (m_conversionBuilder->hltExecute(egRec, pVxContainer).isFailure()){
+          ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
+          return HLT::ERROR;
+        }
       }
     }
   }
