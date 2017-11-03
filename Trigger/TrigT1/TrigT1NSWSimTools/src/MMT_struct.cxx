@@ -216,112 +216,6 @@ int gcm_key::get_var(int var)const{
 par_par::par_par(double _h,int xct,int uvct,double uver,const string& set,bool ql,bool dlm,bool qbg,double _qt,std_align mis,std_align cor,bool fill_tab,int cs,const string&pd,const string&tg):
   h(_h),ctx(xct),ctuv(uvct),uverr(uver),setup(set),islarge(ql),q_dlm(dlm),genbg(qbg),qt(_qt),misal(mis),corr(cor),fill_val(fill_tab),colskip(cs),pcrep_dir(pd),tag(tg) {}
 
-par_par::par_par(){
-  *this=dlm;
-}
-
-//for easy interface with command line parsing input format: (parname):(parval){if misal ::cor at end indicates correct to negate misal}
-void par_par::set_parameter(const string&par){
-  if(par.find(":")==string::npos)return;
-  else if(par.find("mal:")==0){
-    int start=4;double numbers[6];
-    for(int i=0;i<6;i++){
-      int end=par.find(",",start);
-      if(end<0&&i==5)end=par.length();
-      else if(end<0||end>=(int)par.length()-1||start==end){
-        return;
-      }
-      numbers[i]=atof(par.substr(start,end-start).c_str());
-      start=end+1;
-    }
-    set_misalign(numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]);
-    if(par.find("::cor")==par.length()-5)set_correct_to_neg_misal();
-  }
-  else if(par.find("cor:")==0){
-    int start=4;double numbers[6];
-    for(int i=0;i<6;i++){
-      int end=par.find(",",start);
-      if(end<0&&i==5)end=par.length();
-      else if(end<0||end>=(int)par.length()-1||start==end){
-        return;
-      }
-      numbers[i]=atof(par.substr(start,end-start).c_str());
-      start=end+1;
-    }
-    set_correct(numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]);
-  }
-  else if(par.find("3cor:")==0){
-    if(par.find(",")==string::npos){
-      exit(9);
-    }
-    pcrep_dir=par.substr(5,par.find(",")-5);tag=par.substr(par.find(",")+1);
-    corr.type=3;
-  }
-  else if(par.find("set:")==0)setup=par.substr(4);
-  else if(par.find("h:")==0)h=atof(par.substr(2).c_str());
-  else if(par.find("uverr:")==0)uverr=atof(par.substr(6).c_str());
-  else if(par.find("qt:")==0)qt=atof(par.substr(3).c_str());
-  else if(par.find("xct:")==0)ctx=atoi(par.substr(4).c_str());
-  else if(par.find("uvct:")==0)ctuv=atoi(par.substr(5).c_str());
-  else if(par.find("ql:")==0)islarge=atoi(par.substr(3).c_str());
-  else if(par.find("qdlm:")==0)q_dlm=atoi(par.substr(5).c_str());
-  else if(par.find("qbg:")==0){
-    int bgpar=atoi(par.substr(4).c_str());
-    if(bgpar==2||bgpar==3){
-      double vmm_road=0.445*64/(q_dlm?7583.5:7478.);//hard coded because this is a par_par not MMT_Parameters object
-      vmm_road=0.003756;
-      h=vmm_road;uverr=vmm_road;
-    }
-    genbg=(bgpar%2==1);
-  }
-  else if(par.find("filltab:")==0)fill_val=atoi(par.substr(8).c_str());
-  else if(par.find("colsk:")==0)colskip=atoi(par.substr(6).c_str());
-}
-
-void par_par::set_misalign(double tx,double ty,double tz,double rx,double ry,double rz){
-  misal=std_align(1,TVector3(tx,ty,tz),TVector3(rx,ry,rz));
-  if(misal.is_nominal())misal.type=0;
-}
-
-void par_par::set_mal_par(int parnum,double parval){
-  assert(parnum>=0&&parnum<misal.parmax());
-  if(parnum==0)misal.set_val(parnum,parval);
-  else if(parnum==1)misal.set_val(parnum,parval);
-  else if(parnum==2)misal.set_val(parnum,parval);
-  else if(parnum==3)misal.set_val(parnum,parval);
-  else if(parnum==4)misal.set_val(parnum,parval);
-  else if(parnum==5)misal.set_val(parnum,parval);
-  if(misal.is_nominal())misal.type=0;
-  else misal.type=1;
-}
-
-void par_par::set_correct(double tx,double ty,double tz,double ry,double rx,double rz){
-  corr=std_align((corr.type==3?3:2),TVector3(tx,ty,tz),TVector3(rx,ry,rz));
-  if(corr.is_nominal())corr.type=0;
-}
-
-void par_par::set_cor_par(int parnum,double parval){
-  assert(parnum>=0&&parnum<corr.parmax());
-  if(parnum==0)corr.set_val(parnum,parval);
-  else if(parnum==1)corr.set_val(parnum,parval);
-  else if(parnum==2)corr.set_val(parnum,parval);
-  else if(parnum==3)corr.set_val(parnum,parval);
-  else if(parnum==4)corr.set_val(parnum,parval);
-  else if(parnum==5)corr.set_val(parnum,parval);
-  if(!corr.is_nominal())corr.type=2;
-}
-
-void par_par::set_correct_to_neg_misal(){
-  if(misal.is_nominal()){
-    corr.type=0;
-    for(int ipar=0;ipar<misal.parmax();ipar++) corr.set_val(ipar,0.);//0 type not enough if later we want to sim corr
-  }
-  else{
-    for(int ipar=0;ipar<misal.parmax();ipar++) corr.set_val(ipar,misal.par_val(ipar));
-    corr.type=2;
-  }
-}
-
 string par_par::print_pars(const vector<int>&hide) const{
   vector<bool>sho(gcm_key().varmax(),true);
   for(int i=0;i<(int)hide.size();i++){
@@ -343,33 +237,33 @@ string par_par::detail()const{
   return misal.detail()+"; "+corr.detail();
 }
 
-MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager){
-  if(varied.misal.is_nominal())varied.misal.type=0;
+MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager){
+  if(inputParams.misal.is_nominal())inputParams.misal.type=0;
   //can still do sim_corrections for nominal
-  if(varied.corr.is_nominal()&&varied.corr.type==2)varied.corr.type=0;
+  if(inputParams.corr.is_nominal()&&inputParams.corr.type==2)inputParams.corr.type=0;
   n_etabins=2;
   n_etabins=10;
   n_phibins=10;
   dtheta_cut=0.016;//16 mrad dtheta cut (VMM limitation...may revise)
   diag=true;
   fill0=false;
-  //stuff pulled from the varied
+  //stuff pulled from the inputParams
   //h=float32fixed<2>
-  h=float32fixed<2>(varied.h==0?standard.h:varied.h);
-  CT_x=(varied.ctx==0?standard.ctx:varied.ctx);
-  CT_uv=(varied.ctuv==0?standard.ctuv:varied.ctuv);
-  uv_error=float32fixed<2>(varied.uverr=0?standard.uverr:varied.uverr);
-  setup=(varied.setup==""?standard.setup:varied.setup);
-  islarge=varied.islarge;
-  dlm_new=varied.q_dlm;
-  chargeThreshold=varied.qt;
-  genbg=varied.genbg;
-  misal=varied.misal;
+  h=float32fixed<2>(inputParams.h);
+  CT_x=inputParams.ctx;
+  CT_uv=inputParams.ctuv;
+  uv_error=float32fixed<2>(inputParams.uverr);
+  setup=(inputParams.setup);
+  islarge=inputParams.islarge;
+  dlm_new=inputParams.q_dlm;
+  chargeThreshold=inputParams.qt;
+  genbg=inputParams.genbg;
+  misal=inputParams.misal;
   misalign=(misal.type==1);
-  correct=varied.corr;
+  correct=inputParams.corr;
 //   if(correct.type==2)n_phibins*=2;
   ybins=8; n_stations_eta=(dlm_new?2:4);
-  val_tbl=varied.fill_val;
+  val_tbl=inputParams.fill_val;
 
   // Get the modules for each multiplet, the sector and side arguement (third and fifth argument, respectively) shouldn't matter
   // since the algorithm computes locally
@@ -387,12 +281,6 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   float lWidth_top     = mm_top_mult1->lWidth();
   float length_bottom  = mm_bottom_mult1->Length();
   float length_top     = mm_top_mult1->Length();
-
-  // unused for now
-  // float ysFrame_bottom = mm_bottom_mult1->ysFrame();
-  // float xFrame_bottom  = mm_bottom_mult1->xFrame();
-  // float ysFrame_top    = mm_top_mult1->ysFrame();
-  // float xFrame_top     = mm_top_mult1->xFrame();
 
   float minYSize_top      = sWidth_top;// - 2.*xFrame_top;
   float minYSize_bottom   = sWidth_bottom;// - 2.*xFrame_bottom;
@@ -429,13 +317,10 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   //z = into wedge along beamline
   //x = horizontal distance from beam looking down
   ////////////  Define the large wedge /////////////////
-//   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() start with setup: "<<setup);
   w1=float32fixed<18>(mm_top_mult1->lWidth());   //top
   w2=float32fixed<18>(mm_top_mult1->lWidth()*1./(cos(roParam_top_mult1.stereoAngel.at(3))));  //determined by 33deg angle   //shelves part
   w3=float32fixed<18>(mm_bottom_mult1->sWidth());//582.3);  //bottom
   h1=float32fixed<18>(roParam_top_mult1.roLength+roParam_bottom_mult1.roLength+5.0); //how tall wedge is at w1, ie total height
-  //h3=float32fixed<18>(360.);
-  //h2=float32fixed<18>(3720.-h3.getFloat()); //height at w2
 
   wedge_opening_angle = float32fixed<18>(33.);  //degree
 
@@ -480,20 +365,6 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   // std::cout << "DEGREE" << degree.getFloat()  << " " << stereo_degree.getFloat() << std::endl;
   vertical_strip_width_UV = strip_width.getFloat()/cos(degree.getFloat());
   ybases=vector<vector<float32fixed<18> > >(setup.size(),vector<float32fixed<18> >(n_stations_eta,float32fixed<18>(0.)));
-
-  // double xP_top    = ( 0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1-tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
-  // double xM_top    = (-0.5*tan(degree.getFloat())*(dY_top   +minYSize_top/*-design_top->deadS*/)      )/(1+tan(degree.getFloat())*dY_top/(   xSize_top/*-design_top->deadO-design_top->deadI*/));
-  // double xP_bottom = ( 0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1-tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
-  // double xM_bottom = (-0.5*tan(degree.getFloat())*(dY_bottom+minYSize_bottom/*-design_bottom->deadS*/))/(1+tan(degree.getFloat())*dY_bottom/(xSize_bottom/*-design_bottom->deadO-design_bottom->deadI*/));
-
-  // double stereo_strip_separation_top = .5*(xP_top+xM_top);
-  // double stereo_strip_separation_bottom = .5*(xP_bottom+xM_bottom);
-
-  //double yU = (0.5*xSize-deadO-xMid)/tan(sAngle);
-  //if (fabs(yU)<=0.5*maxYSize-deadS) stripEnd.push_back(std::pair<double,double>(0.5*xSize-deadO,yU));
-  // intersection with the xLow boundary
-  //double yD =-(0.5*xSize-deadI+xMid)/tan(sAngle);
-  //if (fabs(yD)<=0.5*minYSize-deadS) stripEnd.push_back(std::pair<double,double>(-0.5*xSize+deadI,yD));
 
   //gposx for X1; gpos-lpos X2,UV1,UV2
   vector<float32fixed<18> > xeta,ueta,veta;
@@ -541,17 +412,6 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
       if (is_u(layer) && eta==1) radial_pos_uv_1 = radial_pos;
       if (is_u(layer) && eta==2) radial_pos_uv_2 = radial_pos;
 
-      // std::cout << " TUNA MM position"
-      //           << " wedge "         << wedgeString
-      //           << " eta "           << eta
-      //           << " layer "         << layer
-      //           << " (x, y, z, r, r_proj.) "
-      //           << "   "             << x_rotated
-      //           << "   "             << y_rotated
-      //           << "   "             << z_rotated
-      //           << "   "             << sqrt(pow(x_rotated, 2) + pow(y_rotated, 2))
-      //           << "   "             << radial_pos
-      //           << std::endl;
       layer++;
     }
   }
@@ -583,7 +443,6 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
     ATH_MSG_DEBUG("iy="<<iy<<"over_f="<<over_f<<",over_b="<<over_b);
     for(int jp=0;jp<8;jp++){
       ATH_MSG_DEBUG("z_large["<<iy<<"]["<<jp<<"]"<<z_large[iy][jp].getFloat()<<"--->");
-//       if(jp<4&&fancy)z_large[iy][jp]+=ymid_eta_bin(iy,jp)*sin(correct.rotate.X())-correct.translate.Z();
       if(jp<4)z_large[iy][jp]+=over_f;
       else z_large[iy][jp]+=over_b;
       ATH_MSG_DEBUG(z_large[iy][jp].getFloat());
@@ -677,7 +536,7 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
     Delta_theta_optimization_LG();
 
     //simulation-based correction fill...if available
-    if(correct.type==3)fill_crep_table(varied.pcrep_dir,varied.tag);
+    if(correct.type==3)fill_crep_table(inputParams.pcrep_dir,inputParams.tag);
     fill_yzmod();
   }
 }
@@ -772,14 +631,14 @@ int MMT_Parameters::ybin(float32fixed<yzdex> y,int plane)const{
   return ybin(y.getFloat()*MMTStructConst,plane);
 }
 
-double MMT_Parameters::ymid_eta_bin(int bin,int plane)const{
-  double base=ybases[plane].front().getFloat();
-  double eta_min_y=eta_wedge_from_y(base+h1.getFloat(),plane),eta_max_y=eta_wedge_from_y(base,plane);
-  if(bin<0)return eta_max_y;
-  if(bin>ybins)return eta_min_y;
-  double eta=eta_min_y+(eta_max_y-eta_min_y)/ybins*(bin+0.0);
-  return y_from_eta_wedge(eta,plane);
-}
+// double MMT_Parameters::ymid_eta_bin(int bin,int plane)const{
+//   double base=ybases[plane].front().getFloat();
+//   double eta_min_y=eta_wedge_from_y(base+h1.getFloat(),plane),eta_max_y=eta_wedge_from_y(base,plane);
+//   if(bin<0)return eta_max_y;
+//   if(bin>ybins)return eta_min_y;
+//   double eta=eta_min_y+(eta_max_y-eta_min_y)/ybins*(bin+0.0);
+//   return y_from_eta_wedge(eta,plane);
+// }
 
 //make the local slope ab for all ybins
 //track percent in number of same bin
@@ -913,7 +772,8 @@ void MMT_Parameters::fill_crep_table(const string&dir,const string&tag){
   bill.corr.type=0;
   double fudge_factor=(correct.translate.Z()!=0||correct.rotate.X()!=0?0.5:1.);
   int nk=nsimmax_1d();
-  ostringstream crep_nom;crep_nom<<dir<<(dir.substr(dir.length()-1)=="/"?"":"/")<<"pcrep"<<bill.print_pars()<<"_"<<tag<<".txt";
+  ostringstream crep_nom;
+  crep_nom<<dir<<(dir.substr(dir.length()-1)=="/"?"":"/")<<"pcrep"<<bill.print_pars()<<"_"<<tag<<".txt";
   std::ifstream crep(crep_nom.str().c_str());
   crep_table=vector<vector<vector<vector<float> > > >(n_etabins,vector<vector<vector<float> > >(n_phibins,vector<vector<float> >(nk,vector<float>(3,0))));
   if(crep.good()){
@@ -1153,28 +1013,15 @@ evInf_entry::evInf_entry(int event,int pdg,double e,double p,double ieta,double 
   :athena_event(event),pdg_id(pdg),E(e),pt(p),eta_ip(ieta),eta_pos(peta),eta_ent(eeta),phi_ip(iphi),phi_pos(pphi),phi_ent(ephi),theta_ip(ithe),theta_pos(pthe),theta_ent(ethe),
    dtheta(dth),truth_n(trn),mu_n(mun),vertex(tex),truth_roi(troi),N_hits_preVMM(antev),N_hits_postVMM(postv),N_X_hits(nxh),N_UV_hits(nuvh),NX_bg_preVMM(nxbg),
    NUV_bg_preVMM(nuvbg),avg_drift_time(adt),max_less_min_hitsteps_X(difx),max_less_min_hitsteps_UV(difuv),pass_cut(cut),bad_wedge(bad) {}
+
 void evInf_entry::print() const{
-  // ATH_MSG_INFO("*****************EVINF_ENTRY****************"<<endl
-  //     <<"Event ("<<athena_event<<") Info, cuts "<<(pass_cut?"passed":"failed")<<endl
-  //     <<"truth_n: "<<truth_n<<", pdg_id="<<pdg_id<<", mu_n: "<<mu_n<<"; Incident (E,pt)=("<<E<<","<<pt<<")"
-  //     <<"  eta---ip: "<<eta_ip<<", pos:"<<eta_pos<<", ent: "<<eta_ent<<endl
-  //     <<"  phi---ip: "<<phi_ip<<", pos:"<<phi_pos<<", ent: "<<phi_ent<<endl
-  //     <<"theta---ip: "<<theta_ip<<", pos:"<<theta_pos<<", ent: "<<theta_ent<<endl
-  //     <<"N_hits---preV: "<<N_hits_preVMM<<", postV:"<<N_hits_postVMM<<", x: "<<N_X_hits<<", uv: "<<N_UV_hits<<", xbg: "<<NX_bg_preVMM<<", uvbg: "<<NUV_bg_preVMM<<endl
-  //     <<"********************************************");
-  // //don't currently look at truth_roi, avg drift time, max less min hitstepsX/UV
 }
 
 evFit_entry::evFit_entry(int event,float32fixed<4> fthe,float32fixed<4> fphi,float32fixed<2> fdth,int roi,int xhit,int uvhit,int bgx,int bguv,float32fixed<2> dth_nd,int hc,int tph,int bgph)
   :athena_event(event),fit_theta(fthe),fit_phi(fphi),fit_dtheta(fdth),fit_roi(roi),X_hits_in_fit(xhit),UV_hits_in_fit(uvhit),bg_X_fit(bgx),
    bg_UV_fit(bguv),dtheta_nodiv(dth_nd),hcode(hc),truth_planes_hit(tph),bg_planes_hit(bgph) {}
+
 void evFit_entry::print()const{
-  // ATH_MSG_INFO("----------------EVFIT_ENTRY-----------------"<<endl
-  //     <<"Event ("<<athena_event<<") Fit,"<<endl
-  //     <<"fit---theta "<<fit_theta.getFloat()<<", phi: "<<fit_phi.getFloat()<<", dtheta: "<<fit_dtheta.getFloat()<<", roi: "<<fit_roi<<endl
-  //     <<"fit hits---x: "<<X_hits_in_fit<<", uv:"<<UV_hits_in_fit<<", bgx: "<<bg_X_fit<<", bguv: "<<bg_UV_fit<<endl
-  //     <<"dtheta no div: "<<dtheta_nodiv.getFloat()<<", truth planes hit:"<<truth_planes_hit<<", bg planes hit: "<<bg_planes_hit<<endl
-  //     <<"--------------------------------------------");
 }
 
 hdst_key::hdst_key(int bct, double t, double gt, int vmm, int ev):BC_time(bct),time(t),gtime(gt),VMM_chip(vmm),event(ev) {}
