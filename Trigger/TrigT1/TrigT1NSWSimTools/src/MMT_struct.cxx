@@ -1270,8 +1270,29 @@ ROI::ROI(double _theta, double _phi, double _m_x, double _m_y, int _roi):
 athena_header::athena_header(const TLorentzVector& par, int tpn, double etp, double ete, double php, double phe, int mun, const TVector3& ver):
   the_part(par),trupart_n(tpn),etapos(etp),etaent(ete),phipos(php),phient(phe),muent_n(mun),vertex(ver) {}
 
-athena_entry::athena_entry(int mul, int gg, double gt, double t, const TVector3& trp, const TVector3& stl, const TVector3& stg, double q,int str,int esta,int psta):
-  multiplet(mul),gas_gap(gg),gtime(gt),time(t),truth_lpos(trp),strip_lpos(stl),strip_gpos(stg),charge(q),strip_pos(str),eta_station(esta),phi_station(psta) {}
+athena_entry::athena_entry(int multiplet, 
+                           int gasGap, 
+                           double gTime, 
+                           double time, 
+                           const TVector3& truthLPos, 
+                           const TVector3& stripLPos, 
+                           const TVector3& stripGPos, 
+                           double charge,
+                           int stripPos,
+                           int etaStation,
+                           int phiStation
+                           ):
+  multiplet(multiplet),
+  gas_gap(gasGap),
+  gtime(gTime),
+  time(time),
+  truth_lpos(truthLPos),
+  strip_lpos(stripLPos),
+  strip_gpos(stripGPos),
+  charge(charge),
+  strip_pos(stripPos),
+  eta_station(etaStation),
+  phi_station(phiStation){}
 
 track_address::track_address(int bct,bool big,int wed,int pl,int sh,const TVector3& chr):
   BC(bct),islarge(big),wedge(wed),plane(pl),strip_hit(sh),cart_hit(chr) {}

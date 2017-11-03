@@ -201,17 +201,17 @@ MMLoadVariables::~MMLoadVariables() {
             std::vector<double> globalPosZ;
 
 
-            for (unsigned int i=0;i<stripPosition.size();i++) {
+            std::cout << "The length of these vectors for triggers is: " << stripPosition.size() << std::endl;
+
+            for (unsigned int i=0; i<stripPosition.size(); i++) {
               // take strip index form chip information
               int cr_strip = stripPosition.at(i);
 
-
-              localPosX.push_back(0.);
-              localPosY.push_back(0.);
+              localPosX.push_back (0.);
+              localPosY.push_back (0.);
               globalPosX.push_back(0.);
               globalPosY.push_back(0.);
               globalPosZ.push_back(0.);
-
 
               Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, true, &isValid);
               if (!isValid) {
@@ -226,7 +226,7 @@ MMLoadVariables::~MMLoadVariables() {
                   } else {
                     localPosX.at(i) = cr_strip_pos.x();
                     localPosY.at(i) = cr_strip_pos.y();
-                    }
+                  }
 
                   // asking the detector element to transform this local to the global position
                   Amg::Vector3D cr_strip_gpos(0., 0., 0.);
@@ -235,12 +235,8 @@ MMLoadVariables::~MMLoadVariables() {
                   globalPosY.at(i) = cr_strip_gpos[1];
                   globalPosZ.at(i) = cr_strip_gpos[2];
 
-
-
                   // check if local and global position are congruent with the transform
                   Amg::Vector3D lpos = rdoEl->transform(cr_id).inverse() * cr_strip_gpos;
-                  // double dx = cr_strip_pos.x() - lpos.x();
-                  // double dy = cr_strip_pos.y() - lpos.y();
                 }
 
             }//end of strip position loop
@@ -258,20 +254,25 @@ MMLoadVariables::~MMLoadVariables() {
             if(globalPosY.size() == 0) continue;
 
             //if(globalPosY[0]<-100 || globalPosY[0]>100 ) continue; //vector access [] not .at().. be careful
-            int indForPos = -1;
-            float earliestTime = 100000;
-            for (unsigned int i=0;i<stripPosition.size();i++) {
+            // int indexOfFastestSignal = -1;
+            // float earliestTime = 100000;
+            // for (unsigned int i=0;i<stripPosition.size();i++) {
 
-              //if(charge[i]<chargeThreshold) continue;
+            //   //if(charge[i]<chargeThreshold) continue;
 
-              if(time[i]<earliestTime){
-                earliestTime =time[i];
-                indForPos=i;
+            //   if(time[i]<earliestTime){
+            //     earliestTime =time[i];
+            //     indexOfFastestSignal=i;
+            //   }
+            // }//end of strip poistion loop 2
 
-              }
-            }//end of strip poistion loop 2
+            // // std::cout << "Index of digit? Should be 0 always if I didn't ***REMOVED*** this up... " << indexOfFastestSignal << std::endl;
 
-            if(indForPos == -1) continue;
+            int indexOfFastestSignal = -1;
+
+            if( time.size() ) indexOfFastestSignal = 0;
+
+            if(indexOfFastestSignal == -1) continue;
             int hit_count=0;
 
 
@@ -312,7 +313,6 @@ MMLoadVariables::~MMLoadVariables() {
               int sim_layer       = hitHelper->GetLayer(simId);
               int sim_side        = hitHelper->GetSide(simId);
 
-
               // Fill Ntuple with SimId data
               //fillVars.NSWMM_sim_stationName .push_back(sim_stationName);
               if(digit_count){
@@ -327,16 +327,32 @@ MMLoadVariables::~MMLoadVariables() {
 
               if(digit_count==hit_count) {
 
+                std::cout << "time size: " << time.size() << std::endl;
+                std::cout << "charge size: " << charge.size() << std::endl;
+                std::cout << "stripPosition size: " << stripPosition.size() << std::endl;
+                
+                std::cout << "localPosX size: " << localPosX.size() << std::endl;
+                std::cout << "localPosY size: " << localPosY.size() << std::endl;
+
+                std::cout << "globalPosX size: " << globalPosX.size() << std::endl;
+                std::cout << "globalPosY size: " << globalPosY.size() << std::endl;
+                std::cout << "globalPosZ size: " << globalPosZ.size() << std::endl;
+
+                std::cout << "digit->stripChargeForTrigger() size: " << digit->stripChargeForTrigger().size() << std::endl;
+                std::cout << "digit->stripResponseCharge() size: " << digit->stripResponseCharge().size() << std::endl;
+                std::cout << "digit->chipResponseCharge() size: " << digit->chipResponseCharge().size() << std::endl;
+
+
                 entries.push_back(
                   athena_entry(multiplet,
                                gap,
                                hit.globalTime(),
-                               time[indForPos],
-                               TVector3(-999,-99,-999),//Digits_MM_truth_localPosZ->at(i)),
-                               TVector3(localPosX[indForPos],localPosY[indForPos],-999),//Digits_MM_stripLposZ->at(i)[indForPos]),
-                               TVector3(globalPosX[indForPos],globalPosY[indForPos],globalPosZ[indForPos]),
-                               charge[indForPos],
-                               stripPosition[indForPos],
+                               time.at(indexOfFastestSignal),
+                               TVector3(-999, -99, -999),//Digits_MM_truth_localPosZ->at(i)),
+                               TVector3(localPosX.at(indexOfFastestSignal),  localPosY.at(indexOfFastestSignal),  -999),  //Digits_MM_stripLposZ->at(i).at(indexOfFastestSignal)),
+                               TVector3(globalPosX.at(indexOfFastestSignal),  globalPosY.at(indexOfFastestSignal),  globalPosZ.at(indexOfFastestSignal)),
+                               charge.at(indexOfFastestSignal),
+                               stripPosition.at(indexOfFastestSignal),
                                abs(stationEta),
                                stationPhi)
                   );
@@ -396,12 +412,7 @@ MMLoadVariables::~MMLoadVariables() {
       //Number of hits cut
       if(!particle_info.bad_wedge)particle_info.pass_cut=true;//default is false
       if(nent<min_hits||nent>max_hits) particle_info.pass_cut=false;
-      // if(!particle_info.pass_cut)cout<<"event FAIL at max hit mark...nent="<<nent<<endl;
-      //double theta_min = m_par->minimum_large_theta,theta_max =m_par->maximum_large_theta,phi_min = m_par->minimum_large_phi,phi_max = m_par->maximum_large_phi;
-      // double theta_min = m_par->minimum_large_theta.getFloat();
-      // double theta_max =m_par->maximum_large_theta.getFloat();
-      // double phi_min = m_par->minimum_large_phi.getFloat();
-      // double phi_max = m_par->maximum_large_phi.getFloat();
+
       double tru_phi = -999;
       if (entries.size() >0) tru_phi=phi_shift(thePart.Phi(),wedgeType,entries.at(0).phi_station);
       double tru_theta=thePart.Theta();
@@ -598,10 +609,10 @@ MMLoadVariables::~MMLoadVariables() {
     return strip_hit;
   }
 
-  // int MMLoadVariables::Get_VMM_chip(int strip) const{  //Not Finished... Rough
-  //   int strips_per_VMM = 64;
-  //   return ceil(1.*strip/strips_per_VMM);
-  // }
+  int MMLoadVariables::Get_VMM_chip(int strip) const{  //Not Finished... Rough
+    int strips_per_VMM = 64;
+    return ceil(1.*strip/strips_per_VMM);
+  }
 
   int MMLoadVariables::strip_number(int station,int plane,int spos)const{
     //assert(station>0&&station<=m_par->n_stations_eta);

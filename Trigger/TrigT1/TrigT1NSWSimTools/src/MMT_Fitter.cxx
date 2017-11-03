@@ -23,9 +23,13 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hdst_ent
   ATH_MSG_DEBUG("Begin fit event!");
   bool did_fit=false;
   int check=Filter_UV(track);
-  vector<int> xpl=m_par->q_planes("x"),upl=m_par->q_planes("u"),vpl=m_par->q_planes("v");
+  vector<int> xpl=m_par->q_planes("x");
+  vector<int> upl=m_par->q_planes("u");
+  vector<int> vpl=m_par->q_planes("v");
   //---- Calc global slopes and local X slope -----
-  float32fixed<2> M_x_global = Get_Global_Slope(track,"x"),M_u_global = (check>=10?float32fixed<2>(-999.):Get_Global_Slope(track,"u")),M_v_global = (check%10==1?float32fixed<2>(-999.):Get_Global_Slope(track,"v"));
+  float32fixed<2> M_x_global = Get_Global_Slope(track,"x");
+  float32fixed<2> M_u_global = (check>=10?float32fixed<2>(-999.):Get_Global_Slope(track,"u"));
+  float32fixed<2> M_v_global = (check%10==1?float32fixed<2>(-999.):Get_Global_Slope(track,"v"));
   //----  Calc delta theta ----------
   //----- Calc ROI ----------
   ROI ROI = Get_ROI(M_x_global,M_u_global,M_v_global,track);
