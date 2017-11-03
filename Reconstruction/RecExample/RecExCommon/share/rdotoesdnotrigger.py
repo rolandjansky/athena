@@ -10,6 +10,11 @@ rec.doWriteAOD=False
 rec.doAOD=False 
 rec.doWriteTAG=False 
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
