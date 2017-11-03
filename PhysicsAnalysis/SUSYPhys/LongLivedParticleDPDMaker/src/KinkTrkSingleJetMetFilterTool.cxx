@@ -28,6 +28,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_passAll(false),
   m_LeptonVeto(false),
   m_isolatedTrack(false),
+  m_metHtCut(-1),
   m_jetSGKey("AntiKt4LCTopoJets"),
   m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
@@ -49,6 +50,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
     declareProperty("passAll", m_passAll); 
     declareProperty("LeptonVeto", m_LeptonVeto);
     declareProperty("IsolatedTrack", m_isolatedTrack);
+    declareProperty("MetHtCut", m_metHtCut);
     declareProperty("JetContainerKey", m_jetSGKey);
     declareProperty("MetContainerKey", m_metSGKey);
     declareProperty("MetTerm", m_metTerm);
@@ -129,7 +131,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   // Good Jets pt > 50 GeV
   // Pt cut size = 2
   std::sort(sortedJetContainer.begin(), sortedJetContainer.end(), sortJetContainer());
-
+  float valHt = 0.0;
   int nJetRequired = 0;
   std::vector<const xAOD::Jet*> goodJets;
   int nJet = sortedJetContainer.size();
@@ -138,6 +140,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     // search for good jets which are used for dphi calculation
     if (sortedJetContainer.at(i)->pt() > m_jetMetPtMin && fabs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax) {
       goodJets.push_back(sortedJetContainer.at(i));
+      valHt += sortedJetContainer.at(i)->pt();
     }
     
     // search for required jets
@@ -147,9 +150,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       }
     }
   }// for jet
-
+  
   if(nJetRequired < m_jetNumCut) return acceptEvent;
 
+  if((met->met()/1000.0)/sqrt(valHt/1000.0) < m_metHtCut) return acceptEvent;
+  
   // dPhi > 1.0 cut
   float minDphi = 9999;
   for (unsigned int i=0; i<goodJets.size(); i++) {
