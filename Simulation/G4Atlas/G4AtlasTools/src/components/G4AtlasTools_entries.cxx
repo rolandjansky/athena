@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "G4AtlasTools/PhysicsListToolBase.h"
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "G4AtlasTools/CylindricalEnvelope.h"
@@ -16,18 +14,19 @@
 #include "G4AtlasTools/DetectorFieldManagerTool.h"
 #include "../G4ThreadInitTool.h"
 
-DECLARE_TOOL_FACTORY( PhysicsListToolBase )
-DECLARE_TOOL_FACTORY( DetectorGeometryBase )
-DECLARE_TOOL_FACTORY( CylindricalEnvelope )
-DECLARE_TOOL_FACTORY( BoxEnvelope )
-DECLARE_TOOL_FACTORY( PolyconicalEnvelope )
-DECLARE_TOOL_FACTORY( EnvelopeTool )
-DECLARE_TOOL_FACTORY( G4AtlasDetectorConstructionTool )
-DECLARE_TOOL_FACTORY( RegionCreator )
-DECLARE_TOOL_FACTORY( UserLimitsTool )
-DECLARE_TOOL_FACTORY( SensitiveDetectorMasterTool )
-DECLARE_TOOL_FACTORY( FastSimulationMasterTool )
-DECLARE_TOOL_FACTORY( AddPhysicsDecayTool )
-DECLARE_TOOL_FACTORY( GlobalFieldManagerTool )
-DECLARE_TOOL_FACTORY( DetectorFieldManagerTool )
-DECLARE_TOOL_FACTORY( G4ThreadInitTool )
+DECLARE_COMPONENT( PhysicsListToolBase )
+DECLARE_COMPONENT( DetectorGeometryBase )
+DECLARE_COMPONENT( CylindricalEnvelope )
+DECLARE_COMPONENT( BoxEnvelope )
+DECLARE_COMPONENT( PolyconicalEnvelope )
+DECLARE_COMPONENT( EnvelopeTool )
+DECLARE_COMPONENT( G4AtlasDetectorConstructionTool )
+DECLARE_COMPONENT( RegionCreator )
+DECLARE_COMPONENT( UserLimitsTool )
+DECLARE_COMPONENT( SensitiveDetectorMasterTool )
+DECLARE_COMPONENT( FastSimulationMasterTool )
+DECLARE_COMPONENT( AddPhysicsDecayTool )
+DECLARE_COMPONENT( GlobalFieldManagerTool )
+DECLARE_COMPONENT( DetectorFieldManagerTool )
+DECLARE_COMPONENT( G4ThreadInitTool )
+
