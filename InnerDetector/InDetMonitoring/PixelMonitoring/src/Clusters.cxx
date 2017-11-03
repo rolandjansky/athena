@@ -69,9 +69,9 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   int nbins_tot = 300;
   double min_tot = -0.5;
   double max_tot = min_tot + (1.0 * nbins_tot);
-  int nbins_ibl_tot = 150;
+  int nbins_ibl_tot = 300;
   double min_ibl_tot = -0.5;
-  double max_ibl_tot = min_tot + (1.0 * nbins_tot);
+  double max_ibl_tot = min_ibl_tot + (1.0 * nbins_ibl_tot);
   int nbins_Q = 70;
   double min_Q = -0.5;
   double max_Q = min_Q + (3000.0 * nbins_Q);
@@ -138,7 +138,8 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   sc = timeShift.regHist(m_cluster_LVL1A = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_lvl1, min_lvl1, max_lvl1));
 
   // per-layer histograms
-  for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+  const unsigned int kNumLayers = m_doIBL ? PixLayer::COUNT : PixLayer::COUNT - 1;
+  for (unsigned int i = 0; i < kNumLayers; i++) {
     hname = makeHistname(("Clusters_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Average number of pixel clusters per event per LB, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_clu), false);
     sc = clusterExpert.regHist(m_clusters_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
@@ -201,9 +202,9 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     hname = makeHistname(("Cluster_ToT_" + m_modLabel_PixLayerIBL2D3DDBM[i]), false);
     htitles = makeHisttitle(("Cluster ToT, " + m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_tot + atext_nclu), false);
-    if (i < PixLayer::kIBL) {
+    if (i < PixLayerIBL2D3DDBM::kIBL) {
       sc = clusterExpert.regHist(m_cluster_ToT1d_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-    } else if (m_doIBL) {
+    } else {
       sc = clusterExpert.regHist(m_cluster_ToT1d_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_ibl_tot, min_ibl_tot, max_ibl_tot));
     }
 
@@ -214,9 +215,9 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     if (m_doOnTrack) {
       hname = makeHistname(("Cluster_ToTxCosAlpha_" + m_modLabel_PixLayerIBL2D3DDBM[i]), false);
       htitles = makeHisttitle(("Cluster ToTxCosAlpha, " + m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_tot + atext_nclu), false);
-      if (i < PixLayer::kIBL) {
+      if (i < PixLayerIBL2D3DDBM::kIBL) {
         sc = clusterExpert.regHist(m_cluster_ToT1d_corr[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-      } else if (m_doIBL) {
+      } else {
         sc = clusterExpert.regHist(m_cluster_ToT1d_corr[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_ibl_tot, min_ibl_tot, max_ibl_tot));
       }
       hname = makeHistname(("Cluster_QxCosAlpha_" + m_modLabel_PixLayerIBL2D3DDBM[i]), false);
