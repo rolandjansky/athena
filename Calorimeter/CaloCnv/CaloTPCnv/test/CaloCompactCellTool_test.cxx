@@ -36,7 +36,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/errorcheck.h"
-#include "boost/foreach.hpp"
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -422,7 +421,7 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
   CHECK( detstore->retrieve (scmgr, "CaloSuperCellMgr") );
 
   std::vector<CaloCell*> scells (schelper->calo_cell_hash_max());
-  BOOST_FOREACH (const CaloCell* cell, cells) {
+  for (const CaloCell* cell : cells) {
     Identifier scid = sctool->offlineToSuperCellID (cell->ID());
     if (!scid.is_valid()) continue;
     IdentifierHash hash = schelper->calo_cell_hash (scid);
@@ -469,7 +468,7 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
     }
   }
 
-  BOOST_FOREACH (CaloCell* cell, scells) {
+  for (CaloCell* cell : scells) {
     cont->push_back (cell);
   }
 
