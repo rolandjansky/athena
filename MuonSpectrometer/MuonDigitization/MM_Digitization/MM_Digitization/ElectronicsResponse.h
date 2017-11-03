@@ -83,10 +83,10 @@ public :
   ElectronicsResponse();
   virtual ~ElectronicsResponse();
   void clearValues ();
-  void bnlPeakResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void bnlThresholdResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  MmDigitToolOutput GetPeakResponceFrom(const MmElectronicsToolInput & digiInput);
-  MmDigitToolOutput GetThresholdResponceFrom(const MmElectronicsToolInput & digiInput);
+  void bnlPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void bnlThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  MmDigitToolOutput GetPeakResponseFrom(const MmElectronicsToolInput & digiInput);
+  MmDigitToolOutput GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
 
   MmElectronicsToolTriggerOutput GetTheFastestSignalInVMM(const MmDigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
   int GetIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);

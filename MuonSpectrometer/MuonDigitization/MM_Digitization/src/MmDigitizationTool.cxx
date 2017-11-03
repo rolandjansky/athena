@@ -1027,7 +1027,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       m_n_hitOnSurface_x=posOnSurf.x();
       m_n_hitOnSurface_y = posOnSurf.y();
 	
-      MmStripToolOutput tmp_StripOutput = m_StripsResponse->GetResponceFrom(StripdigitInput);
+      MmStripToolOutput tmp_StripOutput = m_StripsResponse->GetResponseFrom(StripdigitInput);
       MmElectronicsToolInput StripdigitOutput( tmp_StripOutput.NumberOfStripsPos(), tmp_StripOutput.chipCharge(), tmp_StripOutput.chipTime(), DigitId , hit.kineticEnergy()); 
 
       //----------
@@ -1071,14 +1071,14 @@ StatusCode MmDigitizationTool::doDigitization() {
     //-----------------------------------------------------------
     // Create Electronics Output with peak finding algorithm
     //-----------------------------------------------------------
-    MmDigitToolOutput ElectronicOutput( m_ElectronicsResponse->GetPeakResponceFrom(StripdigitOutputAllhits) );
+    MmDigitToolOutput ElectronicOutput( m_ElectronicsResponse->GetPeakResponseFrom(StripdigitOutputAllhits) );
     if(!ElectronicOutput.isValid()) {
       ATH_MSG_WARNING ( "MmDigitizationTool::doDigitization() -- there is no electronics response even though there is a strip response." ); 
     }
     //-----------------------------------------------------------
     // Create Electronics Output with threshold
     //-----------------------------------------------------------
-    MmDigitToolOutput ElectronicThresholdOutput( m_ElectronicsResponse->GetThresholdResponceFrom(StripdigitOutputAllhits) );
+    MmDigitToolOutput ElectronicThresholdOutput( m_ElectronicsResponse->GetThresholdResponseFrom(StripdigitOutputAllhits) );
     if(!ElectronicThresholdOutput.isValid()) ATH_MSG_WARNING ( "MmDigitizationTool::doDigitization() -- there is no electronics response for TRIGGER even though there is a strip response." );
     //
     // Apply Dead-time for strip
@@ -1094,7 +1094,7 @@ StatusCode MmDigitizationTool::doDigitization() {
     // Apply Dead-time in ART
     //
     MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTimeART(ElectronicsTriggerOutput));    
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,38.,0.));    
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));    
     //go to MM_DigitContainer
 
 
@@ -1103,6 +1103,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 
     // MmElectronicsToolTriggerOutput ThresholdFastest(m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicThresholdOutput, chMax, stationEta));
     MmElectronicsToolTriggerOutput PeakFastest(     m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicOutput, chMax, stationEta));
+
+
+
 
     MmDigit*  newDigit = new MmDigit(StripdigitOutputAllhits.DigitId(), 
      // --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
