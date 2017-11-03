@@ -34,7 +34,7 @@ class doEGammaCellReweighting (egammaDFFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 # class calibMVAVersion (JobProperty):
 #     """Version of calo cluster corrections used for calibration.
