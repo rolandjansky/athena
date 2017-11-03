@@ -93,9 +93,8 @@ class LArOFCFlat: public ILArOFC, public LArCondFlatBase {
 };  
   
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArOFCFlat,ILArOFC);
 CLASS_DEF( LArOFCFlat, 20294702, 1) 
-CLASS_DEF( CondCont<LArOFCFlat> , 117247562 , 1 )
+CONDCONT_DEF( LArOFCFlat, 117247562, ILArOFC );
  
 
 #endif 

@@ -54,10 +54,6 @@ private:
 CLASS_DEF( SCT_MajorityCondData , 131714728 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_MajorityCondData> , 80083480 , 1 )
-REGISTER_CC( SCT_MajorityCondData );
-
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_MajorityCondData>, CondContBase );
+CONDCONT_DEF( SCT_MajorityCondData, 80083480 );
 
 #endif // SCT_MAJORITYDATA_H

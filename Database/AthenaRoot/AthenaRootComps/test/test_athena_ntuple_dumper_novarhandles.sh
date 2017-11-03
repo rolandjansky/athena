@@ -17,7 +17,7 @@ else
 fi
 
 
-ATLAS_REFERENCE_TAG=AthenaRootComps/AthenaRootCompsReference-01-00-00
+ATLAS_REFERENCE_TAG=AthenaRootComps/AthenaRootCompsReference-01-00-01
 refbase=ref.d3pd.ascii
 chkfile=d3pd.ascii
 
@@ -72,8 +72,10 @@ for ii in `seq $IIMAX`; do
 done
 grep "user" d3pd.rb.timing.log
 echo "::: comparing ascii dumps..."
-/bin/rm -f rb.d3pd.ascii.diff
-diff -urN $reffile $chkfile >& rb.d3pd.ascii.diff
+/bin/rm -f rb.d3pd.ascii.diff rb.ref rb.chk
+grep -v collectionName $reffile > rb.ref
+grep -v collectionName $chkfile > rb.chk
+diff -urN rb.ref rb.chk >& rb.d3pd.ascii.diff
 sc=$?
 echo "::: comparing ascii dumps...[$sc]"
 

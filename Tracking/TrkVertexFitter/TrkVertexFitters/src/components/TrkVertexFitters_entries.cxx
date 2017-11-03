@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrkVertexFitters/SequentialVertexFitter.h"
 #include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
 #include "TrkVertexFitters/AdaptiveVertexFitter.h"
@@ -7,17 +6,9 @@
 
 using namespace Trk;
 
-DECLARE_TOOL_FACTORY( SequentialVertexFitter )
-DECLARE_TOOL_FACTORY( AdaptiveMultiVertexFitter )
-DECLARE_TOOL_FACTORY( SequentialVertexSmoother )
-DECLARE_TOOL_FACTORY( AdaptiveVertexFitter )
-DECLARE_TOOL_FACTORY( DummyVertexSmoother)
+DECLARE_COMPONENT( SequentialVertexFitter )
+DECLARE_COMPONENT( AdaptiveMultiVertexFitter )
+DECLARE_COMPONENT( SequentialVertexSmoother )
+DECLARE_COMPONENT( AdaptiveVertexFitter )
+DECLARE_COMPONENT( DummyVertexSmoother )
 
-DECLARE_FACTORY_ENTRIES( TrkVertexFitters )
-{
-  DECLARE_TOOL( AdaptiveMultiVertexFitter );
-  DECLARE_TOOL(SequentialVertexFitter);
-  DECLARE_TOOL(SequentialVertexSmoother); 
-  DECLARE_TOOL( AdaptiveVertexFitter );
-  DECLARE_TOOL(DummyVertexSmoother );
-}

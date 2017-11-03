@@ -2,7 +2,7 @@
 #include "../MuonSegmentCnvAlg.h"
 #include "../MuonAODFixAlg.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, MuonCnvAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, MuonSegmentCnvAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAOD, MuonAODFixAlg )
+DECLARE_COMPONENT( xAODMaker::MuonCnvAlg )
+DECLARE_COMPONENT( xAODMaker::MuonSegmentCnvAlg )
+DECLARE_COMPONENT( xAOD::MuonAODFixAlg )
 

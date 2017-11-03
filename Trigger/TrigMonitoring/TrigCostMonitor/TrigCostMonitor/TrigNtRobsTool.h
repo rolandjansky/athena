@@ -48,7 +48,7 @@ namespace Trig
     bool Fill(TrigMonEvent &event);
     
     void CleanROB(TrigMonROB &data) const;
-    void CheckROB(const TrigMonROB &data, robmonitor::ROBDataMonitorStruct &rob) const;
+    void CheckROB(const TrigMonROB &data, const robmonitor::ROBDataMonitorStruct &rob) const;
 
   private:
 

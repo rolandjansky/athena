@@ -276,8 +276,8 @@ SCT_ByteStreamErrorsSvc::addRODHVCounter(bool HVisOn) {
  */
 
 bool 
-SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h){
-  return (h==InDetConditions::SCT_SIDE or InDetConditions::SCT_CHIP);
+SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h) {
+  return (h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_CHIP);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -415,7 +415,7 @@ SCT_ByteStreamErrorsSvc::isGoodChip(const Identifier& stripId) const {
   }
 
   // Check if the chip is bad
-  const bool badChip{badChips & (1<<chip)};
+  const bool badChip{static_cast<bool>(badChips & (1<<chip))};
 
   return (not badChip);
 }

@@ -36,8 +36,6 @@ class ForwardTransportSvc: public AthService, virtual public IForwardTransportSv
 
   virtual HepMC::GenEvent* getEvent();
 
- protected:
-  
   friend class SvcFactory<ForwardTransportSvc>;
   
   ForwardTransportSvc(const std::string& name, ISvcLocator* svc);

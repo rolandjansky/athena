@@ -87,7 +87,7 @@ namespace HLTTest {
         }
         
 	auto featurePtr(featurelink.cptr());
-	ATH_MSG_DEBUG("Found feature" << **featurePtr );
+	ATH_MSG_DEBUG("Found feature " <<m_linkName.value() <<": " << **featurePtr );
 
         // copy all features to a single output collection 
         // they just happen to be TrigComposites in this case but should be whatever is needed as input by the reco algorithm next in the sequence, e.g. CaloCells.

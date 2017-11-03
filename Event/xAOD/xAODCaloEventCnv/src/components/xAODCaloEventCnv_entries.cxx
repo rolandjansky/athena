@@ -2,7 +2,7 @@
 #include "../ClusterDumper.h"
 #include "../CaloClusterCnvTool.h"
 
-DECLARE_ALGORITHM_FACTORY( ClusterCreator )
-DECLARE_ALGORITHM_FACTORY( ClusterDumper )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, CaloClusterCnvTool )
+DECLARE_COMPONENT( ClusterCreator )
+DECLARE_COMPONENT( ClusterDumper )
+DECLARE_COMPONENT( xAODMaker::CaloClusterCnvTool )
 

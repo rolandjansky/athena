@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "../ReducePileUpEventInfoAlg.h"
 #include "../ThinIParticlesAlg.h"
 #include "../ThinIParticlesTool.h"
@@ -17,39 +15,20 @@
 #include "../ThinTrackParticlesAlg.h"
 #include "../ThinTrackParticlesTool.h"
 
-DECLARE_ALGORITHM_FACTORY( ThinGeantTruthAlg )
-DECLARE_ALGORITHM_FACTORY( ThinNegativeEnergyCaloClustersAlg )
-DECLARE_ALGORITHM_FACTORY( ThinNegativeEnergyNeutralPFOsAlg )
-DECLARE_ALGORITHM_FACTORY( ReducePileUpEventInfoAlg )
-DECLARE_ALGORITHM_FACTORY( ThinIParticlesAlg )
-DECLARE_TOOL_FACTORY( ThinIParticlesTool )
-DECLARE_ALGORITHM_FACTORY( ThinCaloCellsAlg )
+DECLARE_COMPONENT( ThinGeantTruthAlg )
+DECLARE_COMPONENT( ThinNegativeEnergyCaloClustersAlg )
+DECLARE_COMPONENT( ThinNegativeEnergyNeutralPFOsAlg )
+DECLARE_COMPONENT( ReducePileUpEventInfoAlg )
+DECLARE_COMPONENT( ThinIParticlesAlg )
+DECLARE_COMPONENT( ThinIParticlesTool )
+DECLARE_COMPONENT( ThinCaloCellsAlg )
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
-DECLARE_TOOL_FACTORY( ThinCaloCellsTool )
-DECLARE_ALGORITHM_FACTORY( ThinTrkTrackAlg )
+DECLARE_COMPONENT( ThinCaloCellsTool )
+DECLARE_COMPONENT( ThinTrkTrackAlg )
 #endif
-DECLARE_ALGORITHM_FACTORY( ThinCaloClustersAlg )
-DECLARE_TOOL_FACTORY( ThinCaloClustersTool )
-DECLARE_ALGORITHM_FACTORY( ThinTrackParticlesAlg )
-DECLARE_TOOL_FACTORY( ThinTrackParticlesTool )
+DECLARE_COMPONENT( ThinCaloClustersAlg )
+DECLARE_COMPONENT( ThinCaloClustersTool )
+DECLARE_COMPONENT( ThinTrackParticlesAlg )
+DECLARE_COMPONENT( ThinTrackParticlesTool )
 
-DECLARE_FACTORY_ENTRIES( ThinningUtils )
-{
-  DECLARE_ALGORITHM( ThinGeantTruthAlg );
-  DECLARE_ALGORITHM( ThinNegativeEnergyCaloClustersAlg);
-  DECLARE_ALGORITHM( ThinNegativeEnergyNeutralPFOsAlg);
-  DECLARE_ALGORITHM( ReducePileUpEventInfoAlg );
-  DECLARE_ALGORITHM( ThinIParticlesAlg );
-  DECLARE_TOOL( ThinIParticlesTool );
-  DECLARE_ALGORITHM( ThinCaloCellsAlg );
-// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
-#ifndef XAOD_ANALYSIS
-  DECLARE_TOOL( ThinCaloCellsTool );
-  DECLARE_ALGORITHM ( ThinTrkTrackAlg );
-#endif
-  DECLARE_ALGORITHM( ThinCaloClustersAlg );
-  DECLARE_TOOL( ThinCaloClustersTool );
-  DECLARE_ALGORITHM( ThinTrackParticlesAlg );
-  DECLARE_TOOL( ThinTrackParticlesTool );
-}

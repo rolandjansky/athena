@@ -12,6 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IIoComponent.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <sys/stat.h>
@@ -74,6 +75,8 @@ AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
 StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
+
+  Gaudi::Concurrency::ConcurrencyFlags::setNumProcs(m_nWorkers);
 
   if(m_strategy=="EventService" && m_nEventsBeforeFork!=0) {
     ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");

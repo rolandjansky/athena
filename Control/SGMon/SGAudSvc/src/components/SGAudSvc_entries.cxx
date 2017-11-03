@@ -2,6 +2,6 @@
 //#include "../PerfMonAuditor.h"
 
   
-DECLARE_SERVICE_FACTORY( SGAudSvc  )
-//DECLARE_AUDITOR_FACTORY( PerfMonAuditor )
+DECLARE_COMPONENT( SGAudSvc )
+//DECLARE_COMPONENT( PerfMonAuditor )
 

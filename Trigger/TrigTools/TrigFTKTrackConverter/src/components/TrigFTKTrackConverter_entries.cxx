@@ -2,7 +2,7 @@
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 #include "TrigFTKTrackConverter/TrigFTKUncertiantyTool.h"
 
-DECLARE_TOOL_FACTORY(TrigFTKTrackConverter)
-DECLARE_TOOL_FACTORY(TrigFTKClusterConverterTool)
-DECLARE_TOOL_FACTORY(TrigFTKUncertiantyTool)
+DECLARE_COMPONENT( TrigFTKTrackConverter )
+DECLARE_COMPONENT( TrigFTKClusterConverterTool )
+DECLARE_COMPONENT( TrigFTKUncertiantyTool )
 

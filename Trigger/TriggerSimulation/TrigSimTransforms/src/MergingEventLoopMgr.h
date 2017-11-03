@@ -29,17 +29,13 @@ namespace TrigSim {
 //------------------------------------------------------------------------------
     class MergingEventLoopMgr : public MinimalEventLoopMgr {
         
-        friend class SvcFactory< MergingEventLoopMgr >;
-
-    protected:
-        // Protected constructor
-        MergingEventLoopMgr(const std::string& name, ISvcLocator* svcLoc);
-
     protected:
       /// Reference to the Algorithm Execution State Svc
       SmartIF<IAlgExecStateSvc>  m_aess;
 
     public:
+        // Constructor
+        MergingEventLoopMgr(const std::string& name, ISvcLocator* svcLoc);
         // Destructor
         virtual ~MergingEventLoopMgr();
 

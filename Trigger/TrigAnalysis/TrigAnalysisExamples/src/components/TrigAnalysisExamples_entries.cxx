@@ -8,13 +8,13 @@
 #include "../BunchCrossingExample.h"
 #include "../TriggerAnalysisHelper.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig, TDTExample )
-DECLARE_ALGORITHM_FACTORY(TagAndProbeExAlg)
-DECLARE_ALGORITHM_FACTORY(JetMetExAlg)
-DECLARE_ALGORITHM_FACTORY(TrigMatchExAlg)
-DECLARE_ALGORITHM_FACTORY(TriggerAnalysisTutorial)
-DECLARE_ALGORITHM_FACTORY(TrigExpressStreamAlg)
-DECLARE_ALGORITHM_FACTORY(TrigEmulatorExAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Trig, BunchCrossingExample )
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig, TriggerAnalysisHelper)
+DECLARE_COMPONENT( Trig::TDTExample )
+DECLARE_COMPONENT( TagAndProbeExAlg )
+DECLARE_COMPONENT( JetMetExAlg )
+DECLARE_COMPONENT( TrigMatchExAlg )
+DECLARE_COMPONENT( TriggerAnalysisTutorial )
+DECLARE_COMPONENT( TrigExpressStreamAlg )
+DECLARE_COMPONENT( TrigEmulatorExAlg )
+DECLARE_COMPONENT( Trig::BunchCrossingExample )
+DECLARE_COMPONENT( Trig::TriggerAnalysisHelper )
 

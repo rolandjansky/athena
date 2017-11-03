@@ -8,14 +8,12 @@ atlas_subdir( D3PDMakerTest )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/Navigation
-                          Control/SGTools
                           Event/FourMom
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/AthenaKernel
                           Control/CxxUtils
                           Control/StoreGate
                           Event/EventKernel
@@ -36,19 +34,19 @@ atlas_add_library( D3PDMakerTestLib
                    PUBLIC_HEADERS D3PDMakerTest
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthContainers Navigation SGTools FourMom ParticleEvent StoreGateLib SGtests
+                   LINK_LIBRARIES AthContainers Navigation FourMom ParticleEvent StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils )
 
 atlas_add_component( D3PDMakerTest
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation SGTools FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
 
 atlas_add_dictionary( D3PDMakerTestDict
                       D3PDMakerTest/D3PDMakerTestDict.h
                       D3PDMakerTest/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation SGTools FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

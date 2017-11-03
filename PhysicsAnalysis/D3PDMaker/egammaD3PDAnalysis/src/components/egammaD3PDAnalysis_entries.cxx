@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file egammaD3PDAnalysis/src/components/egammaD3PDAnalysis_entries.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Aug, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "../egammaDeltaEmax2Alg.h"
 #include "../egammaShowerDepthAlg.h"
 #include "../PhotonTruthAlg.h"
@@ -24,25 +15,22 @@
 #include "../egammaTimeCorrAlg.h"
 
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaDeltaEmax2Alg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaShowerDepthAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, PhotonTruthAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, ElectronRedoOQAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, PhotonRedoOQAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaCalcOQAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaTruthAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, TileGapSelectionAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, TileGapSumAlg)
+DECLARE_COMPONENT( D3PD::egammaDeltaEmax2Alg )
+DECLARE_COMPONENT( D3PD::egammaShowerDepthAlg )
+DECLARE_COMPONENT( D3PD::PhotonTruthAlg )
+DECLARE_COMPONENT( D3PD::ElectronRedoOQAlg )
+DECLARE_COMPONENT( D3PD::PhotonRedoOQAlg )
+DECLARE_COMPONENT( D3PD::egammaCalcOQAlg )
+DECLARE_COMPONENT( D3PD::egammaTruthAlg )
+DECLARE_COMPONENT( D3PD::TileGapSelectionAlg )
+DECLARE_COMPONENT( D3PD::TileGapSumAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY           (D3PD, PhotonTruthTool)
+DECLARE_COMPONENT( D3PD::PhotonTruthTool )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaMaxECellAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaSumCellsGainAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaNbCellsGainAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaTimeCorrAlg)
-
-
+DECLARE_COMPONENT( D3PD::egammaMaxECellAlg )
+DECLARE_COMPONENT( D3PD::egammaSumCellsGainAlg )
+DECLARE_COMPONENT( D3PD::egammaNbCellsGainAlg )
+DECLARE_COMPONENT( D3PD::egammaTimeCorrAlg )
 

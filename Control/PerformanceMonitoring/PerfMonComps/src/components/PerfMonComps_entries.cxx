@@ -6,11 +6,11 @@
 #include "../PerfMonStorePayloadMon.h"
 
   
-DECLARE_SERVICE_FACTORY( PerfMonSvc  )
-DECLARE_NAMESPACE_AUDITOR_FACTORY( Athena, PerfMonAuditor )
-// DECLARE_NAMESPACE_TOOL_FACTORY( PerfMon, LdTool )
+DECLARE_COMPONENT( PerfMonSvc )
+DECLARE_COMPONENT( Athena::PerfMonAuditor )
+// DECLARE_COMPONENT( PerfMon::LdTool )
 
-DECLARE_NAMESPACE_SERVICE_FACTORY( PerfMon, CallGraphBuilderSvc )
-DECLARE_NAMESPACE_AUDITOR_FACTORY( PerfMon, CallGraphAuditor )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( PerfMon, StorePayloadMon )
+DECLARE_COMPONENT( PerfMon::CallGraphBuilderSvc )
+DECLARE_COMPONENT( PerfMon::CallGraphAuditor )
+DECLARE_COMPONENT( PerfMon::StorePayloadMon )
 

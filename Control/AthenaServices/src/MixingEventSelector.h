@@ -29,7 +29,6 @@
 #include "GaudiKernel/Property.h" /*StringArrayProperty*/
 
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 class MixingEventIterator;
 
@@ -142,9 +141,6 @@ public:
   /// functor that creates a Trigger object and adds it to m_trigList
   void decodeTrigger(std::string triggDescr);
 
-protected:
-  /// our factory
-  friend class SvcFactory<MixingEventSelector>;
   /// \name structors
   //@{
   MixingEventSelector(const std::string& name, ISvcLocator* svc);

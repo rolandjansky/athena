@@ -23,7 +23,7 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace CLHEP {
-    class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 namespace Simulation {
@@ -37,23 +37,26 @@ namespace Simulation {
       @author John.Chapman -at- cern.ch, Elmar.Ritsch -at- cern.ch
      */
   class LongBeamspotVertexPositioner : public AthAlgTool,
-                                 virtual public ILorentzVectorGenerator {
+                                       virtual public ILorentzVectorGenerator
+  {
 
     public:
+
       /** Constructor with parameters */
-      LongBeamspotVertexPositioner( const std::string& t, const std::string& n, const IInterface* p );
+      LongBeamspotVertexPositioner( const std::string& t, const std::string& n,
+                                    const IInterface* p );
 
       /** Destructor */
       ~LongBeamspotVertexPositioner();
 
       /** Athena algtool's Hooks */
-      StatusCode  initialize() override final;
-      StatusCode  finalize() override final;
+      StatusCode initialize() override final;
+      StatusCode finalize() override final;
 
       /** computes the vertex displacement */
-      CLHEP::HepLorentzVector  *generate() const override final;
+      CLHEP::HepLorentzVector *generate() const override final;
 
-  private:
+    private:
 
       inline double heaviside(double val) const {return (val >= 0.0) ? 1.0 : 0.0;};
       double getZpos() const;
@@ -65,6 +68,7 @@ namespace Simulation {
 
       std::string                     m_randomEngineName;         //!< Name of the random number stream
       bool                            m_timeSmearing;             //!< Do time smearing
+
   };
 
 }

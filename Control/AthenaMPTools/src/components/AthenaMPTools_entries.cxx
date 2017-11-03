@@ -6,11 +6,11 @@
 #include "../EvtRangeProcessor.h"
 #include "../SharedHiveEvtQueueConsumer.h"
 
-DECLARE_TOOL_FACTORY( SharedEvtQueueProvider )
-DECLARE_TOOL_FACTORY( SharedEvtQueueConsumer )
-DECLARE_TOOL_FACTORY( SharedWriterTool )
-DECLARE_TOOL_FACTORY( FileSchedulingTool )
-DECLARE_TOOL_FACTORY( EvtRangeScatterer )
-DECLARE_TOOL_FACTORY( EvtRangeProcessor )
-DECLARE_TOOL_FACTORY( SharedHiveEvtQueueConsumer )
+DECLARE_COMPONENT( SharedEvtQueueProvider )
+DECLARE_COMPONENT( SharedEvtQueueConsumer )
+DECLARE_COMPONENT( SharedWriterTool )
+DECLARE_COMPONENT( FileSchedulingTool )
+DECLARE_COMPONENT( EvtRangeScatterer )
+DECLARE_COMPONENT( EvtRangeProcessor )
+DECLARE_COMPONENT( SharedHiveEvtQueueConsumer )
 

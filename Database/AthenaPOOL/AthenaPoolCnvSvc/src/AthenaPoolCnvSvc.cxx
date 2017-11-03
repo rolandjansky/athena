@@ -675,8 +675,13 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       }
       if (own) { delete [] static_cast<const char*>(buffer); }
       buffer = nullptr;
-      std::string contName = strstr(placementStr.c_str(), "[CONT=");
-      contName = contName.substr(6, contName.find(']') - 6);
+      std::string contName;
+      {
+        const char* p = strstr(placementStr.c_str(), "[CONT=");
+        if (p != nullptr) {
+          contName = contName.substr(6, contName.find(']') - 6);
+        }
+      }
       if (m_doChronoStat) {
          m_chronoStatSvc->chronoStart("wAux_ALL");
       }

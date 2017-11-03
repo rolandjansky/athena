@@ -66,8 +66,6 @@ class LArG4FastSimSvc : public AthService, virtual public ILArG4FastSimSvc {
 
   inline virtual int DetectorTag() const;
 
- protected:
-
   friend class SvcFactory<LArG4FastSimSvc>;
 
   /// Standard Constructor

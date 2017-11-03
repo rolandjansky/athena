@@ -1,8 +1,8 @@
 #include "../MyPackageAlg.h"
 
-DECLARE_ALGORITHM_FACTORY( MyPackageAlg )
+DECLARE_COMPONENT( MyPackageAlg )
 
 
 #include "AthAsgExUnittest/MyPackageTool.h"
-DECLARE_TOOL_FACTORY( MyPackageTool )
+DECLARE_COMPONENT( MyPackageTool )
 

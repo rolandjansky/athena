@@ -1,5 +1,5 @@
 #include "TrigHypoCommonTools/L1InfoHypo.hxx"
 
 
-DECLARE_ALGORITHM_FACTORY(L1InfoHypo)
+DECLARE_COMPONENT( L1InfoHypo )
 

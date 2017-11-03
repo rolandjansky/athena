@@ -34,7 +34,6 @@ public:
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArMphysOverMcalFlat,ILArMphysOverMcal);
 CLASS_DEF( LArMphysOverMcalFlat , 219931062 , 1 )
-CLASS_DEF( CondCont<LArMphysOverMcalFlat> , 261355674 , 1 )
+CONDCONT_DEF( LArMphysOverMcalFlat, 261355674, ILArMphysOverMcal );
 #endif 

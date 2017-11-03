@@ -2,7 +2,7 @@
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, xAODTruthCnvAlg )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, xAODTruthReader )
-DECLARE_ALGORITHM_FACTORY( HepMCTruthReader )
+DECLARE_COMPONENT( xAODMaker::xAODTruthCnvAlg )
+DECLARE_COMPONENT( xAODReader::xAODTruthReader )
+DECLARE_COMPONENT( HepMCTruthReader )
 

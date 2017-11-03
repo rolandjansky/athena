@@ -50,8 +50,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_fieldService(nullptr),
+    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_nprint(0),
     m_sctId(nullptr),
     r_size(0),

@@ -112,8 +112,8 @@ void SCT_Amp::response(const list_t& Charges,const float timeOfThreshold, std::v
       float bin_timeOfThreshold{timeOfThreshold + bin*25};//25, fix me
       float tC{bin_timeOfThreshold - ch_time};
       if (tC > 0.0) {
-	tC/=tp; //to avoid doing it four times
-	response[bin+1] += ch*tC*tC*tC*exp(-tC); //faster than pow
+        tC/=tp; //to avoid doing it four times
+        response[bin+1] += ch*tC*tC*tC*exp(-tC); //faster than pow
       }
     }
   }
@@ -146,7 +146,7 @@ void SCT_Amp::crosstalk(const list_t& Charges, const float timeOfThreshold, std:
   float tp{static_cast<float>(m_PeakTime/3.0)}; // for CR-RC^3
   list_t::const_iterator p_charge{Charges.begin()};
   list_t::const_iterator p_charge_end{Charges.end()};
-  for (;	p_charge != p_charge_end; ++p_charge) {
+  for (; p_charge != p_charge_end; ++p_charge) {
     float ch{static_cast<float>(p_charge->charge())};
     float ch_time{static_cast<float>(p_charge->time())};
     short bin_end{static_cast<short>(bin_max-1)};
@@ -154,8 +154,8 @@ void SCT_Amp::crosstalk(const list_t& Charges, const float timeOfThreshold, std:
       float bin_timeOfThreshold{timeOfThreshold + bin*25}; // 25, fix me
       float tC{bin_timeOfThreshold - ch_time};
       if (tC > 0.0) {
-	tC/=tp; //to avoid doing it four times
-	response[bin+1] += ch*tC*tC*exp(-tC)*(3.0-tC); //faster than pow
+        tC/=tp; //to avoid doing it four times
+        response[bin+1] += ch*tC*tC*exp(-tC)*(3.0-tC); //faster than pow
       }
     }
   }

@@ -96,11 +96,6 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-condSeq += CondInputLoader()
-
 from CLIDComps.CLIDCompsConf import ClassIDSvc
 ServiceMgr += ClassIDSvc()
 include( "PartPropSvc/PartPropSvc.py" )

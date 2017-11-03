@@ -23,7 +23,7 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace CLHEP {
-    class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 namespace Simulation {
@@ -38,9 +38,11 @@ namespace Simulation {
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
      */
   class VertexBeamCondPositioner : public AthAlgTool,
-                                 virtual public ILorentzVectorGenerator {
+                                   virtual public ILorentzVectorGenerator
+  {
 
     public:
+
       /** Constructor with parameters */
       VertexBeamCondPositioner( const std::string& t, const std::string& n, const IInterface* p );
 
@@ -55,12 +57,14 @@ namespace Simulation {
       CLHEP::HepLorentzVector  *generate() const override final;
 
     private:
+
       ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
       ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
       CLHEP::HepRandomEngine*         m_randomEngine;
 
       std::string                     m_randomEngineName;         //!< Name of the random number stream
       bool                            m_timeSmearing;             //!< Do time smearing
+
   };
 
 }
