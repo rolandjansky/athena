@@ -97,14 +97,15 @@ namespace top {
     // removing bad electron cluser - see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Bad_Electron_Photon_Cluster
     if( !el.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON) ) return false;
 
+    // Try to catch instances for derivations using a different type for this variable
     try {
       if (el.auxdataConst<int>(operatingPoint_DF) != 1)
         return false;
-    } catch(std::exception& e) {
+    } 
+    catch(const SG::ExcAuxTypeMismatch& e) {
       if (el.auxdataConst<char>(operatingPoint_DF) != 1)
-        return false;
+	return false;      
     }
-
 
     if(operatingPoint == "LooseAndBLayerLH"){
 

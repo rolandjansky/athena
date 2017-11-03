@@ -95,20 +95,20 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-                                  "ESModel", "es2016data_mc15c"),
-                  "Failed to set ESModel for " + egamma_calib_name);
+				"ESModel", "es2017_R21_PRE"),
+	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
                                 m_config->egammaSystematicModel()),
-                "Failed to set decorrelationModel for " + egamma_calib_name);
+	       "Failed to set decorrelationModel for " + egamma_calib_name);
 
-    if(m_config->isAFII())
+    if(m_config->isAFII()){
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                   "useAFII", 1),
-                  "Failed to useAFII to true for" + egamma_calib_name);
-
+		 "Failed to useAFII to true for" + egamma_calib_name);
+    }
     top::check(egammaCalibrationAndSmearingTool->initialize(),
-                "Failed to initialize " + egamma_calib_name);
+	       "Failed to initialize " + egamma_calib_name);
     m_egammaCalibrationAndSmearingTool = egammaCalibrationAndSmearingTool;
   }
 

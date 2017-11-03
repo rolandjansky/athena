@@ -2542,6 +2542,22 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     return;
   }
 
+  // Function to return the year of data taking based on either run number (data) or random run number (MC)
+  const std::string TopConfig::getYear(unsigned int runnumber){    
+
+    // 2015 : 266904 - 284484
+    if(runnumber >= 266904 && runnumber <= 284484) return "2015"; 
+
+    // 2016 : 296939 - 311481
+    if(runnumber >= 296939 && runnumber <= 311481) return "2016";
+
+    // 2017 : 324320 - 999999
+    if(runnumber >= 324320) return "2017";
+    
+    return "ERROR";
+  }
+
+
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)

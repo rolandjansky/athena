@@ -11,7 +11,8 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_2
 ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMTopoJets
-LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+# Turning off LargeR jets until ctest uses updated derivation file AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+LargeJetCollectionName None 
 LargeRJetPt 200000
 LargeRJetEta 2
 LargeJetSubstructure None
@@ -34,7 +35,7 @@ OutputFilename output.root
 PerfStats No
 
 Systematics Nominal
-JetUncertainties_NPModel GlobalReduction
+JetUncertainties_NPModel CategoryReduction
 JetUncertainties_BunchSpacing 25ns
 LargeRJESUncertaintyConfig Split23,Tau32WTA
 
