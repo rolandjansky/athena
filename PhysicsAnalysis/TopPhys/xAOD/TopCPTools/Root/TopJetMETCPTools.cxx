@@ -361,10 +361,10 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig();
     if (calibChoice == "CombinedMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config";
+      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
     }
     else if (calibChoice == "CaloMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_June2015.config";
+      calibConfigLargeR = "JES_MC15recommendation_FatJet_June2015_rel21.config";
     }
     else {
       ATH_MSG_ERROR("Unknown largeRJESJMSConfig "+calibChoice);
