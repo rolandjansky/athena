@@ -327,14 +327,6 @@ struct par_par{
           const string&pd="",
           const string&tg="");
 
-  par_par();
-  void set_parameter(const string&par);
-  void set_misalign(double tx=0,double ty=0,double tz=0,double rx=0,double ry=0,double rz=0);
-  void set_mal_par(int parnum,double parval);
-  void set_correct(double tx,double ty,double tz,double ry,double rx,double rz);
-  void set_cor_par(int parnum,double parval);
-  void set_correct_to_neg_misal();
-  void sim_correct_to_neg_misal(const string&pcrep_dir,const string&tag);
   string print_pars(const vector<int>&hide=vector<int>()) const;
   string detail()const;
 
@@ -364,12 +356,12 @@ struct par_par{
 
 };
 
-const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
-const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
+// const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
+// const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
 class MMT_Parameters{
  public:
-  MMT_Parameters(par_par varied,char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager);
+  MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager);
 
   std::vector<Amg::Vector3D> MM_firststrip_positions(const MuonGM::MuonDetectorManager* m_detManager, const std::string& wedge, int eta);
   int is_x(int plane);
@@ -391,7 +383,7 @@ class MMT_Parameters{
   int ybin(float32fixed<18> y,int plane=0)const;
   int ybin(float32fixed<yzdex> y,int plane=0)const;
   int ybin(double y,int plane=0)const;
-  double ymid_eta_bin(int bin,int plane)const;
+  // double ymid_eta_bin(int bin,int plane)const;
 
   //fill the tables
   void Local_Slope_A_B();

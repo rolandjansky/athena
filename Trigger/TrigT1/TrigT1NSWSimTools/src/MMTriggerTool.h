@@ -63,8 +63,6 @@ namespace NSWL1 {
     std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    //ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    //CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
 

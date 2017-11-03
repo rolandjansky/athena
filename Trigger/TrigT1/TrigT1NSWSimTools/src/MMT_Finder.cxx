@@ -22,6 +22,7 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
   ATH_MSG_DEBUG("MMT_Find::built finder");
+
 }
 
 void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & evFinder, // Map (road,plane) -> Finder entry
