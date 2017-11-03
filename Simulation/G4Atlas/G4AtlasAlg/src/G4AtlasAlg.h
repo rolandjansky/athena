@@ -87,7 +87,7 @@ private:
 
   /// Releases the GeoModel geometry from memory once it has been used
   /// to build the G4 geometry and is no-longer required
-  StatusCode releaseGeoModel();
+  void releaseGeoModel();
 
   /// Properties for the jobOptions
   std::string m_libList;

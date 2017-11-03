@@ -35,6 +35,7 @@
 #include <mutex>
 static std::once_flag initializeOnceFlag;
 static std::once_flag finalizeOnceFlag;
+static std::once_flag releaseGeoModelOnceFlag;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -301,7 +302,13 @@ StatusCode G4AtlasAlg::execute()
 
   // Release GeoModel Geometry if necessary
   if (m_releaseGeoModel) {
-    ATH_CHECK(this->releaseGeoModel());
+    try {
+      std::call_once(releaseGeoModelOnceFlag, &G4AtlasAlg::releaseGeoModel, this);
+    }
+    catch(const std::exception& e) {
+      ATH_MSG_ERROR("Failure in G4AtlasAlg::releaseGeoModel: " << e.what());
+      return StatusCode::FAILURE;
+    }
   }
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
@@ -380,7 +387,7 @@ StatusCode G4AtlasAlg::execute()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::releaseGeoModel()
+void G4AtlasAlg::releaseGeoModel()
 {
   ISvcLocator *svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel(nullptr);
@@ -396,5 +403,5 @@ StatusCode G4AtlasAlg::releaseGeoModel()
     }
   }
   m_releaseGeoModel=false; // Don't do that again...
-  return StatusCode::SUCCESS;
+  return;
 }
