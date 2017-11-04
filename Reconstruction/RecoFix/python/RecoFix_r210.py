@@ -13,6 +13,6 @@ class RecoFix_r210(RecoFix_base):
 
     @staticmethod
     def latestAODFixVersion():
-        """The latest version of the AODFix. Moving to new AODFix version scheme"""
-        return ["IDTide", "egammaStrips", "trklinks"] 
+        """The latest version of the AODFix. Use same sort as in AODFix"""
+        return ["IDTide", "egammaStrips"]
 
