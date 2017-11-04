@@ -209,7 +209,10 @@ namespace egEnergyCorr {
     es2015c_summer,         // data-driven for mc15c (to be used in summer 2016)
     es2016PRE,              // as es2015c_summer + temperature extrapolation
     es2017,                 // Moriond 2017
-
+    es2017_summer,          // Summer 2017
+    es2017_summer_improved, // Recommendations for Higgs mass paper
+    es2017_R21_PRE,         // Pre-recommendations for release 21
+    
     UNDEFINED
 
   };
@@ -501,7 +504,7 @@ namespace AtlasRoot {
 
     TH1F*         m_pedestals_es2017;
 
-    TH2D*         m_convRadius;
+    TH1D*         m_convRadius;
     TH1D*         m_convFakeRate;
     TH1D*         m_convRecoEfficiency;
 

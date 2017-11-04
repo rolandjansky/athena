@@ -13,7 +13,7 @@ atlas_depends_on_subdirs(
 	
 # External(s):
 find_package( ROOT COMPONENTS Core )
-	
+
 # Component(s) in the package:
 atlas_add_library( TriggerAnalysisInterfaces
    TriggerAnalysisInterfaces/*.h

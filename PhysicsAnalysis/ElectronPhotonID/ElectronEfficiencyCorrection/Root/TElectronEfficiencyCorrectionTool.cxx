@@ -753,9 +753,8 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf, co
 // Helper function to retrieve number of uncorrelated bins
 // =============================================================================
 int
-Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<float> > &pt_eta1) {
-  std::vector<TObjArray > tmpVec;
-  tmpVec = m_histList[mapkey::sf];
+Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<float> > &pt_eta1) const {
+  const std::vector<TObjArray >& tmpVec = m_histList.at(mapkey::sf);
   int nbinsTotal = 0;
   pt_eta1.clear();
   std::vector<float>eta1;
@@ -792,7 +791,7 @@ Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<fl
 // =============================================================================
 // Helper function to retrieve the position of the first toy MC scale factor
 // =============================================================================
-int Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -806,7 +805,7 @@ int Root::TElectronEfficiencyCorrectionTool::getFirstToyMCPosition() {
   }
 }
 
-int Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -821,7 +820,7 @@ int Root::TElectronEfficiencyCorrectionTool::getLastToyMCPosition() {
 }
 //================================================================================
 /// Helpers
-int Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -835,7 +834,7 @@ int Root::TElectronEfficiencyCorrectionTool::getFirstCorrSysPosition() {
   }
 }
 
-int Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -853,7 +852,7 @@ int Root::TElectronEfficiencyCorrectionTool::getLastCorrSysPosition() {
     return 0;
   }
 }
-int Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() {
+int Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return -1;
@@ -861,7 +860,7 @@ int Root::TElectronEfficiencyCorrectionTool::getGlobalBinNumberPosition() {
   return m_position_globalBinNumber;
 }
 
-void Root::TElectronEfficiencyCorrectionTool::printResultMap() {
+void Root::TElectronEfficiencyCorrectionTool::printResultMap() const {
   if (!m_isInitialized) {
     ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Tool not initialized.");
     return;
@@ -1248,7 +1247,7 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
 // print a message that the default scale factor is returned
 // =============================================================================
 void
-Root::TElectronEfficiencyCorrectionTool::printDefaultReturnMessage(TString reason, int line) {
+Root::TElectronEfficiencyCorrectionTool::printDefaultReturnMessage(const TString& reason, int line) const{
   ATH_MSG_DEBUG(
 		this->getName() << " (file: " << __FILE__ << ", line: " << line << ")  " << reason << "\n" <<
 		"Returning scale factor -999 ");

@@ -4,12 +4,12 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __ASGELECTRONCHARGEIDSELECTORTOOL__
-#define __ASGELECTRONCHARGEIDSELECTORTOOL__
+#ifndef ELECTRONPHOTONSELECTORTOOLS_ASGELECTRONCHARGEIDSELECTORTOOL_H
+#define ELECTRONPHOTONSELECTORTOOLS_ASGELECTRONCHARGEIDSELECTORTOOL_H
 // Atlas includes
 #include "AsgTools/AsgTool.h"
 #include "MVAUtils/BDT.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include <unordered_map>
 
