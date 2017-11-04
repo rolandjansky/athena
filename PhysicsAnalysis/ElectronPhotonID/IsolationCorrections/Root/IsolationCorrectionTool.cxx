@@ -10,11 +10,11 @@
 #include "xAODMetaData/FileMetaData.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
+#include <boost/algorithm/string.hpp>
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
-#include <boost/algorithm/string.hpp>
 #endif //ROOTCORE
 
 namespace CP {
@@ -43,23 +43,23 @@ namespace CP {
 
     //
     // Resolve the paths to the input files
-    std::vector < std::string > m_corrFileNameList;
-    m_corrFileNameList.push_back(m_corr_file);
-    m_corrFileNameList.push_back(m_corr_ddshift_2015_file);
-    m_corrFileNameList.push_back(m_corr_ddshift_file);
-    m_corrFileNameList.push_back(m_corr_ddsmearing_file);
+    std::vector < std::string > corrFileNameList;
+    corrFileNameList.push_back(m_corr_file);
+    corrFileNameList.push_back(m_corr_ddshift_2015_file);
+    corrFileNameList.push_back(m_corr_ddshift_file);
+    corrFileNameList.push_back(m_corr_ddsmearing_file);
 
-    for ( unsigned int i=0; i<m_corrFileNameList.size(); ++i ){
+    for ( unsigned int i=0; i<corrFileNameList.size(); ++i ){
       
       //First try the PathResolver
-      std::string filename = PathResolverFindCalibFile( m_corrFileNameList.at(i) );
+      std::string filename = PathResolverFindCalibFile( corrFileNameList.at(i) );
       if (filename.empty()){
-	ATH_MSG_ERROR ( "Could NOT resolve file name " << m_corrFileNameList.at(i) );
+	ATH_MSG_ERROR ( "Could NOT resolve file name " << corrFileNameList.at(i) );
 	return StatusCode::FAILURE ;
       } else{
 	ATH_MSG_INFO(" Path found = "<<filename);
       }
-      m_corrFileNameList.at(i) = filename;	
+      corrFileNameList.at(i) = filename;	
     }
     //
 
@@ -75,12 +75,12 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    if(TString(m_corrFileNameList[0]).Contains("isolation_ptcorrections_rel17_2.root") && m_tool_ver_str != "REL17_2"){
+    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel17_2.root") && m_tool_ver_str != "REL17_2"){
       ATH_MSG_WARNING("The specified correction file is not for "<<m_tool_ver_str<<" please use proper correction file");
       return StatusCode::FAILURE;
     }
 
-    if(TString(m_corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && m_tool_ver_str != "REL20_2"){
+    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && m_tool_ver_str != "REL20_2"){
       ATH_MSG_WARNING("The specified correction file is not for "<<m_tool_ver_str<<" please use proper correction file");
       return StatusCode::FAILURE;
     }
@@ -120,6 +120,8 @@ namespace CP {
 
     //default result
     result = PATCore::ParticleDataType::Data;
+    //
+    std::string simType("");
     
 #ifndef ROOTCORE
     //Athena environent
@@ -137,7 +139,6 @@ namespace CP {
     //
     //if not data  determine Fast/FullSim
     ATH_MSG_DEBUG("IS_SIMULATION");
-    std::string simType("");
     if( AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()).isFailure() ) {
       return StatusCode::FAILURE;    
     }
@@ -147,6 +148,7 @@ namespace CP {
       return StatusCode::SUCCESS;
     }
 #endif    
+
     //Here is the RootCore or to be dual use , assumes we have not returned before for Athena
     std::string simulationType("");
     if (!inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
@@ -157,11 +159,12 @@ namespace CP {
     //
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simulationType);
     if (!s) { 
-      //no simFlavour metadata failure
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       return StatusCode::FAILURE;    
     }
     else {
-      result = (simulationType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast);
+      boost::to_upper(simType);
+      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;    
     }
     //
