@@ -14,6 +14,8 @@
 #include <TAxis.h>
 #include <TH2F.h>
 #include <TH2D.h>
+#include <TH3F.h>
+#include <TH3D.h>
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
@@ -43,10 +45,15 @@ class JMSCorrection
   virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
  private:
+  float getMassCorr3D(double pT_uncorr, double mass_uncorr, double eta) const;
   float getMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const;
+  float getTrackAssistedMassCorr3D(double pT_uncorr, double mass_uncorr, double eta) const;
   float getTrackAssistedMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const;
+  float getRelCalo3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const;
   float getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
+  float getRelTA3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const;
   float getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
+  float getRho3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const;
   float getRho(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
 
   void setMassEtaBins(VecD etabins) { 
@@ -78,11 +85,15 @@ class JMSCorrection
   bool m_useCorrelatedWeights; 
 
   // Control the binning using a private class enum
-  enum class BinningParam { pt_mass_eta, e_LOGmOe_eta, e_LOGmOet_eta, e_LOGmOpt_eta };
+  enum class BinningParam { pt_mass_eta, e_LOGmOe_eta, e_LOGmOet_eta, e_LOGmOpt_eta, et_LOGmOet_eta };
   BinningParam m_binParam;
 
+  // Check if we are reading 2D or 3D histograms
+  // Defaults to false for backwards compatibility
+  bool m_use3Dhisto;
 
-  //Private members set during initialization
+
+  //Private members set during initialization (if 2D histos)
   VecTH2F m_respFactorsMass;
   VecD m_massEtaBins;
   VecTH2F m_respFactorsTrackAssistedMass;
@@ -91,6 +102,12 @@ class JMSCorrection
   VecTH2D m_taResolutionMassCombination;   // Track-Assisted Mass Resolution
   VecTH2D m_correlationMapMassCombination;   // Correlation Map for mass combination (rho)
   
+  //Private members set during initialization (if 3D histos)
+  TH3F* m_respFactorMass3D;
+  TH3F* m_respFactorTrackAssistedMass3D;
+  TH3D* m_caloResolutionMassCombination3D;
+  TH3D* m_taResolutionMassCombination3D;
+  TH3D* m_correlationMapMassCombination3D;
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "TObjString.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3D.h"
 #include <cmath>
 #include <vector>
 
@@ -25,6 +26,7 @@ namespace JetCalibUtils {
 
   TH1 *GetHisto(TFile *file, TString hname);
   TH2 *GetHisto2(TFile *file, TString hname);
+  TH3 *GetHisto3(TFile *file, TString hname);
 
   TTree *setTree(TTree *tree);
 
