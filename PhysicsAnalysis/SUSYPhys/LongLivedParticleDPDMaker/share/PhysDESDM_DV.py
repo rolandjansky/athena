@@ -306,21 +306,13 @@ ToolSvc += DV_multiJet_offlineJetFilter
 
 
 
-DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalFilter",
+DV_MultiJetFinalTracklessFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalTracklessFilter",
                                                                     FilterList=[DV_multiJet_offlineJetFilter,DVCombinedTracklessJetFilterToolForMultijet,DVMultiJetTriggerFilter],
 ##                                                                    OutputLevel=DEBUG
                                                                         )
-ToolSvc+= DV_MultiJetFinalFilter
-
-topSequence += kernel( "RPVLL_DV_MultiJetFilterKernel",
-                       SkimmingTools = [DV_MultiJetFinalFilter],
-                       )
-RPVLLfilterNames.extend(["RPVLL_DV_MultiJetFilterKernel"])
+ToolSvc+= DV_MultiJetFinalTracklessFilter
 
 
-################################################
-### Testing kernels for new high-pT jets filters
-################################################
 DV_MultiJet2JHighPtFilter = skimtool( name = "DV_MultiJet2JHighPtFilter",
                              expression = DVSelectionString(primRPVLLDESDM.DV_2JetFilterFlags_HighpTCut, jetContainer),
                              )
@@ -370,16 +362,17 @@ DV_MultiJetHighPtFilter = DerivationFramework__FilterCombinationOR( name = "DV_M
 ToolSvc+=DV_MultiJetHighPtFilter
 
 
-DV_MultiJetFinalFilter_wHighPt = DerivationFramework__FilterCombinationOR( name = "DV_MultiJetFinalFilter_wHighPt",
-                                                               FilterList=[DV_MultiJetFinalFilter,DV_MultiJetHighPtFilter],
+DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationOR( name = "DV_MultiJetFinalFilter",
+                                                               FilterList=[DV_MultiJetFinalTracklessFilter,DV_MultiJetHighPtFilter],
 ##                                                                    OutputLevel=DEBUG
                                                                )
-ToolSvc+= DV_MultiJetFinalFilter_wHighPt
+ToolSvc+= DV_MultiJetFinalFilter
 
-topSequence += kernel( "RPVLL_DV_MultiJetFilterKernel_wHighPt",
-                       SkimmingTools = [DV_MultiJetFinalFilter_wHighPt],
+topSequence += kernel( "RPVLL_DV_MultiJetFilterKernel",
+                       SkimmingTools = [DV_MultiJetFinalFilter],
                        )
-RPVLLfilterNames.extend(["RPVLL_DV_MultiJetFilterKernel_wHighPt"])
+RPVLLfilterNames.extend(["RPVLL_DV_MultiJetFilterKernel"])
+
 
 ############################################################
 ## DV+MET filter
