@@ -27,11 +27,6 @@ class AODFix_r210(AODFix_base):
 
         return metadataList
 
-    @staticmethod
-    def excludeFromMetadata():
-        """Which item should be excluded from metadata written, so will always rerun"""
-        return ["btagging"]
-
 
     def postSystemRec(self):
         """
