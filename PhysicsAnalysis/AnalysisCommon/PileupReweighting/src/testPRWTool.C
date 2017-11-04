@@ -88,13 +88,27 @@ int main() {
    genConfig->WriteToFile("dummy2.prw.root");
 
 
-   //repeat with action=3 ... 
-   CP::IPileupReweightingTool* prw = new CP::PileupReweightingTool("prw");
    std::vector<std::string> configFiles = {"dummy2.prw.root"};
    std::vector<std::string> lumicalcFiles = {"dummy.None.lumicalc.root"};
 
+   //check multi period failure
+   CP::IPileupReweightingTool* prw_bad = new CP::PileupReweightingTool("prw_bad");
+   asg::setProperty(prw_bad,"ConfigFiles",configFiles);
+   asg::setProperty(prw_bad,"LumiCalcFiles",lumicalcFiles);
+   
+   try {
+    prw_bad->initialize();
+   } catch(std::runtime_error e) {
+    std::cout << "correctly caught:" << e.what() << std::endl;
+   }
+   
+   
+
+   //repeat with action=3 ... 
+   CP::IPileupReweightingTool* prw = new CP::PileupReweightingTool("prw");
    asg::setProperty(prw,"ConfigFiles",configFiles);
    asg::setProperty(prw,"LumiCalcFiles",lumicalcFiles);
+   asg::setProperty(prw,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
    prw->initialize();
 
 
@@ -115,6 +129,7 @@ int main() {
    std::vector<std::string> lumicalcFiles1 = {"dummy.None.lumicalc.root","dummy.TriggerA.lumicalc.root:TriggerA","dummy.TriggerB.lumicalc.root:TriggerB"};
    asg::setProperty(prw1, "ConfigFiles",configFiles1);
    asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1);
+   asg::setProperty(prw1,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
    prw1->initialize();
 
    std::cout << "prw1 Integrated lumi = " << prw1->GetIntegratedLumi() << " (expected=2.7e-5) " << std::endl;  testValue(prw1->GetIntegratedLumi(),2.7e-5);
@@ -144,8 +159,15 @@ int main() {
    std::cout << "prw1 TriggerA&&TriggerB lumi = " << prw1->expert()->GetIntegratedLumi("TriggerA&&TriggerB") << " (expected=1.81597e-6) " << std::endl;testValue(prw1->expert()->GetIntegratedLumi("TriggerA&&TriggerB"),1.81597e-6);
 
    //now check the dataweight .. remember the runNumber is converted into a periodNumber (i.e. the weights aren't unique to a runNumber, they are unique to the periodNumber)
-   std::cout << "prw TriggerA DataWeights (mu independent): " << prw1->expert()->GetDataWeight(1,"TriggerA") << " (expected=2.63415) " << prw1->expert()->GetDataWeight(2,"TriggerA") << " (expected=2.63415) " << prw1->expert()->GetDataWeight(3,"TriggerA") << " (expected=3.2727)" << std::endl;
-   std::cout << "prw TriggerA DataWeights (mu dependent): " << prw1->expert()->GetDataWeight(1,"TriggerA",0.5) << " (expected=2) " << prw1->expert()->GetDataWeight(1,"TriggerA",1.5) << " (expected=3) " << prw1->expert()->GetDataWeight(2,"TriggerA",1.5) << " (expected=3.0000) " << prw1->expert()->GetDataWeight(3,"TriggerA",1.5) << " (expected=4) " << prw1->expert()->GetDataWeight(3,"TriggerA",2.5) << " (expected=2) " << prw1->expert()->GetDataWeight(3,"TriggerA",3.5) << " (expected=nan) " << std::endl;
+   std::cout << "prw1 TriggerA DataWeights (mu independent): " << prw1->expert()->GetDataWeight(1,"TriggerA") << " (expected=2.63415) " << prw1->expert()->GetDataWeight(2,"TriggerA") << " (expected=2.63415) " << prw1->expert()->GetDataWeight(3,"TriggerA") << " (expected=3.2727)" << std::endl;
+   std::cout << "prw1 TriggerA DataWeights (mu dependent): " << prw1->expert()->GetDataWeight(1,"TriggerA",0.5) << " (expected=2) " << prw1->expert()->GetDataWeight(1,"TriggerA",1.5) << " (expected=3) " << prw1->expert()->GetDataWeight(2,"TriggerA",1.5) << " (expected=3.0000) " << prw1->expert()->GetDataWeight(3,"TriggerA",1.5) << " (expected=4) " << prw1->expert()->GetDataWeight(3,"TriggerA",2.5) << " (expected=2) " << std::endl;
+   
+   try {
+    prw1->expert()->GetDataWeight(3,"TriggerA",3.5);
+   } catch(...) {
+    std::cout << "correctly threw exception for out of range mu" << std::endl;
+   }
+   
    testValue(prw1->expert()->GetDataWeight(1,"TriggerA"),2.63415);
    testValue(prw1->expert()->GetDataWeight(2,"TriggerA"),2.63415);
    testValue(prw1->expert()->GetDataWeight(3,"TriggerA"),3.2727);

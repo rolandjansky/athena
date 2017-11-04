@@ -92,7 +92,9 @@ class TestEgammaResolution(unittest.TestCase):
                                                   msg="resolution should be different for particle=%d, eta=%f, e=%d, rtype=%d" % (ptype, eta, e, t))
 
     def test_nonregression_run1(self):
-        f = ROOT.TFile("$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/test_resolution_nonregression_run1_data.root")
+        from PathResolver import PathResolver
+        rootfile = PathResolver.FindCalibFile("ElectronPhotonFourMomentumCorrection/v8/test_resolution_nonregression_run1_data.root")
+        f = ROOT.TFile(rootfile)
         tree = f.Get("test_resolution_nonregression_data_run1")
 
         for ievent in xrange(tree.GetEntries()):
