@@ -70,6 +70,8 @@ namespace LArWheelCalculator_Impl
 
   std::pair<int, int> ModuleFanCalculator::GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const
   {
+    // Note: this object was changed from static to local for thread-safety.
+    // If this is found to be too costly we can re-evaluate.
     CLHEP::Hep3Vector p1 = p;
 
     int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi) / lwc()->m_FanStepOnPhi);
