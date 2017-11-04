@@ -7,6 +7,7 @@ mlog = logging.getLogger( 'CombinedRec_config' )
 from AthenaCommon.GlobalFlags  import globalflags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
+from RecExConfig.ObjKeyStore import objKeyStore
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
@@ -83,7 +84,9 @@ if rec.doJetMissingETTag() and DetFlags.Calo_on():
 # functionality : isolation for egamma and combined muon
 #
 pdr.flag_domain('egmiso')
-if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
+if (rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()) and
+    (jobproperties.CaloRecFlags.doCaloTopoCluster() or
+     objKeyStore.isInInput ('xAOD::ParticleContainer', 'CaloCalTopoClusters'))):
     try:
         from IsolationAlgs.IsoGetter import isoGetter
         isoGetter()

@@ -123,3 +123,4 @@ hideInput ('xAOD::VertexContainer', 'TauSecondaryVertices')
 hideInput ('xAOD::MuonSegmentContainer', 'MuonTruthSegments.recoSegmentLink')
 hideInput ('xAOD::TrackParticleContainer', 'MuonSpectrometerTrackParticles')
 hideInput ('xAOD::TruthParticleContainer', 'MuonTruthParticles.recoMuonLink')
+
