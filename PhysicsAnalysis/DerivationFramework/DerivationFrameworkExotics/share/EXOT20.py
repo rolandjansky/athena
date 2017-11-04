@@ -35,13 +35,22 @@ EXOT20ThinningHelper.AppendToStream( EXOT20Stream )
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-EXOT0MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT20MuonTPThinningTool",
+EXOT20MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT20MuonTPThinningTool",
                                                                          ThinningService         = EXOT20ThinningHelper.ThinningSvc(),
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                          ConeSize                =  0.4)
 ToolSvc += EXOT20MuonTPThinningTool
 thinningTools.append(EXOT20MuonTPThinningTool)
+
+# track thinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+EXOT20TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "EXOT20TPThinningTool",
+								 ThinningService        = EXOT20ThinningHelper.ThinningSvc(),
+								 SelectionString        = "InDetTrackParticles.pt > 3*GeV",
+								 InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += EXOT20TPThinningTool
+thinningTools.append(EXOT20TPThinningTool)
 
 #====================================================================
 # SKIMMING TOOLS 
