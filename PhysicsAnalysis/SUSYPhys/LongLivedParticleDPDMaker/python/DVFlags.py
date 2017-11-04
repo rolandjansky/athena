@@ -40,7 +40,7 @@ class DV_2JetFilterFlags_HighpTCut(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    cutEtMin=450.0*Units.GeV
+    cutEtMin=500.0*Units.GeV
     nPassed=2
     pass
 primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags_HighpTCut)
@@ -49,7 +49,7 @@ class DV_3JetFilterFlags_HighpTCut(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    cutEtMin=150.0*Units.GeV
+    cutEtMin=180.0*Units.GeV
     nPassed=3
     pass
 primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags_HighpTCut)
@@ -67,7 +67,7 @@ class DV_5JetFilterFlags_HighpTCut(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    cutEtMin=150.0*Units.GeV
+    cutEtMin=170.0*Units.GeV
     nPassed=5
     pass
 primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags_HighpTCut)
@@ -262,3 +262,4 @@ class DV_PrescalerFlags(JobProperty):
     prescale=20
     pass
 primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
+
