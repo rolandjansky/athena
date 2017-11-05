@@ -33,7 +33,11 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   if(verbose) std::cout<<"--- Energy simulation of PCA bin "<<pcabin<<std::endl;
 
   TMatrixDSym* symCov        =m_symCov[pcabin-1];
-  TMatrixD*    EV            =m_EV[pcabin-1];
+  
+  TMatrixDSymEigen cov_eigen(*symCov);
+  TMatrixD EV = cov_eigen.GetEigenVectors(); 
+  
+  //TMatrixD*    EV            =m_EV[pcabin-1];
   TVectorD*    MeanValues    =m_MeanValues[pcabin-1];
   TVectorD*    SigmaValues   =m_SigmaValues[pcabin-1];
   TVectorD*    Gauss_means   =m_Gauss_means[pcabin-1];
@@ -74,12 +78,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
       double gauszz=Random3->Gaus(mean,rms);
       input_data[l]=gauszz;
     }
-
-  TMatrixDSymEigen* eigen=new TMatrixDSymEigen(*symCov);
-  TMatrixD myEvectors(eigen->GetEigenVectors());
-
-  delete eigen;
-
+  
   //P2X(layer.size(), input_data, output_data, layer.size());
   P2X(SigmaValues, MeanValues, EV, layer.size(), input_data, output_data, layer.size());
 
@@ -177,12 +176,12 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   }
 */
 
-void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD* EV, int gNVariables, double *p, double *x, int nTest)
+void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD EV, int gNVariables, double *p, double *x, int nTest)
 {
 
   double* gSigmaValues  = SigmaValues->GetMatrixArray();
   double* gMeanValues   = MeanValues->GetMatrixArray();
-  double* gEigenVectors = EV->GetMatrixArray();
+  double* gEigenVectors = EV.GetMatrixArray();
 
   for(int i = 0; i < gNVariables; i++)
     {
@@ -227,7 +226,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file)
       file->cd(Form("%s/bin%i/pca",folder.c_str(),bin));
 
       TMatrixDSym* symCov     =(TMatrixDSym*)gDirectory->Get("symCov");
-      TMatrixD* EV            =(TMatrixD*)gDirectory->Get("EigenVectors");
+      //TMatrixD* EV            =(TMatrixD*)gDirectory->Get("EigenVectors");
       TVectorD* MeanValues    =(TVectorD*)gDirectory->Get("MeanValues");
       TVectorD* SigmaValues   =(TVectorD*)gDirectory->Get("SigmaValues");
       TVectorD* Gauss_means   =(TVectorD*)gDirectory->Get("Gauss_means");
@@ -236,7 +235,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file)
 
       // null check
       if(symCov == NULL)         std::cout << "TFCSPCAEnergyParametrization::m_symCov in pcabin "<<bin<<" is null!" << std::endl;
-      if(EV == NULL)             std::cout << "TFCSPCAEnergyParametrization::m_EV in pcabin "<<bin<<" is null!" << std::endl;
+      //if(EV == NULL)             std::cout << "TFCSPCAEnergyParametrization::m_EV in pcabin "<<bin<<" is null!" << std::endl;
       if(MeanValues == NULL)     std::cout << "TFCSPCAEnergyParametrization::m_MeanValues in pcabin "<<bin<<" is null!" << std::endl;
       if(SigmaValues == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_SigmaValues in pcabin "<<bin<<" is null!" << std::endl;
       if(Gauss_means == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_Gauss_means in pcabin "<<bin<<" is null!" << std::endl;
@@ -244,7 +243,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file)
       if(LowerBounds == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_LowerBounds in pcabin "<<bin<<" is null!" << std::endl;
 
       m_symCov.push_back(symCov);
-      m_EV.push_back(EV);
+      //m_EV.push_back(EV);
       m_MeanValues.push_back(MeanValues);
       m_SigmaValues.push_back(SigmaValues);
       m_Gauss_means.push_back(Gauss_means);
@@ -319,7 +318,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       file->cd(Form("%s/bin%i/pca",folder.c_str(),bin));
 
       TMatrixDSym* symCov     =(TMatrixDSym*)gDirectory->Get("symCov");
-      TMatrixD* EV            =(TMatrixD*)gDirectory->Get("EigenVectors");
+      //TMatrixD* EV            =(TMatrixD*)gDirectory->Get("EigenVectors");
       TVectorD* MeanValues    =(TVectorD*)gDirectory->Get("MeanValues");
       TVectorD* SigmaValues   =(TVectorD*)gDirectory->Get("SigmaValues");
       TVectorD* Gauss_means   =(TVectorD*)gDirectory->Get("Gauss_means");
@@ -328,7 +327,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
 
       // null check
       if(symCov == NULL)         std::cout << "TFCSPCAEnergyParametrization::m_symCov in pcabin "<<bin<<" is null!" << std::endl;
-      if(EV == NULL)             std::cout << "TFCSPCAEnergyParametrization::m_EV in pcabin "<<bin<<" is null!" << std::endl;
+      //if(EV == NULL)             std::cout << "TFCSPCAEnergyParametrization::m_EV in pcabin "<<bin<<" is null!" << std::endl;
       if(MeanValues == NULL)     std::cout << "TFCSPCAEnergyParametrization::m_MeanValues in pcabin "<<bin<<" is null!" << std::endl;
       if(SigmaValues == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_SigmaValues in pcabin "<<bin<<" is null!" << std::endl;
       if(Gauss_means == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_Gauss_means in pcabin "<<bin<<" is null!" << std::endl;
@@ -336,7 +335,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       if(LowerBounds == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_LowerBounds in pcabin "<<bin<<" is null!" << std::endl;
 
       m_symCov.push_back(symCov);
-      m_EV.push_back(EV);
+      //m_EV.push_back(EV);
       m_MeanValues.push_back(MeanValues);
       m_SigmaValues.push_back(SigmaValues);
       m_Gauss_means.push_back(Gauss_means);

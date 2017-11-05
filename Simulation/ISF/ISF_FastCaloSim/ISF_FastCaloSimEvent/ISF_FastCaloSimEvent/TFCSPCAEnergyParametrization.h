@@ -24,7 +24,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   int n_pcabins()        { return m_numberpcabins; };
   IntArray* get_layers() { return m_RelevantLayers; };
 
-  void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
+  void P2X(TVectorD*, TVectorD* , TMatrixD , int, double* , double* , int);
   void loadInputs(TFile* file);
   void loadInputs(TFile* file,std::string);
 
@@ -34,7 +34,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   IntArray* m_RelevantLayers;
 
   std::vector<TMatrixDSym*> m_symCov;
-  std::vector<TMatrixD*>    m_EV;
+  //std::vector<TMatrixD*>    m_EV;
   std::vector<TVectorD*>    m_MeanValues;
   std::vector<TVectorD*>    m_SigmaValues;
   std::vector<TVectorD*>    m_Gauss_means;
