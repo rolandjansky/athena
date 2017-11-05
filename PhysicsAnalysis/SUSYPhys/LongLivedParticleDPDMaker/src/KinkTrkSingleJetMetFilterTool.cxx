@@ -223,13 +223,28 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	  passIsolatedTracklet = false;
 	}
       }// for goodJets
+
+      if(passIsolatedTracklet==false)
+	continue;
+
+      if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9)
+	continue;
+      
+      if(TMath::Prob(Tracklet->chiSquared(), Tracklet->numberDoF()) < 0.1)
+	continue;
+      
+      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<4){
+	continue;
+      
+      if(Tracklet->auxdata<UChar_t>("numberOfPixelSpoiltHits")>0){
+	continue;      
       
       if(passIsolatedTracklet)
 	break;
     }// for Tracklet
 
     if(passIsolatedTracklet==false){
-      //return acceptEvent; // std track OFF
+      return acceptEvent; // std track OFF
 
       bool passIsolatedStdTrack = false;
       const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
