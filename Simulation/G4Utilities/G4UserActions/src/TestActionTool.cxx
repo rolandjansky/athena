@@ -100,6 +100,7 @@ namespace G4UA
     actions->runActions.push_back( action.get() );
     actions->eventActions.push_back( action.get() );
     actions->steppingActions.push_back( action.get() );
+    m_actions.set( std::move(action) );
 
     return StatusCode::SUCCESS;
   }

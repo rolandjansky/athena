@@ -15,6 +15,8 @@
 
 // G4Atlas includes
 #include "G4AtlasInterfaces/IUserActionTool.h"
+#include "G4AtlasTools/ThreadSpecificUserAction.h"
+
 
 namespace G4UA
 {
@@ -91,6 +93,11 @@ namespace G4UA
       /// Fill user action
       virtual StatusCode
       fillUserAction(G4AtlasUserActions* actions) override final;
+
+    private:
+
+      /// Container of thread-local actions
+      ThreadSpecificUserAction<TestAction> m_actions;
 
   }; // class TestActionTool
 
