@@ -272,8 +272,8 @@ def plotJets(channel):
     br()
     plot(channel + '/jet_mv2c10')
     plot(channel + '/jet_truthflav')
-    plot(channel + '/jet_isbtagged_77')
-    plot(channel + '/jet_btagSF_77')
+    plot(channel + '/jet_isbtagged_MV2c10_77')
+    plot(channel + '/jet_btagSF_MV2c10_77')
 
     for i in range(4):
         h3('Jet%d' % i)
@@ -284,8 +284,8 @@ def plotJets(channel):
         br()
         plot(channel + '/jet%d_mv2c10' % i)
         plot(channel + '/jet%d_truthflav' % i)
-        plot(channel + '/jet%d_isbtagged_77' % i)
-        plot(channel + '/jet%d_btagSF_77' % i)
+        plot(channel + '/jet%d_isbtagged_MV2c10_77' % i)
+        plot(channel + '/jet%d_btagSF_MV2c10_77' % i)
 
     h3('Large-R jet')
     plot(channel + '/ljet_n')

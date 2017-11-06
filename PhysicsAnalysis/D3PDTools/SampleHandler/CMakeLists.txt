@@ -56,9 +56,17 @@ function( _add_gtest cxx_name )
 endfunction( _add_gtest )
 
 file( GLOB _gtests test/gt_*.cxx )
-foreach( gtest ${_gtests} it_GridTools.cxx )
+foreach( gtest ${_gtests} )
    _add_gtest( ${gtest} )
 endforeach()
+
+# Ok, this should be an automatically run test, but it requires a grid
+# certificate, meaning right now it can't run in the CI or nightly.
+# Once I figure out how to do this, I should switch this back to being
+# a test.
+atlas_add_executable (SampleHandler_test_GridTools SOURCES test/it_GridTools.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} SampleHandler )
 
 function( _add_test cxx_name )
    get_filename_component( test_name ${cxx_name} NAME_WE )

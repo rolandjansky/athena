@@ -25,6 +25,7 @@ namespace top{
     m_recommendedSystematics(),
 
     m_calibrationTool("CP::MuonCalibrationAndSmearingTool"),
+    m_calibrationTool2017("CP::MuonCalibrationAndSmearingTool2017"),
     m_isolationTool_LooseTrackOnly("CP::IsolationTool_LooseTrackOnly"),
     m_isolationTool_Loose("CP::IsolationTool_Loose"),
     m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
@@ -35,7 +36,8 @@ namespace top{
   {
     declareProperty( "config" , m_config );  
     
-    declareProperty( "MuonCalibrationAndSmearingTool" , m_calibrationTool );
+    declareProperty( "MuonCalibrationAndSmearingTool" ,       m_calibrationTool );
+    declareProperty( "MuonCalibrationAndSmearingTool2017" ,   m_calibrationTool2017 );
     declareProperty( "IsolationTool_LooseTrackOnly" ,         m_isolationTool_LooseTrackOnly );
     declareProperty( "IsolationTool_Loose" ,                  m_isolationTool_Loose );
     declareProperty( "IsolationTool_Gradient" ,               m_isolationTool_Gradient );
@@ -49,7 +51,9 @@ namespace top{
   {
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker initialize" );  
     
-    top::check( m_calibrationTool.retrieve() , "Failed to retrieve muon calibration tool" );
+    top::check( m_calibrationTool.retrieve()     , "Failed to retrieve muon calibration tool" );
+    top::check( m_calibrationTool2017.retrieve() , "Failed to retrieve muon 2017 calibration tool" );
+
     top::check( m_isolationTool_LooseTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Loose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Gradient.retrieve() , "Failed to retrieve Isolation Tool" );
@@ -90,7 +94,18 @@ namespace top{
     float beam_pos_sigma_y = eventInfo->beamPosSigmaY();
     float beam_pos_sigma_xy = eventInfo->beamPosSigmaXY();
 
-     ///-- Get base muons and tracks from xAOD --///
+    ///--- Need to know the year for each event until MCP have consistent recommendations for all years ---///
+    unsigned int runnumber = -999999;
+    if(m_config->isMC()){
+      top::check(eventInfo->isAvailable<unsigned int>("RandomRunNumber"), "Require that RandomRunNumber decoration is available.");
+      runnumber = eventInfo->auxdataConst<unsigned int>("RandomRunNumber");
+    }
+    else{
+      runnumber = eventInfo->runNumber();
+    }
+    const std::string thisYear = m_config->getYear(runnumber);
+
+    ///-- Get base muons and tracks from xAOD --///
     const xAOD::MuonContainer* xaod(nullptr);
     top::check( evtStore()->retrieve( xaod , m_config->sgKeyMuons() ) , "Failed to retrieve Muons" );
     
@@ -98,7 +113,12 @@ namespace top{
     for( auto systematic : m_specifiedSystematics ){
 
       ///-- Tell tool which systematic to use --///
-      top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
+      if(thisYear == "2015" || thisYear == "2016")	 
+	top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
+      else if(thisYear == "2017")
+	top::check( m_calibrationTool2017->applySystematicVariation( systematic ) , "Failed to applySystematicVariation 2017" );
+      else
+	ATH_MSG_ERROR("Unknown year found from (Random)RunNumber - Do not know which MCP calibration to apply");
       
       ///-- Shallow copy of the xAOD --///
       std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
@@ -108,8 +128,13 @@ namespace top{
 
 	///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
-	  top::check( m_calibrationTool->applyCorrection( *muon ) , "Failed to applyCorrection" );
-	  
+	  if(thisYear == "2015" || thisYear == "2016")
+	    top::check( m_calibrationTool->applyCorrection( *muon ) , "Failed to applyCorrection" );
+	  else if(thisYear == "2017")
+	    top::check( m_calibrationTool2017->applyCorrection( *muon ) , "Failed to applyCorrection 2017" );
+	  else
+	    ATH_MSG_ERROR("Unknown year found from (Random)RunNumber - Do not know which MCP calibration to apply");
+
           // don't do the decorations unless the muons are at least Loose
           // this is because it may fail if the muons are at just VeryLoose
           if (m_muonSelectionToolVeryLooseVeto->accept(*muon)) {

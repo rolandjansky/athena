@@ -226,7 +226,7 @@ if DoCellReweighting:
     EGAM1_EMShowerBuilderTool = EMShowerBuilder("EGAM1_EMShowerBuilderTool", 
                                                 CellsName="NewCellContainer")
     print EGAM1_EMShowerBuilderTool
-    ToolSvc += EGAM1_ClusterDecoratorTool
+    ToolSvc += EGAM1_EMShowerBuilderTool
 
     # fourth, decorate the new objects with their shower shapes computed from the new clusters
     EGAM1_EGammaReweightTool = EGammaReweightTool("EGAM1_EGammaReweightTool",

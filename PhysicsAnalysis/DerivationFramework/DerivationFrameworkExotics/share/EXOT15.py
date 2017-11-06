@@ -121,8 +121,6 @@ else:
     EXOT15TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15TriggerSkimmingTool",
                                                                          TriggerListAND = [],
                                                                          TriggerListOR  = [
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU40",
                                                                              "HLT_j30_jes_PS_llp_L1TAU60",
                                                                              "HLT_j30_jes_PS_llp_noiso_L1TAU60",
                                                                              "HLT_j30_muvtx","HLT_j30_muvtx_noiso",
@@ -130,16 +128,7 @@ else:
                                                                              #"HLT_j400",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-RO",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-RO",
-                                                                             "HLT_j30_jes_PS_llp_L1LLP-NOMATCH",
-                                                                             "HLT_j30_jes_PS_llp_noiso_L1LLP-NOMATCH",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU40",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_EMPTY",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30_EMPTY",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30_UNPAIRED_ISO",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_UNPAIRED_NONISO",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1TAU30", # adding cleanLLP chains for the future
-                                                                             "HLT_j30_jes_cleanLLP_PS_llp_L1TAU40",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1TAU60", 
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60", 
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH",    
@@ -157,7 +146,9 @@ else:
                                                                              "HLT_j30_muvtx_L1MU6_EMPTY",
                                                                              "HLT_j30_muvtx_noiso_L1MU6_EMPTY", # adding noiso in EMPTY, UNPAIRED for the future
                                                                              "HLT_j30_muvtx_L1MU4_UNPAIRED_ISO",
-                                                                             "HLT_j30_muvtx_noiso_L1MU4_UNPAIRED_ISO"])
+                                                                             "HLT_j30_muvtx_noiso_L1MU4_UNPAIRED_ISO",
+                                                                             "HLT_j30_jes_cleanLLP_PS_llp_L1TAU100", 
+                                                                             "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100"])
 
     ToolSvc += EXOT15TriggerSkimmingTool
     skimmingTools.append(EXOT15TriggerSkimmingTool)

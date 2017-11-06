@@ -330,6 +330,9 @@ namespace EL
     const std::string fetchDir = location + "/fetch";
     if (gSystem->MakeDirectory (fetchDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + fetchDir);
+    const std::string statusDir = location + "/status";
+    if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
+      RCU_THROW_MSG ("failed to create directory " + statusDir);
 
     SH::MetaObject meta = *job.options();
     meta.fetchDefaults (*options());
@@ -439,8 +442,8 @@ namespace EL
         else           file << batchJobId() << "\n";
 
         file << "function abortJob {\n";
-        file << "  touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
-        file << "  touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
+        file << "  touch \"" << writeLocation << "/status/fail-$EL_JOBID\"\n";
+        file << "  touch \"" << writeLocation << "/status/done-$EL_JOBID\"\n";
         file << "  exit 1\n";
         file << "}\n\n";
 
@@ -456,6 +459,7 @@ namespace EL
         if(!sharedFileSystem)
           { // Create output transfer directories
             file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
+            file << "mkdir \"${TMPDIR}/status\" || abortJob\n";
             file << "\n";
           }
 
@@ -498,6 +502,8 @@ namespace EL
           if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
           // 21.2
           if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
+          // stable vs nightly
+          if(getenv("AtlasReleaseType")) defaultSetupCommand << "export AtlasReleaseType=" << getenv("AtlasReleaseType") << "\n";
           defaultSetupCommand << "if [ \"${AtlasReleaseType}\" == \"stable\" ]; then\n";
           defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
           defaultSetupCommand << "else\n";
@@ -512,9 +518,9 @@ namespace EL
 
         file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
 
-        file << "test -f \"" << writeLocation << "/fetch/completed-$EL_JOBID\" || "
-             << "touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
-        file << "touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
+        file << "test -f \"" << writeLocation << "/status/completed-$EL_JOBID\" || "
+             << "touch \"" << writeLocation << "/status/fail-$EL_JOBID\"\n";
+        file << "touch \"" << writeLocation << "/status/done-$EL_JOBID\"\n";
         if(sharedFileSystem) file << "cd .. && rm -rf \"$RUNDIR\"\n";
       }
 
@@ -567,11 +573,11 @@ namespace EL
 	  const std::string hist_file =
 	    location + "/fetch/hist-" + mysegment.name + ".root";
 	  std::ostringstream completed_file;
-	  completed_file << location << "/fetch/completed-" << segment;
+	  completed_file << location << "/status/completed-" << segment;
 	  std::ostringstream fail_file;
-	  fail_file << location << "/fetch/fail-" << segment;
+	  fail_file << location << "/status/fail-" << segment;
 	  std::ostringstream done_file;
-	  done_file << location << "/fetch/done-" << segment;
+	  done_file << location << "/status/done-" << segment;
 
 	  input.push_back (hist_file);
 

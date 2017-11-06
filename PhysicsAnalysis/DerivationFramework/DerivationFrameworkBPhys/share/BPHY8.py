@@ -345,7 +345,8 @@ BPHY8cf.DebugTrkToVtxMaxEvents = 0
 #====================================================================
 # run number
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-BPHY8_f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+import PyUtils.AthFile as BPHY8_af
+BPHY8_f = BPHY8_af.fopen(athenaCommonFlags.PoolAODInput()[0])
 if len(BPHY8_f.run_numbers) > 0:
     BPHY8cf.runNumber = int(BPHY8_f.run_numbers[0])
 
