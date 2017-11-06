@@ -38,10 +38,7 @@
 #include <map>
 #include <algorithm>
 #include "Identifier/Identifier.h"
-
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "AthenaKernel/CondCont.h"
 
