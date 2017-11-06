@@ -23,50 +23,52 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id$
+// $Id: G4HadronPhysicsFTFP_BERT.hh 76703 2013-11-14 10:29:11Z gcosmo $
 //
 //---------------------------------------------------------------------------
 // Author: Alberto Ribon
-// Date:   April 2016
+// Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL.
-// This is a modified version of the FTFP_BERT hadron physics for ATLAS.
-// The hadron physics of FTFP_BERT_ATL has the transition between Bertini
-// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
-//---------------------------------------------------------------------------
+// Hadron physics for the new physics list FTFP_BERT_ATL_rescattering.
+// This is a modified version of the FTFP_BERT_ATL hadron physics for ATLAS,
+// in which the rescattering of the final-state produced by FTF is simulated
+// with Binary Cascade (similar to FTF_BIC).
+//----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERT_ATL_h
-#define G4HadronPhysicsFTFP_BERT_ATL_h 1
+#ifndef G4HadronPhysicsFTFP_BERT_ATL_rescattering_h
+#define G4HadronPhysicsFTFP_BERT_ATL_rescattering_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
 
 #include "G4VPhysicsConstructor.hh"
 
-#include "G4PiKBuilder.hh"
-#include "G4BertiniPiKBuilder.hh"
-#include "G4FTFPPiKBuilder.hh"
-
 #include "G4ProtonBuilder.hh"
 #include "G4BertiniProtonBuilder.hh"
-#include "G4FTFPNeutronBuilder.hh"
-#include "G4FTFPProtonBuilder.hh"
+#include "G4FTFBinaryProtonBuilder.hh"
+
+#include "G4PionBuilder.hh"
+#include "G4BertiniPionBuilder.hh"
+#include "G4FTFBinaryPionBuilder.hh"
+
+#include "G4KaonBuilder.hh"
+#include "G4BertiniKaonBuilder.hh"
+#include "G4FTFBinaryKaonBuilder.hh"
 
 #include "G4NeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
-#include "G4FTFPNeutronBuilder.hh"
+#include "G4FTFBinaryNeutronBuilder.hh"
 
 #include "G4HyperonFTFPBuilder.hh"
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-class G4HadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
+class G4HadronPhysicsFTFP_BERT_ATL_rescattering : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERT_ATL(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERT_ATL(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERT_ATL();
+    G4HadronPhysicsFTFP_BERT_ATL_rescattering(G4int verbose =1);
+    G4HadronPhysicsFTFP_BERT_ATL_rescattering(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4HadronPhysicsFTFP_BERT_ATL_rescattering();
 
   public: 
     virtual void ConstructParticle();
@@ -80,16 +82,20 @@ class G4HadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
     struct ThreadPrivate { 
       G4NeutronBuilder * theNeutrons;
       G4BertiniNeutronBuilder * theBertiniNeutron;
-      G4FTFPNeutronBuilder * theFTFPNeutron;
+      G4FTFBinaryNeutronBuilder * theFTFBinaryNeutron;
  
-      G4PiKBuilder * thePiK;
-      G4BertiniPiKBuilder * theBertiniPiK;
-      G4FTFPPiKBuilder * theFTFPPiK;
+      G4PionBuilder * thePion;
+      G4BertiniPionBuilder * theBertiniPion;
+      G4FTFBinaryPionBuilder * theFTFBinaryPion;
+
+      G4KaonBuilder * theKaon;
+      G4BertiniKaonBuilder * theBertiniKaon;
+      G4FTFBinaryKaonBuilder * theFTFBinaryKaon;
     
       G4ProtonBuilder * thePro;
       G4BertiniProtonBuilder * theBertiniPro;
-      G4FTFPProtonBuilder * theFTFPPro;    
-    
+      G4FTFBinaryProtonBuilder * theFTFBinaryPro;    
+  
       G4HyperonFTFPBuilder * theHyperon;
     
       G4AntiBarionBuilder * theAntiBaryon;
