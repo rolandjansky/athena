@@ -103,6 +103,7 @@ StatusCode Trk::TrackSlimmer::execute()
             if (m_ptCut>0) {
               slimmedTracks = std::make_unique<ConstDataVector<TrackCollection> >(SG::VIEW_ELEMENTS);
             }
+            // No output container if m_setPersistificationHints && m_ptCut<=0.
           }
           else {
             slimmedTracks = std::make_unique<ConstDataVector<TrackCollection> >();
@@ -132,7 +133,7 @@ StatusCode Trk::TrackSlimmer::execute()
                       ATH_MSG_ERROR("Track slimmer is configured to expect the slimming tool to create slimmed tracks. "
                                     " But the tool returned a nullptr for the one track.");
                     }
-                    else {
+                    else if (slimmedTracks) {
                       slimmedTracks->push_back(slimmed);
                     }
                   }
