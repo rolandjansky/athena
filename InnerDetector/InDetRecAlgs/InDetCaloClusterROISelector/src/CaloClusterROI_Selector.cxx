@@ -213,11 +213,11 @@ StatusCode InDet::CaloClusterROI_Selector::execute()
   
   
   // retrieve Calo Cell Container
-  const CaloCellContainer* m_cellcoll(0);
+  const CaloCellContainer* cellcoll(0);
   if(m_CheckHadronicEnergy|| m_CheckReta){
     if(  evtStore()->contains<CaloCellContainer>(m_cellsName) ){  
-      StatusCode sc = evtStore()->retrieve(m_cellcoll, m_cellsName) ; 
-      if(sc.isFailure() || !m_cellcoll) {
+      StatusCode sc = evtStore()->retrieve(cellcoll, m_cellsName) ; 
+      if(sc.isFailure() || !cellcoll) {
         ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
         return sc;
       } 
@@ -241,7 +241,7 @@ StatusCode InDet::CaloClusterROI_Selector::execute()
   {
     m_AllClusters++;
     const xAOD::CaloCluster* cluster = *iter;    
-    if (PassClusterSelection(cluster , m_cellcoll))
+    if (PassClusterSelection(cluster , cellcoll))
     {
       m_SelectedClusters++;
       ATH_MSG_DEBUG("Pass cluster selection");
