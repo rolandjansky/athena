@@ -277,7 +277,6 @@ SplitReference(std::string refPath, std::string refName )
     std::string fileName=refFileList.at(i)+refName;
     size_t first = fileName.find_first_not_of(" ");
     fileName.erase(0, first);
-    std::cout << "new name: " << fileName << std::endl;
     if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
       return fileName;
     } 
