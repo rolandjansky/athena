@@ -240,11 +240,10 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
-#from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg #HACK
-#topSeq += PyG4AtlasAlg() #HACK
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
