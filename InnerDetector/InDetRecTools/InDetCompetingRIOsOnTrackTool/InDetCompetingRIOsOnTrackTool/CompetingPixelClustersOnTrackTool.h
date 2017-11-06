@@ -133,8 +133,8 @@ private:
 
     ToolHandle< Trk::IWeightCalculator >    m_WeightCalculator; //!< Weight calculator tool for assignment probabilities
 
-    double                                  mjo_EndCapCutValue; //!< job option set cutValue of assignment probabilities for Pixel end-cap
-    double                                  mjo_BarrelCutValue; //!< job option set cutValue of assignment probabilities for barrel Pixel
+    double                                  m_jo_EndCapCutValue; //!< job option set cutValue of assignment probabilities for Pixel end-cap
+    double                                  m_jo_BarrelCutValue; //!< job option set cutValue of assignment probabilities for barrel Pixel
 
     ToolHandle< Trk::IExtrapolator >        m_extrapolator;     //!<  the Extrapolator tool
 
