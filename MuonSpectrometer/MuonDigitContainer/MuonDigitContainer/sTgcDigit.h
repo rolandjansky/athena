@@ -30,8 +30,8 @@ class sTgcDigit : public MuonDigit {
   // Full constructor --- From Identifier and bctag
   sTgcDigit(const Identifier& id, uint16_t bctag, float time);
 
-  // Full constructor --- From Identifier, bctag and charge
-  sTgcDigit(const Identifier& id, uint16_t bctag, float time, float charge);
+  // Full constructor --- From Identifier, bctag and charge, status flags
+  sTgcDigit(const Identifier& id, uint16_t bctag, float time, float charge, bool isDead, bool isPileup);
 
   // Is this a valid digit?
   bool is_valid( const sTgcIdHelper *sTgcHelper) const;
@@ -48,11 +48,26 @@ class sTgcDigit : public MuonDigit {
   // get the time 
   float time() const;
 
+  // get isDead 
+  bool isDead() const;
+
+  // get isPileup 
+  bool isPileup() const;
+
   // Set bcTag 
   void set_bcTag(uint16_t newbcTag);
   
   // Set the charge
   void set_charge(float newCharge);
+
+  // Set the time
+  void set_time(float newTime);
+
+  // Set the isDead
+  void set_isDead(bool newIsDead);
+
+  // Set the isPileup
+  void set_isPileup(bool newIsPileup);
   
 
  private:  // data
@@ -60,6 +75,8 @@ class sTgcDigit : public MuonDigit {
   uint16_t  m_bcTag;
   float m_charge;
   float m_time;
+  bool m_isDead;
+  bool m_isPileup;
 };
 
 #endif
