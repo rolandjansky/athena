@@ -49,7 +49,6 @@ ElectronicsResponse::ElectronicsResponse()
   electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(alpha,alpha)*TMath::Exp(-alpha)) ) ;
   //---------------------------------------------------------
   intFn = new TF1("intFn",shaperResponse, timeWindowLowerOffset, timeWindowUpperOffset, 2 ); // T.Saito
-  //  intFn = new TF1("intFn",shaperResponse, 0, 3*( m_StripResponse_driftGap/m_StripResponse_driftVelocity ), 2 );
   intFn->SetParameter( 0, alpha);
   intFn->SetParameter( 1, RC);
 

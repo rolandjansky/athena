@@ -105,7 +105,7 @@ public :
   vector <int> nStripElectronics;
 
   inline void set_alpha(float val) {alpha = val; intFn->SetParameter( 0, alpha); };
-  inline void set_RC (float val) {RC = val;intFn->SetParameter( 1, RC); };
+  inline void set_RC (float val) {RC = val; intFn->SetParameter( 1, RC); };
   inline void set_timeWindowLowerOffset(float val) { timeWindowLowerOffset = val;};
   inline void set_timeWindowUpperOffset(float val) { timeWindowUpperOffset = val;};
   inline void set_electronicsThreshold(float val) {electronicsThreshold = val;};
