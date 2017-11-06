@@ -43,18 +43,12 @@ ElectronicsResponse::ElectronicsResponse()
   stripdeadtime = get_stripdeadtime();
   ARTdeadtime = get_ARTdeadtime();
 
-//  if(stripObject) delete stripObject;
-//  clearValues();
   alpha = 2.5;
-   // RC = 80.0;
-  //  RC = 40.0;
-  // RC = 10.0;
-   RC = 20.0;
+  RC = 20.0;
 
   electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(alpha,alpha)*TMath::Exp(-alpha)) ) ;
   //---------------------------------------------------------
   intFn = new TF1("intFn",shaperResponse, timeWindowLowerOffset, timeWindowUpperOffset, 2 ); // T.Saito
-  //  intFn = new TF1("intFn",shaperResponse, 0, 3*( m_StripResponse_driftGap/m_StripResponse_driftVelocity ), 2 );
   intFn->SetParameter( 0, alpha);
   intFn->SetParameter( 1, RC);
 
