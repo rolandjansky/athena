@@ -67,8 +67,6 @@ macro( _add_exec name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 endmacro( _add_exec )
 
-_add_exec( testPRW )
-_add_exec( testPRWTool )
 _add_exec( checkPRWConfigFile )
 
 # Test(s) in the package:
@@ -77,7 +75,18 @@ atlas_add_test( ut_PRWExample_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
+atlas_add_test( testPRW
+   SOURCES test/testPRW.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+
+atlas_add_test( testPRWTool
+   SOURCES test/testPRWTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.root )
+atlas_install_runtime( scripts/*.py )

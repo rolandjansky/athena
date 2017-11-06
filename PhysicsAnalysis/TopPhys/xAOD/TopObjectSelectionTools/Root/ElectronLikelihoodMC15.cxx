@@ -53,6 +53,14 @@ namespace top {
     // currently implemented only for this working point
     if (m_operatingPoint == "MediumLH" && (m_isolation->tightLeptonIsolation() == "FixedCutTight" || m_isolation->looseLeptonIsolation() == "FixedCutTight"))
       m_applyChargeIDCut = true;
+    
+    // We cannot allow the HighPtCaloOnly isolation to be implemented for pt cut which is lower than the non-isolation triggers
+    if( (m_isolation->tightLeptonIsolation() == "FixedCutHighPtCaloOnly" || m_isolation->looseLeptonIsolation() == "FixedCutHighPtCaloOnly") && m_ptcut < 60000){
+      std::cerr <<  "ElectronLikelihoodMC15 - Cannot use FixedCutHighPtCaloOnly isolation with pt cut below 60 GeV due to lack of isolation trigger scale factors" << std::endl;
+      std::cerr <<  "ElectronLikelihoodMC15 - If you need two different isolation/trigger/pt thresholds, please open an ANALYSISTO JIRA ticket" << std::endl;
+      throw 1; // ATH_MSG_ERROR is not working, so just throw and quit
+    }
+
   }
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
@@ -89,14 +97,15 @@ namespace top {
     // removing bad electron cluser - see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Bad_Electron_Photon_Cluster
     if( !el.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON) ) return false;
 
+    // Try to catch instances for derivations using a different type for this variable
     try {
       if (el.auxdataConst<int>(operatingPoint_DF) != 1)
         return false;
-    } catch(std::exception& e) {
+    } 
+    catch(const SG::ExcAuxTypeMismatch& e) {
       if (el.auxdataConst<char>(operatingPoint_DF) != 1)
-        return false;
+	return false;      
     }
-
 
     if(operatingPoint == "LooseAndBLayerLH"){
 

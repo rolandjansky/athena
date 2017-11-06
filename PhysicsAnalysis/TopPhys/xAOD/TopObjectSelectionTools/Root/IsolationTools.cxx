@@ -119,8 +119,13 @@ StandardIsolation::StandardIsolation(const std::string& tightLeptonIsolation,con
   m_tightLeptonIsolation(tightLeptonIsolation),
   m_looseLeptonIsolation(looseLeptonIsolation),
   m_doTightIsolation(true),
-  m_doLooseIsolation(true)
+  m_doLooseIsolation(true),
+  m_doTightPromptLeptonIso(false),
+  m_doLoosePromptLeptonIso(false)
 {
+  if (tightLeptonIsolation == "PromptLepton") m_doTightPromptLeptonIso = true;
+  if (looseLeptonIsolation == "PromptLepton") m_doLoosePromptLeptonIso = true;
+
   if (tightLeptonIsolation == "None")
       m_doTightIsolation = false;
   
@@ -138,13 +143,23 @@ bool StandardIsolation::passSelection(const xAOD::IParticle& p) const
   // If we get this far then we are doing isolation
   if ( p.type() == xAOD::Type::Photon || 
        p.type() == xAOD::Type::Electron ||
-       p.type() == xAOD::Type::Muon ) 
+       p.type() == xAOD::Type::Muon )
   {
-    if (p.isAvailable<char>(m_tightLeptonDecoration)) {
-      if (p.auxdataConst<char>(m_tightLeptonDecoration) == 1) {
-        return true;
+    if(!m_doTightPromptLeptonIso){
+      if (p.isAvailable<char>(m_tightLeptonDecoration)) {
+	if (p.auxdataConst<char>(m_tightLeptonDecoration) == 1) {
+	  return true;
+	}
       }
     }
+    else{
+      // Hardcoded a bit - With PLI we need to check that it passes Loose isolation AND passes the BDT cut
+      if (p.isAvailable<char>(m_tightLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose")){
+	if (p.auxdataConst<char>(m_tightLeptonDecoration) == 1 && p.auxdataConst<char>("AnalysisTop_Isol_Loose") == 1) {
+	  return true;
+	}
+      }
+    }    
   }
   
   // Not a photon, electron or muon?
@@ -163,10 +178,20 @@ bool StandardIsolation::passSelectionLoose(const xAOD::IParticle& p) const
        p.type() == xAOD::Type::Electron ||
        p.type() == xAOD::Type::Muon ) 
   {
-    if (p.isAvailable<char>(m_looseLeptonDecoration)) {
-      if (p.auxdataConst<char>(m_looseLeptonDecoration) == 1) {
-        return true;
+    if(!m_doLoosePromptLeptonIso){
+      if (p.isAvailable<char>(m_looseLeptonDecoration)) {
+	if (p.auxdataConst<char>(m_looseLeptonDecoration) == 1) {
+	  return true;
+	}
       }
+    }
+    else{
+      // Hardcoded a bit - With PLI we need to check that it passes Loose isolation AND passes the BDT cut              
+      if (p.isAvailable<char>(m_looseLeptonDecoration) && p.isAvailable<char>("AnalysisTop_Isol_Loose")){
+	if (p.auxdataConst<char>(m_looseLeptonDecoration) == 1 && p.auxdataConst<char>("AnalysisTop_Isol_Loose") == 1) {
+	  return true;
+	}
+      }       
     }
   }
   

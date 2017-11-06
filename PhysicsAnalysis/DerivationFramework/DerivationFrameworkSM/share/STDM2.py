@@ -97,15 +97,6 @@ ToolSvc += STDM2_PhotonVertexSelectionWrapper
 #====================================================================
 # THINNING TOOLS
 #====================================================================
-# Generic track thinning
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-STDM2TPThinningTool = DerivationFramework__TrackParticleThinning( name                  = "STDM2TPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
-ToolSvc += STDM2TPThinningTool
 
 # All Track within a cone DeltaR=0.6 around Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -170,7 +161,7 @@ STDM2Sequence = CfgMgr.AthSequencer("STDM2Sequence")
 STDM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM2Kernel",
                               SkimmingTools = [STDM2SkimmingTool],
                               AugmentationTools = [STDM2_PhotonVertexSelectionWrapper,STDM2_MaxCellDecoratorTool],
-                              ThinningTools = [STDM2TPThinningTool,STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
+                              ThinningTools = [STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
 
 
 
@@ -210,7 +201,6 @@ STDM2SlimmingHelper = SlimmingHelper("STDM2SlimmingHelper")
 STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]

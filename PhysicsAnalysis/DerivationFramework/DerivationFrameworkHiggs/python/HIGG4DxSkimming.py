@@ -69,7 +69,7 @@ def setup(HIGG4DxName, ToolSvc):
         tau1 = '(count((TauJets.pt > 100.0*GeV)) >= 1)'
         tau2 = '(count((TauJets.pt > 45.0*GeV)) >= 2)'
         tauTrack = '(count('+tauTracks123+' && TauJets.pt > 45.0*GeV) >= 1)'
-        trigger = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12 || HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM || HLT_tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40 || HLT_tau40_medium1_tracktwo_tau35_medium1_tracktw)'
+        trigger = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12 || HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM || HLT_tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40 || HLT_j450 || HLT_tau160_medium1_tracktwo_L1TAU100 )'
         DFisMC = (globalflags.DataSource()=='geant4')
         if not DFisMC:
             hadhad = '(((' + ditau + ') || (' + tau1 + ' && ' + tau2 + ' && ' + tauTrack + ')) && ' + trigger + ')'
@@ -78,8 +78,8 @@ def setup(HIGG4DxName, ToolSvc):
         skim_expression = hadhad + "&&" + lepVeto
 
     elif HIGG4DxName == 'HIGG4D5':
-        tau = '(count('+tauTracks123+' && TauJets.pt > 50.0*GeV) >= 1)'
-        trigger_main = '( HLT_xe70 || HLT_xe70_mht || HLT_xe90_L1XE50 || HLT_xe90_mht_L1XE50 || HLT_xe110_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_j360 || HLT_j380 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_noalg_L1J400 )'
+        tau = '(count('+tauTracks123+' && TauJets.pt > 30.0*GeV) >= 1)'
+        trigger_main = '( HLT_xe70 || HLT_xe70_mht || HLT_xe90_L1XE50 || HLT_xe90_mht_L1XE50 || HLT_xe110_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_j360 || HLT_j380 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_noalg_L1J400 || HLT_xe110_pufit_L1XE55 || HLT_j400 || HLT_j420 || HLT_j450 ||  HLT_tau160_medium1_tracktwo_L1TAU100 )'
         trigger_aux = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 )'
         DFisMC = (globalflags.DataSource()=='geant4')
         if not DFisMC:

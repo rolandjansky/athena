@@ -15,50 +15,23 @@ DFisMC = (globalflags.DataSource()=='geant4')
 # trigger navigation
 def TriggerChains(HIGG4DxName):
     if HIGG4DxName == 'HIGG4D1': 
-        return 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+        # single-e, single-mu, di-e, di-mu, and mu-e triggers.
+        # removing combined lepton + jet, missingET, gamma, bphys, and performance triggers
+        return '^(?!.*_[0-9]*(j|xe|tau|g|b|perf|idperf))(HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*)'
     elif HIGG4DxName == 'HIGG4D2': 
-        return 'HLT_e.*|HLT_mu.*'
-    elif HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
+        # single-e, single-mu, and combined lepton+tau triggers
+        # Removing multiplepton triggers (also with asymmetric thresholds), lepton+jet, lepton+missingET, lepton-photon, b-phys, and performance triggers
+        return '(^(?!.*_[0-9]*(mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))|(^(?!.*_[0-9]*(e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
+    elif HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+        # keeping all tau triggers as there isn't that many of them
         return 'HLT_tau.*'
+    elif HIGG4DxName in ['HIGG4D6']:
+        return ''
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
 def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools=[]
-
-#    #calo clusters for MVA TES
-#    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
-#        from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-#        HIGG4DxCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(name                      = HIGG4DxName+"CaloCalTopoClustersTauThinning",
-#                                                                                  ThinningService           = HIGG4DxThinningSvc,
-#                                                                                  SGKey                     = "TauJets",
-#                                                                                  SelectionString           = "TauJets.pt > 13*GeV",
-#                                                                                  TopoClCollectionSGKey     = "CaloCalTopoClusters")
-
-#        ToolSvc += HIGG4DxCaloClusterThinningTool
-#        thinningTools.append(HIGG4DxCaloClusterThinningTool)
-
-    #jets and tracks
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-
-## We will not save tracks for all jets anymore, since it seems nobody really needs them :-)
-#    HIGG4DxJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          		= HIGG4DxName+"JetTPThinningTool",
-#                                                                              ThinningService         	= HIGG4DxThinningSvc,
-#                                                                              JetKey                  = "AntiKt4EMTopoJets",
-#                                                                              SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
-#                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                              ApplyAnd                = True)
-#    ToolSvc += HIGG4DxJetTPThinningTool
-#    thinningTools.append(HIGG4DxJetTPThinningTool)
-    
-#    HIGG4DxJetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = HIGG4DxName+"JetLCTPThinningTool",
-#                                                                                ThinningService         = HIGG4DxThinningSvc,
-#                                                                                JetKey                  = "AntiKt4LCTopoJets",
-#                                                                                SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-#                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                                ApplyAnd                = True)
-#    ToolSvc += HIGG4DxJetLCTPThinningTool
-#    thinningTools.append(HIGG4DxJetLCTPThinningTool)
 
     #fat jets and track thinning
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:

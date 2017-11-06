@@ -190,10 +190,11 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
 
 TAUP3SlimmingHelper.IncludeMuonTriggerContent    = True
-TAUP3SlimmingHelper.IncludeEGammaTriggerContent  = True
-TAUP3SlimmingHelper.IncludeEtMissTriggerContent  = True
-TAUP3SlimmingHelper.IncludeJetTriggerContent     = True
-TAUP3SlimmingHelper.IncludeBJetTriggerContent    = True
+TAUP3SlimmingHelper.IncludeTauTriggerContent     = True
+TAUP3SlimmingHelper.IncludeEGammaTriggerContent  = False
+TAUP3SlimmingHelper.IncludeEtMissTriggerContent  = False
+TAUP3SlimmingHelper.IncludeJetTriggerContent     = False
+TAUP3SlimmingHelper.IncludeBJetTriggerContent    = False
 
 TAUP3SlimmingHelper.ExtraVariables               = ExtraContentTAUP3
 TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3

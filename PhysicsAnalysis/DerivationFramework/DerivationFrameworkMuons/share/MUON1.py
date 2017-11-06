@@ -266,12 +266,13 @@ theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 if not hasattr(DerivationFrameworkJob,"MUONSequence"):
     MUONSeq = CfgMgr.AthSequencer("MUONSequence")
 
-    #if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        #import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-        #MUONSeq += Config.GetDecoratePromptLeptonAlgs()
+    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
+        JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUONSeq,"MUON1")
+        MUONSeq += JetTagConfig.GetDecoratePromptLeptonAlgs()
     DerivationFrameworkJob += MUONSeq
 
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
@@ -310,4 +311,5 @@ if hasattr(ToolSvc,"MUON1MuonTP_Reco_mumu"):
 
 conf.Items['MUON1']+=["CaloCellContainer#DFMUONCellContainer"]
 conf.Items['MUON1']+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
+conf.extraVariables['MUON1'] += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 conf.Config(MUON1Stream, 'MUON1')

@@ -159,25 +159,24 @@ expression = objectSelection
 applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
 
 from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
-from DerivationFrameworkSUSY.SUSY5TriggerList import MetTriggers
-from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledTriggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import Lepton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledLowPtTriggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledHighPtTriggers
+
+trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')' 
+MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
 
 if not DerivationFrameworkIsMonteCarlo:
-  trig_expression = '(' + ' || '.join(MetTriggers + triggersNavThin) + ')' 
-  MEttrig_expression ='(' + ' || '.join(MetTriggers) + ')' 
+  Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
+  PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')' 
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  Prestrig_expression ='(' + ' || '.join(PrescaledTriggers) + ')' 
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
+  JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+'('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+')'
 else :
-  trig_expression = '(' + ' || '.join(MetTriggers + triggersNavThin) + ')' 
-  MEttrig_expression ='(' + ' || '.join(MetTriggers) + ')' 
-  JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
 
-
-expression = '('+LepTrigexpression+'&&('+JetEleExpression+'))'
-if DerivationFrameworkIsMonteCarlo:
-    expression = LepTrigexpression
+expression = LepTrigexpression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",

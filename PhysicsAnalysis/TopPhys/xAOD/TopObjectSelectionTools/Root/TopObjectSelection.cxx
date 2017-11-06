@@ -374,27 +374,19 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
           //decorate with boosted-tagging flags
-#if ROOTCORE_RELEASE_SERIES==25
-          char isTop_80 = m_topTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char isTop_50 = m_topTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char isTop_80    = m_topTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char isTop_50    = m_topTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
           char Wtagged_80  = m_WTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
           char Wtagged_50  = m_WTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
           char Ztagged_80  = m_ZTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
           char Ztagged_50  = m_ZTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-#else
-          char isTop_80 = m_topTag80->tag(*jetPtr,false);
-          char isTop_50 = m_topTag50->tag(*jetPtr,false);
-          char Wtagged_80  = m_WTag80->tag(*jetPtr,false);
-          char Wtagged_50  = m_WTag50->tag(*jetPtr,false);
-          char Ztagged_80  = m_ZTag80->tag(*jetPtr,false);
-          char Ztagged_50  = m_ZTag50->tag(*jetPtr,false);
-#endif
+
           jetPtr->auxdecor<char>("isTopTagged_80")  = isTop_80;
           jetPtr->auxdecor<char>("isTopTagged_50")  = isTop_50;
-          jetPtr->auxdecor<char>("isWTagged_80") = Wtagged_80;
-          jetPtr->auxdecor<char>("isWTagged_50") = Wtagged_50;
-          jetPtr->auxdecor<char>("isZTagged_80") = Ztagged_80;
-          jetPtr->auxdecor<char>("isZTagged_50") = Ztagged_50;
+          jetPtr->auxdecor<char>("isWTagged_80")    = Wtagged_80;
+          jetPtr->auxdecor<char>("isWTagged_50")    = Wtagged_50;
+          jetPtr->auxdecor<char>("isZTagged_80")    = Ztagged_80;
+          jetPtr->auxdecor<char>("isZTagged_50")    = Ztagged_50;
         }
     }
 }
@@ -580,6 +572,9 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
     applyTightSelectionPostOverlapRemoval( xaod_tjet , goodTrackJets );
   }  
   
+  // Post overlap removal decorations
+  decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
+  
   // set the indices in the xAOD::SystematicEvent
   currentSystematic->setGoodPhotons( goodPhotons );
   currentSystematic->setGoodElectrons( goodElectrons );
@@ -663,6 +658,28 @@ void TopObjectSelection::trackJetOverlapRemoval(const  xAOD::IParticleContainer*
     if (!(matchEl || matchMu)) goodTrackJets.push_back(counterTrk);
     counterTrk++;
   }
+}
+
+void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu, 
+							 const xAOD::JetContainer* xaod_jet,
+							 std::vector<unsigned int>& goodMuons,
+							 std::vector<unsigned int>& goodJets){
+  // Decorate muons with the dR of closest jet (after OR is applied)
+  // Use the good indicies to loop through the good objects
+  for(auto iMu : goodMuons){
+    // Get muon iMu
+    const xAOD::Muon* muPtr = xaod_mu->at(iMu);
+    float dRMin = 100.0;
+    // Loop over jets, calculate dR and record smallest value
+    for(auto iJet : goodJets){
+      const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
+      float dR = muPtr->p4().DeltaR(jetPtr->p4()); 
+      if(dR < dRMin) dRMin = dR; 
+    }
+    // Decorate the good muon with dR of closest jet (ie smallest dR)
+    muPtr->auxdecor< float >("dRJet") = dRMin;
+  }
+  return;
 }
 
 void TopObjectSelection::print() const

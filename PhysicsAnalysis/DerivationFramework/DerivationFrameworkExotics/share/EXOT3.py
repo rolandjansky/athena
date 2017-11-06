@@ -40,12 +40,14 @@ thinningTools.append(EXOT3TPThinningTool)
 
 # Tracks and CaloClusters associated with TCCs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
-EXOT3TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                    = "EXOT3TCCTPThinningTool",
-                                                                       ThinningService         = "EXOT3ThinningSvc",
-                                                                       JetKey                  = "AntiKt10TrackCaloClusterJets",
-                                                                       TCCKey                  = "TrackCaloClustersCombinedAndNeutral",
-                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                       CaloCalTopoClustersKey  = "CaloCalTopoClusters")
+EXOT3TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "EXOT3TCCTPThinningTool",
+                                                                       ThinningService              = "EXOT3ThinningSvc",
+                                                                       JetKey                       = "AntiKt10TrackCaloClusterJets",
+                                                                       TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
+                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                       CaloCalTopoClustersKey       = "CaloCalTopoClusters",
+                                                                       ThinOriginCorrectedClusters  = True,
+                                                                       OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
 ToolSvc += EXOT3TCCTPThinningTool
 thinningTools.append(EXOT3TCCTPThinningTool)
 
@@ -77,14 +79,6 @@ thinningTools.append(EXOT3PhotonTPThinningTool)
 
 #Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-EXOT3AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                = "EXOT3AKt4JetTPThinningTool",
-                                                                        ThinningService         = "EXOT3ThinningSvc",
-                                                                        JetKey                  = "AntiKt4LCTopoJets",
-                                                                        SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT3AKt4JetTPThinningTool
-thinningTools.append(EXOT3AKt4JetTPThinningTool)
-
 EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3AKt10JetTPThinningTool",
                                                                         ThinningService         = "EXOT3ThinningSvc",
                                                                         JetKey                  = "AntiKt10LCTopoJets",
@@ -122,7 +116,8 @@ EXOT3MCThinningTool = DerivationFramework__MenuTruthThinning(
         WriteTopAndDecays   = True,
         WriteAllLeptons     = True,
         WriteStatus3        = False,
-        WriteFirstN         = -1)
+        WriteFirstN         = -1,
+        PreserveDescendants = True)
 
 if isMC:
   ToolSvc += EXOT3MCThinningTool
@@ -242,7 +237,7 @@ from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(exot3Seq, ToolSvc, "CaloCalTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(exot3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
@@ -339,6 +334,8 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
+    "LCOriginTopoClusters"                      :   "xAOD::CaloClusterContainer",
+    "LCOriginTopoClustersAux"                   :   "xAOD::ShallowAuxContainer" ,
 }
 
 # Add all variabless for VR track-jets
@@ -349,7 +346,8 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
+    "LCOriginTopoClusters.calE.calEta.calM.calPhi"
 ]
 
 if globalflags.DataSource()=='geant4':

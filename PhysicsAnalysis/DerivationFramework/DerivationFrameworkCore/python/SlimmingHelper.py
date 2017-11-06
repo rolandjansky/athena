@@ -353,6 +353,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt4TruthWZJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthWZJetsCPContent import AntiKt4TruthWZJetsCPContent
                         items.extend(AntiKt4TruthWZJetsCPContent)
+                elif collectionName=="AntiKt4TruthDressedWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4TruthDressedWZJetsCPContent import AntiKt4TruthDressedWZJetsCPContent
+                        items.extend(AntiKt4TruthDressedWZJetsCPContent)
                 elif collectionName=="AntiKt2LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent

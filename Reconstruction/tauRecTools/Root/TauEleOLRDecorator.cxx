@@ -61,7 +61,7 @@ StatusCode TauEleOLRDecorator::initialize()
 
   m_sEleOLRFilePath = find_file(m_sEleOLRFilePath);
   TFile tmpFile(m_sEleOLRFilePath.c_str());
-  m_hCutValues = std::unique_ptr<TH2D>(static_cast<TH2D*>(tmpFile.Get("eveto_cutvals")));
+  m_hCutValues = std::unique_ptr<TH2F>(static_cast<TH2F*>(tmpFile.Get("eveto_cutvals")));
   m_hCutValues->SetDirectory(0);
   tmpFile.Close();
   

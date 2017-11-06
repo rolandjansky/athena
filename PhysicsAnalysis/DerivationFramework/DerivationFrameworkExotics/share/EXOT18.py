@@ -23,11 +23,66 @@ if globalflags.DataSource()=='geant4':
 #====================================================================
 # THINNING TOOL 
 #====================================================================
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 thinningTools = []
+
+# Track particle thinning
+thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
+EXOT18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT18TPThinningTool",
+                                                                  ThinningService         = "EXOT18ThinningSvc",
+                                                                  SelectionString         = thinExpression,
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += EXOT18TPThinningTool
+thinningTools += EXOT18TPThinningTool
+
+# Tracks associated with Muons
+EXOT18MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT18MuonTPThinningTool",
+                                                                          ThinningService         = "EXOT18ThinningSvc",
+                                                                          MuonKey                 = "Muons",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += EXOT18MuonTPThinningTool
+thinningTools += EXOT18MuonTPThinningTool
+
+# Tracks associated with Electrons
+EXOT18ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT18ElectronTPThinningTool",
+                                                                                ThinningService         = "EXOT18ThinningSvc",
+                                                                                SGKey            	    = "Electrons",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += EXOT18ElectronTPThinningTool
+thinningTools += EXOT18ElectronTPThinningTool
+
+# Tracks associated with Photons
+EXOT18PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT18PhotonTPThinningTool",
+                                                                              ThinningService         = "EXOT18ThinningSvc",
+                                                                              SGKey                   = "Photons",
+                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += EXOT18PhotonTPThinningTool
+thinningTools += EXOT18PhotonTPThinningTool
+
+# Tracks associated with small-R jets
+EXOT18AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT18AKt4JetTPThinningTool",
+                                                                            ThinningService         = "EXOT18ThinningSvc",
+                                                                            JetKey                  = "AntiKt4LCTopoJets",
+                                                                            SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += EXOT18AKt4JetTPThinningTool
+thinningTools.append(EXOT18AKt4JetTPThinningTool)
+
+# Tracks associated with large-R jets
+EXOT18AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "EXOT18AKt10JetTPThinningTool",
+                                                                             ThinningService        = "EXOT18ThinningSvc",
+                                                                             JetKey                 = "AntiKt10LCTopoJets",
+                                                                             SelectionString        = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
+                                                                             InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += EXOT18AKt10JetTPThinningTool
+thinningTools += EXOT18AKt10JetTPThinningTool
 
 # Calo Clusters associated with Electrons
 EXOT18ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name                    = "EXOT18ElectronCCThinningTool",

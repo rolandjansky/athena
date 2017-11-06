@@ -738,9 +738,9 @@ namespace top{
       if (jetPtr->pt()<25000.) continue;
       Njets++;
       if (jetPtr->pt()>leadingJetpT) leadingJetpT = jetPtr->pt();
-      if (jetPtr->eta()<2.5) {
+      if ( std::fabs(jetPtr->eta()) < 2.5 ){
 	NCentraljets++;
-	if (jetPtr->pt()>leadingCentralJetpT) leadingCentralJetpT = jetPtr->pt()/1000.;
+	if (jetPtr->pt()>leadingCentralJetpT) leadingCentralJetpT = jetPtr->pt();
       }
 
       if (jetPtr->isAvailable<char>("isbtagged_FixedCutBEff_77")) {
@@ -751,8 +751,8 @@ namespace top{
     MMEvent* evnt = new MMEvent();
     evnt->njets = NCentraljets;
     evnt->ntag = nbtag;
-    evnt->jetpt = leadingCentralJetpT;
-    evnt->sumet = met.sumet()/1e3;//tool needs GeV
+    evnt->jetpt = leadingCentralJetpT/1e3; // Requires GeV? 
+    evnt->sumet = met.sumet()/1e3;         //tool needs GeV
 
     if (m_debug) {
       std::cout<<"Event";

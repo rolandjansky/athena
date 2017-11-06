@@ -185,6 +185,12 @@ if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm3Seq,"JETMX")
+    ## Add GhostTruthAssociation information ##
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm3Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -226,7 +232,7 @@ JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets"])
+addJetOutputs(JETM3SlimmingHelper,["SmallR","JETM3"],["AntiKt4TruthWZJets","AntiKt2LCTopoJets","AntiKt6LCTopoJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 

@@ -10,6 +10,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <IsolationSelection/IIsolationCloseByCorrectionTool.h>
 #include <IsolationSelection/IIsolationSelectionTool.h>
@@ -53,7 +54,9 @@ namespace CP {
         xAOD::ElectronContainer* Electrons = nullptr;
         xAOD::MuonContainer* Muons = nullptr;
         xAOD::PhotonContainer* Photons = nullptr;
-
+        const xAOD::EventInfo* info = nullptr;
+        ATH_CHECK(evtStore()->retrieve(info,"EventInfo"));
+        ATH_MSG_DEBUG("Start to run over event "<<info->eventNumber()<<".");
         //Create the links to the shallow copy objects
         ATH_CHECK(CreateContainerLinks("Electrons", Electrons));
         for (const auto ielec : *Electrons) {

@@ -14,15 +14,15 @@ RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
 if globalflags.DataSource()=='geant4':
-	from DerivationFrameworkHiggs.TruthCategories import *
+    from DerivationFrameworkHiggs.TruthCategories import *
 
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 if DerivationFrameworkIsMonteCarlo:
-	from DerivationFrameworkMCTruth.MCTruthCommon import *
-           addStandardTruthContents()
-           addPVCollection()
-	print "HIGG1D1.py Applying MCTruthCommon"
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    addStandardTruthContents()
+    addPVCollection()
+    print "HIGG1D1.py Applying MCTruthCommon"
 
 #====================================================================
 # SKIMMING TOOLS

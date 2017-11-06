@@ -80,14 +80,13 @@ thinningTools.append(STDM4ElectronTPThinningTool)
 
 
 # Tracks associated with taus
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-#STDM4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                 = "STDM4TauTPThinningTool",
-#                                                                        ThinningService         = STDM4ThinningHelper.ThinningSvc(),
-#                                                                        TauKey                  = "TauJets",
-#                                                                        SelectionString         = "TauJets.pt > 15*GeV",
-#                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += STDM4TauTPThinningTool
-#thinningTools.append(STDM4TauTPThinningTool)
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+STDM4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                 = "STDM4TauTPThinningTool",
+                                                                        ThinningService         = STDM4ThinningHelper.ThinningSvc(),
+                                                                        TauKey                  = "TauJets",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += STDM4TauTPThinningTool
+thinningTools.append(STDM4TauTPThinningTool)
 
 STDM4PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "STDM4PhotonTPThinningTool",
                                                                         ThinningService         = STDM4ThinningHelper.ThinningSvc(),
@@ -169,8 +168,8 @@ muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DF
 electronsRequirements = '(Electrons.pt > 20*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 offlineexpression = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 1'
 
-singleElectronTriggerRequirement = '('+" || ".join(STDMTriggers.single_e_triggers)+')'
-singleMuonTriggerRequirement='('+" || ".join(STDMTriggers.single_mu_triggers)+')'
+singleElectronTriggerRequirement = STDMTriggers.list_combine_OR(STDMTriggers.single_e_triggers)
+singleMuonTriggerRequirement     = STDMTriggers.list_combine_OR(STDMTriggers.single_mu_triggers)
 triggerRequirement='('+singleElectronTriggerRequirement+'||'+singleMuonTriggerRequirement+')'
 expression = triggerRequirement+' || '+offlineexpression
 
@@ -281,7 +280,7 @@ STDM4SlimmingHelper = SlimmingHelper("STDM4SlimmingHelper")
 STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
-#                                        "TauJets",
+                                        "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
@@ -292,7 +291,12 @@ STDM4SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # removed end of line ot build in rel21
-STDM4SlimmingHelper.ExtraVariables = ExtraContentAll +["JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt","JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag"]#+NewTrigVars
+STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
+  "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
+  "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag",
+  "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
+  "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+]
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
 

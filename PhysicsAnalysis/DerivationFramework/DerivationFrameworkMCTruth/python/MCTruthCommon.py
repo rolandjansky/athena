@@ -52,12 +52,14 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "Truth", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
-        # WZ Truth Jets - handle dressed and non-dressed cases
+        # WZ Truth Jets - handle non-dressed case
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-        if decorationDressing is not None:
-            addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthDressedWZJets") and decorationDressing is not None:
+        # WZ Dressed Truth Jets - handle dressed case
+        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+        addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=15000, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
@@ -214,7 +216,7 @@ def addStandardTruthContents(kernel=None,
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
 
 # Add taus and their downstream particles (immediate and further decay products) in a special collection
-def addTausAndDownstreamParticles(kernel=None):
+def addTausAndDownstreamParticles(kernel=None, generations=-1):
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -223,7 +225,8 @@ def addTausAndDownstreamParticles(kernel=None):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonTausAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonTausAndDecaysTool",
                                                                    NewCollectionName="TruthTauWithDecay",
-                                                                        PDGIDsToKeep=[15])
+                                                                        PDGIDsToKeep=[15],
+                                                                         Generations=generations)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += DFCommonTausAndDecaysTool
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -231,7 +234,7 @@ def addTausAndDownstreamParticles(kernel=None):
                                                              AugmentationTools = [DFCommonTausAndDecaysTool] )
 
 # Add electrons, photons, and their downstream particles in a special collection
-def addEgammaAndDownstreamParticles(kernel=None):
+def addEgammaAndDownstreamParticles(kernel=None, generations=-1):
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -240,7 +243,8 @@ def addEgammaAndDownstreamParticles(kernel=None):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonEgammasAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonEgammasAndDecaysTool",
                                                                       NewCollectionName="TruthEgammaWithDecay",
-                                                                           PDGIDsToKeep=[11,22])
+                                                                           PDGIDsToKeep=[11,22],
+                                                                            Generations=generations)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += DFCommonEgammasAndDecaysTool
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -248,7 +252,7 @@ def addEgammaAndDownstreamParticles(kernel=None):
                                                              AugmentationTools = [DFCommonEgammasAndDecaysTool] )
 
 # Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
-def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True):
+def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-1):
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -258,7 +262,8 @@ def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True):
     DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonHFAndDecaysTool",
                                                                    NewCollectionName="TruthHFWithDecay",
                                                                         KeepBHadrons=addB,
-                                                                        KeepCHadrons=addC)
+                                                                        KeepCHadrons=addC,
+                                                                         Generations=generations)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += DFCommonHFAndDecaysTool
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -280,3 +285,20 @@ def addPVCollection(kernel=None):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTruthPVCollKernel",
                                                              AugmentationTools = [DFCommonTruthPVCollTool] )
+
+# Add a mini-collection for the hard scatter and N subsequent generations
+def addHardScatterCollection(kernel=None, generations=1):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HardScatterCollectionMaker
+    DFCommonHSCollectionTool = DerivationFramework__HardScatterCollectionMaker( name="DFCommonHSCollectionTool",
+                                                                   NewCollectionName="HardScatter",
+                                                                         Generations=generations)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonHSCollectionTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonHSCollectionKernel",
+                                                             AugmentationTools = [DFCommonHSCollectionTool] )

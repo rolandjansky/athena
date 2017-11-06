@@ -148,6 +148,8 @@
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
++ LArCalorimeter/LArCnv/LArAthenaPool
++ LArCalorimeter/LArCnv/LArTPCnv
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
 + LArCalorimeter/LArExample/LArConditionsCommon
@@ -204,6 +206,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
 + PhysicsAnalysis/BPhys/BPhysTools
@@ -255,7 +258,6 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
-- Reconstruction/Jet/JetMonitoring
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface
@@ -387,6 +389,20 @@
 + Trigger/TrigTools/TrigTrackJetFinderTool
 + Trigger/TrigHypothesis/TrigBjetHypo
 + Trigger/TriggerSimulation/TrigBtagEmulationTool
+
+# For physics validation
++ MuonSpectrometer/MuonValidation/MuonDQA/MuonPhysValMonitoring
++ MuonSpectrometer/MuonValidation/MuonHistogramming/MuonHistUtils
++ MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonResidualPullCalculators
++ PhysicsAnalysis/TauID/TauDQA
++ PhysicsAnalysis/TauID/TauHistUtils
++ PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ PhysicsAnalysis/JetMissingEtID/MissingEtDQA
++ PhysicsAnalysis/JetTagging/JetTagValidation/JetTagDQA
++ PhysicsAnalysis/PhysicsValidation/PhysValMonitoring
++ Reconstruction/PFlow/PFlowValidation/PFODQA
++ Reconstruction/PFlow/PFlowValidation/PFOHistUtils
++ Reconstruction/egamma/EgammaPhysValMonitoring
 
 # Don't build anything else:
 - .*
