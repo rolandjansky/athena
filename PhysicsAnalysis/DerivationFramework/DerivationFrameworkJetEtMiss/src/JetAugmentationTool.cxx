@@ -118,11 +118,11 @@ namespace DerivationFramework {
       CHECK(m_jetOriginCorrectionTool.retrieve());
       ATH_MSG_DEBUG("Augmenting jets with origin corrections \"" << m_momentPrefix << "Origin\"");
       m_decorateorigincorrection = true;
-      dec_origincorrection = new SG::AuxElement::Decorator<ElementLink<xAOD::VertexContainer>>(m_momentPrefix+"JetOriginConstitMomentumScale_OriginVertex");
-      dec_originpt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitMomentumScale_pt");
-      dec_origineta = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitMomentumScale_eta");
-      dec_originphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitMomentumScale_phi");
-      dec_originm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitMomentumScale_m");  
+      dec_origincorrection = new SG::AuxElement::Decorator<ElementLink<xAOD::VertexContainer>>(m_momentPrefix+"JetOriginConstitScaleMomentum_OriginVertex");
+      dec_originpt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitScaleMomentum_pt");
+      dec_origineta = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitScaleMomentum_eta");
+      dec_originphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitScaleMomentum_phi");
+      dec_originm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"JetOriginConstitScaleMomentum_m");  
     }
 
     return StatusCode::SUCCESS;

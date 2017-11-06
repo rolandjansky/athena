@@ -314,11 +314,12 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
         extjetlog.warning('*** addOriginCorrection called but corresponding augmentation tool does not exist! ***')
 
     origincorrectiontoolname = 'DFOriginCorrection'+vertexPrefix+'_'+jetalg
+    jetaugtool.MomentPrefix = vertexPrefix+'_'
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,origincorrectiontoolname):
         jetaugtool.JetOriginCorrectionTool = getattr(ToolSvc,origincorrectiontoolname)
     else:
-        origincorrectiontool = CfgMgr.JetOriginCorrectionTool(origincorrectiontoolname, VertexContainer=vertexPrefix+'PrimaryVertices',OriginCorrectedName=vertexPrefix+'JetOriginConstitScaleMomentum',ForceEMScale=True)
+        origincorrectiontool = CfgMgr.JetOriginCorrectionTool(origincorrectiontoolname, VertexContainer=vertexPrefix+'PrimaryVertices',OriginCorrectedName=vertexPrefix+'_JetOriginConstitScaleMomentum',ForceEMScale=True)
         ToolSvc += origincorrectiontool
         jetaugtool.JetOriginCorrectionTool = origincorrectiontool
 
