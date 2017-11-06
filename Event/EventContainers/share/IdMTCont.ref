@@ -1,0 +1,652 @@
+ Collection, Skip = 100000 0
+ Test level =  10
+Container cleanup: user, kernel, elapsed 0 0 1316 
+Created vector of coll + digits: user, kernel, elapsed 40000 10000 48920 
+Add colls to container: user, kernel, elapsed 50000 20000 68734 
+Full Size:100000 N Coll:100000
+By interation
+Iteration over collections: user, kernel, elapsed 0 0 1957 
+  Number of Collection  Accessed 100000
+By GetAllCurrentHashs search
+Iteration over collections : user, kernel, elapsed 10000 0 1546 
+iter, hash id 0 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 10000 0 10196 
+  Number of Digits  Accessed 1000000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 233 
+ Number of Collections from Random Access 100000
+wrong hash allignment 0/75000
+Deleted collections 
+Correctly contains 0
+Correctly contains 3
+count is 20 should be 20 
+MyDigits left undeleted 0
+Container cleanup: user, kernel, elapsed 0 0 1254 
+Created vector of coll + digits: user, kernel, elapsed 30000 0 35758 
+Add colls to container: user, kernel, elapsed 50000 0 55844 
+Full Size:100000 N Coll:100000
+By interation
+Iteration over collections: user, kernel, elapsed 0 0 2060 
+  Number of Collection  Accessed 100000
+By GetAllCurrentHashs search
+Iteration over collections : user, kernel, elapsed 10000 0 1710 
+iter, hash id 0 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 10000 0 12249 
+  Number of Digits  Accessed 1000000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 241 
+ Number of Collections from Random Access 100000
+wrong hash allignment 0/75000
+Deleted collections 
+Correctly contains 0
+Correctly contains 3
+count is 20 should be 20 
+MyDigits left undeleted 0
+Container cleanup: user, kernel, elapsed 0 0 1380 
+Created vector of coll + digits: user, kernel, elapsed 40000 0 36129 
+Add colls to container: user, kernel, elapsed 60000 0 55579 
+Full Size:100000 N Coll:100000
+By interation
+Iteration over collections: user, kernel, elapsed 0 0 1925 
+  Number of Collection  Accessed 100000
+By GetAllCurrentHashs search
+Iteration over collections : user, kernel, elapsed 0 0 1734 
+iter, hash id 0 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 10000 0 11380 
+  Number of Digits  Accessed 1000000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 239 
+ Number of Collections from Random Access 100000
+wrong hash allignment 0/75000
+Deleted collections 
+Correctly contains 0
+Correctly contains 3
+count is 20 should be 20 
+MyDigits left undeleted 0
+Container cleanup: user, kernel, elapsed 0 0 1266 
+Created vector of coll + digits: user, kernel, elapsed 30000 0 36581 
+Add colls to container: user, kernel, elapsed 50000 0 56848 
+Full Size:100000 N Coll:100000
+By interation
+Iteration over collections: user, kernel, elapsed 0 0 2029 
+  Number of Collection  Accessed 100000
+By GetAllCurrentHashs search
+Iteration over collections : user, kernel, elapsed 10000 0 1651 
+iter, hash id 0 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 10000 0 11559 
+  Number of Digits  Accessed 1000000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 239 
+ Number of Collections from Random Access 100000
+wrong hash allignment 0/75000
+Deleted collections 
+Correctly contains 0
+Correctly contains 3
+count is 20 should be 20 
+MyDigits left undeleted 0
+Container cleanup: user, kernel, elapsed 0 0 1261 
+Created vector of coll + digits: user, kernel, elapsed 40000 0 36629 
+Add colls to container: user, kernel, elapsed 60000 0 56583 
+Full Size:100000 N Coll:100000
+By interation
+Iteration over collections: user, kernel, elapsed 0 10000 2044 
+  Number of Collection  Accessed 100000
+By GetAllCurrentHashs search
+Iteration over collections : user, kernel, elapsed 0 0 1764 
+iter, hash id 0 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 20000 0 11305 
+  Number of Digits  Accessed 1000000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 249 
+ Number of Collections from Random Access 100000
+wrong hash allignment 0/75000
+Deleted collections 
+Correctly contains 0
+Correctly contains 3
+count is 20 should be 20 
+MyDigits left undeleted 0
