@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GEO2G4_GeoDetectorTool_H
-#define GEO2G4_GeoDetectorTool_H
+#ifndef GEO2G4_GDMLDetectorTool_H
+#define GEO2G4_GDMLDetectorTool_H
 
 // Base classes
 #include "G4AtlasTools/DetectorGeometryBase.h"
@@ -17,22 +17,20 @@
 #include <string>
 #include <vector>
 
-/** @class GeoDetectorTool GeoDetectorTool.h "G4AtlasTools/GeoDetectorTool.h"
-*
-*  Tool for building detectors out of a GeoModel description. Basically a
-*  carbon copy of GeoDetectorFacility in GeoDetectorPlugins which is supposed
-*  to replace.
-*
-*  @author Andrea Dell'Acqua
-*  @date   2015-03-10
-*/
+/** @class GDMLDetectorTool
+ *
+ *  Tool for building detectors out of a GDML description.
+ *
+ *  @author Andrea Dell'Acqua
+ *  @date   2017-02-21
+ */
 
-class GeoDetectorTool final : public DetectorGeometryBase
+class GDMLDetectorTool final : public DetectorGeometryBase
 {
-public:
+ public:
   // Basic constructor and destructor
-  GeoDetectorTool(const std::string& type, const std::string& name, const IInterface *parent);
-  ~GeoDetectorTool() {}
+  GDMLDetectorTool(const std::string& type, const std::string& name, const IInterface *parent);
+  ~GDMLDetectorTool() {}
 
   /** Athena method. called at initialization time, being customized here */
   virtual StatusCode initialize() override final;
@@ -41,20 +39,16 @@ public:
 
   virtual void BuildGeometry() override final;
 
-  virtual void PositionInParent() override final;
+ private:
 
-private:
-
+  std::string m_GDMLFileName;
   std::string m_builderName;
-  std::string m_dumpGDMLFile="";
   bool m_blParamOn;
   bool m_blGetTopTransform;
   G4Transform3D m_topTransform;
   std::string m_geoDetectorName;
-  G4LogicalVolume* Convert();
   bool IsTopTransform();
   void SetInitialTransformation();
-
 };
 
-#endif
+#endif // GEO2G4_GDMLDetectorTool_H
