@@ -67,7 +67,7 @@ EXOT20SkimmingTool = DerivationFramework__SkimmingToolEXOT20(
                                                     "HLT_xe90_pufit_L1XE50",
 						    "HLT_xe100_pufit_L1XE50",
 						    "HLT_xe100_pufit_L1XE55",
-						    "HLT_xe110_pufit_L1XE55"]
+						    "HLT_xe110_pufit_L1XE55"],
                                                 MinPtMSTP = 3.0,
                                                 MinNumMSTP = 2,
                                                 StartDirection = -1,
