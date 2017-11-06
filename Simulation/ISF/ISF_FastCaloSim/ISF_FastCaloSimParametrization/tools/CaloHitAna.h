@@ -83,6 +83,10 @@ public :
   std::vector<std::vector<float> >* newTTC_back_phi;
   std::vector<std::vector<float> >* newTTC_back_r;
   std::vector<std::vector<float> >* newTTC_back_z;
+  std::vector<std::vector<float> >* newTTC_mid_eta;
+  std::vector<std::vector<float> >* newTTC_mid_phi;
+  std::vector<std::vector<float> >* newTTC_mid_r;
+  std::vector<std::vector<float> >* newTTC_mid_z;
   std::vector<float>* newTTC_IDCaloBoundary_eta;
   std::vector<float>* newTTC_IDCaloBoundary_phi;
   std::vector<float>* newTTC_IDCaloBoundary_r;
@@ -99,6 +103,10 @@ public :
   std::vector<std::vector<float> >* m_newTTC_back_phi = new std::vector<std::vector<float>>;
   std::vector<std::vector<float> >* m_newTTC_back_r = new std::vector<std::vector<float>>;
   std::vector<std::vector<float> >* m_newTTC_back_z = new std::vector<std::vector<float>>;
+  std::vector<std::vector<float> >* m_newTTC_mid_eta = new std::vector<std::vector<float>>;
+  std::vector<std::vector<float> >* m_newTTC_mid_phi = new std::vector<std::vector<float>>;
+  std::vector<std::vector<float> >* m_newTTC_mid_r = new std::vector<std::vector<float>>;
+  std::vector<std::vector<float> >* m_newTTC_mid_z = new std::vector<std::vector<float>>;
   std::vector<float>* m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
   std::vector<float>* m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
   std::vector<float>* m_newTTC_IDCaloBoundary_r = new std::vector<float>;
@@ -183,6 +191,10 @@ public :
   TBranch        *b_newTTC_entrance_phi;   //!
   TBranch        *b_newTTC_entrance_r;   //!
   TBranch        *b_newTTC_entrance_z;   //!
+  TBranch        *b_newTTC_mid_eta;   //!
+  TBranch        *b_newTTC_mid_phi;   //!
+  TBranch        *b_newTTC_mid_r;   //!
+  TBranch        *b_newTTC_mid_z;   //!
   TBranch        *b_newTTC_IDCaloBoundary_eta;   //!
   TBranch        *b_newTTC_IDCaloBoundary_phi;   //!
   TBranch        *b_newTTC_IDCaloBoundary_r;   //!
@@ -281,6 +293,10 @@ void CaloHitAna::InitOutTree()
   m_OutputTree->Branch("newTTC_entrance_phi", &m_newTTC_entrance_phi);
   m_OutputTree->Branch("newTTC_entrance_r",  &m_newTTC_entrance_r);
   m_OutputTree->Branch("newTTC_entrance_z",  &m_newTTC_entrance_z);
+  m_OutputTree->Branch("newTTC_mid_eta", &m_newTTC_mid_eta);
+  m_OutputTree->Branch("newTTC_mid_phi", &m_newTTC_mid_phi);
+  m_OutputTree->Branch("newTTC_mid_r",  &m_newTTC_mid_r);
+  m_OutputTree->Branch("newTTC_mid_z",  &m_newTTC_mid_z);
   m_OutputTree->Branch("newTTC_IDCaloBoundary_eta", &m_newTTC_IDCaloBoundary_eta);
   m_OutputTree->Branch("newTTC_IDCaloBoundary_phi", &m_newTTC_IDCaloBoundary_phi);
   m_OutputTree->Branch("newTTC_IDCaloBoundary_r", &m_newTTC_IDCaloBoundary_r);
@@ -390,6 +406,10 @@ void CaloHitAna::Init(TTree *tree)
   newTTC_entrance_phi = 0;
   newTTC_entrance_r = 0;
   newTTC_entrance_z = 0;
+  newTTC_mid_eta = 0;
+  newTTC_mid_phi = 0;
+  newTTC_mid_r = 0;
+  newTTC_mid_z = 0;
   newTTC_IDCaloBoundary_eta = 0;
   newTTC_IDCaloBoundary_phi = 0;
   newTTC_IDCaloBoundary_r = 0;
@@ -458,6 +478,10 @@ void CaloHitAna::Init(TTree *tree)
   fChain->SetBranchAddress("newTTC_entrance_phi", &newTTC_entrance_phi, &b_newTTC_entrance_phi);
   fChain->SetBranchAddress("newTTC_entrance_r",   &newTTC_entrance_r, &b_newTTC_entrance_r);
   fChain->SetBranchAddress("newTTC_entrance_z",   &newTTC_entrance_z, &b_newTTC_entrance_z);
+  fChain->SetBranchAddress("newTTC_mid_eta", &newTTC_mid_eta, &b_newTTC_mid_eta);
+  fChain->SetBranchAddress("newTTC_mid_phi", &newTTC_mid_phi, &b_newTTC_mid_phi);
+  fChain->SetBranchAddress("newTTC_mid_r",   &newTTC_mid_r, &b_newTTC_mid_r);
+  fChain->SetBranchAddress("newTTC_mid_z",   &newTTC_mid_z, &b_newTTC_mid_z);
   fChain->SetBranchAddress("newTTC_IDCaloBoundary_eta", &newTTC_IDCaloBoundary_eta, &b_newTTC_IDCaloBoundary_eta);
   fChain->SetBranchAddress("newTTC_IDCaloBoundary_phi", &newTTC_IDCaloBoundary_phi, &b_newTTC_IDCaloBoundary_phi);
   fChain->SetBranchAddress("newTTC_IDCaloBoundary_r",   &newTTC_IDCaloBoundary_r, &b_newTTC_IDCaloBoundary_r);
