@@ -17,6 +17,8 @@ addService("BarcodeServices.BarcodeServicesConfig.getMC15aPlusLLPBarcodeSvc"  , 
 addService("BarcodeServices.BarcodeServicesConfig.getMC15BarcodeSvc"          ,  "Barcode_MC15BarcodeSvc"          )
 addService("BarcodeServices.BarcodeServicesConfig.getMC16BarcodeSvc"          ,  "Barcode_MC16BarcodeSvc"          )
 addService("BarcodeServices.BarcodeServicesConfig.getMC16LLPBarcodeSvc"       ,  "Barcode_MC16LLPBarcodeSvc"       )
+addService("BarcodeServices.BarcodeServicesConfig.getMC18BarcodeSvc"          ,  "Barcode_MC18BarcodeSvc"          )
+addService("BarcodeServices.BarcodeServicesConfig.getMC18LLPBarcodeSvc"       ,  "Barcode_MC18LLPBarcodeSvc"       )
 addService("BarcodeServices.BarcodeServicesConfig.getPhysicsProcessBarcodeSvc",  "Barcode_PhysicsProcessBarcodeSvc")
 addService("BarcodeServices.BarcodeServicesConfig.getGlobalBarcodeService"    ,  "Barcode_GlobalBarcodeService"    )
 addService("BarcodeServices.BarcodeServicesConfig.getLegacyBarcodeService"    ,  "Barcode_LegacyBarcodeService"    )
