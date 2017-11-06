@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 777715 2016-10-11 16:35:49Z ssnyder $
-
 // System include(s):
 #include <fstream>
 #include <ctime>
 #include <locale>
+#include <memory>
 
 // Athena/Gaudi include(s):
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/System.h"
+#include "GaudiKernel/GaudiException.h"
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
@@ -20,6 +20,18 @@
 // Local include(s):
 #include "EventFormatSvc.h"
 
+/// Helper function for checking StatusCode return values in void functions
+#define CHECK_VOID( EXP )                                        \
+   do {                                                          \
+      if( EXP.isFailure() ) {                                    \
+         REPORT_ERROR( MSG::FATAL )                              \
+            << "Failed to execute: " << #EXP;                    \
+         throw GaudiException( "Failed to execute \"" #EXP "\"", \
+                               "xAODMaker::EventFormatSvc",      \
+                               StatusCode::FAILURE );            \
+      }                                                          \
+   } while( false )
+
 namespace xAODMaker {
 
    EventFormatSvc::EventFormatSvc( const std::string& name,
@@ -27,7 +39,8 @@ namespace xAODMaker {
       : AthService( name, svcLoc ),
         m_clidSvc( "ClassIDSvc", name ),
         m_eventStore( "StoreGateSvc", name ),
-        m_metaStore( "MetaDataStore", name ),
+        m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
+        m_metaStore( "StoreGateSvc/MetaDataStore", name ),
         m_incidentSvc( "IncidentSvc", name ),
         m_warnedCLIDs(),
         m_ef( 0 ), m_firstEvent( true ) {
@@ -36,6 +49,7 @@ namespace xAODMaker {
 
       declareProperty( "ClassIDSvc", m_clidSvc );
       declareProperty( "EventStore", m_eventStore );
+      declareProperty( "InputMetaDataStore", m_inputMetaStore );
       declareProperty( "MetaDataStore", m_metaStore );
       declareProperty( "IncidentSvc", m_incidentSvc );
       declareProperty( "FormatNames", m_formatNames );
@@ -50,6 +64,7 @@ namespace xAODMaker {
       // Retrieve the needed service(s):
       CHECK( m_clidSvc.retrieve() );
       CHECK( m_eventStore.retrieve() );
+      CHECK( m_inputMetaStore.retrieve() );
       CHECK( m_metaStore.retrieve() );
       CHECK( m_incidentSvc.retrieve() );
 
@@ -107,14 +122,25 @@ namespace xAODMaker {
 
       // Create the object if it doesn't exist yet:
       if( ! m_ef ) {
-         m_ef = new xAOD::EventFormat();
-         if( m_metaStore->record( m_ef, m_objectName ).isFailure() ) {
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Couldn't record xAOD::EventFormat object into the "
-               << "metadata store with key: " << m_objectName;
-            delete m_ef; m_ef = 0;
-            return;
+
+         // Create the new object:
+         auto ef = std::make_unique< xAOD::EventFormat >();
+         ATH_MSG_VERBOSE( "Creating new xAOD::EventFormat object" );
+
+         // Check if there's such a metadata object on the input:
+         if( m_inputMetaStore->contains< xAOD::EventFormat >( m_objectName ) ) {
+            // If yes, copy its payload to our managed object:
+            const xAOD::EventFormat* input = nullptr;
+            CHECK_VOID( m_inputMetaStore->retrieve( input, m_objectName ) );
+            *ef = *input;
+            ATH_MSG_VERBOSE( "Copied the metadata from the (first) input "
+                             "file" );
          }
+
+         // Record the object to the output:
+         CHECK_VOID( m_metaStore->record( std::move( ef ), m_objectName ) );
+         // If this was successful, set the m_ef pointer:
+         CHECK_VOID( m_metaStore->retrieve( m_ef, m_objectName ) );
       }
 
       // Collect information into the object:
