@@ -9,8 +9,7 @@ include( "CaloConditions/CaloConditions_jobOptions.py" )
 from AthenaCommon.GlobalFlags import globalflags
 
 if globalflags.DataSource() == 'geant4' :
-  if not rec.readESD() and not rec.readAOD():
-    include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
+  include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
   include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 elif globalflags.DataSource() == 'data'  :
   include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
