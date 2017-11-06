@@ -22,6 +22,11 @@ JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const s
     }
 
 
+// this algorithm associates particles jets using a pT-dependent
+// shrinking cone:
+// - for each particle we find the closest jet
+// - if the closest jet is within the shrinking dR cone of that jet,
+//   it is considered "associated"
 const vector<vector<ElementLink<IParticleContainer> > >*
 JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const {
 
@@ -47,11 +52,6 @@ JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const
             const xAOD::Jet& jet = *jets[iJet];
 
             double dr = jet.p4().DeltaR(part.p4());
-
-/*
-            if (dr > match_dr)
-                continue;
-*/
 
             // if there is more than one matching jet, take the
             // closest
