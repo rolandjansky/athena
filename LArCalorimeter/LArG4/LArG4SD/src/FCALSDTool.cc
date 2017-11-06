@@ -15,12 +15,10 @@ namespace LArG4
   FCALSDTool::FCALSDTool(const std::string& type, const std::string& name,
                          const IInterface* parent)
     : SimpleSDTool(type, name, parent)
-    , m_hitCollName("LArHitFCAL")
     , m_fcal1calc("FCAL1Calculator", name)
     , m_fcal2calc("FCAL2Calculator", name)
     , m_fcal3calc("FCAL3Calculator", name)
   {
-    declareProperty("HitCollectionName", m_hitCollName);
     declareProperty("FCAL1Volumes", m_fcal1Volumes);
     declareProperty("FCAL2Volumes", m_fcal2Volumes);
     declareProperty("FCAL3Volumes", m_fcal3Volumes);
@@ -48,7 +46,7 @@ namespace LArG4
   G4VSensitiveDetector* FCALSDTool::makeSD()
   {
     // Create the wrapper
-    auto sdWrapper = new SimpleSDWrapper("LArFCALSDWrapper", m_hitCollName);
+    auto sdWrapper = new SimpleSDWrapper("LArFCALSDWrapper", m_outputCollectionNames[0]);
 
     // Add the SDs
     sdWrapper->addSD( makeOneSD("LAr::FCAL::Module1::Gap", &*m_fcal1calc, m_fcal1Volumes) );

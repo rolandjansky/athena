@@ -13,6 +13,6 @@ sTGCSensitiveDetectorTool::sTGCSensitiveDetectorTool(const std::string& type, co
 
 G4VSensitiveDetector* sTGCSensitiveDetectorTool::makeSD()
 {
-  ATH_MSG_INFO( "Initializing SD" );
+  ATH_MSG_DEBUG( "Initializing SD" );
   return new sTGCSensitiveDetector(name(), m_outputCollectionNames[0]);
 }

@@ -4,6 +4,7 @@
 DOMAIN_MAP = {}
 
 DOMAIN_MAP['Analysis']         = set(['^PhysicsAnalysis/'])
+DOMAIN_MAP['BTagging']         = set(['JetTagging', 'ParticleJetTools', 'FlavourTag'])
 DOMAIN_MAP['Build']            = set(['^Build$','^Projects/'])
 DOMAIN_MAP['Calorimeter']      = set(['^Calorimeter/'])
 DOMAIN_MAP['CI']               = set(['^CI'])
@@ -26,7 +27,7 @@ DOMAIN_MAP['MuonSpectrometer'] = set(['^MuonSpectrometer/'])
 DOMAIN_MAP['Other']            = set(['^Commission/','^LCG_Interfaces/','^PackDist/','^ReleaseTests/'])
 DOMAIN_MAP['Overlay']          = set(['Overlay'])
 DOMAIN_MAP['Reconstruction']   = set(['^Reconstruction/'])
-DOMAIN_MAP['Simulation']       = set(['^Simulation/','G4'])
+DOMAIN_MAP['Simulation']       = set(['^Simulation/','G4','InDetSimUtils','SubDetectorEnvelopes','SimEvent'])
 DOMAIN_MAP['Tau']              = set(['Tau'])
 DOMAIN_MAP['Test']             = set(['^AtlasTest/','^TestPolicy/'])
 DOMAIN_MAP['TestBeam']         = set(['^TestBeam/'])

@@ -1,13 +1,13 @@
+## Get the logger
+from AthenaCommon.Logging import *
+atlasG4log = logging.getLogger('ISF')
+atlasG4log.info('****************** STARTING ISF ******************')
+
 ## Include common skeleton
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
-
-## Get the logger
-from AthenaCommon.Logging import *
-atlasG4log = logging.getLogger('ISF')
-atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Simulation flags need to be imported first
 from G4AtlasApps.SimFlags import simFlags
@@ -248,32 +248,12 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-if hasattr(runArgs, 'truthStrategy'):
-    ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
-    ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
-    ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
-    ISF_Flags.TruthStrategy    = runArgs.truthStrategy
-    try:
-        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
-        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
-    except RuntimeError:
-        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
-            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-        else:
-            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
-        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
-    except ImportError:
-        # Temporary back-compatibility
-        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
-            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-        else:
-            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+## Always enable the looper killer, unless it's been disabled
+if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
-    ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
-    ISF_Flags.TruthService     = 'ISF_TruthService'
-    ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
-    ISF_Flags.TruthStrategy    = 'MC12'
-    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+    atlasG4log.warning("The looper killer will NOT be run in this job.")
+
 #### *********** import ISF_Example code here **************** ####
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
@@ -312,23 +292,3 @@ if hasattr(runArgs, "postExec"):
     for cmd in runArgs.postExec:
         atlasG4log.info(cmd)
         exec(cmd)
-
-
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    if ISF_Flags.UsingGeant4():
-        # this configures the MT LooperKiller
-        try:
-            from G4UserActions import G4UserActionsConfig
-            G4UserActionsConfig.addLooperKillerTool()
-        except AttributeError, ImportError:
-            atlasG4log.warning("Could not add the MT-version of the LooperKiller")
-            # this configures the non-MT looperKiller
-            try:
-                from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-            except ImportError:
-                from G4AtlasServices.UserActionStore import UAStore
-            # add default configurable
-            UAStore.addAction('LooperKiller',['Step'])
-else:
-    atlasG4log.warning("The looper killer will NOT be run in this job.")

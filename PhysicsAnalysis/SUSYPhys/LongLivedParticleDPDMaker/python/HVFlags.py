@@ -55,6 +55,10 @@ class HV_CalRatioTriggerFlags(JobProperty):
         "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60",
         "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH", #L1Topo triggers are not running yet but should be "soon"
         "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH",
+        "HLT_j30_jes_cleanLLP_PS_llp_L1TAU100", #will replace L1TAU60 soon
+        "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100",
+        "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-RO", #new L1Topo item; rate should be small
+        "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-RO",
         #"HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY",
         #"HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY",
         #"HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO",

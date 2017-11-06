@@ -27,6 +27,7 @@ FTKBankGen.Clustering               = False;
 FTKBankGen.SaveClusterContent       = False;
 FTKBankGen.DiagClustering           = True;
 FTKBankGen.PixelClusteringMode      = 0;
+FTKBankGen.Ibl3DRealistic           = False;
 FTKBankGen.DuplicateGanged          = True;
 FTKBankGen.GangedPatternRecognition = False;
 

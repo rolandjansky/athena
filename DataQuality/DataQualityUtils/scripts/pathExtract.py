@@ -1,6 +1,4 @@
 #!/usr/bin env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # arguments : list of run
 
 import os, sys  
@@ -13,13 +11,13 @@ from ROOT import *
 def returnEosHistPath(run,stream,amiTag,tag="data16_13TeV"):
    prefix = {'express':'express_','Egamma':'physics_','CosmicCalo':'physics_','JetTauEtmiss':'physics_','Main':'physics_','ZeroBias':'physics_','MinBias':'physics_'}
    path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    listOfFiles = p[0].split('\n')
    for iFile in listOfFiles:
       if ("HIST.%s"%(amiTag) in iFile):
          path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'+iFile
-         P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+         P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
          p = P.communicate()
          path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'+iFile+'/'+p[0]
          return path
@@ -54,7 +52,7 @@ def returnEosHistPath(run,stream,amiTag,tag="data16_13TeV"):
 def returnEosHistPathLB(run,lb0,lb1,stream,amiTag,tag="data16_13TeV"):
    prefix = {'express':'express_','Egamma':'physics_','CosmicCalo':'physics_','JetTauEtmiss':'physics_','Main':'physics_','ZeroBias':'physics_'}
    path = '/eos/atlas/atlastier0/tzero/prod/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    listOfFiles = p[0].split('\n')
 
@@ -62,7 +60,7 @@ def returnEosHistPathLB(run,lb0,lb1,stream,amiTag,tag="data16_13TeV"):
    for iFile in listOfFiles:
       if ("recon.HIST.%s"%(amiTag) in iFile and "LOG" not in iFile):
          path = '/eos/atlas/atlastier0/tzero/prod/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'+iFile
-         P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+         P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
          p = P.communicate()
          listOfFiles2 = p[0].split('\n')
          for iFile2 in listOfFiles2:            
@@ -84,7 +82,7 @@ def returnEosTagPath(run,stream,amiTag="f",tag ="data16_13TeV"):
    found = False
    listOfFiles = []
    path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0]
@@ -99,7 +97,7 @@ def returnEosTagPath(run,stream,amiTag="f",tag ="data16_13TeV"):
       print 'no TAG directory found in %s'%(path)
       return 
 
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0].split('\n')
@@ -115,7 +113,7 @@ def returnEosLArNoisePath(run,stream,amiTag="f",tag ="data16_13TeV"):
    found = False
    listOfFiles = []
    path = '/eos/atlas/atlascerngroupdisk/det-larg/Tier0/perm/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0]
@@ -130,7 +128,7 @@ def returnEosLArNoisePath(run,stream,amiTag="f",tag ="data16_13TeV"):
       print 'no LARNOISE directory found in %s'%(path)
       return 
 
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0].split('\n')
@@ -146,7 +144,7 @@ def returnEosEsdPath(run,stream,amiTag="f",tag ="data16_13TeV"):
    found = False
    listOfFiles = []
    path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0]
@@ -161,7 +159,7 @@ def returnEosEsdPath(run,stream,amiTag="f",tag ="data16_13TeV"):
       print 'no ESD directory found in %s'%(path)
       return 
 
-   P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
+   P = sp.Popen(['/usr/bin/eos','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
    if p[1]=='':
       files = p[0].split('\n')

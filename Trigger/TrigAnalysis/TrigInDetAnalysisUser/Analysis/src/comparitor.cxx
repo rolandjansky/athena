@@ -94,6 +94,8 @@ int usage(const std::string& name, int status) {
   s << "         --chi2               \t show the chi2 with respect to the reference\n\n";
 
   s << "    -np, --noplots            \t do not actually make any plot\n";
+  s << "    -q,  --quiet              \t make the plots but do not print them out\n\n";
+
   s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
   s << "         --yrange     min max \t use specified y axis range\n";  
   s << "    -xo, --xoffset      value \t relative x offset for the key\n"; 
@@ -104,6 +106,8 @@ int usage(const std::string& name, int status) {
   s << "    -C,  --Cfiles             \t write C files also\n"; 
   s << "         --nopng              \t do not print png files\n"; 
   s << "         --deleteref          \t delete unused reference histograms\n\n";
+
+
 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -228,6 +232,7 @@ int main(int argc, char** argv) {
   bool oldrms      = false;
   bool addchains   = false;
   bool usechainref = false;
+  bool quiet       = false;
 
   double xerror    = 0;
 
@@ -380,6 +385,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-as" || arg=="--atlasstyle" ) { 
       atlasstyle = true;
     }
+    else if ( arg=="-q" || arg=="--quiet" ) { 
+      quiet = true;
+    } 
     else if ( arg=="-al" || arg=="--atlaslabel" ) { 
       if ( ++i<argc ) atlaslabel=argv[i];
       else return usage(argv[0], -1);
@@ -553,9 +561,12 @@ int main(int argc, char** argv) {
   
   // Make output directory                                                                                                                           
   if (dir != "") {
+    std::cout << "trying to make directory" << std::endl;
     dir += "/";
-    if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
-    else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    if ( !quiet && !noplots && !exists(dir) ) { 
+      if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
+      else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    }
   }
 
   TFile& ftest = *_ftest;
@@ -591,19 +602,17 @@ int main(int argc, char** argv) {
 
     std::string rawrun = refrun.erase( refrun.find("run"), 4 );
 
-    //    if ( frefname!=ftestname && contains(frefname, rawrun) ) { 
     if ( contains(frefname, rawrun) ) { 
       
       std::string release = frefname;
 
       release.erase( 0, release.find(rawrun) ); 
    
-      //      release.erase( release.find(rawrun)+1, release.find("HIST")+5);
-
-      if ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
-      if ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
-      if ( contains(release,"_") ) release.erase( release.find("_"), release.size() ); 
-      if ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      if    ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
+      while ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      while ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      while ( contains(release,"_p") ) release.erase( release.find("_p"), release.size() ); 
+      while ( contains(release,"_t") ) release.erase( release.find("_t"), release.size() ); 
 
       newtag += " ";
       newtag += release;
@@ -971,24 +980,25 @@ int main(int argc, char** argv) {
 
 	  //	  gPad->SetLogz(true);
 
-	  std::string plotname = chains[j];
-	  plotname += "_";
-	  //	  plotname += "HLT_";
-	  plotname += hist.c_str();
-	  plotname += ".png";
-	  replace( plotname, "/", "_");
-
-	  plotname = fullreplace( plotname, "InDetTrigTrackingxAODCnv", "" );
-                               
-	  std::cout << "plot 2D " << dir+plotname << std::endl;
-	  
-       	  c1->Print((dir+plotname).c_str());
-	  
-	  delete c1;
-	}
+          if ( !quiet ) { 
+            std::string plotname = chains[j];
+            plotname += "_";
+            //	  plotname += "HLT_";
+            plotname += hist.c_str();
+            plotname += ".png";
+            replace( plotname, "/", "_");
+            
+            plotname = fullreplace( plotname, "InDetTrigTrackingxAODCnv", "" );
+            
+            std::cout << "plot 2D " << dir+plotname << std::endl;
+            
+            c1->Print((dir+plotname).c_str());
+          }
+          delete c1;
+        }
       }
   }
-
+  
   gStyle->SetPadRightMargin(rightmargin); 
 
   
@@ -1202,11 +1212,11 @@ int main(int argc, char** argv) {
 	    //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
 	    //      else   rtest.Finalise(Resplot::FitNull95);
 	    if ( rtest.finalised() ) { 
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Refit(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Refit(Resplot::FitNull);
 	      else  rtest.Refit(Resplot::FitNull95);
 	    }
 	    else {
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Finalise(Resplot::FitNull);
 	      else  rtest.Finalise(Resplot::FitNull95);
 	    }
 
@@ -1296,6 +1306,22 @@ int main(int argc, char** argv) {
 	  if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+"/"+reghist) << " " << htest<< std::endl; 
 	  continue;
 	}
+
+	
+	
+	if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
+	  std::cout << "Class TH2: " << htest->GetName() << std::endl;
+	  continue;
+	}
+
+	if ( std::string(htest->ClassName()).find("TH1")!=std::string::npos ) { 
+	  std::cout << "Class TH1: " << htest->GetName() << std::endl; 
+	}
+	else if ( std::string(htest->ClassName()).find("TProfile")!=std::string::npos ) {  
+	  std::cout << "Class TProf: " << htest->GetName() << std::endl; 
+	}
+
+
 
 	if ( !noreftmp && hreft==0 ) { 
 	  if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+"/"+reghist)  << " " << hreft << std::endl; 
@@ -1490,25 +1516,25 @@ int main(int argc, char** argv) {
 	  if ( href ) href->SetTitle("");
 	  plotname = key+"_";
 	}
-	else if(contains(chains[j],"FTK")){
-	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  if ( href ) href->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  plotname = "FTK_";
-	}
-	else if(fcontains(chains[j],"HLT_")){
+	else if (fcontains(chains[j],"HLT_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "HLT_";
 	}
-	else if(fcontains(chains[j],"EF_")){
+	else if (fcontains(chains[j],"EF_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "EF_";
 	}
-	else if(fcontains(chains[j],"L2_")){
+	else if (fcontains(chains[j],"L2_")) {
 	  htest->SetTitle("");
 	  if ( href ) href->SetTitle("");
 	  plotname = "L2_";
+	}
+	else if (contains(chains[j],"FTK") && ! contains(chains[j],"HLT_") ) { 
+	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  if ( href ) href->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  plotname = "FTK_";
 	}
 	
 	plotname += histos[i]; 
@@ -1913,7 +1939,7 @@ int main(int argc, char** argv) {
 
     if ( !noplots ) { 
 
-      if ( plotname!="" ) { 
+      if ( !quiet && plotname!="" ) { 
 
 	if ( Cfile ) plots.back().Print( dir+plotname+tag+".C" );
 
@@ -1932,7 +1958,7 @@ int main(int argc, char** argv) {
 	
 	plots_eff.Draw( legend_eff );
 	
-	if ( plotname!="" ) {
+	if ( !quiet && plotname!="" ) {
 
 	  plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
 
@@ -1957,6 +1983,7 @@ int main(int argc, char** argv) {
   
   /// if deleting all non-used reference histograms 
 
+
   /// make sure we are not using the same reference as test file
   bool files_duplicated = ( _fref==_ftest );
 
@@ -1971,11 +1998,10 @@ int main(int argc, char** argv) {
       //      TFile* newout = new TFile(".newout.root","recreate"); 
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
-      
-      /// copy the release tree if need be 
-
-      if ( dataTree ) dataTree->Write("dataTree");
-      
+    
+      /// copy the release tree       
+      copyReleaseInfo( &fref, newout );
+        
       TDirectory* base = gDirectory;
       
       for ( unsigned i=0 ; i<savedhistos.size() ; i++ ) { 

@@ -92,6 +92,9 @@ def fillAtlasMetadata(dbFiller):
         ## Don't write out random number seeds or RunDict as metadata
         if sp in ("RandomSeedList", "RandomSeedOffset", "RunDict"):
             continue
+        ## Don't write out Tool and Service names
+        if sp in ("TruthService"):
+            continue
         ## Only store InitFunction names
         if sp in ("InitFunctions"):
             initfuncdict = dict()
@@ -152,7 +155,6 @@ def fillTestBeamMetadata(dbFiller):
 def fillISFMetadata(dbFiller):
     from ISF_Config.ISF_jobProperties import ISF_Flags
     dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
-    dbFiller.addSimParam('TruthStrategy', ISF_Flags.TruthStrategy())
 
 def createSimulationParametersMetadata():
     from IOVDbMetaDataTools import ParameterDbFiller

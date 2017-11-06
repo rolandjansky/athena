@@ -24,3 +24,10 @@ def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
         ##kwargs.setdefault("GravitinoLifetime",    -1);
         ##kwargs.setdefault("GravitinoShortlived",  False);
     return CfgMgr.GauginosPhysicsTool(name, **kwargs)
+
+
+def getNeutralinoToPhotonGravitino(name="NeutralinoToPhotonGravitino", **kwargs):
+    kwargs.setdefault("ParticleName","s_chi_0_1")
+    kwargs.setdefault("BR", 1.0) # Branching Ratio
+    kwargs.setdefault("Daughters","s_G,gamma")
+    return CfgMgr.AddPhysicsDecayTool(name, **kwargs)

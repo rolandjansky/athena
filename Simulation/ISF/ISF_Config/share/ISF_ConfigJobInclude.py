@@ -71,6 +71,9 @@ if len(globalflags.ConditionsTag()):
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# Temporary work-around - see ATLASSIM-2351
+if ISF_Flags.UsingGeant4():
+    include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
 
 #--------------------------------------------------------------
 # Setup the ISF Services
@@ -126,27 +129,12 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 # ISF kernel configuration
 #--------------------------------------------------------------
 
-# TODO: Find out what to do with these!
-#from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
-#ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
-#                                        OutputLevel=INFO)
-SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
+# keep reference to collection merger algorithm to guarantee that
+# any subsequent simulator configuration gets a reference to the same
+# instance when calling confgetter's getAlgorithm
+collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
 
-# Temporary work-around - see ATLASSIM-2351
-if ISF_Flags.UsingGeant4():
-    
-    # ADS: moved here from iGeant4.py
-    try:
-        # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
-        from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-        topSequence += PyG4AtlasAlg()
-    except ImportError:
-        try:
-            # the hive version provides PyG4AtlasSvc
-            from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-            ServiceMgr += PyG4AtlasSvc()
-        except ImportError:
-            print "FATAL: Failed to import PyG4AtlasAlg/Svc"
+SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 #--------------------------------------------------------------
 # Setup the random number streams
@@ -169,7 +157,6 @@ createSimulationParametersMetadata()
 configureRunNumberOverrides()
 
 if ISF_Flags.HITSMergingRequired():
-    collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
     topSequence += collection_merger_alg
 
 #--------------------------------------------------------------

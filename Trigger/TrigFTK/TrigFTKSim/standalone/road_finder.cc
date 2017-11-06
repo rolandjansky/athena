@@ -783,6 +783,21 @@ int read_commands()
 
             dinput->setPixelClusteringMode(ival);
         }
+        else if (key == "IBL3D_REALISTIC")
+        {
+            int ival;
+            sline >> ival;
+            FTKDataInput *dinput = rfobj.getDataInputModule();
+
+            if (ival > 0)
+            {
+                dinput->setIbl3DRealistic(true);
+            }
+            else
+            {
+                dinput->setIbl3DRealistic(false);
+            }
+        }
         else if (key == "DUPLICATE_GANGED")
         {
             int ival;

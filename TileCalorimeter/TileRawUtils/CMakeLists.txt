@@ -18,13 +18,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/RegionSelector
                           TileCalorimeter/TileConditions
-                          TileCalorimeter/TileDetDescr )
+                          TileCalorimeter/TileDetDescr
+			  TileCalorimeter/TileSvc/TileByteStream )
 
 # Component(s) in the package:
 atlas_add_component( TileRawUtils
                      src/Tile*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileEvent TileIdentifier CaloDetDescrLib StoreGateLib SGtests RegionSelectorLib TileConditionsLib TileDetDescr )
+                     LINK_LIBRARIES CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileEvent TileIdentifier CaloDetDescrLib StoreGateLib SGtests RegionSelectorLib TileConditionsLib TileDetDescr TileByteStreamLib )
 
 # Install files from the package:
 atlas_install_headers( TileRawUtils )

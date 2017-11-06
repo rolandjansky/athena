@@ -10,9 +10,9 @@ import shlex
 import subprocess
 
 
-def run_command(cmd, dir=None, shell=False):
+def run_command(cmd, dir=None, shell=False, env=None):
     """Run the given command locally and returns the output, err and exit_code."""
-    print "Execute: " + cmd
+    # print "Execute: " + cmd
     if "|" in cmd:
         cmd_parts = cmd.split('|')
     else:
@@ -23,9 +23,9 @@ def run_command(cmd, dir=None, shell=False):
     for cmd_part in cmd_parts:
         cmd_part = cmd_part.strip()
         if i == 0:
-            p[i] = subprocess.Popen(shlex.split(cmd_part), stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dir, shell=shell)
+            p[i] = subprocess.Popen(shlex.split(cmd_part), stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dir, shell=shell, env=env)
         else:
-            p[i] = subprocess.Popen(shlex.split(cmd_part), stdin=p[i - 1].stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dir, shell=shell)
+            p[i] = subprocess.Popen(shlex.split(cmd_part), stdin=p[i - 1].stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dir, shell=shell, env=env)
         i = i + 1
     (output, err) = p[i - 1].communicate()
     exit_code = p[0].wait()

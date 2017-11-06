@@ -92,8 +92,7 @@ public:
     m_zdcdecoder("ZdcByteStreamReadV1V2Tool/ZdcByteStreamTool"),
     m_zdcrectool("ZdcRecChannelTool/ZdcByteChannelTool"), 
     m_applyOffsetCorrection(true),
-    m_caloLumiBCIDTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault"),
-    m_fullTileRODs(true)
+    m_caloLumiBCIDTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault")
     //m_lumiTool("LuminosityTool")
     //		 m_present_etamin(-10.0),
     //		 m_present_etamax(10.0),
@@ -115,7 +114,6 @@ public:
     declareProperty("loadFullCollections",  m_usefullcoll=false);
     // Load all samplings in robDataProviderSvc
     declareProperty("loadAllSamplings",  m_loadAllSamplings=false);
-    declareProperty("fullTileMode",m_fullTileRODs);
     /*
       declareProperty("NumberOfLArROSes", m_numberOfLarRoses=64);
       declareProperty("NumberOfTileROSes", m_numberOfTileRoses=4);
@@ -408,7 +406,6 @@ private:
   /** Either use one calo layer at a time, or do all of it */
   bool m_loadAllSamplings;
   /** new Tile ROD schema (2017) */
-  bool m_fullTileRODs;
   /** error reporting */
   uint32_t m_error;
   /** mbts cached */

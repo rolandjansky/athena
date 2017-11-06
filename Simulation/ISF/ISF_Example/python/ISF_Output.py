@@ -70,6 +70,9 @@ def getHITSStreamItemList():
     ## TimingAlg
     hitsItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
 
+    if simFlags.RecordStepInfo.get_Value():
+        hitsItemList +=["ISF_FCS_Parametrization::FCS_StepInfoCollection#MergedEventSteps"]
+
     ## add xAOD::TrackParticles output collection Parametric Simulation
     if simFlags.SimulationFlavour == "ParametricSimulation":
         hitsItemList +=["xAOD::TrackParticleContainer#*",

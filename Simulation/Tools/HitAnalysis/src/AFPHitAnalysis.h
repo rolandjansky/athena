@@ -32,19 +32,19 @@ class AFPHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some histograms**/
-   TH1*   h_hitID;
-   TH1*   h_pdgID;
-   TH1*   h_trackID;
-   TH1*   h_kine;
-   TH1*   h_edep;
-   TH1*   h_stepX;
-   TH1*   h_stepY;
-   TH1*   h_stepZ;
-   TH1*   h_time;
-   TH1*   h_stationID;
-   TH1*   h_detID;
-   TH1*   h_pixelRow;
-   TH1*   h_pixelCol;
+   TH1*   m_h_hitID;
+   TH1*   m_h_pdgID;
+   TH1*   m_h_trackID;
+   TH1*   m_h_kine;
+   TH1*   m_h_edep;
+   TH1*   m_h_stepX;
+   TH1*   m_h_stepY;
+   TH1*   m_h_stepZ;
+   TH1*   m_h_time;
+   TH1*   m_h_stationID;
+   TH1*   m_h_detID;
+   TH1*   m_h_pixelRow;
+   TH1*   m_h_pixelCol;
 
    std::vector<float>*   m_hitID;
    std::vector<float>*   m_pdgID;

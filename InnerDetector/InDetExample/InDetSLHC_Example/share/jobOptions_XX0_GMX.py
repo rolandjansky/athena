@@ -28,15 +28,7 @@ topSeq += pg
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 MessageSvc.defaultLimit = 500
 
-from RadLengthIntTool.RadLengthIntToolConf import XX0_Tool
-mXX0_Tool = XX0_Tool()
-
 from AthenaCommon.AppMgr import ServiceMgr
-
-from UserActionSvc.UserActionSvcConf import UserActionSvc;
-ServiceMgr += UserActionSvc()
-ServiceMgr.UserActionSvc.UserActions += [ mXX0_Tool]
-theApp.CreateSvc += [ "UserActionSvc"]
 
 if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
@@ -44,33 +36,6 @@ if not hasattr(ServiceMgr, 'THistSvc'):
 ServiceMgr.THistSvc.Output  += ["xx0 DATAFILE='xx0.root' OPT='RECREATE'"];
 
 print ServiceMgr
-
-mXX0_Tool.ActionName = "XX0_ActionTool"
-mXX0_Tool.volumePartsFile = "VolumeNameParts.txt"
-mXX0_Tool.DoIntLength = False
-mXX0_Tool.DoEta = True
-
-mXX0_Tool.NBinsEta = 480
-mXX0_Tool.EtaMin = -5
-mXX0_Tool.EtaMax = 5.
-
-mXX0_Tool.DoPhi = False
-mXX0_Tool.NBinsPhi = 50
-
-mXX0_Tool.DoRadial = False
-mXX0_Tool.NBinsRadial = 200
-
-mXX0_Tool.RMin =   0.  * mm
-mXX0_Tool.RMax =  1150. * mm
-
-mXX0_Tool.DoZScan = False
-
-mXX0_Tool.ZMin = -3490. * mm 
-mXX0_Tool.ZMax =  3490. * mm 
-
-
-print mXX0_Tool
-print UserActionSvc
 
 from G4AtlasApps import SimKernel
 
@@ -83,16 +48,32 @@ if 'GeometryTextFile' in dir():
 # enter interactive mode 
 theApp.initialize()
 
-from G4AtlasApps import  AtlasG4Eng,PyG4Atlas
-XX0_Action = PyG4Atlas.UserAction( 'RadLengthIntTool','XX0_ActionTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(XX0_Action)
+## TODO Something like this should work with the appropriate CfgGetter method:
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('XX0_Tool',['Event','Run','Step'])
+simFlags.UserActionConfig.addConfig('XX0_Tool','volumePartsFile', "VolumeNameParts.txt")
+simFlags.UserActionConfig.addConfig('XX0_Tool','DoIntLength', False)
+simFlags.UserActionConfig.addConfig('XX0_Tool','DoEta', True)
+simFlags.UserActionConfig.addConfig('XX0_Tool','NBinsEta', 480)
+simFlags.UserActionConfig.addConfig('XX0_Tool','EtaMin', -5)
+simFlags.UserActionConfig.addConfig('XX0_Tool','EtaMax', 5.)
+simFlags.UserActionConfig.addConfig('XX0_Tool','DoPhi', False)
+simFlags.UserActionConfig.addConfig('XX0_Tool','NBinsPhi', 50)
+simFlags.UserActionConfig.addConfig('XX0_Tool','DoRadial', False)
+simFlags.UserActionConfig.addConfig('XX0_Tool','NBinsRadial', 200)
+simFlags.UserActionConfig.addConfig('XX0_Tool','RMin',   0.  * mm)
+simFlags.UserActionConfig.addConfig('XX0_Tool','RMax',  1150. * mm)
+simFlags.UserActionConfig.addConfig('XX0_Tool','DoZScan', False)
+simFlags.UserActionConfig.addConfig('XX0_Tool','ZMin', -3490. * mm)
+simFlags.UserActionConfig.addConfig('XX0_Tool','ZMax',  3490. * mm)
 
 
-SimFlags.InitFunctions.add_function('preInitG4', XX0_Action)
 #AtlasG4Eng.G4Eng.init_Simulation(3)
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # start run after the interactive mode 
 

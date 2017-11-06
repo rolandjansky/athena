@@ -6,42 +6,49 @@
 #define DECODER_AFP_RAWDATAPROVIDER_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "AFP_RawEv/AFP_RawEvDict.h"
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-
 #include "AFP_RawDataProviderTool.h"
-#include <string>
 
-class AFP_RawDataProviderTool;
-class ISvcLocator;
-class StatusCode;
+#include "AFP_RawEv/AFP_ROBID.h"
+
+#include "eformat/ROBFragment.h"
+
+#include <string>
+#include <vector>
 
 class AFP_RawDataProvider : public ::AthAlgorithm {
 public:
 
   AFP_RawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
+
+  /// Does nothing
   virtual ~AFP_RawDataProvider();
 
+  /// Initialise tool and service
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+
+  /// Does nothing
   virtual StatusCode finalize() { return StatusCode::SUCCESS; }
 
+  /// @brief Creates raw objects from bytestream
+  ///
+  /// Creates a new AFP_RawDataContainer saves it to StoreGate and
+  /// fills with collections based on information from robIDs
+  /// specified in #s_robIDs
+  virtual StatusCode execute();
+  
 private:
-  int m_nRawDataCollection;
-  int m_nRawData;
-
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<AFP_RawDataProviderTool> m_rawDataTool;
 
-  std::string m_AFP_RawDataCollectionKey;
-  std::string m_collection;
+  /// name used to store AFP_RawContainer in StoreGate
+  std::string m_AFP_RawContainerKey;
+  
+  /// vector of robIDs from which data should be processed
+  static const std::vector<unsigned int> s_robIDs;
 };
 
 #endif //> !DECODER_AFP_RAWDATAPROVIDER_H

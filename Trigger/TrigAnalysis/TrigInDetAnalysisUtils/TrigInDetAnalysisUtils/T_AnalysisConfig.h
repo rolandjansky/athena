@@ -212,11 +212,11 @@ public:
   void addSelectionFilter(TrackFilter* filter) { m_filters[2].push_back(filter); }
 
   // Initialize, execute and finalize generic methods
-  //    void initialize(MsgStream* msg, StoreGateSvc* sg, ToolHandle<Trig::TrigDecisionTool>* tdt) {
-  virtual void initialize(Provider* p, ToolHandle<Trig::TrigDecisionTool>* tdt) {
+  virtual void initialize(Provider* p, ToolHandle<Trig::TrigDecisionTool>* tdt ) { 
       m_provider = p;
-      m_tdt=tdt;
+      m_tdt      = tdt;
       if ( m_tdt==0 ) m_analysis->initialise();
+
   }
 
 
@@ -298,13 +298,10 @@ protected:
 
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
-      // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
-      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;
+      // NB!! a combination should never have more than one entry for a track collection from a single algorithm, for single object triggers
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {
-	//	std::cout << "selectTracks() ifeat=" << ifeat << "\tkey " << key << std::endl;
 	Trig::Feature<Collection> trackfeature = trackcollections.at(ifeat);
 	if ( !trackfeature.empty() ) {
-	  //	  m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endmsg;
 	  // actually select the tracks from this roi at last!!
 	  const Collection* trigtracks = trackfeature.cptr();
 	  selector->selectTracks( trigtracks );
@@ -471,7 +468,7 @@ protected:
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, 
-			     bool raw_track=false,  
+			     bool   raw_track=false,  
 			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
@@ -541,7 +538,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline muons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processMuons(     TrigTrackSelector& selectorRef,
+  unsigned processMuons(     TrigTrackSelector& selectorRef,  const unsigned int selection=0, 
 			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
                              const std::string& containerName = "Muons"
@@ -580,7 +577,7 @@ protected:
 
     for( ; muon!=muon_end ; ++muon ){
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      if ( TIDA::isGoodOffline(*(*muon), ETOffline) ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+      if ( TIDA::isGoodOffline(*(*muon), selection, ETOffline ) ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
 #     else
       if ( TIDA::isGoodOffline(*(*muon)) ) selectorRef.selectTrack((*muon)->inDetTrackParticle());
 #     endif
@@ -710,6 +707,8 @@ protected:
 
   std::string m_testChainName;
   std::string m_testChainKey;
+
+
 
 
   // RoI information

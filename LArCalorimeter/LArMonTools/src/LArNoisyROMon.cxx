@@ -83,7 +83,7 @@ StatusCode LArNoisyROMon::initialize()
 {
   if ( !(detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID" ).isSuccess()) )
   {
-    msg(MSG::FATAL) << "unable to retrieve LArOnlineID from detStore" << endmsg;
+    ATH_MSG_FATAL( "unable to retrieve LArOnlineID from detStore" );
     return StatusCode::FAILURE;
   }
   
@@ -96,7 +96,7 @@ StatusCode LArNoisyROMon::initialize()
     StatusCode sc = m_trigDec.retrieve();
     if ( !sc.isSuccess() )
     {
-      msg(MSG::FATAL) << "unable to initialize TrigDecisionTool " << endmsg;
+      ATH_MSG_FATAL( "unable to initialize TrigDecisionTool " );
       return StatusCode::FAILURE;
     }
   }
@@ -249,7 +249,7 @@ StatusCode LArNoisyROMon::fillHistograms()
   sc = evtStore()->retrieve(noisyRO,m_inputKey);
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
+    ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
     return StatusCode::SUCCESS;
   }
   
@@ -258,7 +258,7 @@ StatusCode LArNoisyROMon::fillHistograms()
   sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve EventInfo " <<endmsg;
+    ATH_MSG_WARNING( "Can't retrieve EventInfo " );
     return StatusCode::SUCCESS;
   }
   
@@ -1507,7 +1507,7 @@ void LArNoisyROMon::fillTriggerHisto(partitionHistos& partition, uint8_t trigger
 
 StatusCode LArNoisyROMon::finalize()
 {
-  msg(MSG::INFO) << " in LArNoisyROMon::finalize() " << endmsg;
+  ATH_MSG_INFO(  " in LArNoisyROMon::finalHists() " );
   // delete temposary histograms
 
   if ( m_h_LBN ) {

@@ -24,23 +24,23 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 CSCHitAnalysis::CSCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , h_hits_x(0)
-   , h_hits_y(0)
-   , h_hits_z(0)
-   , h_hits_r(0)
-   , h_xy(0)
-   , h_zr(0)
-   , h_hits_eta(0)
-   , h_hits_phi(0)
-   , h_hits_sx(0)
-   , h_hits_sy(0)
-   , h_hits_sz(0)
-   , h_hits_ex(0)
-   , h_hits_ey(0)
-   , h_hits_ez(0)   
-   , h_hits_time(0)
-   , h_hits_edep(0)
-   , h_hits_kine(0)
+   , m_h_hits_x(0)
+   , m_h_hits_y(0)
+   , m_h_hits_z(0)
+   , m_h_hits_r(0)
+   , m_h_xy(0)
+   , m_h_zr(0)
+   , m_h_hits_eta(0)
+   , m_h_hits_phi(0)
+   , m_h_hits_sx(0)
+   , m_h_hits_sy(0)
+   , m_h_hits_sz(0)
+   , m_h_hits_ex(0)
+   , m_h_hits_ey(0)
+   , m_h_hits_ez(0)   
+   , m_h_hits_time(0)
+   , m_h_hits_edep(0)
+   , m_h_hits_kine(0)
    , m_hits_x(0)
    , m_hits_y(0)
    , m_hits_z(0)
@@ -74,73 +74,73 @@ StatusCode CSCHitAnalysis::initialize() {
   CHECK(m_thistSvc.retrieve());
 
   /** Histograms**/
-  h_hits_x = new TH1D("h_csc_hits_x","hits_x", 100,-2000, 2000);
-  h_hits_x->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_x->GetName(), h_hits_x));
+  m_h_hits_x = new TH1D("h_csc_hits_x","hits_x", 100,-2000, 2000);
+  m_h_hits_x->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_x->GetName(), m_h_hits_x));
 
-  h_hits_y = new TH1D("h_csc_hits_y", "hits_y", 100,-2000,2000);
-  h_hits_y->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_y->GetName(), h_hits_y));
+  m_h_hits_y = new TH1D("h_csc_hits_y", "hits_y", 100,-2000,2000);
+  m_h_hits_y->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_y->GetName(), m_h_hits_y));
 
-  h_hits_z = new TH1D("h_csc_hits_z", "hits_z", 100,-10000,10000);
-  h_hits_z->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_z->GetName(), h_hits_z));
+  m_h_hits_z = new TH1D("h_csc_hits_z", "hits_z", 100,-10000,10000);
+  m_h_hits_z->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_z->GetName(), m_h_hits_z));
 
-  h_hits_r = new TH1D("h_csc_hits_r", "hits_r", 100,500,2500);
-  h_hits_r->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_r->GetName(), h_hits_r));
+  m_h_hits_r = new TH1D("h_csc_hits_r", "hits_r", 100,500,2500);
+  m_h_hits_r->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_r->GetName(), m_h_hits_r));
 
-  h_xy = new TH2D("h_csc_xy", "xy", 100,-2000.,2000.,100, -2000., 2000.);
-  h_xy->StatOverflows();
-  CHECK(m_thistSvc->regHist( m_path+h_xy->GetName(), h_xy));
+  m_h_xy = new TH2D("h_csc_xy", "xy", 100,-2000.,2000.,100, -2000., 2000.);
+  m_h_xy->StatOverflows();
+  CHECK(m_thistSvc->regHist( m_path+m_h_xy->GetName(), m_h_xy));
 
-  h_zr = new TH2D("h_csc_zr", "zr", 100,-10000.,10000.,100, 500., 2500.);
-  h_zr->StatOverflows();
-  CHECK(m_thistSvc->regHist( m_path+h_zr->GetName(), h_zr));
+  m_h_zr = new TH2D("h_csc_zr", "zr", 100,-10000.,10000.,100, 500., 2500.);
+  m_h_zr->StatOverflows();
+  CHECK(m_thistSvc->regHist( m_path+m_h_zr->GetName(), m_h_zr));
 
-  h_hits_eta = new TH1D("h_csc_hits_eta", "hits_eta", 100,-3.0,3.0);
-  h_hits_eta->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_eta->GetName(), h_hits_eta));
+  m_h_hits_eta = new TH1D("h_csc_hits_eta", "hits_eta", 100,-3.0,3.0);
+  m_h_hits_eta->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_eta->GetName(), m_h_hits_eta));
 
-  h_hits_phi = new TH1D("h_csc_hits_phi", "hits_phi", 100,-3.2,3.2);
-  h_hits_phi->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_phi->GetName(), h_hits_phi));
+  m_h_hits_phi = new TH1D("h_csc_hits_phi", "hits_phi", 100,-3.2,3.2);
+  m_h_hits_phi->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_phi->GetName(), m_h_hits_phi));
 
-  h_hits_sx = new TH1D("h_csc_hits_sx","hits_sx", 100,-10, 10);
-  h_hits_sx->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_sx->GetName(), h_hits_sx));
+  m_h_hits_sx = new TH1D("h_csc_hits_sx","hits_sx", 100,-10, 10);
+  m_h_hits_sx->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_sx->GetName(), m_h_hits_sx));
 
-  h_hits_sy = new TH1D("h_csc_hits_sy", "hits_sy", 100,-500,500);
-  h_hits_sy->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_sy->GetName(), h_hits_sy));
+  m_h_hits_sy = new TH1D("h_csc_hits_sy", "hits_sy", 100,-500,500);
+  m_h_hits_sy->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_sy->GetName(), m_h_hits_sy));
 
-  h_hits_sz = new TH1D("h_csc_hits_sz", "hits_sz", 100,-1000,1000);
-  h_hits_sz->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_sz->GetName(), h_hits_sz));
+  m_h_hits_sz = new TH1D("h_csc_hits_sz", "hits_sz", 100,-1000,1000);
+  m_h_hits_sz->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_sz->GetName(), m_h_hits_sz));
 
-  h_hits_ex = new TH1D("h_csc_hits_ex","hits_ex", 100,-10, 10);
-  h_hits_ex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_ex->GetName(), h_hits_ex));
+  m_h_hits_ex = new TH1D("h_csc_hits_ex","hits_ex", 100,-10, 10);
+  m_h_hits_ex->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_ex->GetName(), m_h_hits_ex));
 
-  h_hits_ey = new TH1D("h_csc_hits_ey", "hits_ey", 100,-500,500);
-  h_hits_ey->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_ey->GetName(), h_hits_ey));
+  m_h_hits_ey = new TH1D("h_csc_hits_ey", "hits_ey", 100,-500,500);
+  m_h_hits_ey->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_ey->GetName(), m_h_hits_ey));
 
-  h_hits_ez = new TH1D("h_csc_hits_ez", "hits_ez", 100,-1000,1000);
-  h_hits_ez->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_ez->GetName(), h_hits_ez));
+  m_h_hits_ez = new TH1D("h_csc_hits_ez", "hits_ez", 100,-1000,1000);
+  m_h_hits_ez->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_ez->GetName(), m_h_hits_ez));
 
-  h_hits_time = new TH1D("h_csc_hits_time","hits_time", 100,20, 40);
-  h_hits_time->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_time->GetName(), h_hits_time));
+  m_h_hits_time = new TH1D("h_csc_hits_time","hits_time", 100,20, 40);
+  m_h_hits_time->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_time->GetName(), m_h_hits_time));
 
-  h_hits_edep = new TH1D("h_csc_hits_edep", "hits_edep", 100,0,0.1);
-  h_hits_edep->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_edep->GetName(), h_hits_edep));
+  m_h_hits_edep = new TH1D("h_csc_hits_edep", "hits_edep", 100,0,0.1);
+  m_h_hits_edep->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_edep->GetName(), m_h_hits_edep));
 
-  h_hits_kine = new TH1D("h_csc_hits_kine", "hits_kine", 100,0,3000);
-  h_hits_kine->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hits_kine->GetName(), h_hits_kine));
+  m_h_hits_kine = new TH1D("h_csc_hits_kine", "hits_kine", 100,0,3000);
+  m_h_hits_kine->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_hits_kine->GetName(), m_h_hits_kine));
 
   /** now add branches and leaves to the tree */
   m_tree = new TTree("CSC", "CSC");
@@ -201,23 +201,23 @@ StatusCode CSCHitAnalysis::execute() {
       if (!ghit) continue;
       
       Amg::Vector3D p = ghit.getGlobalPosition();
-      h_hits_x->Fill(p.x());
-      h_hits_y->Fill(p.y());
-      h_hits_z->Fill(p.z());
-      h_hits_r->Fill(p.perp());
-      h_xy->Fill(p.x(), p.y());
-      h_zr->Fill(p.z(), p.perp());
-      h_hits_eta->Fill(p.eta());
-      h_hits_phi->Fill(p.phi());
-      h_hits_sx->Fill((*i_hit).getHitStart().x());
-      h_hits_sy->Fill((*i_hit).getHitStart().y());
-      h_hits_sz->Fill((*i_hit).getHitStart().z());
-      h_hits_ex->Fill((*i_hit).getHitEnd().x());
-      h_hits_ey->Fill((*i_hit).getHitEnd().y());
-      h_hits_ez->Fill((*i_hit).getHitEnd().z());
-      h_hits_edep->Fill((*i_hit).energyDeposit());
-      h_hits_time->Fill((*i_hit).globalTime());
-      h_hits_kine->Fill((*i_hit).kineticEnergy());
+      m_h_hits_x->Fill(p.x());
+      m_h_hits_y->Fill(p.y());
+      m_h_hits_z->Fill(p.z());
+      m_h_hits_r->Fill(p.perp());
+      m_h_xy->Fill(p.x(), p.y());
+      m_h_zr->Fill(p.z(), p.perp());
+      m_h_hits_eta->Fill(p.eta());
+      m_h_hits_phi->Fill(p.phi());
+      m_h_hits_sx->Fill((*i_hit).getHitStart().x());
+      m_h_hits_sy->Fill((*i_hit).getHitStart().y());
+      m_h_hits_sz->Fill((*i_hit).getHitStart().z());
+      m_h_hits_ex->Fill((*i_hit).getHitEnd().x());
+      m_h_hits_ey->Fill((*i_hit).getHitEnd().y());
+      m_h_hits_ez->Fill((*i_hit).getHitEnd().z());
+      m_h_hits_edep->Fill((*i_hit).energyDeposit());
+      m_h_hits_time->Fill((*i_hit).globalTime());
+      m_h_hits_kine->Fill((*i_hit).kineticEnergy());
       
       m_hits_x->push_back(p.x());
       m_hits_y->push_back(p.y());

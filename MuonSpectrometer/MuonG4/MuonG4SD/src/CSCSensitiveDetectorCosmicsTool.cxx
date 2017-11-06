@@ -13,6 +13,6 @@ CSCSensitiveDetectorCosmicsTool::CSCSensitiveDetectorCosmicsTool(const std::stri
 
 G4VSensitiveDetector* CSCSensitiveDetectorCosmicsTool::makeSD()
 {
-  ATH_MSG_INFO( "Initializing SD" );
+  ATH_MSG_DEBUG( "Initializing SD" );
   return new CSCSensitiveDetectorCosmics(name(), m_outputCollectionNames[0]);
 }

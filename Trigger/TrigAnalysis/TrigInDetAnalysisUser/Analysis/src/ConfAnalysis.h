@@ -200,9 +200,27 @@ private:
   Resplot* rnsct_pt;
   Resplot* rntrt_pt;
 
+  Resplot* rnpix_d0; // new
+  Resplot* rnsct_d0; // new
+  Resplot* rntrt_d0; // new
+
   Resplot* rnpixh_pt;
   Resplot* rnscth_pt;
 
+  Resplot* rnpixh_d0; // new
+  Resplot* rnscth_d0; // new
+
+  Resplot* rnsi_pt;  // new
+  Resplot* rnsih_pt; // new
+
+  Resplot* rnsi_eta;  // new
+  Resplot* rnsih_eta; // new
+
+  Resplot* rnsi_d0;  // new
+  Resplot* rnsih_d0; // new
+
+  Resplot* rnbl_d0;  // new
+  Resplot* rnblh_d0; // new
 
   Resplot* rnpix_pt_bad;
   Resplot* rnsct_pt_bad;

@@ -5,30 +5,28 @@
 #ifndef G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H 
 #define G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H 
 
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
-#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "VerboseSelector.h"
 
 namespace G4UA{ 
 
-  class VerboseSelectorTool: 
-  public ActionToolBase<VerboseSelector>, public IBeginEventActionTool,
-    public ISteppingActionTool,  public IPreTrackingActionTool,  public IPostTrackingActionTool
+  class VerboseSelectorTool : public ActionToolBase<VerboseSelector>,
+                              public IG4EventActionTool,
+                              public IG4SteppingActionTool,
+                              public IG4TrackingActionTool
   {
     
   public:
     VerboseSelectorTool(const std::string& type, const std::string& name,const IInterface* parent);
-    virtual ISteppingAction* getSteppingAction() override final 
-    { return static_cast<ISteppingAction*>( getAction() ); }
-    virtual IPreTrackingAction* getPreTrackingAction() override final 
-    { return static_cast<IPreTrackingAction*>( getAction() ); }
-    virtual IPostTrackingAction* getPostTrackingAction() override final 
-    { return static_cast<IPostTrackingAction*>( getAction() ); }
-    virtual IBeginEventAction* getBeginEventAction() override final 
-    { return static_cast<IBeginEventAction*>( getAction() ); }
+    virtual G4UserSteppingAction* getSteppingAction() override final
+    { return static_cast<G4UserSteppingAction*>( getAction() ); }
+    virtual G4UserTrackingAction* getTrackingAction() override final
+    { return static_cast<G4UserTrackingAction*>( getAction() ); }
+    virtual G4UserEventAction* getEventAction() override final
+    { return static_cast<G4UserEventAction*>( getAction() ); }
 
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   protected:

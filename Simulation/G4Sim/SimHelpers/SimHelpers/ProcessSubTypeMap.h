@@ -71,7 +71,7 @@ class ProcessSubTypeMap
   G4int GetProcessSubType(const G4VProcess*);
 
  private:
-  std::map<const G4VProcess*,G4int> fMap;
+  std::map<const G4VProcess*,G4int> m_map;
 };
 
 #endif

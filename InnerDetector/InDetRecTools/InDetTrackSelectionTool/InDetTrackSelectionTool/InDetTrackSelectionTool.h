@@ -131,7 +131,7 @@ namespace InDet {
     Int_t m_maxNPixelHoles = LOCAL_MAX_INT; //!< Maximum number of pixel layers without a hit
     Double_t m_minEtaForStrictNSiHitsCut = LOCAL_MAX_DOUBLE; //!< Eta cutoff above which a tighter cut on NSiHits applies
     Int_t m_minNSiHitsAboveEtaCutoff = -1; //!< Tighter cut on NSiHits above a certain eta
-    Bool_t m_maxOneSharedModule = false; //!< Flag whether to reject if more than one of 1 shared pixel hit or 2 shared SCT hits.
+    Int_t m_maxNSiSharedModules = LOCAL_MAX_INT; //!< Reject if more than N of 1 shared pixel hit + 2 shared SCT hits.
     Bool_t m_useEtaDependentMaxChiSq = false; //!< Flag whether we use the eta-dependent chi^2/dof cut
     Double_t m_minP = -1.; //!< Minimum p = p_T/cos(theta)
     Int_t m_minNSiHitsPhysical = -1; //!< Minimum number of physical (pixel + SCT) hits (no dead sensors)
@@ -167,6 +167,8 @@ namespace InDet {
 #endif
     std::vector< Double_t > m_vecEtaCutoffsForSiHitsCut; //!< Above each of these eta levels a new SCT hits + pix hits will be applied
     std::vector< Int_t > m_vecMinNSiHitsAboveEta; //!< the minimum Si hits above each eta level
+    std::vector< Double_t > m_vecEtaCutoffsForPtCut; //!< Above each of these eta levels a new pT cut will be applied                                                                           
+    std::vector< Double_t > m_vecMinPtAboveEta; //!< the minimum transverse momentum above each eta level
 
     std::vector< Double_t > m_vecPtCutoffsForSctHitsCut; //!< Above each of these pT levels a new SCT hits + dead sensors will be applied
     std::vector< Int_t > m_vecMinNSctHitsAbovePt; //!< the minimum SCT hits above each pt level

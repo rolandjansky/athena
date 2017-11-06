@@ -1,5 +1,4 @@
 #!/usr/bin env python
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and extract LBs for which at least N occurences of an object is found
 # at a position foundas noisy
@@ -26,7 +25,7 @@
 #                        2D OCCUPANCY: TopoClusters,EMTopoClusters,
 #                                      EMTopoJets,TightFwdElectrons 
 #                        1D OCCUPANCY: EMTopoJets_eta 
-#                        INTEGRAL    : NumberTau,NumberTightElectrons
+#                        INTEGRAL    : NumberTau,NumberTightElectrons,NumberHLTJet
 #  -m ARG12, --min ARG12
 #                        Min number of occurences in a LB
 #  -g, --grl             Look for Calo/LAr/Tile defects set in suspicious LBs
@@ -35,15 +34,15 @@
 import os, sys  
 import string
 import argparse
-from argparse import RawTextHelpFormatter
 
 import pathExtract         
 
 import ROOT
 from ROOT import *
-ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-gROOT.Reset()
+# Line below commented to work with release 21. 
+# Not sure what was its purpose...
+#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
 
@@ -60,19 +59,21 @@ def lbStr(lb):
   
 
 # Main===========================================================================================================
-parser = argparse.ArgumentParser(description='Process some integers.',formatter_class=RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-r','--run',type=int,dest='arg1',default='267599',help="Run number",action='store')
 parser.add_argument('-ll','--lowerlb',type=int,dest='arg2',default='0',help="Lower lb",action='store')
 parser.add_argument('-ul','--upperlb',type=int,dest='arg3',default='999999',help="Upper lb",action='store')
 parser.add_argument('-s','--stream',dest='arg4',default='Main',help="Stream without prefix: express/CosmicCalo/Main/ZeroBias/MinBias",action='store')
-parser.add_argument('-t','--tag',dest='arg5',default='data16_13TeV',help="DAQ tag: data16_13TeV, data16_cos...",action='store')
+parser.add_argument('-t','--tag',dest='arg5',default='data17_13TeV',help="DAQ tag: data16_13TeV, data16_cos...",action='store')
 parser.add_argument('-a','--amiTag',dest='arg6',default='f',help="First letter of AMI tag: x->express / f->bulk",action='store')
 parser.add_argument('-e','--eta',type=float,dest='arg7',default='-999.',help='Eta of hot spot',action='store')
 parser.add_argument('-p','--phi',type=float,dest='arg8',default='-999.',help='Phi of hot spot',action='store')
+parser.add_argument('-x','--x',type=float,dest='arg71',default='-999.',help='X of hot spot',action='store')
+parser.add_argument('-y','--y',type=float,dest='arg81',default='-999.',help='Y of hot spot',action='store')
 parser.add_argument('-ia','--integralAbove',type=float,dest='arg9',default='-999.',help='Lower bound of integral',action='store')
 parser.add_argument('-d','--delta',type=float,dest='arg10',default='0.1',help='Distance to look around hot spot',action='store')
-parser.add_argument('-o','--object',dest='arg11',default='TopoClusters',help='2D OCCUPANCY: TopoClusters,EMTopoClusters,\n              EMTopoJets,TightFwdElectrons,Tau \n1D OCCUPANCY: EMTopoJets_eta,Tau_eta,Tau_phi \nINTEGRAL    : NumberTau,NumberTightFwdElectrons',action='store')
-parser.add_argument('-m','--min',type=int,dest='arg12',default='5',help='Min number of occurences in a LB',action='store')
+parser.add_argument('-o','--object',dest='arg11',default='TopoClusters',help='2D OCCUPANCY: TopoClusters,EMTopoClusters,\n              EMTopoJets,TightFwdElectrons,Tau \n1D OCCUPANCY: EMTopoJets_eta,Tau_eta,Tau_phi \nINTEGRAL    : NumberTau,NumberTightFwdElectrons,NumberHLTJet',action='store')
+parser.add_argument('-m','--min',type=float,dest='arg12',default='5',help='Min number of occurences in a LB',action='store')
 parser.add_argument('-g','--grl',dest='arg13',help='Look for Calo/LAr/Tile defects set in suspicious LBs',action='store_true')
 
 args = parser.parse_args()
@@ -87,6 +88,8 @@ tag = args.arg5
 amiTag = args.arg6
 etaSpot = args.arg7
 phiSpot = args.arg8
+xSpot = args.arg71
+ySpot = args.arg81
 integralAbove = args.arg9
 deltaSpot = args.arg10
 objectType = args.arg11
@@ -120,11 +123,12 @@ if (objectType == "TopoClusters"):
                "Et25GeV",
                "Et50GeV"]
   # Types of plot
-  # 2d_hotSpot         : 2D occupancy plots: (eta/phi) required
+  # 2d_etaPhiHotSpot   : 2D occupancy plots: (eta/phi) required
+  # 2d_xyHotSpot       : any 2D plots: (x/y) required
   # 1d_etaHotSpot      : 1D occupancy plot along eta: (eta) required
   # 1d_phiHotSpot      : 1D occupancy plot along phi: (phi) required
-  # 1d_integralAbove: integral between (integralAbove) and infinity. (integralAbove) required
-  histoType = "2d_hotSpot"
+  # 1d_integralAbove   : integral between (integralAbove) and infinity. (integralAbove) required
+  histoType = "2d_etaPhiHotSpot"
   # Name of object
   histoName = "TopoClusters"
 if (objectType == "EMTopoClusters"):
@@ -140,7 +144,7 @@ if (objectType == "EMTopoClusters"):
   histoKeys = ["Et4GeV",
                "Et10GeV",
                "Et25GeV"]
-  histoType = "2d_hotSpot"
+  histoType = "2d_etaPhiHotSpot"
   histoName = "EMTopoClusters"
 # EMTopojets
 if (objectType == "EMTopoJets"):
@@ -164,7 +168,7 @@ if (objectType == "EMTopoJets"):
                "cut2",
                "cut3",
                "cut4"]
-  histoType = "2d_hotSpot"
+  histoType = "2d_etaPhiHotSpot"
   histoName = "EMTopoJets"
 if (objectType == "EMTopoJets_eta"):
   histoPath  = {"cut1":"run_%d/Jets/AntiKt4EMTopoJets/etasel_20000_inf_pt_inf_500000"%(runNumber),
@@ -199,7 +203,7 @@ if (objectType == "Tau"):
   histoKeys = ["NoCut",
                "Et15GeV",
                "Et15GeVBdtLoose"]
-  histoType = "2d_hotSpot"
+  histoType = "2d_etaPhiHotSpot"
   histoName = "Tau"
 if (objectType == "Tau_phi"):
   histoPath  = {"single":"run_%d/Tau/tauPhi"%(runNumber)}
@@ -232,7 +236,7 @@ if (objectType == "TightFwdElectrons"):
   histoLegend = {"single":"10GeV"}
   histoColor = {"single":color0}
   histoKeys = ["single"]
-  histoType = "2d_hotSpot"
+  histoType = "2d_etaPhiHotSpot"
   histoName = "Tight electrons"
 if (objectType == "NumberTightFwdElectrons"):
   histoPath  = {"single":"run_%d/egamma/forwardElectrons/forwardElectronTightN"%(runNumber)}
@@ -241,33 +245,78 @@ if (objectType == "NumberTightFwdElectrons"):
   histoKeys = ["single"]
   histoType = "1d_integralAbove"
   histoName = "Number of tight forward electrons"
+# HLT Jet
+if (objectType == "NumberHLTJet"):
+  histoPath  = {"HLTJet":"run_%d/HLT/JetMon/HLT/10j40_L14J20/HLTJet_n"%(runNumber)}
+  histoLegend = {"HLTJet":"All candidates"}
+  histoColor = {"HLTJet":color1}
+  histoKeys = ["HLTJet"]
+  histoType = "1d_integralAbove"
+  histoName = "Number of HLT jets - 10J40_L14J20 trigger"
+# LAr digits
+if (objectType == "LArDigits"):
+  histoPath  = {"Null-EMBA":"run_%d/LAr/Digits/Barrel/NullDigitChan_BarrelA"%(runNumber),
+                "Satu-EMBA":"run_%d/LAr/Digits/Barrel/SaturationChan_BarrelA"%(runNumber),
+                "Null-EMBC":"run_%d/LAr/Digits/Barrel/NullDigitChan_BarrelC"%(runNumber),
+                "Satu-EMBC":"run_%d/LAr/Digits/Barrel/SaturationChan_BarrelC"%(runNumber),
+                }
+  histoLegend = {"Null-EMBA":"Null digit - EMBA",
+                 "Satu-EMBA":"Saturated digit - EMBA",
+                 "Null-EMBC":"Null digit - EMBC",
+                 "Satu-EMBC":"Saturated digit - EMBC",}
+  histoColor = {"Null-EMBA":color0,
+                "Satu-EMBA":color1,
+                "Null-EMBC":color2,
+                "Satu-EMBC":color3}
+  histoKeys = ["Null-EMBA",
+               "Satu-EMBA",
+               "Null-EMBC",
+               "Satu-EMBC"]
+  histoType = "2d_xyHotSpot"
+  histoName = "LAr saturated/null digits"
+
 
 # Depending of the histo/check type, define the summary title and
 # check that the position of the "hot spot" (or lower bound of the integral) is defined
-if histoType == "2d_hotSpot":
+b_wholeHisto = False
+b_ValueNotEntries = False
+
+if histoType == "2d_etaPhiHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,etaSpot,phiSpot,histoName)
-  statement = "I have looked for LBs with at least %d entries at position (%.2f,%.2f) in %s histogram"%(minInLB,etaSpot,phiSpot,histoName)
+  statement = "I have looked for LBs with at least %.0f entries at position (%.2f,%.2f) in %s histogram"%(minInLB,etaSpot,phiSpot,histoName)
   if (etaSpot==-999. or phiSpot==-999.):
-    print "You must define eta/phi of hot spot"
-    sys.exit()
+    print "No eta/phi defined -> whole histogram considered!"
+    b_wholeHisto = True
+if histoType == "2d_xyHotSpot":
+  b_ValueNotEntries = True
+  if (deltaSpot != 0):
+    print "Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)"
+  summaryTitle = "Value in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,xSpot,ySpot,histoName)
+  statement = "I have looked for LBs with at least variable > %.2f at position (%.2f,%.2f) in %s histogram"%(minInLB,xSpot,ySpot,histoName)
+  if (xSpot==-999. or ySpot==-999.):
+    print "No x/y defined -> whole histogram considered!"
+    print "Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)"
+    b_wholeHisto = True
 elif histoType == "1d_etaHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the eta position %.2f - %s"%(deltaSpot,etaSpot,histoName)
-  statement = "I have looked for LBs with at least %d entries at eta position %.2f in %s histogram"%(minInLB,etaSpot,histoName)
+  statement = "I have looked for LBs with at least %.0f entries at eta position %.2f in %s histogram"%(minInLB,etaSpot,histoName)
   if (etaSpot==-999.):
-    print "You must define eta of hot spot"
-    sys.exit()
+    print "No eta/phi -> whole histogram considered!"
+    b_wholeHisto = True
 elif histoType == "1d_phiHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the phi position %.2f - %s"%(deltaSpot,phiSpot,histoName)
-  statement = "I have looked for LBs with at least %d entries at phi position %.2f in %s histogram"%(minInLB,phiSpot,histoName)
+  statement = "I have looked for LBs with at least %.0f entries at phi position %.2f in %s histogram"%(minInLB,phiSpot,histoName)
   if (phiSpot==-999.):
-    print "You must define eta of phi spot"
-    sys.exit()
+    print "No eta/phi defined -> whole histogram considered!"
+    b_wholeHisto = True
 elif histoType == "1d_integralAbove":
   summaryTitle = "Nb of hits in the band above %.2f - %s"%(integralAbove,histoName)
-  statement = "I have looked for LBs with at least %d entries in band above %.2f in %s histogram"%(minInLB,integralAbove,histoName)
+  statement = "I have looked for LBs with at least %.0f entries in band above %.2f in %s histogram"%(minInLB,integralAbove,histoName)
   if (integralAbove==-999.):
-    print "You must define the lower bound of your integral"
-    sys.exit()
+    print "No lwoer bound defined -> whole histogram considered!"
+    b_wholeHisto = True
+#    print "You must define the lower bound of your integral"
+#    sys.exit()
 # Definition of Canvas option depending on histogram type
 if (objectType == "NumberTightFwdElectrons" or objectType == "NumberTau"):
   canvasOption = "logy"
@@ -299,42 +348,55 @@ for iHisto in histoKeys:
   if "logy" in canvasOption:
     c[iHisto].SetLogy(1)
   # draw line, arrows, box to highlight the suspicious region considered
-  if (histoType == "2d_hotSpot"):
+  if (histoType == "2d_etaPhiHotSpot"):
     gStyle.SetPalette(1)
     gStyle.SetOptStat("")
     histo[iHisto].Draw("COLZ")
-    box[iHisto] = TBox(etaSpot-deltaSpot,phiSpot-deltaSpot,etaSpot+deltaSpot,phiSpot+deltaSpot)
-    box[iHisto].SetLineColor(kRed+1)
-    box[iHisto].SetLineWidth(3)
-    box[iHisto].SetFillStyle(0)
-    box[iHisto].Draw()
+    if not b_wholeHisto:
+      box[iHisto] = TBox(etaSpot-deltaSpot,phiSpot-deltaSpot,etaSpot+deltaSpot,phiSpot+deltaSpot)
+      box[iHisto].SetLineColor(kRed+1)
+      box[iHisto].SetLineWidth(3)
+      box[iHisto].SetFillStyle(0)
+      box[iHisto].Draw()
+  elif (histoType == "2d_xyHotSpot"):
+    gStyle.SetPalette(1)
+    gStyle.SetOptStat("")
+    histo[iHisto].Draw("COLZ")
+    if not b_wholeHisto:
+      box[iHisto] = TBox(xSpot-deltaSpot,ySpot-deltaSpot,xSpot+deltaSpot,ySpot+deltaSpot)
+      box[iHisto].SetLineColor(kRed+1)
+      box[iHisto].SetLineWidth(3)
+      box[iHisto].SetFillStyle(0)
+      box[iHisto].Draw()
   elif (histoType == "1d_etaHotSpot" or histoType == "1d_phiHotSpot"):
     minH = histo[iHisto].GetMinimum()*0.8
     maxH = histo[iHisto].GetMaximum()*1.2
     histo[iHisto].SetMinimum(minH)
     histo[iHisto].SetMaximum(maxH)
     histo[iHisto].Draw()
-    if maxH >0.:
-      if histoType == "1d_etaHotSpot": 
-        box[iHisto] = TBox(etaSpot-deltaSpot,minH,etaSpot+deltaSpot,maxH)
-      if histoType == "1d_phiHotSpot": 
-        box[iHisto] = TBox(phiSpot-deltaSpot,minH,phiSpot+deltaSpot,maxH)
-      box[iHisto].SetLineColor(kRed+1)
-      box[iHisto].SetLineWidth(3)
-      box[iHisto].SetFillStyle(0)
-      box[iHisto].Draw()
+    if not b_wholeHisto:
+      if maxH >0.:
+        if histoType == "1d_etaHotSpot": 
+          box[iHisto] = TBox(etaSpot-deltaSpot,minH,etaSpot+deltaSpot,maxH)
+        if histoType == "1d_phiHotSpot": 
+          box[iHisto] = TBox(phiSpot-deltaSpot,minH,phiSpot+deltaSpot,maxH)
+        box[iHisto].SetLineColor(kRed+1)
+        box[iHisto].SetLineWidth(3)
+        box[iHisto].SetFillStyle(0)
+        box[iHisto].Draw()
   elif (histoType == "1d_integralAbove"):
     maxH = histo[iHisto].GetMaximum()*1.2
     histo[iHisto].SetMaximum(maxH)
     histo[iHisto].Draw()
-    line[iHisto] = TLine(integralAbove,0,integralAbove,maxH)
-    line[iHisto].SetLineColor(kRed+1)
-    line[iHisto].SetLineWidth(3)
-    line[iHisto].Draw()
-    arrow[iHisto] = TArrow(integralAbove,0.2*histo[iHisto].GetMaximum(),histo[iHisto].GetBinLowEdge(histo[iHisto].GetNbinsX()),0.2*histo[iHisto].GetMaximum(),0.02,">")
-    arrow[iHisto].SetLineColor(kRed+1)
-    arrow[iHisto].SetLineWidth(3)
-    arrow[iHisto].Draw()
+    if not b_wholeHisto:
+      line[iHisto] = TLine(integralAbove,0,integralAbove,maxH)
+      line[iHisto].SetLineColor(kRed+1)
+      line[iHisto].SetLineWidth(3)
+      line[iHisto].Draw()
+      arrow[iHisto] = TArrow(integralAbove,0.2*histo[iHisto].GetMaximum(),histo[iHisto].GetBinLowEdge(histo[iHisto].GetNbinsX()),0.2*histo[iHisto].GetMaximum(),0.02,">")
+      arrow[iHisto].SetLineColor(kRed+1)
+      arrow[iHisto].SetLineWidth(3)
+      arrow[iHisto].Draw()
 
 #########################################################################
 # Extract the list of bins where to count.
@@ -342,39 +404,59 @@ for iHisto in histoKeys:
 # The regionBins is defined for each histogram allowing different binning
 regionBins = {}
 for iHisto in histoKeys:
-  if (histoType == "2d_hotSpot"):
-    nSteps = 1000
-    subStep = 2*deltaSpot/nSteps
+  if b_wholeHisto:
     regionBins[iHisto] = []
-    for ix in range(nSteps):# Assume that eta is on x axis
-      iEta = etaSpot - deltaSpot + ix * subStep 
-      for iy in range (nSteps):
-        iPhi = phiSpot - deltaSpot + iy * subStep
-        tmpBin = histo[iHisto].FindBin(iEta,iPhi)
+    if ("2d" in histoType):  
+      maxBin = (histo[iHisto].GetNbinsX()+2)*(histo[iHisto].GetNbinsY()+2)
+    else:
+      maxBin = (histo[iHisto].GetNbinsX()+2)
+    for iBin in range(maxBin):
+      regionBins[iHisto].append(iBin)
+  else:
+    if (histoType == "2d_etaPhiHotSpot"):
+      nSteps = 1000
+      subStep = 2*deltaSpot/nSteps
+      regionBins[iHisto] = []
+      for ix in range(nSteps):# Assume that eta is on x axis
+        iEta = etaSpot - deltaSpot + ix * subStep 
+        for iy in range (nSteps):
+          iPhi = phiSpot - deltaSpot + iy * subStep
+          tmpBin = histo[iHisto].FindBin(iEta,iPhi)
+          if (tmpBin not in regionBins[iHisto]):
+            regionBins[iHisto].append(tmpBin)
+    elif (histoType == "2d_xyHotSpot"):
+      nSteps = 1000
+      subStep = 2*deltaSpot/nSteps
+      regionBins[iHisto] = []
+      for ix in range(nSteps):
+        iX = xSpot - deltaSpot + ix * subStep 
+        for iy in range (nSteps):
+          iY = ySpot - deltaSpot + iy * subStep
+          tmpBin = histo[iHisto].FindBin(iX,iY)
+          if (tmpBin not in regionBins[iHisto]):
+            regionBins[iHisto].append(tmpBin)
+    elif (histoType == "1d_etaHotSpot"):
+      nSteps = 1000
+      subStep = 2*deltaSpot/nSteps
+      regionBins[iHisto] = []
+      for ix in range(nSteps):
+        iEta = etaSpot - deltaSpot + ix * subStep
+        tmpBin = histo[iHisto].FindBin(iEta)
         if (tmpBin not in regionBins[iHisto]):
-          regionBins[iHisto].append(tmpBin)
-  elif (histoType == "1d_etaHotSpot"):
-    nSteps = 1000
-    subStep = 2*deltaSpot/nSteps
-    regionBins[iHisto] = []
-    for ix in range(nSteps):
-      iEta = etaSpot - deltaSpot + ix * subStep
-      tmpBin = histo[iHisto].FindBin(iEta)
-      if (tmpBin not in regionBins[iHisto]):
-          regionBins[iHisto].append(tmpBin)
-  elif (histoType == "1d_phiHotSpot"):
-    nSteps = 1000
-    subStep = 2*deltaSpot/nSteps
-    regionBins[iHisto] = []
-    for ix in range(nSteps):
-      iPhi = phiSpot - deltaSpot + ix * subStep
-      tmpBin = histo[iHisto].FindBin(iPhi)
-      if (tmpBin not in regionBins[iHisto]):
-          regionBins[iHisto].append(tmpBin)
-  elif (histoType == "1d_integralAbove"):
-    regionBins[iHisto] = []
-    for iBin in range(histo[iHisto].FindBin(integralAbove),histo[iHisto].GetNbinsX()):
-      regionBins[iHisto].append(iBin)          
+            regionBins[iHisto].append(tmpBin)
+    elif (histoType == "1d_phiHotSpot"):
+      nSteps = 1000
+      subStep = 2*deltaSpot/nSteps
+      regionBins[iHisto] = []
+      for ix in range(nSteps):
+        iPhi = phiSpot - deltaSpot + ix * subStep
+        tmpBin = histo[iHisto].FindBin(iPhi)
+        if (tmpBin not in regionBins[iHisto]):
+            regionBins[iHisto].append(tmpBin)
+    elif (histoType == "1d_integralAbove"):
+      regionBins[iHisto] = []
+      for iBin in range(histo[iHisto].FindBin(integralAbove),histo[iHisto].GetNbinsX()):
+        regionBins[iHisto].append(iBin)          
 
 # Extract all the unmerged files available with the LB range
 lbFilePathList = pathExtract.returnEosHistPathLB(runNumber,lowerLumiBlock,upperLumiBlock,stream,amiTag,tag)
@@ -383,7 +465,7 @@ nbHitInHot = []
 nLB=2500
 nbHitInHot = {}
 for iHisto in histoKeys:
-  nbHitInHot[iHisto] = [0] * nLB
+  nbHitInHot[iHisto] = [0.] * nLB
 lowerLB = 2500
 upperLB = 0
 lbCanvas = []
@@ -441,26 +523,43 @@ for iHisto in histoKeys:
   totalInRegionRecomp[iHisto] = 0
   totalInRegion[iHisto] = 0
 # Then count the number of events and check if equal
+# Also sort the LB to highlight most problematic LB
+sortedLB = {}
+
 for iHisto in histoKeys:
   print "======= ",histoLegend[iHisto]
   for iBin in regionBins[iHisto]:
     totalInRegion[iHisto] = totalInRegion[iHisto] + histo[iHisto].GetBinContent(iBin)
+  
+  sortedLB[iHisto] = [0] * nLB
   for i in range(nLB):
     totalInRegionRecomp[iHisto] = totalInRegionRecomp[iHisto] + nbHitInHot[iHisto][i]
+    
+    sortedLB[iHisto][i] = i
     if (nbHitInHot[iHisto][i]>=minInLB):
-      print "LB: %d -> %d hits"%(i,nbHitInHot[iHisto][i])
       suspiciousLBlist.append(i)
     if (nbHitInHot[iHisto][i]>maxNbInHot):
       maxNbInHot = nbHitInHot[iHisto][i]
+      
+  sortedLB[iHisto].sort(key=dict(zip(sortedLB[iHisto],nbHitInHot[iHisto])).get,reverse=True)
+  for i in range(nLB):
+    if nbHitInHot[iHisto][sortedLB[iHisto][i]]>=minInLB:
+      if not b_ValueNotEntries:
+        print "%d-LB: %d -> %d hits"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]])
+      else:
+        print "%d-LB: %d -> %.2f"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]])
 
-  print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
-  if (totalInRegionRecomp[iHisto] != totalInRegion[iHisto]):
-    print "To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto])
-    if (totalInRegionRecomp[iHisto] < totalInRegion[iHisto]):
-      print "This is normal only if you restricted the LB range..."
-    if (totalInRegionRecomp[iHisto] > totalInRegion[iHisto]):
-      print "This can be also caused by multiple processing, try to filter with -a option"
-      print "File path of the first file:",lbFilePathList[0]
+  if not b_ValueNotEntries:
+    print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
+    if (totalInRegionRecomp[iHisto] != totalInRegion[iHisto]):
+      print "To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto])
+      if (totalInRegionRecomp[iHisto] < totalInRegion[iHisto]):
+        print "This is normal only if you restricted the LB range..."
+      if (totalInRegionRecomp[iHisto] > totalInRegion[iHisto]):
+        print "This can be also caused by multiple processing, try to filter with -a option"
+        print "File path of the first file:",lbFilePathList[0]
+  else:
+    print "In the whole run, the value is %.2f"%(totalInRegion[iHisto])
 
 #########################################################################
 ## Plot evolution vs LB
@@ -470,12 +569,13 @@ leg.SetHeader("Run %d"%runNumber)
 if (upperLB>=lowerLB): # check that at least one noisy LB was found
   c0 = TCanvas()
   gStyle.SetOptStat("")
-  c0.SetLogy(1)
+  if histoType != "2d_xyHotSpot":
+    c0.SetLogy(1)
   h0Evol = {}
   first = True
   for iHisto in histoKeys:
     h0Evol[iHisto] = TH1I("h0Evol%s"%(iHisto),summaryTitle,upperLB-lowerLB+1,lowerLB-0.5,upperLB+0.5)
-    h0Evol[iHisto].SetXTitle("LumiBlock (Only LB with >= %d entries)"%(minInLB))
+    h0Evol[iHisto].SetXTitle("LumiBlock (Only LB with >= %.0f entries)"%(minInLB))
     h0Evol[iHisto].SetLineColor(histoColor[iHisto])
     h0Evol[iHisto].SetMarkerColor(histoColor[iHisto])
     h0Evol[iHisto].SetMarkerStyle(20)
@@ -484,8 +584,9 @@ if (upperLB>=lowerLB): # check that at least one noisy LB was found
       h0Evol[iHisto].Fill(i,nbHitInHot[iHisto][i])  
     if first:
       h0Evol[iHisto].Draw("P HIST")
-      h0Evol[iHisto].SetMinimum(minInLB-1)
-      h0Evol[iHisto].SetMaximum(maxNbInHot*1.5)
+      if histoType != "2d_xyHotSpot":
+        h0Evol[iHisto].SetMinimum(minInLB-0.8)
+        h0Evol[iHisto].SetMaximum(maxNbInHot*1.5)
       first = False
     else:
       h0Evol[iHisto].Draw("PSAME HIST")

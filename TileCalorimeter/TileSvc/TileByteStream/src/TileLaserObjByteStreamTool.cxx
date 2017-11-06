@@ -14,6 +14,7 @@
 
 // Tile includes
 #include "TileByteStream/TileLaserObjByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
 #include "TileByteStream/TileROD_Encoder.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileIdentifier/TileHWID.h"
@@ -33,6 +34,8 @@ const InterfaceID& TileLaserObjByteStreamTool::interfaceID() {
  TileLaserObjByteStreamTool::TileLaserObjByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent)
+  , m_tileHWID(0)
+  , m_hid2re(0)
   , m_verbose(false)
 {
   declareInterface< TileLaserObjByteStreamTool  >( this );
@@ -48,10 +51,15 @@ TileLaserObjByteStreamTool::~TileLaserObjByteStreamTool() {
 
 StatusCode TileLaserObjByteStreamTool::initialize() {
 
+  ATH_MSG_INFO ("Initializing TileLaserObjByteStreamTool");
+
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  m_hid2re.setTileHWID(m_tileHWID);
-  m_fea.idMap().setTileHWID(m_tileHWID);
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
+  CHECK( dec.retrieve() );
+
+  m_hid2re = dec->getHid2reHLT();
+
   return StatusCode::SUCCESS;
 }
 

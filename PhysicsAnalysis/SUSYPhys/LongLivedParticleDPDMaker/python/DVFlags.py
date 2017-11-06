@@ -23,10 +23,95 @@ class DV_MultiJetTriggerFlags(JobProperty):
     StoredValue=True
     triggers = ["HLT_4j100","HLT_5j85","HLT_5j85_lcw","HLT_5j75_0eta250","EF_6j70","HLT_6j45_0eta240","HLT_7j45"]
     triggers += ["HLT_4j110","HLT_5j85","HLT_5j65_0eta240_L14J150ETA25","HLT_6j85","HLT_6j55_0eta240_L14J150ETA25"]  #2017
+    triggers += ["HLT_4j120","HLT_4j130","HLT_5j60","HLT_5j70","HLT_5j90","HLT_5j100","HLT_6j45","HLT_6j60","HLT_6j70","HLT_7j50"] #L34
+    triggers += ["HLT_4j60_gsc100_boffperf_split","HLT_4j60_gsc110_boffperf_split","HLT_4j60_gsc115_boffperf_split",
+			"HLT_4j70_gsc120_boffperf_split","HLT_4j70_gsc130_boffperf_split","HLT_5j50_gsc70_boffperf_split",
+			"HLT_5j55_gsc75_boffperf_split","HLT_5j60_gsc85_boffperf_split","HLT_5j60_gsc90_boffperf_split",
+			"HLT_5j60_gsc100_boffperf_split","HLT_6j45_gsc60_boffperf_split","HLT_6j50_gsc65_boffperf_split", 
+			"HLT_6j50_gsc70_boffperf_split","HLT_6j60_gsc85_boffperf_split","HLT_7j25_gsc45_boffperf_split_L14J20",
+			"HLT_7j25_gsc50_boffperf_split_L14J20" ]#gsc 
+    triggers += ["HLT_2j275_j140","HLT_2j250_j120","HLT_2j220_j120"]#3jet
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
+### Additional multijet filter for DV+Jets
+
+class DV_2JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=500.0*Units.GeV
+    nPassed=2
+    pass
+primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags_HighpTCut)
+
+class DV_3JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=180.0*Units.GeV
+    nPassed=3
+    pass
+primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags_HighpTCut)
+
+class DV_4JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=220.0*Units.GeV
+    nPassed=4
+    pass
+primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags_HighpTCut)
+
+class DV_5JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=170.0*Units.GeV
+    nPassed=5
+    pass
+primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags_HighpTCut)
+
+class DV_6JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=100.0*Units.GeV
+    nPassed=6
+    pass
+primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags_HighpTCut)
+
+class DV_7JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=75.0*Units.GeV
+    nPassed=7
+    pass
+primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags_HighpTCut)
+
+
+
+
 ### multi-jet filter just to verify trigger - 4j80 OR 5j55 OR 6j45
+
+class DV_2JetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=220.0*Units.GeV
+    nPassed=2
+    pass
+primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags)
+
+class DV_3JetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=120.0*Units.GeV
+    nPassed=3
+    pass
+primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags)
 
 class DV_4JetFilterFlags(JobProperty):
     statusOn=True
@@ -117,6 +202,7 @@ class DV_METFilterFlags(JobProperty):
               "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"
 		         ]
     triggers+=[ "HLT_xe110_pufit_L1XE60", "HLT_xe120_mht_L1XE60_xe80_L1XE60" ]  #2017
+    triggers+=[ "HLT_xe120_pufit_L1XE60", "HLT_xe120_mht_xe80_L1XE60" ] #L34
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
@@ -167,7 +253,7 @@ class DV_MeffFilterFlags(JobProperty):
 	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
 		         ]
     pass
-primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
+#primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 
 class DV_PrescalerFlags(JobProperty):
     statusOn=True
@@ -176,3 +262,4 @@ class DV_PrescalerFlags(JobProperty):
     prescale=20
     pass
 primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
+

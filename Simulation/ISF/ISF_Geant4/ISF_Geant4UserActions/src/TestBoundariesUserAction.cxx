@@ -25,7 +25,7 @@ namespace G4UA{
     TestBoundariesUserAction::TestBoundariesUserAction():AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"TestBoundariesUserAction"){;
     }
 
-    void TestBoundariesUserAction::beginOfRun(const G4Run*){;
+    void TestBoundariesUserAction::BeginOfRunAction(const G4Run*){;
       file = TFile::Open("points.root","RECREATE");
       ATH_MSG_INFO("Open file points.root, create tree");
       file->cd();
@@ -41,7 +41,7 @@ namespace G4UA{
       return;
     }
     
-    void TestBoundariesUserAction::endOfRun(const G4Run*){
+    void TestBoundariesUserAction::EndOfRunAction(const G4Run*){
       ATH_MSG_INFO("Writing file points.root");
       file->cd();
       tree->Write();
@@ -51,7 +51,7 @@ namespace G4UA{
       tree=0;
     }
     
-    void TestBoundariesUserAction::processStep(const G4Step* aStep){
+    void TestBoundariesUserAction::UserSteppingAction(const G4Step* aStep){
       G4StepPoint * preStep = aStep->GetPreStepPoint();
       
       G4StepPoint *postStep = aStep->GetPostStepPoint();

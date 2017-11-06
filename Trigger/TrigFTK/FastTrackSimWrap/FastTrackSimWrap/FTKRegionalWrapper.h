@@ -102,6 +102,7 @@ private:
   unsigned int m_PixelClusteringMode; /*  1 means ToT information is used
                                           && 400/600um pixels are accounted for
 					  0 is default used up to 2013 */
+  bool m_Ibl3DRealistic; //If true, use HWlike clustering in IBL 3D mod
   bool m_DuplicateGanged;
   bool m_GangedPatternRecognition;
   bool m_WriteClustersToESD;  //write the clusters to the ESD

@@ -55,10 +55,19 @@ if not hasattr(ToolSvc,LumiOnlineTool.getName()):
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaL1SelectorTool
 EgammaL1Emulator = ToolFactory( Trig__TrigEgammaL1SelectorTool,
                                 name                   = "TrigEgammaL1Emulator",
+                                WPNames                =       ['Tight','Medium','Loose'],
+                                                      #  [Default, Tight , Medium, Loose ]
+                                HadCoreCutMin          = [ 1.0   ,  1.0  ,  1.0  ,  1.0  ],
+                                HadCoreCutOff          = [-0.2   , -0,2  , -0.2  , -0.2  ],
+                                HadCoreSlope           = [ 1/23. ,  1/23.,  1/23.,  1/23.],
+                                EmIsolCutMin           = [ 2.0   ,  1.0  ,  1.0  ,  1.5  ],
+                                EmIsolCutOff           = [-1.8   , -2.6  , -2.0  , -1.8  ],
+                                EmIsolSlope            = [ 1/8.  ,  1/8. ,  1/8. ,  1/8. ],
+                                IsolCutMax             = 50,
                                 OutputLevel            = OutputLevel)
 
 #*****************************************************************************
-# L2 staff
+# L2 staff (all Asgs will be imported from the current relase)
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaL2SelectorTool
 from TrigEgammaEmulationTool.TrigEgammaEmulationL2Config import EgammaL2CaloVeryLooseEmulator, EgammaL2CaloLooseEmulator,\
     EgammaL2CaloMediumEmulator, EgammaL2CaloTightEmulator, EgammaL2ElectronEmulator
@@ -81,14 +90,19 @@ EgammaL2Emulator = ToolFactory(Trig__TrigEgammaL2SelectorTool,
 
 #*****************************************************************************
 from TrigEgammaEmulationTool.TrigEgammaEmulationEFConfig import EgammaEFCaloDefaultEmulator, EgammaEFElectronDefaultEmulator, \
-    EgammaEFPhotonEmulator
+    EgammaEFPhotonEmulator, EgammaEFElectronNoD0Emulator
 
 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import probeListLowMidPtSupportingTriggers, probeListHighPtSupportingTriggers
-#from TrigEgammaAnalysisTools.TrigEgammaProbelist import probeListLowMidPtPhysicsTriggers, probeListHighMidPtPhysicsTriggers
+from TrigEgammaAnalysisTools.TrigEgammaProbelist import probeListLowMidPtPhysicsTriggers, probeListHighPtPhysicsTriggers
 supportingTriggerList = probeListLowMidPtSupportingTriggers+probeListHighPtSupportingTriggers
 
-#Emulator tool
+# Update the supporting list with very loose chains. This will be used in data collisin matches
+for trig in probeListLowMidPtPhysicsTriggers+probeListHighPtPhysicsTriggers:
+  if 'vloose' in trig:  supportingTriggerList.append(trig)
+
+# Emulator tool
+# (all Asgs will be imported from the current relase)
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEmulationTool
 logger.info("Creating TrigEgammaEmulationTool")
 TrigEgammaEmulationTool  = ToolFactory( Trig__TrigEgammaEmulationTool, 
@@ -101,15 +115,15 @@ TrigEgammaEmulationTool  = ToolFactory( Trig__TrigEgammaEmulationTool,
                                         EFCaloSelectorTool      = EgammaEFCaloDefaultEmulator,
                                         EFElectronSelectorTools = [ EgammaEFElectronDefaultEmulator,
                                                                     #EgammaEFElectronCutD0DphiDetaEmulator, 
-                                                                    #EgammaEFElectronNoD0Emulator,
+                                                                    EgammaEFElectronNoD0Emulator,
                                                                     #EgammaEFElectronNoDphiResEmulator,
                                                                     #EgammaEFElectronSmoothEmulator,
                                                                   ],
                                         EFPhotonSelectorTools   = [ EgammaEFPhotonEmulator],
+                                        DoL2ElectronFex         = True,  # V7 menu
+                                        DoRinger                = False, # V7 menu
+                                        DoEFCaloPid             = False, # V7 menu
                                         )
                                           
-
-
-
 ###############################################################################################
 

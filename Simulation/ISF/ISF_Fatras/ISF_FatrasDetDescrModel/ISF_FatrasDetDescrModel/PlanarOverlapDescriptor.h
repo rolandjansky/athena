@@ -54,7 +54,7 @@ namespace iFatras {
     virtual ~PlanarOverlapDescriptor(){}
          
     /**Pseudo-Constructor*/
-    PlanarOverlapDescriptor* clone() const;
+    virtual PlanarOverlapDescriptor* clone() const override;
     
     /** get the compatible surfaces 
         - return vector : surfaces

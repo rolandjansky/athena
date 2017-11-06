@@ -46,9 +46,10 @@ distArea = '/afs/cern.ch/atlas/software/builds'
 
 eosProjSitRTTPath = '/eos/atlas/atlascerngroupdisk/proj-sit/rtt'
 
-eosBinDir = '/afs/cern.ch/project/eos/installation/atlas/bin'
-eosLibDir = '/afs/cern.ch/project/eos/installation/atlas/lib64'
-eos = os.path.join(eosBinDir, 'eos.select')  # alias to the EOS command
+eosBinDir = '/afs/cern.ch/project/eos/installation/atlas/bin' # not needed any more? HAZ
+eosLibDir = '/afs/cern.ch/project/eos/installation/atlas/lib64'# not needed any more? HAZ
+#eos = os.path.join(eosBinDir, 'eos.select')  # alias to the EOS command
+eos = 'eos'
 
 
 # The path to the private file containing RTT connection params for AMI.

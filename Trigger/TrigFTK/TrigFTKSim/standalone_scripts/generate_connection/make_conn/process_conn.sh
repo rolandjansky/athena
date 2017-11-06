@@ -8,7 +8,7 @@
 #
 ##############################################################################
 
-EOSCOMMAND="/afs/cern.ch/project/eos/installation/0.2.31/bin/eos.select"
+EOSCOMMAND="eos"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Help

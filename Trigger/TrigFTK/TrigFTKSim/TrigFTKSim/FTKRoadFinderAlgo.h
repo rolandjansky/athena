@@ -64,6 +64,7 @@ private:
   double m_ss_offset_fraction;
 
   int m_PixelClusteringMode; // clustering mode: 0 left edge, 1 center (also use ToT and correct for different lenght of pixels)
+  bool m_Ibl3DRealistic; //If true, use HWlike clustering in IBL 3D mod
   int m_DuplicateGanged; // duplicate ganged pixels to remove efficiency loss
   int m_GangedPatternRecognition;  // pattern recognition to remove duplicates
   int m_SctClustering;       // SCT clustering: 0 disabled, 1 enabled

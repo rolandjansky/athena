@@ -23,10 +23,9 @@ find_package( tdaq-common )
 
 # Component(s) in the package:
 atlas_add_component( AFP_ByteStream2RawCnv
-                     src/*.cxx
-                     src/components/*.cxx
+		     src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv)
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv AFP_ByteStream2RawCnvLib)
 
 atlas_add_library( AFP_ByteStream2RawCnvLib
 		   src/*.cxx

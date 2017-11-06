@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           Generators/GeneratorObjects
-                          Generators/HforTool
+                          Generators/GenInterfaces
                           Generators/TruthUtils
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
                           PhysicsAnalysis/D3PDMaker/D3PDMakerUtils

@@ -42,7 +42,7 @@ StatusCode LArFillDSPConfig::stop() {
 
   StatusCode sc=detStore()->retrieve(m_onlineID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to get LArOnlineID" << endreq;
+    ATH_MSG_ERROR( "Failed to get LArOnlineID" );
     return sc;
   }
 
@@ -53,7 +53,8 @@ StatusCode LArFillDSPConfig::stop() {
   
   for (unsigned iFeb=0;iFeb<nFebs;++iFeb) {
     const HWIdentifier febId=m_onlineID->feb_Id(iFeb);
-    bool useMGRampIntercept=(m_onlineID->isEMBchannel(febId) || m_onlineID->isEMECchannel(febId));
+    //bool useMGRampIntercept=(m_onlineID->isEMBchannel(febId) || m_onlineID->isEMECchannel(febId));
+    bool useMGRampIntercept=(m_onlineID->isEMBchannel(febId) || m_onlineID->isEMECOW(febId) );
     if(m_lowmu) {
        if(m_onlineID->isFCALchannel(febId)) useMGRampIntercept=true;
     } 
@@ -65,7 +66,7 @@ StatusCode LArFillDSPConfig::stop() {
   
   std::unique_ptr<AthenaAttributeList> pAttrList(larDSPConfig.attributeList());
   ATH_CHECK(detStore()->record(std::move(pAttrList),m_folderName));
-  msg(MSG::INFO) << "Successfully recorded AthenaAttributeList containing DSP configuration for " << nFebs << " Febs" << endreq;
+  ATH_MSG_INFO( "Successfully recorded AthenaAttributeList containing DSP configuration for " << nFebs << " Febs" );
 
   if (m_dump) {
     //Crosscheck:

@@ -16,6 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
+#include <array>
+
 class ITileBadChanTool;
 class TileDCSSvc;
 class TileBeamInfoProvider;
@@ -92,7 +94,7 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     /* njunior@cern.ch */
 
     TH2I_LW* m_global[2];
-    TH2I_LW* m_mismatchedL1TriggerType[2];
+    TH2I_LW* m_mismatchedL1TriggerType;
 
     TH2I_LW* m_badChannelJump2D[4];
     TH2I_LW* m_badChannelNeg2D[4];
@@ -103,6 +105,9 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     TH2I_LW* m_errors[4][64];
     TProfile_LW* m_errorsLB[4][64];
 
+    std::array<TH2I_LW*, 4> m_badPulseQuality;
+    TH2I_LW* m_noAllDigitsInDrawer;
+
     std::vector<std::string> m_errorsLabels;
     std::vector<std::string> m_partitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
@@ -110,12 +115,16 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
 
     bool m_isFirstEvent;
 
-    static const int NERROR = 15;
+    static const int NERROR = 17;
+    static const int MASKEDERROR = NERROR - 3;
+    static const int DCSERROR = NERROR - 2;
+    static const int HVERROR = NERROR - 1;
     static const int NCORRUPTED = 13;
     static const int NDMU = 16;
 
     int m_nLumiblocks;
-
+    float m_qualityCut;
+    unsigned int m_nEventsWithAllDigits;
     /*---------------------------------------------------------*/
 
 };

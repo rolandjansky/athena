@@ -10,40 +10,40 @@
 #include "G4TouchableHistory.hh"
 #include "G4VProcess.hh"
 
-StepHelper::StepHelper():theStep(0)
+StepHelper::StepHelper():m_theStep(0)
 {
 }
-StepHelper::StepHelper(const G4Step* s):theStep(s)
+StepHelper::StepHelper(const G4Step* s):m_theStep(s)
 {
 }
 void StepHelper::SetStep(const G4Step* s)
 {
-	theStep=s;
+	m_theStep=s;
 }
 G4ThreeVector StepHelper::PreStepPosition() const
 {
-	assert (theStep!=0);
-	return theStep->GetPreStepPoint()->GetPosition();
+	assert (m_theStep!=0);
+	return m_theStep->GetPreStepPoint()->GetPosition();
 }
 G4ThreeVector StepHelper::PostStepPosition() const
 {
-	assert (theStep!=0);
-	return theStep->GetPostStepPoint()->GetPosition();
+	assert (m_theStep!=0);
+	return m_theStep->GetPostStepPoint()->GetPosition();
 }
 std::string StepHelper::ParticleName() const
 {
-	assert (theStep!=0);
-	return theStep->GetTrack()->GetDefinition()->GetParticleName();
+	assert (m_theStep!=0);
+	return m_theStep->GetTrack()->GetDefinition()->GetParticleName();
 }
 int StepHelper::ParticlePDGCode() const
 {
-	assert (theStep!=0);
-	return theStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+	assert (m_theStep!=0);
+	return m_theStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 }
 double StepHelper::DepositedEnergy() const
 {
-	assert (theStep!=0);
-	return theStep->GetTotalEnergyDeposit();
+	assert (m_theStep!=0);
+	return m_theStep->GetTotalEnergyDeposit();
 }
 G4LogicalVolume* StepHelper::GetPreStepLogicalVolume(int iLevel) const
 {
@@ -56,7 +56,7 @@ std::string StepHelper::GetPreStepLogicalVolumeName(int iLevel) const
 G4VPhysicalVolume* StepHelper::GetPreStepPhysicalVolume(int iLevel) const
 {
 	G4TouchableHistory *history=(G4TouchableHistory *)
-					theStep->GetPreStepPoint()->GetTouchable();
+					m_theStep->GetPreStepPoint()->GetTouchable();
 	if (iLevel<=0)
 	{
 		return history->GetVolume(abs(iLevel));
@@ -78,7 +78,7 @@ std::string StepHelper::GetPostStepLogicalVolumeName(int iLevel) const
 G4VPhysicalVolume* StepHelper::GetPostStepPhysicalVolume(int iLevel) const
 {
 	G4TouchableHistory *history=(G4TouchableHistory *)
-					theStep->GetPostStepPoint()->GetTouchable();
+					m_theStep->GetPostStepPoint()->GetTouchable();
 	if (iLevel<=0)
 	{
 		return history->GetVolume(abs(iLevel));
@@ -91,17 +91,17 @@ G4VPhysicalVolume* StepHelper::GetPostStepPhysicalVolume(int iLevel) const
 }
 int StepHelper::PreStepBranchDepth() const
 {
-	return ((G4TouchableHistory *)theStep->GetPreStepPoint()->
+	return ((G4TouchableHistory *)m_theStep->GetPreStepPoint()->
 				GetTouchable())->GetHistoryDepth();
 }
 int StepHelper::PostStepBranchDepth() const
 {
-	return ((G4TouchableHistory *)theStep->GetPostStepPoint()->
+	return ((G4TouchableHistory *)m_theStep->GetPostStepPoint()->
 				GetTouchable())->GetHistoryDepth();
 }
 const G4VProcess* StepHelper::GetProcess() const
 {
-	return theStep->GetPostStepPoint()->GetProcessDefinedStep();
+	return m_theStep->GetPostStepPoint()->GetProcessDefinedStep();
 }
 
 std::string StepHelper::GetProcessName() const

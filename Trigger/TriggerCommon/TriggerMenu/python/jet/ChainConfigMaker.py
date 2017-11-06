@@ -546,7 +546,7 @@ def _get_fex_params(parts):
     scan = _get_scan_type(parts)
     # the trimming fex needs some further parameters
     if fex_type == 'jetrec_trimming':
-        args['ptfrac'] = 0.05
+        args['ptfrac'] = 0.04
         args['rclus'] = 0.2
 
 

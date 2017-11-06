@@ -41,9 +41,6 @@ namespace LArG4
       /// @name Configuration
       /// @{
 
-      /// Hit collection name
-      std::string m_hitCollName;
-
       /// List of volumes for the stac SD
       std::vector<std::string> m_stacVolumes;
       /// List of volumes for the presampler SD

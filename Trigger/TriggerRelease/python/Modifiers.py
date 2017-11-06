@@ -496,10 +496,15 @@ class forceTileRODMap(_modifier):
     """
     def postSetup(self):
         from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
+           from TileByteStream.TileByteStreamConf import TileROD_Decoder
+           svcMgr.ToolSvc+=TileROD_Decoder()
         if _run_number<318000:  # use old readout scheme (default is new one)
             log.info('Reverting to pre-2017 Tile ROD map')
-            ToolSvc.TrigDataAccess.fullTileMode=False
-            ToolSvc.TileRegionSelectorTable.FullRODs=False
+            #ToolSvc.TrigDataAccess.fullTileMode=False
+            #ToolSvc.TileRegionSelectorTable.FullRODs=False
+            svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
+
 
 
 class useOnlineLumi(_modifier):

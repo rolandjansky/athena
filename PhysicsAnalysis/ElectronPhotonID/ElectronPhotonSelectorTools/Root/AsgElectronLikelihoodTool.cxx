@@ -308,7 +308,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   const float eta = (cluster->etaBE(2)); 
   if ( fabs(eta) > 2.5 )
     {
-      ATH_MSG_WARNING("Failed, cluster->etaBE(2) range." << eta );
+      ATH_MSG_INFO("Failed, cluster->etaBE(2) range." << eta );
       return m_acceptDummy;
     }
   

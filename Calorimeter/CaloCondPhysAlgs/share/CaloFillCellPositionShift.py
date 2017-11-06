@@ -6,12 +6,22 @@
 
 # configuration for data, read noise from database through CaloNoiseToolDB
 
-GlobalTag =  'COMCOND-ES1C-000-00'
-RunNumber = 99999
-Geometry = 'ATLAS-GEO-01-00-00'
+if 'GlobalTag' not in dir():
+   GlobalTag =  'OFLCOND-RUN12-SDR-35'
+
+if 'RunNumber' not in dir():
+   RunNumber = 999999
+
+if 'Geometry' not in dir():   
+   Geometry = 'ATLAS-R2-2015-03-01-00'
+ 
+if 'FolderTag' not in dir():
+   FolderTag="LArCellPositionShift-ideal"
+ 
+if 'OutputSQLiteFile' not in dir():   
+   OutputSQLiteFile="LArCellPosition.db"
 
 IOVRunNumberMin=0
-OutputSQLiteFile="LArCellPosition.db"
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
@@ -61,6 +71,7 @@ include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+conddb.blockFolder("/LAR/LArCellPositionShift")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
@@ -89,7 +100,7 @@ myOCA=OutputConditionsAlg("myOCA","LArCellPositionShift.pool.root")
 myOCA.ObjectList = ["CaloRec::CaloCellPositionShift#LArCellPositionShift#/LAR/LArCellPositionShift"] 
 myOCA.WriteIOV   = True
 myOCA.OutputLevel= DEBUG
-myOCA.IOVTagList = [ "LArCellPositionShift-test" ]
+myOCA.IOVTagList = [ FolderTag ]
  
 ####to set the IOV to cover all run/event
 include ("RegistrationServices/IOVRegistrationSvc_jobOptions.py")

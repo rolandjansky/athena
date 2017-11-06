@@ -10,7 +10,7 @@ import os
 import sys
 import yaml
 
-from art_misc import check, run_command
+from art_misc import run_command
 from art_header import ArtHeader
 
 
@@ -37,7 +37,7 @@ class ArtBase(object):
         """TBD."""
         self.not_implemented()
 
-    def list(self, package, type):
+    def list(self, package, type, json_format=False):
         """TBD."""
         self.not_implemented()
 
@@ -51,7 +51,7 @@ class ArtBase(object):
 
     def validate(self, script_directory):
         """TBD."""
-        directories = self.get_test_directories(script_directory)
+        directories = self.get_test_directories(script_directory.rstrip("/"))
         for directory in directories.itervalues():
             files = self.get_files(directory)
             for fname in files:
@@ -63,10 +63,24 @@ class ArtBase(object):
     #
     def compare_ref(self, file_name, ref_file, entries=-1):
         """TBD."""
-        out = check(run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries " + str(entries)))
+        import PyUtils.PoolFile as PF
+
+        # diff-pool
+        df = PF.DiffFiles(refFileName=ref_file, chkFileName=file_name, ignoreList=['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings'])
+        df.printSummary()
+        stat = df.status()
+        print stat
+        del df
+
+        # diff-root
+        (code, out, err) = run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
+        if code != 0:
+            print "Error:", code
+            print "StdErr:", err
+
         print out
         sys.stdout.flush()
-        return 0
+        return err
 
     #
     # Protected Methods

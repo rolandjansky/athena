@@ -13,7 +13,7 @@ DetFlags.Muon_setOff()
 DetFlags.Truth_setOn()
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag='OFLCOND-RUN12-SDR-10'
+jobproperties.Global.ConditionsTag='OFLCOND-RUN12-SDR-19'
 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -24,9 +24,10 @@ athenaCommonFlags.EvtMax=10
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 
-simFlags.SimLayout.set_On() 
-simFlags.SimLayout='ATLAS-R1-2012-02-00-00_VALIDATION'
+simFlags.SimLayout.set_On()
+simFlags.SimLayout='ATLAS-R1-2012-03-00-00'
 simFlags.EventFilter.set_On()
+simFlags.RunNumber = 212272
 
 ## Run ParticleGenerator
 athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -47,6 +48,8 @@ except:
 ## Add G4 sim framework alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 
 MessageSvc = Service( "MessageSvc" )

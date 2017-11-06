@@ -147,7 +147,6 @@ StatusCode ThinGeantTruthAlg::execute()
     // Retrieve truth and vertex containers
     const xAOD::TruthParticleContainer* truthParticles(0);
     const xAOD::TruthVertexContainer* truthVertices(0);
-    // TODO: what should the code do when containers aren't there?
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_truthParticlesKey)) {
         CHECK( evtStore()->retrieve( truthParticles , m_truthParticlesKey ) );
     } else {
@@ -166,39 +165,42 @@ StatusCode ThinGeantTruthAlg::execute()
     if (evtStore()->contains<xAOD::MuonContainer>(m_muonsKey)) {
         CHECK( evtStore()->retrieve( muons , m_muonsKey ) );
     } else {
-        ATH_MSG_FATAL("No muon container with key "+m_muonsKey+" found.");
-        return StatusCode::FAILURE;
+        ATH_MSG_WARNING("No muon container with key "+m_muonsKey+" found.");
     }
     const xAOD::ElectronContainer* electrons(0);
     if (evtStore()->contains<xAOD::ElectronContainer>(m_electronsKey)) {
         CHECK( evtStore()->retrieve( electrons , m_electronsKey ) );
     } else {
-        ATH_MSG_FATAL("No electron container with key "+m_electronsKey+" found.");
-        return StatusCode::FAILURE;
+        ATH_MSG_WARNING("No electron container with key "+m_electronsKey+" found.");
     }
     const xAOD::PhotonContainer* photons(0);
     if (evtStore()->contains<xAOD::PhotonContainer>(m_photonsKey)) {
         CHECK( evtStore()->retrieve( photons , m_photonsKey ) );
     } else {
-        ATH_MSG_FATAL("No photon container with key "+m_photonsKey+" found.");
-        return StatusCode::FAILURE;
+        ATH_MSG_WARNING("No photon container with key "+m_photonsKey+" found.");
     }
    
     // Loop over photons, electrons and muons and get the associated truth particles
     // Retain the associated index number
     std::vector<int> recoParticleTruthIndices;
-    for (auto muon : *muons) {
-        const xAOD::TruthParticle* truthMuon = xAOD::TruthHelpers::getTruthParticle(*muon); 
-        if (truthMuon) recoParticleTruthIndices.push_back(truthMuon->index());
+    if (muons!=nullptr) {
+        for (auto muon : *muons) {
+            const xAOD::TruthParticle* truthMuon = xAOD::TruthHelpers::getTruthParticle(*muon); 
+            if (truthMuon) recoParticleTruthIndices.push_back(truthMuon->index());
+        }
     }
-    for (auto electron : *electrons) {
-        const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
-        if (truthElectron) recoParticleTruthIndices.push_back(truthElectron->index());
+    if (electrons!=nullptr) {
+        for (auto electron : *electrons) {
+            const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
+            if (truthElectron) recoParticleTruthIndices.push_back(truthElectron->index());
+        }
     }
-    for (auto photon : *photons) {
-        const xAOD::TruthParticle* truthPhoton = xAOD::TruthHelpers::getTruthParticle(*photon);
-        if (truthPhoton) recoParticleTruthIndices.push_back(truthPhoton->index());
-    } 
+    if (photons!=nullptr) {
+        for (auto photon : *photons) {
+            const xAOD::TruthParticle* truthPhoton = xAOD::TruthHelpers::getTruthParticle(*photon);
+            if (truthPhoton) recoParticleTruthIndices.push_back(truthPhoton->index());
+        } 
+    }
 
     // Set up masks
     std::vector<bool> particleMask, vertexMask;

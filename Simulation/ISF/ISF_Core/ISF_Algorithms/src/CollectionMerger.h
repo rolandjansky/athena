@@ -81,8 +81,17 @@ namespace ISF {
 
     /** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
     template <typename T>
-    void mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
-                           SG::WriteHandleKey<T>&          outputWriteHandleKey ) const;
+    StatusCode mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
+                                 SG::WriteHandleKey<T>& outputWriteHandleKey ) const;
+
+	/** Copy the given hit into the given output collection, container or DataHandle */
+	template <typename HitType_t, typename OutputType_t>
+	void insertCopy(const HitType_t& hit, OutputType_t& outputHandle) const;
+
+	/** Copy the given const pointer to a hit into the given output collection,
+	    container or DataHandle */
+	template <typename HitType_t, typename OutputType_t>
+	void insertCopy(HitType_t * const hit, OutputType_t& outputHandle) const;
 
     /** Input collection StoreGate keys */
     SGKeyVector_t                                       m_inputBCMHitsSGKeys;
@@ -145,7 +154,6 @@ namespace ISF {
     SG::WriteHandleKey<TGCSimHitCollection>             m_outputTGCHits;
   };
 
-}
 
 //
 // templated methods below
@@ -175,28 +183,48 @@ StatusCode ISF::CollectionMerger::setupReadHandleKeyVector( const SGKeyVector_t&
 
 /** Merge all hits of inputReadHandleKeys's collections into outputWriteHandleKey */
 template <typename T>
-void ISF::CollectionMerger::mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
-                                              SG::WriteHandleKey<T>&          outputWriteHandleKey ) const {
+inline StatusCode ISF::CollectionMerger::mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
+                                              SG::WriteHandleKey<T>& outputWriteHandleKey ) const {
   // skip if not input collection
   if ( inputReadHandleKeys.empty() ) {
-    return;
+    return StatusCode::SUCCESS;
   }
   // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
   //       and reserve the corresponding size in the outputHandle
-  SG::WriteHandle<T>  outputHandle{outputWriteHandleKey};
-  if (outputHandle.record( CxxUtils::make_unique<T>() ).isFailure()) {
-    return;
-  }
+  SG::WriteHandle<T> outputHandle{outputWriteHandleKey};
+  ATH_CHECK( outputHandle.record(std::make_unique<T>()) );
 
   for ( const auto& collKey: inputReadHandleKeys ) {
-    SG::ReadHandle<T>  inputHandle{collKey};
+    SG::ReadHandle<T> inputHandle{collKey};
 
     for ( const auto& hit: *inputHandle ) {
-      // TODO: replace with ->Emplace(hit) once LArHitContainer supports this
-      outputHandle->push_back( hit );
+      this->insertCopy(hit, outputHandle);
     }
   }
+
+  return StatusCode::SUCCESS;
 }
 
+
+/** Copy the given hit into the given output collection, container or DataHandle */
+template <typename HitType_t, typename OutputType_t>
+inline void ISF::CollectionMerger::insertCopy(const HitType_t& hit,
+                                           OutputType_t& outputHandle) const {
+  static_assert(!std::is_pointer<HitType_t>::value,
+                "The hit provided to ISF::CollectionMerger::insertCopy(..) must not be a pointer!");
+  outputHandle->Emplace( hit );
+}
+
+
+/** Copy the given const pointer to a hit into the given output collection, container or DataHandle */
+template <typename HitType_t, typename OutputType_t>
+inline void ISF::CollectionMerger::insertCopy(HitType_t * const hit,
+                                           OutputType_t& outputHandle) const {
+  auto&& hitCopy = std::make_unique<HitType_t>(*hit);
+  outputHandle->push_back( hitCopy.release() );
+}
+
+
+}
 
 #endif //> !ISF_ALGS_COLLECTIONMERGER_H

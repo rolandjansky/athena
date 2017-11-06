@@ -1,155 +1,84 @@
+#!/bin/bash
+
 help() {
     echo "Usage: makeDatasetOnDiskList [options] pattern"
-    echo "Make a list of the datasets mathcing pattern having a complete replica on a particular token"
+    echo "Make a list of the datasets matching pattern having a complete replica on a particular token"
     echo "    OPTIONS:"
-    echo "         -h | --help       Print this help and exit"
-    echo "         -f | --file       Output filename (default: datasets.txt)"
-    echo "         -t | --token      Space token to query (default: CERN-PROD_TZERO)"
-    echo "         -l | --list       Make output list of correct fles"
-    echo "         -e | --eos        Use EOS rather than castor"
-    echo "         -r | --rucio      Use rucio directory format rather than dq2."    
+    echo "         -h, --help           Print this help and exit"
+    echo "         -d, --directory=DIR  Output directory (default: reprocfiles_$USER)"
+    echo "         -t, --token=RSE      Space token to query (default: CERN-PROD_TZERO)"
+    echo "         -m, --lb-map         Also build a map of lumi blocks in each file"
 }
 
 # Parse options
-OPTS=`getopt -o hclerf:t: -l help,container,list,eos,rucio,file:,token: -- "$@"`
-if [ $? != 0 ] ; then echo "Terminating..."; return -1 ; fi
+OPTS=$(getopt -o ht:d:m -l help,token:,directory:,lb-map -- "$@")
+if [[ $? != 0 ]] ; then echo "Terminating..."; return -1 ; fi
 eval set -- "$OPTS"
 
 fname="datasets.txt"
 fdir="reprocfiles_$USER"
-token="CERN-PROD_TZERO"
-container=0
-list=0
-type="castor"
+token="CERN-PROD_TZDISK"
+lbmap=0
 
 while true ; do
     case "$1" in
         -h|--help)         help; exit 0;;
-        -f|--file)         fname=$2;    shift 2;;
+        -d|--directory)    fdir=$2;     shift 2;;
         -t|--token)        token=$2;    shift 2;;
-	-c|--container)    container=1; shift;;
-	-l|--list)         list=1; shift;;
-	-e|--eos)          type="eos"; shift;;
-	-r|--rucio)        type="rucio"; shift;;
-	--)                shift ; break ;;
-        \?)                break ;
-        exit 1 ;;
+        -m|--lb-map)       lbmap=1;     shift;;
+        --)                shift ; break ;;
+        *)                 exit 1 ;;
     esac
 done
 
 # Arguments
-pattern=$1; shift
+pattern="$1"; shift
 
 echo "Looking for datasets matching pattern $pattern in $token ..."
 
 # Need to do this in a subshell to avoid grid stuff causing clashes
 (
-echo "Setting up grid environament"
-
-source /afs/cern.ch/project/gd/LCG-share/current/etc/profile.d/grid_env.sh
-source /afs/cern.ch/atlas/offline/external/GRID/ddm/DQ2Clients/setup.sh
-voms-proxy-init -voms atlas -valid 96:00
-
-[[ -f "$fname" ]] && cp $fname $fname.back
-rm $fname
-touch $fname
-
-if [[ ! -d "$fdir" ]]
-then 
-   mkdir $fdir 
-else
-   rm $fdir/*.files
+echo "Setting up grid environment"
+export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
+source "${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh" --quiet
+lsetup rucio
+if ! voms-proxy-info --exists; then
+  voms-proxy-init -voms atlas
 fi
 
-# Don't really need nloc/nds anymore as use full dsname not part.  Clean up.
-nloc=12
-nds=10
+mkdir -p "$fdir"
 
-if [[ $type == "eos" ]]
-then
-      nloc=10
-      nds=8
-fi
+for ds in $(rucio list-dids "$pattern" --short --filter type=container); do
+  echo
+  replica="$(rucio list-dataset-replicas "$ds")";
+  if { echo "$replica" | grep "$token" > /dev/null; } then
+    echo "--> Found replica at CERN: $replica"
+  else
+    echo "$replica"
+    echo "Couldn't find replica on $token" >&2
+    continue
+  fi
 
-if [[ $type == "rucio" ]]
-then
-      nloc=8
-fi
+  name="$(echo $ds | awk -F ':' '{print $NF}')"
+  target="${fdir}/${name}.files"
 
-if [[ $token == "CERN-PROD_TZERO" ]]
-then
-      nloc=14
-      nds=12
+  # Parse rucio output to get the path on EOS:
+  # rucio list-file-replicas --rse $token $ds | grep $token  | awk -F '/' '{print "/"$(NF-2)"/"$(NF-1)"/"$NF}' > tmp.ds.txt
+  rucio list-file-replicas --rse $token $ds \
+    | grep $token \
+    | awk -F '/eos/atlas' '{print "/eos/atlas"$NF}' \
+    | grep AOD \
+    | awk  '{print $1}' \
+    > "$target"
 
-      if [[ $type=="eos" ]]
-      then
-	  echo "EOS not yet implemented for CERN-PROD_TZERO"
-          exit 1
-      fi
+  echo
+  echo "Saved file list: $target"
 
-fi
-
-if [[ $container -eq 0 ]]
-then
-
-    for ds in $( dq2-list-dataset "$pattern" | grep -v '_sub')
-      do
-      replicas=$( dq2-list-dataset-replicas $ds | grep -v 'INCOMPLETE' )
-      [[ $replicas != *"$token"* ]] && continue
-      echo "--> Found complete replica of $ds at CERN"
-      
-      # Find location of first file
-      # For some reason this seems to give a python broken pipe error now
-      #location=$( dq2-ls -fp -L $token $ds | grep $type | head -n1 )
-
-      dq2-ls -fp -L $token $ds | grep $type > tmp.ds.txt
-      location=$(head -n1 tmp.ds.txt)
-
-      if [[ $list -eq 1 ]]; then
-	  if [[ $type=="rucio" ]]; then
-	      cat tmp.ds.txt | awk -F '/' '{print $(NF-2)"/"$(NF-1)"/"$NF}' | sort > $fdir/$ds.files
-	  else
-	      cat tmp.ds.txt | awk -F '/' '{print $NF}' | sort > $fdir/$ds.file
-	  fi
-      fi
-
-      rm tmp.ds.txt
-
-      # remove srm://srm-atlas.cern.ch and filename
-      #location=$( echo $location | cut -d '/' -f 4-12 ) # T1
-      #location=$( echo $location | cut -d '/' -f 4-14 ) # T0
-      ##location=$( echo $location | cut -d '/' -f 4-$nloc )
-      location=$( echo $location | cut -d '/' -f 4-$nloc )
-      location='/'$location'/'
-      echo "   $location"
-	     
-      #dsname=$( echo $location | cut -d '/' -f 10 ) #| cut -d '.' -f -3) # T1
-      #dsname=$( echo $location | cut -d '/' -f 12 ) #| cut -d '.' -f -3) # T0
-      ##dsname=$( echo $location | cut -d '/' -f $nds ) #| cut -d '.' -f -3)
-      ##run=$( echo $dsname | cut -d '.' -f 2 )
-      # dsname is now full name rather than first part
-      dsname=$(echo $ds) 
-      echo "   $dsname"  
-      
-      # Write locations to file
-      echo $dsname >> $fname
-    done
-
-else
-    
-    echo "Not yet implemented"
-    exit 1
-
-    for cont in $( dq2-list-dataset "$pattern" )
-    do
-      echo $cont
-      nds=$( dq2-list-dataset-replicas-container $cont | grep 'Total  datasets' | cut -d ':' -f 2 | tr -d ' ' )
-      echo $nds
-      ntoken=$( dq2-list-dataset-replicas-container $cont | grep $token )
-      echo $ntoken
-
-    done
-
-fi
-
+  if [[ $lbmap -eq 1 ]]; then
+    map="${fdir}/${name}.lbmap"
+    set -e
+    dumpLBFileMap --file="$map" "$target"
+    echo "Saved LB map: $map"
+  fi
+done
 )

@@ -14,13 +14,19 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel )
 
+#set( PHOTOSPP_VERSION 3.61 )
+#set( PHOTOSPP_ROOT
+#   /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/photos++/${PHOTOSPP_VERSION}/${LCG_PLATFORM} )
+
+
+
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( EvtGen )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( Photospp )
+find_package( Photospp COMPONENTS Photospp PhotosppHepMC )
 find_package( Pythia8 )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 find_package( Tauolapp )
@@ -44,6 +50,7 @@ atlas_add_library( EvtGen_iLib
                    src/EvtPythiaEngine.cxx
                    src/EvtInclusiveDecay.cxx
                    PUBLIC_HEADERS EvtGen_i
+                   DEFINITIONS -DEVTGEN_PYTHIA -DEVTGEN_PHOTOS -DEVTGEN_TAUOLA
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${PHOTOSPP_INCLUDE_DIRS} ${TAUOLAPP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EVTGEN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}

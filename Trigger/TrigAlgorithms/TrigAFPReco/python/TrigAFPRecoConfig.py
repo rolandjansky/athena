@@ -1,8 +1,8 @@
-import TrigAFPRecoConf
+from TrigAFPReco.TrigAFPRecoConf  import Trig_AFPSiTrkReco
 
-class Trig_AFPSiTrkReco(TrigAFPRecoConf.Trig_AFPSiTrkReco):
+class AFPSiTrkReco(Trig_AFPSiTrkReco):
     def __init__(self,
-                 name = "Trig_AFPSiTrkReco",
+                 name = "AFPSiTrkReco",
                  raw_data_key = "AFP_RawData"):
         super (Trig_AFPSiTrkReco, self).__init__(name)
         from AthenaCommon.AppMgr import ToolSvc
@@ -23,9 +23,35 @@ class Trig_AFPSiTrkReco(TrigAFPRecoConf.Trig_AFPSiTrkReco):
         raw2DigiTool.AFPSiHitsContainerName = self.AFP_SiHitContainerName
         ToolSvc += raw2DigiTool
         self.DigiTool = raw2DigiTool
+        # configure pixel clustering
+        from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterTool
+        clusterTool=AFPSiClusterTool("AFPSiClusterTool")
+        ToolSvc+=clusterTool
+        # cluster algorithm
+        from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterBasicNearestNeighbour
+        clusterNeighbour=AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
+        ToolSvc+=clusterNeighbour
+        clusterTool.clusterAlgTool = clusterNeighbour
+        self.RecoClustersTool = clusterTool
         # configure track reconstruction tool
-        from AFP_LocReco.AFP_LocRecoConf import AFPSiDBasicKalmanTool
-        siDTool = AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool")
-        siDTool.tracksContainerName = self.AFP_TrackContainer
+        from AFP_LocReco.AFP_LocRecoConf import AFP_SIDLocRecoTool, AFPSiDBasicKalmanTool
+        kalmanTool1 = AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool1")
+        kalmanTool1.stationID=0
+        ToolSvc += kalmanTool1
+
+        kalmanTool2 = AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool2")
+        kalmanTool2.stationID=1
+        ToolSvc += kalmanTool2
+
+        kalmanTool3 = AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool3")
+        kalmanTool3.stationID=2
+        ToolSvc += kalmanTool3
+
+        kalmanTool4 = AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool4")
+        kalmanTool4.stationID=3
+        ToolSvc += kalmanTool4
+
+        siDTool=AFP_SIDLocRecoTool("AFP_SIDLocRecoTool")
+        siDTool.recoTools = [kalmanTool1, kalmanTool2, kalmanTool3, kalmanTool4]
         ToolSvc += siDTool
         self.SiDTool = siDTool

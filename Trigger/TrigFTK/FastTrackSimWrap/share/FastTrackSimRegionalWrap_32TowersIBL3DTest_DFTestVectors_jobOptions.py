@@ -43,6 +43,7 @@ wrapper.IBLMode = 2
 wrapper.HitInputTool = FTKSGInput
 wrapper.Clustering = True
 wrapper.PixelClusteringMode=101
+wrapper.Ibl3DRealistic=False
 wrapper.SavePerPlane=True
 wrapper.EmulateDF = True
 wrapper.SaveRawHits = True

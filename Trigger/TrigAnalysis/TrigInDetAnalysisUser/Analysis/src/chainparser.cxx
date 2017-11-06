@@ -111,7 +111,7 @@ int usage( int , char** argv, int i=0 ) {
   std::cout << "   -K            expression \t match only chains containing expression\n";
   std::cout << "        --veto   expression \t veto all chains containing \"expression\"\n";
   std::cout << "   -x, --excluded           \t also include usually excluded entries\n\n";
-
+  std::cout << "   -s, --sig     sig pat    \t add a new signature, sig, to the expected list with the pattern definied by pat\n";
 
   std::cout << "   -v,  --verbose           \t verbose output\n\n";
   std::cout << "   -h,  --help              \t this help\n" << std::endl;
@@ -148,6 +148,10 @@ int main( int argc, char** argv ) {
   std::string aslice = "";
   
   double userthreshold = 100;
+
+  std::string sig="";
+  std::string pat="";
+
 
   for ( int i=1 ; i<argc ; i++ ) { 
     std::string arg = argv[i];
@@ -189,6 +193,12 @@ int main( int argc, char** argv ) {
     } 
     else if (  arg=="-h" || arg=="--help" )     return usage( argc, argv, 6 );
     else if (  arg=="-x" || arg=="--excluded" ) excluded = true;
+    else if (  arg=="-s" || arg=="--sig" ) { 
+      if ( ++i<argc ) sig = argv[i];
+      else            return usage( argc, argv, 1 );
+      if ( ++i<argc ) pat = argv[i];
+      else            return usage( argc, argv, 1 );
+    }
     else { 
       if      (  afile=="" )  afile=arg;
       else if ( aslice=="" ) aslice=arg;
@@ -220,11 +230,15 @@ int main( int argc, char** argv ) {
   chains.insert( chain_map::value_type( "Muon",     "_mu" ) );
   chains.insert( chain_map::value_type( "Tau",      "_tau" ) );
   chains.insert( chain_map::value_type( "Bjet",     "_j" ) );
+  chains.insert( chain_map::value_type( "FTK",      "_FTK" ) );
+  chains.insert( chain_map::value_type( "BjetVtx",  "" ) );
 
   chains.insert( chain_map::value_type( "EgammaPurity",   "_e" ) );
   chains.insert( chain_map::value_type( "MuonPurity",     "_mu" ) );
   chains.insert( chain_map::value_type( "TauPurity",      "_tau" ) );
   chains.insert( chain_map::value_type( "BjetPurity",     "_j" ) );
+
+  if ( sig != "" ) chains.insert( chain_map::value_type( sig, pat ) );
 
   chain_map::const_iterator itr = chains.find( rawslice );
 
@@ -233,8 +247,11 @@ int main( int argc, char** argv ) {
     return -1;
   }
 	
-  std::string tag = "HLT";
-  tag += itr->second;
+  std::string tag = "";
+  if ( itr->second != "" ) { 
+    tag = "HLT";
+    tag += itr->second;
+  }
 
   std::vector<threshold> thresholds;
 
@@ -259,6 +276,7 @@ int main( int argc, char** argv ) {
     if      ( expl[2] == "IDMon" ) expected_size = 6;
     else if ( expl[2] == "TRIDT" ) { 
       if      ( expl[4] == "Expert"  && !purity ) expected_size = 7;
+      else if ( expl[4] == "Shifter" && contains(expl[3],"etVtx") ) expected_size = 7;
       else if ( expl[4] == "Shifter" ||  purity ) expected_size = 6;
       else { 
 	std::cerr << "unknown HIST type" << std::endl;
@@ -275,17 +293,19 @@ int main( int argc, char** argv ) {
       int counts = std::atoi(expl[expected_size].c_str());
 
       /// ignore chains with no entries ( could print out as problem chains if required)
-      if ( counts > userthreshold ) { 
+      if ( counts >= userthreshold ) { 
 
 	std::string tmp = expl[expected_size-2];
 
-	if ( contains( tmp, tag ) ) tmp.replace( tmp.find(tag), tag.size(), "" ); 
+        if ( tag != "" ) { 
+          if ( contains( tmp, tag ) ) tmp.replace( tmp.find(tag), tag.size(), "" ); 
 
-	size_t pos = tmp.find("_");
-	if ( pos!=std::string::npos ) tmp.replace( pos, tmp.size()-pos, "" );
+          size_t pos = tmp.find("_");
+          if ( pos!=std::string::npos ) tmp.replace( pos, tmp.size()-pos, "" );
+        }
 
-	bool condition = false;
-
+        bool condition = false;
+          
 	if ( keys.size()>0 ) for ( size_t ik=keys.size() ; ik-- ; ) condition |= contains( expl[expected_size-2], keys[ik] ) ||  contains( expl[expected_size-1], keys[ik] );
 	else  condition = true;
 
@@ -293,12 +313,11 @@ int main( int argc, char** argv ) {
 	
 	if ( veto.size()>0 ) for ( size_t iv=veto.size() ;  iv-- ; )  condition &= !( contains( expl[expected_size-2], veto[iv] ) ||  contains( expl[expected_size-1], veto[iv] ) );
 
-	if ( ( excluded || ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
-			     !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
-			     !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
-			     !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") )&&  
-			     !contains( expl[4], "L2Star" ) && !contains( expl[4], "Shifter" ) ) ) && 
-	     condition ) {  
+	if ( condition && ( excluded || ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
+                                          !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
+                                          !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
+                                          !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") )&&  
+                                          !contains( expl[4], "L2Star" ) && !contains( expl[4], "Shifter" ) ) ) ) {  
 	  
 	  double thresh_var = std::atof( tmp.c_str() );
 	  int    counts_var = counts;
@@ -367,7 +386,9 @@ int main( int argc, char** argv ) {
     if ( rawslice=="Bjet" ) { 
       for ( size_t i=0 ; i<thresholds.size() ; i++ ) { 
 	ind[0] = i;
-	if ( thresholds[i].thresh > 30 ) break;
+	/// not sure what this is really doing now ....
+	/// was originally for consistency with the 30 GeV vtx tracking 
+	if ( thresholds[i].thresh > 30 ) break;   
       }
     }
     

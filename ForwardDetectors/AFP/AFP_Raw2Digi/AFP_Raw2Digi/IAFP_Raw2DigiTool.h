@@ -37,6 +37,16 @@ public:
   /// hits in form of xAOD::AFPSiHitContainer. It should read input raw data from StoreGate and save output also to StoreGate.
   virtual StatusCode recoSiHits() = 0;
 
+  /// @brief Translates RawData to xAOD::AFPToFHit and saves it to StoreGate
+  ///
+  /// This is the method that should be called in order to obtain AFP
+  /// hits in form of xAOD::AFPToFHitContainer. It should read input
+  /// raw data from StoreGate and save output also to StoreGate.
+  virtual StatusCode recoToFHits() = 0;
+
+  /// Call all reconstruction steps
+  virtual StatusCode recoAll() = 0;
+
   virtual StatusCode finalize() = 0;
 };
 

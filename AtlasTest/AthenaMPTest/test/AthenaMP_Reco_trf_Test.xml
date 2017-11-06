@@ -17,7 +17,7 @@
         
         <TEST name="SharedPoolReader" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-	    <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 Reco_tf.py '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.Strategy="SharedReader"' 'rec.doTrigger=False'</options_atn>
+	    <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 Reco_tf.py '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.UseSharedReader=True' 'rec.doTrigger=False'</options_atn>
             <timelimit>30</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>

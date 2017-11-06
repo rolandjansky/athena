@@ -54,18 +54,30 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
-   
 
-    
-    <TEST name="Py8EvtGen" type="script" suite="EvgenJobTransforms-Core">
-      <doc>Test Pythia8+EvtGen</doc>
+    <TEST name="Py8TauolaPPZtautau" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Tests a Pythia8 Z->tautau job, with Photos++, Tauola++ and EG</doc>
       <classification>
         <displayClass>OfflineValidation</displayClass>
         <displayProcess>EvGen</displayProcess>
         <displayComponent>Athena-Core</displayComponent>
       </classification>
-      <options_atn>${ATN_PACKAGE}/test/test_pythia8_evtgen</options_atn>
+      <options_atn>${ATN_PACKAGE}/test/test_ph8TauolappEG_ztautau</options_atn>
       <timelimit>15</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+   
+
+    
+    <TEST name="powhegpy8TauolaPPEG" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test Powheg+Pythia8+TauolaPP+EvtGen</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_powhegpy8TauolaPPEG</options_atn>
+      <timelimit>25</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
     
@@ -155,15 +167,27 @@
     
 
     
-    <TEST name="Herwig++" type="script" suite="EvgenJobTransforms-Core">
-      <doc>Test minimum bias generation with Herwigpp</doc>
+    <TEST name="Herwig7" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test minimum bias generation with Herwig7</doc>
       <classification>
         <displayClass>OfflineValidation</displayClass>
         <displayProcess>EvGen</displayProcess>
         <displayComponent>Athena-Core</displayComponent>
       </classification>
-      <options_atn>${ATN_PACKAGE}/test/test_herwigpp</options_atn>
+      <options_atn>${ATN_PACKAGE}/test/test_herwig7</options_atn>
       <timelimit>15</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+
+    <TEST name="Herwig7dijet" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test dijets generation with Herwig7</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_herwig7dijet</options_atn>
+      <timelimit>35</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
     

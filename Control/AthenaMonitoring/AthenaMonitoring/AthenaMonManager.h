@@ -91,6 +91,8 @@ class AthenaMonManager : public AthAlgorithm {
       static unsigned int getLBsMedStat();
       static unsigned int getLBsHigStat();
 
+      bool forkedProcess();
+
       virtual StatusCode initialize();
       virtual StatusCode execute();
       virtual StatusCode stop();

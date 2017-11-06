@@ -152,6 +152,8 @@ def addTrigFTKSimRFOptions(parser):
 
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
+    parser.add_argument("--Ibl3DRealistic",type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=True),
+                        help="Do the IBL 3D realistic(HWlike) clustering? Default is false",group="TrigFTKRoadFinder")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the SCT clustering [def: False]", group="TrigFTKRoadFinder")
 

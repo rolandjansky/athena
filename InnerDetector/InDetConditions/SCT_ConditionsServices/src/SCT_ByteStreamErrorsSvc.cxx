@@ -625,7 +625,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end() or 
      m_rxRedundancy->find(hash_side1)!=m_rxRedundancy->end()) {
     // Rx redundancy is used in this module.
-    std::pair<bool, bool> links = m_config->badLinks(moduleId);
+    std::pair<bool, bool> links(m_config->badLinks(moduleId));
     if(links.first and not links.second) {
       // link-1 is broken
       type = 1;
@@ -654,7 +654,42 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		      " firstTempMaskedChip " << firstTempMaskedChip);
     }
   }
-      
+
+  // "Modified" module (using Rx redundancy) case
+  unsigned long long fullSerialNumber(m_cabling->getSerialNumberFromHash(hashId).to_ulonglong());
+  if(// Readout through link-0
+     fullSerialNumber==20220170200183 or // hash=4662 bec=0 layer=2 eta= 6 phi=39
+     fullSerialNumber==20220330200606 or // hash=5032 bec=0 layer=3 eta=-2 phi= 7
+     fullSerialNumber==20220330200693    // hash=5554 bec=0 layer=3 eta=-5 phi=29
+     ) {
+    if(type!=1) ATH_MSG_WARNING("Link-0 is broken but modified module readingout link-0, inconsistent");
+    type = 3;
+  }
+  if(// Readout through link-1
+     fullSerialNumber==20220170200653 or // hash=2786 bec=0 layer=1 eta= 4 phi= 1
+     fullSerialNumber==20220330200117 or // hash=5516 bec=0 layer=3 eta= 1 phi=27
+     fullSerialNumber==20220330200209 or // hash=5062 bec=0 layer=3 eta= 2 phi= 8
+     fullSerialNumber==20220330200505 or // hash=5260 bec=0 layer=3 eta= 5 phi=16
+     fullSerialNumber==20220330200637 or // hash=4184 bec=0 layer=2 eta=-6 phi=20
+     fullSerialNumber==20220330200701    // hash=4136 bec=0 layer=2 eta=-6 phi=18
+     ) {
+    if(type!=2) ATH_MSG_WARNING("Link-1 is broken but modified module readingout link-1, inconsistent");
+    type = 4;
+  }
+
+  static const int chipOrder[5][12] = {
+    // type=0 not prepared for both link-0 and link-1 are working
+    {},
+    // type=1 link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
+    {0, 1, 2, 3,  4,  5, 6, 7, 8,  9, 10, 11},
+    // type=2 link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
+    {6, 7, 8, 9, 10, 11, 0, 1, 2,  3,  4,  5},
+    // type=3 "modified" modules and link-1 is broken: chip 0 1 2 3 4 5 7 8 9 10 11 6
+    {0, 1, 2, 3,  4,  5, 7, 8, 9, 10, 11,  6},
+    // type=4 "modified" modules and link-0 is broken: chip 6 7 8 9 10 11 1 2 3 4 5 0
+    {6, 7, 8, 9, 10, 11, 1, 2, 3,  4,  5,  0}
+  };
+
   unsigned int tempMaskedChips2(0);
   if(type==0) {
     // both link-0 and link-1 are working
@@ -688,26 +723,18 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
-  } else if(type==1) {
-    // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-    if(firstTempMaskedChip>0) {
-      for(int iChip(firstTempMaskedChip-1); iChip<12; iChip++) {
-	tempMaskedChips2 |= (1<<iChip);
-	if(iChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
-	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
-      }
-    }
   } else {
-    // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
+    // type=1, 2, 3, 4: cases using Rx redundancy
     if(firstTempMaskedChip>0) {
-      int tmpFirstTempMaskedChip(firstTempMaskedChip);
-      if(tmpFirstTempMaskedChip<=6) tmpFirstTempMaskedChip += 12;
-      for(int iChip(tmpFirstTempMaskedChip-1); iChip<12+6; iChip++) {
-	int jChip(iChip);
-	if(jChip>=12) jChip -= 12;
-	tempMaskedChips2 |= (1<<jChip);
-	if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
-	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
+      bool toBeMasked(false);
+      for(int iChip(0); iChip<12; iChip++) {
+	int jChip(chipOrder[type][iChip]);
+	if(jChip==static_cast<int>(firstTempMaskedChip-1)) toBeMasked = true;
+	if(toBeMasked) {
+	  tempMaskedChips2 |= (1<<jChip);
+	  if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
+	  else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
+	}
       }
     }
   }

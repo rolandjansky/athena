@@ -329,8 +329,7 @@ ToolSvc += GeantFollowerMSHelper
 # higher precision for stepping
 SimFlags.TightMuonStepping=True
 
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun'])
+SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','Event','Run'])
 
 ############### The output collection #######################
 
@@ -356,6 +355,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
 

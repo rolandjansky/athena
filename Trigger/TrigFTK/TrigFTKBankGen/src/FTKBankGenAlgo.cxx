@@ -49,6 +49,7 @@ FTKBankGenAlgo::FTKBankGenAlgo(const std::string& name, ISvcLocator* pSvcLocator
   m_DiagClustering(true),
   m_SctClustering(false),
   m_PixelClusteringMode(1),
+  m_Ibl3DRealistic(false),
   m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_UseIdentifierHash(false),
@@ -111,6 +112,7 @@ FTKBankGenAlgo::FTKBankGenAlgo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("DiagClustering",m_DiagClustering);
   declareProperty("SctClustering",m_SctClustering);
   declareProperty("PixelClusteringMode",m_PixelClusteringMode);
+  declareProperty("Ibl3DRealistic",m_Ibl3DRealistic);
   declareProperty("DuplicateGanged",m_DuplicateGanged);
   declareProperty("GangedPatternRecognition",m_GangedPatternRecognition);
 
@@ -197,6 +199,7 @@ StatusCode FTKBankGenAlgo::initialize(){
   /* initialize the clustering global variables, decalred in TrigFTKSim/atlClusteringLNF.h */
   //hitinput->setClustering(m_Clustering);
   hitinput->setPixelClusteringMode(m_PixelClusteringMode);
+  hitinput->setIbl3DRealistic(m_Ibl3DRealistic);
   hitinput->setSctClustering(m_SctClustering);
   /*
   SAVE_CLUSTER_CONTENT = m_SaveClusterContent;

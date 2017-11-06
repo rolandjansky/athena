@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef ITrigEgammaSelectorBaseTool_H_
 #define ITrigEgammaSelectorBaseTool_H_
@@ -47,8 +48,8 @@ namespace Trig{
             virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
            
             virtual void setTe(const HLT::TriggerElement *)=0; 
-            virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *, std::map<std::string,boost::any> *)=0;
-            virtual void setParents(Trig::TrigDecisionTool *, StoreGateSvc *, std::map<std::string,boost::any> *)=0;
+            virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *)=0;
+            virtual void setParents(Trig::TrigDecisionTool *, StoreGateSvc *)=0;
 
         protected:
 

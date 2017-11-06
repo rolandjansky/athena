@@ -5,8 +5,14 @@
 #ifndef TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TileEvent/TileContainer.h"
 
@@ -15,12 +21,10 @@ class StatusCode;
 class IAddressCreator;
 class IByteStreamEventAccess;
 class StoreGateSvc; 
-class MsgStream; 
 class IROBDataProviderSvc; 
 class TileMuRcvContByteStreamTool ; 
 class ByteStreamCnvSvc;
 class TileROD_Decoder;
-class TileHid2RESrcID;
 
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
@@ -37,8 +41,9 @@ extern long ByteStream_StorageType;
  */
 
 class TileMuRcvContByteStreamCnv
-  : public Converter,
-    public IIncidentListener
+  : public Converter
+  , public IIncidentListener
+  , public ::AthMessaging
 {
   friend class CnvFactory<TileMuRcvContByteStreamCnv>;
 
@@ -64,23 +69,26 @@ class TileMuRcvContByteStreamCnv
 
  private: 
 
+  std::string m_name;
+
   /** Pointer to TileMuRcvContByteStreamTool */
-  BYTESTREAMTOOL* m_tool ; 
+  ToolHandle<BYTESTREAMTOOL> m_tool;
 
-  /** Pointer to TileROD_Decoder */
-  TileROD_Decoder* m_decoder;
-
-  /** Pointer to ByteStreamCnvSvc */
-  ByteStreamCnvSvc* m_ByteStreamEventAccess;
-
-  /** Pointer to TileMuRcvContainer */
-  TileMuonReceiverContainer* m_container ; 
+  ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess;
+  ByteStreamCnvSvc* m_byteStreamCnvSvc;
 
   /** Pointer to StoreGateSvc */
-  StoreGateSvc* m_storeGate;
+  ServiceHandle<StoreGateSvc> m_storeGate;
 
   /** Pointer to IROBDataProviderSvc */
-  IROBDataProviderSvc *m_rdpSvc;
+  ServiceHandle<IROBDataProviderSvc> m_robSvc;
+
+  /** Pointer to TileROD_Decoder */
+  ToolHandle<TileROD_Decoder> m_decoder;
+
+  /** Pointer to TileMuRcvContainer */
+  TileMuonReceiverContainer* m_container;
+
 };
 #endif
 

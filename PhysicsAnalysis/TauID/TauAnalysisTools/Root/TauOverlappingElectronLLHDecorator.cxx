@@ -30,7 +30,7 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
   , m_bEleOLRMatchAvailable(false)
   , m_bEleOLRMatchAvailableChecked(false)
   , m_bNewEvent(false)
-  , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
+  , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224_taufix/ElectronLikelihoodLooseOfflineConfig2015.conf")
 {
   m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 

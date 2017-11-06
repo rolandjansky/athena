@@ -17,41 +17,41 @@
 #include "G4ios.hh"
 
 TileGeoG4CalibCell::TileGeoG4CalibCell()
-    : detector(0),
-      sample(0),
-      nrOfPeriodsInCell() {
+  : detector(0),
+    sample(0),
+    nrOfPeriodsInCell() {
 }
 
 TileGeoG4PlateCell::TileGeoG4PlateCell()
-    : detector(0),
-      tower(0),
-      sample(0),
-      neighbor(0),
-      eta(0),
-      dEta(0),
-      xBound(0),
-      zBound(0) {
+  : detector(0),
+    tower(0),
+    sample(0),
+    neighbor(0),
+    eta(0),
+    dEta(0),
+    xBound(0),
+    zBound(0) {
 }
 
 TileGeoG4GirderCell::TileGeoG4GirderCell()
-    : detector(0),
-      tower(0),
-      sample(0),
-      eta(0),
-      dEta(0),
-      xBound(0) {
+  : detector(0),
+    tower(0),
+    sample(0),
+    eta(0),
+    dEta(0),
+    xBound(0) {
 }
 
 TileGeoG4CalibSection::TileGeoG4CalibSection(const int verboseLevel)
-    : section(0),
-      nrOfPeriods(0),
-      nrOfSamples(0),
-      nrOfCells(0),
-      nrOfPlateCells(0),
-      nrOfGirderCells(0),
-      sample_ZBound(),
-      m_verboseLevel(verboseLevel) {
-}
+  : section(0),
+    nrOfPeriods(0),
+    nrOfSamples(0),
+    nrOfCells(0),
+    nrOfPlateCells(0),
+    nrOfGirderCells(0),
+    sample_ZBound(),
+    m_verboseLevel(verboseLevel) {
+    }
 
 void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_section) {
   int l_nSample = nrOfSamples;                    //Number of samples in the module
@@ -68,63 +68,63 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
   // Current boundaries are number of periods for cells with the index 0
   if (!gap_crack)                                                               // if we aren't into gap or crack   //g
 
-  for (samp = 0; samp < l_nSample; samp++) {
-    if (l_nSample == 4 && samp >= 2) passed = true;                                          // forced by Barrel section
-    if (!passed) {            // if we are in the Barrel we DIDN'T PASSE the B subsample of bounded B & C cells yet!
-
-      l_indCurrentCell[samp] = 0;
-      l_currentBoundary[samp] = ( (samples[samp])->cells[0])->nrOfPeriodsInCell[0]; // A-Barrel or A,C,D-Ext. Barrel or ITC
-    } else {
-      if (samples[samp - 1]->cells[1]->nrOfPeriodsInCell[1] != 0) {                 //we ARE in the C subsample in Barrel
+    for (samp = 0; samp < l_nSample; samp++) {
+      if (l_nSample == 4 && samp >= 2) passed = true;                                          // forced by Barrel section
+      if (!passed) {            // if we are in the Barrel we DIDN'T PASSE the B subsample of bounded B & C cells yet!
 
         l_indCurrentCell[samp] = 0;
-        l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[1];   // C-Barrel
+        l_currentBoundary[samp] = ( (samples[samp])->cells[0])->nrOfPeriodsInCell[0]; // A-Barrel or A,C,D-Ext. Barrel or ITC
       } else {
-        l_indCurrentCell[samp] = 0;
-        l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[0];  // D-Barrel
-      }
-    }
+        if (samples[samp - 1]->cells[1]->nrOfPeriodsInCell[1] != 0) {                 //we ARE in the C subsample in Barrel
 
-    //Loop through all periods and samples - fill m_DMToCell
-    //with the pointers to cells the current period of sample belongs to
-    for (per = 0; per < l_nPeriod; per++) {
-
-      if (per == l_currentBoundary[samp]) {
-      //Boundary reached - move to the next cell and next boundary
-
-        if (!passed) {                      //If we are in Barrel, then we didn't passed B-subsample of BC sample yet.
-
-          if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp])->cells.size())) {
-            l_currentBoundary[samp] += ( (samples[samp])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
-          }  // A,B-Barrel or A,b,C,D - Ext. Barrel or ITC
-        } else {                                                                                     // passed==true
-          if (samples[samp - 1]->cells[1]->nrOfPeriodsInCell[1] != 0) {                  // C-cell of Barrel
-
-            if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
-              l_currentBoundary[samp] += ( (samples[samp - 1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[1];
-            }  // C subsample == 2 sample
-          } else {                                                                              // D-cells of Barrel
-
-            if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
-              l_currentBoundary[samp] += ( (samples[samp - 1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
-            }    // D sample == 3 sample   Barrel
-          }
+          l_indCurrentCell[samp] = 0;
+          l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[1];   // C-Barrel
+        } else {
+          l_indCurrentCell[samp] = 0;
+          l_currentBoundary[samp] = ( (samples[samp - 1])->cells[0])->nrOfPeriodsInCell[0];  // D-Barrel
         }
       }
 
-      if (!passed) {                                                    // didn't passed B-subsample of BC sample yet.
+      //Loop through all periods and samples - fill m_DMToCell
+      //with the pointers to cells the current period of sample belongs to
+      for (per = 0; per < l_nPeriod; per++) {
 
-        if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp])->cells.size())) {
-          m_DMToCell.push_back( (tile_section->samples[samp])->cells[l_indCurrentCell[samp]]);
-        }     // A,B - Barrel or A,B,C,D - Ext. Barrel or ITC
-      } else {                                     	                                                 // passed==true
-        if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
-          m_DMToCell.push_back( (tile_section->samples[samp - 1])->cells[l_indCurrentCell[samp]]);
-        }    // C,D - Barrel
-      }
+        if (per == l_currentBoundary[samp]) {
+          //Boundary reached - move to the next cell and next boundary
 
-    }    //for(per)
-  }    //for(samp)
+          if (!passed) {                      //If we are in Barrel, then we didn't passed B-subsample of BC sample yet.
+
+            if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp])->cells.size())) {
+              l_currentBoundary[samp] += ( (samples[samp])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
+            }  // A,B-Barrel or A,b,C,D - Ext. Barrel or ITC
+          } else {                                                                                     // passed==true
+            if (samples[samp - 1]->cells[1]->nrOfPeriodsInCell[1] != 0) {                  // C-cell of Barrel
+
+              if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
+                l_currentBoundary[samp] += ( (samples[samp - 1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[1];
+              }  // C subsample == 2 sample
+            } else {                                                                              // D-cells of Barrel
+
+              if (++l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
+                l_currentBoundary[samp] += ( (samples[samp - 1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[0];
+              }    // D sample == 3 sample   Barrel
+            }
+          }
+        }
+
+        if (!passed) {                                                    // didn't passed B-subsample of BC sample yet.
+
+          if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp])->cells.size())) {
+            m_DMToCell.push_back( (tile_section->samples[samp])->cells[l_indCurrentCell[samp]]);
+          }     // A,B - Barrel or A,B,C,D - Ext. Barrel or ITC
+        } else {                                     	                                                 // passed==true
+          if (l_indCurrentCell[samp] < static_cast<int>( (samples[samp - 1])->cells.size())) {
+            m_DMToCell.push_back( (tile_section->samples[samp - 1])->cells[l_indCurrentCell[samp]]);
+          }    // C,D - Barrel
+        }
+
+      }    //for(per)
+    }    //for(samp)
 
   else {//Gap/Crack
 
@@ -177,7 +177,7 @@ TileGeoG4PlateCell* TileGeoG4CalibSection::GetTilePlateCell(double xHit, double 
   int cell_ind = 0;
   
   switch (plate) {
-    case 1:  //FrontPlate
+  case 1:  //FrontPlate
     {
       sample = 0;
       for (int counter = 0; counter < static_cast<int>(samples[sample]->plateCells.size()); counter++) {
@@ -189,7 +189,7 @@ TileGeoG4PlateCell* TileGeoG4CalibSection::GetTilePlateCell(double xHit, double 
       }
       break;
     }
-    case 2:  //EndPlate
+  case 2:  //EndPlate
     {
       for (unsigned int samp = 1; samp != samples.size(); ++samp) {
         if (zHit < (samples[samp]->plateCells[0])->zBound) {
@@ -207,25 +207,25 @@ TileGeoG4PlateCell* TileGeoG4CalibSection::GetTilePlateCell(double xHit, double 
       }
       break;
     }
-    case 3:  //Iron1,Iron2,Iron3,IrBox
+  case 3:  //Iron1,Iron2,Iron3,IrBox
     {
       sample = 0;
       cell_ind = 0;
       break;
     }
-    case 4:  //IrUp, IrDw
+  case 4:  //IrUp, IrDw
     {
       sample = 0;
       cell_ind = static_cast<int>(samples[sample]->plateCells.size()) - 1;
       break;
     }
-    case 5:  //Saddle except neg. barrel
+  case 5:  //Saddle except neg. barrel
     {
       sample = samples.size() - 2;
       cell_ind = samples[sample]->plateCells.size() - 1;
       break;
     }
-    case 6:  //Saddle neg. barrel
+  case 6:  //Saddle neg. barrel
     {
       sample = samples.size() - 2;
       cell_ind = 0;

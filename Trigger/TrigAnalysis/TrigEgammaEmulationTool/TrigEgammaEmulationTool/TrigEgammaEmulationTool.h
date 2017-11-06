@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef TrigEgammaEmulationTool_H
 #define TrigEgammaEmulationTool_H
@@ -24,7 +25,6 @@
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
-#include <boost/any.hpp>
 #include <vector>
 #include <map>
 
@@ -58,15 +58,12 @@ class TrigEgammaEmulationTool
     /* Experimental methods */
     void ExperimentalAndExpertMethods(){m_experimentalAndExpertMethods=true;};
     
-    std::map<std::string,boost::any> * getDecorations(){
-      if(m_experimentalAndExpertMethods)
-        return m_decorations;
-      else{
-        return nullptr;
-      }
-    }
+    void match( const xAOD::Egamma *, const HLT::TriggerElement *&);
+    const HLT::TriggerElement* getTEMatched(){return m_teMatched;};
 
   private:
+
+    void setTEMatched(const HLT::TriggerElement *te){m_teMatched=te;};
 
     bool emulationHLT(const xAOD::IParticleContainer *, bool &, const Trig::Info &);
 
@@ -84,11 +81,12 @@ class TrigEgammaEmulationTool
     void clearDecorations();
     /*! Simple setter to pick up correct probe PID for given trigger */
     void parseTriggerName(const std::string,const std::string, bool&, std::string &,
-                          float &, float &, std::string &,std::string &, bool&, bool&);
+                          float &, float &, std::string &, std::string &,std::string &, bool&, bool&);
  
-
+    bool                                          m_doL2ElectronFex;
+    bool                                          m_doEFCaloPid;       
+    bool                                          m_doRinger;
     bool                                          m_experimentalAndExpertMethods;
-    std::map<std::string, boost::any>            *m_decorations;
     std::string                                   m_offElContKey; 
     std::vector<std::string>                      m_trigList;
     std::vector<std::string>                      m_supportingTrigList;
@@ -106,6 +104,7 @@ class TrigEgammaEmulationTool
     ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_efElectronSelector;
     ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_efPhotonSelector;
 
+    const HLT::TriggerElement           *m_teMatched;
     const xAOD::ElectronContainer       *m_offElectrons;
     const xAOD::ElectronContainer       *m_onlElectrons;
     const xAOD::PhotonContainer         *m_onlPhotons;

@@ -63,7 +63,7 @@ namespace iFatras {
     virtual ~DiscOverlapDescriptor() {}
          
     /**Pseudo-Constructor*/
-    DiscOverlapDescriptor* clone() const;
+    virtual DiscOverlapDescriptor* clone() const override;
      
     /** get the compatible surfaces 
         - return vector : surfaces

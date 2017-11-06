@@ -3,12 +3,11 @@
 */
 
 //
-//   @file    AtlasUtils.h         
-//   
+//   @file    AtlasUtils.h
+//
 //
 //   @author M.Sutton
-// 
-//   Copyright (C) 2010 Atlas Collaboration
+//
 //
 //   $Id: AtlasUtils.h, v0.0   Thu 25 Mar 2010 10:34:20 CET $
 
@@ -19,7 +18,7 @@
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
 
-void ATLAS_LABEL(Double_t x,Double_t y,Color_t color=1); 
+void ATLAS_LABEL(Double_t x,Double_t y,Color_t color=1);
 
 TGraphErrors* myTGraphErrorsDivide(TGraphErrors* g1,TGraphErrors* g2);
 
@@ -35,6 +34,6 @@ void myText(Double_t x,Double_t y,Color_t color,const char *text);
 
 void myBoxText(Double_t x, Double_t y,Double_t boxsize,Int_t mcolor,const char *text);
 
-void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle,const char *text,Float_t msize=2.); 
+void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle,const char *text,Float_t msize=2.);
 
 #endif // __ATLASUTILS_H

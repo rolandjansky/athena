@@ -235,7 +235,6 @@ associatedDetectorElement
 getProxy
 ssnyder
 snyder
-cint
 PyAnalysisCore
 clids
 CLIDs
@@ -360,7 +359,6 @@ libJetTagInfoDict
 FIXME
 Fixup
 MuTagTrackParticles
-cintex
 libTrigSteeringEventDict
 DataModelRunTests
 DataProxyStorageConvert
@@ -423,7 +421,6 @@ getCLIDAliases
 skipPers
 libIdDictDetDescr
 FP
-PyCintex
 TCanvas
 TileMuContainer
 fMapfile
@@ -1101,5 +1098,3 @@ nolist'
 Atlfast'
 Trig'
 s'
-libCintex'
-Cintex'

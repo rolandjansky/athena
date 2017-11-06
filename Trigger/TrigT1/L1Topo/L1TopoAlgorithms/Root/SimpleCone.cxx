@@ -132,9 +132,9 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
 	 ++tob1) {
 	  
       if( tob1 == tob ) continue; // Avoid double counting of central jet 
-      if( parType_t(fabs((*tob1)->eta())) > p_EtaMax ) continue; // Eta cut                                                                                           
-      if( parType_t(fabs((*tob1)->eta())) < p_EtaMin ) continue; // Eta cut                                                                                              
-      if( parType_t((*tob1)->Et()) <= p_MinET ) continue; // E_T cut    
+      if( parType_t(fabs((*tob1)->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(fabs((*tob1)->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t((*tob1)->Et()) <= p_MinET ) continue; // E_T cut
       
       double deta = ( (*tob)->etaDouble() - (*tob1)->etaDouble() );
       double dphi = fabs( (*tob)->phiDouble() - (*tob1)->phiDouble() );
@@ -152,15 +152,17 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
   for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
     bool accept = leadingET > p_MinSumET[i];
-    
+    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+    const bool fillReject = fillHistos() and not fillAccept;
     decision.setBit( i, accept );
     
     if(accept) {
       output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(leadingET,0,0) ) ));
-      m_histAcceptSimpleCone[i]->Fill(leadingET);
     }
-    else
-      m_histRejectSimpleCone[i]->Fill(leadingET);
+    if(fillAccept)
+        m_histAcceptSimpleCone[i]->Fill(leadingET);
+    else if(fillReject)
+        m_histRejectSimpleCone[i]->Fill(leadingET);
     
     
     TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " SimpleCone = " << leadingET);

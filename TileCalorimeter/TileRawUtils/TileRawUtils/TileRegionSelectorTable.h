@@ -12,6 +12,14 @@
 
 //#include "RegionSelector/IRegionLUT_Creator.h"
 #include "IRegionLUT_Creator.h"
+#include "TileByteStream/TileHid2RESrcID.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "CaloIdentifier/TileID.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileConditions/TileCablingService.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "TileByteStream/TileROD_Decoder.h"
 
 class RegionSelectorLUT;
 

@@ -4,22 +4,14 @@
 # Verbose level is transmitted to several G4 classes to increase their verbosity.
 # Note that the event number is the number of events into the G4 run, rather than the ATLAS event number.
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-from AthenaCommon.CfgGetter import getPublicToolClone,getPublicTool
-
-vsArea=getPublicTool('VerboseSelector/VerboseSelectorArea',tryDefaultConfigurable=True)
-
-vsArea.Xmin=-25000
-vsArea.Xmax=25000
-vsArea.Ymin=-25000
-vsArea.Ymax=25000
-vsArea.Zmin=-30000
-vsArea.Zmax=30000
-vsArea.TargetEvent=1
-vsArea.VerboseLevel=1
-
-UAStore.addAction(vsArea,['EndOfEvent','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::VerboseSelectorTool',['Event','Tracking','Step'])
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Xmin',-25000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Xmax',25000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Ymin',-25000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Ymax',25000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Zmin',-30000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Zmax',30000)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','TargetEvent',1)
+simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','VerboseLevel',1)
 

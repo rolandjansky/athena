@@ -36,7 +36,7 @@ public:
     if ( s.find("root://eos")!=std::string::npos ) { 
       /// need to open on eos
       
-      std::string  _cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls "+s+"/";
+      std::string  _cmd = "eos ls "+s+"/";
       std::system( (_cmd+" > .eosfiles.log").c_str() );
 
       std::string   cmd = "export EOSFILES=$("+_cmd+")";

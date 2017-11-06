@@ -79,8 +79,13 @@ class JobRunnerParameter:
                 return "%-20s = %-20s" % (self.name,self.value)
 
 def GetRelease():
+    stamp = os.getenv('AtlasBuildStamp')
+    if stamp: # nightly
+        branch = os.getenv('AtlasBuildBranch')
+        version = ','.join([branch, stamp])
+    else:
+        version = os.getenv('AtlasVersion')
     project = os.getenv('AtlasProject')
-    version = os.getenv('AtlasVersion')
     platform = os.getenv('%s_PLATFORM' % project, os.getenv('CMTCONFIG'))
     return ','.join([project, version] + platform.split('-'))
 
@@ -217,8 +222,8 @@ class JobRunner:
         """Show current job parameters."""
         for p in self.paramOrder:
             s = str(self.params[p])
-            if len(s)>maxLineLength:
-                s = s[0:maxLineLength-3]+'...'
+            if maxLineLength > 0 and len(s) > maxLineLength:
+                s = s[0:maxLineLength-3] + '...'
             print s
 
 

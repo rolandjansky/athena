@@ -37,15 +37,13 @@ class IMessageSvc;
 class TFile;
 
 
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserTrackingAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 namespace G4UA{
 
   class TestActionEHist:
-  public IPreTrackingAction,  public IPostTrackingAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+    public G4UserTrackingAction, public G4UserRunAction, public G4UserSteppingAction
   {
     
   public:
@@ -63,11 +61,11 @@ namespace G4UA{
     };
     
     TestActionEHist(const Config& config);
-    virtual void preTracking(const G4Track*) override;
-    virtual void postTracking(const G4Track*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void PreUserTrackingAction(const G4Track*) override;
+    virtual void PostUserTrackingAction(const G4Track*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
     Config m_config;	//!< holds the python configuration
     

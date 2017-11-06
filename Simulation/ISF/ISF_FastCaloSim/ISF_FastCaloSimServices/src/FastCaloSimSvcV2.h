@@ -14,6 +14,9 @@
 
 // FastCaloSim includes
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
+#include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
+#include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
+#include "TrkExInterfaces/ITimedExtrapolator.h" 
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
@@ -22,9 +25,15 @@
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloIdentifier/LArEM_ID.h"
+#include "CaloIdentifier/LArHEC_ID.h"
+#include "CaloIdentifier/LArFCAL_ID.h"
+#include "CaloIdentifier/TileID.h"
+
 namespace CLHEP
 {
-  class HepRandomEngine;
+ class HepRandomEngine;
 }
 
 //forward declarations
@@ -35,72 +44,131 @@ class CaloGeometryFromFile;
 namespace ISF {
   /** @class FastCaloSimSvcV2
 
-      @author Elmar.Ritsch -at- cern.ch, Geraldine.Conti -at- cern.ch, Flavia.Dias -at- cern.ch
-  */
-  class FastCaloSimSvcV2 : public BaseSimulationSvc {
-  public:
-    /** Constructor with parameters */
-    FastCaloSimSvcV2(const std::string& name, ISvcLocator* pSvcLocator);
+    @author Elmar.Ritsch -at- cern.ch, Geraldine.Conti -at- cern.ch, Flavia.Dias -at- cern.ch
+    */
+  
+  class FastCaloSimSvcV2 : public BaseSimulationSvc
+  {
+    public:
+      /** Constructor with parameters */
+      FastCaloSimSvcV2(const std::string& name, ISvcLocator* pSvcLocator);
+      
+      /** Destructor */
+      virtual ~FastCaloSimSvcV2();
+      
+      /** Athena algorithm's interface methods */
+      StatusCode  initialize();
+      StatusCode  finalize();
+      
+      /** Simulation Call */
+      StatusCode simulate(const ISFParticle& isp);
+      
+      /** Setup Event chain - in case of a begin-of event action is needed */
+      StatusCode setupEvent();
+      
+      /** Release Event chain - in case of an end-of event action is needed */
+      StatusCode releaseEvent();
+      
+      int hitCalc(double energy, int calolayer,int pcabin, int pdgid);
+      double findHitEta(const double delta_eta_mm,const double R,const double eta_particle);
+      inline double transformationEtaToMM(const double R,const double deltaEta, const double sech)
+      {
+         return R*sech*deltaEta;
+      }
+      inline double transformationEtaToMMFirstDerivative(const double R,const double deltaEta, const double sech,const double tanh)
+      {
+         return R*sech*(1.-(deltaEta)*tanh);
+      }
+      inline double transformationEtaToMMSecondDerivative(const double R,const double deltaEta, const double sech,const double tanh)
+      {
+         return R*sech*((deltaEta)*(1-2.*sech*sech) - 2.*tanh);
+      }      
+      void findEtaMMRange(const double R,const double eta_particle,double & etaMin,double & etaMax);
+      double findStartingPoint(const double R,const double eta_particle,bool forMaximum);
+      
+      void LoopOverHits(const double totalEnergy, double minR = 0, double maxR = 0);
+      void TestCell();
+      
+      //** Calculate the wiggle for the hit-to-cell assignment on layers with accordion shape **//
+      double doWiggle(int layer);
+      
+      AtlasDetectorID* detID;
+      LArEM_ID* larID;
+      TileID*   tileID;
+      LArHEC_ID* hecID;
+      LArFCAL_ID* fcalID;
+      
+      int cellcheck;
+      
+      /** FCSParam file **/
+      TFile* m_paramsFile;
+      TFile* m_photonFile;
+      TFile* m_elFile;
+      TFile* m_pionFile;
+      TFile* m_paramsFile_photons;
+      
+      std::string m_paramsFilename;
+      
+      //TFCSPCAEnergyParametrization    m_epara;
+      
+      std::vector<TFCSPCAEnergyParametrization*>  m_eparas;
+      
+      ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup ;
+      ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease ;
 
-    /** Destructor */
-    virtual ~FastCaloSimSvcV2();
+      ToolHandle<IFastCaloSimCaloExtrapolation> m_FastCaloSimCaloExtrapolation;
+      ToolHandle<Trk::ITimedExtrapolator> m_extrapolator;
+      
+      CaloCellContainer *       m_theContainer;
+      Amg::Vector3D particle_position;
+      TH2F* m_histEnergyDensity2D;
+      
+      ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
+      CLHEP::HepRandomEngine*         m_randomEngine;
+      std::string                     m_randomEngineName;
+      
+      CaloGeometryFromCaloDDM* m_caloGeo;
+      
+      std::string  m_caloCellsOutputName;
 
-    /** Athena algorithm's interface methods */
-    virtual StatusCode  initialize() override final;
-    virtual StatusCode  finalize() override final;
+      std::vector<double> m_rlayer;
 
-    /** Simulation Call */
-    virtual StatusCode simulate(const ISFParticle& isp) override final;
+      /** enable/disable random fluctuations in calorimeter layers */
+      bool m_doRandomFluctuations;
+      bool m_useFastCaloSimCaloExtrapolation;
+      
+      // Settings for new shape parametrisation
+      bool m_useOneDShapeParametrisation;
+      int m_nHits;
+      
+      double eta;
+      double phi;
+      double eta_isfp;
+      double phi_isfp;
+      double R;
+      
+      IntArray *m_layers;
+      double r_layer;
+      double z_particle;
+      int layer;
+      double layerE;
 
-    /** Setup Event chain - in case of a begin-of event action is needed */
-    virtual StatusCode setupEvent() override final;
+      double deltaEtaMMmin;
+      double deltaEtaMMmax;
 
-    /** Release Event chain - in case of an end-of event action is needed */
-    virtual StatusCode releaseEvent() override final;
+      double esum;
+      int nCells;
+      int nCells_Tile;
+      
+      TFCSSimulationState simulstate;
+      // iterator over layers
+      int ilayer;
 
-  private:
-
-    int hitCalc(double energy, int calolayer, int pdgid);
-    double findHitEta(const double alpha,const double r, const double r_layer,const double z_particle,const double eta_particle);
-
-    //** Calculate the wiggle for the hit-to-cell assignment on layers with accordion shape **//
-    double doWiggle(int layer);
-
-    /** FCSParam file **/
-    TFile* m_paramsFile;
-    TFile* m_energyDensity2D;
-
-    std::string m_paramsFilename;
-
-    //TFCSPCAEnergyParametrization    m_epara;
-
-    std::vector<TFCSPCAEnergyParametrization*>  m_eparas;
-
-    ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup ;
-    ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease ;
-
-    CaloCellContainer *       m_theContainer;
-
-    TH2F* m_histEnergyDensity2D;
-
-    ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
-    CLHEP::HepRandomEngine*         m_randomEngine;
-    std::string                     m_randomEngineName;
-
-    CaloGeometryFromFile* m_caloGeo;
-
-    std::string  m_caloCellsOutputName;
-
-    std::vector<double> m_rlayer;
-
-    /** enable/disable random fluctuations in calorimeter layers */
-    bool m_doRandomFluctuations;
-
-    //** Array for the hit-to-cell assignment accordion structure fix (wiggle)  **//
-    //** To be moved to the conditions database at some point **//
-    static const double m_wiggleLayer1[50];
-    static const double m_wiggleLayer2[50];
-    static const double m_wiggleLayer3[50];
+      //** Array for the hit-to-cell assignment accordion structure fix (wiggle)  **//
+      //** To be moved to the conditions database at some point **// 
+      double m_wiggleLayer1[50];
+      double m_wiggleLayer2[50];
+      double m_wiggleLayer3[50];
 
   };
 

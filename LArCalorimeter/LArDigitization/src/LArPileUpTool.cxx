@@ -849,11 +849,9 @@ StatusCode LArPileUpTool::processAllSubEvents()
       SubEvtTimOffset = time_evt->time();
       ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
       const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
-      rndm_digititer_begin=rndm_digit_container.begin() ;
-      rndm_digititer_end=rndm_digit_container.end() ;
       int ndigit=0;
-      for(rndm_digititer=rndm_digititer_begin;rndm_digititer!=rndm_digititer_end;rndm_digititer++) {
-       if (m_hitmap->AddDigit((*rndm_digititer))) ndigit++;
+      for (const LArDigit* digit : rndm_digit_container) {
+       if (m_hitmap->AddDigit(digit)) ndigit++;
       }
       ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
     }
