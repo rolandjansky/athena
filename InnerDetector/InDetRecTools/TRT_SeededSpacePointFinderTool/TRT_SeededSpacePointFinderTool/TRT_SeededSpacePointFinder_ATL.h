@@ -132,9 +132,9 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
      
       double                         m_ptmin                         ;  /** Minimum pT cut   */
-      double                         r_rmin                          ;  /** Minimum SCT radius to be searched  */
-      double                         r_rmax                          ;  /** Maximum STC radius to be searched  */
-      double                         r_rstep                         ;  /** Step size for space point storage  */
+      double                         m_r_rmin                        ;  /** Minimum SCT radius to be searched  */
+      double                         m_r_rmax                        ;  /** Maximum STC radius to be searched  */
+      double                         m_r_rstep                       ;  /** Step size for space point storage  */
       double                         m_r1max                         ;  /** Max radius of last SCT layer  */
       double                         m_r12min                        ;  /** Min radius of last SCT layer  */
       double                         m_r2min                         ;  /** Min radius to search for SP pairs  */
@@ -152,15 +152,15 @@ namespace InDet{
       /** Tables for 2 space points seeds search                       */
       ///////////////////////////////////////////////////////////////////
      
-      int r_size                                                     ;
-      std::list<const Trk::SpacePoint*>*          r_Sorted           ;
-      std::list<std::pair<const Trk::SpacePoint*,int> > rf_Sorted[530]     ;
-      std::list<std::pair<const Trk::SpacePoint*,int> > newRfi_Sorted      ;
+      int m_r_size                                                   ;
+      std::list<const Trk::SpacePoint*>*          m_r_Sorted         ;
+      std::list<std::pair<const Trk::SpacePoint*,int> > m_rf_Sorted[530]   ;
+      std::list<std::pair<const Trk::SpacePoint*,int> > m_newRfi_Sorted    ;
 
       int m_ns                                                       ;
       int m_fNmax                                                    ;
-      int  m_nr       ; int* r_index   ; int* r_map                  ;
-      int  m_nrf     , rf_index   [ 530], rf_map   [ 530]            ;
+      int  m_nr       ; int* m_r_index   ; int* m_r_map              ;
+      int  m_nrf     , m_rf_index   [ 530], m_rf_map   [ 530]        ;
       double m_sF                                                    ;
 
       ///////////////////////////////////////////////////////////////////
