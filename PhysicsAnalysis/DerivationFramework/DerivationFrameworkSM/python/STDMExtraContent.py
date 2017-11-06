@@ -88,8 +88,7 @@ ExtraContainersAll=ExtraContainersElectron+ExtraContainersJets+ExtraContainersOt
 ExtraVariablesEventShape=[
     "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
     "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
-    "kt4EMTopoEventShape.DensitySigma.Density.DensityArea",
-    "kt4LCTopoEventShape.DensitySigma.Density.DensityArea"   
+    "kt4EMTopoEventShape.DensitySigma.Density.DensityArea"
     ]
 
 ExtraVariablesTruthEventShape=[
