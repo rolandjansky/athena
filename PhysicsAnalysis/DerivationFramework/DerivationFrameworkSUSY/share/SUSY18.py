@@ -46,9 +46,9 @@ SUSY18ThinningHelper.AppendToStream( SUSY18Stream )
 # THINNING TOOLS
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY18TPThinningTool",
 #                                                                  ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
@@ -336,15 +336,17 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "MET_Reference_AntiKt4EMTopo",
                                          "BTagging_AntiKt4EMTopo",
                                          "InDetTrackParticles",
-                                         "PrimaryVertices"]
+                                         "PrimaryVertices",
+                                         "AntiKt4TruthJets",
+                                         "AntiKt4TruthWZJets"]
 
 #all variables
 SUSY18SlimmingHelper.AllVariables = ["TruthParticles",
                                      "TruthEvents",
                                      "TruthVertices",
                                      "MET_Truth",
-                                     "AntiKt4TruthJets",
-                                     "AntiKt4TruthWZJets",
+                                     #"AntiKt4TruthJets",
+                                     #"AntiKt4TruthWZJets",
                                      "LVL1JetRoIs",
                                      "MET_Track" #needed for the forward JVT
                                      ]

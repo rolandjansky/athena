@@ -45,9 +45,9 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 # THINNING TOOL 
 #====================================================================\
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY7TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY7TPThinningTool",
 #								 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
 #								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
@@ -170,9 +170,10 @@ if DerivationFrameworkIsMonteCarlo:
   thinningTools.append(SUSY7TruthThinningTool)
 
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-updateJVT_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-applyBTagging_xAODColl('AntiKt4EMTopo', SeqSUSY7)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY7)
+#updateJVT_xAODColl("AntiKt4EMTopo", SeqSUSY7)
+#applyBTagging_xAODColl('AntiKt4EMTopo', SeqSUSY7)
 
 
 #dilepton selection

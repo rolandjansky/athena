@@ -156,7 +156,8 @@ objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements
 
 expression = objectSelection
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
 
 from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
 from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
@@ -258,7 +259,7 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
+                                        #"AntiKt4LCTopoJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",

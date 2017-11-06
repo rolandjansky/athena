@@ -282,18 +282,6 @@ replaceAODReducedJets(reducedJetList, SeqSUSY9, "SUSY9")
     
 
 #==============================================================================
-# SUSY background generator filters
-#==============================================================================
-#if DerivationFrameworkIsMonteCarlo:
-#
-#  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-#      "SUSY9GenFilt",
-#      SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-#      )
-#  AugmentationTools.append(ToolSvc.SUSY9GenFilt)
-    
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY9 += CfgMgr.DerivationFramework__DerivationKernel(
