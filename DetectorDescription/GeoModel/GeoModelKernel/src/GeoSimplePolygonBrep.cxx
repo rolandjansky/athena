@@ -2,19 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
+#include "GeoModelKernel/GeoShapeAction.h"
+#include "PolygonTriangulator.h"//For volume.
 #include <cmath>
 #include <stdexcept>
-#include "GeoModelKernel/GeoShapeAction.h"
-
-#include "GeoModelKernel/GeoSimplePolygonBrep.h"
-
-#include "PolygonTriangulator.h"//For volume.
 
 const std::string GeoSimplePolygonBrep::s_classType = "SimplePolygonBrep";
 const ShapeType GeoSimplePolygonBrep::s_classTypeID = 0x20;
 
-GeoSimplePolygonBrep::GeoSimplePolygonBrep(double dz):
-  m_dZ(dz)
+GeoSimplePolygonBrep::GeoSimplePolygonBrep(double dz)
+   : m_dZ(dz)
 {
 }
 

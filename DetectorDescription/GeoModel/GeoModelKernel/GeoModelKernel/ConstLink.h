@@ -2,16 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ConstLink_h
-#define ConstLink_h 1
-/**     @brief Smart links to reference-counted pointers.  Used in this
- *      package for calorimeter cells
- **/
+#ifndef GEOMODELKERNEL_CONSTLINK_H
+#define GEOMODELKERNEL_CONSTLINK_H
 
-/**	Template Smart Pointer Class.  This reference counted
+/**
+ * @class ConstLink
+ * 
+ * @brief Smart links to reference-counted pointers.  Used in this
+ *      package for calorimeter cells
+ **	Template Smart Pointer Class.  This reference counted
  *	link allocates on demand. It audits the total pointer
  *	count and collects the garbage when nobody's looking.
  */
+
 template <class T>
 class ConstLink 
 {
@@ -28,7 +31,6 @@ class ConstLink
    */
   ConstLink(const ConstLink< T > &right);
   
-  //	Constructor
   /**
    * @brief Constructor
    */
