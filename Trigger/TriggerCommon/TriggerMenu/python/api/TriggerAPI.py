@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import sys, pickle
-from TriggerMenu.api.TriggerInfo import *
-from TriggerMenu.api.TriggerEnums import TriggerPeriod
+from TriggerMenu.api.TriggerInfo import TriggerInfo
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
     pickleFile = "TriggerInfo.pickle"

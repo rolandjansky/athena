@@ -92,7 +92,7 @@ function( atlas_run_lowestunprescaled )
          COMMAND ${CMAKE_COMMAND} -E echo
          "TriggerMenu: Package build succeeded" )
    endif()
-   add_dependencies( TriggerMenuMain build_menu_unprescaled )
+   add_dependencies( TriggerMenuMain build_list_unprescaled )
 
 endfunction ( atlas_run_lowestunprescaled )
 
