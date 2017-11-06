@@ -33,15 +33,23 @@ TrigInDetTrackTruthMap* TrigInDetTrackTruthMapCnv::createTransient() {
   
   const static pool::Guid tlp1_guid("08892FEB-5706-4938-9226-F45C0AA662E7");
   const static pool::Guid tlp2_guid("02074F47-F290-4A48-B503-4DCAB4181B3D");
+  const static pool::Guid tlp3_guid("81BFA8A7-89A8-4072-B6E2-7124300CA9EB");
   const static pool::Guid p0_guid("41581666-F06D-44AE-93B9-D7E912A27AA1");
   
   TrigInDetTrackTruthMap  *transObj = 0;
   
   
-  if( compareClassGuid(tlp2_guid) ) {
+  if( compareClassGuid(tlp3_guid) ) {
+
+    ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::reading tlp3 persistent object"  );
+    poolReadObject< TrigInDetTrackTruthMap_tlp3 >( m_trigInDetTrackTruthMapCnv_tlp3 );
+    transObj = m_trigInDetTrackTruthMapCnv_tlp3.createTransient( msg() );
+
+  }
+  else if( compareClassGuid(tlp2_guid) ) {
     
     ATH_MSG_DEBUG( "TrigInDetTrackTruthMapCnv::reading tlp2 persistent object"  );
-    poolReadObject< TrigInDetTrackTruthMap_PERS >( m_trigInDetTrackTruthMapCnv_tlp2 );
+    poolReadObject< TrigInDetTrackTruthMap_tlp2 >( m_trigInDetTrackTruthMapCnv_tlp2 );
     transObj = m_trigInDetTrackTruthMapCnv_tlp2.createTransient( msg() );
     
   }
