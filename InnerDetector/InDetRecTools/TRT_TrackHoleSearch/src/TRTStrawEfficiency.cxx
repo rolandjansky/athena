@@ -51,7 +51,23 @@ TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSv
         m_trigDec( "Trig::ITrigDecisionTool/TrigDecisionTool"),
         m_num_events(0),
         m_num_tracks(0),
-        m_num_preselected_tracks(0)
+        m_num_preselected_tracks(0),
+	m_event_number(0),
+	m_run_number(0),
+	m_lumi_block(0),
+	m_track_pt(0.),
+	m_track_eta(0.),
+	m_track_phi(0.),
+	m_track_d0(0.),
+	m_track_z0(0.),
+	m_n_pixel_hits(0),
+	m_n_sct_hits(0),
+	m_n_trt_hits(0),
+	m_n_pixel_holes(0),
+	m_n_sct_holes(0),
+	m_n_trt_holes(0),
+	m_n_primary_vertex(0),
+	m_n_tube_hits(0)
 {
     declareProperty("trt_hole_finder",          m_trt_hole_finder);
     declareProperty("track_collection",         m_track_collection =    "CombinedInDetTracks" );
