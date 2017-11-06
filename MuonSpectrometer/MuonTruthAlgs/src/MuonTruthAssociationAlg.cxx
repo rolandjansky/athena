@@ -300,6 +300,8 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       }
     }catch ( SG::ExcBadAuxVar& ) {
       ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
+      //there should always be a truthParticleLink, but just in case
+      setDummyTruthInfo(*muon);
     }
   }
 
