@@ -16,7 +16,11 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   JSSTaggerBase( name ),
   m_name(name),
   m_APP_NAME(APP_NAME),
-  m_lwnn(nullptr)
+  m_lwnn(nullptr),
+  m_dec_mcutL("mcutL"),
+  m_dec_mcutH("mcutH"),
+  m_dec_scoreCut("scoreCut"),
+  m_dec_scoreValue("scoreValue")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -48,11 +52,12 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
     configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
     if(fSuccess != 0){
-      ATH_MSG_ERROR("Recommendations file could not be found : " << configPath);
+      ATH_MSG_ERROR("Recommendations file could not be found : ");
       return StatusCode::FAILURE;
     }
     else {
@@ -114,6 +119,23 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     }
 
   }
+
+  // initialize decorators as decorationName+_decorator
+  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  std::string dec_name;
+
+  dec_name = m_decorationName+"_Cut_mlow";
+  ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
+  m_dec_mcutL      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_mhigh";
+  ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
+  m_dec_mcutH      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : MVA score cut for tagger choice" );
+  m_dec_scoreCut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : evaluated MVA score" );
+  m_dec_scoreValue = SG::AuxElement::Decorator<float>((dec_name).c_str());
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -283,16 +305,10 @@ double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
 void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
     /* decorate jet with attributes */
 
-    // decorators to be used throughout
-    static SG::AuxElement::Decorator<float>    dec_mcutL ("BDTTagCut_mlow");
-    static SG::AuxElement::Decorator<float>    dec_mcutH ("BDTTagCut_mhigh");
-    static SG::AuxElement::Decorator<float>    dec_scoreCut("BDTTagCut_dnn");
-    static SG::AuxElement::Decorator<float>    dec_scoreValue(m_decorationName.c_str());
-
-    dec_mcutH(jet)      = mcutH;
-    dec_mcutL(jet)      = mcutL;
-    dec_scoreCut(jet)   = scoreCut;
-    dec_scoreValue(jet) = scoreValue;
+    m_dec_mcutH(jet)      = mcutH;
+    m_dec_mcutL(jet)      = mcutL;
+    m_dec_scoreCut(jet)   = scoreCut;
+    m_dec_scoreValue(jet) = scoreValue;
 
 }
 
@@ -316,9 +332,6 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
     jet.getAttribute("ECF1", ecf1);
     jet.getAttribute("ECF2", ecf2);
     jet.getAttribute("ECF3", ecf3);
-    DNN_inputValues["ECF1"] = ecf1;
-    DNN_inputValues["ECF2"] = ecf2;
-    DNN_inputValues["ECF3"] = ecf3;
     if (!jet.isAvailable<float>("C2"))
         DNN_inputValues["C2"] = ecf3 * ecf1 / pow(ecf2, 2.0);
     else
@@ -351,6 +364,12 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     // Qw observable for top tagging
     DNN_inputValues["Qw"] = jet.getAttribute<float>("Qw");
+    DNN_inputValues["FoxWolfram20"] = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
+    DNN_inputValues["PlanarFlow"] = jet.getAttribute<float>("PlanarFlow");
+    DNN_inputValues["Angularity"] = jet.getAttribute<float>("Angularity");
+    DNN_inputValues["Aplanarity"] = jet.getAttribute<float>("Aplanarity");
+    DNN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
+    DNN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
 
     return DNN_inputValues;
 }

@@ -15,7 +15,7 @@
 
 TaggerType: WBoson
 
-DecorationName: BDTTaggerScoreWBoson
+DecorationName: BDTTaggerTopQuark80
 
 CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
 #CalibArea: Local

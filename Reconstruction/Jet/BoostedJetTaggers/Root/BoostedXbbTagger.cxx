@@ -2,48 +2,31 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/**************************************************************
-//
-//   Created:       18 November 2016
-//   Last Updated:  5 May       2017
-//
-//   Felix Mueller: fmueller@cern.ch
-//   Eric Takasugi: eric.hayato.takasugi@cern.ch
-//
-//   Code based on original JetSubstructureUtils by Giordan Stark
-//
-//   Standard Higgs->bb tagger defined by selections on mass, subjet btagging, and
-//   substructure
-//
-***************************************************************/
 #include "BoostedJetTaggers/BoostedXbbTagger.h"
 
 #include "PathResolver/PathResolver.h"
 
 #include "TEnv.h"
 
-// make all static accessors static to this file, like extern but hip
-SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> BoostedXbbTagger::parent("Parent");
-SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > >BoostedXbbTagger::ghostMatchedTrackJets("GhostAntiKt2TrackJet");
+static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> acc_parent("Parent");                                                                        
+static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc_ghostMatchedTrackJets("GhostAntiKt2TrackJet"); 
 
 BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 
   JSSTaggerBase( name ),
   m_name(name),
+  m_jetMassMaxTF1(nullptr),
+  m_jetMassMinTF1(nullptr),
   m_jetSubCutTF1(nullptr),
-
-  // the following don't have default constructors, so need to initialise them here
-  m_muonSelectionTool(new CP::MuonSelectionTool(name+"MuonSelection")),
-  m_muonCalibrationAndSmearingTool(new CP::MuonCalibrationAndSmearingTool(name+"MuonCalibrationTool")),
-  jetMassMinDecor(SG::AuxElement::Decorator<float>(name+"MassMin")),
-  jetMassMaxDecor(SG::AuxElement::Decorator<float>(name+"MassMax")),
-  jssCutDecor(SG::AuxElement::Decorator<float>(name+"JSSCut")),
-  correctedJetDecor(SG::AuxElement::Decorator<TLorentzVector>(name+"CorrectedJetP4")),
-  calibratedMuonDecor(SG::AuxElement::Decorator<TLorentzVector>(name+"CalibratedMuonP4")),
-  muonsInTrackJetLink(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(name+"MatchedMuons")),
-  muonsInFatJetLink(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(name+"CorrectionMuons")),
-  trackJetsInFatJet(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(name+"TrackJets"))
-{
+  m_dec_jetMassMin( "jetMassMin" ),
+  m_dec_jetMassMax( "jetMassMax" ),
+  m_dec_jssCut( "jssCut" ),
+  m_dec_correctedJet( "correctedJet" ),
+  m_dec_calibratedMuon( "calibratedMuon" ),
+  m_dec_muonsInTrackJetLink( "muonsInTrackJetLink" ),
+  m_dec_muonsInFatJetLink( "muonsInFatJetLink" ),
+  m_dec_trackJetsInFatJet( "trackJetsInFatJet" )
+  {
 
       // load parameter from configuration file
       declareProperty( "WorkingPoint",          m_wkpt = "" );       // allows to specify more WP inside one configuration file
@@ -82,25 +65,32 @@ BoostedXbbTagger::BoostedXbbTagger( const std::string& name ) :
 }
 
 // destructor has to be specified because virtual interface class requires it
-BoostedXbbTagger::~BoostedXbbTagger() {}
+BoostedXbbTagger::~BoostedXbbTagger() {
+    delete m_jetMassMaxTF1;
+    delete m_jetMassMinTF1;
+    delete m_jetSubCutTF1;
+}
 
 StatusCode BoostedXbbTagger::initialize()
 {
     ATH_MSG_INFO("Initializing BoostedXbbTagger tool");
-    // muons for muon-in-jet correction
-    if(!m_muonSelectionTool->initialize().isSuccess()){
-        ATH_MSG_ERROR("Could not initialize the MuonSelectionTool.");
-        return StatusCode::FAILURE;
-    }
-    if(!m_muonCalibrationAndSmearingTool->initialize().isSuccess()){
-        ATH_MSG_ERROR("Could not initialize the MuonCalibrationAndSmearingTool.");
-        return StatusCode::FAILURE;
-    }
     if( ! m_configFile.empty() ) {
       ATH_MSG_INFO( "Using config file : "<< m_configFile );
       // check for the existence of the configuration file
       std::string configPath;
-      configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+      int releaseSeries = atoi(getenv("ROOTCORE_RELEASE_SERIES"));
+      if(releaseSeries>=25){
+        // r21 with release >= 21.2.4
+        configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+      }
+      else {
+        // r20.7 with release <= AnalysisBase,2.4.24
+        #ifdef ROOTCORE
+            configPath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
+        #else
+            configPath = PathResolverFindXMLFile(("$ROOTCOREBIN/data/BoostedJetTaggers/"+m_configFile).c_str());
+        #endif
+      }
       /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
       FileStat_t fStats;
       int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
@@ -109,13 +99,16 @@ StatusCode BoostedXbbTagger::initialize()
         return StatusCode::FAILURE;
       }
       else {
-        ATH_MSG_DEBUG("Recommendations file was found : " << configPath);
+        ATH_MSG_DEBUG("Recommendations file was found : "<<configPath);
       }
+
+
       TEnv configReader;
       if(configReader.ReadFile( configPath.c_str(), EEnvLevel(0) ) != 0 ) {
         ATH_MSG_ERROR( "Error while reading config file : "<< configPath );
         return StatusCode::FAILURE;
       }
+
       if( m_wkpt.empty() ){
            m_bTagAlg                        = configReader.GetValue("BTagAlgorithm",         m_bTagAlg.c_str());
            m_numBTags                       = configReader.GetValue("NumBTags",              m_numBTags);
@@ -136,7 +129,8 @@ StatusCode BoostedXbbTagger::initialize()
            m_trackJetEtaMax                 = configReader.GetValue("TrackJetEtaMax",        m_trackJetEtaMax );
            m_trackJetNConst                 = configReader.GetValue("TrackJetNConstituents", m_trackJetNConst );
            m_trackJetContName               = configReader.GetValue("TrackJetContainer",     m_trackJetContName.c_str() );
-      } else {
+      }
+      else {
             m_bTagAlg                        = configReader.GetValue((m_wkpt+"BTagAlgorithm").c_str(),         m_bTagAlg.c_str());
             m_numBTags                       = configReader.GetValue((m_wkpt+"NumBTags").c_str(),              m_numBTags);
             m_bTagCut                        = configReader.GetValue((m_wkpt+"BTagCut").c_str(),               m_bTagCut);
@@ -157,22 +151,38 @@ StatusCode BoostedXbbTagger::initialize()
             m_trackJetNConst                 = configReader.GetValue((m_wkpt+"TrackJetNConstituents").c_str(), m_trackJetNConst );
             m_trackJetContName               = configReader.GetValue((m_wkpt+"TrackJetContainer").c_str(),     m_trackJetContName.c_str() );
       }
+
+      // get the decoration name
+      m_decorationName = configReader.GetValue("DecorationName" ,"");
+
     }
+
+    // set up muon tools
+    m_muonSelectionTool.setTypeAndName("CP::MuonSelectionTool/"+m_name+"MuonSelection");
+    m_muonSelectionTool.retrieve();
+
+    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+m_name+"MuonCalibration");
+    m_muonCalibrationAndSmearingTool.retrieve();
+
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
         ATH_MSG_ERROR( "Error setting mass calibration scheme to " << m_muonCorrectionSchemeName );
         return StatusCode::FAILURE;
     }
+
     if (m_jetSubCutStr != "") {
         ATH_MSG_INFO("Initialize formula for substructure cut using " << m_jetSubCutStr.c_str());
         m_jetSubCutTF1 = new TF1((m_name + "SubstructureCut").c_str(), m_jetSubCutStr.c_str(), 0, 14000);
         m_jetSubCutStr = m_jetSubCutTF1->GetExpFormula(); // cross check
     }
+
     ATH_MSG_INFO("Initialize formula for lower mass cut using " << m_jetMassMinStr.c_str());
     m_jetMassMinTF1 = new TF1((m_name + "MassMin").c_str(), m_jetMassMinStr.c_str(), 0, 14000);
     m_jetMassMinStr = m_jetMassMinTF1->GetExpFormula(); // cross check
+
     ATH_MSG_INFO("Initialize formula for upper mass cut using " << m_jetMassMaxStr.c_str());
     m_jetMassMaxTF1 = new TF1((m_name + "MassMax").c_str(), m_jetMassMaxStr.c_str(), 0, 14000);
     m_jetMassMaxStr = m_jetMassMaxTF1->GetExpFormula(); // cross check
+
     ATH_MSG_INFO("BoostedXbbTagger configured successfully using the following parameters:");
     ATH_MSG_INFO("Decorator:             " << m_name);
     ATH_MSG_INFO("BTagAlgorithm:         " << m_bTagAlg);
@@ -194,8 +204,38 @@ StatusCode BoostedXbbTagger::initialize()
     ATH_MSG_INFO("TrackJetEtaMax:        " << m_trackJetEtaMax);
     ATH_MSG_INFO("TrackJetNConstituents: " << m_trackJetNConst);
     ATH_MSG_INFO("TrackJetContainer:     " << m_trackJetContName);
+    ATH_MSG_INFO("decorationName:        " << m_decorationName);
 
-    //initialize the tagger states
+    // initialize decorators as decorationName+_decorator
+    ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+    std::string dec_name;
+
+    dec_name = m_decorationName+"_MassMin";
+    ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
+    m_dec_jetMassMin          = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_MassMax";
+    ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
+    m_dec_jetMassMax          = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_JSSCut";
+    ATH_MSG_INFO( "  "<<dec_name<<" : JSS cut for tagger choice" );
+    m_dec_jssCut              = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_CorrectedJetP4";
+    ATH_MSG_INFO( "  "<<dec_name<<" : the four-vector of the muon-corrected jet" );
+    m_dec_correctedJet        = SG::AuxElement::Decorator<TLorentzVector>((dec_name).c_str());
+    dec_name = m_decorationName+"_CalibratedMuonP4";
+    ATH_MSG_INFO( "  "<<dec_name<<" : the four-vector of the muon used for the correction" );
+    m_dec_calibratedMuon      = SG::AuxElement::Decorator<TLorentzVector>((dec_name).c_str());
+    dec_name = m_decorationName+"_MatchedMuons";
+    ATH_MSG_INFO( "  "<<dec_name<<" : the element links to all matched muons" );
+    m_dec_muonsInTrackJetLink = SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >((dec_name).c_str());
+    dec_name = m_decorationName+"_CorrectionMuons";
+    ATH_MSG_INFO( "  "<<dec_name<<" : the element links to the muons used for the correction" );
+    m_dec_muonsInFatJetLink   = SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >((dec_name).c_str());
+    dec_name = m_decorationName+"_TrackJets";
+    ATH_MSG_INFO( "  "<<dec_name<<" : the element links to the track jets that were used for b-tagging" );
+    m_dec_trackJetsInFatJet   = SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >((dec_name).c_str());
+
+    // initialize the tagger states
     m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
     m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
     m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
@@ -203,8 +243,7 @@ StatusCode BoostedXbbTagger::initialize()
     m_accept.addCut( "PassMassLow"         , "True if the jet passes the lower mass bound : mJet>MCutLow"       );
     m_accept.addCut( "PassMassHigh"        , "True if the jet passes the upper mass bound : mJet<MCutHigh"      );
     m_accept.addCut( "PassBTag"            , "True if the jet is flagged with b-tagging - one or two tags depending on configuration"          );
-    // the substructure selection is not commissioned at this point, but will be added in the future
-    //m_accept.addCut( "PassJSS"             , "True if the jet passes the substructure cut"           ); //not enabled for the moment
+    m_accept.addCut( "PassJSS"             , "True if the jet passes the substructure cut" ); //not enabled for the moment and only acts as a pass through
 
     //loop over and print out the cuts that have been configured
     ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
@@ -273,8 +312,8 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   // get the track jets from the parent
   bool problemWithParent = false;
   ElementLink<xAOD::JetContainer> parentEL;
-  if(!parent.isAvailable(jet)) problemWithParent = true;
-  else parentEL = parent(jet);
+  if(!acc_parent.isAvailable(jet)) problemWithParent = true;
+  else parentEL = acc_parent(jet);
   if(problemWithParent || !parentEL.isValid()){
     if(problemWithParent) ATH_MSG_ERROR("Parent decoration does not exist.");
     if(!parentEL.isValid()) ATH_MSG_ERROR("Parent link is not valid.");
@@ -283,10 +322,10 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   else {
     const xAOD::Jet* parentJet = *parentEL;
     // use accessor instead of getAssociatedObject in order to have EL
-    if (!ghostMatchedTrackJets.isAvailable(*parentJet)) {
+    if (!acc_ghostMatchedTrackJets.isAvailable(*parentJet)) {
       ATH_MSG_ERROR("Ghostmatched jet collection does not exist.");
     }
-    associated_trackJets = ghostMatchedTrackJets(*parentJet);
+    associated_trackJets = acc_ghostMatchedTrackJets(*parentJet);
   }
 
   // decorate all trackjets by default
@@ -338,7 +377,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
     pass_btag = true;
   }
   if (m_decorate)
-    trackJetsInFatJet(jet) = associated_trackJets_links;
+    m_dec_trackJetsInFatJet(jet) = associated_trackJets_links;
 
   // Step 3
   std::vector<xAOD::Muon*> calibratedMuons;
@@ -347,15 +386,15 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   for (const auto& trackJetEL: associated_trackJets_links) {
       const xAOD::Jet *trackJet(static_cast<const xAOD::Jet*>(*trackJetEL));
       float maxDR(m_muonMatchDR);
-//       trackJet->getAttribute("SizeParameter", maxDR);
+//      trackJet->getAttribute("SizeParameter", maxDR);
       const xAOD::Muon *closest_muon(nullptr);
       ElementLink<xAOD::IParticleContainer> closest_muonEL;
       // get muons from jet decoration
-      if( ! muonsInTrackJetLink.isAvailable( *trackJet ) ) {
+      if( ! m_dec_muonsInTrackJetLink.isAvailable( *trackJet ) ) {
           ATH_MSG_ERROR("No muons link found for jet.");
           m_accept.setCutResult("ValidJetContent" , false);
       }
-      for (auto muonLink : muonsInTrackJetLink( *trackJet)) {
+      for (auto muonLink : m_dec_muonsInTrackJetLink( *trackJet)) {
           if(!muonLink.isValid()) {
               ATH_MSG_DEBUG("Muon link not valid."); // ok to continue?
               continue;
@@ -368,16 +407,18 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
               ATH_MSG_DEBUG("No decorators for MuonSpectrometerPt or InnerDetectorPt found. Calibrate muons on-the-fly.");
               xAOD::Muon *muon_calib(nullptr);
 
-        if (!m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib)) {
+              if( m_muonCalibrationAndSmearingTool->correctedCopy( *muon, muon_calib) != CP::CorrectionCode::Ok ){
                   ATH_MSG_ERROR("Could not get calibrated copy of muon.");
                   m_accept.setCutResult("ValidJetContent" , false);
               }
-              if (m_decorate) calibratedMuonDecor(*muon) = muon_calib->p4();
-        // save the pointers for deletion later
-        calibratedMuons.push_back(muon_calib);
+
+              if (m_decorate)
+                  m_dec_calibratedMuon(*muon) = muon_calib->p4();
+              // save the pointers for deletion later
+              calibratedMuons.push_back(muon_calib);
               // work with calibrated muon
               muon = muon_calib;
-    }
+          }
           // muon quality selection
           if (muon->pt() < m_muonPtMin) continue;
           if (m_muonSelectionTool->getQuality(*muon) > xAOD::Muon::Medium) continue;
@@ -402,7 +443,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
           matched_muons.push_back(closest_muon);
           matched_muons_links.push_back(closest_muonEL);
       }
-      if (m_decorate) muonsInFatJetLink(jet) = matched_muons_links;
+      if (m_decorate) m_dec_muonsInFatJetLink(jet) = matched_muons_links;
   }
 
   // Step 4
@@ -411,7 +452,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   // delete the vector of pointers to muons after you have used them to correct the four vector
   for(xAOD::Muon * muonPointer : calibratedMuons)
     delete muonPointer;
-  if (m_decorate) correctedJetDecor(jet) = corrected_jet;
+  if (m_decorate) m_dec_correctedJet(jet) = corrected_jet;
 
   // Step 5
   float jetMassMin = m_jetMassMinTF1->Eval(corrected_jet.Pt()/1.e3);
@@ -424,8 +465,8 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
     ATH_MSG_DEBUG("Jet FAILED the mass window cut. Mass: " << corrected_jet.M()/1.e3 << " GeV, Mass Window: [ " << jetMassMin << ", " << jetMassMax << " ]");
   }
   if (m_decorate) {
-      jetMassMinDecor(jet) = jetMassMin;
-      jetMassMaxDecor(jet) = jetMassMax;
+      m_dec_jetMassMin(jet) = jetMassMin;
+      m_dec_jetMassMax(jet) = jetMassMax;
   }
 
   // step 6
@@ -440,7 +481,7 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
       pass_jss = (jssvar < jsscut);
   }
   if (m_decorate)
-    jssCutDecor(jet) = jsscut;
+    m_dec_jssCut(jet) = jsscut;
   if (pass_jss) {
     ATH_MSG_DEBUG("Jet PASSED the substructure cut. " << m_jetSubVarStr.c_str() << "=" << jssvar << ", cut=" << jsscut);
   }
@@ -458,9 +499,9 @@ Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
   if(pass_btag)
     m_accept.setCutResult( "PassBTag"       , true);
 
-// the substructure selection is not commissioned at this point, but will be added in the future
-//   if(pass_jss)
-//     m_accept.setCutResult( "PassJSS"             , true);  //not enabled for the moment
+  // the substructure selection is not commissioned and acts as a pass through at this point
+  if(pass_jss)
+    m_accept.setCutResult( "PassJSS"        , true);
 
   // return the TAccept to be queried by the user
   return m_accept;
@@ -478,11 +519,11 @@ StatusCode BoostedXbbTagger::decorateWithMuons(const xAOD::Jet& jet) const
     // retrieve ghost-associated track jets from large-R jet
     std::vector<const xAOD::Jet*> associated_trackJets;
     // get the element links to the parent, ungroomed jet
-    if(!parent.isAvailable(jet)) {
+    if(!acc_parent.isAvailable(jet)) {
         ATH_MSG_ERROR("Parent (ungroomed) jet collection does not exist.");
         return StatusCode::FAILURE;
     }
-    ElementLink<xAOD::JetContainer> parentEL = parent(jet);
+    ElementLink<xAOD::JetContainer> parentEL = acc_parent(jet);
     if(!parentEL.isValid()) {
         ATH_MSG_ERROR("Parent link is not valid.");
         return StatusCode::FAILURE;
@@ -504,7 +545,7 @@ StatusCode BoostedXbbTagger::decorateWithMuons(const xAOD::Jet& jet) const
             ElementLink<xAOD::IParticleContainer> muonEL( *muons, muon->index() );
             muons_in_jet.push_back(muonEL);
         }
-        muonsInTrackJetLink(*trackJet) = muons_in_jet;
+        m_dec_muonsInTrackJetLink(*trackJet) = muons_in_jet;
         ATH_MSG_DEBUG("Found " << muons_in_jet.size() << " muons within R < " << m_muonMatchDR << " of associated track jet.");
     }
     return StatusCode::SUCCESS;
@@ -656,17 +697,17 @@ std::vector<const xAOD::Jet*> BoostedXbbTagger::getTrackJets(const xAOD::Jet& je
 }
 
 TLorentzVector BoostedXbbTagger::getCorrectedJetTLV(const xAOD::Jet& jet) const {
-  return correctedJetDecor(jet);
+  return m_dec_correctedJet(jet);
 }
 
 TLorentzVector BoostedXbbTagger::getCalibratedMuonTLV(const xAOD::Muon& muon) const {
-  return calibratedMuonDecor(muon);
+  return m_dec_calibratedMuon(muon);
 }
 
 float BoostedXbbTagger::getMassMin(const xAOD::Jet& jet) const {
-  return jetMassMinDecor(jet);
+  return m_dec_jetMassMin(jet);
 }
 
 float BoostedXbbTagger::getMassMax(const xAOD::Jet& jet) const {
-  return jetMassMaxDecor(jet);
+  return m_dec_jetMassMax(jet);
 }

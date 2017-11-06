@@ -114,6 +114,12 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+
+    // decorators
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
 };
 
 #endif

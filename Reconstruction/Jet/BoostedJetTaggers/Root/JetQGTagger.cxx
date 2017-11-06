@@ -40,7 +40,9 @@ namespace CP {
                   m_trkTruthFilterTool(name+"_trackfiltertool",this),
                   m_trkFakeTool(name+"_trackfaketool",this),
                   m_jetTrackFilterTool(name+"_jettrackfiltertool",this),
-                  m_originTool(name+"_origintool",this)
+                  m_originTool(name+"_origintool",this),
+                  m_taggerdec("taggerdec"),
+                  m_weightdec("weightdec")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -109,8 +111,11 @@ namespace CP {
     // decorators used to store
     // 1) ntracks
     // 2) tagger weight
-    m_taggerdec  = new SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
-    m_weightdec = new SG::AuxElement::Decorator< float>(m_weight_decoration_name);
+    ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+    ATH_MSG_INFO( "  "<<m_tagger_decoration_name<<" : Number of tracks for tagging decision" );
+    m_taggerdec = SG::AuxElement::Decorator< float>(m_tagger_decoration_name);
+    ATH_MSG_INFO( "  "<<m_weight_decoration_name<<" : Scale factor weight given the number of tracks" );
+    m_weightdec = SG::AuxElement::Decorator< float>(m_weight_decoration_name);
 
     // set up InDet selection tool
     assert( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
@@ -193,8 +198,8 @@ namespace CP {
     m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
     m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
     m_accept.addCut( "ValidEventContent"   , "True if the event is alright technicall (e.g. primary vertices)"        );
-    m_accept.addCut( "QuarkJet"            , "True if the jet is deemed a quark jet because NTrack<NCut"       );
-    m_accept.addCut( "GluonJet"            , "True if the jet is deemed a quark jet because NTrack>NCut"       );
+    m_accept.addCut( "QuarkJetTag"         , "True if the jet is deemed a quark jet because NTrack<NCut"       );
+    m_accept.addCut( "GluonJetTag"         , "True if the jet is deemed a quark jet because NTrack>NCut"       );
 
     //loop over and print out the cuts that have been configured
     ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
@@ -292,6 +297,7 @@ namespace CP {
       m_accept.setCutResult("ValidPtRangeLow", false);
     }
 
+    std::cout<<m_accept.getCutResult("ValidEtaRange")<<"  "<<m_accept.getCutResult("ValidPtRangeLow")<<std::endl;
     if( m_accept.getCutResult("ValidEtaRange") && m_accept.getCutResult("ValidPtRangeLow") ){
       assert( getNTrack(&jet, pv, jetNTrack)  );
       assert( getNTrackWeight(&jet, jetWeight));
@@ -299,11 +305,13 @@ namespace CP {
 
     // decorate the cut value if specified
     if(m_decorate){
-      (*m_taggerdec)(jet) = jetNTrack;
-      (*m_weightdec)(jet) = jetWeight;
+      m_taggerdec(jet) = jetNTrack;
+      m_weightdec(jet) = jetWeight;
     }
 
     // fill the TAccept
+    ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
+    ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
     if(jetNTrack<0){
       ATH_MSG_WARNING("This jet has a negative number of tracks");
       m_accept.setCutResult("ValidJetContent", false);

@@ -17,7 +17,11 @@ JSSWTopTaggerBDT::JSSWTopTaggerBDT( const std::string& name ) :
   m_name(name),
   m_APP_NAME(APP_NAME),
   m_inputVariableSet("NvarM"),
-  m_BDTmethod("BDTG method")
+  m_BDTmethod("BDTG method"),
+  m_dec_mcutL("mcutL"),
+  m_dec_mcutH("mcutH"),
+  m_dec_scoreCut("scoreCut"),
+  m_dec_scoreValue("scoreValue")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -50,6 +54,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
     configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
@@ -60,7 +65,6 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     else {
       ATH_MSG_DEBUG("Recommendations file was found : "<<configPath);
     }
-
 
     TEnv configReader;
     if(configReader.ReadFile( configPath.c_str(), EEnvLevel(0) ) != 0 ) {
@@ -113,10 +117,27 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
   }
 
+  // initialize decorators as decorationName+_decorator
+  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  std::string dec_name;
+
+  dec_name = m_decorationName+"_Cut_mlow";
+  ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
+  m_dec_mcutL      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_mhigh";
+  ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
+  m_dec_mcutH      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : MVA score cut for tagger choice" );
+  m_dec_scoreCut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Score";
+  ATH_MSG_INFO( "  "<<dec_name<<" : evaluated MVA score" );
+  m_dec_scoreValue = SG::AuxElement::Decorator<float>((dec_name).c_str());
+
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
   m_funcMassCutHigh  = new TF1("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
-  m_funcScoreCut     = new TF1("strScoreCut",    m_strScoreCut.c_str(),      0, 14000);
+  m_funcScoreCut     = new TF1("strScoreCut",    m_strScoreCut.c_str(),    0, 14000);
 
   ATH_MSG_INFO( "BDT Tagger tool initialized" );
   ATH_MSG_INFO( "  Mass cut low   : "<< m_strMassCutLow );
@@ -306,16 +327,10 @@ float JSSWTopTaggerBDT::getScore(const xAOD::Jet& jet) const{
 void JSSWTopTaggerBDT::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
     /* decorate jet with attributes */
 
-    // decorators to be used throughout
-    static SG::AuxElement::Decorator<float>    dec_mcutL ("BDTTagCut_mlow");
-    static SG::AuxElement::Decorator<float>    dec_mcutH ("BDTTagCut_mhigh");
-    static SG::AuxElement::Decorator<float>    dec_scoreCut("BDTTagCut_score");
-    static SG::AuxElement::Decorator<float>    dec_scoreValue(m_decorationName.c_str());
-
-    dec_mcutH(jet)      = mcutH;
-    dec_mcutL(jet)      = mcutL;
-    dec_scoreCut(jet)   = scoreCut;
-    dec_scoreValue(jet) = scoreValue;
+    m_dec_mcutH(jet)      = mcutH;
+    m_dec_mcutL(jet)      = mcutL;
+    m_dec_scoreCut(jet)   = scoreCut;
+    m_dec_scoreValue(jet) = scoreValue;
 
 }
 

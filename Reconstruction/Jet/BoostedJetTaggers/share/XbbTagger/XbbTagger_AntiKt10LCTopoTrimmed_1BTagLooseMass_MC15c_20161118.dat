@@ -17,6 +17,8 @@
 # - only valid with calorimter mass (to be updated for combined mass)
 ####################################################################################
 
+DecorationName: XbbTagOneTagMassLoose
+
 NumBTags                1
 BTagCut                 0.3706
 JetMassMin              76.0
