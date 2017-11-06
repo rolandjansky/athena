@@ -209,10 +209,10 @@ FTK_PixelClusterOnTrackTool::initialize() {
   //Moved to initialize to remove statics and prevent repitition
   
   constexpr double phimin=-0.27, phimax=0.27;
-  for (int i=0; i<=nbinphi; i++) phix[i]=phimin+i*(phimax-phimin)/nbinphi;
-  constexpr double etacen[nbineta]={-0.,1.,1.55,1.9,2.15,2.35};
-  etax[0]=0.; etax[nbineta]=2.7;
-  for (int i=0; i<nbineta-1; i++) etax[i+1]=(etacen[i]+etacen[i+1])/2.;
+  for (int i=0; i<=NBINPHI; i++) m_phix[i]=phimin+i*(phimax-phimin)/NBINPHI;
+  constexpr double etacen[NBINETA]={-0.,1.,1.55,1.9,2.15,2.35};
+  m_etax[0]=0.; m_etax[NBINETA]=2.7;
+  for (int i=0; i<NBINETA-1; i++) m_etax[i+1]=(etacen[i]+etacen[i+1])/2.;
 
   ///UGLY!
 #include "IBL_calibration.h"
@@ -444,15 +444,15 @@ FTK_PixelClusterOnTrackTool::correctDefault
         if (m_IBLAbsent || !blayer) {
           delta = m_calibSvc->getBarrelDeltaX(nrows, ang);
         } else {             // special calibration for IBL
-          if (angle < phix[0] || angle > phix[nbinphi] || nrows != 2) {
+          if (angle < m_phix[0] || angle > m_phix[NBINPHI] || nrows != 2) {
             delta = 0.;
           }else {
             int bin = -1;
-            while (angle > phix[bin + 1]) {
+            while (angle > m_phix[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbinphi)) {
-              delta = calphi[bin];
+            if ((bin >= 0)and(bin < NBINPHI)) {
+              delta = m_calphi[bin];
             } else {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of FTK_PixelClusterOnTrackTool.cxx.");
             }
@@ -478,20 +478,20 @@ FTK_PixelClusterOnTrackTool::correctDefault
 	  ATH_MSG_VERBOSE(" Barrel Pixel: shifting localeta by delta * (omegaeta - 0.5) = " << delta << " * " << (omegaeta - 0.5)); 
         } else {     // special calibration for IBL
           etaloc = fabs(etaloc);
-          if (etaloc < etax[0] || etaloc > etax[nbineta]) {
+          if (etaloc < m_etax[0] || etaloc > m_etax[NBINETA]) {
             delta = 0.;
           } else {
             int bin = -1;
-            while (etaloc > etax[bin + 1]) {
+            while (etaloc > m_etax[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbineta)) {
+            if ((bin >= 0)and(bin < NBINETA)) {
               if (ncol == bin) {
-                delta = caleta[bin][0];
+                delta = m_caleta[bin][0];
               } else if (ncol == bin + 1) {
-                delta = caleta[bin][1];
+                delta = m_caleta[bin][1];
               } else if (ncol == bin + 2) {
-                delta = caleta[bin][2];
+                delta = m_caleta[bin][2];
               } else {
                 delta = 0.;
               }
@@ -560,20 +560,20 @@ FTK_PixelClusterOnTrackTool::correctDefault
         if (m_IBLAbsent || !blayer) {
           errphi = m_calibSvc->getBarrelNewErrorPhi(ang, nrows);
         } else {       // special calibration for IBL
-          if (angle < phix[0] || angle > phix[nbinphi]) {
+          if (angle < m_phix[0] || angle > m_phix[NBINPHI]) {
             errphi = width.phiR() * TOPHAT_SIGMA;
           } else {
-            int bin = -1;// cannot be used as array index, which will happen if angle<phix[bin+1]
-            while (angle > phix[bin + 1]) {
+            int bin = -1;// cannot be used as array index, which will happen if angle<m_phix[bin+1]
+            while (angle > m_phix[bin + 1]) {
               bin++;
             }
-            if ((bin >= 0)and(bin < nbinphi)) {
+            if ((bin >= 0)and(bin < NBINPHI)) {
               if (nrows == 1) {
-                errphi = calerrphi[bin][0];
+                errphi = m_calerrphi[bin][0];
               } else if (nrows == 2) {
-                errphi = calerrphi[bin][1];
+                errphi = m_calerrphi[bin][1];
               } else {
-                errphi = calerrphi[bin][2];
+                errphi = m_calerrphi[bin][2];
               }
             } else {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of FTK_PixelClusterOnTrackTool.cxx.");
@@ -587,22 +587,22 @@ FTK_PixelClusterOnTrackTool::correctDefault
           erreta = m_calibSvc->getBarrelNewErrorEta(fabs(etatrack), nrows, ncol);
         } else {    // special calibration for IBL
           double etaloc = fabs(etatrack);
-          if (etaloc < etax[0] || etaloc > etax[nbineta]) {
+          if (etaloc < m_etax[0] || etaloc > m_etax[NBINETA]) {
             erreta = width.z() * TOPHAT_SIGMA;
           } else {
             int bin = 0;
-            while (etaloc > etax[bin + 1]) {
+            while (etaloc > m_etax[bin + 1]) {
               ++bin;
             }
-            if (bin >= nbineta) {
+            if (bin >= NBINETA) {
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of FTK_PixelClusterOnTrackTool.cxx.");
             } else {
               if (ncol == bin) {
-                erreta = calerreta[bin][0];
+                erreta = m_calerreta[bin][0];
               } else if (ncol == bin + 1) {
-                erreta = calerreta[bin][1];
+                erreta = m_calerreta[bin][1];
               } else if (ncol == bin + 2) {
-                erreta = calerreta[bin][2];
+                erreta = m_calerreta[bin][2];
               } else {
                 erreta = width.z() * TOPHAT_SIGMA;
               }

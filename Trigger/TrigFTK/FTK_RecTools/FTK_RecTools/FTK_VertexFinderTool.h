@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef __TRIG_FTK_VERTEXFINDER_TOOL_H__
-#define __TRIG_FTK_VERTEXFINDER_TOOL_H__
+#ifndef FTK_RECTOOLS_FTK_VERTEXFINDERTOOL_H
+#define FTK_RECTOOLS_FTK_VERTEXFINDERTOOL_H
 
 #include "GaudiKernel/ToolHandle.h"
 

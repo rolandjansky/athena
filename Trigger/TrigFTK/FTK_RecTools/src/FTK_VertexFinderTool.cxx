@@ -169,7 +169,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderToo
 
     double oldx=0;
     double oldy=0;
-    double m_Gk[3][3]={{mGkx,0.,0.},{0.,mGky,0.},{0.,0.,mGkz}};//error
+    double Gk[3][3]={{mGkx,0.,0.},{0.,mGky,0.},{0.,0.,mGkz}};//error
     Amg::MatrixX C22_mat(3,3);
     double chi2=0;
 
@@ -206,71 +206,71 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderToo
 
             //difference of values expected and observed
 
-            double m_A[2][3],m_B[2][3],m_u[2],m_h[2],m_resid[2];
+            double A[2][3],B[2][3],u[2],h[2],resid[2];
 
-            m_A[0][0]=-sin(phi0+psi)/cosPsi;
-            m_A[0][1]= cos(phi0+psi)/cosPsi;
-            m_A[0][2]=0.0;
+            A[0][0]=-sin(phi0+psi)/cosPsi;
+            A[0][1]= cos(phi0+psi)/cosPsi;
+            A[0][2]=0.0;
 
-            m_A[1][0]=-ctt*cosPhi0/cosPsi;
-            m_A[1][1]=-ctt*sinPhi0/cosPsi;
-            m_A[1][2]=1.0;
+            A[1][0]=-ctt*cosPhi0/cosPsi;
+            A[1][1]=-ctt*sinPhi0/cosPsi;
+            A[1][2]=1.0;
 
-            m_B[0][0]=-xv*m_A[0][1]+yv*m_A[0][0];
-            m_B[0][1]=0.0;
-            m_B[0][2]=(1.0-1.0/cosPsi)/alpha;
+            B[0][0]=-xv*A[0][1]+yv*A[0][0];
+            B[0][1]=0.0;
+            B[0][2]=(1.0-1.0/cosPsi)/alpha;
 
-            m_B[1][0]=-xv*m_A[1][1]+yv*m_A[1][0];
-            m_B[1][1]=-P0*psi/(alpha*sint*sint);
-            m_B[1][2]=ctt*(psi-sinPsi/cosPsi)/alpha;
+            B[1][0]=-xv*A[1][1]+yv*A[1][0];
+            B[1][1]=-P0*psi/(alpha*sint*sint);
+            B[1][2]=ctt*(psi-sinPsi/cosPsi)/alpha;
 
-            m_u[0]=(*i).m_d0;
-            m_u[1]=(*i).m_z0;
+            u[0]=(*i).m_d0;
+            u[1]=(*i).m_z0;
 
-            m_h[0]=yv*cosPhi0-xv*sinPhi0+P0*(1-cosPsi)/alpha;
-            m_h[1]=zv+P0*ctt*psi/alpha;
+            h[0]=yv*cosPhi0-xv*sinPhi0+P0*(1-cosPsi)/alpha;
+            h[1]=zv+P0*ctt*psi/alpha;
 
-            m_resid[0]=m_u[0]-m_h[0];
-            m_resid[1]=m_u[1]-m_h[1];
+            resid[0]=u[0]-h[0];
+            resid[1]=u[1]-h[1];
 
             //error of difference
 
-            double m_Vqq[3][3]={{(*i).m_phierr*(*i).m_phierr,0.,0.},{0.,(*i).m_thetaerr*(*i).m_thetaerr,0.},{0.,0.,(*i).m_pterr*(*i).m_pterr}};
-            double m_Vuu[2][2]={{(*i).m_d0err*(*i).m_d0err,0.},{0.,(*i).m_z0err*(*i).m_z0err}};
+            double Vqq[3][3]={{(*i).m_phierr*(*i).m_phierr,0.,0.},{0.,(*i).m_thetaerr*(*i).m_thetaerr,0.},{0.,0.,(*i).m_pterr*(*i).m_pterr}};
+            double Vuu[2][2]={{(*i).m_d0err*(*i).m_d0err,0.},{0.,(*i).m_z0err*(*i).m_z0err}};
             double AC[2][3],BV[2][3],Sk[2][2];
 
-            for(int i1=0;i1<2;i1++) for(int j=0;j<2;j++) Sk[i1][j]=m_Vuu[i1][j];
+            for(int i1=0;i1<2;i1++) for(int j=0;j<2;j++) Sk[i1][j]=Vuu[i1][j];
             for(int i1=0;i1<2;i1++) for(int j=0;j<3;j++)
                                       {
                                         AC[i1][j]=0.0;
-                                        for(int k=0;k<3;k++) AC[i1][j]+=m_A[i1][k]*m_Gk[j][k];
+                                        for(int k=0;k<3;k++) AC[i1][j]+=A[i1][k]*Gk[j][k];
                                       }
             for(int i1=0;i1<2;i1++) for(int j=0;j<2;j++)
                                       {
-                                        for(int k=0;k<3;k++) Sk[i1][j]+=AC[i1][k]*m_A[j][k];
+                                        for(int k=0;k<3;k++) Sk[i1][j]+=AC[i1][k]*A[j][k];
                                       }
             for(int i1=0;i1<2;i1++)
               for(int j=0;j<3;j++)
                 {
                   BV[i1][j]=0.0;
-                  for(int k=0;k<3;k++) BV[i1][j]+=m_B[i1][k]*m_Vqq[k][j];
+                  for(int k=0;k<3;k++) BV[i1][j]+=B[i1][k]*Vqq[k][j];
                 }
             for(int i1=0;i1<2;i1++)
               for(int j=0;j<2;j++)
                 {
-                  for(int k=0;k<3;k++) Sk[i1][j]+=BV[i1][k]*m_B[j][k];
+                  for(int k=0;k<3;k++) Sk[i1][j]+=BV[i1][k]*B[j][k];
                 }
 
             //error determinant
-            double detr,m_V[2][2];
+            double detr,V[2][2];
 
             detr=1.0/(Sk[0][0]*Sk[1][1]-Sk[0][1]*Sk[1][0]);
-             m_V[0][0]=Sk[1][1]*detr;
-            m_V[1][1]=Sk[0][0]*detr;
-            m_V[0][1]=m_V[1][0]=-Sk[0][1]*detr;
+             V[0][0]=Sk[1][1]*detr;
+            V[1][1]=Sk[0][0]*detr;
+            V[0][1]=V[1][0]=-Sk[0][1]*detr;
 
             //chi2
-            chi2=m_V[0][0]*m_resid[0]*m_resid[0]+m_V[1][1]*m_resid[1]*m_resid[1]+2.0*m_V[0][1]*m_resid[1]*m_resid[0];
+            chi2=V[0][0]*resid[0]*resid[0]+V[1][1]*resid[1]*resid[1]+2.0*V[0][1]*resid[1]*resid[0];
             if(chi2>m_chi2cut || chi2<0){
               i=vxtrk.erase(i);
               chi2 = tmpchi2;
@@ -286,23 +286,23 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderToo
 
             for(int i2=0;i2<2;i2++){
               for(int j=0;j<3;j++){
-                for(int k=0;k<2;k++)K[i2][j]=AC[k][j]*m_V[k][i2];
+                for(int k=0;k<2;k++)K[i2][j]=AC[k][j]*V[k][i2];
               }
             }
 
             for(int i2=0;i2<3;i2++){
-              dV[i2]=K[0][i2]*m_resid[0]+K[1][i2]*m_resid[1];
+              dV[i2]=K[0][i2]*resid[0]+K[1][i2]*resid[1];
               for(int j2=i2;j2<3;j2++){
-                m_Gk[i2][j2]-=K[0][i2]*AC[0][j2]+K[1][i2]*AC[1][j2];
-                m_Gk[j2][i2]=m_Gk[i2][j2];
+                Gk[i2][j2]-=K[0][i2]*AC[0][j2]+K[1][i2]*AC[1][j2];
+                Gk[j2][i2]=Gk[i2][j2];
               }
             }
             oldx+=dV[0];
             oldy+=dV[1];
             oldz+=dV[2];
-            C22_mat(0,0)=m_Gk[0][0];C22_mat(0,1)=m_Gk[0][1];C22_mat(0,2)=m_Gk[0][0];
-            C22_mat(1,0)=m_Gk[1][0];C22_mat(1,1)=m_Gk[1][1];C22_mat(1,2)=m_Gk[1][2];
-            C22_mat(2,0)=m_Gk[2][0];C22_mat(2,1)=m_Gk[2][1];C22_mat(2,2)=m_Gk[2][2];
+            C22_mat(0,0)=Gk[0][0];C22_mat(0,1)=Gk[0][1];C22_mat(0,2)=Gk[0][0];
+            C22_mat(1,0)=Gk[1][0];C22_mat(1,1)=Gk[1][1];C22_mat(1,2)=Gk[1][2];
+            C22_mat(2,0)=Gk[2][0];C22_mat(2,1)=Gk[2][1];C22_mat(2,2)=Gk[2][2];
     }//track loop end
     if (vxtrk.size()==0)continue;
     athenaLog << MSG::DEBUG << "findVertex: find vertex at "<< oldx<<";"<<oldy<<";"<<oldz<< endmsg;
