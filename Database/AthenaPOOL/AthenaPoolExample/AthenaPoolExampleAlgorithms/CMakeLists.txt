@@ -56,7 +56,7 @@ function( _add_test testName toExecute )
       list( APPEND _options EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
    endif()
 
-   list( APPEND _options ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolExampleAlgorithms/AthenaPoolExampleAlgorithms-01-00-01" )
+   list( APPEND _options ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolExampleAlgorithms/AthenaPoolExampleAlgorithms-01-00-02" )
 
    # Set up the test:
    atlas_add_test( ${testName}
