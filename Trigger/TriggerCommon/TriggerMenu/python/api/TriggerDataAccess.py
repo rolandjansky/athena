@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+__author__  = 'Javier Montejo'
+__version__="$Revision: 1.00 $"
+__doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
 import sys
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions

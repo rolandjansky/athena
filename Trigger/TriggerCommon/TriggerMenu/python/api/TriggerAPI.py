@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+__author__  = 'Javier Montejo'
+__version__="$Revision: 1.00 $"
+__doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
 import sys, pickle
 from TriggerMenu.api.TriggerInfo import TriggerInfo

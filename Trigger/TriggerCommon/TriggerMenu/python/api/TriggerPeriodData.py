@@ -1,3 +1,8 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+__author__  = 'Javier Montejo'
+__version__="$Revision: 1.00 $"
+__doc__="Class defining data periods and access to GRLs"
+
 import sys
 import xml.etree.ElementTree as ET
 from TriggerMenu.api.TriggerEnums import TriggerPeriod

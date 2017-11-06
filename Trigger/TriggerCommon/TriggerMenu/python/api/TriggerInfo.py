@@ -1,3 +1,8 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+__author__  = 'Javier Montejo'
+__version__="$Revision: 1.00 $"
+__doc__="Class containing all the information of an HLT chain"
+
 import re
 from TriggerMenu.api.TriggerEnums import TriggerType
 
