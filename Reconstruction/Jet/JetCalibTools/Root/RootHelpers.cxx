@@ -282,8 +282,8 @@ double Interpolate(const TH1* histo, const double x, const double y, const doubl
     // Thus, the below is now a switch to bilinear interpolation when bin(s) are equal in trilinear interpolation
     
     // The below code block contains added functionality with respect to standard ROOT TH3::Interpolate()
+    // Fall back on bilinear interpolation
     {
-        // Bilinear interpolation
         if (ubz == obz)
             return RootHelpers::Interpolate2D(histo,x,y,1,2,ubz);
         else if (uby == oby)
