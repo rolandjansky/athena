@@ -198,8 +198,9 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   declareProperty("qThresholdForTrigger",    m_qThresholdForTrigger = 1.0);
   declareProperty("GasFileName",             m_gasFileName = "MM_Digitization/ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito
   // Constants vars for the ElectronicsResponse
-  declareProperty("alpha",                   m_alpha = 2.5); // alpha and RC are the parameters for the response. Importantly, the product of the two gives the VMM deadtime.
-  declareProperty("RC",                      m_RC = 20.);
+  // declareProperty("alpha",                   m_alpha = 2.5); // alpha and RC are the parameters for the response. Importantly, the product of the two gives the VMM deadtime.
+  // declareProperty("RC",                      m_RC = 20.);
+  declareProperty("peakTime",                m_peakTime = 50.); // The VMM peak time setting.
   declareProperty("electronicsThreshold",    m_electronicsThreshold = 1250.0); // at gain=5000 in StripResponse
   //  declareProperty("electronicsThreshold",    m_electronicsThreshold = 0.000811174);
   // declareProperty("StripDeadTime",           m_stripdeadtime = 0.0);
@@ -384,8 +385,9 @@ StatusCode MmDigitizationTool::initialize() {
   m_StripsResponse->loadGasFile(m_gasFileName);
 
   m_ElectronicsResponse = new ElectronicsResponse();
-  m_ElectronicsResponse->set_alpha(m_alpha);  // parametrization of response. alpha x RC = peak time.
-  m_ElectronicsResponse->set_RC(m_RC); // parameterization of response
+  m_ElectronicsResponse->set_peakTime(m_peakTime); // VMM peak time parameter
+  // m_ElectronicsResponse->set_alpha(m_alpha);  // parametrization of response. alpha x RC = peak time.
+  // m_ElectronicsResponse->set_RC(m_RC); // parameterization of response
   m_ElectronicsResponse->set_timeWindowLowerOffset(m_timeWindowLowerOffset);
   m_ElectronicsResponse->set_timeWindowUpperOffset(m_timeWindowUpperOffset);
   m_ElectronicsResponse->set_electronicsThreshold(m_electronicsThreshold);
