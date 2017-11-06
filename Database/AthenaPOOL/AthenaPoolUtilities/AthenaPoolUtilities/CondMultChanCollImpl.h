@@ -18,7 +18,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "AthenaKernel/IOVRange.h"
 #include <vector>
 
