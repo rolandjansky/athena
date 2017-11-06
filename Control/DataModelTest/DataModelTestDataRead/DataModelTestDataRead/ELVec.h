@@ -24,7 +24,7 @@
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
 #include "DataModelAthenaPool/ElementLink_p3.h"
 #include "DataModelAthenaPool/DataLink_p1.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 namespace DMTest {

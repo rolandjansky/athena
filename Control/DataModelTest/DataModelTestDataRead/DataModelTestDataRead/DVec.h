@@ -26,7 +26,7 @@
 // for BVec.
 #include "DataModelTestDataRead/BVec.h"
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 // Set up the inheritance relation between the @c DataVector classes.
