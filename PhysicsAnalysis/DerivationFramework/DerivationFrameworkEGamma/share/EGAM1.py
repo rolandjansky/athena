@@ -373,19 +373,18 @@ egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
 #====================================================================
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
-# old syntax
-# addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam1Seq, outputGroup="EGAM1")
-# new syntax
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
+#reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
+reducedJetList = ["AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,egam1Seq,"EGAM1")
 
 
 #=======================================
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
 #=======================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-egam1Seq += Config.GetDecoratePromptLeptonAlgs()
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
+egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
 
 
 #====================================================================
@@ -440,7 +439,7 @@ if DoCellReweighting:
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 
 # the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
-# EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
+# EGAM1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
 if globalflags.DataSource()!='geant4':
