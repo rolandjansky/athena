@@ -44,8 +44,7 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
   m_calibHit( 0 ),
   m_invSpeed(1./299.792458),
-  m_mdtPrepDataContainer("MDT_DriftCircles"),
-  m_rdoContainer("MDTCSM"),
+  //m_mdtPrepDataContainer("MDT_DriftCircles"),
   m_calibratePrepData(true),
   m_rawDataProviderTool("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder"),
@@ -59,8 +58,6 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
   
   //  template for property decalration
-  declareProperty("OutputCollection",    m_mdtPrepDataContainer);
-  declareProperty("RDOContainer",        m_rdoContainer);
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
   declareProperty("SortPrepData",        m_sortPrepData = false );
@@ -79,6 +76,9 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   declareProperty("TimeWindowSetting",      m_mdtCalibSvcSettings->windowSetting = 2 );
   declareProperty("DoTofCorrection",        m_mdtCalibSvcSettings->doTof  = true );
   declareProperty("DoPropagationCorrection",m_mdtCalibSvcSettings->doProp = false );
+  // DataHandle
+  declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
+  declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
 }
 
 
@@ -90,7 +90,7 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
  
-    // ATH_MSG_INFO("EJWM - initialize!");
+    // ATH_MSG_DEBUG("EJWM - initialize!");
  
   if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
     ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
@@ -151,6 +151,17 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   m_BMEpresent = m_mdtHelper->stationNameIndex("BME") != -1;
   if(m_BMEpresent) ATH_MSG_DEBUG("Processing configuration for layouts with BME chambers.");
 
+  // check if initializing of DataHandle objects success
+  if (m_rdoContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("ReadHandleKey for MdtCsmContainer initialize Failure");
+    return StatusCode::FAILURE;
+  }
+
+  if (m_mdtPrepDataContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for Muon::MdtPrepDataContainer initialize Failure");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -162,23 +173,24 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
-  // ATH_MSG_INFO("EJWM - decode!"+robIds.size());
-
+  // ATH_MSG_DEBUG("EJWM - decode!"+robIds.size());
   const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
   return decode(robIds,chamberHashInRobs);
 }
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
-  // ATH_MSG_INFO("setupMdtPrepDataContainer");
-
-  if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainer.name())){
+  // ATH_MSG_DEBUG("setupMdtPrepDataContainer");
+  if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
-    StatusCode status = m_mdtPrepDataContainer.record(std::make_unique<Muon::MdtPrepDataContainer>(m_mdtHelper->module_hash_max()));
-    if (status.isFailure() || !m_mdtPrepDataContainer.isValid() ) 	{
-      ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainer.name());
 
+    SG::WriteHandle< Muon::MdtPrepDataContainer >handle(m_mdtPrepDataContainerKey);
+    StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(m_mdtHelper->module_hash_max()));
+
+    if (status.isFailure() || !handle.isValid() ) 	{
+      ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainerKey.key());	
       return FAILED;
     }
+    m_mdtPrepDataContainer = handle.ptr();
     return ADDED;
   }
   return ALREADYCONTAINED;
@@ -186,15 +198,18 @@ Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDa
 
 
 const MdtCsmContainer* Muon::MdtRdoToPrepDataTool::getRdoContainer() {
-  if(m_rdoContainer.isValid()) return m_rdoContainer.cptr();  
+  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey); 
+  if(rdoContainerHandle.isValid()) {
+    ATH_MSG_DEBUG("MdtgetRdoContainer success");
+    return rdoContainerHandle.cptr();  
+  }
   ATH_MSG_WARNING("Retrieval of Mdt RDO container failed !");
   return nullptr;
 }
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs )
 {
-  // ATH_MSG_INFO("EJWM - decode");
-	
+  // ATH_MSG_DEBUG("EJWM - decode");
   // setup output container
   SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
   if( containerRecordStatus == FAILED ){
@@ -219,7 +234,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 }//end decode
 
 void Muon::MdtRdoToPrepDataTool::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ){
-  
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
   if(!rdoContainer) {
@@ -273,8 +287,9 @@ void Muon::MdtRdoToPrepDataTool::sortMdtPrdCollection( const Muon::MdtPrepDataCo
 bool Muon::MdtRdoToPrepDataTool::handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) {
   
   // if in prep data the chamber already exists ... do nothing
-  if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ) return true;
-  
+  if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ){
+    return true;
+  }
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
@@ -385,14 +400,14 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
 void Muon::MdtRdoToPrepDataTool::printInputRdo()
 {
 
-  ATH_MSG_INFO("******************************************************************************************");
-  ATH_MSG_INFO("***************** Listing MdtCsmContainer collections content ********************************");
+  ATH_MSG_DEBUG("******************************************************************************************");
+  ATH_MSG_DEBUG("***************** Listing MdtCsmContainer collections content ********************************");
 
   const MdtCsmContainer* rdoContainer = getRdoContainer();
 
-  if (rdoContainer->size()==0) ATH_MSG_INFO("MdtCsmContainer is Empty");
+  if (rdoContainer->size()==0) ATH_MSG_DEBUG("MdtCsmContainer is Empty");
 
-  ATH_MSG_INFO("-----------------------------------------------------------------------------");
+  ATH_MSG_DEBUG("-----------------------------------------------------------------------------");
 
   MdtCsmContainer::const_iterator it = rdoContainer->begin();
 
@@ -408,10 +423,10 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
     uint16_t mrodid = mdtColl->MrodId();
     uint16_t csmid  = mdtColl->CsmId();
 
-    ATH_MSG_INFO("**** MdtCsm with online Id: subdetector: " << MSG::hex 
+    ATH_MSG_DEBUG("**** MdtCsm with online Id: subdetector: " << MSG::hex 
                  << subdet << MSG::dec << "  mrod: " << MSG::hex << mrodid 
                  << MSG::dec << "  csmid: " << MSG::hex << csmid << MSG::dec);
-    ATH_MSG_INFO("  number of mdt hits: " << mdtColl->size());
+    ATH_MSG_DEBUG("  number of mdt hits: " << mdtColl->size());
   
     // loop on the hits of the CSM
     MdtCsm::const_iterator it_amt = mdtColl->begin();
@@ -426,7 +441,7 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
       uint16_t coarse=amtHit->coarse();
       uint16_t width=amtHit->width();
       
-      ATH_MSG_INFO(">> AmtHit in tdc: " << MSG::hex << tdcId << MSG::dec
+      ATH_MSG_DEBUG(">> AmtHit in tdc: " << MSG::hex << tdcId << MSG::dec
                    << "  channel: " << MSG::hex << channelId << MSG::dec
                    << "  fine time: " << fine
                    << "  coarse time: " << coarse
@@ -436,7 +451,7 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
 
   }
 
-  ATH_MSG_INFO("*** Event Summary: csm collections:" << ncsm << "  amt hits: " << namt);
+  ATH_MSG_DEBUG("*** Event Summary: csm collections:" << ncsm << "  amt hits: " << namt);
 
   return;
 }
@@ -444,13 +459,13 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
 void Muon::MdtRdoToPrepDataTool::printPrepData(  )
 {
   // Dump info about PRDs
-  ATH_MSG_INFO("******************************************************************************************");
-  ATH_MSG_INFO("***************** Listing MdtPrepData collections content ********************************");
+  ATH_MSG_DEBUG("******************************************************************************************");
+  ATH_MSG_DEBUG("***************** Listing MdtPrepData collections content ********************************");
   
-  if (m_mdtPrepDataContainer->size() <= 0) ATH_MSG_INFO("No MdtPrepRawData collections found");
+  if (m_mdtPrepDataContainer->size() <= 0) ATH_MSG_DEBUG("No MdtPrepRawData collections found");
   int ncoll = 0;
   int nhits = 0;
-  ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
+  ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
   for (IdentifiableContainer<Muon::MdtPrepDataCollection>::const_iterator mdtColli = m_mdtPrepDataContainer->begin();
        mdtColli!=m_mdtPrepDataContainer->end(); ++mdtColli)
     {
@@ -459,24 +474,24 @@ void Muon::MdtRdoToPrepDataTool::printPrepData(  )
       int nhitcoll = 0;
       if ( mdtColl->size() > 0 ) 
         {            
-          ATH_MSG_INFO("PrepData Collection ID "<<m_idHelper->toString(mdtColl->identify()));
+          ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelper->toString(mdtColl->identify()));
           MdtPrepDataCollection::const_iterator it_mdtPrepData;
           for (it_mdtPrepData=mdtColl->begin(); it_mdtPrepData != mdtColl->end(); it_mdtPrepData++) {
             nhitcoll++;
             nhits++;
-            ATH_MSG_INFO(" in this coll. "<<nhitcoll<<" prepData id = "
+            ATH_MSG_DEBUG(" in this coll. "<<nhitcoll<<" prepData id = "
                          <<m_idHelper->toString((*it_mdtPrepData)->identify())
                          <<" tdc/adc ="<<(*it_mdtPrepData)->tdc()<<"/"<< (*it_mdtPrepData)->adc());
           }
           ncoll++;
-          ATH_MSG_INFO("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
-          ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
+          ATH_MSG_DEBUG("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
+          ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
         }
     }
-  ATH_MSG_INFO("*** Event  Summary: "
+  ATH_MSG_DEBUG("*** Event  Summary: "
                <<ncoll <<" Collections / "
                <<nhits<<" hits  ");
-  ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
+  ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
   
 }
 
@@ -836,7 +851,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
         }
       } //end --   if(!m_discardSecondaryHitTwin){
       else{
-        ATH_MSG_INFO(" TWIN TUBES: discarding secondary(non-twin) hit in a twin tube as flag m_discardSecondaryHitTwin is set to true");
+        ATH_MSG_DEBUG(" TWIN TUBES: discarding secondary(non-twin) hit in a twin tube as flag m_discardSecondaryHitTwin is set to true");
       }
     }
   }// end for-loop over rdoColl  
@@ -1008,8 +1023,8 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
           Amg::Vector3D gpos_twin = detEl->localToGlobalCoords(locpos_centertube, promptHit_channelId);
 	    
           ATH_MSG_DEBUG(" global pos center tube  x = " << gpos_centertube.x() << " y = " << gpos_centertube.y() << " z = " << gpos_centertube.z());
-          ATH_MSG_DEBUG(" local pos center tube w/ TWIN INFO  x = " << locpos_centertube.x() << " y = " << locpos_centertube.y() << " z = " << locpos_centertube.z());
-          ATH_MSG_DEBUG(" global pos w/ TWIN INFO x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
+          ATH_MSG_DEBUG(" local pos center tube w/ TWIN DEBUG  x = " << locpos_centertube.x() << " y = " << locpos_centertube.y() << " z = " << locpos_centertube.z());
+          ATH_MSG_DEBUG(" global pos w/ TWIN DEBUG x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
 	    
           twin_newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
           driftCircleColl->push_back(twin_newPrepData);
