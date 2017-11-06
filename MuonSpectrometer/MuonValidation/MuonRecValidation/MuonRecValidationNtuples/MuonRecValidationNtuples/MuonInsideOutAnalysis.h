@@ -51,7 +51,7 @@ namespace Muon {
 
     TimePointBetaFit::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, std::set<int> type );
     
-    MuonInsideOutAnalysisPlots plots;
+    MuonInsideOutAnalysisPlots m_plots;
   };
 }
 
