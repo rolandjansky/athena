@@ -21,7 +21,7 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 //Athena includes
 #include "Identifier/Identifier.h"
