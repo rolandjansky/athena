@@ -280,7 +280,8 @@ double Interpolate(const TH1* histo, const double x, const double y, const doubl
     // In some cases, it performed quite poorly
     // Tests of switching to 2D interpolation with the third dimension fixed appeared to work much better
     // Thus, the below is now a switch to bilinear interpolation when bin(s) are equal in trilinear interpolation
-    if (ubx == obx || uby == oby || ubz == obz)
+    
+    // The below code block contains added functionality with respect to standard ROOT TH3::Interpolate()
     {
         // Bilinear interpolation
         if (ubz == obz)
