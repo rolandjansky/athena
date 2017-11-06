@@ -32,6 +32,8 @@ mv expert-monitoring.root expert-monitoring-ascend.root
 export EXTRA="chainOrderOption=1;"
 
 # Run with decending
+export JOB_LOG_2=${JOB_LOG%%.*}2.${JOB_LOG#*.}
+export JOB_LOG=${JOB_LOG_2}
 source exec_athena_art_trigger_validation.sh
 
 rootcomp.py expert-monitoring-ascend.root expert-monitoring.root
