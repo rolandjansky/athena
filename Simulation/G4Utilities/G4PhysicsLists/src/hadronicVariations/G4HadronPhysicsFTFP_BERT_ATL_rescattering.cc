@@ -23,22 +23,21 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id$
+// $Id: G4HadronPhysicsFTFP_BERT_ATL_rescattering.cc 83699 2014-09-10 07:18:25Z gcosmo $
 //
 //---------------------------------------------------------------------------
 // Author: Alberto Ribon
-// Date:   April 2016
+// Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL.
-// This is a modified version of the FTFP_BERT hadron physics for ATLAS.
-// The hadron physics of FTFP_BERT_ATL has the transition between Bertini
-// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
-//---------------------------------------------------------------------------
+// Hadron physics for the new physics list FTFP_BERT_ATL_rescattering.
+// This is a modified version of the FTFP_BERT_ATL hadron physics for ATLAS,
+// in which the rescattering of the final-state produced by FTF is simulated
+// with Binary Cascade (similar to FTF_BIC).
+//----------------------------------------------------------------------------
 //
 #include <iomanip>   
 
-#include "G4HadronPhysicsFTFP_BERT_ATL.hh"
+#include "G4HadronPhysicsFTFP_BERT_ATL_rescattering.hh"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -65,21 +64,24 @@
 // factory
 #include "G4PhysicsConstructorFactory.hh"
 //
-G4_DECLARE_PHYSCONSTR_FACTORY(G4HadronPhysicsFTFP_BERT_ATL);
+G4_DECLARE_PHYSCONSTR_FACTORY(G4HadronPhysicsFTFP_BERT_ATL_rescattering);
 
-G4ThreadLocal G4HadronPhysicsFTFP_BERT_ATL::ThreadPrivate* G4HadronPhysicsFTFP_BERT_ATL::tpdata=0;
+G4ThreadLocal G4HadronPhysicsFTFP_BERT_ATL_rescattering::ThreadPrivate* G4HadronPhysicsFTFP_BERT_ATL_rescattering::tpdata=0;
 
-G4HadronPhysicsFTFP_BERT_ATL::G4HadronPhysicsFTFP_BERT_ATL(G4int)
-    :  G4VPhysicsConstructor("hInelastic FTFP_BERT_ATL")
+G4HadronPhysicsFTFP_BERT_ATL_rescattering::G4HadronPhysicsFTFP_BERT_ATL_rescattering(G4int)
+    :  G4VPhysicsConstructor("hInelastic FTFP_BERT_ATL_rescattering")
 /*    , theNeutrons(0)
     , theBertiniNeutron(0)
-    , theFTFPNeutron(0)
-    , thePiK(0)
-    , theBertiniPiK(0)
-    , theFTFPPiK(0)
+    , theFTFBinaryNeutron(0)
+    , thePion(0)
+    , theBertiniPion(0)
+    , theFTFBinaryPion(0)
+    , theKaon(0)
+    , theBertiniKaon(0)
+    , theFTFBinaryKaon(0)
     , thePro(0)
     , theBertiniPro(0)
-    , theFTFPPro(0)
+    , theFTFBinaryPro(0)
     , theHyperon(0)
     , theAntiBaryon(0)
     , theFTFPAntiBaryon(0) */
@@ -91,17 +93,20 @@ G4HadronPhysicsFTFP_BERT_ATL::G4HadronPhysicsFTFP_BERT_ATL(G4int)
     , xsNeutronCaptureXS(0)*/
 {}
 
-G4HadronPhysicsFTFP_BERT_ATL::G4HadronPhysicsFTFP_BERT_ATL(const G4String& name, G4bool quasiElastic)
+G4HadronPhysicsFTFP_BERT_ATL_rescattering::G4HadronPhysicsFTFP_BERT_ATL_rescattering(const G4String& name, G4bool quasiElastic)
     :  G4VPhysicsConstructor(name) 
 /*    , theNeutrons(0)
     , theBertiniNeutron(0)
-    , theFTFPNeutron(0)
-    , thePiK(0)
-    , theBertiniPiK(0)
-    , theFTFPPiK(0)
+    , theFTFBinaryNeutron(0)
+    , thePion(0)
+    , theBertiniPion(0)
+    , theFTFBinaryPion(0)
+    , theKaon(0)
+    , theBertiniKaon(0)
+    , theFTFBinaryKaon(0)
     , thePro(0)
     , theBertiniPro(0)
-    , theFTFPPro(0)
+    , theFTFBinaryPro(0)
     , theHyperon(0)
     , theAntiBaryon(0)
     , theFTFPAntiBaryon(0)*/
@@ -113,55 +118,66 @@ G4HadronPhysicsFTFP_BERT_ATL::G4HadronPhysicsFTFP_BERT_ATL(const G4String& name,
     , xsNeutronCaptureXS(0)*/
 {}
 
-void G4HadronPhysicsFTFP_BERT_ATL::CreateModels()
+void G4HadronPhysicsFTFP_BERT_ATL_rescattering::CreateModels()
 {
+
   G4double minFTFP =  9.0 * GeV;
   G4double maxBERT = 12.0 * GeV;
-  G4cout << " FTFP_BERT_ATL : new threshold between BERT and FTFP" 
-         << " is over the interval " << minFTFP/GeV << " to " << maxBERT/GeV 
-         << " GeV." << G4endl;
-  QuasiElastic= false; 
+  G4cout << " FTFP_BERT_ATL_rescattering : same transitions as FTFP_BERT_ATL," << G4endl
+         << " but using Binary Cascade (BIC) for rescattering of final-state produced by FTF"
+         << G4endl;
 
   tpdata->theNeutrons=new G4NeutronBuilder;
-  tpdata->theNeutrons->RegisterMe(tpdata->theFTFPNeutron=new G4FTFPNeutronBuilder(QuasiElastic));
-  tpdata->theFTFPNeutron->SetMinEnergy(minFTFP);
+  tpdata->theFTFBinaryNeutron=new G4FTFBinaryNeutronBuilder(QuasiElastic);
+  tpdata->theNeutrons->RegisterMe(tpdata->theFTFBinaryNeutron);
+  tpdata->theFTFBinaryNeutron->SetMinEnergy(minFTFP);
   tpdata->theNeutrons->RegisterMe(tpdata->theBertiniNeutron=new G4BertiniNeutronBuilder);
   tpdata->theBertiniNeutron->SetMinEnergy(0.0*GeV);
   tpdata->theBertiniNeutron->SetMaxEnergy(maxBERT);
 
   tpdata->thePro=new G4ProtonBuilder;
-  tpdata->thePro->RegisterMe(tpdata->theFTFPPro=new G4FTFPProtonBuilder(QuasiElastic));
-  tpdata->theFTFPPro->SetMinEnergy(minFTFP);
+  tpdata->theFTFBinaryPro=new G4FTFBinaryProtonBuilder(QuasiElastic);
+  tpdata->thePro->RegisterMe(tpdata->theFTFBinaryPro);
+  tpdata->theFTFBinaryPro->SetMinEnergy(minFTFP);
   tpdata->thePro->RegisterMe(tpdata->theBertiniPro=new G4BertiniProtonBuilder);
   tpdata->theBertiniPro->SetMaxEnergy(maxBERT);
 
-  tpdata->thePiK=new G4PiKBuilder;
-  tpdata->thePiK->RegisterMe(tpdata->theFTFPPiK=new G4FTFPPiKBuilder(QuasiElastic));
-  tpdata->theFTFPPiK->SetMinEnergy(minFTFP);
-  tpdata->thePiK->RegisterMe(tpdata->theBertiniPiK=new G4BertiniPiKBuilder);
-  tpdata->theBertiniPiK->SetMaxEnergy(maxBERT);
-  
+  tpdata->thePion=new G4PionBuilder;
+  tpdata->thePion->RegisterMe(tpdata->theFTFBinaryPion=new G4FTFBinaryPionBuilder(QuasiElastic));
+  tpdata->theFTFBinaryPion->SetMinEnergy(minFTFP);
+  tpdata->thePion->RegisterMe(tpdata->theBertiniPion=new G4BertiniPionBuilder);
+  tpdata->theBertiniPion->SetMaxEnergy(maxBERT);
+
+  tpdata->theKaon=new G4KaonBuilder;
+  tpdata->theKaon->RegisterMe(tpdata->theFTFBinaryKaon=new G4FTFBinaryKaonBuilder(QuasiElastic));
+  tpdata->theFTFBinaryKaon->SetMinEnergy(minFTFP);
+  tpdata->theKaon->RegisterMe(tpdata->theBertiniKaon=new G4BertiniKaonBuilder);
+  tpdata->theBertiniKaon->SetMaxEnergy(maxBERT);
+
   tpdata->theHyperon=new G4HyperonFTFPBuilder;
     
   tpdata->theAntiBaryon=new G4AntiBarionBuilder;
-  tpdata->theAntiBaryon->RegisterMe(tpdata->theFTFPAntiBaryon=new G4FTFPAntiBarionBuilder(QuasiElastic));
+  tpdata->theAntiBaryon->RegisterMe(tpdata->theFTFPAntiBaryon=new  G4FTFPAntiBarionBuilder(QuasiElastic));
 }
 
-G4HadronPhysicsFTFP_BERT_ATL::~G4HadronPhysicsFTFP_BERT_ATL()
+G4HadronPhysicsFTFP_BERT_ATL_rescattering::~G4HadronPhysicsFTFP_BERT_ATL_rescattering()
 {
   if (!tpdata) return;
 
   delete tpdata->theNeutrons;
   delete tpdata->theBertiniNeutron;
-  delete tpdata->theFTFPNeutron;
+  delete tpdata->theFTFBinaryNeutron;
 
-  delete tpdata->thePiK;
-  delete tpdata->theBertiniPiK;
-  delete tpdata->theFTFPPiK;
+  delete tpdata->thePion;
+  delete tpdata->theBertiniPion;
+  delete tpdata->theFTFBinaryPion;
+  delete tpdata->theKaon;
+  delete tpdata->theBertiniKaon;
+  delete tpdata->theFTFBinaryKaon;
     
   delete tpdata->thePro;
   delete tpdata->theBertiniPro;
-  delete tpdata->theFTFPPro;    
+  delete tpdata->theFTFBinaryPro;    
     
   delete tpdata->theHyperon;
   delete tpdata->theAntiBaryon;
@@ -173,7 +189,7 @@ G4HadronPhysicsFTFP_BERT_ATL::~G4HadronPhysicsFTFP_BERT_ATL()
   delete tpdata; tpdata = 0;
 }
 
-void G4HadronPhysicsFTFP_BERT_ATL::ConstructParticle()
+void G4HadronPhysicsFTFP_BERT_ATL_rescattering::ConstructParticle()
 {
   G4MesonConstructor pMesonConstructor;
   pMesonConstructor.ConstructParticle();
@@ -186,13 +202,14 @@ void G4HadronPhysicsFTFP_BERT_ATL::ConstructParticle()
 }
 
 #include "G4ProcessManager.hh"
-void G4HadronPhysicsFTFP_BERT_ATL::ConstructProcess()
+void G4HadronPhysicsFTFP_BERT_ATL_rescattering::ConstructProcess()
 {
   if ( tpdata == 0 ) tpdata = new ThreadPrivate;
   CreateModels();
   tpdata->theNeutrons->Build();
   tpdata->thePro->Build();
-  tpdata->thePiK->Build();
+  tpdata->thePion->Build();
+  tpdata->theKaon->Build();
 
   // --- Kaons ---
   tpdata->ChipsKaonMinus = G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(G4ChipsKaonMinusInelasticXS::Default_Name());
@@ -208,7 +225,7 @@ void G4HadronPhysicsFTFP_BERT_ATL::ConstructProcess()
   tpdata->theAntiBaryon->Build();
 
   // --- Neutrons ---
-  tpdata->xsNeutronInelasticXS = (G4NeutronInelasticXS*)G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(G4NeutronInelasticXS::Default_Name());
+    tpdata->xsNeutronInelasticXS = (G4NeutronInelasticXS*)G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(G4NeutronInelasticXS::Default_Name());
   G4PhysListUtil::FindInelasticProcess(G4Neutron::Neutron())->AddDataSet(tpdata->xsNeutronInelasticXS);
 
   G4HadronicProcess* capture = 0;
