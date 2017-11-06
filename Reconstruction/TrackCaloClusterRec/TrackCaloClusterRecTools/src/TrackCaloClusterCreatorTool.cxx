@@ -183,22 +183,22 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
             if (!isMatched) continue;
             xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
             tccContainer->push_back(tcc);
-	    ElementLink< xAOD::TrackParticleContainer > trkLink(*assocContainer,i);
+            ElementLink< xAOD::TrackParticleContainer > trkLink(*assocContainer,i);
             tcc->setParameters(track->pt(),track->eta(),track->phi(),track->m(),xAOD::TrackCaloCluster::Taste::Charged,trkLink,std::vector<ElementLink<xAOD::CaloClusterContainer>>());
             ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
 
-	    if(m_saveDetectorEta) {
-	      // retrieve the caloExtensionContainer to get the track direction at the calo entrance
-	      IParticleToCaloExtensionMap * caloExtensionMap = 0;
-	      if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
-		ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
-	      
-	      const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(track);
-	      double det_eta = track->eta();
-	      if(pars)
-		det_eta = pars->position().eta();
-	      tcc->auxdecor<float>("DetectorEta") = det_eta;
-	    }
+            if(m_saveDetectorEta) {
+            // retrieve the caloExtensionContainer to get the track direction at the calo entrance
+            IParticleToCaloExtensionMap * caloExtensionMap = 0;
+            double det_eta = track->eta();
+            if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
+                ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
+            else{
+                const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(track);
+                if(pars) det_eta = pars->position().eta();
+            }
+            tcc->auxdecor<float>("DetectorEta") = det_eta;
+            }
         }
         i++;
     } // for all tracks

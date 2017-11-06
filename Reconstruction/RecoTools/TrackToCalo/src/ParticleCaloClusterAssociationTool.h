@@ -54,8 +54,8 @@ namespace Rec {
                               The same is true if the function is called once without container and once with on the same particle.
         @return true if the call was successful
     */
-    bool particleClusterAssociation( const xAOD::IParticle& particle,  const ParticleClusterAssociation*& association, float dr, 
-                                     const xAOD::CaloClusterContainer* container = 0, bool useCaching = true ) const final;
+    bool particleClusterAssociation( const xAOD::IParticle& particle,  std::vector< ElementLink< xAOD::CaloClusterContainer > >& association, float dr, 
+                                     const xAOD::CaloClusterContainer* container = 0) const final;
     
   private:
 
