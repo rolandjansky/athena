@@ -52,8 +52,3 @@ apply_tag  ROOTMathLibs
 apply_tag  ROOTSTLDictLibs
 apply_tag  ROOTGraphicsLibs
 apply_tag  ROOTTableLibs
-
-private
-macro Check2020 "`if [[ $ATLAS_RELEASE_BASE =~ '20.20' ]];then echo Rel2020;else echo RelOther; fi;`" 
-apply_tag $(Check2020)
-macro_append pp_cppflags " -DATHENA_OTHER " Rel2020 " -DATHENA_20_20 "

@@ -20,8 +20,12 @@ class sTGCDigitVariables : public ValAlgVariables
                      std::string containername) :
     ValAlgVariables(evtStore, detManager, tree, containername, "sTGCDigitVariables"),
     m_NSWsTGC_nDigits(0),
+    m_NSWsTGC_nPadDigits(0),
     m_NSWsTGC_dig_time(0),
+    m_NSWsTGC_dig_bctag(0),
     m_NSWsTGC_dig_charge(0),
+		m_NSWsTGC_dig_isDead(0),
+		m_NSWsTGC_dig_isPileup(0),
     m_NSWsTGC_dig_stationName(0),
     m_NSWsTGC_dig_stationEta(0),
     m_NSWsTGC_dig_stationPhi(0),
@@ -91,8 +95,12 @@ class sTGCDigitVariables : public ValAlgVariables
   const sTgcIdHelper* m_sTgcIdHelper;
 
   int m_NSWsTGC_nDigits;
-  float m_NSWsTGC_dig_time;
-  float m_NSWsTGC_dig_charge;
+  int m_NSWsTGC_nPadDigits;
+  std::vector<double> *m_NSWsTGC_dig_time;
+  std::vector<int> *m_NSWsTGC_dig_bctag;
+  std::vector<double> *m_NSWsTGC_dig_charge;
+  std::vector<bool> *m_NSWsTGC_dig_isDead;
+  std::vector<bool> *m_NSWsTGC_dig_isPileup;
   std::vector<std::string> *m_NSWsTGC_dig_stationName;
   std::vector<int> *m_NSWsTGC_dig_stationEta;
   std::vector<int> *m_NSWsTGC_dig_stationPhi;

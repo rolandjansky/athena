@@ -461,32 +461,18 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-#ifdef ATHENA_20_20
-StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
-						PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-#else
   StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 						  SubEventIterator bSubEvents,
 						  SubEventIterator eSubEvents) {
-#endif
 
   ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
 
-#ifdef ATHENA_20_20
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-#else
   SubEventIterator iEvt = bSubEvents;
-#endif
 
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
 
-#ifdef ATHENA_20_20
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-#else
     StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-#endif
 
     ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
                   << " bunch crossing : " << bunchXing );
