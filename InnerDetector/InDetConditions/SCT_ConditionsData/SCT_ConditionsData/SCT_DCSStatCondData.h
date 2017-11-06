@@ -11,7 +11,7 @@
 #ifndef SCT_DCSSTATCONDDATA_H
 #define SCT_DCSSTATCONDDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <map>
 #include <vector>

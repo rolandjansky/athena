@@ -14,7 +14,7 @@
 #include <map>
 
 // Include Athena stuff
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class SCT_MajorityCondData {
 public:
