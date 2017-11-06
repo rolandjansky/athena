@@ -67,19 +67,17 @@ public:
     std::vector<double>  seq;
     pullN( m_wrapper, 10000, seq, 0);
     m_slot0SumRef = std::accumulate( seq.begin(), seq.end(), 0.0);
-    //    std::cout << m_name << " Slot 0 sum of randoms " << m_slot0SumRef << std::endl;
   }
   
   bool callAndCompare() const override {
     size_t currentSlot = m_slot++ % nSlots;
-    //    std::cout << "Testing slot " << currentSlot << std::endl;
 
     VALUE( currentSlot < 20 ) EXPECTED( true );
     reseed( m_wrapper, currentSlot );
     std::vector<double>  seq;
     pullN( m_wrapper, 10000, seq, currentSlot );
     double sum = std::accumulate( seq.begin(), seq.end(), 0.0);
-    //    std::cout << m_name << " Slot " << currentSlot << " sum of randoms " << sum << std::endl;
+
     VALUE( sum ) EXPECTED ( m_slot0SumRef );
     return true;
   }
