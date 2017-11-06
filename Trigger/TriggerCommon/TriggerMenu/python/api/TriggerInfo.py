@@ -86,7 +86,6 @@ class TriggerLeg:
                     self.legtype = TriggerType.ht
                 else:
                     print "Unknown trigger type:",legtype
-                    raise LegTypeError
             else:
                 if self.bjetpattern.match(token):
                     if self.legtype == TriggerType.j_single: self.legtype = TriggerType.bj_single
@@ -339,7 +338,6 @@ class TriggerChain:
                     mtype |= TriggerType.ht
                 else:
                     print "Unknown trigger type:",legtype
-                    raise LegTypeError
         return mtype
 
     def isUnprescaled(self):

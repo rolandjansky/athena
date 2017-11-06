@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, pickle
+import sys
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions
 from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
 
@@ -50,27 +50,6 @@ def getReadyForPhysicsInRange(period):
     return runsWithReady
 
 
-
-
-def getAllReadyForPhysics(period, doPrint = False):
-
-    runsWithReadyForPhysics = getReadyForPhysicsInRange(period)
-
-    if doPrint:
-        for year in years:
-            print ""
-            print year
-            print "===="
-            print "%i runs with ReadyForPhysics" % len(runsWithReadyForPhysics[year])
-            for i,r in enumerate( sorted(runsWithReadyForPhysics[year].keys())):
-                print "%i," % r,
-                if (i+1)%15 == 0: print ""
-            print ""
-
-    return runsWithReadyForPhysics
-
-
-
 def getKeys( listOfRuns, doPrint = False ):
 
     from CoolLumiUtilities.CoolDataReader import CoolDataReader
@@ -80,7 +59,7 @@ def getKeys( listOfRuns, doPrint = False ):
     mySmkReader = CoolDataReader('COOLONL_TRIGGER/CONDBR2', '/TRIGGER/HLT/HltConfigKeys')
     myL1pskReader = CoolDataReader('COOLONL_TRIGGER/CONDBR2', '/TRIGGER/LVL1/Lvl1ConfigKey')
     myHltpskReader = CoolDataReader('COOLONL_TRIGGER/CONDBR2', '/TRIGGER/HLT/PrescaleKey')
-    myBgskReader = CoolDataReader('COOLONL_TRIGGER/CONDBR2', '/TRIGGER/LVL1/BunchGroupKey')
+    #myBgskReader = CoolDataReader('COOLONL_TRIGGER/CONDBR2', '/TRIGGER/LVL1/BunchGroupKey')
     
     for run in sorted(listOfRuns):
 
@@ -173,8 +152,6 @@ def queryHLTPrescaleTableRun2(connection,psk):
 
 def fillHLTlist( info, hltList , lbCount, run, grlblocks):
     from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales #, getHLTPrescalesRun2 #,getChains
-    from copy import deepcopy
-
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
@@ -295,7 +272,7 @@ def getHLTlist_fromDB(period):
     '''
     
     triggerPeriod = TriggerPeriodData( period ).grl
-    runsWithReadyForPhysics = getAllReadyForPhysics(triggerPeriod)
+    runsWithReadyForPhysics = getReadyForPhysicsInRange(triggerPeriod)
     keys = getKeys( runsWithReadyForPhysics)
     
     # get keys for last run
