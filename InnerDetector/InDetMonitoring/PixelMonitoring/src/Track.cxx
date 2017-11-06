@@ -204,7 +204,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
       int pixlayerdisk = getPixLayerDiskID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
       int pixlayeribl2d3d = pixlayer;
-      if (pixlayeribl2d3d == PixLayer::kIBL) {
+      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
         pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
       }
       if (pixlayer == 99) continue;
