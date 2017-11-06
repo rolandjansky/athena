@@ -778,14 +778,9 @@ TestCaloDDE::try_each_descr_zone()
   ATH_MSG_INFO ( "Executing TestCaloDDE : try_zone for each descriptor " );
   ATH_MSG_INFO( "" );
 
-  CaloDetDescriptor* descr;    
   std::vector<IdentifierHash> cell_list;
   int num = 0;
   
-  std::vector <CaloDetDescriptor*>::const_iterator descr_begin = m_calo_dd_man->calo_descriptors_begin();
-  std::vector <CaloDetDescriptor*>::const_iterator descr_end = m_calo_dd_man->calo_descriptors_end();
-  std::vector <CaloDetDescriptor*>::const_iterator itr;
-
   IdentifierHash min,max;
   //retrieves helpers 
   const CaloCell_ID* help_all = m_calo_id_man->getCaloCell_ID();
@@ -808,11 +803,8 @@ TestCaloDDE::try_each_descr_zone()
   std::cout << std::endl;
   std::cout << std::endl;
 
-  for ( itr = descr_begin; itr != descr_end; itr++)
+  for (const CaloDetDescriptor* descr : m_calo_dd_man->calo_descriptors_range())
     {
-
-      descr = (*itr);
-
       if ( num == em_nb || num == (em_nb+hec_nb) || num == (em_nb+hec_nb+fcal_nb)
 	   || num == (em_nb+hec_nb+fcal_nb+tile_nb) ) 
 	std::cout << " ----------------------------------------------------------- " << std::endl;
