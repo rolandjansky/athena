@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include <cmath>
 #include <limits>
 #include <numeric>
@@ -12,6 +12,7 @@
 #include "AtlasCLHEP_RandomGenerators/dSFMTEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "tbb/task_scheduler_init.h"
 
   // assume large number of slots
 const size_t nSlots = 20;
@@ -90,6 +91,7 @@ private:
 
 
 int main() {
+    
     std::function< CLHEP::HepRandomEngine*(void) > dSFMTFactory = [](void)->CLHEP::HepRandomEngine* { 
       return new CLHEP::dSFMTEngine(); 
     };
@@ -105,21 +107,20 @@ int main() {
     };
     RNGWrapper Ranecu( RanecuFactory , nSlots );
 
-
     checkSlotInvaraianceSequential( &dSFMT );
     checkSlotInvaraianceSequential( &Ranlux );
     checkSlotInvaraianceSequential( &Ranecu );
-
-    std::cout << "RNGWrapper works for slots if used sequentially" << std::endl;
 
     TestScenario dSFMTScenario( &dSFMT, "dSFMT" );
     TestScenario RanluxScenario( &Ranlux, "Ranlux" ); 
     TestScenario RanecuScenario( &Ranecu, "Ranecu" );
 
+    tbb::task_scheduler_init init( 10 );
+
     for ( size_t rep = 0; rep < 100; ++rep ) {
       ParallelCallTest::launchTests( 20, { &dSFMTScenario, &RanluxScenario, &RanecuScenario } );
     }
 
-    std::cout << "RNGWrapper works for slots when used in parallel" << std::endl;
+
     return 0;
 }
