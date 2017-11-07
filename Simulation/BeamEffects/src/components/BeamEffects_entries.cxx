@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../GenEventValidityChecker.h"
 #include "../GenEventVertexPositioner.h"
 #include "../VertexBeamCondPositioner.h"
@@ -8,12 +7,13 @@
 #include "../GenEventBeamEffectBooster.h"
 #include "../GenEventRotator.h"
 #include "../BeamEffectsAlg.h"
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventValidityChecker      )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventVertexPositioner     )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , VertexBeamCondPositioner     )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , LongBeamspotVertexPositioner )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , CrabKissingVertexPositioner  )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , VertexPositionFromFile       )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventBeamEffectBooster    )
-DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventRotator              )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( Simulation , BeamEffectsAlg          )
+DECLARE_COMPONENT( Simulation::GenEventValidityChecker )
+DECLARE_COMPONENT( Simulation::GenEventVertexPositioner )
+DECLARE_COMPONENT( Simulation::VertexBeamCondPositioner )
+DECLARE_COMPONENT( Simulation::LongBeamspotVertexPositioner )
+DECLARE_COMPONENT( Simulation::CrabKissingVertexPositioner )
+DECLARE_COMPONENT( Simulation::VertexPositionFromFile )
+DECLARE_COMPONENT( Simulation::GenEventBeamEffectBooster )
+DECLARE_COMPONENT( Simulation::GenEventRotator )
+DECLARE_COMPONENT( Simulation::BeamEffectsAlg )
+

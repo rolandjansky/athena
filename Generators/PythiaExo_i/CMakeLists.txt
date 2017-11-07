@@ -57,7 +57,6 @@ atlas_add_component( PythiaTau3Mu_i
    src/PythiaDummies/ssmssm.F src/PythiaDummies/fhhiggscorr.F
    src/PythiaDummies/fhsetflags.F src/PythiaDummies/fhsetpara.F
    src/PythiaModified/pytaud.F src/PythiaTau3Mu_i_entries.cxx
-   src/PythiaTau3Mu_i_load.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES}
@@ -82,7 +81,6 @@ atlas_add_component( PythiaMono_i
    src/PythiaDummies/ssmssm.F src/PythiaDummies/fhhiggscorr.F
    src/PythiaDummies/fhsetflags.F src/PythiaDummies/fhsetpara.F
    src/PythiaModified/pysgwz.F src/PythiaMono_i_entries.cxx
-   src/PythiaMono_i_load.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES}
@@ -105,7 +103,7 @@ atlas_add_component( PythiaGS_i
    src/PythiaDummies/visaje.F src/PythiaDummies/ssmssm.F
    src/PythiaDummies/fhhiggscorr.F src/PythiaDummies/fhsetflags.F
    src/PythiaDummies/fhsetpara.F src/PythiaModified/pytaud.F
-   src/PythiaGS_i_entries.cxx src/PythiaGS_i_load.cxx
+   src/PythiaGS_i_entries.cxx
    src/PythiaGravADD/Aeik.c src/PythiaGravADD/pyeffevt.F
    src/PythiaGravADD/GravScat.F
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
@@ -132,7 +130,6 @@ atlas_add_component( PythiaLLP_i
    src/PythiaDummies/ssmssm.F src/PythiaDummies/fhhiggscorr.F
    src/PythiaDummies/fhsetflags.F src/PythiaDummies/fhsetpara.F
    src/PythiaModified/initpyupda.F src/PythiaLLP_i_entries.cxx
-   src/PythiaLLP_i_load.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES}
@@ -160,7 +157,6 @@ atlas_add_component( PythiaResMod_i
    src/PythiaDummies/fhsetflags.F src/PythiaDummies/fhsetpara.F
    src/PythiaModified/pyrhad.F src/PythiaModified/pysthad.F
    src/PythiaModified/pysgex.F src/PythiaResMod_i_entries.cxx
-   src/PythiaResMod_i_load.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES}
@@ -186,7 +182,7 @@ atlas_add_component( PythiaTopMdiff_i
    src/PythiaDummies/ssmssm.F src/PythiaDummies/fhhiggscorr.F
    src/PythiaDummies/fhsetflags.F src/PythiaDummies/fhsetpara.F
    src/PythiaModified/pyscat.F src/PythiaModified/pyofsh.F
-   src/PythiaTopMdiff_i_entries.cxx src/PythiaTopMdiff_i_load.cxx
+   src/PythiaTopMdiff_i_entries.cxx 
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES}
