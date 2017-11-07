@@ -64,6 +64,7 @@ namespace Rec {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
+    
     if( caloExtension->caloLayerIntersections().empty()){
       ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
       return false;
@@ -107,6 +108,8 @@ namespace Rec {
         }
         ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
     }
+    
+    delete caloExtension;
          
     return true;
   }
