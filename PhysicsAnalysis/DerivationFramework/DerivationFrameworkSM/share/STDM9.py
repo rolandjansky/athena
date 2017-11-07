@@ -13,6 +13,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkSM import STDMTriggers
 
 from JetRec.JetRecStandard import jtm
 
@@ -24,6 +25,14 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 stdm9Seq = CfgMgr.AthSequencer("STDM9Sequence")
+
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_STDM9Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_STDM9Stream )
+STDM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+STDM9Stream.AcceptAlgs(["STDM9Kernel"])
 
 from AthenaCommon.GlobalFlags import globalflags
 isMC = False
@@ -40,12 +49,27 @@ if globalflags.DataSource()=='geant4':
 
 thinningTools = []
 
+
+#=====================
+# TRIGGER NAV THINNING
+#=====================
+
+# Establish the thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+STDM9ThinningHelper = ThinningHelper( "STDM9ThinningHelper" )
+
+#trigger navigation content
+STDM9ThinningHelper.TriggerChains = 'HLT_j.*|HLT_ht.*'
+STDM9ThinningHelper.AppendToStream( STDM9Stream )
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
+#===================== 
+# TRACK  THINNING
+#=====================  
 
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 STDM9TPThinningTool = DerivationFramework__TrackParticleThinning(name = "STDM9TPThinningTool",
-                                                                 ThinningService         = "STDM9ThinningSvc",
+                                                                 ThinningService         = STDM9ThinningHelper.ThinningSvc(),
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM9TPThinningTool
@@ -54,7 +78,7 @@ thinningTools.append(STDM9TPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM9MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM9MuonTPThinningTool",
-                                                                            ThinningService         = "STDM9ThinningSvc",
+                                                                            ThinningService         = STDM9ThinningHelper.ThinningSvc(),
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM9MuonTPThinningTool
@@ -62,16 +86,16 @@ thinningTools.append(STDM9MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-STDM9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "STDM9ElectronTPThinningTool",
-                                                                                        ThinningService         = "STDM9ThinningSvc",
-                                                                                        SGKey             	= "Electrons",
+STDM9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(     name                    = "STDM9ElectronTPThinningTool",
+                                                                                        ThinningService         = STDM9ThinningHelper.ThinningSvc(),
+                                                                                        SGKey               = "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM9ElectronTPThinningTool
 thinningTools.append(STDM9ElectronTPThinningTool)
 
-STDM9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "STDM9PhotonTPThinningTool",
-                                                                                        ThinningService         = "STDM9ThinningSvc",
-                                                                                        SGKey             	= "Photons",
+STDM9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(     name                    = "STDM9PhotonTPThinningTool",
+                                                                                        ThinningService         = STDM9ThinningHelper.ThinningSvc(),
+                                                                                        SGKey               = "Photons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM9PhotonTPThinningTool
 thinningTools.append(STDM9PhotonTPThinningTool)
@@ -79,7 +103,7 @@ thinningTools.append(STDM9PhotonTPThinningTool)
 #Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM9AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                = "STDM9AKt4JetTPThinningTool",
-                                                                        ThinningService         = "STDM9ThinningSvc",
+                                                                        ThinningService         = STDM9ThinningHelper.ThinningSvc(),
                                                                         JetKey                  = "AntiKt4LCTopoJets",
                                                                         SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -87,7 +111,7 @@ ToolSvc += STDM9AKt4JetTPThinningTool
 thinningTools.append(STDM9AKt4JetTPThinningTool)
 
 STDM9AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "STDM9AKt10JetTPThinningTool",
-                                                                        ThinningService         = "STDM9ThinningSvc",
+                                                                        ThinningService         = STDM9ThinningHelper.ThinningSvc(),
                                                                         JetKey                  = "AntiKt10LCTopoJets",
                                                                         SelectionString         = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -98,7 +122,7 @@ thinningTools.append(STDM9AKt10JetTPThinningTool)
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 
 STDM9AKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "STDM9Ak4CCThinningTool",
-                                                                      ThinningService       = "STDM9ThinningSvc",
+                                                                      ThinningService       = STDM9ThinningHelper.ThinningSvc(),
                                                                       SGKey                 = "AntiKt4LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt4LCTopoJets.pt > 150*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
@@ -108,7 +132,7 @@ thinningTools.append(STDM9AKt4CCThinningTool)
 
 
 STDM9AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "STDM9Ak10CCThinningTool",
-                                                                      ThinningService       = "STDM9ThinningSvc",
+                                                                      ThinningService       = STDM9ThinningHelper.ThinningSvc(),
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
@@ -120,7 +144,7 @@ thinningTools.append(STDM9AKt10CCThinningTool)
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 STDM9MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                = "STDM9MCThinningTool",
-        ThinningService     = "STDM9ThinningSvc",
+        ThinningService     = STDM9ThinningHelper.ThinningSvc(),
         WriteEverything     = False,
         WritePartons        = True,
         WriteHadrons        = True,
@@ -163,6 +187,10 @@ triggers = [
             "HLT_j460_a10_lcw_nojcalib_L1J100",
             "HLT_j460_a10_lcw_sub_L1J100",
             "HLT_j300_a10_lcw_sub_L1SC85",
+            "HLT_j420_a10_lcw_subjes_L1J100",
+            "HLT_j440_a10_lcw_subjes_L1J100",
+            "HLT_j460_a10_lcw_subjes_L1J100",
+            "HLT_j480_a10_lcw_subjes_L1J100",
             "HLT_j300_a10_lcw_L1SC85",
             "HLT_j260_a10r_L1J75",
             "HLT_j300_a10r_L1J75",
@@ -172,6 +200,7 @@ triggers = [
             "HLT_j420_a10r_L1J100",
             "HLT_j440_a10r_L1J100",
             "HLT_j460_a10r_L1J100",
+            "HLT_j480_a10r_L1J100",
             "HLT_ht850_L1J75",
             "HLT_ht850_L1J100",
             "HLT_ht850",
@@ -181,7 +210,7 @@ triggers = [
            ]
 
 #From STDM1
-triggers+=["HLT_j15","HLT_j25","HLT_j35","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j460"]
+triggers+=["HLT_j15","HLT_j25","HLT_j35","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j450","HLT_j460"]
 
 topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV)  >= 2)"
 topology_selection_2jet += " || (count (abs(AntiKt4LCTopoJets.eta) < 2.8 && AntiKt4LCTopoJets.pt > 100*GeV)  >= 2))"
@@ -229,20 +258,12 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo",stdm9Seq) # adds this to Derivation
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", stdm9Seq)
 
 stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel_skim", SkimmingTools = [STDM9ANDSkimmingTool])
-stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel",	ThinningTools = thinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_STDM9Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_STDM9Stream )
-STDM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-STDM9Stream.AcceptAlgs(["STDM9Kernel"])
+stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel", ThinningTools = thinningTools)
 # Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="STDM9ThinningSvc", outStreams=[evtStream] )
+# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+# augStream = MSMgr.GetStream( streamName )
+# evtStream = augStream.GetEventStream()
+# svcMgr += createThinningSvc( svcName="STDM9ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
