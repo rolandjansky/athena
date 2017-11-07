@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetConditionsAthenaPool/InDetBSErrContainer_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer_p1.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetBSErrContainerCnv_p1.h"
 

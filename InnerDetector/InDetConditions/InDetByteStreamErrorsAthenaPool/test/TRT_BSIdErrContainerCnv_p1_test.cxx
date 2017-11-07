@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file InDetConditionsAthenaPool/test/TRT_BSIdErrContainerCnv_p1_test.cxx
+ * @file InDetByteStreamErrorsAthenaPool/test/TRT_BSIdErrContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Oct, 2015
  * @brief Unit test

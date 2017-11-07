@@ -164,7 +164,6 @@
 + Generators/McEventSelector
 + Generators/TruthUtils
 + InnerDetector/InDetConditions/InDetBeamSpotService
-+ InnerDetector/InDetConditions/InDetByteStreamErrors
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool
