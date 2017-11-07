@@ -308,6 +308,24 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
     extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
+    jetaugtool = getJetAugmentationTool(jetalg,'_OriginCorr'+vertexPrefix)
+    if(jetaugtool==None):
+        extjetlog.warning('*** addOriginCorrection called but corresponding augmentation tool does not exist! ***')
+
+    origincorrectiontoolname = 'DFOriginCorrection'+vertexPrefix+'_'+jetalg
+    jetaugtool.MomentPrefix = vertexPrefix+'_'
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,origincorrectiontoolname):
+        jetaugtool.JetOriginCorrectionTool = getattr(ToolSvc,origincorrectiontoolname)
+    else:
+        origincorrectiontool = CfgMgr.JetOriginCorrectionTool(origincorrectiontoolname, VertexContainer=vertexPrefix+'PrimaryVertices',OriginCorrectedName=vertexPrefix+'_JetOriginConstitScaleMomentum',ForceEMScale=True)
+        ToolSvc += origincorrectiontool
+        jetaugtool.JetOriginCorrectionTool = origincorrectiontool
+
+    extjetlog.info('ExtendedJetCommon: Adding OriginCorrection for jet collection: '+jetalg)
+    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
