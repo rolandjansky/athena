@@ -150,7 +150,6 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
 
   const Trk::TrackParameters* startPar = nullptr;
 
-  bool createdPerigee(false);
   if (particle.isAvailable<std::vector<float> >( "definingParametersCovMatrix" ) and 
       particle.isAvailable<float>( "vx" ) and particle.isAvailable<float>( "vy" ) ) {
     startPar = &particle.perigeeParameters();
@@ -167,14 +166,12 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
     
     // Building the perigee
     startPar = new Trk::Perigee(d0, z0, phi, theta, qOverP, Trk::PerigeeSurface(Amg::Vector3D(vx, vy, vz)));
-    createdPerigee = true;
   }
 
   if(fabs(startPar->position().z())>6700.) idExit = false; 
   if(startPar->position().perp()>4200.) idExit = false; 
   Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
   Trk::CaloExtension* extension = caloExtension(*startPar,propDir,particleType);
-  if(createdPerigee) delete startPar;
  
   return extension;
 }
