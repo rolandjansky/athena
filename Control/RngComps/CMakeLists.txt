@@ -63,6 +63,12 @@ atlas_add_test( TestSeedRunEvent
    ENVIRONMENT "ATLAS_REFERENCE_TAG=${RNGCOMPS_REFERENCE_TAG}"
    PROPERTIES TIMEOUT 500 )
 
+atlas_add_test( RNGWrapper_test
+   SOURCES test/RNGWrapper_test.cxx
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
+   GaudiKernel AtlasCLHEP_RandomGenerators )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
