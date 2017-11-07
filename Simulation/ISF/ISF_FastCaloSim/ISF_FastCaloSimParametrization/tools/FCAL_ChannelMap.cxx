@@ -12,7 +12,7 @@
 //    Feb-2002 R.Sobie    Use same FCAL geometry files as simulation
 //****************************************************************************
 
-#include "ISF_FastCaloSimParametrization/FCAL_ChannelMap.h"
+#include "LArReadoutGeometry/FCAL_ChannelMap.h"
 //#include "CLHEP/Units/SystemOfUnits.h"
 //#include "boost/io/ios_state.hpp"
 #include <sstream>
