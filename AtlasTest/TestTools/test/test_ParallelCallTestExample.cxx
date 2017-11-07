@@ -7,6 +7,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "tbb/task_scheduler_init.h"
 #include "TestTools/expect.h"
 #include "TestTools/ParallelCallTest.h"
+#include <unistd.h>
 
 
 /**
@@ -69,8 +70,6 @@ private:
 };
 
 
-
-
 int main() {
   // use 10 threads, 
   // for testing in athena this is not needed as the scheduler 
@@ -85,6 +84,9 @@ int main() {
   SvcTestScenario t2( &svc, 3000 ); // identical request started in parallel
   SvcTestScenario t3( &svc, 4001 ); // different request
   bool status = ParallelCallTest::launchTests( 100, { &t1, &t2, &t3 } );
+
+  // Without this, we get occasional segfaults in global dtors.
+  sleep(1);
 
   if ( status == false ) {
     std::cerr << "ERROR in the test" << std::endl;
