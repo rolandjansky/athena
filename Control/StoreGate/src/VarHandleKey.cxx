@@ -117,7 +117,14 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
       << "Cannot initialize a Read/Write/Update handle with a null key.";
     return StatusCode::FAILURE;
   }
-  CHECK( m_storeHandle.retrieve() );
+  // Don't do retrieve() here.  That unconditionally fetches the pointer
+  // from the service manager, even if it's still valid, which it might
+  // be if this is a handle that was just created from a key.
+  if (!m_storeHandle.isValid()) {
+    REPORT_ERROR (StatusCode::FAILURE)
+      << "Cannot locate store: " << m_storeHandle.typeAndName();
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 

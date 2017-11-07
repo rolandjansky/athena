@@ -8,23 +8,23 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/VarHand
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue Apr 11 16:23:30 2017
+                                          running on karma on Mon Oct 30 13:29:32 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 305 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 311 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 867 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 902 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
 test2
 test3
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foox
@@ -35,8 +35,8 @@ VarHandle(Store...  ERROR FILE:LINE (const void*SG::VarHandleBase::get_impl(cons
 test4
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
 test5
