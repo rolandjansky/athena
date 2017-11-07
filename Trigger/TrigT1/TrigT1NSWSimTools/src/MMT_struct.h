@@ -691,12 +691,15 @@ struct digitWrapper{
   //              int phiStation=0
   //              );
   digitWrapper(const MmDigit* digit=0,
-               double gTime=0,
+               double tmpGTime=0,
                const TVector3& truthLPos=TVector3(),
                const TVector3& stripLPos=TVector3(),
                const TVector3& stripGPos=TVector3()
                );
 
+
+  double gTime;
+  
   //the members:
   // int multiplet, gas_gap;
   // double gtime, time;//0-3
@@ -708,7 +711,6 @@ struct digitWrapper{
 
   const MmDigit* digit;
 
-  double gTime;
 
   inline Identifier id(){ return digit->identify(); };
 

@@ -24,28 +24,28 @@ namespace NSWL1 {
   //-------------------------------------
   bool wedgeidIsInvalid(int wedgeid, MsgStream& msg){
     bool invalid(wedgeid!=LARGE && wedgeid!=SMALL);
-    if(invalid && msg.level()<=MSG::VERBOSE ) 
+    if(invalid && msg.level()<=MSG::VERBOSE )
       msg << MSG::VERBOSE << "PadUtil::wedgeIsInvalid: invalid wedgeid " << wedgeid << endmsg;
     return invalid;
   }
   //-------------------------------------
   bool wedgetypeIsInvalid(int wedgetype, MsgStream& msg){
     bool invalid(wedgetype!=PIVOT && wedgetype!=CONFIRM);
-    if(invalid && msg.level()<=MSG::VERBOSE) 
+    if(invalid && msg.level()<=MSG::VERBOSE)
       msg << MSG::VERBOSE << "PadUtil::wedgeTypeIsInvalid: invalid wedgetype " << wedgetype << endmsg;
     return invalid;
   }
   //-------------------------------------
   bool layerIsInvalid(int layer, MsgStream& msg){
     bool invalid(layer<1 || layer>4);
-    if(invalid && msg.level()<=MSG::VERBOSE) 
+    if(invalid && msg.level()<=MSG::VERBOSE)
       msg << MSG::VERBOSE << "PadUtil::layerIsInvalid: invalid layer " << layer << endmsg;
     return invalid;
   }
   //-------------------------------------
   bool sectorIsInvalid(int sector, MsgStream& msg){
     bool invalid(sector<1 || sector>16);
-    if(invalid && msg.level()<=MSG::VERBOSE) 
+    if(invalid && msg.level()<=MSG::VERBOSE)
       msg << MSG::VERBOSE << "PadUtil::sectorIsInvalid: invalid sector " << sector << endmsg;
     return invalid;
   }
@@ -73,12 +73,12 @@ namespace NSWL1 {
   }
 
 
-  bool determinePad(int layer, 
-                    int wedgeId, 
-                    int wedgeType, 
-                    int sector, 
+  bool determinePad(int layer,
+                    int wedgeId,
+                    int wedgeType,
+                    int sector,
                     int detectorNumber,
-                    TVector3 pos, 
+                    TVector3 pos,
                     std::pair<int,int>& result,
                     MsgStream& msg)
   {
@@ -103,7 +103,7 @@ namespace NSWL1 {
         msg << MSG::VERBOSE << "determinePad: invalid L/S (" << wi << "), P/C (" << wt << ") values " << endmsg;
       return false;
     }
- 
+
     switch(la) {
     case 0: lt = STGC_LAYER_1; break;
     case 1: lt = STGC_LAYER_2; break;
@@ -112,7 +112,8 @@ namespace NSWL1 {
     default :
       if( msg.level()<=MSG::VERBOSE) msg << MSG::VERBOSE << "determinePad: invalid layer index " << la << endmsg;
       return false;
-    } 
+    }
+    (void) lt; // unused variable
     bool isInnerDetector(dn==STGC_DETECTOR_0 || dn==STGC_DETECTOR_1);
     float phiPadSize(PAD_PHI_DIVISION);
     if(isInnerDetector) phiPadSize /= PAD_PHI_SUBDIVISION; // inner dets have finer pads
@@ -127,7 +128,7 @@ namespace NSWL1 {
     hLowEdge  = adjustHforZdifference(hLowEdge,  st, la);
     padHeight = adjustHforZdifference(padHeight, st, la);
     int ieta = TMath::Floor((pos.Y() - hLowEdge) / padHeight);
-                                          
+
     int iphi = TMath::Floor((pos.Phi() - phiOrigin - phiSectorFive) / phiPadSize);
 
     float loHei(hLowEdge + ieta*padHeight);
@@ -150,15 +151,15 @@ namespace NSWL1 {
     if(msg.level()<=MSG::VERBOSE)
       msg << MSG::VERBOSE << "determine pad (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")"
           << " sector " << sn << " layer " << (la+1)
-          << " (" << ieta << "," << iphi << ")" << endmsg;  
+          << " (" << ieta << "," << iphi << ")" << endmsg;
 
     result.first  = ieta;
-    result.second = iphi; 
+    result.second = iphi;
     //result.ieta   = ieta;
     //result.iphi   = iphi;
     //result.det    = sdt;
     //result.stgc   = st;
-    //result.layer  = lt; 
+    //result.layer  = lt;
     //result.sector = sn;
     //result.side   = side;
     //result.setLowPhi(loPhi).setHighPhi(hiPhi).setLowH(loHei).setHighH(hiHei).fillCornerCoords(pos.Z(), phiSectorFive - phiCenterSector);
@@ -177,9 +178,9 @@ bool determine_pad_indices_with_old_algo(const PadOfflineData& pod, const Amg::V
     int wedgeType      = -1;
     if ( wedgeId == 0 ) wedgeType = pod.multipletId() == 1 ? 0 : 1; // SMALL P(0):C(1)
     else                wedgeType = pod.multipletId() == 1 ? 1 : 0; // LARGE C(1):P(0)
-    int sectorNumber   = pod.sectorId();     
+    int sectorNumber   = pod.sectorId();
     int detectorNumber = pod.moduleId();
- 
+
     return determinePad(layer,
                         wedgeId,
                         wedgeType,
