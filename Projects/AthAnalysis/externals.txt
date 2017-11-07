@@ -5,5 +5,5 @@
 # an "origin/" prefix before it. For tags however this is explicitly
 # forbidden.
 
-AthAnalysisExternalsVersion = 1.0.23
+AthAnalysisExternalsVersion = 1.0.24
 GaudiVersion = v27r1.016
