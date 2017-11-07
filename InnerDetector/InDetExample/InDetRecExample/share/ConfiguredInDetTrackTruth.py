@@ -6,10 +6,9 @@ include.block ('InDetRecExample/ConfiguredInDetTrackTruth.py')
 # ------- fragment to handle track truth association
 #
 # -------------------------------------------------------------------------
-
+from InDetRecExample.InDetKeys          import InDetKeys
 class  ConfiguredInDetTrackTruth:
     
-    from InDetRecExample.InDetKeys          import InDetKeys
 
     def __init__(self, Tracks = None, DetailedTruth = None, TracksTruth = None, PixelClustersTruth = InDetKeys.PixelClustersTruth(), SCT_ClustersTruth = InDetKeys.SCT_ClustersTruth(), TRT_DriftCirclesTruth = InDetKeys.TRT_DriftCirclesTruth()):
 
