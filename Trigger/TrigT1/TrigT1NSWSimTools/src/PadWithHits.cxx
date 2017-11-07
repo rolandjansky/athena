@@ -118,12 +118,14 @@ namespace nsw {
   //-------------------------------------
   bool layerIsInvalid(int layer, bool verbose){
     bool invalid(layer<1 || layer>4);
+    if(verbose){}
     // if(invalid && verbose) cout<<"invalid layer "<<layer<<endl;
     return invalid;
   }
   //-------------------------------------
   bool sectorIsInvalid(int sector, bool verbose){
     bool invalid(sector<1 || sector>16);
+    if(verbose){}
     // if(invalid && verbose) cout<<"invalid sector "<<sector<<endl;
     return invalid;
   }

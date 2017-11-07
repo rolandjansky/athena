@@ -31,7 +31,6 @@ StatusCode MmDigitContainerCnv::initialize() {
     
     // msgSvc()->setOutputLevel( "MmDigitContainerCnv", MSG::DEBUG );
 
-    std::cout<<"MmDigitContainerCnv:initialize"<<std::endl;
    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "MmDigitContainerCnv");
     if (log.level() <= MSG::INFO) log << MSG::INFO << "MmDigitContainerCnv::initialize()" << endmsg;
