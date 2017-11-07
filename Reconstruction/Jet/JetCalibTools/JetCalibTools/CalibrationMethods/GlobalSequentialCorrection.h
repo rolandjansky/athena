@@ -75,30 +75,6 @@ class GlobalSequentialCorrection
   double readPtJetPropertyHisto(double pT, double jetProperty,
 				TH2F *respFactors) const;
 
-
-  /*
-  bool fileExist(TString fn) { return gSystem->AccessPathName(fn)==false; };
-
-  TFile* openInputFile(TString fn) { 
-    if ( !FileExist(fn)) error("Cannot open GSC factors file"+fn);
-    TFile* fileHandle = new TFile(fn);
-    if (fileHandle == NULL) error( "Found but could not open file %s"+fn);
-    return fileHandle;
-  };
-
-  TH2F *GetHisto(TFile *file, TString hname) {
-    TH2F *h = (TH2F*)file->Get(hname);
-    if (h==NULL) printf("WARNING: Cannot access histogram \"%s\" in file %s",hname.Data(),file->GetName());
-    return h;
-  }
-  */
-
-  //shared functions/variables with JetCalibrationTool
-  //void error(TString msg) 
-  //{ printf("\nERROR - GlobalSequentialCorrection:\n\n  %s\n\n",msg.Data()); abort(); }
-  //TString FindFile(TString fn);
-  //end shared functions
-
  private:
   enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32 };
 
@@ -111,7 +87,6 @@ class GlobalSequentialCorrection
   VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction;
   double m_binSize;
   uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin;
-  //double m_etaGapMin, m_etaGapMax;
   VecD m_punchThroughEtaBins;
   double m_punchThroughMinPt;
   bool m_turnOffTrackCorrections;
