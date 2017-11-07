@@ -161,7 +161,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY16)
+# now done in ExtendedJetCommon 
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY16)
 
 # jet_prefab = 'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > XPT*GeV && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < XETA))'
 # count_jet_hard = jet_prefab.replace("XPT", "150.").replace("XETA", "2.8")

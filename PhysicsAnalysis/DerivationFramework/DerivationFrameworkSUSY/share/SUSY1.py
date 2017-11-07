@@ -43,9 +43,9 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 # THINNING TOOL 
 #====================================================================\
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY1TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY1TPThinningTool",
 #								 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
 #								 SelectionString	 = "InDetTrackParticles.pt > 5*GeV",
@@ -248,7 +248,8 @@ AugmentationTools.append(Pt500IsoTrackDecorator)
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY1) # default: sequence=DerivationFrameworkJob
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY1) # default: sequence=DerivationFrameworkJob
 # updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

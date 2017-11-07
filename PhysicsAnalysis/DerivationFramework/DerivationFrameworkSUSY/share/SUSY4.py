@@ -41,9 +41,9 @@ SUSY4ThinningHelper.AppendToStream( SUSY4Stream )
 # THINNING TOOLS 
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY4TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY4TPThinningTool",
 #                                                                 ThinningService         = SUSY4ThinningHelper.ThinningSvc(),
@@ -132,7 +132,10 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
 muonsRequirements = '(Muons.pt >= 15.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 #jetRequirements = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 22.*GeV && (abs(AntiKt4EMTopoJets.JetConstitScaleMomentum_eta)<2.2))'

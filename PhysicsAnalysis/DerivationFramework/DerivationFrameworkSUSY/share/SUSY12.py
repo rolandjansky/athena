@@ -46,10 +46,9 @@ SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
 # THINNING TOOL
 #====================================================================\
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY12TPThinningTool",
 #                                 ThinningService     = SUSY12ThinningHelper.ThinningSvc(),
 #                                 SelectionString     = "InDetTrackParticles.pt > 10*GeV",  # TODO: Check with 5 geV
@@ -177,7 +176,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY12) # default: sequence=DerivationFrameworkJob
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY12) # default: sequence=DerivationFrameworkJob
 #updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 

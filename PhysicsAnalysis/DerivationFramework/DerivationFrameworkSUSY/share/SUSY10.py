@@ -48,9 +48,9 @@ SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 # THINNING TOOL 
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY10TPThinningTool",
 #								 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
 #								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
@@ -156,7 +156,8 @@ if DerivationFrameworkIsMonteCarlo:
 #=======================================
 # JET CALIBRATION AND DEFINITION
 #=======================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY10)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY10)
 jetsDefinition = ' (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8) '
 
 #====================================================================
@@ -247,9 +248,10 @@ SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(
 #Variables
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY10SlimmingHelper = SlimmingHelper("SUSY10SlimmingHelper")
-SUSY10SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices"]
+SUSY10SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices", 
+                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 # BTagging_AntiKt4Track no longer supported in R21, replaced with BTagging_AntiKt2Track for now
-SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4PV0TrackJets", "BTagging_AntiKt2Track", "MET_Track"]
+SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets", "BTagging_AntiKt2Track", "MET_Track"]
 SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                        "Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.HadronConeExclTruthLabelID.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi",
@@ -262,7 +264,6 @@ SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                        "MuonClusterCollection.eta_sampl.phi_sampl",
                                        "Muons.quality.etcone20.ptconecoreTrackPtrCorrection",
                                        "Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
-
 
 #Triggers kept
 SUSY10SlimmingHelper.IncludeMuonTriggerContent   = True
@@ -287,8 +288,8 @@ if DerivationFrameworkIsMonteCarlo:
 
 #Removes useless fatjet collections - addJetOutputs no longer very appropriate, as we rebuild many jet collections
 #AntiKt10TruthTrimmedPtFrac5SmallR20Jets and AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets added to 'AllVariables'
-addJetOutputs(SUSY10SlimmingHelper, ["LargeR","SUSY10"],[],["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets",
-                                                            "AntiKt4TruthWZJets","AntiKt4TruthJets","AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"])
+#addJetOutputs(SUSY10SlimmingHelper, ["LargeR","SUSY10"],[],["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets",
+#                                                            "AntiKt4TruthWZJets","AntiKt4TruthJets","AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"])
 
 SUSY10SlimmingHelper.AppendContentToStream(SUSY10Stream)
 

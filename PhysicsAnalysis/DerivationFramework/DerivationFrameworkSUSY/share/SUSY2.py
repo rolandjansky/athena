@@ -44,9 +44,9 @@ SUSY2ThinningHelper.AppendToStream( SUSY2Stream )
 # THINNING TOOLS
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY2TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY2TPThinningTool",
 #                                                                 ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
@@ -272,7 +272,7 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets", 
-                                        "AntiKt4LCTopoJets", 
+                                        #"AntiKt4LCTopoJets", 
                                         "BTagging_AntiKt4EMTopo", 
                                         "InDetTrackParticles", 
                                         "PrimaryVertices"]
