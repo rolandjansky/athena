@@ -152,7 +152,7 @@ namespace MuonGM {
     
     int m_ml;
 
-    int sTGC_type;
+    int m_sTGC_type;
 
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
