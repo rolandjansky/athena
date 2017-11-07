@@ -86,7 +86,10 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   else{GSCFile.Insert(14,m_calibAreaTag);}
   TString fileName = PathResolverFindCalibFile(GSCFile.Data());
   TFile *inputFile = TFile::Open(fileName);
-  if (!inputFile) ATH_MSG_FATAL("Cannot open GSC factors file" << fileName);
+  if (!inputFile){
+    ATH_MSG_FATAL("Cannot open GSC factors file" << fileName);
+    return StatusCode::FAILURE;
+  }
 
   TString depthString = m_config->GetValue("GSCDepth","Full");
   if ( !depthString.Contains("ChargedFraction") && !depthString.Contains("Tile0") && !depthString.Contains("EM3") && !depthString.Contains("nTrk") && !depthString.Contains("trackWIDTH") && !depthString.Contains("PunchThrough") && !depthString.Contains("Full") ) {
