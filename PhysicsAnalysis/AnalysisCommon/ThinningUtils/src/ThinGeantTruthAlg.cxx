@@ -364,27 +364,5 @@ void ThinGeantTruthAlg::descendants(const xAOD::TruthParticle* pHead,
 // Returns true if a particle is BSM and stable
 
 bool ThinGeantTruthAlg::isStatus1BSMParticle(const xAOD::TruthParticle* part) const{
-   
-    int pdg = part->pdgId();
-    bool status1 = (part->status()==1);
-    bool isBSM(false);   
-
-    if ( (31<abs(pdg) && abs(pdg)<38) || // BSM Higgs / W' / Z' / etc
-        abs(pdg)==39 ||
-        abs(pdg)==41 ||
-        abs(pdg)==42 ||
-        abs(pdg)== 7 || // 4th gen beauty
-        abs(pdg)== 8 || // 4th gen top
-        (600 < abs(pdg) && abs(pdg) < 607) || // scalar leptoquarks
-        (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
-        (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
-        abs(pdg)==6000005 || // X5/3
-        abs(pdg)==6000006 || // T2/3
-        abs(pdg)==6000007 || // B-1/3
-        abs(pdg)==6000008 || // Y-4/3
-        ( (abs(pdg)>=10000100) && (abs(pdg)<=10001000) ) // multi-charged
-    ) isBSM = true;
-
-    if (status1 && isBSM) {return true;} else {return false;}        
-
+    return part->status()==1 && part->isBSM();
 }
