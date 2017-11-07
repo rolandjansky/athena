@@ -89,9 +89,6 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
- 
-    // ATH_MSG_DEBUG("EJWM - initialize!");
- 
   if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
     ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
     return StatusCode::FAILURE;
@@ -173,13 +170,11 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
-  // ATH_MSG_DEBUG("EJWM - decode!"+robIds.size());
   const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
   return decode(robIds,chamberHashInRobs);
 }
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
-  // ATH_MSG_DEBUG("setupMdtPrepDataContainer");
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
@@ -209,7 +204,6 @@ const MdtCsmContainer* Muon::MdtRdoToPrepDataTool::getRdoContainer() {
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs )
 {
-  // ATH_MSG_DEBUG("EJWM - decode");
   // setup output container
   SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
   if( containerRecordStatus == FAILED ){
