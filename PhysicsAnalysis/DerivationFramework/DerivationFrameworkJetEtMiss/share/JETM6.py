@@ -279,8 +279,10 @@ JETM6SlimmingHelper.ExtraVariables = [
     ]
 
 JETM6SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
-                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
-JETM6SlimmingHelper.ExtraVariables +=['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer",
+					       "EMOriginTopoClusters":"xAOD::CaloClusterContainer",
+                                               "EMOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
+JETM6SlimmingHelper.ExtraVariables +=['LCOriginTopoClusters.calEta.calPhi','EMOriginTopoClusters.calE.calEta.calPhi']
 
 #JETM6SlimmingHelper.ExtraVariables = []
 for truthc in [
