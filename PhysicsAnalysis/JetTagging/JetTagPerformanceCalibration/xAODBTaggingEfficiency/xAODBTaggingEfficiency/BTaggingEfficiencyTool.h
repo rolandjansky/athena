@@ -306,6 +306,8 @@ private:
   bool m_useDevFile;
   /// if true, use cone-based labelling (as opposed to ghost association)
   bool m_coneFlavourLabel;
+  /// if true, use an 'extended' labelling (allowing for multiple HF hadrons -or perhaps partons- in the jet)
+  bool m_extFlavourLabel;
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;

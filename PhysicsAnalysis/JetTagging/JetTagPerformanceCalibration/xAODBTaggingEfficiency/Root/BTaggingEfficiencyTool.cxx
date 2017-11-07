@@ -65,18 +65,22 @@ namespace {
     return label;
   }
 
-  int ExclusiveConeHadronFlavourLabel (const xAOD::Jet& jet) {
+  int ExclusiveConeHadronFlavourLabel (const xAOD::Jet& jet, bool doExtended = false) {
     // default label means "invalid"
     int label = -1;
 
     // We don't check the return value, as we would not be able to handle it gracefully anyway
-    jet.getAttribute("HadronConeExclTruthLabelID",label);
+    if (doExtended) {
+      jet.getAttribute("HadronConeExclExtendedTruthLabelID",label);
+    } else {
+      jet.getAttribute("HadronConeExclTruthLabelID",label);
+    }
     return label;
   }
 
-  int jetFlavourLabel (const xAOD::Jet& jet, bool doConeLabelling, bool doOldLabelling) {
+  int jetFlavourLabel (const xAOD::Jet& jet, bool doConeLabelling, bool doOldLabelling, bool doExtended) {
     if (doConeLabelling)
-      return (doOldLabelling) ? ConeFinalPartonFlavourLabel(jet) : ExclusiveConeHadronFlavourLabel(jet);
+      return (doOldLabelling) ? ConeFinalPartonFlavourLabel(jet) : ExclusiveConeHadronFlavourLabel(jet, doExtended);
     else
       return GAFinalHadronFlavourLabel(jet);
   }
@@ -118,6 +122,7 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   // declareProperty("ExcludeJESFromEVTreatment",       m_excludeJESFromEV = true,  "specify whether or not to exclude JES uncertainties from eigenvector decomposition (if used)");
   declareProperty("SystematicsStrategy",             m_systStrategy = "SFEigen", "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
   declareProperty("ConeFlavourLabel",                m_coneFlavourLabel = true, "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
+  declareProperty("ExtendedFlavourLabel",            m_extFlavourLabel = false, "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
   declareProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
   // initialise some variables needed for caching
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
@@ -427,7 +432,7 @@ BTaggingEfficiencyTool::getScaleFactor( const xAOD::Jet & jet, float & sf) const
   }
   
   // get the btag label
-  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel);
+  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
   Analysis::CalibrationDataVariables vars;
   if (! fillVariables(jet, vars)) {
@@ -507,7 +512,7 @@ BTaggingEfficiencyTool::getEfficiency( const xAOD::Jet & jet, float & eff) const
   if (! m_initialised) return CorrectionCode::Error;
 
   // get the btag label
-  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel);
+  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
   Analysis::CalibrationDataVariables vars;
   if (! fillVariables(jet, vars)) {
@@ -583,7 +588,7 @@ BTaggingEfficiencyTool::getInefficiency( const xAOD::Jet & jet, float & eff) con
   if (! m_initialised) return CorrectionCode::Error;
 
   // get the btag label
-  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel);
+  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
   Analysis::CalibrationDataVariables vars;
   if (! fillVariables(jet, vars)) {
@@ -659,7 +664,7 @@ BTaggingEfficiencyTool::getInefficiencyScaleFactor( const xAOD::Jet & jet, float
   if (! m_initialised) return CorrectionCode::Error;
 
   // get the btag label
-  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel);
+  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
   CalibResult result;
 
@@ -737,7 +742,7 @@ BTaggingEfficiencyTool::getMCEfficiency( const xAOD::Jet & jet, float & eff) con
   if (! m_initialised) return CorrectionCode::Error;
 
   // get the btag label
-  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel);
+  int flavour = jetFlavourLabel(jet, m_coneFlavourLabel, m_oldConeFlavourLabel, m_extFlavourLabel);
 
   CalibResult result;
 
