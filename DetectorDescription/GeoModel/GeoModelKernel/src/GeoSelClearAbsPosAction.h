@@ -2,19 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoSelClearAbsPosAction_h
-#define GeoSelClearAbsPosAction_h 1
+#ifndef GEOMODELKERNEL_GEOSELCLEARABSPOSACTION_H
+#define GEOMODELKERNEL_GEOSELCLEARABSPOSACTION_H
 
-/*
-  -- Class GeoSelClearAbsPosAction
-
-  This action class has been introduced in order to speed up GeoAlignableTransform::setDelta(),
-  which is heavily used by alignment callbacks.
-
-  The action takes a pointer to GeoAlignableTransform
-  and clears position caches only for those daughters of given
-  physical volume, which are affected by this alignable transform.
-
+/**
+ * @class GeoSelClearAbsPosAction
+ *
+ * @brief This action class has been introduced in order to speed up GeoAlignableTransform::setDelta(),
+ * which is heavily used by alignment callbacks.
+ *
+ * The action takes a pointer to GeoAlignableTransform
+ * and clears position caches only for those daughters of given
+ * physical volume, which are affected by this alignable transform.
  */
 
 #include "GeoModelKernel/GeoNodeAction.h"

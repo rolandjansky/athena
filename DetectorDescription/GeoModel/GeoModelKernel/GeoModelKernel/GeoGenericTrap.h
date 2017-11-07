@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoGenericTrap_h
-#define GeoGenericTrap_h 1
+#ifndef GEOMODELKERNEL_GEOGENERICTRAP_H
+#define GEOMODELKERNEL_GEOGENERICTRAP_H
 
 #include "GeoModelKernel/GeoShape.h"
-#include <vector>
 #include <CLHEP/Vector/TwoVector.h>
+#include <vector>
 
 typedef CLHEP::Hep2Vector GeoTwoVector;
 typedef std::vector<GeoTwoVector> GeoGenericTrapVertices;
