@@ -21,11 +21,11 @@ using fastjet::VoronoiAreaSpec;
 //**********************************************************************
 
 EventDensityTool::EventDensityTool(const std::string& name)
-: asg::AsgTool(name),
+  : asg::AsgTool(name),
   m_useAreaFourMom(true),
   m_rhoDec(""), 
   m_sigmaDec(""), 
-  m_areaDec("") {
+  m_areaDec("") {  
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
   declareProperty("JetInput",        m_pjgetter);
@@ -125,19 +125,21 @@ StatusCode EventDensityTool::fillEventShape() const {
   xAOD::EventShape *pevs = new xAOD::EventShape();
   std::unique_ptr<const xAOD::EventShape> pevs_ptr(pevs);
 
-  xAOD::EventShapeAuxInfo* aux = new xAOD::EventShapeAuxInfo();
-  pevs->setStore( aux );
-  std::unique_ptr<const xAOD::EventShapeAuxInfo> pevsaux(dynamic_cast<const xAOD::EventShapeAuxInfo*>( pevs->getStore() ));
+  xAOD::EventShapeAuxInfo* pevsaux = new xAOD::EventShapeAuxInfo();
+  std::unique_ptr<const xAOD::EventShapeAuxInfo> pevsaux_ptr(pevsaux);
+  pevs->setStore( pevsaux );
+
+  // Change the order: first fill the object and then record
+  ATH_CHECK(fillEventShape(pevs));  
 
   SG::WriteHandle<xAOD::EventShape> h_out(m_outcon);
-
-  if ( ! h_out.put(std::move(pevs_ptr), std::move(pevsaux)) ) {
+  if ( ! h_out.put(std::move(pevs_ptr), std::move(pevsaux_ptr) )) {
     ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outcon.key());
   } else {
     ATH_MSG_DEBUG("Created new EventShape container: " << m_outcon.key());
   }
 
-  return fillEventShape(pevs);  
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

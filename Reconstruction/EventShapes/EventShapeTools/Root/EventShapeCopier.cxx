@@ -53,19 +53,20 @@ StatusCode EventShapeCopier::fillEventShape() const {
   xAOD::EventShape *evs = new xAOD::EventShape();
   std::unique_ptr<const xAOD::EventShape> evs_ptr(evs);
 
-  xAOD::EventShapeAuxInfo* aux = new xAOD::EventShapeAuxInfo();
-  evs->setStore( aux );
-  std::unique_ptr<const xAOD::EventShapeAuxInfo> evsaux(dynamic_cast<const xAOD::EventShapeAuxInfo*>( evs->getStore() ));
+  xAOD::EventShapeAuxInfo* evsaux = new xAOD::EventShapeAuxInfo();
+  std::unique_ptr<const xAOD::EventShapeAuxInfo> evsaux_ptr( evsaux);
+  evs->setStore( evsaux );
+
+  ATH_CHECK(fillEventShape(evs));  
 
   SG::WriteHandle<xAOD::EventShape> h_out(m_outputEventShape);
-
-  if ( ! h_out.put(std::move(evs_ptr), std::move(evsaux)) ) {
+  if ( ! h_out.put(std::move(evs_ptr), std::move(evsaux_ptr)) ) {
     ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outputEventShape.key());
   } else {
     ATH_MSG_DEBUG("Created new EventShape container: " << m_outputEventShape.key());
   }
 
-  return fillEventShape(evs);  
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
