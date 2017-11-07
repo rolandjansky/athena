@@ -21,6 +21,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IChronoStatSvc.h"
 
 
 namespace DMTest {
@@ -51,10 +53,12 @@ public:
 
 
 private:
+  ServiceHandle<IChronoStatSvc> m_chronoSvc;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
   SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
   SG::ReadCondHandleKey<DMTest::S1> m_s2Key;
+  size_t m_spins;
 };
 
 
