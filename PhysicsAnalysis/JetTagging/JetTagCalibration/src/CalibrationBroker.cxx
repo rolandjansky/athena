@@ -561,7 +561,7 @@ namespace Analysis {
 		      const TString rootClassName=hPointer->ClassName();
 		      if (rootClassName=="TTree") {
 			((TTree*)hPointer)->LoadBaskets();
-			hPointerTree = (TTree*)hPointer->Clone();
+			hPointerTree = static_cast<TTree*>(hPointer)->CloneTree();
 			(*mI).second.first = hPointerTree;
 			hPointer = 0;
 		      } else {
