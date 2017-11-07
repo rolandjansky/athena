@@ -143,17 +143,17 @@ int main (int argc, char* argv[])
     std::vector<TH2D*> hists_pt_mpt;
     if (doCaloMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,40,-2,2));
+        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-2,2));
         hists_pt_mpt.push_back(new TH2D("JMS_calo_pt_mpt",Form("JMS (calo): for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     if (doTAMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_TA_pt_eta",Form("JMS (TA) for jets with mass=%.1f GeV (TA factor = %.1f)",massForScan/1.e3,trackMassFactor/trackPtFactor),1150,200,2500,40,-2,2));
+        hists_pt_eta.push_back(new TH2D("JMS_TA_pt_eta",Form("JMS (TA) for jets with mass=%.1f GeV (TA factor = %.1f)",massForScan/1.e3,trackMassFactor/trackPtFactor),1150,200,2500,60,-3,3));
         hists_pt_mpt.push_back(new TH2D("JMS_TA_pt_mpt",Form("JMS (TA) for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     if (doCombMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_comb_pt_eta",Form("JMS (comb) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,40,-2,2));
+        hists_pt_eta.push_back(new TH2D("JMS_comb_pt_eta",Form("JMS (comb) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-3,3));
         hists_pt_mpt.push_back(new TH2D("JMS_comb_pt_mpt",Form("JMS (comb) for jets with eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     
@@ -178,8 +178,8 @@ int main (int argc, char* argv[])
 
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
-            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : -1;
-            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : -1;
+            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : JMS;
+            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : calibJet->m()/trackMass(*jet);
 
             // JMS retrieved, fill the plot(s)
             size_t plotIndex = 0;
@@ -217,8 +217,8 @@ int main (int argc, char* argv[])
 
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
-            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : -1;
-            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : -1;
+            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : JMS;
+            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : calibJet->m()/trackMass(*jet);
 
             // JMS retrieved, fill the plot(s)
             size_t plotIndex = 0;

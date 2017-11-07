@@ -304,7 +304,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       m_binParam = BinningParam::e_LOGmOet_eta;
     else if (!binParamString.CompareTo("e_LOGmOpt_eta",TString::kIgnoreCase))
       m_binParam = BinningParam::e_LOGmOpt_eta;
-    else if (!binParamString.CompareTo("et_LOGmOpt_eta",TString::kIgnoreCase))
+    else if (!binParamString.CompareTo("et_LOGmOet_eta",TString::kIgnoreCase))
       m_binParam = BinningParam::et_LOGmOet_eta;
     else
     {
@@ -603,6 +603,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
             massFactor = getMassCorr3D( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
         else
             massFactor = getMassCorr( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
+        break;
       default:
         ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the calo mass was not.  Please contact the tool developer(s) to fix this.");
         return StatusCode::FAILURE;
@@ -729,6 +730,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
             mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
           else
             mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+          break;
         default:
           ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
           return StatusCode::FAILURE;
