@@ -32,6 +32,7 @@ if InDetFlags.doSplitReco() :
     xAODTruthCnvPU.xAODTruthParticleContainerName = "TruthParticles_PU" #output
     xAODTruthCnvPU.xAODTruthVertexContainerName = "TruthVertices_PU" #output
     xAODTruthCnvPU.TruthLinks = "xAODTruthLinks_PU" #output/intermediate
+    xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
     topSequence += xAODTruthCnvPU
     
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
