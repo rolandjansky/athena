@@ -539,10 +539,13 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
   TString CalibSeq = m_calibSeq;
   if(CalibSeq.Contains("Insitu") && m_timeDependentCalib){ // Insitu Time-Dependent Correction
     for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
-      // Retrive EventInfo container
+      // Retrieve EventInfo container
       const xAOD::EventInfo* eventInfo(nullptr);
-      if( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
-          ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
+      SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_rhkEvtInfo);
+      if ( rhEvtInfo.isValid() ) {
+        eventInfo = rhEvtInfo.cptr();
+      } else {
+        ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
       }
       // Run Number Dependent Correction
       double runNumber = eventInfo->runNumber();
