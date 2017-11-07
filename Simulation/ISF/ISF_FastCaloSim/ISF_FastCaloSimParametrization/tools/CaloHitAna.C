@@ -74,6 +74,10 @@ void CaloHitAna::Loop()
     m_newTTC_back_phi->clear();
     m_newTTC_back_r->clear();
     m_newTTC_back_z->clear();
+    m_newTTC_mid_eta->clear();
+    m_newTTC_mid_phi->clear();
+    m_newTTC_mid_r->clear();
+    m_newTTC_mid_z->clear();
     m_newTTC_IDCaloBoundary_eta->clear();
     m_newTTC_IDCaloBoundary_phi->clear();
     m_newTTC_IDCaloBoundary_r->clear();
@@ -115,6 +119,10 @@ void CaloHitAna::Loop()
       vector<float> new_back_phi;
       vector<float> new_back_r;
       vector<float> new_back_z;
+      vector<float> new_mid_eta;
+      vector<float> new_mid_phi;
+      vector<float> new_mid_r;
+      vector<float> new_mid_z;
 
       for (unsigned int s = 0; s < 24; s++)
       {
@@ -126,6 +134,10 @@ void CaloHitAna::Loop()
         new_back_phi.push_back((newTTC_back_phi->at(truth_i))[s]);
         new_back_r.push_back((newTTC_back_r->at(truth_i))[s]);
         new_back_z.push_back((newTTC_back_z->at(truth_i))[s]);
+        new_mid_eta.push_back((newTTC_mid_eta->at(truth_i))[s]);
+        new_mid_phi.push_back((newTTC_mid_phi->at(truth_i))[s]);
+        new_mid_r.push_back((newTTC_mid_r->at(truth_i))[s]);
+        new_mid_z.push_back((newTTC_mid_z->at(truth_i))[s]);
       }
 
       //push back temporary vectors
@@ -137,6 +149,11 @@ void CaloHitAna::Loop()
       m_newTTC_back_phi->push_back(new_back_phi);
       m_newTTC_back_r->push_back(new_back_r);
       m_newTTC_back_z->push_back(new_back_z);
+      m_newTTC_mid_eta->push_back(new_mid_eta);
+      m_newTTC_mid_phi->push_back(new_mid_phi);
+      m_newTTC_mid_r->push_back(new_mid_r);
+      m_newTTC_mid_z->push_back(new_mid_z);
+
 
       /*
       one_truth.SetPxPyPzE((*TruthPx)[truth_i], (*TruthPy)[truth_i], (*TruthPz)[truth_i], (*TruthE)[truth_i]);
@@ -508,5 +525,5 @@ void CaloHitAna::Loop()
   }//loop over entries
 
   m_OutputTree->Write();
-  m_Output->Close
+  m_Output->Close();
 };
