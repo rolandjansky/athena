@@ -162,16 +162,14 @@ namespace asg
       }
  
       ANA_MSG_DEBUG ("Creating tool of type " << type);
-      std::unique_ptr<AsgTool> mytool
-        ((AsgTool*) (gInterpreter->Calc(("dynamic_cast<asg::AsgTool*>(new " + type + " (\"" + name + "\"))").c_str())));
-      if (mytool == nullptr)
+      tool = (AsgTool*) (gInterpreter->Calc(("dynamic_cast<asg::AsgTool*>(new " + type + " (\"" + name + "\"))").c_str()));
+      if (tool == nullptr)
       {
         ANA_MSG_ERROR ("failed to create tool of type " << type);
         ANA_MSG_ERROR ("make sure you created a dictionary for your tool");
         return StatusCode::FAILURE;
       }
 
-      tool = mytool.release ();
       ANA_MSG_DEBUG ("Created tool of type " << type);
 
       return StatusCode::SUCCESS;
