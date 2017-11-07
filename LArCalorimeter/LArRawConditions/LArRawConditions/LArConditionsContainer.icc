@@ -1032,6 +1032,20 @@ LArConditionsContainer<T>::begin( unsigned int gain ) const
 
 template<class T> 
 inline
+typename LArConditionsContainer<T>::ConditionsMapIterator
+LArConditionsContainer<T>::begin( unsigned int gain )
+{ 
+    GainMapIterator it = m_cached.find(gain) ; 
+    if(it!=m_cached.end() ) { 
+	return (*it).second.begin(m_onlineHelper); 
+    } 
+
+    return ConditionsMapIterator() ;
+
+} 
+
+template<class T> 
+inline
 typename LArConditionsContainer<T>::ConstConditionsMapIterator
 LArConditionsContainer<T>::begin(unsigned int gain,
 				 const std::vector<FebId>& febIds) const 
@@ -1048,16 +1062,39 @@ LArConditionsContainer<T>::begin(unsigned int gain,
 
 template<class T> 
 inline
+typename LArConditionsContainer<T>::ConditionsMapIterator
+LArConditionsContainer<T>::begin(unsigned int gain,
+				 const std::vector<FebId>& febIds)
+{ 
+
+  GainMapIterator it = m_cached.find(gain) ; 
+  if(it!=m_cached.end() ) { 
+    return (*it).second.begin(m_onlineHelper, febIds); 
+  } 
+  
+  return ConditionsMapIterator() ;
+  
+} 
+
+template<class T> 
+inline
 typename LArConditionsContainer<T>::ConstConditionsMapIterator
 LArConditionsContainer<T>::begin(unsigned int gain,
 				 const HWIdentifier& febId) const 
 { 
-  std::vector<FebId> febIds;
-
-  febIds.push_back(febId.get_identifier32().get_compact());
-
+  std::vector<FebId> febIds { febId.get_identifier32().get_compact() };
   return begin(gain, febIds);
+} 
 
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConditionsMapIterator
+LArConditionsContainer<T>::begin(unsigned int gain,
+				 const HWIdentifier& febId)
+{ 
+  std::vector<FebId> febIds { febId.get_identifier32().get_compact() };
+  return begin(gain, febIds);
 } 
 
 
@@ -1072,6 +1109,19 @@ LArConditionsContainer<T>::end( unsigned int gain ) const
     } 
 
     return  ConstConditionsMapIterator() ; 
+} 
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConditionsMapIterator
+LArConditionsContainer<T>::end( unsigned int gain )
+{ 
+    GainMapIterator it = m_cached.find(gain) ; 
+    if(it!=m_cached.end() ) { 
+	return (*it).second.end(m_onlineHelper); 
+    } 
+
+    return  ConditionsMapIterator() ; 
 } 
 
 template<class T> 
