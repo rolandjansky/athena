@@ -11,6 +11,7 @@
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollectionCnv_p1.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollectionCnv_p2.h"
+#include "TrkTruthTPCnv/DetailedTrackTruthCollectionCnv_p3.h"
 
 namespace Trk { class DetailedTrackTruthCollection_p2; }
 
@@ -29,8 +30,10 @@ private:
   static pool::Guid s_p0_guid;
   static pool::Guid s_p1_guid;
   static pool::Guid s_p2_guid;
+  static pool::Guid s_p3_guid;
   DetailedTrackTruthCollectionCnv_p1 m_converter_p1;
   DetailedTrackTruthCollectionCnv_p2 m_converter_p2;
+  DetailedTrackTruthCollectionCnv_p3 m_converter_p3;
 };
 
 #endif/*DETAILEDTRACKTRUTHCOLLECTIONCNV_H*/
