@@ -9,6 +9,8 @@
 #include "SCT_SlhcIdConverter.h"
 #include "InDetIdentifier/SCT_ID.h"
 
+#include "GaudiKernel/ThreadLocalContext.h"
+
 using SCT_ConditionsServices::castId;
 
 const Identifier SCT_DCSConditionsSvc::s_invalidId;
@@ -25,9 +27,13 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
   m_barrel_correction{-3.7},
   m_ecInner_correction{-13.1},
   m_ecOuter_correction{-15.5},
-  m_pBadModules{nullptr},
-  m_pModulesHV{nullptr},
-  m_pModulesTemp0{nullptr},
+  m_mutex{},
+  m_cacheState{},
+  m_cacheHV{},
+  m_cacheTemp0{},
+  m_pBadModules{},
+  m_pModulesHV{},
+  m_pModulesTemp0{},
   m_condKeyState{"SCT_DCSStatCondData"},
   m_condKeyHV{"SCT_DCSHVCondData"},
   m_condKeyTemp0{"SCT_DCSTemp0CondData"},
@@ -84,24 +90,24 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
     ATH_MSG_INFO(key);
     if (key==m_folderPrefix+std::string("/HV")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_HV, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << key);
       } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
       }
     } else if (key==m_folderPrefix+std::string("/MODTEMP")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_MT, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << key);
       } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
       }
     } else if (key==m_folderPrefix+std::string("/CHANSTAT")) {
       if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_CS, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << *itr);
+        ATH_MSG_INFO("Registered callback for key: " << key);
       } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  *itr);
+        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
       }
     } else { 
-      ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
+      ATH_MSG_INFO("Cannot registered callback for key: " << key <<" Missing data handle.");
     }
   }
 
@@ -166,8 +172,11 @@ Identifier SCT_DCSConditionsSvc::getModuleID(const Identifier& elementId, InDetC
 bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId=getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return true; // not canreportabout
-  else if (not getCondDataState()) return false; // no cond data
-  else if (m_pBadModules->output(castId(m_moduleId))==0) return true; //No params are listed as bad
+
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
+  if (!condDataState) return false; // no cond data
+  else if (condDataState->output(castId(m_moduleId))==0) return true; //No params are listed as bad
   else return false;
 }
 
@@ -186,10 +195,12 @@ float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
-  if (not getCondDataHV()) return s_defaultHV; // no cond data
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_DCSFloatCondData* condDataHV{getCondDataHV(ctx)};
+  if (!condDataHV) return s_defaultHV; // no cond data
 
   float hvval{s_defaultHV};
-  if (m_pModulesHV->getValue(castId(m_moduleId), hvval) and isGood(elementId, h)) {
+  if (condDataHV->getValue(castId(m_moduleId), hvval) and isGood(elementId, h)) {
     return hvval;
   }
   return s_defaultHV; //didn't find the module, return s_defaultHV(-30)
@@ -207,10 +218,12 @@ float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDet
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
-  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
+  if (!condDataTemp0) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
-  if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
+  if (condDataTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
     return temperature;
   }
   return s_defaultTemperature;//didn't find the module, return -40. 
@@ -228,19 +241,21 @@ float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDet
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
-  if (not getCondDataTemp0()) return s_defaultTemperature; // no cond data
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_DCSFloatCondData* condDataTemp0{getCondDataTemp0(ctx)};
+  if (!condDataTemp0) return s_defaultTemperature; // no cond data
 
   float temperature{s_defaultTemperature};
-  if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
+  if (condDataTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
     int bec{m_pHelper->barrel_ec(m_moduleId)};
     if (bec==0) { // Barrel
       return ( temperature + m_barrel_correction);  //return the temp+correction
     } else { // Endcaps
       int modeta{m_pHelper->eta_module(m_moduleId)};
       if (modeta==2) {
-      	return (temperature + m_ecInner_correction);  //return the temp+correction
+        return (temperature + m_ecInner_correction);  //return the temp+correction
       } else {
-	return (temperature + m_ecOuter_correction);  //return the temp+correction
+        return (temperature + m_ecOuter_correction);  //return the temp+correction
       }
     }
   }
@@ -262,41 +277,62 @@ StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& 
    return StatusCode::SUCCESS;
 }
 
-bool
-SCT_DCSConditionsSvc::getCondDataState() const {
-  if (!m_pBadModules) {
+const SCT_DCSStatCondData*
+SCT_DCSConditionsSvc::getCondDataState(const EventContext& ctx) const {
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheState.size()) {
+    m_cacheState.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheState[slot]!=evt) {
     SG::ReadCondHandle<SCT_DCSStatCondData> condData{m_condKeyState};
-    if((not condData.isValid()) or !(*condData)) {
+    if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
-      return false;
     }
-    m_pBadModules = *condData;
+    m_pBadModules.set(*condData);
+    m_cacheState[slot] = evt;
   }
-  return true;
+  return m_pBadModules.get();
 }
 
-bool
-SCT_DCSConditionsSvc::getCondDataHV() const {
-  if(!m_pModulesHV) {
+const SCT_DCSFloatCondData*
+SCT_DCSConditionsSvc::getCondDataHV(const EventContext& ctx) const {
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheHV.size()) {
+    m_cacheHV.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheHV[slot]!=evt) {
     SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyHV};
-    if ((not condData.isValid()) or !(*condData)) {
+    if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyHV.key());
-      return false;
     }
-    m_pModulesHV = *condData;
+    m_pModulesHV.set(*condData);
+    m_cacheHV[slot] = evt;
   }
-  return true;
+  return m_pModulesHV.get();
 }
 
-bool
-SCT_DCSConditionsSvc::getCondDataTemp0() const {
-  if (!m_pModulesTemp0) {
-    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
-    if ((not condData.isValid()) or !(*condData)) {
-      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
-      return false;
-    }
-    m_pModulesTemp0 = *condData;
+const SCT_DCSFloatCondData*
+SCT_DCSConditionsSvc::getCondDataTemp0(const EventContext& ctx) const {
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheTemp0.size()) {
+    m_cacheTemp0.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
-  return true;
+  if (m_cacheTemp0[slot]!=evt) {
+    SG::ReadCondHandle<SCT_DCSFloatCondData> condData{m_condKeyTemp0};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_condKeyTemp0.key());
+    }
+    m_pModulesTemp0.set(*condData);
+    m_cacheTemp0[slot] = evt;
+  }
+  return m_pModulesTemp0.get();
 }

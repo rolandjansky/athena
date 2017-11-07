@@ -14,9 +14,13 @@
 #include <set>
 #include <list>
 #include <map>
+#include <mutex>
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -47,22 +51,22 @@ public:
   //@name Service methods
   //@{
   // destructor
-  SCT_TdaqEnabledSvc( const std::string & name, ISvcLocator* svc);
+  SCT_TdaqEnabledSvc(const std::string& name, ISvcLocator* svc);
    virtual ~SCT_TdaqEnabledSvc(){}
    virtual StatusCode initialize();
    virtual StatusCode finalize();
-   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-   static const InterfaceID & interfaceID();
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   static const InterfaceID& interfaceID();
   //@}
   
    ///Can the service report about the given component? (TdaqEnabledSvc can answer questions about a module or module side)
    virtual bool canReportAbout(InDetConditions::Hierarchy h);
 
    ///Is the detector element good?
-   virtual bool isGood(const Identifier & elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
 
    ///is it good?, using wafer hash
-   virtual bool isGood(const IdentifierHash & hashId);
+   virtual bool isGood(const IdentifierHash& hashId);
 
    ///Manually get the data in the structure before proceeding
    virtual StatusCode fillData() { return StatusCode::FAILURE; };
@@ -77,21 +81,26 @@ public:
    virtual bool canFillDuringInitialize();
   
 private:
-   mutable const SCT_TdaqEnabledCondData *m_condData;
+   // Mutex to protect the contents.
+   mutable std::mutex m_mutex;
+   // Cache to store events for slots
+   mutable std::vector<EventContext::ContextEvt_t> m_cache;
+   // Pointer of SCT_TdaqEnabledCondData
+   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_TdaqEnabledCondData> m_condData;
   
-   const SCT_ID * m_pHelper;
+   const SCT_ID* m_pHelper;
    bool m_useDatabase;
-   ServiceHandle<StoreGateSvc>           m_detStore;                      //!< Handle on the detector store
+   ServiceHandle<StoreGateSvc> m_detStore; //!< Handle on the detector store
 
    SG::ReadHandleKey<EventInfo> m_eventInfoKey;
    SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey;
 
-   bool getCondData() const;
+   const SCT_TdaqEnabledCondData* getCondData(const EventContext& ctx) const;
 };
 
-inline const InterfaceID & SCT_TdaqEnabledSvc::interfaceID(){
-  static const InterfaceID IID_SCT_TdaqEnabledSvc("SCT_TdaqEnabledSvc",1,0);
+inline const InterfaceID& SCT_TdaqEnabledSvc::interfaceID() {
+  static const InterfaceID IID_SCT_TdaqEnabledSvc("SCT_TdaqEnabledSvc", 1, 0);
   return IID_SCT_TdaqEnabledSvc;
 }
 
-#endif
+#endif // SCT_TdaqEnabledSvc_h
