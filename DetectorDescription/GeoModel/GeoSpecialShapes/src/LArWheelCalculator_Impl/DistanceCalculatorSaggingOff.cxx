@@ -240,7 +240,7 @@ namespace LArWheelCalculator_Impl
 
   CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &P, int /*fan_number*/) const
   {
-    static CLHEP::Hep3Vector result;
+    CLHEP::Hep3Vector result;
     double z = P.z() - lwc()->m_StraightStartSection;
     double x = P.x();
     double y = P.y();
@@ -328,7 +328,7 @@ namespace LArWheelCalculator_Impl
   // IMPROVED VERSION
   CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre_ref(const CLHEP::Hep3Vector &P, int /*fan_number*/) const
   {
-    static CLHEP::Hep3Vector result;
+    CLHEP::Hep3Vector result;
     double z = P.z() - lwc()->m_StraightStartSection;
     double x = P.x();
     double y = P.y();
