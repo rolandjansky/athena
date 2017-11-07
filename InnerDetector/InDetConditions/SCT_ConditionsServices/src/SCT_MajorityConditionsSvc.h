@@ -14,12 +14,15 @@
 // STL includes
 #include <string>
 #include <list>
+#include <mutex>
+
+// Gaudi includes
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
-
 #include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h"
-
 #include "SCT_ConditionsData/SCT_MajorityCondData.h"
 
 // Read Handle Key
@@ -76,10 +79,15 @@ class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc,
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
 
-  // For the output of SCT_MajorityCondAlg
-  mutable const SCT_MajorityCondData *m_condData;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  // Pointer of SCT_MajorityCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MajorityCondData> m_condData;
+
   SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey;
-  bool getCondData() const;
+  const SCT_MajorityCondData* getCondData(const EventContext& ctx) const;
 };
 
 #endif // SCT_MajorityConditionsSvc_h
