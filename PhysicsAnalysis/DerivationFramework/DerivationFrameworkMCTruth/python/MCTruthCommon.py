@@ -88,7 +88,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if kernel is None:
             from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
             kernel = DerivationFrameworkJob
-        # make sure if we are using EVNT that we don't try to check sim metadata 
+        # make sure if we are using EVNT that we don't try to check sim metadata
         barCodeFromMetadata=2
         if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
             barCodeFromMetadata=0
@@ -221,6 +221,9 @@ def addTausAndDownstreamParticles(kernel=None, generations=-1):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonTausAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonTausAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonTausAndDecaysTool",
@@ -239,6 +242,9 @@ def addEgammaAndDownstreamParticles(kernel=None, generations=-1):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonEgammasAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
     # Set up a tool to keep the e/gammas and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonEgammasAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonEgammasAndDecaysTool",
@@ -257,6 +263,9 @@ def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonHFAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonHFAndDecaysTool",
@@ -276,6 +285,9 @@ def addPVCollection(kernel=None):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonTruthPVCollKernel'):
+        # Already there!  Carry on...
+        return
     # Set up a tool to keep the primary vertices
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthPVCollectionMaker
     DFCommonTruthPVCollTool = DerivationFramework__TruthPVCollectionMaker( name="DFCommonTruthPVCollTool",
@@ -292,6 +304,9 @@ def addHardScatterCollection(kernel=None, generations=1):
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonHSCollectionKernel'):
+        # Already there!  Carry on...
+        return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HardScatterCollectionMaker
     DFCommonHSCollectionTool = DerivationFramework__HardScatterCollectionMaker( name="DFCommonHSCollectionTool",
