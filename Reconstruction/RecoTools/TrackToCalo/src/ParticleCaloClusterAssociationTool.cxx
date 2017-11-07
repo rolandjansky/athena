@@ -96,8 +96,11 @@ namespace Rec {
       }
     }
     if (caloExtensionMap && caloExtension->caloEntryLayerIntersection()) {
-        caloExtensionMap->addEntry(particle,*(caloExtension->caloEntryLayerIntersection()));
+        const Trk::CurvilinearParameters trkPar(caloExtension->caloEntryLayerIntersection()->position(),caloExtension->caloEntryLayerIntersection()->momentum(),caloExtension->caloEntryLayerIntersection()->charge());
+        caloExtensionMap->addEntry(particle,trkPar);
     }
+    
+    delete caloExtension;
     
     for(auto cluster : clusters)
     {
@@ -108,9 +111,7 @@ namespace Rec {
         }
         ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
     }
-    
-    delete caloExtension;
-         
+
     return true;
   }
   

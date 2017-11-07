@@ -188,16 +188,16 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
             ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
 
             if(m_saveDetectorEta) {
-            // retrieve the caloExtensionContainer to get the track direction at the calo entrance
-            IParticleToCaloExtensionMap * caloExtensionMap = 0;
-            double det_eta = track->eta();
-            if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
-                ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
-            else{
-                const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(track);
-                if(pars) det_eta = pars->position().eta();
-            }
-            tcc->auxdecor<float>("DetectorEta") = det_eta;
+                // retrieve the caloExtensionContainer to get the track direction at the calo entrance
+                IParticleToCaloExtensionMap * caloExtensionMap = 0;
+                double det_eta = track->eta();
+                if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
+                    ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
+                else{
+                    const Trk::CurvilinearParameters* pars = caloExtensionMap->readCaloEntry(track);
+                    if(pars) det_eta = pars->position().eta();
+                }
+                tcc->auxdecor<float>("DetectorEta") = det_eta;
             }
         }
         i++;
