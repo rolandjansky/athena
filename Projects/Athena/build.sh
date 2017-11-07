@@ -90,6 +90,14 @@ set -e
 # consider a pipe failed if ANY of the commands fails
 set -o pipefail
 
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test -x $scriptsdir_nightly_status/status_on_exit.sh  && trap $scriptsdir_nightly_status/status_on_exit.sh EXIT
+ }
+}
+
 # Source in our environment
 AthenaSrcDir=$(dirname ${BASH_SOURCE[0]})
 
@@ -123,8 +131,6 @@ fi
 #log analyzer never affects return status in the parent shell:
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
-    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
-    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status
     branch=$(basename $(cd ${BUILDDIR}/.. ; pwd)) #FIXME: should be taken from env.
     timestamp_tmp=` basename ${BUILDDIR}/.@@__* 2>/dev/null | sed 's,^\.,,' `
     if test "X$timestamp_tmp" = "X" ; then
