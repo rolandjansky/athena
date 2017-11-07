@@ -104,7 +104,8 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "ExtrapolatedMuonTrackParticles",
                                        "MuonSpectrometerTrackParticles",
                                        "MSOnlyExtrapolatedMuonTrackParticles",
-                                       "InDetForwardTrackParticles"
+                                       "InDetForwardTrackParticles",
+                                       "MuonTruthSegments"
                                      ]
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
@@ -187,6 +188,8 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "LCOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer",
   "EMOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
   "EMOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer", 
+  "MuonTruthSegments"                          :   "xAOD::MuonSegmentContainer",
+  "MuonTruthSegmentsAux"                       :   "xAOD::MuonSegmentAuxContainer", 
   }
 #----------------------------------------------------------------------
 
