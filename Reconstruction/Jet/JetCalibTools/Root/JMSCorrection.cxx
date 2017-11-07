@@ -14,26 +14,88 @@
 
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
 #include "PathResolver/PathResolver.h"
+#include "JetCalibTools/RootHelpers.h"
 
 
 JMSCorrection::JMSCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("JMSCorrection::JMSCorrection"),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
+    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
+    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
+    m_correlationMapMassCombination3D(NULL)
    
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
+    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
+    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
+    m_correlationMapMassCombination3D(NULL)
    
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev)
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
+    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
+    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
+    m_correlationMapMassCombination3D(NULL)
 { }
 
 JMSCorrection::~JMSCorrection() {
+
+    if (m_use3Dhisto)
+    {
+        // Free 3D histograms
+        if (m_respFactorMass3D)
+        {
+            delete m_respFactorMass3D;
+            m_respFactorMass3D = NULL;
+        }
+        if (m_respFactorTrackAssistedMass3D)
+        {
+            delete m_respFactorTrackAssistedMass3D;
+            m_respFactorTrackAssistedMass3D = NULL;
+        }
+        if (m_caloResolutionMassCombination3D)
+        {
+            delete m_caloResolutionMassCombination3D;
+            m_caloResolutionMassCombination3D = NULL;
+        }
+        if (m_taResolutionMassCombination3D)
+        {
+            delete m_taResolutionMassCombination3D;
+            m_taResolutionMassCombination3D = NULL;
+        }
+        if (m_correlationMapMassCombination3D)
+        {
+            delete m_correlationMapMassCombination3D;
+            m_correlationMapMassCombination3D = NULL;
+        }
+    }
+    {
+        // Free 2D histograms
+        for (TH2F* histo : m_respFactorsMass)
+            delete histo;
+        m_respFactorsMass.clear();
+        
+        for (TH2F* histo : m_respFactorsTrackAssistedMass)
+            delete histo;
+        m_respFactorsTrackAssistedMass.clear();
+
+        for (TH2D* histo : m_caloResolutionMassCombination)
+            delete histo;
+        m_caloResolutionMassCombination.clear();
+
+        for (TH2D* histo : m_taResolutionMassCombination)
+            delete histo;
+        m_taResolutionMassCombination.clear();
+
+        for (TH2D* histo : m_correlationMapMassCombination)
+            delete histo;
+        m_correlationMapMassCombination.clear();
+    }
 
 }
 
@@ -52,6 +114,15 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
   m_warning_counter_mTACorr = 0; // if >0 the track assisted mass correction is not applied
 
   if ( m_jetAlgo.EqualTo("") ) { ATH_MSG_FATAL("No jet algorithm specified. Aborting."); return StatusCode::FAILURE; }
+
+
+  // Check if we are reading 2D histograms (one per eta bin) or 3D histograms
+  // 3D histograms allow for interpolation also across the eta dimension
+  // Defaults to "false" (use 2D) for backwards compatibility
+  // *Note* that it is assumed the calo and TA masses use the same histogram dimensionality
+  m_use3Dhisto = m_config->GetValue("MassCalibrationIs3D",false);
+
+
 
   //find the ROOT file containing response histograms, path comes from the config file.
   TString JMSFile = m_config->GetValue("MassCalibrationFile","empty");
@@ -73,7 +144,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 
   //ATH_MSG_INFO("  for " << m_jetAlgo << " jets\n\n");
 
-  setMassEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassEtaBins","") ) );
+  if (!m_use3Dhisto) setMassEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassEtaBins","") ) );
 
   //Get a TList of TKeys pointing to the histograms contained in the ROOT file
   inputFile->cd();
@@ -82,12 +153,23 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
   TIter ikeys(keys);
   while ( TKey *iterobj = (TKey*)ikeys() ) {
     TString histoName = iterobj->GetName();
-    if ( histoName.Contains(m_jetAlgo) ) m_respFactorsMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoName.Data()) );
+    if ( histoName.Contains(m_jetAlgo) ) 
+    { 
+      if (m_use3Dhisto)
+        m_respFactorMass3D = dynamic_cast<TH3F*>(JetCalibUtils::GetHisto3(inputFile,histoName.Data()));
+      else
+        m_respFactorsMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoName.Data()) );
+    }
   }
 
-  //Make sure we put something in the vector of TH2Fs
-  if ( m_respFactorsMass.size() < 3 ) {
+  //Make sure we put something in the vector of TH2Fs or we filled the TH3F
+  if ( !m_use3Dhisto && m_respFactorsMass.size() < 3 ) {
     ATH_MSG_FATAL("Vector of mass correction histograms may be empty. Please check your mass calibration file: " << JMSFile);
+    return StatusCode::FAILURE;
+  }
+  else if ( m_use3Dhisto && !m_respFactorMass3D)
+  {
+    ATH_MSG_FATAL("3D mass correction histogram may be missing.  Please check your mass calibration file: " << JMSFile);
     return StatusCode::FAILURE;
   }
   else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << fileName);
@@ -222,6 +304,8 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       m_binParam = BinningParam::e_LOGmOet_eta;
     else if (!binParamString.CompareTo("e_LOGmOpt_eta",TString::kIgnoreCase))
       m_binParam = BinningParam::e_LOGmOpt_eta;
+    else if (!binParamString.CompareTo("et_LOGmOpt_eta",TString::kIgnoreCase))
+      m_binParam = BinningParam::et_LOGmOet_eta;
     else
     {
       // Failed to determine what was specified
@@ -235,6 +319,27 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 
   return StatusCode::SUCCESS;
 
+}
+
+float JMSCorrection::getMassCorr3D(double pT_uncorr, double mass_uncorr, double eta) const
+{
+  const double pTMax = m_respFactorMass3D->GetXaxis()->GetBinLowEdge(m_respFactorMass3D->GetNbinsX()+1);
+  const double pTMin = m_respFactorMass3D->GetXaxis()->GetBinLowEdge(1);
+  const double massMax = m_respFactorMass3D->GetYaxis()->GetBinLowEdge(m_respFactorMass3D->GetNbinsY()+1);
+  const double massMin = m_respFactorMass3D->GetYaxis()->GetBinLowEdge(1);
+  const double etaMax = m_respFactorMass3D->GetZaxis()->GetBinLowEdge(m_respFactorMass3D->GetNbinsZ()+1);
+  const double etaMin = m_respFactorMass3D->GetZaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr >= pTMax) pT_uncorr = pTMax-1e-6; // so it fits the up-most pt-bin
+  if ( pT_uncorr <= m_pTMinCorr ) return 1; // no correction
+  if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( mass_uncorr >= massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( mass_uncorr <= massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
+  if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
+  if ( eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
+
+  float mass_corr = RootHelpers::Interpolate(m_respFactorMass3D,pT_uncorr,mass_uncorr,eta);
+
+  return mass_corr;
 }
 
 float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const {
@@ -251,6 +356,27 @@ float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabi
   if ( mass_uncorr < massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
 
   float mass_corr = m_respFactorsMass[etabin]->Interpolate( pT_uncorr, mass_uncorr );
+
+  return mass_corr;
+}
+
+float JMSCorrection::getTrackAssistedMassCorr3D(double pT_uncorr, double mass_uncorr, double eta) const
+{
+  const double pTMax = m_respFactorTrackAssistedMass3D->GetXaxis()->GetBinLowEdge(m_respFactorTrackAssistedMass3D->GetNbinsX()+1);
+  const double pTMin = m_respFactorTrackAssistedMass3D->GetXaxis()->GetBinLowEdge(1);
+  const double massMax = m_respFactorTrackAssistedMass3D->GetYaxis()->GetBinLowEdge(m_respFactorTrackAssistedMass3D->GetNbinsY()+1);
+  const double massMin = m_respFactorTrackAssistedMass3D->GetYaxis()->GetBinLowEdge(1);
+  const double etaMax = m_respFactorTrackAssistedMass3D->GetZaxis()->GetBinLowEdge(m_respFactorTrackAssistedMass3D->GetNbinsZ()+1);
+  const double etaMin = m_respFactorTrackAssistedMass3D->GetZaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr >= pTMax) pT_uncorr = pTMax-1e-6; // so it fits the up-most pt-bin
+  if ( pT_uncorr <= m_pTMinCorr ) return 1; // no correction
+  if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( mass_uncorr >= massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( mass_uncorr <= massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
+  if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
+  if ( eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
+
+  float mass_corr = RootHelpers::Interpolate(m_respFactorTrackAssistedMass3D,pT_uncorr,mass_uncorr,eta);
 
   return mass_corr;
 }
@@ -273,6 +399,27 @@ float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double uncorr, i
   return mass_corr;
 }
 
+float JMSCorrection::getRelCalo3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const {
+
+  // Asymptotic values
+  double pTMax = m_caloResolutionMassCombination3D->GetXaxis()->GetBinLowEdge(m_caloResolutionMassCombination3D->GetNbinsX()+1);
+  double pTMin = m_caloResolutionMassCombination3D->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_caloResolutionMassCombination3D->GetYaxis()->GetBinLowEdge(m_caloResolutionMassCombination3D->GetNbinsY()+1);
+  double mass_over_pTMin = m_caloResolutionMassCombination3D->GetYaxis()->GetBinLowEdge(1);
+  double etaMax = m_caloResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(m_caloResolutionMassCombination3D->GetNbinsZ()+1);
+  double etaMin = m_caloResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
+  if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
+  if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
+
+  float rel = RootHelpers::Interpolate(m_caloResolutionMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
+
+  return rel;
+}
+
 float JMSCorrection::getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
@@ -290,6 +437,28 @@ float JMSCorrection::getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, in
   return rel;
 }
 
+
+float JMSCorrection::getRelTA3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const {
+
+  // Asymptotic values
+  double pTMax = m_taResolutionMassCombination3D->GetXaxis()->GetBinLowEdge(m_taResolutionMassCombination3D->GetNbinsX()+1);
+  double pTMin = m_taResolutionMassCombination3D->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_taResolutionMassCombination3D->GetYaxis()->GetBinLowEdge(m_taResolutionMassCombination3D->GetNbinsY()+1);
+  double mass_over_pTMin = m_taResolutionMassCombination3D->GetYaxis()->GetBinLowEdge(1);
+  double etaMax = m_taResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(m_taResolutionMassCombination3D->GetNbinsZ()+1);
+  double etaMin = m_taResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
+  if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
+  if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
+
+  float rel = RootHelpers::Interpolate(m_taResolutionMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
+
+  return rel;
+}
+
 float JMSCorrection::getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
@@ -303,6 +472,27 @@ float JMSCorrection::getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int 
   if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
   float rel = m_taResolutionMassCombination[etabin]->Interpolate( pT_uncorr, mass_over_pt_uncorr );
+
+  return rel;
+}
+
+float JMSCorrection::getRho3D(double pT_uncorr, double mass_over_pt_uncorr, double eta) const {
+
+  // Asymptotic values
+  double pTMax = m_correlationMapMassCombination3D->GetXaxis()->GetBinLowEdge(m_correlationMapMassCombination3D->GetNbinsX()+1);
+  double pTMin = m_correlationMapMassCombination3D->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_correlationMapMassCombination3D->GetYaxis()->GetBinLowEdge(m_correlationMapMassCombination3D->GetNbinsY()+1);
+  double mass_over_pTMin = m_correlationMapMassCombination3D->GetYaxis()->GetBinLowEdge(1);
+  double etaMax = m_correlationMapMassCombination3D->GetZaxis()->GetBinLowEdge(m_correlationMapMassCombination3D->GetNbinsZ()+1);
+  double etaMin = m_correlationMapMassCombination3D->GetZaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
+  if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
+  if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
+
+  float rel = RootHelpers::Interpolate(m_correlationMapMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
 
   return rel;
 }
@@ -347,10 +537,15 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   float mass_corr = jetStartP4.mass();
   double pT_corr = jetStartP4.pt();
 
-  // Determine mass eta bin to use
+  // Determine mass eta bin to use (if using 2D histograms)
   int etabin=-99;
-  if (m_massEtaBins.size()==0 || m_respFactorsMass.size() != m_massEtaBins.size()-1){
+  if (!m_use3Dhisto && (m_massEtaBins.size()==0 || m_respFactorsMass.size() != m_massEtaBins.size()-1)){
     ATH_MSG_FATAL("Please check that the mass correction eta binning is properly set in your config file");
+    return StatusCode::FAILURE;
+  }
+  else if (m_use3Dhisto && !m_respFactorMass3D)
+  {
+    ATH_MSG_FATAL("Please check that the mass correction 3D histogram is provided");
     return StatusCode::FAILURE;
   }
 
@@ -360,35 +555,61 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   // Thus, getConstituents() breaks unless they are specifically written out
   // Instead, this has been changed to require a non-zero mass (same impact)
   // Done by S. Schramm on Oct 21, 2017
-  if ( absdetectorEta < m_massEtaBins.back() && jetStartP4.mass()!=0 ) { //Fiducial Cuts
-    for (uint i=0; i<m_massEtaBins.size()-1; ++i) {
-        if(absdetectorEta >= m_massEtaBins[i] && absdetectorEta < m_massEtaBins[i+1]) etabin = i;
-    }
-    if (etabin< 0){
-      ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass correction");
-      return StatusCode::FAILURE;
+
+  if ( ( ( !m_use3Dhisto && absdetectorEta < m_massEtaBins.back() ) ||
+         (  m_use3Dhisto && absdetectorEta < m_respFactorMass3D->GetZaxis()->GetBinLowEdge(m_respFactorMass3D->GetNbinsZ()+1))
+       ) && jetStartP4.mass() != 0 ) { // Fiducial cuts
+    if (!m_use3Dhisto)
+    {
+        for (uint i=0; i<m_massEtaBins.size()-1; ++i) {
+            if(absdetectorEta >= m_massEtaBins[i] && absdetectorEta < m_massEtaBins[i+1]) etabin = i;
+        }
+        if (etabin< 0){
+          ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass correction");
+          return StatusCode::FAILURE;
+        }
     }
     
     // Use the correct histogram binning parametrisation when reading the corrected mass
+    double massFactor = 1;
     switch (m_binParam)
     {
       case BinningParam::pt_mass_eta:
-        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, etabin );
+        if (m_use3Dhisto)
+            massFactor = getMassCorr3D( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, absdetectorEta );
+        else
+            massFactor = getMassCorr( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, etabin );
         break;
       case BinningParam::e_LOGmOe_eta:
-        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), etabin);
+        if (m_use3Dhisto)
+            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), absdetectorEta);
+        else
+            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), etabin);
         break;
       case BinningParam::e_LOGmOet_eta:
-        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
+        if (m_use3Dhisto)
+            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
+        else
+            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
         break;
       case BinningParam::e_LOGmOpt_eta:
-        mass_corr = jetStartP4.mass()/getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), etabin);
+        if (m_use3Dhisto)
+            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), absdetectorEta);
+        else
+            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), etabin);
         break;
+      case BinningParam::et_LOGmOet_eta:
+        if (m_use3Dhisto)
+            massFactor = getMassCorr3D( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
+        else
+            massFactor = getMassCorr( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
       default:
         ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the calo mass was not.  Please contact the tool developer(s) to fix this.");
         return StatusCode::FAILURE;
         break;
     }
+
+    mass_corr = jetStartP4.mass() / massFactor;
     
     if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
   }
@@ -412,13 +633,20 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     double E_corr = jetStartP4.e();
 
     // Determine mass eta bin to use
-    etabin=-99;
-    if (m_massEtaBins.size()==0 || m_respFactorsTrackAssistedMass.size() != m_massEtaBins.size()-1){
-      ATH_MSG_FATAL("Please check that the mass correction eta binning is properly set in your config file");
-      if(m_combination) return StatusCode::FAILURE;
+    if (!m_use3Dhisto)
+    {
+      etabin=-99;
+      if (m_massEtaBins.size()==0 || m_respFactorsTrackAssistedMass.size() != m_massEtaBins.size()-1){
+        ATH_MSG_FATAL("Please check that the mass correction eta binning is properly set in your config file");
+        if(m_combination) return StatusCode::FAILURE;
+      }
     }
-    xAOD::JetConstituentVector constituents = jet.getConstituents();
-    int nconstituents = constituents.size();
+    else if (m_use3Dhisto && !m_respFactorTrackAssistedMass3D)
+    {
+      ATH_MSG_FATAL("Please check that the track assisted mass correction 3D histogram is provided");
+      return StatusCode::FAILURE;
+    }
+
     float trackSumMass;
     std::string TrackSumMassStr = "TrackSumMass";
     if(m_jetAlgo=="AntiKt4EMTopo" || m_jetAlgo=="AntiKt4LCTopo") TrackSumMassStr = "DFCommonJets_TrackSumMass";
@@ -453,37 +681,61 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     else{mTA = (jetStartP4.pt()/trackSumPt)*trackSumMass;}
     if(mTA<0) mTA = 0;
     mass_corr = mTA;
-    if ( absdetectorEta < m_massEtaBins.back() && nconstituents>1 ) { //Fiducial Cuts
-      for (uint i=0; i<m_massEtaBins.size()-1; ++i) {
-        if(absdetectorEta >= m_massEtaBins[i] && absdetectorEta < m_massEtaBins[i+1]) etabin = i;
-      }
-      if (etabin< 0){
-        ATH_MSG_FATAL("There was a problem determining the eta bin to use for the track assisted mass correction");
-	if(m_combination) return StatusCode::FAILURE;
+    
+    if ( ( ( !m_use3Dhisto && absdetectorEta < m_massEtaBins.back() ) ||
+           (  m_use3Dhisto && absdetectorEta < m_respFactorMass3D->GetZaxis()->GetBinLowEdge(m_respFactorMass3D->GetNbinsZ()+1))
+         ) && jetStartP4.mass() != 0 ) { // Fiducial cuts
+      if (!m_use3Dhisto)
+      {
+          for (uint i=0; i<m_massEtaBins.size()-1; ++i) {
+              if(absdetectorEta >= m_massEtaBins[i] && absdetectorEta < m_massEtaBins[i+1]) etabin = i;
+          }
+          if (etabin< 0){
+            ATH_MSG_FATAL("There was a problem determining the eta bin to use for the track assisted mass correction");
+            return StatusCode::FAILURE;
+          }
       }
       
-      mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
-
+      double mTAFactor = 1;
       // Use the correct histogram binning parametrisation when reading the corrected mass
       switch (m_binParam)
       {
         case BinningParam::pt_mass_eta:
-          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
+          if (m_use3Dhisto)
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.pt()/m_GeV, mTA/m_GeV, absdetectorEta );
+          else
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
           break;
         case BinningParam::e_LOGmOe_eta:
-          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
+          if (m_use3Dhisto)
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), absdetectorEta);
+          else
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
           break;
         case BinningParam::e_LOGmOet_eta:
-          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+          if (m_use3Dhisto)
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
+          else
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
           break;
         case BinningParam::e_LOGmOpt_eta:
-          mass_corr = mTA/getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+          if (m_use3Dhisto)
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
+          else
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
           break;
+        case BinningParam::et_LOGmOet_eta:
+          if (m_use3Dhisto)
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
+          else
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
         default:
           ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
           return StatusCode::FAILURE;
           break;
       }
+
+      mass_corr = mTA/mTAFactor;
 
       if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
       else{E_corr  = sqrt(jetStartP4.P()*jetStartP4.P()+mass_corr*mass_corr);}
@@ -525,26 +777,55 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       else {
         // Determine mass combination eta bin to use
         int etabin=-99;
-        if (m_massCombinationEtaBins.size()==0 || m_caloResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
-	  ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
-	  return StatusCode::FAILURE;
-	}
-        if (m_massCombinationEtaBins.size()==0 || m_taResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
-	  ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
-	  return StatusCode::FAILURE;
-	}
-
-        if ( absdetectorEta < m_massCombinationEtaBins.back() ) {
-          for (uint i=0; i<m_massCombinationEtaBins.size()-1; ++i) {
-            if(absdetectorEta >= m_massCombinationEtaBins[i] && absdetectorEta < m_massCombinationEtaBins[i+1]) etabin = i;
-          }
-          if (etabin< 0){
-	    ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass combination");
+        if (!m_use3Dhisto)
+        {
+          if (m_massCombinationEtaBins.size()==0 || m_caloResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
+	    ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
 	    return StatusCode::FAILURE;
 	  }
-	  const double relCalo = getRelCalo( pT_calo/m_GeV, mass_calo/pT_calo, etabin );
-	  const double relTA   = getRelTA( pT_calo/m_GeV, mass_ta/pT_calo, etabin );
-	  const double rho     = ( m_useCorrelatedWeights ? getRho( pT_calo/m_GeV, mass_calo/pT_calo, etabin ) : 0);
+          if (m_massCombinationEtaBins.size()==0 || m_taResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
+	    ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
+	    return StatusCode::FAILURE;
+	  }
+        }
+        else if (m_use3Dhisto && !m_caloResolutionMassCombination3D)
+        {
+          ATH_MSG_FATAL("Please check that the mass resolution 3D histogram is provided");
+          return StatusCode::FAILURE;
+        }
+        else if (m_use3Dhisto && !m_taResolutionMassCombination3D)
+        {
+          ATH_MSG_FATAL("Please check that the track assisted mass resolution 3D histogram is provided");
+          return StatusCode::FAILURE;
+        }
+
+    
+    
+        if ( ( ( !m_use3Dhisto && absdetectorEta < m_massCombinationEtaBins.back() ) ||
+               (  m_use3Dhisto && absdetectorEta < m_caloResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(m_caloResolutionMassCombination3D->GetNbinsZ()+1)) ) ) {
+
+          if (!m_use3Dhisto)
+          {
+            for (uint i=0; i<m_massCombinationEtaBins.size()-1; ++i) {
+              if(absdetectorEta >= m_massCombinationEtaBins[i] && absdetectorEta < m_massCombinationEtaBins[i+1]) etabin = i;
+            }
+            if (etabin< 0){
+	      ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass combination");
+	      return StatusCode::FAILURE;
+	    }
+          }
+
+	  const double relCalo = (!m_use3Dhisto) ? 
+                                    getRelCalo( pT_calo/m_GeV, mass_calo/pT_calo, etabin )
+                                  : getRelCalo3D( pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta);
+	  const double relTA   = (!m_use3Dhisto) ? 
+                                    getRelTA( pT_calo/m_GeV, mass_ta/pT_calo, etabin )
+                                  : getRelTA3D( pT_calo/m_GeV, mass_ta/pT_calo, absdetectorEta);
+	  const double rho     = (m_useCorrelatedWeights) ?
+                                    ( (!m_use3Dhisto) ?
+                                            getRho( pT_calo/m_GeV, mass_calo/pT_calo, etabin )
+                                          : getRho3D( pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta)
+                                    ) : 0;
           // Watch for division by zero
           if(m_useCorrelatedWeights && (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0)){
             ATH_MSG_ERROR("Encountered division by zero when calculating mass combination weight using correlated weights");

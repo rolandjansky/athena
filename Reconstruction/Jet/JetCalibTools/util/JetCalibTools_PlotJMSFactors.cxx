@@ -41,9 +41,10 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc != 4 && argc != 5)
+    if (argc != 5 && argc != 6)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> <mass type> (dev mode switch)" << std::endl;
+        std::cout << "\tMass types: \"calo\", \"TA\", \"comb\" (capitalization is ignored)" << std::endl;
         return 1;
     }
 
@@ -51,20 +52,39 @@ int main (int argc, char* argv[])
     const TString jetAlgo = argv[1];
     const TString config  = argv[2];
     const TString outFile = argv[3];
-    const bool isDevMode  = ( argc > 4 && (TString(argv[4]) == "true" || TString(argv[4]) == "dev") ) ? true : false;
+    const TString massType = argv[4];
+    const bool isDevMode  = ( argc > 5 && (TString(argv[5]) == "true" || TString(argv[5]) == "dev") ) ? true : false;
     
     // Derived information
-    const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps");
+    const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") || outFile.EndsWith(".root");
+    const bool doCombMass = !massType.CompareTo("comb",TString::kIgnoreCase);
+    const bool doCaloMass = doCombMass || !massType.CompareTo("calo",TString::kIgnoreCase);
+    const bool doTAMass   = doCombMass || !massType.CompareTo("ta",TString::kIgnoreCase);
 
     // Assumed constants
-    const TString startingScaleString = "JetEtaJESScaleMomentum";
     const TString calibSeq = "JMS"; // only want to apply the JMS here
     const bool isData = false; // doesn't actually matter for JMS, which is always active
     const float massForScan = 80.385e3; // W-boson
     const float etaForScan = 0; // central jets
+    const float trackMassFactor = 2./3.; // Recall: mTA = ptCalo * (mTrack/ptTrack), this multiplies mTrack
+    const float trackPtFactor = 2./3.;   // Recall: mTA = ptCalo * (mTrack/ptTrack), this multiplies ptTrack
 
-    // Scale accessors
+    // Accessor strings
+    const TString startingScaleString = "JetEtaJESScaleMomentum";
+    const TString caloMassScaleString = "JetJMSScaleMomentumCalo";
+    const TString taMassScaleString   = "JetJMSScaleMomentumTA";
+    const TString detectorEtaString   = "DetectorEta";
+    const TString trackMassString     = "TrackSumMass";
+    const TString trackPtString       = "TrackSumPt";
+    
+    // Accessors
     jet::JetFourMomAccessor startingScale(startingScaleString.Data());
+    jet::JetFourMomAccessor caloMassScale(caloMassScaleString.Data());
+    jet::JetFourMomAccessor taMassScale(taMassScaleString.Data());
+    SG::AuxElement::Accessor<float> detectorEta(detectorEtaString.Data());
+    SG::AuxElement::Accessor<float> trackMass(trackMassString.Data());
+    SG::AuxElement::Accessor<float> trackPt(trackPtString.Data());
+    
 
     // Create the calib tool
     asg::AnaToolHandle<IJetCalibrationTool> calibTool;
@@ -118,56 +138,99 @@ int main (int argc, char* argv[])
     xAOD::Jet* jet = jets->at(0);
     
     
-    // Make the histogram to fill
-    TH2D* hist_pt_eta = new TH2D("JMS_pt_eta","JMS: pt and eta, m=W-boson",1150,200,2500,40,-2,2);
-    TH2D* hist_pt_mpt = new TH2D("JMS_pt_mpt","JMS: pt and m/pt, eta=0",1150,200,2500,100,0,1);
+    // Make the histograms to fill
+    std::vector<TH2D*> hists_pt_eta;
+    std::vector<TH2D*> hists_pt_mpt;
+    if (doCaloMass)
+    {
+        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,40,-2,2));
+        hists_pt_mpt.push_back(new TH2D("JMS_calo_pt_mpt",Form("JMS (calo): for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
+    }
+    if (doTAMass)
+    {
+        hists_pt_eta.push_back(new TH2D("JMS_TA_pt_eta",Form("JMS (TA) for jets with mass=%.1f GeV (TA factor = %.1f)",massForScan/1.e3,trackMassFactor/trackPtFactor),1150,200,2500,40,-2,2));
+        hists_pt_mpt.push_back(new TH2D("JMS_TA_pt_mpt",Form("JMS (TA) for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
+    }
+    if (doCombMass)
+    {
+        hists_pt_eta.push_back(new TH2D("JMS_comb_pt_eta",Form("JMS (comb) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,40,-2,2));
+        hists_pt_mpt.push_back(new TH2D("JMS_comb_pt_mpt",Form("JMS (comb) for jets with eta=%.1f",etaForScan),1150,200,2500,100,0,1));
+    }
     
     // Fill the pt vs eta histogram
-    for (int xBin = 1; xBin <= hist_pt_eta->GetNbinsX(); ++xBin)
+    for (int xBin = 1; xBin <= hists_pt_eta.at(0)->GetNbinsX(); ++xBin)
     {
-        const double pt = hist_pt_eta->GetXaxis()->GetBinCenter(xBin)*1.e3;
-        for (int yBin = 1; yBin <= hist_pt_eta->GetNbinsY(); ++yBin)
+        const double pt = hists_pt_eta.at(0)->GetXaxis()->GetBinCenter(xBin)*1.e3;
+        for (int yBin = 1; yBin <= hists_pt_eta.at(0)->GetNbinsY(); ++yBin)
         {
-            const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
+            const double eta = hists_pt_eta.at(0)->GetYaxis()->GetBinCenter(yBin);
             
             // Set the main 4-vector and scale 4-vector
             jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
-            jet->setAttribute<float>("DetectorEta",eta);
+            detectorEta(*jet) = eta;
+            trackMass(*jet) = trackMassFactor*massForScan;
+            trackPt(*jet) = trackPtFactor*pt;
             startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
 
             // Jet kinematics set, now apply calibration
             xAOD::Jet* calibJet = nullptr;
             calibTool->calibratedCopy(*jet,calibJet);
-            const double JMS = calibJet->m()/jet->m();
-            delete calibJet;
 
-            // JMS retrieved, fill the plot
-            hist_pt_eta->SetBinContent(xBin,yBin,JMS);
+            // Calculate the scale factors
+            const double JMS     = calibJet->m()/startingScale(*jet).mass();
+            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : -1;
+            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : -1;
+
+            // JMS retrieved, fill the plot(s)
+            size_t plotIndex = 0;
+            if (doCaloMass)
+                hists_pt_eta.at(plotIndex++)->SetBinContent(xBin,yBin,JMScalo);
+            if (doTAMass)
+                hists_pt_eta.at(plotIndex++)->SetBinContent(xBin,yBin,JMSTA);
+            if (doCombMass)
+                hists_pt_eta.at(plotIndex++)->SetBinContent(xBin,yBin,JMS);
+            
+            // Clean up
+            delete calibJet;
         }
     }
 
     // Fill the pt vs m/pt histogram
-    for (int xBin = 1; xBin <= hist_pt_mpt->GetNbinsX(); ++xBin)
+    for (int xBin = 1; xBin <= hists_pt_mpt.at(0)->GetNbinsX(); ++xBin)
     {
-        const double pt = hist_pt_mpt->GetXaxis()->GetBinCenter(xBin)*1.e3;
-        for (int yBin = 1; yBin <= hist_pt_mpt->GetNbinsY(); ++yBin)
+        const double pt = hists_pt_mpt.at(0)->GetXaxis()->GetBinCenter(xBin)*1.e3;
+        for (int yBin = 1; yBin <= hists_pt_mpt.at(0)->GetNbinsY(); ++yBin)
         {
-            const double mpt = hist_pt_mpt->GetYaxis()->GetBinCenter(yBin);
+            const double mpt = hists_pt_mpt.at(0)->GetYaxis()->GetBinCenter(yBin);
             const double mass = pt*mpt;
             
             // Set the main 4-vector and scale 4-vector
             jet->setJetP4(xAOD::JetFourMom_t(pt,etaForScan,0,mass));
-            jet->setAttribute<float>("DetectorEta",etaForScan);
+            detectorEta(*jet) = etaForScan;
+            trackMass(*jet) = trackMassFactor*massForScan;
+            trackPt(*jet) = trackPtFactor*pt;
             startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,etaForScan,0,mass));
 
             // Jet kinematics set, now apply calibration
             xAOD::Jet* calibJet = nullptr;
             calibTool->calibratedCopy(*jet,calibJet);
-            const double JMS = calibJet->m()/jet->m();
-            delete calibJet;
 
-            // JMS retrieved, fill the plot
-            hist_pt_mpt->SetBinContent(xBin,yBin,JMS);
+            // Calculate the scale factors
+            const double JMS     = calibJet->m()/startingScale(*jet).mass();
+            const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : -1;
+            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : -1;
+
+            // JMS retrieved, fill the plot(s)
+            size_t plotIndex = 0;
+            if (doCaloMass)
+                hists_pt_mpt.at(plotIndex++)->SetBinContent(xBin,yBin,JMScalo);
+            if (doTAMass)
+                hists_pt_mpt.at(plotIndex++)->SetBinContent(xBin,yBin,JMSTA);
+            if (doCombMass)
+                hists_pt_mpt.at(plotIndex++)->SetBinContent(xBin,yBin,JMS);
+            
+            // Clean up
+            delete calibJet;
         }
     }
 
@@ -184,42 +247,60 @@ int main (int argc, char* argv[])
     canvas->SetLogx(true);
     
     // Now labels/etc
-    hist_pt_eta->SetStats(false);
-    hist_pt_mpt->SetStats(false);
-    hist_pt_eta->SetTitle(Form("JMS for jets with mass=%.1f GeV",massForScan/1.e3));
-    hist_pt_mpt->SetTitle(Form("JMS for jets with #eta=%.1f",etaForScan));
-    hist_pt_eta->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
-    hist_pt_mpt->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
-    hist_pt_eta->GetXaxis()->SetTitleOffset(1.35);
-    hist_pt_mpt->GetXaxis()->SetTitleOffset(1.35);
-    hist_pt_eta->GetYaxis()->SetTitle("#eta");
-    hist_pt_mpt->GetYaxis()->SetTitle("m / #it{p}_{T}");
-    hist_pt_eta->GetYaxis()->SetTitleOffset(0.9);
-    hist_pt_mpt->GetYaxis()->SetTitleOffset(0.9);
-    hist_pt_eta->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
-    hist_pt_mpt->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
+    for (TH2* hist : hists_pt_eta)
+    {
+        hist->SetStats(false);
+        hist->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
+        hist->GetXaxis()->SetTitleOffset(1.35);
+        hist->GetXaxis()->SetMoreLogLabels();
+        hist->GetYaxis()->SetTitle("#eta");
+        hist->GetYaxis()->SetTitleOffset(0.9);
+        hist->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
+    }
+    for (TH2* hist : hists_pt_mpt)
+    {
+        hist->SetStats(false);
+        hist->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
+        hist->GetXaxis()->SetTitleOffset(1.35);
+        hist->GetXaxis()->SetMoreLogLabels();
+        hist->GetYaxis()->SetTitle("m / #it{p}_{T}");
+        hist->GetYaxis()->SetTitleOffset(0.9);
+        hist->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
+    }
 
     // Now write them out
     if (outFileIsExtensible)
     {
         canvas->Print(outFile+"[");
-        hist_pt_eta->GetXaxis()->SetMoreLogLabels();
-        hist_pt_eta->Draw("colz");
-        canvas->Print(outFile);
-        hist_pt_mpt->GetXaxis()->SetMoreLogLabels();
-        hist_pt_mpt->Draw("colz");
-        canvas->Print(outFile);
+        for (size_t iHist = 0; iHist < hists_pt_eta.size(); ++iHist)
+        {
+            hists_pt_eta.at(iHist)->Draw("colz");
+            canvas->Print(outFile);
+            hists_pt_mpt.at(iHist)->Draw("colz");
+            canvas->Print(outFile);
+        }
         canvas->Print(outFile+"]");
     }
     else
     {
-        hist_pt_eta->GetXaxis()->SetMoreLogLabels();
-        hist_pt_eta->Draw("colz");
-        canvas->Print("1-"+outFile);
-        hist_pt_mpt->GetXaxis()->SetMoreLogLabels();
-        hist_pt_mpt->Draw("colz");
-        canvas->Print("2-"+outFile);
+        unsigned int counter = 1;
+        for (size_t iHist = 0; iHist < hists_pt_eta.size(); ++iHist)
+        {
+            hists_pt_eta.at(iHist)->Draw("colz");
+            canvas->Print(Form("%u-fixMass-%s",counter,outFile.Data()));
+            hists_pt_mpt.at(iHist)->Draw("colz");
+            canvas->Print(Form("%u-fixMass-%s",counter++,outFile.Data()));
+        }
     }
+
+    // Clean up a bit (although the program is about to end...)
+    for (TH2D* hist : hists_pt_eta)
+        delete hist;
+    hists_pt_eta.clear();
+
+    for (TH2D* hist : hists_pt_mpt)
+        delete hist;
+    hists_pt_mpt.clear();
 
     return 0;
 }
