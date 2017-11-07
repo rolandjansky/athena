@@ -307,7 +307,6 @@ from  DerivationFrameworkFlavourTag.BTaggingContent import *
 
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
-STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4PV0TrackJets")
 
 ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
