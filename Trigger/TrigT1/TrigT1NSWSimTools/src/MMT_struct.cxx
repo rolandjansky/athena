@@ -279,17 +279,17 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   float sWidth_top     = mm_top_mult1->sWidth();
   float lWidth_bottom  = mm_bottom_mult1->lWidth();
   float lWidth_top     = mm_top_mult1->lWidth();
-  float length_bottom  = mm_bottom_mult1->Length();
-  float length_top     = mm_top_mult1->Length();
+  // float length_bottom  = mm_bottom_mult1->Length();
+  // float length_top     = mm_top_mult1->Length();
 
-  float minYSize_top      = sWidth_top;// - 2.*xFrame_top;
-  float minYSize_bottom   = sWidth_bottom;// - 2.*xFrame_bottom;
+  // float minYSize_top      = sWidth_top;// - 2.*xFrame_top;
+  // float minYSize_bottom   = sWidth_bottom;// - 2.*xFrame_bottom;
 
-  float maxYSize_top      = lWidth_top;// - 2.*xFrame_top;
-  float maxYSize_bottom   = lWidth_bottom;// - 2.*xFrame_bottom;
+  // float maxYSize_top      = lWidth_top;// - 2.*xFrame_top;
+  // float maxYSize_bottom   = lWidth_bottom;// - 2.*xFrame_bottom;
 
-  float xSize_top         = length_top;
-  float xSize_bottom      = length_bottom;
+  // float xSize_top         = length_top;
+  // float xSize_bottom      = length_bottom;
 
   MMReadoutParameters roParam_top_mult1    = mm_top_mult1->GetReadoutParameters();
   MMReadoutParameters roParam_top_mult2    = mm_top_mult2->GetReadoutParameters();
@@ -306,8 +306,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   // int chMax_top    = m_detManager->mmIdHelper()->channelMax(id_top);
   // int chMax_bottom = m_detManager->mmIdHelper()->channelMax(id_bottom);
 
-  double dY_top    = 0.5*(maxYSize_top-minYSize_top);//-2.*design_top->deadS);
-  double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
+  // double dY_top    = 0.5*(maxYSize_top-minYSize_top);//-2.*design_top->deadS);
+  // double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
 
   if(!islarge){
     ATH_MSG_WARNING("We haven't configured the small wedge parameters yet!  Go bother the developer...kindly...this will likely crash now!\n");
@@ -1076,6 +1076,7 @@ void hitData_key::print()const{
 
 
 hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
+  (void) true;
   // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
   // ATH_MSG_DEBUG(tru.Print() );
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.
@@ -1202,6 +1203,7 @@ bool Hit::operator==(const Hit& rhs) const{
 }
 
 void Hit::print_track(const vector<Hit>& track) const{
+  (void) track;
   // ATH_MSG_INFO(track.front().key.hdr()<<track.front().info.hdr());
   // for(unsigned int i=0; i<track.size(); i++) ATH_MSG_INFO( track[i].key.hdr()<<track[i].info.hdr() ) ;
 }
@@ -1286,13 +1288,13 @@ athena_header::athena_header(const TLorentzVector& par, int tpn, double etp, dou
 
 
 digitWrapper::digitWrapper(const MmDigit* digit,
-                           double gTime,
+                           double tmpGTime,
                            const TVector3& truthLPos,
                            const TVector3& stripLPos,
                            const TVector3& stripGPos
                            ):
   digit(digit),
-  gTime(gTime),
+  gTime(tmpGTime),
   truth_lpos(truthLPos),
   strip_lpos(stripLPos),
   strip_gpos(stripGPos){}

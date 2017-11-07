@@ -565,7 +565,7 @@ namespace NSWL1 {
     char side= strip->sideId() ? 'A' : 'C';
     char type= strip->type();
     sTGCDetectorHelper sTGC_helper;
-    int layer_index=strip->layer() -1;
+    // int layer_index=strip->layer() -1;
 
     sTGCDetectorDescription *sTGC=0;
     //Get_sTGCDetector's 2nd input value can range from eta=1 to eta=3

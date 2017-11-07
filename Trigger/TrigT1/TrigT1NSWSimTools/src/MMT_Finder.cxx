@@ -2,17 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 #include "MMT_Finder.h"
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads): m_msg("MMT_Finder"){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
+
+  m_msg.get().setLevel(outputLevel);
+
+  msg(MSG::DEBUG) << "MMT_Finder::building finder" << endmsg;
 
   m_par = par;
   m_nUVRoads = nUVRoads;
-
-  ATH_MSG_DEBUG("MMT_Find::building finder");
 
   m_nRoads = ceil( ( m_par->slope_max - m_par->slope_min ) / m_par->h.getFloat()    ); //initialization, can use floats
 
@@ -22,12 +21,12 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads): m_msg("MMT_Finder"){
 
   int nplanes=m_par->setup.size();
 
-  ATH_MSG_DEBUG("MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
+  msg(MSG::DEBUG) << "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() << endmsg;
 
   m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
-  ATH_MSG_DEBUG("MMT_Find::built finder");
+  msg(MSG::DEBUG) << "MMT_Find::built finder" << endmsg;
 
   return;
 
@@ -43,7 +42,7 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
 
   //Conver hit to slope here
   float32fixed<3> slope=hit.info.slope.getFloat();
-  ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFloat() );
+  msg(MSG::DEBUG) << "SLOPE " << hit.info.slope.getFloat() << endmsg;
 
   //Plane and key info of the hit
   int plane=hit.info.plane;
@@ -94,9 +93,9 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
     } // x planes
     else { // uv planes
 
-      int planeDirection = 0;
-      if (plane_type=="u") planeDirection = 1;
-      else if (plane_type=="v") planeDirection = -1;
+      // int planeDirection = 0;
+      // if (plane_type=="u") planeDirection = 1;
+      // else if (plane_type=="v") planeDirection = -1;
 
       for(int iRoadGroup = road_min; iRoadGroup<=road_max; iRoadGroup++){ // road loop
 
@@ -164,7 +163,7 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
 
   //8 for eight detector planes
   if(plane_hits.size()!=8){
-    ATH_MSG_DEBUG("Coincidence_Gate: Don't have 8 plane hit!" );
+    msg(MSG::DEBUG) << "Coincidence_Gate: Don't have 8 plane hit!" << endmsg;
   }
   //Might want to establish a heirarchy of gates
   //Eg, 4X+4UV > 3+3.   Also,
@@ -185,12 +184,12 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;
-    if(value<-10) ATH_MSG_INFO("Coincidence_Gate: hit count fail with value: "<<value);
+    if(value<-10) msg(MSG::DEBUG) << "Coincidence_Gate: hit count fail with value: "<<value<< endmsg;
   }
   else if(!fbpass&&X_count+UV_count>0){
     if(value>0)value*=-1;
     value-=5;
-    ATH_MSG_INFO("Coincidence_Gate: quadruplet fail with value: "<<value);
+    msg(MSG::DEBUG) << "Coincidence_Gate: quadruplet fail with value: "<<value<< endmsg;
   }
   return value;
 }

@@ -189,7 +189,7 @@ namespace NSWL1 {
         //////////////////////////////////////////////////////////////
 
         //Initialization of the finder: defines all the roads
-        MMT_Finder m_find = MMT_Finder(m_par, 10);
+        MMT_Finder m_find = MMT_Finder(m_par, 1);
 
         ATH_MSG_DEBUG(  "Number of Roads Configured " <<  m_find.get_roads()  );
 

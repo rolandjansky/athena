@@ -50,6 +50,7 @@ L1stl::~L1TdrStgcTriggerLogic() {
 //-------------------------------------
 bool L1stl::hitPattern(const nsw::Pad &firstPad, const nsw::Pad &otherPad, string &pattern, bool verbose = false)
 {
+  (void) verbose;
   return L1stl::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta, otherPad.iphi, pattern);
 }
 //-------------------------------------
