@@ -214,6 +214,8 @@ def addStandardTruthContents(kernel=None,
     addTruthMET(kernel)
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
+    # Add back the navigation contect for the collections we want
+    addTruthCollectionNavigationDecorations(kernel,["TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"])
 
 # Add taus and their downstream particles (immediate and further decay products) in a special collection
 def addTausAndDownstreamParticles(kernel=None, generations=-1):
@@ -317,3 +319,23 @@ def addHardScatterCollection(kernel=None, generations=1):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonHSCollectionKernel",
                                                              AugmentationTools = [DFCommonHSCollectionTool] )
+
+# Add navigation decorations on the truth collections
+def addTruthCollectionNavigationDecorations(kernel=None,TruthCollections=[]):
+    if len(TruthCollections)==0: return
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthNavigationDecoratorKernel'):
+        # Already there, no need for duplication
+        return
+    # Set up a tool to add the navigation decorations
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+    DFCommonTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name='DFCommonTruthNavigationDecorator',
+                                           InputCollections=TruthCollections)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonTruthNavigationDecorator
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthNavigationDecoratorKernel",
+                                                             AugmentationTools = [DFCommonTruthNavigationDecorator] )

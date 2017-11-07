@@ -16,6 +16,7 @@
 #include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"
 #include "../GenFilterTool.h"
 #include "../HardScatterCollectionMaker.h"
+#include "../TruthNavigationDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -36,6 +37,7 @@ DECLARE_TOOL_FACTORY( HadronOriginClassifier )
 DECLARE_TOOL_FACTORY( TruthQGDecorationTool )
 DECLARE_TOOL_FACTORY( GenFilterTool )
 DECLARE_TOOL_FACTORY( HardScatterCollectionMaker )
+DECLARE_TOOL_FACTORY( TruthNavigationDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthDressingTool )
@@ -55,4 +57,5 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthQGDecorationTool )
    DECLARE_TOOL( GenFilterTool )
    DECLARE_TOOL( HardScatterCollectionMaker )
+   DECLARE_TOOL( TruthNavigationDecorator )
 }
