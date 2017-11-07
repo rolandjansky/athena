@@ -92,6 +92,7 @@ class GlobalSequentialCorrection
   bool m_turnOffTrackCorrections;
   bool m_PFlow;
   bool m_pTResponseRequirementOff;
+  bool m_nTrkwTrk_4PFlow;
   double m_turnOffStartingpT, m_turnOffEndpT;
 
 };
