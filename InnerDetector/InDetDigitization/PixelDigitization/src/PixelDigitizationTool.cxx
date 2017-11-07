@@ -1192,9 +1192,9 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing,
     }
     ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");
     PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index());
-    SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
-    m_thpcsi->insert(timeIndex,hitCollPtr);
-    hitCollPtrs.push_back(hitCollPtr);
+    SiHitCollection hitCollPtr(*seHitColl);
+    m_thpcsi->insert(timeIndex,&hitCollPtr);
+    hitCollPtrs.push_back(&hitCollPtr);
   }
 
   return StatusCode::SUCCESS;
