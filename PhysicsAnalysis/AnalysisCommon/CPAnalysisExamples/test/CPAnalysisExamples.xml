@@ -11,7 +11,7 @@
          <errorMessage>FAILURE (ERROR)</errorMessage>
          <returnValue>0</returnValue>
       </expectations>
-      <postscript>rootcomp.py --chi2 --atnMode --output rootcomp_Test_ut_ath_checkTrigger_test.results.root Test_ut_ath_checkTrigger_test.results.root &amp;&amp; root2html.py *.root
+      <postscript>skip_if_libraryMissing.sh CPAnalysisExamples rootcomp.py --chi2 --atnMode --output rootcomp_Test_ut_ath_checkTrigger_test.results.root Test_ut_ath_checkTrigger_test.results.root &amp;&amp; root2html.py *.root
 </postscript>
    </TEST>
 
@@ -25,7 +25,7 @@
          <errorMessage>FAILURE (ERROR)</errorMessage>
          <returnValue>0</returnValue>
       </expectations>
-      <postscript>rootcomp.py --atnMode --output rootcomp_Test_EgammaCalibrationAndSmearingTool.results.root Test_EgammaCalibrationAndSmearingTool.results.root &amp;&amp; root2html.py *.root</postscript>
+      <postscript>skip_if_libraryMissing.sh CPAnalysisExamples rootcomp.py --atnMode --output rootcomp_Test_EgammaCalibrationAndSmearingTool.results.root Test_EgammaCalibrationAndSmearingTool.results.root &amp;&amp; root2html.py *.root</postscript>
    </TEST>
 
    <TEST name="Test__TrackLinkTest" type="script" suite="ASGTests">
