@@ -156,8 +156,8 @@ StatusCode LArPedestalMaker::stop()
  for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
    //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endmsg;
 
-   LARPEDMAP::ConstConditionsMapIterator cell_it=m_pedestal.begin(gain);
-   LARPEDMAP::ConstConditionsMapIterator cell_it_e=m_pedestal.end(gain);
+   LARPEDMAP::ConditionsMapIterator cell_it=m_pedestal.begin(gain);
+   LARPEDMAP::ConditionsMapIterator cell_it_e=m_pedestal.end(gain);
 
    //Inner loop goes over the cells.
    int n_zero,n_min, n_max, n_cur;

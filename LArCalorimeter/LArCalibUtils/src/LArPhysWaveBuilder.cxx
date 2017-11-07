@@ -664,7 +664,7 @@ LArPhysWaveBuilder::write_root (LArPhysWaveContainer* larPhysWaveContainer)
   // Loop over all waves.
   int nwave = 0;
   for (int igain = 0; igain < N_GAINS; ++igain) {
-    typedef LArPhysWaveContainer::ConstConditionsMapIterator It;
+    typedef LArPhysWaveContainer::ConditionsMapIterator It;
     CaloGain::CaloGain gain = gain_enums[igain];
     It end = larPhysWaveContainer->end (gain);
     for (It i = larPhysWaveContainer->begin (gain);
