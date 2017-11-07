@@ -197,10 +197,10 @@ def setupMenu():
         ['2mu4',                 'L1_2MU4', [], [PhysicsStream,'express'], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         ['2mu6',                 'L1_2MU6', [], [PhysicsStream,'express'], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         
+        ['2mu4_nomucomb',                 'L1_2MU4', [], [PhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
+        ['2mu6_nomucomb',                 'L1_2MU6', [], [PhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         
 
-        
-        
         
         #AFP muons
         ['mu4_L1MU4_AFP_A_AND_C',                        'L1_MU4_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
@@ -2521,8 +2521,6 @@ def setupMenu():
         ['mu11_mu6noL1_bNocut_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1']]],
         
         #HI bphysics for 5TeV run ATR-17162 going to Main stream
-        ['2mu4_nomucomb',                 'L1_2MU4', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['2mu6_nomucomb',                 'L1_2MU6', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu4_bJpsimumu',                 'L1_2MU4', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu4_bUpsimumu',                 'L1_2MU4', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
 
