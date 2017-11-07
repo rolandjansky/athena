@@ -52,9 +52,9 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
 mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
-mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
+#mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
-mcFileTOPQ = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
+mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
@@ -76,8 +76,8 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    if ((isTruth==False) and (isMC==True) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+mcPreExec+"\n")
    if (isTruth==True): outputFile.write("Reco_tf.py --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+"\n")
    outputFile.write("\n")
-   if (isTruth==False): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
-   if (isTruth==True): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+" --autoConfiguration ProjectName RealOrSim BeamType ConditionsTag DoTruth InputType BeamEnergy LumiFlags TriggerStream --athenaopts=\"-s\" "+"\n")
+   if (isTruth==False): outputFile.write("DAODMerge_tf.py --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
+   if (isTruth==True): outputFile.write("DAODMerge_tf.py --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+" --autoConfiguration ProjectName RealOrSim BeamType ConditionsTag DoTruth InputType BeamEnergy LumiFlags TriggerStream --athenaopts=\"-s\" "+"\n")
    outputFile.write("checkFile.py DAOD_"+formatName+".art.pool.root > checkFile.txt")
    outputFile.close()
    os.system("chmod +x "+outputFileName)
@@ -110,8 +110,6 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          if formatName=="BPHY8":
             generateText(formatName,mcLabel,mcFileBPHY8,False,True,"10000")
-         elif formatName in ('TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5'):
-            generateText(formatName,mcLabel,mcFileTOPQ,False,True,"10000")
          else: generateText(formatName,mcLabel,mcFile,False,True,"10000")
 
 if (makeTruthDAODs):
@@ -122,3 +120,4 @@ if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
       generateTrains(train,mcLabel,mcFile,True)
+   generateTrains(['TOPQ1','TOPQ2','TOPQ3','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
