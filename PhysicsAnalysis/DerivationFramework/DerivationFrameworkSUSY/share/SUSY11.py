@@ -34,7 +34,9 @@ DerivationFrameworkJob += SeqSUSY11
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-# To be added.
+from DerivationFrameworkSUSY.SUSY11TriggerList import triggerRegEx
+SUSY11ThinningHelper.TriggerChains = '|'.join(triggerRegEx)
+
 SUSY11ThinningHelper.AppendToStream( SUSY11Stream )
 
 
@@ -103,12 +105,18 @@ if DerivationFrameworkIsMonteCarlo:
 # TRIGGER SKIMMING
 #====================================================================
 
-jettrig = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460)'
+#jettrig = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460)'
 
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-SUSY11SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY11SkimmingTool",
-                                                                expression = jettrig)
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+#SUSY11SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY11SkimmingTool",
+#                                                                expression = jettrig)
+
+from DerivationFrameworkSUSY.SUSY11TriggerList import triggerRegEx
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+SUSY11SkimmingTool = DerivationFramework__TriggerSkimmingTool(
+    name          = "SUSY11SkimmingTool",
+    TriggerListOR = triggerRegEx )
 
 ToolSvc += SUSY11SkimmingTool
 
@@ -206,7 +214,7 @@ SUSY11SlimmingHelper.IncludeEGammaTriggerContent = False
 SUSY11SlimmingHelper.IncludeJetTriggerContent = True
 SUSY11SlimmingHelper.IncludeTauTriggerContent = True
 SUSY11SlimmingHelper.IncludeEtMissTriggerContent = False
-SUSY11SlimmingHelper.IncludeBJetTriggerContent = True
+SUSY11SlimmingHelper.IncludeBJetTriggerContent = False 
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
@@ -218,7 +226,7 @@ if DerivationFrameworkIsMonteCarlo:
   
   SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
-SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
-SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")
+#SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
+#SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")
 
 SUSY11SlimmingHelper.AppendContentToStream(SUSY11Stream)
