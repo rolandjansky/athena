@@ -16,7 +16,7 @@ from DerivationFrameworkTop.TOPQCommonExtraContent import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
 def setup(TOPQname, stream):
   DFisMC = (globalflags.DataSource()=='geant4')
@@ -49,7 +49,8 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTaus
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTrackJets
-  TOPQSlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
+  TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+  TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
   #  TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo"]
   TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calPt.calEta.calPhi.calM.calE.CENTER_MAG"]
 
