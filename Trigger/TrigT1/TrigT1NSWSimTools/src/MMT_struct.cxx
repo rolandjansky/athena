@@ -275,10 +275,10 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   MMDetectorDescription* mm_bottom_mult1 = aHelper.Get_MMDetector(sector, 1, 5, 1, side);
   MMDetectorDescription* mm_bottom_mult2 = aHelper.Get_MMDetector(sector, 1, 5, 2, side);
 
-  float sWidth_bottom  = mm_bottom_mult1->sWidth();
-  float sWidth_top     = mm_top_mult1->sWidth();
-  float lWidth_bottom  = mm_bottom_mult1->lWidth();
-  float lWidth_top     = mm_top_mult1->lWidth();
+  // float sWidth_bottom  = mm_bottom_mult1->sWidth();
+  // float sWidth_top     = mm_top_mult1->sWidth();
+  // float lWidth_bottom  = mm_bottom_mult1->lWidth();
+  // float lWidth_top     = mm_top_mult1->lWidth();
   // float length_bottom  = mm_bottom_mult1->Length();
   // float length_top     = mm_top_mult1->Length();
 
@@ -1076,7 +1076,7 @@ void hitData_key::print()const{
 
 
 hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
-  (void) true;
+  (void) tru;
   // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
   // ATH_MSG_DEBUG(tru.Print() );
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.

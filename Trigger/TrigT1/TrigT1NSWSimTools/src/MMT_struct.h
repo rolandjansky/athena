@@ -698,8 +698,9 @@ struct digitWrapper{
                );
 
 
+  const MmDigit* digit;
   double gTime;
-  
+
   //the members:
   // int multiplet, gas_gap;
   // double gtime, time;//0-3
@@ -708,8 +709,6 @@ struct digitWrapper{
   TVector3 strip_gpos;//6-11
   // double charge;
   // int strip_pos,eta_station,phi_station;
-
-  const MmDigit* digit;
 
 
   inline Identifier id(){ return digit->identify(); };
