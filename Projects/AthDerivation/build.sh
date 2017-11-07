@@ -83,8 +83,8 @@ if [ -z "$BUILDDIR" ]; then
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AthDerivationSrcDir/build_env.sh -b $BUILDDIR >& $BUILDDIR/build_env.log
-cat $BUILDDIR/build_env.log
+source $AthDerivationSrcDir/build_env.sh -b $BUILDDIR >& ${BUILDDIR}/build_env.log
+cat  ${BUILDDIR}/build_env.log
 
 # Set Gaudi's version to the same value as this project's version:
 export GAUDI_VERSION=`cat ${AthDerivationSrcDir}/version.txt`

@@ -8,6 +8,7 @@
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p0.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p1.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p2.h"
+#include "TrkTruthTPCnv/DetailedTrackTruthCollection_p3.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -20,6 +21,7 @@
 pool::Guid DetailedTrackTruthCollectionCnv::p0_guid("8F573396-F26F-47FD-B05C-549E9D5C77E1");
 pool::Guid DetailedTrackTruthCollectionCnv::p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
 pool::Guid DetailedTrackTruthCollectionCnv::p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
+pool::Guid DetailedTrackTruthCollectionCnv::p3_guid("F5A1DC75-C3FB-4575-8178-905223CF1277");
 
 //================================================================
 DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
@@ -42,8 +44,15 @@ DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersist
 DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient() {
   MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv" );
   DetailedTrackTruthCollection *trans(0);
-  
-  if (compareClassGuid(p2_guid)) {
+
+  if (compareClassGuid(p3_guid)) {
+    trans = new DetailedTrackTruthCollection();
+    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p3. GUID="<<m_classID.toString()<<endreq;
+    Trk::DetailedTrackTruthCollection_p3* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p3>();
+    m_converter_p3.persToTrans(pers, trans, log);
+    delete pers;
+  }
+  else if (compareClassGuid(p2_guid)) {
     trans = new DetailedTrackTruthCollection();
     log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
     Trk::DetailedTrackTruthCollection_p2* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p2>();

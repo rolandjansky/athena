@@ -1366,7 +1366,7 @@ LumiCalculator::MakePlots(const std::string& triggerchain)
     m_intlumitrigrateruns_recorded->SetBins(runnbrend-runnbrstart+10,float(runnbrstart),float(runnbrend+10));
 
     // Lumi-weighted average interactions per crossing
-    m_avgintperbx = new TH1F("avgintperbx", "Avg Int/BX", 500, 0., 50.);
+    m_avgintperbx = new TH1F("avgintperbx", "Avg Int/BX", 1000, 0., 100.);
     m_avgintperbx->SetTitle("Lumi-weighted Interactions per BX");
     this->SetHistogramStyle(m_avgintperbx, "Lumi-weighted Average Interactions per BX", "Average Interactions per BX", "Recorded Luminosity (mb-1)");
  

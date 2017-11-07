@@ -4,19 +4,18 @@
 
 #include "AthenaTrackingAction.h"
 
-#include "MCTruth/EventInformation.h"
-#include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/TrackHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruthBase/AtlasTrajectory.h"
-#include "MCTruthBase/TruthStrategyManager.h"
+#include <iostream>
 
 #include "G4DynamicParticle.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
-#include <iostream>
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/PrimaryParticleInformation.h"
+#include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
+#include "MCTruthBase/AtlasTrajectory.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA

@@ -14,9 +14,6 @@ This package includes all the control interfaces from the python layer into the 
 
 The classes in this package are:
 
- - G4CommandInterface : An interface to the G4 command line (available from Python)
- - MCTruthMenu : An interface for adding or applying truth strategies during the simulation
- - ParticleDataModifier : An interface for modifying particle properties during the simulation (charge, mass, etc)
  - SimControl : One interface to rule them all
 
 @ref used_G4AtlasControl

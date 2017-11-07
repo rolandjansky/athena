@@ -5,7 +5,8 @@
 ######################################################################
 
 # load dict for MyCutClass
-PyCintex.loadDictionary("PyAnalysisExamplesDict")
+import cppyy
+cppyy.loadDictionary("PyAnalysisExamplesDict")
 
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -29,7 +30,7 @@ tool.setPython(tool)
 
 # set proxy
 def convFunc():
-    ptr = PyCintex.libPyROOT.MakeNullPointer(g.MyObj)
+    ptr = cppyy.libPyROOT.MakeNullPointer(g.MyObj)
     proxy = g.PyReverseProxy.getProxy("MyObj_Proxy")
     proxy.getObj(ptr)
     return ptr
