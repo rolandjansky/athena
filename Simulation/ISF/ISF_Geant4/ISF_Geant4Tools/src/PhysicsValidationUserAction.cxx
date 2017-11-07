@@ -123,8 +123,6 @@ namespace G4UA{
       }
 
 
-      m_sHelper=SecondaryTracksHelper(G4EventManager::GetEventManager()->GetTrackingManager());
-
       m_geoIDSvcQuick = &(*m_config.geoIDSvc);
 
       // setup for validation mode
@@ -328,7 +326,7 @@ namespace G4UA{
         EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
         VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
         const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
+        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
         unsigned int nSec = truth.numberOfChildren();
         if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
           //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;
@@ -528,8 +526,6 @@ namespace G4UA{
 
     void PhysicsValidationUserAction::PreUserTrackingAction(const G4Track*)
     {
-
-      m_sHelper.ResetNrOfSecondaries();
       return;
     }
 
