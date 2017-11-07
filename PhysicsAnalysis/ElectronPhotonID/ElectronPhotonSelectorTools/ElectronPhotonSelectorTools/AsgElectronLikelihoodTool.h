@@ -125,6 +125,8 @@ private:
 
   /// Get the name of the current operating point
 
+  /// check for FwdElectron
+  bool isForwardElectron( const xAOD::Egamma* eg, const float eta ) const;
 
 
   // Private member variables
