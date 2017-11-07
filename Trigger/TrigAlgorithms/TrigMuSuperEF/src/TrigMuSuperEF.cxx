@@ -1402,7 +1402,7 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
 
     ATH_MSG_DEBUG("muon type " << muon->muonType() << " muon pt " << muon->pt() << " trk d0 " << trkpart->d0() << " trk z0 " << trkpart->z0() << " trk chi2 " <<trkpart->chiSquared() << " trk charge "<<trkpart->charge());
     ++nTracks;
-    if(m_debug) {
+    if(m_debug){
       if(muon->muonSpectrometerTrackParticleLink()) {
 	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	if(msTrackLink.isValid()) ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
@@ -1447,8 +1447,8 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     m_monVars.nPixel.push_back( numberOfPixelHits );
     m_monVars.nTrt.push_back( numberOfTRTHits );
 
-    m_monVars.nMdt.push_back( numberOfPrecisionLayers ); // &&&& test to check whether Mdt fills with precision layers &&&&
-    TEST_vec.push_back ( muon->pt() / Units::GeV ); // &&&&& try filling new hist with data we know is there 
+    m_monVars.nMdt.push_back( numberOfPrecisionLayers ); // testphrase test to check whether Mdt fills with precision layers 
+    TEST_vec.push_back ( muon->pt() / Units::GeV ); // testphrase try filling new hist with data we know is there 
 
   }//loop over muons
   m_monVars.numberOfTracks.push_back(nTracks);
@@ -1507,7 +1507,7 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     m_TMEF_monVars.CB.nPixel.push_back( numberOfPixelHits );
     m_TMEF_monVars.CB.nTrt.push_back( numberOfTRTHits );
 
-    m_TMEF_monVars.CB.nMdt.push_back( numberOfPrecisionLayers ); // &&&& Number of CB muon Mdt hits &&&&
+    m_TMEF_monVars.CB.nMdt.push_back( numberOfPrecisionLayers ); // testphrase Number of CB muon Mdt hits 
 
   }//loop over muons
   m_TMEF_monVars.CB.numberOfTracks.push_back(nTracks);

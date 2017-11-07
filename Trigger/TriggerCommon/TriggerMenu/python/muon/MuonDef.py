@@ -36,7 +36,7 @@ from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 
-from TrigMuSuperEF.TrigMuSuperEFConf import MyAlg #I guess you need to point to the correct algorithm package for the import here because the menu is not within that package
+from TrigMuSuperEF.TrigMuonEFTagandProbeConfig import TrigMuonEFTagandProbeConfig #I guess you need to point to the correct algorithm package for the import here because the menu is not within that package
 
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):
@@ -1224,9 +1224,10 @@ class L2EFChain_mu(L2EFChainDef):
                                 [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']] #Can I leave this the same? - no
       # testphrase
+      TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
       self.EFsequenceList += [['EF_CB_FS',
-                               [MyAlg],
-                               '']]
+                               [TrigMuonEFTagandProbeInstance],
+                               'EF_CB_FSTaP']]
 
 
     ########### Signatures ###########
@@ -1239,8 +1240,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_FStracksMuon']] ]
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
-#      self.EFsignatureList += [ [['EF_CB_FS_ma']] ] # testphrase I', not sure if I can just make this up and declare it here, we'll find out
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
+      self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
 
     ########### TE renaming ##########
 
