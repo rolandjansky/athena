@@ -160,6 +160,7 @@ void G4AtlasAlg::initializeOnce()
     // Worker Thread initialization used to create worker run manager on demand.
     // @TODO use this class to pass any configuration to worker run manager.
     runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
+    // @TODO configure all tool and service handles as in single threaded case.
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
