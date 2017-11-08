@@ -14,6 +14,7 @@
 
 #include <SystematicsHandles/SysListHandle.h>
 
+#include <AsgTools/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <RootCoreUtils/Assert.h>
@@ -36,21 +37,19 @@ namespace EL
   ::StatusCode SysListHandle ::
   initialize ()
   {
-    // take an empty property as running just the central systematics
-    // set.  implication is that you can't really run the algorithm
-    // with it doing nothing, but that ought to be Ok.
-    if (m_systematicsListProperty.empty())
-    {
-      m_systematicsVector.push_back (CP::SystematicSet ());
-      return StatusCode::SUCCESS;
-    }
-
-    // for now let's just take the list of configured systematics as
-    // is.
-    for (const std::string& sysName : m_systematicsListProperty)
-    {
-      m_systematicsVector.push_back (CP::SystematicSet (sysName));
-    }
+    m_evtStore = m_evtStoreGetter();
+    m_isInitialized = true;
     return StatusCode::SUCCESS;
+  }
+
+
+
+  const std::vector<CP::SystematicSet>& SysListHandle ::
+  systematicsVector () const noexcept
+  {
+    assert (isInitialized());
+    const SysListType *systematicsList = nullptr;
+    ANA_CHECK_THROW (m_evtStore->retrieve (systematicsList, m_systematicsListName));
+    return *systematicsList;
   }
 }

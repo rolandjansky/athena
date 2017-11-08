@@ -11,8 +11,16 @@
 // reports, feature suggestions, praise and complaints.
 
 
+#include <AsgTools/MsgStream.h>
+#include <SystematicsHandles/SysListType.h>
 #include <string>
 #include <vector>
+
+#ifdef ROOTCORE
+#include <AsgTools/SgTEvent.h>
+#else
+#include <StoreGate/StoreGateSvc.h>
+#endif
 
 class StatusCode;
 
@@ -87,14 +95,39 @@ namespace EL
     // private interface
     //
 
-    /// \brief the value of \ref systematicsVector
+    /// \brief the name under which the systematics list is stored in
+    /// the event store
   private:
-    std::vector<CP::SystematicSet> m_systematicsVector;
+    std::string m_systematicsListName;
 
-    /// \brief the variable for the property containing the
-    /// systematics list
+    /// \brief the value of \ref isInitialized
   private:
-    std::vector<std::string> m_systematicsListProperty;
+    bool m_isInitialized = false;
+
+#ifdef ROOTCORE
+    /// \brief the event store we use
+  private:
+    mutable asg::SgTEvent *m_evtStore = nullptr;
+
+    /// \brief the function to retrieve the event store
+  private:
+    std::function<asg::SgTEvent*()> m_evtStoreGetter;
+#else
+    /// \brief the event store we use
+  private:
+    mutable StoreGateSvc *m_evtStore = nullptr;
+
+    /// \brief the function to retrieve the event store
+  private:
+    std::function<StoreGateSvc*()> m_evtStoreGetter;
+#endif
+
+    /// \brief the message object we are using
+    ///
+    /// Note that this violates the ATLAS naming convention to be
+    /// compatible with the ATLAS messaging macros.
+  private:
+    std::function<MsgStream& (const MSG::Level lvl)> msg;
   };
 }
 

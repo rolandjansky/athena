@@ -23,9 +23,10 @@ namespace EL
   template<typename T> SysListHandle ::
   SysListHandle (T *owner, const std::string& propertyName,
                      const std::string& propertyDescription)
-    : m_systematicsListProperty ()
+    : m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
   {
-    owner->declareProperty (propertyName, m_systematicsListProperty,
+    owner->declareProperty (propertyName, m_systematicsListName,
                             propertyDescription);
   }
 
@@ -43,15 +44,6 @@ namespace EL
   inline bool SysListHandle ::
   isInitialized () const noexcept
   {
-    return !m_systematicsVector.empty();
-  }
-
-
-
-  inline const std::vector<CP::SystematicSet>& SysListHandle ::
-  systematicsVector () const noexcept
-  {
-    assert (isInitialized());
-    return m_systematicsVector;
+    return m_isInitialized;
   }
 }
