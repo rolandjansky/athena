@@ -114,15 +114,9 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
   }
 
   // check if initializing of DataHandle objects success
-  if (m_rdoContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for CscRawDataContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_rdoContainerKey.initialize() );
  
-  if (m_outputCollectionKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for Muon::CscStripPrepDataContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_outputCollectionKey.initialize() );
 
   return StatusCode::SUCCESS;
 }

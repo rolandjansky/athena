@@ -89,9 +89,6 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
- 
-    // ATH_MSG_DEBUG("EJWM - initialize!");
- 
   if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
     ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
     return StatusCode::FAILURE;
@@ -152,15 +149,9 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   if(m_BMEpresent) ATH_MSG_DEBUG("Processing configuration for layouts with BME chambers.");
 
   // check if initializing of DataHandle objects success
-  if (m_rdoContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for MdtCsmContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_rdoContainerKey.initialize() ); 
 
-  if (m_mdtPrepDataContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for Muon::MdtPrepDataContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_mdtPrepDataContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -173,13 +164,11 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
-  // ATH_MSG_DEBUG("EJWM - decode!"+robIds.size());
   const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
   return decode(robIds,chamberHashInRobs);
 }
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
-  // ATH_MSG_DEBUG("setupMdtPrepDataContainer");
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
@@ -209,7 +198,6 @@ const MdtCsmContainer* Muon::MdtRdoToPrepDataTool::getRdoContainer() {
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs )
 {
-  // ATH_MSG_DEBUG("EJWM - decode");
   // setup output container
   SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
   if( containerRecordStatus == FAILED ){

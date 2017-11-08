@@ -311,8 +311,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection for MS initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
-  
-  ATH_MSG_DEBUG("initialize success");
+
   return HLT::OK;
 }
 
@@ -363,7 +362,7 @@ const LVL1::RecMuonRoI* matchingRecRoI( uint32_t roiWord,
 
 StatusCode MuFastSteering::execute()
 {
-  ATH_MSG_DEBUG("REGTEST: StatusCode MuFastSteering::execute() start");
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() start");
 
   // retrieve with ReadHandle
   auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey );
@@ -380,14 +379,6 @@ StatusCode MuFastSteering::execute()
     return StatusCode::FAILURE;
   }  
 
-  // make RecMURoIs maching with MURoIs
-  const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(0)->roiWord(),  *recRoiCollection );
-  CHECK( recRoI != nullptr );
-
-  DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
-  recRoIVector->clear();
-  recRoIVector->push_back(recRoI);
-
   DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
   internalRoI->clear();
   TrigRoiDescriptorCollection::const_iterator p_roids = roiCollection->begin();
@@ -396,12 +387,9 @@ StatusCode MuFastSteering::execute()
 
   for(; p_roids != p_roidsEn; ++p_roids ) {
     internalRoI->push_back(*p_roids);
-    double roiEta = (*p_roids)->eta();
-    double roiPhi = (*p_roids)->phi();
-    double roiZed = (*p_roids)->zed();
-    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << roiEta << "(" << (*p_roids)->etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << roiPhi << "(" << (*p_roids)->phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << roiZed << "(" << (*p_roids)->zedPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
   ATH_MSG_DEBUG("REGTEST: MURoIs DONE");
 
@@ -409,9 +397,15 @@ StatusCode MuFastSteering::execute()
   DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
   ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << recRoiCollection->size());
 
-  for(; p_roi != p_roiEn; ++p_roi ) {
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
-  }
+  // make RecMURoIs maching with MURoIs
+  const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(0)->roiWord(),  *recRoiCollection );
+  CHECK( recRoI != nullptr );
+
+  DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
+  recRoIVector->clear();
+  recRoIVector->push_back(recRoI);
+
+  ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
   ATH_MSG_DEBUG("REGTEST: RecMURoIs DONE");
 
   // define objects to record output data
@@ -488,15 +482,15 @@ StatusCode MuFastSteering::execute()
 HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/, 
                                           HLT::TriggerElement* outputTE)
 {
-  ATH_MSG_DEBUG("REGTEST: hltExecute called");
+  ATH_MSG_DEBUG("hltExecute called");
 
   std::vector< const TrigRoiDescriptor*> roids;
   std::vector< const TrigRoiDescriptor*>::const_iterator p_roids;
-  HLT::ErrorCode hec2 = getFeatures(outputTE, roids);	// to be changed
+  HLT::ErrorCode hec2 = getFeatures(outputTE, roids);	
  
   std::vector<const LVL1::RecMuonRoI*> muonRoIs;
   std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
-  HLT::ErrorCode hec = getFeatures(outputTE, muonRoIs);	// to be changed
+  HLT::ErrorCode hec = getFeatures(outputTE, muonRoIs);	
 
   if (hec != HLT::OK && hec2 != HLT::OK) {
     ATH_MSG_ERROR("Could not find input TE");
@@ -504,29 +498,28 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   }
  
   bool ActiveState = outputTE->getActiveState();
- 
+
   DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
   ATH_MSG_DEBUG("REGTEST: MURoIs size: " << roids.size());
 
-  for (p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
-    internalRoI->push_back(*p_roids);
-    double roiEta = (*p_roids)->eta();
-    double roiPhi = (*p_roids)->phi();
-    double roiZed = (*p_roids)->zed();
-    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << roiEta << "(" << (*p_roids)->etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << roiPhi << "(" << (*p_roids)->phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << roiZed << "(" << (*p_roids)->zedPlus() << ")");
-  }
-  ATH_MSG_DEBUG("REGTEST: MURoIs DONE");
- 
   DataVector<const LVL1::RecMuonRoI> *internalRecRoI = new DataVector<const LVL1::RecMuonRoI>;
   ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << muonRoIs.size());
 
-  for(p_roi=muonRoIs.begin(); p_roi!=muonRoIs.end(); ++p_roi) {
+  p_roids = roids.begin();
+  p_roi = muonRoIs.begin();
+  for (const auto& roid : roids){
+    internalRoI->push_back(*p_roids);
+    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
+
     internalRecRoI->push_back(*p_roi);
     ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
+
+    p_roids++;
+    p_roi++;
   }
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs DONE");
+  ATH_MSG_DEBUG("REGTEST: DONE");
 
   // define objects to record output data
   // for xAOD::L2StandAloneMuonContainer
@@ -534,7 +527,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   outputTracks->clear();
   xAOD::L2StandAloneMuonAuxContainer aux;
   outputTracks->setStore( &aux );
-
+  
   // for xAOD::TrigCompositeContainer
   xAOD::TrigCompositeContainer* outputComposite = new xAOD::TrigCompositeContainer();
   outputComposite->clear();
@@ -552,7 +545,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   // to StatusCode findMuonSignature()
   StatusCode sc = findMuonSignature(*internalRoI, *internalRecRoI, 
 				    outputTracks, outputID, outputMS, outputComposite);	
-
+  
   HLT::ErrorCode code = HLT::OK;
   // in case of findMuonSignature failed
   if (sc != StatusCode::SUCCESS) {
@@ -584,6 +577,11 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   } else {
     ActiveState = true;
     outputTE -> setActiveState(ActiveState);
+    int size = 0;
+    for (int size=0; size<outputTracks->size(); size++){
+     outputTracks->at(size)->setTeId( outputTE->getId() );		
+     ATH_MSG_DEBUG("outputTE(" << size << ") = " << outputTracks->at(size)->teId());
+    }
     code = attachFeature(outputTE, outputTracks, "MuonL2SAInfo");
     if ( code != HLT::OK ) { 
       ATH_MSG_ERROR("Record of MuonL2SAInfo failed");
@@ -647,13 +645,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       return false;
     }
   }
-
-  // to do
-  // InternalRoI and internalRecRoI objects need to be retrieved
-  // in each roids and muonRoI.
-  // need to add attachFeature() for ID and MS in order to record the data objects.
-  // need to add an argument that delivers outputTE object to findMuonSignature.
-
   return HLT::OK;
 }
 
@@ -1184,7 +1175,7 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
     /// Set L2 muon algorithm ID
     muonSA->setAlgoId( L2MuonAlgoMap(name()) );
     /// Set input TE ID
-//    muonSA->setTeId( inputTE->getId() );	// what to do	
+    //muonSA->setTeId( inputTE->getId() );	// move to hltExecute()	
     /// Set level-1 ID
     muonSA->setLvl1Id( pTriggerInfo->extendedLevel1ID() );
     /// Set lumi block

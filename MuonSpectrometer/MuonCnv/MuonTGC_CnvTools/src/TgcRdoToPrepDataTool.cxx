@@ -140,10 +140,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   }
   
   // check if initializing of DataHandle objects success
-  if (m_rdoContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for TgcRdoContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_rdoContainerKey.initialize() );
   
   //try to configure the cabling service
   sc = getCabling();

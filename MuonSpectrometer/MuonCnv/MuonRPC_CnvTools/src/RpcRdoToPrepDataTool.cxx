@@ -208,20 +208,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
    }
 
   // check if initializing of DataHandle objects success
-  if (m_rdoContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("ReadHandleKey for RpcPadContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_rdoContainerKey.initialize() );
 
-  if (m_rpcPrepDataContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for Muon::RpcPrepDataContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_rpcPrepDataContainerKey.initialize() );
 
-  if (m_rpcCoinDataContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for Muon::RpcCoinDataContainer initialize Failure");
-    return StatusCode::FAILURE;
-  }  
+  ATH_CHECK( m_rpcCoinDataContainerKey.initialize() );
    
   return StatusCode::SUCCESS;
 }

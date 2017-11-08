@@ -76,11 +76,11 @@ class MuFastSteering : public HLT::FexAlgo,
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* /*inputTE*/, 
 			    HLT::TriggerElement* outputTE);
 
-  //adding a part of DataHandle for AthenaMT
   /** execute(), main code of the algorithm for AthenaMT*/
   StatusCode execute();
 
-  /** findTracks(), reconstract **/
+  /** findMuonSignature(), includes reconstract algorithms **/
+  /** this function can be called from both execute() and hltExecute() **/
   StatusCode findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roi, 
 			       const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
                                xAOD::L2StandAloneMuonContainer* 		outputTracks,
