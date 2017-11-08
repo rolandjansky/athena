@@ -12,7 +12,7 @@
 // includes
 //
 
-#include <SystematicsHandles/SysVectorProperty.h>
+#include <SystematicsHandles/SysListHandle.h>
 
 #include <AsgTools/StatusCode.h>
 #include <PATInterfaces/SystematicSet.h>
@@ -24,7 +24,7 @@
 
 namespace EL
 {
-  void SysVectorProperty ::
+  void SysListHandle ::
   addAffectingSystematics (const CP::SystematicSet& /*affectingSystematics*/)
   {
     assert (!isInitialized());
@@ -33,7 +33,7 @@ namespace EL
 
 
 
-  ::StatusCode SysVectorProperty ::
+  ::StatusCode SysListHandle ::
   initialize ()
   {
     // take an empty property as running just the central systematics

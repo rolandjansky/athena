@@ -14,7 +14,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgTools/AsgTool.h>
-#include <SystematicsHandles/SysVectorProperty.h>
+#include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 
@@ -28,14 +28,14 @@ int main ()
   CP::SystematicSet *sys = nullptr;
 
   EL::AnaAlgorithm *alg = nullptr;
-  EL::SysVectorProperty algProperty (alg);
+  EL::SysListHandle algProperty (alg);
   EL::SysReadHandle<float> algHandle (alg, "test", "test", "test");
   algProperty.addInputHandle (algHandle);
 
-  // we probably don't want to use SysVectorProperty with tools, but
+  // we probably don't want to use SysListHandle with tools, but
   // we may as well allow it for now.
   asg::AsgTool *tool = nullptr;
-  EL::SysVectorProperty toolProperty (tool);
+  EL::SysListHandle toolProperty (tool);
   EL::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
   toolProperty.addInputHandle (toolHandle);
 }

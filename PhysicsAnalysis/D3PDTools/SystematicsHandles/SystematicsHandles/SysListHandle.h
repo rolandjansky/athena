@@ -1,5 +1,5 @@
-#ifndef SYSTEMATICS_HANDLES__SYS_VECTOR_PROPERTY_H
-#define SYSTEMATICS_HANDLES__SYS_VECTOR_PROPERTY_H
+#ifndef SYSTEMATICS_HANDLES__SYS_LIST_HANDLE_H
+#define SYSTEMATICS_HANDLES__SYS_LIST_HANDLE_H
 
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
@@ -26,7 +26,7 @@ namespace EL
   /// \brief a class managing the property to configure the list of
   /// systematics to process
 
-  class SysVectorProperty
+  class SysListHandle
   {
     //
     // public interface
@@ -35,7 +35,7 @@ namespace EL
     /// \brief standard constructor
   public:
     template<typename T>
-    SysVectorProperty (T *owner, const std::string& propertyName = "systematics",
+    SysListHandle (T *owner, const std::string& propertyName = "systematics",
                        const std::string& propertyDescription = "list of systematics to evaluate");
 
 
@@ -98,6 +98,6 @@ namespace EL
   };
 }
 
-#include "SysVectorProperty.icc"
+#include "SysListHandle.icc"
 
 #endif

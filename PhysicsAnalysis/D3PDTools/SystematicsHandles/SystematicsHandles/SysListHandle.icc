@@ -20,8 +20,8 @@
 
 namespace EL
 {
-  template<typename T> SysVectorProperty ::
-  SysVectorProperty (T *owner, const std::string& propertyName,
+  template<typename T> SysListHandle ::
+  SysListHandle (T *owner, const std::string& propertyName,
                      const std::string& propertyDescription)
     : m_systematicsListProperty ()
   {
@@ -31,7 +31,7 @@ namespace EL
 
 
 
-  template<typename T> void SysVectorProperty ::
+  template<typename T> void SysListHandle ::
   addInputHandle (const T& /*inputHandle*/)
   {
     assert (!isInitialized());
@@ -40,7 +40,7 @@ namespace EL
 
 
 
-  inline bool SysVectorProperty ::
+  inline bool SysListHandle ::
   isInitialized () const noexcept
   {
     return !m_systematicsVector.empty();
@@ -48,7 +48,7 @@ namespace EL
 
 
 
-  inline const std::vector<CP::SystematicSet>& SysVectorProperty ::
+  inline const std::vector<CP::SystematicSet>& SysListHandle ::
   systematicsVector () const noexcept
   {
     assert (isInitialized());
