@@ -1,5 +1,5 @@
 #====================================================================
-# HIGG1D2.py -- to be checked
+# HIGG1D2.py
 # This requires the reductionConf flag HIGG1D2 in Reco_tf.py   
 #====================================================================
 
@@ -13,81 +13,165 @@ from DerivationFrameworkMuons.MuonsCommon import *
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+
 if globalflags.DataSource()=='geant4':
-    from DerivationFrameworkHiggs.TruthCategories import *
+	from DerivationFrameworkHiggs.TruthCategories import *
 
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    addStandardTruthContents()
-    addPVCollection()
-    print "HIGG1D1.py Applying MCTruthCommon"
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
+  addStandardTruthContents()
+  addPVCollection()
+  print "HIGG1D2.py Applying MCTruthCommon"
 
-#====================================================================
-# SKIMMING TOOLS
-#====================================================================
+
 
 
 #====================================================================
-# eegamma selection, di-electron triggers
-# two opposite-sign medium el, pT>10 GeV, |eta|<2.5, mee>40 GeV
-# gamma: reco, ET>10 GeV< |eta|<2.5
+# SKIMMING TOOLS 
 #====================================================================
 
-if RecomputeElectronSelectors :
-    requirementEl = '(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
-else :
-    requirementEl = '(Electrons.Loose || Electrons.DFCommonElectronsLHLoose) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
+
+SkipTriggerRequirement=((globalflags.DataSource()=='geant4'))
+print "HIGG1D2.py SkipTriggerRequirement: ",  SkipTriggerRequirement
+TriggerExp = []
+TriggerMerged = []
+if not SkipTriggerRequirement:
+   
+   try:
+     year=int(rec.projectName()[4:6])
+     if year > 17 :
+       year=17
+     print "HIGG1D2.py: Project tag: " + rec.projectName() +  " Year: " +  str(year)
+   except:
+     print "HIGG1D2.py: Failed to extract year from project tag "+ rec.projectName() +". Guessing 2017"
+     year=17
+   print "HIGG1D2.py: Setting up trigger requirement for year 20" + str(year)
+   if year==17:
+     TriggerMerged          = ["HLT_e25_mergedtight_g35_medium_Heg","HLT_2g50_loose_L12EM20VH"]
+     TriggerExp             = [ 
+                               "HLT_g25_medium_mu24", #photon muon
+                               "HLT_g15_loose_2mu10_msonly", #photon dimuon
+                               "HLT_g35_loose_L1EM24VHI_mu15_mu2noL1", # photon dimuon
+                               "HLT_g35_loose_L1EM24VHI_mu18",  #photon muon
+                               "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1", # photon dimuon 
+                               "HLT_g35_tight_icalotight_L1EM24VHI_mu18noL1", # photon muon
+                               "HLT_2mu14", #dimuon 
+                               "HLT_mu22_mu8noL1", #dimuon
+                               "HLT_mu26_ivarmedium", #single muon
+                               "HLT_mu50", 
+                               "HLT_mu60_0eta105_msonly", 
+                               "HLT_e26_lhtight_nod0_ivarloose", #single electron
+                               "HLT_e60_lhmedium_nod0",
+                               "HLT_e140_lhloose_nod0",
+                               "HLT_2e17_lhvloose_nod0_L12EM15VHI", #dielectron
+                               "HLT_2e24_lhvloose_nod0",
+                               "HLT_e25_mergedtight_g35_medium_Heg", #merged electron
+                               "HLT_2g50_loose_L12EM20VH", #di photon
+                               "HLT_g200_loose", #single photon
+                               "HLT_g300_etcut"  #single photon
+                              ]
+   elif year==16:
+     #2016
+     TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_e20_lhmedium_nod0_g35_loose"]
+     TriggerExp             = [ 
+                               "HLT_g25_medium_mu24", #photon muon
+                               "HLT_g15_loose_2mu10_msonly", #photon dimuon
+                               "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1", # photon dimuon
+                               "HLT_g35_loose_L1EM22VHI_mu18noL1",  #photon muon
+                               "HLT_2mu10",
+                               "HLT_2mu14", #dimuon 
+                               "HLT_mu22_mu8noL1", #dimuon
+                               "HLT_mu20_mu8noL1",
+                               "HLT_mu24_ivarmedium", #single muon
+                               "HLT_mu26_ivarmedium",
+                               "HLT_mu50", 
+                               "HLT_e24_lhtight_nod0_ivarloose", #single electron
+                               "HLT_e26_lhtight_nod0_ivarloose",
+                               "HLT_e60_lhmedium_nod0",
+                               "HLT_e60_medium",
+                               "HLT_e140_lhloose_nod0",
+                               "HLT_2e15_lhvloose_nod0_L12EM153VHI", #dielectron
+                               "HLT_2e17_lhvloose_nod0",
+                               "HLT_g35_loose_g25_loose", #di photon
+                               "HLT_e20_lhmedium_nod0_g35_loose", # electron  +  photon
+                               "HLT_g140_loose", #single photon
+                               "HLT_g300_etcut"  #single photon
+                              ]
+   elif year == 2015: 
+     #2015
+     TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_e20_lhmedium_g35_loose"]
+     TriggerExp             = [ 
+                               "HLT_g25_medium_mu24", #photon muon
+                               "HLT_g15_loose_2mu10_msonly", #photon dimuon
+                               "HLT_2mu10", #dimuon 
+                               "HLT_mu18_mu8noL1", #dimuon
+                               "HLT_mu20_iloose_L1MU15", #single muon
+                               "HLT_mu40", 
+                               "HLT_mu60_0eta105_msonly", 
+                               "HLT_e24_lhmedium_L1EM20VH", #single electron
+                               "HLT_e60_lhmedium",
+                               "HLT_e120_lhloose",
+                               "HLT_2e12_lhvloose_L12EM10VH", #dielectron
+                               "HLT_e20_lhmedium_g35_loose", #electron + photon
+                               "HLT_g35_loose_g25_loose", #di photon
+                               "HLT_g120_loose", #single photon
+                               "HLT_g200_etcut"  #single photon
+                              ]
+   else:
+     print "HIGG1D2.py : Year not supported -- results might be ugly. Year : ", year 
 
 
-requirementMu = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection'
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
-HIGG1D2_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "HIGG1D2_EEMassTool",
-                                                             Object1Requirements = requirementEl,
-                                                             Object2Requirements = requirementEl,
-                                                             StoreGateEntryName = "HIGG1D2_DiElectronMass",
-                                                             Mass1Hypothesis = 0.511*MeV,
-                                                             Mass2Hypothesis = 0.511*MeV,
-                                                             Container1Name = "Electrons",
-                                                             Container2Name = "Electrons",
-                                                             Pt1BranchName = "DFCommonElectrons_pt",
-                                                             Eta1BranchName = "DFCommonElectrons_eta",
-                                                             Phi1BranchName = "DFCommonElectrons_phi",
-                                                             Pt2BranchName = "DFCommonElectrons_pt",
-                                                             Eta2BranchName = "DFCommonElectrons_eta",
-                                                             Phi2BranchName = "DFCommonElectrons_phi",
-                                                             CheckCharge = True,
-                                                             DoTransverseMass = False,
-                                                             MinDeltaR = 0.0)
-ToolSvc += HIGG1D2_EEMassTool
-print HIGG1D2_EEMassTool
-
-HIGG1D2_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "HIGG1D2_MuMuMassTool",
-                                                               Object1Requirements = requirementMu,
-                                                               Object2Requirements = requirementMu,
-                                                               StoreGateEntryName = "HIGG1D2_DiMuonMass",
-                                                               Mass1Hypothesis = 105*MeV,
-                                                               Mass2Hypothesis = 105*MeV,
-                                                               Container1Name = "Muons",
-                                                               Container2Name = "Muons",
-                                                               CheckCharge = True,
-                                                               DoTransverseMass = False,
-                                                               MinDeltaR = 0.0)
-ToolSvc += HIGG1D2_MuMuMassTool
-print HIGG1D2_MuMuMassTool
+print "HIGG1D2.py TriggerExp", TriggerExp
 
 
-#====================================================================
-# SKIMMING TOOL
-#====================================================================
-expression = '(count(abs(DFCommonPhotons_eta)<2.5 && DFCommonPhotons_et>9.5*GeV)>=1 && (count(HIGG1D2_DiElectronMass > 40.0*GeV)>=1 || count(HIGG1D2_DiMuonMass > 40.0*GeV)>=1)) || (count(DFCommonPhotons_et>500*GeV && abs(DFCommonPhotons_eta)<2.4 && Photons.DFCommonPhotonsIsEMLoose)>=1)'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-HIGG1D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG1D2SkimmingTool",
-                                                               expression = expression)
+RequireTrigger=not SkipTriggerRequirement
+
+print "HIGG1D2.py RequireTrigger", RequireTrigger
+
+
+from ROOT import egammaPID
+MergedElectronIsEM = CfgMgr.AsgElectronIsEMSelector("MergedElectronIsEM",
+                                             isEMMask=egammaPID.ElectronTightHLT,
+                                             ConfigFile="ElectronPhotonSelectorTools/trigger/rel21_20161021/ElectronIsEMMergedTightSelectorCutDefs.conf")
+ToolSvc += MergedElectronIsEM
+    
+
+
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG1
+HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
+                                 name = "HIGG1D2SkimmingTool",
+                                 RequireGRL = False,
+                                 ReqireLArError = True,
+                                 RequireTrigger = RequireTrigger,
+                                 IncludeDoublePhotonPreselection = False,
+                                 RequirePreselection = False,
+                                 RequireKinematic = False,
+                                 RequireQuality = False,
+                                 RequireIsolation = False,
+                                 RequireInvariantMass = False,
+                                 Triggers = TriggerExp,
+                                 MergedElectronTriggers = TriggerMerged,
+                                 IncludeSingleElectronPreselection = False,
+                                 IncludeDoubleElectronPreselection = False,
+                                 IncludeSingleMuonPreselection = False,
+                                 IncludePhotonDoubleElectronPreselection = True,
+                                 IncludeDoubleMuonPreselection = True,
+                                 IncludePhotonMergedElectronPreselection = True,
+                                 IncludeHighPtPhotonElectronPreselection = True,
+                                 MinimumPhotonPt = 7.5*GeV,
+                                 MinimumElectronPt = 7.5*GeV,
+                                 MinimumMuonPt = 7.5*GeV,   
+                                 MaxMuonEta = 2.7,     
+                                 RemoveCrack = False,    
+                                 MaxEta = 2.5,
+                                 MergedElectronCutTool = MergedElectronIsEM
+                                 )
+
 ToolSvc += HIGG1D2SkimmingTool
-print "HIGG1D2 skimming tool:", HIGG1D2SkimmingTool
+print HIGG1D2SkimmingTool
 
 
 
@@ -169,9 +253,9 @@ print HIGG1D2TPThinningTool
 
 
 # Truth thinning
-truth_cond_1    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
+truth_cond_1 = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
 truth_cond_2 = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-truth_cond_3  = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
+truth_cond_3 = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
 truth_cond_4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
 truth_cond_finalState = '(TruthParticles.status == 1 && TruthParticles.barcode < 200000)' # stable particles
 truth_expression = '('+truth_cond_1+' || '+truth_cond_2 +' || '+truth_cond_3 +' || '+truth_cond_4+') || ('+truth_cond_finalState+')'
@@ -203,11 +287,10 @@ HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D2Kernel",
-                                                                       AugmentationTools = [HIGG1D2_EEMassTool,HIGG1D2_MuMuMassTool],
+                                                                       #AugmentationTools = [HIGG1D2_EEMassTool,HIGG1D2_MuMuMassTool],
                                                                        SkimmingTools = [HIGG1D2SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                       )
-
 
 # Before any custom jet reconstruction, it's good to set up the output list
 OutputJets["HIGG1D2Jets"] = []
@@ -279,4 +362,3 @@ HIGG1D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG1D2SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG1D2SlimmingHelper.AppendContentToStream(HIGG1D2Stream)
-
