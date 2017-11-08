@@ -5,6 +5,7 @@
 // author: cpollard@cern.ch
 
 #include "ParticleJetTools/JetParticleAssociation.h"
+#include "AsgTools/AsgTool.h"
 
 using namespace std;
 using namespace xAOD;
@@ -12,44 +13,29 @@ using namespace xAOD;
 JetParticleAssociation::JetParticleAssociation(const string& name)
     : AsgTool(name) {
 
-        declareProperty("jetCollectionName", m_jetCollectionName);
         declareProperty("outputCollectionName", m_outputCollectionName);
+        dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
 
         return;
     }
 
-StatusCode JetParticleAssociation::initialize() {
-    dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
+int JetParticleAssociation::modify(xAOD::JetContainer& jets) const {
 
-    return StatusCode::SUCCESS;
-}
-
-StatusCode JetParticleAssociation::execute() {
-
-    const JetContainer* jets = NULL;
-    if ( evtStore()->retrieve( jets, m_jetCollectionName ).isFailure() ) {
-        ATH_MSG_FATAL("JetParticleAssociation: "
-                "failed to retrieve jet collection \"" +
-                m_jetCollectionName + "\"");
-        return StatusCode::FAILURE;
-    }
-
-    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(*jets);
+    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(jets);
 
 
     SG::AuxElement::ConstAccessor<vector<ElementLink<TrackParticleContainer> > >
         trkacc("BTagTrackToJetAssociator");
 
-    for (unsigned int iJet = 0; iJet < jets->size(); iJet++)
-        (*dec)(*jets->at(iJet)) = (*matches)[iJet];
+    for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+        (*dec)(*jets.at(iJet)) = (*matches)[iJet];
 
     delete matches;
 
-    return StatusCode::SUCCESS;
+    return 0;
 }
 
 
-StatusCode JetParticleAssociation::finalize() {
+JetParticleAssociation::~JetParticleAssociation() {
     delete dec;
-    return StatusCode::SUCCESS;
 }

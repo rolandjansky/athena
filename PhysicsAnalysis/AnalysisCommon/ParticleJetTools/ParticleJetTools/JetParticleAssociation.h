@@ -8,6 +8,7 @@
 #define PARTICLEJETTOOLS_JETPARTICLEASSOCIATION_H
 
 #include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetModifier.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBase/IParticle.h"
 
@@ -15,24 +16,21 @@
 #include <string>
 
 
-class JetParticleAssociation : public asg::AsgTool {
+class JetParticleAssociation : public IJetModifier, public asg::AsgTool {
     ASG_TOOL_INTERFACE(JetParticleAssociation)
-
     public:
 
         JetParticleAssociation(const std::string& name);
-
-        StatusCode initialize();
-        StatusCode execute();
-        StatusCode finalize();
+        ~JetParticleAssociation();
 
         // obvs to be provided by the deriving class
         virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
             match(const xAOD::JetContainer&) const = 0;
 
+        int modify(xAOD::JetContainer& jets) const;
+
     private:
         std::string m_outputCollectionName;
-        std::string m_jetCollectionName;
         SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > *dec;
 };
 

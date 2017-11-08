@@ -11,7 +11,7 @@
 #include "ParticleJetTools/JetPartonTruthLabel.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
-#include "ParticleJetTools/JetParticleAssociationAlg.h"
+#include "ParticleJetTools/JetModifierAlg.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 
@@ -32,7 +32,7 @@ DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
 DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
 DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
 DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
-DECLARE_ALGORITHM_FACTORY( JetParticleAssociationAlg )
+DECLARE_ALGORITHM_FACTORY( JetModifierAlg )
 
 /** factory entries need to have the name of the package */
 DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
@@ -51,5 +51,5 @@ DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
     DECLARE_TOOL( ParticleJetDeltaRLabelTool )
     DECLARE_TOOL( JetParticleShrinkingConeAssociation )
     DECLARE_TOOL( JetParticleCenterOfMassAssociation )
-    DECLARE_ALGORITHM( JetParticleAssociationAlg )
+    DECLARE_ALGORITHM( JetModifierAlg )
 }
