@@ -99,7 +99,12 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   // This is defaulted to zero, because fastjet will only return non-zero pseudojets
   std::vector<xAOD::JetFourMom_t> corrected_p4s(cont->size(),xAOD::JetFourMom_t(0.,0.,0.,0.));
   // Set the corrected four-vectors
-  for(PseudoJet & pj : corrected_event) {
+  for(PseudoJet & pj : inputs_to_correct) {
+    ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
+    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
+  }
+  // Set the uncorrected four-vectors
+  for(PseudoJet & pj : inputs_to_not_correct) {
     ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
     corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
@@ -108,7 +113,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
 
-  // Set every constituent's four-vector
+  // Set every constituent's four-vector in the output container
   i = 0; // Again, we need to track the input container index, not the owning container index
   const static SG::AuxElement::Accessor<float> weightAcc("CSWeight"); // Handle for PU weighting here
   for(xAOD::IParticle * part: *cont){

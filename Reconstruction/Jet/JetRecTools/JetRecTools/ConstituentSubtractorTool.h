@@ -38,7 +38,6 @@ private:
   float m_maxEta;
   float m_maxRapForRhoComputation;
   bool m_ignoreChargedPFOs;
-
 };
 
 #endif
