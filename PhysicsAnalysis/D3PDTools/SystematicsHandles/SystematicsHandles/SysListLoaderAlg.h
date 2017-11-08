@@ -61,6 +61,15 @@ namespace EL
   private:
     std::vector<std::string> m_systematicsList;
 
+    /// \brief load all recommended systematics at the given number of
+    /// sigmas
+    ///
+    /// The idea here is that this allows to run a simple analysis by
+    /// itself without having to generate the list of systematics
+    /// manually.
+  private:
+    float m_sigmaRecommended = 0;
+
     /// \brief the list of actual systematics
   private:
     std::vector<CP::SystematicSet> m_systematicsVector;
