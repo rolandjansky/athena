@@ -361,3 +361,22 @@ def addBSMAndDownstreamParticles(kernel=None, generations=-1):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBSMAndDecaysKernel",
                                                              AugmentationTools = [DFCommonBSMAndDecaysTool] )
+
+# Add a mini-collection for the born leptons
+def addBornLeptonCollection(kernel=None):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonBornLeptonsKernel'):
+        # Already there!  Carry on...
+        return
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthBornLeptonCollectionMaker
+    DFCommonBornLeptonCollTool = DerivationFramework__TruthBornLeptonCollectionMaker( name="DFCommonBornLeptonCollTool",
+                                                                         NewCollectionName="BornLeptons")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonBornLeptonCollTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBornLeptonsKernel",
+                                                             AugmentationTools = [DFCommonBornLeptonCollTool] )
