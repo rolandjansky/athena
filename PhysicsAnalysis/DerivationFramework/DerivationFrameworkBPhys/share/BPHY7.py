@@ -580,7 +580,8 @@ ToolSvc += BPHY7JetThinningTool;
 #from DerivationFrameworkTau.TruthObjectTools import *  # should give me the definition of TERUTH1TauTool
 
 if isSimulation:
-    from DerivationFrameworkTau.TauTruthCommon import *
+    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    scheduleTauTruthTools()
 #also added the TruthTau containers to the output
 
 #====================================================================

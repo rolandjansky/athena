@@ -12,7 +12,6 @@ from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
-from DerivationFrameworkTau.TauCommon import *
 
 
 # =============================================

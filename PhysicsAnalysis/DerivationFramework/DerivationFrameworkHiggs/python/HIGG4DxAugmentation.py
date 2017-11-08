@@ -76,7 +76,8 @@ def setup(HIGG4DxName, ToolSvc):
 
     if DFisMC:
         # Tau truth matching - using the tau tools
-        from DerivationFrameworkTau.TauTruthCommon import *
+        from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+        scheduleTauTruthTools()
 
     #Tau Overlapping Electron LLH Decorator
     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauOverlappingElectronLLHDecorator
