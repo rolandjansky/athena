@@ -81,7 +81,7 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                 )
     jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt4trk]
-    addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
+    addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="akt4track", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
