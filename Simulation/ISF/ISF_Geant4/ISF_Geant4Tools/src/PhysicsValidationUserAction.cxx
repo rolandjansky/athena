@@ -42,32 +42,31 @@
 // STL includes
 #include <iostream>
 #include "GaudiKernel/ISvcLocator.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA{
 
   namespace iGeant4 {
 
-    PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config):AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"), "PhysicsValidationUserAction"),
-      m_config(config),m_geoIDSvcQuick(0),  
+    PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config)
+      : m_config(config)
+      , m_geoIDSvcQuick(0)
       // branches
-      m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0),
-      m_thEnd(0), m_phEnd(0), m_dEnd(0),
-      m_X0(0), m_L0(0), m_wZ(0), m_dt(0),
+      , m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0)
+      , m_thEnd(0), m_phEnd(0), m_dEnd(0)
+      , m_X0(0), m_L0(0), m_wZ(0), m_dt(0)
       // more branches
-      m_interactions(nullptr),
-      m_process(0), m_pdg_mother(0), m_gen_mother(0), m_nChild(0),
-      m_vtx_dist(0), m_vtx_theta(0), m_vtx_phi(0), m_vtx_e_diff(0),
-      m_vtx_p_diff(0), m_vtx_plong_diff(0), m_vtx_pperp_diff(0),
-      m_p_mother(0), m_radLength(0),
-      m_volumeOffset(1),
-      m_minHistoryDepth(0),
-      m_currentTrack(0)
+      , m_interactions(nullptr)
+      , m_process(0), m_pdg_mother(0), m_gen_mother(0), m_nChild(0)
+      , m_vtx_dist(0), m_vtx_theta(0), m_vtx_phi(0), m_vtx_e_diff(0)
+      , m_vtx_p_diff(0), m_vtx_plong_diff(0), m_vtx_pperp_diff(0)
+      , m_p_mother(0), m_radLength(0)
+      , m_volumeOffset(1)
+      , m_minHistoryDepth(0)
+      , m_currentTrack(0)
+      , m_msg("PhysicsValidationUserAction")
     {
-      if(4<m_config.verboseLevel)
-        {
-          G4cout << "create PhysicsValidationUserAction" << G4endl;
-        }
+      m_msg.get().setLevel(m_config.verboseLevel);
     }
 
     void PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)

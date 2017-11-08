@@ -35,18 +35,18 @@ namespace ISF {
 #include "G4UserRunAction.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4UserTrackingAction.hh"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/MsgStreamMember.h"
 
 namespace G4UA{
   namespace iGeant4 {
-    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction, public AthMessaging
+    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction
     {
 
     public:
 
       struct Config
       {
-        unsigned int verboseLevel=0;
+        MSG::Level verboseLevel=MSG::INFO;
 	bool validationOutput = true;
 	std::string validationStream="ISFG4SimKernel";
 	ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
@@ -133,6 +133,10 @@ namespace G4UA{
       mutable int m_currentTrack;
       std::map<int, int> m_trackGenMap;
       
+      /// Log a message using the Athena controlled logging system
+      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+      mutable Athena::MsgStreamMember m_msg;
     }; // class PhysicsValidationUserAction
 
   } // namespace iGeant4
