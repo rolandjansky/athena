@@ -185,39 +185,39 @@ Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale fa
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.917431)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.000000)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.847458)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xfb703a0
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xf30e070
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMTopo...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMTopojets
 ToolSvc.JetCalibTool_A...INFO    Reading global JES settings from: JES_MC16Recommendation_Aug2017.config
-ToolSvc.JetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationConfigs/JES_MC16Recommendation_Aug2017.config
+ToolSvc.JetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationConfigs/JES_MC16Recommendation_Aug2017.config
 ToolSvc.JetCalibTool_A...INFO    Initializing pileup correction.
 ToolSvc.JetCalibTool_A...INFO    JetPileupCorrection: Starting scale: JetConstitScaleMomentum
 ToolSvc.JetCalibTool_A...INFO    Jet area pile up correction will be applied.
-ToolSvc.JetCalibTool_A...INFO    Reading residual jet-area pile-up correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/MC16a_Residual_4EM.config
+ToolSvc.JetCalibTool_A...INFO    Reading residual jet-area pile-up correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/MC16a_Residual_4EM.config
 ToolSvc.JetCalibTool_A...INFO    Description: 
 ToolSvc.JetCalibTool_A...INFO    Initializing JES correction.
-ToolSvc.JetCalibTool_A...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/MC16a_MCJES_4EM_July2017.config
+ToolSvc.JetCalibTool_A...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/MC16a_MCJES_4EM_July2017.config
 ToolSvc.JetCalibTool_A...INFO    Description: MCJES derived in July 2017 for MC16
 ToolSvc.JetCalibTool_A...INFO    Initializing GSC correction.
 ToolSvc.JetCalibTool_A...INFO    Initializing the Global Sequential Calibration tool
-ToolSvc.JetCalibTool_A...INFO    GSC Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/MC16a_GSC_factors_4EMOnly_29July2017.root
+ToolSvc.JetCalibTool_A...INFO    GSC Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/MC16a_GSC_factors_4EMOnly_29July2017.root
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetFatCalibToo...INFO    Initializing ToolSvc.JetFatCalibTool_AntiKt4EMTopo...
 ToolSvc.JetFatCalibToo...INFO    ===================================
 ToolSvc.JetFatCalibToo...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt10LCTopoTrimmedPtFrac5SmallR20jets
 ToolSvc.JetFatCalibToo...INFO    Reading global JES settings from: JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config
-ToolSvc.JetFatCalibToo...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationConfigs/JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config
+ToolSvc.JetFatCalibToo...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationConfigs/JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config
 ToolSvc.JetFatCalibToo...INFO    Initializing JES correction.
-ToolSvc.JetFatCalibToo...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/mc15_JES_akt10_50ns_1.config
+ToolSvc.JetFatCalibToo...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/mc15_JES_akt10_50ns_1.config
 ToolSvc.JetFatCalibToo...INFO    Description: JES for fat jets for MC15
 ToolSvc.JetFatCalibToo...INFO    Initializing JMS correction.
 ToolSvc.JetFatCalibToo...INFO    Initializing the JMS Calibration tool
-ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/MC15_JMS_akt10.root
+ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/MC15_JMS_akt10.root
 ToolSvc.JetFatCalibToo...INFO    Track Assisted Jet Mass will be calibrated
-ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/AntiKt10LCTopoTrimmedPtFrac5SmallR20_MC15_TrkAssistedMass.root
+ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/AntiKt10LCTopoTrimmedPtFrac5SmallR20_MC15_TrkAssistedMass.root
 ToolSvc.JetFatCalibToo...INFO    Mass Combination: ON
-ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with mass combination weights from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-77/CalibrationFactors/QCD_Combination_Nov2016.root
+ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with mass combination weights from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-79/CalibrationFactors/QCD_Combination_Nov2016.root
 ToolSvc.JetFatCalibToo...INFO    JMS Tool will use the implied pt_mass_eta binning strategy
 ToolSvc.JetFatCalibToo...INFO    ===================================
 
@@ -227,11 +227,16 @@ ToolSvc.JetFatCalibToo...INFO    ===================================
 
 ToolSvc.WTagger          INFO    Initializing SmoothedWZTagger tool
 ToolSvc.WTagger          INFO    Using config file : SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+ToolSvc.WTagger          INFO    Decorators that will be attached to jet :
+ToolSvc.WTagger          INFO      SmoothWContained80_Cut_mlow : lower mass cut for tagger choice
+ToolSvc.WTagger          INFO      SmoothWContained80_Cut_mhigh : upper mass cut for tagger choice
+ToolSvc.WTagger          INFO      SmoothWContained80_Cut_D2 : D2 cut for tagger choice
 ToolSvc.WTagger          INFO    Smoothed WZ Tagger tool initialized
-ToolSvc.WTagger          INFO      Mass cut low   : x > 2500 ? 50.7714736905 : sqrt(pow((-8606.34612736)/x-(-51.1335701495),2)+pow((0.020652974855)*x+(-69.0481781851),2))
-ToolSvc.WTagger          INFO      Mass cut High  : x > 2500 ? 111.740243019 : sqrt(pow((1860.2681864)/x-(-51.5706546367),2)+pow((0.00741761466127)*x+(80.1932288346),2))
-ToolSvc.WTagger          INFO      D2 cut low : x > 2500 ? 2.97554064319 : (1.088513532)+(0.00277185655129)*x+(-2.89194646027e-06)*pow(x,2)+(1.47486583236e-09)*pow(x,3)+(-2.56325824537e-13)*pow(x,4)
-ToolSvc.WTagger          INFO      Decorate   : 1
+ToolSvc.WTagger          INFO      Mass cut low    : x > 2500 ? 50.7714736905 : sqrt(pow((-8606.34612736)/x-(-51.1335701495),2)+pow((0.020652974855)*x+(-69.0481781851),2))
+ToolSvc.WTagger          INFO      Mass cut High   : x > 2500 ? 111.740243019 : sqrt(pow((1860.2681864)/x-(-51.5706546367),2)+pow((0.00741761466127)*x+(80.1932288346),2))
+ToolSvc.WTagger          INFO      D2 cut low      : x > 2500 ? 2.97554064319 : (1.088513532)+(0.00277185655129)*x+(-2.89194646027e-06)*pow(x,2)+(1.47486583236e-09)*pow(x,3)+(-2.56325824537e-13)*pow(x,4)
+ToolSvc.WTagger          INFO      Decorate        : 1
+ToolSvc.WTagger          INFO      DecorationName  : SmoothWContained80
 ToolSvc.WTagger          INFO    After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)
 ToolSvc.WTagger          INFO      (0)  ValidPtRangeHigh : True if the jet is not too high pT
 ToolSvc.WTagger          INFO      (1)  ValidPtRangeLow : True if the jet is not too low pT
@@ -242,11 +247,16 @@ ToolSvc.WTagger          INFO      (5)  PassMassHigh : mJet < mCutHigh
 ToolSvc.WTagger          INFO      (6)  PassD2 : D2Jet < D2Cut
 ToolSvc.ZTagger          INFO    Initializing SmoothedWZTagger tool
 ToolSvc.ZTagger          INFO    Using config file : SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+ToolSvc.ZTagger          INFO    Decorators that will be attached to jet :
+ToolSvc.ZTagger          INFO      SmoothZContained80_Cut_mlow : lower mass cut for tagger choice
+ToolSvc.ZTagger          INFO      SmoothZContained80_Cut_mhigh : upper mass cut for tagger choice
+ToolSvc.ZTagger          INFO      SmoothZContained80_Cut_D2 : D2 cut for tagger choice
 ToolSvc.ZTagger          INFO    Smoothed WZ Tagger tool initialized
-ToolSvc.ZTagger          INFO      Mass cut low   : x > 2500 ? 58.3719119395 : sqrt(pow((-7477.59252557)/x-(-35.5199198499),2)+pow((0.00966293366893)*x+(-72.6253843155),2))
-ToolSvc.ZTagger          INFO      Mass cut High  : x > 2500 ? 121.508155917 : sqrt(pow((1727.00238193)/x-(-96.2892509639),2)+pow((0.0105263030996)*x+(46.8901264723),2))
-ToolSvc.ZTagger          INFO      D2 cut low : x > 2500 ? 2.79184282003 : (1.57973625663)+(0.000854807040627)*x+(-5.54046711619e-07)*pow(x,2)+(3.16588263137e-10)*pow(x,3)+(-6.16655539728e-14)*pow(x,4)
-ToolSvc.ZTagger          INFO      Decorate   : 1
+ToolSvc.ZTagger          INFO      Mass cut low    : x > 2500 ? 58.3719119395 : sqrt(pow((-7477.59252557)/x-(-35.5199198499),2)+pow((0.00966293366893)*x+(-72.6253843155),2))
+ToolSvc.ZTagger          INFO      Mass cut High   : x > 2500 ? 121.508155917 : sqrt(pow((1727.00238193)/x-(-96.2892509639),2)+pow((0.0105263030996)*x+(46.8901264723),2))
+ToolSvc.ZTagger          INFO      D2 cut low      : x > 2500 ? 2.79184282003 : (1.57973625663)+(0.000854807040627)*x+(-5.54046711619e-07)*pow(x,2)+(3.16588263137e-10)*pow(x,3)+(-6.16655539728e-14)*pow(x,4)
+ToolSvc.ZTagger          INFO      Decorate        : 1
+ToolSvc.ZTagger          INFO      DecorationName  : SmoothZContained80
 ToolSvc.ZTagger          INFO    After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)
 ToolSvc.ZTagger          INFO      (0)  ValidPtRangeHigh : True if the jet is not too high pT
 ToolSvc.ZTagger          INFO      (1)  ValidPtRangeLow : True if the jet is not too low pT
@@ -266,7 +276,7 @@ ToolSvc.JetUncertainti...INFO    ===============================================
 ToolSvc.JetUncertainti...INFO      Initializing the JetUncertaintiesTool named ToolSvc.JetUncertaintiesTool_AntiKt4EMTopo
 ToolSvc.JetUncertainti...INFO      Path is: 
 ToolSvc.JetUncertainti...INFO      Configuration read in from:
-ToolSvc.JetUncertainti...INFO        /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.2/2017-10-31T2250/AnalysisBase/21.2.8/InstallArea/x86_64-slc6-gcc62-opt/share/JetUncertainties/JES_2016/Moriond2017/JES2016_SR_Scenario1.config
+ToolSvc.JetUncertainti...INFO        /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.2/2017-11-07T2250/AnalysisBase/21.2.9/InstallArea/x86_64-slc6-gcc62-opt/share/JetUncertainties/JES_2016/Moriond2017/JES2016_SR_Scenario1.config
 ToolSvc.JetUncertainti...INFO      Uncertainty release: 2016_Moriond2017
 ToolSvc.JetUncertainti...INFO      Jet definition: AntiKt4EMTopo
 ToolSvc.JetUncertainti...INFO      MC type: MC15
@@ -292,7 +302,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.2/2017-10-31T2250/AnalysisBase/21.2.8/InstallArea/x86_64-slc6-gcc62-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.2/2017-11-07T2250/AnalysisBase/21.2.9/InstallArea/x86_64-slc6-gcc62-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root
@@ -637,9 +647,9 @@ ToolSvc.TrigDecisionTool INFO    decision not set on first (?) assert. deciding 
 ToolSvc.TrigDecisionTool INFO    SG contains xAOD decision, use DecisionUnpackerStandalone
 Info in <SUSYToolsTester>: ===>>>  done processing event #2236644, run #284500 1 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 284.500000 / 285.746851 ms
-  First event           - 990.000000 / 1004.575968 ms
-  Excluding first event - 277.373737 / 278.485948 ms
+  Entire loop           - 293.300000 / 293.678811 ms
+  First event           - 600.000000 / 609.760046 ms
+  Excluding first event - 290.202020 / 290.485960 ms
 Info in <SUSYToolsTester>: -- Dummy Cutflow -- >>>> Variation "" <<<<
 Info in <SUSYToolsTester>: Cut   0 (                 All)-> el: 100   mu: 100
 Info in <SUSYToolsTester>: Cut   1 (        GRL+Cleaning)-> el: 100   mu: 100
