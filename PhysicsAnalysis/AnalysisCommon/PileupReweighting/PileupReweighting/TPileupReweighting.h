@@ -237,6 +237,12 @@ namespace CP {
       //*std::map<Int_t,std::map<Int_t, TH1*> > & GetInputHistograms() { return m_inputHistograms;}
 
 
+      std::vector<int> GetPeriodNumbers() const {
+        std::vector<int> out;
+        for(auto& p : m_periods) { out.push_back(p.first); }
+        return out;
+      }
+
       //-----------------------------------------------------
       //Methods to inspect the input and weighting histograms
       //-----------------------------------------------------
