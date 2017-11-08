@@ -214,6 +214,10 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/RecoFix
++ Reconstruction/DiTauRec
++ Reconstruction/eflowRec
++ Reconstruction/egamma/egammaCaloTools
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
