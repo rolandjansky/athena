@@ -33,6 +33,8 @@ public:
 
   // Constructor with parameters:
   InDetRawDataContainer(unsigned int max);
+
+  InDetRawDataContainer(EventContainers::IdentifiableCache<CollectionT>*);
   
   // Destructor:
   virtual ~InDetRawDataContainer();

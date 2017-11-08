@@ -21,6 +21,13 @@ InDetRawDataContainer< CollectionT>::InDetRawDataContainer(unsigned int max) :
 }
 
 template< class CollectionT>
+InDetRawDataContainer< CollectionT>::InDetRawDataContainer(EventContainers::IdentifiableCache<CollectionT> *cache) :
+  IdentifiableContainer<CollectionT>(cache)
+{
+}
+
+
+template< class CollectionT>
 // Destructor:
 InDetRawDataContainer< CollectionT>::~InDetRawDataContainer()
 {
