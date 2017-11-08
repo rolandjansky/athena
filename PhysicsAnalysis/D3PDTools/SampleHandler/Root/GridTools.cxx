@@ -331,7 +331,7 @@ namespace SH
     std::vector<RucioListDidsEntry> result;
 
     ANA_MSG_INFO ("querying rucio for dataset " << dataset);
-    std::string output = sh::exec_read ("source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio list-dids " + sh::quote (dataset));
+    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-dids " + sh::quote (dataset));
     auto split = output.rfind (separator + "\n");
     if (split == std::string::npos)
       RCU_THROW_MSG ("couldn't find separator in: " + output);
@@ -366,10 +366,10 @@ namespace SH
     static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListFileReplicasEntry> result;
 
-    std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset);
+    std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset);
 
     ANA_MSG_INFO ("querying rucio for dataset " << dataset);
-    std::string output = sh::exec_read ("source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset));
+    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset));
     auto split = output.rfind (separator + "\n");
     if (split == std::string::npos)
       RCU_THROW_MSG ("couldn't find separator in: " + output);
@@ -408,7 +408,7 @@ namespace SH
     static const std::string separator = "------- SampleHandler Split -------";
     std::map<std::string,std::unique_ptr<MetaObject> > result;
 
-    std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && rucio get-metadata";
+    std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio get-metadata";
     for (auto& dataset : datasets)
     {
       RCU_REQUIRE_SOFT (!dataset.empty());
@@ -473,8 +473,8 @@ namespace SH
   {
     ensureVomsProxy ();
     
-    static const std::string separator = "------- SampleHandler Split -------";
-    std::string command = "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force rucio && echo " + separator + " && cd " + sh::quote (location) + " && rucio download " + sh::quote (dataset) + " 2>&1";
+    const std::string separator = "------- SampleHandler Split -------";
+    std::string command = rucioSetupCommand() + " && echo " + separator + " && cd " + sh::quote (location) + " && rucio download " + sh::quote (dataset) + " 2>&1";
 
     ANA_MSG_INFO ("starting rucio download " + dataset + " into " + location);
     std::string output = sh::exec_read (command);
