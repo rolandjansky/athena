@@ -16,9 +16,6 @@
 
 #include "ISF_Interfaces/ITruthSvc.h"
 
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-
 
 /*
   Comments:
@@ -56,7 +53,6 @@ namespace G4UA{
     private:
       Config m_config;
       ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
-      SecondaryTracksHelper m_sHelper;
     }; // class MCTruthUserAction
 
   } // namespace iGeant4
