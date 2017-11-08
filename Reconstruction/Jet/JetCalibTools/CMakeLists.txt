@@ -63,6 +63,12 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore xAODRootAccess JetCalibToolsLib )
    
+   atlas_add_executable( JetCalibTools_PlotJESFactors
+      util/JetCalibTools_PlotJESFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
+   
    atlas_add_executable( JetCalibTools_PlotJMSFactors
       util/JetCalibTools_PlotJMSFactors.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -74,6 +80,12 @@ else()
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore POOLRootAccessLib xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotJESFactors
+      util/JetCalibTools_PlotJESFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
 
    atlas_add_executable( JetCalibTools_PlotJMSFactors
       util/JetCalibTools_PlotJMSFactors.cxx
