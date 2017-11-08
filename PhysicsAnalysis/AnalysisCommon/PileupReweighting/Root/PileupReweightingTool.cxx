@@ -42,7 +42,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
 #endif
 
-   declareProperty("ConfigFiles", m_prwFiles={"dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root","dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"}, "List of prw config files"); //array of files
+   declareProperty("ConfigFiles", m_prwFiles, "List of prw config files"); //array of files
    declareProperty("ConfigFilesPathPrefix", m_prwFilesPathPrefix="", "Path of additional folder structure in prw config files"); //string prefix
    declareProperty("LumiCalcFiles", m_lumicalcFiles, "List of lumicalc files, in the format '<filename>:<trigger>' .. if no trigger given, 'None' is assumed"); //array of files
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
