@@ -750,7 +750,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -759,7 +759,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -785,7 +785,7 @@ namespace NSWL1 {
     if(Y==-9999) return -1;
     //cout<<"Strip (width="<<m_par->strip_width<<") for (X,Y,pl)=("<<X<<","<<Y<<","<<plane<<") is ";
     string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFloat(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -830,7 +830,7 @@ namespace NSWL1 {
     }
     bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFloat()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFloat();
+    double H=m_par->H.getFixed()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFixed();
     if(do_auto){
       //-log(tan(0.5(atan(y/z))))=eta
       //this is the even y spacing
@@ -842,7 +842,7 @@ namespace NSWL1 {
       ybase=z*tan(2*atan(exp(-1.*this_eta)));
       */
     }
-    double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
+    double width=m_par->strip_width.getFixed(); string plane_char=m_par->setup.substr(plane,1);
   //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
