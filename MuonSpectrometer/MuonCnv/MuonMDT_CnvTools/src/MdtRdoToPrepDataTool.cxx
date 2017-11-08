@@ -1011,8 +1011,8 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
           Amg::Vector3D gpos_twin = detEl->localToGlobalCoords(locpos_centertube, promptHit_channelId);
 	    
           ATH_MSG_DEBUG(" global pos center tube  x = " << gpos_centertube.x() << " y = " << gpos_centertube.y() << " z = " << gpos_centertube.z());
-          ATH_MSG_DEBUG(" local pos center tube w/ TWIN DEBUG  x = " << locpos_centertube.x() << " y = " << locpos_centertube.y() << " z = " << locpos_centertube.z());
-          ATH_MSG_DEBUG(" global pos w/ TWIN DEBUG x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
+          ATH_MSG_DEBUG(" local pos center tube w/ TWIN INFO  x = " << locpos_centertube.x() << " y = " << locpos_centertube.y() << " z = " << locpos_centertube.z());
+          ATH_MSG_DEBUG(" global pos w/ TWIN INFO  x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
 	    
           twin_newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
           driftCircleColl->push_back(twin_newPrepData);
