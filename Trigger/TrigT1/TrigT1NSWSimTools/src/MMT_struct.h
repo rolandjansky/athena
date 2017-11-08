@@ -6,7 +6,7 @@
 #define MM_STRUCT_H
 
 #include <fstream>
-#include "fixed_point.h"
+// #include "fixed_point.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -21,12 +21,12 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 
+#include<cmath>
+
 using namespace std;
-using namespace fpml;
+// using namespace fpml;
 
 //flags
-// const bool debug=false;
-const bool use_fix_point = true;
 const double crep_pt=200.;
 /*
   Potential indexing problems that might slip through the cracks:
@@ -40,216 +40,80 @@ const int yzdex=2,bkdex=13,zbardex=2;
 // double store_const;
 
 
-
 template<unsigned char T> class float32fixed
 {
- public:
-  float32fixed(){useFloat=!use_fix_point; fixp_content=0; floatp_content=0;}
-  float32fixed(int value){ useFloat=!use_fix_point; fixp_content=value; floatp_content=value;}
-  float32fixed(float value){ useFloat=!use_fix_point; fixp_content=value; floatp_content=value;}
-  float32fixed(double value){ useFloat=!use_fix_point; fixp_content=value; floatp_content=value;}
-  float32fixed(fixed_point<int,T> value){ useFloat=!use_fix_point; fixp_content=value; floatp_content=value;}
-  //float32fixed<T>(float32fixed<T>& value){ useFloat=value.useFloat; fixp_content=value.fixp_content; floatp_content=value.floatp_content;}
+
+private:
+  float fixp_content;
+
+public:
+  float32fixed(){ fixp_content=0; }
+  float32fixed(int value){  fixp_content=value; }
+  float32fixed(float value){  fixp_content=value; }
+  float32fixed(double value){  fixp_content=value; }
   ~float32fixed(){}
 
-  float32fixed<T> operator=(float32fixed<T> other){
-    this->fixp_content = other.fixp_content;
-    this->floatp_content = other.floatp_content;
-    return *this;
-  }
-
-  float32fixed operator=(float other){
-    this->fixp_content = other;
-    this->floatp_content = other;
-    return *this;
-  }
-
-  float operator+(float other) const {return other+this->floatp_content;}
-  float operator-(float other) const {return other-this->floatp_content;}
-  float operator*(float other) const {return other*this->floatp_content;}
-  float operator/(float other) const {return this->floatp_content/other;}
-  bool operator<(double other) const {return this->floatp_content<other;}
-  bool operator>(double other) const {return this->floatp_content>other;}
-  float32fixed<T> fabs() const{
-    if((*this)>0.) return *this;
-    return (*this)*(-1.0);
-  }
 
 
-  //these operators might not be generic enough, but we're not sure about the ones defined below, so we keep them
-  float operator+(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to add floating point and fixed point numbers, will add as float" );
-      return other.floatp_content+this->floatp_content;
+
+  float getFixed(int S=T) const{
+
+    int nBits = S;
+    nBits -= 1;
+    //=== get scale
+    int   scale  = 0;
+    float absVal = std::fabs(fixp_content);
+    if(absVal != 0.){
+      scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)*(1./std::log(2.))) );
     }
-    if(useFloat)
-      return other.floatp_content+this->floatp_content;
-    else
-      return float(other.fixp_content+this->fixp_content);
-  }
-  float operator-(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to subtract floating point and fixed point numbers, will subtract as float" );
-      return this->floatp_content-other.floatp_content;
-    }
-    if(useFloat)
-      return this->floatp_content-other.floatp_content;
-    else
-      return float(this->fixp_content-other.fixp_content);
-  }
-  float operator*(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to multiply floating point and fixed point numbers, will multiply as float" );
-      return other.floatp_content*this->floatp_content;
-    }
-    if(useFloat)
-      return other.floatp_content*this->floatp_content;
-    else
-      return float(other.fixp_content*this->fixp_content);
-  }
-  float operator/(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return this->floatp_content/other.floatp_content;
-    }
-    if(useFloat)
-      return this->floatp_content/other.floatp_content;
-    else
-      return float(this->fixp_content/other.fixp_content);
-  }
+    //=== return input value with fixed point precision
+    return ::roundf(fixp_content * std::pow(2., scale)) / std::pow(2., scale);
 
-  float32fixed<T> operator+=(float other){
-    *this=float32fixed<T>(*this+other);
-    return *this;
-  }
-  float32fixed<T> operator-=(float other){
-    *this=float32fixed<T>(*this-other);
-    return *this;
-  }
-  float32fixed<T> operator*=(float other){
-    *this=float32fixed<T>(*this*other);
-    return *this;
-  }
-  float32fixed<T> operator/=(float other){
-    *this=float32fixed<T>(*this/other);
-    return *this;
-  }
-  float32fixed<T> operator+=(float32fixed<T> other){
-    *this=float32fixed<T>(*this+other);
-    return *this;
-  }
-  float32fixed<T> operator-=(float32fixed<T> other){
-    *this=float32fixed<T>(*this-other);
-    return *this;
-  }
-  float32fixed<T> operator*=(float32fixed<T> other){
-    *this=float32fixed<T>(*this*other);
-    return *this;
-  }
-  float32fixed<T> operator/=(float32fixed<T> other){
-    *this=float32fixed<T>(*this/other);
-    return *this;
+    // return fixedPointPrecision(T, fixp_content);
   }
 
 
-  bool operator<(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return this->floatp_content<other.floatp_content;
-    }
-    if(useFloat)
-      return this->floatp_content<other.floatp_content;
-    else
-      return this->fixp_content<other.fixp_content;
-  }
-  bool operator>(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return this->floatp_content>other.floatp_content;
-    }
-    if(useFloat)
-      return this->floatp_content>other.floatp_content;
-    else
-      return this->fixp_content>other.fixp_content;
-  }
-  bool operator<=(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return other.floatp_content>=this->floatp_content;
-    }
-    if(useFloat)
-      return other.floatp_content>=this->floatp_content;
-    else
-      return other.fixp_content>=this->fixp_content;
-  }
-  bool operator>=(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return other.floatp_content<=this->floatp_content;
-    }
-    if(useFloat)
-      return other.floatp_content<=this->floatp_content;
-    else
-      return other.fixp_content<=this->fixp_content;
-  }
-  bool operator==(double other) const{
-    if(useFloat)
-      return other==this->floatp_content;
-    else
-      return this->fixp_content==fixed_point<int,T>(other);
-  }
-  bool operator==(float other) const{
-    if(useFloat)
-      return other==this->floatp_content;
-    else
-      return this->fixp_content==fixed_point<int,T>(other);
-  }
-  bool operator==(int other) const{
-    if(useFloat)
-      return other==this->floatp_content;
-    else
-      return this->fixp_content==fixed_point<int,T>(other);
-  }
-  bool operator!=(float other) const{
-    if(useFloat)
-      return other!=this->floatp_content;
-    else
-      return fixed_point<int,T>(other)!=this->fixp_content;
-  }
-  bool operator==(float32fixed<T> other) const{
-    if(other.useFloat != useFloat){
-      // ATH_MSG_DEBUG( "Trying to divide floating point and fixed point numbers, will divide as float" );
-      return other.floatp_content==this->floatp_content;
-    }
-    if(useFloat)
-      return other.floatp_content==this->floatp_content;
-    else
-      return other.fixp_content==this->fixp_content;
-  }
-  float getFloat() const{return floatp_content;}
-  float getValue() const{
-    if(useFloat)
-      return floatp_content;
-    else
-      return float(fixp_content);
-  }
+
+  // assignment
+  float32fixed<T> operator=(float other){ this->fixp_content = other; return *this;  }
+  template<unsigned char S>
+  float32fixed<T> operator=(float32fixed<S> other){ this->fixp_content = other.getFixed(); return *this;  }
+
+  // Float operators
+  float32fixed<T> operator+(float other) const {return float32fixed<T>( this->fixp_content + float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator-(float other) const {return float32fixed<T>( this->fixp_content - float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator*(float other) const {return float32fixed<T>( this->fixp_content * float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator/(float other) const {return float32fixed<T>( this->fixp_content / float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator+=(float other) { *this = float32fixed<T>( (*this).fixp_content +  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator-=(float other) { *this = float32fixed<T>( (*this).fixp_content -  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator*=(float other) { *this = float32fixed<T>( (*this).fixp_content *  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator/=(float other) { *this = float32fixed<T>( (*this).fixp_content /  float32fixed<T>(other).getFixed() );   return *this;  }
+  bool operator<(double other) const {return this->fixp_content<   float32fixed<T>(other).getFixed();}
+  bool operator>(double other) const {return this->fixp_content>   float32fixed<T>(other).getFixed();}
+  bool operator<=(double other) const {return this->fixp_content<= float32fixed<T>(other).getFixed();}
+  bool operator>=(double other) const {return this->fixp_content>= float32fixed<T>(other).getFixed();}
+  bool operator==(double other) const {return this->fixp_content== float32fixed<T>(other).getFixed();}
 
 
-  // /// Log a message using the Athena controlled logging system
-  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // /// Check whether the logging system is active at the provided verbosity level
-  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+  // float32fixed operators
+  float32fixed<T> operator+ (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content + other.getFixed()  );  }
+  float32fixed<T> operator- (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content - other.getFixed()  );  }
+  float32fixed<T> operator* (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content * other.getFixed()  );  }
+  float32fixed<T> operator/ (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content / other.getFixed()  );  }
+  float32fixed<T> operator+=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content + other.getFixed()  );   return *this;  }
+  float32fixed<T> operator-=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content - other.getFixed()  );   return *this;  }
+  float32fixed<T> operator*=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content * other.getFixed()  );   return *this;  }
+  float32fixed<T> operator/=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content / other.getFixed()  );   return *this;  }
+  bool operator< (float32fixed<T> other) const {return this->fixp_content<other.getFixed() ;}
+  bool operator> (float32fixed<T> other) const {return this->fixp_content>other.getFixed() ;}
+  bool operator<=(float32fixed<T> other) const {return this->fixp_content<=other.getFixed() ;}
+  bool operator>=(float32fixed<T> other) const {return this->fixp_content>=other.getFixed() ;}
+  bool operator==(float32fixed<T> other) const {return this->fixp_content==other.getFixed() ;}
 
+  float32fixed<T> fabs() const{ return ((*this)>0.) ? *this : (*this)*-1.0 ; }
 
- private:
-  bool useFloat;
+  explicit operator float () {return (double) this->fixp_content; }
 
-  fixed_point<int,T> fixp_content;
-  float floatp_content;
-
-
-  /// Private message stream member
-  // mutable Athena::MsgStreamMember m_msg;
 
 };
 
@@ -275,15 +139,6 @@ struct std_align{
   //members
   int type;//corresponds to qcm; 0 (nominal case: no misal/correction), 1 (misalignment), 2 (correction), 3 (sim_correction; do corrections based on simulation results)
   TVector3 translate,rotate;
-
-
-  // /// Log a message using the Athena controlled logging system
-  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // /// Check whether the logging system is active at the provided verbosity level
-  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  // /// Private message stream member
-  // mutable Athena::MsgStreamMember m_msg;
 
 };
 
@@ -347,13 +202,6 @@ struct par_par{
   int colskip;
   string pcrep_dir,tag;
 
-  // /// Log a message using the Athena controlled logging system
-  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // /// Check whether the logging system is active at the provided verbosity level
-  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  // /// Private message stream member
-  // mutable Athena::MsgStreamMember m_msg;
 
 
 };
@@ -677,19 +525,6 @@ struct athena_header{
 };
 
 struct digitWrapper{
-  //make a well-behaved constructor
-  // digitWrapper(int muliplet=0,
-  //              int gasGap=0,
-  //              double gTime=0,
-  //              double time=0,
-  //              const TVector3& truthLPos=TVector3(),
-  //              const TVector3& stripLPos=TVector3(),
-  //              const TVector3& stripGPos=TVector3(),
-  //              double charge=0,
-  //              int stripPos=0,
-  //              int etaStation=0,
-  //              int phiStation=0
-  //              );
   digitWrapper(const MmDigit* digit=0,
                double tmpGTime=0,
                const TVector3& truthLPos=TVector3(),
@@ -701,15 +536,9 @@ struct digitWrapper{
   const MmDigit* digit;
   double gTime;
 
-  //the members:
-  // int multiplet, gas_gap;
-  // double gtime, time;//0-3
   TVector3 truth_lpos;//4,5
   TVector3 strip_lpos;
   TVector3 strip_gpos;//6-11
-  // double charge;
-  // int strip_pos,eta_station,phi_station;
-
 
   inline Identifier id(){ return digit->identify(); };
 
