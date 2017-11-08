@@ -149,6 +149,8 @@ namespace CP {
       std::map<int, bool> m_doneConfigs;
 
       bool m_noWeightsMode;
+      
+      bool m_varyRunNumber;
 
       ToolHandle<IWeightTool> m_weightTool;
       ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
