@@ -101,7 +101,7 @@ public:
                     (*m_array)[ient] = (*barr.m_array)[ient];
                 }
             }
-            m_transf = (barr.m_transf) ? barr.m_transf->clone() : 0;
+            m_transf = (barr.m_transf) ? new Amg::Transform3D(*barr.m_transf) : 0;
         
         }
         return *this;
