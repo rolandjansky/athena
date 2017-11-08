@@ -82,6 +82,37 @@ def get_sweep_target_branch_rules(src_branch):
     
     return target_branch_rules
 
+def find_original_mr_author(mr_iid,project):
+    logging.debug("find_original_mr_author( %d )",mr_iid)
+    try:
+        mr_handle = project.mergerequests.list(iid=mr_iid)[0]
+    except:
+        logging.critical("failed to retrieve Gitlab merge request handle for iid = %d",mr_iid)
+        return
+    mr_author = mr_handle.author.username
+    logging.debug("!%d author: %s",mr_iid,mr_author)
+    if mr_author != "atnight":
+        logging.debug("!%d: returning %s != atnight",mr_iid,mr_author)
+        return mr_author
+    logging.debug("Looking for !%d's parent MR",mr_iid)
+    mr_title = mr_handle.title
+    logging.debug("mr_title: %s",mr_title)
+    parent_MR_IID = -1
+    _s_ = mr_title.split('\n')
+    for _subs_ in _s_:
+        match = re.search('^Sweeping !(\d+)',_subs_)
+        if match:
+            parent_MR_IID = int(match.group(1))
+            logging.debug("Parent MR: !%d",parent_MR_IID)
+            break
+    if parent_MR_IID != -1:
+        mr_author = find_original_mr_author(parent_MR_IID,project)
+    else:
+        logging.warning("can't find !%d authors except atnight",mr_iid)
+    return mr_author
+        
+
+
 def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_run=False):
     # keep track of successful and failed cherry-picks
     good_branches = set()
@@ -121,10 +152,10 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     if "sweep:done" in labels:
         logging.info("merge commit '%s' was already swept -> skipping ......\n",merge_commit)
-        return
+        return 
     if "sweep:ignore" in labels:
         logging.info("merge commit '%s' is marked as ignore -> skipping .......\n",merge_commit)
-        return
+        return 
 
     target_branches = set()
     
@@ -193,6 +224,10 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
     for _subs_ in _s_:
         if not re.match('^See merge request ',_subs_):
             mr_desc_strip += _subs_
+
+    if original_mr_author == "atnight":
+        original_mr_author = find_original_mr_author(MR_IID, project)
+        logging.debug("Taking MR author from the parent MR: %s",original_mr_author)
 
     _comment_1_ = 'Sweeping !' + str(MR_IID) + ' from ' + source_branch_strip + ' to '
     _comment_2_ = '.\n' + mr_desc_strip
