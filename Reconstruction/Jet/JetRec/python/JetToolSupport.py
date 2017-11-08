@@ -207,14 +207,16 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
-        tname = mod + "_" + salg + srad
-        if not tname in self.tools:
-          from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
-          self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
-        outmods += [self.tools[tname]]
+        else:
+          tname = mod + "_" + salg + srad
+          if not tname in self.tools:
+            from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
+            self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
+          outmods += [self.tools[tname]]
       # trackassoc - Does track jet association replacing the input name with "Track"
       elif mod == "trackassoc":
         sinp = getters[0].Label.split("Origin")[0]
@@ -225,7 +227,8 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
