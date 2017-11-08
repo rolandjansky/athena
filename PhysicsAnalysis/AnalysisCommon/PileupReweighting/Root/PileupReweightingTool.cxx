@@ -224,8 +224,12 @@ StatusCode PileupReweightingTool::initialize() {
             if(m_upTool) m_upTool->UsePeriodConfig(m_usePeriodConfig);
             if(m_downTool) m_downTool->UsePeriodConfig(m_usePeriodConfig);
          } else {
-            ATH_MSG_INFO("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Please specify a UsePeriodConfig if you want to use the tool without a config file (e.g. do 'MC15') ");
-            return StatusCode::FAILURE;
+            ATH_MSG_WARNING("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Assuming a period config of MC16 ");
+            UsePeriodConfig("MC16");
+            m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
+            if(m_upTool) m_upTool->UsePeriodConfig("MC16");
+            if(m_downTool) m_downTool->UsePeriodConfig("MC16");
+            return StatusCode::SUCCESS;
          }
       }
    
