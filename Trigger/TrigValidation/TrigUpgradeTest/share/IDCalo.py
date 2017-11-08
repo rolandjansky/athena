@@ -81,12 +81,14 @@ if TriggerFlags.doID:
   from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
   InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                    RDOKey       = InDetKeys.PixelRDOs(),
-                                                   ProviderTool = InDetPixelRawDataProviderTool)
+                                                   ProviderTool = InDetPixelRawDataProviderTool,
+                                                   OutputLevel = INFO)
   
   if ( viewTest ):
     allViewAlgorithms += InDetPixelRawDataProvider
     allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
     allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetPixelRawDataProvider.RDOCacheKey = topSequence.InDetCacheCreatorTrigViews.PixRDOCacheKey
     svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelRawDataProvider" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
   else:
@@ -102,7 +104,7 @@ if TriggerFlags.doID:
   #SCT
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
   InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                      TriggerMode = False)
+                                      TriggerMode = False, OutputLevel = INFO)
   ToolSvc += InDetSCTRodDecoder
   
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
@@ -116,12 +118,14 @@ if TriggerFlags.doID:
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
   InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
                                               RDOKey       = InDetKeys.SCT_RDOs(),
-                                              ProviderTool = InDetSCTRawDataProviderTool)
+                                              ProviderTool = InDetSCTRawDataProviderTool,
+                                              OutputLevel = INFO)
   
   if ( viewTest ):
     allViewAlgorithms += InDetSCTRawDataProvider
     allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
     allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetSCTRawDataProvider.RDOCacheKey = topSequence.InDetCacheCreatorTrigViews.SCTRDOCacheKey
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSCTRawDataProvider" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
   else:

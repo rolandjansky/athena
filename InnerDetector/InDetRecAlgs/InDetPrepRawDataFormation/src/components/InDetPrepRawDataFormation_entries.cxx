@@ -1,7 +1,7 @@
 #include "InDetPrepRawDataFormation/PixelClusterization.h"
 #include "InDetPrepRawDataFormation/SCT_Clusterization.h"
 #include "InDetPrepRawDataFormation/TRT_RIO_Maker.h"
-#include "InDetPrepRawDataFormation/CacheCreator.h"
+#include "../CacheCreator.h"
 
 
 using namespace InDet;

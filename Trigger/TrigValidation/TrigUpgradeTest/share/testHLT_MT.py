@@ -351,6 +351,8 @@ if opt.enableViews:
                                         SCT_ClusterKey   = "SCT_ClustersCache",
                                         SpacePointCachePix = "PixelSpacePointCache",
                                         SpacePointCacheSCT   = "SctSpacePointCache",
+                                        SCTRDOCacheKey       = "SctRDOCache",
+                                        PixRDOCacheKey = "PixRDOCache",
                                         OutputLevel=DEBUG)
     topSequence += InDetCacheCreatorTrigViews    
     

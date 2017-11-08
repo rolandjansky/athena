@@ -16,14 +16,15 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/SiClusterizationTool
                           Trigger/TrigEvent/TrigSteeringEvent
-                          InnerDetector/InDetConditions/SCT_ConditionsData
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetRecTools/TRT_DriftCircleTool )
+                          InnerDetector/InDetRecTools/TRT_DriftCircleTool
+                          InnerDetector/InDetConditions/SCT_ConditionsData
+                        )
 
 # Component(s) in the package:
 atlas_add_component( InDetPrepRawDataFormation

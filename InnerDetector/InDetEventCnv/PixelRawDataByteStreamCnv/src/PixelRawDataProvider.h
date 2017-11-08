@@ -34,11 +34,11 @@ class PixelRawDataProvider : public AthAlgorithm {
   PixelRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
   //! Initialize
-  StatusCode initialize();
+  StatusCode initialize() override;
   //! Execute
-  StatusCode execute();
-  //! Finalize
-  StatusCode finalize() { return StatusCode::SUCCESS;}
+  StatusCode execute() override;
+  //! Don't need to override Finalize
+
   
   //! Destructur
   ~PixelRawDataProvider();
@@ -53,6 +53,7 @@ private:
   bool m_roiSeeded;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey;
+  SG::UpdateHandleKey<PixelRDO_Cache> m_rdoCacheKey;
 };
 
 #endif

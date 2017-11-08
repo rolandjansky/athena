@@ -117,7 +117,9 @@ from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawData
 InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                  RDOKey       = InDetKeys.PixelRDOs(),
                                                  ProviderTool = InDetPixelRawDataProviderTool,
-                                                 isRoI_Seeded = True )
+                                                 RDOCacheKey  = topSequence.InDetCacheCreatorTrigViews.PixRDOCacheKey,
+                                                 isRoI_Seeded = True,
+                                                 OutputLevel = INFO )
 
 #SCT
 from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
@@ -139,7 +141,7 @@ InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProv
                                              ProviderTool = InDetSCTRawDataProviderTool,
                                              isRoI_Seeded = True )
 
-
+InDetSCTRawDataProvider.RDOCacheKey = topSequence.InDetCacheCreatorTrigViews.SCTRDOCacheKey
 
 #TRT
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
