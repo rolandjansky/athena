@@ -152,10 +152,10 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     if "sweep:done" in labels:
         logging.info("merge commit '%s' was already swept -> skipping ......\n",merge_commit)
-        return 
+        return
     if "sweep:ignore" in labels:
         logging.info("merge commit '%s' is marked as ignore -> skipping .......\n",merge_commit)
-        return 
+        return
 
     target_branches = set()
     
