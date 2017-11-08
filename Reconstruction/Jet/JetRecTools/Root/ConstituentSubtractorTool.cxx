@@ -80,6 +80,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
       ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
       inputs_to_not_correct.push_back(pj);
     }
+
     ++i;
   }
 
@@ -99,11 +100,10 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   // This is defaulted to zero, because fastjet will only return non-zero pseudojets
   std::vector<xAOD::JetFourMom_t> corrected_p4s(cont->size(),xAOD::JetFourMom_t(0.,0.,0.,0.));
   // Set the corrected four-vectors
-  for(PseudoJet & pj : inputs_to_correct) {
+  for(PseudoJet & pj : corrected_event) {
     ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
     corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
-  // Set the uncorrected four-vectors
   for(PseudoJet & pj : inputs_to_not_correct) {
     ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
     corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
