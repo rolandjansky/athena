@@ -114,6 +114,16 @@ namespace CP
   }
 
 
+  // Clear the systematics and the rest of the state
+  void SystematicSet::clear()
+  {
+    m_sysVariations.clear();
+    m_joinedName.clear();
+    m_hash = 0;
+    m_nameIsCached = m_hashIsCached = false;
+  }
+
+
   // Match full systematic or continuous systematic
   bool SystematicSet::matchSystematic(const SystematicVariation& systematic,
                                       MATCHTYPE type) const
