@@ -7,20 +7,32 @@
 JetPileupCorrection::JetPileupCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("JetPileupCorrection::JetPileupCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("JetOriginConstitScaleMomentum")
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("JetOriginConstitScaleMomentum")
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
 
-JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev, std::string originScale)
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
+
+JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale(originScale)
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::~JetPileupCorrection() {
 
