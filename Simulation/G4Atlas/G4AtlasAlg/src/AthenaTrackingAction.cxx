@@ -21,9 +21,10 @@ namespace G4UA
   // Constructor
   //---------------------------------------------------------------------------
   AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl,
-                                             int secondarySavingLevel)
+                                             int secondarySavingLevel, int subDetVolLevel)
     : m_msg("AthenaTrackingAction")
     , m_secondarySavingLevel(secondarySavingLevel)
+    , m_subDetVolLevel(subDetVolLevel)
   {
     m_msg.get().setLevel(lvl);
   }
@@ -62,7 +63,7 @@ namespace G4UA
       ATH_MSG_DEBUG("Preparing an AtlasTrajectory for saving truth");
 
       // Create a new AtlasTrajectory for this particle
-      AtlasTrajectory* trajectory = new AtlasTrajectory(track);
+      AtlasTrajectory* trajectory = new AtlasTrajectory(track, m_subDetVolLevel);
 
       // Assign the trajectory to the tracking manager.
       // TODO: consider caching the tracking manager once to reduce overhead.

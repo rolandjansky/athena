@@ -5,13 +5,6 @@
 #ifndef MCTruthBase_TruthStrategyManager_H
 #define MCTruthBase_TruthStrategyManager_H
 
-// #include <string>
-// #include <map>
-// #include <vector>
-
-// #include "HepMC/GenEvent.h"
-#include "AthenaKernel/MsgStreamMember.h"
-
 // ISF include
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
@@ -20,9 +13,9 @@
 class G4Step;
 
 
-/// @brief Singleton class for some truth stuff (???)
-/// NEEDS DOCUMENTATION
-///
+/// @brief Singleton class for creating truth incidents.
+/// This class is gradually being refactored out of existence.
+
 class TruthStrategyManager
 {
 
@@ -32,7 +25,7 @@ public:
   static TruthStrategyManager* GetStrategyManager();
 
   /// Returns true if any of the truth strategies return true
-  bool CreateTruthIncident(const G4Step*);
+  bool CreateTruthIncident(const G4Step*, int subDetVolLevel) const;
 
   /// Define which ISF TruthService to use
   void SetISFTruthSvc(ISF::ITruthSvc *truthSvc);
@@ -40,26 +33,14 @@ public:
   /// Define which ISF GeoIDSvc to use
   void SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc);
 
-  StatusCode InitializeWorldVolume();
-
 private:
   TruthStrategyManager();
   TruthStrategyManager(const TruthStrategyManager&) = delete;
   TruthStrategyManager& operator=(const TruthStrategyManager&) = delete;
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
-
   /// ISF Services the TruthStrategyManager talks to
   ISF::ITruthSvc* m_truthSvc;
   ISF::IGeoIDSvc* m_geoIDSvc;
-
-  /// The level in the G4 volume hierarchy at which can we find the sub-detector name
-  int m_subDetVolLevel;
 };
 
 #endif

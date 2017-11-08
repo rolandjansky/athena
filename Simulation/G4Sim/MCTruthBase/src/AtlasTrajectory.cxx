@@ -16,22 +16,19 @@
 #include "G4Colour.hh"
 
 
-AtlasTrajectory::AtlasTrajectory(const G4Track* track)
-  : G4Trajectory(track), m_numCurrentSec(0)
+AtlasTrajectory::AtlasTrajectory(const G4Track* track, int subDetVolLevel)
+  : G4Trajectory(track), m_subDetVolLevel(subDetVolLevel)
 {}
 
 
 void AtlasTrajectory::AppendStep(const G4Step* aStep)
 {
-  // Calculate the number of new secondaries
-  int numTotalSec = aStep->GetSecondary()->size();
-  int numNewSec = numTotalSec - m_numCurrentSec;
-
+  // only use truth service if there are new any secondaries
+  const int numSecondaries = aStep->GetSecondaryInCurrentStep()->size();
   // This method not available until G4 10.2
-  //int numTotalSec = aStep->GetNumberOfSecondariesInCurrentStep();
+  //const int numSecondaries = aStep->GetNumberOfSecondariesInCurrentStep();
 
-  if (numNewSec > 0)
-    {
+  if (numSecondaries) {
       // OK, there was an interation. look at the track, if it
       // is not a secondary (i.e. we have a connected tree) we
       // apply the MC truth machinery...
@@ -40,12 +37,9 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
         {
           TruthStrategyManager* sManager =
             TruthStrategyManager::GetStrategyManager();
-          sManager->CreateTruthIncident(aStep);
+          sManager->CreateTruthIncident(aStep, m_subDetVolLevel);
         }
     }
-
-  // Update current number of secondaries
-  m_numCurrentSec = numTotalSec;
 
   // Call the base class
   G4Trajectory::AppendStep(aStep);

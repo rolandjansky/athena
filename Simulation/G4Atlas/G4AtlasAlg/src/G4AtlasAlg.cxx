@@ -282,10 +282,6 @@ StatusCode G4AtlasAlg::execute()
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
 
 
-  TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
-  ATH_CHECK( sManager->InitializeWorldVolume() );
-
-
   n_Event += 1;
 
   if (n_Event<=10 || (n_Event%100) == 0) {
@@ -293,7 +289,7 @@ StatusCode G4AtlasAlg::execute()
   }
 
   // tell TruthService we're starting a new event
-  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() ); //FIXME POINTLESS - THIS METHOD IS EMPTY IN MASTER
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 

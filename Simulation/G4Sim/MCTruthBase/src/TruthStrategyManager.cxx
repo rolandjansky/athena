@@ -32,10 +32,8 @@
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
 TruthStrategyManager::TruthStrategyManager()
-  : m_msg("TruthStrategyManager")
-  , m_truthSvc(nullptr)
-  , m_geoIDSvc()
-  , m_subDetVolLevel(-1) // please crash if left unset
+  : m_truthSvc(nullptr)
+  , m_geoIDSvc(nullptr)
 {
 }
 
@@ -56,39 +54,9 @@ void TruthStrategyManager::SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc)
   m_geoIDSvc = geoIDSvc;
 }
 
-StatusCode TruthStrategyManager::InitializeWorldVolume()
+bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int subDetVolLevel) const
 {
-  const G4LogicalVolume * logicalWorld = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume();
-  const auto& logicalWorldName = logicalWorld->GetName();
-
-  const G4String atlasWorldName("Atlas::Atlas");
-  if (logicalWorldName==atlasWorldName) {
-    // simulation w/o cavern volume (e.g. normal collision simulation)
-    m_subDetVolLevel = 1;
-    return StatusCode::SUCCESS;
-  }
-
-  const G4String cavernWorldName("World::World");
-  if (logicalWorldName==cavernWorldName) {
-    // simulation w/ cavern volume (e.g. cosmics simulation)
-    m_subDetVolLevel = 2;
-    return StatusCode::SUCCESS;
-  }
-
-  const G4String ctbWorldName("CTB::CTB");
-  if (logicalWorldName==ctbWorldName) {
-    // test beam setup
-    m_subDetVolLevel = 1;
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_ERROR("Unknown World Volume name: '" << logicalWorldName << "'");
-  return StatusCode::FAILURE;
-}
-
-bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep)
-{
-  AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
+  AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, subDetVolLevel, m_geoIDSvc);
 
   auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
