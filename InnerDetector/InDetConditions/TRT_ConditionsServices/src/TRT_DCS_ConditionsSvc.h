@@ -110,15 +110,15 @@ class TRT_DCS_ConditionsSvc : public AthService,
 
   // Monitoring histograms
   bool m_doMonitoring;
-  TH1D* h_Barrel_nRED;
-  TH1D* h_EndcapA_nRED;
-  TH1D* h_EndcapC_nRED;
-  TH1D* h_Barrel_nNOINFO;
-  TH1D* h_EndcapA_nNOINFO;
-  TH1D* h_EndcapC_nNOINFO;
-  TH1D* h_Barrel_HVvalAvg; // don't forget to divide by nEvts at end!
-  TH1D* h_EndcapA_HVvalAvg; // don't forget to divide by nEvts at end!
-  TH1D* h_EndcapC_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_Barrel_nRED;
+  TH1D* m_h_EndcapA_nRED;
+  TH1D* m_h_EndcapC_nRED;
+  TH1D* m_h_Barrel_nNOINFO;
+  TH1D* m_h_EndcapA_nNOINFO;
+  TH1D* m_h_EndcapC_nNOINFO;
+  TH1D* m_h_Barrel_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_EndcapA_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_EndcapC_HVvalAvg; // don't forget to divide by nEvts at end!
   int m_nEvts;
 };
 
