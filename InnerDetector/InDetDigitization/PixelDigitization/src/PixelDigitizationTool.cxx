@@ -201,17 +201,17 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
         // Apply charge collection tools
         ATH_MSG_DEBUG("Running sensor simulation.");
-	
-	//Deposit energy in sensor
-	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
-	
-	//Create signal in sensor, loop over collection of loaded sensorTools
-	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
+
+        //Deposit energy in sensor
+        CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
+
+        //Create signal in sensor, loop over collection of loaded sensorTools
+        for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
           if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
         }
-	initialConditions.clear();
-	trfHitRecord.clear();
+        initialConditions.clear();
+        trfHitRecord.clear();
         ATH_MSG_DEBUG("charges filled!");
       }
     }
