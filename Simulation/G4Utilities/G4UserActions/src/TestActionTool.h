@@ -15,7 +15,7 @@
 
 // G4Atlas includes
 #include "G4AtlasInterfaces/IUserActionTool.h"
-#include "G4AtlasTools/ThreadSpecificUserAction.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 
 namespace G4UA
@@ -75,7 +75,8 @@ namespace G4UA
   /// @class TestActionTool
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class TestActionTool : public extends<AthAlgTool, IUserActionTool>
+  class TestActionTool
+    : public extends<UserActionToolBase<TestAction>, IUserActionTool>
   {
 
     public:
@@ -93,11 +94,6 @@ namespace G4UA
       /// Fill user action
       virtual StatusCode
       fillUserAction(G4AtlasUserActions* actions) override final;
-
-    private:
-
-      /// Container of thread-local actions
-      ThreadSpecificUserAction<TestAction> m_actions;
 
   }; // class TestActionTool
 
