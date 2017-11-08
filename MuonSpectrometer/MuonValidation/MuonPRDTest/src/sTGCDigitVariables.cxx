@@ -12,6 +12,8 @@
 
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
+#include "MuonDigitContainer/sTgcDigitCollection.h"
+
 #include "TTree.h"
 
 /** ---------- filling of variables */
@@ -19,31 +21,29 @@
 StatusCode sTGCDigitVariables::fillVariables()
 {
   ATH_MSG_INFO(" do fillNSWsTGCDigitVariables()");
+  MSG::Level msgLevel = MSG::VERBOSE;
+  m_msg.get().setLevel(msgLevel);
 
   CHECK( this->clearVariables() );
 
   // get truth information container of digitization
   const MuonSimDataCollection* nsw_sTgcSdoContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
+//  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
 
-  // get digit container (a container corresponds to a multilayer of a module)
-  const sTgcDigitContainer *nsw_sTgcDigitContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_sTgcDigitContainer, m_ContainerName.c_str()) );
+  const sTgcDigitContainer* nsw_sTgcDigitContainer = nullptr;
+  CHECK( m_evtStore->retrieve(nsw_sTgcDigitContainer, "sTGC_DIGITS") );
+  
+  sTgcDigitContainer::const_iterator it   = nsw_sTgcDigitContainer->begin();
+  sTgcDigitContainer::const_iterator it_e = nsw_sTgcDigitContainer->end();
+  ATH_MSG_DEBUG("retrieved sTGC Digit Container with size "<<nsw_sTgcDigitContainer->digit_size());
 
-  if(nsw_sTgcDigitContainer->size()==0) ATH_MSG_WARNING(" sTGC DigitContainer empty ");
-
-  // iteration on all containers, i.e. all multilayers of all modules
-
-  for(auto it : *nsw_sTgcDigitContainer) {
-    // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
-    const sTgcDigitCollection* coll = it;
-
-    // loop on all digits inside a collection, i.e. multilayer
-    for (unsigned int item=0; item<coll->size(); item++) { 
-
-    // get specific digit and identify it
-    const sTgcDigit* digit = coll->at(item);
-    Identifier Id = digit->identify();
+  if(nsw_sTgcDigitContainer->size()==0) ATH_MSG_WARNING(" sTGC Digit Continer empty ");
+  for(; it!=it_e; ++it) {
+      const sTgcDigitCollection* coll = *it;
+      ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
+  for (unsigned int digitNum=0; digitNum<coll->size(); digitNum++) {
+  	const sTgcDigit* digit = coll->at(digitNum);
+  	Identifier Id = digit->identify();
 
     std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
     int stationEta       = m_sTgcIdHelper->stationEta(Id);
@@ -73,107 +73,96 @@ StatusCode sTGCDigitVariables::fillVariables()
                       << " Station Phi ["  << stationPhi      << "]"
                       << " Multiplet  ["   << multiplet       << "]"
                       << " GasGap ["       << gas_gap         << "]"
-                      << " ChNr ["         << channel         << "]" 
+                      << " ChNr ["         << channel         << "]"
                       << " Station EtaMin ["  << stationEtaMin      << "]"
                       << " Station EtaMax ["  << stationEtaMax      << "]"
                       << " Station PhiMin ["  << stationPhiMin      << "]"
                       << " Station PhiMax ["  << stationPhiMax      << "]");
 
+    int isSmall = stName[2] == 'S';
+		const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
-   int isSmall = stName[2] == 'S';
-   const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+		int channelNumber = 0;
+		const Identifier phiId, etaId;
+		Amg::Vector3D gpos(0.,0.,0.);
+		Amg::Vector2D lpos(0.,0.);
 
-   int channelNumber = 0;
-   const Identifier phiId, etaId; 
-   Amg::Vector3D gpos(0.,0.,0.);
-   Amg::Vector2D lpos(0.,0.);
-   Amg::Vector2D cpos(0.,0.);
-
-   if(!rdoEl->spacePointPosition(phiId,etaId,gpos)){
-      ATH_MSG_WARNING("sTGC digitization: failed to associate a valid global position; associated positions will be set to 0.0.0.");
-   } else {
-      m_NSWsTGC_dig_globalPosX->push_back( gpos.x() );
-      m_NSWsTGC_dig_globalPosY->push_back( gpos.y() );
-      m_NSWsTGC_dig_globalPosZ->push_back( gpos.z() );
-   }
-
-   if(!rdoEl->spacePointPosition(phiId,etaId,lpos)){
-      ATH_MSG_WARNING("sTGC digitization: failed to associate a valid local position; associated positions will be set to 0.0.");
-   } else {
-      m_NSWsTGC_dig_localPosX->push_back( lpos.x() );
-      m_NSWsTGC_dig_localPosY->push_back( lpos.y() );
-      channelNumber  = rdoEl->stripNumber(lpos,Id);
-   }
-
-   if(!rdoEl->stripPosition(Id,cpos)){
-      ATH_MSG_WARNING("sTGC digitization: failed to associate a valid local position; associated positions will be set to 0.0.");
-   } else {
-      m_NSWsTGC_dig_channelPosX->push_back( cpos.x() );
-      m_NSWsTGC_dig_channelPosY->push_back( cpos.y() );
-   }
-
-   m_NSWsTGC_dig_channel_type->push_back(channelType);
-   m_NSWsTGC_dig_stationName->push_back(stName);
-   m_NSWsTGC_dig_stationEta->push_back(stationEta);
-   m_NSWsTGC_dig_stationPhi->push_back(stationPhi);
-   m_NSWsTGC_dig_multiplet->push_back(multiplet);
-   m_NSWsTGC_dig_gas_gap->push_back(gas_gap);
-   m_NSWsTGC_dig_channel->push_back(channel);
-   m_NSWsTGC_dig_stationEtaMin->push_back(stationEtaMin);
-   m_NSWsTGC_dig_stationEtaMax->push_back(stationEtaMax);
-   m_NSWsTGC_dig_stationPhiMin->push_back(stationPhiMin);
-   m_NSWsTGC_dig_stationPhiMax->push_back(stationPhiMax);
-   m_NSWsTGC_dig_gas_gapMin->push_back(gas_gapMin);
-   m_NSWsTGC_dig_gas_gapMax->push_back(gas_gapMax);
-   m_NSWsTGC_dig_padEta->push_back(padEta);
-   m_NSWsTGC_dig_padPhi->push_back(padPhi);
-   m_NSWsTGC_dig_numberOfMultilayers->push_back(NofMultilayers);
-   m_NSWsTGC_dig_multilayerMin->push_back(multilayerMin);
-   m_NSWsTGC_dig_multilayerMax->push_back(multilayerMax);
-   m_NSWsTGC_dig_channelTypeMin->push_back(channelTypeMin);
-   m_NSWsTGC_dig_channelTypeMax->push_back(channelTypeMax);
-   m_NSWsTGC_dig_channelMin->push_back(channelMin);
-   m_NSWsTGC_dig_channelMax->push_back(channelMax);
-   m_NSWsTGC_dig_channelNumber->push_back(channelNumber);
-
-   m_NSWsTGC_dig_time   = digit->time();
-   m_NSWsTGC_dig_charge = digit->charge();
+		rdoEl->stripPosition(Id,lpos);
+		rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
 
 
-   // retrieve the MC truth associated with the digit (means the Geant4 hit information)
-      if (nsw_sTgcSdoContainer) {
+		m_NSWsTGC_dig_globalPosX->push_back( gpos.x() );
+		m_NSWsTGC_dig_globalPosY->push_back( gpos.y() );
+		m_NSWsTGC_dig_globalPosZ->push_back( gpos.z() );
+		m_NSWsTGC_dig_localPosX->push_back( lpos.x() );
+		m_NSWsTGC_dig_localPosY->push_back( lpos.y() );
+		channelNumber  = rdoEl->stripNumber(lpos,Id);
+		m_NSWsTGC_dig_channelPosX->push_back( lpos.x() );
+		m_NSWsTGC_dig_channelPosY->push_back( lpos.y() );
 
-        const MuonSimData sTgc_sdo = (nsw_sTgcSdoContainer->find(Id))->second;
-        std::vector<MuonSimData::Deposit> deposits;
-        sTgc_sdo.deposits(deposits);
+		m_NSWsTGC_dig_channel_type->push_back(channelType);
+		m_NSWsTGC_dig_stationName->push_back(stName);
+		m_NSWsTGC_dig_stationEta->push_back(stationEta);
+		m_NSWsTGC_dig_stationPhi->push_back(stationPhi);
+		m_NSWsTGC_dig_multiplet->push_back(multiplet);
+		m_NSWsTGC_dig_gas_gap->push_back(gas_gap);
+		m_NSWsTGC_dig_channel->push_back(channel);
+		m_NSWsTGC_dig_stationEtaMin->push_back(stationEtaMin);
+		m_NSWsTGC_dig_stationEtaMax->push_back(stationEtaMax);
+		m_NSWsTGC_dig_stationPhiMin->push_back(stationPhiMin);
+		m_NSWsTGC_dig_stationPhiMax->push_back(stationPhiMax);
+		m_NSWsTGC_dig_gas_gapMin->push_back(gas_gapMin);
+		m_NSWsTGC_dig_gas_gapMax->push_back(gas_gapMax);
+		m_NSWsTGC_dig_padEta->push_back(padEta);
+		m_NSWsTGC_dig_padPhi->push_back(padPhi);
+		m_NSWsTGC_dig_numberOfMultilayers->push_back(NofMultilayers);
+		m_NSWsTGC_dig_multilayerMin->push_back(multilayerMin);
+		m_NSWsTGC_dig_multilayerMax->push_back(multilayerMax);
+		m_NSWsTGC_dig_channelTypeMin->push_back(channelTypeMin);
+		m_NSWsTGC_dig_channelTypeMax->push_back(channelTypeMax);
+		m_NSWsTGC_dig_channelMin->push_back(channelMin);
+		m_NSWsTGC_dig_channelMax->push_back(channelMax);
+		m_NSWsTGC_dig_channelNumber->push_back(channelNumber);
+        
+        m_NSWsTGC_dig_bctag->push_back(digit->bcTag());
+		m_NSWsTGC_dig_time->push_back(digit->time());
+		m_NSWsTGC_dig_charge->push_back(digit->charge());
+		m_NSWsTGC_dig_isDead->push_back(digit->isDead());
+		m_NSWsTGC_dig_isPileup->push_back(digit->isPileup());
 
-        int    truth_barcode   = deposits[0].first.barcode();
-        double truth_localPosX = deposits[0].second.firstEntry();
-        double truth_localPosY = deposits[0].second.secondEntry();
-        float  truth_angle     = sTgc_sdo.word()/1000.;
-        Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
-        Amg::Vector3D hit_gpos(0., 0., 0.);
-        rdoEl->surface(Id).localToGlobal(hit_on_surface, Amg::Vector3D(0., 0., 0.), hit_gpos);
-        ATH_MSG_DEBUG("        sTGC Digit, truth barcode=" << truth_barcode);
-        ATH_MSG_DEBUG("      sTGC Digit, truth localPosX=" << std::setw(9) << std::setprecision(2) << truth_localPosX
-                                << ", truth localPosY=" << std::setw(9) << std::setprecision(2) << truth_localPosY
-                                << ", truth XZ angle=" << std::setw(8) << std::setprecision(5) << truth_angle);
+
+		// retrieve the MC truth associated with the digit (means the Geant4 hit information)
+		if (nsw_sTgcSdoContainer) {
+
+			const MuonSimData sTgc_sdo = (nsw_sTgcSdoContainer->find(Id))->second;
+			std::vector<MuonSimData::Deposit> deposits;
+			sTgc_sdo.deposits(deposits);
+
+			int    truth_barcode   = deposits[0].first.barcode();
+			double truth_localPosX = deposits[0].second.firstEntry();
+			double truth_localPosY = deposits[0].second.secondEntry();
+			float  truth_angle     = sTgc_sdo.word()/1000.;
+			Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
+			Amg::Vector3D hit_gpos(0., 0., 0.);
+			rdoEl->surface(Id).localToGlobal(hit_on_surface, Amg::Vector3D(0., 0., 0.), hit_gpos);
+			ATH_MSG_DEBUG("        sTGC Digit, truth barcode=" << truth_barcode);
+			ATH_MSG_DEBUG("      sTGC Digit, truth localPosX=" << std::setw(9) << std::setprecision(2) << truth_localPosX
+															<< ", truth localPosY=" << std::setw(9) << std::setprecision(2) << truth_localPosY
+															<< ", truth XZ angle=" << std::setw(8) << std::setprecision(5) << truth_angle);
 
 
-        m_NSWsTGC_dig_truth_barcode->push_back( truth_barcode );
-        m_NSWsTGC_dig_truth_localPosX->push_back( truth_localPosX );
-        m_NSWsTGC_dig_truth_localPosY->push_back( truth_localPosY );
-        m_NSWsTGC_dig_truth_XZ_angle->push_back( truth_angle );
-        m_NSWsTGC_dig_truth_globalPosX->push_back( hit_gpos[0] );
-        m_NSWsTGC_dig_truth_globalPosY->push_back( hit_gpos[1] );
-        m_NSWsTGC_dig_truth_globalPosZ->push_back( hit_gpos[2] );
-      }
- 
-      m_NSWsTGC_nDigits++;
-    }
-
-  }
-
+			m_NSWsTGC_dig_truth_barcode->push_back( truth_barcode );
+			m_NSWsTGC_dig_truth_localPosX->push_back( truth_localPosX );
+			m_NSWsTGC_dig_truth_localPosY->push_back( truth_localPosY );
+			m_NSWsTGC_dig_truth_XZ_angle->push_back( truth_angle );
+			m_NSWsTGC_dig_truth_globalPosX->push_back( hit_gpos[0] );
+			m_NSWsTGC_dig_truth_globalPosY->push_back( hit_gpos[1] );
+			m_NSWsTGC_dig_truth_globalPosZ->push_back( hit_gpos[2] );
+		}
+        if(channelType == 0) m_NSWsTGC_nPadDigits++;
+		m_NSWsTGC_nDigits++;
+	}
+}
   return StatusCode::SUCCESS;
 }
 
@@ -183,9 +172,13 @@ StatusCode sTGCDigitVariables::fillVariables()
 StatusCode sTGCDigitVariables::clearVariables()
 {
 
-  m_NSWsTGC_nDigits     = 0;
-  m_NSWsTGC_dig_time    = 0;
-  m_NSWsTGC_dig_charge  = 0;
+  m_NSWsTGC_nDigits = 0;
+  m_NSWsTGC_nPadDigits = 0;
+  m_NSWsTGC_dig_time->clear();
+  m_NSWsTGC_dig_bctag->clear();
+  m_NSWsTGC_dig_charge->clear();
+  m_NSWsTGC_dig_isDead->clear();
+  m_NSWsTGC_dig_isPileup->clear();
   m_NSWsTGC_dig_stationName->clear();
   m_NSWsTGC_dig_stationEta->clear();
   m_NSWsTGC_dig_stationPhi->clear();
@@ -234,9 +227,13 @@ StatusCode sTGCDigitVariables::clearVariables()
 StatusCode sTGCDigitVariables::initializeVariables()
 {
 
-  m_NSWsTGC_nDigits    = 0;
-  m_NSWsTGC_dig_time   = 0;
-  m_NSWsTGC_dig_charge = 0;
+  m_NSWsTGC_nDigits    				= 0;
+  m_NSWsTGC_nPadDigits    				= 0;
+  m_NSWsTGC_dig_time     			= new std::vector<double>();
+  m_NSWsTGC_dig_bctag     			= new std::vector<int>();
+  m_NSWsTGC_dig_charge   			= new std::vector<double>();
+  m_NSWsTGC_dig_isDead   			= new std::vector<bool>();
+  m_NSWsTGC_dig_isPileup 			= new std::vector<bool>();
   m_NSWsTGC_dig_stationName   = new std::vector<std::string>();
   m_NSWsTGC_dig_stationEta    = new std::vector<int>();
   m_NSWsTGC_dig_stationPhi    = new std::vector<int>();
@@ -280,9 +277,13 @@ StatusCode sTGCDigitVariables::initializeVariables()
   m_NSWsTGC_dig_truth_XZ_angle   = new std::vector<float>();
 
   if(m_tree) {
-    m_tree->Branch("Digit_sTGC", &m_NSWsTGC_nDigits, "Digits_sTGC_n/i");
-    m_tree->Branch("Digit_sTGC_time",        &m_NSWsTGC_dig_time,"Digit_sTGC_time/f");
-    m_tree->Branch("Digit_sTGC_charge",      &m_NSWsTGC_dig_charge,"Digit_sTGC_charge/f");
+    m_tree->Branch("Digit_sTGC", 						 &m_NSWsTGC_nDigits, "Digits_sTGC_n/i");
+    m_tree->Branch("Digit_sTGC_Pad_Digits", 						 &m_NSWsTGC_nPadDigits, "Digit_sTGC_Pad_Digits_n/i");
+    m_tree->Branch("Digit_sTGC_time",       "std::vector< double >", &m_NSWsTGC_dig_time);
+    m_tree->Branch("Digit_sTGC_bctag",       "std::vector< int >", &m_NSWsTGC_dig_bctag);
+    m_tree->Branch("Digit_sTGC_charge",     "std::vector< double >", &m_NSWsTGC_dig_charge);
+    m_tree->Branch("Digit_sTGC_isDead",     "std::vector< bool >",   &m_NSWsTGC_dig_isDead);
+    m_tree->Branch("Digit_sTGC_isPileup",   "std::vector< bool >",  &m_NSWsTGC_dig_isPileup);
     m_tree->Branch("Digit_sTGC_stationName", &m_NSWsTGC_dig_stationName);
     m_tree->Branch("Digit_sTGC_stationEta",  &m_NSWsTGC_dig_stationEta);
     m_tree->Branch("Digit_sTGC_stationPhi",  &m_NSWsTGC_dig_stationPhi);
@@ -372,10 +373,20 @@ StatusCode sTGCDigitVariables::deleteVariables()
   delete m_NSWsTGC_dig_truth_globalPosY;
   delete m_NSWsTGC_dig_truth_globalPosZ;
 
+  delete m_NSWsTGC_dig_time;
+  delete m_NSWsTGC_dig_bctag;
+  delete m_NSWsTGC_dig_charge;
+  delete m_NSWsTGC_dig_isDead;
+  delete m_NSWsTGC_dig_isPileup;
 
-  m_NSWsTGC_nDigits     = 0;
-  m_NSWsTGC_dig_time    = 0;
-  m_NSWsTGC_dig_charge  = 0;
+
+  m_NSWsTGC_nDigits      = 0;
+  m_NSWsTGC_nPadDigits      = 0;
+  m_NSWsTGC_dig_time     = nullptr;
+  m_NSWsTGC_dig_bctag    = nullptr;
+  m_NSWsTGC_dig_charge   = nullptr;
+  m_NSWsTGC_dig_isDead   = nullptr;
+  m_NSWsTGC_dig_isPileup = nullptr;
   m_NSWsTGC_dig_stationName   = nullptr;
   m_NSWsTGC_dig_stationEta    = nullptr;
   m_NSWsTGC_dig_stationPhi    = nullptr;
