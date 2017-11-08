@@ -207,7 +207,8 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
@@ -226,7 +227,8 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
