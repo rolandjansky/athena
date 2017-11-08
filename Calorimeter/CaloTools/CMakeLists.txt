@@ -61,4 +61,4 @@ atlas_add_component( CaloTools
 # Install files from the package:
 atlas_install_headers( CaloTools )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.txt share/*.py )
+atlas_install_joboptions( share/*.py )
