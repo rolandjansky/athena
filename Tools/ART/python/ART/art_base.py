@@ -10,26 +10,26 @@ import os
 import sys
 import yaml
 
-from art_misc import run_command
+from art_misc import is_exe, run_command
 from art_header import ArtHeader
 
 
 class ArtBase(object):
     """TBD."""
 
-    def __init__(self):
+    def __init__(self, art_directory):
         """TBD."""
-        pass
+        self.art_directory = art_directory
 
-    def task_list(self, type, sequence_tag):
-        """TBD."""
-        self.not_implemented()
-
-    def task(self, package, type, sequence_tag):
+    def task_list(self, job_type, sequence_tag):
         """TBD."""
         self.not_implemented()
 
-    def job(self, package, type, sequence_tag, index, out):
+    def task(self, package, job_type, sequence_tag):
+        """TBD."""
+        self.not_implemented()
+
+    def job(self, package, job_type, sequence_tag, index, out):
         """TBD."""
         self.not_implemented()
 
@@ -37,7 +37,7 @@ class ArtBase(object):
         """TBD."""
         self.not_implemented()
 
-    def list(self, package, type, json_format=False):
+    def list(self, package, job_type, json_format=False):
         """TBD."""
         self.not_implemented()
 
@@ -55,8 +55,27 @@ class ArtBase(object):
         for directory in directories.itervalues():
             files = self.get_files(directory)
             for fname in files:
-                ArtHeader(os.path.join(directory, fname)).validate()
+                test_name = os.path.join(directory, fname)
+                print test_name
+                if not is_exe(test_name):
+                    print "ERROR: ", test_name, "is not executable."
+                ArtHeader(test_name).validate()
         return 0
+
+    def included(self, script_directory, job_type, index_type, nightly_release, project, platform):
+        """TBD."""
+        directories = self.get_test_directories(script_directory.rstrip("/"))
+        for directory in directories.itervalues():
+            files = self.get_files(directory, job_type, index_type)
+            for fname in files:
+                test_name = os.path.join(directory, fname)
+                if self.is_included(test_name, nightly_release, project, platform):
+                    print test_name, ArtHeader(test_name).get('art-include')
+        return 0
+
+    def download(self, input_file):
+        """TBD."""
+        return self.get_input(input_file)
 
     #
     # Default implementations
@@ -92,24 +111,49 @@ class ArtBase(object):
         config_file.close()
         return config
 
-    def get_files(self, directory, type=None):
+    def get_files(self, directory, job_type=None, index_type="all", nightly_release=None, project=None, platform=None):
         """
-        Return a list of all test files matching 'test_*.sh' of given 'type'.
+        Return a list of all test files matching 'test_*.sh' of given 'job_type', 'index_type' and nightly/project/platform.
 
-        If type is None, all files are returned. Only the filenames are returned.
+        'index_type' can be 'all', 'batch' or 'single'.
+
+        If "given" is None, all files are returned.
+
+        Only the filenames are returned.
         """
         result = []
         if directory is not None:
             files = os.listdir(directory)
             files.sort()
             for fname in files:
-                if fnmatch.fnmatch(fname, 'test_*.sh') or fnmatch.fnmatch(fname, 'test_*.py'):
-                    if type is None or ArtHeader(os.path.join(directory, fname)).get('art-type') == type:
-                        result.append(fname)
+                # is not a test ?
+                if not fnmatch.fnmatch(fname, 'test_*.sh') and not fnmatch.fnmatch(fname, 'test_*.py'):
+                    continue
+
+                test_name = os.path.join(directory, fname)
+
+                # is not of correct type
+                if job_type is not None and ArtHeader(test_name).get('art-type') != job_type:
+                    continue
+
+                # is not included in nightly_release, project, platform
+                if nightly_release is not None and not self.is_included(test_name, nightly_release, project, platform):
+                    continue
+
+                # batch and does specify art-input
+                if index_type == "batch" and ArtHeader(test_name).get('art-input') is not None:
+                    continue
+
+                # single and does not specify art-input
+                if index_type == "single" and ArtHeader(test_name).get('art-input') is None:
+                    continue
+
+                result.append(fname)
+
         return result
 
     def get_type(self, directory, test_name):
-        """Return the 'type' of a test."""
+        """Return the 'job_type' of a test."""
         return ArtHeader(os.path.join(directory, test_name)).get('art-type')
 
     def get_test_directories(self, directory):
@@ -125,11 +169,46 @@ class ArtBase(object):
                 result[package] = root
         return result
 
-    def get_list(self, directory, package, type):
+    def get_list(self, directory, package, job_type, index_type):
         """Return a list of tests for a particular package."""
         test_directories = self.get_test_directories(directory)
         test_dir = test_directories[package]
-        return self.get_files(test_dir, type)
+        return self.get_files(test_dir, job_type, index_type)
+
+    def is_included(self, test_name, nightly_release, project, platform):
+        """Return true if a match is found for test_name in nightly_release, project, platform."""
+        patterns = ArtHeader(test_name).get('art-include')
+
+        for pattern in patterns:
+            nightly_release_pattern = "*"
+            project_pattern = "*"
+            platform_pattern = "*-*-*-opt"
+
+            count = pattern.count('/')
+            if count >= 2:
+                (nightly_release_pattern, project_pattern, platform_pattern) = pattern.split('/', 3)
+            elif count == 1:
+                (nightly_release_pattern, project_pattern) = pattern.split('/', 2)
+            else:
+                nightly_release_pattern = pattern
+
+            if fnmatch.fnmatch(nightly_release, nightly_release_pattern) and fnmatch.fnmatch(project, project_pattern) and fnmatch.fnmatch(platform, platform_pattern):
+                return True
+        return False
+
+    def get_input(self, input_name):
+        """Download input file from rucio. Retuns path of inputfile."""
+        work_dir = '.'
+
+        # run in correct environment
+        env = os.environ.copy()
+        env['PATH'] = '.:' + env['PATH']
+
+        (code, out, err) = run_command(os.path.join(self.art_directory, "art-get-input.sh") + " " + input_name, dir=work_dir, env=env)
+        if code == 0 and out != '':
+            return os.path.join(work_dir, input_name.replace(':', '/', 1))
+
+        return None
 
     #
     # Private Methods
