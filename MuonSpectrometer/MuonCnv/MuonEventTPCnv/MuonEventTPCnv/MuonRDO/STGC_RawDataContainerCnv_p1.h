@@ -41,7 +41,7 @@ namespace Muon{
     
     private:
       const sTgcIdHelper *m_sTgcId;
-    
+      STGC_RawDataCnv_p1  m_chanCnv;
   };
 }
 

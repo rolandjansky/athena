@@ -59,6 +59,7 @@
 
     <class name="Muon::sTgcPrepData_p1" />
     <class name="std::vector<Muon::sTgcPrepData_p1>" />
+    <class name="Muon::STGC_RawDataCollection_p1" />
     <class name="Muon::sTgcPrepDataContainer_p1" id="7AB87DDE-8D7C-11E2-AA7C-001517648C14"/>
 
     <!--MuonTrigCoinData-->
