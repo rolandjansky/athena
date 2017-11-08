@@ -12,6 +12,17 @@ atlas_add_library( SystematicsHandlesLib
    PUBLIC_HEADERS SystematicsHandles
    LINK_LIBRARIES AsgTools AnaAlgorithmLib PATInterfaces xAODBase )
 
+atlas_add_dictionary( SystematicsHandlesDict
+   SystematicsHandles/SystematicsHandlesDict.h
+   SystematicsHandles/selection.xml
+   LINK_LIBRARIES SystematicsHandlesLib )
+
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( SystematicsHandles
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES GaudiKernel SystematicsHandlesLib )
+endif()
+
 add_executable (SystematicsHandles_cc_SysReadHandle test/cc_SysReadHandle.cxx)
 target_link_libraries (SystematicsHandles_cc_SysReadHandle SystematicsHandlesLib)
 
