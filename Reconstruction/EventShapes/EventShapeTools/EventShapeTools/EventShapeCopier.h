@@ -62,8 +62,6 @@ protected:
   SG::ReadHandleKey<xAOD::EventShape>       m_inputEventShape;
   SG::WriteHandleKey<xAOD::EventShape>      m_outputEventShape;
   
-  //std::string m_inputEventShape;
-  //std::string m_outputEventShape;
   std::string m_eventDensityName;
 
 }; 
