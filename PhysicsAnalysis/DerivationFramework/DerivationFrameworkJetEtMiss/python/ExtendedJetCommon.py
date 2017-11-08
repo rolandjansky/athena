@@ -43,6 +43,8 @@ BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
 BTaggingFlags.Jets=[]
 from BTagging.BTaggingConfiguration import getConfiguration
 
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation
+
 ConfInst=getConfiguration()
 ConfInst.doNotCheckForTaggerObstacles()
 
@@ -55,6 +57,8 @@ def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
+    from AthenaCommon.AppMgr import ToolSvc
+
     btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
                                                 Verbose=True,
                                                 options={"name"         : "btagging_antikt2track",
@@ -65,7 +69,30 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                 SetupScheme = "",
                                                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                 )
-    jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
+
+    trackassoc = \
+        JetParticleShrinkingConeAssociation(
+            "TrackAssocAntiKt2PV0TrackJets",
+            inputParticleCollectionName="InDetTracks",
+            outputCollectionName="MatchedTracks",
+            coneSizeFitPar1=+0.239,
+            coneSizeFitPar2=-1.220,
+            coneSizeFitPar3=-1.64e-5
+        )
+
+    muonassoc = \
+        JetParticleShrinkingConeAssociation(
+            "MuonAssocAntiKt2PV0TrackJets",
+            inputParticleCollectionName="Muons",
+            outputCollectionName="MatchedMuons",
+            coneSizeFitPar1=0.4,
+            coneSizeFitPar2=0.0,
+            coneSizeFitPar3=99999999,
+        )
+
+    ToolSvc += [trackassoc, muonassoc]
+
+    jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [trackassoc, muonassoc, btag_akt2trk]
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 

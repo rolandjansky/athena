@@ -84,9 +84,42 @@ class AODFix_r210(AODFix_base):
         This fixes the uptodate BTagging calibration conditions tag.
         """
 
-        from AthenaCommon.AppMgr import ToolSvc
 
         JetCollectionList = [ 'AntiKt4EMTopoJets',]
+
+        from AthenaCommon.AppMgr import ToolSvc
+        from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetModifierAlg
+
+        trackassoc = \
+            JetParticleShrinkingConeAssociation(
+                "BTaggingTrackAssoc",
+                inputParticleCollectionName="InDetTracks",
+                outputCollectionName="MatchedTracks",
+                coneSizeFitPar1=+0.239,
+                coneSizeFitPar2=-1.220,
+                coneSizeFitPar3=-1.64e-5
+            )
+
+        muonassoc = \
+            JetParticleShrinkingConeAssociation(
+                "BTaggingMuonAssoc",
+                inputParticleCollectionName="Muons",
+                outputCollectionName="MatchedMuons",
+                coneSizeFitPar1=0.4,
+                coneSizeFitPar2=0.0,
+                coneSizeFitPar3=99999999,
+            )
+
+        ToolSvc += [trackassoc, muonassoc]
+
+        assocalg = \
+            JetModifierAlg(
+                "BTaggingParticleAssocAlg",
+                JetContainerNames=JetCollectionList,
+                Modifiers=[trackassoc]
+            )
+
+        topSequence += assocalg
 
         SA = 'AODFix_'
         from BTagging.BTaggingConfiguration import getConfiguration

@@ -77,6 +77,41 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
     tmpJFVxname = "JFVtx"
     SA = 'standalone_'
 
+    from AthenaCommon.AppMgr import ToolSvc
+    from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetModifierAlg
+
+    trackassoc = \
+        JetParticleShrinkingConeAssociation(
+            "BTaggingTrackAssoc",
+            inputParticleCollectionName="InDetTracks",
+            outputCollectionName="MatchedTracks",
+            coneSizeFitPar1=+0.239,
+            coneSizeFitPar2=-1.220,
+            coneSizeFitPar3=-1.64e-5
+        )
+
+
+    muonassoc = \
+        JetParticleShrinkingConeAssociation(
+            "MuonAssocAntiKt2PV0TrackJets",
+            inputParticleCollectionName="Muons",
+            outputCollectionName="MatchedMuons",
+            coneSizeFitPar1=0.4,
+            coneSizeFitPar2=0.0,
+            coneSizeFitPar3=99999999,
+        )
+
+    ToolSvc += [trackassoc, muonassoc]
+
+    trackassocalg = \
+        JetModifierAlg(
+            "BTaggingTrackAssocAlg",
+            JetContainerNames=JetCollections,
+            Modifiers=[trackassoc, muonassoc]
+        )
+
+    Sequencer += trackassocalg
+
     for JetCollection in JetCollections:
         name = JetCollection.replace('ZTrack', 'Track').replace('PV0Track', 'Track')
         author= btag+name[:-4]+suffix_name

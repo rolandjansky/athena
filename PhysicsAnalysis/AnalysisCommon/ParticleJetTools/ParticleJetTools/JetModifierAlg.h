@@ -56,6 +56,10 @@ class JetModifierAlg : public AthAlgorithm {
                             "failed to retrieve jet collection \"" +
                             jetContainerName + "\"");
                     return StatusCode::FAILURE;
+                } else {
+                    ATH_MSG_INFO(name() + 
+                            "retrieved jet collection \"" +
+                            jetContainerName + "\"");
                 }
 
 
@@ -63,6 +67,8 @@ class JetModifierAlg : public AthAlgorithm {
                     if ( jmh->modify(*jets) ) {
                         ATH_MSG_FATAL(jmh->name() + " tool execution failed.");
                         return StatusCode::FAILURE;
+                    } else {
+                        ATH_MSG_INFO(jmh->name() + " tool execution success.");
                     }
                 }
             }
