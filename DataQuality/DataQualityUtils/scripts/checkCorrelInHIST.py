@@ -43,7 +43,6 @@ from ROOT import *
 # Line below commented to work with release 21. 
 # Not sure what was its purpose...
 #gROOT.Reset()
-gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
 
