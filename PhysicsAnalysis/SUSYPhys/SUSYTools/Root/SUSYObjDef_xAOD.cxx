@@ -2146,7 +2146,7 @@ float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing(bool includeDa
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  return m_prwTool->getCorrectedMu( *evtInfo, includeDataSF );
+  return m_prwTool->getCorrectedAverageInteractionsPerCrossing( *evtInfo, includeDataSF );
 }
 
 double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {
