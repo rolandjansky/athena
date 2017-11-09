@@ -1,0 +1,201 @@
+Thu Nov  9 10:19:40 CET 2017
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [MT-region-selector/26b0ab4c63] -- built on [2017-11-09T1013]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "dumpRegSelSvc.py"
+Py:Athena            INFO including file "TrigUpgradeTest/testHLT_MT.py"
+Py:testHLT_MT.py     INFO Setup options:
+               EvtMax = (Default) -1
+           FilesInput = (Default) None
+       HLTOutputLevel = (Default) 3
+           SkipEvents = (Default) 0
+         condOverride = (Default) {}
+               doCalo = (Default) True
+           doDBConfig = (Default) None
+                doHLT = (Default) True
+                 doID = (Default) True
+               doMuon = (Default) True
+       enableCostD3PD = (Default) False
+          enableViews = (Default) True
+          setDetDescr = (Default) None
+         setGlobalTag = (Default) None
+           setLVL1XML = (Default) TriggerMenuXML/LVL1config_Physics_pp_v7.xml
+           setupForMC = (Default) None
+             trigBase = (Default) None
+           useCONDBR2 = (Default) True
+Py:TriggerMenu.EgammaSliceFlags    INFO EgammaSliceFlags set for      |-- run2Config = '2017'
+Py:TriggerFlags.doHLT    INFO doHLT is True: force doLVL2=False and doEF=False
+WARNING: using modifier: DisableMdtT0Fit
+
+    Disable MDT T0 re-fit and use constants from COOL instead
+    
+WARNING: using modifier: ForceMuonDataType
+
+    Hardcode muon data to be of type of atlas
+      this determines which cabling service to use
+    
+WARNING: using modifier: UseBackExtrapolatorDataForMuIso
+
+   Enables the usage of the BackExtrapolator derived from data
+   
+WARNING: using modifier: UseBeamSpotFlagForBjet
+
+    Enables the beam spot status flag check for b-jet
+    
+WARNING: using modifier: UseLUTFromDataForMufast
+
+    Enables the usage of the LUTs derived from data
+    
+WARNING: using modifier: UseParamFromDataForBjet
+
+    Enables the usage of the JetProb calibration derived from data
+    
+WARNING: using modifier: UseRPCTimeDelayFromDataForMufast
+
+    Enables the RPC timing shift correction in data
+    
+WARNING: using modifier: allowCOOLUpdates
+
+    Enable COOL folder updates during the run
+    
+WARNING: using modifier: enableHotIDMasking
+
+    Masking of hot pixel and SCT modules enabled in L2 spacepoint provider
+    
+WARNING: using modifier: forceTileRODMap
+
+    Configure Tile ROD map based on run-number (ATR-16290)
+    
+WARNING: using modifier: noLArCalibFolders
+
+    We should not use LAr electronics calibration data
+    
+WARNING: using modifier: openThresholdRPCCabling
+
+    RPC cabling need to tell CMA to use open thresholds
+    see http://alxr.usatlas.bnl.gov/lxr/source/atlas/MuonSpectrometer/MuonCablings/RPCcabling/src/EtaCMA.cxx#448
+    and other entries at http://alxr.usatlas.bnl.gov/lxr/ident?i=cosmic
+    
+WARNING: using modifier: softTRTsettings
+
+    Lower cuts for standalone TRT tracking in cosmic chains
+    
+WARNING: using modifier: useHLTMuonAlign
+
+    Apply muon alignment
+    
+WARNING: using modifier: useNewRPCCabling
+
+    Switch to new RPC cabling code
+    
+WARNING: using modifier: useOnlineLumi
+
+    Use online LuminosityTool
+    
+WARNING: using modifier: useOracle
+
+    Disable the use of SQLite for COOL and geometry
+    
+              : bpipe pixel   SCT   TRT   BCM   DBM Lucid   ZDC  ALFA   AFP FwdRegion    em   HEC  FCal  Tile   MDT   CSC   TGC   RPC  sTGC Micromegas Truth  LVL1 BField   FTK
+          dcs :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+     detdescr :    ON    ON    ON    ON    ON    ON    --    --    --    --        --    ON    ON    ON    ON    ON    ON    ON    ON    ON         ON    --    --     --    --
+     digitize :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+     geometry :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+      haveRDO :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+      haveRIO :    ON    ON    ON    ON    ON    ON    ON    ON    ON    ON        ON    ON    ON    ON    ON    ON    ON    ON    ON    ON         ON    ON    ON     ON    ON
+      makeRIO :    ON    ON    ON    ON    ON    ON    ON    ON    ON    ON        ON    ON    ON    ON    ON    ON    ON    ON    ON    ON         ON    ON    ON     ON    ON
+      overlay :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+       pileup :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+    readRDOBS :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+  readRDOPool :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+    readRIOBS :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+  readRIOPool :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+     simulate :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+ simulateLVL1 :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+      writeBS :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+ writeRDOPool :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+ writeRIOPool :    --    --    --    --    --    --    --    --    --    --        --    --    --    --    --    --    --    --    --    --         --    --    --     --    --
+Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
+Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
+Py:Athena            INFO Importing module MuonCnvExample.MuonCalibFlags
+Py:MuonCnvExample.MuonCalibFlags    INFO Changing default correctMdtRtForBField = True
+Py:MuonCnvExample.MuonCalibFlags    INFO Changing default correctMdtRtForTimeSlewing = True
+Py:MuonRec           INFO Importing MuonRecExample.MuonRecFlags
+Py:MuonRec           INFO Changing default applyResilience = True
+Py:MuonRec           INFO Changing default doMSVertex = True
+Py:MuonRec           INFO Changing default enableErrorTuning = True
+Py:MuonRec           INFO Changing default useAlignmentCorrections = True
+Py:MuonRec           INFO Changing default doMuonIso = False
+Py:JobProperty ::    INFO The JobProperty LoadElecCalib is blocked
+Py:Athena            INFO Importing MuonCnvExample.MuonCnvFlags
+Py:MuonCnvExample.MuonCnvFlags    INFO Changing default TgcCablingMode = '12-fold'
+Py:ConfigurableDb    INFO Read module info for 5425 configurables from 6 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+EventInfoMgtInit: Got release version  Athena-22.0.0
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance CONDBR2
+Py:LuminosityTool    INFO Created online LuminosityTool using folder /TRIGGER/LUMI/HLTPrefLumi
+Py:OnlineLumiCalibrationTool    INFO OnlineLumiCalibrationToolDefault requested /TDAQ/OLC/CALIBRATIONS
+Py:LuminosityTool    INFO LuminosityToolOnline added tool OnlineLumiCalibrationTool
+Py:Configurable     ERROR attempt to add a duplicate (AthCondSeq.CondInputLoader) ... dupe ignored
+Py:Athena            INFO including file "RecExCond/AllDet_detDescr.py"
+Py:Athena            INFO including file "RecExCond/RecExCommon_DetFlags.py"
+Py:RecExCommon_DetFlags    INFO DetFlags already defined.by user : user should have fully configured it already! 
+Py:MuonRec           INFO DetFlags.readRDOBS.MDT_setOn()
+Py:MuonRec           INFO DetFlags.readRDOBS.RPC_setOn()
+Py:MuonRec           INFO DetFlags.readRDOBS.CSC_setOn()
+Py:MuonRec           INFO DetFlags.readRDOBS.TGC_setOn()
+Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
+SetGeometryVersion.py obtained major release version 22
+Py:ConfiguredFactory    INFO imported 121 confDb modules in 4.44 seconds
+Py:Athena            INFO including file "TileConditions/TileConditions_jobOptions.py"
+Py:TileInfoConf.     INFO Adding TileCablingSvc to ServiceMgr
+Py:TileInfoConf.     INFO Adding default TileBadChanTool to ToolSvc
+Py:TileInfoConf.     INFO Adding default TileCondToolOfc to ToolSvc
+Py:TileInfoConf.     INFO Adding default TileCondToolEmscale to ToolSvc
+Py:TileInfoConf.     INFO Adding default TileCondToolNoiseSample to ToolSvc
+Py:TileInfoConf.     INFO Adding default TileCondToolTiming to ToolSvc
+Py:inputFilePeeker    INFO Executing   inputFilePeeker.py
+Py:AthFile           INFO opening [.]...
+Py:inputFilePeeker WARNING Unable to open file []
+Py:inputFilePeeker WARNING caught:
+problem picking a data reader for file [.]
+Py:inputFilePeeker   ERROR Unable to build inputFileSummary from any of the specified input files. There is probably a problem.
+Py:AutoConfiguration   ERROR No RunNumber stored in InputFile!
+Py:TileConditions_jobOptions.py    INFO Adjusting TileInfo for 7 samples
+Py:TileConditions_jobOptions.py    INFO setting up COOL for TileCal conditions data
+Py:TileInfoConf.     INFO Changing default TileBadChanTool configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolEmscale configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolNoiseSample configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolTiming configuration to COOL source
+Py:TileConditions_jobOptions.py    INFO Adjusting TileInfo to return cell noise for Opt.Filter without iterations
+Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "TileIdCnv/TileIdCnv_jobOptions.py"
+Py:Athena            INFO including file "LArDetDescr/LArDetDescr_joboptions.py"
+now initializing the LAr readout geometry : standard Atlas flavour
+Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py"
+Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_comm_jobOptions.py"
+Py:Athena            INFO including file "InDetBeamSpotService/BeamCondSvc.py"
+Py:Athena            INFO including file "AmdcAth/AmdcAth_jobOptions.py"
+Py:Athena            INFO Importing MagFieldServices.SetupField
+Py:Athena            INFO Importing MagFieldServices.MagFieldServicesConfig
+Py:RegSelSvc::__init__     INFO entering
+Py:Athena            INFO including file "InDetRecExample/InDetRecCabling.py"
+Py:AutoConfiguration   ERROR No RunNumber stored in InputFile!
+Shortened traceback (most recent user call last):
+  File "./dumpRegSelSvc.py", line 4, in <module>
+    include("TrigUpgradeTest/testHLT_MT.py")
+  File "/afs/cern.ch/user/t/tbold/workspace/upgrade/regsel/build/x86_64-slc6-gcc62-opt/jobOptions/TrigUpgradeTest/testHLT_MT.py", line 283, in <module>
+    include( "InDetRecExample/InDetRecCabling.py" )
+  File "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-11-05T2300/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/jobOptions/InDetRecExample/InDetRecCabling.py", line 15, in <module>
+    PixelCablingSvc = getService("PixelCablingSvc")
+  File "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-11-05T2300/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/python/PixelCabling/PixelCablingConfig.py", line 91, in getPixelCablingSvc
+    logger.debug("Running on data, run number %d" % runNum)
+TypeError: %d format: a number is required, not NoneType
+Py:Athena            INFO leaving with code 8: "an unknown exception occurred"
