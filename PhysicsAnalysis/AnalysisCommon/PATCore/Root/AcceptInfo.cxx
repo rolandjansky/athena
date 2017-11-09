@@ -4,7 +4,7 @@
 
 
 /******************************************************************************
-Name:        TAcceptInfo
+Name:        AcceptInfo
 
 Author:      Karsten Koeneke (CERN)
 Author:      Nils Krumnack (Iowa State University)
@@ -15,7 +15,7 @@ Description: Object to encode the result of several cuts
 ******************************************************************************/
 
 // This class' header
-#include "PATCore/TAcceptInfo.h"
+#include "PATCore/AcceptInfo.h"
 
 
 // include math
@@ -33,7 +33,7 @@ Description: Object to encode the result of several cuts
 //=============================================================================
 // Constructor
 //=============================================================================
-Root::TAcceptInfo::TAcceptInfo(const char* name) :
+asg::AcceptInfo::AcceptInfo(const char* name) :
   m_name(name),
   m_cutMap()
 {
@@ -45,7 +45,7 @@ Root::TAcceptInfo::TAcceptInfo(const char* name) :
 //=============================================================================
 // Adding a cut
 //=============================================================================
-int Root::TAcceptInfo::addCut( const std::string& cutName, const std::string& cutDescription )
+int asg::AcceptInfo::addCut( const std::string& cutName, const std::string& cutDescription )
 {
   // Make sure that this new cuts doesn't exceed the number of bits available
   if ( m_cutMap.size() >= NBITS )
@@ -69,7 +69,7 @@ int Root::TAcceptInfo::addCut( const std::string& cutName, const std::string& cu
 //=============================================================================
 // Get the description of a cut based on the cut position
 //=============================================================================
-const std::string& Root::TAcceptInfo::getCutName( unsigned int cutPosition ) const
+const std::string& asg::AcceptInfo::getCutName( unsigned int cutPosition ) const
 {
   static const std::string emptyString;
 
@@ -99,7 +99,7 @@ const std::string& Root::TAcceptInfo::getCutName( unsigned int cutPosition ) con
 //=============================================================================
 // Get the description of a cut based on the cut position
 //=============================================================================
-const std::string& Root::TAcceptInfo::getCutDescription( unsigned int cutPosition ) const
+const std::string& asg::AcceptInfo::getCutDescription( unsigned int cutPosition ) const
 {
   static const std::string emptyString;
 
@@ -130,7 +130,7 @@ const std::string& Root::TAcceptInfo::getCutDescription( unsigned int cutPositio
 //=============================================================================
 // Set the description of a cut based on the cut position
 //=============================================================================
-void Root::TAcceptInfo::setCutDescription( const unsigned int cutPosition, const std::string& cutDescription )
+void asg::AcceptInfo::setCutDescription( const unsigned int cutPosition, const std::string& cutDescription )
 {
   // iterate over the map and find the right position
   auto it    = m_cutMap.begin();
@@ -152,7 +152,7 @@ void Root::TAcceptInfo::setCutDescription( const unsigned int cutPosition, const
 
 
 /** Get the description of a cut, based on the cut name */
-const std::string& Root::TAcceptInfo :: getCutDescription( const std::string& cutName ) const
+const std::string& asg::AcceptInfo :: getCutDescription( const std::string& cutName ) const
 {
   static const std::string emptyString;
   auto it = m_cutMap.find(cutName);

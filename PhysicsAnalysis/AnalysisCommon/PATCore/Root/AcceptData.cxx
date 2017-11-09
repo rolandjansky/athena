@@ -4,7 +4,7 @@
 
 
 /******************************************************************************
-Name:        TAcceptData
+Name:        AcceptData
 
 Author:      Karsten Koeneke (CERN)
 Created:     April 2011
@@ -13,6 +13,6 @@ Description: Object to encode the result of several cuts
 ******************************************************************************/
 
 // This class' header
-#include "PATCore/TAcceptData.h"
+#include "PATCore/AcceptData.h"
 
 
