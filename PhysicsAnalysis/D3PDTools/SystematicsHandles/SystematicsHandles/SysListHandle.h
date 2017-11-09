@@ -87,7 +87,7 @@ namespace EL
 
     /// \brief the list of systematics to loop over
   public:
-    const std::vector<CP::SystematicSet>& systematicsVector () const noexcept;
+    const std::vector<CP::SystematicSet>& systematicsVector () const;
 
 
 

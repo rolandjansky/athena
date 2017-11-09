@@ -11,6 +11,7 @@
 // reports, feature suggestions, praise and complaints.
 
 
+#include <string>
 #include <vector>
 
 namespace CP

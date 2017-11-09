@@ -19,6 +19,8 @@
 #include <PATInterfaces/SystematicSet.h>
 #include <RootCoreUtils/Assert.h>
 
+#include <stdexcept>
+
 //
 // method implementations
 //
@@ -45,11 +47,15 @@ namespace EL
 
 
   const std::vector<CP::SystematicSet>& SysListHandle ::
-  systematicsVector () const noexcept
+  systematicsVector () const
   {
     assert (isInitialized());
     const SysListType *systematicsList = nullptr;
+#ifdef ROOTCORE
     ANA_CHECK_THROW (m_evtStore->retrieve (systematicsList, m_systematicsListName));
     return *systematicsList;
+#else
+    throw std::runtime_error ("reading the systematics list from the event store is currently not supported");
+#endif
   }
 }
