@@ -38,7 +38,7 @@ class PixelDetectorTool : public GeoModelTool {
   virtual StatusCode registerCallback() override final;
 
   // Callback function itself
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
 
 private:
   //
