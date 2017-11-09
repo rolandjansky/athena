@@ -210,8 +210,8 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
   for (unsigned k=0;k<(int)CaloGain::LARNGAIN;k++) {
     CaloGain::CaloGain gain=(CaloGain::CaloGain)k;
     //Loop over cells
-    ACCU::ConstConditionsMapIterator cell_it=m_accu.begin(gain);
-    ACCU::ConstConditionsMapIterator cell_it_e=m_accu.end(gain);
+    ACCU::ConditionsMapIterator cell_it=m_accu.begin(gain);
+    ACCU::ConditionsMapIterator cell_it_e=m_accu.end(gain);
     if (cell_it==cell_it_e) continue; //No data for this gain
     for (;cell_it!=cell_it_e;cell_it++) {
       const LArAccumulatedDigit& dg=*cell_it;

@@ -303,8 +303,8 @@ StatusCode FixLArElecCalib::fix2() {
     for( unsigned int gain=0;gain<3;++gain)
       {
 	// loop over all the old data
-	LArRampMC::ConstConditionsMapIterator  it = ramp->begin(gain);
-	LArRampMC::ConstConditionsMapIterator  it_e = ramp->end(gain);
+	LArRampMC::ConditionsMapIterator  it = ramp->begin(gain);
+	LArRampMC::ConditionsMapIterator  it_e = ramp->end(gain);
 	
 	int n=0;
 	for (; it!=it_e;++it)
@@ -499,8 +499,8 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
   LArfSamplMC* fsampl = const_cast<LArfSamplMC*>(fsampl_c);
 
   // loop over all the old data
-  LArfSamplMC::ConstConditionsMapIterator  it = fsampl->begin(0);
-  LArfSamplMC::ConstConditionsMapIterator  it_e = fsampl->end(0);
+  LArfSamplMC::ConditionsMapIterator  it = fsampl->begin(0);
+  LArfSamplMC::ConditionsMapIterator  it_e = fsampl->end(0);
   int n_hec=0;
   int n_fcal=0;
 
@@ -752,8 +752,8 @@ StatusCode FixLArElecCalib::fix5() {
     for( unsigned int gain=0;gain<3;++gain)
       {
 	// loop over all the old data
-	LArNoiseMC::ConstConditionsMapIterator  it = noise->begin(gain);
-	LArNoiseMC::ConstConditionsMapIterator  it_e = noise->end(gain);
+	LArNoiseMC::ConditionsMapIterator  it = noise->begin(gain);
+	LArNoiseMC::ConditionsMapIterator  it_e = noise->end(gain);
 	
 	for (; it!=it_e;++it)
 	  {
@@ -995,8 +995,8 @@ StatusCode FixLArElecCalib::fix6() {
     for( unsigned int gain=0;gain<3;++gain)
       {
 	// loop over all the old data
-	LArNoiseMC::ConstConditionsMapIterator  it = noise->begin(gain);
-	LArNoiseMC::ConstConditionsMapIterator  it_e = noise->end(gain);
+	LArNoiseMC::ConditionsMapIterator  it = noise->begin(gain);
+	LArNoiseMC::ConditionsMapIterator  it_e = noise->end(gain);
 	
 	for (; it!=it_e;++it)
 	  {
@@ -1507,8 +1507,8 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
 
    int n=0;
 
-   LAruA2MeVMC::ConstConditionsMapIterator it = ua2mevMC->begin(0);
-   LAruA2MeVMC::ConstConditionsMapIterator it_e = ua2mevMC->end(0);
+   LAruA2MeVMC::ConditionsMapIterator it = ua2mevMC->begin(0);
+   LAruA2MeVMC::ConditionsMapIterator it_e = ua2mevMC->end(0);
    
    for(;it!=it_e;++it){
      HWIdentifier hid = it.channelId();
@@ -1535,8 +1535,8 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
 
    for(unsigned int igain=0;igain<3;++igain)
      {
-       LArDAC2uAMC::ConstConditionsMapIterator it = dac2uaMC->begin(igain);
-       LArDAC2uAMC::ConstConditionsMapIterator it_e = dac2uaMC->end(igain);
+       LArDAC2uAMC::ConditionsMapIterator it = dac2uaMC->begin(igain);
+       LArDAC2uAMC::ConditionsMapIterator it_e = dac2uaMC->end(igain);
        
        n=0;
        for(;it!=it_e;++it){
@@ -1627,8 +1627,8 @@ StatusCode FixLArElecCalib::fix9() {
     for( unsigned int gain=0;gain<3;++gain)
       {
 	// loop over all the old data
-	LArAutoCorrMC::ConstConditionsMapIterator  it = ac->begin(gain);
-	LArAutoCorrMC::ConstConditionsMapIterator  it_e = ac->end(gain);
+	LArAutoCorrMC::ConditionsMapIterator  it = ac->begin(gain);
+	LArAutoCorrMC::ConditionsMapIterator  it_e = ac->end(gain);
 	
 	int n=0;
 	for (; it!=it_e;++it)
@@ -1677,8 +1677,8 @@ StatusCode FixLArElecCalib::fix10() {
     ATH_CHECK( detStore()->retrieve(ramp_c) );
     LArRampMC* ramp = const_cast<LArRampMC*>(ramp_c);
     
-    LArRampMC::ConstConditionsMapIterator  it = ramp->begin(0);
-    LArRampMC::ConstConditionsMapIterator  it_e = ramp->end(0);
+    LArRampMC::ConditionsMapIterator  it = ramp->begin(0);
+    LArRampMC::ConditionsMapIterator  it_e = ramp->end(0);
 	
     int n=0;
     int ndisc=0;

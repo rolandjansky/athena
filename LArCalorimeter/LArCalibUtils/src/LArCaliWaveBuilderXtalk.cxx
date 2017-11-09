@@ -586,8 +586,8 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
     CaloGain::CaloGain gain=(CaloGain::CaloGain)k;
 
     /// get iterator for all channels for a gain
-    WaveContainer::ConstConditionsMapIterator cell_it   = m_waves.begin(gain); 
-    WaveContainer::ConstConditionsMapIterator cell_it_e = m_waves.end(gain);
+    WaveContainer::ConditionsMapIterator cell_it   = m_waves.begin(gain); 
+    WaveContainer::ConditionsMapIterator cell_it_e = m_waves.end(gain);
 
     HWIdentifier lastId;
 	
