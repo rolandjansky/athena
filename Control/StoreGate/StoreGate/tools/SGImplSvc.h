@@ -526,7 +526,7 @@ public:
        bool includeAlias = false, bool onlyValid = true); 
 
   /// implements IHiveStore interface for compat with Hive
-  virtual ::IProxyDict* hiveProxyDict() {
+  virtual ::IProxyDict* hiveProxyDict() override final {
     return this;
   }
 

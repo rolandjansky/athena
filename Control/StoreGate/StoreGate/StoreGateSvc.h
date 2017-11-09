@@ -126,7 +126,7 @@ namespace PerfMon { class StorePayloadMon; }
 class StoreGateSvc :
   public Service, 
   public IProxyDict, 
-  public IHiveStore,
+  virtual public IHiveStore,
   public IHiveStoreMgr,
   public IIncidentListener
 {
