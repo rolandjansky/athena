@@ -85,6 +85,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         "rapidity."
         "bdtPi0Score"
         ]
+        
+    # add tau-ID variables needed to rerun tau ID for HiggsCP analysis
+    if HIGG4DxName == 'HIGG4D3':
+        ExtraContentTaus[0] += ".centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.absipSigLeadTrk.massTrkSys.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.trFlightPathSig"
+        
 
     ExtraTausTruth = [
         "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"
@@ -114,12 +119,12 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
        HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
 
     if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
-        HIGG4DxSlimmingHelper.AppendToDictionary = {
+        HIGG4DxSlimmingHelper.AppendToDictionary.update( {
               "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
               "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
               "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
               "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
-              }
+              } )
               
         HIGG4DxSlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
     

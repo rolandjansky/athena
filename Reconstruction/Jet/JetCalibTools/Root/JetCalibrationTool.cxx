@@ -19,8 +19,8 @@
 
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), 
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
+    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
 { 
 
@@ -32,6 +32,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
   declareProperty( "DEVmode", m_devMode = false);
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
 
 }
 
@@ -197,6 +198,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
     m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_doResidual,m_doOrigin,m_isData,m_devMode);
+    m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str());
     m_jetPileupCorr->msg().setLevel( this->msg().level() );
     if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
       ATH_MSG_FATAL("Couldn't initialize the pileup correction. Aborting"); 
