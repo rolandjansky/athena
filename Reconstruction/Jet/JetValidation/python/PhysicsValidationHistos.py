@@ -1,5 +1,3 @@
-'
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
@@ -185,8 +183,6 @@ athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4TruthJets" ),
 #    commonPhysValTool( "AntiKt10TruthJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
-
-
 
 
 if (isMC==False):
