@@ -224,7 +224,7 @@ namespace InDetDD {
     
     
     // Private member data:--------------------------------------------------------//
-    std::vector<PVLink> volume;                                                    //
+    std::vector<PVLink> m_volume;                                                  //
     //                                                                             //
     enum {NMODMAX=3};                                                              //
     enum {NWHEELMAX=18};                                                           //
@@ -232,15 +232,15 @@ namespace InDetDD {
     enum {NSTRAWLAYMAXBR=30};                                                      //
     enum {NSTRAWLAYMAXEC=16};                                                      //
     //                                                                             //
-    TRT_BarrelElement *barrelArray[2][NMODMAX][NPHIMAX][NSTRAWLAYMAXBR];           //
-    TRT_EndcapElement *endcapArray[2][NWHEELMAX][NSTRAWLAYMAXEC][NPHIMAX];         //
+    TRT_BarrelElement *m_barrelArray[2][NMODMAX][NPHIMAX][NSTRAWLAYMAXBR];         //
+    TRT_EndcapElement *m_endcapArray[2][NWHEELMAX][NSTRAWLAYMAXEC][NPHIMAX];       //
     TRT_DetElementCollection m_elements;                                           //     
     //                                                                             //
-    TRT_Numerology  *_numerology;                                                  //
+    TRT_Numerology  *m_numerology;                                                 //
     const TRT_ID    *m_idHelper;                                                   //
-    bool             _ownsIdHelper;                                                //
-    const GeoXF::Function *_barrelXF[3];                                           //
-    const GeoXF::Function *_endcapXF[3];                                           //
+    bool             m_ownsIdHelper;                                               //
+    const GeoXF::Function *m_barrelXF[3];                                          //
+    const GeoXF::Function *m_endcapXF[3];                                          //
     //                                                                             //
     ActiveGasType m_gasType;                                                       //
     unsigned int m_digvers;                                                        //

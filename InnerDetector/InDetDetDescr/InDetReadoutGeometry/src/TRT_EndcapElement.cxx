@@ -34,31 +34,31 @@ namespace InDetDD {
         TRT_BaseElement(volume,
         idHelper->layer_id((isPositive ? 2:-2), phiIndex, wheelIndex, strawLayIndex),
         idHelper, conditions),
-        _code(isPositive,wheelIndex,strawLayIndex,phiIndex),
-        _descriptor(descriptor),
-        _nextInZ(NULL),
-        _previousInZ(NULL),
+        m_code(isPositive,wheelIndex,strawLayIndex,phiIndex),
+        m_descriptor(descriptor),
+        m_nextInZ(NULL),
+        m_previousInZ(NULL),
         m_surface(0)
 
     {
-        _descriptor->ref();
+        m_descriptor->ref();
     }
 
 
     TRT_EndcapElement::~TRT_EndcapElement()
     {
-        _descriptor->unref();
+        m_descriptor->unref();
         delete m_surface;
     }
 
     unsigned int TRT_EndcapElement::nStraws() const
     {
-        return _descriptor->nStraws();
+        return m_descriptor->nStraws();
     }
 
     const double & TRT_EndcapElement::strawLength() const
     {
-        return _descriptor->strawLength();
+        return m_descriptor->strawLength();
     }  
 
 
@@ -69,17 +69,17 @@ namespace InDetDD {
 
     const TRT_EndcapDescriptor * TRT_EndcapElement::getDescriptor() const
     {
-        return _descriptor;
+        return m_descriptor;
     }
 
     void TRT_EndcapElement::setNextInZ(const TRT_EndcapElement *element)
     {
-        _nextInZ=element;
+        m_nextInZ=element;
     }
 
     void TRT_EndcapElement::setPreviousInZ(const TRT_EndcapElement *element)
     {
-        _previousInZ=element;
+        m_previousInZ=element;
     }
 
 
@@ -90,12 +90,12 @@ namespace InDetDD {
         // requirement and make the code a little more robust in this regard but
         // at the cost of doubling the descriptors.  (One descriptor now suffices
         // for both positive and negative endcaps).
-        const GeoXF::Function *f= _descriptor->getStrawTransform();
+        const GeoXF::Function *f= m_descriptor->getStrawTransform();
 
         if (f) {
-            int istraw = _code.isPosZ() ? straw : _descriptor->nStraws()-1 - straw;
+            int istraw = m_code.isPosZ() ? straw : m_descriptor->nStraws()-1 - straw;
 
-            size_t offsetInto = _descriptor->getStrawTransformOffset();
+            size_t offsetInto = m_descriptor->getStrawTransformOffset();
 
             return getMaterialGeom()->getAbsoluteTransform()*((*f)(istraw+offsetInto)) * calculateLocalStrawTransform(straw);
             ////return conditions()->solenoidFrame() 
@@ -106,8 +106,8 @@ namespace InDetDD {
             // Will not work properly with alignments.
             std::cout << "ALTERNATIVE METHOD" << std::endl;
 
-            double phi = _descriptor->startPhi() +  _descriptor->strawPitch() * straw;
-            double r = _descriptor->innerRadius() + 0.5 * _descriptor->strawLength() ;
+            double phi = m_descriptor->startPhi() +  m_descriptor->strawPitch() * straw;
+            double r = m_descriptor->innerRadius() + 0.5 * m_descriptor->strawLength() ;
             CLHEP::Hep3Vector pos(r*cos(phi), r*sin(phi), (getMaterialGeom()->getAbsoluteTransform()*HepGeom::Point3D<double>()).z());
             CLHEP::HepRotation rot;
             // Axis (in local (0,0,1)) points towards beam axis.
@@ -168,19 +168,19 @@ namespace InDetDD {
         // at the cost of doubling the descriptors.  (One descriptor now suffices
         // for both positive and negative endcaps).
 
-        const GeoXF::Function *f= _descriptor->getStrawTransform();
+        const GeoXF::Function *f= m_descriptor->getStrawTransform();
 
         if (f) {
 
-            int istraw = _code.isPosZ() ? straw : _descriptor->nStraws()-1 - straw;
+            int istraw = m_code.isPosZ() ? straw : m_descriptor->nStraws()-1 - straw;
 
-            size_t offsetInto = _descriptor->getStrawTransformOffset();
+            size_t offsetInto = m_descriptor->getStrawTransformOffset();
             return getMaterialGeom()->getDefAbsoluteTransform()*((*f)(istraw+offsetInto));
 
         } else {
 
-            double phi = _descriptor->startPhi() +  _descriptor->strawPitch() * straw;
-            double r = _descriptor->innerRadius() + 0.5 * _descriptor->strawLength() ;
+            double phi = m_descriptor->startPhi() +  m_descriptor->strawPitch() * straw;
+            double r = m_descriptor->innerRadius() + 0.5 * m_descriptor->strawLength() ;
             CLHEP::Hep3Vector pos(r*cos(phi), r*sin(phi), (getMaterialGeom()->getDefAbsoluteTransform()*HepGeom::Point3D<double>()).z());
             CLHEP::HepRotation rot;
             rot.rotateY(-0.5*M_PI); // Make it point along -ve X.
@@ -192,7 +192,7 @@ namespace InDetDD {
 
     const Trk::SurfaceBounds& TRT_EndcapElement::strawBounds() const
     {
-        return _descriptor->strawBounds();
+        return m_descriptor->strawBounds();
     }
 
     const Trk::Surface& TRT_EndcapElement::elementSurface() const 
@@ -204,10 +204,10 @@ namespace InDetDD {
     void TRT_EndcapElement::createSurfaceCache() const
     {
         // Calculate the surface 
-        double phiCenter = _descriptor->startPhi() +  _descriptor->strawPitch() * 0.5*(nStraws()-1);
-        double phiHalfWidth = 0.5 * _descriptor->strawPitch() * nStraws();
-        double rMin = _descriptor->innerRadius();
-        double rMax = rMin +_descriptor->strawLength();
+        double phiCenter = m_descriptor->startPhi() +  m_descriptor->strawPitch() * 0.5*(nStraws()-1);
+        double phiHalfWidth = 0.5 * m_descriptor->strawPitch() * nStraws();
+        double rMin = m_descriptor->innerRadius();
+        double rMax = rMin +m_descriptor->strawLength();
 
         // The transform of the endcap is a translation in z for no
         // misalignement. For the -ve endcap there is also a 180deg rotation
@@ -227,7 +227,7 @@ namespace InDetDD {
         // to get the z axis pointing in the correct direction.
 
         Amg::Transform3D * transform = 0;
-        if  (_code.isPosZ())
+        if  (m_code.isPosZ())
             transform = new Amg::Transform3D(Amg::CLHEPTransformToEigen( (getMaterialGeom()->getAbsoluteTransform() * HepGeom::RotateZ3D(phiCenter))));
         else
             transform = new Amg::Transform3D(Amg::CLHEPTransformToEigen( (getMaterialGeom()->getAbsoluteTransform() * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateZ3D(phiCenter))));
@@ -252,7 +252,7 @@ namespace InDetDD {
   // towards the beam pipe. For +ve endcap it is what we want. For -ve endcap it is oppposite.
   // 
   // 
-        return (_code.isPosZ()) ? +1 : -1;
+        return (m_code.isPosZ()) ? +1 : -1;
     }
 
 } // end namespace

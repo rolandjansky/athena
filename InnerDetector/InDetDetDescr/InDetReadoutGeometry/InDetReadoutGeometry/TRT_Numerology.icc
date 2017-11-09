@@ -4,27 +4,27 @@
 
 namespace InDetDD {
 inline unsigned int TRT_Numerology::getNBarrelLayers (unsigned int iMod) const {
-  return _nlayerBarrel[iMod];
+  return m_nlayerBarrel[iMod];
 }
 
 
 inline unsigned int TRT_Numerology::getNEndcapLayers (unsigned int iWheel) const {
-  return _nlayerEndcap[iWheel];
+  return m_nlayerEndcap[iWheel];
 }
 
 inline unsigned int TRT_Numerology::getNBarrelRings() const {
-  return _nringBarrel;
+  return m_nringBarrel;
 }
 
 inline unsigned int TRT_Numerology::getNBarrelPhi() const {
-  return _nphiBarrel;
+  return m_nphiBarrel;
 }
 
 inline unsigned int TRT_Numerology::getNEndcapWheels() const {
-  return _nwheelEndcap;
+  return m_nwheelEndcap;
 }
 
 inline unsigned int TRT_Numerology::getNEndcapPhi() const {
-  return _nphiEndcap;
+  return m_nphiEndcap;
 }
 }

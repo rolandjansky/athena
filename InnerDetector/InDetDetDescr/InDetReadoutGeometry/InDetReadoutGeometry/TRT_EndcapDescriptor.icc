@@ -6,20 +6,20 @@ namespace InDetDD {
 
 //	The number of straws in a module:
 inline const unsigned int &TRT_EndcapDescriptor::nStraws() const {
-  return _nStraws;
+  return m_nStraws;
 }
 
 inline const double &TRT_EndcapDescriptor::strawPitch() const {
-  return _strawPitch;
+  return m_strawPitch;
 }
 
 inline const double &TRT_EndcapDescriptor::startPhi() const {
-  return _startPhi;
+  return m_startPhi;
 }
 
 
 inline const double &TRT_EndcapDescriptor::strawLength() const {
-  return _strawLength;
+  return m_strawLength;
 }
 
 inline double TRT_EndcapDescriptor::innerTubeRadius() const
@@ -28,15 +28,15 @@ inline double TRT_EndcapDescriptor::innerTubeRadius() const
 }
 
 inline const double &TRT_EndcapDescriptor::innerRadius() const {
-  return _innerRadius;
+  return m_innerRadius;
 }
 
 inline const GeoXF::Function * TRT_EndcapDescriptor::getStrawTransform() const {
-  return _f;
+  return m_f;
 }
 
 inline size_t TRT_EndcapDescriptor::getStrawTransformOffset() const {
-  return _o;
+  return m_o;
 }
 
 

@@ -8,27 +8,27 @@ namespace InDetDD {
 
 inline const TRT_BarrelElement * TRT_BarrelElement::nextInPhi() const
 {
-  return _nextInPhi;
+  return m_nextInPhi;
 }
 
 inline const TRT_BarrelElement * TRT_BarrelElement::previousInPhi() const
 {
-  return _previousInPhi;
+  return m_previousInPhi;
 }
 
 inline const TRT_BarrelElement * TRT_BarrelElement::nextInR() const
 {
-  return _nextInR;
+  return m_nextInR;
 }
 
 inline const TRT_BarrelElement * TRT_BarrelElement::previousInR() const
 {
-  return _previousInR;
+  return m_previousInR;
 }
 
 inline const TRT_BarrelCode & TRT_BarrelElement::getCode() const
 {
-  return _code;
+  return m_code;
 }
 
 
@@ -49,11 +49,11 @@ inline double TRT_BarrelElement::strawZPos (unsigned int straw) const {
 
 // Get the number of straws:
 inline unsigned int  TRT_BarrelElement::nStraws() const {
-  return _descriptor->nStraws();	
+  return m_descriptor->nStraws();	
 }
 
 // Get the length of the straws:
 inline const double & TRT_BarrelElement::strawLength() const {
-  return _descriptor->strawLength();	
+  return m_descriptor->strawLength();	
 }
 }
