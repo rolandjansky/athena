@@ -340,3 +340,24 @@ def addTruthCollectionNavigationDecorations(kernel=None,TruthCollections=[]):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthNavigationDecoratorKernel",
                                                              AugmentationTools = [DFCommonTruthNavigationDecorator] )
+
+# Add BSM particles and their downstream particles (immediate and further decay products) in a special collection
+def addBSMAndDownstreamParticles(kernel=None, generations=-1):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonBSMAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
+    DFCommonBSMAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonBSMAndDecaysTool",
+                                                                   NewCollectionName="TruthBSMWithDecay",
+                                                                             KeepBSM=True,
+                                                                         Generations=generations)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonBSMAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBSMAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonBSMAndDecaysTool] )
