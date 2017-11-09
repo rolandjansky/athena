@@ -131,11 +131,11 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
 
   
  private:
-  std::string par_rtcontainerkey ;       //!< folder name for rt relation 
-  std::string par_errcontainerkey ;       //!< folder name for rt errors
-  std::string par_slopecontainerkey ;       //!< folder name for rt slopes
-  std::string par_t0containerkey ;       //!< folder name for t0 
-  std::string par_caltextfile;           //!< input text error file
+  std::string m_par_rtcontainerkey ;       //!< folder name for rt relation 
+  std::string m_par_errcontainerkey ;       //!< folder name for rt errors
+  std::string m_par_slopecontainerkey ;       //!< folder name for rt slopes
+  std::string m_par_t0containerkey ;       //!< folder name for t0 
+  std::string m_par_caltextfile;           //!< input text error file
 
   const TRT_ID* m_trtid;                 //!< id helper
   ToolHandle<IAthenaOutputStreamTool> m_streamer;        //!< OutputStreamTool
