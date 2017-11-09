@@ -171,7 +171,10 @@ akt4refContainer = "AntiKt4TruthJets" if rec.doTruth() else ""
 #globalSelection = "0.7<JVF[0]"
 globalSelection = ""
 
+##
 # necessary updates for validation directories
+###
+
 athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
