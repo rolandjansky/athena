@@ -752,31 +752,29 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf, co
 // =============================================================================
 int
 Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<float> > &pt_eta1) const {
+  //Get sf histograms 
   const std::vector<TObjArray >& tmpVec = m_histList.at(mapkey::sf);
   int nbinsTotal = 0;
   pt_eta1.clear();
   std::vector<float>eta1;
   eta1.clear();
 
+  //Loop over the different run ranges (one TObjeArray for each)
   for (unsigned int ikey = 0; ikey < tmpVec.size(); ++ikey) {
+    //Loop over the histograms for a given run numbers
     for (int entries = 0; entries < (tmpVec.at(ikey)).GetEntries(); entries++) {
       eta1.clear();
-
+      //Get number of bins
       TH2D *h_tmp = ((TH2D * ) (tmpVec.at(ikey)).At(entries));
       int nbinsX = h_tmp->GetNbinsX();
       int nbinsY = h_tmp->GetNbinsY();
-
-      for (int biny = 1; biny <= nbinsY; biny++) {
+      //fill in the eta pushing back
+      for (int biny = 1; biny <= nbinsY; ++biny) {
         eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny));
-        if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
-          eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny + 1));
-        }
       }
-      for (int binx = 1; binx < nbinsX; binx++) {
+      //associate each pt (bin) with the corresponding/available eta ones
+      for (int binx = 1; binx <=nbinsX; ++binx) {
         pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx)] = eta1;
-        if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
-          pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx + 1)] = eta1;
-        }
       }
     }
   }
