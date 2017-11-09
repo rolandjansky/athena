@@ -29,7 +29,9 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
     kwargs.setdefault("TileHitVectors", ["TileHitVec" , "MBTSHits" ])
     kwargs.setdefault("TileInfoName", "TileInfo")
     kwargs.setdefault("TileHitContainer", "TileHitCnt")
-
+    kwargs.setdefault("TileHitContainer_DigiHSTruth", "TileHitCnt_DigiHSTruth")
+    from RecExConfig.RecFlags import rec
+    kwargs.setdefault("DoHSTruthReconstruction", rec.doDigiTruth())
     from AthenaCommon.DetFlags import DetFlags
     kwargs.setdefault("PileUp", DetFlags.pileup.Tile_on())
 

@@ -31,6 +31,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "TileEvent/TileHitContainer.h"
+
 
 class IAtRndmGenSvc;
 class PileUpMergeSvc;
@@ -60,6 +62,8 @@ class TileDigitsMaker: public AthAlgorithm {
   public:
     // Constructor
     TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator);
+    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi);
+
 
     //Destructor 
     virtual ~TileDigitsMaker();
@@ -71,7 +75,9 @@ class TileDigitsMaker: public AthAlgorithm {
 
   private:
     std::string m_hitContainer;    //!< Name of the TileHitContainer
+    std::string m_hitContainer_DigiHSTruth;    //!< Name of the TileHitContainer
     std::string m_digitsContainer; //!< Name of the TileDigitsContainer
+    std::string m_digitsContainer_DigiHSTruth; //!< Name of the TileDigitsContainer
     std::string m_filteredContainer; //!< Name of the TileDigitsContainer with filtered digits
     std::string m_infoName;        //!< Name of TileInfo object in TES
     double m_filterThreshold;      //!< theshold on hit energy to store digit in filtered container
@@ -81,6 +87,7 @@ class TileDigitsMaker: public AthAlgorithm {
     bool m_rndmEvtOverlay;       //!< If true -> overlay with random event (zero-luminosity pile-up)
     bool m_useCoolPulseShapes;
     bool m_maskBadChannels;
+    bool m_doDigiTruth;
 
     PileUpMergeSvc* m_mergeSvc; //!< Pointer to PileUpMergeService
 
@@ -94,6 +101,8 @@ class TileDigitsMaker: public AthAlgorithm {
     std::vector<HWIdentifier *> m_all_ids;
     std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
     std::vector<double *> m_drawerBufferLo; //!< Vector used to store pointers to digits for a single drawer (low gain)
+    std::vector<double *> m_drawerBufferHi_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (high gain)
+    std::vector<double *> m_drawerBufferLo_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (low gain)
 
     int m_nSamples;           //!< Number of time slices for each channel
     int m_iTrig;           //!< Index of the triggering time slice

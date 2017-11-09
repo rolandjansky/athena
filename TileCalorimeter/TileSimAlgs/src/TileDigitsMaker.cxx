@@ -102,7 +102,9 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 {
   declareProperty("TileHitContainer",      m_hitContainer = "TileHitCnt");
+  declareProperty("TileHitContainer_DigiHSTruth",      m_hitContainer_DigiHSTruth = "TileHitCnt_DigiHSTruth");
   declareProperty("TileDigitsContainer",   m_digitsContainer = "TileDigitsCnt");
+  declareProperty("TileDigitsContainer_DigiHSTruth",   m_digitsContainer_DigiHSTruth = "TileDigitsCnt_DigiHSTruth");
   declareProperty("TileFilteredContainer", m_filteredContainer = "TileDigitsFlt");
   declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
   declareProperty("FilterThresholdMBTS",   m_filterThresholdMBTS = 0.0 * MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)");
@@ -117,6 +119,10 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("UseCoolPulseShapes",m_useCoolPulseShapes = true,"Pulse shapes from database (default=true)");
   declareProperty("TileBadChanTool",m_tileBadChanTool);
   declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
+  declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true);
+
+
+  m_rndmEvtOverlay = false;
 }
 
 TileDigitsMaker::~TileDigitsMaker() {
@@ -136,6 +142,20 @@ TileDigitsMaker::~TileDigitsMaker() {
   std::vector<double *>::iterator last2 = m_drawerBufferLo.end();
   for (; itr2 != last2; ++itr2) {
     delete[] (*itr2);
+  }
+
+  if(m_doDigiTruth){
+    std::vector<double *>::iterator itr3 = m_drawerBufferHi_DigiHSTruth.begin();
+    std::vector<double *>::iterator last3 = m_drawerBufferHi_DigiHSTruth.end();
+    for (; itr3 != last3; ++itr3) {
+      delete[] (*itr3);
+    }
+
+    std::vector<double *>::iterator itr4 = m_drawerBufferLo_DigiHSTruth.begin();
+    std::vector<double *>::iterator last4 = m_drawerBufferLo_DigiHSTruth.end();
+    for (; itr4 != last4; ++itr4) {
+      delete[] (*itr4);
+    }
   }
 }
 
@@ -323,6 +343,16 @@ StatusCode TileDigitsMaker::initialize() {
     m_drawerBufferHi.push_back(pDigitSamplesHi);
     m_drawerBufferLo.push_back(pDigitSamplesLo);
   }
+  if(m_doDigiTruth){
+    m_drawerBufferHi_DigiHSTruth.reserve(nchMax);
+    m_drawerBufferLo_DigiHSTruth.reserve(nchMax);
+    for (int ich = 0; ich < nchMax; ++ich) {
+      double * pDigitSamplesHi = new double[nSamp];
+      double * pDigitSamplesLo = new double[nSamp];
+      m_drawerBufferHi_DigiHSTruth.push_back(pDigitSamplesHi);
+      m_drawerBufferLo_DigiHSTruth.push_back(pDigitSamplesLo);
+    }
+  }
 
   /* ==================================*/
   ATH_MSG_INFO( "TileDigitsMaker initialization completed");
@@ -378,6 +408,10 @@ StatusCode TileDigitsMaker::execute() {
   // step1: Get hit container from TES 
   const TileHitContainer* hitCont;
   CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  const TileHitContainer* hitCont_DigiHSTruth;
+  if(m_doDigiTruth){
+      CHECK( evtStore()->retrieve(hitCont_DigiHSTruth, m_hitContainer_DigiHSTruth) );
+  }
 
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -400,6 +434,10 @@ StatusCode TileDigitsMaker::execute() {
   /* step2: Set up  Digits container */
   TileDigitsContainer* pDigitsContainer;
   pDigitsContainer = new TileDigitsContainer(true);
+  TileDigitsContainer* pDigitsContainer_DigiHSTruth;
+  if(m_doDigiTruth){
+    pDigitsContainer_DigiHSTruth = new TileDigitsContainer(true);
+  }
 
   TileDigitsContainer* pFilteredContainer = 0;
   if (m_filteredContainer.size() > 0)
@@ -420,6 +458,8 @@ StatusCode TileDigitsMaker::execute() {
   /* Make a vector of digits (to be filled at the end from m_drawerBuffer arrays) */
   std::vector<float> digitsBuffer(m_nSamples);
   std::vector<float> digitsBufferLo(m_nSamples); // for calib runs
+  std::vector<float> digitsBuffer_DigiHSTruth(m_nSamples);
+  std::vector<float> digitsBufferLo_DigiHSTruth(m_nSamples); // for calib runs
 
   /* everything for calculation of coherent noise */
   // booleans for coherent noise
@@ -484,6 +524,9 @@ StatusCode TileDigitsMaker::execute() {
   // iterate over all collections in a container
   TileHitContainer::const_iterator collItr = hitCont->begin();
   TileHitContainer::const_iterator lastColl = hitCont->end();
+  // Hit Container and signal hit container are the same size (1 entry per channel)
+  TileHitContainer::const_iterator collItr_DigiHSTruth;
+  if(m_doDigiTruth) collItr_DigiHSTruth = hitCont_DigiHSTruth->begin();
 
   /* ----------------------------------------------------------------- */
   /* Begin loop over the Hit collections.  All collections are defined */
@@ -526,9 +569,19 @@ StatusCode TileDigitsMaker::execute() {
       ntot_ch[ich] = 0;
       double * pDigitSamplesHi = m_drawerBufferHi[ich];
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
+      double * pDigitSamplesHi_DigiHSTruth;
+      double * pDigitSamplesLo_DigiHSTruth;
+      if(m_doDigiTruth){
+        pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
+        pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
+      }
       for (int js = 0; js < m_nSamples; ++js) {
         pDigitSamplesHi[js] = 0.;
         pDigitSamplesLo[js] = 0.;
+        if(m_doDigiTruth){
+          pDigitSamplesHi_DigiHSTruth[js] = 0.;
+          pDigitSamplesLo_DigiHSTruth[js] = 0.;
+        }
       }
     }
 
@@ -664,165 +717,11 @@ StatusCode TileDigitsMaker::execute() {
       ++collItrRndm; // skip to next digi collection
     }
 
-    // iterate over all hits in a collection
-    TileHitCollection::const_iterator hitItr = (*collItr)->begin();
-    TileHitCollection::const_iterator lastHit = (*collItr)->end();
-    bool signal_in_channel[nchMax];
-    memset(signal_in_channel, 0, sizeof(signal_in_channel));
-
-    for (; hitItr != lastHit; ++hitItr) {
-
-      /* Get hit Identifier (= pmt_ID) and needed parameters for this channel */
-      Identifier pmt_id = (*hitItr)->pmt_ID();
-      double mbts_extra_factor = (m_tileTBID->is_tiletb(pmt_id)) ? -1.0 : 1.0;
-      HWIdentifier channel_id = (*hitItr)->pmt_HWID();
-      int ich = m_tileHWID->channel(channel_id);
-      signal_in_channel[ich] = true;
-
-      if (over_gain[ich] > 9) {
-        if (msgLvl(MSG::DEBUG)) {
-          int n_hits = (*hitItr)->size();
-          double e_hit(0.);
-          for (int ihit = 0; ihit < n_hits; ++ihit) {
-            e_hit += (*hitItr)->energy(ihit);
-          }
-          HitSum += e_hit;
-          e_hit *= m_tileInfo->HitCalib(pmt_id);
-          EneSum += e_hit;
-          ech_tot[ich] += e_hit;
-          ntot_ch[ich] += n_hits;
-          ATH_MSG_VERBOSE("BAD Overlay digits - skip hit in channel " << m_tileHWID->to_string(channel_id,-1));
-        }
-        continue;
-      } else {
-        ATH_MSG_VERBOSE("new hit in channel " << m_tileHWID->to_string(channel_id,-1));
-      }
-      
-      /*
-       if(m_useCoolPulseShapes){
-         digitShapeHi.clear();
-         digitShapeLo.clear();
-
-         float y, dy, phase = -binTime0Lo * timeStepLo;
-         for(int i=0; i<=nShapeLo; i++) {
-           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx,ich,TileID::LOWGAIN,phase,y,dy);
-           digitShapeLo.push_back((double)ampl);
-           phase += timeStepLo;
-         }
-
-         phase = -binTime0Hi * timeStepHi;
-         for(int i=0; i<=nShapeHi; i++) {
-           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx,ich,TileID::HIGHGAIN,phase,y,dy);
-           digitShapeHi.push_back((double)ampl);
-           phase += timeStepHi;
-         }
-
-       }
-       */
-
-      /* Set gain=high and get digitSamples and calibration for this channel. */
-      if (igain[ich] < 0)
-        igain[ich] = TileID::HIGHGAIN;
-      // conversion from scintillator energy to total cell energy (sampling fraction)  
-      double hit_calib = m_tileInfo->HitCalib(pmt_id);
-
-      // conversion to ADC counts for high gain
-      double efactorHi = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, ich, TileID::HIGHGAIN, 1.
-                                    , TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
-      // conversion to ADC counts for low gain
-      double efactorLo = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, ich, TileID::LOWGAIN, 1.
-                                    , TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
-
-      double* pDigitSamplesHi = m_drawerBufferHi[ich];
-      double* pDigitSamplesLo = m_drawerBufferLo[ich];
-
-      /* Loop over the subhits for this channel.  For each one,
-       convolute with shaping function and add to digitSamples.                  */
-      int n_hits = (*hitItr)->size();
-      for (int ihit = 0; ihit < n_hits; ++ihit) {
-        /* Get hit energy and convert to amplitude of high-gain and low-gain channel */
-        double e_hit = (*hitItr)->energy(ihit);
-        double amp_ch = e_hit * efactorHi;
-        double amp_ch_lo = e_hit * efactorLo;
-        double ech_sub = e_hit * hit_calib;
-        double t_hit = (*hitItr)->time(ihit);
-
-        ech_tot[ich] += ech_sub;
-        if (fabs(t_hit) < 50.0) // ene within +/- 50 ns, used for filtered digits cut
-          ech_int[ich] += ech_sub * mbts_extra_factor;
-        ntot_ch[ich] += 1;
-        nChSum += 1;
-        HitSum += e_hit;
-        EneSum += ech_sub;
-        RChSum += amp_ch;
-
-        // Assume time is in nanoseconds, use fine-grain shaping:
-        int ishiftHi = (int) (t_hit / m_timeStepHi + 0.5);
-        for (int js = 0; js < m_nSamples; ++js) {
-          int k = m_binTime0Hi + (js - m_iTrig) * m_nBinsPerXHi - ishiftHi;
-          if (k < 0)
-            k = 0;
-          else if (k > m_nShapeHi)
-            k = m_nShapeHi;
-
-          if (m_useCoolPulseShapes) {
-            float phase = (k - m_binTime0Hi) * m_timeStepHi;
-            float y, dy;
-            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 1, phase, y, dy);
-            double ampl = (double) y;
-            pDigitSamplesHi[js] += amp_ch * ampl;
-            ATH_MSG_VERBOSE( "Sample no.=" << js
-                             << " Pulse index=" << k
-                             << " Shape wt. =" << ampl
-                             << " HIGAIN from COOL");
-
-          } else {
-            pDigitSamplesHi[js] += amp_ch * m_digitShapeHi[k];
-            ATH_MSG_VERBOSE( "Sample no.=" << js
-                             << " Pulse index=" << k
-                             << " Shape wt. =" << m_digitShapeHi[k]
-                             << " HIGAIN from TileInfo");
-          }
-
-        }
-        int ishiftLo = (int) (t_hit / m_timeStepLo + 0.5);
-        for (int js = 0; js < m_nSamples; ++js) {
-          int k = m_binTime0Lo + (js - m_iTrig) * m_nBinsPerXLo - ishiftLo;
-          if (k < 0)
-            k = 0;
-          else if (k > m_nShapeLo)
-            k = m_nShapeLo;
-
-          if (m_useCoolPulseShapes) {
-            float phase = (k - m_binTime0Lo) * m_timeStepLo;
-            float y, dy;
-            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 0, phase, y, dy);
-            double ampl = (double) y;
-            pDigitSamplesLo[js] += amp_ch_lo * ampl;
-            ATH_MSG_VERBOSE( "Sample no.=" << js
-                             << " Pulse index=" << k
-                             << " Shape wt. =" << ampl
-                             << " LOGAIN from COOL");
-          } else {
-            pDigitSamplesLo[js] += amp_ch_lo * m_digitShapeLo[k];
-            ATH_MSG_VERBOSE( "Sample no.=" << js
-                             << " Pulse index=" << k
-                             << " Shape wt. =" << m_digitShapeLo[k]
-                             << " LOGAIN from TileInfo");
-          }
-
-        }
-
-        if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) << "subHit:  ch=" << ich
-                            << " e_hit=" << e_hit
-                            << " t_hit=" << t_hit
-                            << " SamplesHi[" << m_iTrig << "]=" << pDigitSamplesHi[m_iTrig]
-                            << " SamplesLo[" << m_iTrig << "]=" << pDigitSamplesLo[m_iTrig] << endmsg;
-        }
-      } /* end loop over sub-hits */
-
-    } /* end loop over hits for this collection. */
+    std::vector<bool> signal_in_channel(nchMax, 0);
+    CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi));
+    if(m_doDigiTruth){
+      CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth));
+    } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
      accessed with pDigitSamplesHi and pDigitSampleLo. */
@@ -977,6 +876,8 @@ StatusCode TileDigitsMaker::execute() {
 
       double * pDigitSamplesHi = m_drawerBufferHi[ich];
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
+      double * pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
+      double * pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
 
       ATH_MSG_DEBUG(" Channel " << ros << '/' << drawer << '/' << ich 
                      << " sampHi=" << pDigitSamplesHi[m_iTrig]
@@ -988,6 +889,8 @@ StatusCode TileDigitsMaker::execute() {
       for (int js = 0; js < m_nSamples; ++js) {
 
         digitsBuffer[js] = pDigitSamplesHi[js] + pedSimHi;
+        if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = pDigitSamplesHi_DigiHSTruth[js] + pedSimHi;
+
         double noiseHi(0.0);
         // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
         if (coherNoiseHi) {
@@ -1001,13 +904,25 @@ StatusCode TileDigitsMaker::execute() {
           else noiseHi = sigmaHi_Hfn2 * Rndm[js];
         }
 
-        if (digitsBuffer[js] + noiseHi >= 0.0) digitsBuffer[js] += noiseHi;
-        else digitsBuffer[js] -= noiseHi;
+        if (digitsBuffer[js] + noiseHi >= 0.0) {
+          digitsBuffer[js] += noiseHi;
+          if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] += noiseHi;
+        }
 
-        if (m_integerDigits) digitsBuffer[js] = round(digitsBuffer[js]);
+        else { 
+          digitsBuffer[js] -= noiseHi;
+          if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] -= noiseHi;
+        }
+
+
+        if (m_integerDigits) {
+          digitsBuffer[js] = round(digitsBuffer[js]);
+          if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = round(digitsBuffer_DigiHSTruth[js]);
+        }
 
         if (m_calibRun) { //Calculate also low gain
           digitsBufferLo[js] = pDigitSamplesLo[js] + pedSimLo;
+          if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
           double noiseLo(0.0);
           // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
           if (coherNoiseLo) {
@@ -1021,10 +936,20 @@ StatusCode TileDigitsMaker::execute() {
             else noiseLo = sigmaLo_Hfn2 * RndmLo[js];
           }
           
-          if (digitsBufferLo[js] + noiseLo >= 0.0) digitsBufferLo[js] += noiseLo;
-          else digitsBufferLo[js] -= noiseLo;
+          if (digitsBufferLo[js] + noiseLo >= 0.0) {
+            digitsBufferLo[js] += noiseLo;
+            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] += noiseLo;
+          }
+          else {
+            digitsBufferLo[js] -= noiseLo;
+            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] -= noiseLo;
+          }
           
-          if (m_integerDigits) digitsBufferLo[js] = round(digitsBufferLo[js]);
+          if (m_integerDigits) {
+            digitsBufferLo[js] = round(digitsBufferLo[js]);
+            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = round(digitsBufferLo_DigiHSTruth[js]);
+          }
+
 
         } else if ((digitsBuffer[js] >= m_adcMaxHG && good_ch) || igain[ich] == TileID::LOWGAIN) { // saturation of high gain in non-calib run
                                                                                                  // or low gain in digi overlay
@@ -1036,6 +961,7 @@ StatusCode TileDigitsMaker::execute() {
           // reset all samples in digitsBuffer[] to Low Gain values
           for (js = 0; js < m_nSamples; ++js) {
             digitsBuffer[js] = pDigitSamplesLo[js] + pedSimLo;
+            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
             double noiseLo(0.0);
             // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
             if (coherNoiseLo) {
@@ -1050,11 +976,23 @@ StatusCode TileDigitsMaker::execute() {
               else noiseLo = sigmaLo_Hfn2 * Rndm[js];
             }
 
-            if (digitsBuffer[js] + noiseLo >= 0.0) digitsBuffer[js] += noiseLo;
-            else digitsBuffer[js] -= noiseLo;
+            if (digitsBuffer[js] + noiseLo >= 0.0) {
+              digitsBuffer[js] += noiseLo;
+              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] += noiseLo;
+            }
+            else {
+              digitsBuffer[js] -= noiseLo;
+              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] -= noiseLo;
+            }
 
-            if (digitsBuffer[js] > m_adcMax && good_ch) digitsBuffer[js] = m_adcMax;
-            if (m_integerDigits) digitsBuffer[js] = round(digitsBuffer[js]);
+            if (digitsBuffer[js] > m_adcMax && good_ch) {
+              digitsBuffer[js] = m_adcMax;
+              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_adcMax;
+            }
+            if (m_integerDigits) {
+              digitsBuffer[js] = round(digitsBuffer[js]);
+              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = round(digitsBuffer_DigiHSTruth[js]);
+            }
           }
 
           overNoiseHG = false;
@@ -1104,21 +1042,31 @@ StatusCode TileDigitsMaker::execute() {
         if (chanHiIsBad) {
           for (int js = 0; js < m_nSamples; ++js) {
             digitsBuffer[js] = 2047;
+            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
+
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG" );
         }
         TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
         pDigitsContainer->push_back(pDigits);
+        if(m_doDigiTruth){
+          TileDigits* pDigits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
+          pDigitsContainer_DigiHSTruth->push_back(pDigits_DigiHSTruth);
+        }
 
         if (chanLoIsBad) {
           for (int js = 0; js < m_nSamples; ++js) {
             digitsBufferLo[js] = 2047;
+            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = 2047;
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
         }
         TileDigits* pDigitsLo = new TileDigits(adc_id_lo, digitsBufferLo);
         pDigitsContainer->push_back(pDigitsLo);
-
+        if(m_doDigiTruth){
+          TileDigits* pDigitsLo_DigiHSTruth = new TileDigits(adc_id_lo, digitsBufferLo_DigiHSTruth);
+          pDigitsContainer_DigiHSTruth->push_back(pDigitsLo_DigiHSTruth);
+        }
       } else { //normal run
 
         bool hiGain = (igain[ich] == TileID::HIGHGAIN);
@@ -1159,11 +1107,13 @@ StatusCode TileDigitsMaker::execute() {
               if (pmt_id.is_valid()) {
                 for (int js = 0; js < m_nSamples; ++js) {
                   digitsBuffer[js] = 2047;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
                 for (int js = 0; js < m_nSamples; ++js) {
                   digitsBuffer[js] = 0;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 0;
                 }
               }
               ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG");
@@ -1178,11 +1128,13 @@ StatusCode TileDigitsMaker::execute() {
               if (pmt_id.is_valid()) {
                 for (int js = 0; js < m_nSamples; ++js) {
                   digitsBuffer[js] = 2047;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
                 for (int js = 0; js < m_nSamples; ++js) {
                   digitsBuffer[js] = 0;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 0;
                 }
               }
               ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
@@ -1191,6 +1143,10 @@ StatusCode TileDigitsMaker::execute() {
 
           TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
           pDigitsContainer->push_back(pDigits);
+          if(m_doDigiTruth){
+            TileDigits* pDigits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
+            pDigitsContainer_DigiHSTruth->push_back(pDigits_DigiHSTruth);
+          }
 
           if (ech_int[ich] > m_filterThreshold || ech_int[ich] < -m_filterThresholdMBTS) {
             pFilteredContainer->push_back(pDigits);
@@ -1241,6 +1197,7 @@ StatusCode TileDigitsMaker::execute() {
         }
       }
     }
+    if(m_doDigiTruth) ++collItr_DigiHSTruth;
   }
 
   if (m_tileCoherNoise) {
@@ -1276,6 +1233,9 @@ StatusCode TileDigitsMaker::execute() {
 
   // step3: register the Digit container in the TES
   CHECK( evtStore()->record(pDigitsContainer, m_digitsContainer, false) );
+  if(m_doDigiTruth){
+    CHECK( evtStore()->record(pDigitsContainer_DigiHSTruth, m_digitsContainer_DigiHSTruth, false) );
+  }
 
   if (m_filteredContainer.size() > 0) {
     CHECK( evtStore()->record(pFilteredContainer, m_filteredContainer, false) );
@@ -1290,3 +1250,209 @@ StatusCode TileDigitsMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi){
+  
+  // Zero sums for monitoring.
+  int nChSum = 0;
+  //int nChHiSum = 0;
+  //int nChLoSum = 0;
+  //int nChHiAcc = 0;
+  //int nChLoAcc = 0;
+  //int nChHiFlt = 0;
+  //int nChHiCut = 0;
+
+  //int nChLoCut = 0;
+  //double echtot_Acc = 0.;
+  //double echint_Acc = 0.;
+  //double echtot_Cut = 0.;
+  double HitSum = 0.;
+  double EneSum = 0.;
+  double RChSum = 0.;
+
+  const int nchMax = 48; // number of channels per drawer
+  int igain[nchMax];
+  int ntot_ch[nchMax];
+  double ech_tot[nchMax];
+  double ech_int[nchMax];
+  int over_gain[nchMax];
+
+    ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
+    IdContext drawer_context = m_tileHWID->drawer_context();
+    //int ndrawers = m_tileHWID->drawer_hash_max();
+
+  /* Set up buffers for handling information in a single collection. */
+  IdentifierHash idhash;
+ // memset(over_gain,-1,sizeof(over_gain));
+
+  HWIdentifier drawer_id = m_tileHWID->drawer_id((*hitContItr)->identify());
+  int ros = m_tileHWID->ros(drawer_id);
+  int drawer = m_tileHWID->drawer(drawer_id);
+  int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+
+    // iterate over all hits in a collection
+    TileHitCollection::const_iterator hitItr = (*hitContItr)->begin();
+    TileHitCollection::const_iterator lastHit = (*hitContItr)->end();
+
+
+    //bool signal_in_channel[nchMax];
+    //memset(signal_in_channel, 0, sizeof(signal_in_channel));
+    std::vector<bool> signal_in_channel(nchMax, 0);
+
+    for (; hitItr != lastHit; ++hitItr) {
+
+      /* Get hit Identifier (= pmt_ID) and needed parameters for this channel */
+      Identifier pmt_id = (*hitItr)->pmt_ID();
+      double mbts_extra_factor = (m_tileTBID->is_tiletb(pmt_id)) ? -1.0 : 1.0;
+      HWIdentifier channel_id = (*hitItr)->pmt_HWID();
+      int ich = m_tileHWID->channel(channel_id);
+      signal_in_channel[ich] = true;
+
+      if (over_gain[ich] > 9) {
+        if (msgLvl(MSG::DEBUG)) {
+          int n_hits = (*hitItr)->size();
+          double e_hit(0.);
+          for (int ihit = 0; ihit < n_hits; ++ihit) {
+            e_hit += (*hitItr)->energy(ihit);
+          }
+          HitSum += e_hit;
+          e_hit *= m_tileInfo->HitCalib(pmt_id);
+          EneSum += e_hit;
+          ech_tot[ich] += e_hit;
+          ntot_ch[ich] += n_hits;
+          ATH_MSG_VERBOSE("BAD Overlay digits - skip hit in channel " << m_tileHWID->to_string(channel_id,-1));
+        }
+        continue;
+      } else {
+        ATH_MSG_VERBOSE("new hit in channel " << m_tileHWID->to_string(channel_id,-1));
+      }
+      /*
+       if(m_useCoolPulseShapes){
+         digitShapeHi.clear();
+         digitShapeLo.clear();
+
+         float y, dy, phase = -binTime0Lo * timeStepLo;
+         for(int i=0; i<=nShapeLo; i++) {
+           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx,ich,TileID::LOWGAIN,phase,y,dy);
+           digitShapeLo.push_back((double)ampl);
+           phase += timeStepLo;
+         }
+
+         phase = -binTime0Hi * timeStepHi;
+         for(int i=0; i<=nShapeHi; i++) {
+           m_tileToolPulseShape->getPulseShapeYDY(drawerIdx,ich,TileID::HIGHGAIN,phase,y,dy);
+           digitShapeHi.push_back((double)ampl);
+           phase += timeStepHi;
+         }
+
+       }
+       */
+
+      /* Set gain=high and get digitSamples and calibration for this channel. */
+      if (igain[ich] < 0)
+        igain[ich] = TileID::HIGHGAIN;
+      // conversion from scintillator energy to total cell energy (sampling fraction)  
+      double hit_calib = m_tileInfo->HitCalib(pmt_id);
+
+      // conversion to ADC counts for high gain
+      double efactorHi = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, ich, TileID::HIGHGAIN, 1.
+                                    , TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
+      // conversion to ADC counts for low gain
+      double efactorLo = hit_calib / m_tileToolEmscale->channelCalib(drawerIdx, ich, TileID::LOWGAIN, 1.
+                                    , TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
+
+      double* pDigitSamplesHi = drawerBufferHi[ich];
+      double* pDigitSamplesLo = drawerBufferLo[ich];
+      /* Loop over the subhits for this channel.  For each one,
+       convolute with shaping function and add to digitSamples.                  */
+      int n_hits = (*hitItr)->size();
+      for (int ihit = 0; ihit < n_hits; ++ihit) {
+        /* Get hit energy and convert to amplitude of high-gain and low-gain channel */
+        double e_hit = (*hitItr)->energy(ihit);
+        double amp_ch = e_hit * efactorHi;
+        double amp_ch_lo = e_hit * efactorLo;
+        double ech_sub = e_hit * hit_calib;
+        double t_hit = (*hitItr)->time(ihit);
+
+        ech_tot[ich] += ech_sub;
+        if (fabs(t_hit) < 50.0) // ene within +/- 50 ns, used for filtered digits cut
+          ech_int[ich] += ech_sub * mbts_extra_factor;
+        ntot_ch[ich] += 1;
+        nChSum += 1;
+        HitSum += e_hit;
+        EneSum += ech_sub;
+        RChSum += amp_ch;
+
+        // Assume time is in nanoseconds, use fine-grain shaping:
+        int ishiftHi = (int) (t_hit / m_timeStepHi + 0.5);
+        for (int js = 0; js < m_nSamples; ++js) {
+          int k = m_binTime0Hi + (js - m_iTrig) * m_nBinsPerXHi - ishiftHi;
+          if (k < 0)
+            k = 0;
+          else if (k > m_nShapeHi)
+            k = m_nShapeHi;
+
+          if (m_useCoolPulseShapes) {
+            float phase = (k - m_binTime0Hi) * m_timeStepHi;
+            float y, dy;
+            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 1, phase, y, dy);
+            double ampl = (double) y;
+            pDigitSamplesHi[js] += amp_ch * ampl;
+            ATH_MSG_VERBOSE( "Sample no.=" << js
+                             << " Pulse index=" << k
+                             << " Shape wt. =" << ampl
+                             << " HIGAIN from COOL");
+
+          } else {
+            pDigitSamplesHi[js] += amp_ch * m_digitShapeHi[k];
+            ATH_MSG_VERBOSE( "Sample no.=" << js
+                             << " Pulse index=" << k
+                             << " Shape wt. =" << m_digitShapeHi[k]
+                             << " HIGAIN from TileInfo");
+          }
+
+        }
+        int ishiftLo = (int) (t_hit / m_timeStepLo + 0.5);
+        for (int js = 0; js < m_nSamples; ++js) {
+          int k = m_binTime0Lo + (js - m_iTrig) * m_nBinsPerXLo - ishiftLo;
+          if (k < 0)
+            k = 0;
+          else if (k > m_nShapeLo)
+            k = m_nShapeLo;
+
+          if (m_useCoolPulseShapes) {
+            float phase = (k - m_binTime0Lo) * m_timeStepLo;
+            float y, dy;
+            m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, ich, 0, phase, y, dy);
+            double ampl = (double) y;
+            pDigitSamplesLo[js] += amp_ch_lo * ampl;
+            ATH_MSG_VERBOSE( "Sample no.=" << js
+                             << " Pulse index=" << k
+                             << " Shape wt. =" << ampl
+                             << " LOGAIN from COOL");
+          } else {
+            pDigitSamplesLo[js] += amp_ch_lo * m_digitShapeLo[k];
+            ATH_MSG_VERBOSE( "Sample no.=" << js
+                             << " Pulse index=" << k
+                             << " Shape wt. =" << m_digitShapeLo[k]
+                             << " LOGAIN from TileInfo");
+          }
+
+        }
+
+        if (msgLvl(MSG::VERBOSE)) {
+          msg(MSG::VERBOSE) << "subHit:  ch=" << ich
+                            << " e_hit=" << e_hit
+                            << " t_hit=" << t_hit
+                            << " SamplesHi[" << m_iTrig << "]=" << pDigitSamplesHi[m_iTrig]
+                            << " SamplesLo[" << m_iTrig << "]=" << pDigitSamplesLo[m_iTrig] << endmsg;
+        }
+      } /* end loop over sub-hits */
+
+    } /* end loop over hits for this collection. */
+
+
+
+  return StatusCode::SUCCESS;
+
+}

@@ -135,6 +135,7 @@ def getStreamRDO_ItemList(log):
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
             else:
+                StreamRDO_ItemList+=["LArDigitContainer#*"]
                 StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
     if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
         if DetFlags.writeRDOPool.HGTD_on():
@@ -142,6 +143,8 @@ def getStreamRDO_ItemList(log):
     if DetFlags.digitize.Tile_on():
         if DetFlags.writeRDOPool.Tile_on():
             StreamRDO_ItemList+=["TileRawChannelContainer#*"]
+            StreamRDO_ItemList+=["TileDigitsContainer#*"]
+            StreamRDO_ItemList+=["TileHitContainer#*"]
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["TileDigitsContainer#*"]
             else:

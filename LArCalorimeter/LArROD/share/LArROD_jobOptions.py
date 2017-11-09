@@ -32,3 +32,14 @@ from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
 theOFCTool = LArOFCToolDefault()
 ToolSvc += theOFCTool
 LArRawChannelBuilder.OFCTool = theOFCTool
+
+LArRawChannelBuilder_DigiHSTruth = LArRawChannelBuilder( "LArRawChannelBuilder_DigiHSTruth" )
+topSequence += LArRawChannelBuilder_DigiHSTruth
+
+from RecExConfig.RecFlags import rec
+if rec.doDigiTruth():
+  LArRawChannelBuilder_DigiHSTruth.DataLocation = "LArDigitContainer_DigiHSTruth"
+  LArRawChannelBuilder_DigiHSTruth.LArRawChannelContainerName = "LArRawChannels_DigiHSTruth"
+  LArRawChannelBuilder_DigiHSTruth.UseOFCTool=TRUE
+  LArRawChannelBuilder_DigiHSTruth.ADC2MeVTool = theADC2MeVTool
+  LArRawChannelBuilder_DigiHSTruth.OFCTool = theOFCTool

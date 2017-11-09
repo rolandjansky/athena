@@ -164,6 +164,18 @@ if DetFlags.makeRIO.Calo_on() and not rec.doWriteBS() :
         treatException("Problem with CaloCellGetter. Switched off.")
         DetFlags.makeRIO.Calo_setOff()
 
+# CaloCellGetter_DigiHSTruth
+    from RecExConfig.RecFlags import rec
+    if rec.doDigiTruth():
+      try:
+        from CaloRec.CaloCellGetter_DigiHSTruth import CaloCellGetter_DigiHSTruth
+        CaloCellGetter_DigiHSTruth()
+
+      except Exception:
+        treatException("Problem with CaloCellGetter_DigiHSTruth. Switched off.")
+
+
+
 #
 #
 # functionality : Calorimeter combined clustering

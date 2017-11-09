@@ -25,11 +25,17 @@ class LArDigitGetter (Configured) :
                 # Defined in LArDigitizationConfig.py
                 job.PileUpToolsAlg.PileUpTools += [ CfgGetter.getPrivateTool("LArPileUpTool", checkType=True) ]
                 job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer = self.outputKey()
+                job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
+                from RecExConfig.RecFlags import rec
+                job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DoDigiTruthReconstruction = rec.doDigiTruth()
             else:
                 # Defined in LArDigitizationConfig.py
                 print "call CfgGetter for digitmaker1 "
                 job += CfgGetter.getAlgorithm("digitmaker1", tryDefaultConfigurable=True)
                 job.digitmaker1.LArPileUpTool.DigitContainer = self.outputKey()
+                job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
+                from RecExConfig.RecFlags import rec
+                job.digitmaker1.LArPileUpTool.DoDigiTruthReconstruction = rec.doDigiTruth()
                 # if pileup or overlay
                 from AthenaCommon.DetFlags import DetFlags
                 from LArDigitization.LArDigitizationConfig import isOverlay

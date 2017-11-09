@@ -55,6 +55,9 @@ class TileDigitsGetter ( Configured )  :
         theTileDigitsMaker=TileDigitsMaker()
         self._TileDigitsMakerHandle = theTileDigitsMaker ;
 
+        theTileDigitsMaker.TileHitContainer_DigiHSTruth="TileHitCnt_DigiHSTruth"
+        from RecExConfig.RecFlags import rec
+        theTileDigitsMaker.DoHSTruthReconstruction = rec.doDigiTruth()
         # Configure TileDigitsMaker here
         # Check TileDigitization_jobOptions.py for full configurability
         theTileDigitsMaker.TileHitContainer="TileHitCnt"

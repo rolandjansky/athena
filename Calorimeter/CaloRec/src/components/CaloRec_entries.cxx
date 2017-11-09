@@ -8,6 +8,7 @@
 #include "CaloRec/CaloClusterCopier.h"
 #include "CaloRec/CaloClusterBuilderSW.h"
 #include "CaloRec/CaloClusterMomentsMaker.h"
+#include "CaloRec/CaloClusterMomentsMaker_Truth.h"
 #include "CaloRec/CaloCell2ClusterMapper.h"
 #include "CaloRec/CaloCellContainerMergerTool.h"
 #include "CaloRec/CaloCellContainerCorrectorTool.h"
@@ -65,6 +66,7 @@ DECLARE_TOOL_FACTORY( CaloTopoClusterSplitter )
 DECLARE_TOOL_FACTORY( CaloClusterCopier )
 DECLARE_TOOL_FACTORY( CaloClusterBuilderSW )
 DECLARE_TOOL_FACTORY( CaloClusterMomentsMaker )
+DECLARE_TOOL_FACTORY( CaloClusterMomentsMaker_Truth )
 DECLARE_TOOL_FACTORY( CaloCellContainerMergerTool )
 DECLARE_TOOL_FACTORY( CaloCellContainerCorrectorTool )
 DECLARE_TOOL_FACTORY( CaloCellContainerCheckerTool )
@@ -103,6 +105,7 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_TOOL( CaloClusterBuilderSW );
     DECLARE_TOOL( CaloClusterCopier );
     DECLARE_TOOL( CaloClusterMomentsMaker );
+    DECLARE_TOOL( CaloClusterMomentsMaker_Truth );
     DECLARE_TOOL( CaloCellContainerMergerTool );
     DECLARE_TOOL( CaloCellContainerCorrectorTool );
     DECLARE_TOOL( CaloCellContainerCheckerTool );

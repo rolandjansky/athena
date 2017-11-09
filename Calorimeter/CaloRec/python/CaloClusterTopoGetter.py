@@ -24,7 +24,7 @@ from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCali
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
 #<<
 
-from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
+from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot, CaloClusterMomentsMaker_Truth #, CaloClusterLockVars, CaloClusterPrinter
 from CaloRec import CaloRecFlags
 from CaloRec.CaloTopoClusterFlags import jobproperties
 from AthenaCommon.SystemOfUnits import deg, GeV, MeV
@@ -244,6 +244,53 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ]
 
 
+
+
+        TopoMoments_Truth = CaloClusterMomentsMaker_Truth ("TopoMoments_Truth")
+        TopoMoments_Truth.MaxAxisAngle = 20*deg
+        TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
+        TopoMoments_Truth.UsePileUpNoise = True
+        TopoMoments_Truth.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+        TopoMoments_Truth.MinBadLArQuality = 4000
+        TopoMoments_Truth.MomentsNames = ["FIRST_PHI_Truth"
+                                    ,"FIRST_ETA_Truth"
+                                    ,"SECOND_R_Truth"
+                                    ,"SECOND_LAMBDA_Truth"
+                                    ,"DELTA_PHI_Truth"
+                                    ,"DELTA_THETA_Truth"
+                                    ,"DELTA_ALPHA_Truth"
+                                    ,"CENTER_X_Truth"
+                                    ,"CENTER_Y_Truth"
+                                    ,"CENTER_Z_Truth"
+                                    ,"CENTER_MAG_Truth"
+                                    ,"CENTER_LAMBDA_Truth"
+                                    ,"LATERAL_Truth"
+                                    ,"LONGITUDINAL_Truth"
+                                    ,"ENG_FRAC_CORE_Truth"
+                                    ,"FIRST_ENG_DENS_Truth"
+                                    ,"SECOND_ENG_DENS_Truth"
+                                    ,"ISOLATION_Truth"
+                                    ,"ENG_BAD_CELLS_Truth"
+                                    ,"N_BAD_CELLS_Truth"
+                                    ,"N_BAD_CELLS_CORR_Truth"
+                                    ,"BAD_CELLS_CORR_E_Truth"
+                                    ,"BADLARQ_FRAC_Truth"
+                                    ,"ENG_POS_Truth"
+                                    ,"ENG_BAD_HV_CELLS_Truth"
+                                    ,"N_BAD_HV_CELLS_Truth"
+                                    ,"SIGNIFICANCE_Truth"
+                                    ,"CELL_SIGNIFICANCE_Truth"
+                                    ,"CELL_SIG_SAMPLING_Truth"
+                                    ,"AVG_LAR_Q_Truth"
+                                    ,"AVG_TILE_Q_Truth"
+                                    ,"ENERGY_Truth"
+                                    ,"ETA_Truth"
+                                    ,"PHI_Truth"
+                                    ]
+
+
+
+
         # only add HV related moments if it is offline.
         from IOVDbSvc.CondDB import conddb
         if not conddb.isOnline:
@@ -295,6 +342,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
+
             
         # maker tools
         TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -391,6 +439,7 @@ class CaloClusterTopoGetter ( Configured )  :
         CaloTopoCluster.ClusterCorrectionTools += [BadChannelListCorr]
         
         CaloTopoCluster.ClusterCorrectionTools += [TopoMoments]
+
 
         CaloTopoCluster += TopoMaker
         CaloTopoCluster += TopoSplitter
@@ -502,6 +551,9 @@ class CaloClusterTopoGetter ( Configured )  :
             else:   
                 CaloTopoCluster.LocalCalib.LCClassify.MaxProbability = 0.50
                 CaloTopoCluster.LocalCalib.LCClassify.UseNormalizedEnergyDensity = True
+
+        CaloTopoCluster.ClusterCorrectionTools += [TopoMoments_Truth]
+        CaloTopoCluster += TopoMoments_Truth
 
         self._handle = CaloTopoCluster
 

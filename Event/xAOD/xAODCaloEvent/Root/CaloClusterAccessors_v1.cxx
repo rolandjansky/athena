@@ -95,6 +95,54 @@ namespace xAOD {
          DEFINE_ACCESSOR( ENG_CALIB_FRAC_HAD );
          DEFINE_ACCESSOR( ENG_CALIB_FRAC_REST );
 
+
+         DEFINE_ACCESSOR( ENERGY_Truth );
+         DEFINE_ACCESSOR( ETA_Truth );
+         DEFINE_ACCESSOR( PHI_Truth );
+         DEFINE_ACCESSOR( TIME_Truth );
+         DEFINE_ACCESSOR( ENERGY_CALIB_Truth );
+         DEFINE_ACCESSOR( ETA_CALIB_Truth );
+         DEFINE_ACCESSOR( PHI_CALIB_Truth );
+         DEFINE_ACCESSOR( TIME_CALIB_Truth );
+
+         DEFINE_ACCESSOR( FIRST_PHI_Truth );
+         DEFINE_ACCESSOR( FIRST_ETA_Truth );
+         DEFINE_ACCESSOR( SECOND_R_Truth );
+         DEFINE_ACCESSOR( SECOND_LAMBDA_Truth );
+         DEFINE_ACCESSOR( DELTA_PHI_Truth );
+         DEFINE_ACCESSOR( DELTA_THETA_Truth );
+         DEFINE_ACCESSOR( DELTA_ALPHA_Truth );
+         DEFINE_ACCESSOR( CENTER_X_Truth );
+         DEFINE_ACCESSOR( CENTER_Y_Truth );
+         DEFINE_ACCESSOR( CENTER_Z_Truth );
+         DEFINE_ACCESSOR( CENTER_MAG_Truth );
+         DEFINE_ACCESSOR( CENTER_LAMBDA_Truth );
+         DEFINE_ACCESSOR( LATERAL_Truth );
+         DEFINE_ACCESSOR( LONGITUDINAL_Truth );
+         DEFINE_ACCESSOR( ENG_FRAC_EM_Truth );
+         DEFINE_ACCESSOR( ENG_FRAC_MAX_Truth );
+         DEFINE_ACCESSOR( ENG_FRAC_CORE_Truth );
+         DEFINE_ACCESSOR( FIRST_ENG_DENS_Truth );
+         DEFINE_ACCESSOR( SECOND_ENG_DENS_Truth );
+         DEFINE_ACCESSOR( ISOLATION_Truth );
+         DEFINE_ACCESSOR( ENG_BAD_CELLS_Truth );
+         DEFINE_ACCESSOR( N_BAD_CELLS_Truth );
+         DEFINE_ACCESSOR( N_BAD_CELLS_CORR_Truth );
+         DEFINE_ACCESSOR( BAD_CELLS_CORR_E_Truth );
+         DEFINE_ACCESSOR( BADLARQ_FRAC_Truth );
+         DEFINE_ACCESSOR( ENG_POS_Truth );
+         DEFINE_ACCESSOR( ENG_BAD_HV_CELLS_Truth );
+         DEFINE_ACCESSOR( N_BAD_HV_CELLS_Truth );
+         DEFINE_ACCESSOR( SIGNIFICANCE_Truth );
+         DEFINE_ACCESSOR( CELL_SIGNIFICANCE_Truth );
+         DEFINE_ACCESSOR( CELL_SIG_SAMPLING_Truth );
+         DEFINE_ACCESSOR( AVG_LAR_Q_Truth );
+         DEFINE_ACCESSOR( AVG_TILE_Q_Truth );
+         DEFINE_ACCESSOR( EM_PROBABILITY_Truth );
+         DEFINE_ACCESSOR( HAD_WEIGHT_Truth );
+         DEFINE_ACCESSOR( OOC_WEIGHT_Truth );
+         DEFINE_ACCESSOR( DM_WEIGHT_Truth );
+
       default:
          std::cerr << "xAOD::CaloCluster_v1 ERROR Unknown moment ("
                    << moment << ") requested" << std::endl;

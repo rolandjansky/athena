@@ -61,6 +61,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
                                          const IInterface* parent)
     : PileUpToolBase(type,name,parent)
     , m_hitContainer("TileHitCnt")
+    , m_hitContainer_DigiHSTruth("TileHitCnt_DigiHSTruth")
     , m_infoName("TileInfo")
     , m_run2(false)
     , m_pileUp(false)
@@ -82,6 +83,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     , m_pHRengine(0)
     , m_rndmSvc("AtRndmGenSvc",name)
     , m_hits(0)
+    , m_hits_DigiHSTruth(0)
     , m_doChecks(false)
     , m_doChecksTB(false)
     , m_mbtsOffset(0)
@@ -94,6 +96,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
 
     declareProperty("TileHitVectors", m_hitVectorNames,  "Name of input hit vectors (default=TileHitVec)" );
     declareProperty("TileHitContainer", m_hitContainer,  "Name of output container (default=TileHitCnt)" );
+    declareProperty("TileHitContainer_DigiHSTruth", m_hitContainer_DigiHSTruth,  "Name of output container (default=TileHitCnt)" );
     declareProperty("TileInfoName", m_infoName,          "Name of TileInfo store (default=TileInfo");
     declareProperty("PileUp",m_pileUp,                   "To switch on pileup (default=false)");
     declareProperty("DeltaT",m_deltaT,                   "Minimal Time granularity in TileHit (default=1ns)");
@@ -107,6 +110,8 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     declareProperty("RndmSvc", m_rndmSvc,                 "Random Number Service used in TileHitVecToCnt");
     declareProperty("SkipNoHit",m_skipNoHit,              "Skip events with no Tile hits (default=false)");
     declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false, "Pileup and/or noise added by overlaying random events (default=false)");
+    declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true, "DigiTruth reconstruction");
+    m_doDigiTruth = true;
 }
 
 StatusCode TileHitVecToCntTool::initialize() {
@@ -210,10 +215,15 @@ StatusCode TileHitVecToCntTool::initialize() {
     if (m_pileUp) {
       // prepare vector with all hits
       m_mbtsOffset = m_tileID->pmt_hash_max();
-      if (m_run2)
+      if (m_run2){
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
-      else
+        m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
+      }
+      else{
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS);
+        m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS);
+      }
+
       Identifier hit_id;
       IdContext pmt_context = m_tileID->pmt_context();
       for (int i = 0; i < m_mbtsOffset; ++i) {
@@ -221,6 +231,11 @@ StatusCode TileHitVecToCntTool::initialize() {
         TileHit * pHit = new TileHit(hit_id, 0., 0.);
         pHit->reserve(71); // reserve max possible size for pileup
         m_allHits[i] = pHit;
+        if(m_doDigiTruth){
+          TileHit * pHit_DigiHSTruth = new TileHit(hit_id, 0., 0.);
+          pHit_DigiHSTruth->reserve(71); // reserve max possible size for pileup
+          m_allHits_DigiHSTruth[i] = pHit_DigiHSTruth;
+        }
       }
       for (int side = 0; side < N_SIDE; ++side) {
         for (int phi = 0; phi < N_PHI; ++phi) {
@@ -229,6 +244,11 @@ StatusCode TileHitVecToCntTool::initialize() {
             TileHit * pHit = new TileHit(hit_id, 0., 0.);
             pHit->reserve(71); // reserve max possible size for pileup
             m_allHits[mbts_index(side, phi, eta)] = pHit;
+            if(m_doDigiTruth){
+              TileHit * pHit_DigiHSTruth = new TileHit(hit_id, 0., 0.);
+              pHit_DigiHSTruth->reserve(71); // reserve max possible size for pileup
+              m_allHits_DigiHSTruth[mbts_index(side, phi, eta)] = pHit_DigiHSTruth;
+            }
           }
         }
       }
@@ -238,6 +258,11 @@ StatusCode TileHitVecToCntTool::initialize() {
           TileHit * pHit = new TileHit(hit_id, 0., 0.);
           pHit->reserve(71); // reserve max possible size for pileup
           m_allHits[e4pr_index(phi)] = pHit;
+          if(m_doDigiTruth){
+            TileHit * pHit_DigiHSTruth = new TileHit(hit_id, 0., 0.);
+            pHit_DigiHSTruth->reserve(71); // reserve max possible size for pileup
+            m_allHits_DigiHSTruth[e4pr_index(phi)] = pHit_DigiHSTruth;
+          }
         }
       }
     }
@@ -330,8 +355,23 @@ StatusCode TileHitVecToCntTool::createContainers() {
       TileHit *pHit = (*iHit);
       pHit->setZero();
     }
+
+    if(m_doDigiTruth){
+      m_hits_DigiHSTruth = new TileHitContainer(true, SG::OWN_ELEMENTS);
+      iHit = m_allHits_DigiHSTruth.begin();
+      lastHit = m_allHits_DigiHSTruth.end();
+      for (; iHit != lastHit; ++iHit) {
+          TileHit *pHit = (*iHit);
+          //ATH_MSG_WARNING("Setting hits to zero: " << pHit );
+          if(pHit == nullptr) continue;
+          pHit->setZero();
+
+      }
+    }
   } else {
     m_hits = new TileHitContainer(true, SG::OWN_ELEMENTS);
+    if(m_doDigiTruth) m_hits_DigiHSTruth = new TileHitContainer(true, SG::OWN_ELEMENTS);
+
   }
 
   // disable checks for TileID and remember previous state
@@ -404,7 +444,7 @@ void TileHitVecToCntTool::processHitVectorForOverlay(const TileHitVector* inputH
 }
 
 void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit,
-    double& eHitTot) {
+    double& eHitTot, bool isSignal) {
 
   IdContext pmt_context = m_tileID->pmt_context();
   IdContext tbchannel_context = m_tileTBID->channel_context();
@@ -439,6 +479,8 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
     eHitTot += ener;
 
     TileHit * pHit = m_allHits[hit_idhash];
+    TileHit * pHit_DigiHSTruth;
+    if(m_doDigiTruth) pHit_DigiHSTruth = m_allHits_DigiHSTruth[hit_idhash];
 
     if (0 == pHit) {
 
@@ -447,11 +489,18 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
 
       if (inTimeEvent) {
         pHit = new TileHit(hit_id, ener, time, m_deltaT);
+        if(m_doDigiTruth && isSignal) pHit_DigiHSTruth = new TileHit(hit_id, ener, time, m_deltaT);
+        else if(m_doDigiTruth)  pHit_DigiHSTruth = new TileHit(hit_id, 0.0, 0.0);
       } else {
         pHit = new TileHit(hit_id, 0.0, 0.0); // create in-time hit with zero energy
         pHit->add(ener, time, m_deltaT);
+        if(m_doDigiTruth){ 
+          pHit_DigiHSTruth = new TileHit(hit_id, 0.0, 0.0); // create in-time hit with zero energy
+          pHit_DigiHSTruth->add(ener, time, m_deltaT);
+        }
       }
       m_allHits[hit_idhash] = pHit;
+      if(m_doDigiTruth) m_allHits_DigiHSTruth[hit_idhash] = pHit_DigiHSTruth;
 
       if (msgLvl(MSG::VERBOSE)) {
         HWIdentifier channel_id = pHit->pmt_HWID();
@@ -466,7 +515,15 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
 
     } else {
 
-      if (time < m_maxHitTime) pHit->add(ener, time, m_deltaT);
+      if (time < m_maxHitTime){
+        pHit->add(ener, time, m_deltaT);
+        if(m_doDigiTruth){
+					if(isSignal)
+          pHit_DigiHSTruth->add(ener, time, m_deltaT);
+					else
+          pHit_DigiHSTruth->add(0,time, m_deltaT);
+        }
+      }
 
       if (msgLvl(MSG::VERBOSE)) {
         if (pHit->size() > 1 || pHit->energy() != 0.0)
@@ -495,7 +552,15 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
       ++nHit;
       eHitTot += ener;
 
-      if (time < m_maxHitTime) pHit->add(ener, time, m_deltaT);
+      if (time < m_maxHitTime){
+          pHit->add(ener, time, m_deltaT);
+          if(m_doDigiTruth){
+						if(isSignal)
+	            pHit_DigiHSTruth->add(ener, time, m_deltaT);
+						else
+							pHit_DigiHSTruth->add(0, time, m_deltaT);
+          }
+      }
 
       if (msgLvl(MSG::VERBOSE))
         msg(MSG::VERBOSE) << " nHit=" << nHit
@@ -508,7 +573,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
   return;
 }
 
-void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot) {
+void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitContainer* &m_hitCont) {
 
   TileHitVecConstIterator inpItr = inputHits->begin();
   TileHitVecConstIterator end = inputHits->end();
@@ -526,7 +591,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
         eHitTot += cinp->energy(); // not really correct if TileHit contains vector of energies
         // but eHitTot is needed for debug purposes only
         TileHit * pHit = new TileHit(*cinp);
-        m_hits->push_back(pHit);
+        m_hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -575,7 +640,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
         Identifier pmID = cinp->pmt_ID();
         TileHit * pHit = new TileHit(pmID, eHit, 0.);
 
-        m_hits->push_back(pHit);
+        m_hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -664,7 +729,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
           eHitTot += cinp->energy(i);
         }
 
-        m_hits->push_back(pHit);
+        m_hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -744,10 +809,13 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
             ATH_MSG_ERROR("Wrong time for in-time event: " << SubEvtTimOffset << " Ignoring all hits ");
           } else {
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
-            this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
+            //this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
+            //if( m_doDigiTruth && iEvt == bSubEvents) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_signalHits);
           }
         } else if (m_pileUp) { // pileup code
-          this->processHitVectorForPileUp(inputHits, SubEvtTimOffset, nHit, eHitTot);
+          bool isSignal = false;
+          if(iEvt == bSubEvents) isSignal = true;
+          this->processHitVectorForPileUp(inputHits, SubEvtTimOffset, nHit, eHitTot, isSignal);
         }
       } else {  // no PileUp
         //**
@@ -758,7 +826,8 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
           ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
           continue;
         }
-        this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot);
+			  this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits);
+        if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
       } // to pile-up or not
 
     } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -812,6 +881,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
             const TileHitVector* inputHits = &(*(iCont->second));
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
             this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
+            if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
           }
         }
       } else if (m_pileUp) {  // pileup code
@@ -822,7 +892,9 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
           // get HitVector for this subevent
           const TileHitVector* inputHits = &(*(iCont->second));
           ATH_MSG_VERBOSE(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
-          this->processHitVectorForPileUp(inputHits, SubEvtTimOffset, nHit, eHitTot);
+          bool isSignal = false;
+          if(iCont == hitContList.begin() ) isSignal = true;
+          this->processHitVectorForPileUp(inputHits, SubEvtTimOffset, nHit, eHitTot, isSignal);
         }
       }           // loop over subevent list
     } else {  // no PileUp
@@ -835,7 +907,8 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
         ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
         continue; // continue to the next hit vector
       }
-      this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot);
+      this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth);
     }
 
   } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -853,6 +926,8 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     std::vector<TileHit *>::iterator iHit = m_allHits.begin();
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
+    std::vector<TileHit *>::iterator iHit_DigiHSTruth = m_allHits_DigiHSTruth.begin();
+    std::vector<TileHit *>::iterator lastHit_DigiHSTruth = m_allHits_DigiHSTruth.end();
 
     int nHitUni = 0;
     double eHitInTime = 0.0;
@@ -861,12 +936,18 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     for (; iHit != lastHit; ++iHit) {
       TileHit *pHit = (*iHit);
+      TileHit *pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
       if (pHit->size() > 1 || pHit->energy() != 0.0) {       // hit exists
         m_hits->push_back(pHit);   // store hit in container
+        if(m_doDigiTruth){
+          m_hits_DigiHSTruth->push_back(pHit_DigiHSTruth);   // store hit in container
+        }
         ++nHitUni;
         eHitInTime += pHit->energy();
       }
+      if(m_doDigiTruth) iHit_DigiHSTruth++;
     }
+
 
     ATH_MSG_DEBUG(" nHitUni=" << nHitUni << " eHitInTime="<< eHitInTime);
   } else {
@@ -887,22 +968,41 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
       int frag_id = (*collIt)->identify();
       IdentifierHash frag_hash = m_fragHashFunc(frag_id);
       if (m_E1merged[frag_hash])
-        findAndMergeE1((*collIt), frag_id);
-      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt), frag_id);
+        findAndMergeE1((*collIt), frag_id, m_hits);
+      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt), frag_id, m_hits);
+    }
+    if(m_doDigiTruth){
+      collIt = m_hits_DigiHSTruth->begin();
+      endcollIt = m_hits_DigiHSTruth->end();
+
+      for (; collIt != endcollIt; ++collIt) {
+        int frag_id = (*collIt)->identify();
+        IdentifierHash frag_hash = m_fragHashFunc(frag_id);
+        if (m_E1merged[frag_hash]) findAndMergeE1((*collIt), frag_id, m_hits_DigiHSTruth);
+        else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt), frag_id, m_hits_DigiHSTruth);
+      }
     }
   }
 
   //photoelectron statistics.
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
-
+  
   TileHitContainer::const_iterator collIt = m_hits->begin();
   TileHitContainer::const_iterator endcoll = m_hits->end();
+
+  TileHitContainer::const_iterator collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
+  TileHitContainer::const_iterator endColl_DigiHSTruth = m_hits_DigiHSTruth->end();
 
   for (; collIt != endcoll; ++collIt) {
     TileHitCollection* coll = (*collIt).getDataPtr();
     TileHitCollection::iterator hitItr = coll->begin();
     TileHitCollection::iterator hitEnd = coll->end();
+
+    TileHitCollection* coll_DigiHSTruth = (*collIt_DigiHSTruth).getDataPtr();
+    TileHitCollection::iterator hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
+    TileHitCollection::iterator hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
+
     for (; hitItr != hitEnd; hitItr++) {
 
       double ehit = 0.0;
@@ -921,9 +1021,27 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
         //channel_id = m_cabling->s2h_channel_id(pmt_id);
       }
 
-      pHit->scale(applyPhotoStatistics(ehit, pmt_id));
+			double scaleFactor = applyPhotoStatistics(ehit, pmt_id);
+      pHit->scale(scaleFactor);
+
+      if(m_doDigiTruth){
+        double ehit_DigiHSTruth = 0.0;
+        TileHit *pHit_DigiHSTruth = (*hitItr_DigiHSTruth);
+        int hitsize_DigiHSTruth = pHit_DigiHSTruth->size();
+        for (int i = 0; i < hitsize_DigiHSTruth; ++i) {
+          double thit = pHit_DigiHSTruth->time(i);
+          if (fabs(thit) < m_photoStatisticsWindow) ehit_DigiHSTruth += pHit_DigiHSTruth->energy(i);
+        }
+        pHit_DigiHSTruth->scale(scaleFactor);
+
+        hitItr_DigiHSTruth++;
+      }
     }
+
+	  if(m_doDigiTruth) collIt_DigiHSTruth++;
   }
+
+
 
   /* Register the set of TileHits to the event store. */
   CHECK(evtStore()->record(m_hits, m_hitContainer, false));
@@ -935,8 +1053,11 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //    ATH_MSG_DEBUG ( " No hits, skip this event "  );
   //  }
 
-  ATH_MSG_DEBUG("Exiting mergeEvent in TileHitVecToCntTool");
+	if(m_doDigiTruth){
+    CHECK(evtStore()->record(m_hits_DigiHSTruth, m_hitContainer_DigiHSTruth, false));
+  }
 
+  ATH_MSG_DEBUG("Exiting mergeEvent in TileHitVecToCntTool");
   return StatusCode::SUCCESS;
 }
 
@@ -949,6 +1070,13 @@ StatusCode TileHitVecToCntTool::finalize() {
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
     for (; iHit != lastHit; ++iHit) {
       delete (*iHit);
+    }
+    if(m_doDigiTruth){
+      iHit = m_allHits_DigiHSTruth.begin();
+      lastHit = m_allHits_DigiHSTruth.end();
+      for (; iHit != lastHit; ++iHit) {
+        delete (*iHit);
+      }
     }
   }
 
@@ -1030,7 +1158,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 }
 
 
-void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, int frag_id) {
+void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, int frag_id, TileHitContainer* &m_hitCont) {
   int module = frag_id & 0x3F;
   TileHitCollection* coll = const_cast<TileHitCollection*>(const_coll);
 
@@ -1058,7 +1186,7 @@ void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, in
       int side = m_tileID->side((*fromHitIt)->pmt_ID());
       Identifier to_pmt_id = m_tileID->pmt_id(TileID::GAPDET, side, module, E1_TOWER, TileID::SAMP_E, 0);
       toHit = new TileHit(to_pmt_id);
-      m_hits->push_back(toHit);
+      m_hitCont->push_back(toHit);
       ATH_MSG_VERBOSE("New TileHit (E1 cell) for merging added Id: " << m_tileID->to_string(toHit->pmt_ID(), -1) );
     } else {
       ATH_MSG_VERBOSE("Found TileHit (E1 cell) for merging Id: " << m_tileID->to_string(toHit->pmt_ID(), -1) );
@@ -1084,7 +1212,7 @@ void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, in
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id) {
+void TileHitVecToCntTool::findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id, TileHitContainer* &m_hitCont) {
   int module = frag_id & 0x3F;
   TileHitCollection* coll = const_cast<TileHitCollection*>(const_coll);
 
@@ -1113,7 +1241,7 @@ void TileHitVecToCntTool::findAndMergeMBTS(const TileHitCollection* const_coll, 
       int phi = m_tileTBID->phi((*fromHitIt)->pmt_ID()) - 1;
       Identifier to_pmt_id = m_tileTBID->channel_id(side, phi, 1);
       toHit = new TileHit(to_pmt_id);
-      m_hits->push_back(toHit);
+      m_hitCont->push_back(toHit);
       ATH_MSG_VERBOSE("New TileHit (MBTS) for merging added Id: " << m_tileTBID->to_string(toHit->pmt_ID(), 0) );
     } else {
       ATH_MSG_VERBOSE("Found TileHit (MBTS) for merging Id: " << m_tileTBID->to_string(toHit->pmt_ID(), 0) );

@@ -4,11 +4,15 @@
 
 from AthenaCommon.Logging import logging
 
-def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitContainer_MC',name='LArPileUpToolDefault'):
+def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitContainer_MC',outputKey_DigiHSTruth='LArDigitContainer_DigiHSTruth',name='LArPileUpToolDefault'):
+
     try:
         from AthenaCommon import CfgGetter
         theTool = CfgGetter.getPublicTool("LArPileUpTool")
         theTool.DigitContainer = outputKey
+        theTool.DigitContainer_DigiHSTruth = outputKey_DigiHSTruth
+        from RecExConfig.RecFlags import rec
+        theTool.DoDigiTruthReconstruction = rec.doDigiTruth()
     except Exception as configException:
         print configException
         print "ERROR Problem with configuration"
