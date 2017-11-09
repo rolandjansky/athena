@@ -4,8 +4,8 @@
 
   <atn>
   
-    <TEST name="SUSYTools_minimalExampleJobOptions_mc" type="athena" suite="SUSYTools">
-      <options_atn>SUSYTools/minimalExampleJobOptions_mc.py || { rm monitoring.mc.root;exit 1; }</options_atn>
+    <TEST name="SUSYTools_minimalExampleJobOptions_mc" type="script" suite="SUSYTools">
+      <options_atn>skip_if_libraryMissing.sh SUSYToolsLib athena.py SUSYTools/minimalExampleJobOptions_mc.py || { rm monitoring.mc.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
@@ -17,8 +17,8 @@
       </expectations>
     </TEST>
     
-    <TEST name="SUSYTools_minimalExampleJobOptions_atlfast" type="athena" suite="SUSYTools">
-      <options_atn>SUSYTools/minimalExampleJobOptions_atlfast.py || { rm monitoring.atlfast.root;exit 1; }</options_atn>
+    <TEST name="SUSYTools_minimalExampleJobOptions_atlfast" type="script" suite="SUSYTools">
+      <options_atn>skip_if_libraryMissing.sh SUSYToolsLib athena.py SUSYTools/minimalExampleJobOptions_atlfast.py || { rm monitoring.atlfast.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
@@ -30,8 +30,8 @@
       </expectations>
     </TEST>
     
-    <TEST name="SUSYTools_minimalExampleJobOptions_data" type="athena" suite="SUSYTools">
-      <options_atn>SUSYTools/minimalExampleJobOptions_data.py || { rm monitoring.data.root;exit 1; }</options_atn>
+    <TEST name="SUSYTools_minimalExampleJobOptions_data" type="script" suite="SUSYTools">
+      <options_atn>skip_if_libraryMissing.sh SUSYToolsLib athena.py SUSYTools/minimalExampleJobOptions_data.py || { rm monitoring.data.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
@@ -43,8 +43,8 @@
       </expectations>
     </TEST>
 
-    <TEST name="SUSYTools_applyST" type="athena" suite="SUSYTools">
-      <options_atn>SUSYTools/applyST.py || { rm DAOD_AST.topaod_jul20.pool.root;exit 1; }</options_atn>
+    <TEST name="SUSYTools_applyST" type="script" suite="SUSYTools">
+      <options_atn>skip_if_libraryMissing.sh SUSYToolsLib athena.py SUSYTools/applyST.py || { rm DAOD_AST.topaod_jul20.pool.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
