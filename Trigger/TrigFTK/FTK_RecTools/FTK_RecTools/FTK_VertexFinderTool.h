@@ -44,7 +44,7 @@
 //#include "xAODTracking/TrackParticleContainerFwd.h"
 //#include "Tracking/TrkVertexFitter/TrkVxEdmCnv/TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 class VxContainer;
-using std::vector;
+
 namespace Trk {
   class Track;
 //  class Trk::IVxCandidateXAODVertex;
@@ -115,11 +115,11 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
   //
   //  Helper functions with the uncerianties
   //
-	std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(vector<MyTrack> trks);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<MyTrack>& trks);
   double ctheta2eta(double cot);
-  vector<MyTrack> getTracks(const FTK_RawTrackContainer* trks);
-  vector<MyTrack> getTracks(const TrackCollection* trks);
-  //tool handel
+  std::vector<MyTrack> getTracks(const FTK_RawTrackContainer* trks);
+  std::vector<MyTrack> getTracks(const TrackCollection* trks);
+  //tool handle
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   ToolHandle<Trk::IVxCandidateXAODVertex> m_VertexEdmFactory;
 };
