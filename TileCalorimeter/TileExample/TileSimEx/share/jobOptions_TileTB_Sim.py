@@ -2,7 +2,7 @@
 #
 # Job options file for Geant4 Simulation
 #
-# Standalone TileCal Testbeam in 2000-2003 
+# Standalone TileCal Testbeam in 2000-2003
 #
 #==============================================================
 
@@ -13,7 +13,7 @@ topSeq = AlgSequence()
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
 
-#---  Output printout level ----------------------------------- 
+#---  Output printout level -----------------------------------
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 if not 'OutputLevel' in dir():
     OutputLevel = 3
@@ -38,7 +38,7 @@ athenaCommonFlags.EvtMax=EvtMax
 #--- Detector flags -------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
 
-# - Select detectors 
+# - Select detectors
 DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
@@ -121,7 +121,7 @@ if 'Y' in dir():
 # uncomment this for simulation with calibration hits
 #simFlags.CalibrationRun = 'Tile'
 
-# uncomment and modify any of options below to have non-standard simulation 
+# uncomment and modify any of options below to have non-standard simulation
 from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
 tileSimInfoConfigurator=TileSimInfoConfigurator()
 # tileSimInfoConfigurator.DeltaTHit = [ 1. ]
@@ -194,6 +194,8 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 try:
     from AthenaCommon.CfgGetter import getAlgorithm
     topSeq += getAlgorithm("BeamEffectsAlg")
@@ -211,24 +213,15 @@ except:
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
-    def use_verbose_tracking():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-    simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
+    simFlags.G4Commands+= ['/tracking/verbose 1']
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
-    def set_general_range_cut():
-        from G4AtlasApps import AtlasG4Eng
-        physics = AtlasG4Eng.G4Eng.Dict.get('physics')
-        physics.Value_gen_cut = RangeCut
-    simFlags.InitFunctions.add_function('preInitPhysics',set_general_range_cut)
+    svcMgr.ToolSvc['PhysicsListToolBase'].GeneralCut=RangeCut
 
 #--- Final step -----------------------------------------------
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
