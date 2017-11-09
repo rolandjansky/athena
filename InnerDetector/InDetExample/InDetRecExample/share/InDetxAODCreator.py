@@ -1,5 +1,6 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
+from RecExConfig.ObjKeyStore   import cfgKeyStore
 
 doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() ) \
                     and InDetFlags.doParticleCreation()
@@ -77,7 +78,8 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         topSequence += xAODDBMTrackParticleCnvAlg 
 
 if not InDetFlags.doVertexFinding():
-    if not InDetFlags.doDBMstandalone():
+    if (not InDetFlags.doDBMstandalone() and
+        not cfgKeyStore.isInInput ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer())):
         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
         xAODVertexCnvAlg = xAODMaker__VertexCnvAlg("VertexCnvAlg")
         xAODVertexCnvAlg.xAODContainerName = InDetKeys.xAODVertexContainer()
