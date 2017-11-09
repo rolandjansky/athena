@@ -111,8 +111,6 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   std::bitset<m_nTopoCTPOutputs> m_topoSimResult; //! simulation of CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoSimOverfl; //! simulation of overflow bits
   std::bitset<m_nTopoCTPOutputs> m_topoCtpResult; //! actual hardware CTP output
-  std::bitset<m_nTopoCTPOutputs> m_triggerBitsDaqRob; //! trigger bits for BC0 from the DAQ ROB
-  std::bitset<m_nTopoCTPOutputs> m_overflowBitsDaqRob; //! overflow bits for BC0 from the DAQ ROB
   bool m_setTopoSimResult; //! keep track of whether this event's sim results had been stored
   bool m_firstEvent; //! used to toggle the ATH_MSG_INFO only on the first event
   std::bitset<m_nTopoCTPOutputs> m_triggerBitsDaqRob; //! trigger bits for BC0 from the DAQ ROB
