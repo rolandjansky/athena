@@ -33,6 +33,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+  declareProperty( "CalibArea", m_calibAreaTag = "00-04-81");
 
 }
 
@@ -84,7 +85,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-79/"); // Hard-coding the CalibArea tag
+  // The calibration area tag is a property of the tool
+  m_calibAreaTag.insert(0,"CalibArea-");
+  m_calibAreaTag.append("/");
   if(m_devMode){
     ATH_MSG_WARNING("Dev Mode is ON!!!");
     ATH_MSG_WARNING("Dev Mode is NOT RECOMMENDED!!!");
