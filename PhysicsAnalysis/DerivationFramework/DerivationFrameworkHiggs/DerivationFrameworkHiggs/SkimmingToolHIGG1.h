@@ -158,12 +158,12 @@ namespace DerivationFramework {
       mutable unsigned int n_passTrigger;
       mutable unsigned int n_passPreselect;
       mutable unsigned int n_passSingleElectronPreselect;
+      mutable unsigned int n_passDoubleElectronPreselect;
+      mutable unsigned int n_passSingleMuonPreselect;
       mutable unsigned int n_passSinglePhotonDoubleMuonPreselect;
       mutable unsigned int n_passSinglePhotonDoubleElectronPreselect;
       mutable unsigned int n_passSinglePhotonMergedElectronPreselect;
       mutable unsigned int n_passHighPtPhotonMergedElectronPreselect;
-      mutable unsigned int n_passDoubleElectronPreselect;
-      mutable unsigned int n_passSingleMuonPreselect;
       mutable unsigned int n_passKinematic;
       mutable unsigned int n_passQuality;
       mutable unsigned int n_passIsolation;
