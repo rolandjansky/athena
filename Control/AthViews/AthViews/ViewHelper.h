@@ -156,7 +156,7 @@ namespace ViewHelper
         viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
 
         //Attach the view to the named node
-        StatusCode sc = scheduler->attachViewToNode( viewContext, NodeName );
+        StatusCode sc = scheduler->attachViewToNode( &InputContext, viewContext, NodeName );
         if ( !sc.isSuccess() )
         {
           return StatusCode::FAILURE;
