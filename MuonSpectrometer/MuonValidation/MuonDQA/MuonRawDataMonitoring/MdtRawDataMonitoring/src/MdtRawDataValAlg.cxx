@@ -1979,7 +1979,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               int ilayer = chamber->GetLayerEnum();
               int statphi = chamber->GetStationPhi();
               int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-              if(m_overalladc_segm_PR_Lumi[iregion]) m_overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
+              if(m_overalladc_segm_PR_Lumi[iregion] && adc > m_ADCCut) m_overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
 
               if(adc > m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
                 if(statphi > 15) {
