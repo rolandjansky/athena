@@ -15,19 +15,18 @@ DetFlags.Muon_setOn()
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-from AthenaCommon.AppMgr import ServiceMgr
+# from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+# from AthenaCommon.AppMgr import ServiceMgr
 
-from AthenaCommon.AppMgr import theApp, athAlgSeq
-#from AthenaCommon.GlobalFlags import 
-#athenaCommonFlags.EvtMax=1
+# theRegSelSvc = RegSelSvcDefault("RegSelSvcDefault")
+# ServiceMgr += theRegSelSvc
+
+
 
 theApp.EvtMax = 1
 
 
 
-theRegSelSvc = RegSelSvcDefault("RegSelSvcDefault")
-ServiceMgr += theRegSelSvc
 
 from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg
 athAlgSeq += RegSelTestAlg()

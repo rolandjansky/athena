@@ -55,7 +55,7 @@ StatusCode RegSelTestAlg::dump() const {
 
   for ( auto detector: {PIXEL, SCT, TRT, FTK} ) {
     for ( auto & roi: id_rois ) {
-      ATH_MSG_DEBUG( "Detector " << detector << " and RoI ");
+      ATH_MSG_DEBUG( "Detector " << detector << " and RoI " << roi );
       std::vector<IdentifierHash> hashes;
       m_regSelSvc->DetHashIDList( detector, roi, hashes );
       ATH_MSG_DEBUG( "Hashes " << hashes );
