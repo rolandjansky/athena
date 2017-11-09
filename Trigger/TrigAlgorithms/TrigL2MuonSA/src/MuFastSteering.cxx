@@ -505,9 +505,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   DataVector<const LVL1::RecMuonRoI> *internalRecRoI = new DataVector<const LVL1::RecMuonRoI>;
   ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << muonRoIs.size());
 
-  p_roids = roids.begin();
   p_roi = muonRoIs.begin();
-  for (const auto& roid : roids){
+  for ( p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
     internalRoI->push_back(*p_roids);
     ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
@@ -516,7 +515,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
     internalRecRoI->push_back(*p_roi);
     ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
 
-    p_roids++;
     p_roi++;
   }
   ATH_MSG_DEBUG("REGTEST: DONE");
@@ -577,8 +575,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   } else {
     ActiveState = true;
     outputTE -> setActiveState(ActiveState);
-    int size = 0;
-    for (int size=0; size<outputTracks->size(); size++){
+    for (size_t size=0; size<outputTracks->size(); size++){
      outputTracks->at(size)->setTeId( outputTE->getId() );		
      ATH_MSG_DEBUG("outputTE(" << size << ") = " << outputTracks->at(size)->teId());
     }
