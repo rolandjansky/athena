@@ -319,19 +319,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     ATH_MSG_INFO("END collecting sub-process logs");
   }
 
-  // Restart the event selector in order to avoid segfault at stop()
-  SmartIF<IProperty> prpMgr(serviceLocator());
-  if(prpMgr.isValid()) {
-    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
-    IService* evtSelector(0);
-    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
-    ATH_CHECK(evtSelector->start());
-  }
-  else {
-    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
-    return StatusCode::FAILURE;
-  }
-
   if(sc.isSuccess())
     return generateOutputReport();
   else 

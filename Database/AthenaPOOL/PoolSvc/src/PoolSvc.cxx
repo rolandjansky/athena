@@ -160,19 +160,17 @@ StatusCode PoolSvc::initialize() {
    };
    coral::MessageStream::setMsgVerbosity(lvl);
 
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
-   }
-   return reinit();
+   return setupPersistencySvc();
 }
 
+
 //__________________________________________________________________________
-StatusCode PoolSvc::reinit() {
-   ATH_MSG_INFO("Re-initializing " << name());
-   // Setup a catalog connection based on the value of $POOL_CATALOG
- 
-   return(StatusCode::SUCCESS);
+StatusCode PoolSvc::reinit()
+{
+   ATH_MSG_WARNING("reinit() called - that is not expected" << name());
+   return StatusCode::SUCCESS;
 }
+
 
 //__________________________________________________________________________
 StatusCode PoolSvc::io_reinit()
@@ -213,11 +211,7 @@ StatusCode PoolSvc::io_reinit()
       }
    }
    
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
-   }
-   // MN: reinit: maybe needed, maybe not
-   return reinit();
+   return setupPersistencySvc();
 }
 
 //__________________________________________________________________________
@@ -272,7 +266,6 @@ StatusCode PoolSvc::setupPersistencySvc()
       policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
    }
    m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
-
    return StatusCode::SUCCESS;
 }
 
@@ -317,10 +310,11 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-/*
+
    unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      ATH_MSG_DEBUG(" deleting PersSvc stream " << streamId );
       delete *iter;
    }
    m_persistencySvcVec.clear();
@@ -328,7 +322,7 @@ StatusCode PoolSvc::io_finalize() {
       m_catalog->commit();
       delete m_catalog; m_catalog = 0;
    }
-*/
+
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -473,8 +467,11 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    if (contextId == IPoolSvc::kInputStream && openMode != pool::ICollection::READ) {
       contextId = IPoolSvc::kOutputStream;
    }
-   if (contextId >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
-      return(0);
+   if (contextId >= m_persistencySvcVec.size() ) {
+      ATH_MSG_WARNING("CreateCollection '" << collectionName << "' for stream #"
+                      << contextId << " but " << name() << " has only " <<
+                      m_persistencySvcVec.size() << " streams open");
+      return nullptr;
    }
    // Check POOL FileCatalog entry.
    bool insertFile = false;
@@ -635,12 +632,13 @@ bool PoolSvc::testDictionary(const std::string& className) const {
 //__________________________________________________________________________
 StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned long stream) const {
    HIVE_CALLMUTEX;
-
    if (type != pool::ITransaction::READ) {
       stream = IPoolSvc::kOutputStream;
    }
-   if (stream >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
-      return(StatusCode::FAILURE);
+   if (stream >= m_persistencySvcVec.size() ) {
+      ATH_MSG_WARNING("connect() for stream #" << stream << " but " << name() << " has only "
+                      << m_persistencySvcVec.size() << " streams open");
+     return(StatusCode::FAILURE);
    }
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[stream];
    // Connect to a logical database using the pre-defined technology and dbID
