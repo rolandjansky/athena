@@ -15,7 +15,7 @@ exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
 augTools = []
 
 # using now TauTruthCommon, so we use a central Python setup and it is not imported twice
-from DerivationFrameworkTau.TauTruthCommon import *
+# Tau truth common is a part of the standard truth tools
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()

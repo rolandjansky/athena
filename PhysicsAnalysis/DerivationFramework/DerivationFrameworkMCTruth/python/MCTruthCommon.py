@@ -152,7 +152,8 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
     # Tau collections are built separately
-    import DerivationFrameworkTau.TauTruthCommon
+    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    scheduleTauTruthTools(kernel)
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
     augmentationToolsList = [ DFCommonTruthClassificationTool,

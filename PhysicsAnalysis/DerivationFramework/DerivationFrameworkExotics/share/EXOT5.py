@@ -8,7 +8,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkTau.TauTruthCommon import *
+from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+scheduleTauTruthTools()
 from DerivationFrameworkCore.WeightMetadata import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======

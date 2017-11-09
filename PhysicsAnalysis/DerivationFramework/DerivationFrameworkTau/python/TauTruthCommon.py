@@ -11,7 +11,17 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # AUGMENTATION TOOLS
 #====================================================================
 # Tau Truth making and matching
-if DerivationFrameworkIsMonteCarlo:
+def scheduleTauTruthTools(kernel=None):
+    # Ensure that we are running on MC!
+    if not DerivationFrameworkIsMonteCarlo:
+        return
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'TauTruthCommonKernel'):
+        # Already there!  Carry on...
+        return
 
     from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
@@ -25,6 +35,7 @@ if DerivationFrameworkIsMonteCarlo:
     DFCommonTauTruthClassifier = MCTruthClassifier(name = "DFCommonTauTruthClassifier",
                                         ParticleCaloExtensionTool="")
 
+    from AthenaCommon.AppMgr import ToolSvc
     # Matching
     # Only do if working with AOD
     from RecExConfig.ObjKeyStore import objKeyStore
@@ -60,5 +71,5 @@ if DerivationFrameworkIsMonteCarlo:
     # CREATE THE DERIVATION KERNEL ALGORITHM
     #=======================================
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauTruthCommonKernel",
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("TauTruthCommonKernel",
                                                                              AugmentationTools = DFCommonTauTruthWrapperTools)
