@@ -5,7 +5,7 @@
 #ifndef TRIGCALOREC_TRIGCALOQUALITY_H
 #define TRIGCALOREC_TRIGCALOQUALITY_H
 
-#include <CLIDSvc/CLASS_DEF.h>
+#include "AthenaKernel/CLASS_DEF.h"
 #include <inttypes.h>
 
 class TrigCaloQuality {
