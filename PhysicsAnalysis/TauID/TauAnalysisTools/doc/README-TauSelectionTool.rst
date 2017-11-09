@@ -32,6 +32,8 @@ default config file
 Release Check
 ------------------
 
+**Note:** this release check is not needed in 21 releases anymore. The properties which are discussed below have no effect anymore and will be removed in one of the next updates of TauAnalysisTools. 
+
 Since TauAnalysisTools-00-02-43 an automatic release check is implemented. 
 For samples which are not AODFix (before 20.7.8.5, excluding 20.7.8.2) the electron overlap removal is re-run. For AODFix samples (20.7.8.5 and above)
 the available electron overlap removal is used. One can turn off this release 

@@ -8,7 +8,7 @@
 TCS::MetTOBArray::MetTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<MetTOB>(reserve)
-{};
+{}
 
 void
 TCS::MetTOBArray::print(std::ostream &o) const {

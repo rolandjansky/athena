@@ -13,11 +13,17 @@
 
 
 SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
-  JSSTaggerBase( name ){
+  JSSTaggerBase( name ),
+  m_dec_mcut("mcut"),
+  m_dec_tau32cut("tau32cut"),
+  m_dec_split23cut("split23cut"),
+  m_dec_qwcut("qwcut")
+{
 
   declareProperty( "ConfigFile",   m_configFile="");
 
   declareProperty( "WorkingPoint", m_wkpt="" );
+  declareProperty( "Decoration",   m_decorationName="XX");
   declareProperty( "DecorateJet",  m_decorate=true);
 
   declareProperty( "JetPtMin",              m_jetPtMin = 350000.0);
@@ -46,7 +52,6 @@ StatusCode SmoothedTopTagger::initialize(){
   // Define known modes :
   std::map<std::string, Mode> knownModes = {
     {"MassTau32" , MassTau32 } ,
-    {"MassSplit23" , MassSplit23},
     {"Tau32Split23" , Tau32Split23},
     {"QwTau32" , QwTau32}
   };
@@ -57,6 +62,7 @@ StatusCode SmoothedTopTagger::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
     configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
@@ -84,6 +90,8 @@ StatusCode SmoothedTopTagger::initialize(){
     m_var2CutName = configReader.GetValue(prefix+"Var2", "");
     if(m_var2CutName == "") { ATH_MSG_ERROR("Config file does not specify Var2 !") ; return StatusCode::FAILURE; }
 
+    // get the decoration name
+    m_decorationName = configReader.GetValue("DecorationName" ,"");
 
     // Now verify we know this variables :
     auto it = knownModes.find( m_var1CutName+m_var2CutName);
@@ -130,6 +138,7 @@ StatusCode SmoothedTopTagger::initialize(){
   ATH_MSG_INFO( "Smoothed top Tagger tool initialized in mode "<< m_modeName );
   ATH_MSG_INFO( m_var1CutName+"   cut : "<< m_var1CutExpr );
   ATH_MSG_INFO( m_var2CutName+"   cut : " << m_var2CutExpr );
+  ATH_MSG_INFO( "DecorationName  : "<< m_decorationName );
 
   //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
@@ -137,22 +146,44 @@ StatusCode SmoothedTopTagger::initialize(){
   m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
   m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
 
+  // add cuts for the output TAccept
+  // initialize decorators as decorationName+_decorator
+  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  std::string dec_name;
+
   switch(m_mode) {
   case MassTau32 :{
     m_accept.addCut( "PassMass"    , "mJet > mCut"  );
     m_accept.addCut( "PassTau32"   , "Tau32Jet < Tau32Cut"   );
-  }
-  case MassSplit23:{
-    m_accept.addCut( "PassMass"    , "mJet > mCut"  );
-    m_accept.addCut( "PassSplit23" , "Split23Jet > Split23cut"   );
+
+    dec_name = m_decorationName+"_Cut_m";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on mass" );
+    m_dec_mcut     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_Cut_tau32";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
+    m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   case Tau32Split23:{
     m_accept.addCut( "PassTau32"    , "Tau32Jet < Tau32Cut"  );
     m_accept.addCut( "PassSplit23"  , "Split23Jet > Split23Cut"   );
+
+    dec_name = m_decorationName+"_Cut_tau32";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
+    m_dec_tau32cut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_Cut_split23";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on split23" );
+    m_dec_split23cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   case QwTau32:{
     m_accept.addCut( "PassQw"       , "QwJet > QwCut" );
     m_accept.addCut( "PassTau32"    , "Tau32Jet < Tau32Cut"  );
+
+    dec_name = m_decorationName+"_Cut_qw";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on qw" );
+    m_dec_qwcut    = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_Cut_tau32";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
+    m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
   }
   default: break;
   }
@@ -203,11 +234,6 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
   float cut_var1  = m_var1CutFunc->Eval(jet_pt);
   float cut_var2  = m_var2CutFunc->Eval(jet_pt);
 
-  static SG::AuxElement::Decorator<float>    dec_m ("TopTagMassCut");
-  static SG::AuxElement::Decorator<float>    dec_tau32 ("TopTagTau32Cut");
-  static SG::AuxElement::Decorator<float>    dec_s23 ("TopTagSplit23Cut");
-  static SG::AuxElement::Decorator<float>    dec_qw ("TopTagQwCut");
-
   static SG::AuxElement::Accessor<float>    acc_s23 ("Split23");
   static SG::AuxElement::Accessor<float>    acc_qw ("Qw");
 
@@ -215,8 +241,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
   switch(m_mode) {
     case MassTau32 :{
       if(m_decorate) {
-        dec_m(jet) = cut_var1;
-        dec_tau32(jet) = cut_var2;
+        m_dec_mcut(jet)     = cut_var1;
+        m_dec_tau32cut(jet) = cut_var2;
       }
       float tau32 = buildTau32(jet); // builds tau32 and checks for content
 
@@ -227,27 +253,10 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
         m_accept.setCutResult("PassTau32",true);
 
     }
-    case MassSplit23:{
-      if(m_decorate) {
-        dec_m(jet) = cut_var1;
-        dec_s23(jet) = cut_var2;
-      }
-
-      if( !acc_s23.isAvailable(jet) ){
-        ATH_MSG_VERBOSE( "The Split23 variable is not available in your file" );
-        m_accept.setCutResult("ValidJetContent", false);
-      }
-
-      if( ( jet_mass > cut_var1) )
-        m_accept.setCutResult("PassMass",true);
-
-      if( ( acc_s23(jet)/1000. > cut_var2) )
-        m_accept.setCutResult("PassSplit23",true);
-    }
     case Tau32Split23:{
       if(m_decorate) {
-        dec_tau32(jet) = cut_var1;
-        dec_s23(jet) = cut_var2;
+        m_dec_tau32cut(jet) = cut_var1;
+        m_dec_split23cut(jet)   = cut_var2;
       }
       float tau32 = buildTau32(jet);
 
@@ -265,8 +274,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
     }
     case QwTau32:{
       if(m_decorate) {
-        dec_qw(jet) = cut_var1;
-        dec_tau32(jet) = cut_var2;
+        m_dec_qwcut(jet)    = cut_var1;
+        m_dec_tau32cut(jet) = cut_var2;
       }
       float tau32 = buildTau32(jet);
 

@@ -31,6 +31,9 @@ DerivationFramework::TruthDecayCollectionMaker::TruthDecayCollectionMaker(const 
     declareProperty("ParticlesKey", m_particlesKey);
     declareProperty("NewCollectionName", m_collectionName);
     declareProperty("PDGIDsToKeep", m_pdgIdsToKeep={}, "PDG IDs of particles to build the collection from");
+    declareProperty("KeepBHadrons", m_keepBHadrons=false, "Keep b-hadrons (easier than by PDG ID)");
+    declareProperty("KeepCHadrons", m_keepCHadrons=false, "Keep c-hadrons (easier than by PDG ID)");
+    declareProperty("Generations", m_generations=-1, "Number of generations after the particle in question to keep (-1 for all)");
 }
 
 // Destructor
@@ -52,8 +55,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
 
-    if (m_pdgIdsToKeep.size()==0) {
-        ATH_MSG_FATAL("No PDG IDs provided");
+    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepCHadrons) {
+        ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons -- what do you want?");
         return StatusCode::FAILURE;
     }
 
@@ -65,7 +68,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
 StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
 {
     // Retrieve truth collections
-    const xAOD::TruthParticleContainer* importedTruthParticles;
+    const xAOD::TruthParticleContainer* importedTruthParticles(nullptr);
     if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
         ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
         return StatusCode::FAILURE;
@@ -94,15 +97,20 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     for (auto * part : *importedTruthParticles){
         for (int id : m_pdgIdsToKeep){
             if (part->absPdgId()==id){
-                addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles );
+                addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles, m_generations );
             } // Found a particle of interest!
         } // Loop over the PDG IDs we want to keep
+        if ((m_keepBHadrons && part->isBottomHadron()) ||
+            (m_keepCHadrons && part->isCharmHadron())){
+            addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
+        }
     } // Loop over the initial truth particle collection
     return StatusCode::SUCCESS;
 }
 
 int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont, 
-                                                                      xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
+                                                                      xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
+                                                                      const int generations) const {
     // See if we've seen it - note, could also do this with a unary function on the container itself
     if (std::find(seen_particles.begin(),seen_particles.end(),old_part.barcode())!=seen_particles.end()){
       for (size_t p=0;p<part_cont->size();++p){
@@ -126,7 +134,7 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD
     ElementLink<xAOD::TruthParticleContainer> eltp(*part_cont, my_index);
     // Decay vertex information
     if (old_part.hasDecayVtx()) {
-        int vert_index = addTruthVertex( *old_part.decayVtx(), part_cont, vert_cont, seen_particles);
+        int vert_index = addTruthVertex( *old_part.decayVtx(), part_cont, vert_cont, seen_particles, generations);
         ElementLink<xAOD::TruthVertexContainer> eltv( *vert_cont, vert_index );
         xTruthParticle->setDecayVtxLink( eltv );
         (*vert_cont)[vert_index]->addIncomingParticleLink( eltp );
@@ -160,7 +168,8 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD
 }
 
 int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont, 
-                                                                    xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles) const {
+                                                                    xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
+                                                                    const int generations) const {
     // Make a new vertex and add it to the container
     xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
     vert_cont->push_back( xTruthVertex );
@@ -174,9 +183,12 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::
     xTruthVertex->setY(old_vert.y());
     xTruthVertex->setZ(old_vert.z());
     xTruthVertex->setT(old_vert.t());
+    // If we are done, then stop here
+    if (generations==0) return my_index;
     // Add all the outgoing particles
     for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
-        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles );
+        if (!old_vert.outgoingParticle(n)) continue; // Just in case we removed some truth particles, e.g. G4 decays
+        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles, generations-1);
         ElementLink<xAOD::TruthParticleContainer> eltp( *part_cont, part_index);
         xTruthVertex->addOutgoingParticleLink( eltp );
         (*part_cont)[part_index]->setProdVtxLink( eltv );

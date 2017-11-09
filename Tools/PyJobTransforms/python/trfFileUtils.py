@@ -214,14 +214,16 @@ def NTUPEntries(fileName, treeNames):
 
 ## @brief Determines number of entries in PRW file
 #  @param fileName Path to the PRW file.
+#  @param integral Returns sum of weights if true
 #  @return 
 #  - Number of entries.
+#  - Sum of weights if integral is true.
 #  - @c None if the determination failed.
 #  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 @_decos.forking
-def PRWEntries(fileName):
+def PRWEntries(fileName, integral=False):
 
     root = import_root()
 
@@ -244,7 +246,10 @@ def PRWEntries(fileName):
     for key in rundir.GetListOfKeys():
         if 'pileup' in key.GetName():
             msg.debug('Working on file '+fileName+' histo '+key.GetName())
-            total += rundir.Get(key.GetName()).GetEntries()
+            if integral:
+                total += rundir.Get(key.GetName()).Integral()
+            else:
+                total += rundir.Get(key.GetName()).GetEntries()
         # Was not one of our histograms
     return total
 

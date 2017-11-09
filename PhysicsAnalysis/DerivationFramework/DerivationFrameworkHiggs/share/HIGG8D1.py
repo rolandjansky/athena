@@ -420,18 +420,16 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1K
 
 
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
-#====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4PV0TrackJets"]
-replaceAODReducedJets(reducedJetList,HIGG8D1Seq,"HIGG8D1")
-
-#====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-HIGG8D1Seq += Config.GetDecoratePromptLeptonAlgs()
+# Build AntiKt4PV0TrackJets and run b-tagging
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(HIGG8D1Seq, 'HIGG8D1')
+
+# Add BDT decoration algs
+HIGG8D1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+HIGG8D1Seq += JetTagConfig.GetDecoratePromptTauAlgs()
 
 DerivationFrameworkJob += HIGG8D1Seq
 
@@ -466,7 +464,8 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
                                         "PrimaryVertices.x.y"                                        
                                         ]
 
-HIGG8D1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
+HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 
 ExtraContentTaus=[
         "TauJets."

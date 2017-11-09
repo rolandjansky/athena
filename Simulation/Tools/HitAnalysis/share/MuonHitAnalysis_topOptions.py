@@ -7,36 +7,32 @@ from PartPropSvc.PartPropSvcConf import PartPropSvc
 include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
 include("EventAthenaPool/EventAthenaPool_joboptions.py" )
 
+#Use these lines if the NSW is included in the simulation
+#from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+#GeoModelSvc = GeoModelSvc()
+#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
+
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob( "/tmp/" + os.environ['USER'] + "/" + "HITS*root*" )
+athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"/"+"HITS*root*" )
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
 from HitAnalysis.HitAnalysisConf import RPCHitAnalysis
 topSequence += RPCHitAnalysis('RPCHitAnalysis')
-topSequence.RPCHitAnalysis.NtupleFileName = '/MuonHitAnalysis/RPC/'
-topSequence.RPCHitAnalysis.HistPath = '/MuonHitAnalysis/RPC/'
-
+topSequence.RPCHitAnalysis.HistPath = '/MuonHitAnalysis/'
 from HitAnalysis.HitAnalysisConf import MDTHitAnalysis
 topSequence += MDTHitAnalysis('MDTHitAnalysis')
-topSequence.MDTHitAnalysis.NtupleFileName = '/MuonHitAnalysis/MDT/'
-topSequence.MDTHitAnalysis.HistPath = '/MuonHitAnalysis/MDT/'
-
+topSequence.MDTHitAnalysis.HistPath = '/MuonHitAnalysis/'
 from HitAnalysis.HitAnalysisConf import CSCHitAnalysis
 topSequence += CSCHitAnalysis('CSCHitAnalysis')
-topSequence.CSCHitAnalysis.NtupleFileName = '/MuonHitAnalysis/CSC/'
-topSequence.CSCHitAnalysis.HistPath = '/MuonHitAnalysis/CSC/'
-
+topSequence.CSCHitAnalysis.HistPath = '/MuonHitAnalysis/'
 from HitAnalysis.HitAnalysisConf import TGCHitAnalysis
 topSequence += TGCHitAnalysis('TGCHitAnalysis')
-topSequence.TGCHitAnalysis.NtupleFileName = '/MuonHitAnalysis/TGC/'
-topSequence.TGCHitAnalysis.HistPath = '/MuonHitAnalysis/TGC/'
-
+topSequence.TGCHitAnalysis.HistPath = '/MuonHitAnalysis/'
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()

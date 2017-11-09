@@ -32,7 +32,7 @@ class ForwardRegionGeoModelManager : public GeoVDetectorManager  {
 
   const ForwardRegionGeoModelManager & operator=(const ForwardRegionGeoModelManager &right);
   ForwardRegionGeoModelManager(const ForwardRegionGeoModelManager &right);
-  std::vector<PVLink> volume;
+  std::vector<PVLink> m_volume;
 };
 
 // Class ForwardRegionGeoModelManager

@@ -7,20 +7,32 @@
 JetPileupCorrection::JetPileupCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("JetPileupCorrection::JetPileupCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
-{ }
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::~JetPileupCorrection() {
 
@@ -31,6 +43,8 @@ JetPileupCorrection::~JetPileupCorrection() {
 
 //bool JetPileupCorrection::initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData) {
 StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
+
+  ATH_MSG_INFO("OriginScale: " << m_originScale);
 
   m_jetStartScale = m_config->GetValue("PileupStartingScale","JetConstitScaleMomentum");
   ATH_MSG_INFO("JetPileupCorrection: Starting scale: " << m_jetStartScale);
@@ -114,11 +128,11 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     if ( m_doOrigin ) { 
       xAOD::JetFourMom_t jetOriginP4;
       static unsigned int originWarnings = 0;
-      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+      if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.c_str(),jetOriginP4) )
 	calibP4 = jetOriginP4*pileup_SF;
       else {
 	if ( originWarnings < 20 ) {
-	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ATH_MSG_WARNING("Could not retrieve " << m_originScale << " jet attribute, origin correction will not be applied.");
 	  ++originWarnings;
 	}
 	calibP4 = jetStartP4*pileup_SF;
@@ -143,11 +157,11 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     if ( m_doOrigin ) { 
       xAOD::JetFourMom_t jetOriginP4;
       static unsigned int originWarnings = 0;
-      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+      if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.c_str(),jetOriginP4) )
 	calibP4 = jetOriginP4*area_SF;
       else {
 	if ( originWarnings < 20 ) {
-	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ATH_MSG_WARNING("Could not retrieve " << m_originScale << " jet attribute, origin correction will not be applied.");
 	  ++originWarnings;
 	}
 	calibP4 = jetStartP4*area_SF;

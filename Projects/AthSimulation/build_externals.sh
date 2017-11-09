@@ -72,6 +72,7 @@ fi
 
 # Stop on errors from here on out:
 set -e
+set -o pipefail
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -95,7 +96,7 @@ if [ "$FORCE" = "1" ]; then
 fi
 
 # Create some directories:
-mkdir -p ${BUILDDIR}/install
+mkdir -p ${BUILDDIR}/{src,install}
 
 # Set some environment variables that the builds use internally:
 export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
@@ -121,7 +122,7 @@ AthSimulationExternalsVersion=$(awk '/^AthSimulationExternalsVersion/{print $3}'
 # Check out AthSimulationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthSimulationExternalsVersion} \
-    -s ${BUILDDIR}/src/AthSimulationExternals
+    -s ${BUILDDIR}/src/AthSimulationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthSimulationExternals.log
 
 # Build AthSimulationExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthSimulationExternals
@@ -142,7 +143,7 @@ GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 # Check out Gaudi from the right branch/tag:
 ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI
+    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI

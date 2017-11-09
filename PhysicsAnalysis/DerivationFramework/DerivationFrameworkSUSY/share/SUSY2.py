@@ -44,9 +44,9 @@ SUSY2ThinningHelper.AppendToStream( SUSY2Stream )
 # THINNING TOOLS
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY2TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY2TPThinningTool",
 #                                                                 ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
@@ -90,6 +90,45 @@ SUSY2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY2TauTPThinningTool
 thinningTools.append(SUSY2TauTPThinningTool)
+
+# Cluster thinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+
+# Caloclusters associated to electrons
+SUSY2ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "SUSY2ElectronCCThinningTool",
+                                                                                     ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
+                                                                                     SGKey                   = "Electrons",
+                                                                                     #CaloClCollectionSGKey   = "egammaClusters",
+                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                                     SelectionString         = "Electrons.pt > 9.0*GeV",
+                                                                                     ConeSize                = 0.4)
+
+ToolSvc += SUSY2ElectronCCThinningTool
+thinningTools.append(SUSY2ElectronCCThinningTool)
+
+# Calo Clusters associated with Photons
+SUSY2PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "SUSY2PhotonCCThinningTool",
+                                                                     ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
+                                                                     SGKey                   = "Photons",
+                                                                     #CaloClCollectionSGKey   = "egammaClusters",
+                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                     #SelectionString         = "Photons.pt > 10.0*GeV",
+                                                                     ConeSize                = 0.4)
+
+ToolSvc += SUSY2PhotonCCThinningTool
+thinningTools.append(SUSY2PhotonCCThinningTool)
+
+# Calo Clusters associated with Muons
+SUSY2MuonCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "SUSY2MuonCCThinningTool",
+                                                                   ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
+                                                                   SGKey                   = "Muons",
+                                                                   #CaloClCollectionSGKey   = "MuonClusterCollection",
+                                                                   TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                   SelectionString         = "Muons.pt > 9.0*GeV",
+                                                                   ConeSize                = 0.4)
+
+ToolSvc += SUSY2MuonCCThinningTool
+thinningTools.append(SUSY2MuonCCThinningTool)
 
 # TrackParticles associated with LC jets: useful when the global track thinning has a pT threshold ~1-2 GeV
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
@@ -145,102 +184,11 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
-muonsRequirements = '(Muons.pt >= 9*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
-electronsRequirements = '(Electrons.pt > 9*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
+muonsRequirements = '(Muons.pt >= 9.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '(Electrons.pt > 9.0*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 objectSelection = 'count('+electronsRequirements+') + count('+muonsRequirements+') >= 2'
 
-xeTriggers = ['HLT_xe35', # list taken from SUSY6 without mht and tc_lcw
-              'HLT_xe35_tc_em',
-              'HLT_xe35_pueta',
-              'HLT_xe35_pufit',
-              'HLT_xe35_L2FS',
-              'HLT_xe35_l2fsperf_wEFMuFEB_wEFMu',
-              'HLT_xe35_wEFMu',
-              'HLT_xe35_tc_em_wEFMu',
-              'HLT_xe35_pueta_wEFMu',
-              'HLT_xe35_pufit_wEFMu',
-              'HLT_xe50',
-              'HLT_xe50_tc_em',
-              'HLT_xe50_pueta',
-              'HLT_xe50_pufit',
-              'HLT_xe60',
-              'HLT_xe60_tc_em',
-              'HLT_xe60_pueta',
-              'HLT_xe60_pufit',
-              'HLT_xe60_wEFMu',
-              'HLT_xe60_tc_em_wEFMu',
-              'HLT_xe60_pueta_wEFMu',
-              'HLT_xe60_pufit_wEFMu',
-              'HLT_xe70_wEFMu',
-              'HLT_xe70_tc_em_wEFMu',
-              'HLT_xe70_pueta_wEFMu',
-              'HLT_xe70_pufit_wEFMu',
-              'HLT_xe70',
-              'HLT_xe70_tc_em',
-              'HLT_xe70_pueta',
-              'HLT_xe70_pufit',
-              'HLT_xe80_L1XE50',
-              'HLT_xe80_tc_em_L1XE50',
-              'HLT_xe80_pueta_L1XE50',
-              'HLT_xe80_pufit_L1XE50',
-              'HLT_xe80_wEFMu_L1XE50',
-              'HLT_xe80_tc_em_wEFMu_L1XE50',
-              'HLT_xe80_pueta_wEFMu_L1XE50',
-              'HLT_xe80_pufit_wEFMu_L1XE50',
-              'HLT_xe80',
-              'HLT_xe80_tc_em',
-              'HLT_xe80_pueta',
-              'HLT_xe80_pufit',
-              'HLT_xe80_wEFMu',
-              'HLT_xe80_tc_em_wEFMu',
-              'HLT_xe80_pueta_wEFMu',
-              'HLT_xe80_pufit_wEFMu',
-              'HLT_xe80_L1XE70',
-              'HLT_xe80_tc_em_L1XE70',
-              'HLT_xe80_pueta_L1XE70',
-              'HLT_xe80_pufit_L1XE70',
-              'HLT_xe80_wEFMu_L1XE70',
-              'HLT_xe80_tc_em_wEFMu_L1XE70',
-              'HLT_xe80_pueta_wEFMu_L1XE70',
-              'HLT_xe80_pufit_wEFMu_L1XE70',
-              'HLT_xe100',
-              'HLT_xe100_tc_em',
-              'HLT_xe100_pueta',
-              'HLT_xe100_pufit',
-              'HLT_xe100_wEFMu',
-              'HLT_xe100_tc_em_wEFMu',
-              'HLT_xe100_pueta_wEFMu',
-              'HLT_xe100_pufit_wEFMu']
-
-if DerivationFrameworkIsMonteCarlo:
-  xeTriggers = [trig for trig in xeTriggers if 'xe100' in trig]
-xeTriggers = '(' + ' || '.join(xeTriggers) + ')'
-
-muonTrig       = '(HLT_mu26_imedium || HLT_mu24_imedium || HLT_mu24_iloose_L1MU15 || HLT_mu20_iloose_L1MU15 || HLT_mu50 || HLT_mu60_0eta105_msonly || HLT_mu40 || HLT_mu24_iloose)'
-dimuonTrig     = '(HLT_2mu14 || HLT_2mu10 || HLT_mu24_mu8noL1 || HLT_mu22_mu8noL1 || HLT_mu20_mu8noL1 || HLT_mu18_mu8noL1 || HLT_2mu14_nomucomb || HLT_2mu10_nomucomb)'
-trimuonTrig    = '(HLT_mu24_2mu4noL1 || HLT_mu22_2mu4noL1 || HLT_mu20_2mu4noL1 || HLT_mu18_2mu4noL1 || HLT_3mu6 || HLT_3mu6_msonly)'
-
-electronTrigCut = '(HLT_e26_tight_iloose || HLT_e60_medium || HLT_e24_tight_iloose || HLT_e24_medium_iloose_L1EM20VH || HLT_e24_medium_iloose_L1EM18VH)'
-electronTrigLH  = '(HLT_e26_lhtight_iloose || HLT_e60_lhmedium || HLT_e24_lhtight_iloose || HLT_e24_lhmedium_iloose_L1EM20VH || HLT_e24_lhmedium_iloose_L1EM18VH || HLT_e60_lhmedium_nod0 || HLT_e24_lhmedium_nod0_iloose_L1EM20VH || HLT_e24_lhtight_nod0_iloose || HLT_e26_lhtight_nod0_iloose)'
-
-dielectronTrigCut = '(HLT_2e17_loose || HLT_2e15_loose_L12EM13VH || HLT_2e12_loose_L12EM10VH)'
-dielectronTrigLH  = '(HLT_2e17_lhloose || HLT_2e15_lhloose_L12EM13VH || HLT_2e12_lhloose_L12EM10VH || HLT_2e17_lhvloose_nod0 || HLT_2e12_lhvloose_nod0_L12EM10VH || HLT_2e15_lhvloose_nod0_L12EM13VH)'
-
-trielectronTrigCut   = '(HLT_e17_medium_2e9_medium)'
-trielectronTrigLH    = '(HLT_e17_lhmedium_2e9_lhmedium)'
-
-elemuonTrigCut = '(HLT_e17_loose_mu14 || HLT_e7_medium_mu24 || HLT_e26_medium_L1EM22VHI_mu8noL1 || HLT_e24_medium_L1EM20VHI_mu8noL1)'
-elemuonTrigLH  = '(HLT_e17_lhloose_mu14 || HLT_e7_lhmedium_mu24 || HLT_e26_lhmedium_L1EM22VHI_mu8noL1 || HLT_e24_lhmedium_L1EM20VHI_mu8noL1 || HLT_e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || HLT_e7_lhmedium_nod0_mu24 || HLT_e17_lhloose_nod0_mu14 || HLT_e24_lhmedium_nod0_L1EM20VHI_mu8noL1)'
-
-trielemuonTrigCut = '(HLT_e12_loose_2mu10 || HLT_2e12_loose_mu10)'
-trielemuonTrigLH  = '(HLT_e12_lhloose_2mu10 || HLT_2e12_lhloose_mu10)'
-
-alltriggers = ' || '.join([
-  muonTrig, dimuonTrig, trimuonTrig,
-  electronTrigCut, electronTrigLH, dielectronTrigCut, dielectronTrigLH, trielectronTrigCut, trielectronTrigLH,
-  elemuonTrigCut, elemuonTrigLH,
-  trielemuonTrigCut, trielemuonTrigLH,
-  xeTriggers])
+alltriggers = ' || '.join(triggersNavThin)
 
 expression = '(' + alltriggers + ') && '+objectSelection
 
@@ -324,7 +272,7 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets", 
-                                        "AntiKt4LCTopoJets", 
+                                        #"AntiKt4LCTopoJets", 
                                         "BTagging_AntiKt4EMTopo", 
                                         "InDetTrackParticles", 
                                         "PrimaryVertices"]
@@ -339,7 +287,10 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-					"Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1"]
+					"Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
+                                      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
+                                      "MuonClusterCollection.eta_sampl.phi_sampl",
+                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
 SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY2SlimmingHelper.IncludeBPhysTriggerContent = True

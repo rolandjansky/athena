@@ -7,14 +7,12 @@
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessRatiosTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
-#include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
-#include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
@@ -34,8 +32,6 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class AngularityTool+;
-#pragma link C++ class BoostedXbbTagTool+;
-#pragma link C++ class BosonTagTool+;
 #pragma link C++ class CenterOfMassShapesTool+;
 #pragma link C++ class DipolarityTool+;
 #pragma link C++ class EnergyCorrelatorRatiosTool+;

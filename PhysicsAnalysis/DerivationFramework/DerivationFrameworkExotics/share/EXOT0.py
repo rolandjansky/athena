@@ -214,10 +214,6 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,SeqEXOT0,"EXOT0")
 
-#AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
-# addDefaultTrimmedJets(SeqEXOT0, "EXOT0")
-
 
 #==============================================================================
 # Tau truth building/matching
@@ -258,7 +254,5 @@ if DerivationFrameworkIsMonteCarlo:
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer'}
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}  
   # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py) and are added to the AllVariables list in EXOT0ContentList.py
-
-addJetOutputs(EXOT0SlimmingHelper, ["SmallR", "EXOT0"], ["AntiKt4EMTopoJets"], ["AntiKt2PV0TrackJets", "AntiKt4EMPFlowJets", "AntiKt4LCTopoJets", "AntiKt4TruthJets"])
 
 EXOT0SlimmingHelper.AppendContentToStream(EXOT0Stream)

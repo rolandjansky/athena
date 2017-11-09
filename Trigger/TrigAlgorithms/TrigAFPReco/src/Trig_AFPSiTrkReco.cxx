@@ -3,16 +3,21 @@
  */
 
 #include "TrigAFPReco/Trig_AFPSiTrkReco.h"
+#include "AFP_RawEv/AFP_RawContainer.h"
+#include "AFP_RawEv/AFP_ROBID.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPSiHitContainer.h"
+
+const std::vector<unsigned int> Trig_AFPSiTrkReco::s_robIDs = {AFP_ROBID::sideA, AFP_ROBID::sideC};
 
 Trig_AFPSiTrkReco::Trig_AFPSiTrkReco(const std::string& name,
                                      ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
-  m_robDataProvider("ROBDataProviderSvc", name),
-  m_rawDataTool("AFP_RawDataProviderTool"),
-  m_digiTool("AFP_Raw2DigiTool"),
-  m_trackRecoTool("AFP_SIDLocRecoTool") {
+    m_robDataProvider("ROBDataProviderSvc", name),
+    m_rawDataTool("AFP_RawDataProviderTool"),
+    m_digiTool("AFP_Raw2DigiTool"),
+    m_trackRecoTool("AFP_SIDLocRecoTool")
+{
   declareProperty("AFP_RawDataCollectionKey", m_rawDataCollectionKey = "AFP_RawData", "Name of the raw data container");
   declareProperty("AFP_SiHitContainerName", m_siHitContainerName = "AFPSiHitContainer", "Name of the storegate container with Silicon pixel hits");
   declareProperty("AFP_TrackContainerName", m_trackContainerName = "AFPTrackContainer", "Name of the AFP tracks container to be called in the hypothesis algorithm with the same name");
@@ -63,7 +68,7 @@ HLT::ErrorCode Trig_AFPSiTrkReco::hltExecute(const HLT::TriggerElement* /*inputT
   //Reconstructing Si hits in case it is not already in evtStore, in which case there would be a conflict
   if (!evtStore()->contains<xAOD::AFPSiHitContainer>(m_siHitContainerName)) {
 	  //Recording raw data container to be used by m_rawDataTool
-    AFP_RawDataContainer* container = new AFP_RawDataContainer();
+    AFP_RawContainer* container = new AFP_RawContainer();
     ATH_MSG_DEBUG("Created AFP RDO Container");
     StatusCode recordSC =
       evtStore()->record(container, m_rawDataCollectionKey);
@@ -74,15 +79,11 @@ HLT::ErrorCode Trig_AFPSiTrkReco::hltExecute(const HLT::TriggerElement* /*inputT
       ATH_MSG_DEBUG("AFP RDO Container recorded");
     }
 
-    std::vector<const ROBFragment*> listOfRobf;
-    std::vector<unsigned int> ROBIDs;
-	//Adding ROB numbers with AFP information
-    ROBIDs.push_back(0x00850001);
-    ROBIDs.push_back(0x00850002);
+    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> listOfRobf;
 
-	//Retrieving ROB data
-    m_robDataProvider->getROBData(ROBIDs, listOfRobf);
-    ATH_MSG_DEBUG("  ROB ID " << std::hex << ROBIDs << std::dec);
+    //Retrieving ROB data
+    m_robDataProvider->getROBData(s_robIDs, listOfRobf);
+    ATH_MSG_DEBUG("  ROB ID " << std::hex << s_robIDs << std::dec);
     ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
     //Reconstructing Raw Data from ROBs
@@ -90,8 +91,10 @@ HLT::ErrorCode Trig_AFPSiTrkReco::hltExecute(const HLT::TriggerElement* /*inputT
       ATH_MSG_WARNING("BS conversion into RDOs failed");
       return HLT::ERROR;
     } else {
-      ATH_MSG_DEBUG(" Number of collections in container is "
-                    << container->size());
+      ATH_MSG_DEBUG(" Number of time-of-flight collections in container is "
+                  << container->collectionsToF().size());
+      ATH_MSG_DEBUG(" Number of silicon collections in container is "
+		    << container->collectionsSi().size());
     }
 
 	// Reconstructing Si Hits from raw data

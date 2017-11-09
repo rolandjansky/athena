@@ -83,7 +83,8 @@ if [ -z "$BUILDDIR" ]; then
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AthenaSrcDir/build_env.sh -b $BUILDDIR
+source $AthenaSrcDir/build_env.sh -b $BUILDDIR  >& ${BUILDDIR}/build_env.log
+cat  ${BUILDDIR}/build_env.log
 
 # Set Gaudi's version to the same value as this project's version:
 export GAUDI_VERSION=`cat ${AthenaSrcDir}/version.txt`
@@ -103,7 +104,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # Now run the actual CMake configuration:
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-        ${AthenaSrcDir} 2>&1 | tee cmake_config.log
+        ${AthenaSrcDir}  2>&1 | tee cmake_config.log
 fi
 
 # for nightly builds we want to get as far as we can

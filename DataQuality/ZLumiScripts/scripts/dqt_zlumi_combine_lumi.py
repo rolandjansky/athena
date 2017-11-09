@@ -17,14 +17,18 @@ effzfname = args.efffile
 outfname = args.outfile
 
 LUMIBLOCKS = args.nlb
-ACCEPTANCE = 3.173927e-01
+#ACCEPTANCE = 3.173927e-01
+ACCEPTANCE = 3.323224e-01
 ZXSEC=1.929
 ZPURITYFACTOR=0.9935
 
 def correction(mu):
-    #return 1.04589-0.000158187*mu
-    return 1.04524-0.000108956*mu
-    #return 1.04589-0.000158187*20
+    # R20.7
+    # return 1.04524-0.000108956*mu
+    # R21
+    #return 1.04701-0.000206159*mu
+    return 0.998758-0.000157214*mu
+    #return 1.
 
 recozfile = ROOT.TFile.Open(recozfname)
 effzfile = ROOT.TFile.Open(effzfname)

@@ -24,6 +24,7 @@ find_package( Gaudi REQUIRED )
 # additional externals
 find_package( Xrootd )
 find_package( GSL )
+find_package( Davix )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
@@ -86,6 +87,7 @@ install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Configure and install the post-configuration file:
+set( GAUDI_VERSION $ENV{GAUDI_VERSION} )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"

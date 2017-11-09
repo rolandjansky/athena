@@ -16,7 +16,8 @@ static const float invGeV = 1./GeV;
 EventCleaningTestAlg::EventCleaningTestAlg(const std::string& name,
                                              ISvcLocator* svcLoc)
     : AthAlgorithm(name, svcLoc),
-      m_ecTool("EventCleaningTool", this)
+      m_ecTool("EventCleaningTool", this),
+      m_dec_eventClean(0)
 {
   declareProperty("EventCleaningTool", m_ecTool);
   declareProperty("PtCut", m_pt = 20000.0,
@@ -33,6 +34,8 @@ EventCleaningTestAlg::EventCleaningTestAlg(const std::string& name,
                   "Input cleaning level");
   declareProperty("JetCollectionName", m_collection = "AntiKt4EMTopoJets",
                   "Jet collection name");
+  declareProperty("doEvent",m_doEvent = true,
+                  "Decorate the EventInfo");
 }
 
 //-----------------------------------------------------------------------------
@@ -44,6 +47,9 @@ StatusCode EventCleaningTestAlg::initialize()
 
   // Try to retrieve the tool
   ATH_CHECK( m_ecTool.retrieve() );
+
+  // Create the decorator 
+  m_dec_eventClean = new SG::AuxElement::Decorator<char>(m_prefix + "eventClean_" + m_cleaningLevel);
 
   return StatusCode::SUCCESS;
 }
@@ -60,12 +66,25 @@ StatusCode EventCleaningTestAlg::execute()
   // Apply the event cleaning
   bool result = 0;
   result = m_ecTool->acceptEvent(jets) ;
-  
+ 
   //Decorate event
-  const static SG::AuxElement::Decorator<char> dec_eventClean(m_prefix+"eventClean_" + m_cleaningLevel);
+  if(m_doEvent){
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
-  dec_eventClean(*eventInfo) = result; 
+  (*m_dec_eventClean)(*eventInfo) = result; 
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Finalize
+//-----------------------------------------------------------------------------
+StatusCode EventCleaningTestAlg::finalize()
+{
+  ATH_MSG_INFO("Finalize");
+
+  delete m_dec_eventClean; 
 
   return StatusCode::SUCCESS;
 }

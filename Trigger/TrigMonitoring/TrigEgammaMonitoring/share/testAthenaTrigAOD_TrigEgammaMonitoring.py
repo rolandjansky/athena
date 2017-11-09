@@ -103,6 +103,12 @@ HLTMonManager.FileKey = "GLOBAL"
 
 print HLTMonManager;
 for tool in ToolSvc.getAllChildren():         
+    if 'debugLevel' in dir():
+        # Set DEBUG output level for ALL HLTEgamma* tools
+        Tool_Name = tool.getName()
+        if 'HLTEgamma' in Tool_Name:
+            print('Setting tool %s.OutputLevel=%s'%(Tool_Name,str(debugLevel)))
+            tool.OutputLevel = debugLevel
     tool_prop = tool.getDefaultProperties()         
     for prop,value in tool_prop.iteritems():             
         if prop == "TrigConfigTool":                 

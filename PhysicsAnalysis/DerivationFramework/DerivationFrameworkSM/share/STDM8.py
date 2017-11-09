@@ -11,6 +11,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkSM import STDMTriggers
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -131,8 +132,8 @@ muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DF
 electronsRequirements = '(Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 offlineexpression = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 1'
 
-singleElectronTriggerRequirement = '( HLT_e24_medium_iloose_EM18VH  || HLT_e24_medium_iloose_EM20VH || HLT_e24_tight_iloose_EM20VH || HLT_e24_tight_iloose || HLT_e26_tight_iloose || HLT_e60_medium || HLT_e120_loose || HLT_e140_loose || HLT_e24_lhmedium_iloose_EM18VH  || HLT_e24_lhmedium_iloose_EM20VH || HLT_e24_lhtight_iloose_EM20VH || HLT_e24_lhtight_iloose || HLT_e26_lhtight_iloose || HLT_e60_lhmedium || HLT_e120_lhloose || HLT_e140_lhloose || HLT_e15_lhloose_L1EM13VH" || HLT_e12_lhmedium )'
-singleMuonTriggerRequirement='(HLT_mu20_iloose_L1MU15 || HLT_mu24_imedium || HLT_mu26_imedium || HLT_mu50 || HLT_mu14)'
+singleElectronTriggerRequirement = STDMTriggers.list_combine_OR(STDMTriggers.single_e_triggers)
+singleMuonTriggerRequirement     = STDMTriggers.list_combine_OR(STDMTriggers.single_mu_triggers)
 triggerRequirement='('+singleElectronTriggerRequirement+'||'+singleMuonTriggerRequirement+')'
 
 expression = triggerRequirement+' || '+offlineexpression

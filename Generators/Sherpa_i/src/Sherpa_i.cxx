@@ -25,10 +25,15 @@ CLHEP::HepRandomEngine* p_rndEngine;
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
-  declareProperty("RunPath", m_path = ".");
+  declareProperty("RunCard", m_runcard = "");
   declareProperty("Parameters", m_params);
+  declareProperty("OpenLoopsLibs", m_openloopslibs);
+  declareProperty("ExtraFiles", m_extrafiles);
+  declareProperty("NCores", m_ncores=1);
+  declareProperty("MemoryMB", m_memorymb=2500.);
+
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
-  declareProperty("ScaleVariationReference", m_scalevarref="MUR1_MUF1_PDF261000");
+  declareProperty("CleanupGeneratedFiles", m_cleanup=false);
 }
 
 
@@ -64,40 +69,24 @@ StatusCode Sherpa_i::genInitialize(){
     getParameters(argc, argv);
     p_sherpa->InitializeTheRun(argc,(char **)argv);
     delete [] argv;
+
+    p_sherpa->InitializeTheEventHandler();
   }
   catch (ATOOLS::Exception exception) {
     if (exception.Class()=="Matrix_Element_Handler" && exception.Type()==ATOOLS::ex::normal_exit) {
-      delete p_sherpa;
-
-      ATH_MSG_INFO("Have to compile Amegic libraries");
-      std::string tmp="cd "+m_path+"; ./makelibs && cd -;";
-      int stat = system(tmp.c_str());
-      if (stat==0) {
-	ATH_MSG_INFO("Finished compiling Amegic libraries");
-      }
-      else {
-	ATH_MSG_ERROR("Error while compiling Amegic libraries.");
-	return StatusCode::FAILURE;
-      }
-
-      int argc;
-      char** argv;
-      getParameters(argc, argv);
-      p_sherpa = new SHERPA::Sherpa();
-      p_sherpa->InitializeTheRun(argc,(char **)argv);
-      delete [] argv;
+      ATH_MSG_ERROR("Have to compile Amegic libraries");
+      ATH_MSG_ERROR("You probably want to run ./makelibs");
     }
     else {
       ATH_MSG_ERROR("Unwanted ATOOLS::exception caught.");
       ATH_MSG_ERROR(exception);
-      return StatusCode::FAILURE;
     }
+    return StatusCode::FAILURE;
   }
   catch (std::exception exception) {
     ATH_MSG_ERROR("std::exception caught.");
     return StatusCode::FAILURE;
   }
-  p_sherpa->InitializeTheEventHandler();
 
   return StatusCode::SUCCESS;
 }
@@ -127,21 +116,6 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
       if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
     }
-
-    // workaround according to https://sherpa.hepforge.org/trac/ticket/365
-    if (event->weights().has_key(m_scalevarref)) {
-      double correction_factor = event->weights()[0] / event->weights()[m_scalevarref];
-      if (correction_factor != 1.0) {
-        ATH_MSG_DEBUG("correction_factor = " << correction_factor);
-        for (size_t i=4; i<event->weights().size(); ++i) {
-          event->weights()[i] *= correction_factor;
-        }
-      }
-    }
-    else {
-      ATH_MSG_DEBUG("No weight with key " << m_scalevarref);
-    }
-
   }
 
   GeVToMeV(event); //unit check
@@ -168,6 +142,11 @@ StatusCode Sherpa_i::genFinalize() {
 
   p_sherpa->SummarizeRun();
   delete p_sherpa;
+
+  if (m_cleanup) {
+    ATH_MSG_INFO("Deleting left-over files from working directory.");
+    system("rm -rf Results.db Process MIG_*.db MPI_*.dat libSherpa*.so libProc*.so");
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -177,11 +156,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   std::vector<std::string> params;
 
   // set some ATLAS specific default values as a starting point
-  params.push_back("PATH="+m_path);
   params.push_back("EXTERNAL_RNG=Atlas_RNG");
-  params.push_back("MAX_PROPER_LIFETIME=10.0");
-  params.push_back("BEAM_1=2212");
-  params.push_back("BEAM_2=2212");
 
   /***
       Adopt Atlas Debug Level Scheme
@@ -214,6 +189,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   strcpy(argv[0], "Sherpa");
 
   ATH_MSG_INFO("Sherpa_i using the following Arguments");
+  ATH_MSG_INFO(m_runcard);
   for(size_t i=0; i<params.size(); i++) {
     ATH_MSG_INFO(" [ " << params[i] << " ] ");
     argv[i+1] = new char[params[i].size()+1];

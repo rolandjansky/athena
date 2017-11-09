@@ -14,9 +14,6 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-if globalflags.DataSource()!='data':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -45,6 +42,14 @@ FTAG1TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG
                                                                     TriggerListOR = triggersSkim)
 ToolSvc += FTAG1TriggerSkimmingTool
 print FTAG1TriggerSkimmingTool
+
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================                                                                                                                   
 # AUGMENTATION TOOLS
@@ -161,6 +166,7 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "MET_Truth",
                                     "MET_TruthRegions",
                                     "TruthParticles",
+                                    "TruthVertices",
                                     "CaloCalTopoClusters",
                                     "HLT_xAOD__BTaggingContainer_HLTBjetFex",
                                     "HLT_xAOD__BTagVertexContainer_BjetVertexFex",

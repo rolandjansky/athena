@@ -65,11 +65,6 @@ class lockable_list(list):
         def lock(self):
                 self.__dict__["_locked"] = True
 
-###This Include builds some Truth Information needed by the smart slimming list
-if globalflags.DataSource()=='geant4':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
-
 def buildNamesAndTypes():
         from RecExConfig.InputFilePeeker import inputFileSummary
         namesAndTypes = {}
@@ -358,10 +353,21 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt4TruthWZJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthWZJetsCPContent import AntiKt4TruthWZJetsCPContent
                         items.extend(AntiKt4TruthWZJetsCPContent)
+                elif collectionName=="AntiKt4TruthDressedWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4TruthDressedWZJetsCPContent import AntiKt4TruthDressedWZJetsCPContent
+                        items.extend(AntiKt4TruthDressedWZJetsCPContent)
+                elif collectionName=="AntiKt2LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
+                        #from DerivationFrameworkCore.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
+                        items.extend(AntiKt2LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
                         items.extend(AntiKt4LCTopoJetsCPContent)
+                elif collectionName=="AntiKt6LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
+                        #from DerivationFrameworkCore.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
+                        items.extend(AntiKt6LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent

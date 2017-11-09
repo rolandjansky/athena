@@ -101,7 +101,6 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_2mu6_bJpsimumu_delayed",
                      "HLT_2mu6_bJpsimumu_Lxy0_delayed",
                      "HLT_2mu6_nomucomb_bPhi",
-                     "HLT_2mu6_nomucomb_bPhi",
                      "HLT_2mu6_nomucomb_mu4_nomucomb_bTau_L12MU6_3MU4",
                      "HLT_3mu4",
                      "HLT_3mu4_bDimu",
@@ -154,7 +153,19 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_mu6_mu4_bBmumuxv2_delayed",
                      "HLT_mu6_mu4_bDimu_noinvm_novtx_ss",
                      "HLT_mu6_nomucomb_2mu4_nomucomb_bTau_L1MU6_3MU4",
-                     "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4" ]
+                     "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4",
+                     "HLT_mu20_mu6noL1_bTau",
+                     "HLT_2mu6_mu4_bTau_L12MU6_3MU4",
+                     "HLT_mu6_2mu4_bTau_L1MU6_3MU4",
+                     "HLT_mu11_2mu4noL1_bTau_L1MU11_2MU6",
+                     "HLT_mu11_mu6_bTau",
+                     "HLT_mu11_mu6noL1_bTau_L1MU11_2MU6",
+                     "HLT_3mu4_bPhi",
+                     "HLT_mu11_mu6_bPhi",
+                     "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
+                     "HLT_mu11_nomucomb_mu6_nomucomb_bPhi",
+                     "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bPhi",
+                     "HLT_mu11_mu6_bDimu2700" ]
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
 BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY7TriggerCount",
@@ -631,7 +642,6 @@ DerivationFrameworkJob += BPHY7_Sequence
 #====================================================================
 # Slimming 
 #====================================================================
-## 16/
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
@@ -643,7 +653,7 @@ SmartCollections = ["MET_Reference_AntiKt4EMTopo"] # , "MET_Reference_AntiKt4LCT
 
 #for calculation of MET
 #if isSimulation:
-SmartCollections += ["Electrons", "Photons", "TauJets"]
+SmartCollections += ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo"]
 
 AllVariables = []
 
@@ -654,13 +664,8 @@ AllVariables += ['MET_Reference_AntiKt4EMTopo',
                  'MET_Track',
                  'MET_LocHadTopo']
 
-
-#Should maybe skim these??
-#Can be done with the example thinning tool (if based on Pt & || similar stuff)
-AllVariables += ["AntiKt4EMTopoJets"]
-AllVariables += ["BTagging_AntiKt4EMTopo"]
 AllVariables += ["Kt4EMTopoOriginEventShape"]
-
+AllVariables += ["Kt4EMTopoEventShape"]
 
 StaticContent = [] 
 
@@ -668,12 +673,8 @@ StaticContent = []
 BPHY7SlimmingHelper.IncludeMuonTriggerContent = True
 BPHY7SlimmingHelper.IncludeBPhysTriggerContent = True
 
-#Following instruction has no effect, since it is overruled by the smartSlimmer for MET (which takes extra information)
-BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink"]
+BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink", "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", "AntiKt4EMTopoJets.JvtJvfcorr", "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
-#AllVariables +=["Electrons", "Photons", "TauJets"]
-
-## primary vertices and add the refitted vertices!!
 AllVariables += ["PrimaryVertices"]
 StaticContent += ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
@@ -685,8 +686,6 @@ if isSimulation:
     StaticContent += ["xAOD::TruthParticleAuxContainer#TruthTausAux."]
     AllVariables += ["AntiKt4TruthJets"] 
 
-
-## ID track particlest
 AllVariables += ["InDetTrackParticles"]
 
 ## combined / extrapolated muon track particles 

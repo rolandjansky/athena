@@ -11,6 +11,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauTruthCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 #====================================================================
 # SET UP STREAM
 #====================================================================

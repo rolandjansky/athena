@@ -52,37 +52,11 @@ namespace Rec {
     return StatusCode::SUCCESS;
   }
 
-  bool ParticleCaloClusterAssociationTool::particleClusterAssociation( const xAOD::IParticle& particle,  const ParticleClusterAssociation*& association, float dr, 
-                                                                       const xAOD::CaloClusterContainer* container, bool useCaching ) const {
+  bool ParticleCaloClusterAssociationTool::particleClusterAssociation( const xAOD::IParticle& particle,  std::vector< ElementLink< xAOD::CaloClusterContainer > >& association, float dr, 
+                                                                       const xAOD::CaloClusterContainer* container) const {
 
 
-    ATH_MSG_DEBUG(" particleClusterAssociation: ptr " << &particle << " dr " << dr << " useCaching " << useCaching);
-
-    // reset pointer
-    association = 0;
-    // check if link is already there
-    if( useCaching ){
-      if( particle.isAvailable< ParticleClusterAssociation* >("clusterAssociation") ){
-        ParticleClusterAssociation* theAssociation = particle.auxdata< ParticleClusterAssociation* >("clusterAssociation");
-        if( theAssociation ){
-          // check whether the cached association is from the same container
-          if( container && theAssociation->container() != container ){
-            ATH_MSG_WARNING("Calling cached version with different container pointer");
-            return false;
-          }
-          // check if we need to resize the cone
-          if( dr > theAssociation->associationConeSize() ){
-            ATH_MSG_DEBUG(" dr larger then cached dr: " << dr << " cached dr " << theAssociation->associationConeSize());
-            ParticleClusterAssociation::Data clusters;
-            associateClusters(container,theAssociation->caloExtension(),dr,clusters,particle);    
-            theAssociation->updateData(std::move(clusters),dr);
-          }
-          association = theAssociation;
-          ATH_MSG_DEBUG("Found existing calo extension");
-          return true;
-        }
-      }
-    }
+    ATH_MSG_DEBUG(" particleClusterAssociation: ptr " << &particle << " dr " << dr );
 
     // get the extrapolation into the calo
     const Trk::CaloExtension* caloExtension = 0;
@@ -90,6 +64,7 @@ namespace Rec {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
+    
     if( caloExtension->caloLayerIntersections().empty()){
       ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
       return false;
@@ -106,8 +81,6 @@ namespace Rec {
     ParticleClusterAssociation::Data clusters;
     associateClusters(container,*caloExtension,dr,clusters,particle);    
     
-    association = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
-
     // now add particle and CaloExtension to the container
     IParticleToCaloExtensionMap * caloExtensionMap = 0;
     if(not evtStore()->contains<IParticleToCaloExtensionMap>(m_caloEntryMapName)) {
@@ -122,11 +95,24 @@ namespace Rec {
 	ATH_MSG_WARNING( "Unable to retrieve ParticleToCaloExtensionMap will leak the ParticleCaloExtension" );
       }
     }
-    if (caloExtensionMap)
-      if(caloExtension->caloEntryLayerIntersection()) caloExtensionMap->addEntry(particle,*(caloExtension->caloEntryLayerIntersection()));
-         
-    return true;
+    if (caloExtensionMap && caloExtension->caloEntryLayerIntersection()) {
+        const Trk::CurvilinearParameters trkPar(caloExtension->caloEntryLayerIntersection()->position(),caloExtension->caloEntryLayerIntersection()->momentum(),caloExtension->caloEntryLayerIntersection()->charge());
+        caloExtensionMap->addEntry(particle,trkPar);
+    }
     
+    delete caloExtension;
+    
+    for(auto cluster : clusters)
+    {
+        ElementLink< xAOD::CaloClusterContainer >   clusterLink(m_caloClusters,cluster->index());
+        // if valid create TrackParticleClusterAssociation
+        if( clusterLink.isValid() ){
+            association.push_back( clusterLink );
+        }
+        ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
+    }
+
+    return true;
   }
   
   void ParticleCaloClusterAssociationTool::associateClusters( const xAOD::CaloClusterContainer* container, 

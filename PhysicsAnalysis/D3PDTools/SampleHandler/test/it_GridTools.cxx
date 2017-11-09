@@ -32,6 +32,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace sh = RCU::Shell;
 
 //
@@ -44,6 +48,13 @@ using namespace asg::msgUserCode;
 TEST (GridToolsTest, MANUAL_faxListFiles)
 {
   const auto files = faxListFilesGlob
+    ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
+  ASSERT_EQ (5u, files.size());
+}
+
+TEST (GridToolsTest, MANUAL_rucioDirectAccessGlob)
+{
+  const auto files = rucioDirectAccessGlob
     ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
   ASSERT_EQ (5u, files.size());
 }
@@ -65,9 +76,7 @@ TEST (GridToolsTest, MANUAL_rucioListDids)
   }
   EXPECT_EQ (1u, scopes.size());
   EXPECT_TRUE (scopes.find ("user.ivukotic") != scopes.end());
-  EXPECT_EQ (2u, types.size());
-  ASSERT_TRUE (types.find ("FILE") != types.end());
-  EXPECT_EQ (6u, types.find ("FILE")->second);
+  EXPECT_GE (1u, types.size());
   ASSERT_TRUE (types.find ("DATASET") != types.end());
   EXPECT_EQ (1u, types.find ("DATASET")->second);
 }

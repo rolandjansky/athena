@@ -2,11 +2,14 @@
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
+
+
+
 #include <xAODPrimitives/IsolationHelpers.h>
 #include <IsolationSelection/IsoVariableHelper.h>
 #include <xAODBase/IParticleHelpers.h>
 namespace CP {
-
+    
     //######################################################################################################
     //                                      IsoVariableHelper
     //######################################################################################################
@@ -26,6 +29,7 @@ namespace CP {
             Error("IsoVariableHelper::GetOrignalIsolation()", "No particle given");
             return CorrectionCode::Error;
         }
+
         if (!m_BackupIso) {
             const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*particle);
             if (originalParticle && getIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;

@@ -42,13 +42,13 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
 #endif
 
-   declareProperty("ConfigFiles", m_prwFiles={"dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root","dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"}, "List of prw config files"); //array of files
+   declareProperty("ConfigFiles", m_prwFiles, "List of prw config files"); //array of files
    declareProperty("ConfigFilesPathPrefix", m_prwFilesPathPrefix="", "Path of additional folder structure in prw config files"); //string prefix
    declareProperty("LumiCalcFiles", m_lumicalcFiles, "List of lumicalc files, in the format '<filename>:<trigger>' .. if no trigger given, 'None' is assumed"); //array of files
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
-   declareProperty("UseMultiPeriods",m_useMultiPeriods=false,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
    declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
@@ -192,6 +192,14 @@ StatusCode PileupReweightingTool::initialize() {
 #endif
    } else {
       //have we any prw to load
+      if(m_prwFiles.size() && m_usePeriodConfig=="auto") {
+        //will override the input config period assignments, will assume PRW is so standardized by r21 that we know best!
+        IgnoreConfigFilePeriods(true);
+        if(m_upTool) m_upTool->IgnoreConfigFilePeriods(true);
+        if(m_downTool) m_downTool->IgnoreConfigFilePeriods(true);
+        UsePeriodConfig("MC16"); //hardcoded period assignments
+      }
+      
       for(unsigned int j=0;j<m_prwFiles.size();j++) {
             ATH_MSG_VERBOSE("Locating File: " << m_prwFiles[j]);
             std::string file = PathResolverFindCalibFile(m_prwFiles[j]);

@@ -177,7 +177,7 @@ StatusCode egammaAODFixAlg::fixEgamma(xAOD::Egamma* eg,  const CaloCellContainer
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::e2ts1);
   // energy strip of second max
   float esec = static_cast<float>(m_stripsShapeTool->esec1());
-  eg->setShowerShapeValue(value, xAOD::EgammaParameters::e2tsts1);
+  eg->setShowerShapeValue(esec, xAOD::EgammaParameters::e2tsts1);
   // fraction of E outside core in S1
   value=static_cast<float>(m_stripsShapeTool->fside());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::fracs1);
@@ -198,7 +198,7 @@ StatusCode egammaAODFixAlg::fixEgamma(xAOD::Egamma* eg,  const CaloCellContainer
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::pos7);
   // E of strip with min E 
   float emin = static_cast<float>(m_stripsShapeTool->emins1());
-  eg->setShowerShapeValue(value, xAOD::EgammaParameters::emins1);
+  eg->setShowerShapeValue(emin, xAOD::EgammaParameters::emins1);
   // E of strip with max E
   float emax = static_cast<float>(m_stripsShapeTool->emaxs1());
   eg->setShowerShapeValue(emax, xAOD::EgammaParameters::emaxs1);

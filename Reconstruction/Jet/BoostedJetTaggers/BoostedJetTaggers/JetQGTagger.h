@@ -113,8 +113,6 @@ namespace CP {
       std::string m_tagger_decoration_name;
       float m_minpt;
       float m_maxeta;
-      SG::AuxElement::Decorator< float >* m_taggerdec;
-      SG::AuxElement::Decorator< float >* m_weightdec;
 
       std::string m_configFile;
       int m_NTrackCut;
@@ -125,6 +123,9 @@ namespace CP {
       asg::AnaToolHandle<InDet::IJetTrackFilterTool> m_jetTrackFilterTool;
       asg::AnaToolHandle<InDet::IInDetTrackTruthOriginTool> m_originTool;
 
+      // decorators
+      SG::AuxElement::Decorator< float > m_taggerdec;
+      SG::AuxElement::Decorator< float > m_weightdec;
   };
 
 } /* namespace CP */

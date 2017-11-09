@@ -107,7 +107,7 @@ class JetMETCPTools final : public asg::AsgTool {
                               const std::string& analysis_file = "");
 
   IJetSelector* setupJetCleaningTool(const std::string& WP);
-  ECUtils::IEventCleaningTool* setupJetEventCleaningTool(const std::string& WP);
+  ECUtils::IEventCleaningTool* setupJetEventCleaningTool(const std::string& WP, ToolHandle<IJetSelector> JetCleaningToolHandle);
 
 };
 }  // namespace top

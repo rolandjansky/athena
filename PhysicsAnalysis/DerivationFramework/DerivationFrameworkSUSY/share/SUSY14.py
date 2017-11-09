@@ -136,7 +136,8 @@ muonsRequirements = '(Muons.pt >= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.D
 electronsRequirements = '(Electrons.pt > 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY14)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY14)
 
 #from DerivationFrameworkSUSY.SUSY14TriggerList import triggersNavThin
 from DerivationFrameworkSUSY.SUSY14TriggerList import MetTriggers

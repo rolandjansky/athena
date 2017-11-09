@@ -1,4 +1,5 @@
 <lcgdict>
   <class name="IHFORSelectionTool" />
   <class name="PMGTools::IPMGSherpaVjetsSysTool" />
+  <class name="PMGTools::IPMGTruthWeightTool" />
 </lcgdict>

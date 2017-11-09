@@ -10,7 +10,6 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 
-using std::vector;
 
 /**
  * @brief Creates Pi0 clusters (Pi0 Finder).
@@ -42,7 +41,7 @@ private:
     float getEM1CoreFrac( const xAOD::CaloCluster* /*pi0Candidate*/);
     
     /** @brief number of cells from cluster with positive energy in PS, EM1 and EM2 */
-    vector<int> getNPosECells( const xAOD::CaloCluster* /*pi0Candidate*/);
+    std::vector<int> getNPosECells( const xAOD::CaloCluster* /*pi0Candidate*/);
 
     std::map<unsigned, xAOD::CaloCluster*> getClusterToShotMap(
         const std::vector<const xAOD::PFO*> shotVector,
@@ -58,10 +57,10 @@ private:
                      std::vector<unsigned> /*shotsInCluster*/);
 
     /** @brief first eta moment in PS, EM1 and EM2 w.r.t cluster eta: (eta_i - eta_cluster) */
-    vector<float> get1stEtaMomWRTCluster( const xAOD::CaloCluster* /*pi0Candidate*/);
+    std::vector<float> get1stEtaMomWRTCluster( const xAOD::CaloCluster* /*pi0Candidate*/);
 
     /** @brief second eta moment in PS, EM1 and EM2 w.r.t cluster eta: (eta_i - eta_cluster)^2 */ 
-    vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster* /*pi0Candidate*/);
+    std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster* /*pi0Candidate*/);
 
     /** @brief get hadronic cluster PFOs*/
     bool setHadronicClusterPFOs(xAOD::TauJet& pTau);

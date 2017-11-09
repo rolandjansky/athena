@@ -11,6 +11,7 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace top {
+  class TopConfig;
 
 /**
  * @brief A tool that selects events containing no bad muons
@@ -26,7 +27,7 @@ public:
      * Call the muon selector tool and reject the event if any of the muons that
      * passed the event selection are marked as bad.
      */
-    explicit NoBadMuonSelector();
+    explicit NoBadMuonSelector(std::shared_ptr<top::TopConfig> m_config);
 
     /**
      * @brief Events with a muon flagged bad are rejected
@@ -46,6 +47,7 @@ public:
 private:
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
 
+    std::shared_ptr<top::TopConfig> m_config;
 };
 
 }

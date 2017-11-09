@@ -7,8 +7,8 @@
  reconstructable inside the Inner Detector acceptance.
  ***************************************************************************/
 
-#ifndef GENANALYSIS_ITRUTHSELECTOR_H
-#define GENANALYSIS_ITRUTHSELECTOR_H
+#ifndef TRUTHTOOLS_ITRUTHSELECTOR_H
+#define TRUTHTOOLS_ITRUTHSELECTOR_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 

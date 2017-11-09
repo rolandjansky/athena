@@ -34,22 +34,22 @@ class MDTHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hits_eta;
-   TH1* h_hits_phi;
-   TH1* h_hits_lx;
-   TH1* h_hits_ly;
-   TH1* h_hits_lz;
-   TH1* h_hits_driftR;
-   TH1* h_hits_time;
-   TH1* h_hits_edep;
-   TH1* h_hits_kine;
-   TH1* h_hits_step;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hits_eta;
+   TH1* m_h_hits_phi;
+   TH1* m_h_hits_lx;
+   TH1* m_h_hits_ly;
+   TH1* m_h_hits_lz;
+   TH1* m_h_hits_driftR;
+   TH1* m_h_hits_time;
+   TH1* m_h_hits_edep;
+   TH1* m_h_hits_kine;
+   TH1* m_h_hits_step;
    
    std::vector<float>* m_hits_x;
    std::vector<float>* m_hits_y;

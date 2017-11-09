@@ -639,6 +639,14 @@ class ParticleID(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class RecordStepInfo(JobProperty):
+    """
+    Should FCS_StepInfoCollections be recorded
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class RecordFlux(JobProperty):
     """
     Record flux through the entirety of the detector
@@ -689,7 +697,7 @@ class G4Commands(JobProperty):
     """
     statusOn = True
     allowedTypes = ['list']
-    StoredValue = []
+    StoredValue = ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
 
 class UserActionConfig(JobProperty):
     """Configuration for UserActions

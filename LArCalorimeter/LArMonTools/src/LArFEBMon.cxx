@@ -377,7 +377,7 @@ StatusCode LArFEBMon::fillHistograms() {
   const xAOD::EventInfo* thisEvent=0;
 
   if(evtStore()->retrieve(thisEvent).isFailure()) {
-    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
+    ATH_MSG_WARNING( "Failed to retrieve EventInfo object" );
     return StatusCode::FAILURE;
   }
 
@@ -401,13 +401,13 @@ StatusCode LArFEBMon::fillHistograms() {
   }
   
   if (hdrCont->size()==0) {
-    ATH_MSG_ERROR( "Got empty LArFebHeaderContainer. Do nothing" );
+    ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
     return StatusCode::FAILURE;
   }
 
   sc=evtStore()->retrieve( lArFebErrorSummary, "LArFebErrorSummary");
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "No LArFebErrorSummary found in TDS" );
+    ATH_MSG_WARNING( "No LArFebErrorSummary found in TDS" );
     return StatusCode::FAILURE;
   }
   
@@ -424,7 +424,7 @@ StatusCode LArFEBMon::fillHistograms() {
 	const LArDSPThresholdsComplete* dspThresh=0;
 	sc=detStore()->retrieve(dspThresh,m_keyDSPThresholds);
 	if(!sc.isSuccess()) {
-	  ATH_MSG_ERROR(" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
+	  ATH_MSG_WARNING(" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
 			  << ". Will not fill histograms" );
 	}
 	else {
@@ -442,13 +442,13 @@ StatusCode LArFEBMon::fillHistograms() {
 	const AthenaAttributeList* dspThrshAttr=0; 
 	sc=detStore()->retrieve(dspThrshAttr,m_keyDSPThresholds);
 	if (sc.isFailure()) {
-	  ATH_MSG_ERROR( "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
+	  ATH_MSG_WARNING( "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
 			  << ", containing DSP Thresholds. Will not fill histograms." );
 	}
 	else {
 	  const LArDSPThresholdsFlat* dspThreshFlat=new LArDSPThresholdsFlat(dspThrshAttr);
 	  if (!dspThreshFlat->good()) {
-	    ATH_MSG_ERROR( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_keyDSPThresholds
+	    ATH_MSG_WARNING( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_keyDSPThresholds
 			    << ". Will not fill histograms." ); 
 	  }//end if not good
 	  const IdentifierHash chanMax=m_onlineHelper->channelHashMax();

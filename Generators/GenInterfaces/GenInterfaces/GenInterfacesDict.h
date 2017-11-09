@@ -15,5 +15,17 @@
 #include "GenInterfaces/IPDFReweightTool.h"
 #include "GenInterfaces/ITruthSelector.h"
 #include "GenInterfaces/IxAODtoHepMCTool.h"
+#include "GenInterfaces/IHforTool.h"
+#include "GenInterfaces/IPDFReweightTool.h"
+#include "GenInterfaces/ITruthSelector.h"
+
+#include "HepMC/SimpleVector.h"
+#include <vector>
+
+namespace HforToolDict {
+  struct tmp {
+    std::vector<HepMC::FourVector> v;
+  };
+}
 
 #endif // GENINTERFACES_GENINTERFACESDICT_H

@@ -37,7 +37,8 @@ namespace DerivationFramework {
       //std::string m_verticesKey;
       std::string m_collectionName; 
       std::string m_partString;
-      bool do_compress, do_sherpa;
+      bool m_do_compress, m_do_sherpa;
+      bool m_keep_navigation_info;
   }; 
 }
 

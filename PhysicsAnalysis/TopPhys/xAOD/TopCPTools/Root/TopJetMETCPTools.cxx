@@ -161,20 +161,25 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   } else {
     std::string calibConfig, calibSequence;
     if (m_config->isMC()) {
+      // AFII
       if (m_config->isAFII()) {
         calibConfig = m_jetAntiKt4_MCAFII_ConfigFile;
         calibSequence = m_jetAntiKt4_MCAFII_CalibSequence;
-      } else {
+      }
+      // FS - PFlow
+      else if (m_config->useParticleFlowJets()) {
+	calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
+	calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
+      }
+      // FS
+      else {
         calibConfig = m_jetAntiKt4_MCFS_ConfigFile;
         calibSequence = m_jetAntiKt4_MCFS_CalibSequence;
       }
-    } else {
+    } 
+    else {
       calibConfig = m_jetAntiKt4_Data_ConfigFile;
       calibSequence = m_jetAntiKt4_Data_CalibSequence;
-    }
-    if (m_config->useParticleFlowJets()) {
-      calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
-      calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
     }
 
     JetCalibrationTool* jetCalibrationTool = new JetCalibrationTool("JetCalibrationTool");
@@ -233,8 +238,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   m_jetCleaningToolLooseBad = setupJetCleaningTool("LooseBad");
   m_jetCleaningToolTightBad = setupJetCleaningTool("TightBad");
 
-  m_jetEventCleaningToolLooseBad = setupJetEventCleaningTool("LooseBad");
-  m_jetEventCleaningToolTightBad = setupJetEventCleaningTool("TightBad");
+  m_jetEventCleaningToolLooseBad = setupJetEventCleaningTool("LooseBad", m_jetCleaningToolLooseBad);
+  m_jetEventCleaningToolTightBad = setupJetEventCleaningTool("TightBad", m_jetCleaningToolTightBad);
 
   // Uncertainties
   // Is our MC full or fast simulation?
@@ -266,7 +271,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
 
     // Implement additional tool for frozen config when using JMS
     if (JMS_Uncertainty == "_JMSExtrap"){
-      JMS_Uncertainty == "_JMSFrozen";
+      JMS_Uncertainty = "_JMSFrozen";
       m_jetUncertaintiesToolFrozenJMS = setupJetUncertaintiesTool("JetUncertaintiesToolFrozenJMS",
 								  jetCalibrationName, MC_type,
 								  "JES_2016/"
@@ -356,10 +361,10 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig();
     if (calibChoice == "CombinedMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config";
+      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
     }
     else if (calibChoice == "CaloMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_June2015.config";
+      calibConfigLargeR = "JES_MC15recommendation_FatJet_June2015_rel21.config";
     }
     else {
       ATH_MSG_ERROR("Unknown largeRJESJMSConfig "+calibChoice);
@@ -439,9 +444,10 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
   const std::string JVT_SFFile =
     (m_config->sgKeyJets()=="AntiKt4LCTopoJets")?
     "JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root":      // LC jets
-    (m_config->useParticleFlowJets())?
+    (m_config->useParticleFlowJets())? 
     "JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root": // pflow jets
     "JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root";      // default is EM jets
+
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);
   } else {
@@ -482,11 +488,13 @@ StatusCode JetMETCPTools::setupMET()
     m_met_maker = metMaker;
   }
 
+
   if ( asg::ToolStore::contains<IMETSystematicsTool>("met::METSystematicsTool") ) {
       m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
   } else {
     met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");
-
+    
+    // TST (Track soft terms)
     top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
 
     // Turn off soft calo term systematics... if left on we get some warnings
@@ -494,7 +502,6 @@ StatusCode JetMETCPTools::setupMET()
     top::check( metSyst->initialize() , "Failed to initialize" );
     m_met_systematics = metSyst;
   }
-
 
   return StatusCode::SUCCESS;
 }
@@ -546,7 +553,7 @@ IJetSelector* JetMETCPTools::setupJetCleaningTool(const std::string& WP) {
   return tool;
 }
 
-ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std::string& WP) {
+ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std::string& WP, ToolHandle<IJetSelector> JetCleaningToolHandle) {
   ECUtils::IEventCleaningTool* tool = nullptr;
   std::string name = "JetEventCleaningTool" + WP;
   if (asg::ToolStore::contains<ECUtils::IEventCleaningTool>(name)){
@@ -569,6 +576,8 @@ ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std:
 	       "Failed to set jet OR decoration in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "CleaningLevel", WP),
 	       "Failed to set jet WP "+ WP + " in JetEventCleaningTool");
+    top::check(asg::setProperty(tool, "JetCleaningTool",JetCleaningToolHandle),
+	       "Failed to associate the JetCleaningTool object to JetEventCleaningTool");
     top::check(tool->initialize(), "Failed to initialize " + name);
   }
 

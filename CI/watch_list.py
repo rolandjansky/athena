@@ -27,9 +27,13 @@ WATCH_LIST['(PixelMonitoring)|(PixelConditionsServices)|(PixelRawData)'] = set([
 WATCH_LIST['IsolationSelection'] = set(['maklein','jojungge','jpoveda','dzhang'])
 WATCH_LIST['PhysicsAnalysis/SUSYPhys'] = set(['zmarshal','szambito','ykeisuke'])
 WATCH_LIST['DerivationFrameworkDataPrep'] = set(['zmarshal','cohm'])
-WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins'])
+WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins','ykeisuke'])
 WATCH_LIST['BoostedJetTaggers'] = set(['meehan','sschramm','cdelitzs','rnewhous'])
 WATCH_LIST['MuonAnalysisInterfaces'] = set(['jojungge','szambito','nkoehler','gabarone' ,'mbellomo' ,'rosati'])
 WATCH_LIST['MuonMomentumCorrections'] = set(['gabarone'])
+WATCH_LIST['LongLivedParticleDPDMaker'] = set(['cohm','leejr','kdipetri','ctreado'])
 
+WATCH_LIST['TrkV0Fitter'] = set(['bouhova'])
+WATCH_LIST['TrkVertexAnalysisUtils'] = set(['bouhova'])
+WATCH_LIST['InDetV0Finder'] = set(['bouhova'])
 

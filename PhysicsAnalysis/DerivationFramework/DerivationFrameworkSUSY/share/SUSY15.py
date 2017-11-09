@@ -155,8 +155,9 @@ if DerivationFrameworkIsMonteCarlo:
 #=============================================================================================
 # SKIMMING - for now only skimming on MET triggers listed in python/SUSY15TriggerList.py /CO
 #=============================================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY15) # default: sequence=DerivationFrameworkJob
-updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
+# now done in ExtendedJetCommon 
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY15) # default: sequence=DerivationFrameworkJob
+#updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 expression_trigger = "(" + " || ".join(triggers) + ")"
 

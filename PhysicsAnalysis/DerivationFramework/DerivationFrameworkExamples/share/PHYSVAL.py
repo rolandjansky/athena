@@ -77,14 +77,15 @@ PHYSVALStream.AcceptAlgs(["PHYSVALKernel"])
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSVALSlimmingHelper = SlimmingHelper("PHYSVALSlimmingHelper")
-PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
+PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
                                        "AntiKt10PV0TrackJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets",
                                        "AntiKt10TruthWZJets", "AntiKt10LCTopoJets", "AntiKt2PV0TrackJets",
                                        "AntiKt4PV0TrackJets", "AntiKt4TruthJets",
                                        "AntiKt4EMTopoLowPtJets","AntiKt4LCTopoLowPtJets","AntiKt4EMPFlowLowPtJets",
+                                       "JetETMissNeutralParticleFlowObjects", "JetETMissChargedParticleFlowObjects",
                                        "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape",
-                                       "LCOriginTopoClusters","EMOriginTopoClusters",
+                                       "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters",
                                        "BTagging_AntiKt4EMTopoJFVtx",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
@@ -97,20 +98,30 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "Primary
                                        "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                        "MET_LocHadTopo","MET_LocHadTopoRegions","MET_EMTopo","MET_EMTopoRegions",
                                        "MET_Truth","MET_TruthRegions","MET_Track","MET_Calo",
-                                       "TauJets",
-                                       "TruthParticles", "TruthEvents", "TruthVertices"
+                                       "TauJets", "TauTracks", 
+                                       "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
+                                       "CombinedMuonTrackParticles",
+                                       "ExtrapolatedMuonTrackParticles",
+                                       "MuonSpectrometerTrackParticles",
+                                       "MSOnlyExtrapolatedMuonTrackParticles",
+                                       "InDetForwardTrackParticles",
+                                       "MuonTruthSegments"
                                      ]
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                            "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
                                            "BTagging_AntiKt4EMTopo",
                                            "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
-                                           "TauJets"
-                                     ]
+                                           "TauJets",
+                                           ]
 
 PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                          "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex" ]
+                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                         "CaloCalTopoClusters.rawEta.rawPhi.rawE.rawM.calEta.calPhi.calE.calM.AVG_LAR_Q.AVG_TILE_Q.BADLARQ_FRAC.CENTER_LAMBDA.ENG_BAD_CELLS.ENG_POS.ISOLATION.N_BAD_CELLS.SECOND_R",
+                                         "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
+                                         "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
+                                         ]
 
 
 # Trigger content
@@ -177,6 +188,8 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "LCOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer",
   "EMOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
   "EMOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer", 
+  "MuonTruthSegments"                          :   "xAOD::MuonSegmentContainer",
+  "MuonTruthSegmentsAux"                       :   "xAOD::MuonSegmentAuxContainer", 
   }
 #----------------------------------------------------------------------
 

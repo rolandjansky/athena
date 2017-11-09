@@ -32,43 +32,41 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //-----------------------------------------------------------------
   //! Tool initializer
   //-----------------------------------------------------------------
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //-----------------------------------------------------------------
   //! Event initializer - called at the beginning of each event
   //-----------------------------------------------------------------
-  virtual StatusCode eventInitialize();
+  virtual StatusCode eventInitialize() override;
 
   //-----------------------------------------------------------------
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
-  virtual StatusCode execute(xAOD::TauJet& pTau);
+  virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
   //-----------------------------------------------------------------
-  virtual StatusCode eventFinalize();
+  virtual StatusCode eventFinalize() override;
 
   //-----------------------------------------------------------------
   //! Finalizer
   //-----------------------------------------------------------------
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   std::string find_file(const std::string& fname) const;
-  StatusCode readConfig();
+  StatusCode readConfig() override;
 
-  void setTauEventData(TauEventData* data);
+  void setTauEventData(TauEventData* data) override;
   TauEventData* tauEventData();
   const TauEventData* tauEventData() const;
-
-
+  
+  bool inTrigger() const override;
 
  protected:
   TauEventData* m_data = 0;
   bool m_in_trigger = false;
   std::string m_tauRecToolsTag;
-
-  bool inTrigger() const;
 
 };
 

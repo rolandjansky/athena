@@ -7,19 +7,31 @@
 #This joboption produces a file called xAOD.out.root
 #This joboption can be used from the command line, like this:
 #
-#athena CPAnalysisExamples/skimxAODJobOptions.py --filesInput=/path/to/input/*.root [--evtMax=100] [-c "skimFile='myNumbers.txt'"]
+#athena CPAnalysisExamples/skimxAODJobOptions.py --filesInput=/path/to/input/*.root [--evtMax=100] [-c "eventPickEvtList='myNumbers.txt'"]
 #
 #evtMax is optional argument, defaults to -1 (i.e. run on all events)
-#specifying a skimFile will activate event skimming. The file should be a list
-#of run,event number pairs
+#specifying a eventPickEvtList will activate event skimming. The file should be a list
+#of run eventNumber pairs
 #one on each line
 #e.g.
 #
-#222510,187960
-#222510,185506
+#222510 187960
+#222510 185506
 #
 #etc
+#you can skim on the grid like this
+#
+#pathena CPAnalysisExamples/skimxAODJobOptions.py -c "eventPickEvtList='eventList.txt'" --eventPickDataType=AOD --eventPickStreamName=physics_Main --eventPickEvtList=eventList.txt --outDS=user.$USER.skim/ --nFilesPerJob=1
+#
+#Remember to update the outDS
 
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+#this first bit is a clever hack for pathena submission without input file peeking
+if type(theApp).__name__ == "fakeAppMgr":
+    print "In Job Submission mode ..."
+    #declare the output file, anyway we want!
+    xaodStream = MSMgr.NewPoolRootStream( "dummy" , "xAOD.out.root" )
+    theApp.initialize()
 
 
 theApp.EvtMax=-1 #default value, run over all events
@@ -54,7 +66,6 @@ isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
 #also take the stream name from the input file, to ensure the names don't change
 streamName = af.fileinfos['stream_names'][0]
 #setup the output stream
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( streamName , "xAOD.out.root" )
 xaodStream.Stream.TakeItemsFromInput = True #take all the event payload that analysis releases can read
 
@@ -72,15 +83,21 @@ xaodStream.AddMetaDataItem(["xAOD::LumiBlockRangeContainer#*","xAOD::LumiBlockRa
 
 
 
-#if a skimFile has been specified (using the -c "skimFile='file.txt'" option on command line)
+#if a skimFile has been specified (using the -c "eventPickEvtList='file.txt'" option on command line)
 #then activate skimming
-if "skimFile" in locals():
+if "eventPickEvtList" in locals():
     #open the skim file and read in list of run,event numbers
     evtList=[]
-    with open(skimFile) as f:
+    with open(eventPickEvtList) as f:
         for line in f:
-            num = line.split(",");
-            evtList += [(int(num[0]),long(num[1]))]
+            if "," in line: num = line.split(",") #split by comma
+            else: num = line.splt(" ") #otherwise split by space
+            if len(num) == 0:
+                print "problem with line %s" % (line)
+            elif len(num) == 1:
+                evtList += [None,long(num[0])] #assumes the number is an event number
+            else:
+                evtList += [(int(num[0]),long(num[1]))]
     #This is how to configure the PyEvtFilter algorithm, which is designed to 'pick' events
     from GaudiSequencer.PyComps import PyEvtFilter
     athAlgSeq += PyEvtFilter("MyFilter", evt_list=evtList) #add skim alg to main sequence, so that it runs

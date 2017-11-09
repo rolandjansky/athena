@@ -69,6 +69,21 @@ namespace DerivationFramework {
     bool m_decoratetracksum;
     SG::AuxElement::Decorator<float>* dec_tracksummass;
     SG::AuxElement::Decorator<float>* dec_tracksumpt;
+
+    //OriginCorrection 
+    ToolHandle<IJetModifier> m_jetOriginCorrectionTool;
+    bool m_decorateorigincorrection;
+    SG::AuxElement::Decorator<ElementLink<xAOD::VertexContainer>>* dec_origincorrection;
+    SG::AuxElement::Decorator<float>* dec_originpt;
+    SG::AuxElement::Decorator<float>* dec_origineta;
+    SG::AuxElement::Decorator<float>* dec_originphi;
+    SG::AuxElement::Decorator<float>* dec_originm;
+    
+    // GhostTruthAssociation for derivations, @author jeff.dandoy@cern.ch
+    ToolHandle<IJetModifier> m_jetPtAssociationTool;
+    bool m_decorateptassociation;
+    SG::AuxElement::Decorator<float>* dec_GhostTruthAssociationFraction;
+    SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >* dec_GhostTruthAssociationLink;
   };
 }
 

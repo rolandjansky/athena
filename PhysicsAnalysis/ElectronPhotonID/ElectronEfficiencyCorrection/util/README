@@ -1,20 +1,17 @@
-testEgEfficiencyCorrWithoutFile -f ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v3/offline/efficiencySF.offline.LooseAndBLayerLLH_v11.root -t FullSim -r 466904 -e -0.31 -p 79001
-
+================================================
+Test With an xAOD File :
+EgEfficiencyCorr_testEgChargeCorr [xAOD file name] [Correction File name]
+================================================
+Test Without an xAOD File:
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile -f ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v3/offline/efficiencySF.offline.LooseAndBLayerLLH_v11.root -t FullSim -r 466904 -e -0.31 -p 79001
 RUN PERIODS
 266904-284484
 296939-9999999
-
-================================================
-
-Usage: testEgChargeCorr [xAOD file name] [Correction File name]
-
-================================================
+==============================
 Cpu profiling :
-
-valgrind --tool=callgrind  testEgEfficiencyCorrWithoutFile -f ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/offline/efficiencySF.offline.LooseAndBLayerLLH_d0z0_v11.2015_2016.13TeV.rel20.7.25ns.v01.root -t FullSim -r 266904 -e -0.31 -p 79001 >callgrind.log 2>&1 &
-
-[Need a loop over many electrons , otherwise init will dominate]
-
+valgrind --tool=callgrind  EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile -f ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/offline/efficiencySF.offline.LooseAndBLayerLLH_d0z0_v11.2015_2016.13TeV.rel20.7.25ns.v01.root -t FullSim -r 266904 -e -0.31 -p 79001 >callgrind.log 2>&1 &
+================================================
 Memory Leak checks:
+valgrind --tool=memcheck --leak-check=full --suppressions=$ROOTSYS/etc/valgrind-root.supp  --error-limit=no --track-origins=yes --smc-check=all --trace-children=yes  --track-fds=yes --num-callers=30 EgEfficiencyCorr_mem_check>valgrind.log 2>&1 & 
+==============================
 
-valgrind --tool=memcheck --leak-check=full --suppressions=$ROOTSYS/etc/valgrind-root.supp  --error-limit=no --track-origins=yes --smc-check=all --trace-children=yes  --track-fds=yes --num-callers=30  $ROOTCOREBIN/bin/x86_64-slc6-gcc49-opt/EgEfficiencyCorr_mem_check>valgrind.log 2>&1 & 

@@ -86,6 +86,7 @@ fi
 
 # Stop on errors from here on out:
 set -e
+set -o pipefail
 
 # Source in our environment
 AnalysisBaseSrcDir=$(dirname ${BASH_SOURCE[0]})
@@ -94,14 +95,12 @@ if [ -z "$BUILDDIR" ]; then
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AnalysisBaseSrcDir/build_env.sh -b $BUILDDIR
+source $AnalysisBaseSrcDir/build_env.sh -b $BUILDDIR >& ${BUILDDIR}/build_env.log
+cat ${BUILDDIR}/build_env.log
 
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/AnalysisBase
 cd ${BUILDDIR}/build/AnalysisBase
-
-# consider a pipe failed if ANY of the commands fails
-set -o pipefail
 
 # CMake:
 if [ -n "$EXE_CMAKE" ]; then

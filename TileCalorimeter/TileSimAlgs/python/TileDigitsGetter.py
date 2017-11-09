@@ -23,6 +23,7 @@ class TileDigitsGetter ( Configured )  :
         mlog = logging.getLogger( 'TileDigitsGetter::configure:' )
         mlog.info ('entering')        
 
+
         # get handle to upstream object
         try:
             from TileSimAlgs.TileDigitsGetter import TileDigitsGetter
@@ -39,6 +40,10 @@ class TileDigitsGetter ( Configured )  :
             else:
                 mlog.error("TileDigitsGetter unusable. Continue nevertheless")
                 
+        from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+        tileInfoConfigurator = TileInfoConfigurator()
+        tileInfoConfigurator.setupCOOLPHYPULSE()
+
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileDigitsMaker                

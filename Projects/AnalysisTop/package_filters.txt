@@ -19,6 +19,7 @@
 - Event/xAOD/.*AthenaPool
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
++ Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 + Generators/TruthUtils
@@ -34,7 +35,9 @@
 + PhysicsAnalysis/AnalysisCommon/PMGTools
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
@@ -66,10 +69,13 @@
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
 + Reconstruction/PFlow/PFlowUtils
++ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
++ Tools/ART
 + Tools/PathResolver
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool

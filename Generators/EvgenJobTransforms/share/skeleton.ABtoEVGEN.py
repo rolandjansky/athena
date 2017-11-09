@@ -1,3 +1,6 @@
+
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -252,16 +255,21 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "").replace("Tauolapp", "").replace("TauolaPP", "")
+        return s.replace("Photospp", "").replace("Photos", "").replace("TauolaPP", "").replace("Tauolapp", "").replace("Tauola", "")
     def _norm2(s):
         return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
 
     def _short2(s):
          return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+ 
+    if genpart != _norm(expectedgenpart)  and _norm2(genpart) != _norm(expectedgenpart):
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), _norm(_short2(expectedgenpart)), genpart))
+        evgenLog.error("gennames '%s' " %(expectedgenpart))
+        sys.exit(1)
 
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
-        sys.exit(1) 
+#    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
+#        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+#        sys.exit(1) 
 
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
@@ -273,17 +281,38 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
 
 ## Check that the evgenConfig.minevents setting is acceptable
 ## minevents defines the production event sizes and must be sufficiently "round"
+if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   
+   multiInput = runArgs.inputGeneratorFile.count(',')+1
+else:
+   multiInput = 0
 if evgenConfig.minevents < 1:
     raise RunTimeError("evgenConfig.minevents must be at least 1")
 else:
-    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500]
+    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
-    if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
-        msg += "minevents in range >= 1000 must be a multiple of 1000"
-        raise RuntimeError(msg)
+    if multiInput !=0 :
+        dummy_minevents = evgenConfig.minevents*(multiInput)
+        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents) + ' rounded to ' + str(int(round(dummy_minevents))))
+        evgenConfig.minevents = dummy_minevents
+        rest1000 = evgenConfig.minevents % 1000
+        if multiInput !=0 :
+            rounding=1
+            if rest1000 < 1000-rest1000:
+                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000))
+                evgenConfig.minevents = evgenConfig.minevents-rest1000
+            else:
+                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
+                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
+        else:    
+           msg += "minevents in range >= 1000 must be a multiple of 1000"
+           raise RuntimeError(msg)
     elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
-        msg += "minevents in range < 1000 must be one of %s" % allowed_minevents_lt1000
-        raise RuntimeError(msg)
+        if multiInput !=0:
+           rounding=1 
+           evgenConfig.minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
+        else:
+           msg += "minevents in range <= 1000 must be one of %s" % allowed_minevents_lt1000
+           raise RuntimeError(msg)
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:

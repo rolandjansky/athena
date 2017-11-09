@@ -54,6 +54,15 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     TF1* m_funcMassCutHigh;
     TF1* m_funcD2Cut;
 
+    // string for decorating jets with DNN output
+    std::string m_decorationName;
+
+    // decorators
+    SG::AuxElement::Decorator<float>    m_dec_mcutL;
+    SG::AuxElement::Decorator<float>    m_dec_mcutH;
+    SG::AuxElement::Decorator<float>    m_dec_d2cut;
+
+
 };
 
 #endif
