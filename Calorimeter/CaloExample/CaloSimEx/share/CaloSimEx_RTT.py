@@ -54,6 +54,8 @@ include("G4AtlasApps/fragment.SimCopyWeights.py")
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 3
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 
 #######################################################################
 
@@ -63,8 +65,6 @@ MessageSvc.OutputLevel = 3
 #==============================================================
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

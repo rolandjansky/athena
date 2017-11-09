@@ -143,11 +143,11 @@ def change_verb():
 
 #SimFlags.InitFunctions.add_function("postInit",change_verb)
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 #==============================================================
 # Job configuration
 #==============================================================
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
