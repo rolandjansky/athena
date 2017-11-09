@@ -81,6 +81,7 @@ validationDict = {
                   'SecondaryTracking': False,
                   'Tau': False,
                   'Top': False,
+                  'TopoCluster': False,
                   }
 
 # Switch on/off various validation routines:
@@ -106,7 +107,8 @@ for validationType, enabled in validationDict.iteritems():
         if findFile(os.environ['JOBOPTSEARCHPATH'], JOFile):
             rec.UserAlgs += [JOFile]
         else:
-            skelLog.warning("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
+            skelLog.fatal("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
+            raise RuntimeError('Cannot find JobOptions for {0} slice -- is the name correct?'.format(validationType))
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
