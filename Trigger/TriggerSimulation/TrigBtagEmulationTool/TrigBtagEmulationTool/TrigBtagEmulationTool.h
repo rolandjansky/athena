@@ -42,22 +42,25 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #include "AsgTools/AsgTool.h"
 
-#ifndef XAOD_STANDALONE
+
 // Offline tools
+#ifdef XAOD_STANDALONE
+#include "TrigConfxAOD/xAODConfigTool.h"
+
+#elif defined( XAOD_ANALYSIS )
+#include "StoreGate/StoreGateSvc.h"
+
+#else
+#include "StoreGate/StoreGateSvc.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#else
-#include "TrigConfxAOD/xAODConfigTool.h"
 #endif
 
 
 namespace Trig {
   
-  class TrigBtagEmulationChain {
-    
+  class TrigBtagEmulationChain {    
   public:
 
     /// Constructor with signature name 
@@ -65,18 +68,7 @@ namespace Trig {
 
     /// Trigger decision ingredient definition
     void addDecisionIngredient(std::string decision);
-    
-    /// L1 Jet ingredient definition
-    void addL1JetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false) ;
-
-    /// L1 Jet ingredient definition
-    void addL1JJJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false);
-
-    /// HLT Jet ingredient definition
-    void addHLTJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, float min_gsc, float min_invm);
-
-    /// HLT Bjet ingredient definition
-    void addHLTBjetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta,std::string tagger, float min_weight, unsigned int min_mult, float min_ht, float min_gsc, float anti_weight, float min_invm);
+    void addDecisionIngredient(baseTrigBtagEmulationChainJetIngredient* decision);
 
     /// Jet Evaluation
     void evaluate();
@@ -94,50 +86,35 @@ namespace Trig {
     void clear();
   
     /// Name
-    std::string name();
+    std::string getName() const;
+    // Method for accessing configuration outcome
+    bool isCorrectlyConfigured() const;
+    bool isAutoConfigured() const;
+    std::vector< std::string > retrieveAutoConfiguration() const;
 
-    /// Configuration accessors
-    bool isSplit();
-    bool isIP3DSV1();
-    bool isCOMB();
-    bool isMV2c20();
-    std::string tagger();
-    
     bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets);
 
-  private:
+  protected:
+    bool parseChainName( std::string,std::vector< baseTrigBtagEmulationChainJetIngredient* >& );
+    std::vector< baseTrigBtagEmulationChainJetIngredient* > processL1trigger (std::string);
+    std::vector< baseTrigBtagEmulationChainJetIngredient* > processHLTtrigger (std::string);
 
+  private:
     // Chain name
     std::string m_name;
 
     // Chain selections
     std::vector<std::string> m_ingredientsDecision;
-    std::vector<TrigBtagEmulationChainJetIngredient_L1*>  m_ingredientsL1Jet;
-    std::vector<TrigBtagEmulationChainJetIngredient_HLT*> m_ingredientsHLTJet;
+    std::vector<baseTrigBtagEmulationChainJetIngredient*>  m_ingredientsJet;
 
     // Trigger decision
     ToolHandle<Trig::TrigDecisionTool>& m_trigDec;
 
-
-    // Chain age
-    bool m_old;
-
-    // Jet cuts
-    unsigned int m_jetMultCut;
-    double m_jetPtCut;
-
-    // Bjet cuts
-    unsigned int m_bjetMultCut;
-    double m_bjetPtCut;
-    std::string m_bjetConfig;
-    std::string m_bjetTagger;
-    double m_bjetTaggerCut;
-
-    // Chain multiplicity result
-    unsigned int m_jetCount;
-    unsigned int m_bjetCount;
-
+    bool m_correctlyConfigured;
+    bool m_autoConfigured;
   };
+
+
 
 
   class TrigBtagEmulationTool : public asg::AsgTool, virtual public Trig::ITrigBtagEmulationTool {
@@ -153,7 +130,7 @@ namespace Trig {
     StatusCode execute();
     StatusCode finalize();
     
-    void addEmulatedChain(const std::vector<std::string>&);
+    StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
 
@@ -174,28 +151,20 @@ namespace Trig {
     // SERVICES
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE
+    std::string m_TrigDecToolName; //! 
+    std::string m_xAODConfToolName; //!
+
+#elif defined( XAOD_ANALYSIS )
     ServiceHandle<StoreGateSvc> m_storeGate;
-    ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc; 
-    ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
 
+#else
+    ServiceHandle<StoreGateSvc> m_storeGate;
 
-    // OFFLINE TOOLS
     ToolHandle< Analysis::IBTagTool > m_bTagTool;
     ToolHandle< Analysis::IBTagTrackAssociation > m_bTagTrackAssocTool;
     ToolHandle< Analysis::IBTagSecVertexing > m_bTagSecVtxTool;
-#else
-    //    TrigConf::xAODConfigTool *m_trigConfigTool; 
-
-    ToolHandle< TrigConf::ITrigConfigSvc > m_configSvc;
-    ToolHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
-#endif  
-
-#ifdef XAOD_STANDALONE
-    std::string m_TrigDecToolName; //!
-    std::string m_xAODConfToolName; //!
 #endif
-
 
     // INPUT PROPERTIES
     bool m_useTriggerNavigation;
@@ -253,6 +222,6 @@ namespace Trig {
 
   };
 
-}//namespace
+} //namespace
 
 #endif

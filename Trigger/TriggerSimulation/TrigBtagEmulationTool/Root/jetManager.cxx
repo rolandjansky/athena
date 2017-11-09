@@ -6,7 +6,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 using namespace Trig;
 
-#ifndef XAOD_STANDALONE
+#if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
 ToolHandle< Analysis::IBTagTool > *jetManager::m_bTagTool = nullptr;
 ToolHandle< Analysis::IBTagTrackAssociation > *jetManager::m_bTagTrackAssocTool = nullptr;
 ToolHandle< Analysis::IBTagSecVertexing > *jetManager::m_bTagSecVtxTool = nullptr;
@@ -29,15 +29,13 @@ jetManager::jetManager(const jetManager& other)
     m_trigDec(other.m_trigDec) {}
 jetManager::~jetManager() {}
 
-void jetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key)
-{
+void jetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key) {
   m_jet_key = jet_Key;
   m_primaryVertex_key = primaryVertex_key;
   m_trackParticle_key = trackParticle_key;
 }
 
-StatusCode jetManager::retrieveByNavigation() 
-{
+StatusCode jetManager::retrieveByNavigation() {
   clear();
 
   Trig::FeatureContainer features = m_trigDec->features(m_chain);
@@ -295,9 +293,8 @@ StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
   return StatusCode::SUCCESS;
 }
 
-StatusCode jetManager::retagOffline()
-{
-#ifndef XAOD_STANDALONE
+StatusCode jetManager::retagOffline() {
+#if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
   auto pv  = m_primaryVertex_Containers.begin();
   auto tp  = m_trackParticle_Containers.begin();
   auto out = m_outputJets.begin();
@@ -401,32 +398,30 @@ StatusCode jetManager::retagOnline() { return StatusCode::SUCCESS;}
 std::vector< struct TrigBtagEmulationJet >& jetManager::getJets() { return m_outputJets; }
 
 jetManager& jetManager::operator+=(const jetManager& other) { return merge(other.m_jet_Containers); }
-jetManager& jetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt)
-{
-  for (auto & jet : jets)
-    {
-      TrigBtagEmulationJet backupJet;
-      backupJet.pt  = jet->p4().Et();
-      backupJet.eta = jet->eta();
-      backupJet.phi = jet->phi();
-      backupJet.weights.insert( std::make_pair("MV2c10" ,-1   ) );
-      backupJet.weights.insert( std::make_pair("MV2c20" ,-1   ) );
-      backupJet.weights.insert( std::make_pair("IP3DSV1",-1000) );
-      backupJet.weights.insert( std::make_pair("COMB"   ,-1000) );
-      
-      bool isUnique = true;
-      for (unsigned int index(0); index < m_outputJets.size(); index++)
-	if (m_outputJets.at(index).pt==backupJet.pt &&
-	    m_outputJets.at(index).eta==backupJet.eta &&
-	    m_outputJets.at(index).phi==backupJet.phi) 
-	  {isUnique = false; break;}
-      if (isUnique && backupJet.pt >= minPt)
-	{
-	  if ( maxPt == 0 ) m_outputJets.push_back( backupJet );
-	  else if ( backupJet.pt < maxPt ) m_outputJets.push_back( backupJet );
-	}
-    }
-
+jetManager& jetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
+  for (auto & jet : jets) {
+    TrigBtagEmulationJet backupJet;
+    backupJet.pt  = jet->p4().Et();
+    backupJet.eta = jet->eta();
+    backupJet.phi = jet->phi();
+    backupJet.weights.insert( std::make_pair("MV2c10" ,-1   ) );
+    backupJet.weights.insert( std::make_pair("MV2c20" ,-1   ) );
+    backupJet.weights.insert( std::make_pair("IP3DSV1",-1000) );
+    backupJet.weights.insert( std::make_pair("COMB"   ,-1000) );
+    
+    bool isUnique = true;
+    for (unsigned int index(0); index < m_outputJets.size(); index++)
+      if (m_outputJets.at(index).pt==backupJet.pt &&
+	  m_outputJets.at(index).eta==backupJet.eta &&
+	  m_outputJets.at(index).phi==backupJet.phi) 
+	{isUnique = false; break;}
+    if (isUnique && backupJet.pt >= minPt)
+      {
+	if ( maxPt == 0 ) m_outputJets.push_back( backupJet );
+	else if ( backupJet.pt < maxPt ) m_outputJets.push_back( backupJet );
+      }
+  }
+  
   return *this;
 }
 

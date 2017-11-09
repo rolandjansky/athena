@@ -33,17 +33,7 @@ acf.EvtMax=-1
 #lista = glob.glob('/afs/cern.ch/user/g/gmarceca/eos/atlas/atlasdatadisk/rucio/valid1/*/*/AOD.01575399._*.pool.root.1')
 
 #Local file:
-# REAL DATA
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/data15_13TeV.00280500.physics_EnhancedBias.merge.AOD.r7806_p2565_tid08010770_00/AOD.08010770._000198.pool.root.1')
-# MC DATA: TTBAR
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r6630_r6264/AOD.05382618._000251.pool.root.1')
 lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7773_r7676/AOD.07981831._000076.pool.root.1')
-# MC DATA: VBF Hbb
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.341566.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_bb.merge.AOD.e3988_a766_a767_r6264/AOD.05739017._000075.pool.root.1')
-# REPROCESSED DATA
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/data15_13TeV.00282625.physics_Main.recon.AOD.r7734/AOD.07908618._001196.pool.root.1')
-# HIGGS DERIVED SAMPLE
-#lista = glob.glob('root://eosatlas//eos/atlas/user/c/cvarni/VBF/Run2/VBFH125_bb_merge_DAOD_HIGG5D3/DAOD_HIGG5D3.05894664._000001.pool.root.1')
 
 #####acf.FilesInput.set_Value_and_Lock(['root://eosatlas//eos/atlas/user/c/cvarni/VBF/Run2/VBFH125_bb_merge_DAOD_HIGG5D3/DAOD_HIGG5D3.05894664._000001.pool.root.1'])
 acf.FilesInput.set_Value_and_Lock(lista) 

@@ -22,11 +22,15 @@ feature::feature(int type, std::string name) : m_type(type), m_name(name) {}
 feature::feature(const feature& other) : m_type(other.m_type), m_name(other.m_name) {}
 feature::~feature() {}
 
+std::string feature::name() const { return m_name; }
+
 feature_btag::feature_btag(std::string name,float weight)
   : feature(feature::THRESHOLD,name), m_weight(weight) {}
 feature_btag::feature_btag(const feature_btag& other)
   : feature(other), m_weight(other.m_weight) {}
 feature_btag::~feature_btag() {}
+
+float feature_btag::getCut() const {return m_weight;}
 
 bool feature_btag::isPassed() {return true;}
 bool feature_btag::evaluateJet(struct TrigBtagEmulationJet* jet) { return jet->weights[m_name.c_str()] >= m_weight; }
@@ -52,26 +56,24 @@ feature_ht::feature_ht(const feature_ht& other)
     m_cut_pt(other.m_cut_pt), m_cut_min_eta(other.m_cut_min_eta), m_cut_max_eta(other.m_cut_max_eta) {}
 feature_ht::~feature_ht() {}
 
+float feature_ht::getCut() const {return m_min_ht;}
 void feature_ht::setCuts(float min_pt, float min_eta, float max_eta)
 {m_cut_pt = min_pt; m_cut_min_eta = min_eta; m_cut_max_eta = max_eta;}
 
-bool feature_ht::satisfyCuts(struct TrigBtagEmulationJet* jet)
-{
+bool feature_ht::satisfyCuts(struct TrigBtagEmulationJet* jet) {
   if (jet->pt <= m_cut_pt) return false;
   if (fabs(jet->eta) < m_cut_min_eta) return false;
   if (fabs(jet->eta) > m_cut_max_eta) return false;
   return true;
 }
 
-bool feature_ht::isPassed()
-{
+bool feature_ht::isPassed() {
   if (m_trigLevel == "L1" ) return isPassed_L1();
   if (m_trigLevel == "HLT") return isPassed_HLT();
   return false;
 }
 
-bool feature_ht::evaluateJet(struct TrigBtagEmulationJet* jet)
-{
+bool feature_ht::evaluateJet(struct TrigBtagEmulationJet* jet) {
   if (m_trigLevel == "L1" ) return evaluateJet_L1(jet);
   if (m_trigLevel == "HLT") return evaluateJet_HLT(jet);
   return false;
@@ -79,14 +81,12 @@ bool feature_ht::evaluateJet(struct TrigBtagEmulationJet* jet)
 
 bool feature_ht::isPassed_L1()  { return m_count_ht > m_min_ht; }
 bool feature_ht::isPassed_HLT() { return m_count_ht >= m_min_ht; }
-bool feature_ht::evaluateJet_L1(struct TrigBtagEmulationJet* jet)
-{
+bool feature_ht::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
   if ( satisfyCuts(jet) )
     m_count_ht+=jet->pt;
   return true;
 }
-bool feature_ht::evaluateJet_HLT(struct TrigBtagEmulationJet* jet)
-{
+bool feature_ht::evaluateJet_HLT(struct TrigBtagEmulationJet* jet) {
   if ( jet->pt < 30000 ) return true;
   if ( fabs(jet->eta) > 3.2 ) return true;
   m_count_ht+=jet->pt; 
@@ -106,21 +106,18 @@ feature_ht_top::feature_ht_top(const feature_ht_top& other)
     m_topEt(other.m_topEt) {}
 feature_ht_top::~feature_ht_top() {}
 
-void feature_ht_top::clear()
-{
+void feature_ht_top::clear() {
   feature_ht::clear();
   m_piorityQueue.clear();
 }
-bool feature_ht_top::evaluateJet_L1(struct TrigBtagEmulationJet* jet)
-{
+bool feature_ht_top::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
   if ( fabs(jet->eta) > 3.1) return true;
   m_piorityQueue.push_back( *jet );
   calculateHT_L1();
   return true;
 }
 
-void feature_ht_top::calculateHT_L1()
-{
+void feature_ht_top::calculateHT_L1() {
   sort(m_piorityQueue.begin(),m_piorityQueue.end(),Trig::sortEmulationJet_byPt);
   while ( m_topEt < m_piorityQueue.size() )
     m_piorityQueue.pop_back();
@@ -156,13 +153,13 @@ feature_invm::feature_invm(const feature_invm& other)
 { this->initLUTs(); }
 feature_invm::~feature_invm() {}
 
-void feature_invm::initLUTs()
-{
-#ifdef XAOD_STANDALONE
-  const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
-#else
+float feature_invm::getCut() const {return m_min_invm;}
+
+void feature_invm::initLUTs() {
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-#endif
+  // If WorkDir_DIR not defined means we are using ROOTCORE
+  if( strlen(inputFileFolder) == 0 )
+    inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
 
   // *** cosh ( Deta )
   std::string nameFile_LUTcosh = Form("%s/data/TrigBtagEmulationTool/LUT_Hyperbolic.txt",inputFileFolder);
@@ -203,15 +200,13 @@ void feature_invm::initLUTs()
   fileLUTcos.close();
 }
 
-double feature_invm::cosh_LUT(double value) const
-{
+double feature_invm::cosh_LUT(double value) const {
   int argument = int( value * 10 + 0.1 );
   if (m_LUTcosh.find(argument) != m_LUTcosh.end())
     return m_LUTcosh.at( argument );
   return 1;
 }
-double feature_invm::cos_LUT(double value) const
-{
+double feature_invm::cos_LUT(double value) const {
   int argument = int( value * 1e2 );
   if (m_LUTcos.find(argument) != m_LUTcos.end())
     return m_LUTcos.at( argument );
@@ -219,15 +214,13 @@ double feature_invm::cos_LUT(double value) const
 }
 
 bool feature_invm::isPassed() { return m_count_invm >= m_min_invm; }
-bool feature_invm::evaluateJet(struct TrigBtagEmulationJet* jet) 
-{
+bool feature_invm::evaluateJet(struct TrigBtagEmulationJet* jet) {
   if (m_trigLevel == "L1") return evaluateJet_L1( jet );
   if (m_trigLevel == "HLT") return evaluateJet_HLT( jet );
   return false;
 }
 
-void feature_invm::clear() 
-{
+void feature_invm::clear() {
   m_count_invm = 0;
   m_jetCollection_HLT.clear();
   m_priorityQueue_20.clear();
@@ -235,18 +228,15 @@ void feature_invm::clear()
 }
 
 void feature_invm::setCuts(float min_pt,float min_eta,float max_eta) 
-{m_cut_pt = min_pt; m_cut_min_eta = min_eta; m_cut_max_eta = max_eta;}
-bool feature_invm::satisfyCuts(struct TrigBtagEmulationJet* jet) 
-{
+{ m_cut_pt = min_pt; m_cut_min_eta = min_eta; m_cut_max_eta = max_eta; }
+bool feature_invm::satisfyCuts(struct TrigBtagEmulationJet* jet) {
   if (jet->pt <= m_cut_pt) return false;
   if (fabs(jet->eta) < m_cut_min_eta) return false;
   if (fabs(jet->eta) > m_cut_max_eta) return false;
   return true;
 }
 
-bool feature_invm::evaluateJet_L1(struct TrigBtagEmulationJet* jet) 
-{  
-
+bool feature_invm::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {   
   if ( jet->pt > 20 )
     m_priorityQueue_20.push_back( *jet );
   if ( jet->pt > 30 )
@@ -271,8 +261,7 @@ bool feature_invm::evaluateJet_L1(struct TrigBtagEmulationJet* jet)
   return true;
 }
 
-bool feature_invm::evaluateJet_HLT(struct TrigBtagEmulationJet* jet) 
-{ 
+bool feature_invm::evaluateJet_HLT(struct TrigBtagEmulationJet* jet) { 
   m_jetCollection_HLT.push_back( *jet );
 
   m_count_invm = 0;
@@ -286,8 +275,7 @@ bool feature_invm::evaluateJet_HLT(struct TrigBtagEmulationJet* jet)
   return true;
 }
 
-double feature_invm::calculateINVM(struct TrigBtagEmulationJet const& jetA,struct TrigBtagEmulationJet const& jetB) const 
-{
+double feature_invm::calculateINVM(struct TrigBtagEmulationJet const& jetA,struct TrigBtagEmulationJet const& jetB) const {
   // change eta accordingly to L1Topo
   // https://svnweb.cern.ch/trac/atlasgroups/browser/Trigger/L1Topo/L1TopoValidation/trunk/L1TopoCheck/Root/JetTOB.cxx#L56
   double eta_A = int( fabs(jetA.eta*100) + 0.1) * jetA.eta / fabs(jetA.eta);
@@ -326,8 +314,7 @@ feature_invm_CF::feature_invm_CF(std::string triggerLevel,std::string name, floa
 feature_invm_CF::feature_invm_CF(const feature_invm_CF& other) : feature_invm(other) {}
 feature_invm_CF::~feature_invm_CF() {}
 
-bool feature_invm_CF::evaluateJet_L1(struct TrigBtagEmulationJet* jet) 
-{
+bool feature_invm_CF::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
   if ( jet->pt > 20 )
     m_priorityQueue_20.push_back( *jet );
   if ( jet->pt > 30 )

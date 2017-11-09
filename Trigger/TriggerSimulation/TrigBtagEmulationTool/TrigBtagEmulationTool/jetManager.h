@@ -24,16 +24,25 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
-#ifndef XAOD_STANDALONE
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
+// If running Standalone
+#ifdef XAOD_STANDALONE
+#include "TrigConfxAOD/xAODConfigTool.h"
+// If using Analysis Release
+#elif defined( XAOD_ANALYSIS )
+#include "StoreGate/StoreGateSvc.h"
+// If using Athena
+#else
+#include "StoreGate/StoreGateSvc.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
-#include "StoreGate/StoreGateSvc.h"
-#else
-#include "TrigConfxAOD/xAODConfigTool.h"
 #endif
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
 
 namespace Trig {
 
@@ -96,7 +105,7 @@ namespace Trig {
   private:
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef XAOD_STANDALONE
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
   public:
     static ToolHandle< Analysis::IBTagTool >* m_bTagTool;
     static ToolHandle< Analysis::IBTagTrackAssociation >* m_bTagTrackAssocTool;

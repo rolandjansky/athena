@@ -15,8 +15,7 @@ namespace Trig{
 					       ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator ),
       m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-      m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this)
-  {
+      m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this) {
     declareProperty("TrigBtagEmulationTool",m_emulationTool);
   }
   
@@ -45,57 +44,33 @@ namespace Trig{
       return sc;
     }
 
+    ATH_MSG_INFO("Retrieved tools...");
+
     // CHAIN CONFIGURATION IN ATHENA IS PERFORMED VIA JOB OPTION
-    // EXAMPLE OF CONFIGURATION OF ADDITIONAL EMULATED CHAINS IN ROOTCORE, ONLY VIA SET PROPERTY
     m_toBeEmulatedTriggers.push_back("L1_MJJ-100");
     m_toBeEmulatedTriggers.push_back("HLT_10j40_L14J15");
     m_toBeEmulatedTriggers.push_back("HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25");
 
-#ifdef XAOD_STANDALONE
-    std::vector< std::vector< std::string > > emulatedChainDescription; 
-    {
-      std::vector< std::string > test;
-      test.push_back("L1_MJJ-100");
-      test.push_back("EMUL_L1_MJJ-100");
-      emulatedChainDescription.push_back( test );
-    }
-    {
-      std::vector< std::string > test;
-      test.push_back("HLT_10j40_L14J15");
-      test.push_back("EMUL_L1_4J15");
-      test.push_back("EMUL_HLT_10j40");
-      emulatedChainDescription.push_back( test );
-    }
-    {
-      std::vector< std::string > test;
-      test.push_back("HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25");
-      test.push_back("EMUL_L1_4J15.0ETA25");
-      test.push_back("EMUL_2j15_gsc35_bmv2c1070_split");
-      test.push_back("EMUL_4j15_gsc35_bmv2c1085_split");
-      emulatedChainDescription.push_back( test );
+    ATH_MSG_INFO("Initializing TrigBtagEmulationTool ...");
+    if( m_emulationTool->initialize().isFailure() ) {
+      ATH_MSG_ERROR( "Unable to initialize TrigBtagEmulationTool" );
+      return StatusCode::FAILURE;
     }
 
-    if( m_emulationTool->setProperty("EmulatedChainDefinitions",emulatedChainDescription).isFailure() ) {
-      ATH_MSG_ERROR( "Unable to add Trigger Chains to TrigBtagEmulation Tool" );
-      return sc;
+    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
+      std::string name = m_toBeEmulatedTriggers.at(index);
+      m_counterEmulation[ name.c_str() ]            = 0;
+      m_counterTDT[ name.c_str() ]                  = 0;
+      m_counterMismatches_tot[ name.c_str() ]       = 0;
+      m_counterMismatches_TDT1EMUL0[ name.c_str() ] = 0;
+      m_counterMismatches_TDT0EMUL1[ name.c_str() ] = 0;
     }
-#endif
-
-    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++)
-      {
-	std::string name = m_toBeEmulatedTriggers.at(index);
-	m_counterEmulation[ name.c_str() ]            = 0;
-	m_counterTDT[ name.c_str() ]                  = 0;
-	m_counterMismatches_tot[ name.c_str() ]       = 0;
-	m_counterMismatches_TDT1EMUL0[ name.c_str() ] = 0;
-	m_counterMismatches_TDT0EMUL1[ name.c_str() ] = 0;
-      }
-
+    
     return StatusCode::SUCCESS;
   }
-
+  
   //**********************************************************************
-
+  
   StatusCode TrigBtagValidationTest::finalize() {
 
     ATH_MSG_INFO("TrigBtagEmulationTool::finalize()");

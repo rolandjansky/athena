@@ -30,12 +30,16 @@ namespace Trig {
   public:
     feature(int type = feature::UNKNOWN,std::string name = "NONE");
     feature(const feature&);
-    ~feature();
+    virtual ~feature();
 
+    std::string name() const;
     virtual bool isPassed() = 0;
     virtual bool evaluateJet(struct TrigBtagEmulationJet*) = 0;
     virtual void clear() = 0;
     virtual void Print() = 0;
+    virtual void setCuts(float,float,float) {}
+
+    virtual float getCut() const = 0;
 
   public:
     int m_type;
@@ -52,16 +56,40 @@ namespace Trig {
   public:
     feature_btag(std::string name = "NONE",float weight = -1000);
     feature_btag(const feature_btag&);
-    ~feature_btag();
+    virtual ~feature_btag();
 
+    virtual bool isPassed();
     virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual void clear();
     virtual void Print();
 
-    bool isPassed();
-    void clear();
+    virtual float getCut() const;
 
   public:
-    float m_weight;
+    double m_weight;
+
+  public:
+    static constexpr double BCOMBLOOSE  = 0.25 ;
+    static constexpr double BCOMBMEDIUM = 1.25 ;
+    static constexpr double BCOMBTIGHT  = 2.65 ;
+    static constexpr double BLOOSE      = 0.25 ;
+    static constexpr double BMEDIUM     = 1.25 ;
+    static constexpr double BTIGHT      = 2.65 ;
+
+    static constexpr double MV2C2040    = 0.75 ;
+    static constexpr double MV2C2050    = 0.50 ;
+    static constexpr double MV2C2060    = -0.0224729 ;
+    static constexpr double MV2C2070    = -0.509032  ;
+    static constexpr double MV2C2077    = -0.764668  ;
+    static constexpr double MV2C2085    = -0.938441  ;
+
+    // mv2c10 cuts: https://indico.cern.ch/event/642743/contributions/2612294/attachments/1468496/2271441/BJetTrigTuning_TGM31May2017.pdf
+    static constexpr double MV2C1040    = 0.978 ;
+    static constexpr double MV2C1050    = 0.948 ;
+    static constexpr double MV2C1060    = 0.846 ;
+    static constexpr double MV2C1070    = 0.58  ;
+    static constexpr double MV2C1077    = 0.162 ;
+    static constexpr double MV2C1085    = -0.494;
   };
 
   // *** ANTI-B-TAG
@@ -70,10 +98,10 @@ namespace Trig {
   public:
     feature_antibtag(std::string name = "NONE",float weight = 1000);
     feature_antibtag(const feature_antibtag&);
-    ~feature_antibtag();
+    virtual ~feature_antibtag();
 
-    bool evaluateJet(struct TrigBtagEmulationJet*);
-    void Print();
+    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual void Print();
   };
 
 
@@ -83,15 +111,16 @@ namespace Trig {
   public:
     feature_ht(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0);
     feature_ht(const feature_ht&);
-    ~feature_ht();
+    virtual ~feature_ht();
 
-    void setCuts(float,float,float);
-    bool satisfyCuts(struct TrigBtagEmulationJet*);
-
-    bool isPassed();
-    bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual bool isPassed();
+    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
     virtual void clear();
     virtual void Print();
+    virtual void setCuts(float,float,float);
+    virtual float getCut() const;
+
+    bool satisfyCuts(struct TrigBtagEmulationJet*);
 
   protected:
     bool isPassed_L1();
@@ -119,13 +148,13 @@ namespace Trig {
   public:
     feature_ht_top(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0, unsigned int topEt = 0);
     feature_ht_top(const feature_ht_top&);
-    ~feature_ht_top();
+    virtual ~feature_ht_top();
     
-    void clear();
-    void Print();
+    virtual void clear();
+    virtual void Print();
 
   protected:
-    bool evaluateJet_L1(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);
 
   private:
     void calculateHT_L1();
@@ -140,14 +169,15 @@ namespace Trig {
   public:
     feature_invm(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
     feature_invm(const feature_invm&);
-    ~feature_invm();
+    virtual ~feature_invm();
 
-    bool isPassed();
-    bool evaluateJet(struct TrigBtagEmulationJet*);
-    void clear();
+    virtual bool isPassed();
+    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual void clear();
     virtual void Print();
+    virtual void setCuts(float,float,float);
+    virtual float getCut() const;
 
-    void setCuts(float,float,float);
     bool satisfyCuts(struct TrigBtagEmulationJet*);
 
   protected:
@@ -185,12 +215,12 @@ namespace Trig {
   public:
     feature_invm_CF(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
     feature_invm_CF(const feature_invm_CF&);
-    ~feature_invm_CF();
+    virtual ~feature_invm_CF();
 
-    void Print();
+    virtual void Print();
 
   private:
-    bool evaluateJet_L1(struct TrigBtagEmulationJet*);    
+    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);    
   };
 
 
