@@ -3,7 +3,6 @@
 */
 
 #include "TrigT2MinBias/TrigCountTrtHits.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInDetEvent/TrigTrtHitCounts.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
