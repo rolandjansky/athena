@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// MenuTruthThinning.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// MenuTruthThinning.cxx
 // Translated into xAOD by James Catmore (James.Catmore@cern.ch)
 // from orignal D3PD code by Snyder, Marshall, Boonekamp et al:
 // TruthD3PDAnalysis/src/TruthParticleFilterTool.cxx

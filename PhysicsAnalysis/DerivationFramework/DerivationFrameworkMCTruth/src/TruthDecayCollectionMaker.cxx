@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthDecayCollectionMaker.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthDecayCollectionMaker.cxx
 // Removes all truth particles/vertices which do not pass a user-defined cut
 // Based on TruthCollectionMaker (but simpler)
 

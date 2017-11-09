@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// HardTruthThinning.cxx, (c) ATLAS Detector software
+// HardTruthThinning.cxx
 // Author: Frank Paige
 // Based on MenuTruthThinning and should perhaps be merged with it.
 // Intended for use with CompactHardTruth.
