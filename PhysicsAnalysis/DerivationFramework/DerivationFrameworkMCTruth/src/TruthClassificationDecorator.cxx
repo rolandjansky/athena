@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthClassificationDecorator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthClassificationDecorator.cxx
 // Author: James Catmore (James.Catmore@cern.ch)
 // Removes all truth particles/vertices which do not pass a user-defined cut
 

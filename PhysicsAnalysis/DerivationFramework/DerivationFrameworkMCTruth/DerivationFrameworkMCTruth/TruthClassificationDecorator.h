@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthClassificationDecorator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHCLASSIFICATIONDECORATOR_H
 #define DERIVATIONFRAMEWORK_TRUTHCLASSIFICATIONDECORATOR_H
 

@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthNavigationDecorator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthNavigationDecorator.cxx
 // Add navigation information to small truth collections
 
 #include "TruthNavigationDecorator.h"

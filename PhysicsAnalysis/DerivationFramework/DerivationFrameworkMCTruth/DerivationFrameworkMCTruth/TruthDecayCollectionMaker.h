@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthDecayCollectionMaker.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHDECAYCOLLECTIONMAKER_H
 #define DERIVATIONFRAMEWORK_TRUTHDECAYCOLLECTIONMAKER_H
 

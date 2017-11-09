@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthDressingTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthDressingTool.cxx
 // Author: Kevin Finelli (kevin.finelli@cern.ch)
 // Create dressed (i.e. including FSR photons) 4-vectors of truth objects
 
