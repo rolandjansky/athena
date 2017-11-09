@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IssueSeverity.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h"
 

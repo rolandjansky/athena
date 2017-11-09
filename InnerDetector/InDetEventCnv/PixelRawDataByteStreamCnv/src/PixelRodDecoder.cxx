@@ -13,8 +13,6 @@
 #include "PixelByteStreamModuleMask.h"
 #include "eformat/SourceIdentifier.h"
 
-#include "GaudiKernel/IssueSeverity.h"
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -1130,16 +1128,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         }
 
         ATH_MSG_DEBUG( "Recoverable errors found in PixelRodDecoder, errorcode: " << errorcode );
-
-        char error[100];
-        if (errorcode == (1 << 20) ){  // only BCID error found
-            sprintf(error,"BCID mismatch found, errorcode: %x",errorcode);
-            sc = STATUSCODE(StatusCode::RECOVERABLE,IssueSeverity::DEBUG,error);
-        }
-        else{
-            sprintf(error,"ErrorCode: %x, Pixel data likely corrupt",errorcode);
-            sc = STATUSCODE(StatusCode::RECOVERABLE,IssueSeverity::DEBUG,error);
-        }
     }
     return sc;
 }
