@@ -1387,7 +1387,7 @@ if rec.doWriteAOD():
 
 
     # cannot redo the slimming if readAOD and writeAOD
-    if not rec.readAOD():
+    if not rec.readAOD() and (rec.doESD() or rec.readESD()):
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             doEgammaPhoton = AODFlags.Photon
             doEgammaElectron= AODFlags.Electron
