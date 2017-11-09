@@ -263,6 +263,7 @@ SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                        "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                        "MuonClusterCollection.eta_sampl.phi_sampl",
                                        "Muons.quality.etcone20.ptconecoreTrackPtrCorrection",
+                                       "TruthParticles.TopHadronOriginFlag",
                                        "Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
 
 #Triggers kept
