@@ -68,7 +68,6 @@
 #include "GeneratorFilters/JetFilterWithTruthPhoton.h"
 #include "GeneratorFilters/Boosted2DijetFilter.h"
 #include "GeneratorFilters/DiBjetFilter.h"
-#include "GeneratorFilters/LeadingDiBjetFilter.h"
 #include "GeneratorFilters/HiggsFilter.h"
 #include "GeneratorFilters/TTbarBoostCatFilter.h"
 #include "GeneratorFilters/MultiParticleFilter.h" 
@@ -153,7 +152,6 @@ DECLARE_COMPONENT( VBFMjjIntervalFilter )
 DECLARE_COMPONENT( JetFilterWithTruthPhoton )
 DECLARE_COMPONENT( Boosted2DijetFilter )
 DECLARE_COMPONENT( DiBjetFilter )
-DECLARE_COMPONENT( LeadingDiBjetFilter )
 DECLARE_COMPONENT( HiggsFilter )
 DECLARE_COMPONENT( TTbarBoostCatFilter )
 DECLARE_COMPONENT( MultiParticleFilter )
@@ -167,4 +165,3 @@ DECLARE_COMPONENT( DecaysFinalStateFilter )
 DECLARE_COMPONENT( HTFilter )
 DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )
-

@@ -253,9 +253,7 @@ StatusCode JetIntervalFilter::filterEvent() {
     ATH_MSG_DEBUG("Pass filter");
     // If passed then calculate (and add) a weight!
     if (m_weightingEvents) {
-      McEventCollection::const_iterator itr;
-      for (itr = events()->begin(); itr!=events()->end(); ++itr) {
-        HepMC::GenEvent* genEvt = *itr;
+      for (HepMC::GenEvent* genEvt : *events()) {
         // Simple test to see if it is possible to put extra weights into Monte Carlo!
         // Store the inverse of the weighting
         genEvt->weights().push_back(1.0/weighting);
