@@ -1,3 +1,5 @@
+'
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
@@ -175,12 +177,12 @@ globalSelection = ""
 athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt10LCTopoJets" ),
-    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-    commonPhysValTool( "AntiKt2PV0TrackJets" ),
+#    commonPhysValTool( "AntiKt10LCTopoJets" ),
+#    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+#    commonPhysValTool( "AntiKt2PV0TrackJets" ),
     commonPhysValTool( "AntiKt4EMPFlowJets" ),
     commonPhysValTool( "AntiKt4TruthJets" ),
-    commonPhysValTool( "AntiKt10TruthJets" ),
+#    commonPhysValTool( "AntiKt10TruthJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
@@ -188,9 +190,9 @@ if (isMC==False):
   athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt10LCTopoJets" ),
-    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-    commonPhysValTool( "AntiKt2PV0TrackJets" ),
+#    commonPhysValTool( "AntiKt10LCTopoJets" ),
+#    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+#    commonPhysValTool( "AntiKt2PV0TrackJets" ),
     commonPhysValTool( "AntiKt4EMPFlowJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
