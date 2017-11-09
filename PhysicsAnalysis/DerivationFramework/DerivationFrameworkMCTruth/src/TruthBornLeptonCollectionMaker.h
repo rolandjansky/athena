@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TruthBornLeptonCollectionMaker.h, (c) ATLAS Detector software
+// TruthBornLeptonCollectionMaker.h
 ///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHBORNLEPTONCOLLECTIONMAKER_H
@@ -19,6 +19,9 @@
 // STL includes
 #include <string>
 
+// Forward declarations
+class StoreGateSvc;
+
 namespace DerivationFramework {
 
   class TruthBornLeptonCollectionMaker : public AthAlgTool, public IAugmentationTool {
@@ -31,6 +34,7 @@ namespace DerivationFramework {
     private:
       std::string m_particlesKey; //!< Input particle collection key
       std::string m_collectionName; //!< Output particle collection key
+      ServiceHandle<StoreGateSvc> m_metaStore; //!< Handle on the metadata store for init
       /// Helper function for finding bare descendents of born leptons
       bool hasBareDescendent( const xAOD::TruthParticle* p ) const;
   }; 
