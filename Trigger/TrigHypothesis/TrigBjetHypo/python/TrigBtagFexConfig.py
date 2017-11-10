@@ -164,7 +164,7 @@ class BtagFexFTK (TrigBtagFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
         
         # IMPORT OFFLINE TOOLS
