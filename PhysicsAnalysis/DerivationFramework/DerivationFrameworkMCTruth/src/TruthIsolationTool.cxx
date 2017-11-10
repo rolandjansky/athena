@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthIsolationTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthIsolationTool.cxx
 // Author: Kevin Finelli (kevin.finelli@cern.ch)
 // Calculate isolation at truth level for given lists of truth particles
 

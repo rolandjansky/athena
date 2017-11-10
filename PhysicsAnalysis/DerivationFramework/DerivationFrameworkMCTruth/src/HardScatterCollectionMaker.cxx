@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// HardScatterCollectionMaker.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// HardScatterCollectionMaker.cxx
 // Keeps the first N generations of particles from the hard scatter
 // Based on TruthDecayCollectionMaker (but simpler)
 
