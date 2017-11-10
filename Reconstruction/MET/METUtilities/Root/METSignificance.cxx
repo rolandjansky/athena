@@ -167,7 +167,7 @@ namespace met {
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
-	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2016PRE"));
+	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2017_R21_PRE"));
 	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
 	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
 	else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
