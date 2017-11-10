@@ -28,7 +28,7 @@
 #include "InDetRawData/InDetRawData.h"
 
 template< class RawDataT >
-class InDetRawDataCollection : public DataVector< RawDataT > {
+class InDetRawDataCollection : public Identifiable, public DataVector< RawDataT > {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -47,11 +47,11 @@ public:
   // Const methods:
   ///////////////////////////////////////////////////////////////////
 
-  virtual Identifier identify() const;
+  virtual Identifier identify() const override final;
 
-  virtual IdentifierHash identifyHash() const;
+  virtual IdentifierHash identifyHash() const override final;
 
-  virtual void setIdentifier(Identifier id);
+  void setIdentifier(Identifier id);
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:

@@ -91,9 +91,9 @@ class TestElement
 {
 public:
   TestElement (unsigned int val);
-  virtual Identifier identify() const override;
+  virtual Identifier identify() const override final;
     
-  virtual IdentifierHash identifyHash() const override
+  virtual IdentifierHash identifyHash() const override final
   { std::abort(); }
   virtual const Amg::Transform3D & transform() const override
   { std::abort(); }

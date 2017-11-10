@@ -128,10 +128,10 @@ namespace InDetDD {
       //@{
     
       /// identifier of this detector element:
-      virtual Identifier identify() const;
+      Identifier identify() const;
     
       /// identifier hash
-      virtual IdentifierHash identifyHash() const;
+      IdentifierHash identifyHash() const;
     
       /// Returns the id helper
       const AtlasDetectorID* getIdHelper() const;
