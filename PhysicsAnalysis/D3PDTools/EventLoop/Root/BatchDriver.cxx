@@ -532,17 +532,16 @@ namespace EL
       }
     }
 
-    {
-      std::ostringstream cmd;
-      cmd << "tar --dereference -C " << WORKDIR_DIR << " -czvf " << tarballName << " .";
-      // suppress the output from the tarball command
-      gSystem->RedirectOutput("/dev/null");
-      if (gSystem->Exec (cmd.str().c_str()) != 0){
-        gSystem->RedirectOutput(0);
-        RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+    if(!sharedFileSystem)
+      {
+	std::ostringstream cmd;
+	cmd << "tar --dereference -C " << WORKDIR_DIR << " -czf " << tarballName << " .";
+	// suppress the output from the tarball command
+	if (gSystem->Exec (cmd.str().c_str()) != 0){
+	  gSystem->RedirectOutput(0);
+	  RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+	}
       }
-      gSystem->RedirectOutput(0);
-    }
   }
 
 
