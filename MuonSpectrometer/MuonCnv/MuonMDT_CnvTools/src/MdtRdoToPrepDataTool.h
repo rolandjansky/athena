@@ -125,8 +125,10 @@ namespace Muon
     double m_invSpeed;
 
     /// MdtPrepRawData containers
-    SG::WriteHandle<Muon::MdtPrepDataContainer> m_mdtPrepDataContainer;
-    SG::ReadHandle< MdtCsmContainer>            m_rdoContainer;//MDTCSM
+    Muon::MdtPrepDataContainer* m_mdtPrepDataContainer;
+    SG::WriteHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepDataContainerKey;
+
+    SG::ReadHandleKey< MdtCsmContainer>         m_rdoContainerKey;//MDTCSM
 
         
     /** member variables for algorithm properties: */
