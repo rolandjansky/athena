@@ -236,7 +236,7 @@ SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant",
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant",
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 SUSY3SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY3SlimmingHelper.IncludeEGammaTriggerContent = True
