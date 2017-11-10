@@ -15,9 +15,14 @@
 
 namespace TCS {
 /**
-   @brief TODO
+   @brief Select TOBs that fall in a given eta/phi region
 
-   @param TODO
+   @param NumberLeading number of TOBs being checked. Use '0' to consider full input collection
+   @param MinET minimun ET above which TOBs are considered
+   @param EtaMin min eta, signed integer in units of 0.1
+   @param EtaMax max eta
+   @param PhiMin min phi, signed integer in [0, 63]
+   @param PhiMax max phi
 */
 class EtaPhiWindow : public DecisionAlg {
 public:
@@ -32,7 +37,7 @@ public:
                                const std::vector<TCS::TOBArray *> &output,
                                Decision &decison);
 private:
-    parType_t      p_NumberLeading1 = { 0 };
+    parType_t      p_NumberLeading = { 0 };
     parType_t      p_MinET = { 0 };
     parType_t      p_EtaMin = { 0 };
     parType_t      p_EtaMax = { 0 };
