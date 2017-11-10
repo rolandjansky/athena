@@ -6,12 +6,19 @@ __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import fnmatch
 import inspect
+import logging
 import os
-import sys
 import yaml
+
+try:
+    import scandir as scan
+except ImportError:
+    import os as scan
 
 from art_misc import is_exe, run_command
 from art_header import ArtHeader
+
+MODULE = "art.base"
 
 
 class ArtBase(object):
@@ -51,26 +58,37 @@ class ArtBase(object):
 
     def validate(self, script_directory):
         """TBD."""
+        log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
+
+        found_test = False
         for directory in directories.itervalues():
             files = self.get_files(directory)
             for fname in files:
                 test_name = os.path.join(directory, fname)
-                print test_name
+                found_test = True
+                log.debug(test_name)
                 if not is_exe(test_name):
-                    print "ERROR: ", test_name, "is not executable."
+                    log.error("%s is not executable.", test_name)
                 ArtHeader(test_name).validate()
+
+        if not found_test:
+            log.warning('No scripts found in %s directory', directories.values()[0])
+            return 0
+
+        log.info("Scripts in %s directory are validated", script_directory)
         return 0
 
     def included(self, script_directory, job_type, index_type, nightly_release, project, platform):
         """TBD."""
+        log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
         for directory in directories.itervalues():
             files = self.get_files(directory, job_type, index_type)
             for fname in files:
                 test_name = os.path.join(directory, fname)
                 if self.is_included(test_name, nightly_release, project, platform):
-                    print test_name, ArtHeader(test_name).get('art-include')
+                    log.info("%s %s", test_name, ArtHeader(test_name).get('art-include'))
         return 0
 
     def download(self, input_file):
@@ -84,6 +102,8 @@ class ArtBase(object):
         """TBD."""
         import PyUtils.PoolFile as PF
 
+        log = logging.getLogger(MODULE)
+
         # diff-pool
         df = PF.DiffFiles(refFileName=ref_file, chkFileName=file_name, ignoreList=['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings'])
         df.printSummary()
@@ -94,22 +114,24 @@ class ArtBase(object):
         # diff-root
         (code, out, err) = run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
         if code != 0:
-            print "Error:", code
-            print "StdErr:", err
+            log.error("Error: %d", code)
+            print(err)
 
-        print out
-        sys.stdout.flush()
-        return err
+        log.info(out)
+        return code
 
     #
     # Protected Methods
     #
     def get_config(self):
-        """Retrieve dictionary of ART configuration file."""
-        config_file = open("art-configuration.yml", "r")
-        config = yaml.load(config_file)
-        config_file.close()
-        return config
+        """Retrieve dictionary of ART configuration file, or None if file does not exist."""
+        try:
+            config_file = open("art-configuration.yml", "r")
+            config = yaml.load(config_file)
+            config_file.close()
+            return config
+        except IOError:
+            return None
 
     def get_files(self, directory, job_type=None, index_type="all", nightly_release=None, project=None, platform=None):
         """
@@ -163,7 +185,7 @@ class ArtBase(object):
         A dictionary key=<package>, value=<directory> is returned
         """
         result = {}
-        for root, dirs, files in os.walk(directory):
+        for root, dirs, files in scan.walk(directory):
             if root.endswith('/test'):
                 package = os.path.basename(os.path.dirname(root))
                 result[package] = root
