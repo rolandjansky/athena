@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetConditionsAthenaPool/TRT_BSErrContainer_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p1.h"
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "TRT_BSErrContainerCnv_p1.h"
 
