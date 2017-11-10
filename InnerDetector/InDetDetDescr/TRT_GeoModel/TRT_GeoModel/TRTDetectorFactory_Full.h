@@ -44,8 +44,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
 			  int overridedigversion,                              //
 			  bool alignable,                                      //
 			  bool doArgon,                                        //
-			  bool doKrypton,                                      //
-			  bool useDynamicAlignmentFolders);                    //
+        bool doKrypton);                                     //
   //                                                                           //
   // Destructor:                                                               //
   ~TRTDetectorFactory_Full();                                                  //
@@ -63,6 +62,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
     return n;
   }
 
+  // Determine which alignment folders are loaded to decide if we register old or new folders
+  virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
  private:  
 
@@ -104,7 +105,6 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   bool m_strawsvcavailable;
   bool m_doArgon;
   bool m_doKrypton;
-  bool m_useDynamicAlignFolders;
 };
 
 #endif // TRTDetectorFactory_Full_h

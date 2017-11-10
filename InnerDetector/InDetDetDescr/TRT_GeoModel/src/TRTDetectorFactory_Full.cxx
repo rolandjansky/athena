@@ -69,8 +69,7 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
 						 int overridedigversion,
 						 bool alignable,
 						 bool doArgon,
-						 bool doKrypton,
-						 bool useDynamicAlignmentFolders)
+             bool doKrypton)
   : InDetDD::DetectorFactoryBase(athenaComps), 
     m_detectorManager(0), 
     m_materialManager(0),
@@ -82,10 +81,9 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_sumSvc("TRT_StrawStatusSummarySvc","InDetTRTStrawStatusSummarySvc"),
     m_strawsvcavailable(0),
     m_doArgon(doArgon),
-    m_doKrypton(doKrypton),
-    m_useDynamicAlignFolders(useDynamicAlignmentFolders)
+    m_doKrypton(doKrypton)
 { 
-  m_sumSvc=m_summarySvc;
+m_sumSvc=m_summarySvc;
 }
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -282,9 +280,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const int AlignmentLevelTop       = 3; // Level 1
 
   if (m_alignable) {
+    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
+    m_detectorManager->addAlignFolderType(AlignFolder);
 
-    if (!m_useDynamicAlignFolders){
-      m_detectorManager->addAlignFolderType(InDetDD::static_run1);
+    if (AlignFolder==InDetDD::static_run1){
       m_detectorManager->addFolder("/TRT/Align");
       m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
 
@@ -301,9 +300,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       }
     }
 
-    else {
-      m_detectorManager->addAlignFolderType(InDetDD::timedependent_run2);
-
+    if (AlignFolder==InDetDD::timedependent_run2){
       m_detectorManager->addGlobalFolder("/TRT/AlignL1/TRT");
       m_detectorManager->addChannel("/TRT/AlignL1/TRT", AlignmentLevelTop, InDetDD::global);
       m_detectorManager->addFolder("/TRT/AlignL2");
@@ -2571,5 +2568,31 @@ TRTDetectorFactory_Full::ActiveGasMixture TRTDetectorFactory_Full::DecideGasMixt
     }
   return return_agm; 
   }
+
+// Determine which alignment folders are loaded to decide if we register old or new folders    
+InDetDD::AlignFolderType TRTDetectorFactory_Full::getAlignFolderType() const
+{
+
+  bool static_folderStruct = false;
+  bool timedep_folderStruct = false;
+  if (detStore()->contains<CondAttrListCollection>("/TRT/AlignL1/TRT") &&
+      detStore()->contains<AlignableTransformContainer>("/TRT/AlignL2") ) timedep_folderStruct = true;
+
+  if (detStore()->contains<AlignableTransformContainer>("/TRT/Align") ) static_folderStruct = true;
+
+  if (static_folderStruct && !timedep_folderStruct){
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    return InDetDD::static_run1;
+  }
+  else if (!static_folderStruct && timedep_folderStruct){
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    return InDetDD::timedependent_run2;
+  }
+  else if (static_folderStruct && timedep_folderStruct){
+    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
+  }
+  else return InDetDD::none;
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////

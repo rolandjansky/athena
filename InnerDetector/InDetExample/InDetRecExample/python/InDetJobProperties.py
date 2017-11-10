@@ -420,6 +420,12 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -2518,9 +2524,7 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
-
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.useDynamicAlignFolders():
+    if self.useDynamicAlignFolders():
        print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
@@ -2660,6 +2664,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,

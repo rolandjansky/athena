@@ -191,13 +191,6 @@ class StripGeoType(JobProperty):
      allowedTypes = ['str']
      StoredValue  = "UNDEFINED"
 
-class useDynamicAlignFolders(JobProperty):
-    """ Use to turn on dynamic alignment constants folder scheme (first deployed in 2016) """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-
 
 # add to jobproperties
 class GeometryFlags_JobProperties(JobPropertyContainer):
@@ -259,7 +252,6 @@ jobproperties.GeometryFlags_JobProperties.add_JobProperty(isDBM)
 jobproperties.GeometryFlags_JobProperties.add_JobProperty(Run)
 jobproperties.GeometryFlags_JobProperties.add_JobProperty(GeoType)
 jobproperties.GeometryFlags_JobProperties.add_JobProperty(StripGeoType)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFolders)
 
 GeometryFlags = jobproperties.GeometryFlags_JobProperties
 GeometryFlags.setupValuesFromDB()
