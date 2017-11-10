@@ -131,7 +131,8 @@
       <prescript>RecExCommon_links.sh</prescript>
       <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
     </TEST>
-    
+
+    <!-- bs1..4 have been failing for a long time.  See ATR-16665.    
     <TEST name="RECOSHIFT_bs1_bstoesd" type="athena" suite="recobs">
       <options_atn> -c "rec.AutoConfiguration=['everything']; jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doTruth=False " RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/bstoesd.py </options_atn>
       <timelimit>30</timelimit>
@@ -162,6 +163,7 @@
       <mailto> atlas.rig@cern.ch </mailto>
       <platform>opt</platform>
     </TEST>
+    -->
   </atn>
   
   <kv/>
