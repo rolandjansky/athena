@@ -39,12 +39,15 @@ if hasattr(runArgs, "skipEvents"):
 elif hasattr(runArgs, "firstEvent"):
     athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.firstEvent)
 
+from AthenaCommon.GlobalFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.InputFormat="bytestream"
-from AthenaCommon.GlobalFlags import jobproperties
-###jobproperties.Global.ConditionsTag.set_Value_and_Lock ('CONDBR2-BLKPA-2015-11')
-###jobproperties.Global.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
+if hasattr(runArgs,"geometryVersion"):
+   globalflags.DetDescrVersion.set_Value_and_Lock(runArgs.geometryVersion)
 
+if hasattr(runArgs,"conditionsTag"):
+   globalflags.ConditionsTag.set_Value_and_Lock(runArgs.conditionsTag)
+   
 inputNTUP_FTKFile = runArgs.inputNTUP_FTKFile
 
 from TrigFTK_RawDataAlgs.TrigFTK_RawDataAlgsConf import FTK_RDO_CreatorAlgo
@@ -83,7 +86,6 @@ jobproperties.LArRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
-
 
 StreamBSFileOutput.ItemList = ["FTK_RawTrackContainer#*"]
 

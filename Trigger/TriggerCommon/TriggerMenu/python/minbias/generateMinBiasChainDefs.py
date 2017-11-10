@@ -9,8 +9,8 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
 
-from TriggerMenu.minbias.MinBiasDef import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.minbias.MinBiasDef import L2EFChain_MB
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 
 MinBias = []

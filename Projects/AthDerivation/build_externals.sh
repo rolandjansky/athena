@@ -122,7 +122,7 @@ AthDerivationExternalsVersion=$(awk '/^AthDerivationExternalsVersion/{print $3}'
 # Check out AthDerivationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthDerivationExternalsVersion} \
-    -s ${BUILDDIR}/src/AthDerivationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthDerivationExternals.log 
+    -s ${BUILDDIR}/src/AthDerivationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthDerivationExternals.log
 
 # Build AthDerivationExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthDerivationExternals

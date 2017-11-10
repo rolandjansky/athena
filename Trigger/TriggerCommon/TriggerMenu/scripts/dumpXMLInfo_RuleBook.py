@@ -4,7 +4,6 @@
 
 import xml.etree.cElementTree as ET
 import sys
-import string
 
 menu_name = []
 

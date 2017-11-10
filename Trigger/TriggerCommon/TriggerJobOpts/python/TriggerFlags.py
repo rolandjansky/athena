@@ -366,7 +366,7 @@ class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """
     statusOn=True
     allowedType=['str']
-    StoredValue='CONDBR2-HLTP-2016-01'
+    StoredValue='CONDBR2-HLTP-2017-03'
 
 _flags.append(OnlineCondTag)
 
@@ -374,7 +374,7 @@ class OnlineGeoTag(JobProperty):
     """ Default (online) HLT geometry tag """
     statusOn=True
     allowedType=['str']
-    StoredValue='ATLAS-R2-2015-04-00-00'
+    StoredValue='ATLAS-R2-2016-01-00-01'
     
 _flags.append(OnlineGeoTag)
 
@@ -1043,7 +1043,11 @@ class triggerMenuSetup(JobProperty):
         'MC_HI_v4', 'MC_HI_v4_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
-        'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
+        'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale','Physics_pp_v7_unprescaled_only_physics_prescale',
+
+        # -----------------------------------------------------------------
+        # Upgrade
+        'MC_PhaseII',
         ]
 
     _default_menu='MC_pp_v7_tight_mc_prescale'

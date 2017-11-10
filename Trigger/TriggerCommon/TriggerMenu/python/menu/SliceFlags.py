@@ -1,21 +1,22 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import TriggerMenu.egamma.EgammaSliceFlags
-import TriggerMenu.jet.JetSliceFlags
-import TriggerMenu.bjet.BjetSliceFlags
-import TriggerMenu.muon.MuonSliceFlags
-import TriggerMenu.met.METSliceFlags
-import TriggerMenu.tau.TauSliceFlags
-import TriggerMenu.bphysics.BphysicsSliceFlags
-import TriggerMenu.minbias.MinBiasSliceFlags
-import TriggerMenu.heavyion.HeavyIonSliceFlags
-import TriggerMenu.combined.CombinedSliceFlags
-import TriggerMenu.calibcosmicmon.CosmicSliceFlags
-import TriggerMenu.calibcosmicmon.CalibSliceFlags
-import TriggerMenu.calibcosmicmon.StreamingSliceFlags
-import TriggerMenu.calibcosmicmon.MonitorSliceFlags
-import TriggerMenu.calibcosmicmon.BeamspotSliceFlags
-import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
-import TriggerMenu.test.TestSliceFlags
+import TriggerMenu.egamma.EgammaSliceFlags                  # noqa: F401
+import TriggerMenu.jet.JetSliceFlags                        # noqa: F401
+import TriggerMenu.bjet.BjetSliceFlags                      # noqa: F401
+import TriggerMenu.muon.MuonSliceFlags                      # noqa: F401
+import TriggerMenu.met.METSliceFlags                        # noqa: F401
+import TriggerMenu.tau.TauSliceFlags                        # noqa: F401
+import TriggerMenu.bphysics.BphysicsSliceFlags              # noqa: F401
+import TriggerMenu.afp.AFPSliceFlags                        # noqa: F401
+import TriggerMenu.minbias.MinBiasSliceFlags                # noqa: F401
+import TriggerMenu.heavyion.HeavyIonSliceFlags              # noqa: F401
+import TriggerMenu.combined.CombinedSliceFlags              # noqa: F401
+import TriggerMenu.calibcosmicmon.CosmicSliceFlags          # noqa: F401
+import TriggerMenu.calibcosmicmon.CalibSliceFlags           # noqa: F401
+import TriggerMenu.calibcosmicmon.StreamingSliceFlags       # noqa: F401
+import TriggerMenu.calibcosmicmon.MonitorSliceFlags         # noqa: F401
+import TriggerMenu.calibcosmicmon.BeamspotSliceFlags        # noqa: F401
+import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags    # noqa: F401
+import TriggerMenu.test.TestSliceFlags                      # noqa: F401
 
 

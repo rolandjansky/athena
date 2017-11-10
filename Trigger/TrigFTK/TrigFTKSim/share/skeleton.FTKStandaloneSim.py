@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 796937 2017-02-13 21:43:06Z jahreda $
+# $Id: skeleton.FTKStandaloneSim.py 802670 2017-04-10 22:03:45Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging

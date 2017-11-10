@@ -312,7 +312,7 @@ namespace TrigCostRootAnalysis {
    * @param _s String to hash
    * @returns Hash value.
    */
-  UInt_t stringToIntHash(std::string& _s) {
+  UInt_t stringToIntHash(const std::string& _s) {
     UInt_t _hash;
 
     _hash = 0xd2d84a61;

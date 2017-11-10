@@ -2,8 +2,8 @@
 
 """ Streaming slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'P. Bell, after A. Cerri'
 __version__="$Revision: 0.1 $"
@@ -27,7 +27,6 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 class StreamingSlice(JobPropertyContainer, CommonSliceHelper):
     """ Streaming Slice Flags """
