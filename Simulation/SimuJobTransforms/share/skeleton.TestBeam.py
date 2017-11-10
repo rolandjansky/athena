@@ -205,8 +205,6 @@ if not athenaCommonFlags.PoolEvgenInput.statusOn:
 
     include("G4AtlasApps/fragment.SimCopyWeights.py")
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg")
 
