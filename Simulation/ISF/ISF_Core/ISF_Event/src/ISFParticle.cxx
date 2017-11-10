@@ -99,7 +99,7 @@ ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_tstamp(isfp.timeStamp()),
   m_history(isfp.history()),
   m_barcode(isfp.barcode()),
-  m_bcid(0),
+  m_bcid(isfp.getBCID()),
   m_truth(nullptr),
   m_order(ISF::DefaultParticleOrder),
   m_userInfo(nullptr)
@@ -119,7 +119,7 @@ ISF::ISFParticle::ISFParticle(ISFParticle&& isfp):
   m_tstamp(isfp.timeStamp()),
   m_history(isfp.history()),
   m_barcode(isfp.barcode()),
-  m_bcid(0),
+  m_bcid(isfp.getBCID()),
   m_truth(isfp.getTruthBinding()),
   m_order(isfp.getOrder()),
   m_userInfo(isfp.getUserInformation())
