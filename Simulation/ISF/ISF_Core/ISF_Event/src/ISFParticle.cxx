@@ -17,7 +17,7 @@ ISF::ISFParticle::ISFParticle(
   double charge,
   int pdgCode,
   double time,
-  const ISFParticle &p,
+  const ISFParticle &parent,
   Barcode::ParticleBarcode barcode,
   TruthBinding* truth):
  m_position(pos),
@@ -26,9 +26,9 @@ ISF::ISFParticle::ISFParticle(
  m_charge(charge),
  m_pdgCode(pdgCode),
  m_tstamp(time),
- m_history(p.history()),
+ m_history(parent.history()),
  m_barcode(barcode),
- m_bcid(p.getBCID()),
+ m_bcid(parent.getBCID()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(nullptr)
@@ -43,7 +43,7 @@ ISF::ISFParticle::ISFParticle(
   double charge,
   int pdgCode,
   double time,
-  const ISFParticle &p,
+  const ISFParticle &parent,
   Barcode::ParticleBarcode barcode,
   TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z()),
@@ -52,9 +52,9 @@ ISF::ISFParticle::ISFParticle(
  m_charge(charge),
  m_pdgCode(pdgCode),
  m_tstamp(time),
- m_history(p.history()),
+ m_history(parent.history()),
  m_barcode(barcode),
- m_bcid(p.getBCID()),
+ m_bcid(parent.getBCID()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(nullptr)
