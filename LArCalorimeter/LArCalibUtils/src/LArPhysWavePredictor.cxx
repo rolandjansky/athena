@@ -664,11 +664,6 @@ StatusCode LArPhysWavePredictor::stop()
 
         } // end loop over DAC value for a given cell
 
-	// intermediate map cleanup (save memory)
-	const LArCaliWaveVec* cvec = &(*itVec);
-        LArCaliWaveVec* vec = const_cast<LArCaliWaveVec*>(cvec);
-        vec->clear();
-
       }  // end loop over cells for a given gain
 
     } // end loop over gains for a give container
