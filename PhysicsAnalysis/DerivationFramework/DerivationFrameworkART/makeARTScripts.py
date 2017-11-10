@@ -1,7 +1,7 @@
 import os
 
-makeDataDAODs=True
-makeMCDAODs=True
+makeDataDAODs=False
+makeMCDAODs=False
 makeTruthDAODs=False
 makeTrains=True
 
@@ -39,7 +39,7 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
               ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
               ["HIGG4D3","EXOT18","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
               ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1"], # 1-1.3%
-              ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21"], # 1.3-1.6%
+              ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21","EXOT22"], # 1.3-1.6%
               ["STDM9","HIGG5D3","BPHY9","HIGG5D1","BPHY6"], # 1.6-1.8%
               ["EGAM5","JETM11","SUSY8","HIGG2D2","SUSY10"], # 1.9-2.1%
               ["HIGG3D3","EXOT4","TAUP1","EXOT13","EXOT2","HIGG4D2"], # 2.1-2.7%
