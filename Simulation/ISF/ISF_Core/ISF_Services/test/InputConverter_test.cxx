@@ -51,9 +51,9 @@ namespace ISFTesting {
 
 // Athena Tool to emulate a GenParticleFilter
 class MockFilterTool : public AthAlgTool,
-                       public ISF::IGenParticleFilter { 
-    
- public: 
+                       public ISF::IGenParticleFilter {
+
+ public:
   MockFilterTool(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type,name,parent)
   { declareInterface<ISF::IGenParticleFilter>(this); };
@@ -62,7 +62,7 @@ class MockFilterTool : public AthAlgTool,
 
   // mock method which will be called by tested code
   MOCK_CONST_METHOD1(pass, bool(const HepMC::GenParticle&));
-}; 
+};
 
 DECLARE_TOOL_FACTORY( MockFilterTool )
 
@@ -92,8 +92,9 @@ class InputConverter_test: public ::testing::Test {
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
 
     // the tested AthenaService
-    m_svc = m_svcLoc->service("ISF::InputConverter/InputConverter");
-    ASSERT_TRUE( m_svc.isValid() );
+    SmartIF<IService>& serviceSmartPointer = m_svcLoc->service("ISF::InputConverter/InputConverter");
+    m_svc = dynamic_cast<ISF::InputConverter*>(serviceSmartPointer.get());
+    EXPECT_NE(nullptr, m_svc);
     ASSERT_TRUE( m_svc->setProperties().isSuccess() );
     ASSERT_TRUE( m_svc->configure().isSuccess() );
   }
@@ -102,22 +103,15 @@ class InputConverter_test: public ::testing::Test {
     m_svcMgr->removeService(m_svc);
     ASSERT_TRUE( m_svc->finalize().isSuccess() );
     ASSERT_TRUE( m_svc->terminate().isSuccess() );
-    ReleaseSmartIFComponent(m_svc);
+    delete m_svc;
 
     ASSERT_TRUE( m_appMgr->finalize().isSuccess() );
     ASSERT_TRUE( m_appMgr->terminate().isSuccess() );
     Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr)) ;
   }
 
-  void ReleaseSmartIFComponent(IInterface* comp) {
-    size_t finalRefCount = 1; // keep one reference for the SmartIF destructor
-    for (size_t refCount = comp->refCount(); refCount>finalRefCount; refCount--) {
-      comp->release();
-    }
-  }
-
   //
-  // accessors for private methods
+  // wrappers for private methods
   // NB: This works because InputConverter_test is a friend
   //     of the tested InputConverter service
   //
@@ -135,7 +129,7 @@ class InputConverter_test: public ::testing::Test {
     return m_svc->m_genParticleFilters;
   }
   //
-  // protected member variables 
+  // protected member variables
   //
 
   // Core Gaudi components
@@ -145,7 +139,7 @@ class InputConverter_test: public ::testing::Test {
   SmartIF<IToolSvc>      m_toolSvc;
   SmartIF<IProperty>     m_propMgr;
 
-  SmartIF<ISF::InputConverter>   m_svc; // the tested AthenaService
+  ISF::InputConverter*   m_svc; // the tested AthenaService
 
 };  // InputConverter_test fixture
 

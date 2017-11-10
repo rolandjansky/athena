@@ -47,7 +47,7 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class InputConverter : public IInputConverter, public AthService {
+  class InputConverter : public extends<AthService, IInputConverter> {
 
     // allow test to access private data
     friend ISFTesting::InputConverter_test;
@@ -56,12 +56,11 @@ namespace ISF {
       InputConverter(const std::string& name, ISvcLocator* svc);
       virtual ~InputConverter();
 
+      DeclareInterfaceID( ISF::IInputConverter, 1, 0 );
+
       /** Athena algtool Hooks */
       StatusCode  initialize();
       StatusCode  finalize();
-
-      /** ReturnGaudi InterfaceID */
-      static const InterfaceID& interfaceID() { return IID_IInputConverter; }
 
       /** Convert selected particles from the given McEventCollection into ISFParticles
           and push them into the given ISFParticleContainer */
@@ -69,8 +68,6 @@ namespace ISF {
                                  ISF::ISFParticleContainer& simParticles,
                                  bool isPileup=false) const override final;
 
-      /** Query the interfaces. **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     private:
       /** get right GenParticle mass */

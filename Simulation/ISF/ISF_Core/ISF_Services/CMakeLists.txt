@@ -33,6 +33,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( HepMC )
 find_package( HepPDT )
+find_package( GTest )
+find_package( GMock )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
@@ -41,6 +43,25 @@ atlas_add_component( ISF_Services
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces SimHelpers ISF_Event ISF_Interfaces TileSimEvent PmbCxxUtils )
+
+# Tests in the package:
+atlas_add_test( InputConverter_test
+                SOURCES
+                test/InputConverter_test.cxx
+                src/InputConverter.cxx
+                INCLUDE_DIRS
+                ${HEPPDT_INCLUDE_DIRS}
+                ${GTEST_INCLUDE_DIRS}
+                ${GMOCK_INCLUDE_DIRS}
+                LINK_LIBRARIES
+                ISF_Event
+                ISF_Interfaces
+                ${HEPPDT_LIBRARIES}
+                AthenaBaseComps
+                GeneratorObjects
+                ${GTEST_LIBRARIES}
+                ${GMOCK_LIBRARIES}
+                )
 
 # Install files from the package:
 atlas_install_headers( ISF_Services )

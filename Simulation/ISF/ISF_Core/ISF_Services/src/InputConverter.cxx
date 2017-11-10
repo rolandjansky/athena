@@ -39,7 +39,7 @@
 
 /** Constructor **/
 ISF::InputConverter::InputConverter(const std::string& name, ISvcLocator* svc)
-    : AthService(name,svc)
+    : base_class(name,svc)
     , m_particlePropSvc("PartPropSvc",name)
     , m_particleDataTable(nullptr)
     , m_useGeneratedParticleMass(false)
@@ -279,18 +279,4 @@ ISF::InputConverter::passesFilters(const HepMC::GenParticle& part) const {
   }
 
   return true;
-}
-
-
-/** Query the interfaces. */
-StatusCode ISF::InputConverter::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-
-  if ( IID_IInputConverter == riid )
-    *ppvInterface = (IInputConverter*)this;
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
