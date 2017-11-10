@@ -2,14 +2,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # NOTE do NOT run with /bin/bash -x as the output is too big for gitlab-ci
-# arguments:  PACKAGE INDEX EXTENSION NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG
+# arguments:  PACKAGE GRID_INDEX EXTENSION NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG
 #
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
 #
 # example: Tier0ChainTests 4 _EXT0 21.0 Athena x86_64-slc6-gcc62-opt 2017-07-24T2151
 
 if [ $# -ne 7 ]; then
-    echo 'Usage: art-get-tar.sh PACKAGE INDEX EXTENSION NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG'
+    echo 'Usage: art-get-tar.sh PACKAGE GRID_INDEX EXTENSION NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG'
     exit 1
 fi
 
@@ -19,7 +19,7 @@ ART_USER='artprod'
 
 PACKAGE=$1
 shift
-INDEX=$1
+GRID_INDEX=$1
 shift
 EXTENSION=$1
 shift
@@ -54,7 +54,7 @@ echo "Tar files in the Container: ${FILELIST}"
 CONTAINER=`rucio list-dids ${CONTAINER_LIST} --filter type=container | grep ${NIGHTLY_TAG} | sort -r | cut -d ' ' -f 2 | head -n 1`
 echo "Container: ${CONTAINER}"
 
-printf -v INDEX_FORMAT '_%06d.tar' ${INDEX}
+printf -v INDEX_FORMAT '_%06d.tar' ${GRID_INDEX}
 TAR_NAME=`rucio list-files --csv ${CONTAINER} | grep ${INDEX_FORMAT} | cut -d ',' -f 1`
 echo "Tar Name: ${TAR_NAME}"
 
