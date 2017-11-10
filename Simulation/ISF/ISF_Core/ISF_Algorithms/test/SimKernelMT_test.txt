@@ -1,0 +1,1 @@
+ToolSvc.MyTestSimulationSelector.Simulator = "ISFTesting::MockSimulationSvc/MyTestSimulationSvc";

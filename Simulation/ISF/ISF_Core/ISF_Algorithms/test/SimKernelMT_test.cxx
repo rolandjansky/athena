@@ -10,56 +10,94 @@
 
 #undef NDEBUG
 
+// Tested AthAlgorithm
+#include "../src/SimKernelMT.h"
+
+// ISF includes
+#include "ISF_Event/ISFParticle.h"
+#include "ISF_Interfaces/BaseSimulationSvc.h"
+
+// Amg classes
+#include "GeoPrimitives/GeoPrimitives.h"
+
+// Framework includes
+#include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
+
 // Google Test and Google Mock
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-// Framework includes
-#include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/SmartIF.h"
-#include "AthenaBaseComps/AthService.h"
-
-// Tested AthAlgorithm
-#include "../src/SimKernelMT.h"
 
 namespace ISFTesting {
 
-std::string mockInputConverterName = "ISFTesting::MockInputConverter/MyTestInputConverter";
+// Globally used services and tools
+//
+const std::string particleKillerSimulationSvcName = "ISF::ParticleKillerSimSvc/ParticleKillerSimSvc";
+const std::string fullInputConverter = "ISF::InputConverter/InputConverter";
 
 // Athena Service to mock an InputConverter
-class MockInputConverter : public AthService,
-                           public ISF::IInputConverter {
+//
+const std::string mockInputConverterName = "ISFTesting::MockInputConverter/MyTestInputConverter";
+
+class MockInputConverter : public extends<AthService, ISF::IInputConverter> {
 
 public:
   MockInputConverter(const std::string& name, ISvcLocator* svc)
-    : AthService(name,svc)
-  { };
-
+    : base_class(name,svc)
+  {  };
   virtual ~MockInputConverter() { };
 
-  // needed to resolve ambiguity when assigning instance to SmartIF
-  static const InterfaceID& interfaceID() { return IID_IInputConverter; }
-
-  StatusCode  initialize() override { return StatusCode::SUCCESS;}
-  StatusCode  finalize() override { return StatusCode::SUCCESS;}
-
-  // needed to make this AthService implementation work with Athena
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override {
-      if (IID_IInputConverter != riid) {
-        // Interface is not directly available: try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      *ppvInterface = (IInputConverter*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-  }
-
+  MOCK_METHOD0(finalize, StatusCode());
   MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
                                          ISF::ISFParticleContainer&,
                                          bool));
 }; // MockInputConverter class
 
 DECLARE_SERVICE_FACTORY( MockInputConverter )
+
+
+// Athena Service to mock an SimulationService
+//
+const std::string mockSimulationSvcName = "ISFTesting::MockSimulationSvc/MyTestSimulationSvc";
+
+class MockSimulationSvc : public ISF::BaseSimulationSvc {
+
+public:
+  MockSimulationSvc(const std::string& name, ISvcLocator* svc)
+    : ISF::BaseSimulationSvc(name, svc)
+  { };
+  virtual ~MockSimulationSvc() { };
+
+  MOCK_METHOD0(finalize, StatusCode());
+  MOCK_METHOD1(simulate, StatusCode(const ISF::ISFParticle&));
+  MOCK_METHOD0(setupEvent, StatusCode());
+  MOCK_METHOD0(releaseEvent, StatusCode());
+}; // MockSimulationSvc class
+
+DECLARE_SERVICE_FACTORY( MockSimulationSvc )
+
+
+// Athena Tool to mock a SimulationSelector
+//
+const std::string mockSimulationSelectorName = "ISFTesting::MockSimulationSelector/MyTestSimulationSelector";
+
+class MockSimulationSelector : public ISF::ISimulationSelector {
+
+public:
+  MockSimulationSelector(const std::string& type, const std::string& name, const IInterface* svclocator)
+    : ISimulationSelector(type, name, svclocator)
+  { declareInterface<ISF::ISimulationSelector>(this); };
+  virtual ~MockSimulationSelector() { };
+
+  MOCK_METHOD0(finalize, StatusCode());
+  MOCK_CONST_METHOD1(passSelectorCuts, bool(const ISF::ISFParticle&));
+}; // MockSimulationSelector class
+
+DECLARE_TOOL_FACTORY( MockSimulationSelector )
 
 
 // Gaudi Test fixture that provides a clean Gaudi environment for
@@ -88,7 +126,8 @@ protected:
     m_propMgr = m_appMgr;
     ASSERT_TRUE( m_propMgr.isValid() );
     ASSERT_TRUE( m_propMgr->setProperty( "EvtSel",         "NONE" ).isSuccess() );
-    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "NONE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "FILE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsPath", "SimKernelMT_test.txt" ).isSuccess() );
 
     m_toolSvc = m_svcLoc->service("ToolSvc");
     ASSERT_TRUE( m_toolSvc.isValid() );
@@ -98,16 +137,12 @@ protected:
   }
 
   void TearDownGaudi() {
+    ASSERT_TRUE( m_svcMgr->finalize().isSuccess() );
     ASSERT_TRUE( m_appMgr->finalize().isSuccess() );
     ASSERT_TRUE( m_appMgr->terminate().isSuccess() );
+    m_svcLoc->release();
+    m_svcMgr->release();
     Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr) );
-  }
-
-  void ReleaseSmartIFComponent(IInterface* comp) {
-    size_t finalRefCount = 1; // keep one reference for the SmartIF destructor
-    for (size_t refCount = comp->refCount(); refCount>finalRefCount; refCount--) {
-      comp->release();
-    }
   }
 
   // protected member variables for Core Gaudi components
@@ -126,117 +161,87 @@ protected:
   virtual void SetUp() override {
     // the tested AthAlgorithm
     m_alg = new ISF::SimKernelMT{"SimKernelMT", m_svcLoc};
+    EXPECT_TRUE( m_alg->setProperty("ParticleKillerSimulationSvc", particleKillerSimulationSvcName).isSuccess() );
 
     // retrieve mocked Athena components
-    SmartIF<IService> svc = m_svcLoc->service(mockInputConverterName);
-
-    m_mockInputConverter = dynamic_cast<MockInputConverter*>(svc.get());
-    ASSERT_NE(nullptr, m_mockInputConverter);
-
-    ASSERT_TRUE( m_mockInputConverter->setProperties().isSuccess() );
-    ASSERT_TRUE( m_mockInputConverter->configure().isSuccess() );
+    m_mockInputConverter = retrieveService<MockInputConverter>(mockInputConverterName);
+    m_mockSimulationSvc = retrieveService<MockSimulationSvc>(mockSimulationSvcName);
+    m_mockSimulationSelector = retrieveTool<MockSimulationSelector>(mockSimulationSelectorName);
   }
 
   virtual void TearDown() override {
+    // let the Gaudi ServiceManager finalize all services
+    ASSERT_TRUE( m_svcMgr->finalize().isSuccess() );
+
     // release tested AthAlgorithm
     delete m_alg;
-
-    // release the mock Athena components
-    m_svcMgr->removeService(m_mockInputConverter);
-    ASSERT_TRUE( m_mockInputConverter->finalize().isSuccess() );
-    ASSERT_TRUE( m_mockInputConverter->terminate().isSuccess() );
-    ReleaseSmartIFComponent(m_mockInputConverter);
+    // release various service instances
     delete m_mockInputConverter;
+    delete m_mockSimulationSvc;
+  }
+
+  template<typename T>
+  T* retrieveService(const std::string& name) {
+    T* service = nullptr;
+    SmartIF<IService>& serviceSmartPointer = m_svcLoc->service(name);
+    service = dynamic_cast<T*>(serviceSmartPointer.get());
+    EXPECT_NE(nullptr, service);
+    EXPECT_TRUE( service->setProperties().isSuccess() );
+    EXPECT_TRUE( service->configure().isSuccess() );
+    EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
+    // assert that finalize() gets called once per test case
+    EXPECT_CALL( *service, finalize() )
+      .Times(1)
+      .WillOnce(::testing::Return(StatusCode::SUCCESS));
+
+    return service;
+  }
+
+  template<typename T>
+  T* retrieveTool(const std::string& name) {
+    T* tool = nullptr;
+    EXPECT_TRUE( m_toolSvc->retrieveTool(name, tool).isSuccess() );
+    EXPECT_NE(nullptr, tool);
+    EXPECT_TRUE( tool->setProperties().isSuccess() );
+    EXPECT_TRUE( tool->configure().isSuccess() );
+
+    // assert that finalize() gets called once per test case
+    EXPECT_CALL( *tool, finalize() )
+      .Times(1)
+      .WillOnce(::testing::Return(StatusCode::SUCCESS));
+
+    return tool;
+  }
+
+  void setEmptyInputOutputCollections() {
+    auto inputEvgen = std::make_unique<McEventCollection>();
+    SG::WriteHandle<McEventCollection> inputEvgenHandle{"emptyTestInputEvgenCollection"};
+    inputEvgenHandle.record( std::move(inputEvgen) );
+
+    EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "emptyTestInputEvgenCollection").isSuccess() );
+    EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+    EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+  }
+
+  // wrappers for private methods
+  // NB: This works because CollectionMerger_test is a friend of the tested
+  //     CollectionMerger class
+  //
+  template<typename ...Args>
+  ISF::ISimulationSvc& identifySimulator(Args&... args) {
+    return m_alg->identifySimulator(std::forward<Args>(args)...);
   }
 
   // the tested AthAlgorithm
   ISF::SimKernelMT* m_alg;
 
   // mocked Athena components
-  ISFTesting::MockInputConverter* m_mockInputConverter;
+  ISFTesting::MockInputConverter* m_mockInputConverter = nullptr;
+  ISFTesting::MockSimulationSvc* m_mockSimulationSvc = nullptr;
+  ISFTesting::MockSimulationSelector* m_mockSimulationSelector = nullptr;
 
 };  // SimKernelMT_test fixture
 
-
-TEST_F(SimKernelMT_test, unsetInputOutputCollections_expectInitializeFailure) {
-  ASSERT_TRUE( m_alg->initialize().isFailure() );
-}
-
-
-TEST_F(SimKernelMT_test, unsetInputCollection_expectInitializeFailure) {
-  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-
-  ASSERT_TRUE( m_alg->initialize().isFailure() );
-}
-
-
-TEST_F(SimKernelMT_test, unsetOutputCollection_expectInitializeFailure) {
-  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-
-  ASSERT_TRUE( m_alg->initialize().isFailure() );
-}
-
-
-TEST_F(SimKernelMT_test, unsetInputConverter_expectInitializeFailure) {
-  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-
-  ASSERT_TRUE( m_alg->initialize().isFailure() );
-}
-
-
-TEST_F(SimKernelMT_test, allPropertiesSet_expectInitializeSuccess) {
-  m_alg->setProperty("InputEvgenCollection", "SomeRandomInputCollectionKey");
-  m_alg->setProperty("OutputTruthCollection", "SomeRandomOutputCollectionKey");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-
-  ASSERT_TRUE( m_alg->initialize().isSuccess() );
-}
-
-
-TEST_F(SimKernelMT_test, nonexistingInputOutputCollections_expectFailure) {
-  m_alg->setProperty("InputEvgenCollection", "DoesntExistInputCollection");
-  m_alg->setProperty("OutputTruthCollection", "DoesntExistOutputCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-
-  ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_TRUE( m_alg->execute().isFailure() );
-}
-
-
-TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputCollection) {
-  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-
-  auto inputEvgen = std::make_unique<McEventCollection>();
-  SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
-  testInputEvgenHandle.record( std::move(inputEvgen) );
-
-  ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_TRUE( m_alg->execute().isSuccess() );
-  SG::ReadHandle<McEventCollection> testOutputTruthHandle("testOutputTruthCollection");
-  ASSERT_TRUE( testOutputTruthHandle.isValid() );
-}
-
-
-TEST_F(SimKernelMT_test, emptyInputCollection_expectSuccess) {
-  auto inputEvgen = std::make_unique<McEventCollection>();
-  auto* genEvent = new HepMC::GenEvent{};
-
-  inputEvgen->push_back(genEvent);
-  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-  inputEvgenHandle.record( std::move(inputEvgen) );
-
-  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
-  EXPECT_TRUE( m_alg->initialize().isSuccess() );
-
-  ASSERT_TRUE( m_alg->execute().isSuccess() );
-}
 
 // checks if the two given HepMC::GenEvent instances are equal.
 // returns true if they are equal, false otherwise
@@ -282,6 +287,87 @@ MATCHER_P(ContainsOneGenEventEq, expectedGenEvent, "is equal to expected HepMC::
 }
 
 
+TEST_F(SimKernelMT_test, unsetInputOutputCollections_expectInitializeFailure) {
+  ASSERT_TRUE( m_alg->initialize().isFailure() );
+}
+
+
+TEST_F(SimKernelMT_test, unsetInputCollection_expectInitializeFailure) {
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+
+  ASSERT_TRUE( m_alg->initialize().isFailure() );
+}
+
+
+TEST_F(SimKernelMT_test, unsetOutputCollection_expectInitializeFailure) {
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+
+  ASSERT_TRUE( m_alg->initialize().isFailure() );
+}
+
+
+TEST_F(SimKernelMT_test, unsetInputConverter_expectInitializeFailure) {
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+
+  ASSERT_TRUE( m_alg->initialize().isFailure() );
+}
+
+
+TEST_F(SimKernelMT_test, allPropertiesSet_expectInitializeSuccess) {
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "SomeRandomInputCollectionKey").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "SomeRandomOutputCollectionKey").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+}
+
+
+TEST_F(SimKernelMT_test, nonexistingInputOutputCollections_expectFailure) {
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "DoesntExistInputCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "DoesntExistOutputCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+  ASSERT_TRUE( m_alg->execute().isFailure() );
+}
+
+
+TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputCollection) {
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+
+  auto inputEvgen = std::make_unique<McEventCollection>();
+  SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
+  testInputEvgenHandle.record( std::move(inputEvgen) );
+
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+  SG::ReadHandle<McEventCollection> testOutputTruthHandle("testOutputTruthCollection");
+  ASSERT_TRUE( testOutputTruthHandle.isValid() );
+}
+
+
+TEST_F(SimKernelMT_test, emptyInputCollection_expectSuccess) {
+  auto inputEvgen = std::make_unique<McEventCollection>();
+  auto* genEvent = new HepMC::GenEvent{};
+
+  inputEvgen->push_back(genEvent);
+  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
+  inputEvgenHandle.record( std::move(inputEvgen) );
+
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+}
+
+
 TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
   auto* genEvent = new HepMC::GenEvent{};
   HepMC::GenParticle* genPart = new HepMC::GenParticle{};
@@ -300,19 +386,214 @@ TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
   SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
   inputEvgenHandle.record( std::move(inputEvgen) );
 
-  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
-  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
-  m_alg->setProperty("InputConverter", mockInputConverterName);
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
   EXPECT_TRUE( m_alg->initialize().isSuccess() );
 
-  EXPECT_CALL(*m_mockInputConverter, convert(ContainsOneGenEventEq(*genEvent),
-                                             ::testing::_,
-                                             ::testing::_))
+  EXPECT_CALL( *m_mockInputConverter, convert(ContainsOneGenEventEq(*genEvent),
+                                              ::testing::_,
+                                              ::testing::_) )
       .WillOnce(::testing::Return(StatusCode::SUCCESS));
 
   ASSERT_TRUE( m_alg->execute().isSuccess() );
 }
 
+
+TEST_F(SimKernelMT_test, emptyInputEvgenCollection_expectInitializeSuccess) {
+  this->setEmptyInputOutputCollections();
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+}
+
+
+TEST_F(SimKernelMT_test, emptySimulationSelectors_expectInitializeSuccess) {
+  EXPECT_TRUE( m_alg->setProperty("ForwardBeamPipeSimulationSelectors", "[]").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InDetSimulationSelectors", "[]").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("CaloSimulationSelectors", "[]").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("MSSimulationSelectors", "[]").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("CavernSimulationSelectors", "[]").isSuccess() );
+  this->setEmptyInputOutputCollections();
+
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+}
+
+
+TEST_F(SimKernelMT_test, filledSimulationSelectors_expectInitializeSuccess) {
+  EXPECT_TRUE( m_alg->setProperty("ForwardBeamPipeSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() ); //mockSimulationSelectorName);
+  EXPECT_TRUE( m_alg->setProperty("InDetSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("CaloSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("MSSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("CavernSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  this->setEmptyInputOutputCollections();
+
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+}
+
+
+TEST_F(SimKernelMT_test, identifySimulator_particleInsideInnerDetectorAndInnerDetectorSimulationSelectorAcceptingParticle_expectInnerDetectorSimulatorReturned) {
+  EXPECT_TRUE( m_alg->setProperty("InDetSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  this->setEmptyInputOutputCollections();
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  Amg::Vector3D position(0., 1., 0.);  // close to the origin
+  Amg::Vector3D momentum(1., 2., 3.);
+  ISF::DetRegionSvcIDPair particleOrigin(AtlasDetDescr::fAtlasID, ISF::fUndefinedSimID);
+  const ISF::ISFParticle particle(position,
+                                  momentum,
+                                  123.*Gaudi::Units::GeV,  // mass
+                                  -1.,  // charge
+                                  11,  // PDG code
+                                  0.2*Gaudi::Units::second,  // time
+                                  particleOrigin,
+                                  123  // BCID
+                                  );
+
+  EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
+    .WillOnce(::testing::Return(true));
+
+  const auto* actualSimulationSvcPtr = &this->identifySimulator(particle);
+
+  const auto* expectedSimulationSvcPtr = m_mockSimulationSvc;
+  ASSERT_EQ(expectedSimulationSvcPtr, actualSimulationSvcPtr);
+}
+
+
+TEST_F(SimKernelMT_test, identifySimulator_particleInsideInnerDetectorAndInnerDetectorSimulationSelectorNotAcceptingParticle_expectParticleKillerSimulatorReturned) {
+  EXPECT_TRUE( m_alg->setProperty("InDetSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  this->setEmptyInputOutputCollections();
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  Amg::Vector3D position(0., 1., 0.);  // close to the origin
+  Amg::Vector3D momentum(1., 2., 3.);
+  ISF::DetRegionSvcIDPair particleOrigin(AtlasDetDescr::fAtlasID, ISF::fUndefinedSimID);
+  const ISF::ISFParticle particle(position,
+                                  momentum,
+                                  123.*Gaudi::Units::GeV,  // mass
+                                  -1.,  // charge
+                                  11,  // PDG code
+                                  0.2*Gaudi::Units::second,  // time
+                                  particleOrigin,
+                                  123  // BCID
+                                  );
+
+  EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
+    .WillOnce(::testing::Return(false));
+
+  const auto* actualSimulationSvcPtr = &this->identifySimulator(particle);
+  const std::string parentName = m_alg->name();
+  ServiceHandle<ISF::ISimulationSvc> particleKillerSimulationSvc(particleKillerSimulationSvcName, parentName);
+  const ISF::ISimulationSvc* expectedSimulationSvcPtr = &*particleKillerSimulationSvc;
+
+  ASSERT_EQ(expectedSimulationSvcPtr, actualSimulationSvcPtr);
+}
+
+
+TEST_F(SimKernelMT_test, identifySimulator_particleInsideCaloAndOnlyInnerDetectorSimulationSelectorPresent_expectSimulationSelectorNotCalledAndParticleKillerSimulatorReturned) {
+  EXPECT_TRUE( m_alg->setProperty("InDetSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  this->setEmptyInputOutputCollections();
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  Amg::Vector3D position(0., 1., 0.);  // close to the origin
+  Amg::Vector3D momentum(1., 2., 3.);
+  ISF::DetRegionSvcIDPair particleOrigin(AtlasDetDescr::fAtlasCalo, ISF::fUndefinedSimID);
+  const ISF::ISFParticle particle(position,
+                                  momentum,
+                                  123.*Gaudi::Units::GeV,  // mass
+                                  -1.,  // charge
+                                  11,  // PDG code
+                                  0.2*Gaudi::Units::second,  // time
+                                  particleOrigin,
+                                  123  // BCID
+                                  );
+
+  EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(::testing::_) )
+    .Times(0);
+
+  const auto* actualSimulationSvcPtr = &this->identifySimulator(particle);
+  const std::string parentName = m_alg->name();
+  ServiceHandle<ISF::ISimulationSvc> particleKillerSimulationSvc(particleKillerSimulationSvcName, parentName);
+  const ISF::ISimulationSvc* expectedSimulationSvcPtr = &*particleKillerSimulationSvc;
+
+  ASSERT_EQ(expectedSimulationSvcPtr, actualSimulationSvcPtr);
+}
+
+
+TEST_F(SimKernelMT_test, identifySimulator_particleInsideCaloAndCaloSimulationSelectorSelectingParticle_expectSimulatorReturned) {
+  EXPECT_TRUE( m_alg->setProperty("CaloSimulationSelectors", "['"+mockSimulationSelectorName+"']").isSuccess() );
+  this->setEmptyInputOutputCollections();
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  Amg::Vector3D position(0., 1., 0.);  // close to the origin
+  Amg::Vector3D momentum(1., 2., 3.);
+  ISF::DetRegionSvcIDPair particleOrigin(AtlasDetDescr::fAtlasCalo, ISF::fUndefinedSimID);
+  const ISF::ISFParticle particle(position,
+                                  momentum,
+                                  123.*Gaudi::Units::GeV,  // mass
+                                  -1.,  // charge
+                                  11,  // PDG code
+                                  0.2*Gaudi::Units::second,  // time
+                                  particleOrigin,
+                                  123  // BCID
+                                  );
+
+  EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
+    .WillOnce(::testing::Return(true));
+
+  const auto* actualSimulationSvcPtr = &this->identifySimulator(particle);
+  const ISF::ISimulationSvc* expectedSimulationSvcPtr = m_mockSimulationSvc;
+
+  ASSERT_EQ(expectedSimulationSvcPtr, actualSimulationSvcPtr);
+}
+
+
+TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationSelectors_expectConvertedParticleSentToParticleKiller) {
+  auto* genEvent = new HepMC::GenEvent{};
+  HepMC::FourVector mom{12.3, 45.6, 78.9, 1234.5};
+  HepMC::GenParticle* genPart = new HepMC::GenParticle{mom,
+                                                       11,  // pdg id (e-)
+                                                       1  // status
+                                                       };
+  HepMC::FourVector pos{9., 8., 7., 678.9};
+  auto* genVertex = new HepMC::GenVertex{pos};
+  genVertex->add_particle_out(genPart);
+  genEvent->add_vertex(genVertex);
+
+  auto inputEvgen = std::make_unique<McEventCollection>();
+  inputEvgen->push_back(genEvent);
+  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
+  inputEvgenHandle.record( std::move(inputEvgen) );
+
+  EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("ParticleKillerSimulationSvc", mockSimulationSvcName).isSuccess() );
+  EXPECT_TRUE( m_alg->setProperty("InputConverter", fullInputConverter).isSuccess() );
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  Amg::Vector3D position(9., 8., 7.);
+  Amg::Vector3D momentum(12.3, 45.6, 78.9);
+  ISF::DetRegionSvcIDPair particleOrigin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
+  ISF::TruthBinding* truthBinding = new ISF::TruthBinding(genPart);
+
+  ISF::ISFParticle convertedParticle(position,
+                                     momentum,
+                                     0.510999*Gaudi::Units::MeV,  // e- mass
+                                     -1.,  // charge
+                                     11,  // e- PDG code
+                                     678.9/Gaudi::Units::c_light*Gaudi::Units::ns,  // time
+                                     particleOrigin,
+                                     0,  // BCID
+                                     10001,  // barcode
+                                     truthBinding
+                                     );
+
+  EXPECT_CALL( *m_mockSimulationSvc, simulate(convertedParticle) )
+    .Times(1)
+    .WillOnce(::testing::Return(StatusCode::SUCCESS));
+
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+}
 
 } // namespace ISFTesting
 
@@ -322,7 +603,7 @@ int main(int argc, char *argv[]) {
 
   //return RUN_ALL_TESTS();
   // if the above gets stuck forever while trying to finalize Boost stuff
-  // inside SGTools, try to use that:
-  //  skips proper finalization:
+  // inside SGTools, try to use the following:
+  // skips proper finalization:
   std::quick_exit( RUN_ALL_TESTS() );
 }

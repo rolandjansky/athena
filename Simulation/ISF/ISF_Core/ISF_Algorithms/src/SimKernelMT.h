@@ -11,17 +11,28 @@
 #ifndef ISF_SIMKERNELMT_H
 #define ISF_SIMKERNELMT_H 1
 
-// Framework includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+// Interfaces to ISF Tools and Services
+#include "ISF_Interfaces/IInputConverter.h"
+#include "ISF_Interfaces/ISimulationSvc.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
+
+// DetectorDescription
+#include "AtlasDetDescr/AtlasRegion.h"
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
 
-// Interfaces to ISF Tools and Services
-#include "ISF_Interfaces/IInputConverter.h"
+// Framework includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+
+// forward declarations
+namespace ISFTesting {
+  class SimKernelMT_test;
+}
 
 
 namespace ISF {
@@ -35,6 +46,9 @@ namespace ISF {
  * to the attached simulators.
  */
 class SimKernelMT final : public AthAlgorithm {
+
+  /** Allow the test class access to all methods */
+  friend class ISFTesting::SimKernelMT_test;
 
 public:
   /// Implements standard AthAlgorithm constructor
@@ -56,6 +70,9 @@ public:
   StatusCode finalize() override;
 
 private:
+  /// Returns the simulator to use for the given particle
+  ISimulationSvc& identifySimulator(const ISF::ISFParticle& particle) const;
+
   /// Input Generator Truth collection
   SG::ReadHandleKey<McEventCollection> m_inputEvgenKey;
   /// Output Simulation Truth collection
@@ -63,6 +80,12 @@ private:
 
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter;
+
+  /// The simulation selectors defining the "routing chain"
+  ToolHandleArray<ISimulationSelector> m_simSelectors[AtlasDetDescr::fNumAtlasRegions];
+
+  /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
+  ServiceHandle<ISimulationSvc> m_particleKillerSimulationSvc;
 };
 
 } // namespace ISF
