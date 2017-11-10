@@ -225,21 +225,26 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
                   <<std::boolalpha<<prescaleForDAQROBAccess<<std::noboolalpha);
     if(m_doRawMon){
         StatusCode sc = doRawMon(prescaleForDAQROBAccess);
-        ATH_MSG_DEBUG("Executed doRawMon : "<<(sc.isFailure() ? "failed" : "ok"));
+        const bool failed = sc.isFailure();
+        ATH_MSG_DEBUG("Executed doRawMon : "<<(failed ? "failed" : "ok"));
     }
     if (m_doCnvMon){
         StatusCode sc = doCnvMon(prescaleForDAQROBAccess);
-        ATH_MSG_DEBUG("Executed doCnvMon : "<<(sc.isFailure() ? "failed" : "ok"));
+        const bool failed = sc.isFailure();
+        ATH_MSG_DEBUG("Executed doCnvMon : "<<(failed ? "failed" : "ok"));
     }
     if (m_doSimMon){
         StatusCode sc = doSimMon(prescaleForDAQROBAccess);
-        ATH_MSG_DEBUG("Executed doSimMon : "<<(sc.isFailure() ? "failed" : "ok"));
+        const bool failedSimMon = sc.isFailure();
+        ATH_MSG_DEBUG("Executed doSimMon : "<<(failedSimMon ? "failed" : "ok"));
         sc = doOverflowSimMon();
-        ATH_MSG_DEBUG("Executed doOverflowSimMon : "<<(sc.isFailure() ? "failed" : "ok"));
+        const bool failedOveflowSimMon = sc.isFailure();
+        ATH_MSG_DEBUG("Executed doOverflowSimMon : "<<(failedOveflowSimMon ? "failed" : "ok"));
     }
     if(m_doSimDaq){
         StatusCode sc = doSimDaq(prescaleForDAQROBAccess);
-        ATH_MSG_DEBUG("Executed doSimDaq : "<<(sc.isFailure() ? "failed" : "ok"));
+        const bool failed = sc.isFailure();
+        ATH_MSG_DEBUG("Executed doSimDaq : "<<(failed ? "failed" : "ok"));
     }
 
     incrementErrorCounters();
