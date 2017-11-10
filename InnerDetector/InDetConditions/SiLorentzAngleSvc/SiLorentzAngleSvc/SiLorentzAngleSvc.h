@@ -146,7 +146,6 @@ private:
   const DataHandle<AthenaAttributeList> m_dbData;
 
   bool m_isPixel;  
-  bool m_magFieldInit;
 
   InDet::SiliconProperties m_siProperties;
   const InDetDD::SiDetectorManager * m_detManager;

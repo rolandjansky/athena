@@ -84,7 +84,7 @@ namespace LVL1 {
       //! @}
 
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
-      BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
+      BooleanProperty m_enableBitwise { true }; // for enabling bitwise algorithms
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
       StringProperty  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
       StringProperty  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP

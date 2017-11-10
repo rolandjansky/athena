@@ -664,8 +664,7 @@ PixelCluster* MergedPixelsTool::makeCluster
     double splitProb1,
     double splitProb2) const
 {
-    if ( outputLevel() < MSG::INFO ) 
-        ATH_MSG_VERBOSE("makeCluster called, number " << clusterNumber);
+    ATH_MSG_VERBOSE("makeCluster called, number " << clusterNumber);
 
     Identifier gangedID;
     Identifier elementID = element->identify();
@@ -715,10 +714,10 @@ PixelCluster* MergedPixelsTool::makeCluster
 
         // check overflow for IBL
         int realtot = *tot;
-	if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(rId) == 0 && pixelID.layer_disk(rId) == 0 ) {
-	  if (*tot >= m_overflowIBLToT ) realtot = m_overflowIBLToT;
-          msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(rId) << " layer_disque = " <<  pixelID.layer_disk(rId) << " ToT = " << *tot << " Real ToT = " << realtot << endreq;
-	}
+        if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(rId) == 0 && pixelID.layer_disk(rId) == 0 ) {
+          if (*tot >= m_overflowIBLToT ) realtot = m_overflowIBLToT;
+          ATH_MSG_DEBUG("barrel_ec = " << pixelID.barrel_ec(rId) << " layer_disque = " <<  pixelID.layer_disk(rId) << " ToT = " << *tot << " Real ToT = " << realtot);
+        }
 	   
         if (row == rowMin) qRowMin += realtot;
         if (row < rowMin){ 
@@ -832,16 +831,14 @@ PixelCluster* MergedPixelsTool::makeCluster
 
     Amg::Vector2D position(centroid.xPhi(),centroid.xEta());
 
-    if (msgLvl(MSG::VERBOSE)){
-        msg() << "Cluster ID =" << id << endreq; 
-        msg() << "Cluster width (eta x phi) = " << colWidth 
-            << " x " << rowWidth << endreq;
-        msg() << "Cluster width (eta x phi) = " << etaWidth 
-            << " x " << phiWidth << endreq;
-        msg() << "Cluster local position (eta,phi) = " 
-            << (position)[0] << " " 
-            << (position)[1] << endreq;
-    }
+    ATH_MSG_VERBOSE("Cluster ID =" << id); 
+    ATH_MSG_VERBOSE("Cluster width (eta x phi) = " << colWidth 
+        << " x " << rowWidth);
+    ATH_MSG_VERBOSE("Cluster width (eta x phi) = " << etaWidth 
+        << " x " << phiWidth);
+    ATH_MSG_VERBOSE("Cluster local position (eta,phi) = " 
+        << (position)[0] << " " 
+        << (position)[1]);
 
     if(!m_clusterMaker){
       PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,0);

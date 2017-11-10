@@ -248,6 +248,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      // remove outlier
      while(1) {
        if (chamber==9) break;//BME skips this loop
+       if (chamber==10) break;//BMG skips this loop
        unsigned int layer = 999999;
        double DistMax  = 0.;
        double Residual = 0.;

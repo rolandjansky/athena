@@ -329,6 +329,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   int m_maxRpcHits;
   int m_maxTgcHits;
 
+
   //Map to cache
   std::map<std::vector<std::vector<IdentifierHash> >, SegmentCache*> m_SFCacheSCMap;
   
@@ -380,6 +381,9 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::ofstream m_fileWithHashIds_mdt;
   std::ofstream m_fileWithHashIds_csc;
 #endif
+
+  bool m_ignoreCSC;
+
 
 };
 

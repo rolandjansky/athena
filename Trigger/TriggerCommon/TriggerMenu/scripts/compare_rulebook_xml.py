@@ -3,9 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import sys
-import os
 import commands
-import time
 import xml.etree.cElementTree as ET
 
 
@@ -42,7 +40,7 @@ class TriggerRule:
         input_list = line.strip(' \n').split(';')
 
         if len(input_list) < 3:
-            log.warning('Skip incorrectly formatted input line: %s' % line)
+            print "Skip incorrectly formatted input line:", line
             return False
 
         self.trigger_name = input_list[0].strip()

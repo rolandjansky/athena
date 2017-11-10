@@ -68,7 +68,6 @@ namespace TrigCostRootAnalysis {
     Int_t getOnlineEventsInLB(Int_t _lb);
 
     void parseHLTFarmXML();
-    const IntStringMap_t& getComputerTypeToNameMap() {return m_computerTypeToNameMap;}
     UInt_t getComputerType(UInt_t _hash);
   private:
     void parseRunXML(const Int_t _runNumber, const Bool_t _primaryRun);
@@ -152,6 +151,7 @@ namespace TrigCostRootAnalysis {
     IntIntMap_t m_totalEventsPerLB; //!< Map of how many events there were online per LB (from COOL, stored in XML)
     Int_PairStringInt_Map_t m_bunchGroupXML; //!< Bunchgroup config, loaded from XML
     Bool_t m_parsedRunXML; //!< If we managed to read the run XML
+    Bool_t m_ignoreGRL; //!< Cache this setting if GRL is to be ignored in enhanced bias data 
     std::set<Int_t>         m_badLumiBlocks; //!< LBs flagged as bad by rate experts in the run XML
     Int_t m_minLB; //!< Lower lumi block with information in the run XML
     Int_t m_maxLB; //!< Upper lumi block with information in the run XML
@@ -159,7 +159,6 @@ namespace TrigCostRootAnalysis {
 
     // For decoding a PUs location in the farm
     UIntUIntMap_t m_PUHashToPUType; //!< Map of a PU's HASH to it's processor type
-    IntStringMap_t m_computerTypeToNameMap; //!< Map of a processor type to its name
     UInt_t m_computerUnknownID; //!< ID of the "UNKNOWN" type
 
     Float_t m_loadedDeadtime; //!< Currently loaded deadtime from run XML (will change with time if doing MultiRun)

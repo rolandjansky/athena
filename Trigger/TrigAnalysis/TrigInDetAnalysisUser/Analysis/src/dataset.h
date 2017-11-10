@@ -47,7 +47,7 @@ public:
       while( !infile.fail() ) {
 	std::string file;
 	infile >>  file;
-	if ( !infile.fail() && file.find(".root")!=std::string::npos ) push_back( s+"/"+file );
+	if ( !infile.fail() && file.find(".root")!=std::string::npos && file.find(".part")==std::string::npos ) push_back( s+"/"+file );
       }
 
       //      for ( unsigned i=size() ; i-- ; ) std::cout << at(i) << std::endl;

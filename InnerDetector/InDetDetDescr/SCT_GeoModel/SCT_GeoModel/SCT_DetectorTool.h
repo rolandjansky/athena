@@ -45,6 +45,7 @@ private:
   bool m_initialLayout;
   bool m_alignable;
   bool m_cosmic;
+  bool m_useDynamicAlignFolders;
   
   const InDetDD::SCT_DetectorManager * m_manager;
   

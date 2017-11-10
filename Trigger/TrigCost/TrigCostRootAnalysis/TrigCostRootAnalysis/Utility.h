@@ -240,7 +240,9 @@ namespace TrigCostRootAnalysis {
     kNBunchGroups,
     kDoEBWeighting,
     kDoCPS,
+    kIgnorePSGreaterThanOne,
     kIgnoreNonPhysBunchGroups,
+    kIgnoreGRL,
     kNoLBRescaling,
     kPatternsInvert,
     kDirectlyApplyPrescales,
@@ -367,14 +369,8 @@ namespace TrigCostRootAnalysis {
     kVersionString,
     kLBPerKeyset,
     kVarTime,     // Study Variable ENUMs
-    kVarSteeringTimeCPUType1,
-    kVarSteeringTimeCPUType2,
-    kVarSteeringTimeCPUType3,
-    kVarSteeringTimeCPUType4,
-    kVarEventsCPUType1,
-    kVarEventsCPUType2,
-    kVarEventsCPUType3,
-    kVarEventsCPUType4,
+    kVarSteeringTimeCPUType,
+    kVarEventsCPUType,
     kVarRerunTime,
     kVarPassTime,
     kVarTimeExec,
@@ -614,7 +610,7 @@ namespace TrigCostRootAnalysis {
   Bool_t isZero(Float_t _float, Float_t _precision = 0.00000001);
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
-  UInt_t stringToIntHash(std::string& s);
+  UInt_t stringToIntHash(const std::string& s);
   const std::string& getLevelString(UInt_t _level);
   Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
 

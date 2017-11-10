@@ -76,16 +76,6 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
-        
-        <TEST name="AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK" type="script" suite="tt_25">
-            <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --run AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --conf TriggerTest.conf</options_atn>
-            <timelimit>60</timelimit>
-            <author>Trigger Validation</author>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
 
         <TEST name="AthenaTrigRDO_MC_pp_v7" type="script" suite="tt_26">
             <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v7 --run AthenaTrigRDO_MC_pp_v7 --conf TriggerTest.conf</options_atn>
@@ -473,21 +463,6 @@
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestMonitorHistos</group>   
-                <queue>long</queue>
-                <alwaysRunPostProc />
-            </athena>
-            
-            <athena userJobId="MC_pp_v6_no_prescale_toxAOD_FTK" doMonitoring="True" >
-                <doc>
-                    Runs MC_pp_v6_no_prescale menu on valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119 dumping events in an xAOD
-                </doc>
-                <displayName>MC_pp_v6_no_prescale_toxAOD_FTK</displayName>
-                <commandLineFlags>
-                    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config.set_Value_and_Lock("2016"); RunningRTT=True;menu='MC_pp_v6_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/RDO_FTK.10733709._000019.pool.root.1']
-                </commandLineFlags>
-                <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
-                <package>Trigger/TrigValidation/TriggerTest</package>
-                <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
                 <alwaysRunPostProc />
             </athena>

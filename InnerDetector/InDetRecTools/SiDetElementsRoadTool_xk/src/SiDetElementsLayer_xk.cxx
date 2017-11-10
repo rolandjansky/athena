@@ -26,7 +26,7 @@
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getBarrelDetElements
-(float* P ,float* A,std::list<InDet::SiDetElementLink_xk*>& lDE)
+(float* P ,float* A,std::vector<InDet::SiDetElementLink_xk*>& lDE)
 {
   float a  = (A[0]*P[0]+A[1]*P[1])*2.; 
   float d  = (m_r-P[0]-P[1])*(m_r+P[0]+P[1])+2.*P[0]*P[1];
@@ -56,7 +56,7 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getEndcapDetElements
-(float* P ,float* A,std::list<InDet::SiDetElementLink_xk*>& lDE)
+(float* P ,float* A,std::vector<InDet::SiDetElementLink_xk*>& lDE)
 {
   float s   =(m_z-P[2])/A[2];
   float xc  = P[0]+A[0]*s;
@@ -80,7 +80,7 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getDetElements
-(float* P,float* A,float Fc,float dW,std::list<InDet::SiDetElementLink_xk*>& lDE)
+(float* P,float* A,float Fc,float dW,std::vector<InDet::SiDetElementLink_xk*>& lDE)
 {
   const float pi = M_PI, pi2 = 2.*pi; 
   int im  = int(m_elements.size())-1; if(im<0) return;

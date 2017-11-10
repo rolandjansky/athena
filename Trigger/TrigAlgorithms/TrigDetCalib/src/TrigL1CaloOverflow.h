@@ -32,6 +32,7 @@ private:
   bool m_ignoreAbortGap;
   bool m_acceptCMXOverflows;
   bool m_acceptCaloRoIBOverflows;
+  bool m_acceptLvl1Consist;
 };
 
 
