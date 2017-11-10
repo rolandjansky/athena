@@ -1,8 +1,7 @@
 #====================================================================
 # BPHY7.py
 # 
-#  
-# Requires the reductionConf flag BPHY7 in Reco_tf.py   
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LfvBphy7 
 #====================================================================
 
 
@@ -571,18 +570,6 @@ BPHY7JetThinningTool = DerivationFramework__GenericObjectThinning( name		       
 
 ToolSvc += BPHY7JetThinningTool;
 
-#==================================================================================
-# Add everything which is needed to calibrate objects and to followingly make MET
-#==================================================================================
-
-#Erase if not re-activated
-
-#from DerivationFrameworkTau.TruthObjectTools import *  # should give me the definition of TERUTH1TauTool
-
-if isSimulation:
-    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-    scheduleTauTruthTools()
-#also added the TruthTau containers to the output
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -601,7 +588,7 @@ BPHY7AugmentationTools = [BPHY7DiMuon_SelectAndWrite, BPHY7DiMuon_Decorator, BPH
 Kernel1Tools = [BPHY7TriggerSkim]
 
 if isSimulation:
-    BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
+    #BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
     if thinTruth:
        BPHY7ThinningTools.append(BPHY7TruthThinTool)
        BPHY7ThinningTools.append(BPHY7TruthMetTool)
@@ -650,7 +637,7 @@ BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
 
 # Smart collection will add all extra info needed to have the selecte object fully functional
 # Includes loads of variables. TODO: can we reduce this information???
-SmartCollections = ["MET_Reference_AntiKt4EMTopo"] # , "MET_Reference_AntiKt4LCTopo"]
+SmartCollections = ["MET_Reference_AntiKt4EMTopo"]
 
 #for calculation of MET
 #if isSimulation:
@@ -683,8 +670,6 @@ StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
 ## TruthTaus (needed to calibrate taus, then used for MET)
 
 if isSimulation:
-    StaticContent += ["xAOD::TruthParticleContainer#TruthTaus"]
-    StaticContent += ["xAOD::TruthParticleAuxContainer#TruthTausAux."]
     AllVariables += ["AntiKt4TruthJets"] 
 
 AllVariables += ["InDetTrackParticles"]
