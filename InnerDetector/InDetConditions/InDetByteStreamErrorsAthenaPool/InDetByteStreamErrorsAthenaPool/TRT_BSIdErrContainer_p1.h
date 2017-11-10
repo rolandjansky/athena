@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRT_BSIDERRCONTAINER_P1_H
-#define TRT_BSIDERRCONTAINER_P1_H
+#ifndef INDETBYTESTREAMERRORSATHENAPOOL_TRT_BSIDERRCONTAINER_P1_H
+#define INDETBYTESTREAMERRORSATHENAPOOL_TRT_BSIDERRCONTAINER_P1_H
 
 #include <stdint.h>
 #include <vector>
 
-class TRT_BSIdErrContainer_p1   
+class TRT_BSIdErrContainer_p1
 {
  public:
 /// Default constructor
@@ -23,5 +23,5 @@ class TRT_BSIdErrContainer_p1
 inline
 TRT_BSIdErrContainer_p1::TRT_BSIdErrContainer_p1 () {}
 
-#endif // Not TRT_BSIDERRCONTAINER_P1_H
+#endif // Not INDETBYTESTREAMERRORSATHENAPOOL_TRT_BSIDERRCONTAINER_P1_H
 

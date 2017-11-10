@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <atn>
-    <TEST name="InDetConditionsAthenaPoolTest" type="makecheck" suite="Examples">
-       <package>InnerDetector/InDetConditions/InDetConditionsAthenaPool</package>
+    <TEST name="InDetByteStreamErrorsAthenaPoolTest" type="makecheck" suite="Examples">
+       <package>InnerDetector/InDetConditions/InDetByteStreamErrorsAthenaPool</package>
        <timelimit>10</timelimit>
        <author> scott snyder </author>
        <mailto> snyder@bnl.gov</mailto>
