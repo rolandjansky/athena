@@ -92,12 +92,7 @@ namespace EL
     }
 
     std::unique_ptr<SysListType> list (new SysListType (m_systematicsVector));
-#ifdef ROOTCORE
     evtStore()->record (list.release(), m_systematicsName);
     return StatusCode::SUCCESS;
-#else
-    ANA_MSG_ERROR ("putting the systematics list into the event store is currently not supported");
-    return StatusCode::FAILURE;
-#endif
   }
 }

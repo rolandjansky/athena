@@ -13,11 +13,14 @@
 
 #include <string>
 #include <vector>
+#include <AsgTools/CLASS_DEF.h>
 
 namespace CP
 {
   class SystematicSet;
 }
+
+CLASS_DEF( std::vector<CP::SystematicSet> , 79952367 , 1 )
 
 namespace EL
 {
