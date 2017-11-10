@@ -1400,7 +1400,7 @@
 	      <doc>FastChain reco</doc>
 	      <jobTransformJobName>stdReco_PseudoT_oldHits</jobTransformJobName>
 	      <jobTransformCmd> 
-		  Reco_tf.py --inputHITSFile=/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1 --outputESDFile=ESD.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doStandardPlots.set_Value_and_Lock(True);" --outputRDOFile=RDO.oldhits.pool.root --postInclude='HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py'
+		  Reco_tf.py --inputHITSFile=/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1 --outputESDFile=ESD.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doStandardPlots.set_Value_and_Lock(True);" --outputRDOFile=RDO.oldhits.pool.root --postInclude='HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' --conditionsTag default:OFLCOND-RUN12-SDR-25
 	      </jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <chaindataset_info>
