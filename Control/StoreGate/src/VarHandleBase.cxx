@@ -882,10 +882,8 @@ namespace SG {
     IProxyDict* store = m_store;
     if (!store)
       store = &*this->storeHandle();
-    if (IHiveStore* hs = dynamic_cast<IHiveStore*> (store))
-      store = hs->hiveProxyDict();
 
-    return store;
+    return store->hiveProxyDict();
   }
 
 

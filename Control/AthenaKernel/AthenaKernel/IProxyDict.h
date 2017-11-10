@@ -10,6 +10,7 @@
 // INCLUDES
 #include "AthenaKernel/sgkey_t.h"
 #include "AthenaKernel/IStringPool.h"
+#include "AthenaKernel/IHiveStore.h"
 #include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/ClassID.h"
@@ -42,8 +43,10 @@ class IConverter;
  * @author Paolo Calafiura - ATLAS
  *  $Id: IProxyDict.h,v 1.5 2007-12-11 02:56:22 binet Exp $
  */
-class IProxyDict : virtual public INamedInterface,
-                   virtual public IStringPool
+class IProxyDict : virtual public IStringPool,
+                   virtual public IHiveStore,
+                   virtual public INamedInterface
+
 {
 public:
   DeclareInterfaceID (IProxyDict, 2, 0);
@@ -186,6 +189,10 @@ public:
   virtual StatusCode createObj (IConverter* cvt,
                                 IOpaqueAddress* addr,
                                 DataObject*& refpObject);
+
+
+  virtual IProxyDict* hiveProxyDict() override
+  { return this; }
 };
 
 
