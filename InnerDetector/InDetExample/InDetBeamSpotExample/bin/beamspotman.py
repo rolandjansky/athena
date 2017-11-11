@@ -128,9 +128,12 @@ parser.add_option('', '--prefix', dest='prefix', default='', help='Prefix for re
 parser.add_option('', '--rl', dest='runMin', type='int', default=None, help='Minimum run number for mctag (inclusive)')
 parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Maximum run number for mctag (inclusive)')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
-parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
 parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
+
+g_deprecated = OptionGroup(parser, 'Deprecated Options')
+g_deprecated.add_option('', '--mon', dest='legacy_mon', action='store_true', default=False, help='mon directory structure (now inferred from montaskname)')
+parser.add_option_group(g_deprecated)
 
 (options, args) = parser.parse_args()
 if len(args) < 1: parser.error('wrong number of command line arguments')
@@ -961,8 +964,8 @@ if cmd=='resubmit' and len(args) in [3,4]:
             continue
         print dir
         jobname = dir
-        if options.mon:
-           jobname = '-'.join([dsname, taskname, dir])
+        if (options.montaskname in taskname.split('.')) or options.legacy_mon:
+           jobname = '-'.join([dsname, taskname, 'lb' + dir])
         fullpath = os.path.join(basepath, dir)
 
         isRunning = False
