@@ -938,7 +938,7 @@ if cmd=='archive' and len(args)==3:
     sys.exit(0)
 
 #
-# Run beam spot resumit failed jobs
+# Run beam spot resubmit failed jobs
 # Double check directory structure is appropriate for you
 #
 
@@ -962,10 +962,10 @@ if cmd=='resubmit' and len(args) in [3,4]:
         if not os.path.isdir(os.path.join(basepath,dir)):
             continue
         print dir
-        jobname=dir
+        jobname = dir
         if options.mon:
-           jobname= dsname+'-'+taskname+'-'+dir
-        fullpath = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
+           jobname = '-'.join([dsname, taskname, dir])
+        fullpath = os.path.join(os.getcwd(), dsname, taskname, dir)
 
         isRunning = False
         isFailed = False
@@ -973,8 +973,8 @@ if cmd=='resubmit' and len(args) in [3,4]:
           if re.search('RUNNING', f) or re.search('POSTPROCESSING',f):
             isRunning = True
           if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
-            statusFile  = open( fullpath+'/'+jobname + '.exitstatus.dat', 'r')
-            status  = statusFile.read(1)
+            with open(os.path.join(fullpath, jobname + '.exitstatus.dat')) as statusFile:
+                status = statusFile.read(1)
             print status
             if status != "0":
               isFailed  = True
@@ -995,16 +995,16 @@ if cmd=='resubmit' and len(args) in [3,4]:
           elif re.search('.py.final.py', f):
             os.remove(os.path.join(fullpath, f))
 
-        #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
+        jobConfig = {
+                'test': 'this',
+                'batchqueue' : queue,
+                'jobname' : jobname,
+                'jobdir' : fullpath,
+                }
+        jobConfig['logfile'] = '%(jobdir)s/%(jobname)s.log' % jobConfig
+        jobConfig['scriptfile'] = '%(jobdir)s/%(jobname)s.sh' % jobConfig
 
-        jobConfig ={'test':'this' }
-        jobConfig['batchqueue'] = queue
-        jobConfig['jobname'] = jobname
-        jobConfig['jobdir'] = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
-        jobConfig['logfile']='%(jobdir)s/%(jobname)s.log' % jobConfig
-        jobConfig['scriptfile']='%(jobdir)s/%(jobname)s.sh' % jobConfig
-
-        batchCmd = 'bsub -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
+        batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         print batchCmd
         os.system(batchCmd)
 
