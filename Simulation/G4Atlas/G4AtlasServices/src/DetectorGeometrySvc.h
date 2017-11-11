@@ -15,6 +15,7 @@
 #include "G4AtlasInterfaces/IParallelWorldTool.h"
 #include "G4AtlasInterfaces/IDetectorGeometryTool.h"
 #include "G4AtlasInterfaces/IFieldManagerTool.h"
+#include "G4AtlasInterfaces/IG4GeometryConfigurationTool.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h" // For tool handle array
@@ -43,13 +44,13 @@ public:
   std::vector<std::string>& GetParallelWorldNames() override final;
 
 protected:
-  void BuildExtraMaterials();
 
 private:
   ToolHandle<IDetectorGeometryTool> m_detTool;
   ToolHandle<IDetectorConstructionTool> m_detConstruction;
   ToolHandleArray<IRegionCreator> m_regionCreators;
   ToolHandleArray<IParallelWorldTool> m_parallelWorlds;
+  ToolHandleArray<IG4GeometryConfigurationTool> m_configurationTools;
   
   ToolHandleArray<IFieldManagerTool> m_fieldManagers;
    

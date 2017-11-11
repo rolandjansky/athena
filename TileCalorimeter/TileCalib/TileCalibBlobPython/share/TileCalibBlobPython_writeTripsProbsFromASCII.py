@@ -1,5 +1,7 @@
 #!/bin/env python
 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 import getopt,sys,os,string
  
 def usage():
@@ -20,7 +22,7 @@ keywords = ["help", "tag=", "input=","folder="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
@@ -45,14 +47,7 @@ for o, a in opts:
         assert False, "unhandled option"
 
  
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -72,13 +67,13 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     #=== get full folder tag
     folderTag = TileCalibUtils.getFullTag(folderPath, tag)
 
-    util = PyCintex.gbl.TileCalibUtils()
+    util = cppyy.gbl.TileCalibUtils()
     
-    default = PyCintex.gbl.std.vector('unsigned int')()
+    default = cppyy.gbl.std.vector('unsigned int')()
     for i in xrange(util.max_drawer() + 1):
         default.push_back( 0 )
 
-    defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()  
+    defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()  
     defVec.push_back(default)
     
     #=====================================================

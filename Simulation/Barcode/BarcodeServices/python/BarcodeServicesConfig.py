@@ -57,6 +57,17 @@ def getMC16LLPBarcodeSvc(name="Barcode_MC16LLPBarcodeSvc", **kwargs):
     return getMC12BarcodeSvc(name, **kwargs)
 
 
+def getMC18BarcodeSvc(name="Barcode_MC18BarcodeSvc", **kwargs):
+    kwargs.setdefault("FirstSecondaryVertexBarcode" ,  -1000001 )
+    kwargs.setdefault("FirstSecondaryBarcode"       ,   1000001 )
+    kwargs.setdefault("ParticleGenerationIncrement" ,  10000000 )
+    return getMC12BarcodeSvc(name, **kwargs)
+
+
+def getMC18LLPBarcodeSvc(name="Barcode_MC18LLPBarcodeSvc", **kwargs):
+    return getMC18BarcodeSvc(name, **kwargs)
+
+
 def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwargs):
     kwargs.setdefault("EncodePhysicsProcessInVertexBC",  False  )
     kwargs.setdefault("FirstSecondaryVertexBarcode"   , -200000 )
@@ -97,6 +108,8 @@ def barcodeOffsetForTruthStrategy(strategyName):
                'MC15':        1000000,
                'MC16':         200000,
                'MC16LLP':      200000,
+               'MC18':        1000000,
+               'MC18LLP':     1000000,
                'Validation':   200000
                }
     currentOffset=offsets.get(strategyName)

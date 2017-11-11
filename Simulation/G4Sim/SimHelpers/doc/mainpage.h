@@ -15,7 +15,6 @@ This package includes several helpers for use during simulation.  Running simula
 The helpers in this package are:
 
  - MemorySnooper : Set of functions for tracking memory being used during the simulation
- - SecondaryTracksHelper : Helper for tracks not from the primary event
  - ServiceAccessor : Helper for getting services
  - StepHelper : Set of functions for dealing with G4Steps
  - TrackVisualizationHelper : Set of functions for dealing with the visualization of tracks
