@@ -139,14 +139,14 @@ cmdargs = args[1:]
 
 # General error checking (skipped in expert mode to allow testing)
 if not options.expertmode:
-    if os.getcwd() != options.proddir:
+    if os.path.realpath(os.getcwd()) != os.path.realpath(options.proddir):
         sys.exit('ERROR: You must run this command in the production directory %s' % options.proddir)
     if not os.path.exists(produserfile):
         sys.exit('ERROR: Authorization file unreadable or does not exists %s' % produserfile)
     if not commands.getoutput('grep `whoami` %s' % produserfile):
         sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file %s)' % produserfile)
 else:
-    if os.getcwd() != options.proddir:
+    if os.path.realpath(os.getcwd()) != os.path.realpath(options.proddir):
         print 'WARNING: You are not running in the production directory %s' % options.proddir
 
 
