@@ -49,10 +49,10 @@ mctag STATUS POSX POSY POSZ             Create an sqlite file containing a MC ta
 
 
 proddir = '/afs/cern.ch/user/a/atlidbs/jobs'
-produserfile = '/private/produsers.dat'
-prodcoolpasswdfile = '/private/coolinfo.dat'
-proddqcoolpasswdfile = '/private/cooldqinfo.dat'
-tier0dbinfofile = '/private/t0dbinfo.dat'
+produserfile = '/afs/cern.ch/user/a/atlidbs/private/produsers.dat'
+prodcoolpasswdfile = '/afs/cern.ch/user/a/atlidbs/private/coolinfo.dat'
+proddqcoolpasswdfile = '/afs/cern.ch/user/a/atlidbs/private/cooldqinfo.dat'
+tier0dbinfofile = '/afs/cern.ch/user/a/atlidbs/private/t0dbinfo.dat'
 beamspottag = ''
 backuppath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
 archivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
@@ -146,10 +146,10 @@ cmdargs = args[1:]
 if not options.expertmode:
     if commands.getoutput('pwd') != options.proddir:
         sys.exit('ERROR: You must run this command in the production directory %s' % options.proddir)
-    if not os.path.exists(os.environ.get('HOME')+produserfile):
-        sys.exit('ERROR: Authorization file unreadable or does not exists')
-    if not commands.getoutput('grep `whoami` %s' % os.environ.get('HOME')+produserfile):
-        sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file)')
+    if not os.path.exists(produserfile):
+        sys.exit('ERROR: Authorization file unreadable or does not exists %s' % produserfile)
+    if not commands.getoutput('grep `whoami` %s' % produserfile):
+        sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file %s)' % produserfile)
 else:
     if commands.getoutput('pwd') != options.proddir:
         print 'WARNING: You are not running in the production directory %s' % options.proddir
@@ -160,7 +160,8 @@ else:
 #
 def getT0DbConnection():
     try:
-        connstring = open(os.environ.get('HOME')+tier0dbinfofile,'r').read().strip()
+        with open(tier0dbinfofile, 'r') as dbinfofile:
+            connstring = dbinfofile.read().strip()
     except:
         sys.exit('ERROR: Unable to read connection information for Tier-0 database')
     dbtype, dbname = connstring.split(':',1)
@@ -235,7 +236,8 @@ if cmd == 'upload' and len(cmdargs) == 1:
     if not options.beamspottag:
         fail('No beam spot tag specified')
     try:
-        passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
+        with open(prodcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         fail('Unable to determine COOL upload password')
 
@@ -511,7 +513,8 @@ if cmd=='upload' and len(args)==3:
             sys.exit()
 
         try:
-            passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
+            with open(prodcoolpasswdfile, 'r') as passwdfile:
+                passwd = passwdfile.read().strip()
         except:
             sys.exit('ERROR: Unable to determine COOL upload password')
 
@@ -1313,7 +1316,8 @@ if cmd=='dqflag' and len(args)==2:
     if not options.dqtag:
         sys.exit('ERROR: No beamspot DQ tag specified')
     try:
-        passwd = open(os.environ.get('HOME')+proddqcoolpasswdfile,'r').read().strip()
+        with open(proddqcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
@@ -1364,7 +1368,8 @@ if cmd=='dqflag' and len(args)==3:
         sys.exit()
 
     try:
-        passwd = open(os.environ.get('HOME')+proddqcoolpasswdfile,'r').read().strip()
+        with open(proddqcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
