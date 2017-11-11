@@ -43,11 +43,6 @@ mctag STATUS POSX POSY POSZ             Create an sqlite file containing a MC ta
                                         
 '''
 
-# TODO: additional commands
-# - authorize USERID
-# - deauthorize USERID
-
-
 proddir = '/afs/cern.ch/user/a/atlidbs/jobs'
 produserfile = '/afs/cern.ch/user/a/atlidbs/private/produsers.dat'
 prodcoolpasswdfile = '/afs/cern.ch/user/a/atlidbs/private/coolinfo.dat'
@@ -144,14 +139,14 @@ cmdargs = args[1:]
 
 # General error checking (skipped in expert mode to allow testing)
 if not options.expertmode:
-    if commands.getoutput('pwd') != options.proddir:
+    if os.getcwd() != options.proddir:
         sys.exit('ERROR: You must run this command in the production directory %s' % options.proddir)
     if not os.path.exists(produserfile):
         sys.exit('ERROR: Authorization file unreadable or does not exists %s' % produserfile)
     if not commands.getoutput('grep `whoami` %s' % produserfile):
         sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file %s)' % produserfile)
 else:
-    if commands.getoutput('pwd') != options.proddir:
+    if os.getcwd() != options.proddir:
         print 'WARNING: You are not running in the production directory %s' % options.proddir
 
 
@@ -580,9 +575,9 @@ if cmd=='dq2get' and len(args)==3:
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
-    dir = '/'.join([dsname,task])
+    dir = os.path.join(dsname, task)
     griddsname = '%s.%s-%s' % (options.griduser,dsname,task)
-    path = '/'.join([dir,griddsname])
+    path = os.path.join(dir, griddsname)
     if os.path.exists(path):
         print 'ERROR: Path exists already:',path
         sys.exit(1)
@@ -958,17 +953,17 @@ if cmd=='resubmit' and len(args) in [3,4]:
         print 'ERROR: No queue was specified (use -q)'
         sys.exit(1)
 
-    basepath = os.getcwd()+'/'+dsname+'/'+taskname+'/'
-    dircontents = os.listdir( basepath )
+    basepath = os.path.join(os.getcwd(), dsname, taskname)
+    dircontents = os.listdir(basepath)
 
     for dir in dircontents:
-        if not os.path.isdir(os.path.join(basepath,dir)):
+        if not os.path.isdir(os.path.join(basepath, dir)):
             continue
         print dir
         jobname = dir
         if options.mon:
            jobname = '-'.join([dsname, taskname, dir])
-        fullpath = os.path.join(os.getcwd(), dsname, taskname, dir)
+        fullpath = os.path.join(basepath, dir)
 
         isRunning = False
         isFailed = False
@@ -1113,7 +1108,7 @@ if cmd=='reproc' and len(args)==5:
             queue = options.batch_queue or 'atlasb1_long'
             runner = LSFJobRunner.LSFJobRunner(
                     jobnr=jobnr,
-                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
                     inputds='',
                     inputfiles=files,
@@ -1279,7 +1274,7 @@ if cmd=='runaod' and len(args)==5:
                 queue='atlasb1_long' if options.pseudoLbFile else 'atlasb1'
             runner = LSFJobRunner.LSFJobRunner(
                     jobnr=jobnr,
-                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
                     inputds='',
                     inputfiles=files,
