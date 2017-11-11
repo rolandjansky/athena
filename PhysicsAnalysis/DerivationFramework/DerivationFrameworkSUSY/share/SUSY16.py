@@ -382,6 +382,19 @@ SeqSUSY16 += CfgMgr.DerivationFramework__DerivationKernel(
     ThinningTools = thinningTools,
     )
 
+#====================================================================
+# Prompt Lepton Tagger
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY16, "SUSY16")
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY16, "SUSY16")
+
+# add decoration
+SeqSUSY16 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY16 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 #====================================================================
 # CONTENT LIST  
@@ -423,6 +436,13 @@ SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                       "BTagging_AntiKt2Track.MV2c10_discriminant",
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl"
 ]
+
+# Saves BDT and input variables for light lepton algorithms. 
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+SUSY16SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+# Saves BDT and input variables tau algorithm
+SUSY16SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+
 
 SUSY16SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY16SlimmingHelper.IncludeEGammaTriggerContent = True
