@@ -103,7 +103,7 @@ if not 'InputFile' in dir():
         if InputDirectory.startswith('/castor'):
             InputFile.append('rfio:'+InputDirectory+'/'+name)
         elif InputDirectory.startswith('/eos'):
-            InputFile.append('root://eosatlas/'+name)
+            InputFile.append('root://eosatlas.cern.ch/'+name)
         else:
             InputFile.append(InputDirectory+'/'+name)
 

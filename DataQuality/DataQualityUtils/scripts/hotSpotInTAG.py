@@ -130,7 +130,7 @@ if tagDirectory=="": # TAG files stored on EOS
   listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
   if len(listOfFiles)>0:
     for files in listOfFiles:
-      tree.AddFile("root://eosatlas/%s"%(files))
+      tree.AddFile("root://eosatlas.cern.ch/%s"%(files))
       print "I chained the file %s"%(files)
   else:
     print "No file found on EOS.Exiting..."

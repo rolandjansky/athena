@@ -25,7 +25,7 @@ from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 # Input
 #--------------------------------------------------------------------------------
 athenaCommonFlags.FilesInput = [
-"root://eosatlas///eos/atlas/atlasdatadisk/rucio/valid1/18/60/RDO_TRIG.10625506._000001.pool.root.1"
+"root://eosatlas.cern.ch///eos/atlas/atlasdatadisk/rucio/valid1/18/60/RDO_TRIG.10625506._000001.pool.root.1"
 ]
 
 if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):
