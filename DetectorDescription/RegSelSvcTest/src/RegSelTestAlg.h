@@ -36,7 +36,7 @@ class RegSelTestAlg
   Gaudi::Property<bool> m_dump{ this, "Dump", false, "Generate series of RoIs and dump the ROBS & hashes for them in the output" };
   Gaudi::Property<bool> m_hammer{ this, "Hammer", false, "Generate series of RoIs and ask RegionSelctor for the ROBS and hashes from multiple threads" };
   
-  ServiceHandle<IRegSelSvc> m_regSelSvc{ this, "RegSelSvc", "RegSelSvc/RegSelSvcDefault", "Region selector service instance" };
+  ServiceHandle<IRegSelSvc> m_regSelSvc{ this, "RegSelSvc", "RegSelSvc/RegSelSvc", "Region selector service instance" };
 }; 
 
 
