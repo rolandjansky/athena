@@ -151,10 +151,6 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         DFCommonTruthElectronDressingTool.decorationName = decorationDressing
         DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
-    # Tau collections are built separately
-    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-    scheduleTauTruthTools(kernel)
-
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
     augmentationToolsList = [ DFCommonTruthClassificationTool,
                               DFCommonTruthMuonTool,DFCommonTruthElectronTool,
@@ -164,7 +160,6 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                              DFCommonTruthTauDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
                               DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
@@ -172,6 +167,10 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
                                                              )
+
+
+    
+
 
 def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     # These augmentations *require* truth jets in order to behave properly
@@ -182,11 +181,19 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if hasattr(kernel,'MCTruthCommonPostJetKernel'):
         # Already there!  Carry on...
         return
+
+    # Tau collections are built separately 
+    # truth tau matching needs truth jets, truth electrons and truth muons
+    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    scheduleTauTruthTools(kernel)
+
+    augmentationToolsList = [ DFCommonTruthTauDressingTool ]
+
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
     from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    augmentationToolsList = [ DFCommonTruthGenFilter,
+    augmentationToolsList += [ DFCommonTruthGenFilter,
                               DFCommonTruthQGLabelTool]
     if decorationDressing is not None:
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
