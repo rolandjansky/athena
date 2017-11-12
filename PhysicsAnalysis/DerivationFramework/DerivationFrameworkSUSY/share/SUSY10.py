@@ -40,7 +40,7 @@ DerivationFrameworkJob += SeqSUSY10
 #triggerRegEx = ['HLT_xe.*','HLT_e.*','HLT_mu.*']
 from DerivationFrameworkSUSY.SUSY10TriggerList import * 
 
-SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10_leptonTrig+SUSY10_jetxeTrig+SUSY10_photonTrig+SUSY10_dileptonTrig )
+SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10ThinTriggers )
 SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 
 
@@ -165,8 +165,7 @@ jetsDefinition = ' (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(A
 #====================================================================
 
 # TRIGGER SELECTION
-expression = '(' + ' || '.join(SUSY10_jetxeTrig + SUSY10_leptonTrig  + SUSY10_photonTrig + SUSY10_dileptonTrig) + ')' 
-
+expression = '('+' || '.join(SUSY10AllTriggers)+')'
 
 # OBJECT SELECTION
 expression += ' && ( count('+jetsDefinition+')>=4 ) '
@@ -263,6 +262,7 @@ SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                        "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                        "MuonClusterCollection.eta_sampl.phi_sampl",
                                        "Muons.quality.etcone20.ptconecoreTrackPtrCorrection",
+                                       "TruthParticles.TopHadronOriginFlag",
                                        "Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
 
 #Triggers kept
