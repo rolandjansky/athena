@@ -102,7 +102,7 @@ thinningTools.append(TAUP2TauTPThinningTool)
 # =============================================
 # Skimming tool
 # =============================================
-tauRequirement = "( count( (TauJets.pt > 12.0*GeV) && (abs(TauJets.eta) < 2.6) ) >= 1 )"
+tauRequirement = "( count( (TauJets.pt > 12.0*GeV || TauJets.ptFinalCalib > 12.0*GeV ) && (abs(TauJets.eta) < 2.6) ) >= 1 )"
 expression     = tauRequirement
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
