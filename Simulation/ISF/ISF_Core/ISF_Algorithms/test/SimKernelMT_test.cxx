@@ -40,11 +40,11 @@ public:
   // needed to resolve ambiguity when assigning instance to SmartIF
   static const InterfaceID& interfaceID() { return IID_IInputConverter; }
 
-  StatusCode  initialize() override { return StatusCode::SUCCESS;}
-  StatusCode  finalize() override { return StatusCode::SUCCESS;}
+  StatusCode  initialize() { return StatusCode::SUCCESS;}
+  StatusCode  finalize() { return StatusCode::SUCCESS;}
 
   // needed to make this AthService implementation work with Athena
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override {
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) {
       if (IID_IInputConverter != riid) {
         // Interface is not directly available: try out a base class
         return AthService::queryInterface(riid, ppvInterface);
