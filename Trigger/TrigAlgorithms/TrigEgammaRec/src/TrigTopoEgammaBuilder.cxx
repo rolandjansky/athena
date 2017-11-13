@@ -87,6 +87,14 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,
 		  m_inputTopoClusterContainerName = "egammaTopoCluster",
 		  "Name of input cluster container");
 
+  declareProperty("InputTrackParticleContainerName",
+		  m_inputTrackParticleContainerName = "",
+		  "Name of input track container");
+
+  declareProperty("InputVertexContainerName",
+		  m_inputVertexContainerName = "",
+		  "Name of input vertex container");
+
   // Handles of tools
 
   declareProperty("egammaTools", m_egammaTools,
@@ -434,7 +442,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 //    std::string TrkCollKey="";
     if (m_doTrackMatching){
         std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
-        stat = getFeatures(inputTE, vectorTrackParticleContainer);
+        stat = getFeatures(inputTE, vectorTrackParticleContainer, m_inputTrackParticleContainerName);
         // in case a TrackParticleContainer is retrieved from the TE
         if (stat != HLT::OK) {
             m_doTrackMatching=false;
@@ -484,7 +492,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // If Conversion Builder or EMFourMomBuilder are going to be run
     const xAOD::VertexContainer* pVxContainer= 0;
     std::vector<const xAOD::VertexContainer*> vectorVxContainer;
-    stat = getFeatures(inputTE,vectorVxContainer);
+    stat = getFeatures(inputTE, vectorVxContainer, m_inputVertexContainerName);
     // in case a VxContainer is retrieved from the TE
     if (stat != HLT::OK) {
         m_doConversions = false;

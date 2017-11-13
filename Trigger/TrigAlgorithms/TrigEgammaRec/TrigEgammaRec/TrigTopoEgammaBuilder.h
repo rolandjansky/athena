@@ -130,6 +130,12 @@ class TrigTopoEgammaBuilder : public HLT::FexAlgo
   std::string  m_photonOutputName;
   /** @brief Name of the topo cluster input collection */
   std::string  m_inputTopoClusterContainerName;
+
+  /** @brief Name of the TrackParticle input collection */
+  std::string  m_inputTrackParticleContainerName;
+  /** @brief Name of the Vertex input collection */
+  std::string  m_inputVertexContainerName;
+
   //
   // The tools
   //
