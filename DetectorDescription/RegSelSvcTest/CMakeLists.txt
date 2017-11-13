@@ -32,7 +32,9 @@ atlas_add_component( RegSelSvcTest
                      src/components/*.cxx
                      LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent RegionSelectorLib RegSelSvcTestLib )
 
-atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh)
+atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh
+		PROPERTIES TIMEOUT 500
+	      )		
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
