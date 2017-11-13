@@ -27,7 +27,7 @@ def defineMenu():
 
     Lvl1Flags.CTPVersion = 4 # new CTP
 
-    Lvl1Flags.BunchGroupPartitioning = [1, 14, 15] # partition 1: 1-10, partition 2: 14, partition 3: 15 (note that BGRP0 is used by all items)
+    Lvl1Flags.BunchGroupPartitioning = [1, 15, 15] # partition 1: 1-10, partition 2: empty (was 14), partition 3: 15 (note that BGRP0 is used by all items)
     Lvl1Flags.BunchGroupNames = ['BCRVeto', 'Paired', 'CalReq', 'Empty', 'IsolatedUnpaired', 'NonIsolatedUnpaired', 'EmptyAfterPaired', 'InTrain', 'AbortGapNotCalReq', 'VdM', 'ALFA', 'EmptyBeforePaired','EmptyAndPaired']
     Lvl1Flags.BunchGroupNames += ['NotUsed'] * len(Lvl1Flags.BunchGroupNames())
 
@@ -909,7 +909,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-09-01) are: 475-478, 
+# Run this file as python python/l1menu/Menu_MC_pp_v7.py to print out available IDs
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 

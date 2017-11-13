@@ -529,6 +529,7 @@ class ItemDef:
         LVL1MenuItem('L1_J12_FIRSTEMPTY').setLogic( J12 & firstempty ).setTriggerType(TT.calo)        # noqa: F821
         LVL1MenuItem('L1_J12_ABORTGAPNOTCALIB').setLogic( J12 & abortgap ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J12_UNPAIREDB1').setLogic( J12 & bgrp13cond  ).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_J12_UNPAIREDB2').setLogic( J12 & bgrp14cond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_J50_UNPAIRED_ISO'   ).setLogic( J50 & unpaired_isocond   ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J50_UNPAIRED_NONISO').setLogic( J50 & unpaired_nonisocond).setTriggerType(TT.calo)    # noqa: F821
@@ -1036,6 +1037,7 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( BCM_Wide & calibcond).setTriggerType(TT.minb)    # noqa: F821        
 
         LVL1MenuItem('L1_BCM_AC_UNPAIREDB1'  ).setLogic( BCM_AtoC & bgrp13cond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)    # noqa: F821
 
 
 
@@ -1778,10 +1780,8 @@ class ItemDef:
         # Partition 2
         LVL1MenuItem.currentPartition = 2
 
-        LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)    # noqa: F821
-				#UNPAIREDB2 is BGRP14, needs to go in partition 2
-        LVL1MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)    # noqa: F821
-        LVL1MenuItem('L1_J12_UNPAIREDB2').setLogic( J12 & bgrp14cond).setTriggerType(TT.calo)    # noqa: F821
+        #Removed after ATR-17056 since we need L1_BCM_CA_UNPAIREDB2 in partition 1
+        #LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)    # noqa: F821
 
 
         # Partition 3
