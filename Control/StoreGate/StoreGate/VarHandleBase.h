@@ -57,11 +57,14 @@ namespace SG {
    * @c ReadHandle, @c WriteHandle, and @c UpdateHandle derive from this;
    * see those classes for usage information.
    *
-   * This class derives from @c VarHandleKey, which holds the CLID of the class
+   * This class references a @c VarHandleKey, which holds the CLID of the class
    * we're referencing (which gets passed to the constructor of this class
    * from the templated derived classes), the StoreGate key of the object
-   * we're referencing, and a handle to the event store.  In this class, we
-   * keep a pointer to the actual event store being used
+   * we're referencing, and a handle to the event store.  The key object
+   * can be passed to this object via the constructor; otherwise, we create
+   * and own a new @c VarHandleKey object.
+   *
+   * In this class, we keep a pointer to the actual event store being used
    * (may be thread-dependent), a pointer to the @c DataProxy for the
    * referenced object, and a cached pointer to the object itself.
    *
@@ -79,7 +82,7 @@ namespace SG {
    * in this way should not live beyond the end of the algorithm in which
    * it was created.
    */
-  class VarHandleBase : public VarHandleKey, public IResetable
+  class VarHandleBase : public IResetable
   {
     // For testing.
     friend void Athena_test::varHandleTest(void);
@@ -157,16 +160,10 @@ namespace SG {
     //*************************************************************************
     // Accessors
     //
-    // Inherited from VarHandleKey:
-    //  CLID clid() const;
-    //  ServiceHandle<IProxyDict> storeHandle() const;
 
 
     /**
      * @brief Return the StoreGate ID for the referenced object.
-     *
-     * This is defined in @c VarHandleKey.  We need to redefine it here because
-     * it's also in @c IResetable.  (Otherwise there would be an ambiguity.)
      */
     virtual const std::string& key() const override final;
 
@@ -298,6 +295,65 @@ namespace SG {
     StatusCode setConst();
 
 
+    //*************************************************************************
+    // @c VarHandleKey methods.
+    //
+
+
+    /**
+     * @brief Return the class ID for the referenced object.
+     */
+    CLID clid() const;
+
+
+    /**
+     * @brief Return handle to the referenced store.
+     */
+    ServiceHandle<IProxyDict> storeHandle() const;
+
+
+    /**
+     * @brief Return the mode (read/write/update) for this handle.
+     */
+    Gaudi::DataHandle::Mode mode() const;
+
+
+    /**
+     * @brief Return the key string of the underlying @c DataObjID.
+     *
+     * Compared to @c key(), this will be prefixed with the store name.
+     */
+    const std::string& objKey() const;
+
+
+    /**
+     * @brief Return the key as a @c DataObjID.
+     */
+    const DataObjID& fullKey() const;
+ 
+
+    /**
+     * @brief Return a non-const reference to the HandleKey.
+     *
+     * If this handle was initialized from a HandleKey, then this doesn't work
+     * (since the HandleKey is const). ExcNonConstHandleKey will be thrown
+     * in that case.
+     */
+    SG::VarHandleKey& vhKey();
+
+
+    /**
+     * @brief Update the underlying key from a string.
+     *
+     * If this handle was initialized from a HandleKey, then this doesn't work
+     * (since the HandleKey is const). ExcNonConstHandleKey will be thrown
+     * in that case.
+     *
+     * See VarHandleKey::assign.
+     */
+    StatusCode assign (const std::string& sgkey);
+
+    
   protected: 
     //*************************************************************************
     // Protected methods.
@@ -432,6 +488,7 @@ namespace SG {
     bool isPresent_impl (const std::string& key) const;
 
 
+    
   protected: 
     //*************************************************************************
     // Protected data.
@@ -449,13 +506,18 @@ namespace SG {
     /// True if the store was set explicitly via setProxyDict.
     bool m_storeWasSet;
 
-    /// True if this algorithm should be bound to the proxy.
-    /// This should be true if the handle was created as a property,
-    /// and false if it was constructed from a key.
-    bool m_doBind;
-
 
   private:
+    /// An owned @c VarHandleKey.
+    /// This is set in the case where a @c VarHandle is _not_ initialized
+    /// from a key object.
+    std::unique_ptr<VarHandleKey> m_ownedKey;
+
+    /// The associated key object.
+    /// If we were initialized from a key object, then this points at that.
+    /// Otherwise, it points at the same object as @c m_ownedKey.
+    const VarHandleKey* m_key;
+
     /**
      * @brief Return the store instance to use.
      * @param ctx The current event context, or nullptr.

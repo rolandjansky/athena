@@ -40,4 +40,56 @@ const void* VarHandleBase::typeless_cptr()
 }
 
 
+/**
+ * @brief Return the class ID for the referenced object.
+ */
+inline
+CLID VarHandleBase::clid() const
+{
+  return m_key->clid();
+}
+
+
+/**
+ * @brief Return handle to the referenced store.
+ */
+inline
+ServiceHandle<IProxyDict> VarHandleBase::storeHandle() const
+{
+  return m_key->storeHandle();
+}
+
+
+/**
+ * @brief Return the mode (read/write/update) for this handle.
+ */
+inline
+Gaudi::DataHandle::Mode VarHandleBase::mode() const
+{
+  return m_key->mode();
+}
+
+
+/**
+ * @brief Return the key string of the underlying @c DataObjID.
+ *
+ * Compared to @c key(), this will be prefixed with the store name.
+ */
+inline
+const std::string& VarHandleBase::objKey() const
+{
+  return m_key->objKey();
+}
+
+
+/**
+ * @brief Return the key as a @c DataObjID.
+ */
+inline
+const DataObjID& VarHandleBase::fullKey() const
+{
+  return m_key->fullKey();
+}
+
+
 } // namespace SG

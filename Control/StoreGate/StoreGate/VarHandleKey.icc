@@ -1,0 +1,37 @@
+// $Id$
+/**
+ * @file StoreGate/VarHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2017
+ * @brief A property holding a SG store/key/clid from which a VarHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return the VarHandle that owns this key, if any.
+ *
+ * This should only be non-null for keys that are created automatically
+ * by a VarHandle when it is _not_ created from a VarHandleKey.
+ * This should always be null for keys that are created explicitly.
+ */
+inline
+VarHandleBase* VarHandleKey::owningHandle()
+{
+  return m_owningHandle;
+}
+
+
+/**
+ * @brief Set the owning handle.  Only callable from VarHandleBase.
+ */
+inline
+void VarHandleKey::setOwningHandle (VarHandleBase* handle)
+{
+  m_owningHandle = handle;
+}
+
+
+} // namespace SG

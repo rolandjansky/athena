@@ -86,12 +86,12 @@ StatusCode AthViewAlgorithm::sysExecute() {
   //Set all DataHandles to use the EventView pointer
   for ( auto handle : inputHandles() )
   {
-    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleBase* >( handle );
+    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleKey* >( handle )->owningHandle();
     CHECK( athenaHandle->setProxyDict( myView ) );
   }
   for ( auto handle : outputHandles() )
   {
-    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleBase* >( handle );
+    SG::VarHandleBase * athenaHandle = static_cast< SG::VarHandleKey* >( handle )->owningHandle();
     CHECK( athenaHandle->setProxyDict( myView ) );
   }
 

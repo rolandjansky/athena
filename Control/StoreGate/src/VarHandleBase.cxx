@@ -91,14 +91,15 @@ namespace SG {
    * @param mode Mode of this handle (read/write/update).
    */
   VarHandleBase::VarHandleBase(CLID clid, Gaudi::DataHandle::Mode mode) :
-    VarHandleKey (clid, "", mode),
     IResetable(),
     m_ptr(0),
     m_proxy(0),
     m_store(nullptr),
     m_storeWasSet(false),
-    m_doBind(true)
+    m_ownedKey (std::make_unique<VarHandleKey> (clid, "", mode)),
+    m_key (m_ownedKey.get())
   {
+    m_ownedKey->setOwningHandle (this);
 #ifdef DEBUG_VHB
     std::cerr << "VarHandleBase() " << this << std::endl;
 #endif
@@ -116,14 +117,15 @@ namespace SG {
                                const std::string& sgkey,
                                Gaudi::DataHandle::Mode mode,
                                const std::string& storename) :  
-    VarHandleKey(clid, sgkey, mode, storename),
     IResetable(),
     m_ptr(NULL),
     m_proxy(NULL),
     m_store(nullptr),
     m_storeWasSet(false),
-    m_doBind(true)
+    m_ownedKey (std::make_unique<VarHandleKey> (clid, sgkey, mode, storename)),
+    m_key (m_ownedKey.get())
   {
+    m_ownedKey->setOwningHandle (this);
   }
 
 
@@ -137,13 +139,12 @@ namespace SG {
    */
   VarHandleBase::VarHandleBase (const VarHandleKey& key,
                                 const EventContext* ctx)
-    : VarHandleKey(key),
-      IResetable(),
+    : IResetable(),
       m_ptr(nullptr),
       m_proxy(nullptr),
       m_store(nullptr),
       m_storeWasSet(false),
-      m_doBind(false)
+      m_key (&key)
   {
     if (key.storeHandle().get() == nullptr)
       throw SG::ExcUninitKey (key.clid(), key.key(),
@@ -159,14 +160,20 @@ namespace SG {
    * @brief Copy constructor.
    */
   VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :
-    VarHandleKey(rhs),
     IResetable(),
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet),
-    m_doBind(rhs.m_doBind)
+    m_storeWasSet(rhs.m_storeWasSet)
   {
+    if (rhs.m_ownedKey) {
+      m_ownedKey = std::make_unique<VarHandleKey> (*rhs.m_ownedKey);
+      m_ownedKey->setOwningHandle (this);
+      m_key = m_ownedKey.get();
+    }
+    else {
+      m_key = rhs.m_key;
+    }
 #ifdef DEBUG_VHB
     std::cerr << "::VHB::copy constr from " << &rhs
               << " to " << this << ", "
@@ -183,18 +190,21 @@ namespace SG {
    * @brief Move constructor.
    */
   VarHandleBase::VarHandleBase( VarHandleBase&& rhs ) :
-    VarHandleKey (std::move (rhs)),
     IResetable(),
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
     m_storeWasSet(rhs.m_storeWasSet),
-    m_doBind(rhs.m_doBind)
+    m_ownedKey (std::move (rhs.m_ownedKey)),
+    m_key (rhs.m_key)
   {
+    if (m_ownedKey) {
+      m_ownedKey->setOwningHandle (this);
+    }
     rhs.m_ptr=0;
 
     if (rhs.m_proxy) {
-      if (m_doBind) {
+      if (m_ownedKey) {
         rhs.m_proxy->unbindHandle (&rhs);
         rhs.m_proxy->bindHandle(this);
       }
@@ -218,7 +228,16 @@ namespace SG {
   VarHandleBase::operator=( const VarHandleBase& rhs )
   {
     if (this != &rhs) {
-      VarHandleKey::operator= (rhs);
+      if (rhs.m_ownedKey) {
+        m_ownedKey = std::make_unique<VarHandleKey> (*rhs.m_ownedKey);
+        m_ownedKey->setOwningHandle (this);
+        m_key = m_ownedKey.get();
+      }
+      else {
+        m_key = rhs.m_key;
+        m_ownedKey.reset();
+      }
+
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
       m_storeWasSet = rhs.m_storeWasSet;
@@ -242,18 +261,21 @@ namespace SG {
   VarHandleBase::operator=( VarHandleBase&& rhs )
   {
     if (this != &rhs) {
-      VarHandleKey::operator= (std::move (rhs));
+      m_ownedKey = std::move (rhs.m_ownedKey);
+      if (m_ownedKey) {
+        m_ownedKey->setOwningHandle (this);
+      }
+      m_key = rhs.m_key;
 
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
       m_storeWasSet = rhs.m_storeWasSet;
-      m_doBind = rhs.m_doBind;
 
       rhs.m_ptr=0;
 
       resetProxy();
       if (rhs.m_proxy) {
-        if (m_doBind) {
+        if (m_ownedKey) {
           rhs.m_proxy->unbindHandle (&rhs);
           rhs.m_proxy->bindHandle (this);
         }
@@ -307,7 +329,7 @@ namespace SG {
    */
   const std::string& VarHandleBase::key() const
   {
-    return VarHandleKey::key();
+    return m_key->key();
   }
 
 
@@ -414,12 +436,16 @@ namespace SG {
   VarHandleBase::initialize (bool used /*= true*/)
   {
     if (!used) {
-      CHECK( VarHandleKey::initialize (used) );
+      if (m_ownedKey) {
+        CHECK( m_ownedKey->initialize (used) );
+      }
       return StatusCode::SUCCESS;
     }
 
     if (!m_store) {
-      CHECK( VarHandleKey::initialize() );
+      if (m_ownedKey) {
+        CHECK( m_ownedKey->initialize() );
+      }
       m_store = &*(this->storeHandle());
       m_storeWasSet = false;
     }
@@ -547,6 +573,38 @@ namespace SG {
   }
 
 
+  /**
+   * @brief Return a non-const reference to the HandleKey.
+   *
+   * If this handle was initialized from a HandleKey, then this doesn't work
+   * (since the HandleKey is const). ExcNonConstHandleKey will be thrown
+   * in that case.
+   */
+  SG::VarHandleKey& VarHandleBase::vhKey()
+  {
+    if (!m_ownedKey) {
+      throwExcNonConstHandleKey (m_key->clid(), m_key->key(),
+                                 m_key->storeHandle().name());
+    }
+    return *m_ownedKey;
+  }
+
+
+  /**
+   * @brief Update the underlying key from a string.
+   *
+   * If this handle was initialized from a HandleKey, then this doesn't work
+   * (since the HandleKey is const). ExcNonConstHandleKey will be thrown
+   * in that case.
+   *
+   * See VarHandleKey::assign.
+   */
+  StatusCode VarHandleBase::assign (const std::string& sgkey)
+  {
+    return vhKey().assign (sgkey);
+  }
+
+
   //*************************************************************************
   // Protected methods.
   //
@@ -627,7 +685,9 @@ namespace SG {
                               bool returnExisting)
   {
     if (!m_store) {
-      CHECK (VarHandleKey::initialize());
+      if (m_ownedKey) {
+        CHECK (m_ownedKey->initialize());
+      }
       m_store = &*(this->storeHandle());
       m_storeWasSet = false;
     }
@@ -894,7 +954,9 @@ namespace SG {
    */
   StatusCode VarHandleBase::setStoreFromHandle (const EventContext* ctx)
   {
-    CHECK( VarHandleKey::initialize() );
+    if (m_ownedKey) {
+      CHECK( m_ownedKey->initialize() );
+    }
     m_store = storeFromHandle (ctx);
     m_storeWasSet = (ctx && m_store ==
                      ctx->getExtension<Atlas::ExtendedEventContext>()->proxy());
@@ -908,7 +970,7 @@ namespace SG {
   void VarHandleBase::resetProxy()
   {
     if (m_proxy) {
-      if (m_doBind) {
+      if (m_ownedKey) {
         m_proxy->unbindHandle(this);
         m_proxy->release();
       }
@@ -925,7 +987,7 @@ namespace SG {
   {
     resetProxy();
     if (proxy) {
-      if (m_doBind) {
+      if (m_ownedKey) {
         proxy->addRef();
         proxy->bindHandle (this);
       }
