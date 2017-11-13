@@ -3,7 +3,6 @@
 #
 # NOTE do NOT run with /bin/bash -x as the output is too big for gitlab-ci
 # arguments:  PACKAGE INDEX EXTENSION NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG
-# env: ART_GRID_OPTIONS
 #
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
 #
