@@ -13,9 +13,9 @@
 //   Iakovidis George        <george.iakovidis@cern.ch>
 //   Karakostas Konstantinos <konstantinos.karakostas@cern.ch>
 //   Leontsinis Stefanos     <stefanos.leontsinis@cern.ch>
-//   Nektarios Chr. Benekos  <nbenekos@cern.ch>    
+//   Nektarios Chr. Benekos  <nbenekos@cern.ch>
 //////////////////////////////////////////////////////////////////////////////
-  
+
 Comments to be added here...
 
 */
@@ -38,9 +38,8 @@ Comments to be added here...
 /// Projects
 #include "MM_Digitization/MmDigitToolInput.h"
 #include "MM_Digitization/MmStripToolOutput.h"
-//#include "MM_Digitization/MmElectronicsToolInput.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
-#include "MM_Digitization/GarfieldGas.h" 
+// #include "MM_Digitization/GarfieldGas.h"
 
 /// STD'S
 #include <algorithm>
@@ -68,34 +67,47 @@ class MmStripToolOutput;
 //class MmElectronicsToolInput;
 //class MmDigitToolOutput;
 
-class GarfieldGas; 
+// class GarfieldGas;
 
 class StripsResponse {
-  
+
 private:
 
   /** qThreshold=2e, we accept a good strip if the charge is >=2e */
-  float qThreshold; 
+  float m_qThreshold;
+
+  float m_interactionProbabilityMean;
+  float m_interactionProbabilitySigma;
+
   /** // 0.350/10 diffusSigma=transverse diffusion (350 μm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
-  float diffusSigma; 
-  float LogitundinalDiffusSigma;  
-  float pitch; 
+  float m_transverseDiffusionSigma;
+  float m_longitudinalDiffusionSigma;
+  float m_pitch;
   /** //pitch=0.500 properties of the micromegas ToDo: to be reviewed */
-  float stripwidth; 
   /** crosstalk of neighbor strips, it's 15%  */
-  float crossTalk1;//0.10; // 
+  float m_crossTalk1;//0.10; //
   /** // crosstalk of second neighbor strips, it's 6% */
-  float crossTalk2;//0.03; 
+  float m_crossTalk2;//0.03;
   /** // (degrees) Magnetic Field 0.5 T */
-  float Lorentz_Angle; 
+  // float Lorentz_Angle;
   // Avalanche gain
-  float gain;
+  float m_avalancheGain;
+  // float m_electricFieldZ;
+
+  float m_driftGapWidth;
+
+  /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
+  float m_driftVelocity;
 
   /// ToDo: random number from custom functions
-  TF1 *polya, *conv_gaus;
-  TF1 *LongitudinalDiffusionFunction, *TransverseDiffusionFunction;
+  TF1 *m_polyaFunction;
+  // TF1 *conv_gaus;
+  TF1 *m_lorentzAngleFunction;
+  TF1 *m_interactionProbabilityFunction;
+  TF1 *m_longitudinalDiffusionFunction;
+  TF1 *m_transverseDiffusionFunction;
 
-  GarfieldGas* gas; 
+  // GarfieldGas* gas;
 
   StripsResponse & operator=(const StripsResponse &right);
   StripsResponse(const StripsResponse&);
@@ -104,17 +116,14 @@ private:
 
 public :
 
-  float driftGap;  
-  /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
-  float driftVelocity; 
- 
+
   StripsResponse();
-   
+
   virtual ~StripsResponse();
   MmStripToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
   //  MmElectronicsToolInput GetResponceFrom(const MmDigitToolInput & digiInput);
   //  MmDigitToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
-    
+
   void initializationFrom ();
   void writeHistos();
   void initHistos ();
@@ -122,29 +131,29 @@ public :
   void initFunctions ();
   void whichStrips(const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID, const MmDigitToolInput & digiInput);
 
-  void loadGasFile      (const std::string fileName); // 27/05/2015 T.Saito
-  
-  inline void set_qThreshold (float val) { qThreshold = val; };
-  inline void set_diffusSigma (float val) { diffusSigma = val; };
-  inline void set_LogitundinalDiffusSigma (float val) { LogitundinalDiffusSigma = val; };
-  inline void set_driftVelocity (float val) { driftVelocity = val; };
-  inline void set_crossTalk1 (float val) { crossTalk1 = val; };
-  inline void set_crossTalk2 (float val) { crossTalk2 = val; };
-  inline void set_driftGap      (float val) {driftGap = val;};
-  inline void set_stripWidth      (float val) {stripwidth = val;};
-   
-  float get_stripWidth    () const { return stripwidth   ;};
-  float get_qThreshold    () const { return qThreshold   ;};
-  float get_driftGap      () const { return driftGap     ;};
-  float get_driftVelocity () const { return driftVelocity;};
+  // void loadGasFile      (const std::string fileName); // 27/05/2015 T.Saito
+
+  inline void set_qThreshold (float val) { m_qThreshold = val; };
+  inline void set_transverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
+  inline void set_longitudinalDiffusionSigma (float val) { m_longitudinalDiffusionSigma = val; };
+  inline void set_driftVelocity (float val) { m_driftVelocity = val; };
+  inline void set_crossTalk1 (float val) { m_crossTalk1 = val; };
+  inline void set_crossTalk2 (float val) { m_crossTalk2 = val; };
+  inline void set_driftGap      (float val) {m_driftGapWidth = val;};
+  // inline void set_stripWidth      (float val) {stripwidth = val;};
+
+  // float get_stripWidth    () const { return stripwidth   ;};
+  float get_qThreshold    () const { return m_qThreshold   ;};
+  float get_driftGap      () const { return m_driftGapWidth     ;};
+  float get_driftVelocity () const { return m_driftVelocity;};
 
 /*
   Coverity defects
   float get_tMinFirstPeak () const { return tMinFirstPeak;};
   float get_tMinIntegration () const { return tMinIntegration;};
   float get_tminIntegrationAboveThreshold () const { return tminIntegrationAboveThreshold;};
-*/  
-  
+*/
+
   vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
   vector <float> get_qStripElectronics() const { return qStripElectronics;};
   vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
@@ -160,39 +169,33 @@ public :
   vector <float> finaltStripNoSlewing;
   vector <float> tStripElectronicsAbThr;
   vector <float> qStripElectronics;
- 
-  int    nstrip;
-  float  temp_polya;
-  float  polya_theta;
-  float  numberOfElectrons;
-/*
-  Coverity defects
-  float  tMinFirstPeak;
-  float  tMinIntegration;
-  float  tminIntegrationAboveThreshold;
-*/ 
+
+  // int    nstrip;
+  // float  temp_polya;
+  // float  polya_theta;
+  // float  numberOfElectrons;
 
 // whichStrips()
-  int dimClusters; //dimClusters=total number of collisions
-  int MaxPrimaryIons;
+  // int dimClusters; //dimClusters=total number of collisions
+  int m_maxPrimaryIons;
   vector <int> stripNumber;
-  double pt,xx, xxDiffussion, yy, yyDiffussion ;
-  int primaryion; 
+  // double pt,xx, xxDiffussion, yy, yyDiffussion ;
+  // int primaryion;
   vector <int> firstq;
-  float lmean;
-  vector <float> qstrip; 
+  // float lmean;
+  vector <float> qstrip;
   vector <float> cntTimes;
   vector <float> tStrip;
   vector <float> qStrip;
   vector <float> time;  //Drift velocity [mm/ns]
   vector <int> numberofStrip;
-  
+
   vector <float> clusterelectrons;
   vector <float> l;
-  float totalelectrons;
-  float ll;
-   
-  TRandom * gRandom_loc;
-  TRandom3 *randomNum;
+  // float totalelectrons;
+  // float ll;
+
+  // TRandom * gRandom_loc;
+  // TRandom3 *randomNum;
 };
 #endif

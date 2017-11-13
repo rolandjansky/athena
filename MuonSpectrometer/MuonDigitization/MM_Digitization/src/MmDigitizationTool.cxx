@@ -376,13 +376,13 @@ StatusCode MmDigitizationTool::initialize() {
   m_StripsResponse = new StripsResponse();
   //  std::cout << "MmDigitization : set_qThreshold = "<< m_qThreshold << std::endl;
   m_StripsResponse->set_qThreshold(m_qThreshold);
-  m_StripsResponse->set_diffusSigma(m_diffusSigma);
-  m_StripsResponse->set_LogitundinalDiffusSigma(m_LogitundinalDiffusSigma);
+  m_StripsResponse->set_transverseDiffusionSigma(m_diffusSigma);
+  m_StripsResponse->set_longitudinalDiffusionSigma(m_LogitundinalDiffusSigma);
   m_StripsResponse->set_driftGap(m_driftGap);
   m_StripsResponse->set_driftVelocity(m_driftVelocity);
   m_StripsResponse->set_crossTalk1(m_crossTalk1);
   m_StripsResponse->set_crossTalk2(m_crossTalk2);
-  m_StripsResponse->loadGasFile(m_gasFileName);
+  // m_StripsResponse->loadGasFile(m_gasFileName);
 
   m_ElectronicsResponse = new ElectronicsResponse();
   m_ElectronicsResponse->set_peakTime(m_peakTime); // VMM peak time parameter
@@ -1006,7 +1006,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       // Since we have output based on channel, instead of hit, the SDO and digit ID are No longer meaningless. 2016/06/27 T.Saito
       //
       // digitize input for strip response
-      m_StripsResponse->set_stripWidth(mmChannelDes->channelWidth(posOnSurf));
+      // m_StripsResponse->set_stripWidth(mmChannelDes->channelWidth(posOnSurf));
 
       m_n_hitStripID=stripNumber;
       m_n_hitDistToChannel=distToChannel;

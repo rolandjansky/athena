@@ -30,16 +30,16 @@ namespace Numerics {
 
 
 double
-Divdif(const std::vector<double>& f, const std::vector<double>& a, 
+Divdif(const std::vector<double>& f, const std::vector<double>& a,
        int nn, double x, int mm) {
   Athena::MsgStreamMember msg("Numerics::Divdif");
-  // C++ version of DIVDIF (CERN program library E105) which performs 
+  // C++ version of DIVDIF (CERN program library E105) which performs
   // tabular interpolation using symmetrically placed argument points.
-  
+
   double t[20], d[20];
-  
+
   const int mmax = 10;
-  
+
   // Check the arguments.
   if (nn < 2) {
     msg << MSG::INFO << "Divdif:\n";
@@ -59,7 +59,7 @@ Divdif(const std::vector<double>& f, const std::vector<double>& a,
   if (fabs(x - a[nn - 1]) < 1.e-6 * (fabs(a[0]) + fabs(a[nn - 1]))) {
     return f[nn - 1];
   }
-  
+
   // Find subscript IX of X in array A.
   int n = nn;
   int m;
@@ -149,18 +149,18 @@ Divdif(const std::vector<double>& f, const std::vector<double>& a,
     j--;
   }
   return sum;
-  
+
 }
 
 
 bool
-Boxin3(std::vector<std::vector<std::vector<double> > >& value, 
-       std::vector<double>& xAxis, 
-       std::vector<double>& yAxis, 
-       std::vector<double>& zAxis, 
-       int nx, int ny, int nz, 
+Boxin3(std::vector<std::vector<std::vector<double> > >& value,
+       std::vector<double>& xAxis,
+       std::vector<double>& yAxis,
+       std::vector<double>& zAxis,
+       int nx, int ny, int nz,
        double xx, double yy, double zz, double& f, int iOrder) {
-  Athena::MsgStreamMember msg("Numerics::Boxin3");  
+  Athena::MsgStreamMember msg("Numerics::Boxin3");
   // std::cout << nx << ", " << ny << ", " << nz << "\n";
   //-----------------------------------------------------------------------
   //   BOXIN3 - interpolation of order 1 and 2 in an irregular rectangular
@@ -206,7 +206,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
     fX[0] = 0.;
     fX[1] = 0.;
     fX[2] = 0.;
-    fX[3] = 0.; 
+    fX[3] = 0.;
   } else if (iOrder == 1 || nx == 2) {
     // First order interpolation in x.
     // Find the grid segment containing this point.
@@ -224,7 +224,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       return false;
     }
     // Compute local coordinates.
-    const double xLocal = (x - xAxis[iGrid-1]) / 
+    const double xLocal = (x - xAxis[iGrid-1]) /
       (xAxis[iGrid] - xAxis[iGrid - 1]);
     // Set the summing range.
     iX0 = iGrid - 1;
@@ -244,7 +244,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       }
     }
     // Compute the local coordinate for this grid segment.
-    const double xLocal = (x - xAxis[iGrid - 1]) / 
+    const double xLocal = (x - xAxis[iGrid - 1]) /
       (xAxis[iGrid] - xAxis[iGrid - 1]);
     // Set the summing range and shape functions.
     if (iGrid == 1) {
@@ -258,7 +258,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fX[0] = (x           - xAxis[iX0 + 1]) *
 	(x           - xAxis[iX0 + 2]) /
 	((xAxis[iX0] - xAxis[iX0 + 1]) *
@@ -282,7 +282,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fX[0] = (x           - xAxis[iX0 + 1]) *
 	(x           - xAxis[iX0 + 2]) /
 	((xAxis[iX0] - xAxis[iX0 + 1]) *
@@ -323,12 +323,12 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	((xAxis[iX0 + 2] - xAxis[iX0]) *
 	 (xAxis[iX0 + 2] - xAxis[iX0 + 1]));
       fX[0] *= (1. - xLocal);
-      fX[1] = fX[1] * (1. - xLocal) + 
-	xLocal * (x - xAxis[iX0 + 2]) * 
+      fX[1] = fX[1] * (1. - xLocal) +
+	xLocal * (x - xAxis[iX0 + 2]) *
 	(x - xAxis[iX0 + 3]) /
 	((xAxis[iX0 + 1] - xAxis[iX0 + 2]) *
 	 (xAxis[iX0 + 1] - xAxis[iX0 + 3]));
-      fX[2] = fX[2] * (1. - xLocal) + 
+      fX[2] = fX[2] * (1. - xLocal) +
 	xLocal * (x - xAxis[iX0 + 1]) *
 	(x - xAxis[iX0 + 3]) /
 	((xAxis[iX0 + 2] - xAxis[iX0 + 1]) *
@@ -357,7 +357,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
     // Establish the shape functions.
     fY[0] = 1.;
     fY[1] = 0.;
-    fY[2] = 0.; 
+    fY[2] = 0.;
   } else if (iOrder == 1 || ny == 2) {
     // First order interpolation in y.
     // Find the grid segment containing this point.
@@ -375,7 +375,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       return false;
     }
     // Compute local coordinates.
-    const double yLocal = (y - yAxis[iGrid - 1]) / 
+    const double yLocal = (y - yAxis[iGrid - 1]) /
       (yAxis[iGrid] - yAxis[iGrid - 1]);
     // Set the summing range.
     iY0 = iGrid - 1;
@@ -394,7 +394,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       }
     }
     // Compute the local coordinate for this grid segment.
-    const double yLocal = (y - yAxis[iGrid - 1]) / 
+    const double yLocal = (y - yAxis[iGrid - 1]) /
       (yAxis[iGrid] - yAxis[iGrid - 1]);
     // Set the summing range and shape functions.
     // These assignments are shared by all of the following conditions,
@@ -423,7 +423,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fY[0] = (y           - yAxis[iY0 + 1]) *
 	(y           - yAxis[iY0 + 2]) /
 	((yAxis[iY0] - yAxis[iY0 + 1]) *
@@ -447,7 +447,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fY[0] = (y           - yAxis[iY0 + 1]) *
 	(y           - yAxis[iY0 + 2]) /
 	((yAxis[iY0] - yAxis[iY0 + 1]) *
@@ -474,7 +474,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fY[0] = (y           - yAxis[iY0 + 1]) *
 	(y           - yAxis[iY0 + 2]) /
 	((yAxis[iY0] - yAxis[iY0 + 1]) *
@@ -489,12 +489,12 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	 (yAxis[iY0 + 2] - yAxis[iY0 + 1]));
 
       fY[0] *= (1. - yLocal);
-      fY[1] = fY[1] * (1. - yLocal) + 
-	yLocal * (y - yAxis[iY0 + 2]) * 
+      fY[1] = fY[1] * (1. - yLocal) +
+	yLocal * (y - yAxis[iY0 + 2]) *
 	(y - yAxis[iY0 + 3]) /
 	((yAxis[iY0 + 1] - yAxis[iY0 + 2]) *
 	 (yAxis[iY0 + 1] - yAxis[iY0 + 3]));
-      fY[2] = fY[2] * (1. - yLocal) + 
+      fY[2] = fY[2] * (1. - yLocal) +
 	yLocal * (y - yAxis[iY0 + 1]) *
 	(y - yAxis[iY0 + 3]) /
 	((yAxis[iY0 + 2] - yAxis[iY0 + 1]) *
@@ -523,7 +523,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
     // Establish the shape functions.
     fZ[0] = 1.;
     fZ[1] = 0.;
-    fZ[2] = 0.; 
+    fZ[2] = 0.;
   } else if (iOrder == 1 || nz == 2) {
     // First order interpolation in z.
     // Find the grid segment containing this point.
@@ -539,9 +539,9 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       msg << MSG::INFO << "    Incorrect grid; no interpolation.\n";
       f = 0.;
       return false;
-    }    
+    }
     // Compute local coordinates.
-    const double zLocal = (z - zAxis[iGrid - 1]) / 
+    const double zLocal = (z - zAxis[iGrid - 1]) /
       (zAxis[iGrid] - zAxis[iGrid - 1]);
     // Set the summing range.
     iZ0 = iGrid - 1;
@@ -560,7 +560,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
       }
     }
     // Compute the local coordinate for this grid segment.
-    const double zLocal = (z - zAxis[iGrid - 1]) / 
+    const double zLocal = (z - zAxis[iGrid - 1]) /
       (zAxis[iGrid] - zAxis[iGrid - 1]);
     // Set the summing range and shape functions.
     // These assignments are shared by all of the following conditions,
@@ -589,7 +589,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fZ[0] = (z           - zAxis[iZ0 + 1]) *
 	(z           - zAxis[iZ0 + 2]) /
 	((zAxis[iZ0] - zAxis[iZ0 + 1]) *
@@ -613,7 +613,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
       fZ[0] = (z           - zAxis[iZ0 + 1]) *
 	(z           - zAxis[iZ0 + 2]) /
 	((zAxis[iZ0] - zAxis[iZ0 + 1]) *
@@ -629,7 +629,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
     } else {
       iZ0 = iGrid - 2;
       iZ1 = iGrid + 1;
-              
+
       if (zAxis[iZ0]     == zAxis[iZ0 + 1] ||
           zAxis[iZ0]     == zAxis[iZ0 + 2] ||
           zAxis[iZ0]     == zAxis[iZ0 + 3] ||
@@ -641,7 +641,7 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	msg << MSG::INFO << "    No interpolation.\n";
         f = 0.;
         return false;
-      } 
+      }
 
       fZ[0] = (z           - zAxis[iZ0 + 1]) *
 	(z           - zAxis[iZ0 + 2]) /
@@ -657,12 +657,12 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 	 (zAxis[iZ0 + 2] - zAxis[iZ0 + 1]));
 
       fZ[0] *= (1. - zLocal);
-      fZ[1] = fZ[1] * (1. - zLocal) + 
-	zLocal * (z - zAxis[iZ0 + 2]) * 
+      fZ[1] = fZ[1] * (1. - zLocal) +
+	zLocal * (z - zAxis[iZ0 + 2]) *
 	(z - zAxis[iZ0 + 3]) /
 	((zAxis[iZ0 + 1] - zAxis[iZ0 + 2]) *
 	 (zAxis[iZ0 + 1] - zAxis[iZ0 + 3]));
-      fZ[2] = fZ[2] * (1. - zLocal) + 
+      fZ[2] = fZ[2] * (1. - zLocal) +
 	zLocal * (z - zAxis[iZ0 + 1]) *
 	(z - zAxis[iZ0 + 3]) /
 	((zAxis[iZ0 + 2] - zAxis[iZ0 + 1]) *
@@ -690,14 +690,14 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
 
 }
 
-  
+
 }
 
 const int GarfieldGas::nMaxGases;
 
 GarfieldGas::GarfieldGas() :
   name(""),
-  temperature(293.15), pressure(760.), 
+  temperature(293.15), pressure(760.),
   nComponents(1),
   nExcListElements(0), nIonListElements(0),
   nEfields(0), nBfields(0), nAngles(0),
@@ -728,10 +728,10 @@ GarfieldGas::GarfieldGas() :
   nEfields = 0;
   nBfields = 1;
   nAngles  = 1;
-  
+
   eFields.clear();
   bFields.clear(); bFields.resize(1); bFields[0] = 0.;
-  bAngles.clear(); bAngles.resize(1); bAngles[0] = 0.;  
+  bAngles.clear(); bAngles.resize(1); bAngles[0] = 0.;
 
   hasElectronVelocityE   = false; tabElectronVelocityE.clear();
   hasElectronVelocityB   = false; tabElectronVelocityB.clear();
@@ -741,15 +741,15 @@ GarfieldGas::GarfieldGas() :
 
   extrLowVelocity     = 0; extrHighVelocity     = 1;
   extrLowDiffusion    = 0; extrHighDiffusion    = 1;
-  
+
   intpVelocity     = 2;
   intpDiffusion    = 2;
 
 }
 
 bool
-GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,//cm/V 
-				const double bx, const double by, const double bz,//T 
+GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,//cm/V
+				const double bx, const double by, const double bz,//T
 				double& vx, double& vy, double& vz) {//cm/ns ~4.7x10^-3
 
   Athena::MsgStreamMember msg("GarfieldGas::ElectronVelocity");
@@ -760,17 +760,17 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
   // Compute the magnitude of the electric field.
   const double e = sqrt(ex * ex + ey * ey + ez * ez);
   const double e0 = ScaleElectricField(e);
-  if (e < Small || e0 < Small) return false; 
- 
+  if (e < Small || e0 < Small) return false;
+
   // Compute the magnitude of the magnetic field.
   const double b = sqrt(bx * bx + by * by + bz * bz);
-  
+
   // Compute the angle between B field and E field.
   double ebang = 0.;
   if (e * b > 0.) {
     const double eb = fabs(ex * bx + ey * by + ez * bz);
     if (eb > 0.2 * e * b) {
-      ebang = asin(std::min(1., 
+      ebang = asin(std::min(1.,
                             sqrt(pow(ex * by - ey * bx, 2) +
                                  pow(ex * bz - ez * bx, 2) +
                                  pow(ez * by - ey * bz, 2)) / (e * b)));
@@ -780,15 +780,15 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
   } else {
     ebang = bAngles[0];
   }
-  
+
   if (b < Small) {
     // No magnetic field.
 
     // Calculate the velocity along E.
     double ve = 0.;
     if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
+      if (!Numerics::Boxin3(tabElectronVelocityE,
+                            bAngles, bFields, eFields,
                             nAngles, nBfields, nEfields,
                             ebang, b, e0, ve, intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
@@ -796,7 +796,7 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
       }
     } else {
       ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields,
-                         intpVelocity, 
+                         intpVelocity,
                          extrLowVelocity, extrHighVelocity);
     }
     const double q = -1.;
@@ -804,17 +804,17 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     vx = mu * ex;
     vy = mu * ey;
     vz = mu * ez;
-    
+
   } else if (hasElectronVelocityB && hasElectronVelocityExB) {
     // Magnetic field, velocities along ExB and Bt available
-    
+
     // Compute unit vectors along E, E x B and Bt.
     double ue[3] = {ex / e, ey / e, ez / e};
-    double uexb[3] = {ey * bz - ez * by, 
-                      ez * bx - ex * bz, 
+    double uexb[3] = {ey * bz - ez * by,
+                      ez * bx - ex * bz,
                       ex * by - ey * bx};
-    const double exb = sqrt(uexb[0] * uexb[0] + 
-                            uexb[1] * uexb[1] + 
+    const double exb = sqrt(uexb[0] * uexb[0] +
+                            uexb[1] * uexb[1] +
                             uexb[2] * uexb[2]);
     if (exb > 0.) {
       uexb[0] /= exb; uexb[1] /= exb; uexb[2] /= exb;
@@ -825,12 +825,12 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     }
 
     double ubt[3] = {
-      uexb[1] * ez - uexb[2] * ey, 
-      uexb[2] * ex - uexb[0] * ez, 
+      uexb[1] * ez - uexb[2] * ey,
+      uexb[2] * ex - uexb[0] * ez,
       uexb[0] * ey - uexb[1] * ex
     };
-    const double bt = sqrt(ubt[0] * ubt[0] + 
-                           ubt[1] * ubt[1] + 
+    const double bt = sqrt(ubt[0] * ubt[0] +
+                           ubt[1] * ubt[1] +
                            ubt[2] * ubt[2]);
 
     if (bt > 0.) {
@@ -840,26 +840,26 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
       ubt[1] = ue[1];
       ubt[2] = ue[2];
     }
-    
+
     // Calculate the velocities in all directions.
     double ve = 0., vbt = 0., vexb = 0.;
     if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
+      if (!Numerics::Boxin3(tabElectronVelocityE,
+                            bAngles, bFields, eFields,
                             nAngles, nBfields, nEfields,
                             ebang, b, e0, ve, intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
         return false;
       }
-      if (!Numerics::Boxin3(tabElectronVelocityExB, 
-                            bAngles, bFields, eFields, 
+      if (!Numerics::Boxin3(tabElectronVelocityExB,
+                            bAngles, bFields, eFields,
                             nAngles, nBfields, nEfields,
                             ebang, b, e0, vexb, intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along ExB failed.\n";
         return false;
       }
-      if (!Numerics::Boxin3(tabElectronVelocityB, 
-                            bAngles, bFields, eFields, 
+      if (!Numerics::Boxin3(tabElectronVelocityB,
+                            bAngles, bFields, eFields,
                             nAngles, nBfields, nEfields,
                             ebang, b, e0, vbt, intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along Bt failed.\n";
@@ -881,26 +881,26 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     if(ex*bx+ey*by+ez*bz>0) vbt=fabs(vbt);
     else vbt=-fabs(vbt);
 
-    const double q = -1.;  
+    const double q = -1.;
     vx = q * (ve * ue[0] + q * q * vbt * ubt[0] + q * vexb * uexb[0]);
     vy = q * (ve * ue[1] + q * q * vbt * ubt[1] + q * vexb * uexb[1]);
     vz = q * (ve * ue[2] + q * q * vbt * ubt[2] + q * vexb * uexb[2]);
-    
+
   } else {
     // Magnetic field, velocities along ExB, Bt not available
-    
+
     // Calculate the velocity along E.
     double ve = 0.;
     if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
+      if (!Numerics::Boxin3(tabElectronVelocityE,
+                            bAngles, bFields, eFields,
                             nAngles, nBfields, nEfields,
                             ebang, b, e0, ve, intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
         return false;
       }
     } else {
-      ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields, 
+      ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields,
                          intpVelocity,
                          extrLowVelocity, extrHighVelocity);
     }
@@ -909,40 +909,40 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     const double mu = q * ve / e;
     const double eb = bx * ex + by * ey + bz * ez;
     const double nom = 1. + pow(mu * b, 2);
-    vx = mu * (ex + 
+    vx = mu * (ex +
                mu * (ey * bz - ez * by) +
                mu * mu * bx * eb) / nom;
-    vy = mu * (ey + 
+    vy = mu * (ey +
                mu * (ez * bx - ex * bz) +
                mu * mu * by * eb) / nom;
-    vz = mu * (ez + 
+    vz = mu * (ez +
                mu * (ex * by - ey * bx) +
                mu * mu * bz * eb) / nom;
   }
-  
+
   return true;
-  
+
 }
 
 
 
 double
-GarfieldGas::Interpolate1D(const double e, 
+GarfieldGas::Interpolate1D(const double e,
 			     const std::vector<double>& table,
 			     const std::vector<double>& fields,
 			     const int intpMeth,
 			     const int extrLow, const int extrHigh) {
 
-  // This function is a generalized version of the Fortran functions 
+  // This function is a generalized version of the Fortran functions
   // GASVEL, GASVT1, GASVT2, GASLOR, GASMOB, GASDFT, and GASDFL
-  // for the case of a 1D table. All variables are generic. 
-  
+  // for the case of a 1D table. All variables are generic.
+
   const int nSizeTable = fields.size();
-  
+
   if (e < 0. || nSizeTable < 1) return 0.;
 
-  double result = 0.;  
-  
+  double result = 0.;
+
   if (nSizeTable == 1) {
     // Only one point
     result = table[0];
@@ -957,7 +957,7 @@ GarfieldGas::Interpolate1D(const double e,
       result = extr3 + extr4 * e;
     } else if (extrLow == 2) {
       // Logarithmic extrapolation
-      const double extr4 = log(table[1] / table[0]) / 
+      const double extr4 = log(table[1] / table[0]) /
 	(fields[1] - fields[0]);
       const double extr3 = log(table[0] - extr4 * fields[0]);
       result = std::exp(std::min(50., extr3 + extr4 * e));
@@ -970,17 +970,17 @@ GarfieldGas::Interpolate1D(const double e,
       result = table[nSizeTable - 1];
     } else if (extrHigh == 1) {
       // Linear extrapolation
-      const double extr2 = (table[nSizeTable - 1] - table[nSizeTable - 2]) / 
+      const double extr2 = (table[nSizeTable - 1] - table[nSizeTable - 2]) /
 	(fields[nSizeTable - 1] - fields[nSizeTable - 2]);
-      const double extr1 = table[nSizeTable - 1] - 
+      const double extr1 = table[nSizeTable - 1] -
 	extr2 * fields[nSizeTable - 1];
       result = extr1 + extr2 * e;
     } else if (extrHigh == 2) {
       // Logarithmic extrapolation
-      const double extr2 = log(table[nSizeTable - 1] / 
+      const double extr2 = log(table[nSizeTable - 1] /
                                table[nSizeTable - 2]) /
 	(fields[nSizeTable - 1] - fields[nSizeTable - 2]);
-      const double extr1 = log(table[nSizeTable - 1]) - 
+      const double extr1 = log(table[nSizeTable - 1]) -
 	extr2 * fields[nSizeTable - 1];
       result = exp(std::min(50., extr1 + extr2 * e));
     } else {
@@ -1043,14 +1043,14 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   std::vector<double> mixture(nMagboltzGases);
   for (int i = nMagboltzGases; i--;) mixture[i] = 0.;
 
-  
+
   int eFieldRes = 1;
   int bFieldRes = 1;
   int angRes = 1;
-  
+
   int versionNumber = 12;
- 
-  // Start reading the data. 
+
+  // Start reading the data.
   bool atTables = false;
   while (!atTables) {
     gasfile.getline(line, 256);
@@ -1065,17 +1065,17 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
           token = strtok(NULL, " :,%");
           versionNumber = atoi(token);
           // Check the version number.
-          if (versionNumber != 10 && 
+          if (versionNumber != 10 &&
               versionNumber != 11 &&
               versionNumber != 12) {
-	    msg << MSG::INFO << "The file has version number " 
+	    msg << MSG::INFO << "The file has version number "
                       << versionNumber << ".\n";
 	    msg << MSG::INFO << "    Files written in this format cannot be read.\n";
             gasfile.close();
             return false;
           } else {
 	    msg << MSG::DEBUG << "Version: " << versionNumber << "\n";
-          } 
+          }
         } else if (strcmp(token, "GASOK") == 0) {
           // Get the GASOK bits indicating if a parameter
           // is present in the table (T) or not (F).
@@ -1119,7 +1119,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
             gasfile.close();
             return false;
           }
-          
+
           eFields.resize(eFieldRes);
           nEfields = eFieldRes;
           bFields.resize(bFieldRes);
@@ -1190,11 +1190,11 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   // (14) allocated for HEED data (not used)
   // (15) excitation rates
   // (16) ionisation rates
-  
+
 
   if (gasBits[0] == 'T') {
     hasElectronVelocityE = true;
-    InitParamArrays(eFieldRes, bFieldRes, angRes, 
+    InitParamArrays(eFieldRes, bFieldRes, angRes,
                     tabElectronVelocityE, 0.);
   } else {
     hasElectronVelocityE = false;
@@ -1202,7 +1202,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   }
   if (gasBits[2] == 'T') {
     hasElectronDiffLong = true;
-    InitParamArrays(eFieldRes, bFieldRes, angRes, 
+    InitParamArrays(eFieldRes, bFieldRes, angRes,
                     tabElectronDiffLong, 0.);
   } else {
     hasElectronDiffLong = false;
@@ -1210,7 +1210,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   }
   if (gasBits[7] == 'T') {
     hasElectronDiffTrans = true;
-    InitParamArrays(eFieldRes, bFieldRes, angRes, 
+    InitParamArrays(eFieldRes, bFieldRes, angRes,
                     tabElectronDiffTrans, 0.);
   } else {
     hasElectronDiffTrans = false;
@@ -1218,7 +1218,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   }
   if (gasBits[8] == 'T') {
     hasElectronVelocityB = true;
-    InitParamArrays(eFieldRes, bFieldRes, angRes, 
+    InitParamArrays(eFieldRes, bFieldRes, angRes,
                     tabElectronVelocityB, 0.);
   } else {
     hasElectronVelocityB = false;
@@ -1226,13 +1226,13 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   }
   if (gasBits[9] == 'T') {
     hasElectronVelocityExB = true;
-    InitParamArrays(eFieldRes, bFieldRes, angRes, 
+    InitParamArrays(eFieldRes, bFieldRes, angRes,
                     tabElectronVelocityExB, 0.);
   } else {
     hasElectronVelocityExB = false;
     tabElectronVelocityExB.clear();
   }
-  
+
 
   // Check the gas mixture.
   std::vector<std::string> gasnames; gasnames.clear();
@@ -1250,7 +1250,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       }
       gasnames.push_back(gasname);
       percentages.push_back(mixture[i]);
-      ++gasCount;      
+      ++gasCount;
     }
   }
   if (gasCount > nMaxGases) {
@@ -1289,7 +1289,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   } else {
     msg << MSG::INFO << "Gas composition could not be established.\n";
   }
-  
+
   // Temporary variables
   // Velocities
   double ve = 0., vb = 0., vexb = 0.;
@@ -1312,7 +1312,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       for (int j = 0; j < angRes; j++) {
         for (int k = 0; k < bFieldRes; k++) {
           // Drift velocity along E, Bt and ExB
-          gasfile >> ve >> vb >> vexb; 
+          gasfile >> ve >> vb >> vexb;
           // Convert from cm / us to cm / ns
           ve *= 1.e-3; vb *= 1.e-3; vexb *= 1.e-3;
           if (hasElectronVelocityE) tabElectronVelocityE[j][k][i] = ve;
@@ -1383,12 +1383,12 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
     }
   }
 
-  
+
   // Extrapolation methods
   int hExtrap[13], lExtrap[13];
   // Interpolation methods
   int interpMeth[13];
-  
+
   // Moving on to the file footer
   bool done = false;
   while (!done) {
@@ -1448,7 +1448,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 	// if (token != NULL) clsPerCm = atof(token);
       } else if (strcmp(token, "RHO") == 0) {
 	// Parameter for energy loss distribution, currently not used
-	token = strtok(NULL, " :,%=\t"); 
+	token = strtok(NULL, " :,%=\t");
 	// double rho;
 	// if (token != NULL) rho = atof(token);
       } else if (strcmp(token, "PGAS") == 0) {
@@ -1466,22 +1466,22 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       } else {
 	done = true;
 	break;
-      }     
+      }
       (void)token; // to suppress unused warning
-      token = strtok(NULL, " :,%=\t"); 
+      token = strtok(NULL, " :,%=\t");
     }
-  }    
+  }
   gasfile.close();
-  
+
   // Set the reference pressure and temperature.
   pressureTable = pressure;
   temperatureTable = temperature;
-  
+
   // Multiply the E/p values by the pressure.
   for (int i = eFieldRes; i--;) {
     eFields[i] *= pressureTable;
   }
-  
+
   // Decode the extrapolation and interpolation tables.
   extrHighVelocity = hExtrap[0];
   extrLowVelocity  = lExtrap[0];
@@ -1493,9 +1493,9 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 
   return true;
 }
-  
 
-bool 
+
+bool
 GarfieldGas::GetGasName(const int gasnumber, const int version,
 			  std::string& gasname) {
 
@@ -1504,130 +1504,130 @@ GarfieldGas::GetGasName(const int gasnumber, const int version,
     gasname = "CF4";
     break;
   case 2:
-    gasname = "Ar";   
+    gasname = "Ar";
     break;
-  case 3:  
-    gasname = "He";   
+  case 3:
+    gasname = "He";
     break;
-  case 4:  
-    gasname = "He-3"; 
+  case 4:
+    gasname = "He-3";
     break;
-  case 5:  
-    gasname = "Ne";   
+  case 5:
+    gasname = "Ne";
     break;
-  case 6:  
-    gasname = "Kr";   
+  case 6:
+    gasname = "Kr";
     break;
-  case 7:  
-    gasname = "Xe";   
+  case 7:
+    gasname = "Xe";
     break;
-  case 8:  
+  case 8:
     gasname = "CH4";
     break;
-  case 9:  
-    gasname = "C2H6";  
+  case 9:
+    gasname = "C2H6";
     break;
-  case 10: 
-    gasname = "C3H8";     
+  case 10:
+    gasname = "C3H8";
     break;
-  case 11: 
-    gasname = "iC4H10";   
+  case 11:
+    gasname = "iC4H10";
     break;
-  case 12: 
-    gasname = "CO2";  
+  case 12:
+    gasname = "CO2";
     break;
-  case 13: 
-    gasname = "neoC5H12"; 
+  case 13:
+    gasname = "neoC5H12";
     break;
-  case 14: 
-    gasname = "H2O";  
+  case 14:
+    gasname = "H2O";
     break;
-  case 15: 
-    gasname = "O2";   
+  case 15:
+    gasname = "O2";
     break;
-  case 16: 
-    gasname = "N2";   
+  case 16:
+    gasname = "N2";
     break;
-  case 17: 
-    gasname = "NO";   
+  case 17:
+    gasname = "NO";
     break;
-  case 18: 
-    gasname = "N2O";  
+  case 18:
+    gasname = "N2O";
     break;
-  case 19: 
-    gasname = "C2H4"; 
+  case 19:
+    gasname = "C2H4";
     break;
-  case 20: 
-    gasname = "C2H2"; 
+  case 20:
+    gasname = "C2H2";
     break;
-  case 21: 
-    gasname = "H2";   
+  case 21:
+    gasname = "H2";
     break;
-  case 22: 
-    gasname = "D2";   
+  case 22:
+    gasname = "D2";
     break;
-  case 23: 
-    gasname = "CO";   
+  case 23:
+    gasname = "CO";
     break;
-  case 24: 
-    gasname = "Methylal"; 
+  case 24:
+    gasname = "Methylal";
     break;
-  case 25: 
-    gasname = "DME";      
+  case 25:
+    gasname = "DME";
     break;
-  case 26: 
+  case 26:
     gasname = "Reid-Step";
     break;
-  case 27: 
+  case 27:
     gasname = "Maxwell-Model";
     break;
-  case 28: 
+  case 28:
     gasname = "Reid-Ramp";
     break;
-  case 29: 
-    gasname = "C2F6";    
+  case 29:
+    gasname = "C2F6";
     break;
-  case 30: 
-    gasname = "SF6";     
+  case 30:
+    gasname = "SF6";
     break;
-  case 31: 
-    gasname = "NH3";     
+  case 31:
+    gasname = "NH3";
     break;
-  case 32: 
-    gasname = "C3H6";   
+  case 32:
+    gasname = "C3H6";
     break;
-  case 33: 
-    gasname = "cC3H6";  
+  case 33:
+    gasname = "cC3H6";
     break;
-  case 34: 
-    gasname = "CH3OH";  
+  case 34:
+    gasname = "CH3OH";
     break;
-  case 35: 
-    gasname = "C2H5OH"; 
+  case 35:
+    gasname = "C2H5OH";
     break;
-  case 36: 
-    gasname = "C3H7OH"; 
+  case 36:
+    gasname = "C3H7OH";
     break;
-  case 37: 
-    gasname = "Cs";      
+  case 37:
+    gasname = "Cs";
     break;
-  case 38: 
-    gasname = "F2";      
+  case 38:
+    gasname = "F2";
     break;
-  case 39: 
-    gasname = "CS2";     
+  case 39:
+    gasname = "CS2";
     break;
-  case 40: 
-    gasname = "COS";     
+  case 40:
+    gasname = "COS";
     break;
-  case 41: 
-    gasname = "CD4";     
+  case 41:
+    gasname = "CD4";
     break;
-  case 42: 
-    gasname = "BF3";     
+  case 42:
+    gasname = "BF3";
     break;
-  case 43: 
-    gasname = "C2H2F4";   
+  case 43:
+    gasname = "C2H2F4";
     break;
   case 44:
     if (version <= 11) {
@@ -1651,42 +1651,42 @@ GarfieldGas::GetGasName(const int gasnumber, const int version,
   case 49:
     gasname = "Xe";
     break;
-  case 50: 
-    gasname = "CHF3";    
+  case 50:
+    gasname = "CHF3";
     break;
-  case 51: 
-    gasname = "CF3Br";   
+  case 51:
+    gasname = "CF3Br";
     break;
-  case 52: 
-    gasname = "C3F8";    
+  case 52:
+    gasname = "C3F8";
     break;
-  case 53: 
-    gasname = "O3";      
+  case 53:
+    gasname = "O3";
     break;
-  case 54: 
-    gasname = "Hg";      
+  case 54:
+    gasname = "Hg";
     break;
-  case 55: 
-    gasname = "H2S";     
+  case 55:
+    gasname = "H2S";
     break;
-  case 56: 
-    gasname = "nC4H10"; 
+  case 56:
+    gasname = "nC4H10";
     break;
-  case 57: 
-    gasname = "nC5H12"; 
+  case 57:
+    gasname = "nC5H12";
     break;
-  case 58: 
-    gasname = "N2";      
+  case 58:
+    gasname = "N2";
     break;
-  case 59: 
-    gasname = "GeH4"; 
+  case 59:
+    gasname = "GeH4";
     break;
-  case 60: 
-    gasname = "SiH4"; 
+  case 60:
+    gasname = "SiH4";
     break;
-  default: 
-    gasname = ""; 
-    return false; 
+  default:
+    gasname = "";
+    return false;
     break;
   }
   return true;
@@ -1714,8 +1714,8 @@ GarfieldGas::PrintGas() {
   msg << MSG::INFO << "      Pressure:    " << pressureTable << " Torr\n";
   msg << MSG::INFO << "      Temperature: " << temperatureTable << " K\n";
   if (nEfields > 1) {
-    msg << MSG::INFO << "    Electric field range:  " << eFields[0] 
-              << " - " << eFields[nEfields - 1] 
+    msg << MSG::INFO << "    Electric field range:  " << eFields[0]
+              << " - " << eFields[nEfields - 1]
               << " V/cm in " << nEfields  - 1 << " steps.\n";
   } else if (nEfields == 1) {
     msg << MSG::INFO << "    Electric field:        " << eFields[0] << " V/cm\n";
@@ -1724,7 +1724,7 @@ GarfieldGas::PrintGas() {
   }
   if (nBfields > 1) {
     msg << MSG::INFO << "    Magnetic field range:  " << bFields[0]
-              << " - " << bFields[nBfields - 1] 
+              << " - " << bFields[nBfields - 1]
               << " T in " << nBfields - 1 << " steps.\n";
   } else if (nBfields == 1) {
     msg << MSG::INFO << "    Magnetic field:        " << bFields[0] << "\n";
@@ -1751,7 +1751,7 @@ GarfieldGas::PrintGas() {
   if (hasElectronVelocityExB) {
     msg << MSG::INFO << "      Velocity along ExB\n";
   }
-  if (hasElectronVelocityE || hasElectronVelocityB || 
+  if (hasElectronVelocityE || hasElectronVelocityB ||
       hasElectronVelocityExB) {
     msg << MSG::INFO << "        Low field extrapolation:  ";
     if (extrLowVelocity == 0) msg << MSG::INFO << " constant\n";
@@ -1770,7 +1770,7 @@ GarfieldGas::PrintGas() {
   }
   if (hasElectronDiffTrans) {
     msg << MSG::INFO << "      Transverse diffusion coefficient\n";
-  } 
+  }
   if (hasElectronDiffLong || hasElectronDiffTrans){
     msg << MSG::INFO << "        Low field extrapolation:  ";
     if (extrLowDiffusion == 0) msg << MSG::INFO << " constant\n";
