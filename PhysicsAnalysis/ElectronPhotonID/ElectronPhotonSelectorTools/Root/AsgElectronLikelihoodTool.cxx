@@ -619,10 +619,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
         }
-        else if (m_rootTool->VariableNames.find("DeltaPoverP") != std::string::npos) {
-          allFound = false; 
-          notFoundList += "deltaPoverP ";
-        }
       
       }
     else
