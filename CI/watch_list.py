@@ -37,3 +37,5 @@ WATCH_LIST['TrkV0Fitter'] = set(['bouhova'])
 WATCH_LIST['TrkVertexAnalysisUtils'] = set(['bouhova'])
 WATCH_LIST['InDetV0Finder'] = set(['bouhova'])
 
+# AnalysisTop (excluding TopPhys/QuickAna) = Top Reconstruction subgroup convenors + AnalysisTop software managers
+WATCH_LIST['^(?!.*(QuickAna)).*PhysicsAnalysis/TopPhys'] = set(['iconnell','grancagn','yili','mscornaj'])
