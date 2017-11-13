@@ -448,9 +448,7 @@ StatusCode LArCaliWaveBuilder::stop()
 	    } // end of loop DACs                 
 
 	    // intermediate map cleanup (save memory)
-	    const WaveMap* cmap = &(*cell_it);
-            WaveMap* map = const_cast<WaveMap*>(cmap);
-            map->clear();
+            cell_it->clear();
 
 	} //end loop cells
 
