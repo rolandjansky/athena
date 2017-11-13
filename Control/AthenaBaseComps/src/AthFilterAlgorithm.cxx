@@ -28,7 +28,7 @@ AthFilterAlgorithm::AthFilterAlgorithm( const std::string& name,
                                         ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_cutID ( 0 ),
-  m_cutFlowSvc("CutFlowSvc/CutFlowSvc", name)
+  m_cutFlowSvc("FileCutFlowSvc/FileCutFlowSvc", name)
 {
   //
   // Property declaration

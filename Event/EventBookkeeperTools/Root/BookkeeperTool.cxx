@@ -186,6 +186,9 @@ StatusCode BookkeeperTool::endInputFile()
       ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
     }
   }
+  else {
+    ATH_MSG_INFO("Found no tmp collection in output store " << outputMetaStore()->dump());
+  }
 
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
@@ -255,145 +258,6 @@ BookkeeperTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-/*
-StatusCode
-BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
-                             const xAOD::CutBookkeeperContainer* otherCont ) {
-  ATH_MSG_DEBUG("calling updateContainer(...)" );
-  ATH_MSG_DEBUG("Have container to update with size=" << contToUpdate->size()
-                  << ", and other container with size=" << otherCont->size() );
-
-  // Create an vector of indices of all the newly transferred CutBookkeepers
-  std::vector< std::size_t > newEBKIndices;
-  // Loop through otherCont.
-  // If element already in contToUpdate, update event counts, otherwise create new element
-  for ( std::size_t i=0; i<otherCont->size(); ++i ) {
-    const xAOD::CutBookkeeper* otherEBK = otherCont->at(i);
-    ATH_MSG_VERBOSE("Looping through otherCont at index " << i);
-    ATH_MSG_VERBOSE("Have otherEBK with: name=" << otherEBK->name()
-                    << ", cycle=" << otherEBK->cycle()
-                    << ", nAcceptedEvents=" << otherEBK->nAcceptedEvents()
-                    << ", inputStream=" << otherEBK->inputStream() );
-
-
-    // Loop through the container to be updated (contToUpdate) and see if we find a match
-    bool foundEBKToUpdate(false);
-    for ( std::size_t j=0; j<contToUpdate->size(); ++j ) {
-      xAOD::CutBookkeeper* ebkToUpdate = contToUpdate->at(j);
-      // Check if they are identical, if so, update; else add otherEBK
-      if ( otherEBK->isEqualTo(ebkToUpdate) ) {
-        ebkToUpdate->setPayload( ebkToUpdate->payload() + otherEBK->payload() );
-        foundEBKToUpdate = true;
-        break;
-      }
-    } // End: Inner loop over contToUpdate
-    if (!foundEBKToUpdate) {
-      xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-      if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-      newEBK->makePrivateStore(otherEBK);
-      contToUpdate->push_back( newEBK );
-      std::size_t ebIdx = newEBK->index();
-      newEBKIndices.push_back(ebIdx);
-    }
-  } // End: Outer loop over contToUpdate
-
-  // Now, we still need to fix the cross-referencing of the newly added CutBookkkeepers
-  for ( std::size_t i=0; i<newEBKIndices.size(); ++i ) {
-    std::size_t otherIndex = newEBKIndices.at(i);
-    xAOD::CutBookkeeper* ebkToModify = contToUpdate->at(otherIndex);
-
-    // Parent check
-    if ( ebkToModify->hasParent() ) {
-      const xAOD::CutBookkeeper* oldParent = ebkToModify->parent();
-      xAOD::CutBookkeeperContainer::iterator matchIter =  std::find( contToUpdate->begin(),
-                                                                       contToUpdate->end(),
-                                                                       oldParent );
-      // If we found it, we can modify
-      if ( matchIter != contToUpdate->end() ) {
-        ATH_MSG_VERBOSE("Updating ElementLink to parent");
-        ebkToModify->setParent( *matchIter );
-      }
-      // If we didn't find it, we need to add it
-      else {
-        ATH_MSG_VERBOSE("Adding new parent");
-        xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-        if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-        newEBK->makePrivateStore(oldParent);
-        contToUpdate->push_back( newEBK );
-        ebkToModify->setParent( newEBK );
-      }
-    } // Done fixing parent
-
-    // Children check
-    for ( std::size_t oldIdx=0; oldIdx<ebkToModify->nChildren(); ++oldIdx ) {
-      const xAOD::CutBookkeeper* oldEBK = ebkToModify->child(oldIdx);
-      xAOD::CutBookkeeperContainer::iterator matchIter =  std::find( contToUpdate->begin(),
-                                                                       contToUpdate->end(),
-                                                                       oldEBK );
-      // If we found it, we can modify
-      if ( matchIter != contToUpdate->end() ) {
-        ATH_MSG_VERBOSE("Updating ElementLink to child");
-        ebkToModify->addChild( *matchIter );
-      }
-      // If we didn't find it, we need to add it
-      else {
-        ATH_MSG_VERBOSE("Adding new child");
-        xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-        if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-        newEBK->makePrivateStore(oldEBK);
-        contToUpdate->push_back( newEBK );
-        ebkToModify->addChild( newEBK );
-      }
-    } // Done fixing children
-
-    // Used others check
-    for ( std::size_t oldIdx=0; oldIdx<ebkToModify->nUsedOthers(); ++oldIdx ) {
-      const xAOD::CutBookkeeper* oldEBK = ebkToModify->usedOther(oldIdx);
-      xAOD::CutBookkeeperContainer::iterator matchIter =  std::find( contToUpdate->begin(),
-                                                                       contToUpdate->end(),
-                                                                       oldEBK );
-      // If we found it, we can modify
-      if ( matchIter != contToUpdate->end() ) {
-        ATH_MSG_VERBOSE("Updating ElementLink to usedOther");
-        ebkToModify->addUsedOther( *matchIter );
-      }
-      // If we didn't find it, we need to add it
-      else {
-        ATH_MSG_VERBOSE("Adding new usedOther");
-        xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-        if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-        newEBK->makePrivateStore(oldEBK);
-        contToUpdate->push_back( newEBK );
-        ebkToModify->addUsedOther( newEBK );
-      }
-    } // Done fixing used others
-
-    // Siblings check
-    for ( std::size_t oldIdx=0; oldIdx<ebkToModify->nSiblings(); ++oldIdx ) {
-      const xAOD::CutBookkeeper* oldEBK = ebkToModify->sibling(oldIdx);
-      xAOD::CutBookkeeperContainer::iterator matchIter =  std::find( contToUpdate->begin(),
-                                                                       contToUpdate->end(),
-                                                                       oldEBK );
-      // If we found it, we can modify
-      if ( matchIter != contToUpdate->end() ) {
-        ATH_MSG_VERBOSE("Updating ElementLink to sibling");
-        ebkToModify->addSibling( *matchIter );
-      }
-      // If we didn't find it, we need to add it
-      else {
-        ATH_MSG_VERBOSE("Adding new sibling");
-        xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-        if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-        newEBK->makePrivateStore(oldEBK);
-        contToUpdate->push_back( newEBK );
-        ebkToModify->addSibling( newEBK );
-      }
-    } // Done fixing siblings
-  } // Done fixing all cross references
-  return StatusCode::SUCCESS;
-}
-*/
-
 
 StatusCode BookkeeperTool::addCutFlow()
 {
@@ -416,6 +280,9 @@ StatusCode BookkeeperTool::addCutFlow()
       // update the complete output with the complete input
       ATH_CHECK(this->updateContainer(completeBook,fileCompleteBook));
     }
+  }
+  else {
+    ATH_MSG_INFO("No cutflow container " << m_cutflowCollName);
   }
 
   return StatusCode::SUCCESS;
