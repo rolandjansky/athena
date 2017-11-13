@@ -60,6 +60,7 @@ LArNoisyROMon::~LArNoisyROMon()
   if ( m_strHelper ) delete m_strHelper;
   
   // don't delete m_NoiseTimeTree, it is not owned by this alg.
+
 }
 
 
@@ -778,9 +779,9 @@ void LArNoisyROMon::fillTriggerHisto(partitionHistos& partition, uint8_t trigger
 
 StatusCode LArNoisyROMon::finalize()
 {
-  ATH_MSG_INFO(  " in LArNoisyROMon::finalHists()" );
-  // delete temposary histograms
-
+  ATH_MSG_INFO(  " in LArNoisyROMon::finalize() " );
+     // delete temposary histograms
+/*
   if ( m_h_LBN ) {
     LWHist::safeDelete(m_h_LBN); 
     m_h_LBN = nullptr;
@@ -788,38 +789,39 @@ StatusCode LArNoisyROMon::finalize()
     
   //  for (partitionHistos* part : {&m_BarrelA, &m_BarrelC, &m_EMECA, &m_EMECC}) {
   for (int i=0;i<4;i++){
-     LWHist::safeDelete(m_partHistos[i].h_NoisyEvent); 
-     m_partHistos[i].h_NoisyEvent = nullptr;
+     if(m_partHistos[i].h_NoisyEvent) LWHist::safeDelete(m_partHistos[i].h_NoisyEvent); 
+     //m_partHistos[i].h_NoisyEvent = nullptr;
      
 //     LWHist::safeDelete(part->h_NoisyWEvent); 
 //     part->h_NoisyWEvent = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_NoisyEventTimeVeto); 
-     m_partHistos[i].h_NoisyEventTimeVeto = nullptr;
+     if(m_partHistos[i].h_NoisyEventTimeVeto) LWHist::safeDelete(m_partHistos[i].h_NoisyEventTimeVeto); 
+     //m_partHistos[i].h_NoisyEventTimeVeto = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_MNBTightEvent); 
-     m_partHistos[i].h_MNBTightEvent = nullptr;
+     if(m_partHistos[i].h_MNBTightEvent) LWHist::safeDelete(m_partHistos[i].h_MNBTightEvent); 
+     //m_partHistos[i].h_MNBTightEvent = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_MNBTightEventTimeVeto); 
-     m_partHistos[i].h_MNBTightEventTimeVeto = nullptr;
+     if(m_partHistos[i].h_MNBTightEventTimeVeto) LWHist::safeDelete(m_partHistos[i].h_MNBTightEventTimeVeto); 
+     //m_partHistos[i].h_MNBTightEventTimeVeto = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_MNBLooseEvent); 
-     m_partHistos[i].h_MNBLooseEvent = nullptr;
+     if(m_partHistos[i].h_MNBLooseEvent) LWHist::safeDelete(m_partHistos[i].h_MNBLooseEvent); 
+     //m_partHistos[i].h_MNBLooseEvent = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_MNBLooseEventTimeVeto); 
-     m_partHistos[i].h_MNBLooseEventTimeVeto = nullptr;
+     if(m_partHistos[i].h_MNBLooseEventTimeVeto) LWHist::safeDelete(m_partHistos[i].h_MNBLooseEventTimeVeto); 
+     //m_partHistos[i].h_MNBLooseEventTimeVeto = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_SaturatedNoisyEvent); 
-     m_partHistos[i].h_SaturatedNoisyEvent = nullptr;
+     if(m_partHistos[i].h_SaturatedNoisyEvent) LWHist::safeDelete(m_partHistos[i].h_SaturatedNoisyEvent); 
+     //m_partHistos[i].h_SaturatedNoisyEvent = nullptr;
 
-     LWHist::safeDelete(m_partHistos[i].h_SaturatedNoisyEventTimeVeto); 
-     m_partHistos[i].h_SaturatedNoisyEventTimeVeto = nullptr;
+     if(m_partHistos[i].h_SaturatedNoisyEventTimeVeto) LWHist::safeDelete(m_partHistos[i].h_SaturatedNoisyEventTimeVeto); 
+     //m_partHistos[i].h_SaturatedNoisyEventTimeVeto = nullptr;
 
 //     LWHist::safeDelete(part->h_NoisyWEventTimeVeto);
 //     part->h_NoisyWEventTimeVeto=nullptr;
   }
 
-
+*/
 
   return StatusCode::SUCCESS;
 }
+
