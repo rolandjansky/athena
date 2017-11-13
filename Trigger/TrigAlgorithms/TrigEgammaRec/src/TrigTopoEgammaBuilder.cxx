@@ -109,7 +109,7 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,
   // Tool handles to build superclusters
   declareProperty("TopoClusterCopier",
 		  m_egammaTopoClusterCopier,
-		  "Tool to build egamma Topo Clusters");
+		  "Tool to copy and filter egamma input Topo Clusters");
 
   declareProperty("electronSuperClusterBuilder",
 		  m_electronSuperClusterBuilder,
