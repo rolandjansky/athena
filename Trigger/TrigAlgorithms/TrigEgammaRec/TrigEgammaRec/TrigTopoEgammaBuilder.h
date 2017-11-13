@@ -47,8 +47,8 @@ class IegammaBaseTool;
 class IEGammaAmbiguityTool;
 class IEMTrackMatchBuilder;
 class IEMConversionBuilder;
-class IEMBremCollectionBuilder;
-class IEMVertexBuilder;
+//class IEMBremCollectionBuilder;
+//class IEMVertexBuilder;
 
 class egammaRec;
 class StoreGateSvc;
@@ -120,10 +120,10 @@ class TrigTopoEgammaBuilder : public HLT::FexAlgo
   StatusCode RetrieveEMTrackMatchBuilder();
   /** @brief retrieve EMConversionBuilder **/
   StatusCode RetrieveEMConversionBuilder();
-  /** @brief retrieve 4-mom builder **/
-  StatusCode RetrieveBremCollectionBuilder();
-  /** @brief retrieve BremVertexBuilder **/
-  StatusCode RetrieveVertexBuilder();
+//  /** @brief retrieve 4-mom builder **/
+//  StatusCode RetrieveBremCollectionBuilder();
+//  /** @brief retrieve BremVertexBuilder **/
+//  StatusCode RetrieveVertexBuilder();
   /** @brief Name of the electron output collection*/
   std::string  m_electronOutputName;
   /** @brief Name of the photon output collection */
@@ -149,17 +149,17 @@ class TrigTopoEgammaBuilder : public HLT::FexAlgo
   ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
   /** @brief Tool to retrieve the conversions*/
   ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
-  /** @brief Pointer to the BremCollectionBuilder tool*/
-  ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
-  /** @brief Pointer to the VertexBuilder*/
-  ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
+//  /** @brief Pointer to the BremCollectionBuilder tool*/
+//  ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
+//  /** @brief Pointer to the VertexBuilder*/
+//  ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
   //
   // All booleans
   //
-  /** @brief Boolean to do Brem collection building */
-  bool         m_doBremCollection;
-  /** @brief Boolean to do Vertex collection building */
-  bool         m_doVertexCollection;
+//  /** @brief Boolean to do Brem collection building */
+//  bool         m_doBremCollection;
+//  /** @brief Boolean to do Vertex collection building */
+//  bool         m_doVertexCollection;
   /** @brief private member flag to do the TrackMatching (and conversion building)*/
   bool         m_doTrackMatching;
   /** @brief private member flag to do the conversion building and matching */

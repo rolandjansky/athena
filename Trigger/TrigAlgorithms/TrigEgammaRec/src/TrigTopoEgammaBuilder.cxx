@@ -28,8 +28,8 @@
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaInterfaces/IEMBremCollectionBuilder.h"
-#include "egammaInterfaces/IEMVertexBuilder.h"
+//#include "egammaInterfaces/IEMBremCollectionBuilder.h"
+//#include "egammaInterfaces/IEMVertexBuilder.h"
 #include "egammaUtils/egammaDuplicateRemoval.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
@@ -135,26 +135,26 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,
   declareProperty("ConversionBuilderTool",m_conversionBuilder,
 		  "Handle of Conversion Builder");
 
-  //Handle of the BremcollectionBuilder tool
-  declareProperty("BremCollectionBuilderTool",
-		  m_BremCollectionBuilderTool,
-		  "Handle of the Brem Collection builder tool");
+//  //Handle of the BremcollectionBuilder tool
+//  declareProperty("BremCollectionBuilderTool",
+//		  m_BremCollectionBuilderTool,
+//		  "Handle of the Brem Collection builder tool");
 
-  // Handle of vertex builder
-  declareProperty("VertexBuilder", m_vertexBuilder, "Handle of VertexBuilder");
+//  // Handle of vertex builder
+//  declareProperty("VertexBuilder", m_vertexBuilder, "Handle of VertexBuilder");
 
   // All booleans
-  // Boolean to do Brem collection Building
-  declareProperty("doBremCollection",m_doBremCollection= true,
-		  "Boolean to do Brem collection building");
+//  // Boolean to do Brem collection Building
+//  declareProperty("doBremCollection",m_doBremCollection= true,
+//		  "Boolean to do Brem collection building");
 
   // Boolean to do track matching
   declareProperty("doTrackMatching",m_doTrackMatching= true,
 		  "Boolean to do track matching (and conversion building)");
 
-  // Boolean to do the conversion vertex collection Building
-  declareProperty("doVertexCollection",m_doVertexCollection= true,
-		  "Boolean to do conversion vertex collection building");
+//  // Boolean to do the conversion vertex collection Building
+//  declareProperty("doVertexCollection",m_doVertexCollection= true,
+//		  "Boolean to do conversion vertex collection building");
 
   // Boolean to do conversion reconstruction
   declareProperty("doConversions",m_doConversions= true,
@@ -204,10 +204,10 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize()
   TRIG_CHECK_SC( RetrieveEMTrackMatchBuilder() );
   // retrieve conversion builder
   TRIG_CHECK_SC(  RetrieveEMConversionBuilder() );
-  // retrieve tool to build GSF tracks
-  TRIG_CHECK_SC( RetrieveBremCollectionBuilder() );
-  // retrieve tool to build ID conversion vertices
-  TRIG_CHECK_SC( RetrieveVertexBuilder() );
+//  // retrieve tool to build GSF tracks
+//  TRIG_CHECK_SC( RetrieveBremCollectionBuilder() );
+//  // retrieve tool to build ID conversion vertices
+//  TRIG_CHECK_SC( RetrieveVertexBuilder() );
   // retrieve ambiguity tool
   TRIG_CHECK_SC( RetrieveAmbiguityTool() );
   ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
@@ -334,46 +334,46 @@ StatusCode TrigTopoEgammaBuilder::RetrieveEMConversionBuilder(){
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
-StatusCode TrigTopoEgammaBuilder::RetrieveBremCollectionBuilder(){
-  //
-  // retrieve bremfitter tool
-  //
-  if (!m_doBremCollection ) {
-    return StatusCode::SUCCESS;
-  }
-
-  if (m_BremCollectionBuilderTool.empty()) {
-    ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
-    return StatusCode::FAILURE;
-  }
-  if(m_BremCollectionBuilderTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_BremCollectionBuilderTool);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);
-  return StatusCode::SUCCESS;
-}
- // ====================================================================
-StatusCode TrigTopoEgammaBuilder::RetrieveVertexBuilder(){
-  //
-  // retrieve vertex builder for ID conversions
-  //
-  if (!m_doVertexCollection){
-    return StatusCode::SUCCESS;
-  }
-  if (m_vertexBuilder.empty()) {
-    ATH_MSG_ERROR("VertexBuilder is empty");
-    return StatusCode::FAILURE;
-  }
-  if(m_vertexBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_vertexBuilder);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_vertexBuilder);
-
-  return StatusCode::SUCCESS;
-}
+// // ====================================================================
+// StatusCode TrigTopoEgammaBuilder::RetrieveBremCollectionBuilder(){
+//   //
+//   // retrieve bremfitter tool
+//   //
+//   if (!m_doBremCollection ) {
+//     return StatusCode::SUCCESS;
+//   }
+// 
+//   if (m_BremCollectionBuilderTool.empty()) {
+//     ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
+//     return StatusCode::FAILURE;
+//   }
+//   if(m_BremCollectionBuilderTool.retrieve().isFailure()) {
+//     ATH_MSG_ERROR("Unable to retrieve "<<m_BremCollectionBuilderTool);
+//     return StatusCode::FAILURE;
+//   }
+//   else ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);
+//   return StatusCode::SUCCESS;
+// // }
+//  // ====================================================================
+// StatusCode TrigTopoEgammaBuilder::RetrieveVertexBuilder(){
+//   //
+//   // retrieve vertex builder for ID conversions
+//   //
+//   if (!m_doVertexCollection){
+//     return StatusCode::SUCCESS;
+//   }
+//   if (m_vertexBuilder.empty()) {
+//     ATH_MSG_ERROR("VertexBuilder is empty");
+//     return StatusCode::FAILURE;
+//   }
+//   if(m_vertexBuilder.retrieve().isFailure()) {
+//     ATH_MSG_ERROR("Unable to retrieve "<<m_vertexBuilder);
+//     return StatusCode::FAILURE;
+//   }
+//   else ATH_MSG_DEBUG("Retrieved Tool "<<m_vertexBuilder);
+// 
+//   return StatusCode::SUCCESS;
+// }
 // ====================================================================
 HLT::ErrorCode TrigTopoEgammaBuilder::hltFinalize(){
   // finalize method
@@ -578,16 +578,15 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     egammaRecs->push_back( egRec );
   }
 
-  //Do the track refitting.
-  if (m_doBremCollection){
-    ATH_MSG_DEBUG("Running BremCollectionBuilder");
-    //
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_BremCollectionBuilderTool->name());
-    if (m_BremCollectionBuilderTool->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
-      return HLT::ERROR;
-    }
-  }
+//  if (m_doBremCollection){
+//    ATH_MSG_DEBUG("Running BremCollectionBuilder");
+//    //
+//    smallChrono timer(m_timingProfile, this->name()+"_"+m_BremCollectionBuilderTool->name());
+//    if (m_BremCollectionBuilderTool->contExecute().isFailure()){
+//      ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
+//      return HLT::ERROR;
+//    }
+//  }
 
   ///Append track Matching information
   if (m_doTrackMatching){
@@ -600,16 +599,20 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
   }
 
-  ///Append vertex matching /conversion information
-  if (m_doVertexCollection){
-    ATH_MSG_DEBUG("Running VertexBuilder");
-    //
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_vertexBuilder->name()+"_AllClusters");
-    if (m_vertexBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
-      return HLT::ERROR;
-    }
-  }
+//
+// Skip the direct call of BremCollectionBuilderTool
+// setup the desired VertexContainer at configuration
+//
+//  ///Append vertex matching /conversion information
+//  if (m_doVertexCollection){
+//    ATH_MSG_DEBUG("Running VertexBuilder");
+//    //
+//    smallChrono timer(m_timingProfile, this->name()+"_"+m_vertexBuilder->name()+"_AllClusters");
+//    if (m_vertexBuilder->contExecute().isFailure()){
+//      ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
+//      return HLT::ERROR;
+//    }
+//  }
 
   //Do the conversion matching
   if (m_doConversions){
