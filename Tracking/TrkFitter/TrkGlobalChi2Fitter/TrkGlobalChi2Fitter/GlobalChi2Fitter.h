@@ -255,7 +255,7 @@ private:
 
   bool m_useCaloTG;
   ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider;
-
+  bool m_rejectLargeNScat;
 
 #ifdef GXFDEBUGCODE
   
