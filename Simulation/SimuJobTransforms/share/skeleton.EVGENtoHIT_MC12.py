@@ -220,7 +220,7 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:

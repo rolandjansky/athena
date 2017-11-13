@@ -5,15 +5,15 @@
 #ifndef MMT_FINDER_H
 #define MMT_FINDER_H
 
+
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "MMT_struct.h"
-#include "MMT_Fitter.h"
 
 
 class MMT_Finder{
  public:
-  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1);
+  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1, int outputLevel = MSG::WARNING);
   ~MMT_Finder(){}
   int Coincidence_Gate(const vector<bool>& plane_hits) const;
   void set_roads(int _roads) { m_nRoads=_roads; }
@@ -22,9 +22,9 @@ class MMT_Finder{
   void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const;
 
 
-  /// Log a message using the Athena controlled logging system
+  // / Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
+  // / Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  private:

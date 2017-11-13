@@ -275,21 +275,21 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   MMDetectorDescription* mm_bottom_mult1 = aHelper.Get_MMDetector(sector, 1, 5, 1, side);
   MMDetectorDescription* mm_bottom_mult2 = aHelper.Get_MMDetector(sector, 1, 5, 2, side);
 
-  float sWidth_bottom  = mm_bottom_mult1->sWidth();
-  float sWidth_top     = mm_top_mult1->sWidth();
-  float lWidth_bottom  = mm_bottom_mult1->lWidth();
-  float lWidth_top     = mm_top_mult1->lWidth();
-  float length_bottom  = mm_bottom_mult1->Length();
-  float length_top     = mm_top_mult1->Length();
+  // float sWidth_bottom  = mm_bottom_mult1->sWidth();
+  // float sWidth_top     = mm_top_mult1->sWidth();
+  // float lWidth_bottom  = mm_bottom_mult1->lWidth();
+  // float lWidth_top     = mm_top_mult1->lWidth();
+  // float length_bottom  = mm_bottom_mult1->Length();
+  // float length_top     = mm_top_mult1->Length();
 
-  float minYSize_top      = sWidth_top;// - 2.*xFrame_top;
-  float minYSize_bottom   = sWidth_bottom;// - 2.*xFrame_bottom;
+  // float minYSize_top      = sWidth_top;// - 2.*xFrame_top;
+  // float minYSize_bottom   = sWidth_bottom;// - 2.*xFrame_bottom;
 
-  float maxYSize_top      = lWidth_top;// - 2.*xFrame_top;
-  float maxYSize_bottom   = lWidth_bottom;// - 2.*xFrame_bottom;
+  // float maxYSize_top      = lWidth_top;// - 2.*xFrame_top;
+  // float maxYSize_bottom   = lWidth_bottom;// - 2.*xFrame_bottom;
 
-  float xSize_top         = length_top;
-  float xSize_bottom      = length_bottom;
+  // float xSize_top         = length_top;
+  // float xSize_bottom      = length_bottom;
 
   MMReadoutParameters roParam_top_mult1    = mm_top_mult1->GetReadoutParameters();
   MMReadoutParameters roParam_top_mult2    = mm_top_mult2->GetReadoutParameters();
@@ -306,8 +306,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   // int chMax_top    = m_detManager->mmIdHelper()->channelMax(id_top);
   // int chMax_bottom = m_detManager->mmIdHelper()->channelMax(id_bottom);
 
-  double dY_top    = 0.5*(maxYSize_top-minYSize_top);//-2.*design_top->deadS);
-  double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
+  // double dY_top    = 0.5*(maxYSize_top-minYSize_top);//-2.*design_top->deadS);
+  // double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
 
   if(!islarge){
     ATH_MSG_WARNING("We haven't configured the small wedge parameters yet!  Go bother the developer...kindly...this will likely crash now!\n");
@@ -340,19 +340,19 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   }
 
   mid_plane_large=float32fixed<18>(0.);
-  for(unsigned int iz=0; iz<z_nominal.size(); iz++) mid_plane_large+=z_nominal[iz].getFloat();
+  for(unsigned int iz=0; iz<z_nominal.size(); iz++) mid_plane_large+=z_nominal[iz].getFixed();
   mid_plane_large/=z_nominal.size();
 
   vector<int> xp=q_planes("x"),up=q_planes("u"),vp=q_planes("v");
 //   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() mp_large_X ("<<xp.size()<<" planes)\n";
   mid_plane_large_X=float32fixed<18>(0.);
-  for(unsigned int ix=0;ix<xp.size();ix++) mid_plane_large_X+=z_nominal[xp[ix]].getFloat();
+  for(unsigned int ix=0;ix<xp.size();ix++) mid_plane_large_X+=z_nominal[xp[ix]].getFixed();
   mid_plane_large_X /= 1.*xp.size();
 
 //   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() mp_large_UV ("<<up.size()+vp.size()<<" planes)\n";
   mid_plane_large_UV=float32fixed<18>(0.);
-  for(unsigned int iu=0;iu<up.size();iu++) mid_plane_large_UV+=z_nominal[up[iu]].getFloat();
-  for(unsigned int iv=0;iv<vp.size();iv++) mid_plane_large_UV+=z_nominal[vp[iv]].getFloat();
+  for(unsigned int iu=0;iu<up.size();iu++) mid_plane_large_UV+=z_nominal[up[iu]].getFixed();
+  for(unsigned int iv=0;iv<vp.size();iv++) mid_plane_large_UV+=z_nominal[vp[iv]].getFixed();
   mid_plane_large_UV /= 1.*(up.size()+vp.size());
 
   H=float32fixed<18>(roParam_bottom_mult1.distanceFromZAxis);//982.); //bottom of wedge to the beamline
@@ -362,8 +362,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   strip_width = float32fixed<4>(roParam_top_mult1.stripPitch);  // 0.5;
   stereo_degree = float32fixed<4>(TMath::RadToDeg()*roParam_top_mult1.stereoAngel.at(2)); //0.75 //3 in degrees!
   float32fixed<2> degree=roParam_top_mult1.stereoAngel.at(2);
-  // std::cout << "DEGREE" << degree.getFloat()  << " " << stereo_degree.getFloat() << std::endl;
-  vertical_strip_width_UV = strip_width.getFloat()/cos(degree.getFloat());
+  // std::cout << "DEGREE" << degree.getFixed()  << " " << stereo_degree.getFixed() << std::endl;
+  vertical_strip_width_UV = strip_width.getFixed()/cos(degree.getFixed());
   ybases=vector<vector<float32fixed<18> > >(setup.size(),vector<float32fixed<18> >(n_stations_eta,float32fixed<18>(0.)));
 
   //gposx for X1; gpos-lpos X2,UV1,UV2
@@ -399,8 +399,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
         // z_rotated = pos.z();
       }
 
-      if      (is_u(layer)) st_angle = -1*abs(stereo_degree.getFloat());
-      else if (is_v(layer)) st_angle =    abs(stereo_degree.getFloat());
+      if      (is_u(layer)) st_angle = -1*abs(stereo_degree.getFixed());
+      else if (is_v(layer)) st_angle =    abs(stereo_degree.getFixed());
       else                  st_angle = 0;
 
       // walk from the center of the strip to the position of the strip at the center of the wedge.
@@ -434,7 +434,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   bool hack=false;
   // bool fancy=false;
   z_large=vector<vector<float32fixed<18> > >(ybins,z_nominal);
-  double pitch_f=1.*sin(correct.rotate.X())*h1.getFloat()/ybins,pitch_b=0,bumper_up=0.0;
+  double pitch_f=1.*sin(correct.rotate.X())*h1.getFixed()/ybins,pitch_b=0,bumper_up=0.0;
   if(hack){double factor=-1;pitch_f*=factor;pitch_b*=factor;}
   ATH_MSG_DEBUG("Specs: correct.rotate.X()="<<correct.rotate.X()<<",correct.translate.Z()="<<correct.translate.Z()<<",pitch_f="<<pitch_f);
   for(int iy=0;iy<ybins;iy++){
@@ -442,21 +442,23 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
     double over_f=pitch_f*(iy+bumper_up)-correct.translate.Z(),over_b=0;//pitch_b*(iy+bumper_up)+correct.dzb;
     ATH_MSG_DEBUG("iy="<<iy<<"over_f="<<over_f<<",over_b="<<over_b);
     for(int jp=0;jp<8;jp++){
-      ATH_MSG_DEBUG("z_large["<<iy<<"]["<<jp<<"]"<<z_large[iy][jp].getFloat()<<"--->");
+      ATH_MSG_DEBUG("z_large["<<iy<<"]["<<jp<<"]"<<z_large[iy][jp].getFixed()<<"--->");
       if(jp<4)z_large[iy][jp]+=over_f;
       else z_large[iy][jp]+=over_b;
-      ATH_MSG_DEBUG(z_large[iy][jp].getFloat());
+      ATH_MSG_DEBUG(z_large[iy][jp].getFixed());
     }
   }
 
   //////// TABLE GENERATORS ///////////////  //size of cartesian steps
   h_mx = float32fixed<2>(0.0001); // 0.005;  //0.001;
   h_my = float32fixed<2>(0.0001); //0.005;  //0.001;
-  m_y_max = (Hnom+h1)/z_nominal.front().getFloat(); m_y_min = H.getFloat()/z_nominal.back().getFloat();  //
-  m_x_max = (w2.getFloat()/2)/z_nominal.front().getFloat();m_x_min = (-w2.getFloat()/2)/z_nominal.back().getFloat(); //-2;
+  m_y_max = ( (Hnom+h1)/z_nominal.front() );
+  m_y_min = ( H/z_nominal.back() );
+  m_x_max = (w2/2.)/z_nominal.front();
+  m_x_min = (w2/-2.)/z_nominal.back(); //-2;
 
-  n_x = ceil((m_x_max - m_x_min)/h_mx.getFloat());
-  n_y = ceil((m_y_max - m_y_min)/h_my.getFloat());
+  n_x = ceil((m_x_max - m_x_min).getFixed()/h_mx.getFixed());
+  n_y = ceil((m_y_max - m_y_min).getFixed()/h_my.getFixed());
   /////////////////////////////////////////
 
   //////////  for cut applications  /////////////////
@@ -466,22 +468,23 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //   maximum_large_theta = atan((H+h1)/z_nominal.back())-tol;
 
   //BLC had some interesting bounds...let's do the ones that make sense to me
-  minimum_large_theta = float32fixed<4>(atan(H.getFloat()/z_nominal.back().getFloat())+tol);
-  maximum_large_theta = float32fixed<4>(atan(sqrt(pow(Hnom+h1,2)+0.25*pow(w1.getFloat(),2))/z_nominal.back().getFloat())-tol);
-  //   minimum_large_phi = float32fixed<4>(TMath::Pi()/2-TMath::DegToRad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(TMath::Pi()/2+TMath::DegToRad(0.5*wedge_opening_angle.getFloat())-tol);
-  minimum_large_phi = float32fixed<4>(-TMath::DegToRad()*0.5*wedge_opening_angle.getFloat())+tol;  maximum_large_phi = float32fixed<4>(TMath::DegToRad()*(0.5*wedge_opening_angle.getFloat())-tol);
+  minimum_large_theta = float32fixed<4>(atan(H.getFixed()/z_nominal.back().getFixed())+tol);
+  maximum_large_theta = float32fixed<4>(atan(sqrt(pow( (Hnom+h1).getFixed(),2)+0.25*pow(w1.getFixed(),2))/z_nominal.back().getFixed())-tol);
+  //   minimum_large_phi = float32fixed<4>(TMath::Pi()/2-TMath::DegToRad(0.5*wedge_opening_angle.getFixed())+tol);  maximum_large_phi = float32fixed<4>(TMath::Pi()/2+TMath::DegToRad(0.5*wedge_opening_angle.getFixed())-tol);
+  minimum_large_phi = float32fixed<4>(-TMath::DegToRad()*0.5*wedge_opening_angle.getFixed())+tol;  maximum_large_phi = float32fixed<4>(TMath::DegToRad()*(0.5*wedge_opening_angle.getFixed())-tol);
   ///////////////////////////////////////////////////
 
-  double phiseg=(maximum_large_phi-minimum_large_phi)/n_phibins*1.;
+  double phiseg= ((maximum_large_phi-minimum_large_phi)/n_phibins).getFixed();
   m_phibins.clear();
-  for(int i=0;i<=n_phibins;i++)m_phibins.push_back(minimum_large_phi+phiseg*i);
-  double etalo=-log(tan(0.5*maximum_large_theta.getFloat())),etahi=-log(tan(0.5*minimum_large_theta.getFloat()));bool custom=false;
+  for(int i=0;i<=n_phibins;i++)  m_phibins.push_back(  (minimum_large_phi+phiseg*i).getFixed()   );
+  double etalo=-log(tan(0.5*maximum_large_theta.getFixed())),etahi=-log(tan(0.5*minimum_large_theta.getFixed()));bool custom=false;
   if(custom){
     //these custom eta bins have the top station as one bin (since that has normal shape for the phi resolutions)
     //and separates the old part from gap to 2.5 (where the simulation used to be limited) and then one bin from 2.5 to max (new stuff)
     m_etabins.clear();
     m_etabins.push_back(etalo);
-    double etamid=asinh(z_nominal.front()/ybases.front()[1]*1.),intermid=(2.5-etamid)/8.;
+    double etamid=asinh(  (z_nominal.front()/ybases.front()[1] ).getFixed()  );
+    double intermid=(2.5-etamid)/8.;
     for(int i=0;i<8;i++)m_etabins.push_back(etamid+intermid*i);
     m_etabins.push_back(2.5);
     m_etabins.push_back(etahi);
@@ -490,7 +493,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   else if(n_etabins==(int)xeta.size()){
     m_etabins.push_back(etalo);
     for(int i=n_etabins-1;i>=0;i--){
-      m_etabins.push_back(asinh(z_nominal.front()/xeta[i]*1.));
+      m_etabins.push_back(asinh( (z_nominal.front()/xeta[i]).getFixed() ));
     }
   }
   else{
@@ -504,8 +507,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //////////////////////////////
 
   /////// Front Filter /////////////
-  double theta_max=maximum_large_theta.getFloat();
-  double theta_min=minimum_large_theta.getFloat();
+  double theta_max=maximum_large_theta.getFixed();
+  double theta_min=minimum_large_theta.getFixed();
 
   slope_max = float32fixed<3>(tan(theta_max));
   slope_min = float32fixed<3>(tan(theta_min));
@@ -588,23 +591,23 @@ vector<int> MMT_Parameters::q_planes(const string& type) const{
 }
 
 par_par MMT_Parameters::param_par() const{
-  return par_par(h.getFloat(),CT_x,CT_uv,uv_error.getFloat(),setup,islarge,dlm_new,genbg,chargeThreshold,misal,correct,val_tbl);
+  return par_par(h.getFixed(),CT_x,CT_uv,uv_error.getFixed(),setup,islarge,dlm_new,genbg,chargeThreshold,misal,correct,val_tbl);
 }
 
 double MMT_Parameters::y_from_eta_wedge(double eta,int plane)const{
   //assumes wedge geometry--average x^2, is 1/3 y^2*tan^2(stereo_degree), for eta/y correspondence
-  double z=z_nominal[plane].getFloat(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFloat());
+  double z=z_nominal[plane].getFixed(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFixed());
   return z*tan(2*atan(exp(-1.*eta)))/sqrt(1+tan(zeta)*tan(zeta)/3.);
 }
 
 double MMT_Parameters::eta_wedge_from_y(double y,int plane)const{
-  double z=z_nominal[plane].getFloat(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFloat());
+  double z=z_nominal[plane].getFixed(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFixed());
   return -1.*log(tan(0.5*atan(y/z*sqrt(1+tan(zeta)*tan(zeta)/3.))));
 }
 
 int MMT_Parameters::ybin(double y,int plane)const{
 //   return 0;
-  double base=ybases[plane].front().getFloat(),seg_len=h1.getFloat()/ybins;
+  double base=ybases[plane].front().getFixed(),seg_len=h1.getFixed()/ybins;
   //if it's over, just keep it...for now--if it's below keep it, too: perhaps necessary for larger slope road sizes
   //update: DON'T keep the below ones....terrible things for drs
   int the_bin=ybases.front().size()-1;
@@ -614,7 +617,7 @@ int MMT_Parameters::ybin(double y,int plane)const{
 //   if(the_bin<0)return 0;
   return the_bin;
 
-  double eta_min_y=eta_wedge_from_y(base+h1.getFloat(),plane),eta_max_y=eta_wedge_from_y(base,plane),eta_y=eta_wedge_from_y(y,plane);
+  double eta_min_y=eta_wedge_from_y(base+h1.getFixed(),plane),eta_max_y=eta_wedge_from_y(base,plane),eta_y=eta_wedge_from_y(y,plane);
   double segment_length=(eta_max_y-eta_min_y)/ybins;
   for(int i=ybins;i>=0;i--){
     if(eta_y>(eta_max_y-segment_length*i)){
@@ -625,15 +628,15 @@ int MMT_Parameters::ybin(double y,int plane)const{
 }
 
 int MMT_Parameters::ybin(float32fixed<18> y,int plane)const{
-  return ybin(y.getFloat()*MMTStructConst,plane);
+  return ybin(y.getFixed()*MMTStructConst,plane);
 }
 int MMT_Parameters::ybin(float32fixed<yzdex> y,int plane)const{
-  return ybin(y.getFloat()*MMTStructConst,plane);
+  return ybin(y.getFixed()*MMTStructConst,plane);
 }
 
 // double MMT_Parameters::ymid_eta_bin(int bin,int plane)const{
-//   double base=ybases[plane].front().getFloat();
-//   double eta_min_y=eta_wedge_from_y(base+h1.getFloat(),plane),eta_max_y=eta_wedge_from_y(base,plane);
+//   double base=ybases[plane].front().getFixed();
+//   double eta_min_y=eta_wedge_from_y(base+h1.getFixed(),plane),eta_max_y=eta_wedge_from_y(base,plane);
 //   if(bin<0)return eta_max_y;
 //   if(bin>ybins)return eta_min_y;
 //   double eta=eta_min_y+(eta_max_y-eta_min_y)/ybins*(bin+0.0);
@@ -732,7 +735,7 @@ pair<double,double> MMT_Parameters::ak_bk_hit_bins(const vector<int>& hits)const
   int nhits=0; double sum_x=0,sum_xx=0;
   for(int ih=0;ih<(int)(hits.size());ih++){
     if(hits[ih]<0||hits[ih]>=ybins)continue;
-    double addme=z_large[hits[ih]][x_planes[ih]].getFloat()/MMTStructConst;
+    double addme=z_large[hits[ih]][x_planes[ih]].getFixed()/MMTStructConst;
     sum_x  += addme;
     sum_xx += addme*addme;
     nhits++;
@@ -801,7 +804,7 @@ void MMT_Parameters::fill_yzmod(){
   int nxp=x_planes.size();
   ymod=vector<vector<vector<float32fixed<yzdex> > > >(n_etabins,vector<vector<float32fixed<yzdex> > >(n_phibins,vector<float32fixed<yzdex> >(nxp,float32fixed<yzdex>(0.))));
   zmod=vector<vector<vector<float32fixed<yzdex> > > >(n_etabins,vector<vector<float32fixed<yzdex> > >(n_phibins,vector<float32fixed<yzdex> >(nxp,float32fixed<yzdex>(0.))));
-  double pbump=0.5*(maximum_large_phi.getFloat()-minimum_large_phi.getFloat())/(n_phibins);
+  double pbump=0.5*(maximum_large_phi.getFixed()-minimum_large_phi.getFixed())/(n_phibins);
   for(int et=0;et<n_etabins;et++){
     double theta=2*atan(exp(-1.*m_etabins[et]));
     for(int ph=0;ph<n_phibins;ph++){
@@ -811,10 +814,10 @@ void MMT_Parameters::fill_yzmod(){
 
         double yadd=0.;
         double zadd=0.;
-        double zflt=z_nominal[x_planes[pl]].getFloat();
+        double zflt=z_nominal[x_planes[pl]].getFixed();
         double x=zflt*tan(theta)*sin(phi);
         double yflt=zflt*tan(theta)*cos(phi);
-        double yup=yflt-ybases[x_planes[pl]][0].getFloat();
+        double yup=yflt-ybases[x_planes[pl]][0].getFixed();
 
         double alpha=correct.rotate.Z();
         double beta=correct.rotate.Y();
@@ -914,7 +917,12 @@ void MMT_Parameters::Slope_Components_ROI(){
     for(int jy=0;jy<n_y;jy++){
       int xdex=ix,ydex=jy+1;
       if(xdex==0)xdex++;
-      double m_x=m_x_min+xdex*h_mx.getFloat(), m_y=m_y_min+ydex*h_my.getFloat(), theta = atan(sqrt(m_x*m_x+m_y*m_y)), phi=atan2(m_y,m_x);
+
+      double m_x = ( m_x_min + h_mx * xdex ).getFixed();
+      double m_y = ( m_y_min + h_my * ydex ).getFixed();
+
+      double theta = atan(sqrt(m_x*m_x+m_y*m_y));
+      double phi=atan2(m_y,m_x);
       if(minimum_large_phi>phi || maximum_large_phi<phi) phi=999;
       if(minimum_large_theta>theta || maximum_large_theta<theta) theta=0;
       Slope_to_ROI[jy][ix][0] = theta;
@@ -928,13 +936,15 @@ void MMT_Parameters::Delta_theta_optimization_LG(){
   DT_Factors.clear();
   double a=1.;   //sin(pi/2+TMath::DegToRad(28/4));  //sin(phi);
   int number_LG_regions = 256;
-  double LG_min = 0, LG_max = 0.5, LG_region_width = (LG_max - LG_min)/number_LG_regions;//LG_min=0 means e no neg slopes
+  double LG_min = 0;
+  double LG_max = 0.5;
+  double LG_region_width = (LG_max - LG_min)/number_LG_regions;//LG_min=0 means e no neg slopes
 
   for(int ilgr=0; ilgr<number_LG_regions; ilgr++){
-    vector<float32fixed<2> > bah_humbug;
-    bah_humbug.push_back(LG_min+LG_region_width *ilgr);//LG
-    bah_humbug.push_back(1 / (a + bah_humbug.front()/a));//mult_factor
-    DT_Factors.push_back(bah_humbug);
+    vector<float32fixed<2> > tmpVector;
+    tmpVector.push_back(LG_min+LG_region_width *ilgr);//LG
+    tmpVector.push_back(  float32fixed<2>(1.) / (tmpVector.front()/a  +  a));//mult_factor
+    DT_Factors.push_back(tmpVector);
   }
   ATH_MSG_DEBUG( "return Delta_theta_optimization_LG" );
 }
@@ -1076,6 +1086,7 @@ void hitData_key::print()const{
 
 
 hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
+  (void) tru;
   // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
   // ATH_MSG_DEBUG(tru.Print() );
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.
@@ -1083,11 +1094,11 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
   char schar=m_par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
   // ATH_MSG_DEBUG("We have a "<<(horizontal?"horizontal":"stereo")<<" hit in plane "<<plane<<", station_eta "<<station_eta<<", strip# "<<strip);
-  double swidth=m_par->strip_width.getFloat();
-  double base=m_par->ybases[plane][station_eta-1].getFloat();
-  // double zplane=m_par->z_nominal[plane].getFloat();
-  // double planebase=m_par->ybases[plane].front().getFloat();
-  if(!horizontal)swidth/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
+  double swidth=m_par->strip_width.getFixed();
+  double base=m_par->ybases[plane][station_eta-1].getFixed();
+  // double zplane=m_par->z_nominal[plane].getFixed();
+  // double planebase=m_par->ybases[plane].front().getFixed();
+  if(!horizontal)swidth/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFixed()));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
   //The correction portion of delta_y is done in in the calculations on the ybases object in m_par
   //yup, or "y up" is the portion of y above the base of the plane (i.e. in the detector)
@@ -1104,7 +1115,7 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
   // ATH_MSG_DEBUG("....which leads to finding a bin in y of "<<bin<<"....");
 
   //We have here both the "perfect" and binned z calculations/lookups; the commented out one is there for reference
-  double zflt=m_par->z_large[bin][plane].getFloat();
+  double zflt=m_par->z_large[bin][plane].getFixed();
 //   if(m_par->correct.type==2&&plane<4&&m_par->correct.rotate.X()!=0){
 //     // double fltyup=(base+(strip*swidth+delta_y)-planebase);
 //     double angle=m_par->correct.rotate.X();
@@ -1118,7 +1129,7 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
   // double oslope=(base+(strip)*swidth)/zplane,mslope=yflt/zplane;
   // ATH_MSG_DEBUG("....after correction for a y value of "<<yflt<<", with a z of "<<zflt<<" for slopes....");
   // ATH_MSG_DEBUG("an ORIGINAL slope: "<<oslope );
-  // ATH_MSG_DEBUG(", an ALGORITHM (corr) slope "<<slope.getFloat()<<" (diff_ratio "<<slope.getFloat()/oslope-1.<<")" );
+  // ATH_MSG_DEBUG(", an ALGORITHM (corr) slope "<<slope.getFixed()<<" (diff_ratio "<<slope.getFixed()/oslope-1.<<")" );
   // ATH_MSG_DEBUG(", a MISAL slope: "<<mslope<<" (diff_ratio "<<mslope/oslope-1.<<")");
 
 }
@@ -1126,9 +1137,9 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
 double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos)const{
   // bool quack=false&&debug;
   if(m_par->misal.type!=1||plane>3)return 0.;
-  // double swidth=m_par->strip_width.getFloat();
-  double zplane=m_par->z_nominal[plane].getFloat();
-  double base=m_par->ybases[plane].front().getFloat();
+  // double swidth=m_par->strip_width.getFixed();
+  double zplane=m_par->z_nominal[plane].getFixed();
+  double base=m_par->ybases[plane].front().getFixed();
 
   // double s_z0=zplane;
   double s_x0=zplane*tan(tpos)*sin(ppos);
@@ -1146,7 +1157,7 @@ double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double p
   char schar=m_par->setup[plane];
   if(!(schar=='x'||schar=='X')){
     //if we're in a stereo plane, calculate different coefficients.
-    double omega=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double omega=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     double pm=(schar=='u'||schar=='U'?1.:-1.);
     yhat_x=pm*cos(alpha)*cos(beta)*sin(omega)-sin(alpha)*cos(beta)*cos(omega);
     yhat_y=pm*sin(omega)*(sin(alpha)*cos(gamma)+cos(alpha)*sin(beta)*sin(gamma))+cos(omega)*(cos(alpha)*cos(gamma)-sin(alpha)*sin(beta)*sin(gamma));
@@ -1182,7 +1193,7 @@ string hitData_info::hdr()const{
 }
 string hitData_info::str()const{
   ostringstream out;
-  out<<setprecision(4)<<setw(9)<<plane<<setw(9)<<y.getFloat()<<setw(9)<<z.getFloat()<<setw(9)<<slope.getFloat();
+  out<<setprecision(4)<<setw(9)<<plane<<setw(9)<<y.getFixed()<<setw(9)<<z.getFixed()<<setw(9)<<slope.getFixed();
   return out.str();
 }
 void hitData_info::print()const{
@@ -1202,6 +1213,7 @@ bool Hit::operator==(const Hit& rhs) const{
 }
 
 void Hit::print_track(const vector<Hit>& track) const{
+  (void) track;
   // ATH_MSG_INFO(track.front().key.hdr()<<track.front().info.hdr());
   // for(unsigned int i=0; i<track.size(); i++) ATH_MSG_INFO( track[i].key.hdr()<<track[i].info.hdr() ) ;
 }
@@ -1286,13 +1298,13 @@ athena_header::athena_header(const TLorentzVector& par, int tpn, double etp, dou
 
 
 digitWrapper::digitWrapper(const MmDigit* digit,
-                           double gTime,
+                           double tmpGTime,
                            const TVector3& truthLPos,
                            const TVector3& stripLPos,
                            const TVector3& stripGPos
                            ):
   digit(digit),
-  gTime(gTime),
+  gTime(tmpGTime),
   truth_lpos(truthLPos),
   strip_lpos(stripLPos),
   strip_gpos(stripGPos){}

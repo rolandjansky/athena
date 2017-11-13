@@ -132,15 +132,15 @@ MMLoadVariables::~MMLoadVariables() {
       StatusCode sc5 = m_evtStore->retrieve(nswContainer,"MicromegasSensitiveDetector");
 
 
-      for(auto dit : *nsw_MmDigitContainer) {
+      for(auto digitCollectionIter : *nsw_MmDigitContainer) {
         // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
-        const MmDigitCollection* coll = dit;
+        const MmDigitCollection* digitCollection = digitCollectionIter;
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        for (unsigned int item=0; item<coll->size(); item++) {
+        for (unsigned int item=0; item<digitCollection->size(); item++) {
             // get specific digit and identify it
-            const MmDigit* digit = coll->at(item);
+            const MmDigit* digit = digitCollection->at(item);
             Identifier Id = digit->identify();
 
             Amg::Vector3D hit_gpos(0., 0., 0.);
@@ -170,7 +170,7 @@ MMLoadVariables::~MMLoadVariables() {
 
             bool isValid;
 
-            int gap=m_MmIdHelper->gasGap(Id);
+            // int gap=m_MmIdHelper->gasGap(Id);
 
             fillVars.NSWMM_dig_stationEta.push_back(stationEta);
             fillVars.NSWMM_dig_stationPhi.push_back(stationPhi);
@@ -238,7 +238,7 @@ MMLoadVariables::~MMLoadVariables() {
                   globalPosZ.at(i) = cr_strip_gpos[2];
 
                   // check if local and global position are congruent with the transform
-                  Amg::Vector3D lpos = rdoEl->transform(cr_id).inverse() * cr_strip_gpos;
+                  // Amg::Vector3D lpos = rdoEl->transform(cr_id).inverse() * cr_strip_gpos;
                 }
 
             }//end of strip position loop
@@ -624,7 +624,7 @@ MMLoadVariables::~MMLoadVariables() {
   }
 
   void MMLoadVariables::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -633,7 +633,7 @@ MMLoadVariables::~MMLoadVariables() {
   }
 
   void MMLoadVariables::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -645,7 +645,7 @@ MMLoadVariables::~MMLoadVariables() {
   int MMLoadVariables::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
     string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFloat(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -688,10 +688,10 @@ MMLoadVariables::~MMLoadVariables() {
 
       return base_strip;
     }
-    bool do_auto=false;
+    // bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFloat();
-    // double ybase=m_par->ybases[plane][station-1].getFloat();
+    // double H=m_par->H.getFixed();
+    // double ybase=m_par->ybases[plane][station-1].getFixed();
     // if(do_auto){
     //   //-log(tan(0.5(atan(y/z))))=eta
     //   //this is the even y spacing
@@ -702,7 +702,7 @@ MMLoadVariables::~MMLoadVariables() {
     //   double this_eta=etalo+inc*(station-1);
     //   ybase=z*tan(2*atan(exp(-1.*this_eta)));
     // }
-    // double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
+    // double width=m_par->strip_width.getFixed(); string plane_char=m_par->setup.substr(plane,1);
   //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
     int base_strip=/*ceil(ybase/width)+*/spos;
     return base_strip;
@@ -710,12 +710,12 @@ MMLoadVariables::~MMLoadVariables() {
   std::string MMLoadVariables::getWedgeType(const MmDigitContainer *nsw_MmDigitContainer){
     std::vector<bool> isLargeWedge;
     //Digit loop to match to truth
-    for(auto dit : *nsw_MmDigitContainer) {
+    for(auto digitCollectionIter : *nsw_MmDigitContainer) {
 
-      const MmDigitCollection* coll = dit;
-      for (unsigned int item=0; item<coll->size(); item++) {
+      const MmDigitCollection* digitCollection = digitCollectionIter;
+      for (unsigned int item=0; item<digitCollection->size(); item++) {
 
-        const MmDigit* digit = coll->at(item);
+        const MmDigit* digit = digitCollection->at(item);
         Identifier Id = digit->identify();
 
           std::string stName   = m_MmIdHelper->stationNameString(m_MmIdHelper->stationName(Id));

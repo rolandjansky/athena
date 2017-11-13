@@ -63,10 +63,10 @@ namespace NSWL1 {
       MMStripOfflineData* t_mmstrip;
       int                 t_cache_index;
 
-      // constructor      
+      // constructor
       MMStripHits(Identifier id, MMStripOfflineData* p, int c) { t_id = id; t_mmstrip=p; t_cache_index=c; }
     };
-  
+
     typedef std::map < Identifier,std::vector<MMStripHits> > MMSTRIP_MAP;
     typedef std::map < Identifier,std::vector<MMStripHits> >::iterator MMSTRIP_MAP_IT;
     typedef std::pair< Identifier,std::vector<MMStripHits> > MMSTRIP_MAP_ITEM;
@@ -87,7 +87,7 @@ namespace NSWL1 {
       m_MmSdoContainer(""),
       m_doNtuple(false),
       m_tree(0)
-      
+
 
     {
       declareInterface<NSWL1::IMMStripTdsTool>(this);
@@ -96,7 +96,7 @@ namespace NSWL1 {
       declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
       declareProperty("MM_SdoContainerName"  , m_MmSdoContainer = "MM_SDO", "the name of the MM SDO container");
       declareProperty("MM_HitContainerName"  , m_MmHitContainer = "MicromegasSensitiveDetector", "the name of the MM hits container");
-      declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple"); 
+      declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
       declareProperty("Truth_ContainerName", m_Truth_ContainerName="TruthEvent","name of truth container");
       declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer", "name of muon entry container");
 
@@ -124,7 +124,7 @@ namespace NSWL1 {
     StatusCode MMStripTdsOfflineTool::initialize() {
 
 
-      ATH_MSG_INFO( "initializing " << name() ); 
+      ATH_MSG_INFO( "initializing " << name() );
 
       ATH_MSG_INFO( name() << " configuration:");
       ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
@@ -133,7 +133,7 @@ namespace NSWL1 {
       ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << setfill(' ') << setiosflags(ios::right) );
 
- 
+
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -206,13 +206,13 @@ namespace NSWL1 {
       } else {
         ATH_MSG_INFO("MmIdHelper successfully retrieved");
       }
- 
+
       return StatusCode::SUCCESS;
     }
 
     void MMStripTdsOfflineTool::handle(const Incident& inc) {
       if( inc.type()==IncidentType::BeginEvent ) {
-        this->clear_cache();  
+        this->clear_cache();
         this->reset_ntuple_variables();
         m_mmstrip_cache_status = CLEARED;
       }
@@ -238,7 +238,7 @@ namespace NSWL1 {
       m_NSWMM_dig_multiplet   = new std::vector<int>();
       m_NSWMM_dig_gas_gap     = new std::vector<int>();
       m_NSWMM_dig_channel     = new std::vector<int>();
- 
+
       m_NSWMM_dig_time          = new std::vector< std::vector<float> >;
       m_NSWMM_dig_charge        = new std::vector< std::vector<float> >;
       m_NSWMM_dig_stripPosition = new std::vector< std::vector<int> >;
@@ -247,7 +247,7 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposX    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_stripGposY    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_stripGposZ    = new std::vector< std::vector<double> >;
- 
+
       m_NSWMM_dig_sr_time          = new std::vector< std::vector<float> >;
       m_NSWMM_dig_sr_charge        = new std::vector< std::vector<float> >;
       m_NSWMM_dig_sr_stripPosition = new std::vector< std::vector<int> >;
@@ -256,7 +256,7 @@ namespace NSWL1 {
       m_NSWMM_dig_sr_stripGposX    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_sr_stripGposY    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_sr_stripGposZ    = new std::vector< std::vector<double> >;
- 
+
       m_NSWMM_dig_truth_barcode    = new std::vector<int>;
       m_NSWMM_dig_truth_localPosX  = new std::vector<double>;
       m_NSWMM_dig_truth_localPosY  = new std::vector<double>;
@@ -264,8 +264,8 @@ namespace NSWL1 {
       m_NSWMM_dig_truth_globalPosX = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
- 
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;      
+
+      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
       //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
 
 
@@ -281,38 +281,38 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionX = new std::vector<double>;
       m_NSWMM_hitGlobalDirectionY = new std::vector<double>;
       m_NSWMM_hitGlobalDirectionZ = new std::vector<double>;
-    
+
       m_NSWMM_hitLocalPositionX = new std::vector<double>;
       m_NSWMM_hitLocalPositionY = new std::vector<double>;
       m_NSWMM_hitLocalPositionZ = new std::vector<double>;
-    
+
       m_NSWMM_detector_globalPositionX = new std::vector<double>;
       m_NSWMM_detector_globalPositionY = new std::vector<double>;
       m_NSWMM_detector_globalPositionZ = new std::vector<double>;
       m_NSWMM_detector_globalPositionR = new std::vector<double>;
       m_NSWMM_detector_globalPositionP = new std::vector<double>;
-    
+
       m_NSWMM_hitToDsurfacePositionX = new std::vector<double>;
       m_NSWMM_hitToDsurfacePositionY = new std::vector<double>;
       m_NSWMM_hitToDsurfacePositionZ = new std::vector<double>;
-    
+
       m_NSWMM_hitToRsurfacePositionX = new std::vector<double>;
       m_NSWMM_hitToRsurfacePositionY = new std::vector<double>;
       m_NSWMM_hitToRsurfacePositionZ = new std::vector<double>;
-    
+
       m_NSWMM_particleEncoding = new std::vector<int>;
       m_NSWMM_kineticEnergy = new std::vector<double>;
       m_NSWMM_depositEnergy = new std::vector<double>;
       m_NSWMM_StepLength = new std::vector<double>;
-    
-    
+
+
       m_NSWMM_sim_stationName = new std::vector<std::string>;
       m_NSWMM_sim_stationEta  = new std::vector<int>;
       m_NSWMM_sim_stationPhi  = new std::vector<int>;
       m_NSWMM_sim_multilayer  = new std::vector<int>;
       m_NSWMM_sim_layer       = new std::vector<int>;
       m_NSWMM_sim_side        = new std::vector<int>;
-    
+
       m_NSWMM_off_stationName = new std::vector<std::string>;
       m_NSWMM_off_stationEta  = new std::vector<int>;
       m_NSWMM_off_stationPhi  = new std::vector<int>;
@@ -357,7 +357,7 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_mmstripTruthHitGlobalY",n).Data(),&m_mmstripTruthHitGlobalY);
         m_tree->Branch(TString::Format("%s_mmstripTruthHitGlobalZ",n).Data(),&m_mmstripTruthHitGlobalZ);
         */
-        
+
        // m_tree->Branch(TString::Format("%s_mmstripGlobalX",n).Data(),&m_mmstripGlobalX);
        // m_tree->Branch(TString::Format("%s_mmstripGlobalY",n).Data(),&m_mmstripGlobalY);
        // m_tree->Branch(TString::Format("%s_mmstripGlobalZ",n).Data(),&m_mmstripGlobalZ);
@@ -407,39 +407,39 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_hitGlobalDirectionX", &m_NSWMM_hitGlobalDirectionX);
         m_tree->Branch("Hits_MM_hitGlobalDirectionY", &m_NSWMM_hitGlobalDirectionY);
         m_tree->Branch("Hits_MM_hitGlobalDirectionZ", &m_NSWMM_hitGlobalDirectionZ);
-    
+
         m_tree->Branch("Hits_MM_hitLocalPositionX", &m_NSWMM_hitLocalPositionX);
         m_tree->Branch("Hits_MM_hitLocalPositionY", &m_NSWMM_hitLocalPositionY);
         m_tree->Branch("Hits_MM_hitLocalPositionZ", &m_NSWMM_hitLocalPositionZ);
-    
+
         m_tree->Branch("Hits_MM_detector_globalPositionX", &m_NSWMM_detector_globalPositionX);
         m_tree->Branch("Hits_MM_detector_globalPositionY", &m_NSWMM_detector_globalPositionY);
         m_tree->Branch("Hits_MM_detector_globalPositionZ", &m_NSWMM_detector_globalPositionZ);
         m_tree->Branch("Hits_MM_detector_globalPositionR", &m_NSWMM_detector_globalPositionR);
         m_tree->Branch("Hits_MM_detector_globalPositionP", &m_NSWMM_detector_globalPositionP);
-    
+
         m_tree->Branch("Hits_MM_hitToDsurfacePositionX", &m_NSWMM_hitToDsurfacePositionX);
         m_tree->Branch("Hits_MM_hitToDsurfacePositionY", &m_NSWMM_hitToDsurfacePositionY);
         m_tree->Branch("Hits_MM_hitToDsurfacePositionZ", &m_NSWMM_hitToDsurfacePositionZ);
-    
+
         m_tree->Branch("Hits_MM_hitToRsurfacePositionX", &m_NSWMM_hitToRsurfacePositionX);
         m_tree->Branch("Hits_MM_hitToRsurfacePositionY", &m_NSWMM_hitToRsurfacePositionY);
         m_tree->Branch("Hits_MM_hitToRsurfacePositionZ", &m_NSWMM_hitToRsurfacePositionZ);
-         
-    
+
+
         m_tree->Branch("Hits_MM_particleEncoding", &m_NSWMM_particleEncoding);
         m_tree->Branch("Hits_MM_kineticEnergy", &m_NSWMM_kineticEnergy);
         m_tree->Branch("Hits_MM_depositEnergy", &m_NSWMM_depositEnergy);
         m_tree->Branch("Hits_MM_StepLength", &m_NSWMM_StepLength);
-    
-    
+
+
         m_tree->Branch("Hits_MM_sim_stationName", &m_NSWMM_sim_stationName);
         m_tree->Branch("Hits_MM_sim_stationEta", &m_NSWMM_sim_stationEta);
         m_tree->Branch("Hits_MM_sim_stationPhi", &m_NSWMM_sim_stationPhi);
         m_tree->Branch("Hits_MM_sim_multilayer", &m_NSWMM_sim_multilayer);
         m_tree->Branch("Hits_MM_sim_layer", &m_NSWMM_sim_layer);
         m_tree->Branch("Hits_MM_sim_side", &m_NSWMM_sim_side);
-    
+
         m_tree->Branch("Hits_MM_off_stationName", &m_NSWMM_off_stationName);
         m_tree->Branch("Hits_MM_off_stationEta", &m_NSWMM_off_stationEta);
         m_tree->Branch("Hits_MM_off_stationPhi", &m_NSWMM_off_stationPhi);
@@ -451,9 +451,9 @@ namespace NSWL1 {
         //m_tree->Branch("Digits_MM_stripForTrigger",     &m_NSWMM_dig_stripForTrigger);
        // m_tree->Branch("Digits_MM_stripTimeForTrigger", &m_NSWMM_dig_stripTimeForTrigger);
 
-        
 
-      } else { 
+
+      } else {
         return StatusCode::FAILURE;
       }
 
@@ -491,10 +491,10 @@ namespace NSWL1 {
       tru_etarange->clear();
       tru_ptrange->clear();
       fit_etarange->clear();
-      fit_ptrange->clear(); 
+      fit_ptrange->clear();
       res_the->clear();
       res_phi->clear();
-      res_dth->clear();     
+      res_dth->clear();
       /*
       m_MMhitPDGId->clear();
       m_MMhitDepositEnergy->clear();
@@ -569,42 +569,42 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionX->clear();
       m_NSWMM_hitGlobalDirectionY->clear();
       m_NSWMM_hitGlobalDirectionZ->clear();
-    
+
       m_NSWMM_hitLocalPositionX->clear();
       m_NSWMM_hitLocalPositionY->clear();
       m_NSWMM_hitLocalPositionZ->clear();
-    
+
       m_NSWMM_detector_globalPositionX->clear();
       m_NSWMM_detector_globalPositionY->clear();
       m_NSWMM_detector_globalPositionZ->clear();
       m_NSWMM_detector_globalPositionR->clear();
       m_NSWMM_detector_globalPositionP->clear();
-    
+
       m_NSWMM_hitToDsurfacePositionX->clear();
       m_NSWMM_hitToDsurfacePositionY->clear();
       m_NSWMM_hitToDsurfacePositionZ->clear();
-    
+
       m_NSWMM_hitToRsurfacePositionX->clear();
       m_NSWMM_hitToRsurfacePositionY->clear();
       m_NSWMM_hitToRsurfacePositionZ->clear();
-    
+
       //m_NSWMM_FastDigitRsurfacePositionX->clear();
       //m_NSWMM_FastDigitRsurfacePositionY->clear();
-    
-    
+
+
       m_NSWMM_particleEncoding->clear();
       m_NSWMM_kineticEnergy->clear();
       m_NSWMM_depositEnergy->clear();
       m_NSWMM_StepLength->clear();
-    
-    
+
+
       m_NSWMM_sim_stationName->clear();
       m_NSWMM_sim_stationEta->clear();
       m_NSWMM_sim_stationPhi->clear();
       m_NSWMM_sim_multilayer->clear();
       m_NSWMM_sim_layer->clear();
       m_NSWMM_sim_side->clear();
-    
+
       m_NSWMM_off_stationName->clear();
       m_NSWMM_off_stationEta->clear();
       m_NSWMM_off_stationPhi->clear();
@@ -616,9 +616,9 @@ namespace NSWL1 {
      // m_NSWMM_dig_stripForTrigger->clear();
      // m_NSWMM_dig_stripTimeForTrigger->clear();
 
- 
-      
-      // Caused seg fault when calling push_back on any of these vectors, not sure why? 
+
+
+      // Caused seg fault when calling push_back on any of these vectors, not sure why?
 
       //m_fitThe = nullptr;
       //m_fitPhi = nullptr;
@@ -638,48 +638,48 @@ namespace NSWL1 {
       m_mmstripTruthHitGlobalZ = nullptr;*/
     }
 
-  
-    void MMStripTdsOfflineTool::fill_mmstrip_validation_id() { } 
-  
+
+    void MMStripTdsOfflineTool::fill_mmstrip_validation_id() { }
+
 
     StatusCode MMStripTdsOfflineTool::gather_mmstrip_data(std::vector<MMStripData*>& mmstrips, int side, int sector) {
       ATH_MSG_DEBUG( "gather_mmstrip_data: start gathering the String hits for side " << side << ", sector " << sector );
 
       // check side and sector parameters
-      
+
       if ( side <-1 || side >1 ) {
         ATH_MSG_ERROR( "requested side " << side << " is out of range: [-1==All, 0==side C, 1==side A]");
         return StatusCode::FAILURE;
       }
-      
+
       if ( sector <-1 || sector >15 ) {
         ATH_MSG_ERROR( "requested sector " << sector << " is out of range: [-1==All, 0 - 15]");
         return StatusCode::FAILURE;
       }
-      
+
       // retrieve the current run number and event number
       const EventInfo* pevt = 0;
       StatusCode sc = evtStore()->retrieve(pevt);
-      int event = pevt->event_ID()->event_number();
+      // int event = pevt->event_ID()->event_number();
 
       if ( !sc.isSuccess() ) {
-        ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current Strip cache" ); 
+        ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current Strip cache" );
         m_mmstrip_cache_runNumber   = -1;
         m_mmstrip_cache_eventNumber = -1;
-        
+
       } else {
         m_mmstrip_cache_runNumber   = pevt->event_ID()->run_number();
         m_mmstrip_cache_eventNumber = pevt->event_ID()->event_number();
-        
+
 
       }
 
       if (m_mmstrip_cache_status==CLEARED) {
-      
-  
+
+
       } //end if cleared
 
-//**********End of MM Harvard Alg code*******  
+//**********End of MM Harvard Alg code*******
 
 //*********MMT Loader implementation below **********
 
@@ -687,7 +687,7 @@ namespace NSWL1 {
       // check the Strip cache status
       if ( m_mmstrip_cache_status!=OK ) {
         ATH_MSG_ERROR ( "MM Strip cache is in a bad status!" );
-        
+
         return StatusCode::FAILURE;
       }
 
@@ -697,7 +697,7 @@ namespace NSWL1 {
         //return the full set
         ATH_MSG_DEBUG( "copying the full MM Strip hit set" );
         for (unsigned int i=0; i<32; i++) mmstrips.insert( mmstrips.end(), m_mmstrip_cache.at(i).begin(), m_mmstrip_cache.at(i).end() );
-          
+
       }
       else if (side!=-1 && sector==-1) {
         //return all the trigger sectors for the given side
@@ -705,37 +705,37 @@ namespace NSWL1 {
         unsigned int start = (side)? 16 : 0;
         unsigned int stop  = (side)? 32 :16;
         for (unsigned int i=start; i<stop; i++) mmstrips.insert( mmstrips.end(), m_mmstrip_cache.at(i).begin(), m_mmstrip_cache.at(i).end() );
-          
+
       }
       else if (side==-1 && sector!=-1) {
         // return the required trigger sectors
         ATH_MSG_DEBUG( "copying the MM Strip hit set of all trigger sector " << sector << " in both side" );
         mmstrips.insert( mmstrips.end(), m_mmstrip_cache.at(sector).begin(), m_mmstrip_cache.at(sector).end() );
         mmstrips.insert( mmstrips.end(), m_mmstrip_cache.at(sector+16).begin(), m_mmstrip_cache.at(sector+16).end() );
-        
+
       }
       else {
         // return the required trigger sector
         ATH_MSG_DEBUG( "copying the MM Strip hit set of all trigger sector " << sector << " in side " << ((side)? "C" : "A") );
         int i = side*16+sector;
         mmstrips.insert( mmstrips.end(), m_mmstrip_cache.at(i).begin(), m_mmstrip_cache.at(i).end() );
-        
+
       }
 
       ATH_MSG_DEBUG( "delivered n. " << mmstrips.size() << " MM Strip hits." );
       // cout << "CHECKCHECK!";
        //comment out end
-      return StatusCode::SUCCESS; 
+      return StatusCode::SUCCESS;
     }
 
-  
+
     MMStripTdsOfflineTool::cStatus MMStripTdsOfflineTool::fill_mmstrip_cache(){
-    
+
 
       ATH_MSG_DEBUG( "fill_mmstrip_cache: end of processing" );
-      
+
       return OK;
-      } 
+      }
 
   double MMStripTdsOfflineTool::phi_shift(double athena_phi) const{
     return athena_phi+(athena_phi>=0?-1:1)*TMath::Pi();
@@ -750,7 +750,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -759,7 +759,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -781,11 +781,11 @@ namespace NSWL1 {
   }
 
 
-  int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)  
+  int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
     //cout<<"Strip (width="<<m_par->strip_width<<") for (X,Y,pl)=("<<X<<","<<Y<<","<<plane<<") is ";
     string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFloat(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -805,7 +805,7 @@ namespace NSWL1 {
     else if(xuv!="x"){
       cerr<<"Invalid plane option " << xuv << endl; exit(2);
     }
-    double strip_hit = ceil(y_hit*1./strip_width); 
+    double strip_hit = ceil(y_hit*1./strip_width);
     // cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
     return strip_hit;
   }
@@ -820,17 +820,17 @@ namespace NSWL1 {
     //assert(plane>=0&&plane<(int)m_par->setup.size());
     if (station<=0||station>m_par->n_stations_eta) {
       int base_strip = 0;
-    
+
       return base_strip;
     }
     if (plane<0||plane>(int)m_par->setup.size()) {
       int base_strip = 0;
-    
+
       return base_strip;
     }
     bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFloat()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFloat();
+    double H=m_par->H.getFixed()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFixed();
     if(do_auto){
       //-log(tan(0.5(atan(y/z))))=eta
       //this is the even y spacing
@@ -842,17 +842,17 @@ namespace NSWL1 {
       ybase=z*tan(2*atan(exp(-1.*this_eta)));
       */
     }
-    double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
+    double width=m_par->strip_width.getFixed(); string plane_char=m_par->setup.substr(plane,1);
   //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
   }
   bool MMStripTdsOfflineTool::Mimic_VMM_Chip_Deadtime(hitData_entry& candy){//** ASK BLC IF THERE'S A WAY TO DO THIS SINGLE ENTRY
-    
+
     if(candy.strip<=0){
 
       candy.VMM_chip=0;//clear out non-hits  (i.e. empty events -- probably from cuts in generation)
-      
+
       return false;
     }
     else{
@@ -867,8 +867,8 @@ namespace NSWL1 {
     return false;
         }
       }
-      if(VMM_chip_status[VMM_chip][plane]){ //is the chip active? 
-        
+      if(VMM_chip_status[VMM_chip][plane]){ //is the chip active?
+
         VMM_chip_status[VMM_chip][plane]=false;
         VMM__chip_last_hit_time[VMM_chip][plane]=time;
       }

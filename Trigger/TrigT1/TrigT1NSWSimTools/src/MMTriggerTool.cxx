@@ -189,7 +189,7 @@ namespace NSWL1 {
         //////////////////////////////////////////////////////////////
 
         //Initialization of the finder: defines all the roads
-        MMT_Finder m_find = MMT_Finder(m_par, 10);
+        MMT_Finder m_find = MMT_Finder(m_par, 1);
 
         ATH_MSG_DEBUG(  "Number of Roads Configured " <<  m_find.get_roads()  );
 
@@ -205,7 +205,7 @@ namespace NSWL1 {
           m_trigger_plane->push_back(hitDatas[ihds].plane);
           m_trigger_station->push_back(hitDatas[ihds].station_eta);
           m_trigger_strip->push_back(hitDatas[ihds].strip);
-          m_trigger_slope->push_back(hitInfo.slope.getFloat());
+          m_trigger_slope->push_back(hitInfo.slope.getFixed());
 
         }
         if(hitDatas.size()==8){
@@ -267,7 +267,7 @@ namespace NSWL1 {
             //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
             evFit_entry candidate=m_fit.fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
 
-            ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getValue() << " PHI " << candidate.fit_phi.getValue() << " DTH " << candidate.fit_dtheta.getValue() );
+            ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getFixed() << " PHI " << candidate.fit_phi.getFixed() << " DTH " << candidate.fit_dtheta.getFixed() );
             road_fits[iRoad]=candidate;
             fillmxl = mxl;
             fits_occupied++;
@@ -295,9 +295,9 @@ namespace NSWL1 {
           }
           if(road_fits[i].fit_roi>0){
             //For the future: how do we want these to pass on as the signal?  Some new data structure?
-            double fitTheta      = road_fits[i].fit_theta.getFloat();
-            double fitPhi        = road_fits[i].fit_phi.getFloat();
-            double fitDeltaTheta = road_fits[i].fit_dtheta.getFloat();
+            double fitTheta      = road_fits[i].fit_theta.getFixed();
+            double fitPhi        = road_fits[i].fit_phi.getFixed();
+            double fitDeltaTheta = road_fits[i].fit_dtheta.getFixed();
 
 
             ATH_MSG_DEBUG( "Truth " << tpos     << " " << ppos   << " " << dt );

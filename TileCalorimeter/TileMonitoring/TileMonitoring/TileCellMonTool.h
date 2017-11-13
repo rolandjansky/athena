@@ -17,7 +17,10 @@
 #include "TileMonitoring/TileFatherMonTool.h"
 
 class ITileBadChanTool;
+class TileBeamInfoProvider;
 class TileCell;
+
+#include <array>
 
 /** @class TileCellMonTool
  *  @brief Class for TileCal monitoring at cell level
@@ -54,6 +57,7 @@ class TileCellMonTool: public TileFatherMonTool {
     void ShiftLumiHist(TProfile2D*, int32_t);
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
+    ToolHandle<TileBeamInfoProvider> m_beamInfo;
 
     bool m_doOnline;
     double m_Threshold;
@@ -108,6 +112,11 @@ class TileCellMonTool: public TileFatherMonTool {
     TProfile* m_TileMaskCellonFlyLumi[NPartHisto]; // number of masked cells as function of lumi_block
     TProfile* m_TileMaskChannonFlyLumi[NPartHisto]; // number of masked channels as function of lumi_block
     TProfile* m_TileMaskChannfromDBLumi[NPartHisto]; // number of masked channels as function of lumi_block
+
+    // number of masked cells due to bad DQ as function of lumi_block
+    std::array<TProfile*, NPartHisto> m_maskedCellsOnFlyDueToDQvsLumiblock;
+    // number of masked channels due to bad DQ as function of lumi_block
+    std::array<TProfile*, NPartHisto> m_maskedChannelsOnFlyDueToDQvsLumiblock;
 
     std::vector<TH1F*> m_TileCellSynch;
 

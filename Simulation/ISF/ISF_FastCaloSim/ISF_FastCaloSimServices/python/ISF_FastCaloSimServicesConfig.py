@@ -96,14 +96,19 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFinalizerTool',
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("DoRandomFluctuations"             , False )
+    kwargs.setdefault("useOneDShapeParametrisation"      , False                                             )
+    kwargs.setdefault("nHits"                            , 100                                             )
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
+    kwargs.setdefault("Extrapolator"                     , 'TimedExtrapolator')
+    kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
+    kwargs.setdefault("useFastCaloSimCaloExtrapolation"             , True )
 
     # register the FastCaloSim random number streams
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-
+    
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
-
+        
     return CfgMgr.ISF__FastCaloSimSvcV2(name, **kwargs )

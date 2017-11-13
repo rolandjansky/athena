@@ -59,6 +59,8 @@ Swpt::EtaPhiHalf Swpt::halfPadCoordinates() const {
   bool validLayerCombination(missLast || missMiddle || missFirst);
   // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
+  (void) validLayerCombination; // to get rid of weird unused variable warning...
+
   EtaPhiHalf pos(-999,-999);
   EtaPhi posA(-999,-999), posB(-999,-999);
   if       (missLast) { posA = EtaPhi(pad0.ieta, pad0.iphi); posB = EtaPhi(pad1.ieta, pad1.iphi); }
@@ -117,6 +119,7 @@ EtaPhiRectangle Swpt::padOverlap(const vpads_t &pads)
   bool validLayerCombination(hasL1L2 || hasL1L4 || hasL2L3);
   // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
+  (void) validLayerCombination;
   // ASM-2017-07-07
   // ASM-2017-07-07
   // ASM-2017-07-07
@@ -184,6 +187,7 @@ bool Swpt::areInnerOuterConsistent(const EtaPhiHalf &inner, const EtaPhiHalf &ou
   bool mismatchEta(outer.ieta < inner.ieta - 4 || outer.ieta > inner.ieta + 4);
   bool mismatchPhi(outer.iphi < inner.iphi - 4 || outer.iphi > inner.iphi + 4);
   bool mismatch(mismatchEta || mismatchPhi);
+  (void) verbose;
   // if(verbose) std::cout<<"areConsistent ? "
   //                      <<(mismatch ? "no":"yes")
   //                      <<" : inner "<<inner.str()<<", outer "<<outer.str()

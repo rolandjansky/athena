@@ -11,16 +11,16 @@
 
 MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax): /*m_par(par),*/ number_LG_regions(nlg), LG_min(lgmin), LG_max(lgmax), m_msg("MMT_Fitter")
 {
-  ATH_MSG_DEBUG("MMT_F::building fitter");
+  msg(MSG::DEBUG) << "MMT_F::building fitter"<< endmsg;
   m_par=par;
   last=0;
   n_fit=0;
-  ATH_MSG_DEBUG("MMT_F::built fitter");
+  msg(MSG::DEBUG) << "MMT_F::built fitter"<< endmsg;
 }
 
 
 evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit,vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const{
-  ATH_MSG_DEBUG("Begin fit event!");
+  msg(MSG::DEBUG) << "Begin fit event!"<< endmsg;
   bool did_fit=false;
   int check=Filter_UV(track);
   vector<int> xpl=m_par->q_planes("x");
@@ -33,9 +33,9 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
   //----  Calc delta theta ----------
   //----- Calc ROI ----------
   ROI ROI = Get_ROI(M_x_global,M_u_global,M_v_global,track);
-  mxmy.push_back(pair<double,double>(ROI.m_x.getFloat(),ROI.m_y.getFloat()));
-  mu  = M_u_global.getValue();
-  mv  = M_v_global.getValue();
+  mxmy.push_back(pair<double,double>(ROI.m_x.getFixed(),ROI.m_y.getFixed()));
+  mu  = M_u_global.getFixed();
+  mv  = M_v_global.getFixed();
 
   if(ROI.theta==-999){
     for(unsigned int i=0;i<track.size();i++)  track[i].print();
@@ -43,12 +43,12 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
     exit(-999);
   }
 
-  float32fixed<2> M_x_local = Get_Local_Slope(track,ROI.theta.getFloat(),ROI.phi.getFloat()),Delta_Theta_division = Get_Delta_Theta_division(M_x_local,M_x_global,1.), Delta_Theta = Get_Delta_Theta(M_x_local,M_x_global), dtheta_idl=Get_Delta_Theta_division(ideal_local_slope(track),M_x_global);
+  float32fixed<2> M_x_local = Get_Local_Slope(track,ROI.theta.getFixed(),ROI.phi.getFixed()),Delta_Theta_division = Get_Delta_Theta_division(M_x_local,M_x_global,1.), Delta_Theta = Get_Delta_Theta(M_x_local,M_x_global), dtheta_idl=Get_Delta_Theta_division(ideal_local_slope(track),M_x_global);
 
-  mxl = M_x_local.getValue();
+  mxl = M_x_local.getFixed();
 
-  if(abs(dtheta_idl-Delta_Theta_division)>2.e-3)m_par->fill0=true;
-  ATH_MSG_DEBUG("Mxg="<<M_x_global.getValue()<<",Mug="<<M_u_global.getValue()<<",Mvg="<<M_v_global.getValue()<<",Mxl="<<M_x_local.getValue()<<",dth="<<Delta_Theta.getValue());
+  if(dtheta_idl-Delta_Theta_division.fabs()>2.e-3)m_par->fill0=true;
+  msg(MSG::DEBUG) << "Mxg="<<M_x_global.getFixed()<<",Mug="<<M_u_global.getFixed()<<",Mvg="<<M_v_global.getFixed()<<",Mxl="<<M_x_local.getFixed()<<",dth="<<Delta_Theta.getFixed()<< endmsg;
   //@@@@@@@@ Begin Info Storage for Later Analysis @@@@@@@@@@@@@@@@@@@@@@@
   vector<bool> planes_hit_tr(8,false),planes_hit_bg(8,false);
   for(unsigned int ihit=0; ihit<track.size(); ihit++){
@@ -82,15 +82,15 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
   float32fixed<4> candtheta=ROI.theta,candphi=ROI.phi;
   /* I think this bit appears redundant but could end up being stupid; the fitter shouldn't care about CT stuff (beyond having min num hits to do fit, which the -999 or w/e is responsible for taking care of)
   bool xfail=(n_xpl_tr+n_xpl_bg<m_par->CT_x),uvfail= (n_uvpl_tr+n_uvpl_bg<m_par->CT_uv);
-  ATH_MSG_DEBUG(n_xpl_tr+n_xpl_bg<<" x hits");
+  msg(MSG::DEBUG) << n_xpl_tr+n_xpl_bg<<" x hits");
   if(xfail)candtheta=-999.;
   if(uvfail)candphi=-999.;
   */
   bool fitkill=(ROI.theta==-999 || Delta_Theta==-999||Delta_Theta==-4);// ||xfail||uvfail);
-  ATH_MSG_DEBUG("HIT CODE: "<<track_to_index(track));
+  msg(MSG::DEBUG) << "HIT CODE: "<<track_to_index(track)<< endmsg;
   evFit_entry aemon(event,candtheta,candphi,Delta_Theta_division,ROI.roi,n_xpl_tr,n_uvpl_tr,n_xpl_bg,n_uvpl_bg,Delta_Theta,track_to_index(track));
   if(fitkill) return aemon;
-//   ATH_MSG_DEBUG(" aemon fit_theta="<<aemon.fit_theta.getFloat()<<", fit_phi="<<aemon.fit_phi.getFloat()<<"...";
+//   msg(MSG::DEBUG) << " aemon fit_theta="<<aemon.fit_theta.getFixed()<<", fit_phi="<<aemon.fit_phi.getFixed()<<"...";
   int nplanes=m_par->setup.size();
   for(int plane=0; plane<nplanes; plane++){
     if(track[plane].info.slope==-999) continue; //&& Delta_Theta_division~=-999
@@ -99,12 +99,12 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
     did_fit=true;
     hitDatas[hitData_pos].fit_fill(ROI.theta,ROI.phi,Delta_Theta,M_x_global,M_u_global,M_v_global,M_x_local,ROI.m_x,ROI.m_y,ROI.roi);
     aemon.fit_hit_keys.push_back(track[plane].key);
-//     ATH_MSG_DEBUG("hitData fit_theta="<<hitDatas[hitData_pos].fit_theta<<"...";
+//     msg(MSG::DEBUG) << "hitData fit_theta="<<hitDatas[hitData_pos].fit_theta<<"...";
     if(hitDatas[hitData_pos].truth_nbg) aemon.truth_planes_hit+=pow(10,nplanes-plane-1);
     else aemon.bg_planes_hit+=pow(10,nplanes-plane-1);
   }
   if(did_fit) nfit++;
-//   ATH_MSG_DEBUG("aemon has "<<aemon.fit_hit_keys.size()<<" keys");
+//   msg(MSG::DEBUG) << "aemon has "<<aemon.fit_hit_keys.size()<<" keys");
 //   if(event==2997||event==2800) aemon.print();
   return aemon;
 }
@@ -148,7 +148,7 @@ float32fixed<2> MMT_Fitter::Get_Global_Slope (const vector<Hit>& track, const st
   float32fixed<2> sum = 0.;
   if(qhits.size()==0) return -999;
   float32fixed<2> nhitdiv= 1./qhits.size();
-//   ATH_MSG_DEBUG("Calculating global slope of type "<<type<<"---adding "<< qhits.size() <<" slopes: ";
+//   msg(MSG::DEBUG) << "Calculating global slope of type "<<type<<"---adding "<< qhits.size() <<" slopes: ";
   for(int ihit=0;ihit<(int)qhits.size();ihit++){
     sum+=(qhits[ihit].info.slope*nhitdiv);
   }
@@ -173,7 +173,7 @@ float32fixed<2> MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double the
   if(xdex<0||ybin<0||which<0) return -999;
   float32fixed<zbardex> zbar=m_par->Ak_local_slim[xdex][ybin][which];
   float32fixed<bkdex>bk=m_par->Bk_local_slim[xdex][ybin][which];
-  ATH_MSG_DEBUG("zbar is "<<zbar.getValue()<<", and bk is "<<bk.getValue());
+  msg(MSG::DEBUG) << "zbar is "<<zbar.getFixed()<<", and bk is "<<bk.getFixed()<< endmsg;
   int ebin=m_par->eta_bin(theta),pbin=m_par->phi_bin(phi);
   for(int ipl=0; ipl<nxp; ipl++){
     float32fixed<yzdex> z=Track[x_planes[ipl]].info.z,y=Track[x_planes[ipl]].info.y;
@@ -184,11 +184,11 @@ float32fixed<2> MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double the
     if(Track[x_planes[ipl]].info.slope==-999||Track[x_planes[ipl]].info.slope==-4) continue;
     hit=true;
     yzsum+=y*(z*zbar-1.);
-    mxlf += bk.getFloat()*y.getFloat()*(z.getFloat()*zbar.getFloat()-1.);
+    mxlf += bk.getFixed()*y.getFixed()*(z.getFixed()*zbar.getFixed()-1.);
   }
-  float32fixed<2> mxl=float32fixed<2>(bk.getValue()*yzsum.getValue());
+  float32fixed<2> mxl=float32fixed<2>(bk.getFixed()*yzsum.getFixed());
   if(!hit) {return float32fixed<2>(999);}
-  // if(log10(abs(mxl.getValue()-mxlf))>-3.&&xdex!=5&&xdex!=10)cout<<setprecision(20)<<"*****AVENGE ME! *******fixed: "<<mxl.getValue()<<", float:"<<mxlf<<",    (ERROR: "<<mxlf-mxl.getValue()<<")");
+  // if(log10(abs(mxl.getFixed()-mxlf))>-3.&&xdex!=5&&xdex!=10)cout<<setprecision(20)<<"*****AVENGE ME! *******fixed: "<<mxl.getFixed()<<", float:"<<mxlf<<",    (ERROR: "<<mxlf-mxl.getFixed()<<")");
   return mxl;
 }
 
@@ -203,7 +203,7 @@ double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track)const{
   for(unsigned int i = 0; i<m_par->z_large.size(); i++){
     vector<double> temp;
     for(unsigned int j = 0; j<m_par->z_large[i].size(); j++)
-      temp.push_back(m_par->z_large[i][j].getFloat());
+      temp.push_back(m_par->z_large[i][j].getFixed());
     z_hit.push_back(temp);
   }
   vector<int> x_planes=m_par->q_planes("x");
@@ -212,23 +212,23 @@ double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track)const{
   double sum_xy=0,sum_y=0;
   double ak_idl=ideal_ak(Track),bk_idl=ak_idl*ideal_zbar(Track);
   for(int ipl=0; ipl<nxp; ipl++){
-    double y=Track[x_planes[ipl]].info.y.getFloat(),z=Track[x_planes[ipl]].info.z.getFloat();
+    double y=Track[x_planes[ipl]].info.y.getFixed(),z=Track[x_planes[ipl]].info.z.getFixed();
     if(y==-999) continue;
     hit=true;
     sum_xy += ak_idl*z*y;
     sum_y  += bk_idl*y;
-//     ATH_MSG_DEBUG("...z="<<z<<",y="<<y<<",sum_y="<<sum_y<<",sum_xy="<<sum_xy;
+//     msg(MSG::DEBUG) << "...z="<<z<<",y="<<y<<",sum_y="<<sum_y<<",sum_xy="<<sum_xy;
   }
   if(!hit) return -10.;
   double ls_idl=sum_xy-sum_y;
-//   ATH_MSG_DEBUG(endl<<"ak_idl="<<ak_idl<<",bk_idl="<<bk_idl<<",sum_xy"<<sum_xy<<",sum_y="<<sum_y<<",ls_idl="<<ls_idl);
+//   msg(MSG::DEBUG) << endl<<"ak_idl="<<ak_idl<<",bk_idl="<<bk_idl<<",sum_xy"<<sum_xy<<",sum_y="<<sum_y<<",ls_idl="<<ls_idl);
   return ls_idl;
 }
 
 double MMT_Fitter::ideal_z(const Hit& hit)const{
   int plane=hit.info.plane;
   double tilt=(plane<4?m_par->correct.rotate.X():0),dz=(plane<4?m_par->correct.translate.Z():0),
-    nominal=m_par->z_nominal[plane].getFloat(),y=hit.info.y.getFloat()-m_par->ybases[plane].front().getFloat(),z=nominal+dz+y*tan(tilt);
+    nominal=m_par->z_nominal[plane].getFixed(),y=hit.info.y.getFixed()-m_par->ybases[plane].front().getFixed(),z=nominal+dz+y*tan(tilt);
   return z;
 }
 
@@ -242,7 +242,7 @@ double MMT_Fitter::ideal_ak(const vector<Hit>& Track)const{
     hits++;//there's a hit
     sum_x  += addme;
     sum_xx += addme*addme;
-    ATH_MSG_DEBUG("z["<<ip<<"]="<<addme<<", sum_x="<<sum_x<<", sum_xx="<<sum_xx<<", hits="<<hits);
+    msg(MSG::DEBUG) << "z["<<ip<<"]="<<addme<<", sum_x="<<sum_x<<", sum_xx="<<sum_xx<<", hits="<<hits<< endmsg;
   }
   double diff = hits*sum_xx-sum_x*sum_x;
   return hits/diff;
@@ -295,7 +295,7 @@ float32fixed<2> MMT_Fitter::LG_lgr(int ilgr, double a, int number_LG_regions, fl
 }
 
 float32fixed<2> MMT_Fitter::mult_factor_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> _min, float32fixed<2> _max) const{
-  return float32fixed<2>(1./(a+LG_lgr(ilgr,a,number_LG_regions,_min,_max)/a));
+  return float32fixed<2>(1.) / float32fixed<2>(  (   LG_lgr(ilgr,a,number_LG_regions,_min,_max)  /  a  + a  ) );
 }
 
 float32fixed<2> MMT_Fitter::Get_Delta_Theta_division(float32fixed<2> M_local, float32fixed<2> M_global, float32fixed<4> a) const{
@@ -306,7 +306,7 @@ float32fixed<2> MMT_Fitter::Get_Delta_Theta_division(float32fixed<2> M_local, fl
   //we could use 2 bits for the numerator and 3 for the denominator, but then
   //fixed_point doesn't know how to do the algebra. Assume we know how to do
   //this division (we don't, efficiently, thus the method Get_Delta_Theta
-  return float32fixed<2>((M_local - M_global)/(a + (M_local*M_global)/a.getFloat()));
+  return float32fixed<2>( (M_local - M_global).getFixed() / ( (M_local*M_global).getFixed() / a.getFixed()  +  a.getFixed()  ));
 }
 
 vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) const{
@@ -318,7 +318,7 @@ vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) cons
   vector<int> qpl(m_par->q_planes(type));
   vector<Hit> q_hits;
   for(unsigned int ihit=0; ihit<qpl.size(); ihit++){
-    if(track[qpl[ihit]].info.slope!=-999) {q_hits.push_back(track[qpl[ihit]]);
+    if( !(track[qpl[ihit]].info.slope==-999) )  {q_hits.push_back(track[qpl[ihit]]);
     }
   }
   return q_hits;
@@ -327,15 +327,17 @@ vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) cons
 //change this to take u and/or v out of the roi calculation
 ROI MMT_Fitter::Get_ROI(float32fixed<2> M_x,float32fixed<2> M_u,float32fixed<2> M_v,const vector<Hit>&track) const{
   //M_* are all global slopes
-  ATH_MSG_DEBUG("\nGet_ROI("<<M_x.getValue()<<","<<M_u.getValue()<<","<<M_v.getValue()<<") ");
+  msg(MSG::DEBUG) << "\nGet_ROI("<<M_x.getFixed()<<","<<M_u.getFixed()<<","<<M_v.getFixed()<<") "<< endmsg;
 
   //--- calc constants ------
-  float32fixed<2> b=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
-  float32fixed<7> A=1./tan(b.getFloat()),B=1./tan(b.getFloat());
+  float32fixed<2> b=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+  float32fixed<7> A=1./tan(b.getFixed());
+  float32fixed<7> B=1./tan(b.getFixed());
 
   //---  slope conversion equations ----
   float32fixed<2> m_y = M_x;
-  float32fixed<2> m_xu = A*M_u.getFloat() - B*m_y.getFloat(),m_xv = B*m_y.getFloat() - A*M_v.getFloat();
+  float32fixed<2> m_xu = ( A*M_u.getFixed() - B*m_y.getFixed() ).getFixed();
+  float32fixed<2> m_xv = ( B*m_y.getFixed() - A*M_v.getFixed() ).getFixed();
   //--- which slopes are truly present ----
   //Note that bad slopes are not necessarily 0 as I often use -999 to denote something missing
   //we have -999 for M_u or M_v to denote that it didn't pass filtering
@@ -352,43 +354,43 @@ ROI MMT_Fitter::Get_ROI(float32fixed<2> M_x,float32fixed<2> M_u,float32fixed<2> 
   //*** check to see if U and V are necessary for fit
   float32fixed<2> m_x = (nu+nv==0?0:(m_xv+m_xu)/(nu+nv));
   if(m_par->correct.translate.X()!=0&&m_par->correct.type==2){
-    m_x+=phi_correct_factor(track)*m_par->correct.translate.X()/m_par->z_nominal[3].getFloat();
+    m_x+=phi_correct_factor(track)*m_par->correct.translate.X()/m_par->z_nominal[3].getFixed();
   }
   //if(debug)
-    ATH_MSG_DEBUG("(b,A,B,my,mxu,mxv,mx)=("<<b.getFloat()<<","<<A.getFloat()<<","<<B.getFloat()<<","<<m_y.getFloat()<<","<<m_xu.getFloat()<<","<<m_xv.getFloat()<<","<<m_x.getValue()<<")\n");
-  //mfits.push_back(pair<double,double>(m_x.getFloat(),m_y.getFloat()));
+    msg(MSG::DEBUG) << "(b,A,B,my,mxu,mxv,mx)=("<<b.getFixed()<<","<<A.getFixed()<<","<<B.getFixed()<<","<<m_y.getFixed()<<","<<m_xu.getFixed()<<","<<m_xv.getFixed()<<","<<m_x.getFixed()<<")\n"<< endmsg;
+  //mfits.push_back(pair<double,double>(m_x.getFixed(),m_y.getFixed()));
 
   //Get m_x and m_y in parameterized values
-  int a_x = round((m_x.getValue()-m_par->m_x_min.getValue())/m_par->h_mx.getValue()), a_y = round((m_y.getValue()-m_par->m_y_min.getValue())/m_par->h_my.getValue());
+  int a_x = round((m_x.getFixed()-m_par->m_x_min.getFixed())/m_par->h_mx.getFixed()), a_y = round((m_y.getFixed()-m_par->m_y_min.getFixed())/m_par->h_my.getFixed());
   // Generally, this offers a reality check or cut.  The only reason a slope
   // should be "out of bounds" is because it represents a weird UV combination
   // -- ie. highly background influenced
   if(a_y>m_par->n_y || a_y<0){
-    ATH_MSG_DEBUG("y slope (theta) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=("<<a_x<<","<<a_y<<","<<m_par->n_x<<","<<m_par->n_y<<")");
+    msg(MSG::DEBUG) << "y slope (theta) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=("<<a_x<<","<<a_y<<","<<m_par->n_x<<","<<m_par->n_y<<")"<< endmsg;
     return ROI(-999,-999,-999,-999,-999);
   }
 
   if(a_x>m_par->n_x || a_x<0){
-    ATH_MSG_DEBUG("x slope (phi) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=("<<a_x<<","<<a_y<<","<<m_par->n_x<<","<<m_par->n_y<<")");
+    msg(MSG::DEBUG) << "x slope (phi) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=("<<a_x<<","<<a_y<<","<<m_par->n_x<<","<<m_par->n_y<<")"<< endmsg;
     return ROI(-999,-999,-999,-999,-999);
   }
 
 //   xent.push_back(a_x);yent.push_back(a_y);
-  ATH_MSG_DEBUG("fv_angles...(a_x,a_y)=("<<a_x<<","<<a_y<<")");
+  msg(MSG::DEBUG) << "fv_angles...(a_x,a_y)=("<<a_x<<","<<a_y<<")"<< endmsg;
   double phicor=0.;
   if(m_par->correct.rotate.Z()!=0&&m_par->correct.type==2){
 //     phicor=-1.*phi_correct_factor(track)*m_par->correct.rotate.Z();
     phicor=-0.2*m_par->correct.rotate.Z();
   }
 
-  float32fixed<4> fv_theta=Slope_Components_ROI_theta(a_y,a_x), fv_phi=(m_x.getValue()==0?-999:Slope_Components_ROI_phi(a_y,a_x).getFloat()+phicor);
-  ATH_MSG_DEBUG("fv_theta="<<fv_theta.getValue()<<", fv_phi="<<fv_phi.getValue());
+  float32fixed<4> fv_theta=Slope_Components_ROI_theta(a_y,a_x), fv_phi=(m_x.getFixed()==0?-999:Slope_Components_ROI_phi(a_y,a_x).getFixed()+phicor);
+  msg(MSG::DEBUG) << "fv_theta="<<fv_theta.getFixed()<<", fv_phi="<<fv_phi.getFixed()<< endmsg;
 
   //--- More hardware realistic approach but need fine tuning ----
   int roi = Rough_ROI_temp(fv_theta,fv_phi);
 
   //--- current "roi" which is not an actual roi but an approx phi and theta
-  return ROI(fv_theta.getValue(),fv_phi.getValue(),m_x.getValue(),m_y.getValue(),roi);
+  return ROI(fv_theta.getFixed(),fv_phi.getFixed(),m_x.getFixed(),m_y.getFixed(),roi);
 }
 
 double MMT_Fitter::phi_correct_factor(const vector<Hit>&track)const{
@@ -440,7 +442,7 @@ float32fixed<4> MMT_Fitter::Slope_Components_ROI_theta(int jy, int ix) const{
   int xdex=ix,ydex=jy+1;
   if(xdex==0)xdex++;
   float32fixed<2> m_x=m_par->m_x_min+m_par->h_mx*xdex, m_y=m_par->m_y_min+m_par->h_my*ydex;
-  float32fixed<4> theta=atan(sqrt(m_x*m_x+m_y*m_y));
+  float32fixed<4> theta=atan(sqrt( (m_x*m_x+m_y*m_y).getFixed()  ));
 //   cout<<"in slope componets roi theta, theta must be in ["<<m_par->minimum_large_theta<<","<<m_par->maximum_large_theta<<"]");
   if(theta<m_par->minimum_large_theta || theta>m_par->maximum_large_theta){
 //     cout << "Our theta of "<<theta<<" is not in ["<<m_par->minimum_large_theta<<","<<m_par->maximum_large_theta<<"]");
@@ -466,13 +468,13 @@ float32fixed<4> MMT_Fitter::Slope_Components_ROI_phi(int jy, int ix) const{
   int xdex=ix,ydex=jy+1;
   float32fixed<2> m_x=m_par->m_x_min+m_par->h_mx*xdex, m_y=m_par->m_y_min+m_par->h_my*ydex;
   //if(debug)
-    ATH_MSG_DEBUG("m_par->m_x_min+m_par->h_mx*xdex="<<m_par->m_x_min.getValue()<<"+"<<m_par->h_mx.getValue()<<"*"<<xdex<<"="<<m_x.getValue()<<", ");
+    msg(MSG::DEBUG) << "m_par->m_x_min+m_par->h_mx*xdex="<<m_par->m_x_min.getFixed()<<"+"<<m_par->h_mx.getFixed()<<"*"<<xdex<<"="<<m_x.getFixed()<<", "<< endmsg;
   //if(debug)
-    ATH_MSG_DEBUG("m_par->m_y_min+m_par->h_my*ydex="<<m_par->m_y_min.getValue()<<"+"<<m_par->h_my.getValue()<<"*"<<ydex<<"="<<m_y.getValue()<<", ");
-  float32fixed<4> phi(atan2(m_x.getValue(),m_y.getValue()));//the definition is flipped from what you'd normally think
-  ATH_MSG_DEBUG("for a phi of "<<phi.getValue());
+    msg(MSG::DEBUG) << "m_par->m_y_min+m_par->h_my*ydex="<<m_par->m_y_min.getFixed()<<"+"<<m_par->h_my.getFixed()<<"*"<<ydex<<"="<<m_y.getFixed()<<", "<< endmsg;
+  float32fixed<4> phi(atan2(m_x.getFixed(),m_y.getFixed()));//the definition is flipped from what you'd normally think
+  msg(MSG::DEBUG) << "for a phi of "<<phi.getFixed()<< endmsg;
   if(phi<m_par->minimum_large_phi || phi>m_par->maximum_large_phi){
-    ATH_MSG_DEBUG("Chucking phi of " << phi.getValue()<<" which registers as not in ["<<m_par->minimum_large_phi.getValue()<<","<<m_par->maximum_large_phi.getValue()<<"]");
+    msg(MSG::DEBUG) << "Chucking phi of " << phi.getFixed()<<" which registers as not in ["<<m_par->minimum_large_phi.getFixed()<<","<<m_par->maximum_large_phi.getFixed()<<"]"<< endmsg;
     phi=999;
   }
   return phi;
@@ -486,8 +488,8 @@ int MMT_Fitter::Rough_ROI_temp(float32fixed<4> theta, float32fixed<4> phi) const
   float32fixed<4> h_theta = (maximum_large_theta - minimum_large_theta)/n_theta_rois;
   float32fixed<4> h_phi = (maximum_large_phi - minimum_large_phi)/n_phi_rois;
   //how is this done in the FPGA? No such division, for sure
-  double roi_t = ceil((theta - minimum_large_theta)/h_theta.getFloat());
-  double roi_p = ceil((phi - minimum_large_phi)/h_phi.getFloat());
+  double roi_t = ceil( (  (theta - minimum_large_theta)/h_theta).getFixed());
+  double roi_p = ceil( (  (phi - minimum_large_phi)/h_phi).getFixed());
 
   if(theta<minimum_large_theta || theta>maximum_large_theta) roi_t = 0;
   if(phi<minimum_large_phi || phi>maximum_large_phi) roi_p = 0;
