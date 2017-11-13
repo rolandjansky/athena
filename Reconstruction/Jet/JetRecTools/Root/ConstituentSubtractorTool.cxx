@@ -19,9 +19,11 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("MaxDeltaR", m_maxDeltaR=0.25);
-  declareProperty("Alpha", m_alpha=1.);
-  declareProperty("MaxEta", m_maxEta=10.);
+  declareProperty("Alpha", m_alpha=0.);
+  declareProperty("MaxEta", m_maxEta=4.5);
   declareProperty("MaxRapForRhoComputation", m_maxRapForRhoComputation=2.0);
+  declareProperty("GhostArea", m_ghost_area=0.01);
+  declareProperty("CommonBGEForRhoAndRhom",m_common_bge_for_rho_and_rhom=false);
 }
 
 StatusCode ConstituentSubtractorTool::process(xAOD::IParticleContainer* cont) const {
@@ -37,9 +39,15 @@ StatusCode ConstituentSubtractorTool::process(xAOD::CaloClusterContainer* cont) 
 
 
   contrib::ConstituentSubtractor subtractor;
-  subtractor.set_max_standardDeltaR(m_maxDeltaR); // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
-  subtractor.set_alpha(m_alpha);  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
-  subtractor.set_ghost_area(0.01); // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
+  
+  // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
+  subtractor.set_max_standardDeltaR(m_maxDeltaR); 
+
+  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
+  subtractor.set_alpha(m_alpha);  
+
+  // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
+  subtractor.set_ghost_area(m_ghost_area); 
 
   // prepare PseudoJet inputs 
   std::vector<PseudoJet>  inputs_to_correct, inputs_to_not_correct;
@@ -57,12 +65,14 @@ StatusCode ConstituentSubtractorTool::process(xAOD::CaloClusterContainer* cont) 
 
   // create what we need for the background estimation
   //----------------------------------------------------------
-  GridMedianBackgroundEstimator bge_rho(m_maxRapForRhoComputation, 0.5); // maximal rapidity is used (not pseudo-rapidity). Since the inputs are massless, it does not matter
+  // maximal rapidity is used (not pseudo-rapidity). Since the inputs are massless, it does not matter
+  GridMedianBackgroundEstimator bge_rho(m_maxRapForRhoComputation, 0.5);
   bge_rho.set_particles(inputs_to_correct);
   subtractor.set_background_estimator(&bge_rho);
 
   // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-  subtractor.set_common_bge_for_rho_and_rhom(false); // for massless input particles it does not make any difference (rho_m is always zero)
+  subtractor.set_common_bge_for_rho_and_rhom(m_common_bge_for_rho_and_rhom); 
+  // for massless input particles it does not make any difference (rho_m is always zero)
 
   std::vector<PseudoJet> corrected_event=subtractor.subtract_event(inputs_to_correct,m_maxEta);
 
