@@ -17,6 +17,7 @@ namespace Trig{
       m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this) {
     declareProperty("TrigBtagEmulationTool",m_emulationTool);
+    declareProperty("ToBeEmulatedTriggers",m_toBeEmulatedTriggers);
   }
   
   //**********************************************************************
@@ -47,9 +48,6 @@ namespace Trig{
     ATH_MSG_INFO("Retrieved tools...");
 
     // CHAIN CONFIGURATION IN ATHENA IS PERFORMED VIA JOB OPTION
-    m_toBeEmulatedTriggers.push_back("L1_MJJ-100");
-    m_toBeEmulatedTriggers.push_back("HLT_10j40_L14J15");
-    m_toBeEmulatedTriggers.push_back("HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25");
 
     ATH_MSG_INFO("Initializing TrigBtagEmulationTool ...");
     if( m_emulationTool->initialize().isFailure() ) {
@@ -57,13 +55,10 @@ namespace Trig{
       return StatusCode::FAILURE;
     }
 
+
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
-      std::string name = m_toBeEmulatedTriggers.at(index);
-      m_counterEmulation[ name.c_str() ]            = 0;
-      m_counterTDT[ name.c_str() ]                  = 0;
-      m_counterMismatches_tot[ name.c_str() ]       = 0;
-      m_counterMismatches_TDT1EMUL0[ name.c_str() ] = 0;
-      m_counterMismatches_TDT0EMUL1[ name.c_str() ] = 0;
+      std::string triggerName = m_toBeEmulatedTriggers.at(index);
+      m_counters[ triggerName.c_str() ] = std::make_tuple( 0,0,0,0,0 );
     }
     
     return StatusCode::SUCCESS;
@@ -77,48 +72,47 @@ namespace Trig{
     ATH_MSG_INFO("Trigger Validation Outcome");
 
     long int TotalMismatches = 0;
-    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++)
-      {
-	std::string name = m_toBeEmulatedTriggers.at(index);
-	std::string message = Form("  --- Trigger %s : TDT = %ld [Emulation = %ld] : mismatches = %ld [TDT=1;EMUL=0 = %ld] [TDT=0;EMUL=1 = %ld]",
-				   name.c_str(),
-				   m_counterTDT[ name.c_str() ],
-				   m_counterEmulation[ name.c_str() ],
-				   m_counterMismatches_tot[ name.c_str() ],
-				   m_counterMismatches_TDT1EMUL0[ name.c_str() ],
-				   m_counterMismatches_TDT0EMUL1[ name.c_str() ]);
-	ATH_MSG_INFO(message.c_str());
-	TotalMismatches += m_counterMismatches_tot[ name.c_str() ];
-      }
+    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
+      std::string triggerName = m_toBeEmulatedTriggers.at(index);
+      std::string message = Form("  --- Trigger %s : TDT = %ld [EMUL = %ld] : mismatches = %ld [TDT=1;EMUL=0 = %ld] [TDT=0;EMUL=1 = %ld]",
+				 triggerName.c_str(),
+				 std::get<TDT>( m_counters[ triggerName.c_str() ] ),
+				 std::get<EMUL>( m_counters[ triggerName.c_str() ] ),
+				 std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] ),
+				 std::get<mismatchesTDT1EMUL0>( m_counters[ triggerName.c_str() ] ),
+				 std::get<mismatchesTDT0EMUL1>( m_counters[ triggerName.c_str() ] ) );
+				 
+      ATH_MSG_INFO(message.c_str());
+      TotalMismatches += std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] );
+    }
     ATH_MSG_INFO("Total Mismatches : " << TotalMismatches);
-
+    
     return StatusCode::SUCCESS;
   }
-
+  
   //**********************************************************************
   StatusCode TrigBtagValidationTest::execute() {
 
     ATH_MSG_DEBUG("TrigBtagEmulationTool::execute()");
 
     // CHECK RESUT FOR INDIVIDUAL CHAINS
-    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++)
-      {
-	std::string name = m_toBeEmulatedTriggers.at(index);
-	std::string message = Form( "TRIGGER=%s ",name.c_str() );	
+    for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
+      std::string triggerName = m_toBeEmulatedTriggers.at(index);
+      std::string message = Form( "TRIGGER=%s ",triggerName.c_str() );	
+      
+      bool passTDT  = m_trigdec->isPassed( triggerName );
+      bool passEmul = m_emulationTool->isPassed( triggerName );
 
-	bool passTDT  = m_trigdec->isPassed( name );
-	bool passEmul = m_emulationTool->isPassed( name );
-	
-	if (passTDT)  m_counterTDT[ name.c_str() ]++;
-	if (passEmul) m_counterEmulation[ name.c_str() ]++;
-	if (passTDT != passEmul) m_counterMismatches_tot[ name.c_str() ]++;
-	if (passTDT && !passEmul) m_counterMismatches_TDT1EMUL0[ name.c_str() ]++;
-	if (!passTDT && passEmul) m_counterMismatches_TDT0EMUL1[ name.c_str() ]++;
-
-	message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
-	ATH_MSG_INFO( message.c_str() );
-      }
-
+      if (passTDT) std::get<TDT>( m_counters[ triggerName.c_str() ] )++;
+      if (passEmul) std::get<EMUL>( m_counters[ triggerName.c_str() ] )++;
+      if (passTDT != passEmul) std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] )++;
+      if (passTDT && !passEmul) std::get<mismatchesTDT1EMUL0>( m_counters[ triggerName.c_str() ] )++;
+      if (!passTDT && passEmul) std::get<mismatchesTDT0EMUL1>( m_counters[ triggerName.c_str() ] )++;
+       
+      message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
+      ATH_MSG_INFO( message.c_str() );
+    }
+    
     ATH_MSG_INFO( "" );
     
     return StatusCode::SUCCESS;

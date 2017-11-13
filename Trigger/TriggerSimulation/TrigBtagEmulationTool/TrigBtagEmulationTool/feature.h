@@ -22,15 +22,15 @@ namespace Trig {
     std::map< std::string, double > weights;
   };
 
-  bool sortEmulationJet_byPt(Trig::TrigBtagEmulationJet&,Trig::TrigBtagEmulationJet&);
+  bool sortEmulationJetByPt(Trig::TrigBtagEmulationJet&,Trig::TrigBtagEmulationJet&);
 
   // ***
 
-  class feature {
+  class TriggerFeature {
   public:
-    feature(int type = feature::UNKNOWN,std::string name = "NONE");
-    feature(const feature&);
-    virtual ~feature();
+    TriggerFeature(int type = TriggerFeature::UNKNOWN,std::string name = "NONE");
+    TriggerFeature(const TriggerFeature&);
+    virtual ~TriggerFeature();
 
     std::string name() const;
     virtual bool isPassed() = 0;
@@ -52,11 +52,11 @@ namespace Trig {
 
   // *** B-TAG
 
-  class feature_btag : public feature {
+  class TriggerFeatureBtag : public TriggerFeature {
   public:
-    feature_btag(std::string name = "NONE",float weight = -1000);
-    feature_btag(const feature_btag&);
-    virtual ~feature_btag();
+    TriggerFeatureBtag(std::string name = "NONE",float weight = -1000);
+    TriggerFeatureBtag(const TriggerFeatureBtag&);
+    virtual ~TriggerFeatureBtag();
 
     virtual bool isPassed();
     virtual bool evaluateJet(struct TrigBtagEmulationJet*);
@@ -94,11 +94,11 @@ namespace Trig {
 
   // *** ANTI-B-TAG
 
-  class feature_antibtag : public feature_btag {
+  class TriggerFeatureAntiBtag : public TriggerFeatureBtag {
   public:
-    feature_antibtag(std::string name = "NONE",float weight = 1000);
-    feature_antibtag(const feature_antibtag&);
-    virtual ~feature_antibtag();
+    TriggerFeatureAntiBtag(std::string name = "NONE",float weight = 1000);
+    TriggerFeatureAntiBtag(const TriggerFeatureAntiBtag&);
+    virtual ~TriggerFeatureAntiBtag();
 
     virtual bool evaluateJet(struct TrigBtagEmulationJet*);
     virtual void Print();
@@ -107,11 +107,11 @@ namespace Trig {
 
   // *** HT
  
-  class feature_ht : public feature {
+  class TriggerFeatureHt : public TriggerFeature {
   public:
-    feature_ht(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0);
-    feature_ht(const feature_ht&);
-    virtual ~feature_ht();
+    TriggerFeatureHt(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0);
+    TriggerFeatureHt(const TriggerFeatureHt&);
+    virtual ~TriggerFeatureHt();
 
     virtual bool isPassed();
     virtual bool evaluateJet(struct TrigBtagEmulationJet*);
@@ -144,11 +144,11 @@ namespace Trig {
 
   // *** HT-TOP
 
-  class feature_ht_top : public feature_ht {
+  class TriggerFeatureHtTop : public TriggerFeatureHt {
   public:
-    feature_ht_top(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0, unsigned int topEt = 0);
-    feature_ht_top(const feature_ht_top&);
-    virtual ~feature_ht_top();
+    TriggerFeatureHtTop(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0, unsigned int topEt = 0);
+    TriggerFeatureHtTop(const TriggerFeatureHtTop&);
+    virtual ~TriggerFeatureHtTop();
     
     virtual void clear();
     virtual void Print();
@@ -165,11 +165,11 @@ namespace Trig {
   };
 
   // *** INVM
-  class feature_invm : public feature {
+  class TriggerFeatureInvm : public TriggerFeature {
   public:
-    feature_invm(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
-    feature_invm(const feature_invm&);
-    virtual ~feature_invm();
+    TriggerFeatureInvm(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvm(const TriggerFeatureInvm&);
+    virtual ~TriggerFeatureInvm();
 
     virtual bool isPassed();
     virtual bool evaluateJet(struct TrigBtagEmulationJet*);
@@ -211,11 +211,11 @@ namespace Trig {
   };
 
   // *** INVM CF
-  class feature_invm_CF : public feature_invm {
+  class TriggerFeatureInvmCF : public TriggerFeatureInvm {
   public:
-    feature_invm_CF(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
-    feature_invm_CF(const feature_invm_CF&);
-    virtual ~feature_invm_CF();
+    TriggerFeatureInvmCF(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvmCF(const TriggerFeatureInvmCF&);
+    virtual ~TriggerFeatureInvmCF();
 
     virtual void Print();
 

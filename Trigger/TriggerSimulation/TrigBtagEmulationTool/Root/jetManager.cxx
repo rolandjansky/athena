@@ -7,18 +7,18 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 using namespace Trig;
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
-ToolHandle< Analysis::IBTagTool > *jetManager::m_bTagTool = nullptr;
-ToolHandle< Analysis::IBTagTrackAssociation > *jetManager::m_bTagTrackAssocTool = nullptr;
-ToolHandle< Analysis::IBTagSecVertexing > *jetManager::m_bTagSecVtxTool = nullptr;
+ToolHandle< Analysis::IBTagTool > *JetManager::m_bTagTool = nullptr;
+ToolHandle< Analysis::IBTagTrackAssociation > *JetManager::m_bTagTrackAssocTool = nullptr;
+ToolHandle< Analysis::IBTagSecVertexing > *JetManager::m_bTagSecVtxTool = nullptr;
 #endif
 
 //**********************************************************************
 
-jetManager::jetManager(ToolHandle<Trig::TrigDecisionTool>& trigDec,std::string chain, std::string jetContainer, std::string btagContainer) 
+JetManager::JetManager(ToolHandle<Trig::TrigDecisionTool>& trigDec,std::string chain, std::string jetContainer, std::string btagContainer) 
   : m_chain(chain), m_jetContainer(jetContainer), m_btagContainer(btagContainer),
     m_jet_key(""), m_primaryVertex_key(""), m_trackParticle_key(""),
     m_trigDec(trigDec) {}
-jetManager::jetManager(const jetManager& other)
+JetManager::JetManager(const JetManager& other)
   : m_chain(other.m_chain), m_jetContainer(other.m_jetContainer),m_btagContainer(other.m_btagContainer),
     m_jet_key(other.m_jet_key), m_primaryVertex_key(other.m_primaryVertex_key), m_trackParticle_key(other.m_trackParticle_key),
     m_jet_Containers(other.m_jet_Containers.begin(),other.m_jet_Containers.end()),
@@ -27,15 +27,15 @@ jetManager::jetManager(const jetManager& other)
     m_btagging_Containers(other.m_btagging_Containers.begin(),other.m_btagging_Containers.end()),
     m_outputJets(other.m_outputJets.begin(),other.m_outputJets.end()),
     m_trigDec(other.m_trigDec) {}
-jetManager::~jetManager() {}
+JetManager::~JetManager() {}
 
-void jetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key) {
+void JetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key) {
   m_jet_key = jet_Key;
   m_primaryVertex_key = primaryVertex_key;
   m_trackParticle_key = trackParticle_key;
 }
 
-StatusCode jetManager::retrieveByNavigation() {
+StatusCode JetManager::retrieveByNavigation() {
   clear();
 
   Trig::FeatureContainer features = m_trigDec->features(m_chain);
@@ -55,9 +55,9 @@ StatusCode jetManager::retrieveByNavigation() {
 }
 
 #ifdef XAOD_STANDALONE
-StatusCode jetManager::retrieveByContainer(asg::SgTEvent* evtStore) 
+StatusCode JetManager::retrieveByContainer(asg::SgTEvent* evtStore) 
 #else
-StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore)
+StatusCode JetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore)
 #endif
 {
   if (m_jetContainer.find("GSC")!=std::string::npos) 
@@ -130,9 +130,9 @@ StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore
 
 
 #ifdef XAOD_STANDALONE
-StatusCode jetManager::retrieveByContainerWithMatching(asg::SgTEvent* evtStore)
+StatusCode JetManager::retrieveByContainerWithMatching(asg::SgTEvent* evtStore)
 #else
-StatusCode jetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSvc>& evtStore)
+StatusCode JetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSvc>& evtStore)
 #endif
 {
 
@@ -209,13 +209,13 @@ StatusCode jetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSv
   return StatusCode::SUCCESS;
 }
 
-bool jetManager::isMatched(const xAOD::Jet* splitJet,const xAOD::Jet* gscJet)
+bool JetManager::isMatched(const xAOD::Jet* splitJet,const xAOD::Jet* gscJet)
 {
   double dR = sqrt( pow(splitJet->eta() - gscJet->eta(),2) + pow(splitJet->phi() - gscJet->phi(),2) );
   return dR < 0.05;
 }
 
-bool jetManager::clear()
+bool JetManager::clear()
 {
   m_jet_Containers.clear();
   m_primaryVertex_Containers.clear();
@@ -225,7 +225,7 @@ bool jetManager::clear()
   return true;
 }
 
-template<typename T> bool jetManager::getFromCombo(std::vector<const T*> &output,const Trig::Combination& combo,std::string key)
+template<typename T> bool JetManager::getFromCombo(std::vector<const T*> &output,const Trig::Combination& combo,std::string key)
 {
   const DataVector<T> *tmpContainer = nullptr;
   const std::vector< Trig::Feature< DataVector<T> > > tmpFeatures = combo.containerFeature< DataVector<T> >(key.c_str());
@@ -239,7 +239,7 @@ template<typename T> bool jetManager::getFromCombo(std::vector<const T*> &output
   return true;
 }
 
-bool jetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>& tpContainers,const Trig::Combination& combo,std::string key)
+bool JetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>& tpContainers,const Trig::Combination& combo,std::string key)
 {
 
   const xAOD::TrackParticleContainer* trackParticleContainer = nullptr;
@@ -254,7 +254,7 @@ bool jetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>
   return true;
 }
 
-void jetManager::jetCopy()
+void JetManager::jetCopy()
 {
   for (auto & jet : m_jet_Containers) {
     TrigBtagEmulationJet ing;
@@ -265,7 +265,7 @@ void jetManager::jetCopy()
   }
 }
 
-StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline)
+StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline)
 {
   auto out = m_outputJets.begin();
   for (auto & btag : m_btagging_Containers) 
@@ -293,7 +293,7 @@ StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
   return StatusCode::SUCCESS;
 }
 
-StatusCode jetManager::retagOffline() {
+StatusCode JetManager::retagOffline() {
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
   auto pv  = m_primaryVertex_Containers.begin();
   auto tp  = m_trackParticle_Containers.begin();
@@ -393,12 +393,12 @@ StatusCode jetManager::retagOffline() {
 #endif
   return StatusCode::SUCCESS;
 }
-StatusCode jetManager::retagOnline() { return StatusCode::SUCCESS;}
+StatusCode JetManager::retagOnline() { return StatusCode::SUCCESS;}
 
-std::vector< struct TrigBtagEmulationJet >& jetManager::getJets() { return m_outputJets; }
+std::vector< struct TrigBtagEmulationJet >& JetManager::getJets() { return m_outputJets; }
 
-jetManager& jetManager::operator+=(const jetManager& other) { return merge(other.m_jet_Containers); }
-jetManager& jetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
+JetManager& JetManager::operator+=(const JetManager& other) { return merge(other.m_jet_Containers); }
+JetManager& JetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
   for (auto & jet : jets) {
     TrigBtagEmulationJet backupJet;
     backupJet.pt  = jet->p4().Et();

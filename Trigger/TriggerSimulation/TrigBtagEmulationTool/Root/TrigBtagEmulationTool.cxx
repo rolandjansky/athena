@@ -51,7 +51,7 @@ TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& c
   if (m_chains.size() == 1) {
     m_autoConfigured = true;
 
-    std::vector< baseTrigBtagEmulationChainJetIngredient* > triggerSubComponents;
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > triggerSubComponents;
     if ( !parseChainName( chainDefinition.at(0), triggerSubComponents ) ) 
       m_correctlyConfigured = false;
 
@@ -91,9 +91,9 @@ TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& c
 }
 
 void TrigBtagEmulationChain::addDecisionIngredient(std::string decision) { m_ingredientsDecision.push_back(decision); }
-void TrigBtagEmulationChain::addDecisionIngredient(baseTrigBtagEmulationChainJetIngredient* decision) { m_ingredientsJet.push_back( decision ); }
+void TrigBtagEmulationChain::addDecisionIngredient(BaseTrigBtagEmulationChainJetIngredient* decision) { m_ingredientsJet.push_back( decision ); }
 
-bool TrigBtagEmulationChain::parseChainName( std::string triggerName, std::vector< baseTrigBtagEmulationChainJetIngredient* >& trigger_subComponents) {
+bool TrigBtagEmulationChain::parseChainName( std::string triggerName, std::vector< BaseTrigBtagEmulationChainJetIngredient* >& trigger_subComponents) {
   std::vector< std::string > parsedTriggers;
 
   if ( triggerName.find("_AND_")!=std::string::npos ) {
@@ -105,7 +105,7 @@ bool TrigBtagEmulationChain::parseChainName( std::string triggerName, std::vecto
 
   for (unsigned int i(0); i<parsedTriggers.size(); i++) {
     triggerName = parsedTriggers.at(i);
-    std::vector< baseTrigBtagEmulationChainJetIngredient* > tmp_trigger_subComponents;
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > tmp_trigger_subComponents;
 
     if (triggerName.find("HLT_")!=std::string::npos) tmp_trigger_subComponents = processHLTtrigger( triggerName );
     else if (triggerName.find("L1_")!=std::string::npos) tmp_trigger_subComponents = processL1trigger( triggerName );
@@ -117,8 +117,8 @@ bool TrigBtagEmulationChain::parseChainName( std::string triggerName, std::vecto
   return true;
 }
 
-std::vector< baseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processL1trigger (std::string input) {
-  std::vector< baseTrigBtagEmulationChainJetIngredient* > output;
+std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processL1trigger (std::string input) {
+  std::vector< BaseTrigBtagEmulationChainJetIngredient* > output;
 
   while ( !input.empty() ) {
     std::string subString = "";
@@ -134,8 +134,8 @@ std::vector< baseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::
 
   return output;
 }
-std::vector< baseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processHLTtrigger (std::string input) {
-  std::vector< baseTrigBtagEmulationChainJetIngredient* > output;
+std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processHLTtrigger (std::string input) {
+  std::vector< BaseTrigBtagEmulationChainJetIngredient* > output;
 
   std::string L1component  = "";
   std::string HLTcomponent = "";
@@ -147,7 +147,7 @@ std::vector< baseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::
 
   // Deal with L1 Components
   if ( !L1component.empty() ) {
-    std::vector< baseTrigBtagEmulationChainJetIngredient* > trigger_L1 = processL1trigger( L1component );
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > trigger_L1 = processL1trigger( L1component );
     output.insert( output.end(), trigger_L1.begin(), trigger_L1.end() );
   }
 
@@ -458,9 +458,9 @@ StatusCode TrigBtagEmulationTool::initialize() {
   }
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
-  jetManager::m_bTagTool = &m_bTagTool;
-  jetManager::m_bTagTrackAssocTool = &m_bTagTrackAssocTool;
-  jetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
+  JetManager::m_bTagTool = &m_bTagTool;
+  JetManager::m_bTagTrackAssocTool = &m_bTagTrackAssocTool;
+  JetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
 #endif
 
   return sc;
@@ -537,15 +537,15 @@ StatusCode TrigBtagEmulationTool::execute() {
   StatusCode sc = StatusCode::SUCCESS;
 
   // jet Menagers
-  m_manager_ef = new Trig::jetManager(m_trigDec,m_input_chain,m_input_jetName,m_input_btagName);
+  m_manager_ef = new Trig::JetManager(m_trigDec,m_input_chain,m_input_jetName,m_input_btagName);
   m_manager_ef->setKeys(m_input_jetKey,m_input_pvKey,m_input_tpKey);
-  m_manager_split = new Trig::jetManager(m_trigDec,m_input_chainSplit,m_input_jetNameSplit,m_input_btagName);
+  m_manager_split = new Trig::JetManager(m_trigDec,m_input_chainSplit,m_input_jetNameSplit,m_input_btagName);
   m_manager_split->setKeys(m_input_jetKeySplit,m_input_pvKeySplit,m_input_tpKeySplit);
-  m_manager_gsc = new  Trig::jetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName); 
+  m_manager_gsc = new  Trig::JetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName); 
   m_manager_gsc->setKeys(m_input_jetKey_GSC,m_input_pvKey_GSC,m_input_tpKey_GSC);
-  m_manager_ef_gsc = new Trig::jetManager(m_trigDec,"HLT_j15_boffperf",m_input_JetName_GSC,m_input_btagName);
+  m_manager_ef_gsc = new Trig::JetManager(m_trigDec,"HLT_j15_boffperf",m_input_JetName_GSC,m_input_btagName);
   m_manager_ef_gsc->setKeys(m_input_jetKey,m_input_pvKey,m_input_tpKey);
-  m_manager_split_gsc = new Trig::jetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName);
+  m_manager_split_gsc = new Trig::JetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName);
   m_manager_split_gsc->setKeys(m_input_jetKeySplit,m_input_pvKeySplit,m_input_tpKeySplit);
   
   // GET EF JETS

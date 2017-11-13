@@ -13,11 +13,11 @@ namespace Trig {
   // *** Virtual Base Class
   // ==========================================================================
 
-  class baseTrigBtagEmulationChainJetIngredient {
+  class BaseTrigBtagEmulationChainJetIngredient {
   public:
-    baseTrigBtagEmulationChainJetIngredient(std::string triggerName = "");
-    baseTrigBtagEmulationChainJetIngredient(const baseTrigBtagEmulationChainJetIngredient&);
-    virtual ~baseTrigBtagEmulationChainJetIngredient();
+    BaseTrigBtagEmulationChainJetIngredient(std::string triggerName = "");
+    BaseTrigBtagEmulationChainJetIngredient(const BaseTrigBtagEmulationChainJetIngredient&);
+    virtual ~BaseTrigBtagEmulationChainJetIngredient();
 
     std::string getName() const;
 
@@ -34,12 +34,12 @@ namespace Trig {
 
   protected:
     virtual bool evaluateJet(struct TrigBtagEmulationJet&); 
-    void addFeature(std::string,feature*); 
+    void addFeature(std::string,TriggerFeature*); 
 
     virtual void setPT(std::string&)   = 0;
     virtual void setEta(std::string&)  = 0;
-    virtual feature* setHT(std::string&)   = 0;
-    virtual feature* setINVM(std::string&) = 0;  
+    virtual TriggerFeature* setHT(std::string&)   = 0;
+    virtual TriggerFeature* setINVM(std::string&) = 0;  
 
     template<typename T> void extract(std::string,std::string,T &valA);
     template<typename T,typename U> void extract(std::string,std::string,T &valA,U &valB);
@@ -52,8 +52,8 @@ namespace Trig {
     int m_min_mult;
     int m_count;
 
-    std::vector< std::pair<std::string,feature*> > m_type_THRESHOLD_features;
-    std::vector< std::pair<std::string,feature*> > m_type_SELECTION_features;
+    std::vector< std::pair<std::string,TriggerFeature*> > m_type_THRESHOLD_features;
+    std::vector< std::pair<std::string,TriggerFeature*> > m_type_SELECTION_features;
 
   public:
     std::map< std::string,std::string > m_neededJetCollection;
@@ -64,7 +64,7 @@ namespace Trig {
   // *** L1
   // ==========================================================================
 
-  class TrigBtagEmulationChainJetIngredient_L1 : public baseTrigBtagEmulationChainJetIngredient {
+  class TrigBtagEmulationChainJetIngredient_L1 : public BaseTrigBtagEmulationChainJetIngredient {
   public:
     TrigBtagEmulationChainJetIngredient_L1(std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_L1(const TrigBtagEmulationChainJetIngredient_L1&);
@@ -76,8 +76,8 @@ namespace Trig {
   protected:
     virtual void setPT(std::string&);
     virtual void setEta(std::string&);
-    virtual feature* setHT(std::string&);
-    virtual feature* setINVM(std::string&);
+    virtual TriggerFeature* setHT(std::string&);
+    virtual TriggerFeature* setINVM(std::string&);
   };  
 
   // ==========================================================================
@@ -97,7 +97,7 @@ namespace Trig {
   // *** HLT
   // ==========================================================================
 
-  class TrigBtagEmulationChainJetIngredient_HLT : public baseTrigBtagEmulationChainJetIngredient {
+  class TrigBtagEmulationChainJetIngredient_HLT : public BaseTrigBtagEmulationChainJetIngredient {
   public:
     TrigBtagEmulationChainJetIngredient_HLT(std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT&);
@@ -114,8 +114,8 @@ namespace Trig {
   protected:
     virtual void setPT(std::string&);
     virtual void setEta(std::string&);
-    virtual feature* setHT(std::string&);
-    virtual feature* setINVM(std::string&);
+    virtual TriggerFeature* setHT(std::string&);
+    virtual TriggerFeature* setINVM(std::string&);
     virtual void setBTAG(std::string&);
   };
 

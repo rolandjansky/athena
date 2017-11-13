@@ -46,11 +46,11 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 namespace Trig {
 
-  class jetManager {
+  class JetManager {
   public:
-    jetManager(ToolHandle<Trig::TrigDecisionTool>&,std::string,std::string,std::string);
-    jetManager(const jetManager&);
-    ~jetManager();
+    JetManager(ToolHandle<Trig::TrigDecisionTool>&,std::string,std::string,std::string);
+    JetManager(const JetManager&);
+    ~JetManager();
 
     void setKeys(std::string,std::string,std::string);
 
@@ -68,8 +68,8 @@ namespace Trig {
     StatusCode retagOffline();
     StatusCode retagOnline();
 
-    jetManager& operator+=(const jetManager&);
-    jetManager& merge(const std::vector<const xAOD::Jet*>&, double minPt = 0, double maxPt = 0);
+    JetManager& operator+=(const JetManager&);
+    JetManager& merge(const std::vector<const xAOD::Jet*>&, double minPt = 0, double maxPt = 0);
 
   private:
     bool clear();

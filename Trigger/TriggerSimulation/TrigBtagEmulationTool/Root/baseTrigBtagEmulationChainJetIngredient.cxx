@@ -10,19 +10,19 @@ using namespace Trig;
 // *** Virtual Base Class
 //**********************************************************************
 
-baseTrigBtagEmulationChainJetIngredient::baseTrigBtagEmulationChainJetIngredient(std::string triggerName)
+BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient(std::string triggerName)
   : m_triggerName(triggerName), m_min_pt(0), m_min_eta(0), m_max_eta(0), m_min_mult(0), m_count(0) {}
-baseTrigBtagEmulationChainJetIngredient::baseTrigBtagEmulationChainJetIngredient(const baseTrigBtagEmulationChainJetIngredient& other)
+BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient(const BaseTrigBtagEmulationChainJetIngredient& other)
   : m_triggerName(other.m_triggerName), 
     m_min_pt(other.m_min_pt), m_min_eta(other.m_min_eta), m_max_eta(other.m_max_eta), m_min_mult(other.m_min_mult), m_count(other.m_count),
     m_type_THRESHOLD_features(other.m_type_THRESHOLD_features.begin(),other.m_type_THRESHOLD_features.end()), 
     m_type_SELECTION_features(other.m_type_SELECTION_features.begin(),other.m_type_SELECTION_features.end()),
     m_neededJetCollection(other.m_neededJetCollection.begin(),other.m_neededJetCollection.end()) {}
-baseTrigBtagEmulationChainJetIngredient::~baseTrigBtagEmulationChainJetIngredient() {}
+BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredient() {}
 
-std::string baseTrigBtagEmulationChainJetIngredient::getName() const { return m_triggerName; }
+std::string BaseTrigBtagEmulationChainJetIngredient::getName() const { return m_triggerName; }
 
-bool baseTrigBtagEmulationChainJetIngredient::evaluateJet(struct TrigBtagEmulationJet& jet) {
+bool BaseTrigBtagEmulationChainJetIngredient::evaluateJet(struct TrigBtagEmulationJet& jet) {
   bool exiting = false;
 
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
@@ -40,25 +40,25 @@ bool baseTrigBtagEmulationChainJetIngredient::evaluateJet(struct TrigBtagEmulati
   return true;
 }
 
-bool baseTrigBtagEmulationChainJetIngredient::needsJet(std::string item) { return m_neededJetCollection["MAIN"] == item; } 
-bool baseTrigBtagEmulationChainJetIngredient::addJet(std::string key,std::vector< struct TrigBtagEmulationJet >& jets) {
+bool BaseTrigBtagEmulationChainJetIngredient::needsJet(std::string item) { return m_neededJetCollection["MAIN"] == item; } 
+bool BaseTrigBtagEmulationChainJetIngredient::addJet(std::string key,std::vector< struct TrigBtagEmulationJet >& jets) {
   m_jetCollection[key] = &jets;
   return true;
 }
 
-bool baseTrigBtagEmulationChainJetIngredient::evaluate() {
+bool BaseTrigBtagEmulationChainJetIngredient::evaluate() {
   std::string name = m_neededJetCollection["MAIN"];
   for (unsigned int index(0); index < m_jetCollection[name]->size(); index++)
     this->evaluateJet( m_jetCollection[name]->at(index) );
   return true;
 }
 
-void baseTrigBtagEmulationChainJetIngredient::addFeature(std::string name,feature* toBeAdded) {
-  if (toBeAdded->m_type == feature::THRESHOLD) m_type_THRESHOLD_features.push_back( std::make_pair(name,toBeAdded) );
-  else if (toBeAdded->m_type == feature::SELECTION) m_type_SELECTION_features.push_back( std::make_pair(name,toBeAdded) );
+void BaseTrigBtagEmulationChainJetIngredient::addFeature(std::string name,TriggerFeature* toBeAdded) {
+  if (toBeAdded->m_type == TriggerFeature::THRESHOLD) m_type_THRESHOLD_features.push_back( std::make_pair(name,toBeAdded) );
+  else if (toBeAdded->m_type == TriggerFeature::SELECTION) m_type_SELECTION_features.push_back( std::make_pair(name,toBeAdded) );
 }
 
-bool baseTrigBtagEmulationChainJetIngredient::isPassed() {
+bool BaseTrigBtagEmulationChainJetIngredient::isPassed() {
   if ( m_count < m_min_mult ) return false;
 
   bool exit = false;
@@ -69,7 +69,7 @@ bool baseTrigBtagEmulationChainJetIngredient::isPassed() {
   return true;
 }
 
-bool baseTrigBtagEmulationChainJetIngredient::hasFeature(std::string feature) const {
+bool BaseTrigBtagEmulationChainJetIngredient::hasFeature(std::string feature) const {
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
     if (m_type_THRESHOLD_features.at(index).first == feature) return true;
   for (unsigned int index(0); index < m_type_SELECTION_features.size(); index++)
@@ -77,7 +77,7 @@ bool baseTrigBtagEmulationChainJetIngredient::hasFeature(std::string feature) co
   return false;
 }
 
-void baseTrigBtagEmulationChainJetIngredient::clear() {
+void BaseTrigBtagEmulationChainJetIngredient::clear() {
   m_count = 0;
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
     m_type_THRESHOLD_features.at(index).second->clear();
@@ -85,11 +85,11 @@ void baseTrigBtagEmulationChainJetIngredient::clear() {
     m_type_SELECTION_features.at(index).second->clear();
 }
 
-template<typename T> void baseTrigBtagEmulationChainJetIngredient::extract(std::string input,std::string target,T &valA) {
+template<typename T> void BaseTrigBtagEmulationChainJetIngredient::extract(std::string input,std::string target,T &valA) {
   valA = std::stoi( input.substr( input.find( target.c_str() ) + target.length(),input.length() - target.length() ) );
 }
 
-template<typename T,typename U> void baseTrigBtagEmulationChainJetIngredient::extract(std::string input,std::string target,T &valA,U &valB) {
+template<typename T,typename U> void BaseTrigBtagEmulationChainJetIngredient::extract(std::string input,std::string target,T &valA,U &valB) {
   valA = input.find( target.c_str() )!=0 ? std::stoi( input.substr( 0,input.find( target.c_str() ) ) ) : 0;
   valB = std::stoi( input.substr( input.find( target.c_str() ) + target.length(),input.length() - target.length() ) );
 }
@@ -99,9 +99,9 @@ template<typename T,typename U> void baseTrigBtagEmulationChainJetIngredient::ex
 //**********************************************************************
 
 TrigBtagEmulationChainJetIngredient_L1::TrigBtagEmulationChainJetIngredient_L1(std::string triggerName)
-  : baseTrigBtagEmulationChainJetIngredient(triggerName) { m_max_eta = 3.1; m_neededJetCollection["MAIN"] = "LVL1"; } 
+  : BaseTrigBtagEmulationChainJetIngredient(triggerName) { m_max_eta = 3.1; m_neededJetCollection["MAIN"] = "LVL1"; } 
 TrigBtagEmulationChainJetIngredient_L1::TrigBtagEmulationChainJetIngredient_L1(const TrigBtagEmulationChainJetIngredient_L1& other)
-  : baseTrigBtagEmulationChainJetIngredient(other) {}
+  : BaseTrigBtagEmulationChainJetIngredient(other) {}
 TrigBtagEmulationChainJetIngredient_L1::~TrigBtagEmulationChainJetIngredient_L1() {}
 
 void TrigBtagEmulationChainJetIngredient_L1::initialize() {
@@ -110,7 +110,7 @@ void TrigBtagEmulationChainJetIngredient_L1::initialize() {
   if (m_triggerName.find("EMUL")!=std::string::npos) input = m_triggerName.substr( 8 , m_triggerName.length() - 8);
   else input = m_triggerName.substr( 3 , m_triggerName.length() - 3);
 
-  std::vector< feature* > m_features;
+  std::vector< TriggerFeature* > m_features;
   // MJJ triggers are ALWAYS L1_MJJ-XXX
   if ( input.find("MJJ")!=std::string::npos ) {
     m_features.push_back( this->setINVM( input ) );
@@ -151,21 +151,21 @@ void TrigBtagEmulationChainJetIngredient_L1::setEta(std::string& input) {
   m_min_eta /= 10.;
   m_max_eta /= 10.;
 }
-feature* TrigBtagEmulationChainJetIngredient_L1::setHT(std::string& input) { 
+TriggerFeature* TrigBtagEmulationChainJetIngredient_L1::setHT(std::string& input) { 
   int m_ht = 0;
   this->extract(input,"HT",m_ht);
 
-  if ( input.find("s5")!=std::string::npos ) return new feature_ht_top("L1","HT",m_ht,5);
-  else return new feature_ht("L1","HT",m_ht);
+  if ( input.find("s5")!=std::string::npos ) return new TriggerFeatureHtTop("L1","HT",m_ht,5);
+  else return new TriggerFeatureHt("L1","HT",m_ht);
 }
-feature* TrigBtagEmulationChainJetIngredient_L1::setINVM(std::string& input) { 
+TriggerFeature* TrigBtagEmulationChainJetIngredient_L1::setINVM(std::string& input) { 
   m_max_eta=49; 
 
   int min_invm = 0;
   this->extract(input,"MJJ-",min_invm);
 
-  if ( input.find("CF")==std::string::npos ) return new feature_invm("L1","MJJ",min_invm);
-  else return new feature_invm_CF("L1","MJJ",min_invm);
+  if ( input.find("CF")==std::string::npos ) return new TriggerFeatureInvm("L1","MJJ",min_invm);
+  else return new TriggerFeatureInvmCF("L1","MJJ",min_invm);
 }
 
 //**********************************************************************
@@ -183,12 +183,12 @@ TrigBtagEmulationChainJetIngredient_L1_JJ::~TrigBtagEmulationChainJetIngredient_
 //**********************************************************************
 
 TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(std::string triggerName)
-  : baseTrigBtagEmulationChainJetIngredient(triggerName) {
+  : BaseTrigBtagEmulationChainJetIngredient(triggerName) {
   m_max_eta = 3.20;
   if (triggerName.find("split")!=std::string::npos) m_neededJetCollection["MAIN"] = "SPLIT";
   else m_neededJetCollection["MAIN"] = "EF";
 }
-TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT& other) : baseTrigBtagEmulationChainJetIngredient(other) {}
+TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT& other) : BaseTrigBtagEmulationChainJetIngredient(other) {}
 TrigBtagEmulationChainJetIngredient_HLT::~TrigBtagEmulationChainJetIngredient_HLT() {}
 
 void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
@@ -197,7 +197,7 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
   if (m_triggerName.find("EMUL")!=std::string::npos) input = m_triggerName.substr( 9 , m_triggerName.length() - 9);
   else input = m_triggerName.substr( 4 , m_triggerName.length() - 4);
 
-  std::vector< feature* > m_features;
+  std::vector< TriggerFeature* > m_features;
   while( !input.empty() ) {
     std::string delimiter = "";
     if (input.find("_") != std::string::npos) delimiter = "_";
@@ -241,7 +241,7 @@ bool TrigBtagEmulationChainJetIngredient_HLT::contains(const TrigBtagEmulationCh
   if (!other->hasFeature("BTAG")) return false;
 
   // TO-DO move the method to the feature class for future
-  // or change std::vector< std::pair<std::string,feature*> > to std::map< std::string,feature* >
+  // or change std::vector< std::pair<std::string,Feature*> > to std::map< std::string,Feature* >
   double cutBtag_this = -1000;
   for (unsigned int i=0; i<m_type_THRESHOLD_features.size(); i++) 
     if (m_type_THRESHOLD_features.at(i).first == "BTAG") cutBtag_this = m_type_THRESHOLD_features.at(i).second->getCut();
@@ -275,15 +275,15 @@ void TrigBtagEmulationChainJetIngredient_HLT::setEta(std::string& input)  {
   m_min_eta /= 100.;
   m_max_eta /= 100.;
 }
-feature* TrigBtagEmulationChainJetIngredient_HLT::setHT(std::string& input) { 
+TriggerFeature* TrigBtagEmulationChainJetIngredient_HLT::setHT(std::string& input) { 
   int m_ht = 0;
   this->extract(input,"ht",m_ht);
-  return new feature_ht("HLT","HT",m_ht *1e3 );
+  return new TriggerFeatureHt("HLT","HT",m_ht *1e3 );
 }
-feature* TrigBtagEmulationChainJetIngredient_HLT::setINVM(std::string& input) { 
+TriggerFeature* TrigBtagEmulationChainJetIngredient_HLT::setINVM(std::string& input) { 
   int min_invm = 0;
   this->extract(input,"invm",min_invm);
-  return new feature_invm("HLT","INVM",min_invm * 1e3);
+  return new TriggerFeatureInvm("HLT","INVM",min_invm * 1e3);
 }
 void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(std::string& input) {
 
@@ -297,26 +297,26 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(std::string& input) {
 
 
   double m_btag = -1000;
-  if ( input.find("bcombloose")!=std::string::npos ) m_btag = Trig::feature_btag::BCOMBLOOSE ;
-  else if ( input.find("bcombmedium")!=std::string::npos ) m_btag = Trig::feature_btag::BCOMBMEDIUM ;
-  else if ( input.find("bcombtight")!=std::string::npos ) m_btag = Trig::feature_btag::BCOMBTIGHT ;
-  else if ( input.find("bloose")!=std::string::npos ) m_btag = Trig::feature_btag::BMEDIUM ;
-  else if ( input.find("bmedium")!=std::string::npos ) m_btag = Trig::feature_btag::BMEDIUM ;
-  else if ( input.find("btight")!=std::string::npos ) m_btag = Trig::feature_btag::BTIGHT ;
+  if ( input.find("bcombloose")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBLOOSE ;
+  else if ( input.find("bcombmedium")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBMEDIUM ;
+  else if ( input.find("bcombtight")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBTIGHT ;
+  else if ( input.find("bloose")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BMEDIUM ;
+  else if ( input.find("bmedium")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BMEDIUM ;
+  else if ( input.find("btight")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BTIGHT ;
   // MV2c20 Tagger
-  else if ( input.find("mv2c2040")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2040 ;
-  else if ( input.find("mv2c2050")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2050 ;
-  else if ( input.find("mv2c2060")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2060 ;
-  else if ( input.find("mv2c2070")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2070 ;
-  else if ( input.find("mv2c2077")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2077 ;
-  else if ( input.find("mv2c2085")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C2085 ;
+  else if ( input.find("mv2c2040")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2040 ;
+  else if ( input.find("mv2c2050")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2050 ;
+  else if ( input.find("mv2c2060")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2060 ;
+  else if ( input.find("mv2c2070")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2070 ;
+  else if ( input.find("mv2c2077")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2077 ;
+  else if ( input.find("mv2c2085")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2085 ;
   // MV2c10 Tagger
-  else if ( input.find("mv2c1040")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1040 ;
-  else if ( input.find("mv2c1050")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1050 ;
-  else if ( input.find("mv2c1060")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1060 ;
-  else if ( input.find("mv2c1070")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1070 ;
-  else if ( input.find("mv2c1077")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1077 ;
-  else if ( input.find("mv2c1085")!=std::string::npos ) m_btag = Trig::feature_btag::MV2C1085 ;
+  else if ( input.find("mv2c1040")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1040 ;
+  else if ( input.find("mv2c1050")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1050 ;
+  else if ( input.find("mv2c1060")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1060 ;
+  else if ( input.find("mv2c1070")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1070 ;
+  else if ( input.find("mv2c1077")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1077 ;
+  else if ( input.find("mv2c1085")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1085 ;
 
   double m_weight = -1000;
   double m_ANTIweight = 1000;
@@ -324,8 +324,8 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(std::string& input) {
   if ( input.find("ANTI")==std::string::npos ) m_weight = m_btag;
   else if ( m_btag != -1000 ) m_ANTIweight = m_btag;
 
-  if (m_weight != -1000) this->addFeature("BTAG",new feature_btag( m_bjetTagger.c_str(),m_weight) );
-  if (m_ANTIweight != 1000) this->addFeature("ANTI-BTAG",new feature_antibtag( m_bjetTagger.c_str(),m_ANTIweight) );
+  if (m_weight != -1000) this->addFeature("BTAG",new TriggerFeatureBtag( m_bjetTagger.c_str(),m_weight) );
+  if (m_ANTIweight != 1000) this->addFeature("ANTI-BTAG",new TriggerFeatureAntiBtag( m_bjetTagger.c_str(),m_ANTIweight) );
 }
 
 //**********************************************************************
@@ -346,7 +346,7 @@ TrigBtagEmulationChainJetIngredient_GSC::~TrigBtagEmulationChainJetIngredient_GS
 
 bool TrigBtagEmulationChainJetIngredient_GSC::needsJet(std::string item) {
   if (item == "GSC") return true;
-  return baseTrigBtagEmulationChainJetIngredient::needsJet(item);
+  return BaseTrigBtagEmulationChainJetIngredient::needsJet(item);
 }
 
 bool TrigBtagEmulationChainJetIngredient_GSC::evaluateJet(struct TrigBtagEmulationJet& jet) {
@@ -402,7 +402,7 @@ void TrigBtagEmulationChainJetIngredient_GSC::initialize() {
   if (m_triggerName.find("EMUL")!=std::string::npos) input = m_triggerName.substr( 9 , m_triggerName.length() - 9);
   else input = m_triggerName.substr( 4 , m_triggerName.length() - 4);
 
-  std::vector< feature* > m_features;
+  std::vector< TriggerFeature* > m_features;
   while( !input.empty() ) {
     std::string delimiter = "";
     if (input.find("_") != std::string::npos) delimiter = "_";

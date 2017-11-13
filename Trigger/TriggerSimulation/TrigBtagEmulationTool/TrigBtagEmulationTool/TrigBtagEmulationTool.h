@@ -68,7 +68,7 @@ namespace Trig {
 
     /// Trigger decision ingredient definition
     void addDecisionIngredient(std::string decision);
-    void addDecisionIngredient(baseTrigBtagEmulationChainJetIngredient* decision);
+    void addDecisionIngredient(BaseTrigBtagEmulationChainJetIngredient* decision);
 
     /// Jet Evaluation
     void evaluate();
@@ -95,17 +95,17 @@ namespace Trig {
     bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets);
 
   protected:
-    bool parseChainName( std::string,std::vector< baseTrigBtagEmulationChainJetIngredient* >& );
-    std::vector< baseTrigBtagEmulationChainJetIngredient* > processL1trigger (std::string);
-    std::vector< baseTrigBtagEmulationChainJetIngredient* > processHLTtrigger (std::string);
+    bool parseChainName( std::string,std::vector< BaseTrigBtagEmulationChainJetIngredient* >& );
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processL1trigger (std::string);
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processHLTtrigger (std::string);
 
   private:
     // Chain name
     std::string m_name;
 
     // Chain selections
-    std::vector<std::string> m_ingredientsDecision;
-    std::vector<baseTrigBtagEmulationChainJetIngredient*>  m_ingredientsJet;
+    std::vector< std::string > m_ingredientsDecision;
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* >  m_ingredientsJet;
 
     // Trigger decision
     ToolHandle<Trig::TrigDecisionTool>& m_trigDec;
@@ -195,11 +195,11 @@ namespace Trig {
     long long int m_previousEvent;
 
     // jet Managers
-    Trig::jetManager *m_manager_ef;
-    Trig::jetManager *m_manager_split;
-    Trig::jetManager *m_manager_gsc;
-    Trig::jetManager *m_manager_ef_gsc;
-    Trig::jetManager *m_manager_split_gsc;
+    Trig::JetManager *m_manager_ef;
+    Trig::JetManager *m_manager_split;
+    Trig::JetManager *m_manager_gsc;
+    Trig::JetManager *m_manager_ef_gsc;
+    Trig::JetManager *m_manager_split_gsc;
 
     // OUTPUT PROPERTIES
     std::vector< std::vector< std::string > > m_emulatedChainDefinitions;

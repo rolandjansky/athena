@@ -87,16 +87,9 @@ BTagConfig.PrefixxAODBaseName(False)
 BTagConfig.PrefixVertexFinderxAODBaseName(False)
 BTagConfig.setupJetBTaggerTool(ToolSvc, "AntiKt4EMTopo", SetupScheme="Trig", TaggerList=BTaggingFlags.TriggerTaggers)
 
-# ONLINE EMULATOR
-from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
-emulator = Trig__TrigBtagEmulationTool()
-emulator.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
-emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
-emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
-emulator.UseTriggerNavigation = True
-emulator.TagOfflineWeights = False
-emulator.TagOnlineWeights = False
-emulator.EmulatedChainDefinitions = [
+
+# Define Triggers To be Emulated
+toBeEmulatedTriggers = [
     ["L1_MJJ-100",
      "EMUL_L1_MJJ-100"],
     ["HLT_10j40_L14J15",
@@ -107,12 +100,24 @@ emulator.EmulatedChainDefinitions = [
      "EMUL_HLT_2j15_gsc35_bmv2c1070_split",
      "EMUL_HLT_4j15_gsc35_bmv2c1085_split"]
 ]
+
+# ONLINE EMULATOR
+from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
+emulator = Trig__TrigBtagEmulationTool()
+emulator.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+emulator.UseTriggerNavigation = True
+emulator.TagOfflineWeights = False
+emulator.TagOnlineWeights = False
+emulator.EmulatedChainDefinitions = toBeEmulatedTriggers
 ToolSvc += emulator
 
 # TEST ALGORITHM
 from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagValidationTest
 test = Trig__TrigBtagValidationTest()
 test.TrigBtagEmulationTool = emulator
+test.ToBeEmulatedTriggers = [x[0] for x in toBeEmulatedTriggers]
 test.OutputLevel = 0
 theJob += test
 
