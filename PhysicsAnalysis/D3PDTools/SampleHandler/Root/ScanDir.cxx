@@ -23,13 +23,12 @@
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskListEOS.h>
 #include <SampleHandler/DiskListLocal.h>
+#include <SampleHandler/MessageCheck.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/SampleLocal.h>
 #include <SampleHandler/SamplePtr.h>
 #include <TString.h>
 #include <memory>
-
-#include <iostream>
 
 //
 // method implementations
@@ -199,6 +198,9 @@ namespace SH
   recurse (std::map<std::string,SamplePtr>& samples, DiskList& list,
 	   const std::vector<std::string>& hierarchy) const
   {
+    using namespace msgScanDir;
+
+    ANA_MSG_DEBUG ("scanning directory: " << list.dirname());
     while (list.next())
     {
       std::auto_ptr<DiskList> sublist (list.openDir());
@@ -207,19 +209,27 @@ namespace SH
       {
 	if (hierarchy.size() <= m_maxDepth)
 	{
+          ANA_MSG_DEBUG ("descending into directory " << list.path());
 	  std::vector<std::string> subhierarchy = hierarchy;
 	  subhierarchy.push_back (list.fileName());
 	  recurse (samples, *sublist, subhierarchy);
-	}
+	} else
+        {
+          ANA_MSG_DEBUG ("maxDepth exceeded, skipping directory " << list.path());
+        }
       } else
       {
 	if (hierarchy.size() > m_minDepth &&
 	    RCU::match_expr (m_filePattern, list.fileName()))
 	{
+          ANA_MSG_DEBUG ("adding file " << list.path());
 	  std::vector<std::string> subhierarchy = hierarchy;
 	  subhierarchy.push_back (list.fileName());
 	  addSampleFile (samples, subhierarchy, list.path());
-	}
+	} else
+        {
+          ANA_MSG_DEBUG ("skipping file " << list.path());
+        }
       }
     }
   }
