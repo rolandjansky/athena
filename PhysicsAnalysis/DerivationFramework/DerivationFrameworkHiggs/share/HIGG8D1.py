@@ -446,18 +446,29 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "TauJets",
                                           "TauMVATESJets",
                                           #"MET_Reference_AntiKt4LCTopo",
-                                          "AntiKt4LCTopoJets",
+                                          #"AntiKt4LCTopoJets",
                                           #"BTagging_AntiKt4LCTopo",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "InDetTrackParticles",
-                                          "PrimaryVertices"]
+                                          "PrimaryVertices",
+                                          "AntiKt4EMPFlowJets"]
+# Adding PFlow b-jets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
+
+HIGG8D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
+HIGG8D1SlimmingHelper.SmartCollections += ["BTagging_AntiKt4EMPFlow"] 
+
+# Adding PFlow MET
+HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"] 
 
 HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink.scatteringCurvatureSignificance.scatteringNeighbourSignificance",
                                         "Electrons.author.charge",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
-                                        "AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
+                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+                                        #"AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                         "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
@@ -481,17 +492,17 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
-        ,
-        "TauNeutralParticleFlowObjects."
-        "pt."
-        "eta."
-        "phi."
-        "m."
-        "e."
-        "rapidity."
-        "bdtPi0Score"
-        ,
-        "TauChargedParticleFlowObjects.pt.eta.phi.m"
+        #,
+        #"TauNeutralParticleFlowObjects."
+        #"pt."
+        #"eta."
+        #"phi."
+        #"m."
+        #"e."
+        #"rapidity."
+        #"bdtPi0Score"
+        #,
+        #"TauChargedParticleFlowObjects.pt.eta.phi.m"
         ]
 
 HIGG8D1SlimmingHelper.ExtraVariables += ExtraContentTaus
