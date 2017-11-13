@@ -212,19 +212,19 @@ void TRTDigSettings::print(const std::string& front) const {
 
 //---------------------------------------------------------------------
 
-StatusCode TRTDigSettings::DigSettingsFromCondDB(int m_dig_vers_from_condDB) {
+StatusCode TRTDigSettings::DigSettingsFromCondDB(int dig_vers_from_condDB) {
 
   /////////////////////////////////////////////////////////////////////////////////////
   // This function is called during TRTDigitizationTool::lateInitialize(). It can be //
   // used to reset parameters according to the value of TRT_Dig_Vers in the condDB   //
   // /TRT/Cond/DigVers.                                                              //
   // At the moment DigSettingsFromCondDB() has no effect.                            //
-  // At the time of writing (October 2013) m_dig_vers_from_condDB==12                //
+  // At the time of writing (October 2013) dig_vers_from_condDB==12                //
   // which is now the same settings (2012/2013 re-tune) that are applied as default. //
   /////////////////////////////////////////////////////////////////////////////////////
 
-  // std::cout << "digversion fron condDB: " << m_dig_vers_from_condDB << std::endl;
-  if (m_dig_vers_from_condDB==12) {
+  // std::cout << "digversion fron condDB: " << dig_vers_from_condDB << std::endl;
+  if (dig_vers_from_condDB==12) {
     // the settings are default now
   } else {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endmsg;
