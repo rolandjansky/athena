@@ -320,7 +320,13 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
 			       ISF::fKillsPrimary );
   m_truthRecordSvc->registerTruthIncident( truth);
 
-  //  
+  //Make sure the conversion products get a chance to have correct truth info before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+     if (!childVector[i]->getTruthBinding()) {
+         childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+     }
+  }
+ 
   return childVector;
 }
 
@@ -385,7 +391,13 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
 			       ISF::fKillsPrimary );
   m_truthRecordSvc->registerTruthIncident( truth);
 
-  //
+  //Make sure the conversion products get a chance to have correct truth info before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+      if (!childVector[i]->getTruthBinding()) {
+          childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
+  }
+
   return childVector; 
   
 }
