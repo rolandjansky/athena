@@ -200,7 +200,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
     m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_doResidual,m_doOrigin,m_isData,m_devMode);
-    m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str());
+    ATH_CHECK( m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str()) );
     m_jetPileupCorr->msg().setLevel( this->msg().level() );
     if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
       ATH_MSG_FATAL("Couldn't initialize the pileup correction. Aborting"); 
