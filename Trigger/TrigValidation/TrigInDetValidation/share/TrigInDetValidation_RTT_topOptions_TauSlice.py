@@ -8,7 +8,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1"    
+#    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1"    
 #       ]
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")

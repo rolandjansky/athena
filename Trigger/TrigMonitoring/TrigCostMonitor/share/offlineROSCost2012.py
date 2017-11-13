@@ -14,7 +14,7 @@ try:
 	# Current date and time is 2014-11-10 11:23:52.444569
 	#
 	# These unique identifiers were extracted from:
-	# root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data
+	# root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data
 	#
 	svcMgr.ROBDataProviderSvc.RobRosMapping = {
 	#

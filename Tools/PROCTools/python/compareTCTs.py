@@ -16,14 +16,14 @@ def compareTreeFiles(rName,vName,details):
     if rName.startswith("/castor"):
         rFile=TFile.Open("root://castoratlas/"+rName)
     elif rName.startswith("/eos"):
-        rFile=TFile.Open("root://eosatlas/"+rName)
+        rFile=TFile.Open("root://eosatlas.cern.ch/"+rName)
     else:
         rFile=TFile.Open(rName)
 
     if vName.startswith("/castor"):
         vFile=TFile.Open("root://castoratlas/"+vName)
     elif vName.startswith("/eos"):
-        vFile=TFile.Open("root://eosatlas/"+vName)
+        vFile=TFile.Open("root://eosatlas.cern.ch/"+vName)
     else:
         vFile=TFile.Open(vName)
 
@@ -239,8 +239,8 @@ if __name__ == "__main__":
                 print "Comparing files",fileName,"of TCT",name
                 identical=False
                 if (fileName.endswith(".pool.root") and not fileName.startswith("myTAG")):
-                    if(r.startswith("/eos")): r = "root://eosatlas/"+r
-                    if(v.startswith("/eos")): v = "root://eosatlas/"+v
+                    if(r.startswith("/eos")): r = "root://eosatlas.cern.ch/"+r
+                    if(v.startswith("/eos")): v = "root://eosatlas.cern.ch/"+v
                     if not diffroot: stat=diffPoolFiles(r,v,details)
                     else: 
 		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries 10 > tmp.txt")

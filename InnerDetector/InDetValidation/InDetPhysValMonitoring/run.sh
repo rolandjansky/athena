@@ -44,7 +44,7 @@ EOF
 
 
 # run the reco transform
-Reco_tf.py   --checkEventCount  False --ignoreErrors True --maxEvents 5 --valid True --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1  --outputNTUP_PHYSVALFile physval.root  --validationFlags doInDet --outputAODFile physval.AOD.root --preInclude switch_off_non_id.py r2e:slimming.py,indet_std_plots.py
+Reco_tf.py   --checkEventCount  False --ignoreErrors True --maxEvents 5 --valid True --inputRDOFile root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1  --outputNTUP_PHYSVALFile physval.root  --validationFlags doInDet --outputAODFile physval.AOD.root --preInclude switch_off_non_id.py r2e:slimming.py,indet_std_plots.py
 
 
 # --checkEventCount  False  --ignoreErrors True   : to prevent the Reco_tf to abort after a stage due to errors showing up in the log file.

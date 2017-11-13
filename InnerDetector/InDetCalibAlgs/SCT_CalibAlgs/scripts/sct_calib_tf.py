@@ -70,7 +70,7 @@ def getDsFileName(file,input=False):
             name=file
 
     if '/eos/atlas/' in name:
-        name='root://eosatlas/'+name
+        name='root://eosatlas.cern.ch/'+name
 
     dsDict['input'].append({'file' : name, 'dataset' : ds})
     if RunNumber == -1:

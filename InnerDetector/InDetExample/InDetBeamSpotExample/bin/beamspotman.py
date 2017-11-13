@@ -393,7 +393,7 @@ if cmd=='backup' and len(args)==2:
         if status:
             sys.exit('\nERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
 
-        status = os.system('xrdcp -f %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+        status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
 
         if status:
             # Continue to try other files if one failed to upload to EOS
@@ -917,7 +917,7 @@ if cmd=='archive' and len(args)==3:
                 status = os.system('tar czf %s/%s %s' % (tmpdir,outname,dir)) >> 8
                 if status:
                     sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
-                status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+                status = os.system('xrdcp %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
                 if status:
                     sys.exit('\n**** ERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
 

@@ -185,7 +185,7 @@
       <athena userJobId="mc15_all_fpeAna">
 	<doc> Run all reco on default file with floating point exception enabled </doc>
 	<displayName>RecExAnaTest_RTT_mc15_all_fpe</displayName>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExAnaTest_RTT_all</options>
 	<group>RecExAna</group>
 	<queue>medium</queue>
@@ -194,7 +194,7 @@
       <athena userJobId="mc12_all_notriggerAna">
 	<doc> Run reco without trigger </doc>
 	<displayName>RecExAnaTest_RTT_mc11_all_notrigger</displayName>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExAnaTest_RTT_notrigger</options>
 	<group>RecExAna</group>
 	<queue>medium</queue>
@@ -203,7 +203,7 @@
       <athena userJobId="mc12_all_nopersAna">
 	<doc> Run reco without persistency  </doc>
 	<displayName>RecExAnaTest_RTT_mc11_all_nopers</displayName>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExAnaTest_RTT_nopers</options>
 	<group>RecExAna</group>
 	<queue>medium</queue>
@@ -218,7 +218,7 @@
 	      <doc>Chain without trigger configuration for mc12 RDO->ESD</doc>
 	      <displayName>RecExAnaTest_RTT_notrig_steps_mc12_RDOtoESD</displayName>
 	      <commandLineFlags>
-		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_notrig_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_notrig_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
 	      </commandLineFlags>
 	      <options>RecExRecoTest/RecExRecoTest_RTT_esd</options>
 	      <group>RecExAna</group>
@@ -309,7 +309,7 @@
 	      <doc>Chain in prod configuration for mc12 RDO->ESD</doc>
 	      <displayName>RecExAnaTest_RTT_prod_steps_mc12_RDOtoESD</displayName>
 	      <commandLineFlags>
-		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_prod_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_prod_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
 	      </commandLineFlags>
 	      <options>RecExTrigTest/RecExTrigTest_RTT_esdprod</options>
 	      <group>RecExAna</group>

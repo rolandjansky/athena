@@ -25,7 +25,7 @@ HLTOutputLevel=WARNING
 doValidation=False
 #chainOrderedDown=True
 
-#BSRDOInput='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data'
+#BSRDOInput='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data'
 
 #used externally with Athena
 #useCONDBR2=False
