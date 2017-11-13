@@ -16,6 +16,8 @@
 
 #include "Identifier/Identifier.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 //////////
 /// Constructor
@@ -35,9 +37,8 @@ TRT_ByteStream_ConditionsSvc::TRT_ByteStream_ConditionsSvc( const std::string& n
   m_tot_num_missing_errors(0),
   m_tot_num_error_errors(0),
   m_tot_num_sid_errors(0),
-  m_tot_num_robStatus_errors(0),
-  m_IdCont(0),
-  m_cont(0) 
+  m_tot_num_robStatus_errors(0)
+
 {
   declareProperty( "writeBcidError", m_writeBCIDError = true );
   declareProperty( "writeL1idError", m_writeL1IDError = true );
@@ -59,6 +60,11 @@ StatusCode TRT_ByteStream_ConditionsSvc::initialize()
 {
   if(msgLvl(MSG::DEBUG)) msg() << "TRT_ByteStream_ConditionsSvc: Initialize." << endmsg;
 
+  // Initialize keys
+  ATH_CHECK(m_keyerrContid.initialize());
+  ATH_CHECK(m_keyerrCont.initialize());
+  ATH_CHECK(m_writekeyErrContID.initialize());
+  ATH_CHECK(m_writekeyErrCont.initialize());
 
   /*
    * Ask to be informed at the beginning of each new event so that we
@@ -147,22 +153,6 @@ TRT_ByteStream_ConditionsSvc::handle(const Incident&)
 
    if ( m_readCondFromESD )
       this->readData();
-   else
-   {
-      StatusCode sc(StatusCode::SUCCESS);
-
-      m_IdCont = new TRT_BSIdErrContainer();
-      sc = m_evtStore->record(m_IdCont,"TRT_ByteStreamIdErrs");
-      if (sc.isFailure() ) 
-	 msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endmsg;
-
-
-      m_cont = new TRT_BSErrContainer();
-      sc = m_evtStore->record(m_cont,"TRT_ByteStreamErrs");
-      if (sc.isFailure() ) 
-	 msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endmsg;
-   }
-
 
    return;
 }
@@ -427,9 +417,8 @@ TRT_ByteStream_ConditionsSvc::readData()
    * ByteStream ID (L1ID, BCID) errors
    */
   {
-     const TRT_BSIdErrContainer* errCont;
-     sc = m_evtStore->retrieve(errCont,"TRT_ByteStreamIdErrs");
-     if (sc.isFailure() ) 
+     SG::ReadHandle<TRT_BSIdErrContainer> errCont(m_keyerrContid);
+     if (not errCont.isValid())
      {
 	ATH_MSG_WARNING( "Failed to retrieve TRT BS Id error container from SG" );
 
@@ -465,9 +454,8 @@ TRT_ByteStream_ConditionsSvc::readData()
    * ByteStream (Missing, Error, SID) errors
    */
   {
-     const TRT_BSErrContainer* errCont;
-     sc = m_evtStore->retrieve(errCont,"TRT_ByteStreamErrs");
-     if (sc.isFailure() ) 
+     SG::ReadHandle<TRT_BSErrContainer> errCont(m_keyerrCont);
+     if (not errCont.isValid())
      {
 	ATH_MSG_WARNING( "Failed to retrieve TRT BS error container from SG" );
 
@@ -508,6 +496,16 @@ TRT_ByteStream_ConditionsSvc::recordData()
 {
 
   StatusCode sc(StatusCode::SUCCESS);
+
+  SG::WriteHandle<TRT_BSIdErrContainer> m_IdCont(m_writekeyErrContID);                                                    
+  sc = m_IdCont.record(std::make_unique<TRT_BSIdErrContainer>() );
+  if (sc.isFailure() )
+    msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endmsg;
+
+  SG::WriteHandle<TRT_BSErrContainer> m_cont(m_writekeyErrCont);
+  sc = m_cont.record(std::make_unique<TRT_BSErrContainer>() );
+  if (sc.isFailure() )
+    msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endmsg;
 
   /*
    * ByteStream ID (L1ID, BCID) errors
