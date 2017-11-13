@@ -30,8 +30,8 @@
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 //#include "egammaInterfaces/IEMBremCollectionBuilder.h"
 //#include "egammaInterfaces/IEMVertexBuilder.h"
-#include "egammaUtils/egammaDuplicateRemoval.h"
-#include "CaloUtils/CaloClusterStoreHelper.h"
+//#include "egammaUtils/egammaDuplicateRemoval.h"
+//#include "CaloUtils/CaloClusterStoreHelper.h"
 
 //Supercluster interfaces.
 #include "egammaInterfaces/IegammaTopoClusterCopier.h"
@@ -86,18 +86,6 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,
   declareProperty("InputTopoClusterContainerName",
 		  m_inputTopoClusterContainerName = "egammaTopoCluster",
 		  "Name of input cluster container");
-
-  declareProperty("egammaRecContainer",
-		  m_egammaRecContainerName="egammaRecCollection",
-		  "Output container for egammaRec objects");
-
-  declareProperty("ElectronSuperClusterRecContainerName",
-		  m_electronSuperClusterRecContainerName="ElectronSuperRecCollection",
-		  "Input container for electron  Super Cluster  egammaRec objects");
-
-  declareProperty("PhotonSuperClusterRecContainerName",
-		  m_photonSuperClusterRecContainerName="PhotonSuperRecCollection",
-		  "Input container for electron  Super Cluster  egammaRec objects");
 
   // Handles of tools
 
@@ -160,9 +148,6 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,
   declareProperty("doConversions",m_doConversions= true,
 		  "Boolean to do conversion building / matching");
 
-  // Boolean to dump content of each object
-  declareProperty("Dump",m_dump=false,
-		  "Boolean to dump content of each object");
 }
 
 // ================================================================

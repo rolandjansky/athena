@@ -130,12 +130,6 @@ class TrigTopoEgammaBuilder : public HLT::FexAlgo
   std::string  m_photonOutputName;
   /** @brief Name of the topo cluster input collection */
   std::string  m_inputTopoClusterContainerName;
-  /** @brief Name of egammaRec container */
-  std::string  m_egammaRecContainerName;
-  /** @brief Name of input super cluster electron egammaRec container */
-  std::string  m_electronSuperClusterRecContainerName;
-  /** @brief Name of input super cluster photon egammaRec container */
-  std::string  m_photonSuperClusterRecContainerName;
   //
   // The tools
   //
@@ -168,7 +162,6 @@ class TrigTopoEgammaBuilder : public HLT::FexAlgo
   // Other properties.
   //
   // others:
-  bool            m_dump ;
   IChronoStatSvc* m_timingProfile;
 };
 
