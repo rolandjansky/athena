@@ -60,6 +60,7 @@ LArNoisyROMon::~LArNoisyROMon()
   if ( m_strHelper ) delete m_strHelper;
   
   // don't delete m_NoiseTimeTree, it is not owned by this alg.
+
 }
 
 
@@ -778,8 +779,8 @@ void LArNoisyROMon::fillTriggerHisto(partitionHistos& partition, uint8_t trigger
 
 StatusCode LArNoisyROMon::finalize()
 {
-  ATH_MSG_INFO(  " in LArNoisyROMon::finalHists()" );
-  // delete temposary histograms
+  ATH_MSG_INFO(  " in LArNoisyROMon::finalize() " );
+     // delete temposary histograms
 
   if ( m_h_LBN ) {
     LWHist::safeDelete(m_h_LBN); 
@@ -787,8 +788,8 @@ StatusCode LArNoisyROMon::finalize()
   }
     
   //  for (partitionHistos* part : {&m_BarrelA, &m_BarrelC, &m_EMECA, &m_EMECC}) {
-  for (int i=0;i<4;i++){
-     LWHist::safeDelete(m_partHistos[i].h_NoisyEvent); 
+  for (unsigned i=0;i<m_partHistos.size();i++){
+     if(m_partHistos[i].h_NoisyEvent) LWHist::safeDelete(m_partHistos[i].h_NoisyEvent); 
      m_partHistos[i].h_NoisyEvent = nullptr;
      
 //     LWHist::safeDelete(part->h_NoisyWEvent); 
@@ -823,3 +824,4 @@ StatusCode LArNoisyROMon::finalize()
 
   return StatusCode::SUCCESS;
 }
+
