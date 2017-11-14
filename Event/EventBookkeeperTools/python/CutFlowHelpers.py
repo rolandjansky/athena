@@ -63,8 +63,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-    if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
-    svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
+    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
+    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -75,8 +75,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
     # Standard event bookkeepers
-    inname = "FileBookkeepers"
-    outname = "FileBookkeepers"
+    inname = "CutBookkeepers"
+    outname = "CutBookkeepers"
     cutflowtool = BookkeeperTool(outname,
                                  InputCollName = inname,
                                  OutputCollName= outname) 

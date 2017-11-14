@@ -164,31 +164,7 @@ StatusCode BookkeeperTool::beginInputFile()
 StatusCode BookkeeperTool::endInputFile()
 {
 
-  // Get the complete bookkeeper collection of the output meta-data store
-  xAOD::CutBookkeeperContainer* completeBook(NULL); 
-  if( !(outputMetaStore()->retrieve( completeBook, m_outputCollName) ).isSuccess() ) {
-    ATH_MSG_ERROR( "Could not get complete CutBookkeepers from output MetaDataStore" );
-    return StatusCode::FAILURE;
-  }
-
-  // Get the tmp bookkeeper from the input
-  const xAOD::CutBookkeeperContainer* tmpCompleteBook(NULL);
-  if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName+"tmp") ) {
-    if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
-      ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore" );
-    }
-    else {
-      // update the complete output with the complete input
-      ATH_CHECK(this->updateContainer(completeBook,tmpCompleteBook));
-      // remove the tmp container
-      const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
-    }
-  }
-  else {
-    ATH_MSG_INFO("Found no tmp collection in output store " << outputMetaStore()->dump());
-  }
+  if (copyContainerToOutput(m_outputCollName).isFailure()) return StatusCode::FAILURE;
 
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
@@ -212,28 +188,8 @@ StatusCode BookkeeperTool::metaDataStop()
   // 3) Write root file if requested
   //  Make sure incomplete container exists in output
   std::string inc_name = "Incomplete"+m_outputCollName;
+  if (copyContainerToOutput(inc_name).isFailure()) return StatusCode::FAILURE;
 
-  // Get the complete bookkeeper collection of the output meta-data store
-  xAOD::CutBookkeeperContainer* incompleteBook(NULL); 
-  if( !(outputMetaStore()->retrieve( incompleteBook, inc_name) ).isSuccess() ) {
-    ATH_MSG_WARNING( "Could not get incomplete CutBookkeepers from output MetaDataStore" );
-  }
-
-  // Get the tmp bookkeeper from the input
-  const xAOD::CutBookkeeperContainer* tmpCompleteBook(NULL);
-  if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName+"tmp") ) {
-    if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
-      ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore for " << m_outputCollName+"tmp");
-    }
-    else {
-      // update the complete output with the complete input
-      ATH_CHECK(this->updateContainer(incompleteBook,tmpCompleteBook));
-      // remove the tmp container
-      const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
-    }
-  }
 
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
@@ -422,6 +378,36 @@ BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
     } // Done fixing siblings
     ebkToModify->setSiblings (newSiblings);
   } // Done fixing all cross references
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode BookkeeperTool::copyContainerToOutput(const std::string& outname)
+{
+
+  // Get the complete bookkeeper collection of the output meta-data store
+  xAOD::CutBookkeeperContainer* contBook(NULL); 
+  if( !(outputMetaStore()->retrieve( contBook, outname) ).isSuccess() ) {
+    ATH_MSG_ERROR( "Could not get " << outname << " CutBookkeepers from output MetaDataStore" );
+    return StatusCode::FAILURE;
+  }
+
+  // Get the tmp bookkeeper from the input
+  const xAOD::CutBookkeeperContainer* tmpBook(NULL);
+  if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(outname+"tmp") ) {
+    if( !(outputMetaStore()->retrieve( tmpBook, outname+"tmp") ).isSuccess() ) {
+      ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore" );
+    }
+    else {
+      // update the complete output with the complete input
+      ATH_CHECK(this->updateContainer(contBook,tmpBook));
+      // remove the tmp container
+      const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+    }
+  }
+    
   return StatusCode::SUCCESS;
 }
 
