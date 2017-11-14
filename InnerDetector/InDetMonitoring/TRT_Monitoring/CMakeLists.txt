@@ -1,3 +1,4 @@
+
 ################################################################################
 # Package: TRT_Monitoring
 ################################################################################
@@ -19,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventInfo
                           Event/EventPrimitives
+                          Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODTrigger
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -40,7 +43,7 @@ atlas_add_component( TRT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetRawData LumiBlockCompsLib CommissionEvent DataModel AtlasDetDescr Identifier EventInfo EventPrimitives TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetRawData LumiBlockCompsLib CommissionEvent DataModel AtlasDetDescr Identifier xAODEventInfo xAODTrigger EventInfo EventPrimitives TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_Monitoring )

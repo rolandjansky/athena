@@ -14,8 +14,11 @@
 #include "LumiBlockComps/ILuminosityTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
+#include "EventInfo/EventInfo.h"
+#include "CommissionEvent/ComTime.h"
+#include "xAODTrigger/TrigDecision.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 #include <vector>
@@ -42,7 +45,6 @@ namespace InDetDD {
 class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
-class EventInfo;
 class ComTime;
 class IInDetConditionsSvc;
 class ITRT_CalDbSvc;
@@ -55,7 +57,7 @@ class ITRT_StrawNeighbourSvc;
 class ITRT_DriftFunctionTool;
 
 class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
- public:
+public:
 	TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent);
 	virtual ~TRT_Monitoring_Tool();
 	virtual StatusCode initialize();
@@ -63,7 +65,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	virtual StatusCode fillHistograms();
 	virtual StatusCode procHistograms();
 
- private:
+private:
 	int m_lastLumiBlock;
 	int m_evtLumiBlock;
 	int m_good_bcid;
@@ -76,20 +78,28 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	std::vector<unsigned int> m_rodMap;
 	bool m_passEventBurst;
 	bool m_ArgonXenonSplitter;
-	enum GasType{ Xe=0,Ar=1,Kr=2 };
-
+	enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
 
 	const AtlasDetectorID * m_idHelper;
+	StatusCode Retrieve_TRT_RDOs(); // NOTE: will be removed
+	StatusCode Retrieve_TRT_Tracks(); // NOTE: will be removed
 
-	StatusCode CheckEventBurst();
-	StatusCode Book_TRT_RDOs(bool isNewLumiBlock, bool isNewRun);
-	StatusCode Retrieve_TRT_RDOs();
-	StatusCode Fill_TRT_RDOs();
-	StatusCode Book_TRT_Tracks(bool isNewLumiBlock, bool isNewRun);
-	StatusCode Book_TRT_Shift_Tracks(bool isNewLumiBlock, bool isNewRun);
-	StatusCode Retrieve_TRT_Tracks();
-	StatusCode Fill_TRT_Tracks();
-	StatusCode Fill_TRT_HT();
+	StatusCode bookTRTRDOs(bool isNewLumiBlock, bool isNewRun);
+	StatusCode bookTRTTracks(bool isNewLumiBlock, bool isNewRun);
+	StatusCode bookTRTShiftTracks(bool isNewLumiBlock, bool isNewRun);
+	StatusCode bookTRTEfficiency(bool isNewLumiBlock, bool isNewRun);
+	StatusCode checkEventBurst(const TRT_RDO_Container& rdoContainer);
+	StatusCode fillTRTRDOs(const TRT_RDO_Container& rdoContainer,
+	                       const InDetTimeCollection& trtBCIDCollection,
+	                       const xAOD::EventInfo& eventInfo);
+	// ComTime might be missing from file, have to use const pointer
+	StatusCode fillTRTTracks(const TrackCollection& trackCollection,
+	                         const xAOD::TrigDecision& trigDecision,
+	                         const ComTime* comTimeObject);
+	StatusCode fillTRTEfficiency(const TrackCollection& combTrackCollection);
+	StatusCode fillTRTHighThreshold(const TrackCollection& trackCollection,
+	                                const xAOD::EventInfo& eventInfo);
+	StatusCode checkTRTReadoutIntegrity(const xAOD::EventInfo& eventInfo);
 
 	int strawLayerNumber(int strawLayerNumber, int LayerNumber);
 
@@ -112,18 +122,16 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	TProfile*       bookTProfile(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
 	TH1D_LW* bookTH1D_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
 
-	template<typename T> StatusCode trtRegHist(T *hist, MonGroup &mongrp, const char *hName)
-		{
-			StatusCode scode = mongrp.regHist(hist);
-			if (scode == StatusCode::FAILURE) {
-				ATH_MSG_FATAL("Failed to register histogram " << hName);
-			}
-			return scode;
+	template<typename T>
+	StatusCode trtRegHist(T *hist, MonGroup &mongrp, const char *hName) {
+		StatusCode scode = mongrp.regHist(hist);
+		if (scode == StatusCode::FAILURE) {
+			ATH_MSG_FATAL("Failed to register histogram " << hName);
 		}
+		return scode;
+	}
 
-	StatusCode Check_TRT_Readout_Integrity(const EventInfo* eventInfo);
-
- private:
+private:
 	static const int s_numberOfBarrelStacks;
 	static const int s_numberOfEndCapStacks;
 
@@ -139,15 +147,18 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
 	ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 	ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;
-	//ServiceHandle<ITRT_ConditionsSvc> m_condSvc_DAQ;
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
-	ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc;
+	ServiceHandle<ITRT_CalDbSvc> m_TRTCalDbSvc;
 
 	SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
-	SG::ReadHandleKey<TrackCollection> m_trackContainerKey{this, "TRTTrackObjectName", "Tracks", "Name of tracks container"};
-
-	bool m_doDCS;
-
+	SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTrackObjectName", "Tracks", "Name of tracks container"};
+	// NOTE: this property is not used anywhere, is it ok to change its name?
+	SG::ReadHandleKey<TrackCollection> m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
+	SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo", "Name of EventInfo object"};
+	SG::ReadHandleKey<xAOD::EventInfo> m_xAODEventInfoKey{this, "xAODEventInfo", "EventInfo", "Name of EventInfo object"};
+	SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName", "TRT_BCID", "Name of TRT BCID collection"};
+	SG::ReadHandleKey<ComTime> m_comTimeObjectKey{this, "ComTimeObjectName", "TRT_Phase", "Name of ComTime object"};
+	SG::ReadHandleKey<xAOD::TrigDecision> m_trigDecisionKey{this, "TrigDecisionObjectName", "xTrigDecision", "Name of trigger decision object"};
 
 	const TRT_ID* m_pTRTHelper;
 	const InDetDD::TRT_DetectorManager *m_mgr;
@@ -460,6 +471,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	std::vector<float>  m_scale_hHitWMap_B_Ar;
 	/* Helpers for the scatter histograms - 32 stacks (do same for both side for now) */
 	float m_LLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
+	float m_HLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
 
 	/**Initialize Aging plots**
 	 **HT, All, Barrel, EC, In/A, Out/C, etc...
@@ -489,11 +501,20 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	bool m_doRDOsMon;
 	bool m_doGeoMon;
 	bool m_doTracksMon;
-	int m_nEvents;
+	int m_usedEvents;
 	int nTRTHits[2];
-	int nEvents;
+	int m_totalEvents;
 
-	bool DoAside, DoCside, DoStraws, DoChips, DoShift, DoExpert, DoDiagnostic, DoMaskStraws;
+	bool m_doDCS;
+	bool m_doASide;
+	bool m_doCSide;
+	bool m_doStraws;
+	bool m_doChips;
+	bool m_doShift;
+	bool m_doExpert;
+	bool m_doMaskStraws;
+	bool m_doEfficiency;
+	bool m_doDiagnostic;
 	bool m_useHoleFinder;//switch for hole finder
 
 	int m_LE_timeWindow_MIN;
@@ -589,7 +610,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
 
 	///// Additional stuff for efficiency measurements, online only for now
-	bool DoEfficiency;
 	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
 	std::string m_track_collection_hole_finder;
 	float m_max_abs_d0;
@@ -614,8 +634,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 
 	ToolHandle<ILuminosityTool>   m_lumiTool;
 
-	StatusCode Book_TRT_Efficiency(bool isNewLumiBlock, bool isNewRun);
-	StatusCode Fill_TRT_Efficiency();
 
 	TProfile_LW* m_hefficiency_eta;
 	TProfile_LW* m_hefficiency_phi;
@@ -632,8 +650,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	TH1F_LW* m_hefficiency[2][2];
 	TH1F_LW* m_hefficiencyIntegral[2][2];
 
-	const DataVector<Trk::Track> *m_trkCollectionEff;
-
 	int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side);
 	/////////
 	//inline functions
@@ -642,11 +658,11 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 	//it is taking lots of time to compile ?
 
 	//Deciphers status HT to  GasType Enumerator
-	inline GasType Straw_Gastype(int stat){
+	inline GasType Straw_Gastype(int stat) {
 		// getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
 		// Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
-		GasType Gas =Xe; // Xenon is default
-		if(m_ArgonXenonSplitter){
+		GasType Gas = Xe; // Xenon is default
+		if (m_ArgonXenonSplitter) {
 			//      int stat=m_sumSvc->getStatusHT(TRT_Identifier);
 			if       ( stat==2 || stat==3 ) { Gas = Xe; } // Xe
 			else if  ( stat==1 || stat==4 ) { Gas = Ar; } // Ar
