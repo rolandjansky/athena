@@ -1,9 +1,9 @@
 import os
 
-makeDataDAODs=False
-makeMCDAODs=False
+makeDataDAODs=True
+makeMCDAODs=True
 makeTruthDAODs=False
-makeTrains=True
+makeTrains=False
 
 formatList = [#'PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5',
@@ -17,7 +17,7 @@ formatList = [#'PHYSVAL',
               'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY13', 'SUSY14', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
-              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22',
+              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
@@ -52,10 +52,11 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
 mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
-#mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
+mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000011.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
+dataFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.09788089._000056.pool.root.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
 mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "
@@ -102,13 +103,17 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
-         if formatName=="BPHY3":
+         if formatName=="EXOT23":
+            generateText(formatName,dataLabel,dataFileEXOT23,False,False,"10000")
+         elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          else: generateText(formatName,dataLabel,dataFile,False,False,"8000")
       if (makeMCDAODs):
-         if formatName=="BPHY3":
+         if formatName=="EXOT23":
+            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"10000")
+         elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
-         if formatName=="BPHY8":
+         elif formatName=="BPHY8":
             generateText(formatName,mcLabel,mcFileBPHY8,False,True,"10000")
          else: generateText(formatName,mcLabel,mcFile,False,True,"10000")
 
