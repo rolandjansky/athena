@@ -10,7 +10,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+// Forward declarations
+class StoreGateSvc;
 namespace ExpressionParsing {
   class ExpressionParser;
 }
@@ -35,6 +38,7 @@ namespace DerivationFramework {
       std::string m_partString;
       bool m_do_compress, m_do_sherpa;
       bool m_keep_navigation_info;
+      ServiceHandle<StoreGateSvc> m_metaStore; //!< Handle on the metadata store for init
   }; 
 }
 
