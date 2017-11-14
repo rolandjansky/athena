@@ -408,6 +408,9 @@ eventCleanTight_xAODColl("AntiKt4EMTopo")
 # Helpter to add origin corrected clusters
 ##################################################################
 def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
+
+    slimhelper.ExtraVariables.append('CaloCalTopoClusters.calE.calEta.calPhi.calM')
+
     if writeLC:
         if not slimhelper.AppendToDictionary.has_key("LCOriginTopoClusters"):
             slimhelper.AppendToDictionary["LCOriginTopoClusters"]='xAOD::CaloClusterContainer'
