@@ -149,7 +149,7 @@ const std::string& VarHandleKey::key() const
 /**
  * @brief Return handle to the referenced store.
  */
-ServiceHandle<IProxyDict> VarHandleKey::storeHandle() const
+const ServiceHandle<IProxyDict>& VarHandleKey::storeHandle() const
 {
   return m_storeHandle;
 }

@@ -54,7 +54,7 @@ CLID VarHandleBase::clid() const
  * @brief Return handle to the referenced store.
  */
 inline
-ServiceHandle<IProxyDict> VarHandleBase::storeHandle() const
+const ServiceHandle<IProxyDict>& VarHandleBase::storeHandle() const
 {
   return m_key->storeHandle();
 }
