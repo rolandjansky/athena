@@ -204,12 +204,13 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
 
     std::string subString = delimiter.empty() ? input : input.substr( 0,input.find( delimiter.c_str() ) ) ;
     input = delimiter.empty() ? "" : input.substr( subString.length() + 1 , input.length() - subString.length() - 1);
-     
-    if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
+
+    if (subString.find("b")!=std::string::npos) this->setBTAG( subString );     
+    else if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
     else if (subString.find("eta")!=std::string::npos) this->setEta( subString );
     else if (subString.find("j")!=std::string::npos) this->setPT( subString );
     else if (subString.find("invm")!=std::string::npos) m_features.push_back( this->setINVM( subString ) );
-    else if (subString.find("b")!=std::string::npos) this->setBTAG( subString );
+
   }
 
   for (unsigned int i = 0; i < m_features.size(); i++) {
@@ -410,12 +411,12 @@ void TrigBtagEmulationChainJetIngredient_GSC::initialize() {
     std::string subString = delimiter.empty() ? input : input.substr( 0,input.find( delimiter.c_str() ) ) ;
     input = delimiter.empty() ? "" : input.substr( subString.length() + 1 , input.length() - subString.length() - 1);
     
-    if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
+    if (subString.find("mv2c10")!=std::string::npos) this->setBTAG( subString );
+    else if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
     else if (subString.find("eta")!=std::string::npos) this->setEta( subString );
     else if (subString.find("j")!=std::string::npos) this->setPT( subString );
     else if (subString.find("gsc")!=std::string::npos) this->setPT( subString );
     else if (subString.find("invm")!=std::string::npos) m_features.push_back( this->setINVM( subString ) );
-    else if (subString.find("mv2c10")!=std::string::npos) this->setBTAG( subString );
   }
   
   for (unsigned int i = 0; i < m_features.size(); i++) {
