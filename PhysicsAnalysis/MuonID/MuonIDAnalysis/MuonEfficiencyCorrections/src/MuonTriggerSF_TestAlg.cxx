@@ -39,7 +39,6 @@ namespace Trig{
         //Create the tree and register it to the hist-service
         std::string tree_key = "/TRIGGERSFTESTER/" + m_outputStream ;
         m_tree = new TTree (m_outputStream.c_str(), "TriggerSFTesterTree");
-        std::cout<<"Deine Mama"<<std::endl;
         m_tree->Branch("runNumber", &m_runNumber);
         
         
