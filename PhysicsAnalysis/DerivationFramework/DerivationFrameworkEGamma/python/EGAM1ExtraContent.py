@@ -117,7 +117,11 @@ ExtraContainersTriggerDataOnly=[
 
 ExtraVariablesEventShape=[
     "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
-    "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea"
+    "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
+    "NeutralParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
+    "NeutralParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma",
+    "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
+    "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"
 ]
 
 #should slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..
