@@ -199,13 +199,13 @@ SiRegionSelectorTable::createTable()
       // create module      
       RegSelModule smod(zMin,zMax,rMin,rMax,phiMin,phiMax,layerDisk,barrelEC,robId,hashId);
 	
-      if ( robId ) {
-	// add to the new RegionSelector map     
-	rd->addModule(smod);
-      }
-      else { 
-	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endmsg;
-      }
+      // if ( robId ) {
+      // add to the new RegionSelector map     
+      rd->addModule(smod);
+      // }
+      // else { 
+      //	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endmsg;
+      // }
       
       if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endmsg;
 	
