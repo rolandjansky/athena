@@ -404,3 +404,18 @@ applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
 
+##################################################################
+# Helpter to add origin corrected clusters
+##################################################################
+def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
+    if writeLC:
+        if not slimhelper.AppendToDictionary.has_key("LCOriginTopoClusters"):
+            slimhelper.AppendToDictionary["LCOriginTopoClusters"]='xAOD::CaloClusterContainer'
+            slimhelper.AppendToDictionary["LCOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
+            slimhelper.ExtraVariables.append('LCOriginTopoClusters.calEta.calPhi')
+
+    if writeEM:
+        if not slimhelper.AppendToDictionary.has_key("EMOriginTopoClusters"):
+            slimhelper.AppendToDictionary["EMOriginTopoClusters"]='xAOD::CaloClusterContainer'
+            slimhelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
+            slimhelper.ExtraVariables.append('EMOriginTopoClusters.calE.calEta.calPhi')
