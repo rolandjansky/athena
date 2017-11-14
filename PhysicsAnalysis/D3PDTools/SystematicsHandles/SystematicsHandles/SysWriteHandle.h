@@ -12,6 +12,7 @@
 
 
 #include <PATInterfaces/SystematicSet.h>
+#include <SystematicsHandles/ISysHandleBase.h>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -33,7 +34,7 @@ namespace EL
 {
   /// \brief a data handle for writing systematics varied input data
 
-  template<typename T,typename Aux = void> class SysWriteHandle final
+  template<typename T,typename Aux = void> class SysWriteHandle final : public ISysHandleBase
   {
     //
     // public interface
@@ -52,6 +53,15 @@ namespace EL
     ::StatusCode record (std::unique_ptr<T> object,
                          std::unique_ptr<Aux> aux,
                          const CP::SystematicSet& sys) const;
+
+
+
+    //
+    // inherited interface
+    //
+
+  public:
+    virtual std::string getInputAffecting () const override;
 
 
 
@@ -88,7 +98,7 @@ namespace EL
 
 
 
-  template<typename T> class SysWriteHandle<T,void> final
+  template<typename T> class SysWriteHandle<T,void> final : public ISysHandleBase
   {
     //
     // public interface
@@ -106,6 +116,15 @@ namespace EL
   public:
     ::StatusCode record (std::unique_ptr<T> object,
                          const CP::SystematicSet& sys) const;
+
+
+
+    //
+    // inherited interface
+    //
+
+  public:
+    virtual std::string getInputAffecting () const override;
 
 
 

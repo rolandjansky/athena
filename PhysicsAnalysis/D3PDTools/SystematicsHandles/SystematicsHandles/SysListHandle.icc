@@ -28,15 +28,7 @@ namespace EL
   {
     owner->declareProperty (propertyName, m_systematicsListName,
                             propertyDescription);
-  }
-
-
-
-  template<typename T> void SysListHandle ::
-  addInputHandle (const T& /*inputHandle*/)
-  {
-    assert (!isInitialized());
-    // no-op
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
   }
 
 

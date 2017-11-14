@@ -12,6 +12,7 @@
 
 
 #include <PATInterfaces/SystematicSet.h>
+#include <SystematicsHandles/ISysHandleBase.h>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -33,7 +34,7 @@ namespace EL
 {
   /// \brief a data handle for copying systematics varied input data
 
-  template<typename T> class SysCopyHandle final
+  template<typename T> class SysCopyHandle final : public ISysHandleBase
   {
     //
     // public interface
@@ -55,12 +56,25 @@ namespace EL
 
 
     //
+    // inherited interface
+    //
+
+  public:
+    virtual std::string getInputAffecting () const override;
+
+
+
+    //
     // private interface
     //
 
     /// \brief the input name we use
   private:
     std::string m_inputName;
+
+    /// \brief the regular expression for affecting systematics
+  private:
+    std::string m_affectingRegex;
 
     /// \brief the output name we use
   private:

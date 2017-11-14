@@ -12,9 +12,11 @@
 
 
 #include <AsgTools/MsgStream.h>
+#include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/SysListType.h>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #ifdef ROOTCORE
 #include <AsgTools/SgTEvent.h>
@@ -31,6 +33,8 @@ namespace CP
 
 namespace EL
 {
+  class ISysHandleBase;
+
   /// \brief a class managing the property to configure the list of
   /// systematics to process
 
@@ -55,8 +59,7 @@ namespace EL
     ///
     /// \pre !isInitialized()
   public:
-    template<typename T> void
-    addInputHandle (const T& inputHandle);
+    void addHandle (ISysHandleBase& handle);
 
 
     /// \brief register a set of affecting variables for the current
@@ -87,7 +90,7 @@ namespace EL
 
     /// \brief the list of systematics to loop over
   public:
-    const std::vector<CP::SystematicSet>& systematicsVector () const;
+    std::unordered_set<CP::SystematicSet> systematicsVector ();
 
 
 
@@ -99,6 +102,22 @@ namespace EL
     /// the event store
   private:
     std::string m_systematicsListName;
+
+    /// \brief the regular expression for affecting systematics
+  private:
+    std::string m_affectingRegex;
+
+    /// \brief the full affecting systematics including the inputs
+  private:
+    std::string m_fullAffecting;
+
+    /// \brief the cache of affecting filtered systematics
+  private:
+    std::unordered_map<CP::SystematicSet,CP::SystematicSet> m_affectingCache;
+
+    /// \brief the list of systematics handles we have
+  private:
+    std::vector<ISysHandleBase*> m_sysHandles;
 
     /// \brief the value of \ref isInitialized
   private:

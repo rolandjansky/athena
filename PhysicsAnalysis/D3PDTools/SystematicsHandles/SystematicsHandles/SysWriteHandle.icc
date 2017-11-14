@@ -56,6 +56,14 @@ namespace EL
 
 
 
+  template<typename T,typename Aux> std::string SysWriteHandle<T,Aux> ::
+  getInputAffecting () const
+  {
+    return "";
+  }
+
+
+
   template<typename T> template<typename T2> SysWriteHandle<T,void> ::
   SysWriteHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
@@ -83,5 +91,13 @@ namespace EL
     }
     assert (m_evtStore);
     return m_evtStore->record (object.release(), cache->second);
+  }
+
+
+
+  template<typename T> std::string SysWriteHandle<T,void> ::
+  getInputAffecting () const
+  {
+    return "";
   }
 }

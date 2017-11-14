@@ -29,6 +29,7 @@ namespace EL
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
     owner->declareProperty (propertyName + "Out", m_outputName, "name to which to copy " + propertyName);
   }
 
@@ -40,7 +41,7 @@ namespace EL
     auto cache = m_nameCache.find (sys);
     if (cache == m_nameCache.end())
     {
-      std::string inputName = detail::makeSystematicsName (m_inputName, sys);
+      std::string inputName = detail::makeSystematicsName (m_inputName, m_affectingRegex, sys);
       std::string outputName = detail::makeSystematicsName (m_outputName, sys);
       m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
       cache = m_nameCache.find (sys);
@@ -77,5 +78,13 @@ namespace EL
       object = copy.first;
       return StatusCode::SUCCESS;
     }
+  }
+
+
+
+  template<typename T> std::string SysCopyHandle<T> ::
+  getInputAffecting () const
+  {
+    return m_affectingRegex;
   }
 }

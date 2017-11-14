@@ -26,8 +26,19 @@ namespace EL
     /// \par Guarantee
     ///   strong
     /// \par Failures
-    ///   out of memory I
+    ///   out of memory II
     std::string makeSystematicsName (const std::string& name,
+                                     const CP::SystematicSet& sys);
+
+
+    /// \brief make the name for the given systematics, filtered for
+    /// the given affecting pattern
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+    std::string makeSystematicsName (const std::string& name,
+                                     const std::string& affecting,
                                      const CP::SystematicSet& sys);
   }
 }

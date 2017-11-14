@@ -17,6 +17,7 @@
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <PATInterfaces/SystematicSet.h>
+#include <regex>
 
 //
 // method implementations
@@ -33,6 +34,23 @@ namespace EL
       if (sysName.empty())
         sysName = "NOSYS";
       return RCU::substitute (name, "%SYS%", sysName);
+    }
+
+
+
+    std::string makeSystematicsName (const std::string& name,
+                                     const std::string& affecting,
+                                     const CP::SystematicSet& sys)
+    {
+      CP::SystematicSet mysys;
+      std::regex expr (affecting);
+
+      for (auto& var : sys)
+      {
+        if (regex_match (var.basename(), expr))
+          mysys.insert (var);
+      }
+      return makeSystematicsName (name, mysys);
     }
   }
 }

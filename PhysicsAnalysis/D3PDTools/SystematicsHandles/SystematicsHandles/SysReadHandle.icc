@@ -29,6 +29,7 @@ namespace EL
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
   }
 
 
@@ -39,7 +40,8 @@ namespace EL
     auto cache = m_inputNameCache.find (sys);
     if (cache == m_inputNameCache.end())
     {
-      std::string newName = detail::makeSystematicsName (m_inputName, sys);
+      std::string newName = detail::makeSystematicsName
+        (m_inputName, m_affectingRegex, sys);
       m_inputNameCache.insert (std::make_pair (sys, newName));
       cache = m_inputNameCache.find (sys);
       assert (cache != m_inputNameCache.end());
@@ -48,5 +50,13 @@ namespace EL
     }
     assert (m_evtStore);
     return m_evtStore->retrieve (object, cache->second);
+  }
+
+
+
+  template<typename T> std::string SysReadHandle<T> ::
+  getInputAffecting () const
+  {
+    return m_affectingRegex;
   }
 }
