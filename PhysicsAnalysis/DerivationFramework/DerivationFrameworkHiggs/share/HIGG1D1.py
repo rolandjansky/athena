@@ -309,7 +309,7 @@ HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                         "TauShotParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                         "Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z",
-                                        "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z",
+                                        "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.neflowisol20.neflowisol20ptCorrection.neflowisol30.neflowisol30ptCorrection.neflowisol40.neflowisol40ptCorrection.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection",
                                         "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
                                         "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoCentralEventShape.DensitySigma.Density.DensityArea",
