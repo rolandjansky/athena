@@ -101,29 +101,32 @@ namespace {
 }
 
 BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg::AsgTool( name ) {
-  declareProperty("TaggerName",                      m_taggerName="",            "tagging algorithm name as specified in CDI file");
-  declareProperty("OperatingPoint",                  m_OP="",                    "operating point as specified in CDI file");
-  declareProperty("JetAuthor",                       m_jetAuthor="",             "jet collection & JVF/JVT specification in CDI file");
-  declareProperty("ScaleFactorFileName",             m_SFFile = "",              "name of the official scale factor calibration CDI file (uses PathResolver)");
-  declareProperty("UseDevelopmentFile",              m_useDevFile = false,       "specify whether or not to use the (PathResolver) area for temporary scale factor calibration CDI files");
-  declareProperty("EfficiencyFileName",              m_EffFile = "",             "name of optional user-provided MC efficiency CDI file");
-  declareProperty("ScaleFactorBCalibration",         m_SFBName = "default",      "name of b-jet scale factor calibration object");
-  declareProperty("ScaleFactorCCalibration",         m_SFCName = "default",      "name of c-jet scale factor calibration object");
-  declareProperty("ScaleFactorTCalibration",         m_SFTName = "default",      "name of tau-jet scale factor calibration object");
-  declareProperty("ScaleFactorLightCalibration",     m_SFLightName = "default",  "name of light-flavour jet scale factor calibration object");
-  declareProperty("EigenvectorReductionB",           m_EVReductionB = "Loose",   "b-jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
-  declareProperty("EigenvectorReductionC",           m_EVReductionC = "Loose",   "c-jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
-  declareProperty("EigenvectorReductionLight",       m_EVReductionLight = "Loose","light-flavour jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
-  declareProperty("EfficiencyBCalibrations",         m_EffBName = "default",     "(semicolon-separated) name(s) of b-jet efficiency object(s)");
-  declareProperty("EfficiencyCCalibrations",         m_EffCName = "default",     "(semicolon-separated) name(s) of c-jet efficiency object(s)");
-  declareProperty("EfficiencyTCalibrations",         m_EffTName = "default",     "(semicolon-separated) name(s) of tau-jet efficiency object(s)");
-  declareProperty("EfficiencyLightCalibrations",     m_EffLightName = "default", "(semicolon-separated) name(s) of light-flavour-jet efficiency object(s)");
-  declareProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV = "",       "(semicolon-separated) names of uncertainties to be excluded from eigenvector decomposition (if used)");
-  // declareProperty("ExcludeJESFromEVTreatment",       m_excludeJESFromEV = true,  "specify whether or not to exclude JES uncertainties from eigenvector decomposition (if used)");
-  declareProperty("SystematicsStrategy",             m_systStrategy = "SFEigen", "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
-  declareProperty("ConeFlavourLabel",                m_coneFlavourLabel = true, "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
-  declareProperty("ExtendedFlavourLabel",            m_extFlavourLabel = false, "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
-  declareProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
+  declareProperty("TaggerName",                          m_taggerName="",               "tagging algorithm name as specified in CDI file");
+  declareProperty("OperatingPoint",                      m_OP="",                       "operating point as specified in CDI file");
+  declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
+  declareProperty("ScaleFactorFileName",                 m_SFFile = "",                 "name of the official scale factor calibration CDI file (uses PathResolver)");
+  declareProperty("UseDevelopmentFile",                  m_useDevFile = false,          "specify whether or not to use the (PathResolver) area for temporary scale factor calibration CDI files");
+  declareProperty("EfficiencyFileName",                  m_EffFile = "",                "name of optional user-provided MC efficiency CDI file");
+  declareProperty("ScaleFactorBCalibration",             m_SFNames["B"] = "default",    "name of b-jet scale factor calibration object");
+  declareProperty("ScaleFactorCCalibration",             m_SFNames["C"] = "default",    "name of c-jet scale factor calibration object");
+  declareProperty("ScaleFactorTCalibration",             m_SFNames["T"] = "default",    "name of tau-jet scale factor calibration object");
+  declareProperty("ScaleFactorLightCalibration",         m_SFNames["Light"] = "default","name of light-flavour jet scale factor calibration object");
+  declareProperty("EigenvectorReductionB",               m_EVReduction["B"] = "Loose",  "b-jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
+  declareProperty("EigenvectorReductionC",               m_EVReduction["C"] = "Loose",  "c-jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
+  declareProperty("EigenvectorReductionLight",           m_EVReduction["Light"] = "Loose", "light-flavour jet scale factor Eigenvector reduction strategy; choose between 'Loose', 'Medium', 'Tight'");
+  declareProperty("EfficiencyBCalibrations",             m_EffNames["B"] = "default",   "(semicolon-separated) name(s) of b-jet efficiency object(s)");
+  declareProperty("EfficiencyCCalibrations",             m_EffNames["C"] = "default",   "(semicolon-separated) name(s) of c-jet efficiency object(s)");
+  declareProperty("EfficiencyTCalibrations",             m_EffNames["T"] = "default",   "(semicolon-separated) name(s) of tau-jet efficiency object(s)");
+  declareProperty("EfficiencyLightCalibrations",         m_EffNames["Light"] = "default", "(semicolon-separated) name(s) of light-flavour-jet efficiency object(s)");
+  declareProperty("ExcludeFromEigenVectorTreatment",     m_excludeFromEV = "",          "(semicolon-separated) names of uncertainties to be excluded from all eigenvector decompositions (if used)");
+  declareProperty("ExcludeFromEigenVectorBTreatment",    m_excludeFlvFromEV["B"] = "",  "(semicolon-separated) names of uncertainties to be excluded from b-jet eigenvector decomposition (if used)");
+  declareProperty("ExcludeFromEigenVectorCTreatment",    m_excludeFlvFromEV["C"] = "",  "(semicolon-separated) names of uncertainties to be excluded from c-jet eigenvector decomposition (if used)");
+  declareProperty("ExcludeFromEigenVectorLightTreatment",m_excludeFlvFromEV["Light"] = "", "(semicolon-separated) names of uncertainties to be excluded from light-flavour-jet eigenvector decomposition (if used)");
+  // declareProperty("ExcludeJESFromEVTreatment",        m_excludeJESFromEV = true,     "specify whether or not to exclude JES uncertainties from eigenvector decomposition (if used)");
+  declareProperty("SystematicsStrategy",                 m_systStrategy = "SFEigen",    "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
+  declareProperty("ConeFlavourLabel",                    m_coneFlavourLabel = true,     "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
+  declareProperty("ExtendedFlavourLabel",                m_extFlavourLabel = false,     "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
+  declareProperty("OldConeFlavourLabel",                 m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
   // initialise some variables needed for caching
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
   //m_mapIndices["Light"] = m_mapIndices["T"] = m_mapIndices["C"] = m_mapIndices["B"] = 0;
@@ -158,6 +161,10 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   ATH_MSG_INFO( " Hello BTaggingEfficiencyTool user... initializing");
   ATH_MSG_INFO( " TaggerName = " << m_taggerName);
   ATH_MSG_INFO( " OP = " << m_OP);
+  ATH_MSG_INFO( " b-jet     SF/eff calibration = " << m_SFNames["B"] <<     " / " << m_EffNames["B"]);
+  ATH_MSG_INFO( " c-jet     SF/eff calibration = " << m_SFNames["C"] <<     " / " << m_EffNames["C"]);
+  ATH_MSG_INFO( " tau-jet   SF/eff calibration = " << m_SFNames["T"] <<     " / " << m_EffNames["T"]);
+  ATH_MSG_INFO( " light-jet SF/eff calibration = " << m_SFNames["Light"] << " / " << m_EffNames["Light"]);
   if (m_OP == "Continuous") {
     // continuous tagging is special in two respects:
     // 1  the tag weight needs to be retrieved
@@ -172,76 +179,79 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     // }
   }
   ATH_MSG_INFO( " JetAuthor = " << m_jetAuthor);
-  // "pack" the scale factor calibration names
-  std::map<std::string, std::string> SFNames;
-  SFNames["B"] = trim(m_SFBName);
-  SFNames["C"] = trim(m_SFCName);
-  SFNames["T"] = trim(m_SFTName);
-  SFNames["Light"] = trim(m_SFLightName);
+
+  std::string flavours[] = { "B", "C", "Light", "T" };
+  // "pack" the efficiency map names for each flavour. Note that multiple, semicolon separated, entries may exist; so this needs to be decoded first
+  std::map<std::string, std::vector<std::string> > EffNames;
+  for (auto const& flavour : flavours) {
+    std::vector<std::string> names;
+    if (m_EffNames[flavour].size() > 0) {
+      std::string::size_type end;
+      std::string tmp(m_EffNames[flavour]);
+      do {
+	end = tmp.find(";");
+	names.push_back(trim(tmp.substr(0,end)));
+	if (end != std::string::npos) tmp = tmp.substr(end+1);
+      } while (end != std::string::npos);
+    }
+    EffNames[flavour] = names;
+  }
+
   // Strategies for eigenvector reductions (only relevant if eigenvector variations are used, of course).
   // For now, we will assume that the strategy for tau "jets" is identical to that for c jets.
   std::map<std::string, Analysis::EVReductionStrategy> EVRedStrategies, mappings;
   mappings["Loose"] = Analysis::Loose;
   mappings["Medium"] = Analysis::Medium;
   mappings["Tight"] = Analysis::Tight;
-  EVRedStrategies["B"] = mappings.find(trim(m_EVReductionB)) == mappings.end() ? mappings["Loose"] : mappings.find(trim(m_EVReductionB))->second;
-  EVRedStrategies["C"] = mappings.find(trim(m_EVReductionC)) == mappings.end() ? mappings["Loose"] : mappings.find(trim(m_EVReductionC))->second;
+
+  std::string EVflavours[] = { "B", "C", "Light" };
+  for (auto const& flavour : EVflavours) {
+    EVRedStrategies[flavour] = mappings.find(trim(m_EVReduction[flavour])) == mappings.end() ? mappings["Loose"] : mappings[trim(m_EVReduction[flavour])];
+  }
   EVRedStrategies["T"] = EVRedStrategies["C"];
-  EVRedStrategies["Light"] = mappings.find(trim(m_EVReductionLight)) == mappings.end() ? mappings["Loose"] : mappings.find(trim(m_EVReductionLight))->second;
-  // "pack" the efficiency map names. Note that multiple, semicolon separated, entries may exist; so this needs to be decoded first
-  std::map<std::string, std::vector<std::string> > EffNames;
-  std::vector<std::string> effBNames;
-  std::string::size_type end;
-  if (m_EffBName.size() > 0) {
-    do {
-      end = m_EffBName.find(";");
-      effBNames.push_back(trim(m_EffBName.substr(0,end)));
-      if (end != std::string::npos) m_EffBName = m_EffBName.substr(end+1);
-    } while (end != std::string::npos);
-  }
-  EffNames["B"] = effBNames;
-  std::vector<std::string> effCNames;
-  if (m_EffCName.size() > 0) {
-    do {
-      end = m_EffCName.find(";");
-      effCNames.push_back(trim(m_EffCName.substr(0,end)));
-      if (end != std::string::npos) m_EffCName = m_EffCName.substr(end+1);
-    } while (end != std::string::npos);
-  }
-  EffNames["C"] = effCNames;
-  std::vector<std::string> effTNames;
-  if (m_EffTName.size() > 0) {
-    do {
-      end = m_EffTName.find(";");
-      effTNames.push_back(trim(m_EffTName.substr(0,end)));
-      if (end != std::string::npos) m_EffTName = m_EffTName.substr(end+1);
-    } while (end != std::string::npos);
-  }
-  EffNames["T"] = effTNames;
-  std::vector<std::string> effLightNames;
-  if (m_EffLightName.size() > 0) {
-    do {
-      end = m_EffLightName.find(";");
-      effLightNames.push_back(trim(m_EffLightName.substr(0,end)));
-      if (end != std::string::npos) m_EffLightName = m_EffLightName.substr(end+1);
-    } while (end != std::string::npos);
-  }
-  EffNames["Light"] = effLightNames;
 
   // specify which systematic variations are to be excluded from the eigenvector decomposition
-  std::vector<std::string> excludeFromEVCov;
+  std::map<std::string, std::vector<std::string> > excludeFromEVCov;
+
+  // First, look for uncertainties to be excluded for all flavours
+  std::vector<std::string> to_exclude;
   if (m_excludeFromEV.size() > 0) {
+    std::string::size_type end; 
+    std::string tmp(m_excludeFromEV);
     do {
-      end = m_excludeFromEV.find(";");
-      std::string entry = trim(m_excludeFromEV.substr(0,end));
-      if (entry != "") excludeFromEVCov.push_back(entry);
-      if (end != std::string::npos) m_excludeFromEV = m_excludeFromEV.substr(end+1);
+      end = tmp.find(";");
+      std::string entry = trim(tmp.substr(0,end));
+      if (entry != "") to_exclude.push_back(entry);
+      if (end != std::string::npos) tmp = tmp.substr(end+1);
     } while (end != std::string::npos);
   }
-
-  // For the SFEigen strategy, ensure that the charm -> tau extrapolation uncertainty is added
-  if (m_systStrategy != "Envelope" && std::find(excludeFromEVCov.begin(), excludeFromEVCov.end(), "extrapolation from charm") == excludeFromEVCov.end())
-    excludeFromEVCov.push_back("extrapolation from charm");
+  // use this as a starting point for all flavours (here B, C, Light)
+  for (auto const& flavour : EVflavours) {
+    excludeFromEVCov[flavour] = to_exclude;
+  }
+  // Subsequently process per-flavour lists
+  for (auto const& flavour : EVflavours) {
+    to_exclude.clear();
+    if (m_excludeFlvFromEV[flavour].size() > 0) {
+      std::string::size_type end;
+      std::string tmp(m_excludeFlvFromEV[flavour]);
+      do {
+	end = tmp.find(";");
+	std::string entry = trim(tmp.substr(0,end));
+	if (entry != "") to_exclude.push_back(entry);
+	if (end != std::string::npos) tmp = tmp.substr(end+1);
+      } while (end != std::string::npos);
+    }
+    // Append to the existing list
+    excludeFromEVCov[flavour].insert(excludeFromEVCov[flavour].end(), to_exclude.begin(), to_exclude.end());
+  }
+  // For the SFEigen strategy, tau "jets" are treated differently from other flavours. 
+  // First, copy the charm-jet calibration settings
+  excludeFromEVCov["T"] = excludeFromEVCov["C"];
+  // Then ensure that the charm -> tau extrapolation uncertainty is added.
+  // Technically the additional condition should never be necessary, as existing entries should not apply to tau "jets"; so this is mostly to protect users against a duplicate specification
+  if (m_systStrategy != "Envelope" && std::find(excludeFromEVCov["T"].begin(), excludeFromEVCov["T"].end(), "extrapolation from charm") == excludeFromEVCov["T"].end())
+    excludeFromEVCov["T"].push_back("extrapolation from charm");
 
   // Use the PathResolver to find the full pathname (behind the scenes this can also be used to download the file),
   // if the file cannot be found directly.
@@ -273,7 +283,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 						     m_SFFile.c_str(),                          // full pathname of the SF calibration file: always needed
 						     (m_EffFile == "") ? 0 : m_EffFile.c_str(), // full pathname of optional efficiency file
 						     jetAliases,                                // since we configure the jet "collection name" by hand, we don't need this
-						     SFNames,                                   // names of the scale factor calibrations to be used
+						     m_SFNames,                                 // names of the scale factor calibrations to be used
 						     EffNames,                                  // names of the efficiency calibrations to be used (can be multiple per flavour)
 						     excludeFromEVCov,                          // names of systematic uncertainties to be excluded from the EV decomposition
 						     EVRedStrategies,                           // strategies for eigenvector reductions
@@ -289,7 +299,6 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   // If the tool has not already been initialised and m_OP and m_jetAuthor have been set - ie via the properties "OperatingPoint" and "JetAuthor"
   // then autmatically set things up to use these by default
   // All this must happen before registerSystematics otherwise that won't work
-  std::string flavours[4] = { "Light", "C", "B", "T"};
   for (int i = 0; i < 4; ++i) {
     unsigned int flavourID = getFlavourID(flavours[i]);
     // std::map<unsigned int, unsigned int>::const_iterator
