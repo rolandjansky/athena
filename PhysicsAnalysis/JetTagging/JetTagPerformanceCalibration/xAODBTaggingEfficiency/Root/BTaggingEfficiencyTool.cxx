@@ -98,6 +98,22 @@ namespace {
 
     return str.substr(strBegin, strRange);
   }
+
+  // local utility function: split string into a vector of substrings separated by a specified separator
+  std::vector<std::string> split(const std::string& str, char token = ';') {
+    std::vector<std::string> result;
+    if (str.size() > 0) {
+      std::string::size_type end;
+      std::string tmp(str);
+      do {
+	end = tmp.find(token);
+	std::string entry = trim(tmp.substr(0,end));
+	if (entry.size() > 0) result.push_back(entry); 
+	if (end != std::string::npos) tmp = tmp.substr(end+1);
+      } while (end != std::string::npos);
+    }
+    return result;
+  }
 }
 
 BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg::AsgTool( name ) {
@@ -165,6 +181,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   ATH_MSG_INFO( " c-jet     SF/eff calibration = " << m_SFNames["C"] <<     " / " << m_EffNames["C"]);
   ATH_MSG_INFO( " tau-jet   SF/eff calibration = " << m_SFNames["T"] <<     " / " << m_EffNames["T"]);
   ATH_MSG_INFO( " light-jet SF/eff calibration = " << m_SFNames["Light"] << " / " << m_EffNames["Light"]);
+
   if (m_OP == "Continuous") {
     // continuous tagging is special in two respects:
     // 1  the tag weight needs to be retrieved
@@ -184,17 +201,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   // "pack" the efficiency map names for each flavour. Note that multiple, semicolon separated, entries may exist; so this needs to be decoded first
   std::map<std::string, std::vector<std::string> > EffNames;
   for (auto const& flavour : flavours) {
-    std::vector<std::string> names;
-    if (m_EffNames[flavour].size() > 0) {
-      std::string::size_type end;
-      std::string tmp(m_EffNames[flavour]);
-      do {
-	end = tmp.find(";");
-	names.push_back(trim(tmp.substr(0,end)));
-	if (end != std::string::npos) tmp = tmp.substr(end+1);
-      } while (end != std::string::npos);
-    }
-    EffNames[flavour] = names;
+    EffNames[flavour] = split(m_EffNames[flavour]);
   }
 
   // Strategies for eigenvector reductions (only relevant if eigenvector variations are used, of course).
@@ -214,34 +221,14 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   std::map<std::string, std::vector<std::string> > excludeFromEVCov;
 
   // First, look for uncertainties to be excluded for all flavours
-  std::vector<std::string> to_exclude;
-  if (m_excludeFromEV.size() > 0) {
-    std::string::size_type end; 
-    std::string tmp(m_excludeFromEV);
-    do {
-      end = tmp.find(";");
-      std::string entry = trim(tmp.substr(0,end));
-      if (entry != "") to_exclude.push_back(entry);
-      if (end != std::string::npos) tmp = tmp.substr(end+1);
-    } while (end != std::string::npos);
-  }
+  std::vector<std::string> to_exclude = split(m_excludeFromEV);
   // use this as a starting point for all flavours (here B, C, Light)
   for (auto const& flavour : EVflavours) {
     excludeFromEVCov[flavour] = to_exclude;
   }
   // Subsequently process per-flavour lists
   for (auto const& flavour : EVflavours) {
-    to_exclude.clear();
-    if (m_excludeFlvFromEV[flavour].size() > 0) {
-      std::string::size_type end;
-      std::string tmp(m_excludeFlvFromEV[flavour]);
-      do {
-	end = tmp.find(";");
-	std::string entry = trim(tmp.substr(0,end));
-	if (entry != "") to_exclude.push_back(entry);
-	if (end != std::string::npos) tmp = tmp.substr(end+1);
-      } while (end != std::string::npos);
-    }
+    to_exclude = split(m_excludeFlvFromEV[flavour]);
     // Append to the existing list
     excludeFromEVCov[flavour].insert(excludeFromEVCov[flavour].end(), to_exclude.begin(), to_exclude.end());
   }
