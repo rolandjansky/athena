@@ -214,7 +214,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     if RunPatchedOnly: #overwrite
         #clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
         clean_dir = '/afs/cern.ch/user/a/amete/public/sim-test/'+q
-        print('\n\n\nCHANGE AFS REFERENCE BEFORE OFFICIAL SUBMISSION\n\n\n')
+        print('\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!\nCHANGE AFS REFERENCE BEFORE OFFICIAL SUBMISSION\n!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n')
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -544,11 +544,11 @@ def main():
 
 
 ########### Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
+    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ and not ciMode:
         logging.error("Exit. Please setup the an ATLAS release")
         sys.exit(0)
     else:
-        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
+        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ and not ciMode:
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
@@ -683,7 +683,7 @@ def main():
                 continue
 
             if RunSim:
-                if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"HITS",3,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
             else:
                 if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
