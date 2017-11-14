@@ -381,6 +381,70 @@ muFastThresholdsForECWeakBRegion = {
     '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
 
+class TrigMufastHypoConfig(TrigMufastHypoAlg) :
+
+    __slots__ = []
+    
+    def __new__( cls, *args, **kwargs ):
+        if len(args) == 2:
+            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        if len(args) == 4:
+            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
+        return super( TrigMufastHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMufastHypoConfig, self ).__init__( name )
+
+        threshold = args[1]
+
+        try:
+            values = muFastThresholds[threshold]
+            self.PtBins = values[0]
+            self.PtThresholds = [ x * GeV for x in values[1] ]
+            if threshold in muFastThresholdsForECWeakBRegion:
+                spThres = muFastThresholdsForECWeakBRegion[threshold]
+                self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
+                self.PtThresholdForECWeakBRegionB = spThres[1] * GeV
+            else:
+                print 'TrigMufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
+                print 'TrigMufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
+                spThres = values[0][1]
+                if threshold == '2GeV' or threshold == '3GeV':
+                    self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
+                    self.PtThresholdForECWeakBRegionB = spThres[0] * GeV
+                else:
+                    self.PtThresholdForECWeakBRegionA = spThres[1] * GeV
+                    self.PtThresholdForECWeakBRegionB = spThres[2] * GeV
+                print 'TrigMufastHypoConfig: -> Thresholds for A/B=',self.PtThresholdForECWeakBRegionA,'/',self.PtThresholdForECWeakBRegionB
+            
+        except LookupError:
+            if (threshold=='passthrough'):
+                self.PtBins = [-10000.,10000.]
+                self.PtThresholds = [ -1. * GeV ]
+            else:
+                raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
+
+        validation = MufastHypoValidationMonitoring()
+        online     = MufastHypoOnlineMonitoring()
+        cosmic     = MufastHypoCosmicMonitoring()
+	
+        self.AthenaMonTools = [ validation, online, cosmic ]
+        #if len(args) == 4:
+        #    if args[2] != 9999:
+        #        
+        #        self.SelectPV = True
+        #        self.Z_PV_Bins = args[2]
+        #        self.R_PV_Bins = args[3]
+        #    else:
+        #        self.SelectPV = False
+        #        self.Z_PV_Bins = 99999
+        #        self.R_PV_Bins = 99999
+    
+    def setDefaults(cls,handle):
+        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
+            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
+                print handle.name," eta bins doesn't match the Pt thresholds!"
+
 class MufastHypoConfig(MufastHypo) :
 
     __slots__ = []
