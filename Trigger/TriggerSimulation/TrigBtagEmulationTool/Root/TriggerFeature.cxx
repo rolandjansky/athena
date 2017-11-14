@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 */
 
-#include "TrigBtagEmulationTool/feature.h"
+#include "TrigBtagEmulationTool/TriggerFeature.h"
 #include "algorithm"
 
 #include "fstream"

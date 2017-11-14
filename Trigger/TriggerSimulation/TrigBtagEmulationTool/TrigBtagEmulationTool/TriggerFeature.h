@@ -2,8 +2,8 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FEATURE_H
-#define FEATURE_H
+#ifndef TRIGGER_FEATURE_H
+#define TRIGGER_FEATURE_H
 
 #include <iostream>
 #include <cmath>

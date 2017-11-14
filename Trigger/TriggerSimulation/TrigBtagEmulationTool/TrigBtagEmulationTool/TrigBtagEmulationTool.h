@@ -6,9 +6,9 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #define TrigBtagEmulationTool_H
 
 #include "TrigBtagEmulationTool/ITrigBtagEmulationTool.h"
-#include "TrigBtagEmulationTool/feature.h"
-#include "TrigBtagEmulationTool/baseTrigBtagEmulationChainJetIngredient.h"
-#include "TrigBtagEmulationTool/jetManager.h"
+#include "TrigBtagEmulationTool/TriggerFeature.h"
+#include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
+#include "TrigBtagEmulationTool/JetManager.h"
 
 // EDM
 #include "xAODEventInfo/EventInfo.h"

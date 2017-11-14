@@ -5,8 +5,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #ifndef Jet_Manager_H
 #define Jet_Manager_H
 
-#include "TrigBtagEmulationTool/feature.h"
-#include "TrigBtagEmulationTool/baseTrigBtagEmulationChainJetIngredient.h"
+#include "TrigBtagEmulationTool/TriggerFeature.h"
+#include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
 
 // EDM
 #include "xAODEventInfo/EventInfo.h"

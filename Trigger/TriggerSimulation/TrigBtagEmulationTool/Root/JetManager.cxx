@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 */
 
-#include "TrigBtagEmulationTool/jetManager.h"
+#include "TrigBtagEmulationTool/JetManager.h"
 
 using namespace Trig;
 
