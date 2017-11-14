@@ -365,13 +365,12 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::ApplyARTTiming(const MmElect
   ElectronicsTriggerAppliedTiming_VMMid.clear();
   ElectronicsTriggerAppliedTiming_MMFEid.clear();
 
-
-  // LL
   //bunchTime = bunchTime + artOffset + jitter;
 
-
-   TF1 gaussianSmearing("f1","gaus",offset-jitter*5,offset+jitter*5);
+   TF1 gaussianSmearing("timingSmearing","gaus",offset-jitter*5,offset+jitter*5);
    gaussianSmearing.SetParameters(1,offset,jitter);
+
+
 
   for(size_t i = 0; i<ElectronicsTrigger_stripPos.size(); i++){
     // std::default_random_engine generator;
@@ -379,7 +378,10 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::ApplyARTTiming(const MmElect
     // float timingTransformation = distribution(generator);
 
     ElectronicsTriggerAppliedTiming_stripPos.push_back(ElectronicsTrigger_stripPos[i]);
-    ElectronicsTriggerAppliedTiming_stripTime.push_back(ElectronicsTrigger_stripTime[i] + gaussianSmearing.GetRandom() );
+
+    if(jitter || offset)    ElectronicsTriggerAppliedTiming_stripTime.push_back(ElectronicsTrigger_stripTime[i] + gaussianSmearing.GetRandom() );
+    else ElectronicsTriggerAppliedTiming_stripTime.push_back(ElectronicsTrigger_stripTime[i] );
+
     ElectronicsTriggerAppliedTiming_stripCharge.push_back(ElectronicsTrigger_stripCharge[i]);
     ElectronicsTriggerAppliedTiming_VMMid.push_back(ElectronicsTrigger_VMMid[i]);
     ElectronicsTriggerAppliedTiming_MMFEid.push_back(ElectronicsTrigger_MMFEid[i]);

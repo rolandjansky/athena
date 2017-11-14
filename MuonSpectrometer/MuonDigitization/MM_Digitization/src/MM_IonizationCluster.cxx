@@ -37,10 +37,10 @@ void MM_IonizationCluster::diffuseElectrons(float LongitudinalSigma, float Trans
 
 }
 
-void MM_IonizationCluster::propagateElectrons(float driftVelx, float driftVely, float driftVel) {
+void MM_IonizationCluster::propagateElectrons(float lorentzAngle, float driftVel) {
 
   for (auto& Electron : Electrons)
-    Electron->propagateElectron(driftVelx, driftVely, driftVel);
+    Electron->propagateElectron(lorentzAngle, driftVel);
 
 }
 

@@ -14,6 +14,7 @@
 #include "TF1.h"
 #include "TRandom3.h"
 #include "TVector2.h"
+#include "TMath.h"
 
 class MM_Electron {
 
@@ -35,7 +36,7 @@ class MM_Electron {
   
   void diffuseElectron(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);    
   void setOffsetPosition(float x, float y);
-  void propagateElectron(float driftVelx, float driftVely, float driftVel);
+  void propagateElectron(float lorentzAngle, float driftVel);
   void avalancheElectron(float gain, TRandom3* rndm);
   void setTime(float Time);
   void setCharge(float Charge);

@@ -40,10 +40,12 @@ void MM_Electron::diffuseElectron(float LongitudinalSigma, float TransverseSigma
 }
 void MM_Electron::setOffsetPosition(float x, float y) { offsetPosition.Set(x, y);}
 
-void MM_Electron::propagateElectron(float driftVelx, float driftVely, float driftVel) {
+void MM_Electron::propagateElectron(float lorentzAngle, float driftVel) {
 
-  if (driftVely != 0.)
-    offsetPosition.Set(offsetPosition.X() + driftVelx*offsetPosition.Y()/driftVely, offsetPosition.Y());
+  float tanLorentzAngle = TMath::Tan(lorentzAngle);
+  if (tanLorentzAngle == tanLorentzAngle) // checking that it's not NAN
+    offsetPosition.Set(offsetPosition.X() + tanLorentzAngle * offsetPosition.Y(), offsetPosition.Y());
+
   if (driftVel > 0.)
     time = offsetPosition.Mod()/driftVel;
   else

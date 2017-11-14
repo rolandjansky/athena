@@ -383,6 +383,7 @@ StatusCode MmDigitizationTool::initialize() {
   m_StripsResponse->set_crossTalk1(m_crossTalk1);
   m_StripsResponse->set_crossTalk2(m_crossTalk2);
   // m_StripsResponse->loadGasFile(m_gasFileName);
+  m_StripsResponse->initialize();
 
   m_ElectronicsResponse = new ElectronicsResponse();
   m_ElectronicsResponse->set_peakTime(m_peakTime); // VMM peak time parameter
@@ -1087,11 +1088,11 @@ StatusCode MmDigitizationTool::doDigitization() {
     MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
 
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicOutput charge length: " << ElectronicOutput.stripCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.stripCharge().size() );
+    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicOutput charge length: " << ElectronicOutput.stripCharge().size() );
+    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.stripCharge().size() );
     // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.stripCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime  charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime .chipCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTTiming  charge length: " << ElectronicsTriggerOutputAppliedARTTiming .chipCharge().size() );
+    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime  charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime .chipCharge().size() );
+    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTTiming  charge length: " << ElectronicsTriggerOutputAppliedARTTiming .chipCharge().size() );
     // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.chipCharge().size() );
     // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.chipCharge().size() );
 

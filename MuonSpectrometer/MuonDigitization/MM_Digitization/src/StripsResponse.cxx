@@ -39,46 +39,28 @@ Check double gaussian for transverse diffusion. Is it even implemented?
 
 /*******************************************************************************/
 StripsResponse::StripsResponse():
-m_qThreshold(0.001),
-m_transverseDiffusionSigma(0.360/10.),
-m_longitudinalDiffusionSigma(0.190/10.),
-m_pitch(0.500),
-m_avalancheGain(1.16e4),
-m_polyaFunction(0),
-// conv_gaus(0),
-m_driftGapWidth(5.128),
-m_driftVelocity(0.047),
-// nstrip(0),
-// temp_polya(0),
-// polya_theta(0),
-// numberOfElectrons(0),
-// dimClusters(0),
-m_maxPrimaryIons(300),
-// pt(0),
-// xx(0),
-// xxDiffussion(0),
-// yy(0),
-// yyDiffussion(0),
-// primaryion(0),
-m_interactionProbabilityMean(5./16.15),  // 5 mm per 16.15 interactions
-m_interactionProbabilitySigma(5./4.04)   //   Spread in this number.
-// totalelectrons(0),
-// gRandom_loc(0),
-// randomNum(0),
-// m_electricFieldZ(600.)
-{
-	clearValues();
-	initializationFrom();
-}
-/*******************************************************************************/
-// void StripsResponse::loadGasFile(std::string fileName){
-// 	Athena::MsgStreamMember log("StripsResponse::loadGasFile");
-// 	std::string fileWithPath = PathResolver::find_file (fileName, "CALIBPATH");
-// 	if (fileWithPath == "") {
-// 		log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endmsg;
-// 		exit(1);
-// 	}
-// }
+	m_qThreshold(0.001),
+	m_transverseDiffusionSigma(0.360/10.),
+	m_longitudinalDiffusionSigma(0.190/10.),
+	m_pitch(0.500),
+	m_avalancheGain(1.16e4),
+	m_driftGapWidth(5.128),
+	m_driftVelocity(0.047),
+	m_maxPrimaryIons(300),
+	m_interactionDensityMean(10./26.),  // 5 mm per 16.15 interactions
+	// m_interactionDensityMean(5./16.15),  // 5 mm per 16.15 interactions
+	m_interactionDensitySigma(0.001),   //   Spread in this number.
+	// m_interactionDensitySigma(5./4.04)   //   Spread in this number.
+	m_polyaFunction(0),
+	m_lorentzAngleFunction(0),
+	m_longitudinalDiffusionFunction(0),
+	m_transverseDiffusionFunction(0),
+	m_interactionDensityFunction(0),
+	m_random(0)
+	{
+	// clearValues();
+	// initializate();
+	}
 /*******************************************************************************/
 void StripsResponse::initHistos()
 {
@@ -90,8 +72,20 @@ void StripsResponse::writeHistos()
 /*******************************************************************************/
 void StripsResponse::initFunctions()
 {
-	m_polyaFunction = new TF1("polyaFit","[2]*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
-	m_polyaFunction->SetParameters(1.765, m_avalancheGain, 104.9);
+	// m_polyaFunction = new TF1("m_polyaFunction","[2]*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
+	// m_polyaFunction->SetParameters(1.765, m_avalancheGain, 104.9);
+
+
+	m_interactionDensityFunction = new TF1("interactionDensityFunction","gaus", 0., 10.);
+	m_interactionDensityFunction->SetParameter(0, 1.0); // normalization
+    m_interactionDensityFunction->SetParameter(1, 16.15 / 5.); // mean
+    m_interactionDensityFunction->SetParameter(2, 4.04 / 5.); // width
+	// m_interactionDensityFunction->SetParameters( 1., m_interactionDensityMean, m_interactionDensitySigma );
+
+	m_polyaFunction = new TF1("m_polyaFunction","[2]*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
+    m_polyaFunction->SetParameter(0, 1.765); // polya theta
+    m_polyaFunction->SetParameter(1, 1.16e4); // mean gain
+    m_polyaFunction->SetParameter(2, 104.9); // constant
 
 	m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
 	m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
@@ -100,11 +94,10 @@ void StripsResponse::initFunctions()
 	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
 	m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
 
-	m_interactionProbabilityFunction = new TF1("interactionProbabilityFunction","gaus", 0, 1000);
-	m_interactionProbabilityFunction->SetParameters( m_interactionProbabilityMean, m_interactionProbabilitySigma );
+	m_random = new TRandom3(0);
+
 
 	Athena::MsgStreamMember log("StripsResponse::initFunctions");
-
 	log << MSG::DEBUG << "StripsResponse::initFunctions DONE" << endmsg;
 
 }
@@ -116,26 +109,27 @@ void StripsResponse::clearValues()
 	if (m_lorentzAngleFunction           != 0 ) delete m_lorentzAngleFunction           ;
 	if (m_longitudinalDiffusionFunction  != 0 ) delete m_longitudinalDiffusionFunction  ;
 	if (m_transverseDiffusionFunction    != 0 ) delete m_transverseDiffusionFunction    ;
-	if (m_interactionProbabilityFunction != 0 ) delete m_interactionProbabilityFunction ;
+	if (m_interactionDensityFunction     != 0 ) delete m_interactionDensityFunction     ;
+	if (m_random                         != 0 ) delete m_random                         ;
 
 }
 
 /*******************************************************************************/
-void StripsResponse::initializationFrom()
+void StripsResponse::initialize()
 {
-	m_crossTalk1=0.0;
-	m_crossTalk2=0.0;
 
 	initHistos ();
 	initFunctions();
 
 	Athena::MsgStreamMember log("StripsResponse::initializationFrom");
 	log << MSG::DEBUG << "StripsResponse::initializationFrom set values" << endmsg;
+
 }
 
 /*******************************************************************************/
 MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiInput)
 {
+
 	Athena::MsgStreamMember log("StripsResponse::GetResponseFrom");
 	log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom start " << endmsg;
 
@@ -143,6 +137,7 @@ MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiI
 	finalNumberofStrip.clear();
 	finalqStrip.clear();
 	finaltStrip.clear();
+
 
 	log << MSG::DEBUG << "\t \t StripsResponse::calculateResponseFrom call whichStrips " << endmsg;
 
@@ -152,7 +147,10 @@ MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiI
 
 	MmStripToolOutput tmpStripToolOutput(finalNumberofStrip, finalqStrip, finaltStrip); // T.Saito
 
+
+
 	return tmpStripToolOutput;
+
 }
 
 //__________________________________________________________________________________________________
@@ -168,33 +166,38 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 	float eventTime = digiInput.eventTime();
 	float theta = thetaD*TMath::Pi()/180.0;
 
-	// dimClusters=7000; //dimClusters=total number of collisions
-
-	// m_interactionProbabilityMean = 10./26.;  //  24 e/8 mm or 23 e/10mm (as it has been used here) according to Sauli's paper, for Argon
-	// float tmpPathLength = m_interactionProbabilityFunction->GetRandom();
-
-	// this lmean should be drawn from a gaussian each time....
-
 	int nPrimaryIons = 0;
 
-	// Now generate the primary ionization colisions, Poisson distributed
-	TRandom3 randomNum(0);
+	m_random->SetSeed((int)fabs(hitx*10000));
 
-	randomNum.SetSeed((int)fabs(hitx*10000));
 
-	// float tmpRandomNumber = randomNum.Uniform();
+	Amg::Vector3D b = digiInput.magneticField() * 1000.;
 
-	float pathLengthTraveled = m_interactionProbabilityFunction->GetRandom() * -1. * log( randomNum.Uniform() );
+	// Still need to understand which sign is which... But I think this is correct...
+
+	float lorentzAngle = ( b.y()>0. ?  1.  :  -1. ) * m_lorentzAngleFunction->Eval( fabs( b.y() ) ) * TMath::DegToRad() ; // in radians
+
+	msglog << MSG::DEBUG << "StripsResponse::lorentzAngle vs theta: " << lorentzAngle << " " << theta << endmsg;
+
+
+
+	msglog << MSG::DEBUG << "StripResponse::function pointer points to " << m_interactionDensityFunction << endmsg;
+
+	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+
 	float pathLength         = m_driftGapWidth/TMath::Cos(theta);
-
 
 	while (pathLengthTraveled < pathLength){
 
 		MM_IonizationCluster IonizationCluster(hitx, pathLengthTraveled*sin(theta), pathLengthTraveled*cos(theta));
-		IonizationCluster.createElectrons(&randomNum);
-		//    IonizationCluster.diffuseElectrons(longitudinalDiffusSigma, diffusSigma, randomNum);
+		IonizationCluster.createElectrons(m_random);
+		//    IonizationCluster.diffuseElectrons(longitudinalDiffusSigma, diffusSigma, m_random);
 		//---
 		TVector2 initialPosition = IonizationCluster.getIonizationStart();
+
+		msglog << MSG::DEBUG << "StripResponse:: New interaction starting at x,y, pathLengthTraveled: " << initialPosition.X() << " " << initialPosition.Y() << " " << pathLengthTraveled<< endmsg;
+
+
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
 			m_longitudinalDiffusionFunction->SetParameters(1.0, initialPosition.Y(), initialPosition.Y()*m_longitudinalDiffusionSigma);
@@ -208,28 +211,31 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 				m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 1.0);
 
 			}
+
 			Electron->setOffsetPosition(m_transverseDiffusionFunction->GetRandom(), m_longitudinalDiffusionFunction->GetRandom());
+
 		}
-		//---
-
-		Amg::Vector3D b = digiInput.magneticField() * 1000.;
-
-		msglog << MSG::WARNING << "StripsResponse::See which is the largest?? x,y,z " << b.x() << " " << b.y() << " " << b.z() << endmsg;
-		float lorentzAngle = m_lorentzAngleFunction->Eval( b.x() );
 
 		// NEED TO REIMPLEMENT USING THE LORENTZ ANGLE UP HERE....
-		// IonizationCluster.propagateElectrons(vx, -vz, m_driftVelocity);
+		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity);
 
 		//---
 		for (auto& Electron : IonizationCluster.getElectrons()){
-			Electron->setCharge( m_polyaFunction->GetRandom() );
+
+			float effectiveCharge = m_polyaFunction->GetRandom();
+
+			Electron->setCharge( effectiveCharge );
+			msglog << MSG::DEBUG << "StripsResponse::Electron's effective charge is  " << effectiveCharge << endmsg;
+
 			// Add eventTime in Electron time
 			Electron->setTime(Electron->getTime() + eventTime);
 		}
 		//---
 		IonizationClusters.push_back(IonizationCluster);
 
-		pathLengthTraveled +=  m_interactionProbabilityFunction->GetRandom() * -1. * log( randomNum.Uniform() );
+		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+
+		msglog << MSG::DEBUG << "StripResponse:: path length traveled: " << pathLengthTraveled << endmsg;
 
 		nPrimaryIons++;
 		if (nPrimaryIons >= m_maxPrimaryIons) break; //don't create more than "MaxPrimaryIons" along a track....
@@ -249,6 +255,9 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 	finaltStrip = StripResponse.getTimeThresholdVec();
 	tStripElectronicsAbThr = StripResponse.getTimeMaxChargeVec();
 	qStripElectronics = StripResponse.getMaxChargeVec();
+
+
+	// clearValues();
 
 } // end of whichStrips()
 
