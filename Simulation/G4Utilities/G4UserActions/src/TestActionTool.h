@@ -93,7 +93,7 @@ namespace G4UA
 
       /// Fill user action
       virtual StatusCode
-      fillUserAction(G4AtlasUserActions* actions) override final;
+      fillUserAction(G4AtlasUserActions& actions) override final;
 
   }; // class TestActionTool
 

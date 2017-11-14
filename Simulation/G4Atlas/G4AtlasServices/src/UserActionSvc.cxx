@@ -122,7 +122,7 @@ namespace G4UA
     // Retrieve the new user actions
     G4AtlasUserActions actions;
     for(auto& tool : m_userActionTools) {
-      ATH_CHECK( tool->fillUserAction(&actions) );
+      ATH_CHECK( tool->fillUserAction(actions) );
     }
 
     // Initialize the ATLAS run action.

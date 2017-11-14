@@ -50,7 +50,7 @@ namespace G4UA
     public:
 
       /// Constructs a user action and populates the user action lists with it.
-      virtual StatusCode fillUserAction(G4AtlasUserActions* userActions) = 0;
+      virtual StatusCode fillUserAction(G4AtlasUserActions& userActions) = 0;
 
       /// Declare this interface to the framework
       DeclareInterfaceID(IUserActionTool, 1, 0);
