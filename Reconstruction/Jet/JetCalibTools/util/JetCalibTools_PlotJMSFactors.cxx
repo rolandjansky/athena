@@ -37,6 +37,12 @@ namespace jet
 }
 
 
+double mTA(const double trackMass, const double trackPt, const double caloPt)
+{
+    return trackMass * caloPt / trackPt;
+}
+
+
 
 int main (int argc, char* argv[])
 {
@@ -56,7 +62,8 @@ int main (int argc, char* argv[])
     const bool isDevMode  = ( argc > 5 && (TString(argv[5]) == "true" || TString(argv[5]) == "dev") ) ? true : false;
     
     // Derived information
-    const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") || outFile.EndsWith(".root");
+    const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps");
+    const bool outFileIsRoot = outFile.EndsWith(".root");
     const bool doCombMass = !massType.CompareTo("comb",TString::kIgnoreCase);
     const bool doCaloMass = doCombMass || !massType.CompareTo("calo",TString::kIgnoreCase);
     const bool doTAMass   = doCombMass || !massType.CompareTo("ta",TString::kIgnoreCase);
@@ -73,6 +80,7 @@ int main (int argc, char* argv[])
     const TString startingScaleString = "JetEtaJESScaleMomentum";
     const TString caloMassScaleString = "JetJMSScaleMomentumCalo";
     const TString taMassScaleString   = "JetJMSScaleMomentumTA";
+    const TString taMassFloatString   = "JetTrackAssistedMassCalibrated";
     const TString detectorEtaString   = "DetectorEta";
     const TString trackMassString     = "TrackSumMass";
     const TString trackPtString       = "TrackSumPt";
@@ -81,6 +89,7 @@ int main (int argc, char* argv[])
     jet::JetFourMomAccessor startingScale(startingScaleString.Data());
     jet::JetFourMomAccessor caloMassScale(caloMassScaleString.Data());
     jet::JetFourMomAccessor taMassScale(taMassScaleString.Data());
+    SG::AuxElement::Accessor<float> mTAfloat(taMassFloatString.Data());
     SG::AuxElement::Accessor<float> detectorEta(detectorEtaString.Data());
     SG::AuxElement::Accessor<float> trackMass(trackMassString.Data());
     SG::AuxElement::Accessor<float> trackPt(trackPtString.Data());
@@ -143,7 +152,7 @@ int main (int argc, char* argv[])
     std::vector<TH2D*> hists_pt_mpt;
     if (doCaloMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-2,2));
+        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-3,3));
         hists_pt_mpt.push_back(new TH2D("JMS_calo_pt_mpt",Form("JMS (calo): for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     if (doTAMass)
@@ -179,7 +188,7 @@ int main (int argc, char* argv[])
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
             const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : JMS;
-            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : calibJet->m()/trackMass(*jet);
+            const double JMSTA   = (doCombMass ? taMassScale(*calibJet).mass() : mTAfloat(*calibJet))/mTA(trackMass(*jet),trackPt(*jet),startingScale(*jet).pt());
 
             // JMS retrieved, fill the plot(s)
             size_t plotIndex = 0;
@@ -218,7 +227,7 @@ int main (int argc, char* argv[])
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
             const double JMScalo = doCombMass ? caloMassScale(*calibJet).mass()/startingScale(*jet).mass() : JMS;
-            const double JMSTA   = doCombMass ? taMassScale(*calibJet).mass()/trackMass(*jet) : calibJet->m()/trackMass(*jet);
+            const double JMSTA   = (doCombMass ? taMassScale(*calibJet).mass() : mTAfloat(*calibJet))/mTA(trackMass(*jet),trackPt(*jet),startingScale(*jet).pt());
 
             // JMS retrieved, fill the plot(s)
             size_t plotIndex = 0;
@@ -256,6 +265,7 @@ int main (int argc, char* argv[])
         hist->GetYaxis()->SetTitle("#eta");
         hist->GetYaxis()->SetTitleOffset(0.9);
         hist->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
+        //hist->GetZaxis()->SetRangeUser(0.4,1.1);
     }
     for (TH2* hist : hists_pt_mpt)
     {
@@ -266,6 +276,7 @@ int main (int argc, char* argv[])
         hist->GetYaxis()->SetTitle("m / #it{p}_{T}");
         hist->GetYaxis()->SetTitleOffset(0.9);
         hist->GetZaxis()->SetTitle("m_{JES+JMS} / m_{JES}");
+        //hist->GetZaxis()->SetRangeUser(0.4,1.1);
     }
 
     // Now write them out
@@ -280,6 +291,18 @@ int main (int argc, char* argv[])
             canvas->Print(outFile);
         }
         canvas->Print(outFile+"]");
+    }
+    else if (outFileIsRoot)
+    {
+        TFile* outRootFile = new TFile(outFile,"RECREATE");
+        std::cout << "Writing to output ROOT file: " << outFile << std::endl;
+        outRootFile->cd();
+        for (size_t iHist = 0; iHist < hists_pt_eta.size(); ++iHist)
+        {
+            hists_pt_eta.at(iHist)->Write();
+            hists_pt_mpt.at(iHist)->Write();
+        }
+        outRootFile->Close();
     }
     else
     {

@@ -211,12 +211,23 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     TIter ikeys_trkAssisted(keys_trkAssisted);
     while ( TKey *iterobj = (TKey*)ikeys_trkAssisted() ) {
       TString histoName = iterobj->GetName();
-      if ( histoName.Contains(m_jetAlgo) ) m_respFactorsTrackAssistedMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile_trkAssisted,histoName.Data()) );
+      if ( histoName.Contains(m_jetAlgo) ) 
+      { 
+        if (m_use3Dhisto)
+          m_respFactorTrackAssistedMass3D = dynamic_cast<TH3F*>(JetCalibUtils::GetHisto3(inputFile_trkAssisted,histoName.Data()));
+        else
+          m_respFactorsTrackAssistedMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile_trkAssisted,histoName.Data()) );
+      }
     }
 
     //Make sure we put something in the vector of TH2Fs
-    if ( m_respFactorsTrackAssistedMass.size() < 3 ) {
+    if ( !m_use3Dhisto && m_respFactorsTrackAssistedMass.size() < 3 ) {
       ATH_MSG_FATAL("Vector of track assisted mass correction histograms may be empty. Please check your track assisted mass calibration file: " << JMSFile);
+      return StatusCode::FAILURE;
+    }
+    else if ( m_use3Dhisto && !m_respFactorTrackAssistedMass3D)
+    {
+      ATH_MSG_FATAL("3D track assisted mass correction histogram may be missing.  Please check your mass calibration file: " << JMSFile);
       return StatusCode::FAILURE;
     }
     else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << file_trkAssisted_Name);
