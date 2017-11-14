@@ -497,13 +497,13 @@ TRT_ByteStream_ConditionsSvc::recordData()
 
   StatusCode sc(StatusCode::SUCCESS);
 
-  SG::WriteHandle<TRT_BSIdErrContainer> m_IdCont(m_writekeyErrContID);                                                    
-  sc = m_IdCont.record(std::make_unique<TRT_BSIdErrContainer>() );
+  SG::WriteHandle<TRT_BSIdErrContainer> IdCont(m_writekeyErrContID);                                                    
+  sc = IdCont.record(std::make_unique<TRT_BSIdErrContainer>() );
   if (sc.isFailure() )
     msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endmsg;
 
-  SG::WriteHandle<TRT_BSErrContainer> m_cont(m_writekeyErrCont);
-  sc = m_cont.record(std::make_unique<TRT_BSErrContainer>() );
+  SG::WriteHandle<TRT_BSErrContainer> cont(m_writekeyErrCont);
+  sc = cont.record(std::make_unique<TRT_BSErrContainer>() );
   if (sc.isFailure() )
     msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endmsg;
 
@@ -537,7 +537,7 @@ TRT_ByteStream_ConditionsSvc::recordData()
 	   std::pair<uint8_t, std::pair<uint32_t,uint8_t> >* err = 
 	      new std::pair<uint8_t, std::pair<uint32_t,uint8_t> >
 	      (std::make_pair( errType, *it ));
-	   m_IdCont->push_back(err);
+	   IdCont->push_back(err);
 	}
      }
   }
@@ -574,7 +574,7 @@ TRT_ByteStream_ConditionsSvc::recordData()
 	{
 	   std::pair<uint8_t, uint32_t>* err = 
 	      new std::pair<uint8_t, uint32_t> (std::make_pair( errType, *it ));
-	   m_cont->push_back(err);
+	   cont->push_back(err);
 	}
      }
   }
