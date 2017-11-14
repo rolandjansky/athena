@@ -91,8 +91,8 @@ namespace G4UA
       virtual StatusCode finalize() override final;
 
       /// Fill user action
-      virtual StatusCode
-      fillUserAction(G4AtlasUserActions& actions) override final;
+      virtual std::unique_ptr<TestAction>
+      makeAndFillAction(G4AtlasUserActions& actions) override final;
 
   }; // class TestActionTool
 

@@ -100,7 +100,8 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Construct and fill the user action
   //---------------------------------------------------------------------------
-  StatusCode TestActionTool::fillUserAction(G4AtlasUserActions& actions)
+  std::unique_ptr<TestAction>
+  TestActionTool::makeAndFillAction(G4AtlasUserActions& actions)
   {
     ATH_MSG_INFO("Constructing and filling a TestAction");
 
@@ -108,9 +109,7 @@ namespace G4UA
     actions.runActions.push_back( action.get() );
     actions.eventActions.push_back( action.get() );
     actions.steppingActions.push_back( action.get() );
-    m_actions.set( std::move(action) );
-
-    return StatusCode::SUCCESS;
+    return action;
   }
 
 } // namespace G4UA
