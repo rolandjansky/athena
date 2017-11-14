@@ -11,6 +11,9 @@
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
 
+// G4Atlas includes
+#include "G4AtlasInterfaces/IUserActionTool.h"
+
 // Local includes
 #include "ThreadSpecificUserAction.h"
 
@@ -26,7 +29,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   template <class ActionType>
-  class UserActionToolBase : public AthAlgTool
+  class UserActionToolBase : public extends<AthAlgTool, IUserActionTool>
   {
 
     public:
@@ -34,7 +37,7 @@ namespace G4UA
       /// Standard constructor
       UserActionToolBase(const std::string& type, const std::string& name,
                          const IInterface* parent)
-        : AthAlgTool(type, name, parent)
+        : base_class(type, name, parent)
       {}
 
     protected:

@@ -75,8 +75,7 @@ namespace G4UA
   /// @class TestActionTool
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class TestActionTool
-    : public extends<UserActionToolBase<TestAction>, IUserActionTool>
+  class TestActionTool : public UserActionToolBase<TestAction>
   {
 
     public:
