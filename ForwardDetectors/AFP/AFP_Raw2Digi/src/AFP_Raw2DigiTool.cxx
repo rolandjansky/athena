@@ -119,7 +119,7 @@ void AFP_Raw2DigiTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer,
   const uint32_t hitLink = data.link();
   const unsigned int robID = collection.robId();
   xAODToFHit->setTime(data.time()*s_timeConversionFactor);
-  xAODToFHit->setPulseLength(0); // currently there is no information in raw data about pulse length
+  xAODToFHit->setPulseLength(data.pulseLength()*s_pulseLengthFactor); 
   xAODToFHit->setHptdcChannel(data.channel());
 
   // set station ID
