@@ -38,8 +38,34 @@ namespace LArG4 {
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
       : AthService(name, pSvcLocator)
       , m_detectorName("LArMgr")
+      , m_rMinAccordion(0)
+      , m_rMaxAccordion(0)
+      , m_zMinBarrel(0)
+      , m_zMaxBarrel(0)
+      , m_etaMaxBarrel(0)
+      , m_NCellTot(0)
+      , m_NCellMax(0)
+      , m_Nbrt(0)
+      , m_Nbrt1(0)
+      , m_gam0(0)
+      , m_rint_eleFib(0)
+      , m_rc(nullptr)
+      , m_phic(nullptr)
+      , m_xc(nullptr)
+      , m_yc(nullptr)
+      , m_delta(nullptr)
+      , m_parity(0)
+      , m_coudeelec(nullptr)
+      , m_coudeabs(nullptr)
+      , m_electrode(nullptr)
+      , m_absorber(nullptr)
       , m_testbeam(false)
       , m_iflSAG(false)
+      , m_NRphi(0)
+      , m_Rmin(0)
+      , m_Rmax(0)
+      , m_Rphi{0}
+      , m_dR(0)
     {
       declareProperty("DetectorName",m_detectorName);
       declareProperty("TestBeam", m_testbeam);
@@ -790,8 +816,6 @@ namespace LArG4 {
       m_dR=0.10;
       m_Rmax=0.;
 
-      m_2pi = 2.*M_PI;
-
       const G4double rint= m_rint_eleFib;
       const G4double inv_rint = 1. / rint;
       const G4double dt=dl * inv_rint;
@@ -923,9 +947,9 @@ namespace LArG4 {
       const G4double phi_hit=atan2(yhit,xhit);  // from -pi to pi
       G4double dphi=phi_hit-phi0;
       // bring back to 0-2pi
-      if (dphi<0) dphi=dphi+m_2pi;
-      if (dphi>=m_2pi) dphi=dphi-m_2pi;
-      dphi=dphi/(m_2pi)*1024;
+      if (dphi<0) dphi=dphi+2*M_PI;
+      if (dphi>=2*M_PI) dphi=dphi-2*M_PI;
+      dphi=dphi/(2*M_PI)*1024;
       const G4int ngap=((int) dphi);
 #ifdef DEBUGHITS
       ATH_MSG_VERBOSE(" phi0 " << phi0 << " dphi, ngap " << dphi << " " << ngap);
