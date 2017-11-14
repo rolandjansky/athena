@@ -11,7 +11,7 @@
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 from AthenaCommon.Logging import logging
-skelLog = logging.getLogger('PhysicsValidaiton')
+skelLog = logging.getLogger('PhysicsValidation')
 skelLog.info( '****************** Starting Physics Validation *****************' )
 
 from RecExConfig.RecFlags import rec
