@@ -135,7 +135,7 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
   return match_result;
 }
 
-  bool MatchingTool::match(const xAOD::IParticle& recoObject, const std::string& chain, bool rerun, double matchThreshold) {
+  bool MatchingTool::match(const xAOD::IParticle& recoObject, const std::string& chain, double matchThreshold, bool rerun) {
    impl()->setThreshold( matchThreshold );
    std::vector<const xAOD::IParticle*> recoObjects(1,&recoObject);
    bool out = match(recoObjects, chain, rerun);
@@ -143,7 +143,7 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
    return out;
 }
 
-  bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, bool rerun, double matchThreshold) {
+  bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, double matchThreshold, bool rerun) {
    impl()->setThreshold( matchThreshold );
    bool out = match(recoObjects, chain, rerun);
    impl()->setThreshold( m_matchingThreshold );

@@ -30,8 +30,8 @@ public:
   StatusCode initialize();
 
   bool match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, bool rerun);
-  bool match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, bool rerun, double matchTreshold);
-  bool match(const xAOD::IParticle& recoObjects, const std::string& chain, bool rerun, double matchTreshold);
+  bool match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, double matchTreshold, bool rerun);
+  bool match(const xAOD::IParticle& recoObjects, const std::string& chain, double matchTreshold, bool rerun);
 
 protected:
   MatchingImplementation* impl();
