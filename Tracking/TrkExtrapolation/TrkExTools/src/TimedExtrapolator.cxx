@@ -1209,7 +1209,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
     detParameters = (&parsOnLayer);
   } else if (isStartLayer) {
     detParameters = (&parm);
-  } else {
+  } else if (detSurface) {
     // detParameters = prop.propagate(parm, *detSurface, dir, false, tvol, particle);
     detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle);
   }
