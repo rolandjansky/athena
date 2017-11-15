@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.00 $"
+__version__="$Revision: 1.01 $"
 __doc__="Class defining data periods and access to GRLs"
 
 import sys
@@ -69,10 +69,17 @@ class TriggerPeriodData:
         'I1':(336832,337005,16400),
         'I2':(337052,337215,17078),
         'I3':(337263,337833,18456),
+        'K' :(338183,340453,20614),
+        'K1':(338183,338349,15706),
+        'K2':(338377,339070,20486),
+        'K3':(339197,339197,917),
+        'K4':(339205,339205,15216),
+        'K5':(339346,339849,20614),
+        'K6':(339957,340453,15750),
     }
     
     grlroot = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
-    y2017grlpath = grlroot+"data17_13TeV/20171019/data17_13TeV.periodAllYear_DetStatus-v95-pro21-09_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
+    y2017grlpath = grlroot+"data17_13TeV/20171103/data17_13TeV.periodAllYear_DetStatus-v96-pro21-12_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2016grlpath = grlroot+"data16_13TeV/20170605/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlroot+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
     def __init__(self, period):
@@ -130,17 +137,12 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2017['G'] )
                 ranges.append( self.periodMap2017['H'] )
                 ranges.append( self.periodMap2017['I'] )
+            if period & TriggerPeriod.y2017periodK     :
+                ranges.append( self.periodMap2017['K'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
 def test():
-    #root = TriggerPeriod.y2017grlroot
-    #print root.tag, root.attrib
-    #for child in root:
-    #    print child.tag, child.attrib
-
-    #for run in root.findall('NamedLumiRange/LumiBlockCollection'):
-    #    print run.find('Run').text, [(x.get('Start'), x.get('End')) for x in run.findall('LBRange')]
     print TriggerPeriodData( TriggerPeriod.y2015 ).grl
 
 if __name__ == "__main__":

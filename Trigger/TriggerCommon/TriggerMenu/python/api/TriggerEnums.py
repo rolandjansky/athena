@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.00 $"
+__version__="$Revision: 1.01 $"
 __doc__="Enumerations for trigger types and periods"
 
 from enum import IntEnum
@@ -48,14 +48,15 @@ class TriggerPeriod(IntEnum):
     y2017periodE      = 1 << 10
     y2017periodF      = 1 << 11
     y2017periodGHI    = 1 << 12
-    future1p8e34      = 1 << 13
-    future2e34        = 1 << 14
+    y2017periodK      = 1 << 13
+
+    future1p8e34      = 1 << 16
+    future2e34        = 1 << 17
     runNumber         = 1 << 18 #Can't get higher than this
 
     y2017periodB      = y2017periodB1   | y2017periodB2B4 | y2017periodB5B7 | y2017periodB8
     y2017periodD      = y2017periodD1D5 | y2017periodD6
-    y2017periodDplus  = y2017periodD    | y2017periodE    | y2017periodF    | y2017periodGHI
-    y2017periodAll    = y2017periodB    | y2017periodC    | y2017periodDplus
+    y2017periodAll    = y2017periodB    | y2017periodC    | y2017periodD    | y2017periodE | y2017periodF | y2017periodGHI | y2017periodK
     y2017             = y2017periodAll
     y2016             = y2016periodAD3  | y2016periodD4plus
     future            = future1p8e34    | future2e34

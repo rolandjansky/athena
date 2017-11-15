@@ -13,7 +13,7 @@ python/minbias python/heavyion python/bphysics python/calibcosmicmon
 python/test python/combined python/commonUtils python/api )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/generate*Menu.py scripts/menuTestTMC.sh 
-scripts/generateUnprescaledLists.py )
+scripts/generateUnprescaledLists.py scripts/runTriggerAPIExample.py)
 atlas_install_xmls( data/*.dtd data/*.xml )
 
 atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh 
