@@ -65,7 +65,7 @@ function( _add_test cxx_name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoopTestLib )
 endfunction( _add_test )
 
-set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/ut_background_driver.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx)
+set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/ut_background_driver.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_driver_proof_lite.cxx test/ut_xrootd_input.cxx)
 
 set (SLOW_TESTS test/gt_DirectDriver.cxx)
 
