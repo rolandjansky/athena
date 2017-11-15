@@ -135,26 +135,30 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
   return match_result;
 }
 
-bool MatchingTool::match(const xAOD::IParticle& recoObject, const std::string& chain, double matchThreshold) {
+  bool MatchingTool::match(const xAOD::IParticle& recoObject, const std::string& chain, double matchThreshold, bool rerun) {
    impl()->setThreshold( matchThreshold );
    std::vector<const xAOD::IParticle*> recoObjects(1,&recoObject);
-   bool out = match(recoObjects, chain);
+   bool out = match(recoObjects, chain, rerun);
    impl()->setThreshold( m_matchingThreshold );
    return out;
 }
 
-bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, double matchThreshold) {
+  bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, double matchThreshold, bool rerun) {
    impl()->setThreshold( matchThreshold );
-   bool out = match(recoObjects, chain);
+   bool out = match(recoObjects, chain, rerun);
    impl()->setThreshold( m_matchingThreshold );
    return out;
 }
 
-bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain){
+  bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, bool rerun){
   ATH_MSG_DEBUG("matching " << recoObjects.size() << " reco objects to chain: " << chain );
-  
+
   auto chainGroup = impl()->tdt()->getChainGroup(chain);
-  bool decision = chainGroup->isPassed();
+  bool decision;
+  if (!rerun)
+    decision = chainGroup->isPassed();
+  else
+    decision = chainGroup->isPassed(TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
   ATH_MSG_DEBUG(chain << " is passed: " << decision);
   if(!decision) return false;
   
@@ -172,7 +176,7 @@ bool MatchingTool::match(const std::vector<const xAOD::IParticle*>& recoObjects,
   }
 
   ATH_MSG_DEBUG("overall matching result: " << result);
-  
+
   return result;
 }
 
