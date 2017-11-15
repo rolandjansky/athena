@@ -143,6 +143,21 @@ StatusCode ISF::TruthSvc::initializeTruthCollection()
   return StatusCode::SUCCESS;
 }
 
+/** Delete child vertex */
+void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex *vtx) {
+
+  for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
+       iter != vtx->particles_out_const_end(); ++iter) {
+     if( (*iter) && (*iter)->end_vertex() ) {
+       verticesToDelete.push_back( (*iter)->end_vertex() );
+     }
+  }
+
+  vtx->parent_event()->remove_vertex(vtx);
+   
+  return;
+}
+
 
 StatusCode ISF::TruthSvc::releaseEvent() {
   return StatusCode::SUCCESS;
@@ -330,7 +345,14 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
 
     // Remove the old vertex from the event
-    parent->parent_event()->remove_vertex( parent->end_vertex() );
+    //parent->parent_event()->remove_vertex( parent->end_vertex() );
+     
+    // KB: Remove the old vertex and their all child vertices  from the event
+    verticesToDelete.resize(0);
+    verticesToDelete.push_back(parent->end_vertex());
+    for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
+       this->deleteChildVertex(verticesToDelete.at(i));
+    }
 
     // Now add the new vertex to the new parent
     vtx->add_particle_in( parent );
