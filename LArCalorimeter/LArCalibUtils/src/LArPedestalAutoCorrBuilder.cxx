@@ -160,37 +160,21 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 
 StatusCode LArPedestalAutoCorrBuilder::stop() {
 
-  LArAutoCorrComplete* larAutoCorrComplete = NULL;
-  LArPedestalComplete* larPedestalComplete = NULL;
+  std::unique_ptr<LArAutoCorrComplete> larAutoCorrComplete;
+  std::unique_ptr<LArPedestalComplete> larPedestalComplete;
 
   if (m_doAutoCorr) { 
     //Book and initialize LArAutoCorrComplete object
-    larAutoCorrComplete = new LArAutoCorrComplete();
-    StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
-      return sc;
-    }
-    sc=larAutoCorrComplete->initialize(); 
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
-      return sc;
-    }
+    larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
+    ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType,msg()) );
+    ATH_CHECK( larAutoCorrComplete->initialize() );
   }
 
   if (m_doPedestal) {
     //Book and initialize LArPedestalComplete object
-    larPedestalComplete = new LArPedestalComplete();
-    StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
-      return sc;
-    }
-    sc=larPedestalComplete->initialize(); 
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
-      return sc;
-    }
+    larPedestalComplete = std::make_unique<LArPedestalComplete>();
+    ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
+    ATH_CHECK( larPedestalComplete->initialize() );
   }
     
   //For the log output further down
@@ -247,43 +231,13 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
   msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
     
   if (larPedestalComplete) {
-    // Record LArPedestalComplete
-    StatusCode sc = detStore()->record(larPedestalComplete,m_pedContName);
-    if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
-      delete larPedestalComplete;
-      delete larAutoCorrComplete;
-      return sc;
-    }
-    else
-      msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
-    
-    // Make symlink
-    sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
-    if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
-      return sc;
-    }
-  } // end if LArPedestal
+    ATH_CHECK( detStore()->record(std::move(larPedestalComplete),m_pedContName) );
+  }
 
 
   if (larAutoCorrComplete) {
-    StatusCode sc = detStore()->record(larAutoCorrComplete,m_acContName);
-    if (sc != StatusCode::SUCCESS) { 
-      msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
-      delete larAutoCorrComplete;
-      return sc;
-    }
-    else
-      msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
-
-    // Make symlink
-    sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
-    if (sc != StatusCode::SUCCESS)  {
-      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
-      return sc;
-    }
-  } // end if have AutoCorr
+    ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_acContName) );
+  }
 
   return StatusCode::SUCCESS;
 }

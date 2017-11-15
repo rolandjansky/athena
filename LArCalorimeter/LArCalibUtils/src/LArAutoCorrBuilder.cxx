@@ -50,7 +50,7 @@ StatusCode LArAutoCorrBuilder::stop() {
 
   ATH_MSG_DEBUG(">>> stop()");
 
-  LArAutoCorrComplete* larAutoCorrComplete = new LArAutoCorrComplete();
+  auto larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
   // Initialize LArAutoCorrComplete 
   StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
@@ -107,20 +107,7 @@ StatusCode LArAutoCorrBuilder::stop() {
   msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
   
   // Record LArAutoCorrComplete
-  sc = detStore()->record(larAutoCorrComplete,m_acContName);
-  if (sc != StatusCode::SUCCESS) { 
-    msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
-    delete larAutoCorrComplete;
-    return sc;
-  }
-  else
-    msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
-  // Make symlink
-  sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
-  if (sc != StatusCode::SUCCESS)  {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
-    return sc;
-  }
+  ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_acContName) );
    
   return StatusCode::SUCCESS;
 }
