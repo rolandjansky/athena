@@ -37,25 +37,25 @@ public:
   /// @name IAsgEGammaIsEMSelector methods in Addition to the IAsgSelectionTool
   /// @{
 
-  /// Accept with reference to  IParticle  
+  /// accept with reference to  IParticle  
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
-  /// Accept with pointer to Egamma object 
+  /// accept with pointer to Egamma object 
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
 
   ///Accept with reference to Egamma objects
   virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
 
-  /// Accept with Photon pointer
+  /// accept with Photon pointer
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
 
-  /// Accept with Photon reference
+  /// accept with Photon reference
   virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
 
-  /// Accept with Electron reference
+  /// accept with Electron reference
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
-  /// Accept with Electron reference 
+  /// accept with Electron reference 
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
   ///Add a legacy execute method 

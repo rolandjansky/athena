@@ -37,7 +37,7 @@ class IAsgElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
 
   /// @name IAsgElectronIsEMSelector methods in Addition to the IAsgEGammaIsEMSelector ones
   /// @{
-
+  /// It adds no new mehtod to the IAsgEGammaIsEMSelector interface 
   ///@}
 
   /// Virtual Destructor
