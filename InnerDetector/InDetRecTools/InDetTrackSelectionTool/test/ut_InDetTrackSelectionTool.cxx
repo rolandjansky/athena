@@ -107,12 +107,16 @@ int main( int argc, char* argv[] ) {
    Info( APP_NAME, "Number of events in the file: %llu", event.getEntries() );
 
    // Decide how many events to run over:
+   const Long64_t maxEntries = 100;
    Long64_t entries = event.getEntries();
    if( argc > 2 ) {
       const Long64_t e = atoll( argv[ 2 ] );
       if( e < entries ) {
          entries = e;
       }
+   }
+   if ( entries > maxEntries ) {
+     entries = maxEntries;
    }
    
    for (Long64_t entry = 0; entry < entries; ++entry) {
