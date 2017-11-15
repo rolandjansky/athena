@@ -27,9 +27,11 @@ class IAsgElectronMultiLeptonSelector : virtual public IAsgSelectionTool
 
 public:
 
-
   /// @name IAsgElectronMultiLeptonSelector methods in addition to the IAsgSelectionTool ones
   ///{@
+
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
+  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept method with reference to IParticle 
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
