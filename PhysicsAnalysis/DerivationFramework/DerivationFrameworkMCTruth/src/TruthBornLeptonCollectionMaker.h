@@ -12,10 +12,10 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
 // EDM includes for the particles we need
 #include "xAODTruth/TruthParticle.h"
-
+// For the Metadata store
+#include "GaudiKernel/ServiceHandle.h"
 // STL includes
 #include <string>
 
