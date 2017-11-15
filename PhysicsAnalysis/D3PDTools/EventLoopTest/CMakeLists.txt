@@ -39,12 +39,22 @@ target_compile_definitions (EventLoopTestLib PUBLIC USE_CMAKE)
 
 # Test(s) in the package:
 function( _add_gtest cxx_name )
+   set (EXTRA_ARGS )
+   list (FIND SLOW_TESTS "${cxx_name}" slow_index)
+   if (${slow_index} GREATER -1)
+     set (EXTRA_ARGS ${EXTRA_ARGS} PROPERTIES TIMEOUT 180)
+   endif ()
    get_filename_component( test_name ${cxx_name} NAME_WE )
+   message ( ${test_name}
+      SOURCES test/${test_name}.cxx
+      INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
+      SampleHandler EventLoopTestLib ${EXTRA_ARGS} )
    atlas_add_test( ${test_name}
       SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
-      SampleHandler EventLoopTestLib )
+      INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
+      SampleHandler EventLoopTestLib ${EXTRA_ARGS} )
 endfunction( _add_gtest )
 
 function( _add_test cxx_name )
@@ -57,6 +67,9 @@ endfunction( _add_test )
 
 set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/ut_background_driver.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx)
 
+set (SLOW_TESTS test/gt_DirectDriver.cxx)
+
+
 file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )
 foreach( source ${_tests} )
   string (REGEX REPLACE "test/(.*).cxx" "\\1" util ${source})
@@ -66,7 +79,7 @@ foreach( source ${_tests} )
     add_executable ("EventLoopTestLib_${util}" ${source})
     target_link_libraries ("EventLoopTestLib_${util}" EventLoopTestLib)
   else (${_index} GREATER -1)
-    _add_gtest( test/${util}.cxx )
+    _add_gtest( test/${util}.cxx)
   endif (${_index} GREATER -1)
 endforeach()
 

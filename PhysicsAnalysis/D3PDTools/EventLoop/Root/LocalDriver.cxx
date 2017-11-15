@@ -48,6 +48,15 @@ namespace EL
 
 
 
+  std::string LocalDriver ::
+  batchReleaseSetup (bool sharedFileSystem) const
+  {
+    RCU_READ_INVARIANT (this);
+    return "";
+  }
+
+
+
   void LocalDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
 	       std::size_t njob) const
