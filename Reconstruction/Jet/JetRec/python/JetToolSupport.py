@@ -517,6 +517,40 @@ class JetToolManager:
     self.jetcons += [output]
     return jetrec
 
+  # Create a SoftDrop and rectool.
+  #   output = name for output container (and JetRecTool)
+  #   beta = Beta used in SoftDrop
+  #   zcut = ZCut used in SoftDrop
+  #   input = name of the input jet container
+  #   modifiersin = list of modifier tools (or name of such in modifiersMap)
+  def addJetSoftDrop(self, output, beta, zcut, input, modifiersin ="groomed",
+                     isTrigger =False, useTriggerStore =False, doArea =True):
+    from JetRec.JetRecConf import JetSoftDrop
+    from JetRec.JetRecConf import JetRecTool
+
+    groomer = JetSoftDrop(output + "Groomer")
+    groomer.ZCut = zcut
+    groomer.Beta = beta
+    if doArea:
+      groomer.JetBuilder = self.jetBuilderWithArea
+    else:
+      groomer.JetBuilder = self.jetBuilderWithoutArea
+    self += groomer
+    jetrec = JetRecTool(output)
+    jetrec.JetGroomer = groomer
+    jetrec.InputContainer = input
+    jetrec.OutputContainer = output
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
+    jetrec.Trigger = isTrigger or useTriggerStore
+    jetrec.Timer = jetFlags.timeJetRecTool()
+    self += jetrec
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
+    self.jetcons += [output]
+    return jetrec
+
   # Create a jet reclusterer and rectool.
   #   output = name for output container (and JetRecTool)
   #   alg = akgorithm name (Kt, CamKt, AntiKt)
