@@ -365,9 +365,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       }
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty()
-		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+   if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
+                  && m_streamServer == m_outputStreamingTool.size()) {
       ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server.");
       return(StatusCode::SUCCESS);
    }
    std::map<void*, RootType> commitCache;
