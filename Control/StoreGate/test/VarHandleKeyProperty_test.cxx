@@ -27,6 +27,7 @@
 
 class MyObj {};
 CLASS_DEF (MyObj, 293847295, 1)
+CONDCONT_DEF (MyObj, 293847296);
 
 namespace
 {
