@@ -9,7 +9,6 @@
 ForwardTransportModelTool::ForwardTransportModelTool(const std::string& type, const std::string& name, const IInterface *parent)
   : FastSimulationBase(type,name,parent)
 {
-  declareInterface<IFastSimulation>(this);
   declareProperty("ForwardTransportSvcName", m_FwdTrSvcName="ForwardTransportSvc", "");
 }
 

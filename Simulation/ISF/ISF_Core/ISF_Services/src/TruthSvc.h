@@ -53,7 +53,7 @@ namespace ISF {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class TruthSvc : public AthService, public ITruthSvc {
+  class TruthSvc : public extends<AthService, ITruthSvc> {
   public:
 
     //** Constructor with parameters */
@@ -75,9 +75,6 @@ namespace ISF {
 
     /** Finalize the Truth Svc at the end of each event*/
     StatusCode releaseEvent() override final;
-
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
   private:
     /** Record the given truth incident to the MC Truth */

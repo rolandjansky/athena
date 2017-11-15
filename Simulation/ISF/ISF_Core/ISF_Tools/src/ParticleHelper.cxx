@@ -18,10 +18,9 @@
 
 /** Constructor **/
 ISF::ParticleHelper::ParticleHelper(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_barcodeSvc("BarcodeSvc",n)
 {
-  declareInterface<ISF::IParticleHelper>(this);
   // different options
   declareProperty("BarcodeSvc",               m_barcodeSvc);
 

@@ -31,7 +31,7 @@
 
 /** Constructor **/
 ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_barcodeSvc("BarcodeSvc",name),
   m_geoStrategies(),
   m_numStrategies(),
@@ -66,20 +66,6 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
 
 ISF::TruthSvc::~TruthSvc()
 {}
-
-
-/** Query the interfaces. */
-StatusCode ISF::TruthSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
- if ( IID_ITruthSvc == riid )
-    *ppvInterface = (ITruthSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
-}
 
 
 /** framework methods */

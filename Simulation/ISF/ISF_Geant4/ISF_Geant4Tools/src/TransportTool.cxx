@@ -47,7 +47,7 @@ static std::once_flag finalizeOnceFlag;
 iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : base_class(t,n,p)
   , m_libList("")
   , m_physList("")
   , m_fieldMap("")
@@ -67,9 +67,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   , m_fastSimTool("FastSimulationMasterTool")
   , m_pRunMgr(nullptr)
 {
-
-  declareInterface<ITransportTool>(this);
-
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
   declareProperty("FieldMap",              m_fieldMap);
