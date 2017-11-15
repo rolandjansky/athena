@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.00 $"
+__version__="$Revision: 1.01 $"
 __doc__="Class containing all the information of an HLT chain"
 
 import re
@@ -155,28 +155,24 @@ class TriggerLeg:
                 cloneself.details = [ x for x in self.details if not x.startswith("nod0")]
                 compno = cloneself.compareDetails(other,debug)
                 if compno ==1 or compno == -1: 
-                    #print "About to return 1",self.legname, other.legname
                     return 1
             if any([x.startswith("nod0") for x in other.details]):
                 cloneother = deepcopy(other)
                 cloneother.details = [ x for x in other.details if not x.startswith("nod0")]
                 compno = self.compareDetails(cloneother,debug)
                 if compno ==0 or compno == -1:
-                    #print "About to return 0",self.legname, other.legname
                     return 0
             if any([x.startswith("cut") for x in self.details]):
                 cloneself = deepcopy(self)
                 cloneself.details = [ x for x in self.details if not x.startswith("cut")]
                 compno = cloneself.compareDetails(other,debug)
                 if compno ==0 or compno == -1: 
-                    #print "About to return 0",self.legname, other.legname
                     return 0
             if any([x.startswith("cut") for x in other.details]):
                 cloneother = deepcopy(other)
                 cloneother.details = [ x for x in other.details if not x.startswith("cut")]
                 compno = self.compareDetails(cloneother,debug)
                 if compno ==1 or compno == -1:
-                    #print "About to return 1",self.legname, other.legname
                     return 1
             return -9
         compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, debug=debug)

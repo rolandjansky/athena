@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.00 $"
+__version__="$Revision: 1.01 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
 import sys
@@ -42,7 +42,6 @@ def getReadyForPhysicsInRange(period):
         if sincerun != untilrun:
             print "WARNING: ready block crosses run boundaries:", sincerun, untilrun
         if sincerun not in period: continue
-        #if untilrun not in runlist: print "WTF", sincerun, untilrun
         if sincerun in runsWithReady:
             runsWithReady[sincerun] += [ (sincelb, untillb) ]
         else:
@@ -154,16 +153,11 @@ def queryHLTPrescaleTableRun2(connection,psk):
 
 
 def fillHLTlist( info, hltList , lbCount, run, grlblocks):
-    from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales #, getHLTPrescalesRun2 #,getChains
+    from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
     chainsHLT = {k:v for (k,v) in chainsHLT.iteritems() if "L1" in v[1]}
-
-    #l1psname, l1prescales = getL1Prescales('TRIGGERDB', info['l1psk'][0][0]) # here only asking for the first LB prescale key
-    #l1prescales is a list of 512 prescales, also for IDs which were not used
-    #hltprescales = getHLTPrescalesRun2('TRIGGERDB', info['hltpsk'][0][0])
-    #hltprescales is a map HLTID -> prescale
 
     tmphltList = []
     for lbrange in info['hltpsk']:
@@ -179,10 +173,6 @@ def fillHLTlist( info, hltList , lbCount, run, grlblocks):
         l1psname, l1prescales = getL1Prescales('TRIGGERDB', lbrange[0])
         l1prescales    = {l1name: l1prescales[int(l1id)] for (l1name, l1id) in items.iteritems()}
         tmpl1List.append(( lbstart, lbend,l1prescales) )
-
-    ##if the lb limits don't match shut out and skip for the momenet
-    #if tmpl1List[0][0] != tmphltList[0][0] or tmpl1List[-1][1] != tmphltList[-1][1]:
-    #    print "FUCK", run, tmpl1List[0][:2], tmphltList[0][:2], tmpl1List[-1][:2], tmphltList[-1][:2]
 
     #merge the lb ranges of HLT and L1
     hltindex, l1index = 0,0
@@ -218,14 +208,12 @@ def fillHLTlist( info, hltList , lbCount, run, grlblocks):
             if hltps < 1: hltps = 1e10
             l1seeds = chainsHLT[hltid][1]
             l1ps = 1e10
-            for l1seed in l1seeds.split(","): #protect L1_MU20,L1_MU21
+            for l1seed in l1seeds.split(","): #protect 'L1_MU20,L1_MU21'
                 tmpl1ps = l1prescales[l1seed] 
                 if tmpl1ps < 1: tmpl1ps = 1e10
                 l1ps = min(l1ps, tmpl1ps)
             
             efflb = lboverlap/(hltps*l1ps)
-            if chainsHLT[hltid][0]  == "HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6" and (hltps*l1ps)>1:
-                print "HLT_mu50:",run,(lboverlap, lbstart, lbend, grlblocks),hltps,l1ps
             if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0]
             hltMap[chainsHLT[hltid][0]][1] += efflb
     
@@ -278,17 +266,11 @@ def getHLTlist_fromDB(period):
     runsWithReadyForPhysics = getReadyForPhysicsInRange(triggerPeriod)
     keys = getKeys( runsWithReadyForPhysics)
     
-    # get keys for last run
-    #lastRun = sorted(keys.keys())[-1:]
-    #lastRuns = sorted(keys.keys())[-10:]
-    #print "Checking run:",lastRun
     hltList = []
     lbCount = 0
     for run in keys:
         print "Filling run:",run
         hltList, lbCount = fillHLTlist( keys[run], hltList, lbCount , run, triggerPeriod[run])
-        #print "After filling, items/lbCount: ",len(hltList),lbCount
-        #print "mu26_ivarmedium items:",[(x, l1, ps) for x, (l1, ps) in hltList if "mu26_ivarmedium" in x]
 
     return [(x, l1, ps/float(lbCount)) for x, (l1, ps) in hltList]
     
@@ -315,7 +297,7 @@ def getHLTlist_fromTM(period):
         sliceName=prop
         m_slice=getattr(TriggerFlags,sliceName)
         for m in m_slice.signatures():
-            #['mu28_ivarmedium',      'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['Primary:20000','RATE:SingleMuon', 'BW:Muon'], -1],
+            #['mu28_ivarmedium', 'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['Primary:20000','RATE:SingleMuon', 'BW:Muon'], -1],
             hltname = 'HLT_'+m[0]
             l1seed  = m[1]
             comment = m[4][0]

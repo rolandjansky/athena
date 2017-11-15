@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __author__  = 'Javier Montejo'
-__version__="$Revision: 1.00 $"
+__version__="$Revision: 1.01 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
 import sys, pickle
@@ -8,13 +8,23 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    pickleFile = "TriggerInfo.pickle"
+    centralPickleFile = "/afs/cern.ch/user/j/jmontejo/public/TriggerInfo.pickle" #FIXME
+    privatePickleFile = "TriggerInfo.pickle"
     try:
-        with open(pickleFile, 'r') as f:
+        with open(centralPickleFile, 'r') as f:
+            print "Reading cached information"
             dbQueries = pickle.load(f)
     except Exception as e:
+        print "Reading cached information failed, please report to jmontejo@cern.ch"
         dbQueries = {}
-    
+    try:
+        with open(privatePickleFile, 'r') as f:
+            print "DEBUG OPEN:",centralPickleFile
+            tmpdbQueries = pickle.load(f)
+            dbQueries.update(tmpdbQueries)
+    except Exception as e:
+        pass
+
     @classmethod
     def getLowestUnprescaled(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
         ''' Returns a list of the lowest-pt-threshold HLT chains that were always unprescaled in the given period.
@@ -43,7 +53,6 @@ class TriggerAPI:
             subperiod = 2**i
             cls._loadTriggerPeriod(subperiod, reparse)
             subperiodset = set( cls.dbQueries[subperiod]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern) )
-            #print TriggerPeriod(subperiod), subperiodset
             lowset |= subperiodset
         return list(lowset)
     
@@ -77,20 +86,16 @@ class TriggerAPI:
             cls.dbQueries[period] = TriggerInfo(period)
             if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
                 #Don't pickle TM information since it can change, very cheap to retrieve anyway
-                with open(cls.pickleFile, 'w') as f:
+                with open(cls.privatePickleFile, 'w') as f:
                     pickle.dump( cls.dbQueries , f)
         if reparse: cls.dbQueries[period].reparse()
 
 def main():
     ''' Run some tests '''
-    from TriggerEnums import TriggerPeriod, TriggerType
     for triggerType in TriggerType:
-        unprescaled = TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodAll,triggerType)
-        #unprescaled = TriggerAPI.getLowestUnprescaled(332303,triggerType)
+        unprescaled = TriggerAPI.getLowestUnprescaled(332303,triggerType)
         print triggerType
         print sorted(unprescaled)
-    print TriggerAPI.getLowestUnprescaled(337833,TriggerType.mu_bphys,matchPattern="bJpsi")
-    print TriggerAPI.getLowestUnprescaled(337833,TriggerType.xe,matchPattern="pufit")
 
 if __name__ == "__main__":
         sys.exit(main())
