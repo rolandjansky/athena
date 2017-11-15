@@ -37,9 +37,9 @@ if rec.doFTK():
     
     if rec.doTruth():
         include ('FTK_RecExample/ConfiguredFTK_TrackTruth.py')
-        FTK_TracksTruth = ConfiguredFTK_TrackTruth(Tracks="TrigFTK_TrackCollection",
+        FTK_TracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollection",
                                                    TracksTruth = "FTK_Tracks_TruthCollection",
                                                    DetailedTruth = "FTK_Tracks_DetailedTruthCollection")
-        FTK_RefitTracksTruth = ConfiguredFTK_TrackTruth(Tracks="TrigFTK_TrackCollectionRefit", 
+        FTK_RefitTracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollectionRefit", 
                                                      TracksTruth = "FTK_RefitTracks_TruthCollection",
                                                      DetailedTruth = "FTK_RefitTracks_DetailedTruthCollection")
