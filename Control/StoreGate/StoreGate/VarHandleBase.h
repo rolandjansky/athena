@@ -309,7 +309,7 @@ namespace SG {
     /**
      * @brief Return handle to the referenced store.
      */
-    ServiceHandle<IProxyDict> storeHandle() const;
+    const ServiceHandle<IProxyDict>& storeHandle() const;
 
 
     /**
