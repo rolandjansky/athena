@@ -68,8 +68,6 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 				if (_stripCharge==0.) continue;
 
-				std::cout << "cross talk function: " << stripVal << " " << _stripCharge << std::endl;
-
 				if (stripVal-1 > -1) (stripCharges[timeBin])[stripVal-1] += _stripCharge * crossTalk1;
 				if (stripVal+1 > -1) (stripCharges[timeBin])[stripVal+1] += _stripCharge * crossTalk1;
 
