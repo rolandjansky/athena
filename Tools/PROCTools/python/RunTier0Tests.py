@@ -131,7 +131,17 @@ def GetReleaseSetup():
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
-    latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
+    ### OLD
+    #latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
+    ###
+    ### NEW - suggest to use latest opt over dbg
+    sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
+    latest_nightly = ''
+    for folder in reversed(sorted_list):
+        if not len(glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log')) : continue
+        latest_nightly = folder.split('/')[-3]
+        break
+    ### NEW
 
     if current_nightly != latest_nightly:
         logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
