@@ -138,7 +138,7 @@ def GetReleaseSetup():
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
     latest_nightly = ''
     for folder in reversed(sorted_list):
-        if not len(glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log')) : continue
+        if not glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log') : continue
         latest_nightly = folder.split('/')[-3]
         break
     ### NEW
