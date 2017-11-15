@@ -156,6 +156,10 @@ int main ()
   xAOD::TReturnCode::enableFailure();
   xAOD::Init ().ignore();
 
+  std::string prefix = "DuplicateCheckerSubmit";
+
+  RCU::Shell::exec ("rm -rf " + prefix + "*");
+
   if (makeXAOD ("test1.root", 1, 0).isFailure())
   {
     std::cout << "failed to make test file" << std::endl;
@@ -188,15 +192,15 @@ int main ()
 
     {
       DirectDriver driver;
-      driver.submit (job, "submit1");
-      checkHistograms ("submit1", 30000, 26000, true);
+      driver.submit (job, prefix + "1");
+      checkHistograms (prefix + "1", 30000, 26000, true);
     }
     {
       LocalDriver driver;
-      driver.submit (job, "submit2");
-      checkHistograms ("submit2", 30000, 27000, false);
+      driver.submit (job, prefix + "2");
+      checkHistograms (prefix + "2", 30000, 27000, false);
     }
-    RCU::Shell::exec ("cmp submit1/duplicates submit2/duplicates");
+    RCU::Shell::exec ("cmp " + prefix + "1/duplicates " + prefix + "2/duplicates");
   }
 
   {
@@ -204,14 +208,14 @@ int main ()
     std::unique_ptr<DuplicateChecker> alg (new DuplicateChecker);
     alg->setEventInfoName ("MyEventInfo");
     alg->setOutputTreeName ("summary");
-    alg->addKnownDuplicatesFile ("submit1/duplicates");
+    alg->addKnownDuplicatesFile (prefix + "1/duplicates");
     job.algsAdd (alg.release());
     job.sampleHandler (sh);
 
     {
       LocalDriver driver;
-      driver.submit (job, "submit3");
-      checkHistograms ("submit3", 30000, 26000, true);
+      driver.submit (job, prefix + "3");
+      checkHistograms (prefix + "3", 30000, 26000, true);
     }
   }
 
