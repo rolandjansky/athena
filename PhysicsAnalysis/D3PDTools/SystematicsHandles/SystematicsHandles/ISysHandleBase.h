@@ -11,6 +11,8 @@
 // reports, feature suggestions, praise and complaints.
 
 
+#include <string>
+
 namespace EL
 {
   /// \brief a basic interface for all systematics handles

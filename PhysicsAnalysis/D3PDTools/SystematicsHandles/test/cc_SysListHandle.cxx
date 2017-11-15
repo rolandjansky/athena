@@ -25,8 +25,6 @@
 // this tries to instantiate the various templates
 int main ()
 {
-  CP::SystematicSet *sys = nullptr;
-
   EL::AnaAlgorithm *alg = nullptr;
   EL::SysListHandle algProperty (alg);
   EL::SysReadHandle<float> algHandle (alg, "test", "test", "test");
