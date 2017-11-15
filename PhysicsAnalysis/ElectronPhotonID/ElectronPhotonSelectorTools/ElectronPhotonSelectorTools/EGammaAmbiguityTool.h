@@ -21,7 +21,7 @@
 class EGammaAmbiguityTool : public asg::AsgTool,
 			    virtual public IEGammaAmbiguityTool
 {
-  ASG_TOOL_CLASS3(EGammaAmbiguityTool, IEGammaAmbiguityTool, asg::IAsgTool)
+  ASG_TOOL_CLASS2(EGammaAmbiguityTool, IEGammaAmbiguityTool, asg::IAsgTool)
 
 public: 
   /** Standard constructor */
