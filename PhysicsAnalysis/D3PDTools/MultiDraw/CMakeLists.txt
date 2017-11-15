@@ -38,4 +38,6 @@ endmacro( _add_test )
 
 _add_test( ut_alg_cflow )
 _add_test( ut_alg_hist )
-_add_test( ut_condor_large )
+
+#disabling this test for now
+#_add_test( ut_condor_large )
