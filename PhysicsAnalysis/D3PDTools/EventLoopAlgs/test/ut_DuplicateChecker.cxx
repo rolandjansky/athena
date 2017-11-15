@@ -158,7 +158,7 @@ int main ()
 
   std::string prefix = "DuplicateCheckerSubmit";
 
-  RCU::Shell::exec ("rm -rf " + prefix + "*");
+  RCU::Shell::exec ("rm -rf " + prefix + "[123]");
 
   if (makeXAOD ("test1.root", 1, 0).isFailure())
   {
