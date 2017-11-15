@@ -36,7 +36,7 @@ public:
 
   /// @name IAsgPhotonIsEMSelector methods in Addition to the IAsgEGammaIsEMSelector ones
   /// @{
-
+  /// It adds no new methods to the IAsgEGammaISEMSelector Interface
   ///@}
 
   /// Virtual Destructor
