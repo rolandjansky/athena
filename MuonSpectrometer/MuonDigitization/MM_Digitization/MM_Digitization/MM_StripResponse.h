@@ -55,14 +55,15 @@ class MM_StripResponse {
   std::map<int, float> getTotalCharge() const;
   std::map<int, float> getMaxCharge() const;
   std::map<int, int> getTimeMaxCharge() const;
-  
+
   std::vector<int> getStripVec() const;
   std::vector < std::vector < float > > getTimeThresholdVec() const;
   std::vector < std::vector < float > >getTotalChargeVec() const;
   std::vector<float> getMaxChargeVec() const;
   std::vector<float> getTimeMaxChargeVec() const;
 
-  
+  int getNElectrons();
+
 };
 
 #endif

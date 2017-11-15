@@ -54,8 +54,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-#include "MM_Digitization/StripsResponse.h"
-#include "MM_Digitization/ElectronicsResponse.h"
+#include "MM_Digitization/StripsResponseSimulation.h"
+#include "MM_Digitization/ElectronicsResponseSimulation.h"
 #include "MM_Digitization/MMStripVmmMappingTool.h"
 
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
@@ -167,7 +167,7 @@ private:
   //CONFIGURATION
   bool m_validationSetup;
   double m_energyThreshold;
-  bool m_saveInternalHistos;
+  bool m_writeOutputFile;
   bool m_checkMMSimHits;
   bool m_useTof;
   bool m_useAttenuation;
@@ -210,15 +210,18 @@ private:
   double m_amplification;
 
   // StripsResponse stuff...
-  StripsResponse *m_StripsResponse;
-  float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
-  float m_qThresholdForTrigger;
-  std::string m_gasFileName;
+  StripsResponseSimulation *m_StripsResponseSimulation;
+  float m_qThreshold;
+  float m_transverseDiffusionSigma;
+  float m_longitudinalDiffusionSigma;
+  float m_driftGapWidth;
+  float m_driftVelocity;
+  float m_crossTalk1;
+  float m_crossTalk2;
 
   // ElectronicsResponse stuff...
-  ElectronicsResponse *m_ElectronicsResponse;
+  ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
   float m_alpha;// power of responce function
-  // float m_RC ;// time constant of responce function
   float m_peakTime; // VMM setting
   float m_electronicsThreshold; // threshold "Voltage" for histoBNL
   float m_stripdeadtime; // dead-time for strip

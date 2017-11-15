@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ElectronicsResponse_h
-#define ElectronicsResponse_h
-/** @class ElectronicsResponse
+#ifndef MM_DIGITIZATION_ELECTRONICSRESPONSESIMULATION_H
+#define MM_DIGITIZATION_ELECTRONICSRESPONSESIMULATION_H
+/** @class ElectronicsResponseSimulation
 
 // ------------
 // Authors:
@@ -13,12 +13,23 @@
 //   Leontsinis Stefanos     <stefanos.leontsinis@cern.ch>
 //   Nektarios Chr. Benekos  <nbenekos@cern.ch>
 //   Jessica Metcalfe        <jessica.metcalfe@gmail.com>
+//
+// Major Contributions From: Verena Martinez
+//                           Tomoyuki Saito
+//
+// Major Restructuring for r21+ From: Lawrence Lee <lawrence.lee.jr@cern.ch>
+//
 //////////////////////////////////////////////////////////////////////////////
 
-Comments to be added here....
-
-
 */
+
+
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/Service.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "GaudiKernel/StatusCode.h"
+
 
 /// ROOT
 #include <TROOT.h>
@@ -43,7 +54,8 @@ Comments to be added here....
 #include "MM_Digitization/MmElectronicsToolInput.h"
 #include "MM_Digitization/MmElectronicsToolTriggerOutput.h"
 #include "MM_Digitization/MmDigitToolOutput.h"
-#include "MM_Digitization/StripsResponse.h"
+// #include "MM_Digitization/StripsResponseSimulation.h"
+
 //VMM Mapping
 #include "MM_Digitization/MMStripVmmMappingTool.h"
 
@@ -57,35 +69,37 @@ class TH1;
 class TH1F;
 class TH2F;
 
-class ElectronicsResponse {
+class ElectronicsResponseSimulation {
 
 private:
   /** power of responce function */
   float m_peakTime;
   float m_alpha;
-  /**  */
-  // float RC ;
-  /** hreshold "Voltage" for histoBNL */
   float m_timeWindowLowerOffset;
   float m_timeWindowUpperOffset;
   float m_electronicsThreshold;
   float m_stripdeadtime;
   float m_ARTdeadtime;
   float m_StripResponse_qThreshold;
-  float m_StripResponse_driftGap;
+  float m_StripResponse_driftGapWidth;
   float m_StripResponse_driftVelocity;
 
+  int  m_decoupleShaperFunctionParamaters;
+
   TF1 *h_intFn;
-  StripsResponse* m_stripObject ;
-  ElectronicsResponse & operator=(const ElectronicsResponse &right);
-  ElectronicsResponse(const ElectronicsResponse&);
+  // StripsResponseSimulation* m_stripObject ;
+  ElectronicsResponseSimulation & operator=(const ElectronicsResponseSimulation &right);
+  ElectronicsResponseSimulation(const ElectronicsResponseSimulation&);
 public :
 
-  ElectronicsResponse();
-  virtual ~ElectronicsResponse();
+  ElectronicsResponseSimulation();
+  virtual ~ElectronicsResponseSimulation();
+
+  void initialize();
+
   void clearValues ();
-  void bnlPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void bnlThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void VMMPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void VMMThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
   MmDigitToolOutput GetPeakResponseFrom(const MmElectronicsToolInput & digiInput);
   MmDigitToolOutput GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
 
@@ -101,18 +115,17 @@ public :
   vector <float> qStripElectronics;
   vector <int> nStripElectronics;
 
-  inline void set_peakTime(float val) {
-    m_peakTime = val;
-    float peakTimeMultiplier = sqrt(m_peakTime / 50.);
-    m_alpha = 2.5 * peakTimeMultiplier;
-    h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
-    h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
-  };
+  inline void set_peakTime(float val) { m_peakTime = val;  };
   inline void set_timeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void set_timeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
   inline void set_electronicsThreshold(float val) { m_electronicsThreshold = val;};
   inline void set_stripdeadtime(float val) { m_stripdeadtime = val;};
   inline void set_ARTdeadtime(float val) { m_ARTdeadtime = val;};
+
+  inline void set_StripResponse_qThreshold    (float val) { m_StripResponse_qThreshold    = val; };
+  inline void set_StripResponse_driftVelocity (float val) { m_StripResponse_driftVelocity = val; };
+  inline void set_StripResponse_driftGapWidth (float val) { m_StripResponse_driftGapWidth = val; };
+
 
   float get_peakTime() const { return m_peakTime;};
   float get_alpha() const { return m_alpha;};
@@ -125,7 +138,7 @@ public :
 
   vector <float>  get_tStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
   vector <float>  get_qStripElectronics () const { return qStripElectronics;};
-  vector <int>  get_nStripElectronics () const { return nStripElectronics;};
+  vector <int>    get_nStripElectronics () const { return nStripElectronics;};
 
 
 };

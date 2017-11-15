@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_STRIPRESPONSE_H
-#define MM_DIGITIZATION_STRIPRESPONSE_H
+#ifndef MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
+#define MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
 /** @class StripsResponse
 
 // ------------
@@ -14,6 +14,12 @@
 //   Karakostas Konstantinos <konstantinos.karakostas@cern.ch>
 //   Leontsinis Stefanos     <stefanos.leontsinis@cern.ch>
 //   Nektarios Chr. Benekos  <nbenekos@cern.ch>
+//
+// Major Contributions From: Verena Martinez
+//                           Tomoyuki Saito
+//
+// Major Restructuring for r21+ From: Lawrence Lee <lawrence.lee.jr@cern.ch>
+//
 //////////////////////////////////////////////////////////////////////////////
 
 Comments to be added here...
@@ -30,6 +36,7 @@ Comments to be added here...
 #include <TROOT.h>
 #include <TFile.h>
 #include <TF1.h>
+#include <TH1.h>
 #include <TRandom.h>
 #include <TRandom3.h>
 #include <TCanvas.h>
@@ -61,15 +68,11 @@ class TF1;
 class TRandom;
 class TRandom3;
 
-class ElectronicsResponse;
 class MmDigitToolInput;
 class MmStripToolOutput;
-//class MmElectronicsToolInput;
-//class MmDigitToolOutput;
 
-// class GarfieldGas;
 
-class StripsResponse {
+class StripsResponseSimulation {
 
 private:
 
@@ -109,19 +112,21 @@ private:
 
   TRandom3 * m_random;
 
+  TFile * m_outputFile;
+
   // GarfieldGas* gas;
 
-  StripsResponse & operator=(const StripsResponse &right);
-  StripsResponse(const StripsResponse&);
+  StripsResponseSimulation & operator=(const StripsResponseSimulation &right);
+  StripsResponseSimulation(const StripsResponseSimulation&);
 
   std::vector<MM_IonizationCluster> IonizationClusters;
 
 public :
 
 
-  StripsResponse();
+  StripsResponseSimulation();
 
-  virtual ~StripsResponse();
+  virtual ~StripsResponseSimulation();
   MmStripToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
 
   void initialize ();
@@ -129,7 +134,7 @@ public :
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID, const MmDigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & thetaDegrees, const int & stripMaxID, const MmDigitToolInput & digiInput);
 
   inline void set_qThreshold (float val) { m_qThreshold = val; };
   inline void set_transverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
@@ -137,10 +142,13 @@ public :
   inline void set_driftVelocity (float val) { m_driftVelocity = val; };
   inline void set_crossTalk1 (float val) { m_crossTalk1 = val; };
   inline void set_crossTalk2 (float val) { m_crossTalk2 = val; };
-  inline void set_driftGap      (float val) {m_driftGapWidth = val;};
-  float get_qThreshold    () const { return m_qThreshold   ;};
-  float get_driftGap      () const { return m_driftGapWidth     ;};
-  float get_driftVelocity () const { return m_driftVelocity;};
+  inline void set_driftGapWidth (float val) {m_driftGapWidth = val;};
+
+  inline void set_outputFile( TFile* m_file ){  m_outputFile = m_file; };
+
+  float get_qThreshold    () const { return m_qThreshold;      };
+  float get_driftGapWidth () const { return m_driftGapWidth;   };
+  float get_driftVelocity () const { return m_driftVelocity;   };
 
   vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
   vector <float> get_qStripElectronics() const { return qStripElectronics;};
@@ -170,5 +178,12 @@ public :
 
   vector <float> clusterelectrons;
   vector <float> l;
+
+
+
+private:
+
+  std::map<TString, TH1F* > m_mapOfHistograms;
+
 };
 #endif
