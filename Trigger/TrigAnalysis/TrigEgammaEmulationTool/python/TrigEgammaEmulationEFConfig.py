@@ -43,6 +43,9 @@ EgammaEFCaloDefaultEmulator = ToolFactory( Trig__TrigEgammaEFCaloSelectorTool,
                                                                       ToolSvc.AsgElectronLHVLooseCaloSelector])
 
 # EF Electron
+from TrigEgammaEmulationTool.TrigEgammaEmulationIsolationConfig import createIsoToolElectronSelector
+IsolationSelectors =  createIsoToolElectronSelector()
+
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEFElectronSelectorTool
 EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelectorTool,
                                                name                   = "TrigEgammaEFElectronDefaultEmulator",
@@ -56,13 +59,7 @@ EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelecto
                                                                           ToolSvc.AsgElectronLHLooseSelector,
                                                                           ToolSvc.AsgElectronLHVLooseSelector,
                                                                           ],
-                                               EtConeSizes            = 3,
-                                               RelEtConeCut           = [-1.0, -1.0, -1.0],
-                                               EtConeCut              = [-1.0, -1.0, -1.0],
-                                               PtConeSizes            = 6,
-                                               RelPtConeCut_var       = [-1.0, -1.0, -1,0.100,-1.0,-1.0], #ivarloose
-                                               RelPtConeCut           = [0.100, -1.0, -1.0,-1.0,-1.0,-1.0], #iloose
-                                               PtConeCut              = [-1.0, -1.0, -1.0,-1,-1.0,-1.0],
+                                               IsolationSelector          = IsolationSelectors,
                                                )
 
 # The following can be left as an example, please remove the remaining ones.
