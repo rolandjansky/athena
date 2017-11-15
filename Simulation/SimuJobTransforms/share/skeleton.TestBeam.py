@@ -236,8 +236,6 @@ except:
 include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
 ## Add G4 alg to alg sequence
-#from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg #HACK
-#topSeq += PyG4AtlasAlg() #HACK
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

@@ -357,6 +357,9 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    eParameters->position(),
 									    eParameters->momentum(),
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
+  // free memory
+  delete eParameters;
+
   if (uisp && m_validationOutput) {
     // save validation info
     ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
