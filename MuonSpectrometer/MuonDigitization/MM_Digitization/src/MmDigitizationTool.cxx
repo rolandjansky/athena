@@ -235,8 +235,8 @@ StatusCode MmDigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "DiffusSigma            " << m_transverseDiffusionSigma 	     );
 	ATH_MSG_DEBUG ( "LogitundinalDiffusSigma" << m_longitudinalDiffusionSigma );
 	ATH_MSG_DEBUG ( "DriftVelocity          " << m_driftVelocity       );
-	ATH_MSG_ERROR ( "crossTalk1             " << m_crossTalk1 	     );
-	ATH_MSG_ERROR ( "crossTalk2             " << m_crossTalk2 	     );
+	ATH_MSG_DEBUG ( "crossTalk1             " << m_crossTalk1 	     );
+	ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     );
 	ATH_MSG_DEBUG ( "ValidationSetup         " << m_validationSetup     );
 	ATH_MSG_DEBUG ( "EnergyThreshold         " << m_energyThreshold     );
 
