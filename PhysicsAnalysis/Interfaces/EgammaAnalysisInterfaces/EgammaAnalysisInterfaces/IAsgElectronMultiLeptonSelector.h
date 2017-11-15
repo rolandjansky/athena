@@ -35,6 +35,7 @@ public:
 
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+
   /** The main accept method: using the generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 

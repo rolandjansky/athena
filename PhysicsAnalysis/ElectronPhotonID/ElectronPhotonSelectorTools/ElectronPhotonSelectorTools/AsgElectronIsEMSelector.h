@@ -55,25 +55,40 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   /** Gaudi Service Interface method implementations */
   virtual StatusCode finalize();
 
-  // Main methods for IAsgSelectionTool interface
+  /// @name Methods from the  IAsgSelectionTool interface
+  /// @{
 
-
+  /** Method to get the plain TAccept */
+  virtual const Root::TAccept& getTAccept( ) const;
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
+
+  ///@}
+
+  /// @name  Methods from the IAsgEGammaIsEMSelectorinterface
+  /// @{
 
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
     return accept(&part);
   }
-  
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
-
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
     return accept(&part);
   }
 
+  /** The value of the isem **/
+  virtual unsigned int IsemValue() const; 
+
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const;
+
+  ///@}
+
+  /// @name Methods from the IAsgElectronIsEMSelectorinterface
+  /// @{
   /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
 
@@ -90,17 +105,9 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
     return accept(&part);
   }
 
-  /** The value of the isem **/
-  virtual unsigned int IsemValue() const; 
-
-  /** Method to get the operating point */
-  virtual std::string getOperatingPointName( ) const;
-
   //The main execute method
   StatusCode execute(const xAOD::Egamma* eg) const;
-
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  /// @}
 
   // Private member variables
 private:

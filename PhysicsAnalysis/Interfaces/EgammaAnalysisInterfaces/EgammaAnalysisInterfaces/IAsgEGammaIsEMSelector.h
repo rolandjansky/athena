@@ -19,7 +19,6 @@
 
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-
 // Forward declarations
 namespace Root{
   class TAccept;
@@ -35,29 +34,45 @@ class IAsgEGammaIsEMSelector : virtual public IAsgSelectionTool
 
 public:
 
-  /**Virtual Destructor*/
-  virtual ~IAsgEGammaIsEMSelector() {};
+  /// @name IAsgEGammaIsEMSelector methods in Addition to the IAsgSelectionTool
+  /// @{
 
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
-
-  /** Accept with generic interface */
+  /// Accept with reference to  IParticle  
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
-  /////Egammma IsEM specific methods
-
-  /** Accept with Egamma objects */
+  /// Accept with pointer to Egamma object 
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
 
-  /** Accept with Egamma objects */
+  ///Accept with reference to Egamma objects
   virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
 
+  /// Accept with Photon pointer
+  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
+
+  /// Accept with Photon reference
+  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
+
+  /// Accept with Electron reference
+  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+
+  /// Accept with Electron reference 
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
+
+  ///Add a legacy execute method 
+  virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
+
+  ///Return the egamma IsEM decision as unsigned int
   virtual unsigned int IsemValue() const =0;
 
-  /** Method to get the operating point */
+  /// Report the current operating point
   virtual std::string getOperatingPointName( ) const =0;
- 
-}; // End: class definition
+
+  ///@}
+
+  /// Virtual Destructor
+  virtual ~IAsgEGammaIsEMSelector() {};
+
+}; 
 
 
 #endif

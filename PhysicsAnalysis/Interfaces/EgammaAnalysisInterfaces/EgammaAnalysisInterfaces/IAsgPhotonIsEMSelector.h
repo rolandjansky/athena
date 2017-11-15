@@ -34,42 +34,13 @@ class IAsgPhotonIsEMSelector : virtual public IAsgEGammaIsEMSelector
 
 public:
 
-  /**Virtual Destructor*/
+  /// @name IAsgPhotonIsEMSelector methods in Addition to the IAsgEGammaIsEMSelector ones
+  /// @{
+
+  ///@}
+
+  /// Virtual Destructor
   virtual ~IAsgPhotonIsEMSelector() {};
-
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
-
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
-  
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
-
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-
-
-  ////Expert methods /////////////////////////////////////
-  /** The isem potentially for the trigger */
-  virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
-
-  virtual unsigned int IsemValue() const =0;
-
-  /** Method to get the operating point */
-  virtual std::string getOperatingPointName( ) const =0;
  
 }; // End: class definition
 
