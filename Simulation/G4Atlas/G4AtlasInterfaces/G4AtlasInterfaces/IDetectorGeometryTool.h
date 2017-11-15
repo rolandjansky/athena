@@ -34,10 +34,8 @@ struct Envelope
 class IDetectorGeometryTool : virtual public IAlgTool {
  public:
   virtual ~IDetectorGeometryTool() {}
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_IDetectorGeometryTool( "IDetectorGeometryTool" , 1 , 0 ) ;
-    return IID_IDetectorGeometryTool ; 
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IDetectorGeometryTool, 1, 0);
 
   virtual void Build() = 0;
   

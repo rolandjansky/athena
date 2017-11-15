@@ -22,12 +22,11 @@
 
 namespace Simulation
 {
-
   /** Constructor **/
   GenEventBeamEffectBooster::GenEventBeamEffectBooster( const std::string& t,
                                                         const std::string& n,
                                                         const IInterface* p )
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AtRndmGenSvc", n),
       m_randomEngine(0),
@@ -49,8 +48,6 @@ namespace Simulation
       m_beam1ParticleMass(CLHEP::proton_mass_c2),
       m_beam2ParticleMass(CLHEP::proton_mass_c2)
   {
-    declareInterface<IGenEventManipulator>(this);
-
     // declare properties for the configuration
     declareProperty( "BeamCondSvc"      , m_beamCondSvc      );
     declareProperty( "RandomSvc"        , m_rndGenSvc        );

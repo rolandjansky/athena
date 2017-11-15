@@ -25,7 +25,7 @@
 
 // constructor
 Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p)
- : AthAlgTool(t,n,p)
+ : base_class(t,n,p)
  , m_extrapolator("")
  , m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
  , m_extrapolateDirectly(false)
@@ -118,7 +118,6 @@ Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const st
  , m_g4_stepsMS(-1)
 
 {
-   declareInterface<IGeantFollowerMSHelper>(this);
    // properties
    declareProperty("Extrapolator",                   m_extrapolator);
    declareProperty("ExtrapolateDirectly",            m_extrapolateDirectly);

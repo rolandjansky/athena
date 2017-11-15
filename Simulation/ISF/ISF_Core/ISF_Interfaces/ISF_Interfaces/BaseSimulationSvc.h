@@ -40,12 +40,12 @@ namespace ISF {
       
       @author Michael.Duehrssen -at- cern.ch, Andreas.Salzburger -at- cern.ch, Elmar.Ritsch -at- cern.ch
      */
-  class BaseSimulationSvc : public AthService, public ISimulationSvc { 
+  class BaseSimulationSvc : public extends<AthService, ISimulationSvc> {
     public: 
       
       //** Constructor with parameters */
       BaseSimulationSvc( const std::string& name, ISvcLocator* pSvcLocator):
-        AthService(name,pSvcLocator),
+        base_class(name,pSvcLocator),
         m_evtStore( "StoreGateSvc/StoreGateSvc",  name ),
         m_detStore( "StoreGateSvc/DetectorStore", name ),
         m_simDescr(),
@@ -152,9 +152,6 @@ namespace ISF {
        */
       StoreGateSvc_t& detStore() const {return m_detStore;};
 
-      /** Query the interfaces. **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-    
       /** templated Tool retrieval - gives unique handling & look and feel */
       template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle){
          if (!thandle.empty() && thandle.retrieve().isFailure()){
@@ -242,20 +239,6 @@ namespace ISF {
    { 
        return StatusCode::SUCCESS;
    }
-        
-  
-  /** Query the interfaces. */
-  inline StatusCode BaseSimulationSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
-    if ( IID_ISimulationSvc == riid ) 
-      *ppvInterface = (ISimulationSvc*)this;
-    else  {
-      // Interface is not directly available: try out a base class
-      return AthService::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-   }  
-      
 }
 
 
