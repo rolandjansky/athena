@@ -29,11 +29,14 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
 
   ASG_TOOL_INTERFACE(IAsgElectronLikelihoodTool)
 
-  public:
+ public:
 
   /// @name IAsgElectronLikelihoodTool  methods in Addition to the IAsgSelectionTool ones
   /// Some are there to mainly support the calls done from the online/Trigger side 
   /// @{
+
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
+  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept using  reference to IParticle 
   virtual const Root::TAccept& accept( const xAOD::IParticle& part) const = 0;

@@ -102,7 +102,7 @@ private:
   /** @brief Photon container name */
   std::string m_photonContainerName;
   /** @When used as a selector reject/accpet ambiguous cases */
-  bool m_acceptAmbiguous  
+  bool m_acceptAmbiguous;  
 }; // End: class definition
 
 #endif

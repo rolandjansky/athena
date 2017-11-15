@@ -37,6 +37,9 @@ public:
   /// @name IAsgEGammaIsEMSelector methods in Addition to the IAsgSelectionTool
   /// @{
 
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
+  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+
   /// accept with reference to  IParticle  
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
