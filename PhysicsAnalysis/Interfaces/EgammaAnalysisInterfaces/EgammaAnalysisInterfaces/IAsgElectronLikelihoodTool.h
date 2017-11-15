@@ -80,6 +80,9 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   /// TResult method: for pointer to egamma when mu not in EventInfo for online
   virtual const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const = 0;
 
+  // Just return the TResult 
+  virtual const Root::TResult& getTResult( ) const=0;
+
   ///Method to get the operating point 
   virtual std::string getOperatingPointName( ) const =0;
 
