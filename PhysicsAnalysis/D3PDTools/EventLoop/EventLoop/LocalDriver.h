@@ -52,6 +52,9 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
+  private:
+    virtual std::string batchReleaseSetup (bool sharedFileSystem) const override;
+
     /// effects: perform the actual local submission with njob jobs
     /// guarantee: strong
     /// failures: submission errors
