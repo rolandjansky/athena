@@ -159,7 +159,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName); 
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16Recommendation_Aug2017.config");
+    std::string JES_config_file("JES_MC16Recommendation_Nov2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -193,7 +193,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-      JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
+      JES_config_file = "JES_MC16Recommendation_PFlow_Nov2017.config"; 
+
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
       if(!m_JMScalib.empty()){
@@ -609,7 +610,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise electron efficiency tool
   //map name hardcoded for now. Might need some maintenance/thinking //MT
-  std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt";
+  std::string egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt";
+  std::string egMapFile_trig_tmp = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt"; // temporary fix until we get trigger SF for R21
 
   PATCore::ParticleDataType::DataType data_type(PATCore::ParticleDataType::Data);
   if (!isData()) {
@@ -640,7 +642,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       m_elecEfficiencySFTool_iso.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
       // New isolation recommendations are in the release - no need to update the map file by hand
-      //ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", egMapFile) );
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", egMapFile) );
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
@@ -666,7 +668,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     //-- get KEYS supported by egamma SF tools
     //map name hardcoded above for now
-    std::vector<std::string> eSF_keys = getElSFkeys(egMapFile);
+    std::vector<std::string> eSF_keys = getElSFkeys(egMapFile_trig_tmp); // temporary fix until we get trigger SF for R21
+    //std::vector<std::string> eSF_keys = getElSFkeys(egMapFile);
  
     // electron triggers - first SFs (but we need to massage the id string since all combinations are not supported)
 
@@ -679,7 +682,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringSingle << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << ") ***");
       return StatusCode::FAILURE;
     }
-    
 
     //dilepton
     std::string triggerDiEleIso("");
@@ -719,7 +721,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trig_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      //ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", egMapFile) );
+      ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
+      //ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", egMapFile) ); 
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("TriggerKey", m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IsoKey", triggerEleIso) );   
@@ -732,6 +735,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_diLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_diLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trig_diLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
       //ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("TriggerKey", m_electronTriggerSFStringDiLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IdKey", eleId) );
@@ -745,6 +749,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_mixLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trig_mixLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
       //ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("TriggerKey", m_electronTriggerSFStringMixedLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("IdKey", eleId) );
@@ -759,6 +764,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trigEff_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
       //ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IdKey", eleId) );
@@ -773,6 +779,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_diLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_diLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trigEff_diLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
       //ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringDiLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IdKey", eleId) );
@@ -786,6 +793,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_mixLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trigEff_mixLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("MapFilePath", egMapFile_trig_tmp) ); // temporary fix until we get trigger SF for R21
       //ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringMixedLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("IdKey", eleId) );
