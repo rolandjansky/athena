@@ -65,7 +65,7 @@ StatusCode LArCalibDigitMaker::initialize()
       ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values!" );
       return StatusCode::FAILURE;
     }
-    LArCalibParams* calibParams=new LArCalibParams;
+    auto calibParams = std::make_unique<LArCalibParams>();
     ATH_CHECK( calibParams->initialize() ); 
 
     //void LArCalibParams::set(const HWIdentifier CalibModuleID, const unsigned nTrigger,
@@ -74,7 +74,7 @@ StatusCode LArCalibDigitMaker::initialize()
       const HWIdentifier calibBoardHWID(*it);
       calibParams->set(calibBoardHWID,m_nTrigger,m_vPattern,m_vDAC,m_vDelay);
     }
-    ATH_CHECK( detStore()->record(calibParams,"LArCalibParams") );
+    ATH_CHECK( detStore()->record(std::move(calibParams),"LArCalibParams") );
   }//End set calib board parameters
 
   if (m_keylist.size()==0) {

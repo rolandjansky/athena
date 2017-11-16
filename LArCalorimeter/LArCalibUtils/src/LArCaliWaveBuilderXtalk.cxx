@@ -553,7 +553,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
 //=========================================================================================================
 {
   // Create wave container using feedthru grouping and initialize
-  LArCaliWaveContainer* caliWaveContainer = new LArCaliWaveContainer();
+  auto caliWaveContainer = std::make_unique<LArCaliWaveContainer>();
   
   ATH_CHECK( caliWaveContainer->setGroupingType(m_groupingType,msg()) );
   ATH_MSG_DEBUG ( "Set groupingType for LArCaliWaveContainer object" );
@@ -662,7 +662,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
   ATH_MSG_INFO ( "Size of LAr calibration waves container : " << caliWaveContainer->size()  );
  
   // Record in detector store with key (m_keyoutput)
-  ATH_CHECK( detStore()->record(caliWaveContainer, m_keyoutput) );
+  ATH_CHECK( detStore()->record(std::move(caliWaveContainer), m_keyoutput) );
 
   ATH_MSG_INFO ( "LArCaliWaveBuilderXtalk has finished." );
   return StatusCode::SUCCESS;
