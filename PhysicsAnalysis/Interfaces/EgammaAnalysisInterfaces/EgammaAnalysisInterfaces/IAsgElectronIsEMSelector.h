@@ -35,45 +35,13 @@ class IAsgElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
   
   public:
 
-  /**Virtual Destructor*/
+  /// @name IAsgElectronIsEMSelector methods in Addition to the IAsgEGammaIsEMSelector ones
+  /// @{
+  /// It adds no new methods to the IAsgEGammaIsEMSelector interface 
+  ///@}
+
+  /// Virtual Destructor
   virtual ~IAsgElectronIsEMSelector() {};
-
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
-
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
-  
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
-
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
-
-  /** Accept with Photon objects */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
-
-  /** Accept with Photon objects */
-  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
-
-  /** Accept with Electron objects */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /** Accept with Electron objects */
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-
-
-  ///////////////Expert methods //////////////////////////////////////
-
-  
-  //The main execute method
-  virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
-
-  //////////////////////////////////////////////////////////////
-  virtual unsigned int IsemValue() const = 0;
-  
-  /** Method to get the operating point */
-  virtual std::string getOperatingPointName( ) const =0;
 
 
 

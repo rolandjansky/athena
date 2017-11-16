@@ -27,22 +27,28 @@ class IAsgElectronMultiLeptonSelector : virtual public IAsgSelectionTool
 
 public:
 
-  /**Virtual Destructor*/
-  virtual ~IAsgElectronMultiLeptonSelector() {};
+  /// @name IAsgElectronMultiLeptonSelector methods in addition to the IAsgSelectionTool ones
+  ///{@
 
-  /** The main accept method: using the generic interface */
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-  /** The main accept method: using the generic interface */
+  /// accept method with reference to IParticle 
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /// accept method with pointer to electron */
+  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+
+  /// accept method with reference  to electron
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
-  /** Method to get the operating point */
+  ///Method to get the operating point */
   virtual std::string getOperatingPointName( ) const=0;
+
+  ///@}
+
+  ///Virtual Destructor*/
+  virtual ~IAsgElectronMultiLeptonSelector() {};
 
 }; // End: class definition
 

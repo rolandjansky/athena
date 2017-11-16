@@ -14,9 +14,6 @@
 
 */
 
-// CONSIDER MERGING THIS WITH IASGELECTRONMULTILEPTONSELECTOR, SINCE THE INTERFACE
-// IS EXACTLY THE SAME. LEAVING THEM SEPERATE FOR NOW IN CASE THEY DIVERGE
-
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
 // Forward declarations
@@ -32,67 +29,67 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
 
   ASG_TOOL_INTERFACE(IAsgElectronLikelihoodTool)
 
-  public:
+ public:
 
-  /**Virtual Destructor*/
-  virtual ~IAsgElectronLikelihoodTool() {};
+  /// @name IAsgElectronLikelihoodTool  methods in Addition to the IAsgSelectionTool ones
+  /// Some are there to mainly support the calls done from the online/Trigger side 
+  /// @{
 
-
-  /** The main accept method: using the generic interface , with pointers*/
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
-
-  /** The main accept method: in case mu not in EventInfo online */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
-
-  /** The main accept method: in case mu not in EventInfo online */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
-
-
-  /** The main accept method: using the generic interface, with reference */
+  /// accept using  reference to IParticle 
   virtual const Root::TAccept& accept( const xAOD::IParticle& part) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /// accept method with pointer to electron 
+  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+
+  /// accept method with pointer to electron  when mu not in EventInfo for online 
+  virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
+
+  /// accept method with reference to electron  
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part ) const = 0;
-
-  /** The main accept method: in case mu not in EventInfo online */
+  /// accept method with reference to electron  when mu not in EventInfo for online 
   virtual const Root::TAccept& accept( const xAOD::Electron& part, double mu ) const = 0;
 
-  /** The main accept method: in case mu not in EventInfo online */
+  /// accept method with pointer to  egamma 
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
+
+  /// accept method with pointer to egammma when mu not in EventInfo for online 
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
+
+  /// accept method with reference to  egamma 
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part ) const = 0;
+
+  /// accept method with reference to egammma when mu not in EventInfo for online
   virtual const Root::TAccept& accept( const xAOD::Egamma& part, double mu ) const = 0;
 
-
-  /** The main result method: the actual likelihood is calculated here */
+  /// TResult method: for pointer to IParticle
   virtual const Root::TResult& calculate( const xAOD::IParticle* part ) const = 0;
 
-  /** The main result method: the actual likelihood is calculated here */
+  /// TResult method: for pointer to electron
   virtual const Root::TResult& calculate( const xAOD::Electron* eg ) const = 0;
 
-  /** The main result method: the actual likelihood is calculated here */
+  /// TResult method: for pointer to egamma 
   virtual const Root::TResult& calculate( const xAOD::Egamma* eg ) const = 0;
 
-  /** The main result method: in case mu not in EventInfo online */
+  /// TResult method: for pointer to electron  when mu not in EventInfo for online
   virtual const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const = 0;
 
-  /** The main result method: in case mu not in EventInfo online */
+  /// TResult method: for pointer to egamma when mu not in EventInfo for online
   virtual const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const = 0;
 
-
-  /** Method to get the plain TResult */
+  // Just return the TResult 
   virtual const Root::TResult& getTResult( ) const=0;
 
-  /** Method to get the operating point */
+  ///Method to get the operating point 
   virtual std::string getOperatingPointName( ) const =0;
 
-  //virtual const Root::TAccept& getTAccept( ) const =0; // in base
+  ///@}
+
+  /// Virtual Destructor
+  virtual ~IAsgElectronLikelihoodTool() {};
 
 }; // End: class definition
 
