@@ -11,6 +11,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include <vector>
 
 
@@ -26,6 +27,7 @@ namespace Trk {
 namespace DerivationFramework {
     class CascadeTools;
 }
+class IBeamCondSvc;
 
 namespace DerivationFramework {
 
@@ -64,7 +66,19 @@ namespace DerivationFramework {
         ToolHandle < Trk::TrkVKalVrtFitter > m_iVertexFitter;
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < DerivationFramework::CascadeTools > m_CascadeTools;
+        ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
+        ServiceHandle<IBeamCondSvc>                 m_beamSpotSvc;
+
+        bool        m_refitPV;
+        std::string m_refPVContainerName;
+        //This parameter will allow us to optimize the number of PVs under consideration as the probability
+        //of a useful primary vertex drops significantly the higher you go
+        int         m_PV_max;
+        int         m_DoVertexType;
+        size_t      m_PV_minNTracks;
+
         double getParticleMass(int particlecode) const;
+
     public:
         static const InterfaceID& interfaceID() { return IID_JpsiPlusV0Cascade;}
         JpsiPlusV0Cascade(const std::string& t, const std::string& n, const IInterface*  p);

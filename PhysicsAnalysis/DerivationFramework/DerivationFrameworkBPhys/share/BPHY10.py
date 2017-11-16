@@ -230,7 +230,7 @@ BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4500.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiKshortCascade", "JpsiKshortCascadeSupport" ] ,
+    CascadeVertexCollections= ["JpsiKshortCascadeSV1", "JpsiKshortCascadeSV2" ] ,
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiKshort
@@ -250,7 +250,7 @@ BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4000.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdaCascade", "JpsiLambdaCascadeSupport" ], 
+    CascadeVertexCollections= ["JpsiLambdaCascadeSV1", "JpsiLambdaCascadeSV2" ], 
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambda
@@ -270,7 +270,7 @@ BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4000.,
     MassUpperCut            = 6000.,
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdabarCascade", "JpsiLambdabarCascadeSupport" ], 
+    CascadeVertexCollections= ["JpsiLambdabarCascadeSV1", "JpsiLambdabarCascadeSV2" ], 
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambdabar

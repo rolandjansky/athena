@@ -134,7 +134,7 @@ double CascadeTools::pTError(const std::vector<TLorentzVector> &particleMom, con
   return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
 }
 
-double CascadeTools::lxy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::lxy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -145,7 +145,7 @@ double CascadeTools::lxy(const std::vector<TLorentzVector> &particleMom, xAOD::V
   return dxy;
 }
 
-double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -188,7 +188,7 @@ double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, co
   return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
 }
 
-double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -198,7 +198,7 @@ double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::V
   return CONST*M*LXY/PT;
 }
 
-double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -246,7 +246,7 @@ double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, co
   return CONST*tauErr;
 }
 
-double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
+double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -255,7 +255,7 @@ double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::V
   return CONST*M*LXY/PT;
 }
 
-double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
+double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -302,7 +302,7 @@ double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, co
   return CONST*tauErr;
 }
 
-Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) {
     Amg::Vector3D p; p.setZero();
@@ -316,7 +316,7 @@ Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, 
   return sv - P*pdr/p2;
 }
 
-double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
@@ -325,7 +325,7 @@ double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, xA
   return (P.dot(vtx))/(P.mag()*vtx.mag());
 }
 
-double CascadeTools::cosTheta_xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::cosTheta_xy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
@@ -335,7 +335,7 @@ double CascadeTools::cosTheta_xy(const std::vector<TLorentzVector> &particleMom,
   return (P.x()*vtx.x()+P.y()*vtx.y())/(pT*vtx.perp());
 }
 
-double CascadeTools::a0z(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0z(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D pv = PV->position();
@@ -344,7 +344,7 @@ double CascadeTools::a0z(const std::vector<TLorentzVector> &particleMom, xAOD::V
   return a0_vec.z();
 }
 
-double CascadeTools::a0zError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0zError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -392,7 +392,7 @@ double CascadeTools::a0zError(const std::vector<TLorentzVector> &particleMom, co
   return (a0zErrsq>0.) ? sqrt(a0zErrsq) : 0.;
 }
 
-double CascadeTools::a0xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0xy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double cosineTheta_xy = cosTheta_xy(particleMom,SV,PV);
@@ -400,7 +400,7 @@ double CascadeTools::a0xy(const std::vector<TLorentzVector> &particleMom, xAOD::
   return (SV->position()-PV->position()).perp() * sinTheta_xy;
 }
 
-double CascadeTools::a0xyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0xyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -445,7 +445,7 @@ double CascadeTools::a0xyError(const std::vector<TLorentzVector> &particleMom, c
   return (a0xyErrsq>0.) ? sqrt(a0xyErrsq) : 0.;
 }
 
-double CascadeTools::a0(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double cosineTheta = cosTheta(particleMom,SV,PV);
@@ -453,7 +453,7 @@ double CascadeTools::a0(const std::vector<TLorentzVector> &particleMom, xAOD::Ve
   return (SV->position()-PV->position()).mag() * sinTheta;
 }
 
-double CascadeTools::a0Error(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0Error(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -548,7 +548,7 @@ double CascadeTools::vertexProbability(int ndf, double chi2) const
 }
 
 
-Amg::MatrixX * CascadeTools::convertCovMatrix(xAOD::Vertex * vxCandidate) const
+Amg::MatrixX * CascadeTools::convertCovMatrix(const xAOD::Vertex * vxCandidate) const
 {
   unsigned int NTrk = vxCandidate->nTrackParticles();
   std::vector<float> matrix = vxCandidate->covariance();

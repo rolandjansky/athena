@@ -46,7 +46,7 @@ namespace DerivationFramework {
 
 
     Amg::Vector3D Momentum(const std::vector<TLorentzVector> &particleMom) const;
-    Amg::Vector3D pca(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    Amg::Vector3D pca(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
 
     double invariantMass(const std::vector<TLorentzVector> &moms, const std::vector<double> &masses) const;
     double invariantMass(const std::vector<TLorentzVector> &moms) const;
@@ -54,24 +54,24 @@ namespace DerivationFramework {
     double invariantMassError(const std::vector<TLorentzVector> &moms,  const Amg::MatrixX& cov) const;
     double pT(const std::vector<TLorentzVector> &moms) const;
     double pTError(const std::vector<TLorentzVector> &moms, const Amg::MatrixX& cov) const;
-    double lxy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double lxyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const;
-    double tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const;
-    double a0z(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double a0zError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double a0xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double a0xyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double a0(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double a0Error(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double cosTheta(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
-    double cosTheta_xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double lxy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double lxyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const;
+    double tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const;
+    double a0z(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double a0zError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double a0xy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double a0xyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double a0(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double a0Error(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double cosTheta(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
+    double cosTheta_xy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
     double massProbability(double V0Mass, double mass, double massErr) const;
     double vertexProbability(int ndf, double chi2) const;
 
-    Amg::MatrixX * convertCovMatrix(xAOD::Vertex * vxCandidate) const;
+    Amg::MatrixX * convertCovMatrix(const xAOD::Vertex * vxCandidate) const;
     Amg::MatrixX SetFullMatrix(int NTrk, const std::vector<float> & Matrix) const;
 
   //private:
