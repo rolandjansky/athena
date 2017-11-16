@@ -81,6 +81,7 @@ struct MuonEventTPCnvDict
     Muon::MuonDigitContainer_p2<Muon::MM_Digit_p2>      m_v24;
     Muon::STGC_RawDataContainer_p1      m_v25;
     Muon::STGC_RawDataCollection_p1 m_v26;
+    std::vector< Muon::STGC_RawData_p1 > m_v27;
 };
 
 #endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
