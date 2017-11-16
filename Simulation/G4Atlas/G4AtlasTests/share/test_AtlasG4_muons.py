@@ -59,10 +59,10 @@ job.ParticleGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 ## Release GeoModel memory once sim is configured
 simFlags.ReleaseGeoModel = False
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 
 ## Add the G4 sim to the alg sequence after the generator
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-job += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

@@ -27,8 +27,8 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
 # Code crashes on NystromRK4 stepper NOW take default
-#from G4AtlasApps import AtlasG4Eng
-#AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('NystromRK4')
+#from G4AtlasApps.SimFlags import simFlags
+#simFlags.G4Stepper = 'NystromRK4'
 
 
 #--- Include JobSpecs.py --------------------------------------
@@ -129,12 +129,12 @@ athenaCommonFlags.EvtMax =  myMaxEvent
 #AppMgr.EvtMax =  myMaxEvent
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout.set_On()
-SimFlags.SimLayout = myGeo
-SimFlags.EventFilter.set_Off()
-SimFlags.RunNumber = 222510
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags() # Going to use an ATLAS layout
+simFlags.SimLayout.set_On()
+simFlags.SimLayout = myGeo
+simFlags.EventFilter.set_Off()
+simFlags.RunNumber = 222510
 
 include("GeneratorUtils/StdEvgenSetup.py")
 
@@ -154,17 +154,17 @@ myPDG = 13  # 998 = Charged Geantino 999 = neutral Geantino, 13 = Muon
 
 # sept 2014 run ParticleGun
 import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 #pg.sampler.pid = PG.CyclicSeqSampler([-13,13])
 pg.sampler.pid = myPDG
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=myMomentum, eta=[myMinEta,myMaxEta])
 #pg.sampler.mom = PG.PtEtaMPhiSampler(pt=myMomentum, eta=[myMinEta,myMaxEta])
 topSeq += pg
 
-SimFlags.RandomSeedOffset = myRandomOffset
+simFlags.RandomSeedOffset = myRandomOffset
 
-### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/SimFlags.py for details)
-SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/simFlags.py for details)
+simFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc
 myAtRndmGenSvc = AtRndmGenSvc()
@@ -196,7 +196,7 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #DetFlags.simulate.Truth_setOn()   ### deprecated!
 
- 
+
 
 #--------------------------------------------------------------
 # Assign the TrackingGeometry to the Algorithm
@@ -323,11 +323,11 @@ GeantFollowerMSHelper.Extrapolator             = TestExtrapolator
 GeantFollowerMSHelper.ExtrapolateDirectly      = False
 GeantFollowerMSHelper.ExtrapolateIncrementally = False
 GeantFollowerMSHelper.SpeedUp      = True
-GeantFollowerMSHelper.OutputLevel = INFO   
+GeantFollowerMSHelper.OutputLevel = INFO
 ToolSvc += GeantFollowerMSHelper
 
 # higher precision for stepping
-SimFlags.TightMuonStepping=True
+simFlags.TightMuonStepping=True
 
 SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','Event','Run'])
 
@@ -349,12 +349,12 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='GeantFollowing.root' TYPE='ROOT' 
 ##############################################################
 
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']

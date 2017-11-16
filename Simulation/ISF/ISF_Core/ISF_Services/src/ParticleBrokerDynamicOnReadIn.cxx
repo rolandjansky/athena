@@ -412,6 +412,14 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
   if (parentPtr) {
     int bcid = parentPtr->getBCID();
     particle.setBCID(bcid);
+
+    //Let's make sure that the new ISFParticle has a valid TruthBinding and HepMcParticleLink
+    //(could happen that the new particles are not saved by the TruthSvc for instance)
+    //or attach pointers to the parent otherwise
+    if (!particlePtr->getTruthBinding()) {
+        ATH_MSG_WARNING("The provided new ISFParticle had no TruthBinding ! Copying over the one from the parent ISFParticle.");
+        particle.setTruthBinding(new TruthBinding(*parentPtr->getTruthBinding()));
+    }
   }
 
   // get the particle's next geoID
