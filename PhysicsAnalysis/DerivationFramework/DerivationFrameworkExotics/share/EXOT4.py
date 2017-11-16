@@ -702,4 +702,7 @@ EXOT4SlimmingHelper.IncludeMuonTriggerContent = True
 # also keep MET trigger object information for studies
 EXOT4SlimmingHelper.IncludeEtMissTriggerContent = True
 
+addOriginCorrectedClusters(EXOT4SlimmingHelper, writeLC = True, writeEM = True)
+
+
 EXOT4SlimmingHelper.AppendContentToStream(EXOT4Stream)
