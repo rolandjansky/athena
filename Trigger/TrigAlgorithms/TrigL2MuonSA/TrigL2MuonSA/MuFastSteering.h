@@ -222,16 +222,6 @@ class MuFastSteering : public HLT::FexAlgo,
   unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI
 
-  // Cuts and settings
-  std::vector<float> m_fit_residuals;
-  std::vector<float> m_res_inner;
-  std::vector<float> m_res_middle;
-  std::vector<float> m_res_outer;
-  std::vector<float> m_track_eta;
-  std::vector<float> m_track_phi;
-  std::vector<float> m_failed_eta;
-  std::vector<float> m_failed_phi;
-
   ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
