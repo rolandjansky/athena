@@ -67,20 +67,6 @@ public:
 
 protected:
 
-  /// Constructs the calibration hit and saves it to the set
-  G4bool SimpleHit( const LArG4Identifier& a_ident, const std::vector<double>& energies );
-
-protected:
-
-  /// Member variable - the calculator we'll use
-  ILArCalibCalculatorSvc * m_calculator;
-
-  /// Count the number of invalid hits.
-  G4int m_numberInvalidHits;
-
-  /// Are we set up to run with PID hits?
-  G4bool m_doPID;
-
   // We need two types containers for hits:
 
   // The set defined below is used to tell us if we've already had a
@@ -97,6 +83,17 @@ protected:
   };
 
   typedef std::set< CaloCalibrationHit*, LessHit >  m_calibrationHits_t;
+  /// Constructs the calibration hit and saves it to the set
+  G4bool SimpleHit( const LArG4Identifier& a_ident, const std::vector<double>& energies, m_calibrationHits_t& calibrationHits );
+
+  /// Member variable - the calculator we'll use
+  ILArCalibCalculatorSvc * m_calculator;
+
+  /// Count the number of invalid hits.
+  G4int m_numberInvalidHits;
+
+  /// Are we set up to run with PID hits?
+  G4bool m_doPID;
 
   /// The actual set of calibration hits
   m_calibrationHits_t m_calibrationHits;
