@@ -71,4 +71,4 @@ ${JOBOPTION} | tee ${JOB_LOG}
 
 COMMAND=$PREVIOUS_COMMAND ATH_RETURN=${PIPESTATUS[0]}
 echo "Command to reproduce: ${COMMAND}"
-echo "art-result: ${ATH_RETURN}"
+echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
