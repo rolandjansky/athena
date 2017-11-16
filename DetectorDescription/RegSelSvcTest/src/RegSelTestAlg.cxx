@@ -81,6 +81,52 @@ StatusCode RegSelTestAlg::dump() const {
   return StatusCode::SUCCESS;
 }
 
+struct FullDetTest : public ParallelCallTest {
+  FullDetTest( DETID detector, 
+	      MsgStream& msg,
+	      const ServiceHandle<IRegSelSvc>& svc ) 
+    : m_det ( detector ), 
+      m_msg( msg ),
+      m_svc( svc ) {}
+
+  void firstCall() override {
+    m_svc->DetHashIDList( m_det, m_refHashes );             
+    m_svc->DetROBIDListUint( m_det, m_refROBs );    
+  }
+
+  bool callAndCompare() const override {
+    std::vector<IdentifierHash> hashes;
+    std::vector<uint32_t> ROBs;
+    
+    m_svc->DetHashIDList( m_det, hashes );             
+
+    if ( hashes != m_refHashes ) {
+      m_msg << MSG::ERROR << "List of hashes different for detector ID " << m_det << endmsg;
+      m_msg << MSG::ERROR << "Reference: " << m_refHashes << endmsg;
+      m_msg << MSG::ERROR << "Obtained: " << hashes << endmsg;
+      return false;
+    }
+
+    m_svc->DetROBIDListUint( m_det, ROBs );    
+    if ( ROBs != m_refROBs ) {
+      m_msg << MSG::ERROR << "List of ROBs different for detector ID " << m_det << endmsg;
+      m_msg << MSG::ERROR << "Reference: " << m_refROBs << endmsg;
+      m_msg << MSG::ERROR <<"Obtained: " << ROBs << endmsg;
+      return false;
+    }
+    return true;
+  }
+
+  std::vector<IdentifierHash> m_refHashes;
+  std::vector<uint32_t> m_refROBs;
+
+  DETID m_det;
+  MsgStream& m_msg;
+  const ServiceHandle<IRegSelSvc>& m_svc;
+
+
+
+};
 
 struct RoIReqTest : public ParallelCallTest {
   RoIReqTest( const TrigRoiDescriptor& roi, DETID detector, 
@@ -131,6 +177,7 @@ struct RoIReqTest : public ParallelCallTest {
 
 
 
+
 StatusCode RegSelTestAlg::mt() const {
   
   // generate whole array of tests
@@ -144,7 +191,11 @@ StatusCode RegSelTestAlg::mt() const {
     for ( auto& roi : rois ) {
       tests.push_back( new RoIReqTest( roi, detector, msg(), m_regSelSvc ) );
     }
+    tests.push_back( new FullDetTest( detector, msg(), m_regSelSvc ) );
   }
+
+
+
 
   bool status = ParallelCallTest::launchTests( 100, tests );
   
