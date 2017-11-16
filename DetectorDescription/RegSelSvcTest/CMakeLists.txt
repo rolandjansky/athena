@@ -20,7 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/RegSelLUT
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           Tools/PathResolver
-			  Trigger/TrigEvent/TrigSteeringEvent )
+			  Trigger/TrigEvent/TrigSteeringEvent
+			  AtlasTest/TestTools )
 
 # Component(s) in the package:
 atlas_add_library( RegSelSvcTestLib
@@ -33,6 +34,10 @@ atlas_add_component( RegSelSvcTest
                      LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent RegionSelectorLib RegSelSvcTestLib )
 
 atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh
+		PROPERTIES TIMEOUT 500
+	      )		
+
+atlas_add_test( RegSel_mt SCRIPT test/test_RegSel_mt.sh
 		PROPERTIES TIMEOUT 500
 	      )		
 
