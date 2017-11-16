@@ -79,8 +79,6 @@ private:
   /** qThreshold=2e, we accept a good strip if the charge is >=2e */
   float m_qThreshold;
 
-  float m_interactionDensityMean;
-  float m_interactionDensitySigma;
 
   /** // 0.350/10 diffusSigma=transverse diffusion (350 μm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
   float m_transverseDiffusionSigma;
@@ -93,14 +91,19 @@ private:
   float m_crossTalk2;//0.03;
   /** // (degrees) Magnetic Field 0.5 T */
   // float Lorentz_Angle;
-  // Avalanche gain
-  float m_avalancheGain;
-  // float m_electricFieldZ;
 
   float m_driftGapWidth;
 
   /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
   float m_driftVelocity;
+
+
+  // Avalanche gain
+  float m_avalancheGain;
+  int m_maxPrimaryIons;
+
+  float m_interactionDensityMean;
+  float m_interactionDensitySigma;
 
   /// ToDo: random number from custom functions
   TF1 *m_polyaFunction;
@@ -109,10 +112,6 @@ private:
   TF1 *m_longitudinalDiffusionFunction;
   TF1 *m_transverseDiffusionFunction;
   TF1 *m_interactionDensityFunction;
-
-  TRandom3 * m_random;
-
-  TFile * m_outputFile;
 
   // GarfieldGas* gas;
 
@@ -144,7 +143,7 @@ public :
   inline void set_crossTalk2 (float val) { m_crossTalk2 = val; };
   inline void set_driftGapWidth (float val) {m_driftGapWidth = val;};
 
-  inline void set_outputFile( TFile* m_file ){  m_outputFile = m_file; };
+  // inline void set_outputFile( TFile& m_file ){  m_outputFile = &m_file; };
 
   float get_qThreshold    () const { return m_qThreshold;      };
   float get_driftGapWidth () const { return m_driftGapWidth;   };
@@ -166,7 +165,6 @@ public :
   vector <float> tStripElectronicsAbThr;
   vector <float> qStripElectronics;
 
-  int m_maxPrimaryIons;
   vector <int> stripNumber;
   vector <int> firstq;
   vector <float> qstrip;
@@ -180,10 +178,16 @@ public :
   vector <float> l;
 
 
-
 private:
 
   std::map<TString, TH1F* > m_mapOfHistograms;
+
+  TRandom3 * m_random;
+
+
+  bool m_writeOutputFile;
+  TFile * m_outputFile;
+
 
 };
 #endif

@@ -50,27 +50,35 @@ StripsResponseSimulation::StripsResponseSimulation():
 	m_transverseDiffusionFunction(0),
 	m_interactionDensityFunction(0),
 	m_random(0),
+	m_writeOutputFile(true),
 	m_outputFile(0)
 	{
 	}
 /*******************************************************************************/
 void StripsResponseSimulation::initHistos()
 {
-	if(m_outputFile) m_outputFile->cd();
+	if(m_writeOutputFile){
+		m_outputFile = new TFile("MM_StripsResponse_Plots.root","RECREATE");
+		if(m_outputFile) m_outputFile->cd();
+	}
 
 	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",100,0,100);
-	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",100,0,100);
+	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
+	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,90);
+	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,2e5);
 
 }
 /*******************************************************************************/
 void StripsResponseSimulation::writeHistos()
 {
+
 	if(m_outputFile){
+
 		m_outputFile->cd();
 		for (auto & tmpHist : m_mapOfHistograms){
 			tmpHist.second->Write();
 		}
-		m_outputFile->Close();
+		m_outputFile->Write();
 	}
 }
 /*******************************************************************************/
@@ -221,6 +229,9 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 			// Add eventTime in Electron time
 			Electron->setTime(Electron->getTime() + eventTime);
+
+			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
+
 		}
 		//---
 		IonizationClusters.push_back(IonizationCluster);
@@ -249,16 +260,19 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 	tStripElectronicsAbThr = StripResponse.getTimeMaxChargeVec();
 	qStripElectronics = StripResponse.getMaxChargeVec();
 
-
 	m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
 	m_mapOfHistograms["nElectrons"]->Fill( StripResponse.getNElectrons() );
+	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
 
 } // end of whichStrips()
 
 /*******************************************************************************/
 StripsResponseSimulation::~StripsResponseSimulation()
 {
-	if(m_outputFile) writeHistos();
+	if(m_outputFile){
+		writeHistos();
+		delete m_outputFile;
+	}
 	clearValues();
 }
 /*******************************************************************************/
