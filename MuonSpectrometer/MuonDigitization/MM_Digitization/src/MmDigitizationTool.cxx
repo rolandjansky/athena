@@ -113,20 +113,17 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	m_amplification(0.0),
 	m_StripsResponseSimulation(0),
 
-	m_qThreshold(0),                            // Strips Charge Threshold
-	m_transverseDiffusionSigma(0),    // Transverse Diffusion
-	m_longitudinalDiffusionSigma(0),  // Longitudinal Diffusion
-	m_driftVelocity(0),						// Drift Velocity
+	// Strip Response
+	m_qThreshold(0),							// Strips Charge Threshold
+	m_transverseDiffusionSigma(0),				// Transverse Diffusion
+	m_longitudinalDiffusionSigma(0),			// Longitudinal Diffusion
+	m_driftVelocity(0),							// Drift Velocity
 	m_crossTalk1(0),							// Cross talk with nearest strip
 	m_crossTalk2(0),							// Cross talk with 2nd nearest strip
 
 	m_ElectronicsResponseSimulation(0),
 	m_file(0),
 	m_ntuple(0),
-	// m_AngleDistr(0),
-	// m_AbsAngleDistr(0), m_ClusterLength2D(0), m_ClusterLength(0),
-	// m_gasGap(0),
-	// m_gasGapDir(0),
 	m_n_Station_side(-999),
 	m_n_Station_eta(-999),
 	m_n_Station_phi(-999),
@@ -368,37 +365,39 @@ StatusCode MmDigitizationTool::initialize() {
 	}
 
 	// Validation File Output
-	if (m_writeOutputFile) m_file = new TFile("MM_Digitization_plots.root","RECREATE");
-	m_ntuple = new TTree("fullSim","fullSim");
+	if (m_writeOutputFile){
+		m_file = new TFile("MM_Digitization_plots.root","RECREATE");
+		m_ntuple = new TTree("fullSim","fullSim");
 
-	m_ntuple->Branch("exitcode",&exitcode);
-	m_ntuple->Branch("Station_side",&m_n_Station_side);
-	m_ntuple->Branch("Station_eta",&m_n_Station_eta);
-	m_ntuple->Branch("Station_phi",&m_n_Station_phi);
-	m_ntuple->Branch("Station_multilayer",&m_n_Station_multilayer);
-	m_ntuple->Branch("Station_layer",&m_n_Station_layer);
+		m_ntuple->Branch("exitcode",&exitcode);
+		m_ntuple->Branch("Station_side",&m_n_Station_side);
+		m_ntuple->Branch("Station_eta",&m_n_Station_eta);
+		m_ntuple->Branch("Station_phi",&m_n_Station_phi);
+		m_ntuple->Branch("Station_multilayer",&m_n_Station_multilayer);
+		m_ntuple->Branch("Station_layer",&m_n_Station_layer);
 
-	m_ntuple->Branch("hitPDGId",&m_n_hitPDGId);
-	m_ntuple->Branch("hitKineticEnergy",&m_n_hitKineticEnergy);
-	m_ntuple->Branch("hitDepositEnergy",&m_n_hitDepositEnergy);
-	m_ntuple->Branch("hitOnSurface_x",&m_n_hitOnSurface_x);
-	m_ntuple->Branch("hitOnSurface_y",&m_n_hitOnSurface_y);
-	m_ntuple->Branch("hitStripID",&m_n_hitStripID);
-	m_ntuple->Branch("hitDistToChannel",&m_n_hitDistToChannel);
-	m_ntuple->Branch("hitIncomingAngle",&m_n_hitIncomingAngle);
-	m_ntuple->Branch("hitIncomingAngleRads",&m_n_hitIncomingAngleRads);
+		m_ntuple->Branch("hitPDGId",&m_n_hitPDGId);
+		m_ntuple->Branch("hitKineticEnergy",&m_n_hitKineticEnergy);
+		m_ntuple->Branch("hitDepositEnergy",&m_n_hitDepositEnergy);
+		m_ntuple->Branch("hitOnSurface_x",&m_n_hitOnSurface_x);
+		m_ntuple->Branch("hitOnSurface_y",&m_n_hitOnSurface_y);
+		m_ntuple->Branch("hitStripID",&m_n_hitStripID);
+		m_ntuple->Branch("hitDistToChannel",&m_n_hitDistToChannel);
+		m_ntuple->Branch("hitIncomingAngle",&m_n_hitIncomingAngle);
+		m_ntuple->Branch("hitIncomingAngleRads",&m_n_hitIncomingAngleRads);
 
-	m_ntuple->Branch("StrRespID",&m_n_StrRespID);
-	m_ntuple->Branch("StrRespCharge",&m_n_StrRespCharge);
-	m_ntuple->Branch("StrRespTime",&m_n_StrRespTime);
-	m_ntuple->Branch("StrRespTrg_ID",&m_n_StrRespTrg_ID);
-	m_ntuple->Branch("StrRespTrg_Time",&m_n_StrRespTrg_Time);
-	m_ntuple->Branch("Strip_Multiplicity_byDiffer",&m_n_strip_multiplicity);
-	m_ntuple->Branch("Strip_Multiplicity_2",&m_n_strip_multiplicity_2);
-	m_ntuple->Branch("tofCorrection",&tofCorrection);
-	m_ntuple->Branch("bunchTime",&bunchTime);
-	m_ntuple->Branch("globalHitTime",&globalHitTime);
-	m_ntuple->Branch("eventTime",&eventTime);
+		m_ntuple->Branch("StrRespID",&m_n_StrRespID);
+		m_ntuple->Branch("StrRespCharge",&m_n_StrRespCharge);
+		m_ntuple->Branch("StrRespTime",&m_n_StrRespTime);
+		m_ntuple->Branch("StrRespTrg_ID",&m_n_StrRespTrg_ID);
+		m_ntuple->Branch("StrRespTrg_Time",&m_n_StrRespTrg_Time);
+		m_ntuple->Branch("Strip_Multiplicity_byDiffer",&m_n_strip_multiplicity);
+		m_ntuple->Branch("Strip_Multiplicity_2",&m_n_strip_multiplicity_2);
+		m_ntuple->Branch("tofCorrection",&tofCorrection);
+		m_ntuple->Branch("bunchTime",&bunchTime);
+		m_ntuple->Branch("globalHitTime",&globalHitTime);
+		m_ntuple->Branch("eventTime",&eventTime);
+	}
 
 	// m_AngleDistr = new TH1I("m_AngleDistr", "m_AngleDistr", 360, -180., 180.);
 	// m_AbsAngleDistr = new TH1I("m_AbsAngleDistr", "m_AbsAngleDistr", 180, 0., 180.);
@@ -807,7 +806,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			//      }
 			// Important checks for hits (global time, position along strip, charge, masked chambers etc..) DO NOT SET THIS CHECK TO FALSE IF YOU DON'T KNOW WHAT YOU'RE DOING !
 			if(m_checkMMSimHits) { if(checkMMSimHit(hit) == false) {
-				exitcode = 8; m_ntuple->Fill();
+				exitcode = 8; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 8 " );
 				continue;} }
 
@@ -823,12 +823,14 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			if( m_idHelper->is_mdt(layid)|| m_idHelper->is_rpc(layid)|| m_idHelper->is_tgc(layid)|| m_idHelper->is_csc(layid)|| m_idHelper->is_stgc(layid) ){
 				ATH_MSG_WARNING("MM id has wrong technology type! " << m_idHelper->is_mdt(layid) << " " << m_idHelper->is_rpc(layid) << " " << m_idHelper->is_tgc(layid) << " " << m_idHelper->is_csc(layid) << " " << m_idHelper->is_stgc(layid) );
-				exitcode = 9; m_ntuple->Fill();
+				exitcode = 9; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 			}
 
 			if( m_idHelper->stationPhi(layid) == 0 ){
 				ATH_MSG_WARNING("unexpected phi range " << m_idHelper->stationPhi(layid) );
-				exitcode = 9; m_ntuple->Fill();
+				exitcode = 9; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 9 " );
 				continue;
 			}
@@ -842,7 +844,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			const MuonGM::MMReadoutElement* detEl = m_MuonGeoMgr->getMMReadoutElement(layid);
 			if( !detEl ){
 				ATH_MSG_WARNING( "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid) );
-				exitcode = 10; m_ntuple->Fill();
+				exitcode = 10; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 10 " );
 				continue;
 			}
@@ -922,7 +925,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			if(hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) {
 				exitcode = 5;
-				m_ntuple->Fill();
+				if(m_writeOutputFile) m_ntuple->Fill();
 			//	std::cout << "------- exitcode = 5 " << std::endl;
 				continue;
 			}
@@ -930,7 +933,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// perform bound check
 			if( !surf.insideBounds(posOnSurf) ){
 				exitcode = 1;
-				m_ntuple->Fill();
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 1 : shiftTimeOffset = "<< shiftTimeOffset << "hitOnSurface.z  = " << hitOnSurface.z() << ", hitOnSurface.x  = " << hitOnSurface.x() << ", hitOnSurface.y  = " << hitOnSurface.y() );
 				continue;
 			}
@@ -945,7 +948,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			if( stripNumber == -1 ){
 				ATH_MSG_WARNING("!!! Failed to obtain strip number " << m_idHelper->print_to_string(layid) <<  "\n\t\t with pos " << posOnSurf
 					<< " z " << slpos.z() << " eKin: " << hit.kineticEnergy() << " eDep: " << hit.depositEnergy() << " unprojectedStrip: " << detEl->stripNumber(posOnSurfUnProjected, layid));
-				exitcode = 2; m_ntuple->Fill();
+				exitcode = 2; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 2 " );
 				continue;
 			}
@@ -972,7 +976,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			if ( fabs(distToChannel_withStripID - distToChannel) > mmChannelDes->channelWidth(posOnSurf)) {
 				ATH_MSG_WARNING( "Found: distToChannel_withStripID: " << distToChannel_withStripID << " != distToChannel: " << distToChannel  );
-				exitcode = 12; m_ntuple->Fill();
+				exitcode = 12; 
+				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "exitcode = 12 " );
 				continue;
 			}
