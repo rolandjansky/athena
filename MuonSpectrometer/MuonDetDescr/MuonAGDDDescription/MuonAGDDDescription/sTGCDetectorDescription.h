@@ -29,6 +29,7 @@ struct sTGCReadoutParameters {
     std::vector<double> firstPadH;
     std::vector<int> firstPadRow;
     std::vector<int> nWires;
+    std::vector<double> wireCutout;
     std::vector<double> firstWire;
     int wireGroupWidth;
     int nStrips;
