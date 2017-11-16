@@ -9,33 +9,30 @@
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainerCnv_p1.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 
-typedef MuonRdoContainerTPCnv<Muon::STGC_RawDataContainer, Muon::STGC_RawDataContainer_p1, Muon::STGC_RawDataContainerCnv_p1 >
-STGC_RawDataContainerCnv;
+typedef  Muon::STGC_RawDataContainer_p1  STGC_RawDataContainer_PERS;
+typedef  T_AthenaPoolCustomCnv<Muon::STGC_RawDataContainer, STGC_RawDataContainer_PERS >  STGC_RawDataContainerCnvBase;
 
 
-template < >
-inline
-Muon::STGC_RawDataContainer*
-STGC_RawDataContainerCnv::createTransient()
+class STGC_RawDataContainerCnv : 
+    public STGC_RawDataContainerCnvBase 
 {
-  using namespace Muon;
-  MsgStream log(msgSvc(), "STGC_RawDataContainerCnv" );
- 
-  STGC_RawDataContainer *transCont = 0;
-  static pool::Guid	p1_guid("93035F54-0FA9-4A56-98E0-A808DD23C089");
-
-  if( compareClassGuid(p1_guid) ) {
-    std::unique_ptr< STGC_RawDataContainer_p1 >  cont( this->poolReadObject<STGC_RawDataContainer_p1>() );
-    STGC_RawDataContainerCnv_p1 cnv;
-    const STGC_RawDataContainer_p1* constCont = cont.get();
-    transCont =  cnv.createTransient( constCont, log );
-    // virtual Muon::STGC_RawDataContainer* createTransient(const Muon::STGC_RawDataContainer_p1* persObj, MsgStream& log) override final;
     
-  } else {
-    throw std::runtime_error("Unsupported persistent version of STGC Raw Data (RDO) container");
-  }
-  return transCont;
-}
+    // friend class CnvFactory<TgcPrepDataContainerCnv>;
+    
+public:
+    STGC_RawDataContainerCnv(ISvcLocator* svcloc);
+    virtual ~STGC_RawDataContainerCnv();
+    
+    virtual STGC_RawDataContainer_PERS*   createPersistent (Muon::STGC_RawDataContainer* transCont);
+    virtual Muon::STGC_RawDataContainer*  createTransient ();
+
+    // Must initialize ID helpers
+    virtual StatusCode initialize();
+        
+private:
+    Muon::STGC_RawDataContainerCnv_p1  m_TPConverter;
+};
+
 
 
 #endif
