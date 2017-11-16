@@ -25,7 +25,7 @@ Purpose : create a collection of PhotonTag
 #include "TagEvent/PhotonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthContainers/ConstDataVector.h"
-#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
+//#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
 
@@ -42,8 +42,8 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
   /**Initializing private member for the isolation tool*/
   m_cone40_calo_isolation(""),
   m_cone40_isolation(""),
-  m_cone20_isolation(""),
-  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
+  m_cone20_isolation("") {
+  //  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
 
   /** Photon AOD Container Name */
   declareProperty("Container",             m_containerName = "PhotonCollection");
@@ -84,7 +84,7 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
   declareProperty("FixedCutTightIsoTool",         m_fixedcut_tight_isolation);
 
   /** CP tool to calib objects */
-  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
+  //  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
 
   declareInterface<PhotonTagTool>( this );
 }
@@ -117,7 +117,7 @@ StatusCode  PhotonTagTool::initialize() {
   CHECK(m_fixedcut_tight_isolation.retrieve());
   
   /** retrieve and check the calibration tool */
-  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
+  //  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
 
   if (m_etconeisocutvalues.size() > 4) {
     ATH_MSG_FATAL ("More than four Etcone values are not permitted");
@@ -214,15 +214,15 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
     if (m_isFullsim) CP::CorrectionCode correctionCode = m_shower_shape_fudge->applyCorrection(*shallowCopyPhoton);
 
     /** fix calibration using tool */
-    if ((shallowCopyPhoton->author() & xAOD::EgammaParameters::AuthorCaloTopo35) > 0) {
-      ATH_MSG_DEBUG("Author " <<xAOD::EgammaParameters::AuthorCaloTopo35<< " photon pt = " << shallowCopyPhoton->pt() << " do not calibrate, not supported "); 
-    } else {
-      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyPhoton->pt()); 
-      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyPhoton) != CP::CorrectionCode::Ok){
-	ATH_MSG_WARNING("Cannot calibrate electron");
-      }
-      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyPhoton->pt()); 
-    }
+//    if ((shallowCopyPhoton->author() & xAOD::EgammaParameters::AuthorCaloTopo35) > 0) {
+//      ATH_MSG_DEBUG("Author " <<xAOD::EgammaParameters::AuthorCaloTopo35<< " photon pt = " << shallowCopyPhoton->pt() << " do not calibrate, not supported "); 
+//    } else {
+//      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyPhoton->pt()); 
+//      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyPhoton) != CP::CorrectionCode::Ok){
+//	ATH_MSG_WARNING("Cannot calibrate electron");
+//      }
+//      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyPhoton->pt()); 
+//    }
 
     /** apply isolation fix */
     if (m_isolation_correction_tool->applyCorrection(*shallowCopyPhoton) != CP::CorrectionCode::Ok) {
