@@ -33,7 +33,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 //using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
@@ -216,23 +216,17 @@ class MuFastSteering : public HLT::FexAlgo,
   //WriteHandle <TrigRoiDescriptor> for MS
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey;
 
+  // Monitor system
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
   unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI
 
   // Cuts and settings
-  float m_inner_mdt_hits;
-  float m_middle_mdt_hits;
-  float m_outer_mdt_hits;  
   std::vector<float> m_fit_residuals;
   std::vector<float> m_res_inner;
   std::vector<float> m_res_middle;
   std::vector<float> m_res_outer;
-  float m_efficiency;
-  float m_sag_inverse;
-  float m_sagitta;
-  float m_address;
-  float m_absolute_pt;
-  float m_track_pt;
   std::vector<float> m_track_eta;
   std::vector<float> m_track_phi;
   std::vector<float> m_failed_eta;

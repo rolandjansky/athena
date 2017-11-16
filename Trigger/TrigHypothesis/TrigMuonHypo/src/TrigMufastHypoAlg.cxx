@@ -26,6 +26,7 @@ TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
    declareProperty("MuFastDecisions", m_muFastCollectionKey = std::string("MufastDecisions"), "xAOD::L2StandAloneMuonContainer to read in");
    declareProperty("Decisions", m_decisionsKey = std::string("TrigMufastHypoAlgDesicions"), "Decisions");
    declareProperty("L1Decisions", m_previousDecisionsKey = std::string("L1Decisions"), "Key for L1 decisions per RoI");
+   declareProperty("HypoTools", m_hypoTools, "Hypo Tools");
 } 
 
 TrigMufastHypoAlg::~TrigMufastHypoAlg() 
@@ -36,11 +37,16 @@ TrigMufastHypoAlg::~TrigMufastHypoAlg()
 
 StatusCode TrigMufastHypoAlg::initialize()
 {
-//  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+  ATH_CHECK(m_hypoTools.retrieve());
 
   ATH_CHECK(m_viewsCollectionKey.initialize());
+
+  renounce(m_muFastCollectionKey);
   ATH_CHECK(m_muFastCollectionKey.initialize());
+
   ATH_CHECK(m_decisionsKey.initialize());
+
   ATH_CHECK(m_previousDecisionsKey.initialize());
  
   ATH_MSG_INFO( "Initialization completed successfully" );
@@ -82,16 +88,16 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
   }
 
   for ( auto view: *viewsHandle ) {
-
-    ATH_MSG_DEBUG("REGTEST: MUViewRoIs = " << view);
+    ATH_MSG_DEBUG("REGTEST: MUViewRoIs = " << view );
 
     // retrieve MuFastDecisions with ReadHandle
-    auto muFastCollectionHandle = SG::makeHandle( m_muFastCollectionKey );
+    auto muFastCollectionHandle = SG::makeHandle( m_muFastCollectionKey, context );
     const xAOD::L2StandAloneMuonContainer *muFastCollection = muFastCollectionHandle.cptr();
-    if (!muFastCollectionHandle.isValid()){
-      ATH_MSG_ERROR("ReadHandle for xAOD::L2StandAloneMuonContainer isn't Valid");
+    //if (!muFastCollectionHandle.isValid()||muFastCollectionHandle.setProxyDict(view).isFailure()) {
+    if (!muFastCollectionHandle.isValid()) {
+      ATH_MSG_ERROR("ReadHandle of the MuonFast decision is failed");
       return StatusCode::FAILURE;
-    }
+    } 
     ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuoonContainer size = " << muFastCollection->size());
     xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*muFastCollection).begin();
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*muFastCollection).end();
@@ -99,19 +105,27 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
       ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer pt = " << (*p_muon)->pt());
       ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
     }
-  }
+
+    // to TrigMufastHypoTool
+    bool pass = false;
+    StatusCode sc = StatusCode::SUCCESS;
+    for ( auto& tool: m_hypoTools ) {
+      sc = tool->decide(muFastCollection, pass);
+      if (!sc.isSuccess()) {
+        ATH_MSG_ERROR("MuonHypoTool is failed");
+        return StatusCode::FAILURE;
+      }
+    } // End of hypoTool
+  } // End of view loops
 
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore( aux.get() );
+  decisions->setStore(aux.get());
 
-  //SG::WriteHandle<xAOD::L2StandAloneMuonContainer> muFastCollection(m_muFastCollectionKey);
-  //ATH_CHECK(muFastCollection.record(std::make_unique<xAOD::L2StandAloneMuonContainer>()));
+  auto handle =  SG::makeHandle(m_decisionsKey, context);     
+  ATH_CHECK( handle.record( std::move(decisions), std::move(aux) ) );
 
-  auto handle =  SG::makeHandle( m_decisionsKey, context );     
-  ATH_CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
-
-  ATH_MSG_DEBUG("StatusCode TrihTrigMufastHypoAlgAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigMufastHypoAlg::execute_r success");
   return StatusCode::SUCCESS;
 }
 

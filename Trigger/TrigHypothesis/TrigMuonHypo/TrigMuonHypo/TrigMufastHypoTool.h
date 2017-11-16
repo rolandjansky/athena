@@ -11,6 +11,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "DecisionHandling/TrigCompositeUtils.h" 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 class TriggerElement;
@@ -35,7 +36,7 @@ class TrigMufastHypoTool: virtual public ::AthAlgTool {
     ~TrigMufastHypoTool();
     
     StatusCode initialize();    
-    StatusCode decide(xAOD::L2StandAloneMuonContainer* vectorOfMuons,
+    StatusCode decide(const xAOD::L2StandAloneMuonContainer* vectorOfMuons,
 		      bool& pass);
     
   private:
@@ -58,17 +59,8 @@ class TrigMufastHypoTool: virtual public ::AthAlgTool {
 
     // Other members:   
     std::vector<float>::size_type m_bins;
-    float m_fex_pt;
-    float m_fex_eta;
-    float m_fex_phi;
-    
-    float m_x_at_station;
-    float m_y_at_station;
-    float m_z_at_station;
-    float m_x_at_beam;
-    float m_z_at_beam;
-    
-    
+
+    ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };  
 };
 
 //DECLARE_ALGORITHM_FACTORY( TrigMufastHypoTool )

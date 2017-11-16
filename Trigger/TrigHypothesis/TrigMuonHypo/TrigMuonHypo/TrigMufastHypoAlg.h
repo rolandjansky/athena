@@ -15,6 +15,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
+#include "TrigMuonHypo/TrigMufastHypoTool.h"
+
 class StoreGateSvc;
 class TriggerElement;
 
@@ -37,10 +39,10 @@ class TrigMufastHypoAlg
   private:
  
     TrigMufastHypoAlg(); 
-   
-//    ToolHandleArray< TrigTrigMufastHypoAlgTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+    ToolHandleArray<TrigMufastHypoTool> m_hypoTools;
 
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey;
+
     SG::ReadHandleKey<std::vector< SG::View*>> m_viewsCollectionKey;
     SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastCollectionKey;
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_previousDecisionsKey;

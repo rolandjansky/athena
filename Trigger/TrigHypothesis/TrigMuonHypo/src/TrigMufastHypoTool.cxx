@@ -41,17 +41,7 @@ TrigMufastHypoTool::TrigMufastHypoTool(const std::string& type,
 
    declareProperty("PtThresholdForECWeakBRegionA", m_ptThresholdForECWeakBRegionA=3.);
    declareProperty("PtThresholdForECWeakBRegionB", m_ptThresholdForECWeakBRegionB=3.);
-/*
-   declareMonitoredVariable("Pt",    m_fex_pt);
-   declareMonitoredVariable("Eta",   m_fex_eta);
-   declareMonitoredVariable("Phi",   m_fex_phi);
 
-   declareMonitoredVariable("XatSt", m_x_at_station);
-   declareMonitoredVariable("YatSt", m_y_at_station);
-   declareMonitoredVariable("ZatSt", m_z_at_station);
-   declareMonitoredVariable("XatBe", m_x_at_beam);
-   declareMonitoredVariable("ZatBe", m_z_at_beam);
-*/
    m_bins = 0;
 }
 
@@ -97,22 +87,25 @@ StatusCode TrigMufastHypoTool::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoTool::decide(xAOD::L2StandAloneMuonContainer* vectorOfMuons,
+StatusCode TrigMufastHypoTool::decide(const xAOD::L2StandAloneMuonContainer* vectorOfMuons,
 				      bool& pass)
 {
    using namespace Monitored;
 
    ATH_MSG_DEBUG("TrigMufastHypoTool decide() start");
 
-   m_fex_pt 		= MonitoredScalar::declare("Pt", -9999.);
-   m_fex_eta 		= MonitoredScalar::declare("Eta", -9999.);
-   m_fex_phi 		= MonitoredScalar::declare("Phi", -9999.);
-   m_x_at_station	= MonitoredScalar::declare("XatSt", -9999.);
-   m_y_at_station	= MonitoredScalar::declare("YatSt", -9999.);
-   m_z_at_station	= MonitoredScalar::declare("ZatSt", -9999.);
-   m_x_at_beam		= MonitoredScalar::declare("XatBe", -9999.);
-   m_z_at_beam		= MonitoredScalar::declare("ZatBe", -9999.);
+   auto fex_pt 		= MonitoredScalar::declare("Pt", -9999.);
+   auto fex_eta 	= MonitoredScalar::declare("Eta", -9999.);
+   auto fex_phi 	= MonitoredScalar::declare("Phi", -9999.);
+   auto x_at_station	= MonitoredScalar::declare("XatSt", -9999.);
+   auto y_at_station	= MonitoredScalar::declare("YatSt", -9999.);
+   auto z_at_station	= MonitoredScalar::declare("ZatSt", -9999.);
+   auto x_at_beam	= MonitoredScalar::declare("XatBe", -9999.);
+   auto z_at_beam	= MonitoredScalar::declare("ZatBe", -9999.);
 
+//   auto monitorIt	= MonitoredScope::declare(m_monTool, fex_pt, fex_eta, fex_phi, 
+//					       x_at_station, y_at_station, z_at_station, 
+//					       x_at_beam, z_at_beam);
    // if accept All flag is on, just pass it
    if(m_acceptAll) {
       pass = true;
@@ -134,39 +127,39 @@ StatusCode TrigMufastHypoTool::decide(xAOD::L2StandAloneMuonContainer* vectorOfM
    }
 
    // fill Monitoring histos
-   m_fex_pt  = (pMuon->pt())?  pMuon->pt()  : -9999.;
-   m_fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999.;
-   m_fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999.;
+   fex_pt  = (pMuon->pt())?  pMuon->pt()  : -9999.;
+   fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999.;
+   fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999.;
 
    if( pMuon->etaMS() ) {
       float localPhi = getLocalPhi(pMuon->etaMS(),pMuon->phiMS(),pMuon->rMS());
       float radius = pMuon->rMS()/cos(fabs(localPhi));
       float DirZ = (pMuon->dirZMS())? pMuon->dirZMS() : .000001;
       float DirF = (pMuon->dirPhiMS())?  pMuon->dirPhiMS()  : .000001;
-      m_x_at_station = radius * cos(pMuon->phiMS());
-      m_y_at_station = radius * sin(pMuon->phiMS());
-      m_z_at_station = pMuon->zMS();
-      float xb = m_x_at_station - m_y_at_station/DirF;
-      float de = m_x_at_station - xb;
-      float ds = sqrt(m_y_at_station*m_y_at_station+de*de);
-      m_x_at_beam = xb;
-      m_z_at_beam = m_z_at_station - ds*DirZ;
+      x_at_station = radius * cos(pMuon->phiMS());
+      y_at_station = radius * sin(pMuon->phiMS());
+      z_at_station = pMuon->zMS();
+      float xb = x_at_station - y_at_station/DirF;
+      float de = x_at_station - xb;
+      float ds = sqrt(y_at_station*y_at_station+de*de);
+      x_at_beam = xb;
+      z_at_beam = z_at_station - ds*DirZ;
    } else {
-      m_x_at_station = -9999.;
-      m_y_at_station = -9999.;
-      m_z_at_station = -9999.;
-      m_x_at_beam = -9999.;
-      m_z_at_beam = -9999.;
+      x_at_station = -9999.;
+      y_at_station = -9999.;
+      z_at_station = -9999.;
+      x_at_beam = -9999.;
+      z_at_beam = -9999.;
    }
 
    //Get the Pt cut for that eta bin
    float threshold = 0;
-   float absEta = fabs(m_fex_eta);
+   float absEta = fabs(fex_eta);
    for (std::vector<float>::size_type i=0; i<m_bins; ++i)
       if ( absEta > m_ptBins[i] && absEta < m_ptBins[i+1] ) threshold = m_ptThresholds[i]; 
 
    // if in the weak Bfield regions at endcap, set special threshold
-   TrigMufastHypoToolConsts::ECRegions ecRegion = whichECRegion( m_fex_eta, m_fex_phi );
+   TrigMufastHypoToolConsts::ECRegions ecRegion = whichECRegion( fex_eta, fex_phi );
    if( ecRegion == TrigMufastHypoToolConsts::WeakBFieldA ) {
       ATH_MSG_DEBUG("threshold is set for EC WeakBField A");
       threshold = m_ptThresholdForECWeakBRegionA;
@@ -183,7 +176,7 @@ StatusCode TrigMufastHypoTool::decide(xAOD::L2StandAloneMuonContainer* vectorOfM
    if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV)){
       // selects only tracks coming from a region around PV
       if( m_selectPV ){
-	 if((fabs(m_x_at_beam)<m_R_PV) && (fabs(m_z_at_beam)<m_Z_PV))
+	 if((fabs(x_at_beam)<m_R_PV) && (fabs(z_at_beam)<m_Z_PV))
 	    result = true;
       } else {
 	 result = true;

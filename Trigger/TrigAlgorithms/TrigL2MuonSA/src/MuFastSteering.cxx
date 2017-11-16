@@ -23,6 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------
@@ -94,24 +95,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
 
   declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
-
-  declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
-  declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
-  declareMonitoredVariable("OutMdtHits", m_outer_mdt_hits);
-  declareMonitoredStdContainer("FitResiduals", m_fit_residuals);
-  declareMonitoredVariable("Efficiency", m_efficiency);
-  declareMonitoredVariable("SagInv", m_sag_inverse);
-  declareMonitoredVariable("Address", m_address);
-  declareMonitoredVariable("AbsPt", m_absolute_pt);
-  declareMonitoredVariable("Sagitta", m_sagitta);
-  declareMonitoredVariable("TrackPt", m_track_pt);
-  declareMonitoredStdContainer("ResInner", m_res_inner);
-  declareMonitoredStdContainer("ResMiddle", m_res_middle);
-  declareMonitoredStdContainer("ResOuter", m_res_outer);
-  declareMonitoredStdContainer("TrackEta", m_track_eta);
-  declareMonitoredStdContainer("TrackPhi", m_track_phi);
-  declareMonitoredStdContainer("FailedRoIEta", m_failed_eta);
-  declareMonitoredStdContainer("FailedRoIPhi", m_failed_phi);
 
   //adding a part of DataHandle for AthenaMT
   declareProperty("MuRoIs", m_roiCollectionKey = std::string("MURoIs"), "MuRoIs to read in"); 
@@ -311,6 +294,12 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection for MS initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
+  if (not m_monTool.name().empty()) {
+    if (m_monTool.retrieve() ) {
+      ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
+      return HLT::BAD_JOB_SETUP;
+    }
+  } 
 
   return HLT::OK;
 }
@@ -383,36 +372,36 @@ StatusCode MuFastSteering::execute()
   internalRoI->clear();
   TrigRoiDescriptorCollection::const_iterator p_roids = roiCollection->begin();
   TrigRoiDescriptorCollection::const_iterator p_roidsEn = roiCollection->end();
-  ATH_MSG_DEBUG("REGTEST: MURoIs size = " << roiCollection->size());
 
   for(; p_roids != p_roidsEn; ++p_roids ) {
-    internalRoI->push_back(*p_roids);
+    internalRoI->push_back(*p_roids);    
     ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
+  ATH_MSG_DEBUG("REGTEST: MURoIs size = " << internalRoI->size());
   ATH_MSG_DEBUG("REGTEST: MURoIs DONE");
 
   DataVector<LVL1::RecMuonRoI>::const_iterator p_roi = recRoiCollection->begin();
   DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << recRoiCollection->size());
 
   // make RecMURoIs maching with MURoIs
-  const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(0)->roiWord(),  *recRoiCollection );
-  CHECK( recRoI != nullptr );
-
   DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
   recRoIVector->clear();
-  recRoIVector->push_back(recRoI);
-
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
+  for (size_t size=0; size<recRoiCollection->size(); size++){
+    const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
+    CHECK( recRoI != nullptr );
+    recRoIVector->push_back(recRoI);
+    ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
+    ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << recRoIVector->size());
+  }
   ATH_MSG_DEBUG("REGTEST: RecMURoIs DONE");
 
   // define objects to record output data
   // for xAOD::L2StandAloneMuonContainer
   xAOD::L2StandAloneMuonContainer *outputTracks = new xAOD::L2StandAloneMuonContainer();
-  outputTracks->clear();
   xAOD::L2StandAloneMuonAuxContainer aux;
+  outputTracks->clear();
   outputTracks->setStore( &aux );
 
   // for xAOD::TrigCompositeContainer
@@ -448,12 +437,12 @@ StatusCode MuFastSteering::execute()
 
   // DEBUG TEST: Recorded data objects
   ATH_MSG_DEBUG("Recorded data objects"); 
-  ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuoonContainer size = " << muFastContainer->size());
+  ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer size = " << muFastContainer->size());
   xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*muFastContainer).begin();
   xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*muFastContainer).end();
   for (;p_muon != p_muonEn; ++p_muon) {
     ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer pt = " << (*p_muon)->pt());
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
   }
 
   ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection for ID size = " << muIdContainer->size());
@@ -586,12 +575,12 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       return false;
     }
     ATH_MSG_DEBUG("Recorded a xAOD::L2StandAloneMuonContainer");
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuoonContainer size = " << outputTracks->size());
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer size = " << outputTracks->size());
     xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*outputTracks).begin();
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*outputTracks).end();
     for (;p_muon != p_muonEn; ++p_muon) {
       ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer pt = " << (*p_muon)->pt());
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StansAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
     }
   }
 
@@ -659,27 +648,6 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
 
   StatusCode sc = StatusCode::SUCCESS;
-  // Initialize monitored variables
-  m_inner_mdt_hits  = -1;
-  m_middle_mdt_hits = -1;
-  m_outer_mdt_hits  = -1;
-  
-  m_fit_residuals.clear();
-  m_res_inner.clear();
-  m_res_middle.clear();
-  m_res_outer.clear();
-  
-  m_efficiency  = 0;
-  m_sag_inverse = 9999.;
-  m_sagitta     = 9999.;
-  m_address     = 9999;
-  m_absolute_pt = 9999.;
-
-  m_track_pt    = 9999.;  
-  m_track_eta.clear();
-  m_track_phi.clear();
-  m_failed_eta.clear();
-  m_failed_phi.clear();
 
   if (m_timerSvc) {
     for (unsigned int i_timer=0; i_timer<m_timers.size(); i_timer++) {
@@ -1689,11 +1657,52 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&             mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
-  const float ZERO_LIMIT = 1e-5;
+  using namespace Monitored;
+  // initialize monitored variable
+  auto inner_mdt_hits 	= MonitoredScalar::declare("InnMdtHits", -1);
+  auto middle_mdt_hits 	= MonitoredScalar::declare("MidMdtHits", -1);
+  auto outer_mdt_hits 	= MonitoredScalar::declare("OutMdtHits", -1);
+
+  auto efficiency 	= MonitoredScalar::declare("Efficiency", 0);
+  auto sag_inverse 	= MonitoredScalar::declare("SagInv", 9999.);
+  auto address 		= MonitoredScalar::declare("Address", 9999.);
+  auto absolute_pt 	= MonitoredScalar::declare("AbsPt", 9999.);
+  auto sagitta	 	= MonitoredScalar::declare("Sagitta", 9999.);
+  auto track_pt 	= MonitoredScalar::declare("TrackPt", 9999.);
+
+  std::vector<float> t_eta, t_phi;
+  std::vector<float> f_eta, f_phi;
+  std::vector<float> r_inner, r_middle, r_outer;
+  std::vector<float> f_residuals;
+
+  t_eta.clear();
+  t_phi.clear();
+  f_eta.clear();
+  f_phi.clear();
+  r_inner.clear();
+  r_middle.clear();
+  r_outer.clear();
+  f_residuals.clear();
+
+  auto track_eta	= MonitoredCollection::declare("TrackEta", t_eta);
+  auto track_phi	= MonitoredCollection::declare("TrackPhi", t_phi);
+  auto failed_eta	= MonitoredCollection::declare("FailedRoIEta", f_eta);
+  auto failed_phi	= MonitoredCollection::declare("FailedRoIPhi", f_phi);
+  auto res_inner	= MonitoredCollection::declare("ResInner", r_inner);
+  auto res_middle	= MonitoredCollection::declare("ResMiddle", r_middle);
+  auto res_outer	= MonitoredCollection::declare("ResOuter", r_outer);
+  auto fit_residuals	= MonitoredCollection::declare("FitResiduals", f_residuals);
+
+  auto monitorIt	= MonitoredScope::declare(m_monTool, inner_mdt_hits, middle_mdt_hits, outer_mdt_hits, 
+					          efficiency, sag_inverse, address, absolute_pt, sagitta, track_pt,
+					          track_eta, track_phi, failed_eta, failed_phi, 
+						  res_inner, res_middle, res_outer, fit_residuals);
   
+  const float ZERO_LIMIT = 1e-5;
+
   if( trackPatterns.size() > 0 ) {
 
-    m_efficiency  = 1;
+    efficiency  = 1;
   
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
     float norm = 10.;
@@ -1710,42 +1719,42 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
       
       if (st=='I') {
         count_inner++;
-        m_res_inner.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_inner.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='M') {
         count_middle++;
-        m_res_middle.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_middle.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='O') {
         count_outer++;
-        m_res_outer.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_outer.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
     }
     
-    m_inner_mdt_hits  = count_inner;
-    m_middle_mdt_hits = count_middle;
-    m_outer_mdt_hits  = count_outer;
+    inner_mdt_hits  = count_inner;
+    middle_mdt_hits = count_middle;
+    outer_mdt_hits  = count_outer;
     
-    m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
-    m_absolute_pt = fabs(m_track_pt);
+    track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
+    absolute_pt = fabs(track_pt);
 
     if ( fabs(pattern.etaMap) > ZERO_LIMIT || fabs(pattern.phiMS) > ZERO_LIMIT ) {
-      m_track_eta.push_back(pattern.etaMap);
-      m_track_phi.push_back(pattern.phiMS);
+      t_eta.push_back(pattern.etaMap);
+      t_phi.push_back(pattern.phiMS);
     }
     if ( fabs(pattern.pt ) < ZERO_LIMIT){
-      m_failed_eta.push_back(roi->eta());
-      m_failed_phi.push_back(roi->phi());
+      f_eta.push_back(roi->eta());
+      f_phi.push_back(roi->phi());
     }
 
-    m_sagitta     = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? pattern.barrelSagitta: 9999.;
-    m_sag_inverse = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? 1./pattern.barrelSagitta: 9999.;
-    m_address     = pattern.s_address;
+    sagitta     = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? pattern.barrelSagitta: 9999.;
+    sag_inverse = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? 1./pattern.barrelSagitta: 9999.;
+    address     = pattern.s_address;
   }
 
   return StatusCode::SUCCESS;

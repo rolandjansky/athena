@@ -6,22 +6,6 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
-#  flags for command-line input
-from RecExConfig.RecFlags import rec
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
-if not acf.EvtMax.is_locked():
-  acf.EvtMax=10
-if not ('OutputLevel' in dir()):
-  rec.OutputLevel=INFO
-
-#scan for RTT files (only if dsName and fileRange set)
-include("TriggerTest/TrigScanFiles.py")
-if ('enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True):
-  enableCostMonitoring = True
-else:
-  enableCostMonitoring = False
-
-
 viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -91,12 +75,15 @@ if TriggerFlags.doMuon:
 # ==================================================================================================================================
 #               Setup L2MuonSA
 # ==================================================================================================================================
+  # muon threshoulds
+  testChains = ["HLT_mu6"]
+
   # set up L1RoIsFilter 
   from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
   filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
   filterL1RoIsAlg.Input = ["MURoIDecisions"]
   filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-  filterL1RoIsAlg.Chains = ["HLT_mu6"]
+  filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
  
   # set up MuFastSteering
@@ -147,22 +134,20 @@ if TriggerFlags.doMuon:
     muFastHypo.L1Decisions = "MURoIDecisions"
 
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = muFastHypo.Decisions )
-
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, muFastHypo, muFastDecisionsDumper])
 
+    # run only muFastAlg
+    muFastTestStep = stepSeq("muFastTestStep", filterL1RoIsAlg, l2MuViewsMaker)
+
   else:
-    from TrigMuonHypo.TrigMuonHypoConf import MufastHypo
-    muFastHypo = MufastHypo("muFastHypo")
-    muFastHypo.OutputLevel = DEBUG
+    pass 
 
   # CF construction
   if viewTest:
-    topSequence += filterL1RoIsAlg
-    topSequence += l2MuViewsMaker
-    #step0 = parOR("step0", [ muFastStep ] )
-    #topSequence += muFastStep
+    topSequence += muFastStep
+    # run only muFastAlg
+    #topSequence += muFastTestStep
 
   else:
     topSequence += filterL1RoIsAlg
     topSequence += muFastAlg
-    topSequence += muFastHypo
