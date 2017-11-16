@@ -3,7 +3,7 @@ import os
 makeDataDAODs=True
 makeMCDAODs=True
 makeTruthDAODs=False
-makeTrains=False
+makeTrains=True
 
 formatList = [#'PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5',
@@ -32,13 +32,13 @@ truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
               ["JETM10","BPHY10","EGAM4","EXOT10","STDM5","MUON2"], # 0.1-0.15%
               ["SUSY13","HIGG1D2","HIGG3D2","EXOT12","EGAM9"], # 0.16-0.2%
-              ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17"], # 0.2-0.3%
+              ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17","SUSY9"], # 0.2-0.3%
               ["JETM7","BPHY5","MUON3","EXOT6","EGAM2","HIGG4D6","BPHY8"], # 0.3-0.4%
               ["BPHY4","BPHY7","HIGG4D5","EXOT15","EXOT9","BPHY1","EGAM7"], # 0.4-0.5%
               ["SUSY16","EXOT20","HIGG1D1","STDM3","TOPQ2"], # 0.5-0.6%
               ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
               ["HIGG4D3","EXOT18","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
-              ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1"], # 1-1.3%
+              ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1","EXOT7"], # 1-1.3%
               ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21","EXOT22"], # 1.3-1.6%
               ["STDM9","HIGG5D3","BPHY9","HIGG5D1","BPHY6"], # 1.6-1.8%
               ["EGAM5","JETM11","SUSY8","HIGG2D2","SUSY10"], # 1.9-2.1%
@@ -52,11 +52,15 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
 mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
+delayedStreamLabel = "data16DELAYED"
+blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000011.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
 dataFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.09788089._000056.pool.root.1"
+dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
+dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_BphysLS.merge.AOD.f832_m1812._lb0590._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
 mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "
@@ -104,18 +108,25 @@ if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
          if formatName=="EXOT23":
-            generateText(formatName,dataLabel,dataFileEXOT23,False,False,"10000")
+            generateText(formatName,dataLabel,dataFileEXOT23,False,False,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
-         else: generateText(formatName,dataLabel,dataFile,False,False,"8000")
+         elif formatName in ['BPHY7','BPHY8']:
+            generateText(formatName,dataLabel,dataFile,False,False,"-1")
+            generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         elif formatName=='BPHY10':
+            generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
          if formatName=="EXOT23":
-            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"10000")
+            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          elif formatName=="BPHY8":
-            generateText(formatName,mcLabel,mcFileBPHY8,False,True,"10000")
-         else: generateText(formatName,mcLabel,mcFile,False,True,"10000")
+            generateText(formatName,mcLabel,mcFileBPHY8,False,True,"-1")
+         else: generateText(formatName,mcLabel,mcFile,False,True,"-1")
 
 if (makeTruthDAODs):
    for formatName in truthFormatList:
