@@ -670,8 +670,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
     uint32_t runNum = evtInfo->runNumber();
     uint32_t dsid = evtInfo->mcChannelNumber();
-    TString prwConfigFile = PathResolverFindCalibFile("PRW_AUTOCONGIF/files");
-    prwConfigFile += "/pileup_mc16";
+    TString prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
+    prwConfigFile += "pileup_mc16";
     switch(runNum) {
       case 284500 : prwConfigFile+="a_"; 
 	break;
