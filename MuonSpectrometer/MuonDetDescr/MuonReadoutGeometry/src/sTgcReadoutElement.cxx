@@ -455,11 +455,11 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       // For pad and wires Active geometry, we add 4mm to the values of A and B to account for fuzziness of +-2mm included in PadDesign
       if (m_sTGC_type == 3) {
         m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_minHalfY[layer],m_maxHalfY[layer],m_maxHalfY[layer],m_halfX[layer] - m_etaDesign[layer].yCutout/2,m_etaDesign[layer].yCutout/2) ); // strips
-        m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_PadminHalfY[layer]+2.,m_PadmaxHalfY[layer]+2.,m_PadmaxHalfY[layer],m_PadhalfX[layer] - m_padDesign[layer].yCutout/2,m_padDesign[layer].yCutout/2) ); // pad and wires
+        m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_PadminHalfY[layer],m_PadmaxHalfY[layer],m_PadmaxHalfY[layer],m_PadhalfX[layer] - m_padDesign[layer].yCutout/2,m_padDesign[layer].yCutout/2) ); // pad and wires
       }
       else {
         m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));    
-        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer]+2., m_PadmaxHalfY[layer]+2., m_PadhalfX[layer]));    
+        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
       }
       
       // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
