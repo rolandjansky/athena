@@ -47,7 +47,7 @@ public:
   G4bool ProcessHits(G4Step* a_step,G4TouchableHistory*) override;
 
   /// End of athena event processing
-  void EndOfAthenaEvent( CaloCalibrationHitContainer* hitContainer );
+  void EndOfAthenaEvent( CaloCalibrationHitContainer* hitContainer, CaloCalibrationHitContainer* deadHitContainer=nullptr );
 
   /// Sets the ID helper pointers
   void setupHelpers( const LArEM_ID* EM ,
@@ -97,6 +97,9 @@ protected:
 
   /// The actual set of calibration hits
   m_calibrationHits_t m_calibrationHits;
+
+  /// The actual set of dead material calibration hits
+  m_calibrationHits_t m_deadCalibrationHits;
 
   /// Helper function for making "real" identifiers from LArG4Identifiers
   Identifier ConvertID(const LArG4Identifier& a_ident) const;

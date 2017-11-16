@@ -163,20 +163,28 @@ G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
 } 
  
 
-void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer )
+void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer, CaloCalibrationHitContainer * deadHitContainer )
 {
-  // Loop through the hits...
-  for(auto hit : m_calibrationHits)
-  {
-
-    // Because of the design, we are sure this is going into the right hit container
-    // Can we actually do this with move?
-    hitContainer->push_back(hit);
-
-  } // End of loop over hits
-
-  // Clean up    
-  m_calibrationHits.clear();
+  if(hitContainer) {
+    // Loop through the hits...
+    for(auto hit : m_calibrationHits) {
+      // Because of the design, we are sure this is going into the right hit container
+      // Can we actually do this with move?
+      hitContainer->push_back(hit);
+    } // End of loop over hits
+    // Clean up
+    m_calibrationHits.clear();
+  }
+  if(deadHitContainer) {
+    // Loop through the hits...
+    for(auto hit : m_deadCalibrationHits) {
+      // Because of the design, we are sure this is going into the right hit container
+      // Can we actually do this with move?
+      deadHitContainer->push_back(hit);
+    } // End of loop over hits
+    // Clean up
+    m_deadCalibrationHits.clear();
+  }
 }
 
 
