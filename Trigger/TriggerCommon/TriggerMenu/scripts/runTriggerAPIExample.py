@@ -26,6 +26,12 @@ print "Ele combined items:",TriggerAPI.getLowestUnprescaled(337833, TriggerType.
 #   Allows to get items that were accidentally prescaled in some period or changed over time
 #   E.g. no multi b-jet trigger is unprescaled over the full 2017
 print "Lowest in at least one period:",TriggerAPI.getLowestUnprescaledAnyPeriod(TriggerPeriod.y2017periodAll, TriggerType.bj_multi)
+# - retrieve items above a certain live fraction instead of unprescaled
+#   HLT_j225_gsc420_boffperf_split is unprescaled
+#   HLT_j225_gsc400_boffperf_split recorded >95% of the available luminosity
+print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc")
+print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc", livefraction=0.95)
+
 # - combined items with more than 2 types:
 print "Muon+jet+met items:",TriggerAPI.getLowestUnprescaled(337833, TriggerType.mu, [TriggerType.j, TriggerType.xe])
 # - items that are expected to be lowest-unprescaled at higher luminosities
