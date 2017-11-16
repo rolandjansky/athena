@@ -293,13 +293,13 @@ StatusCode MmDigitizationTool::initialize() {
 		return status;
 	}
 
-	//--- magnetic field service  28/05/2015 T.Saito
+	// Magnetic field service
 	if (m_magFieldSvc.retrieve().isFailure()){
 		ATH_MSG_ERROR("Could not get " << m_magFieldSvc);
 		return StatusCode::FAILURE;
+	} else {
+		ATH_MSG_DEBUG ( "Retrieved MagFieldSvc." );
 	}
-	ATH_MSG_DEBUG ( "Retrieved MagFieldSvc." );
-	//---
 
 	// check the input object name
 	if (m_inputObjectName=="") {
@@ -367,8 +367,7 @@ StatusCode MmDigitizationTool::initialize() {
 		return StatusCode::FAILURE;
 	}
 
-
-	//ROOT Staff for internal validation
+	// Validation File Output
 	if (m_writeOutputFile) m_file = new TFile("MM_Digitization_plots.root","RECREATE");
 	m_ntuple = new TTree("fullSim","fullSim");
 
@@ -419,7 +418,6 @@ StatusCode MmDigitizationTool::initialize() {
 	m_StripsResponseSimulation->set_driftVelocity(m_driftVelocity);
 	m_StripsResponseSimulation->set_crossTalk1(m_crossTalk1);
 	m_StripsResponseSimulation->set_crossTalk2(m_crossTalk2);
-	if(m_writeOutputFile)	m_StripsResponseSimulation->set_outputFile(m_file);
 	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation
@@ -434,8 +432,6 @@ StatusCode MmDigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation->set_StripResponse_driftVelocity(  m_StripsResponseSimulation->get_driftVelocity() );
 	m_ElectronicsResponseSimulation->set_StripResponse_driftGapWidth(  m_StripsResponseSimulation->get_driftGapWidth() );
 	m_ElectronicsResponseSimulation->initialize();
-
-
 
 
 	return status;
@@ -662,6 +658,11 @@ StatusCode MmDigitizationTool::finalize() {
 		gDirectory=backup;
 		m_file->Close();
 	}
+
+
+	delete m_StripsResponseSimulation;
+	delete m_ElectronicsResponseSimulation;
+
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
@@ -887,13 +888,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Amg::Vector2D posOnSurfUnProjected(slpos.x(),slpos.y()); // not used
 			//      double gasGapThickness = detEl->getDesign(layid)->gasGapThickness();
 
-			Amg::Vector3D locdir(0., 0., 0.);
+			Amg::Vector3D locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+			Amg::Vector3D locdirTime(0., 0., 0.);
 
 			// drift direction in back-chamber should be opposite to the incident direction.
-			if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+			if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4) locdirTime = locdir;
 			//      if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
-			else locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
-
+			else locdirTime = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
 
 
 
@@ -911,7 +912,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			double shiftTimeOffset = (globalHitTime - tofCorrection)* m_driftVelocity; // T.Saito
 			//      double shiftTimeOffset = MMDigitTime* m_driftVelocity;
 			Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
-			Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/locdir.z())*locdir;
+			Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/locdirTime.z())*locdirTime;
 
 			//      ATH_MSG_DEBUG("slpos.z " << slpos.z() << ", locdir " << locdir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() << ", hitOnTopSurface.z " << hitOnTopSurface.z() );
 
