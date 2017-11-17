@@ -55,16 +55,22 @@ def getDefaultSteppingActions():
 def getDefaultTrackingActions():
     from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    if not simFlags.ISFRun:
-        defaultUA+=['G4UA::AthenaTrackingActionTool']
     defaultUA+=['G4UA::G4TrackCounterTool']
     return defaultUA
 
 # Stacking Classification
 def getDefaultStackingActions():
     defaultUA=[]
-    defaultUA+=['G4UA::AthenaStackingActionTool']
     return defaultUA
+
+# New function for all user action types
+def getDefaultActions():
+    from G4AtlasApps.SimFlags import simFlags
+    actions = []
+    actions += ['G4UA::AthenaStackingActionTool']
+    if not simFlags.ISFRun:
+        actions += ['G4UA::AthenaTrackingActionTool']
+    return actions
 
 def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
     """
@@ -85,6 +91,9 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
         getDefaultTrackingActions() + optionalActions.get_Value()['Tracking'])
     # no optional actions for stacking
     kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
+
+    # new user action tools
+    kwargs.setdefault('UserActionTools', getDefaultActions())
 
     # placeholder for more advanced config, if needed
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
@@ -115,9 +124,11 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     kwargs.setdefault('TrackingActionTools', tracking)
     kwargs.setdefault('StackingActionTools', stacking)
 
+    # New user action tools
+    kwargs.setdefault('UserActionTools', getDefaultActions())
+
     # placeholder for more advanced config, if needed
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
-
 
 def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     TrackProcessorUserAction = kwargs.pop('TrackProcessorUserAction',[])
@@ -142,6 +153,9 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     kwargs.setdefault('SteppingActionTools', stepping)
     kwargs.setdefault('TrackingActionTools', tracking)
     kwargs.setdefault('StackingActionTools', stacking)
+
+    # New user action tools
+    kwargs.setdefault('UserActionTools', getDefaultActions())
 
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
 
