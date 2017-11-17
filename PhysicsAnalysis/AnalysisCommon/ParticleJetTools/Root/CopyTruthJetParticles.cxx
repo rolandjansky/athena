@@ -32,9 +32,10 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   , m_photonCone(0.1)
   , m_classif("")
 {
-  declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection");
+  declareProperty("IncludeNonInteracting",  m_includeNonInt=false, "Include noninteracting particles (including neutrinos) in the output collection");
+  declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection (implied if using NonInt)");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
-  declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons from prompt decays (i.e. not from hadron decays) in the output collection");
+  declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons (including neutrinos) from prompt decays (i.e. not from hadron decays) in the output collection");
   declareProperty("IncludePromptPhotons",  m_includePromptPhotons=true,  "Include photons from Higgs and other decays that produce isolated photons");
   //  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
 
@@ -61,6 +62,8 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
                                              std::vector<const xAOD::TruthParticle*>& promptLeptons,
                                              std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {
 
+  bool makenoise = tp->pdgId()==1000039;
+
   // Check if this thing is a candidate to be in a truth jet
   //  First block is largely copied from isGenStable, which works on HepMC only
   if (tp->barcode()>=m_barcodeOffset) return false; // Particle is from G4
@@ -73,7 +76,8 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
   // ----------------------------------- //
   
   // Easy classifiers by PDG ID
-  if (!m_includeNu && MC::isNonInteracting(pdgid)) return false;
+  if (!m_includeNu && MCUtils::PID::isNeutrino(pdgid)) return false;
+  else if (!m_includeNonInt && MC::isNonInteracting(pdgid)) return false;
   if (!m_includeMu && abs(pdgid)==13) return false;
 
   // Cannot use the truth helper functions; they're written for HepMC
