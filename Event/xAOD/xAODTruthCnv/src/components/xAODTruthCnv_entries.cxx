@@ -2,6 +2,7 @@
 
 // Local include(s):
 #include "../xAODTruthCnvAlg.h"
+#include "../xAODTruthMetaDataTool.h"
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
 
@@ -16,5 +17,6 @@ DECLARE_FACTORY_ENTRIES( xAODCreatorAlgs ) {
 
 DECLARE_FACTORY_ENTRIES( xAODTruthCnv ) {
    DECLARE_ALGORITHM( HepMCTruthReader )
+   DECLARE_NAMESPACE_TOOL( xAODMaker, xAODTruthMetaDataTool )
 }
 
