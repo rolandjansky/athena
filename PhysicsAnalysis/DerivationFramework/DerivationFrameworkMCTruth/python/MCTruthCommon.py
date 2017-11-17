@@ -99,7 +99,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                      IncludePromptLeptons=False,IncludePromptPhotons=False,
                                      IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
                                      FSRPhotonCone=-1., DressingDecorationName=decorationDressing
-                                    )
+                                     )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
         jtm += JetToolRunner("jetdressedwzrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
@@ -115,7 +115,8 @@ def addTruthJets(kernel=None, decorationDressing=None):
           GhostScale = 0.0,
           SkipNegativeEnergy = True
         )
-        jtm.gettersMap['truthdressedwz'] = [jtm.truthdressedwzget]
+        jtm.gettersMap['truthdressedwz'] = list(jtm.gettersMap['truth'])
+        jtm.gettersMap['truthdressedwz'][0] = jtm.truthdressedwzget
     # Propagate that downward
     if dfInputIsEVNT:
         addTruthJetsEVNT(kernel,decorationDressing)
