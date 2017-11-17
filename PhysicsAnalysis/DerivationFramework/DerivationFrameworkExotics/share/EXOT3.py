@@ -94,7 +94,7 @@ EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                      AdditionalClustersKey = ["LCOriginTopoClusters","EMOriginTopoClusters"])
+                                                                      AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
 
@@ -336,8 +336,6 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
     "LCOriginTopoClusters"                      :   "xAOD::CaloClusterContainer",
     "LCOriginTopoClustersAux"                   :   "xAOD::ShallowAuxContainer" ,
-    "EMOriginTopoClusters"                      :   "xAOD::CaloClusterContainer",
-    "EMOriginTopoClustersAux"                   :   "xAOD::ShallowAuxContainer" ,
 }
 
 # Add all variabless for VR track-jets
@@ -349,7 +347,7 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
-    "LCOriginTopoClusters.calEta.calPhi","EMOriginTopoClusters.calE.calEta.calPhi"
+    "LCOriginTopoClusters.calEta.calPhi"
 ]
 
 if globalflags.DataSource()=='geant4':
