@@ -28,13 +28,15 @@ class RegSelTestAlg
   virtual StatusCode  execute_r(const EventContext& context) const override;
   virtual StatusCode  finalize() override;
   StatusCode dump() const;
-  StatusCode hammer() const;
+  StatusCode mt() const;
 
 
  private: 
+
+  StatusCode dumpOne( const std::string& message, double eta, const std::vector<DETID>& detectors ) const;
   RegSelTestAlg();
   Gaudi::Property<bool> m_dump{ this, "Dump", false, "Generate series of RoIs and dump the ROBS & hashes for them in the output" };
-  Gaudi::Property<bool> m_hammer{ this, "Hammer", false, "Generate series of RoIs and ask RegionSelctor for the ROBS and hashes from multiple threads" };
+  Gaudi::Property<bool> m_mt{ this, "Mt", false, "Generate series of RoIs and ask RegionSelctor for the ROBS and hashes from multiple threads" };
   
   ServiceHandle<IRegSelSvc> m_regSelSvc{ this, "RegSelSvc", "RegSelSvc/RegSelSvc", "Region selector service instance" };
 }; 
