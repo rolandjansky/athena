@@ -930,7 +930,7 @@ namespace SG {
    */
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
-    if (this->storeHandle().name() == StoreID::storeName(StoreID::EVENT_STORE)) {
+    if (m_key->isEventStore()) {
       if (ctx)
         return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;
