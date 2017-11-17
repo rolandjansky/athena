@@ -421,7 +421,18 @@ void FTK_UncertaintyTool::LoadConstants_NoIBL()
 }
 
 
+/**
+ * 
+ * 
+ * 
+ * 
+ * 
+ */ 
 
+/** New Constants for FTK error parameterisation.
+ *    Generated uses single muon samples
+ *    For more information see the JIRA: FTKSIM-22
+ */
 void FTK_UncertaintyTool::LoadConstants_OCT2017_V1()
 {
   //////////////////////////////////////////////////
