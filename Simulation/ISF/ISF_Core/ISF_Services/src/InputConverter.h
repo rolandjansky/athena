@@ -18,6 +18,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
+#include "BarcodeEvent/Barcode.h"
+
 // forward declarations
 namespace Barcode {
   class IBarcodeSvc;
@@ -39,6 +41,9 @@ namespace ISF {
   class IGenParticleFilter;
 }
 
+class G4PrimaryParticle;
+class G4VSolid;
+
 namespace ISF {
 
   /** @class InputConverter
@@ -52,46 +57,72 @@ namespace ISF {
     // allow test to access private data
     friend ISFTesting::InputConverter_test;
 
-    public:
-      InputConverter(const std::string& name, ISvcLocator* svc);
-      virtual ~InputConverter();
+  public:
+    InputConverter(const std::string& name, ISvcLocator* svc);
+    virtual ~InputConverter();
 
-      /** Athena algtool Hooks */
-      StatusCode  initialize();
-      StatusCode  finalize();
+    /** Athena algtool Hooks */
+    virtual StatusCode  initialize() override final;
+    virtual StatusCode  finalize() override final;
 
-      /** ReturnGaudi InterfaceID */
-      static const InterfaceID& interfaceID() { return IID_IInputConverter; }
+    /** ReturnGaudi InterfaceID */
+    static const InterfaceID& interfaceID() { return IID_IInputConverter; }
 
-      /** Convert selected particles from the given McEventCollection into ISFParticles
-          and push them into the given ISFParticleContainer */
-      virtual StatusCode convert(const McEventCollection& inputGenEvents,
-                                 ISF::ISFParticleContainer& simParticles,
-                                 bool isPileup=false) const override final;
+    /** Convert selected particles from the given McEventCollection into ISFParticles
+        and push them into the given ISFParticleContainer */
+    virtual StatusCode convert(const McEventCollection& inputGenEvents,
+                               ISF::ISFParticleContainer& simParticles,
+                               bool isPileup=false) const override final;
 
-      /** Query the interfaces. **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    /** */
+    virtual StatusCode convertHepMCToG4Event(McEventCollection& inputGenEvents,
+                                             G4Event*& outputG4Event,
+                                             bool isPileup) const override final;
 
-    private:
-      /** get right GenParticle mass */
-      double getParticleMass(const HepMC::GenParticle& p) const;
+    /** Query the interfaces. **/
+    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
-      /** get all generator particles which pass filters */
-      std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+    /** Converts vector of ISF::ISFParticles to G4Event */
+    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;
 
-      /** check if the given particle passes all filters */
-      bool passesFilters(const HepMC::GenParticle& p) const;
+  private:
 
-      /** convert GenParticle to ISFParticle */
-      ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, int bcid) const;
+    G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
 
-      /** ParticlePropertyService and ParticleDataTable */
-      ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT
-      const HepPDT::ParticleDataTable      *m_particleDataTable;        //!< PDT used to look up particle masses
+    G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
 
-      bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
+    void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
-      ToolHandleArray<IGenParticleFilter>   m_genParticleFilters;       //!< HepMC::GenParticle filters
+    /** Tests whether the given ISFParticle is within the Geant4 world volume */
+    bool isInsideG4WorldVolume(const ISF::ISFParticle& isp) const;
+
+    /** get right GenParticle mass */
+    double getParticleMass(const HepMC::GenParticle& p) const;
+
+    /** get all generator particles which pass filters */
+    std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+
+    /** check if the given particle passes all filters */
+    bool passesFilters(const HepMC::GenParticle& p) const;
+
+    /** convert GenParticle to ISFParticle */
+    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, int bcid) const;
+
+    /** ParticlePropertyService and ParticleDataTable */
+    ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT
+    const HepPDT::ParticleDataTable      *m_particleDataTable;        //!< PDT used to look up particle masses
+
+    bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
+
+    ToolHandleArray<IGenParticleFilter>   m_genParticleFilters;       //!< HepMC::GenParticle filters
+
+    mutable G4VSolid                             *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
+
+    bool   m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
+
+    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
+
   };
 
 }

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ISFG4GEOHELPER_H
 #define ISFG4GEOHELPER_H
 
@@ -17,7 +21,9 @@ class ISFG4GeoHelper {
   static AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep, int truthVolLevel,ISF::IGeoIDSvc *geoIDSvc);
   static bool checkVolumeDepth(G4LogicalVolume* logicalVol, int volLevel, int depth=0);
 
- private:
+  /// get the next GeoID using only the geoIDSvc
+  static AtlasDetDescr::AtlasRegion getNextGeoIDFromSvc(const G4StepPoint& postStep, const ISF::IGeoIDSvc &geoIDSvc);
+
 };
 
 }

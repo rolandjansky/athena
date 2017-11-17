@@ -10,6 +10,14 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
 
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
     kwargs.setdefault('SecondarySavingLevel', 2)
+    subDetLevel=1
+    from AthenaCommon.BeamFlags import jobproperties
+    from G4AtlasApps.SimFlags import simFlags
+    if "ATLAS" in simFlags.SimLayout() and \
+    (jobproperties.Beam.beamType() == 'cosmics' or \
+     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
+        subDetLevel=2
+    kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
@@ -50,6 +58,9 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     else:
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
+
+    kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())
+    kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

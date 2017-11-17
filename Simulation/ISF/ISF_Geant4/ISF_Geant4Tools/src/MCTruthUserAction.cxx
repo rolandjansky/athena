@@ -52,8 +52,6 @@ namespace G4UA{
         return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
       }
 
-      m_sHelper=SecondaryTracksHelper(G4EventManager::GetEventManager()->GetTrackingManager());
-
       // store a pointer directly to the truth service class
       // by doing so, the Gaudi overhead can be minimized
       m_truthRecordSvcQuick = &(*(m_config.truthRecordSvc));
@@ -62,8 +60,6 @@ namespace G4UA{
     void MCTruthUserAction::PreUserTrackingAction(const G4Track* inTrack){
       //ATH_MSG_DEBUG("Starting to track a new particle");
 
-      //m_sHelper.ResetNrOfSecondaries();
- 
       G4Track* inT = const_cast<G4Track*> (inTrack);
       TrackHelper trackHelper(inT);
 

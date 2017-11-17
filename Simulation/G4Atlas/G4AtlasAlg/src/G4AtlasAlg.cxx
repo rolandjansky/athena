@@ -31,6 +31,8 @@
 // EDM includes
 #include "EventInfo/EventInfo.h"
 
+#include "MCTruthBase/TruthStrategyManager.h"
+
 // call_once mutexes
 #include <mutex>
 static std::once_flag initializeOnceFlag;
@@ -43,7 +45,9 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_rndmGenSvc("AtDSFMTGenSvc", name),
     m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
-    m_physListTool("PhysicsListToolBase")
+    m_physListTool("PhysicsListToolBase"),
+    m_truthRecordSvc("ISF_TruthRecordSvc", name),
+    m_geoIDSvc("ISF_GeoIDSvc", name)
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
@@ -62,7 +66,9 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
   declareProperty("UserActionSvc", m_userActionSvc);
   declareProperty("PhysicsListTool", m_physListTool);
-
+  declareProperty("TruthRecordService", m_truthRecordSvc);
+  declareProperty("GeoIDSvc", m_geoIDSvc);
+  
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 
@@ -100,11 +106,19 @@ StatusCode G4AtlasAlg::initialize()
     ATH_CHECK( pyG4Svc.retrieve() );
   }
 
+  ATH_CHECK( m_truthRecordSvc.retrieve() );
+  ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
+  ATH_CHECK( m_geoIDSvc.retrieve() );
+  ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
+
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
+
+  TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
+  sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
+  sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
+
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg initialized  ++++++++++++" << std::endl << std::endl);
-
   return StatusCode::SUCCESS;
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -267,13 +281,18 @@ StatusCode G4AtlasAlg::execute()
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
 
+
   n_Event += 1;
 
   if (n_Event<=10 || (n_Event%100) == 0) {
     ATH_MSG_ALWAYS("G4AtlasAlg: Event num. "  << n_Event << " start processing");
   }
 
+  // tell TruthService we're starting a new event
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() ); //FIXME POINTLESS - THIS METHOD IS EMPTY IN MASTER
+
   ATH_MSG_DEBUG("Calling SimulateG4Event");
+
 
   // Worker run manager
   // Custom class has custom method call: SimulateFADSEvent.
@@ -314,6 +333,8 @@ StatusCode G4AtlasAlg::execute()
       }
     }
   }
+
+  ATH_CHECK( m_truthRecordSvc->releaseEvent() );
 
   return StatusCode::SUCCESS;
 }

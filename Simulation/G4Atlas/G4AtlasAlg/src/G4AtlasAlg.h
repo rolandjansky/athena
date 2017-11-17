@@ -21,6 +21,10 @@
 #include <map>
 #include <string>
 
+// ISF includes
+#include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
+
 /// @class G4AtlasAlg
 /// @brief Primary Athena algorithm for ATLAS simulation.
 ///
@@ -100,6 +104,10 @@ private:
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Physics List Tool
   ToolHandle<IPhysicsListTool> m_physListTool;
+  
+  /** Central truth service */
+  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
+  ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc;
 
 };
 

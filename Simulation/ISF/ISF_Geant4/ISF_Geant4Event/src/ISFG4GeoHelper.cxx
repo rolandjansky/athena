@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
 // Athena includes
@@ -18,8 +22,8 @@ AtlasDetDescr::AtlasRegion
 iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::IGeoIDSvc *geoIDSvc)
 {
 
-  static G4LogicalVolume * BPholder=0 , * IDholder=0 , * CALOholder=0 , * MUholder=0 , * TTRholder=0 ;
-  if (BPholder==0){ // Initialize
+  static G4LogicalVolume * BPholder=nullptr , * IDholder=nullptr , * CALOholder=nullptr , * MUholder=nullptr , * TTRholder=nullptr ;
+  if (!BPholder){ // Initialize
 
     G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
     for (size_t i=0;i<lvs->size();++i){
@@ -33,56 +37,26 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
 
     }
 
-    ISFG4GeoHelper::checkVolumeDepth( G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume() , truthVolLevel);
-
+    const auto& worldVolume = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume();
+    ISFG4GeoHelper::checkVolumeDepth(worldVolume, truthVolLevel);
   }
 
-
-  // Static so that it will keep the value from the previous step
-  static AtlasDetDescr::AtlasRegion nextGeoID = truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
-
-  static const G4Track* aTrack = 0;
+  AtlasDetDescr::AtlasRegion nextGeoID = truthVolLevel > 1 ? AtlasDetDescr::fAtlasCavern
+                                                           : AtlasDetDescr::fUndefinedAtlasRegion;
 
   StepHelper step(aStep);
 
-
-  if (aTrack != aStep->GetTrack()) {
-    
-    // First step with this track!
-    nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
-    aTrack = aStep->GetTrack();
-    
-  } // Otherwise use the cached value via the static
-
-
   const G4StepPoint *postStep = aStep->GetPostStepPoint();
-
-
   bool leavingG4World       = postStep->GetStepStatus()==fWorldBoundary;
 
   if ( leavingG4World ) {
-
     nextGeoID = AtlasDetDescr::fAtlasCavern;
-
     return nextGeoID;
   }
 
-
   // If in mother volume, use the ISF_GeoIDSvc to resolve the geoID
   if (step.PostStepBranchDepth()<truthVolLevel){
-
-    const G4ThreeVector     &postPos  = postStep->GetPosition();
-    //const G4ThreeVector     &postMom  = postStep->GetMomentum();
-    //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
-    //                                                postPos.y(),
-    //                                                postPos.z(),
-    //                                                postMom.x(),
-    //                                                postMom.y(),
-    //                                                postMom.z() );
-    nextGeoID = geoIDSvc->identifyGeoID( postPos.x(),
-                                                postPos.y(),
-                                                postPos.z() );
-
+    nextGeoID = getNextGeoIDFromSvc(*postStep, *geoIDSvc);
     return nextGeoID;
   }
 
@@ -100,11 +74,29 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
   } else if (truthVolLevel>0 && step.GetPostStepLogicalVolumeName(truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
     nextGeoID = AtlasDetDescr::fAtlasCavern;
   } else {
-    // We are in trouble
-    //ATH_MSG_ERROR("vol1: "<<step.GetPostStepLogicalVolumeName(1)<<", vol2: "<<step.GetPostStepLogicalVolumeName(2)<<", postname="<<postname<<", returning undefined geoID");
-    G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
-    //ATH_MSG_ERROR("Returning undefined geoID from " << step.GetPostStepLogicalVolume() << " requesting " << step.GetPostStepLogicalVolume(truthVolLevel) << " at " << myPos.x() << " " << myPos.y() << " " << myPos.z() );
+    nextGeoID = getNextGeoIDFromSvc(*postStep, *geoIDSvc);
   }
+
+  return nextGeoID;
+}
+
+AtlasDetDescr::AtlasRegion iGeant4::ISFG4GeoHelper::getNextGeoIDFromSvc(const G4StepPoint& postStep,
+                                                                        const ISF::IGeoIDSvc &geoIDSvc) {
+  const G4ThreeVector &postPos = postStep.GetPosition();
+  AtlasDetDescr::AtlasRegion nextGeoID = geoIDSvc.identifyGeoID(postPos.x(),
+                                                                  postPos.y(),
+                                                                  postPos.z());
+
+  // if we ever run into problems with the current approach, the following
+  // takes the particle's traveling direction into account for finding the
+  // *next* volume it enters
+  //const G4ThreeVector     &postMom  = postStep->GetMomentum();
+  //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
+  //                                                postPos.y(),
+  //                                                postPos.z(),
+  //                                                postMom.x(),
+  //                                                postMom.y(),
+  //                                                postMom.z() );
 
   return nextGeoID;
 }
