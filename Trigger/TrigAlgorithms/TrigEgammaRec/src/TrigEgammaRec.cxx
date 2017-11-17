@@ -147,6 +147,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("doTrackMatching",m_doTrackMatching = false, "run TrackMatchBuilder");
     // Set flag for conversions 
     declareProperty("doConversions",m_doConversions = false, "run ConversionBuilder");
+    /** @brief run GSF refit */
+    declareProperty("doBremCollection",                    m_doBremCollection          = false, "run BremCollection");
 
     // Monitoring
     typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
@@ -739,6 +741,41 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             } //pCaloCellContainer
         }
         if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
+    }
+
+
+    //********************************************************************************
+    if (m_doBremCollection){ 
+
+      ATH_MSG_DEBUG("In m_doBremCollection");
+      ATH_MSG_DEBUG(" REGTEST: Got " << vectorClusterContainer.size() << " CaloClusterContainers associated to the TE ");
+      if (vectorClusterContainer.size() != 1){
+        ATH_MSG_ERROR("REGTEST: Size of vectorClusterContainer is not 1, it is: "<< vectorClusterContainer.size());
+        return HLT::NAV_ERROR;
+      }
+
+      // Get the last ClusterContainer
+      const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
+      if(!clusContainer){
+	return HLT::OK;
+      }
+      
+      ATH_MSG_DEBUG (clusContainer->size() << " calo clusters in container");
+      
+      
+      std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+      stat = getFeatures(inputTE, vectorTrackParticleContainer);
+      
+      if (stat != HLT::OK) {
+	ATH_MSG_DEBUG(" REGTEST: no TrackParticleContainer from TE, m_doBremCollection ");
+	return HLT::NAV_ERROR;
+      }
+      
+      const xAOD::TrackParticleContainer *tracks = vectorTrackParticleContainer.back();
+      if (!tracks || tracks->size()<1){
+       return HLT::OK;
+      }
+
     }
 
     //**********************************************************************
