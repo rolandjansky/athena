@@ -37,6 +37,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
    Reconstruction/Jet/JetEDM
    ${extra_deps}
+   External/lwtnn
    #External/Asg_Boost
    )
 
@@ -47,7 +48,8 @@ find_package( Boost )
 
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
-   BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx
+  BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx
+  Root/HbbTaggerDNN.cxx
    PUBLIC_HEADERS BoostedJetTaggers
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools 
