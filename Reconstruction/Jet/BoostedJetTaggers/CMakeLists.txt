@@ -85,13 +85,6 @@ if( XAOD_STANDALONE )
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
-   atlas_add_executable( test_BoostedXbbTagger
-      util/test_BoostedXbbTagger.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
-      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
-      BoostedJetTaggersLib
-   )
    atlas_add_executable( test_JetQGTagger
       util/test_JetQGTagger.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
