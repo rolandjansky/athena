@@ -18,23 +18,20 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
  public:
   TFCSPCAEnergyParametrization(const char* name=0, const char* title=0);
 
-  // energies in calo layers should be returned in simulstate
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   int n_pcabins()        { return m_numberpcabins; };
   IntArray* get_layers() { return m_RelevantLayers; };
 
-  void P2X(TVectorD*, TVectorD* , TMatrixD , int, double* , double* , int);
+  void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
   void loadInputs(TFile* file,std::string);
 
  private:
-  // PCA Matrix and NN mapping information should be stored as private member variables here
-
+  
   IntArray* m_RelevantLayers;
 
   std::vector<TMatrixDSym*> m_symCov;
-  //std::vector<TMatrixD*>    m_EV;
   std::vector<TVectorD*>    m_MeanValues;
   std::vector<TVectorD*>    m_SigmaValues;
   std::vector<TVectorD*>    m_Gauss_means;
