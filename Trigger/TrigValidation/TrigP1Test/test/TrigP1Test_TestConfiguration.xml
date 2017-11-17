@@ -627,7 +627,7 @@
                 </doc>
                 <jobTransformJobName>athenaHLT_CostMonitoring_PhysicsV7</jobTransformJobName>
                 <jobTransformCmd>
-                    athenaHLT.py -f '/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_unprescaled_only_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True" TriggerRelease/runHLT_standalone.py
+                    athenaHLT.py -f '/eos/atlas/atlascerngroupdisk/data-art/grid-input/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_unprescaled_only_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True" TriggerRelease/runHLT_standalone.py
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
