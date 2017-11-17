@@ -50,7 +50,12 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
 
     // Particle-Flow jets, August 2016 recommendations, no GSC
     m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC15cRecommendation_PFlow_Aug2016.config"),
-    m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC") {
+    m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC"),
+
+    //
+    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC15cRecommendation_PFlow_Aug2016.config"),
+    m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC")
+     {
 
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
@@ -132,9 +137,9 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     // FS PFlow
     m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC15cRecommendation_PFlow_Aug2016.config"; // MC15c?
     m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC"; 
-    // Note there are suggestions for PFlow in Data
-    // JES_MC15cRecommendation_PFlow_Aug2016.config
-    // JetArea_Residual_EtaJES_GSC
+
+    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC15cRecommendation_PFlow_Aug2016.config";
+    m_jetAntiKt4_Data_PFlow_CalibSequence =  "JetArea_Residual_EtaJES_GSC"; 
   }
 
   // Get jet calibration name and erase "Jets" from the end
@@ -178,8 +183,13 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
       }
     } 
     else {
-      calibConfig = m_jetAntiKt4_Data_ConfigFile;
-      calibSequence = m_jetAntiKt4_Data_CalibSequence;
+      if (m_config->useParticleFlowJets()) {
+        calibConfig   = m_jetAntiKt4_Data_PFlow_ConfigFile;
+        calibSequence = m_jetAntiKt4_Data_PFlow_CalibSequence;        
+      }else{
+        calibConfig = m_jetAntiKt4_Data_ConfigFile;
+        calibSequence = m_jetAntiKt4_Data_CalibSequence;
+      }
     }
 
     JetCalibrationTool* jetCalibrationTool = new JetCalibrationTool("JetCalibrationTool");
