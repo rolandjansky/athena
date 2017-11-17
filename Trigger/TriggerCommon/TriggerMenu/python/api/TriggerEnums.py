@@ -52,7 +52,7 @@ class TriggerPeriod(IntEnum):
 
     future1p8e34      = 1 << 16
     future2e34        = 1 << 17
-    runNumber         = 1 << 18 #Can't get higher than this
+    runNumber         = 1 << 18 #Can't get higher than this, enters the run number domain
 
     y2017periodB      = y2017periodB1   | y2017periodB2B4 | y2017periodB5B7 | y2017periodB8
     y2017periodD      = y2017periodD1D5 | y2017periodD6

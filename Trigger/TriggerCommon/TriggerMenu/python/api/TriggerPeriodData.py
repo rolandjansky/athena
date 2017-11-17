@@ -83,13 +83,13 @@ class TriggerPeriodData:
     y2016grlpath = grlroot+"data16_13TeV/20170605/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlroot+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
     def __init__(self, period):
-        if period & TriggerPeriod.y2015: 
+        if period >= TriggerPeriod.runNumber: #run number assume 2017
+            self.loadGRL(self.y2017grlpath)
+        elif period & TriggerPeriod.y2015: 
             self.loadGRL(self.y2015grlpath)
         elif period & TriggerPeriod.y2016: 
             self.loadGRL(self.y2016grlpath)
         elif period & TriggerPeriod.y2017: 
-            self.loadGRL(self.y2017grlpath)
-        else: #run number assume 2017
             self.loadGRL(self.y2017grlpath)
         self.skimPeriod(period)
 

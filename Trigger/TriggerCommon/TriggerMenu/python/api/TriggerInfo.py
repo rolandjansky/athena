@@ -22,11 +22,11 @@ class TriggerInfo:
     def reparse(self):
         self.triggerChains = [ TriggerChain(t.name, t.l1seed, t.prescale) for t in self.triggerChains ]
 
-    def _getUnprescaled(self,triggerType, additionalTriggerType, matchPattern):
-        return [x.name for x in self.triggerChains if x.isUnprescaled() and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
+    def _getUnprescaled(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+        return [x.name for x in self.triggerChains if x.isUnprescaled(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
 
-    def _getLowestUnprescaled(self,triggerType, additionalTriggerType, matchPattern):
-        chainList = [ x for x in self.triggerChains if x.isUnprescaled() and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
+    def _getLowestUnprescaled(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+        chainList = [ x for x in self.triggerChains if x.isUnprescaled(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
         typeMap = {}
         for chain in chainList:
             if chain.triggerType not in typeMap:
@@ -341,8 +341,8 @@ class TriggerChain:
                     print "Unknown trigger type:",legtype
         return mtype
 
-    def isUnprescaled(self):
-        return self.prescale == 1 
+    def isUnprescaled(self, livefraction=1.0):
+        return self.prescale >= livefraction
 
     def getType(self):
         return self.triggerType
