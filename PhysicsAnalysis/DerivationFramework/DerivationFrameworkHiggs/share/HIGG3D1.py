@@ -134,8 +134,7 @@ HIGG3D1AntiKt4EMCCThinningTool = DerivationFramework__JetCaloClusterThinning(nam
                                                                              ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(), 
                                                                              SGKey                   = "AntiKt4EMTopoJets", 
                                                                              TopoClCollectionSGKey   = "CaloCalTopoClusters", 
-                                                                             SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
-                                                                             ConeSize                = 0.4) 
+                                                                             SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV") 
 ToolSvc += HIGG3D1AntiKt4EMCCThinningTool
 thinningTools.append(HIGG3D1AntiKt4EMCCThinningTool)
 ###############################################################

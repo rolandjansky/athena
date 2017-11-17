@@ -126,7 +126,7 @@ STDM9AKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name      
                                                                       SGKey                 = "AntiKt4LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt4LCTopoJets.pt > 150*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
-                                                                      ConeSize              = 0)
+                                                                      AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += STDM9AKt4CCThinningTool
 thinningTools.append(STDM9AKt4CCThinningTool)
 
@@ -136,7 +136,7 @@ STDM9AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                      ConeSize              = 0)
+                                                                      AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += STDM9AKt10CCThinningTool
 thinningTools.append(STDM9AKt10CCThinningTool)
 

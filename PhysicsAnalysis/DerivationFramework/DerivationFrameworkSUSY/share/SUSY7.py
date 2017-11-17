@@ -134,8 +134,7 @@ thinningTools.append(SUSY7MuonCCThinningTool)
 #                                                                     ThinningService         = SUSY7ThinningHelper.ThinningSvc(),
 #                                                                      SGKey                   = "AntiKt4LCTopoJets",
 #                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-#                                                                      ConeSize                = 0)
+#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV")
 #ToolSvc += SUSY7aKt4CCThinningTool
 #thinningTools.append(SUSY7aKt4CCThinningTool)
 
