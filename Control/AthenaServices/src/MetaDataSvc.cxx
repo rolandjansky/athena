@@ -72,6 +72,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1188015687, "xAODMaker::xAODTruthMetaDataTool"));
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
