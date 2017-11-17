@@ -7,11 +7,13 @@ include("TrigUpgradeTest/testHLT_MT.py")
 viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+AthViewSeq = topSequence.AthViewSeq
 
 isData = False
 if globalflags.InputFormat.is_bytestream():
   isData = True
 
+InDetCacheCreatorTrigViews= AthViewSeq.InDetCacheCreatorTrigViews
 if viewTest:
   viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
   viewMaker.ViewBaseName = "testView"
@@ -19,7 +21,7 @@ if viewTest:
   viewMaker.InputRoICollection = "EMRoIs"
   viewMaker.OutputRoICollection = "EMViewRoIs"
   viewMaker.ViewFallThrough = True
-  topSequence += viewMaker
+  topSequence.AthViewSeq += viewMaker
 
 
 from InDetRecExample.InDetKeys import InDetKeys
@@ -28,6 +30,8 @@ from InDetRecExample.InDetKeys import InDetKeys
 allViewAlgorithms = None
 if viewTest:
   allViewAlgorithms = topSequence.allViewAlgorithms
+
+
 
 if TriggerFlags.doID:
   #workaround to prevent online trigger folders to be enabled
@@ -82,9 +86,9 @@ if TriggerFlags.doID:
       allViewAlgorithms += InDetPixelRawDataProvider
       allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
       allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
-      allViewAlgorithms.InDetPixelRawDataProvider.RDOCacheKey = topSequence.InDetCacheCreatorTrigViews.PixRDOCacheKey
+      allViewAlgorithms.InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
       svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelRawDataProvider" ]
-      topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
+      AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
     else:
       topSequence += InDetPixelRawDataProvider
       topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
@@ -119,9 +123,9 @@ if TriggerFlags.doID:
       allViewAlgorithms += InDetSCTRawDataProvider
       allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
       allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
-      allViewAlgorithms.InDetSCTRawDataProvider.RDOCacheKey = topSequence.InDetCacheCreatorTrigViews.SCTRDOCacheKey
+      allViewAlgorithms.InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
       svcMgr.ViewAlgPool.TopAlg += [ "InDetSCTRawDataProvider" ]
-      topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
+      AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
     else:
       topSequence += InDetSCTRawDataProvider
       topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
@@ -159,7 +163,7 @@ if TriggerFlags.doID:
       allViewAlgorithms.InDetTRTRawDataProvider.isRoI_Seeded = True
       allViewAlgorithms.InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
       svcMgr.ViewAlgPool.TopAlg += [ "InDetTRTRawDataProvider" ]
-      topSequence.viewMaker.AlgorithmNameSequence += [ "InDetTRTRawDataProvider" ]
+      AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetTRTRawDataProvider" ]
     else:
       topSequence += InDetTRTRawDataProvider
       topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
@@ -202,9 +206,9 @@ if TriggerFlags.doID:
     allViewAlgorithms += InDetPixelClusterization
     allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
-    allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.Pixel_ClusterKey 
+    allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
-    topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
+    AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
   else:
     topSequence += InDetPixelClusterization
     topSequence.InDetPixelClusterization.isRoI_Seeded = True
@@ -236,9 +240,9 @@ if TriggerFlags.doID:
     allViewAlgorithms += InDetSCT_Clusterization
     allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
-    allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = topSequence.InDetCacheCreatorTrigViews.SCT_ClusterKey 
+    allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
-    topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
+    AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
   else:
     topSequence += InDetSCT_Clusterization
     topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
@@ -274,9 +278,9 @@ if TriggerFlags.doID:
     allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
     allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
-    topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
-    InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = topSequence.InDetCacheCreatorTrigViews.SpacePointCacheSCT
-    InDetSiTrackerSpacePointFinder.SpacePointCachePix = topSequence.InDetCacheCreatorTrigViews.SpacePointCachePix
+    AthViewSeq.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+    InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
+    InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
   else:
     topSequence += InDetSiTrackerSpacePointFinder
     theFTF.RoIs = "EMRoIs"
@@ -294,7 +298,7 @@ if TriggerFlags.doCalo:
     algo.RoIs="EMViewRoIs"
     allViewAlgorithms += algo
     svcMgr.ViewAlgPool.TopAlg += [ "testFastAlgo" ]
-    topSequence.viewMaker.AlgorithmNameSequence += [ "testFastAlgo" ]
+    AthViewSeq.viewMaker.AlgorithmNameSequence += [ "testFastAlgo" ]
   else:
     algo.RoIs="EMRoIs"
     topSequence += algo
