@@ -15,7 +15,7 @@
 
 #include "G4RunManager.hh"
 #include "MCTruth/EventInformation.h"
-
+#include "AtlasDetDescr/AtlasDetectorID.h"
 #include "G4Step.hh"
 
 LArG4CalibSD::LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool doPID)
@@ -28,6 +28,7 @@ LArG4CalibSD::LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool d
   , m_larHecID (nullptr)
   , m_larMiniFcalID (nullptr)
   , m_caloDmID (nullptr)
+  , m_id_helper (nullptr)
 {}
 
 LArG4CalibSD::~LArG4CalibSD()
@@ -61,6 +62,12 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
     return false;
   }
 
+  if(m_id_helper) {
+    Identifier id = this->ConvertID( _identifier );
+    if(id.is_valid() && m_id_helper->is_lar_dm(id)) {
+      return SimpleHit( _identifier, _energies, m_deadCalibrationHits );
+    }
+  }
   return SimpleHit( _identifier, _energies, m_calibrationHits );
 }
 
@@ -165,6 +172,9 @@ G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
 
 void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer, CaloCalibrationHitContainer * deadHitContainer )
 {
+  if(verboseLevel>4) {
+    G4cout << "EndOfAthenaEvent: " << SensitiveDetectorName << " m_deadCalibrationHits.size() = " << m_deadCalibrationHits.size() << G4endl;
+  }
   if(hitContainer) {
     // Loop through the hits...
     for(auto hit : m_calibrationHits) {
@@ -172,9 +182,9 @@ void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer,
       // Can we actually do this with move?
       hitContainer->push_back(hit);
     } // End of loop over hits
-    // Clean up
-    m_calibrationHits.clear();
   }
+  // Clean up
+  m_calibrationHits.clear();
   if(deadHitContainer) {
     // Loop through the hits...
     for(auto hit : m_deadCalibrationHits) {
@@ -182,9 +192,9 @@ void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer,
       // Can we actually do this with move?
       deadHitContainer->push_back(hit);
     } // End of loop over hits
-    // Clean up
-    m_deadCalibrationHits.clear();
   }
+  // Clean up
+  m_deadCalibrationHits.clear();
 }
 
 

@@ -81,6 +81,7 @@ namespace LArG4
       const LArHEC_ID*      m_larHecID;
       const LArMiniFCAL_ID* m_larMiniFcalID;
       const CaloDM_ID*      m_caloDmID;
+      const AtlasDetectorID* m_id_helper;
       /// @}
 
   }; // class CalibSDTool

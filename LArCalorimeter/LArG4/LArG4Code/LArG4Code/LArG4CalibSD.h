@@ -21,6 +21,7 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
 class CaloDM_ID;
+class AtlasDetectorID;
 
 class ILArCalibCalculatorSvc; 
 
@@ -61,6 +62,8 @@ public:
     m_larMiniFcalID = mini;
     m_caloDmID = caloDm;
   }
+
+  void addDetectorHelper( const AtlasDetectorID* id_helper) { m_id_helper=id_helper; }
 
   /// For other classes that need to call into us...
   G4bool SpecialHit(G4Step* a_step, const std::vector<G4double>& a_energies);
@@ -110,6 +113,7 @@ protected:
   const LArHEC_ID*      m_larHecID;
   const LArMiniFCAL_ID* m_larMiniFcalID;
   const CaloDM_ID*      m_caloDmID;
+  const AtlasDetectorID* m_id_helper;
 };
 
 #endif
