@@ -40,10 +40,6 @@ namespace G4UA
         : base_class(type, name, parent)
       {}
 
-      /// Make the action and push onto the lists
-      virtual std::unique_ptr<ActionType>
-      makeAndFillAction(G4AtlasUserActions& actionLists) = 0;
-
       /// Fill the user action lists
       virtual StatusCode
       fillUserAction(G4AtlasUserActions& actionLists) override final
@@ -58,6 +54,10 @@ namespace G4UA
       }
 
     protected:
+
+      /// Make the action and push onto the lists
+      virtual std::unique_ptr<ActionType>
+      makeAndFillAction(G4AtlasUserActions& actionLists) = 0;
 
       /// Thread-specific storage of the user action
       ThreadSpecificUserAction<ActionType> m_actions;
