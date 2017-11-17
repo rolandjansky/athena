@@ -64,8 +64,12 @@ void StripsResponseSimulation::initHistos()
 
 	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",100,0,100);
 	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
-	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,90);
+	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
 	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,2e5);
+
+	m_mapOf2DHistograms["lorentzAngleVsTheta"] = new TH2F("lorentzAngleVsTheta","lorentzAngleVsTheta",  100,-3,3,  100,-3,3);
+	m_mapOf2DHistograms["lorentzAngleVsBy"] = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
+
 
 }
 /*******************************************************************************/
@@ -75,9 +79,9 @@ void StripsResponseSimulation::writeHistos()
 	if(m_outputFile){
 
 		m_outputFile->cd();
-		for (auto & tmpHist : m_mapOfHistograms){
-			tmpHist.second->Write();
-		}
+		// for (auto & tmpHist : m_mapOfHistograms){
+		// 	tmpHist.second->Write();
+		// }
 		m_outputFile->Write();
 	}
 }
@@ -181,6 +185,10 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 	float lorentzAngle = ( b.y()>0. ?  1.  :  -1. ) * m_lorentzAngleFunction->Eval( fabs( b.y() ) ) * TMath::DegToRad() ; // in radians
 
+	m_mapOf2DHistograms["lorentzAngleVsTheta"]->Fill(lorentzAngle,theta);
+	m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
+
+
 	msglog << MSG::DEBUG << "StripsResponseSimulation::lorentzAngle vs theta: " << lorentzAngle << " " << theta << endmsg;
 	msglog << MSG::DEBUG << "StripsResponseSimulation::function pointer points to " << m_interactionDensityFunction << endmsg;
 
@@ -216,7 +224,6 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 		}
 
-		// NEED TO REIMPLEMENT USING THE LORENTZ ANGLE UP HERE....
 		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity);
 
 		//---

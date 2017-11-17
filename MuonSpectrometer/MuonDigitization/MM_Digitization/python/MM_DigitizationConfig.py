@@ -30,16 +30,6 @@ def MmDigitizationTool(name="MmDigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
-    kwargs.setdefault("ValidationSetup", False)
-    ## Strip response
-    # kwargs.setdefault("qThreshold", 0.001)
-    # kwargs.setdefault("TransverseDiffusionSigma", 0.036)
-    # kwargs.setdefault("LongitudinalDiffusionSigma", 0.019)
-    # kwargs.setdefault("DriftVelocity", 0.047)
-    # kwargs.setdefault("crossTalk1", 0.0)
-    # kwargs.setdefault("crossTalk2", 0.0)
-    # ## Chip/electronics response
-    # kwargs.setdefault("peakTime", 50)
 
     return CfgMgr.MmDigitizationTool(name,**kwargs)
        #return CfgMgr.MM_PileUpTool(name,**kwargs)

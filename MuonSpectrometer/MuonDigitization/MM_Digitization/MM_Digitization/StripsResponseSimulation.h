@@ -37,6 +37,7 @@ Comments to be added here...
 #include <TFile.h>
 #include <TF1.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TRandom.h>
 #include <TRandom3.h>
 #include <TCanvas.h>
@@ -181,6 +182,7 @@ public :
 private:
 
   std::map<TString, TH1F* > m_mapOfHistograms;
+  std::map<TString, TH2F* > m_mapOf2DHistograms;
 
   TRandom3 * m_random;
 
