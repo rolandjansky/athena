@@ -86,6 +86,10 @@ private:
 
   int  m_decoupleShaperFunctionParamaters;
 
+  vector <float> m_tStripElectronicsAbThr;
+  vector <float> m_qStripElectronics;
+  vector <int>   m_nStripElectronics;
+
   TF1 *h_intFn;
   // StripsResponseSimulation* m_stripObject ;
   ElectronicsResponseSimulation & operator=(const ElectronicsResponseSimulation &right);
@@ -99,28 +103,24 @@ public :
 
   void clearValues ();
   void vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void VMMThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  MmDigitToolOutput GetPeakResponseFrom(const MmElectronicsToolInput & digiInput);
-  MmDigitToolOutput GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
+  void vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  MmDigitToolOutput getPeakResponseFrom(const MmElectronicsToolInput & digiInput);
+  MmDigitToolOutput getThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
 
-  MmElectronicsToolTriggerOutput GetTheFastestSignalInVMM(const MmDigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
-  int GetIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);
-  void GetVMMId(const std::vector< int > & ElectronicsThreshold_stripPos, const int chMax, const int stationEta, std::vector< int > & trigger_VMM_id, std::vector< int > & trigger_MMFE_VMM_id);
-  MmDigitToolOutput ApplyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput);
-  MmElectronicsToolTriggerOutput ApplyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
-  MmElectronicsToolTriggerOutput ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
-  bool DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
-
-  vector <float> tStripElectronicsAbThr;
-  vector <float> qStripElectronics;
-  vector <int> nStripElectronics;
+  MmElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MmDigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
+  int getIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);
+  void getVMMId(const std::vector< int > & ElectronicsThreshold_stripPos, const int chMax, const int stationEta, std::vector< int > & trigger_VMM_id, std::vector< int > & trigger_MMFE_VMM_id);
+  MmDigitToolOutput applyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput);
+  MmElectronicsToolTriggerOutput applyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
+  MmElectronicsToolTriggerOutput applyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
+  bool deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
   inline void setPeakTime(float val) { m_peakTime = val;  };
   inline void setTimeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void setTimeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
   inline void setElectronicsThreshold(float val) { m_electronicsThreshold = val;};
   inline void setStripdeadtime(float val) { m_stripdeadtime = val;};
-  inline void setARTdeadtime(float val) { m_ARTdeadtime = val;};
+  inline void setARTdeadtime(float val)   { m_ARTdeadtime = val;};
 
   inline void setStripResponse_qThreshold    (float val) { m_stripResponse_qThreshold    = val; };
   inline void setStripResponse_driftVelocity (float val) { m_stripResponse_driftVelocity = val; };
@@ -136,9 +136,9 @@ public :
   float getARTdeadtime() const { return m_ARTdeadtime;};
 
 
-  vector <float>  getTStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
-  vector <float>  getQStripElectronics () const { return qStripElectronics;};
-  vector <int>    getNStripElectronics () const { return nStripElectronics;};
+  vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
+  vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
 
 
 };

@@ -1058,33 +1058,33 @@ StatusCode MmDigitizationTool::doDigitization() {
 			//-----------------------------------------------------------
 			// Create Electronics Output with peak finding algorithm
 			//-----------------------------------------------------------
-			MmDigitToolOutput ElectronicOutput( m_ElectronicsResponseSimulation->GetPeakResponseFrom(StripdigitOutputAllhits) );
+			MmDigitToolOutput ElectronicOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(StripdigitOutputAllhits) );
 			if(!ElectronicOutput.isValid()) {
 				ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response even though there is a strip response." );
 			}
 			//-----------------------------------------------------------
 			// Create Electronics Output with threshold
 			//-----------------------------------------------------------
-			MmDigitToolOutput ElectronicThresholdOutput( m_ElectronicsResponseSimulation->GetThresholdResponseFrom(StripdigitOutputAllhits) );
+			MmDigitToolOutput ElectronicThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(StripdigitOutputAllhits) );
 			if(!ElectronicThresholdOutput.isValid()) ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response for TRIGGER even though there is a strip response." );
 			//
 			// Apply Dead-time for strip
 			//
-			MmDigitToolOutput ElectronicsThresholdOutputAppliedStripDeadTime (m_ElectronicsResponseSimulation->ApplyDeadTimeStrip(ElectronicThresholdOutput));
+			MmDigitToolOutput ElectronicsThresholdOutputAppliedStripDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeStrip(ElectronicThresholdOutput));
 			//
 			// ART:The fastest strip signal per VMM id should be selected for trigger
 			//
 			int chMax = m_idHelper->channelMax(layid);
 			int stationEta = m_idHelper->stationEta(layid);
-			MmElectronicsToolTriggerOutput ElectronicsTriggerOutput (m_ElectronicsResponseSimulation->GetTheFastestSignalInVMM(ElectronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
+			MmElectronicsToolTriggerOutput ElectronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(ElectronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
 
 			//
 			// Apply Dead-time in ART
 			//
-			MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->ApplyDeadTimeART(ElectronicsTriggerOutput));
+			MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(ElectronicsTriggerOutput));
 
 			// To apply an arbitrary time-smearing of digits
-			MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));
+			MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
 
 			// ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicOutput charge length: " << ElectronicOutput.stripCharge().size() );

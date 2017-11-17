@@ -74,12 +74,12 @@ void ElectronicsResponseSimulation::initialize()
 /*******************************************************************************/
 void ElectronicsResponseSimulation::clearValues()
 {
-	tStripElectronicsAbThr.clear();
-	qStripElectronics.clear();
-	nStripElectronics.clear();
+	m_tStripElectronicsAbThr.clear();
+	m_qStripElectronics.clear();
+	m_nStripElectronics.clear();
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponseSimulation::GetPeakResponseFrom(const MmElectronicsToolInput & digiInput)
+MmDigitToolOutput ElectronicsResponseSimulation::getPeakResponseFrom(const MmElectronicsToolInput & digiInput)
 {
 	clearValues();
 
@@ -87,16 +87,16 @@ MmDigitToolOutput ElectronicsResponseSimulation::GetPeakResponseFrom(const MmEle
 
 	/// ToDo: include loop for calculating Trigger study vars
 	// MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
-	MmDigitToolOutput tmp(true, nStripElectronics, tStripElectronicsAbThr, qStripElectronics, 5, 0.3);
+	MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
 	return tmp;
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponseSimulation::GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput)
+MmDigitToolOutput ElectronicsResponseSimulation::getThresholdResponseFrom(const MmElectronicsToolInput & digiInput)
 {
 	clearValues();
-	VMMThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
-	MmDigitToolOutput tmp(true, nStripElectronics, tStripElectronicsAbThr, qStripElectronics, 5, 0.3);
+	vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
+	MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 	return tmp;
 }
 /*******************************************************************************/
@@ -164,9 +164,9 @@ void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> &
 					localPeakq = h_intFn->Eval(nextStep,0,0);
 
 							// log << MSG::DEBUG << "found a peak!    for strip number: " << numberofStrip.at(ii) << " at time: " << nextStep << " with charge: " << h_intFn->Eval(nextStep,0,0) << endmsg;
-					nStripElectronics.push_back(numberofStrip.at(ii));
-					tStripElectronicsAbThr.push_back(localPeakt);
-					qStripElectronics.push_back(localPeakq);
+					m_nStripElectronics.push_back(numberofStrip.at(ii));
+					m_tStripElectronicsAbThr.push_back(localPeakt);
+					m_qStripElectronics.push_back(localPeakq);
 				}
 				//                }
 			}
@@ -178,7 +178,7 @@ void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> &
 
 
 
-void ElectronicsResponseSimulation::VMMThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
 	//    float tmp_Stripq = 0;
 	//    float tmp_Stript = 9999.0;
@@ -204,9 +204,9 @@ void ElectronicsResponseSimulation::VMMThresholdResponseFunction(const vector <i
 			if ( ( h_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (h_intFn->Eval(thisStep+0.001)-h_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( h_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
 				localThresholdt = thisStep;
 				localThresholdq = h_intFn->Eval(thisStep,0,0);
-				nStripElectronics.push_back(numberofStrip.at(ii));
-				tStripElectronicsAbThr.push_back(localThresholdt);
-				qStripElectronics.push_back(localThresholdq);
+				m_nStripElectronics.push_back(numberofStrip.at(ii));
+				m_tStripElectronicsAbThr.push_back(localThresholdt);
+				m_qStripElectronics.push_back(localThresholdq);
 			}
 		}
 	}
@@ -214,7 +214,7 @@ void ElectronicsResponseSimulation::VMMThresholdResponseFunction(const vector <i
 /*******************************************************************************/
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::GetTheFastestSignalInVMM(
+MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::getTheFastestSignalInVMM(
 	const MmDigitToolOutput & ElectronicThresholdOutput,
 	const int chMax,
 	const int stationEta){
@@ -224,7 +224,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::GetTheFastestSigna
 	const std::vector<float> & m_ElectronicsThreshold_stripCharge = ElectronicThresholdOutput.stripCharge();
 	std::vector<int> trigger_MMFE_VMM_id;
 	std::vector<int> trigger_VMM_id;
-	GetVMMId(m_ElectronicsThreshold_stripPos, chMax, stationEta, trigger_VMM_id, trigger_MMFE_VMM_id);
+	getVMMId(m_ElectronicsThreshold_stripPos, chMax, stationEta, trigger_VMM_id, trigger_MMFE_VMM_id);
 
 	std::vector<int>   ElectronicsTrigger_stripPos;
 	std::vector<float> ElectronicsTrigger_stripTime;
@@ -256,7 +256,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::GetTheFastestSigna
 				tmp_VMM_id.push_back(VMM_id);
 
 				// Get id for the fastest signal in a VMM
-				int theFastestSignal = GetIdTheFastestSignalInVMM(
+				int theFastestSignal = getIdTheFastestSignalInVMM(
 					m_ElectronicsThreshold_stripTime[i],
 					VMM_id,
 					trigger_VMM_id,
@@ -284,7 +284,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::GetTheFastestSigna
 	return ElectronicsTriggerOutput;
 }
 
-int ElectronicsResponseSimulation::GetIdTheFastestSignalInVMM(
+int ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 	float time,
 	int VMM_id,
 	std::vector<int> trigger_VMM_id,
@@ -305,12 +305,12 @@ int ElectronicsResponseSimulation::GetIdTheFastestSignalInVMM(
 			}
 		}
 	}
-	if(theFastestSignal==-1) std::cout << "There is something wrong in GetIdTheFastestSignalInVMM" << std::endl;
+	if(theFastestSignal==-1) std::cout << "There is something wrong in getIdTheFastestSignalInVMM" << std::endl;
 
 	return theFastestSignal;
 }
 
-void ElectronicsResponseSimulation::GetVMMId(const std::vector< int > & m_ElectronicsThreshold_stripPos,
+void ElectronicsResponseSimulation::getVMMId(const std::vector< int > & m_ElectronicsThreshold_stripPos,
 	const int chMax,
 	const int stationEta,
 	std::vector< int > & trigger_VMM_id,
@@ -328,7 +328,7 @@ void ElectronicsResponseSimulation::GetVMMId(const std::vector< int > & m_Electr
 	}
 }
 
-MmDigitToolOutput ElectronicsResponseSimulation::ApplyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput){
+MmDigitToolOutput ElectronicsResponseSimulation::applyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput){
 
 	const std::vector<int>  & Electronics_stripPos    = ElectronicsTriggerOutput.stripPos();
 	const std::vector<float> & Electronics_stripTime   = ElectronicsTriggerOutput.stripTime();
@@ -346,7 +346,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::ApplyDeadTimeStrip(const MmDigi
 	for(size_t i = 0; i<Electronics_stripPos.size(); i++){
 		int id = v_id[i];
 		float time = Electronics_stripTime[i];
-		bool DEAD = DeadChannel(id, time, ElectronicsAppliedDeadtime_stripPos, ElectronicsAppliedDeadtime_stripTime, deadtime);
+		bool DEAD = deadChannel(id, time, ElectronicsAppliedDeadtime_stripPos, ElectronicsAppliedDeadtime_stripTime, deadtime);
 		if(!DEAD){
 			ElectronicsAppliedDeadtime_stripPos.push_back(Electronics_stripPos[i]);
 			ElectronicsAppliedDeadtime_stripTime.push_back(Electronics_stripTime[i]);
@@ -367,7 +367,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::ApplyDeadTimeStrip(const MmDigi
 }
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset){
+MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset){
 
 
 
@@ -421,7 +421,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::ApplyARTTiming(con
 }
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::ApplyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput){
+MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput){
 
 	const std::vector<int>  & ElectronicsTrigger_stripPos    = ElectronicsTriggerOutput.NumberOfStripsPos();
 	const std::vector<float> & ElectronicsTrigger_stripTime   = ElectronicsTriggerOutput.chipTime();
@@ -445,7 +445,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::ApplyDeadTimeART(c
 	for(size_t i = 0; i<ElectronicsTrigger_stripPos.size(); i++){
 		int id = v_id[i];
 		float time = ElectronicsTrigger_stripTime[i];
-		bool DEAD = DeadChannel(id, time, ElectronicsTriggerAppliedDeadtime_VMMid, ElectronicsTriggerAppliedDeadtime_stripTime, deadtime);
+		bool DEAD = deadChannel(id, time, ElectronicsTriggerAppliedDeadtime_VMMid, ElectronicsTriggerAppliedDeadtime_stripTime, deadtime);
 		if(!DEAD){
 			ElectronicsTriggerAppliedDeadtime_stripPos.push_back(ElectronicsTrigger_stripPos[i]);
 			ElectronicsTriggerAppliedDeadtime_stripTime.push_back(ElectronicsTrigger_stripTime[i]);
@@ -464,7 +464,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::ApplyDeadTimeART(c
 
 	return ElectronicsTriggerOutputAppliedDeadTime;
 }
-bool ElectronicsResponseSimulation::DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime){
+bool ElectronicsResponseSimulation::deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime){
 	bool DEAD = false;
 	for(size_t ii = 0; ii<v_id.size(); ii++){
 		if(id == v_id[ii]){
