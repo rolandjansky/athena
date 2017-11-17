@@ -83,7 +83,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::GetPeakResponseFrom(const MmEle
 {
 	clearValues();
 
-	VMMPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
+	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
 	/// ToDo: include loop for calculating Trigger study vars
 	// MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
@@ -100,7 +100,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::GetThresholdResponseFrom(const 
 	return tmp;
 }
 /*******************************************************************************/
-void ElectronicsResponseSimulation::VMMPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 

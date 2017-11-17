@@ -98,7 +98,7 @@ public :
   void initialize();
 
   void clearValues ();
-  void VMMPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
   void VMMThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
   MmDigitToolOutput GetPeakResponseFrom(const MmElectronicsToolInput & digiInput);
   MmDigitToolOutput GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
