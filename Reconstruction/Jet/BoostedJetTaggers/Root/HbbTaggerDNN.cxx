@@ -7,6 +7,9 @@
 #include "PathResolver/PathResolver.h"
 
 #include "lwtnn/LightweightGraph.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
+#include "boost/property_tree/exceptions.hpp"
 
 #include <fstream>
 
@@ -17,9 +20,16 @@ namespace {
 HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   asg::AsgTool(name),
   m_configFile(""),
-  m_lwnn(nullptr)
-  {
-    declareProperty( "ConfigFile",   m_configFile="BoostedJetTaggers/HbbTaggerDNN/Boost2017/bullshit.json");
+  m_lwnn(nullptr),
+  m_tag_threshold(INFINITY),
+  m_output_node_name(""),
+  m_output_value_name(""),
+  m_decoration_name(""),
+  m_decorator("")
+{
+  declareProperty( "ConfigFile",   m_configFile);
+  declareProperty( "ScoreCut", m_tag_threshold);
+  declareProperty( "Decoration", m_decoration_name);
 }
 
 HbbTaggerDNN::~HbbTaggerDNN() {}
@@ -30,47 +40,65 @@ StatusCode HbbTaggerDNN::initialize(){
   ATH_MSG_INFO(APP_NAME+": Initializing HbbTaggerDNN tool");
   ATH_MSG_INFO(APP_NAME+": Using config file :"+m_configFile);
 
+  // find the config file
   if( m_configFile.empty() ) {
-    // Assume the cut functions have been set through properties.
     ATH_MSG_ERROR( "No config file provided" ) ;
-    // ATH_MSG_ERROR( "Please read the TWiki for this tool" );
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO( "Using config file : "<< m_configFile );
-  // check for the existence of the configuration file
   std::string configPath;
   configPath = PathResolverFindCalibFile(m_configFile.c_str());
 
   // read json file for DNN weights
   ATH_MSG_INFO(APP_NAME + ": DNN Tagger configured with: " + configPath);
-
   std::ifstream input_cfg( configPath );
-
   if(input_cfg.is_open()==false){
     ATH_MSG_INFO(APP_NAME + ": Error openning config file : "+ configPath);
-    ATH_MSG_INFO(APP_NAME+": Are you sure that the file exists at this path?" );
+    ATH_MSG_INFO(APP_NAME+": Are you sure that the file exists?" );
     return StatusCode::FAILURE;
   }
 
-/*
-  lwt::JSONConfig cfg = lwt::parse_json( input_cfg );
+  // parse the configuration file and build the network
+  lwt::GraphConfig config;
+  try {
+    config = lwt::parse_json_graph(input_cfg);
+  } catch (boost::property_tree::ptree_error& err) {
+    ATH_MSG_ERROR(APP_NAME + ": Input file is garbage");
+    return StatusCode::FAILURE;
+  }
+  if (config.outputs.size() != 1) {
+    ATH_MSG_ERROR(APP_NAME + ": Graph needs one output node");
+    return StatusCode::FAILURE;
+  }
+  m_output_node_name = config.outputs.begin()->first;
+  auto out_names = config.outputs.at(m_output_node_name).labels;
+  if (out_names.size() != 1) {
+    ATH_MSG_ERROR(APP_NAME + ": Graph needs one output value");
+    return StatusCode::FAILURE;
+  }
+  m_output_value_name = out_names.at(1);
+  try {
+    m_lwnn.reset(new lwt::LightweightGraph(config));
+  } catch (lwt::NNConfigurationException& exc) {
+    ATH_MSG_ERROR("NN configuration problem: " << exc.what());
+    return StatusCode::FAILURE;
+  }
 
-  ATH_MSG_INFO( (APP_NAME+": Keras Network NLayers : "+std::to_string(cfg.layers.size()).c_str() ));
-
-  m_lwnn = std::unique_ptr<lwt::LightweightNeuralNetwork>
-              (new lwt::LightweightNeuralNetwork(cfg.inputs, cfg.layers, cfg.outputs) );
-*/
+  // set up the output decorators
+  if (m_decoration_name.size() == 0) {
+    m_decoration_name = m_output_value_name;
+  }
+  m_decorator = SG::AuxElement::Decorator<float>(m_decoration_name);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode HbbTaggerDNN::finalize(){
-    // Delete or clear anything
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
-  return 1;
+  return getScore(jet) > m_tag_threshold;
 }
 
 
@@ -87,6 +115,10 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
     // DNNscore = discriminant[m_kerasConfigOutputName];
 
     return DNNscore;
+}
+
+void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
+  m_decorator(jet) = getScore(jet);
 }
 
 /*

@@ -103,6 +103,13 @@ if( XAOD_STANDALONE )
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
+   atlas_add_executable( test_HbbTaggerDNN
+      util/test_HbbTaggerDNN.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
 endif()
 
 # Install files from the package:
