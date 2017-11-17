@@ -36,9 +36,9 @@ ElectronicsResponseSimulation::ElectronicsResponseSimulation():
 	m_electronicsThreshold(0),
 	m_stripdeadtime(0),
 	m_ARTdeadtime(0),
-	m_StripResponse_qThreshold(0),
-	m_StripResponse_driftGapWidth(0),
-	m_StripResponse_driftVelocity(0),
+	m_stripResponse_qThreshold(0),
+	m_stripResponse_driftGapWidth(0),
+	m_stripResponse_driftVelocity(0),
 	m_decoupleShaperFunctionParamaters(false)
 {
 }
@@ -53,7 +53,7 @@ void ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = sqrt(m_peakTime / 50.);
 		m_alpha = 2.5 * peakTimeMultiplier;
 
-		m_electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
+		m_electronicsThreshold = (m_stripResponse_qThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
 		h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -63,7 +63,7 @@ void ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = (m_peakTime / 50.);
 		m_alpha = 2.5;
 
-		m_electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
+		m_electronicsThreshold = (m_stripResponse_qThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
 		h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -116,7 +116,7 @@ void ElectronicsResponseSimulation::VMMPeakResponseFunction(const vector <int> &
 			shaperInputTime = tStrip.at(ii-1);
 			shaperInputCharge = qStrip.at(ii-1);
 			maxChargeLeftNeighbor = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			//  maxChargeLeftNeighbor = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+			//  maxChargeLeftNeighbor = h_intFn->GetMaximum(0,3*(m_stripResponse_driftGap/m_stripResponse_driftVelocity));
 		}
 
 		if ( ii+1 < numberofStrip.size() ) {
@@ -124,14 +124,14 @@ void ElectronicsResponseSimulation::VMMPeakResponseFunction(const vector <int> &
 			shaperInputTime = tStrip.at(ii+1);
 			shaperInputCharge = qStrip.at(ii+1);
 			maxChargeRightNeighbor = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			//  maxChargeRightNeighbor = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+			//  maxChargeRightNeighbor = h_intFn->GetMaximum(0,3*(m_stripResponse_driftGap/m_stripResponse_driftVelocity));
 		}
 
 		// log << MSG::DEBUG << "for This strip:    tStrip.at(ii) "<< tStrip.at(ii) << " qStrip.at(ii) " << qStrip.at(ii) << endmsg;
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
 		maxChargeThisStrip = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-		//	maxChargeThisStrip = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+		//	maxChargeThisStrip = h_intFn->GetMaximum(0,3*(m_stripResponse_driftGap/m_stripResponse_driftVelocity));
 
 
 		// log << MSG::DEBUG << "Check if a strip or its neighbors were above electronics threshold (" << m_electronicsThreshold << "):   maxChargeLeftNeighbor: " << maxChargeLeftNeighbor << ", maxChargeRightNeighbor: " << maxChargeRightNeighbor << ", maxChargeThisStrip: " << maxChargeThisStrip << endmsg;
@@ -147,7 +147,7 @@ void ElectronicsResponseSimulation::VMMPeakResponseFunction(const vector <int> &
 			float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
 
 			for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-			//            for (int jj = 0; jj < (3*( m_StripResponse_driftGap/m_StripResponse_driftVelocity))/stepSize; jj++) {
+			//            for (int jj = 0; jj < (3*( m_stripResponse_driftGap/m_stripResponse_driftVelocity))/stepSize; jj++) {
 
 				float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 				float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
@@ -196,7 +196,7 @@ void ElectronicsResponseSimulation::VMMThresholdResponseFunction(const vector <i
 		float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
 
 		for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-		//      for (int jj = 0; jj < (3*( m_StripResponse_driftGap/m_StripResponse_driftVelocity))/stepSize; jj++) {
+		//      for (int jj = 0; jj < (3*( m_stripResponse_driftGap/m_stripResponse_driftVelocity))/stepSize; jj++) {
 
 			float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 			float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;

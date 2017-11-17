@@ -80,9 +80,9 @@ private:
   float m_electronicsThreshold;
   float m_stripdeadtime;
   float m_ARTdeadtime;
-  float m_StripResponse_qThreshold;
-  float m_StripResponse_driftGapWidth;
-  float m_StripResponse_driftVelocity;
+  float m_stripResponse_qThreshold;
+  float m_stripResponse_driftGapWidth;
+  float m_stripResponse_driftVelocity;
 
   int  m_decoupleShaperFunctionParamaters;
 
@@ -122,9 +122,9 @@ public :
   inline void set_stripdeadtime(float val) { m_stripdeadtime = val;};
   inline void set_ARTdeadtime(float val) { m_ARTdeadtime = val;};
 
-  inline void set_StripResponse_qThreshold    (float val) { m_StripResponse_qThreshold    = val; };
-  inline void set_StripResponse_driftVelocity (float val) { m_StripResponse_driftVelocity = val; };
-  inline void set_StripResponse_driftGapWidth (float val) { m_StripResponse_driftGapWidth = val; };
+  inline void set_StripResponse_qThreshold    (float val) { m_stripResponse_qThreshold    = val; };
+  inline void set_StripResponse_driftVelocity (float val) { m_stripResponse_driftVelocity = val; };
+  inline void set_StripResponse_driftGapWidth (float val) { m_stripResponse_driftGapWidth = val; };
 
 
   float get_peakTime() const { return m_peakTime;};
