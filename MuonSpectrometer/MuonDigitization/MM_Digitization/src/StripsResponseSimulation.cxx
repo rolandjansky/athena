@@ -7,7 +7,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "MM_Digitization/MM_StripResponse.h"
-#include "MM_Digitization/GarfieldGas.h"
 #include "PathResolver/PathResolver.h"
 
 #include<map>
