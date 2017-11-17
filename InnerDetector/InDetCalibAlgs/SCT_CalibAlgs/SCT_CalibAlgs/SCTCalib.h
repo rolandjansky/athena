@@ -388,6 +388,9 @@ class SCTCalib : public AthAlgorithm {
         std::string
         getStripList( const std::set<Identifier>& stripIdList ) const;
 
+        std::set<Identifier>
+        getOverlapStripList( const std::set<Identifier>& stripAllIdList, const std::set<Identifier>& stripRefIdList ) const;
+
         StatusCode
         noisyStripsToXml( const std::map< Identifier, std::set<Identifier> >& moduleList, const std::string& badStripsFile ) const;
 
