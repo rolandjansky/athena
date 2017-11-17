@@ -3,29 +3,24 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// STGC_RawDatatoPrepDataTool.h, (c) ATLAS Detector software
+// STGC_RawDataToPrepDataTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
-#define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
-
-#include <string>
+#ifndef MUONATGC_CNVTOOLS_STGC_RAWDATATOPREPDATATOOL
+#define MUONATGC_CNVTOOLS_STGC_RAWDATATOPREPDATATOOL
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+#include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonRDO/TgcRdo.h"
-#include "MuonTrigCoinData/TgcCoinDataContainer.h"
-
-#include "MuonRDO/TgcRdoContainer.h"
+#include "MuonRDO/STGC_RawDataContainer.h"
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 class AtlasDetectorID;
 class Identifier;
 
 class ITGCcablingSvc;
-class TgcIdHelper;
+class sTgcIdHelper;
 
 namespace MuonGM 
 {
@@ -36,25 +31,19 @@ namespace MuonGM
 namespace Muon 
 {
   class IMuonRawDataProviderTool;
-  class TgcCoinData;
 
-  /** @class STGC_RawDatatoPrepDataTool 
-   *  This is the algorithm that convert TGCRdo To TGCPrepdata as a tool.
-   * 
-   * @author Susumu Oda <Susumu.Oda@cern.ch> 
-   * @author  Edward Moyse 
-   * 
-   * This class was developed by Takashi Kubota. 
+  /** @class STGC_RawDataToPrepDataTool 
+   *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class STGC_RawDatatoPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class STGC_RawDataToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
     {
     public:
       /** Constructor */
-      STGC_RawDatatoPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
+      STGC_RawDataToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~STGC_RawDatatoPrepDataTool();
+      virtual ~STGC_RawDataToPrepDataTool();
       
       /** Query the IMuonRdoToPrepDataTool interface */
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
@@ -71,6 +60,8 @@ namespace Muon
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
 
+      virtual void printPrepData() override;
+      virtual void printInputRdo() override;
 
       /** Resolve possible conflicts with IProperty::interfaceID() */
       static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
@@ -84,7 +75,7 @@ namespace Muon
       const MuonGM::MuonDetectorManager * m_muonMgr;
 
       /** TGC identifier helper */
-      const TgcIdHelper* m_tgcHelper;
+      const sTgcIdHelper* m_sTGC_Helper;
 
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      
@@ -92,8 +83,8 @@ namespace Muon
       /** ToolHandle of the TGC_RawDataProviderTool */
       ToolHandle<IMuonRawDataProviderTool> m_rawDataProviderTool;
 
-      SG::ReadHandleKey<TgcRdoContainer> m_RDO_Key;//"TGCRDO"
-      SG::WriteHandleKey<TgcPrepDataContainer> m_PRD_Key;
+      SG::ReadHandleKey<STGC_RawDataContainer> m_RDO_Key;//"TGCRDO"
+      SG::WriteHandleKey<sTgcPrepDataContainer> m_PRD_Key;
 
       /** Aboid compiler warning **/
       virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) override {return StatusCode::FAILURE;}

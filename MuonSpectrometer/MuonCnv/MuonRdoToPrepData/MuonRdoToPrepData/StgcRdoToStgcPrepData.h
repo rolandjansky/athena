@@ -11,7 +11,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
-#include "MuonPrepRawData/CscStripPrepDataContainer.h"
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 class StgcRdoToStgcPrepData : public AthAlgorithm {
 
@@ -26,7 +26,7 @@ public:
 private:
 
   bool m_seededDecoding;
-  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_decoderTool; //!< Tool used to do actual decoding.
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
   SG::WriteHandleKey<Muon::sTgcPrepDataContainer> m_prdContainer;

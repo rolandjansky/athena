@@ -8,7 +8,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 StgcRdoToStgcPrepData::StgcRdoToStgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_muonRdoToPrepDataTool ("Muon::StgcRdoToStgcPrepDataTool/StgcRdoToStgcPrepDataTool"),
+m_decoderTool ("Muon::StgcRdoToStgcPrepDataTool/StgcRdoToStgcPrepDataTool"),
 m_seededDecoding(false),
 m_roiCollectionKey("OutputRoIs"),
 m_regionSelector("RegSelSvc",name),
@@ -64,7 +64,7 @@ StatusCode StgcRdoToStgcPrepData::execute() {
       for(auto roi : *muonRoI){
         m_regionSelector->DetHashIDList(CSC,*roi,givenIDs);
         if(givenIDs.size()!=0){
-          status=m_muonRdoToPrepDataTool->decode(givenIDs, decodedIDs);
+          status=m_decoderTool->decode(givenIDs, decodedIDs);
           givenIDs.clear();
           decoded=true;
         }
@@ -73,13 +73,13 @@ StatusCode StgcRdoToStgcPrepData::execute() {
     if(!decoded){
       //Need to store an empty prd container if we didn't decode anything
       //as the container is expected to exist downstream
-      SG::WriteHandle<Muon::CscStripPrepDataContainer> h_output (m_prdContainer);
-      ATH_CHECK(h_output.record(std::make_unique<Muon::CscStripPrepDataContainer>(0)));
+      SG::WriteHandle<Muon::sTgcPrepDataContainer> prds (m_prdContainer);
+      ATH_CHECK(prds.record(std::make_unique<Muon::sTgcPrepDataContainer>(0)));
     }
   }
   else{
     // givenIDs size is zero so this invokes all the RDOs conversion to PrepData
-    status =   m_muonRdoToPrepDataTool->decode(givenIDs, decodedIDs);
+    status =   m_decoderTool->decode(givenIDs, decodedIDs);
   }
 
   if (status.isFailure()) {

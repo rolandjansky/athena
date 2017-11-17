@@ -26,7 +26,7 @@ namespace Muon{
   class STGC_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::STGC_RawDataContainer, Muon::STGC_RawDataContainer_p1>
   {
     public:
-      STGC_RawDataContainerCnv_p1() {}
+      STGC_RawDataContainerCnv_p1() : m_idHelper(0) {}
 
       virtual void	persToTrans(const Muon::STGC_RawDataContainer_p1* persCont,
           Muon::STGC_RawDataContainer* transCont,
@@ -37,10 +37,10 @@ namespace Muon{
 
       virtual Muon::STGC_RawDataContainer* createTransient(const Muon::STGC_RawDataContainer_p1* persObj, MsgStream& log) override final;    
     
-      void initialize(const sTgcIdHelper* idHelper) {m_sTgcId = idHelper;}
+      void initialize(const sTgcIdHelper* idHelper);
     
     private:
-      const sTgcIdHelper *m_sTgcId;
+      const sTgcIdHelper *m_idHelper;
       STGC_RawDataCnv_p1  m_chanCnv;
   };
 }

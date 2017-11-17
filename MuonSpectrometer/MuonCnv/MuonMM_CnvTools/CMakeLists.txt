@@ -3,7 +3,7 @@
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( MuonMDT_CnvTools )
+atlas_subdir( MuonMM_CnvTools )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
@@ -32,7 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
 
 # Component(s) in the package:
-atlas_add_component( MuonMDT_CnvTools
+atlas_add_component( MuonMM_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}

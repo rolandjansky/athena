@@ -37,7 +37,10 @@ void compare (const Muon::STGC_RawDataContainer& p1,
   STGC_RawDataContainer::const_iterator it1e = p1.end();
   STGC_RawDataContainer::const_iterator it2 = p2.begin();
   STGC_RawDataContainer::const_iterator it2e = p2.end();
+  unsigned int count=0;
+  std::cout<<"it1: "<<*it1<<" it1e "<<*it1e<<" it2 "<<*it2<<" "<<*it2e<<std::endl;
   while (it1 != it1e && it2 != it2e) {
+    std::cout <<"Collection #"<<++count<<std::endl;
     assert (it1.hashId() == it2.hashId());
     const STGC_RawDataCollection& coll1 = **it1;
     const STGC_RawDataCollection& coll2 = **it2;
@@ -48,18 +51,20 @@ void compare (const Muon::STGC_RawDataContainer& p1,
     ++it1;
     ++it2;
   }
+  std::cout <<"it1 " <<*it1 << " it2 "<<*it2<<std::endl;
   assert (it1 == it1e && it2 == it2e);
 }
 
 
-void testit (const STGC_RawDataContainer& trans1)
+void testit (const STGC_RawDataContainer& trans1, const MuonGM::MuonDetectorManager& muon_dd)
 {
   MsgStream log (0, "test");
   Muon::STGC_RawDataContainerCnv_p1 cnv;
+  cnv.initialize(muon_dd.stgcIdHelper());
   Muon::STGC_RawDataContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
   auto trans2 = std::unique_ptr<STGC_RawDataContainer> (cnv.createTransient (&pers, log));
-
+  std::cout<<" Before has size: "<<trans1.numberOfCollections()<<", after has size: "<<trans2->numberOfCollections()<<std::endl;
   compare (trans1, *trans2);
 }
 
@@ -80,15 +85,15 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
       // Identifier id = muo_dd.stgcIdHelper()->channelID (1, 1, hash,
       //                                                   1, 2, 1, 2+i);
       auto dig = CxxUtils::make_unique<STGC_RawData>
-        ( Identifier() );
+        ( Identifier(0x712a0054) );
       coll->push_back (std::move (dig));
     }
     trans1.addCollection (coll.release(), hash, true);
   }
 
-  testit (trans1);
+  testit (trans1, muo_dd);
   Athena_test::Leakcheck check;
-  testit (trans1);
+  testit (trans1, muo_dd);
 }
 
 

@@ -16,7 +16,6 @@ void Muon::STGC_RawDataCnv_p1::transToPers( const Muon::STGC_RawData *transObj, 
 Muon::STGC_RawData* Muon::STGC_RawDataCnv_p1::createTransient(const Muon::STGC_RawData_p1* persObj, MsgStream& /**log*/)
 {
     Muon::STGC_RawData*  trans = new STGC_RawData( Identifier (persObj->m_id) );
-    // persToTrans(persObj, trans.get(), log);
     return trans;
 }
 
