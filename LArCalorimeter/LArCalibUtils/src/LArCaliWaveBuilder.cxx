@@ -329,7 +329,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 StatusCode LArCaliWaveBuilder::stop()
 {
     // Create wave container using feedthru grouping and initialize
-    LArCaliWaveContainer* caliWaveContainer = new LArCaliWaveContainer();
+    auto caliWaveContainer = std::make_unique<LArCaliWaveContainer>();
   
     StatusCode sc=caliWaveContainer->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
@@ -463,10 +463,7 @@ StatusCode LArCaliWaveBuilder::stop()
     msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
  
     // Record in detector store with key (m_keyoutput)
-    if (StatusCode::SUCCESS!=detStore()->record(caliWaveContainer, m_keyoutput)) {
-	msg(MSG::ERROR) << "Cannot record caliWaveContainer with key '" << m_keyoutput << "' to StoreGate!" << endmsg;
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->record(std::move(caliWaveContainer), m_keyoutput) );
 
     msg(MSG::INFO) << "LArCaliWaveBuilder has finished." << endmsg;
     return StatusCode::SUCCESS;

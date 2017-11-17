@@ -59,7 +59,7 @@ StatusCode LArAutoCorrToolToDB::stop() {
 
   ATH_MSG_INFO ( ">>> stop()" );
 
-  LArAutoCorrComplete* larAutoCorrComplete = new LArAutoCorrComplete();
+  auto larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
   // Initialize LArAutoCorrComplete 
   ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larAutoCorrComplete->initialize() );
@@ -116,10 +116,8 @@ StatusCode LArAutoCorrToolToDB::stop() {
   }//end loop over gains
 
   // Record LArAutoCorrComplete
-  ATH_CHECK( detStore()->record(larAutoCorrComplete,m_acContName) );
+  ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_acContName) );
   ATH_MSG_INFO ( "Recorded LArAutCorrComplete object with key " << m_acContName );
-  // Make symlink
-  ATH_CHECK( detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete) );
    
   return StatusCode::SUCCESS;
 }

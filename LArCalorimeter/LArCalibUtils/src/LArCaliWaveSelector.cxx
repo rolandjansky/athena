@@ -73,7 +73,7 @@ StatusCode LArCaliWaveSelector::stop()
   // create empty LArCaliWaveContainer to store DAC selected LArCaliWave
   // make it view container
 //  LArCaliWaveContainer* selectedCaliWaveContainer = new LArCaliWaveContainer(SG::VIEW_ELEMENTS);
-  LArCaliWaveContainer* selectedCaliWaveContainer = new LArCaliWaveContainer();
+  auto selectedCaliWaveContainer = std::make_unique<LArCaliWaveContainer>();
   CHECK( selectedCaliWaveContainer->setGroupingType(m_groupingType,msg()));
   CHECK( selectedCaliWaveContainer->initialize());
 
@@ -136,7 +136,7 @@ StatusCode LArCaliWaveSelector::stop()
     }
   } 
 
-  ATH_CHECK( detStore()->record(selectedCaliWaveContainer,m_outputKey) );
+  ATH_CHECK( detStore()->record(std::move(selectedCaliWaveContainer),m_outputKey) );
   return StatusCode::SUCCESS;
 }
 
