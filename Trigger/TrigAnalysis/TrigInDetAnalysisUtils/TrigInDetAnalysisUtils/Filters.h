@@ -230,9 +230,7 @@ public:
   Filter_Combined( TrackFilter* f1, TrackFilter* f2) : 
     mf1(f1), mf2(f2), m_roi(0), 
     m_debugPrintout(false), 
-    mcontain(true), 
-    mcontainR(1000), 
-    mcontainZ(2700) 
+    mcontain(true)
   { } 
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
@@ -242,7 +240,6 @@ public:
   /// should be fully contained in the RoI or not 
 
   void containtracks( bool b=true ) { mcontain=b; }
-  void containtracksR( double r )   { mcontainR=r; }
 
 
   bool contains( const TIDA::Track* t, const TIDARoiDescriptor* r ) const { 
@@ -261,45 +258,76 @@ public:
 
       bool contained_phi = false;
       
+      /// NB: This isn't actually correct - the tracks can bend out of the 
+      ///     Roi even it the perigee phi is withing the Roi
       if ( r->phiMinus()<r->phiPlus() )  contained_phi = ( t->phi()>r->phiMinus() &&  t->phi()<r->phiPlus() );
       else 	                         contained_phi = ( t->phi()>r->phiMinus() ||  t->phi()<r->phiPlus() ); 
-        
+      
+      bool contained_zed = ( t->z0()>r->zedMinus() && t->z0()<r->zedPlus() ); 
 
-
+      /// NB: This is *completely* wrong, tracks could be completely contained 
+      ///     within an Roi but failthis condition
+      bool contained_eta = ( t->eta()<r->etaPlus() && t->eta()>r->etaMinus() );
+      
       if ( mcontain ) { 
-	/// so here - depending on the track charge, and track pt, 
-	/// ensure that the track is *completely* contained within 
-	/// the RoI 
 
-	double zexit = mcontainZ;
-
-	if  ( t->eta()<0 ) zexit = -mcontainZ;
+	///  includes calculation of approximate z position of the 
+	///  track at radius r and test if track within that z position at radius r 
        
-	double tantheta = std::tan( 2*std::atan( std::exp( -t->eta() ) ) );
-	
-	double rexit = (zexit-t->z0()) * tantheta;
-	
-	/// leaves through the barrel side or front face?
-	if ( std::fabs(rexit)>mcontainR ) { 
-	  rexit = mcontainR;
-	  ///  don't actually need to calculate the z exit coordinate
-	  //	  zexit = mcontainR / tantheta + t->z0();
+	double rexit = 0;
+	double zexit = 0;
+
+	//	double tantheta = TIDARoiDescriptor::exitpoint( t->z0(), t->eta(), zexit, rexit );
+
+	TIDARoiDescriptor::exitpoint( t->z0(), t->eta(), zexit, rexit );
+
+	/// rather complicated conditions to determine whether a track is  
+	/// fully contained in the Roi or not
+ 
+	contained_eta = true;
+
+	if ( zexit<r->zedMinusR() ) contained_eta = false; 
+
+	if ( r->rMinusZed()<r->maxR() ) { 
+	  if ( r->etaMinus()<0 ) { 
+	    if ( zexit<0 && rexit<r->rMinusZed() ) contained_eta = false;
+	  }
+	  else if ( r->etaMinus()>0 ) { 
+	    if ( zexit>0 && rexit>r->rMinusZed() ) contained_eta = false;
+	  }
+	  else contained_eta = false;
 	}
 	
+	if ( zexit>r->zedPlusR() ) contained_eta = false; 
+
+	if ( r->rPlusZed()<r->maxR() ) { 
+	  if ( r->etaPlus()<0 ) { 
+	    if ( zexit<0 && rexit>r->rPlusZed() ) contained_eta = false;
+	  }
+	  else if ( r->etaPlus()>0 ) { 
+	    if ( zexit>0 && rexit<r->rPlusZed() ) contained_eta = false;
+	  }
+	  else contained_eta = false;
+	}
+	
+	/// now check phi taking account of the track transverse curvature
+
 	double newphi = outerphi( t->pT(), t->phi(), rexit );
 	
 	if ( newphi==0 ) return false;
 	
 	if ( r->phiMinus()<r->phiPlus() ) contained_phi &= ( newphi>r->phiMinus() &&  newphi<r->phiPlus() );
 	else                              contained_phi &= ( newphi>r->phiMinus() ||  newphi<r->phiPlus() );
-      }      
 
-      if ( ( t->eta()>r->etaMinus() &&  t->eta()<r->etaPlus() ) && 
-	   ( contained_phi ) &&
-	   ( t->z0()>r->zedMinus() &&  t->z0()<r->zedPlus() ) ) { 
+      }
+
+      if ( contained_eta  && 
+	   contained_phi  &&
+	   contained_zed  ) { 
 	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
 	return true;
       }
+      
     }
     
     return false;
@@ -372,8 +400,6 @@ private:
   bool  m_debugPrintout;
 
   bool   mcontain;
-  double mcontainR;
-  double mcontainZ;
 
 };
 
