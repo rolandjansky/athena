@@ -115,16 +115,16 @@ public :
   vector <float> qStripElectronics;
   vector <int> nStripElectronics;
 
-  inline void set_peakTime(float val) { m_peakTime = val;  };
-  inline void set_timeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
-  inline void set_timeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
-  inline void set_electronicsThreshold(float val) { m_electronicsThreshold = val;};
-  inline void set_stripdeadtime(float val) { m_stripdeadtime = val;};
-  inline void set_ARTdeadtime(float val) { m_ARTdeadtime = val;};
+  inline void setPeakTime(float val) { m_peakTime = val;  };
+  inline void setTimeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
+  inline void setTimeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
+  inline void setElectronicsThreshold(float val) { m_electronicsThreshold = val;};
+  inline void setStripdeadtime(float val) { m_stripdeadtime = val;};
+  inline void setARTdeadtime(float val) { m_ARTdeadtime = val;};
 
-  inline void set_StripResponse_qThreshold    (float val) { m_stripResponse_qThreshold    = val; };
-  inline void set_StripResponse_driftVelocity (float val) { m_stripResponse_driftVelocity = val; };
-  inline void set_StripResponse_driftGapWidth (float val) { m_stripResponse_driftGapWidth = val; };
+  inline void setStripResponse_qThreshold    (float val) { m_stripResponse_qThreshold    = val; };
+  inline void setStripResponse_driftVelocity (float val) { m_stripResponse_driftVelocity = val; };
+  inline void setStripResponse_driftGapWidth (float val) { m_stripResponse_driftGapWidth = val; };
 
 
   float get_peakTime() const { return m_peakTime;};

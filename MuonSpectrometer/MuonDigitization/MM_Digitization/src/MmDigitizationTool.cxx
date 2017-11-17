@@ -419,26 +419,26 @@ StatusCode MmDigitizationTool::initialize() {
 
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = new StripsResponseSimulation();
-	m_StripsResponseSimulation->set_qThreshold(m_qThreshold);
-	m_StripsResponseSimulation->set_transverseDiffusionSigma(m_transverseDiffusionSigma);
-	m_StripsResponseSimulation->set_longitudinalDiffusionSigma(m_longitudinalDiffusionSigma);
-	m_StripsResponseSimulation->set_driftGapWidth(m_driftGapWidth);
-	m_StripsResponseSimulation->set_driftVelocity(m_driftVelocity);
-	m_StripsResponseSimulation->set_crossTalk1(m_crossTalk1);
-	m_StripsResponseSimulation->set_crossTalk2(m_crossTalk2);
+	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
+	m_StripsResponseSimulation->setTransverseDiffusionSigma(m_transverseDiffusionSigma);
+	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(m_longitudinalDiffusionSigma);
+	m_StripsResponseSimulation->setDriftGapWidth(m_driftGapWidth);
+	m_StripsResponseSimulation->setDriftVelocity(m_driftVelocity);
+	m_StripsResponseSimulation->setCrossTalk1(m_crossTalk1);
+	m_StripsResponseSimulation->setCrossTalk2(m_crossTalk2);
 	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation
 	m_ElectronicsResponseSimulation = new ElectronicsResponseSimulation();
-	m_ElectronicsResponseSimulation->set_peakTime(m_peakTime); // VMM peak time parameter
-	m_ElectronicsResponseSimulation->set_timeWindowLowerOffset(m_timeWindowLowerOffset);
-	m_ElectronicsResponseSimulation->set_timeWindowUpperOffset(m_timeWindowUpperOffset);
-	m_ElectronicsResponseSimulation->set_electronicsThreshold(m_electronicsThreshold);
-	m_ElectronicsResponseSimulation->set_stripdeadtime(m_stripdeadtime);
-	m_ElectronicsResponseSimulation->set_ARTdeadtime(m_ARTdeadtime);
-	m_ElectronicsResponseSimulation->set_StripResponse_qThreshold(     m_StripsResponseSimulation->get_qThreshold()    );
-	m_ElectronicsResponseSimulation->set_StripResponse_driftVelocity(  m_StripsResponseSimulation->get_driftVelocity() );
-	m_ElectronicsResponseSimulation->set_StripResponse_driftGapWidth(  m_StripsResponseSimulation->get_driftGapWidth() );
+	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
+	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
+	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
+	m_ElectronicsResponseSimulation->setElectronicsThreshold(m_electronicsThreshold);
+	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
+	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
+	m_ElectronicsResponseSimulation->setStripResponse_qThreshold(     m_StripsResponseSimulation->get_qThreshold()    );
+	m_ElectronicsResponseSimulation->setStripResponse_driftVelocity(  m_StripsResponseSimulation->get_driftVelocity() );
+	m_ElectronicsResponseSimulation->setStripResponse_driftGapWidth(  m_StripsResponseSimulation->get_driftGapWidth() );
 	m_ElectronicsResponseSimulation->initialize();
 
 
@@ -1006,7 +1006,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// Since we have output based on channel, instead of hit, the SDO and digit ID are No longer meaningless. 2016/06/27 T.Saito
 			//
 			// digitize input for strip response
-			// m_StripsResponseSimulation->set_stripWidth(mmChannelDes->channelWidth(posOnSurf));
+			// m_StripsResponseSimulation->setStripWidth(mmChannelDes->channelWidth(posOnSurf));
 
 			m_n_hitStripID=stripNumber;
 			m_n_hitDistToChannel=distToChannel;

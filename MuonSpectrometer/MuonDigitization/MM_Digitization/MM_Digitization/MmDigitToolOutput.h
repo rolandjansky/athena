@@ -42,8 +42,8 @@ class MmDigitToolOutput {
     std::vector<float> stripCharge() const { return m_charge; } 
     int stripForTrigger() const { return m_stripForTrigger; }
     float stripTimeForTrigger() const { return m_stripTimeForTrigger; }
-    void set_StripForTrigger(int val)  { m_stripForTrigger = val; }
-    void set_StripTimeForTrigger(float val) { m_stripTimeForTrigger = val; }
+    void setStripForTrigger(int val)  { m_stripForTrigger = val; }
+    void setStripTimeForTrigger(float val) { m_stripTimeForTrigger = val; }
     bool isValid() { return m_isValid; }
     	
  private:

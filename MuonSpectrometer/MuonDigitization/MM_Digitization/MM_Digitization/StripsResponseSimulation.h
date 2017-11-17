@@ -136,15 +136,15 @@ public :
   void initFunctions ();
   void whichStrips(const float & hitx, const int & stripOffest, const float & thetaDegrees, const int & stripMaxID, const MmDigitToolInput & digiInput);
 
-  inline void set_qThreshold (float val) { m_qThreshold = val; };
-  inline void set_transverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
-  inline void set_longitudinalDiffusionSigma (float val) { m_longitudinalDiffusionSigma = val; };
-  inline void set_driftVelocity (float val) { m_driftVelocity = val; };
-  inline void set_crossTalk1 (float val) { m_crossTalk1 = val; };
-  inline void set_crossTalk2 (float val) { m_crossTalk2 = val; };
-  inline void set_driftGapWidth (float val) {m_driftGapWidth = val;};
+  inline void setQThreshold (float val) { m_qThreshold = val; };
+  inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
+  inline void setLongitudinalDiffusionSigma (float val) { m_longitudinalDiffusionSigma = val; };
+  inline void setDriftVelocity (float val) { m_driftVelocity = val; };
+  inline void setCrossTalk1 (float val) { m_crossTalk1 = val; };
+  inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
+  inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
 
-  // inline void set_outputFile( TFile& m_file ){  m_outputFile = &m_file; };
+  // inline void setOutputFile( TFile& m_file ){  m_outputFile = &m_file; };
 
   float get_qThreshold    () const { return m_qThreshold;      };
   float get_driftGapWidth () const { return m_driftGapWidth;   };
