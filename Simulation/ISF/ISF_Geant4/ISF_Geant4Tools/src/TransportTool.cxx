@@ -38,6 +38,11 @@
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
 
+// call_once mutexes
+#include <mutex>
+static std::once_flag initializeOnceFlag;
+static std::once_flag finalizeOnceFlag;
+
 //________________________________________________________________________
 iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
@@ -52,6 +57,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   , m_mcEventCollectionName("TruthEvent")
   , m_useMT(false)
   , m_rndmGenSvc("AtDSFMTGenSvc",n)
+  , m_g4atlasSvc("G4AtlasSvc", n)
   , m_userActionSvc("",n)
   , m_detGeoSvc("DetectorGeometrySvc", n)
   , m_inputConverter("ISF_InputConverter",n)
@@ -78,6 +84,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   // Multi-threading specific settings
   declareProperty("MultiThreading",        m_useMT=false);
   declareProperty("RandomNumberService",   m_rndmGenSvc);
+  declareProperty("G4AtlasSvc",            m_g4atlasSvc );
   declareProperty("UserActionSvc",         m_userActionSvc);
   declareProperty("DetGeoSvc",             m_detGeoSvc);
   declareProperty("InputConverter",        m_inputConverter);
@@ -98,25 +105,41 @@ StatusCode iGeant4::G4TransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
 
+  ATH_CHECK(m_inputConverter.retrieve());
+
+ // One-time initialization
+  try {
+    std::call_once(initializeOnceFlag, &iGeant4::G4TransportTool::initializeOnce, this);
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::initializeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( m_userActionSvc.retrieve() );
+
+  ATH_CHECK(m_g4atlasSvc.retrieve());
+
+  if (m_recordFlux) G4ScoringManager::GetScoringManager();
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::initializeOnce()
+{
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
 
-  if (m_g4RunManagerHelper.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
-  else {
-    ATH_MSG_FATAL("Could not get "<<m_g4RunManagerHelper);
+  if (m_g4RunManagerHelper.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize G4RunManagerHelper!");
   }
+  ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
+  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
 
-  //m_pRunMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
-  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
-
-  if(m_physListTool.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL("Could not get PhysicsListToolBase");
-    }
+  if(m_physListTool.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  }
   m_physListTool->SetPhysicsList();
-
-  ATH_CHECK(m_inputConverter.retrieve());
 
   m_pRunMgr->SetRecordFlux( m_recordFlux );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
@@ -125,18 +148,6 @@ StatusCode iGeant4::G4TransportTool::initialize()
   m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
-
-  ATH_CHECK( m_userActionSvc.retrieve() );
-
-  if(m_useMT) {
-    // Retrieve the python service to trigger its initialization. This is done
-    // here just to make sure things are initialized in the proper order.
-    // Hopefully we can drop this at some point.
-    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
-    ATH_CHECK( pyG4Svc.retrieve() );
-  }
-
-  if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -160,21 +171,13 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  // *AS* TEST:
-  // *AS* m_pRunMgr->Initialize();
-  // *AS* but this is a good place
-
-
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool initialized  ++++++++++++");
-
   ATH_MSG_DEBUG("Setting checkmode to true");
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not initialize ATLAS Random Generator Service");
-      return StatusCode::FAILURE;
+      throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
     }
     CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
     CLHEP::HepRandom::setTheEngine(engine);
@@ -186,35 +189,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   // Send UI commands
   for (auto g4command : m_g4commands){
-    ui->ApplyCommand( g4command );
+    int the_return = ui->ApplyCommand(g4command);
+    ATH_MSG_INFO("Returned " << the_return << " from G4 Command: " << g4command);
   }
 
-  /*
-    if (m_particleBroker.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_particleBroker);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_particleBroker);
-    return StatusCode::FAILURE;
-    }
-    //m_pRunMgr->setParticleBroker(&m_particleBroker);
-
-    if (m_particleHelper.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_particleHelper);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_particleHelper);
-    return StatusCode::FAILURE;
-    }
-    //m_pRunMgr->setParticleHelper(&m_particleHelper);
-    */
-  /*
-    if (m_configTool.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_configTool);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_configTool);
-    return StatusCode::FAILURE;
-    }
-  */
-  return StatusCode::SUCCESS;
+  return;
 }
 
 //________________________________________________________________________
@@ -222,75 +201,62 @@ StatusCode iGeant4::G4TransportTool::finalize()
 {
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool finalized  ++++++++++++");
 
+  // One time finalization
+  try {
+    std::call_once(finalizeOnceFlag, &iGeant4::G4TransportTool::finalizeOnce, this);
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::finalizeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::finalizeOnce()
+{
   ATH_MSG_DEBUG("\t terminating the current G4 run");
 
   m_pRunMgr->RunTermination();
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 {
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
+  ATH_MSG_VERBOSE("process(...)");
 
-  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-
-  G4Event* inputEvent=ISF_to_G4Event(isp);
-  if (inputEvent) {
-
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
-    if (abort) {
-      ATH_MSG_WARNING("Event was aborted !! ");
-      //ATH_MSG_WARNING("Simulation will now go on to the next event ");
-      //ATH_MSG_WARNING("setFilterPassed is now False");
-      //setFilterPassed(false);
-      return 0;
-    }
-  }
-  else {
-    ATH_MSG_ERROR("ISF Event conversion failed ");
-    return 0;
-  }
-
-  // const DataHandle <TrackRecordCollection> tracks;
-
-  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
-
-  // if (sc.isFailure()) {
-  //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
-  // }
-
-  // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
-  return StatusCode::SUCCESS;
+  // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
+  // (minimizing code duplication)
+  const ISF::ConstISFParticleVector ispVector(1, &isp);
+  return this->processVector(ispVector);
 }
 
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVector& ispVector)
 {
+  ATH_MSG_VERBOSE("processVector(...)");
   ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
 
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-
   G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(ispVector, genEvent());
-  if (inputEvent) {
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
-    if (abort) {
-      ATH_MSG_WARNING("Event was aborted !! ");
-      //ATH_MSG_WARNING("Simulation will now go on to the next event ");
-      //ATH_MSG_WARNING("setFilterPassed is now False");
-      //setFilterPassed(false);
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
+  if (!inputEvent) {
     ATH_MSG_ERROR("ISF Event conversion failed ");
     return StatusCode::FAILURE;
   }
+
+  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
+  bool abort = m_pRunMgr->ProcessEvent(inputEvent);
+
+  if (abort) {
+    ATH_MSG_WARNING("Event was aborted !! ");
+    //ATH_MSG_WARNING("Simulation will now go on to the next event ");
+    //ATH_MSG_WARNING("setFilterPassed is now False");
+    //setFilterPassed(false);
+    return StatusCode::FAILURE;
+  }
+
 
   // const DataHandle <TrackRecordCollection> tracks;
 
@@ -302,18 +268,6 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) const
-{
-
-  // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
-  // (minimizing code duplication)
-  ISF::ConstISFParticleVector ispVector(1, &isp);
-  G4Event *g4evt = m_inputConverter->ISF_to_G4Event( ispVector, genEvent() );
-
-  return g4evt;
 }
 
 //________________________________________________________________________

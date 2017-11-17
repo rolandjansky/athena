@@ -29,42 +29,42 @@ using namespace std;
 
 MMHitAnalysis::MMHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , h_S1_xy_A(0)
-  , h_S1_rz_A(0)
-  , h_S1_r_A(0)
-  , h_S1_xy_C(0)
-  , h_S1_rz_C(0)
-  , h_S1_r_C(0)
-  , h_S2_xy_A(0)
-  , h_S2_rz_A(0)
-  , h_S2_r_A(0)
-  , h_S2_xy_C(0)
-  , h_S2_rz_C(0)
-  , h_S2_r_C(0)
-  , h_S_xy_A(0)
-  , h_S_xy_C(0)
-  , h_S_rz_A(0)
-  , h_S_rz_C(0)
-  , h_xy_A(0)
-  , h_xy_C(0)
-  , h_rz_A(0)
-  , h_rz_C(0)
-  , h_L1_xy_A(0)
-  , h_L1_rz_A(0)
-  , h_L1_r_A(0)
-  , h_L1_xy_C(0)
-  , h_L1_rz_C(0)
-  , h_L1_r_C(0)
-  , h_L2_xy_A(0)
-  , h_L2_rz_A(0)
-  , h_L2_r_A(0)
-  , h_L2_xy_C(0)
-  , h_L2_rz_C(0)
-  , h_L2_r_C(0)
-  , h_L_xy_A(0)
-  , h_L_xy_C(0)
-  , h_L_rz_A(0)
-  , h_L_rz_C(0)  
+  , m_h_S1_xy_A(0)
+  , m_h_S1_rz_A(0)
+  , m_h_S1_r_A(0)
+  , m_h_S1_xy_C(0)
+  , m_h_S1_rz_C(0)
+  , m_h_S1_r_C(0)
+  , m_h_S2_xy_A(0)
+  , m_h_S2_rz_A(0)
+  , m_h_S2_r_A(0)
+  , m_h_S2_xy_C(0)
+  , m_h_S2_rz_C(0)
+  , m_h_S2_r_C(0)
+  , m_h_S_xy_A(0)
+  , m_h_S_xy_C(0)
+  , m_h_S_rz_A(0)
+  , m_h_S_rz_C(0)
+  , m_h_xy_A(0)
+  , m_h_xy_C(0)
+  , m_h_rz_A(0)
+  , m_h_rz_C(0)
+  , m_h_L1_xy_A(0)
+  , m_h_L1_rz_A(0)
+  , m_h_L1_r_A(0)
+  , m_h_L1_xy_C(0)
+  , m_h_L1_rz_C(0)
+  , m_h_L1_r_C(0)
+  , m_h_L2_xy_A(0)
+  , m_h_L2_rz_A(0)
+  , m_h_L2_r_A(0)
+  , m_h_L2_xy_C(0)
+  , m_h_L2_rz_C(0)
+  , m_h_L2_r_C(0)
+  , m_h_L_xy_A(0)
+  , m_h_L_xy_C(0)
+  , m_h_L_rz_A(0)
+  , m_h_L_rz_C(0)  
   , m_hits_x(0)
   , m_ntupleFileName("MMHitAnalysis/ntuple/")
   , m_path("/MMHitAnalysis/histos/")
@@ -85,161 +85,161 @@ StatusCode MMHitAnalysis::initialize() {
 /** Histograms */
 
 /*-----------------------------------Small sector Wedge 1 histos begin--------------------------------------*/
-  h_S1_xy_A = new TH2D("h_mm_S1_xy_A","S1_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S1_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_xy_A->GetName(), h_S1_xy_A));
+  m_h_S1_xy_A = new TH2D("h_mm_S1_xy_A","S1_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S1_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_xy_A->GetName(), m_h_S1_xy_A));
 
-  h_S1_rz_A = new TH2D("h_mm_S1_rz_A","S1_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_S1_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_rz_A->GetName(), h_S1_rz_A));
+  m_h_S1_rz_A = new TH2D("h_mm_S1_rz_A","S1_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_S1_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_rz_A->GetName(), m_h_S1_rz_A));
 
-  h_S1_r_A = new TH1D("h_mm_S1_r_A","S1_r_A", 1000,0., 14000.);
-  h_S1_r_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_r_A->GetName(), h_S1_r_A));
+  m_h_S1_r_A = new TH1D("h_mm_S1_r_A","S1_r_A", 1000,0., 14000.);
+  m_h_S1_r_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_r_A->GetName(), m_h_S1_r_A));
 
-  h_S1_xy_C = new TH2D("h_mm_S1_xy_C","S1_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S1_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_xy_C->GetName(), h_S1_xy_C));
+  m_h_S1_xy_C = new TH2D("h_mm_S1_xy_C","S1_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S1_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_xy_C->GetName(), m_h_S1_xy_C));
 
-  h_S1_rz_C = new TH2D("h_mm_S1_rz_C","S1_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_S1_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_rz_C->GetName(), h_S1_rz_C));
+  m_h_S1_rz_C = new TH2D("h_mm_S1_rz_C","S1_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_S1_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_rz_C->GetName(), m_h_S1_rz_C));
 
-  h_S1_r_C = new TH1D("h_mm_S1_r_C","S1_r_C", 1000,0., 14000.);
-  h_S1_r_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S1_r_C->GetName(), h_S1_r_C));
+  m_h_S1_r_C = new TH1D("h_mm_S1_r_C","S1_r_C", 1000,0., 14000.);
+  m_h_S1_r_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S1_r_C->GetName(), m_h_S1_r_C));
   /*-----------------------------------Small sector Wedge 1 histos end--------------------------------------*/
 
   /*-----------------------------------Small sector Wedge 2 histos begin--------------------------------------*/
-  h_S2_xy_A = new TH2D("h_mm_S2_xy_A","S2_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S2_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_xy_A->GetName(), h_S2_xy_A));
+  m_h_S2_xy_A = new TH2D("h_mm_S2_xy_A","S2_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S2_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_xy_A->GetName(), m_h_S2_xy_A));
 
-  h_S2_rz_A = new TH2D("h_mm_S2_rz_A","S2_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_S2_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_rz_A->GetName(), h_S2_rz_A));
+  m_h_S2_rz_A = new TH2D("h_mm_S2_rz_A","S2_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_S2_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_rz_A->GetName(), m_h_S2_rz_A));
 
-  h_S2_r_A = new TH1D("h_mm_S2_r_A","S2_r_A", 1000,0., 14000.);
-  h_S2_r_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_r_A->GetName(), h_S2_r_A));
+  m_h_S2_r_A = new TH1D("h_mm_S2_r_A","S2_r_A", 1000,0., 14000.);
+  m_h_S2_r_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_r_A->GetName(), m_h_S2_r_A));
 
-  h_S2_xy_C = new TH2D("h_mm_S2_xy_C","S2_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S2_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_xy_C->GetName(), h_S2_xy_C));
+  m_h_S2_xy_C = new TH2D("h_mm_S2_xy_C","S2_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S2_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_xy_C->GetName(), m_h_S2_xy_C));
 
-  h_S2_rz_C = new TH2D("h_mm_S2_rz_C","S2_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_S2_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_rz_C->GetName(), h_S2_rz_C));
+  m_h_S2_rz_C = new TH2D("h_mm_S2_rz_C","S2_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_S2_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_rz_C->GetName(), m_h_S2_rz_C));
 
-  h_S2_r_C = new TH1D("h_mm_S2_r_C","S2_r_C", 1000,0., 14000.);
-  h_S2_r_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S2_r_C->GetName(), h_S2_r_C));
+  m_h_S2_r_C = new TH1D("h_mm_S2_r_C","S2_r_C", 1000,0., 14000.);
+  m_h_S2_r_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S2_r_C->GetName(), m_h_S2_r_C));
 /*---------------------------------Small sector Wedge 2 histos end--------------------------------------*/
   
 /*-----------------------------------Small sector both Wedges histos begin--------------------------------------*/
-  h_S_xy_A = new TH2D("h_mm_S_xy_A","S_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_xy_A->GetName(), h_S_xy_A));
+  m_h_S_xy_A = new TH2D("h_mm_S_xy_A","S_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_xy_A->GetName(), m_h_S_xy_A));
 
-  h_S_xy_C = new TH2D("h_mm_S_xy_C","S_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_S_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_xy_C->GetName(), h_S_xy_C));
+  m_h_S_xy_C = new TH2D("h_mm_S_xy_C","S_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_S_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_xy_C->GetName(), m_h_S_xy_C));
 
-  h_S_rz_A = new TH2D("h_mm_S_rz_A","S_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_S_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_rz_A->GetName(), h_S_rz_A));
+  m_h_S_rz_A = new TH2D("h_mm_S_rz_A","S_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_S_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_rz_A->GetName(), m_h_S_rz_A));
 
-  h_S_rz_C = new TH2D("h_mm_S_rz_C","S_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_S_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_S_rz_C->GetName(), h_S_rz_C));
+  m_h_S_rz_C = new TH2D("h_mm_S_rz_C","S_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_S_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_S_rz_C->GetName(), m_h_S_rz_C));
   /*---------------------------------Small sector both Wedges histos end--------------------------------------*/
 
   /*-----------------------------------All sector histos begin--------------------------------------*/
-  h_xy_A = new TH2D("h_mm_xy_A","xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_xy_A->GetName(), h_xy_A));
+  m_h_xy_A = new TH2D("h_mm_xy_A","xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_xy_A->GetName(), m_h_xy_A));
 
-  h_xy_C = new TH2D("h_mm_xy_C","xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_xy_C->GetName(), h_xy_C));
+  m_h_xy_C = new TH2D("h_mm_xy_C","xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_xy_C->GetName(), m_h_xy_C));
 
-  h_rz_A = new TH2D("h_mm_rz_A","rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rz_A->GetName(), h_rz_A));
+  m_h_rz_A = new TH2D("h_mm_rz_A","rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_rz_A->GetName(), m_h_rz_A));
 
-  h_rz_C = new TH2D("h_mm_rz_C","rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rz_C->GetName(), h_rz_C));
+  m_h_rz_C = new TH2D("h_mm_rz_C","rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_rz_C->GetName(), m_h_rz_C));
   /*---------------------------------All sector histos end-------------------------------------------*/
 
   /*-----------------------------------Large sector Wedge 1 histos begin--------------------------------------*/
-  h_L1_xy_A = new TH2D("h_mm_L1_xy_A","L1_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L1_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_xy_A->GetName(), h_L1_xy_A));
+  m_h_L1_xy_A = new TH2D("h_mm_L1_xy_A","L1_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L1_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_xy_A->GetName(), m_h_L1_xy_A));
 
-  h_L1_rz_A = new TH2D("h_mm_L1_rz_A","L1_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_L1_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_rz_A->GetName(), h_L1_rz_A));
+  m_h_L1_rz_A = new TH2D("h_mm_L1_rz_A","L1_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_L1_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_rz_A->GetName(), m_h_L1_rz_A));
 
-  h_L1_r_A = new TH1D("h_mm_L1_r_A","L1_r_A", 1000,0., 14000.);
-  h_L1_r_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_r_A->GetName(), h_L1_r_A));
+  m_h_L1_r_A = new TH1D("h_mm_L1_r_A","L1_r_A", 1000,0., 14000.);
+  m_h_L1_r_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_r_A->GetName(), m_h_L1_r_A));
 
-  h_L1_xy_C = new TH2D("h_mm_L1_xy_C","L1_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L1_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_xy_C->GetName(), h_L1_xy_C));
+  m_h_L1_xy_C = new TH2D("h_mm_L1_xy_C","L1_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L1_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_xy_C->GetName(), m_h_L1_xy_C));
 
-  h_L1_rz_C = new TH2D("h_mm_L1_rz_C","L1_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_L1_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_rz_C->GetName(), h_L1_rz_C));
+  m_h_L1_rz_C = new TH2D("h_mm_L1_rz_C","L1_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_L1_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_rz_C->GetName(), m_h_L1_rz_C));
 
-  h_L1_r_C = new TH1D("h_mm_L1_r_C","L1_r_C", 1000,0., 14000.);
-  h_L1_r_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L1_r_C->GetName(), h_L1_r_C));
+  m_h_L1_r_C = new TH1D("h_mm_L1_r_C","L1_r_C", 1000,0., 14000.);
+  m_h_L1_r_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L1_r_C->GetName(), m_h_L1_r_C));
   /*-----------------------------------Large sector Wedge 1 histos end--------------------------------------*/
 
   /*-----------------------------------Large sector Wedge 2 histos begin--------------------------------------*/
-  h_L2_xy_A = new TH2D("h_mm_L2_xy_A","L2_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L2_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_xy_A->GetName(), h_L2_xy_A));
+  m_h_L2_xy_A = new TH2D("h_mm_L2_xy_A","L2_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L2_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_xy_A->GetName(), m_h_L2_xy_A));
 
-  h_L2_rz_A = new TH2D("h_mm_L2_rz_A","L2_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_L2_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_rz_A->GetName(), h_L2_rz_A));
+  m_h_L2_rz_A = new TH2D("h_mm_L2_rz_A","L2_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_L2_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_rz_A->GetName(), m_h_L2_rz_A));
 
-  h_L2_r_A = new TH1D("h_mm_L2_r_A","L2_r_A", 1000,0., 14000.);
-  h_L2_r_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_r_A->GetName(), h_L2_r_A));
+  m_h_L2_r_A = new TH1D("h_mm_L2_r_A","L2_r_A", 1000,0., 14000.);
+  m_h_L2_r_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_r_A->GetName(), m_h_L2_r_A));
 
-  h_L2_xy_C = new TH2D("h_mm_L2_xy_C","L2_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L2_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_xy_C->GetName(), h_L2_xy_C));
+  m_h_L2_xy_C = new TH2D("h_mm_L2_xy_C","L2_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L2_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_xy_C->GetName(), m_h_L2_xy_C));
 
-  h_L2_rz_C = new TH2D("h_mm_L2_rz_C","L2_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_L2_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_rz_C->GetName(), h_L2_rz_C));
+  m_h_L2_rz_C = new TH2D("h_mm_L2_rz_C","L2_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_L2_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_rz_C->GetName(), m_h_L2_rz_C));
 
-  h_L2_r_C = new TH1D("h_mm_L2_r_C","L2_r_C", 1000,0., 14000.);
-  h_L2_r_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2_r_C->GetName(), h_L2_r_C));
+  m_h_L2_r_C = new TH1D("h_mm_L2_r_C","L2_r_C", 1000,0., 14000.);
+  m_h_L2_r_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L2_r_C->GetName(), m_h_L2_r_C));
   /*-----------------------------------Large sector Wedge 1 histos end--------------------------------------*/
 
   /*-----------------------------------Large sector both Wedge histos begin--------------------------------------*/
-  h_L_xy_A = new TH2D("h_mm_L_xy_A","L_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L_xy_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_xy_A->GetName(), h_L_xy_A));
+  m_h_L_xy_A = new TH2D("h_mm_L_xy_A","L_xy_A", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L_xy_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_xy_A->GetName(), m_h_L_xy_A));
 
-  h_L_rz_A = new TH2D("h_mm_L_rz_A","L_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
-  h_L_rz_A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_rz_A->GetName(), h_L_rz_A));
+  m_h_L_rz_A = new TH2D("h_mm_L_rz_A","L_rz_A", 1000,7000., 8000., 5000, 0., 5000.);
+  m_h_L_rz_A->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_rz_A->GetName(), m_h_L_rz_A));
 
-  h_L_xy_C = new TH2D("h_mm_L_xy_C","L_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
-  h_L_xy_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_xy_C->GetName(), h_L_xy_C));
+  m_h_L_xy_C = new TH2D("h_mm_L_xy_C","L_xy_C", 1200,-6000., 6000., 1200, -6000., 6000.);
+  m_h_L_xy_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_xy_C->GetName(), m_h_L_xy_C));
 
-  h_L_rz_C = new TH2D("h_mm_L_rz_C","L_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
-  h_L_rz_C->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L_rz_C->GetName(), h_L_rz_C));
+  m_h_L_rz_C = new TH2D("h_mm_L_rz_C","L_rz_C", 1000,-8000., -7000., 5000, 0., 5000.);
+  m_h_L_rz_C->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_L_rz_C->GetName(), m_h_L_rz_C));
   /*-----------------------------------Large sector both Wedge histos end--------------------------------------*/
 
   m_tree= new TTree("NtupleMMHitAnalysis","MMHitAna");
@@ -291,17 +291,17 @@ StatusCode MMHitAnalysis::execute() {
       //Small sectors at +ve Z (A-Side)
       if ((sim_stationName==s_m1s1 || sim_stationName==s_m2s1) && sim_side==1){
 	double r_S1_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r 
-	h_S1_xy_A->Fill(p.x(),p.y());
-	h_S1_rz_A->Fill(p.z(), r_S1_A);
-	h_S1_r_A->Fill(r_S1_A);
+	m_h_S1_xy_A->Fill(p.x(),p.y());
+	m_h_S1_rz_A->Fill(p.z(), r_S1_A);
+	m_h_S1_r_A->Fill(r_S1_A);
       }
 
       //Small sectors at -ve Z (C-Side)                     
       if ((sim_stationName==s_m1s1 || sim_stationName==s_m2s1) && sim_side==-1){
 	double r_S1_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r 
-        h_S1_xy_C->Fill(p.x(),p.y());
-        h_S1_rz_C->Fill(p.z(), r_S1_C);
-        h_S1_r_C->Fill(r_S1_C);
+        m_h_S1_xy_C->Fill(p.x(),p.y());
+        m_h_S1_rz_C->Fill(p.z(), r_S1_C);
+        m_h_S1_r_C->Fill(r_S1_C);
       }
 
       /*------------------------Wedge 1 Fill histos end---------------------------*/
@@ -310,17 +310,17 @@ StatusCode MMHitAnalysis::execute() {
       //Small sectors at +ve Z (A-Side)      
       if ((sim_stationName==s_m1s2 || sim_stationName==s_m2s2) && sim_side==1){
 	double r_S2_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_S2_xy_A->Fill(p.x(),p.y());
-        h_S2_rz_A->Fill(p.z(), r_S2_A);
-        h_S2_r_A->Fill(r_S2_A);
+        m_h_S2_xy_A->Fill(p.x(),p.y());
+        m_h_S2_rz_A->Fill(p.z(), r_S2_A);
+        m_h_S2_r_A->Fill(r_S2_A);
       }
 
       //Small sectors at -ve Z (C-Side) 
       if ((sim_stationName==s_m1s2 || sim_stationName==s_m2s2) && sim_side==-1){
         double r_S2_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_S2_xy_C->Fill(p.x(),p.y());
-        h_S2_rz_C->Fill(p.z(), r_S2_C);
-        h_S2_r_C->Fill(r_S2_C);
+        m_h_S2_xy_C->Fill(p.x(),p.y());
+        m_h_S2_rz_C->Fill(p.z(), r_S2_C);
+        m_h_S2_r_C->Fill(r_S2_C);
       }
 
       /*------------------------Wedge 2 Fill histos end---------------------------*/
@@ -329,15 +329,15 @@ StatusCode MMHitAnalysis::execute() {
       //Small sectors at +ve Z (A-Side)
       if ((sim_stationName==s_m1s2 || sim_stationName==s_m2s2 || sim_stationName==s_m1s1 || sim_stationName==s_m2s1) && sim_side==1){
         double r_S_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_S_xy_A->Fill(p.x(),p.y());
-        h_S_rz_A->Fill(p.z(), r_S_A);
+        m_h_S_xy_A->Fill(p.x(),p.y());
+        m_h_S_rz_A->Fill(p.z(), r_S_A);
       }
 
       //Small sectors at -ve Z (C-Side)
       if ((sim_stationName==s_m1s2 || sim_stationName==s_m2s2 || sim_stationName==s_m1s1 || sim_stationName==s_m2s1) && sim_side==-1){
         double r_S_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_S_xy_C->Fill(p.x(),p.y());
-        h_S_rz_C->Fill(p.z(), r_S_C);
+        m_h_S_xy_C->Fill(p.x(),p.y());
+        m_h_S_rz_C->Fill(p.z(), r_S_C);
       }
       /*------------------------Small sectors both wedges Fill histos end---------------------------*/
 
@@ -346,15 +346,15 @@ StatusCode MMHitAnalysis::execute() {
       //Sectors at +ve Z (A-Side)
       if (sim_side==1){
         double r_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_xy_A->Fill(p.x(),p.y());
-        h_rz_A->Fill(p.z(), r_A);
+        m_h_xy_A->Fill(p.x(),p.y());
+        m_h_rz_A->Fill(p.z(), r_A);
       }
 
       //Sectors at -ve Z (C-Side)
       if (sim_side==-1){
         double r_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_xy_C->Fill(p.x(),p.y());
-        h_rz_C->Fill(p.z(), r_C);
+        m_h_xy_C->Fill(p.x(),p.y());
+        m_h_rz_C->Fill(p.z(), r_C);
       }
       /*------------------------All sectors Fill histos end---------------------------*/
 
@@ -365,17 +365,17 @@ StatusCode MMHitAnalysis::execute() {
       //Large sectors at +ve Z (A-Side)
       if ((sim_stationName==s_m1l1 || sim_stationName==s_m2l1) && sim_side==1){
         double r_L1_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L1_xy_A->Fill(p.x(),p.y());
-        h_L1_rz_A->Fill(p.z(), r_L1_A);
-        h_L1_r_A->Fill(r_L1_A);
+        m_h_L1_xy_A->Fill(p.x(),p.y());
+        m_h_L1_rz_A->Fill(p.z(), r_L1_A);
+        m_h_L1_r_A->Fill(r_L1_A);
       }
 
       //Large sectors at -ve Z (C-Side)
       if ((sim_stationName==s_m1l1 || sim_stationName==s_m2l1) && sim_side==-1){
         double r_L1_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L1_xy_C->Fill(p.x(),p.y());
-        h_L1_rz_C->Fill(p.z(), r_L1_C);
-        h_L1_r_C->Fill(r_L1_C);
+        m_h_L1_xy_C->Fill(p.x(),p.y());
+        m_h_L1_rz_C->Fill(p.z(), r_L1_C);
+        m_h_L1_r_C->Fill(r_L1_C);
       }
 
       /*------------------------Wedge 1 Fill histos end---------------------------*/
@@ -386,17 +386,17 @@ StatusCode MMHitAnalysis::execute() {
       //Large sectors at +ve Z (A-Side) 
       if ((sim_stationName==s_m1l2 || sim_stationName==s_m2l2) && sim_side==1){
         double r_L2_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L2_xy_A->Fill(p.x(),p.y());
-        h_L2_rz_A->Fill(p.z(), r_L2_A);
-        h_L2_r_A->Fill(r_L2_A);
+        m_h_L2_xy_A->Fill(p.x(),p.y());
+        m_h_L2_rz_A->Fill(p.z(), r_L2_A);
+        m_h_L2_r_A->Fill(r_L2_A);
       }
 
       //Large sectors at -ve Z (C-Side)
       if ((sim_stationName==s_m1l2 || sim_stationName==s_m2l2) && sim_side==-1){
         double r_L2_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r
-        h_L2_xy_C->Fill(p.x(),p.y());
-        h_L2_rz_C->Fill(p.z(), r_L2_C);
-        h_L2_r_C->Fill(r_L2_C);
+        m_h_L2_xy_C->Fill(p.x(),p.y());
+        m_h_L2_rz_C->Fill(p.z(), r_L2_C);
+        m_h_L2_r_C->Fill(r_L2_C);
       }
 
       /*------------------------Wedge 2 Fill histos end---------------------------*/
@@ -405,15 +405,15 @@ StatusCode MMHitAnalysis::execute() {
       //Large sectors at +ve Z (A-Side)
       if ((sim_stationName==s_m1l2 || sim_stationName==s_m2l2 || sim_stationName==s_m1l1 || sim_stationName==s_m2l1) && sim_side==1){
         double r_L_A = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_L_xy_A->Fill(p.x(),p.y());
-        h_L_rz_A->Fill(p.z(), r_L_A);
+        m_h_L_xy_A->Fill(p.x(),p.y());
+        m_h_L_rz_A->Fill(p.z(), r_L_A);
       }
 
       //Large sectors at -ve Z (C-Side)
       if ((sim_stationName==s_m1l2 || sim_stationName==s_m2l2 || sim_stationName==s_m1l1 || sim_stationName==s_m2l1) && sim_side==-1){
         double r_L_C = sqrt(p.x()*p.x()+p.y()*p.y()); //Evaluate r                                                                                                                
-        h_L_xy_C->Fill(p.x(),p.y());
-        h_L_rz_C->Fill(p.z(), r_L_C);
+        m_h_L_xy_C->Fill(p.x(),p.y());
+        m_h_L_rz_C->Fill(p.z(), r_L_C);
       }
       /*------------------------Large sectors both wedges Fill histos end---------------------------*/
 

@@ -151,7 +151,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_rejectBadTracks(false),
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
-  m_nErrors(0)
+  m_nErrors(0),
+  m_reverseIBLlocx(false)
 {
   m_pixelBarrelPhiOffsets.reserve(4);
   m_pixelBarrelEtaOffsets.reserve(4);
@@ -213,6 +214,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
   declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
   declareProperty("RemoveDuplicates",m_remove_duplicates);
+  declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
 
 }
@@ -301,7 +303,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
   ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
   ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
-
+  if  (m_reverseIBLlocx) ATH_MSG_INFO( "Reversing the direction of IBL LocX");
 
   if (m_correctPixelClusters) {
     ATH_MSG_INFO( " applying all corrections (lorentz, angle,  sag) to Pixel Clusters on converted tracks using RotCreatorTool");
@@ -1789,7 +1791,14 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   ATH_MSG_VERBOSE( " Module rows= " << design->rows() << " phiPitch= " << design->phiPitch() << " width= " << design->width() );
   ATH_MSG_VERBOSE( " columns = " << design->columns() << " etaPitch= " << design->etaPitch() <<  " length " << design->length());
 
-  int rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
+  int rawLocalPhiCoord;
+  
+  if (m_reverseIBLlocx && isBarrel && layer==0) {
+    rawLocalPhiCoord = 2680 -  raw_pixel_cluster.getRowCoord(); //335*8=2680
+  } else {
+    rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
+  }
+
   int rawLocalEtaCoord= raw_pixel_cluster.getColCoord();
 
   const InDetDD::SiCellId cornerCell(0, 0);
@@ -1798,6 +1807,8 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   const double eta0 = localPositionOfCornerCell.xEta();
 
   ATH_MSG_VERBOSE( " local position of pixel at (0,0) is "<<  phi0 << ",  " << eta0);
+
+
 
   // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
   // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns

@@ -198,19 +198,13 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   // xAOD vertex cache
   xAOD::VertexContainer* m_conv_vertex;
-  xAOD::VertexAuxContainer* m_conv_vertexAux;
   xAOD::VertexContainer* m_refit_vertex;
-  xAOD::VertexAuxContainer* m_refit_vertexAux;
 
   // for fast vertexing algorithm
   xAOD::VertexContainer* m_fast_vertex_raw;
-  xAOD::VertexAuxContainer* m_fast_vertex_rawAux;
   xAOD::VertexContainer* m_fast_vertex_conv;
-  xAOD::VertexAuxContainer* m_fast_vertex_convAux;
   xAOD::VertexContainer* m_fast_vertex_refit;
-  xAOD::VertexAuxContainer* m_fast_vertex_refitAux;
 
-  bool m_got_raw_vertex;
   bool m_got_conv_vertex;
   bool m_got_refit_vertex;
   bool m_got_fast_vertex_refit;
@@ -265,6 +259,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nFailedPixelClusters;
   std::vector<unsigned int> m_nMissingSCTClusters;
   std::vector<unsigned int> m_nMissingPixelClusters;
+
+  bool m_reverseIBLlocx;
 
 };
 

@@ -757,7 +757,10 @@ namespace TrigCostRootAnalysis {
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
-      _path = PathResolverFindDataFile(_file);
+      _path = PathResolverFindDataFile(_file); // Get from CALIB area
+      if (_path == Config::config().getStr(kBlankString)) { // One more place we can look
+        _path = std::string(Config::config().getStr(kAFSDataDir) + _file);
+      }
 #endif // not ROOTCORE
     }
 

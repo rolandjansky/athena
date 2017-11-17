@@ -39,7 +39,7 @@ namespace G4UA
 
       /// Standard constructor
       CosmicPerigeeActionTool(const std::string& type, const std::string& name,
-		       const IInterface* parent);
+		              const IInterface* parent);
 
 
       /// Retrieve the stepping action interface
@@ -58,17 +58,13 @@ namespace G4UA
       virtual IPreTrackingAction* getPreTrackingAction() override final
       { return static_cast<IPreTrackingAction*>( getAction() ); }
 
-
-      /// Query interface for gaudi
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
     protected:
 
       /// Create action for this thread
       virtual std::unique_ptr<CosmicPerigeeAction> makeAction() override final;
 
     private:
+
       /// Configuration parameters
       CosmicPerigeeAction::Config m_config;
 

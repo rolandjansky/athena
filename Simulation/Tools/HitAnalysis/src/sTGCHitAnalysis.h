@@ -36,20 +36,20 @@ class sTGCHitAnalysis : public AthAlgorithm {
 
   /** Some variables**/
 
-  TH2 *h_S_rz_A;
-  TH2 *h_S_rz_C;
-  TH2 *h_S_xy_A;
-  TH2 *h_S_xy_C;
-  TH2 *h_L_rz_A;
-  TH2 *h_L_rz_C;
-  TH2 *h_L_xy_A;
-  TH2 *h_L_xy_C;
-  TH2 *h_rz_A;
-  TH2 *h_rz_C;
-  TH2 *h_xy_A;
-  TH2 *h_xy_C;
-  TH1 *h_r_A;
-  TH1 *h_r_C;
+  TH2 *m_h_S_rz_A;
+  TH2 *m_h_S_rz_C;
+  TH2 *m_h_S_xy_A;
+  TH2 *m_h_S_xy_C;
+  TH2 *m_h_L_rz_A;
+  TH2 *m_h_L_rz_C;
+  TH2 *m_h_L_xy_A;
+  TH2 *m_h_L_xy_C;
+  TH2 *m_h_rz_A;
+  TH2 *m_h_rz_C;
+  TH2 *m_h_xy_A;
+  TH2 *m_h_xy_C;
+  TH1 *m_h_r_A;
+  TH1 *m_h_r_C;
 
   std::vector<float>* m_hits_x;
 

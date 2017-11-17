@@ -3,7 +3,7 @@
 echo 'Testing duplicate key upload'
 if [ $# -ge 1 ]; then
    type=$1
-   echo "Trying to upload Menu generated with tests with "${type}"_menu and "${type}"_rerun in name" 
+   echo "Compare upload of Menus generated with tests with "${type}"_menu and "${type}"_rerun in name" 
 else
    type=""
 fi
@@ -12,7 +12,6 @@ fi
 export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
-source $TDAQ_RELEASE_BASE/tdaq/$TDAQ_VERSION/installed/setup.sh $TDAQ_VERSION
 export PATH=$PATH:$TDAQ_JAVA_HOME/bin
 
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
@@ -39,28 +38,37 @@ l1menu=`find .  -name LVL1config_${stump}.xml`
 get_files -xmls -copy L1Topoconfig_"${stump}".xml 
 l1topo=`find .  -name L1Topoconfig_${stump}.xml`
 
-#prepare files for first key: l2 and ef menus are the same (full menu)
-hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
+# removing first upload from this test to reduce impact of atn walltime limitation (ATR-13768)
+# - depending on implementation in ART may want to be done explicitly here
+### #prepare files for first key: l2 and ef menus are the same (full menu)
+### hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
 
-
-# copy the setup files to the local directory to have tests independent of each other
-cp ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt .
-ConvertHLTSetup_txt2xml.py ef_Default_setup.txt ef_Default_setup_setup.txt > convertHLT1
-hlt__setup1=ef_Default_setup.xml
+# removing first upload from this test to reduce impact of atn walltime limitation (ATR-13768)
+# - Needs restoring if diff of setup files is re-enabled at the end of the test
+# - depending on implementation in ART may want to be done explicitly here
+### # copy the setup files to the local directory to have tests independent of each other
+### cp ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt .
+### ConvertHLTSetup_txt2xml.py ef_Default_setup.txt ef_Default_setup_setup.txt > convertHLT1
+### hlt__setup1=ef_Default_setup.xml
 
 # get dtd file for L1 menu
 get_files -xmls LVL1config.dtd
 
+# removing first upload from this test to reduce impact of atn walltime limitation (ATR-13768)
+# - depending on implementation in ART may want to be done explicitly here
+### #upload the first key
+### echo "upload the first key"
+### 
+### cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+### 
+### echo $cmd1
+### eval $cmd1 &> uploadSMK1.log
 
-#upload the first key
-echo "upload the first key"
-
-cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
-
-
-echo $cmd1
-eval $cmd1 &> uploadSMK1.log
-
+# with the first upload removed obtain the files from the test UploadMenuKeys
+echo "copy output from UploadMenuKeys test"
+cp ../UploadMenuKeys/uploadSMK.log uploadSMK1.log
+cp ../UploadMenuKeys/MenusKeys.txt .
+# now continue as if had done the first upload
 
 if [ ! -f MenusKeys.txt ]
 then
@@ -86,12 +94,10 @@ hlt__setup2=ef_Default_setup_rerun.xml
 #upload the second key
 echo "upload the second key"
 
-cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 echo $cmd2 "&> uploadSMK2.log"
 eval $cmd2 &> uploadSMK2.log
-
-
 
 if [ ! -f MenusKeys.txt ]
 then
@@ -104,14 +110,17 @@ fi
 
 mv MenusKeys.txt MenusKeys2.txt
 
+#now compare the results from the two uploads
+
 smk1=`grep SM MenusKeys1.txt | cut -f8 -d" "| cut -f1 -d":"`
 smk2=`grep SM MenusKeys2.txt | cut -f8 -d" "| cut -f1 -d":"`
 
+#file to save triggerTool diff output
 smkDiffFile=diff_smk_${smk1}_${smk2}.xml
 
-echo "diff key 1 vs key 2"
-#java -jar TriggerTool.jar -diff -smk1 $smk1 -smk2 $smk2 -name "AthenaP1test" -dbConn $DBConn -xml $smkDiffFile -w_n 50 -w_t 60
-cmd3="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -diff -smk1 $smk1 -smk2 $smk2 -name 'AthenaP1test' -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 50 -w_t 60"
+echo "use TriggerTool to diff key "${smk1}" vs key "${smk2}""
+cmd3="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -diff -smk1 $smk1 -smk2 $smk2 -name 'AthenaP1Test' -dbConn $DBConn -xml $smkDiffFile -w_n 50 -w_t 60"
+
 echo $cmd3 "&> uploadSMK3.log"
 eval $cmd3 &> uploadSMK3.log
 

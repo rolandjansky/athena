@@ -25,7 +25,6 @@ class TriggerElement;
 /**
  * @brief Hypo class for HLT b-jet selection.
  *
- * @author John Alison <johnda@uchicago.edu>
  * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
  *
  * This is the base hypothesis class for the b-jet selection. 
