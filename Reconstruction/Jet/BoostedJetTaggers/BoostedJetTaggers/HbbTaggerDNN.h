@@ -35,7 +35,7 @@ class HbbTaggerDNN :   public asg::AsgTool ,
 
    // the location where CVMFS files live
   std::string m_configFile;
-  // std::unique_ptr<lwt::LightweightGraph> m_lwnn;
+  std::unique_ptr<lwt::LightweightGraph> m_lwnn;
 
 };
 

@@ -6,7 +6,7 @@
 
 #include "PathResolver/PathResolver.h"
 
-// #include "lwtnn/LightweightGraph.hh"
+#include "lwtnn/LightweightGraph.hh"
 
 #include <fstream>
 
@@ -16,8 +16,8 @@ namespace {
 
 HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   asg::AsgTool(name),
-  m_configFile("")
-  // m_lwnn(nullptr)
+  m_configFile(""),
+  m_lwnn(nullptr)
   {
     declareProperty( "ConfigFile",   m_configFile="BoostedJetTaggers/HbbTaggerDNN/Boost2017/bullshit.json");
 }

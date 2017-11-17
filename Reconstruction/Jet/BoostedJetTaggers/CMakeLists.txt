@@ -37,7 +37,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
    Reconstruction/Jet/JetEDM
    ${extra_deps}
-   External/lwtnn
    #External/Asg_Boost
    )
 
@@ -45,14 +44,17 @@ atlas_depends_on_subdirs(
 find_package( FastJet )
 find_package( ROOT COMPONENTS Matrix RooFit TMVA )
 find_package( Boost )
+find_package( lwtnn )
 
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
   BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx
   Root/HbbTaggerDNN.cxx
    PUBLIC_HEADERS BoostedJetTaggers
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools 
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
+   ${LWTNN_LIBRARIES}
+   AsgTools 
    xAODBase xAODJet JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib 
    MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces 
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
