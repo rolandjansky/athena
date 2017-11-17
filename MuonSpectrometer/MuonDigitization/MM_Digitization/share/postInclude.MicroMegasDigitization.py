@@ -13,7 +13,7 @@ if digitizationFlags.doXingByXingPileUp():
      MMdigitization = job.PileUpToolsAlg.PileUpTools[ "MmDigitizationTool" ]
 else:
      from MM_Digitization.MM_DigitizationConf import MmDigitizationTool as MMdigitization
-     MMdigitization.RndmSvc = jobproperties.Digitization.rndmSvc.get_Value()
+     MMdigitization.RndmSvc = jobproperties.Digitization.rndmSvc.getValue()
      MMdigitization.RndmEngine = "MM_Digitization"
      MMdigitization.InputObjectName = "MicromegasSensitiveDetector" 
      MMdigitization.OutputObjectName = "MM_DIGITS"

@@ -127,18 +127,18 @@ public :
   inline void setStripResponse_driftGapWidth (float val) { m_stripResponse_driftGapWidth = val; };
 
 
-  float get_peakTime() const { return m_peakTime;};
-  float get_alpha() const { return m_alpha;};
-  float get_timeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
-  float get_timeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
-  float get_electronicsThreshold() const { return m_electronicsThreshold;};
-  float get_stripdeadtime() const { return m_stripdeadtime;};
-  float get_ARTdeadtime() const { return m_ARTdeadtime;};
+  float getPeakTime() const { return m_peakTime;};
+  float getAlpha() const { return m_alpha;};
+  float getTimeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
+  float getTimeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
+  float getElectronicsThreshold() const { return m_electronicsThreshold;};
+  float getStripdeadtime() const { return m_stripdeadtime;};
+  float getARTdeadtime() const { return m_ARTdeadtime;};
 
 
-  vector <float>  get_tStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
-  vector <float>  get_qStripElectronics () const { return qStripElectronics;};
-  vector <int>    get_nStripElectronics () const { return nStripElectronics;};
+  vector <float>  getTStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
+  vector <float>  getQStripElectronics () const { return qStripElectronics;};
+  vector <int>    getNStripElectronics () const { return nStripElectronics;};
 
 
 };

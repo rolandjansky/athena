@@ -146,17 +146,17 @@ public :
 
   // inline void setOutputFile( TFile& m_file ){  m_outputFile = &m_file; };
 
-  float get_qThreshold    () const { return m_qThreshold;      };
-  float get_driftGapWidth () const { return m_driftGapWidth;   };
-  float get_driftVelocity () const { return m_driftVelocity;   };
+  float getQThreshold    () const { return m_qThreshold;      };
+  float getDriftGapWidth () const { return m_driftGapWidth;   };
+  float getDriftVelocity () const { return m_driftVelocity;   };
 
-  vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
-  vector <float> get_qStripElectronics() const { return qStripElectronics;};
-  vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
-  vector < vector <float> > get_finalqStrip() const { return finalqStrip;};
-  vector < vector <float> > get_finaltStrip() const { return finaltStrip;};
-  vector <int>   get_nStripElectronics() const { return nStripElectronics;};
-  vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
+  vector <float> getTStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
+  vector <float> getQStripElectronics() const { return qStripElectronics;};
+  vector <float> getFinaltStripNoSlewing() const { return finaltStripNoSlewing;};
+  vector < vector <float> > getFinalqStrip() const { return finalqStrip;};
+  vector < vector <float> > getFinaltStrip() const { return finaltStrip;};
+  vector <int>   getNStripElectronics() const { return nStripElectronics;};
+  vector <int>   getFinalNumberofStrip() const { return finalNumberofStrip;};
 
   vector <int>   finalNumberofStrip;
   vector <int>   nStripElectronics;

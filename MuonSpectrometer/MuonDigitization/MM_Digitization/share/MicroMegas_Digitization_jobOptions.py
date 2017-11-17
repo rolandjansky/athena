@@ -8,7 +8,7 @@ from Digitization.DigitizationFlags import jobproperties
 job += CfgGetter.getAlgorithm("MM_Digitizer/MM_Digitizer", tryDefaultConfigurable=True) 
 from MM_Digitization.MM_DigitizationConf import MmDigitizationTool
 MmDigitizationTool = MmDigitizationTool("MmDigitizationTool", 
-                                        RndmSvc = jobproperties.Digitization.rndmSvc.get_Value(),
+                                        RndmSvc = jobproperties.Digitization.rndmSvc.getValue(),
                                         RndmEngine = "MM_Digitization",
                                         InputObjectName = "MicromegasSensitiveDetector", 
                                         OutputObjectName = "MM_DIGITS", 
