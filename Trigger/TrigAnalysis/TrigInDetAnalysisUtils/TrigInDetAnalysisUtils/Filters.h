@@ -281,35 +281,16 @@ public:
 
 	TIDARoiDescriptor::exitpoint( t->z0(), t->eta(), zexit, rexit );
 
-	/// rather complicated conditions to determine whether a track is  
-	/// fully contained in the Roi or not
+	/// full check to determine whether a track is  
+	/// fully contained in the Roi or not (when used in conjunction 
+	/// with contained_zed above)
  
-	contained_eta = true;
+	double cross0 = zexit*r->rMinusZed() - rexit*r->zedMinusR();
+	double cross1 = zexit*r->rPlusZed()  - rexit*r->zedPlusR(); 
 
-	if ( zexit<r->zedMinusR() ) contained_eta = false; 
+	if ( cross0>0 && cross1<0 ) contained_eta=true;
+	else                        contained_eta=false;
 
-	if ( r->rMinusZed()<r->maxR() ) { 
-	  if ( r->etaMinus()<0 ) { 
-	    if ( zexit<0 && rexit<r->rMinusZed() ) contained_eta = false;
-	  }
-	  else if ( r->etaMinus()>0 ) { 
-	    if ( zexit>0 && rexit>r->rMinusZed() ) contained_eta = false;
-	  }
-	  else contained_eta = false;
-	}
-	
-	if ( zexit>r->zedPlusR() ) contained_eta = false; 
-
-	if ( r->rPlusZed()<r->maxR() ) { 
-	  if ( r->etaPlus()<0 ) { 
-	    if ( zexit<0 && rexit>r->rPlusZed() ) contained_eta = false;
-	  }
-	  else if ( r->etaPlus()>0 ) { 
-	    if ( zexit>0 && rexit<r->rPlusZed() ) contained_eta = false;
-	  }
-	  else contained_eta = false;
-	}
-	
 	/// now check phi taking account of the track transverse curvature
 
 	double newphi = outerphi( t->pT(), t->phi(), rexit );
