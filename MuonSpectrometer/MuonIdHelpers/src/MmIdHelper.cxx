@@ -275,7 +275,7 @@ int MmIdHelper::init_id_to_hashes() {
   return 0;
 }  //end MmIdHelper::init_id_to_hashes()
 /*******************************************************************************/ 
-int MmIdHelper::getModule_hash(const Identifier& id, IdentifierHash& hash_id) const {
+int MmIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id) const {
   //Identifier moduleId = elementID(id);
   //IdContext context = module_context();
   //return get_hash(moduleId,hash_id,&context);
@@ -284,16 +284,16 @@ int MmIdHelper::getModule_hash(const Identifier& id, IdentifierHash& hash_id) co
   int phi       = this->stationPhi(id);
   hash_id       = m_module_hashes[station][eta-1][phi-1];
   return 0;
-}  //end MmIdHelper::getModule_hash
+}  //end MmIdHelper::get_module_hash
 /*******************************************************************************/ 
-int MmIdHelper::getDetectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const {
+int MmIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const {
   int station    = this->stationName(id);
   int eta        = this->stationEta(id) + 10; // for negative eta
   int phi        = this->stationPhi(id);
   int multilayer = this->multilayer(id);
   hash_id        = m_detectorElement_hashes[station][eta-1][phi-1][multilayer-1];
   return 0;
-  // return this->getModule_hash(id, hash_id);
+  // return this->get_module_hash(id, hash_id);
 }
 /*******************************************************************************/ 
 Identifier MmIdHelper::multilayerID(const Identifier& channelID) const {

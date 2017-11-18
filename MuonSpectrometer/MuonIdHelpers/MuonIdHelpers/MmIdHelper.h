@@ -67,8 +67,8 @@ class MmIdHelper : public MuonIdHelper {
 
   /// Initialization from the identifier dictionary
   virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
-  virtual int getModule_hash(const Identifier& id, IdentifierHash& hash_id ) const;
-  virtual int getDetectorElement_hash(const Identifier& id, IdentifierHash& hash_id ) const;
+  virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id ) const;
+  virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id ) const;
 
   ///////////// compact identifier stuff ends   ////////////////////////////////////// 
 
