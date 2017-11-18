@@ -195,7 +195,9 @@ namespace ana
     // Set up the muon trigger scale factor tools - separate tools for each year
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_mu_trig_sf2015, CP::MuonTriggerScaleFactors));
     ATH_CHECK (m_mu_trig_sf2015.setProperty("MuonQuality", m_muon_wp));
-    ATH_CHECK (m_mu_trig_sf2015.setProperty("Year", "2015"));
+    // this property is no longer existing, I'm unclear if there is
+    // something else in its stead.
+    // ATH_CHECK (m_mu_trig_sf2015.setProperty("Year", "2015"));
     ATH_CHECK (m_mu_trig_sf2015.setProperty("AllowZeroSF", true));
     ATH_CHECK (m_mu_trig_sf2015.initialize());
     registerTool(&*m_mu_trig_sf2015);
