@@ -310,7 +310,7 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
   outputTE->setActiveState(true);
 
-  string key;
+  std::string key;
   
   if (m_c->m_instance == "_EF" || m_c->m_instance == "_HLT" ) key = "EFHistoPrmVtx";
 
