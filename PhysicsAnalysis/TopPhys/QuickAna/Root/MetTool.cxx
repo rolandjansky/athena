@@ -190,7 +190,8 @@ namespace ana
       if (!m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile","") );
       // No calo soft term systematics recommendations, so an empty string for now
       if (m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftCaloFile", "") );
-      if (m_doTrackMET) ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile","JetTrackSyst.config") );
+      // not sure what this should be, commenting it out for now.
+      // if (m_doTrackMET) ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile","JetTrackSyst.config") );
       // No other non-default settings
       ATH_CHECK( m_metSystTool.initialize() );
       registerTool(&*m_metSystTool);
