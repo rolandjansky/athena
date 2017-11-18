@@ -962,7 +962,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			IdentifierHash hash;
 			// contain (name, eta, phi, multiPlet)
-			m_idHelper->getDetectorElement_hash(layid, hash);
+			m_idHelper->get_detectorElement_hash(layid, hash);
 			// ATH_MSG_DEBUG(" looking up collection using hash " << (int)hash << " " << m_idHelper->print_to_string(layid) );
 
 			const MuonGM::MuonChannelDesign* mmChannelDes = detEl->getDesign(DigitId);
@@ -1114,7 +1114,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			IdentifierHash detIdhash ;
 			// set RE hash id
 			const Identifier elemId = m_idHelper -> elementID(StripdigitOutputAllhits.DigitId());
-			int gethash_code = m_idHelper->getDetectorElement_hash(elemId, detIdhash);
+			int gethash_code = m_idHelper->get_detectorElement_hash(elemId, detIdhash);
 			if (gethash_code != 0) {
 				ATH_MSG_ERROR ( "MmDigitizationTool --  collection hash Id NOT computed for id = " << m_idHelper->show_to_string(elemId) );
 			// continue;
