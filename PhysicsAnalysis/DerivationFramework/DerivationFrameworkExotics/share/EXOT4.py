@@ -371,8 +371,7 @@ thinningTools.append(EXOT4ElectronCCThinningTool)
 #                                                                       ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
 #                                                                       SGKey                   = "CamKt15LCTopoJets",
 #                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
-#                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV",
-#                                                                       ConeSize                = 0)
+#                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV")
 #ToolSvc += EXOT4CA15CCThinningTool
 #thinningTools.append(EXOT4CA15CCThinningTool)
 
@@ -383,8 +382,7 @@ EXOT4Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name      
                                                                        ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                       SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV",
-                                                                       ConeSize                = 0)
+                                                                       SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV")
 ToolSvc += EXOT4Ak10CCThinningTool
 thinningTools.append(EXOT4Ak10CCThinningTool)
 

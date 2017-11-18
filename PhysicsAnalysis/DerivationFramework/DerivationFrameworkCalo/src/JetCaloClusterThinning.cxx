@@ -35,7 +35,6 @@ m_npassTopo(0),
 m_sgKey(""),
 m_TopoClSGKey("CaloCalTopoCluster"),
 m_selectionString(""),
-m_coneSize(-1.0),
 m_and(false),
 m_parser(0)
 {
@@ -44,7 +43,7 @@ m_parser(0)
     declareProperty("SGKey", m_sgKey);
     declareProperty("TopoClCollectionSGKey", m_TopoClSGKey);
     declareProperty("SelectionString", m_selectionString);
-    declareProperty("ConeSize", m_coneSize);
+    declareProperty("AdditionalClustersKey"  , m_addClustersSGKey);
     declareProperty("ApplyAnd", m_and); 
 }
 
@@ -102,16 +101,27 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
         return StatusCode::FAILURE;
     }
     
-    // Check the event contains tracks
+    // retrieve additional topocluster container(s)
+    std::vector< const xAOD::CaloClusterContainer* > additionalTopoCaloCluster;
+    for (auto name : m_addClustersSGKey) {
+      const xAOD::CaloClusterContainer* tempTopoCaloCluster;
+      if (evtStore()->retrieve(tempTopoCaloCluster,name).isFailure()) {
+        ATH_MSG_ERROR("No CalCaloTopo collection with name " << name << " found in StoreGate!");
+        return StatusCode::FAILURE;
+      }
+      additionalTopoCaloCluster.push_back(tempTopoCaloCluster);
+    }
+    
+    // Check the event contains topoclusters
     unsigned int nTopoClusters = importedTopoCaloCluster->size();
     if (nTopoClusters==0) return StatusCode::SUCCESS;
 
-    // Set up a mask with the same entries as the full TrackParticle collection(s)
+    // Set up a mask with the same entries as the full topocluster collection(s)
     std::vector<bool> topomask;
     topomask.assign(nTopoClusters,false);
     m_ntotTopo += nTopoClusters;
     
-    // Retrieve e-gamma container
+    // Retrieve jet container
     const xAOD::JetContainer* importedJet(0);
     if (evtStore()->retrieve(importedJet,m_sgKey).isFailure()) {
         ATH_MSG_ERROR("No jet collection with name " << m_sgKey << " found in StoreGate!");
@@ -130,16 +140,16 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
         	ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used jets objects??");
             return StatusCode::FAILURE;
         } else {
-        	// identify which e-gammas to keep for the thinning check
+        	// identify which jets to keep for the thinning check
         	for (unsigned int i=0; i<nJets; ++i) if (entries[i]==1) jetToCheck.push_back((*importedJet)[i]);
         }
     }
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
     if (m_selectionString=="") { // check all objects as user didn't provide a selection string
-       	setJetClustersMask(topomask, importedJet, importedTopoCaloCluster);
+       	setJetClustersMask(topomask, importedJet);
     } else {
-       	setJetClustersMask(topomask, jetToCheck, importedTopoCaloCluster);
+       	setJetClustersMask(topomask, jetToCheck);
     }
     
     // Count up the mask contents
@@ -153,70 +163,55 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
         	ATH_MSG_ERROR("Application of thinning service failed! ");
         	return StatusCode::FAILURE;
     	}
+        if(additionalTopoCaloCluster.size()>0){
+            for (auto addColl : additionalTopoCaloCluster) {
+                if (m_thinningSvc->filter(*addColl, topomask, IThinningSvc::Operator::And).isFailure()) {
+                    ATH_MSG_ERROR("Application of thinning service failed! ");
+                    return StatusCode::FAILURE;
+                }
+            }            
+        }
     }
     if (!m_and) {
         if (m_thinningSvc->filter(*importedTopoCaloCluster, topomask, IThinningSvc::Operator::Or).isFailure()) {
         	ATH_MSG_ERROR("Application of thinning service failed! ");
         	return StatusCode::FAILURE;
     	}
+        if(additionalTopoCaloCluster.size()>0){
+            for (auto addColl : additionalTopoCaloCluster) {
+                if (m_thinningSvc->filter(*addColl, topomask, IThinningSvc::Operator::Or).isFailure()) {
+                    ATH_MSG_ERROR("Application of thinning service failed! ");
+                    return StatusCode::FAILURE;
+                }
+            }            
+        }
     }
     
     return StatusCode::SUCCESS;
 }
 
 void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector<bool>& mask,
-                                                                      const xAOD::JetContainer*& jets,
-                                                                      const xAOD::CaloClusterContainer*& cps
+                                                                      const xAOD::JetContainer*& jets
                                                                       ) const {
-    for (xAOD::JetContainer::const_iterator jetIt=jets->begin(); jetIt!=jets->end(); ++jetIt) {
-        const xAOD::Jet* jet = dynamic_cast<const xAOD::Jet*>(*jetIt);
-        if (jet) select(jet, m_coneSize, cps, mask); // check clusters amongst constituents
+    for(auto jet : *jets){
+        for( size_t j = 0; j < jet->numConstituents(); ++j ) {
+            auto constit = jet->constituentLinks().at(j);
+            int index = constit.index();
+            mask[index] = true;
+        }
     }
-
     return;
 }
 
 void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector<bool>& mask,
-                                                                      std::vector<const xAOD::Jet*>& jets,
-                                                                      const xAOD::CaloClusterContainer*& cps
+                                                                      std::vector<const xAOD::Jet*>& jets
                                                                       ) const {
-    for (std::vector<const xAOD::Jet*>::iterator jetIt=jets.begin(); jetIt!=jets.end(); ++jetIt) {
-        const xAOD::Jet* jet = dynamic_cast<const xAOD::Jet*>(*jetIt);
-        if (jet) select(jet, m_coneSize, cps, mask); // check clusters amongst constituents
-    }
-    return;
-}
-
-void DerivationFramework::JetCaloClusterThinning::select(const xAOD::Jet* particle,
-                                                         float coneSize,
-                                                         const xAOD::CaloClusterContainer* clusters,
-                                                         std::vector<bool> &mask) const {
-    xAOD::JetConstituentVector vec = particle->getConstituents();
-    xAOD::JetConstituentVector::iterator it = vec.begin();
-    xAOD::JetConstituentVector::iterator itE = vec.end();
-    for (; it != itE; ++it) {
-        unsigned int i(0);
-        for (xAOD::CaloClusterContainer::const_iterator clIt = clusters->begin(); clIt!=clusters->end(); ++clIt, ++i) {
-            float deltaEta = (*clIt)->eta() - (*it)->eta();
-            float deltaPhi = fabs((*clIt)->phi() - (*it)->phi());
-            if (deltaPhi > TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;
-            float deltaR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
-            if (deltaR < 0.05) mask[i] = true;
-        }
-    }
-    if (coneSize > 0) {
-        unsigned int i(0);
-        float particleEta = particle->eta();
-        float particlePhi = particle->phi();
-        for (xAOD::CaloClusterContainer::const_iterator clIt = clusters->begin(); clIt!=clusters->end(); ++clIt, ++i) {
-            float deltaEta = (*clIt)->eta() - particleEta;
-            float deltaPhi = fabs((*clIt)->phi() - particlePhi);
-            if (deltaPhi > TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;
-            float deltaR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
-            if (deltaR < coneSize) mask[i] = true;
+    for(auto jet : jets){
+        for( size_t j = 0; j < jet->numConstituents(); ++j ) {
+            auto constit = jet->constituentLinks().at(j);
+            int index = constit.index();
+            mask[index] = true;
         }
     }
     return;
 }
-
-

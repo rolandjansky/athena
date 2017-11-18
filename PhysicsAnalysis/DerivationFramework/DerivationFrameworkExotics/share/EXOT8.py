@@ -67,7 +67,7 @@ EXOT8Ak10r2CCThinningTool = DerivationFramework__JetCaloClusterThinning(name    
                                                                         SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                         TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                         SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV",
-                                                                        ConeSize                = 0)
+                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT8Ak10r2CCThinningTool
 thinningTools.append(EXOT8Ak10r2CCThinningTool)
 
