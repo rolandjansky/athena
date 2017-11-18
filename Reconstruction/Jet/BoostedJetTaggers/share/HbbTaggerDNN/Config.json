@@ -1,0 +1,11 @@
+{
+    "subjet": {
+        "collection": "GhostAntiKt2TrackJet",
+        "number": 2,
+        "prefix": "subjet"
+    },
+    "btag": {
+        "doubles": ["MV2c10_discriminant"],
+        "ints": [], "floats": []
+    }
+}

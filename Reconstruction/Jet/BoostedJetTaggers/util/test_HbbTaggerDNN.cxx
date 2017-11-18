@@ -150,9 +150,10 @@ int main( int argc, char* argv[] ) {
   std::cout<<"Initializing Hbb Tagger"<<std::endl;
   asg::AnaToolHandle<IJetSelector> m_Tagger; //!
   m_Tagger.setTypeAndName("HbbTaggerDNN","HbbTaggerDNN");
-  // m_Tagger.setName("MyTagger");
+
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/6JuneWTaggingContained.json");
+  m_Tagger.setProperty( "ConfigFile",   "Network.json");
+  m_Tagger.setProperty( "VariableMapFile", "Config.json");
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;

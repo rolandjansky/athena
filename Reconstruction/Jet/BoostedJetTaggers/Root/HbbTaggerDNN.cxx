@@ -6,21 +6,45 @@
 
 #include "PathResolver/PathResolver.h"
 
+// nn stuff
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/Exceptions.hh"
 #include "boost/property_tree/exceptions.hpp"
 
+// to parse the input file
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 #include <fstream>
 
-namespace {
-  const static std::string APP_NAME = "HbbTaggerDNN";
-}
+// internal class
+class InputMapBuilder
+{
+public:
+  InputMapBuilder(const std::string& map_file);
+  typedef std::map<std::string, std::map<std::string, double> > VMap;
+  VMap get_map(const xAOD::Jet&);
+private:
+  typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
+  SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
+  int m_n_subjets;
+  std::string m_subjet_prefix;
+  typedef SG::AuxElement::ConstAccessor<float> FloatAcc;
+  typedef SG::AuxElement::ConstAccessor<double> DoubleAcc;
+  typedef SG::AuxElement::ConstAccessor<int> IntAcc;
+  std::vector<std::pair<std::string, FloatAcc> > m_acc_btag_floats;
+  std::vector<std::pair<std::string, DoubleAcc> > m_acc_btag_doubles;
+  std::vector<std::pair<std::string, IntAcc> > m_acc_btag_ints;
+};
+
 
 HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   asg::AsgTool(name),
   m_configFile(""),
+  m_variableMapFile(""),
   m_lwnn(nullptr),
+  m_input_builder(nullptr),
   m_tag_threshold(INFINITY),
   m_output_node_name(""),
   m_output_value_name(""),
@@ -28,6 +52,7 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_decorator("")
 {
   declareProperty( "ConfigFile",   m_configFile);
+  declareProperty( "VariableMapFile",   m_variableMapFile);
   declareProperty( "ScoreCut", m_tag_threshold);
   declareProperty( "Decoration", m_decoration_name);
 }
@@ -36,47 +61,43 @@ HbbTaggerDNN::~HbbTaggerDNN() {}
 
 StatusCode HbbTaggerDNN::initialize(){
 
-  /* Initialize the DNN tagger tool */
-  ATH_MSG_INFO(APP_NAME+": Initializing HbbTaggerDNN tool");
-  ATH_MSG_INFO(APP_NAME+": Using config file :"+m_configFile);
+  // Initialize the DNN tagger tool
+  ATH_MSG_INFO("Initializing HbbTaggerDNN tool");
 
-  // find the config file
-  if( m_configFile.empty() ) {
-    ATH_MSG_ERROR( "No config file provided" ) ;
+  // setup the input builder
+  ATH_MSG_INFO( "Using variable map: "<< m_variableMapFile );
+  std::string var_map_file = PathResolverFindDataFile(m_variableMapFile);
+  ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
+  try {
+    m_input_builder.reset(new InputMapBuilder(var_map_file));
+  } catch (boost::property_tree::ptree_error& err) {
+    ATH_MSG_ERROR("Config file is garbage");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO( "Using config file : "<< m_configFile );
-  std::string configPath;
-  configPath = PathResolverFindCalibFile(m_configFile.c_str());
 
   // read json file for DNN weights
-  ATH_MSG_INFO(APP_NAME + ": DNN Tagger configured with: " + configPath);
-  std::ifstream input_cfg( configPath );
-  if(input_cfg.is_open()==false){
-    ATH_MSG_INFO(APP_NAME + ": Error openning config file : "+ configPath);
-    ATH_MSG_INFO(APP_NAME+": Are you sure that the file exists?" );
-    return StatusCode::FAILURE;
-  }
-
-  // parse the configuration file and build the network
+  ATH_MSG_INFO("Using NN file: "+ m_configFile);
+  std::string configPath = PathResolverFindCalibFile(m_configFile);
+  ATH_MSG_INFO("NN file resolved to: " + configPath);
   lwt::GraphConfig config;
   try {
+    std::ifstream input_cfg( configPath );
     config = lwt::parse_json_graph(input_cfg);
   } catch (boost::property_tree::ptree_error& err) {
-    ATH_MSG_ERROR(APP_NAME + ": Input file is garbage");
+    ATH_MSG_ERROR("NN file is garbage");
     return StatusCode::FAILURE;
   }
   if (config.outputs.size() != 1) {
-    ATH_MSG_ERROR(APP_NAME + ": Graph needs one output node");
+    ATH_MSG_ERROR("Graph needs one output node");
     return StatusCode::FAILURE;
   }
   m_output_node_name = config.outputs.begin()->first;
   auto out_names = config.outputs.at(m_output_node_name).labels;
   if (out_names.size() != 1) {
-    ATH_MSG_ERROR(APP_NAME + ": Graph needs one output value");
+    ATH_MSG_ERROR("Graph needs one output value");
     return StatusCode::FAILURE;
   }
-  m_output_value_name = out_names.at(1);
+  m_output_value_name = out_names.at(0);
   try {
     m_lwnn.reset(new lwt::LightweightGraph(config));
   } catch (lwt::NNConfigurationException& exc) {
@@ -119,6 +140,31 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
 
 void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
   m_decorator(jet) = getScore(jet);
+}
+
+// Input map builder implementation
+//
+InputMapBuilder::InputMapBuilder(const std::string& input_file):
+  m_acc_subjets("catKittyCat")
+{
+  boost::property_tree::ptree pt;
+  boost::property_tree::read_json(input_file, pt);
+  auto sjets = pt.get<std::string>("subjet.collection");
+  m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
+  m_n_subjets = pt.get<int>("subjet.number");
+  m_subjet_prefix = pt.get<std::string>("subjet.prefix");
+  for (auto& var: pt.get_child("btag.floats")) {
+    std::string name = var.second.data();
+    m_acc_btag_floats.emplace_back(name, name);
+  }
+  for (auto& var: pt.get_child("btag.doubles")) {
+    std::string name = var.second.data();
+    m_acc_btag_doubles.emplace_back(name, name);
+  }
+  for (auto& var: pt.get_child("btag.ints")) {
+    std::string name = var.second.data();
+    m_acc_btag_ints.emplace_back(name, name);
+  }
 }
 
 /*

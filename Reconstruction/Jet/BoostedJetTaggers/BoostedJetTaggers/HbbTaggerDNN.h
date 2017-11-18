@@ -14,6 +14,8 @@ namespace lwt {
   class LightweightGraph;
 }
 
+class InputMapBuilder;
+
 class HbbTaggerDNN :   public asg::AsgTool ,
                        virtual public IJetSelector
 {
@@ -30,7 +32,9 @@ public:
 protected:
    // the location where CVMFS files live
   std::string m_configFile;
+  std::string m_variableMapFile;
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
+  std::unique_ptr<InputMapBuilder> m_input_builder;
 
   // threshold to cut on for keep()
   // default is INFINITY (i.e. tag no jets)
