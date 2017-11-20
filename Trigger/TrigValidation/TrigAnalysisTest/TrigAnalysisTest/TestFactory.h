@@ -7,8 +7,8 @@
 // a test. Meant to run in both Athena and RootCore environments.
 //
 
-#ifndef __TestFactory__
-#define __TestFactory__
+#ifndef TRIGANALYSISTEST_TESTFACTORY_H
+#define TRIGANALYSISTEST_TESTFACTORY_H
 
 #include "TrigAnalysisTest/ITest.h"
 
