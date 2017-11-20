@@ -287,7 +287,7 @@ EXOT7SlimmingHelper.ExtraVariables = EXOT7ExtraVariables
 EXOT7SlimmingHelper.AllVariables = EXOT7AllVariables
 addMETOutputs(EXOT7SlimmingHelper, ["Track", "EXOT7"], ["AntiKt4EMTopo"])
 addJetOutputs(EXOT7SlimmingHelper, ["EXOT7"])
-addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = True)
+addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = False)
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']
 if globalflags.DataSource()=='geant4':
   listJets.append('AntiKt10TruthTrimmedPtFrac5SmallR20Jets')
