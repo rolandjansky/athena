@@ -270,53 +270,6 @@ StatusCode MmDigitizationTool::initialize() {
 	//  m_PoissonDist = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int);
 
 
-	// initialize transient event store
-	if (m_sgSvc.retrieve().isFailure()) {
-		ATH_MSG_FATAL ( "Could not retrieve StoreGateSvc!" );
-		return StatusCode::FAILURE;
-	}
-	ATH_MSG_DEBUG ( "Retrieved StoreGateSvc." );
-
-	status = service("ActiveStoreSvc", m_activeStore);
-	if ( !status.isSuccess() ) {
-		ATH_MSG_FATAL ( "Could not get active store service" );
-		return status;
-	}
-
-	// initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-	StoreGateSvc* detStore=0;
-	m_MuonGeoMgr=0;
-	status = serviceLocator()->service("DetectorStore", detStore);
-	if (status.isSuccess()) {
-		if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
-
-			status = detStore->retrieve(m_MuonGeoMgr);
-			if (status.isFailure()) {
-				ATH_MSG_FATAL ( "Could not retrieve MuonGeoModelDetectorManager!" );
-				return status;
-			}
-			else {
-				ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-	//initialize the MmIdHelper
-				m_idHelper  = m_MuonGeoMgr->mmIdHelper();
-				if(!m_idHelper) return status;
-				ATH_MSG_DEBUG ( "Retrieved MmIdHelper " << m_idHelper );
-			}
-		}
-	}
-	else {
-		ATH_MSG_FATAL ( "Could not retrieve DetectorStore!" );
-		return status;
-	}
-
-	// Magnetic field service
-	if (m_magFieldSvc.retrieve().isFailure()){
-		ATH_MSG_ERROR("Could not get " << m_magFieldSvc);
-		return StatusCode::FAILURE;
-	} else {
-		ATH_MSG_DEBUG ( "Retrieved MagFieldSvc." );
-	}
-
 	// check the input object name
 	if (m_inputObjectName=="") {
 		ATH_MSG_FATAL ( "Property InputObjectName not set !" );
@@ -335,38 +288,36 @@ StatusCode MmDigitizationTool::initialize() {
 		ATH_MSG_DEBUG ( "Output digits: '" << m_outputObjectName << "'" );
 	}
 
+
+	// initialize transient event store
+	ATH_CHECK(m_sgSvc.retrieve());
+	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
+
+	// initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
+	StoreGateSvc* detStore=0;
+	m_MuonGeoMgr=0;
+	ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
+	if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
+		ATH_CHECK( detStore->retrieve(m_MuonGeoMgr) );
+		ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
+		m_idHelper = m_MuonGeoMgr->mmIdHelper();
+		ATH_MSG_DEBUG ( "Retrieved MmIdHelper " << m_idHelper );
+	}
+
+	// Magnetic field service
+	ATH_CHECK( m_magFieldSvc.retrieve() );
+	ATH_CHECK( m_digitTool.retrieve() );
+	ATH_CHECK( m_rndmSvc.retrieve() );
+
+
 	//initialize the digit container
-	try{
-		m_digitContainer = new MmDigitContainer(m_idHelper->detectorElement_hash_max());
-	}
-	catch(std::bad_alloc){
-		ATH_MSG_FATAL ( "Could not create a new MicroMegas DigitContainer!" );
-		return StatusCode::FAILURE;
-	}
+	m_digitContainer = new MmDigitContainer(m_idHelper->detectorElement_hash_max());
 	m_digitContainer->addRef();
 
 	//simulation identifier helper
-	muonHelper = MicromegasHitIdHelper::GetHelper();
+	m_muonHelper = MicromegasHitIdHelper::GetHelper();
 
-	//get the r->t conversion tool
-	status  = m_digitTool.retrieve();
-	if( status.isFailure() ) {
-		ATH_MSG_FATAL("Could not retrieve digitization tool! " << m_digitTool);
-		return StatusCode::FAILURE;
-	}
-	else {
-		ATH_MSG_DEBUG("Retrieved digitization tool!" << m_digitTool);
-	}
-
-	if (!m_rndmSvc.retrieve().isSuccess()) {
-		ATH_MSG_ERROR("Could not initialize Random Number Service");
-	}
-
-	// getting our random numbers stream
 	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-	if (!m_rndmSvc.retrieve().isSuccess()){
-		ATH_MSG_ERROR("Could not initialize Random Number Service");
-	}
 	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
 	if (m_rndmEngine==0) {
 		ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
@@ -374,11 +325,7 @@ StatusCode MmDigitizationTool::initialize() {
 	}
 
 	//locate the PileUpMergeSvc and initialize our local ptr
-	const bool CREATEIF(true);
-	if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() || 0 == m_mergeSvc) {
-		ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
 
 	// Validation File Output
 	if (m_writeOutputFile){
@@ -484,10 +431,7 @@ StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 		PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
 
 		const GenericMuonSimHitCollection* seHitColl = 0;
-		if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-			ATH_MSG_ERROR ( "SubEvent MicroMegas SimHitCollection not found in StoreGate " << seStore.name() );
-			return StatusCode::FAILURE;
-		}
+		ATH_CHECK( seStore.retrieve(seHitColl,m_inputObjectName) );
 		ATH_MSG_VERBOSE ( "MicroMegas SimHitCollection found with " << seHitColl->size() << " hits" );
 
 		const double timeOfBCID(static_cast<double>(iEvt->time()));
@@ -521,16 +465,8 @@ StatusCode MmDigitizationTool::getNextEvent() {
 	ATH_MSG_DEBUG ( "MmDigitizationTool::getNextEvent()" );
 
 	if (!m_mergeSvc) {
-		const bool CREATEIF(true);
-		if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-			0 == m_mergeSvc) {
-			ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-		return StatusCode::FAILURE;
-		}
+		ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
 	}
-
-	// initialize pointer
-	//m_timedHitCollection_MM = 0;
 
 	//  get the container(s)
 	typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
@@ -538,10 +474,7 @@ StatusCode MmDigitizationTool::getNextEvent() {
 	//this is a list<info<time_t, DataLink<GenericMuonSimHitCollection> > >
 	TimedHitCollList hitCollList;
 
-	if (!(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList).isSuccess()) ) {
-		ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList) );
 	if (hitCollList.size()==0) {
 		ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
 		return StatusCode::FAILURE;
@@ -581,14 +514,8 @@ StatusCode MmDigitizationTool::mergeEvent() {
 	// ATH_MSG_DEBUG ( "MmDigitizationTool::in mergeEvent()" );
 
 	// Cleanup and record the Digit container in StoreGate
-	status = recordDigitAndSdoContainers();
-	if(!status.isSuccess()) {
-		ATH_MSG_FATAL("MMDigitizationTool::recordDigitAndSdoContainers failed.");
-		return StatusCode::FAILURE;
-	}
-
-	status = doDigitization();
-	if (status.isFailure()) { ATH_MSG_ERROR ( "doDigitization Failed" );  return StatusCode::FAILURE; }
+	ATH_CHECK( recordDigitAndSdoContainers() );
+	ATH_CHECK( doDigitization() );
 
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
@@ -625,19 +552,9 @@ StatusCode MmDigitizationTool::processAllSubEvents() {
 
 	//merging of the hit collection in getNextEvent method
 
-	if (0 == m_timedHitCollection_MM ) {
-		status = getNextEvent();
-		if(status.isFailure()) {
-			ATH_MSG_FATAL( "There are no MicroMegas hits in this event" );
-			return StatusCode::FAILURE;
-		}
-	}
+	if (0 == m_timedHitCollection_MM ) ATH_CHECK( getNextEvent() );
 
-	status = doDigitization();
-	if(!status.isSuccess()) {
-		ATH_MSG_ERROR( "MmDigitizationTool :: doDigitization() Failed" );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK( doDigitization() );
 
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
@@ -673,21 +590,13 @@ StatusCode MmDigitizationTool::recordDigitAndSdoContainers() {
 
 	// record the digit container in StoreGate
 	m_activeStore->setStore(&*m_sgSvc);
-	StatusCode status = m_sgSvc->record(m_digitContainer, m_outputObjectName);
-	if(status.isFailure()) {
-		ATH_MSG_FATAL("Unable to record Micromegas digit container in StoreGate");
-		return status;
-	}else { ATH_MSG_DEBUG("MmDigitContainer recorded in StoreGate.");}
+	ATH_CHECK( m_sgSvc->record(m_digitContainer, m_outputObjectName) );
 
 	// create and record the SDO container in StoreGate
 	m_sdoContainer = new MuonSimDataCollection();
-	status = m_sgSvc->record(m_sdoContainer, m_outputSDOName);
-	if(status.isFailure()) {
-		ATH_MSG_FATAL("Unable to record MM SDO collection in StoreGate");
-		return status;
-	} else { ATH_MSG_DEBUG("MMSDOCollection recorded in StoreGate."); }
+	ATH_CHECK( m_sgSvc->record(m_sdoContainer, m_outputSDOName) );
 
-	return status;
+	return StatusCode::SUCCESS;
 }
 
 /*******************************************************************************/
@@ -697,11 +606,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	GenericMuonSimHitCollection* inputSimHitColl=NULL;
 
 	inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
-	StatusCode status = m_sgSvc->record(inputSimHitColl,"InputMicroMegasHits");
-	if (status.isFailure())  {
-		ATH_MSG_ERROR ( "Unable to record Input MicromegasSensitiveDetector HIT collection in StoreGate"  );
-		return status;
-	}
+	ATH_CHECK( m_sgSvc->record(inputSimHitColl,"InputMicroMegasHits") );
 
 	if( m_maskMultiplet == 3 ) {
 
@@ -786,7 +691,6 @@ StatusCode MmDigitizationTool::doDigitization() {
 			const Amg::Vector3D globPos = hit.globalPosition();
 
 			// convert sim id helper to offline id
-			muonHelper = MicromegasHitIdHelper::GetHelper();
 			MM_SimIdToOfflineId simToOffline(*m_idHelper);
 
 			//get the hit Identifier and info
@@ -847,11 +751,11 @@ StatusCode MmDigitizationTool::doDigitization() {
 			}
 
 
-			m_n_Station_side = muonHelper->GetSide(simId);
-			m_n_Station_eta = muonHelper->GetZSector(simId);
-			m_n_Station_phi = muonHelper->GetPhiSector(simId);
-			m_n_Station_multilayer = muonHelper->GetMultiLayer(simId);
-			m_n_Station_layer = muonHelper->GetLayer(simId);
+			m_n_Station_side = m_muonHelper->GetSide(simId);
+			m_n_Station_eta = m_muonHelper->GetZSector(simId);
+			m_n_Station_phi = m_muonHelper->GetPhiSector(simId);
+			m_n_Station_multilayer = m_muonHelper->GetMultiLayer(simId);
+			m_n_Station_layer = m_muonHelper->GetLayer(simId);
 
 			// Get MM_READOUT from MMDetectorDescription
 			char side = m_idHelper->stationEta(layid) < 0 ? 'C' : 'A';
@@ -872,7 +776,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 			if(inAngle_XZ < 0.0) inAngle_XZ += 180;
 			inAngle_XZ = 90. - inAngle_XZ ;
 			//---------- ! This had been commented out.
-			//      inAngle_XZ = (roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+			// LL work on this!
+			// sadf;
+			// inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
 			if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4)
 				inAngle_XZ = -1*inAngle_XZ ;
 			//---------- 1
@@ -990,7 +896,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
 			Amg::Vector3D bxyzLocal = surf.transform().inverse()*bxyz-surf.transform().inverse()*Amg::Vector3D(0,0,0);
 			if (m_idHelper->gasGap(layid)==2 || m_idHelper->gasGap(layid)==4) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() );
-			//      if((roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); // 04062015 T.Saito
+			//      if((roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); // 04062015 T.Saito
 
 			//store local hit position + sign
 			// ATH_MSG_DEBUG( " MmDigitToolInput create... " );
@@ -1129,10 +1035,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				digitCollection = new MmDigitCollection(elemId, detIdhash);
 				digitCollection->push_back(newDigit);
 				m_activeStore->setStore( &*m_sgSvc );
-				StatusCode status = m_digitContainer->addCollection(digitCollection, detIdhash);
-				if (status.isFailure()) {
-					ATH_MSG_ERROR ( "Couldn't record MicroMegas DigitCollection with key=" << detIdhash  << " in StoreGate!" );
-				}
+				ATH_CHECK( m_digitContainer->addCollection(digitCollection, detIdhash) );
 			}
 			else {
 				digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
@@ -1206,12 +1109,12 @@ bool MmDigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const
 /*
 //get the hit Identifier and info
 const int simId = hit.GenericId();
-std::string stationName = muonHelper->GetStationName(simId);
-int stationEta = muonHelper->GetZSector(simId);
-int stationPhi  = muonHelper->GetPhiSector(simId);
-int multilayer = muonHelper->GetMultiLayer(simId); // mmMultiplet in MmIdHelpers
-int layer = muonHelper->GetLayer(simId); // mmGasGap in MmIdHelpers
-int side = muonHelper->GetSide(simId);
+std::string stationName = m_muonHelper->GetStationName(simId);
+int stationEta = m_muonHelper->GetZSector(simId);
+int stationPhi  = m_muonHelper->GetPhiSector(simId);
+int multilayer = m_muonHelper->GetMultiLayer(simId); // mmMultiplet in MmIdHelpers
+int layer = m_muonHelper->GetLayer(simId); // mmGasGap in MmIdHelpers
+int side = m_muonHelper->GetSide(simId);
 
 //  ATH_MSG_VERBOSE("Micromegas hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink()
 //		  << " stName " << stationName << " eta " << stationEta << " phi " << stationPhi << " ml " << multilayer << " layer " << layer << " side " << side );

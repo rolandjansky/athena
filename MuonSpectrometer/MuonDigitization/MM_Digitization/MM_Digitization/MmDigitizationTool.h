@@ -164,7 +164,7 @@ private:
   TTree *m_ntuple;
 
   const MmIdHelper*       m_idHelper;
-  MicromegasHitIdHelper*  muonHelper;
+  MicromegasHitIdHelper*  m_muonHelper;
   const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
   std::list<GenericMuonSimHitCollection*> m_MMHitCollList;
 
