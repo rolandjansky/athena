@@ -64,6 +64,10 @@ const int TRT_Monitoring_Tool::s_iChip_max[2] = {104, 240};
 const int TRT_Monitoring_Tool::s_numberOfStacks[2] = {32, 32};
 const int TRT_Monitoring_Tool::s_moduleNum[2] = {96, 64};
 
+
+// TODO: Clean up the rest of the package
+// TODO: Fix naming conventions
+
 //------------------------------------------------------------------------------------------------//
 TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent) :
 	ManagedMonitorToolBase(type, name, parent),
@@ -75,12 +79,12 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_nRobErrors(),
 	m_passEventBurst(),
 	m_idHelper(0),
-	p_toolSvc("IToolSvc", name), // is this service neccessary?
+	p_toolSvc("IToolSvc", name), // NOTE: is this service neccessary?
 	m_sumSvc("TRT_StrawStatusSummarySvc", name),
-	m_DCSSvc("TRT_DCS_ConditionsSvc", name), // not used anywhere?
-	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // not used anywhere?
+	m_DCSSvc("TRT_DCS_ConditionsSvc", name), // NOTE: not used anywhere?
+	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_BSSvc("TRT_ByteStream_ConditionsSvc", name),
-	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // not used anywhere?
+	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
 	m_TRTCalDbSvc("TRT_CalDbSvc", name),
 	m_pTRTHelper(0),
@@ -167,6 +171,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_min_tracks_straw(10),
 	m_lumiTool("LuminosityTool")
 //-----------------------------------------------------------------------------------------------//
+// NOTE: check up on obsolete properties
 {
 	declareProperty("ToolSvc",                  p_toolSvc);
 	declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
@@ -598,8 +603,9 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		} //for (int ibe=0; ibe<2; ibe++)
 	}
 
-	//some initializaton
-	if (m_doShift) { // ugly way of doing this, so we probably want to clean it up a bit.
+	// some initializaton
+	// TODO: ugly way of doing this, so we probably want to clean it up a bit.
+	if (m_doShift) {
 		// Barrel
 		int ibe = 0;
 
@@ -643,6 +649,11 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 
 	ATH_CHECK( m_lumiTool.retrieve() );
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
+
+	// This exists only for the sake of testing online monitoring
+	ATH_MSG_WARNING("Online athena environment was turned on by force!!!");
+	m_environment = AthenaMonManager::online;
+	
 	return StatusCode::SUCCESS;
 }
 
@@ -659,7 +670,6 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 	// NOTE
 	// evtStore()->contains() was used to set up histogram booking
 	// ReadHandle isValid() is doing this now, but it is (probably) the best to remove RH from here
-	// Need to figure this out
 	StatusCode sc = StatusCode::SUCCESS;
 
 	//If it is a new run check rdo and track containers.
@@ -681,6 +691,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 	}
 
 	// NOTE: This is already retrieved during initialization
+	// Is this needed?
 	if (m_lumiTool.retrieve().isFailure()) {
 		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
 		return StatusCode::FAILURE;
@@ -1185,16 +1196,16 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 //----------------------------------------------------------------------------------//
 	ATH_MSG_VERBOSE("Monitoring Histograms being filled");
 
+	// Retrieve containers/objects only once per event
+	// Dereference handles to pass them to methods
 	SG::ReadHandle<TRT_RDO_Container>   rdoContainer(m_rdoContainerKey);
 	SG::ReadHandle<TrackCollection>     trackCollection(m_trackCollectionKey);
 	SG::ReadHandle<TrackCollection>     combTrackCollection(m_combTrackCollectionKey);
-	SG::ReadHandle<EventInfo>           eventInfo(m_eventInfoKey);
 	SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey);
 	SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey);
 	SG::ReadHandle<ComTime>             comTimeObject(m_comTimeObjectKey);
 	SG::ReadHandle<xAOD::TrigDecision>  trigDecision(m_trigDecisionKey);
 
-	// We should have event info in our input
 	if (!xAODEventInfo.isValid()) {
 		ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
 		              " in store");
@@ -1233,6 +1244,11 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			              " in store");
 			return StatusCode::FAILURE;
 		}
+		if (!trigDecision.isValid()) {
+			ATH_MSG_ERROR("Could not find trigger decision object " << m_trigDecisionKey.key() <<
+			              " in store");
+			return StatusCode::FAILURE;
+		}
 		if (!comTimeObject.isValid()) {
 			ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
 			              " in store");
@@ -1252,18 +1268,16 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 		ATH_CHECK( fillTRTEfficiency(*combTrackCollection) );
 	}
 
-	if (true) {
-		if (!m_doTracksMon) {
-			if (!trackCollection.isValid()) {
-				ATH_MSG_ERROR("Could not find track collection " << m_trackCollectionKey.key() <<
-				              " in store");
-				return StatusCode::FAILURE;
-			}
+	if (!m_doTracksMon) {
+		if (!trackCollection.isValid()) {
+			ATH_MSG_ERROR("Could not find track collection " << m_trackCollectionKey.key() <<
+			              " in store");
+			return StatusCode::FAILURE;
 		}
+	}
 
-		if (m_passEventBurst) {
-			ATH_CHECK( fillTRTHighThreshold(*trackCollection, *xAODEventInfo) );
-		}
+	if (m_passEventBurst) {
+		ATH_CHECK( fillTRTHighThreshold(*trackCollection, *xAODEventInfo) );
 	}
 
 	return StatusCode::SUCCESS;
