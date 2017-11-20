@@ -22,10 +22,7 @@ MM_Digitizer::~MM_Digitizer()  {}
 /*******************************************************************************/
 StatusCode MM_Digitizer::initialize() {
   // intitialize store gate active store
-  if (m_digTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ("MM_Digitizer::Could not retrieve MM Digitization Tool!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_digTool.retrieve() );
   ATH_MSG_DEBUG ("MM_Digitizer::Retrieved MM Digitization Tool.");
   return StatusCode::SUCCESS;
 

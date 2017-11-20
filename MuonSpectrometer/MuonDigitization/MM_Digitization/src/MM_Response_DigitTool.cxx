@@ -47,30 +47,16 @@ MmDigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& inp
 StatusCode MM_Response_DigitTool::initialize()
 {
   StoreGateSvc* detStore=0;
-  StatusCode status = serviceLocator()->service("DetectorStore", detStore);
+  ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
 
-  if (status.isSuccess()) {
-    if(detStore->contains<MuonDetectorManager>( "Muon" )){
-      status = detStore->retrieve(m_muonGeoMgr);
-      if (status.isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-        return status;
-      }
-      else {
-        ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
-        //initialize the MdtIdHelper
-        m_idHelper = m_muonGeoMgr->mmIdHelper();
-        ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
-        if(!m_idHelper) return status;
-      }
-    }
+  if(detStore->contains<MuonDetectorManager>( "Muon" )){
+    ATH_CHECK( detStore->retrieve(m_muonGeoMgr) );
+    ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
+    m_idHelper = m_muonGeoMgr->mmIdHelper();
+    ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
   }
 
-  if (!m_rndmSvc.retrieve().isSuccess())
-    {
-      ATH_MSG_FATAL(" Could not initialize Random Number Service");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_rndmSvc.retrieve() );
 
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
@@ -79,7 +65,6 @@ StatusCode MM_Response_DigitTool::initialize()
     ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE;
   }
-
 
   initializeStrip();
 
