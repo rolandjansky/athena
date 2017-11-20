@@ -78,11 +78,11 @@ private:
   float m_timeWindowLowerOffset;
   float m_timeWindowUpperOffset;
   float m_electronicsThreshold;
-  float m_stripdeadtime;
-  float m_ARTdeadtime;
-  float m_stripResponse_qThreshold;
-  float m_stripResponse_driftGapWidth;
-  float m_stripResponse_driftVelocity;
+  float m_stripDeadTime;
+  float m_artDeadTime;
+  float m_stripResponseQThreshold;
+  float m_stripResponseDriftGapWidth;
+  float m_stripResponseDriftVelocity;
 
   int  m_decoupleShaperFunctionParamaters;
 
@@ -119,12 +119,12 @@ public :
   inline void setTimeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void setTimeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
   inline void setElectronicsThreshold(float val) { m_electronicsThreshold = val;};
-  inline void setStripdeadtime(float val) { m_stripdeadtime = val;};
-  inline void setARTdeadtime(float val)   { m_ARTdeadtime = val;};
+  inline void setStripdeadtime(float val) { m_stripDeadTime = val;};
+  inline void setARTdeadtime(float val)   { m_artDeadTime = val;};
 
-  inline void setStripResponse_qThreshold    (float val) { m_stripResponse_qThreshold    = val; };
-  inline void setStripResponse_driftVelocity (float val) { m_stripResponse_driftVelocity = val; };
-  inline void setStripResponse_driftGapWidth (float val) { m_stripResponse_driftGapWidth = val; };
+  inline void setStripResponseQThreshold    (float val) { m_stripResponseQThreshold    = val; };
+  inline void setStripResponseDriftVelocity (float val) { m_stripResponseDriftVelocity = val; };
+  inline void setStripResponseDriftGapWidth (float val) { m_stripResponseDriftGapWidth = val; };
 
 
   float getPeakTime() const { return m_peakTime;};
@@ -132,8 +132,8 @@ public :
   float getTimeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
   float getTimeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
   float getElectronicsThreshold() const { return m_electronicsThreshold;};
-  float getStripdeadtime() const { return m_stripdeadtime;};
-  float getARTdeadtime() const { return m_ARTdeadtime;};
+  float getStripdeadtime() const { return m_stripDeadTime;};
+  float getARTdeadtime() const { return m_artDeadTime;};
 
 
   vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
