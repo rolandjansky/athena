@@ -2189,10 +2189,10 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 361066	Sherpa_CT10_lllvSFPlus		2.5656		0.91	1.	1.
 361067	Sherpa_CT10_lllvOFPlus		5.0169		0.91	1.	1.
 361068	Sherpa_CT10_llvv		14.022		0.91	1.	1.
-361069	Sherpa_CT10_llvvjj_ss_EW4	0.025765	0.91	1.	1.
-361070	Sherpa_CT10_llvvjj_ss_EW6	0.043004	0.87	1.	1 .
-361071  Sherpa_CT10_lllvjj_EW6          0.042287        0.87    1.      1.
-361072	Sherpa_CT10_lllljj_EW6		0.031496	0.87	1.	1.
+361069	Sherpa_CT10_llvvjj_ss_EW4	0.025765	1.00	1.	1.
+361070	Sherpa_CT10_llvvjj_ss_EW6	0.043004	1.00	1.	1 .
+361071  Sherpa_CT10_lllvjj_EW6          0.042287        1.00    1.      1.
+361072	Sherpa_CT10_lllljj_EW6		0.031496	1.00	1.	1.
 361073	Sherpa_CT10_ggllll		0.020743		1.547	1.	1. # 0.91 * 1.7 for EW corrections and k-Factor
 361074	Sherpa_CT10_ggllll_M4l100	0.016161	0.91	1.	1.
 361075	Sherpa_CT10_ggllllNoHiggs	0.011164	0.91	1.	1.
