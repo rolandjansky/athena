@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782349 2016-11-04 11:47:49Z krasznaa $
 ################################################################################
 # Package: PFlowUtils
 ################################################################################
@@ -34,5 +33,14 @@ if( NOT XAOD_STANDALONE )
       PFlowUtilsLib )
 endif()
 
+atlas_add_dictionary( PFlowUtilsDict
+   PFlowUtils/PFlowUtilsDict.h PFlowUtils/selection.xml
+   LINK_LIBRARIES PFlowUtilsLib )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+
+# Test(s) in the package:
+atlas_add_test( toolhandle_test
+   SOURCES test/toolhandle_test.cxx
+   LINK_LIBRARIES AsgTools PFlowUtilsLib )
