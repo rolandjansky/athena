@@ -1516,28 +1516,28 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
 	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
 	
 	if(iecap==enumBarrelA){
-	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,mg->mongroup_brA_shift);
+	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,m_mg->mongroup_brA_shift);
 	  if(sc.isFailure()) {
 	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
 	    return sc;
 	  }
 	}
 	else if(iecap==enumBarrelC){
-	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_brC_shift);
+	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,m_mg->mongroup_brC_shift);
 	  if(sc.isFailure()) {
 	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
 	    return sc;
 	  }
 	}
 	else if(iecap==enumEndCapA){
-	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecA_shift);
+	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,m_mg->mongroup_ecA_shift);
 	  if(sc.isFailure()) {
 	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
 	    return sc;
 	  }
 	}
 	else{
-	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecC_shift);
+	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,m_mg->mongroup_ecC_shift);
 	  if(sc.isFailure()) {
                  ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
                  return sc;
