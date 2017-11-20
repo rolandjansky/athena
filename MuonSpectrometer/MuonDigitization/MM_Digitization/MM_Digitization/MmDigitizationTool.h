@@ -146,7 +146,7 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 		MmElectronicsToolInput combinedStripResponseAllHits(const std::vector< MmElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
-		ServiceHandle<StoreGateSvc> m_sgSvc;
+		ServiceHandle<StoreGateSvc> m_storeGateService;
 		ActiveStoreSvc*             m_activeStore;
 		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service

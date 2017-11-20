@@ -99,7 +99,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	PileUpToolBase(type, name, parent),
 
 	// Services
-	m_sgSvc("StoreGateSvc", name),
+	m_storeGateService("StoreGateSvc", name),
 	m_magFieldSvc("AtlasFieldSvc",name) ,
 	m_mergeSvc(0),
 	m_rndmSvc("AtRndmGenSvc", name ),
@@ -181,7 +181,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 
 	declareInterface<IMuonDigitizationTool>(this);
 
-	declareProperty("MCStore",             m_sgSvc,              "help");
+	declareProperty("MCStore",             m_storeGateService,              "help");
 	declareProperty("MagFieldSvc",         m_magFieldSvc,        "Magnetic Field Service");
 	declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
 	declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
@@ -238,7 +238,7 @@ StatusCode MmDigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "Configuration  MmDigitizationTool " );
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
-	ATH_MSG_DEBUG ( "MCStore                " << m_sgSvc               );
+	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService               );
 	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
@@ -289,7 +289,7 @@ StatusCode MmDigitizationTool::initialize() {
 
 
 	// initialize transient event store
-	ATH_CHECK(m_sgSvc.retrieve());
+	ATH_CHECK(m_storeGateService.retrieve());
 	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
 
 	// initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
@@ -580,12 +580,12 @@ StatusCode MmDigitizationTool::recordDigitAndSdoContainers() {
 	m_digitContainer->cleanup();
 
 	// record the digit container in StoreGate
-	m_activeStore->setStore(&*m_sgSvc);
-	ATH_CHECK( m_sgSvc->record(m_digitContainer, m_outputObjectName) );
+	m_activeStore->setStore(&*m_storeGateService);
+	ATH_CHECK( m_storeGateService->record(m_digitContainer, m_outputObjectName) );
 
 	// create and record the SDO container in StoreGate
 	m_sdoContainer = new MuonSimDataCollection();
-	ATH_CHECK( m_sgSvc->record(m_sdoContainer, m_outputSDOName) );
+	ATH_CHECK( m_storeGateService->record(m_sdoContainer, m_outputSDOName) );
 
 	return StatusCode::SUCCESS;
 }
@@ -599,7 +599,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	IdentifierHash detectorElementHash=0;
 
 	inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
-	ATH_CHECK( m_sgSvc->record(inputSimHitColl,"InputMicroMegasHits") );
+	ATH_CHECK( m_storeGateService->record(inputSimHitColl,"InputMicroMegasHits") );
 
 	if( m_maskMultiplet == 3 ) {
 
@@ -628,7 +628,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	// nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
 	while( m_timedHitCollection_MM->nextDetectorElement(i, e) ) {
 
-		Identifier layid;
+		Identifier layerID;
 		// Loop over the hits:
 		while (i != e) {
 
@@ -650,8 +650,10 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_hitDepositEnergy = hit.depositEnergy();
 			m_n_hitKineticEnergy = hit.kineticEnergy();
 
+			const Amg::Vector3D globalHitPosition = hit.globalPosition();
+
 			globalHitTime = hit.globalpreTime();
-			tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
+			tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
 			bunchTime = globalHitTime - tofCorrection + eventTime;
 
 			m_n_Station_side=-999;
@@ -673,48 +675,47 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_StrRespCharge.clear();
 			m_n_StrRespTime.clear();
 
-			const int idHit = hit.GenericId();
+			const int hitID = hit.GenericId();
 			// the G4 time or TOF from IP
 			// double G4Time(hit.globalTime());
 			// see what are the members of GenericMuonSimHit
-			const Amg::Vector3D globPos = hit.globalPosition();
 
 			// convert sim id helper to offline id
 			MM_SimIdToOfflineId simToOffline(*m_idHelper);
 
 			//get the hit Identifier and info
 			int simId=hit.GenericId();
-			layid = simToOffline.convert(simId);
+			layerID = simToOffline.convert(simId);
 
 			// Read the information about the Micro Megas hit
-			ATH_MSG_DEBUG ( "> idHit  "
-							<< idHit
+			ATH_MSG_DEBUG ( "> hitID  "
+							<< hitID
 							<< " Hit bunch time  "
 							<< bunchTime
 							<< " tot "
 							<< globalHitTime
 							<< " tof/G4 time "
 							<< hit.globalTime()
-							<< " globalPosition "
-							<< globPos
+							<< " globalHitPosition "
+							<< globalHitPosition
 							<< "hit: r "
-							<< hit.globalPosition().perp()
+							<< globalHitPosition.perp()
 							<< " z "
-							<< hit.globalPosition().z()
+							<< globalHitPosition.z()
 							<< " mclink "
 							<< hit.particleLink()
 							<< " station eta "
-							<< m_idHelper->stationEta(layid)
+							<< m_idHelper->stationEta(layerID)
 							<< " station phi "
-							<< m_idHelper->stationPhi(layid)
+							<< m_idHelper->stationPhi(layerID)
 							<< " multiplet "
-							<< m_idHelper->multilayer(layid)
+							<< m_idHelper->multilayer(layerID)
 							);
 
-			GenericMuonSimHit* copyHit = new GenericMuonSimHit( idHit,
+			GenericMuonSimHit* copyHit = new GenericMuonSimHit( hitID,
 																globalHitTime+eventTime,
 																eventTime,
-																hit.globalPosition(),
+																globalHitPosition,
 																hit.localPosition(),
 																hit.globalPrePosition(),
 																hit.localPrePosition(),
@@ -740,37 +741,37 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// }
 
 			// sanity checks
-			if( !m_idHelper->is_mm(layid) ){
-				ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelper->stationNameString(m_idHelper->stationName(layid)) );
+			if( !m_idHelper->is_mm(layerID) ){
+				ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
 				continue;
 			}
 
-			std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
+			std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layerID));
 			int isSmall = stName[2] == 'S';
 
-			if( m_idHelper->is_mdt(layid)
-					|| m_idHelper->is_rpc(layid)
-					|| m_idHelper->is_tgc(layid)
-					|| m_idHelper->is_csc(layid)
-					|| m_idHelper->is_stgc(layid)
+			if( m_idHelper->is_mdt(layerID)
+					|| m_idHelper->is_rpc(layerID)
+					|| m_idHelper->is_tgc(layerID)
+					|| m_idHelper->is_csc(layerID)
+					|| m_idHelper->is_stgc(layerID)
 					){
 				ATH_MSG_WARNING("MM id has wrong technology type! "
-								<< m_idHelper->is_mdt(layid)
+								<< m_idHelper->is_mdt(layerID)
 								<< " "
-								<< m_idHelper->is_rpc(layid)
+								<< m_idHelper->is_rpc(layerID)
 								<< " "
-								<< m_idHelper->is_tgc(layid)
+								<< m_idHelper->is_tgc(layerID)
 								<< " "
-								<< m_idHelper->is_csc(layid)
+								<< m_idHelper->is_csc(layerID)
 								<< " "
-								<< m_idHelper->is_stgc(layid)
+								<< m_idHelper->is_stgc(layerID)
 								);
 				m_exitcode = 9;
 				if(m_writeOutputFile) m_ntuple->Fill();
 			}
 
-			if( m_idHelper->stationPhi(layid) == 0 ){
-				ATH_MSG_WARNING("unexpected phi range " << m_idHelper->stationPhi(layid) );
+			if( m_idHelper->stationPhi(layerID) == 0 ){
+				ATH_MSG_WARNING("unexpected phi range " << m_idHelper->stationPhi(layerID) );
 				m_exitcode = 9;
 				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "m_exitcode = 9 " );
@@ -778,19 +779,19 @@ StatusCode MmDigitizationTool::doDigitization() {
 			}
 
 			// remove hits in masked multiplet
-			if( m_maskMultiplet == m_idHelper->multilayer(layid) ) continue;
+			if( m_maskMultiplet == m_idHelper->multilayer(layerID) ) continue;
 
 			// get readout element
-			const MuonGM::MMReadoutElement* detEl = m_MuonGeoMgr->getMMReadoutElement(layid);
+			const MuonGM::MMReadoutElement* detEl = m_MuonGeoMgr->getMMReadoutElement(layerID);
 			if( !detEl ){
 				ATH_MSG_WARNING( "Failed to retrieve detector element for: isSmall "
 									<< isSmall
 									<< " eta "
-									<< m_idHelper->stationEta(layid)
+									<< m_idHelper->stationEta(layerID)
 									<< " phi "
-									<< m_idHelper->stationPhi(layid)
+									<< m_idHelper->stationPhi(layerID)
 									<< " ml "
-									<< m_idHelper->multilayer(layid)
+									<< m_idHelper->multilayer(layerID)
 									);
 				m_exitcode = 10;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -806,17 +807,17 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_Station_layer = m_muonHelper->GetLayer(simId);
 
 			// Get MM_READOUT from MMDetectorDescription
-			char side = m_idHelper->stationEta(layid) < 0 ? 'C' : 'A';
+			char side = m_idHelper->stationEta(layerID) < 0 ? 'C' : 'A';
 			MMDetectorHelper aHelper;
 			MMDetectorDescription* mm = aHelper.Get_MMDetector( stName[2],
-																abs(m_idHelper->stationEta(layid)),
-																m_idHelper->stationPhi(layid),
-																m_idHelper->multilayer(layid),
+																abs(m_idHelper->stationEta(layerID)),
+																m_idHelper->stationPhi(layerID),
+																m_idHelper->multilayer(layerID),
 																side
 																);
 			MMReadoutParameters roParam = mm->GetReadoutParameters();
 			// surface
-			const Trk::PlaneSurface& surf = detEl->surface(layid);
+			const Trk::PlaneSurface& surf = detEl->surface(layerID);
 
 			// calculate the inclination angle
 			// Angle
@@ -833,9 +834,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 			inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
 
 			ATH_MSG_DEBUG(  "At eta "
-							<< m_idHelper->stationEta(layid)
+							<< m_idHelper->stationEta(layerID)
 							<< " phi "
-							<< m_idHelper->stationPhi(layid)
+							<< m_idHelper->stationPhi(layerID)
 							<<  "\n IncomingAngle: "
 							<<  localHitDirection.angleXZ() / CLHEP::degree
 							<< "\n inAngle_XZ, "
@@ -848,10 +849,10 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			// compute hit position within the detector element/surfaces
 			// Amg::Transform3D globalToLocal = detEl->absTransform().inverse();
-			Amg::Vector3D globalHitPosition(hit.globalPosition().x(),
-											hit.globalPosition().y(),
-											hit.globalPosition().z()
-											);
+			// Amg::Vector3D globalHitPosition(hit.globalPosition().x(),
+			// 								hit.globalPosition().y(),
+			// 								hit.globalPosition().z()
+			// 								);
 			// Amg::Vector3D lpos = globalToLocal*hpos;
 			// compute the hit position on the readout plane (same as in MuonFastDigitization)
 			Amg::Vector3D stripLayerPosition = surf.transform().inverse()*globalHitPosition;
@@ -861,7 +862,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Amg::Vector3D localDirectionTime(0., 0., 0.);
 
 			// drift direction in backwards-chamber should be opposite to the incident direction.
-			if ((roParam.readoutSide).at(m_idHelper->gasGap(layid)-1)==1) // was previously if it ==1
+			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1) // was previously if it ==1
 				localDirectionTime  = localDirection;
 			else
 				localDirectionTime  = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),
@@ -898,13 +899,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 				continue;
 			}
 
-			int stripNumber = detEl->stripNumber(posOnSurf,layid);
-			//      int LastStripNumber = detEl->stripNumber(posOnTopSurf, layid);
+			int stripNumber = detEl->stripNumber(posOnSurf,layerID);
+			//      int LastStripNumber = detEl->stripNumber(posOnTopSurf, layerID);
 			Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
 
 			if( stripNumber == -1 ){
 				ATH_MSG_WARNING("!!! Failed to obtain strip number "
-								<< m_idHelper->print_to_string(layid)
+								<< m_idHelper->print_to_string(layerID)
 								<<  "\n\t\t with pos "
 								<< posOnSurf
 								<< " z "
@@ -914,7 +915,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 								<< " eDep: "
 								<< hit.depositEnergy()
 								<< " unprojectedStrip: "
-								<< detEl->stripNumber(posOnSurfUnProjected, layid)
+								<< detEl->stripNumber(posOnSurfUnProjected, layerID)
 								);
 				m_exitcode = 2;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -923,17 +924,17 @@ StatusCode MmDigitizationTool::doDigitization() {
 			}
 
 			// re-definition of ID
-			Identifier parentID = m_idHelper->parentID(layid);
+			Identifier parentID = m_idHelper->parentID(layerID);
 			Identifier digitID  = m_idHelper->channelID(parentID,
-														m_idHelper->multilayer(layid),
-														m_idHelper->gasGap(layid),
+														m_idHelper->multilayer(layerID),
+														m_idHelper->gasGap(layerID),
 														stripNumber
 														);
 
 			++nhits;
 
 			// contain (name, eta, phi, multiPlet)
-			m_idHelper->get_detectorElement_hash(layid, detectorElementHash);
+			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
 
 			const MuonGM::MuonChannelDesign* mmChannelDes = detEl->getDesign(digitID);
 			double distToChannel_withStripID = mmChannelDes->distanceToChannel(posOnSurf, stripNumber);
@@ -941,7 +942,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
 							<< (int)detectorElementHash
 							<< " "
-							<< m_idHelper->print_to_string(layid)
+							<< m_idHelper->print_to_string(layerID)
 							<< " digitID: "
 							<< m_idHelper->print_to_string(digitID)
 							);
@@ -970,8 +971,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 													distToChannel,
 													inAngle_XZ,
 													bxyzLocal,
-													detEl->numberOfStrips(layid),
-													m_idHelper->gasGap(layid),
+													detEl->numberOfStrips(layerID),
+													m_idHelper->gasGap(layerID),
 													eventTime+globalHitTime
 													);
 			// m_AngleDistr->Fill(inAngle_XZ);
@@ -1000,7 +1001,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			for(size_t i = 0; i<tmp_StripOutput.NumberOfStripsPos().size(); i++){
 				int stripid = tmp_StripOutput.NumberOfStripsPos().at(i);
 				bool isValid;
-				Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layid), m_idHelper->stationPhi(layid), m_idHelper->multilayer(layid), m_idHelper->gasGap(layid), stripid, true, &isValid);
+				Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layerID), m_idHelper->stationPhi(layerID), m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), stripid, true, &isValid);
 				if (!isValid) {
 					ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << stripid << "; associated positions will be set to 0.0." );
 				} else {
@@ -1054,8 +1055,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//
 		// ART:The fastest strip signal per VMM id should be selected for trigger
 		//
-		int chMax = m_idHelper->channelMax(layid);
-		int stationEta = m_idHelper->stationEta(layid);
+		int chMax = m_idHelper->channelMax(layerID);
+		int stationEta = m_idHelper->stationEta(layerID);
 		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
 
 		//
@@ -1090,12 +1091,12 @@ StatusCode MmDigitizationTool::doDigitization() {
 		MmDigitCollection* digitCollection = 0;
 		// put new collection in storegate
 		// Get the messaging service, print where you are
-		m_activeStore->setStore( &*m_sgSvc );
+		m_activeStore->setStore( &*m_storeGateService );
 		MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(detectorElementHash );
 		if (m_digitContainer->end() ==  it_coll) {
 			digitCollection = new MmDigitCollection( elemId, detectorElementHash );
 			digitCollection->push_back(newDigit);
-			m_activeStore->setStore( &*m_sgSvc );
+			m_activeStore->setStore( &*m_storeGateService );
 			ATH_CHECK( m_digitContainer->addCollection(digitCollection, detectorElementHash ) );
 		}
 		else {
