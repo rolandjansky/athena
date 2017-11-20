@@ -25,7 +25,6 @@
 #include "FileCatalog/FCException.h"
 #include "FileCatalog/IFCContainer.h"
 
-using namespace pool;
 class metadataTest: public CppUnit::TestFixture{
   CPPUNIT_TEST_SUITE( metadataTest );
   CPPUNIT_TEST( testCreateSchema );
@@ -34,15 +33,15 @@ class metadataTest: public CppUnit::TestFixture{
   //CPPUNIT_TEST( testDelete );
   CPPUNIT_TEST_SUITE_END();
 public:
-  IFileCatalog* mycatalog;
+  pool::IFileCatalog* mycatalog;
   std::vector<std::string> names;
-  MetaDataEntry abx;
-  MetaDataEntry abc;
+  pool::MetaDataEntry abx;
+  pool::MetaDataEntry abc;
   void setUp(){
-    mycatalog=new IFileCatalog;
+    mycatalog=new pool::IFileCatalog;
     mycatalog->setWriteCatalog("xmlcatalog_file:metadata.xml");
     for(size_t i=0; i<20; ++i){
-      names.push_back("this-is-a-physical-file-name"+FCSystemTools::itostr(i));
+      names.push_back("this-is-a-physical-file-name"+pool::FCSystemTools::itostr(i));
     }
     abx.addAttributeSpec("a","int");
     abx.addAttributeSpec("b","int");
@@ -65,7 +64,7 @@ public:
   void testCreateSchema(){
     std::cout<<"[OVAL] TEST -->testCreateSchema"<<std::endl;
     try{
-      FCAdmin a;
+      pool::FCAdmin a;
       mycatalog->setAction(a);
       mycatalog->connect();
       mycatalog->start();
@@ -103,10 +102,10 @@ public:
   void testUpdateSchema(){
     std::cout<<"[OVAL] TEST -->testUpdateSchema"<<std::endl; 
     try{
-      FCAdmin a;
+      pool::FCAdmin a;
       mycatalog->setAction(a);
       mycatalog->connect();
-      MetaDataEntry abcx,result1,result2,result3;
+      pool::MetaDataEntry abcx,result1,result2,result3;
       abcx.attrs().merge(abc.attrs());
       mycatalog->start();
       a.updateMetaDataSpec(abcx);
@@ -125,7 +124,7 @@ public:
       mycatalog->commit();
       
       mycatalog->start();
-      a.updateMetaDataSpec(abx,FileCatalog::DELETE_REDUNDANT);
+      a.updateMetaDataSpec(abx,pool::FileCatalog::DELETE_REDUNDANT);
       a.getMetaDataSpec(result3);
       CPPUNIT_ASSERT_MESSAGE("case 3 failed",abx.attrs()==result3.attrs());
       mycatalog->commit();
@@ -143,28 +142,28 @@ public:
   void testMetadata(){
     std::cout<<"[OVAL] TEST -->testMetadata"<<std::endl; 
     try{
-      FCAdmin a;
-      FCregister r;
-      FClookup l;
+      pool::FCAdmin a;
+      pool::FCregister r;
+      pool::FClookup l;
       mycatalog->setAction(a);
       mycatalog->setAction(r);
       mycatalog->connect();
-      MetaDataEntry mspec;
+      pool::MetaDataEntry mspec;
       mspec.addAttributeSpec("jobid", "int");
       mspec.addAttributeSpec("owner", "string");
       mycatalog->start();
       a.dropMetaDataSpec();
       a.createMetaDataSpec(mspec);
-      std::vector<FileCatalog::FileID> fids;
+      std::vector<pool::FileCatalog::FileID> fids;
       for(size_t i=0; i<20; ++i){
-        FileCatalog::FileID fid;
+        pool::FileCatalog::FileID fid;
         r.registerPFN(names[i],"metatest",fid);
         fids.push_back(fid);
       }
       mycatalog->commit();
       mycatalog->start();
       for( int n=12; n<20; ++n){
-        MetaDataEntry mentry(mspec);
+        pool::MetaDataEntry mentry(mspec);
         mentry.setAttributeValue<int>("jobid",n);
         mentry.setAttributeValue<std::string>("owner",std::string("cmsprod"));
         r.registerMetaData(fids[n], mentry);
@@ -172,21 +171,21 @@ public:
       mycatalog->commit();
 
       mycatalog->start();
-      MetaDataEntry myspec;
+      pool::MetaDataEntry myspec;
       a.getMetaDataSpec(myspec);
-      MetaDataContainer metas(mycatalog,10);
+      pool::MetaDataContainer metas(mycatalog,10);
       l.lookupMetaDataByQuery("",metas);
       while( metas.hasNext() ){
         std::cout <<"hasNext"<<std::endl;
-        MetaDataEntry mm(metas.Next());
+        pool::MetaDataEntry mm(metas.Next());
         std::cout <<mm.guid()<<std::endl;
         std::cout <<mm<<std::endl;
       }
       mycatalog->commit();
       mycatalog->start();
-      MetaDataEntry newspec;
+      pool::MetaDataEntry newspec;
       newspec.addAttributeSpec("jobid", "int");
-      a.updateMetaDataSpec(newspec,FileCatalog::DELETE_REDUNDANT);
+      a.updateMetaDataSpec(newspec,pool::FileCatalog::DELETE_REDUNDANT);
       mycatalog->commit();
       
       mycatalog->disconnect();
