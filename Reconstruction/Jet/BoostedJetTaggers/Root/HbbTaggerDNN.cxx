@@ -27,9 +27,10 @@
 class InputMapBuilder
 {
 public:
-  InputMapBuilder(const std::string& map_file);
+  InputMapBuilder(const std::string& map_file,
+                  const std::map<std::string, double>& dummies);
   typedef std::map<std::string, std::map<std::string, double> > VMap;
-  VMap get_map(const xAOD::Jet&);
+  VMap get_map(const xAOD::Jet&) const;
 private:
   typedef ElementLink<xAOD::JetContainer> JetLink;
   SG::AuxElement::ConstAccessor<JetLink> m_acc_parent;
@@ -44,6 +45,7 @@ private:
   std::vector<std::pair<std::string, FloatAcc> > m_acc_btag_floats;
   std::vector<std::pair<std::string, DoubleAcc> > m_acc_btag_doubles;
   std::vector<std::pair<std::string, IntAcc> > m_acc_btag_ints;
+  std::map<std::string, double> m_dummy_values;
 };
 
 
@@ -71,17 +73,6 @@ StatusCode HbbTaggerDNN::initialize(){
   // Initialize the DNN tagger tool
   ATH_MSG_INFO("Initializing HbbTaggerDNN tool");
 
-  // setup the input builder
-  ATH_MSG_INFO( "Using variable map: "<< m_variableMapFile );
-  std::string var_map_file = PathResolverFindDataFile(m_variableMapFile);
-  ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
-  try {
-    m_input_builder.reset(new InputMapBuilder(var_map_file));
-  } catch (boost::property_tree::ptree_error& err) {
-    ATH_MSG_ERROR("Config file is garbage: " << err.what());
-    return StatusCode::FAILURE;
-  }
-
   // read json file for DNN weights
   ATH_MSG_INFO("Using NN file: "+ m_configFile);
   std::string configPath = PathResolverFindCalibFile(m_configFile);
@@ -94,11 +85,17 @@ StatusCode HbbTaggerDNN::initialize(){
     ATH_MSG_ERROR("NN file is garbage");
     return StatusCode::FAILURE;
   }
+  std::map<std::string, double> dummy_inputs;
   ATH_MSG_DEBUG("Hbb inputs:");
   for (auto& input_node: config.inputs) {
     ATH_MSG_DEBUG(" input node: " << input_node.name);
     for (auto& input: input_node.variables) {
-      ATH_MSG_DEBUG("  " << input);
+      bool dummy = false;
+      if (input.scale == 0.0) {
+        dummy_inputs[input.name] = input.offset;
+        dummy = true;
+      }
+      ATH_MSG_DEBUG("  " << input << (dummy ? " <-- DUMMY": "") );
     }
   }
   if (config.outputs.size() != 1) {
@@ -116,6 +113,17 @@ StatusCode HbbTaggerDNN::initialize(){
     m_lwnn.reset(new lwt::LightweightGraph(config, output_node_name));
   } catch (lwt::NNConfigurationException& exc) {
     ATH_MSG_ERROR("NN configuration problem: " << exc.what());
+    return StatusCode::FAILURE;
+  }
+
+  // setup the input builder
+  ATH_MSG_INFO( "Using variable map: "<< m_variableMapFile );
+  std::string var_map_file = PathResolverFindDataFile(m_variableMapFile);
+  ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
+  try {
+    m_input_builder.reset(new InputMapBuilder(var_map_file, dummy_inputs));
+  } catch (boost::property_tree::ptree_error& err) {
+    ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
   }
 
@@ -141,6 +149,7 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
 
   // build the jet properties into a map
   InputMapBuilder::VMap inputs = m_input_builder->get_map(jet);
+  if (!inputs.count("subjet2_mask")) return -INFINITY;
   auto nn_output = m_lwnn->compute(inputs);
   return nn_output.at(m_output_value_name);
 }
@@ -151,9 +160,12 @@ void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
 
 // Input map builder implementation
 //
-InputMapBuilder::InputMapBuilder(const std::string& input_file):
+InputMapBuilder::InputMapBuilder(
+  const std::string& input_file,
+  const std::map<std::string,double>& dummy_inputs):
   m_acc_parent("Parent"),
-  m_acc_subjets("catKittyCat")
+  m_acc_subjets("catKittyCat"),
+  m_dummy_values(dummy_inputs)
 {
   boost::property_tree::ptree pt;
   boost::property_tree::read_json(input_file, pt);
@@ -176,7 +188,7 @@ InputMapBuilder::InputMapBuilder(const std::string& input_file):
   }
 }
 
-InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) {
+InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) const {
   std::map<std::string, double> nn_inputs;
   nn_inputs[m_jet_prefix + "pt"] = jet.pt();
   nn_inputs[m_jet_prefix + "eta"] = jet.eta();
@@ -199,10 +211,23 @@ InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) {
     const xAOD::Jet* subjet = subjets.at(subjet_n);
     nn_inputs[prefix + "pt"] = subjet->pt();
     nn_inputs[prefix + "eta"] = subjet->eta();
+    const auto& btag = subjet->btagging();
     for (const auto& pair: m_acc_btag_floats) {
-      nn_inputs[prefix + pair.first] = pair.second(*subjet);
+      nn_inputs[prefix + pair.first] = pair.second(*btag);
     }
-    // blork
+    for (const auto& pair: m_acc_btag_doubles) {
+      nn_inputs[prefix + pair.first] = pair.second(*btag);
+    }
+    for (const auto& pair: m_acc_btag_ints) {
+      nn_inputs[prefix + pair.first] = pair.second(*btag);
+    }
+    nn_inputs[prefix + "mask"] = 1;
+  }
+  for (const auto dummy: m_dummy_values) {
+    if (nn_inputs.count(dummy.first)) {
+      throw std::logic_error(dummy.first + " was redefined");
+    }
+    nn_inputs[dummy.first] = dummy.second;
   }
   return {{"input_node", nn_inputs}};
 }

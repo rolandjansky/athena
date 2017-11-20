@@ -185,8 +185,9 @@ int main( int argc, char* argv[] ) {
     // Loop over jet container
     for(const xAOD::Jet* jet : * myJets ){
 
-      if(verbose) std::cout<<"Testing Xbb Tagger "<<std::endl;
+      if(verbose) std::cout<<"Testing Hbb Tagger, ";
       double score = m_Tagger->getScore(*jet);
+      if (verbose) std::cout << " Score: " << score << std::endl;
       bool res = m_Tagger->keep( *jet );
 
       pass = res;
