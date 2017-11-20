@@ -17,7 +17,6 @@
 
 #include "eflowRec/eflowUtil.h"
 #include "eflowRec/eflowCaloRegions.h"
-#include "eflowRec/PFException.h"
 
 namespace PFMatch {
 
