@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /// Gaudi External 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/errorcheck.h"
