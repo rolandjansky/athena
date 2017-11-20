@@ -148,7 +148,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing Hbb Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelector> m_Tagger; //!
+  asg::AnaToolHandle<HbbTaggerDNN> m_Tagger; //!
   m_Tagger.setTypeAndName("HbbTaggerDNN","HbbTaggerDNN");
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
@@ -186,6 +186,7 @@ int main( int argc, char* argv[] ) {
     for(const xAOD::Jet* jet : * myJets ){
 
       if(verbose) std::cout<<"Testing Xbb Tagger "<<std::endl;
+      double score = m_Tagger->getScore(*jet);
       bool res = m_Tagger->keep( *jet );
 
       pass = res;

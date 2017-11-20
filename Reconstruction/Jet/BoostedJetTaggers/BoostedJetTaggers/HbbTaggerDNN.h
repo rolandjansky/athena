@@ -41,7 +41,6 @@ protected:
   double m_tag_threshold;
 
   // internal stuff to keep track of the output node for the NN
-  std::string m_output_node_name;
   std::string m_output_value_name;
 
   // if no decoration name is given we look it up from the

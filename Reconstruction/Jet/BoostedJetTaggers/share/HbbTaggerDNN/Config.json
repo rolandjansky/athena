@@ -1,4 +1,7 @@
 {
+    "jet" : {
+        "prefix": "jet_"
+    },
     "subjet": {
         "collection": "GhostAntiKt2TrackJet",
         "number": 2,
