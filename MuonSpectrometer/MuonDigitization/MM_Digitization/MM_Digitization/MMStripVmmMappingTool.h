@@ -14,8 +14,8 @@ using namespace std;
 class electronics{
 public:
 int elec(int stripNumber, string tech, int off_stationEta, int chMax);
-};	
-	
+};
+
 
 
 

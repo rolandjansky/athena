@@ -29,7 +29,7 @@ class MM_StripResponse {
   // First argument is time bin, second argument is strip ID
   std::map< int, std::map<int,float> > stripCharges;
 
-  // Useful info for clustering later 
+  // Useful info for clustering later
   std::map<int, int> stripTimeThreshold;
   std::map<int, float> stripTotalCharge;
   std::map<int, float> stripMaxCharge;
@@ -49,7 +49,7 @@ class MM_StripResponse {
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();
-  void simulateCrossTalk(float crossTalk1, float crossTalk2);      
+  void simulateCrossTalk(float crossTalk1, float crossTalk2);
   void calculateSummaries(float chargeThreshold);
   std::map<int, int> getTimeThreshold() const;
   std::map<int, float> getTotalCharge() const;
