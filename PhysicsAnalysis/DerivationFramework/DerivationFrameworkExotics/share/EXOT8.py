@@ -58,19 +58,6 @@ EXOT8Ak10r2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(nam
 ToolSvc += EXOT8Ak10r2JetTPThinningTool
 thinningTools.append(EXOT8Ak10r2JetTPThinningTool)
 
-#############################################
-# clusters associated with large-R jets (0.2)
-#############################################
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT8Ak10r2CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT8Ak10r2CCThinningTool",
-                                                                        ThinningService         = "EXOT8ThinningSvc",
-                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV",
-                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
-ToolSvc += EXOT8Ak10r2CCThinningTool
-thinningTools.append(EXOT8Ak10r2CCThinningTool)
-
 #########################################
 # truth thinning
 #########################################
