@@ -343,6 +343,7 @@ float JMSCorrection::getMassCorr3D(double pT_uncorr, double mass_uncorr, double 
   if ( pT_uncorr >= pTMax) pT_uncorr = pTMax-1e-6; // so it fits the up-most pt-bin
   if ( pT_uncorr <= m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_uncorr)) return 1; // no correction if the input is NaN, can happen for log(X)
   if ( mass_uncorr >= massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
   if ( mass_uncorr <= massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
   if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
@@ -363,6 +364,7 @@ float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabi
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_uncorr)) return 1; // no correction if the input is NaN, can happen for log(X)
   if ( mass_uncorr > massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
   if ( mass_uncorr < massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
 
@@ -382,6 +384,7 @@ float JMSCorrection::getTrackAssistedMassCorr3D(double pT_uncorr, double mass_un
   if ( pT_uncorr >= pTMax) pT_uncorr = pTMax-1e-6; // so it fits the up-most pt-bin
   if ( pT_uncorr <= m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_uncorr)) return 1; // no correction if the input is NaN, can happen for log(X)
   if ( mass_uncorr >= massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
   if ( mass_uncorr <= massMin ) mass_uncorr = massMin+1e-6; //so it fits the low-most m-bin
   if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
@@ -402,6 +405,7 @@ float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double uncorr, i
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(uncorr)) return 1; // no correction if the input is NaN, can happen for log(X)
   if ( uncorr > massMax ) uncorr = massMax-1e-6; //so it fits the up-most m-bin
   if ( uncorr < massMin ) uncorr = massMin+1e-6; //so it fits the low-most m-bin
 
@@ -421,6 +425,7 @@ float JMSCorrection::getRelCalo3D(double pT_uncorr, double mass_over_pt_uncorr, 
   double etaMin = m_caloResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(1);
   if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
@@ -440,6 +445,7 @@ float JMSCorrection::getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, in
   double mass_over_pTMin = m_caloResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
@@ -460,6 +466,7 @@ float JMSCorrection::getRelTA3D(double pT_uncorr, double mass_over_pt_uncorr, do
   double etaMin = m_taResolutionMassCombination3D->GetZaxis()->GetBinLowEdge(1);
   if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
@@ -479,6 +486,7 @@ float JMSCorrection::getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int 
   double mass_over_pTMin = m_taResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
@@ -498,6 +506,7 @@ float JMSCorrection::getRho3D(double pT_uncorr, double mass_over_pt_uncorr, doub
   double etaMin = m_correlationMapMassCombination3D->GetZaxis()->GetBinLowEdge(1);
   if ( pT_uncorr >= pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr <= pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr >= mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr <= mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
@@ -517,6 +526,7 @@ float JMSCorrection::getRho(double pT_uncorr, double mass_over_pt_uncorr, int et
   double mass_over_pTMin = m_correlationMapMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( std::isnan(mass_over_pt_uncorr)) return 0; // no weight if the input is NaN, can happen for log(X)
   if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
@@ -564,7 +574,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   // This essentially requires that the jet has a mass
   // However, constituents are not stored now in rel21 (LCOrigTopoClusters are transient)
   // Thus, getConstituents() breaks unless they are specifically written out
-  // Instead, this has been changed to require a non-zero mass (same impact)
+  // Instead, this has been changed to require a non-zero mass
   // Done by S. Schramm on Oct 21, 2017
 
   if ( ( ( !m_use3Dhisto && absdetectorEta < m_massEtaBins.back() ) ||
