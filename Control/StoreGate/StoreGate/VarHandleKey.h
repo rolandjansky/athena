@@ -145,6 +145,12 @@ public:
   VarHandleBase* owningHandle();
 
 
+  /**
+   * @brief Does this key reference the primary event store?
+   */
+  bool isEventStore() const;
+
+
 private:
   /// Set the owning handle.  Only callable from VarHandleBase.
   friend class VarHandleBase;
@@ -182,7 +188,10 @@ private:
   ServiceHandle<IProxyDict> m_storeHandle;
 
   /// StoreGate key, that doesn't include the storename
-  std::string m_sgKey {""};
+  std::string m_sgKey;
+
+  /// Cache test for whether we're referencing the event store.
+  bool m_isEventStore = false;
 
   /// Handle that owns this key, or nullptr if it is not owned.
   VarHandleBase* m_owningHandle = nullptr;
