@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_Digit_p1.h"

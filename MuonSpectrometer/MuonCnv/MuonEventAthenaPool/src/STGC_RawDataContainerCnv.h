@@ -16,9 +16,7 @@ typedef  T_AthenaPoolCustomCnv<Muon::STGC_RawDataContainer, STGC_RawDataContaine
 class STGC_RawDataContainerCnv : 
     public STGC_RawDataContainerCnvBase 
 {
-    
-    // friend class CnvFactory<TgcPrepDataContainerCnv>;
-    
+        
 public:
     STGC_RawDataContainerCnv(ISvcLocator* svcloc);
     virtual ~STGC_RawDataContainerCnv();
