@@ -215,9 +215,9 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 
 	// Constants vars for the ElectronicsResponseSimulation
 	declareProperty("peakTime",                m_peakTime = 50.);            // The VMM peak time setting.
-	declareProperty("electronicsThreshold",    m_electronicsThreshold = 1250.0); // at gain=5000 in StripResponse
-	declareProperty("StripDeadTime",           m_stripdeadtime = 3000.0); // default value ?
-	declareProperty("ARTDeadTime",             m_ARTdeadtime   = 3000.0);  // default value ?
+	declareProperty("electronicsThreshold",    m_electronicsThreshold = 6000.0);  // 2*(Intrinsic noise ~3k e)
+	declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);  // default value ?
+	declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);  // default value ?
 
 }
 
@@ -515,12 +515,11 @@ StatusCode MmDigitizationTool::processAllSubEvents() {
 }
 /*******************************************************************************/
 StatusCode MmDigitizationTool::finalize() {
-	//ATH_MSG_DEBUG("MMDigitizationTool::finalize() ---- m_digitContainer->digit_size() = "<<m_digitContainer->digit_size() );
 	m_digitContainer->release();
 
 	if (m_writeOutputFile) {
-		TDirectory*backup=gDirectory; // 15/06/2015 T.Saito
-		m_file->cd(); // 15/06/2015 T.Saito
+		TDirectory*backup=gDirectory;
+		m_file->cd();
 		m_ntuple->Write();
 		gDirectory=backup;
 		m_file->Close();
@@ -589,14 +588,15 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// Loop over the hits:
 		while (i != e) {
 
+			////////////////////////////////////////////////////////////////////
+			//
+			// Hit Information And Preparation
+			//
+
+
 			TimedHitPtr<GenericMuonSimHit> phit = *i++;
 			eventTime = phit.eventTime();
 			const GenericMuonSimHit& hit(*phit);
-			//      std::cout << "hit.kineticEnergy() = " << hit.kineticEnergy() << std::endl;
-			// SimHits without energy loss are not recorded.
-			// not needed because of already done in sensitive detector
-			// https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonG4/MuonG4SD/trunk/src/MicromegasSensitiveDetector.cxx?rev=542333#L65
-			// if(hit.depositEnergy()==0.) continue;
 
 			if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
 				Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
@@ -669,6 +669,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 							<< m_idHelper->multilayer(layerID)
 							);
 
+			// For collection of inputs to throw back in SG
+
 			GenericMuonSimHit* copyHit = new GenericMuonSimHit( hitID,
 																globalHitTime+eventTime,
 																eventTime,
@@ -686,20 +688,24 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			inputSimHitColl->Insert(*copyHit);
 
-			// Check seems to be deprecated (Nov 20, 2017)
-			// Important checks for hits (global time, position along strip, charge, masked chambers etc..) DO NOT SET THIS CHECK TO FALSE IF YOU DON'T KNOW WHAT YOU'RE DOING !
-			// if(m_checkMMSimHits) {
-			// 	if(checkMMSimHit(hit) == false) {
-			// 		m_exitcode = 8;
-			// 		if(m_writeOutputFile) m_ntuple->Fill();
-			// 		ATH_MSG_DEBUG( "m_exitcode = 8 " );
-			// 		continue;
-			// 	}
-			// }
+			// remove hits in masked multiplet
+			if( m_maskMultiplet == m_idHelper->multilayer(layerID) ) continue;
 
-			// sanity checks
+
+			//
+			// Hit Information And Preparation
+			//
+			////////////////////////////////////////////////////////////////////
+
+
+			////////////////////////////////////////////////////////////////////
+			//
+			// Sanity Checks
+			//
+
+
 			if( !m_idHelper->is_mm(layerID) ){
-				ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
+				ATH_MSG_WARNING("layerID does not represent a valid MM layer: " << m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
 				continue;
 			}
 
@@ -712,31 +718,18 @@ StatusCode MmDigitizationTool::doDigitization() {
 					|| m_idHelper->is_csc(layerID)
 					|| m_idHelper->is_stgc(layerID)
 					){
-				ATH_MSG_WARNING("MM id has wrong technology type! "
-								<< m_idHelper->is_mdt(layerID)
-								<< " "
-								<< m_idHelper->is_rpc(layerID)
-								<< " "
-								<< m_idHelper->is_tgc(layerID)
-								<< " "
-								<< m_idHelper->is_csc(layerID)
-								<< " "
-								<< m_idHelper->is_stgc(layerID)
-								);
+				ATH_MSG_WARNING("MM id has wrong technology type! ");
 				m_exitcode = 9;
 				if(m_writeOutputFile) m_ntuple->Fill();
+				continue
 			}
 
 			if( m_idHelper->stationPhi(layerID) == 0 ){
 				ATH_MSG_WARNING("unexpected phi range " << m_idHelper->stationPhi(layerID) );
 				m_exitcode = 9;
 				if(m_writeOutputFile) m_ntuple->Fill();
-				ATH_MSG_DEBUG( "m_exitcode = 9 " );
 				continue;
 			}
-
-			// remove hits in masked multiplet
-			if( m_maskMultiplet == m_idHelper->multilayer(layerID) ) continue;
 
 			// get readout element
 			const MuonGM::MMReadoutElement* detEl = m_MuonGeoMgr->getMMReadoutElement(layerID);
@@ -752,9 +745,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 									);
 				m_exitcode = 10;
 				if(m_writeOutputFile) m_ntuple->Fill();
-				ATH_MSG_DEBUG( "m_exitcode = 10 " );
 				continue;
 			}
+
+			//
+			// Sanity Checks
+			//
+			////////////////////////////////////////////////////////////////////
 
 
 			m_n_Station_side = m_muonHelper->GetSide(simId);
@@ -773,10 +770,20 @@ StatusCode MmDigitizationTool::doDigitization() {
 																side
 																);
 			MMReadoutParameters roParam = mm->GetReadoutParameters();
-			// surface
+
+
+
+			////////////////////////////////////////////////////////////////////
+			//
+			// Angles, Geometry, and Coordinates. Oh my!
+			//
+
+
+
+			// Surface
 			const Trk::PlaneSurface& surf = detEl->surface(layerID);
 
-			// calculate the inclination angle
+			// Calculate The Inclination Angle
 			// Angle
 			const Amg::Vector3D globalHitDirection( hit.globalDirection().x(),
 													hit.globalDirection().y(),
@@ -816,10 +823,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1)
 				localDirectionTime  = localDirection;
 			else
-				localDirectionTime  = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),
-																						hit.globalDirection().y(),
-																						-hit.globalDirection().z()
-																						);
+				localDirectionTime  = surf.transform()
+										.inverse()
+										.linear()*Amg::Vector3D(
+											hit.globalDirection().x(),
+											hit.globalDirection().y(),
+											-hit.globalDirection().z()
+										);
 
 
 
@@ -828,14 +838,14 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Amg::Vector3D hitOnSurface = stripLayerPosition + scale*localDirection;
 			Amg::Vector2D posOnSurf (hitOnSurface.x(), hitOnSurface.y());
 
-			// account for time offset
+			// Account For Time Offset
 			double shiftTimeOffset = (globalHitTime - tofCorrection)* m_driftVelocity;
 			Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
 			Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
 
 			if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
 
-			// Don't consider electrons hits below m_energyThreshold
+			// Don't consider electron hits below m_energyThreshold
 			if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
 				m_exitcode = 5;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -846,12 +856,19 @@ StatusCode MmDigitizationTool::doDigitization() {
 			if( !surf.insideBounds(posOnSurf) ){
 				m_exitcode = 1;
 				if(m_writeOutputFile) m_ntuple->Fill();
-				ATH_MSG_DEBUG( "m_exitcode = 1 : shiftTimeOffset = "<< shiftTimeOffset << "hitOnSurface.z  = " << hitOnSurface.z() << ", hitOnSurface.x  = " << hitOnSurface.x() << ", hitOnSurface.y  = " << hitOnSurface.y() );
+				ATH_MSG_DEBUG( "m_exitcode = 1 : shiftTimeOffset = "
+								<< shiftTimeOffset
+								<< "hitOnSurface.z  = "
+								<< hitOnSurface.z()
+								<< ", hitOnSurface.x  = "
+								<< hitOnSurface.x()
+								<< ", hitOnSurface.y  = "
+								<< hitOnSurface.y()
+								);
 				continue;
 			}
 
 			int stripNumber = detEl->stripNumber(posOnSurf,layerID);
-			//      int LastStripNumber = detEl->stripNumber(posOnTopSurf, layerID);
 			Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
 
 			if( stripNumber == -1 ){
@@ -874,7 +891,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				continue;
 			}
 
-			// re-definition of ID
+			// Re-definition Of ID
 			Identifier parentID = m_idHelper->parentID(layerID);
 			Identifier digitID  = m_idHelper->channelID(parentID,
 														m_idHelper->multilayer(layerID),
@@ -902,18 +919,25 @@ StatusCode MmDigitizationTool::doDigitization() {
 				ATH_MSG_WARNING( "Found: distToChannel_withStripID: " << distToChannel_withStripID << " != distToChannel: " << distToChannel  );
 				m_exitcode = 12;
 				if(m_writeOutputFile) m_ntuple->Fill();
-				ATH_MSG_DEBUG( "m_exitcode = 12 " );
 				continue;
 			}
 
+			// Obtain Magnetic Field At Detector Surface
 			Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
-			Amg::Vector3D bxyz;
-			m_magFieldSvc->getField(&hitOnSurfaceGlobal, &bxyz);
+			Amg::Vector3D magneticField;
+			m_magFieldSvc->getField(&hitOnSurfaceGlobal, &magneticField);
 
 			// B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
-			Amg::Vector3D bxyzLocal = surf.transform().inverse()*bxyz-surf.transform().inverse()*Amg::Vector3D(0,0,0);
+			Amg::Vector3D localMagneticField = surf.transform().inverse()*magneticField
+													- surf.transform().inverse()*Amg::Vector3D(0,0,0);
 			if( (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1) == -1 )
-				bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() );
+				localMagneticField = Amg::Vector3D(localMagneticField.x(), -localMagneticField.y(), -localMagneticField.z() );
+
+
+			//
+			// Angles, Geometry, and Coordinates. Oh my!
+			//
+			////////////////////////////////////////////////////////////////////
 
 
 			////////////////////////////////////////////////////////////////////
@@ -924,7 +948,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			const MmDigitToolInput stripDigitInput( stripNumber,
 													distToChannel,
 													inAngle_XZ,
-													bxyzLocal,
+													localMagneticField,
 													detEl->numberOfStrips(layerID),
 													m_idHelper->gasGap(layerID),
 													eventTime+globalHitTime
@@ -959,21 +983,31 @@ StatusCode MmDigitizationTool::doDigitization() {
 			v_stripDigitOutput.push_back(stripDigitOutput);
 
 			//
+			// Strip Response Simulation For This Hit
+			//
 			////////////////////////////////////////////////////////////////////
 
 			previousHit = &hit;
 
-		} //while(i != e)
+		} // Hit Loop
+
+		// Now at Detector Element Level (VMM)
 
 		if(v_stripDigitOutput.size()==0){
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no strip response." );
+			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no strip response on this VMM." );
 			continue;
 		}
 
-		//---
-		// To get Information combined in all hits
-		//---
+
+		////////////////////////////////////////////////////////////////////
+		//
+		// VMM Simulation
+		//
+
+
+		// Combine all strips (for this VMM) into a single VMM-level object
 		MmElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
+
 
 		//-----------------------------------------------------------
 		// Create Electronics Output with peak finding algorithm
@@ -1000,13 +1034,22 @@ StatusCode MmDigitizationTool::doDigitization() {
 		int stationEta = m_idHelper->stationEta(layerID);
 		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
 
-		//
 		// Apply Dead-time in ART
-		//
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(electronicsTriggerOutput));
 
-		// To apply an arbitrary time-smearing of digits
+		// To apply an arbitrary time-smearing of VMM signals
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
+
+
+		//
+		// VMM Simulation
+		//
+		////////////////////////////////////////////////////////////////////
+
+		////////////////////////////////////////////////////////////////////
+		//
+		// (VMM-Level) Output Of Digitization
+		//
 
 		MmDigit*  newDigit = new MmDigit(   stripdigitOutputAllHits.digitID(),
 											// --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
@@ -1023,6 +1066,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 											electronicsTriggerOutputAppliedARTTiming.VMMid(),
 											electronicsTriggerOutputAppliedARTTiming.MMFEVMMid()
 										);
+
 		// The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity.
 		// IdentifierHash detIdhash ;
 		// set RE hash id
@@ -1044,6 +1088,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 			digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
 			digitCollection->push_back(newDigit);
 		}
+
+		//
+		// (VMM-Level) Output Of Digitization
+		//
+		////////////////////////////////////////////////////////////////////
+
+
 
 		v_StripdigitOutput.clear();
 
@@ -1074,7 +1125,7 @@ MmElectronicsToolInput MmDigitizationTool::combinedStripResponseAllHits(const st
 	// Loop over strip digit output elements
 	for(auto& i_stripDigitOutput:v_stripDigitOutput){
 
-		//--- Just to get Digit id with the largest kinetic energy, but the Digit id is no longer meaningless
+		//--- Just to get Digit id with the largest kinetic energy, but the Digit id is no longer meaningful
 		if(i_stripDigitOutput.kineticEnergy()>max_kineticEnergy){
 			digitID = i_stripDigitOutput.digitID();
 			max_kineticEnergy = i_stripDigitOutput.kineticEnergy();
