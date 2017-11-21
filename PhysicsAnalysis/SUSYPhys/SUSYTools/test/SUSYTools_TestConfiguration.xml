@@ -9,7 +9,7 @@
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
-      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.mc.root monitoring.mc.root
+      <postscript>skip_if_libraryMissing.sh SUSYToolsLib rootcomp.py --html --atnMode --output rootcomp_monitoring.mc.root monitoring.mc.root
       </postscript>
       <expectations>
         <errorMessage>FAILURE (ERROR)</errorMessage>
@@ -22,7 +22,7 @@
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
-      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.atlfast.root monitoring.atlfast.root
+      <postscript>skip_if_libraryMissing.sh SUSYToolsLib rootcomp.py --html --atnMode --output rootcomp_monitoring.atlfast.root monitoring.atlfast.root
       </postscript>
       <expectations>
         <errorMessage>FAILURE (ERROR)</errorMessage>
@@ -35,7 +35,7 @@
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
-      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.data.root monitoring.data.root
+      <postscript>skip_if_libraryMissing.sh SUSYToolsLib rootcomp.py --html --atnMode --output rootcomp_monitoring.data.root monitoring.data.root
       </postscript>
       <expectations>
         <errorMessage>FAILURE (ERROR)</errorMessage>
