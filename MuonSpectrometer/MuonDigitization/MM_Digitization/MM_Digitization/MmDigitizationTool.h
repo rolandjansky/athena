@@ -210,6 +210,9 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 		float m_stripdeadtime; // dead-time for strip
 		float m_ARTdeadtime; // dead-time for ART
 
+		std::string m_vmmReadoutMode;
+		std::string m_vmmARTMode;
+
 		int m_n_Station_side;
 		int m_n_Station_eta;
 		int m_n_Station_phi;

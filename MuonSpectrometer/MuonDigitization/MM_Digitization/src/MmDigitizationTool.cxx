@@ -86,6 +86,7 @@
 // #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TString.h"
 
 #include <string>
 #include <sstream>
@@ -147,6 +148,9 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	m_electronicsThreshold(0),
 	m_stripdeadtime(0),
 	m_ARTdeadtime(0),
+
+	m_vmmReadoutMode(""),
+	m_vmmARTMode(""),
 
 	// Tree Branches...
 	m_n_Station_side(-999),
@@ -212,6 +216,9 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	declareProperty("DriftVelocity",              m_driftVelocity = 0.047);  // Drift velocity in [mm/ns]
 	declareProperty("crossTalk1",		          m_crossTalk1 = 0.1);       // Strip Cross Talk with Nearest Neighbor
 	declareProperty("crossTalk2",		          m_crossTalk2 = 0.03);      // Strip Cross Talk with 2nd Nearest Neighbor
+
+	declareProperty("vmmReadoutMode",             m_vmmReadoutMode = "peak"      ); // For readout (DAQ) path. Can be "peak" or "threshold"
+	declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
 
 	// Constants vars for the ElectronicsResponseSimulation
 	declareProperty("peakTime",                m_peakTime = 50.);            // The VMM peak time setting.
@@ -347,6 +354,19 @@ StatusCode MmDigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation->setStripResponseDriftGapWidth(  m_StripsResponseSimulation->getDriftGapWidth() );
 	m_ElectronicsResponseSimulation->initialize();
 
+
+	// Configuring various VMM modes of signal readout
+	//
+	if(      TString(m_vmmReadoutMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmReadoutMode = "peak";
+	else if( TString(m_vmmReadoutMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmReadoutMode = "threshold";
+	else {
+		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmReadoutMode);
+	}
+	if(      TString(m_vmmARTMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmARTMode = "peak";
+	else if( TString(m_vmmARTMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmARTMode = "threshold";
+	else {
+		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmARTMode);
+	}
 
 	return StatusCode::SUCCESS;
 }
@@ -792,32 +812,28 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Trk::LocalDirection localHitDirection;
 			surf.globalToLocalDirection(globalHitDirection, localHitDirection);
 
-			// inAngle_XZ is not an incident angle yet. It's atan(z/x),
+			// This is not an incident angle yet. It's atan(z/x),
 			// ... so it's the complement of the angle w.r.t. a vector normal to the detector surface
 			float inAngleCompliment_XZ =  localHitDirection.angleXZ() / CLHEP::degree;
 
 			// This is basically to handle the atan ambiguity
 			if(inAngleCompliment_XZ < 0.0) inAngleCompliment_XZ += 180;
 
-			// This gets the actual incidence angle.
+			// This gets the actual incidence angle from its complement.
 			float inAngle_XZ = 90. - inAngleCompliment_XZ;
 
 			// How can this be the right thing? Should this be readoutSide?
 			// inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
 			inAngle_XZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
 
-			ATH_MSG_DEBUG(  "At eta "
+			ATH_MSG_WARNING(  "At eta "
 							<< m_idHelper->stationEta(layerID)
 							<< " phi "
 							<< m_idHelper->stationPhi(layerID)
 							<<  "\n IncomingAngle: "
 							<<  localHitDirection.angleXZ() / CLHEP::degree
-							<< "\n inAngle_XZ, "
+							<< "\n inAngle_XZ (degrees): "
 							<< inAngle_XZ
-							<< " , "
-							<< inAngle_XZ * CLHEP::degree
-							<< "   ..   "
-							<< CLHEP::degree
 							);
 
 
@@ -1015,33 +1031,45 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 
 		// Combine all strips (for this VMM) into a single VMM-level object
+		//
 		MmElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
 
+		// Create Electronics Output with peak finding setting
+		//
+		MmDigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
+		if(!electronicsPeakOutput.isValid())
+			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response (peak finding mode) even though there is a strip response." );
 
-		//-----------------------------------------------------------
-		// Create Electronics Output with peak finding algorithm
-		//-----------------------------------------------------------
-		MmDigitToolOutput electronicsOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
-		if(!electronicsOutput.isValid()) {
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response even though there is a strip response." );
-		}
-		//-----------------------------------------------------------
-		// Create Electronics Output with threshold
-		//-----------------------------------------------------------
+		// Create Electronics Output with threshold setting
+		//
 		MmDigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
 		if(!electronicsThresholdOutput.isValid())
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response for TRIGGER even though there is a strip response." );
+			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
 
-		//
+		// Choose which of the above outputs is used for readout
+		MmDigitToolOutput * electronicsOutputForReadout(0);
+		if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = & electronicsPeakOutput;
+		else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = & electronicsThresholdOutput;
+		else ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
+		// but this should be impossible from initialization checks
+
+		// Choose which of the above outputs is used for triggering
+		MmDigitToolOutput * electronicsOutputForTriggerPath(0);
+		if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = & electronicsPeakOutput;
+		else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = & electronicsThresholdOutput;
+		else ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
+		// but this should be impossible from initialization checks
+
+
 		// Apply Dead-time for strip
 		//
-		MmDigitToolOutput electronicsThresholdOutputAppliedStripDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeStrip(electronicsThresholdOutput));
-		//
-		// ART:The fastest strip signal per VMM id should be selected for trigger
+		MmDigitToolOutput electronicsOutputForTriggerPathWStripDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeStrip(*electronicsOutputForTriggerPath));
+
+		// ART: The fastest strip signal per VMM id should be selected for trigger
 		//
 		int chMax = m_idHelper->channelMax(layerID);
 		int stationEta = m_idHelper->stationEta(layerID);
-		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsThresholdOutputAppliedStripDeadTime, chMax, stationEta));
+		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsOutputForTriggerPathWStripDeadTime, chMax, stationEta));
 
 		// Apply Dead-time in ART
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(electronicsTriggerOutput));
@@ -1049,6 +1077,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// To apply an arbitrary time-smearing of VMM signals
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
+		MmElectronicsToolTriggerOutput finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
 
 		//
 		// VMM Simulation
@@ -1061,19 +1090,19 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//
 
 		MmDigit*  newDigit = new MmDigit(   stripDigitOutputAllHits.digitID(),
-											// --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
-											electronicsOutput.stripTime(),
-											electronicsOutput.stripPos(),
-											electronicsOutput.stripCharge(),
+											// --- We had ElectronicsPeakOutput here, instead of StripResponse Output because but it's no longer useful
+											electronicsOutputForReadout->stripTime(),
+											electronicsOutputForReadout->stripPos(),
+											electronicsOutputForReadout->stripCharge(),
 											// ---------------------
-											electronicsOutput.stripTime(),
-											electronicsOutput.stripPos(),
-											electronicsOutput.stripCharge(),
-											electronicsTriggerOutputAppliedARTTiming.chipTime(),
-											electronicsTriggerOutputAppliedARTTiming.NumberOfStripsPos(),
-											electronicsTriggerOutputAppliedARTTiming.chipCharge(),
-											electronicsTriggerOutputAppliedARTTiming.VMMid(),
-											electronicsTriggerOutputAppliedARTTiming.MMFEVMMid()
+											electronicsOutputForReadout->stripTime(),
+											electronicsOutputForReadout->stripPos(),
+											electronicsOutputForReadout->stripCharge(),
+											finalElectronicsTriggerOutput.chipTime(),
+											finalElectronicsTriggerOutput.NumberOfStripsPos(),
+											finalElectronicsTriggerOutput.chipCharge(),
+											finalElectronicsTriggerOutput.VMMid(),
+											finalElectronicsTriggerOutput.MMFEVMMid()
 										);
 
 		// The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity.
