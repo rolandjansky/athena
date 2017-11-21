@@ -732,8 +732,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			}
 
 			// get readout element
-			const MuonGM::MMReadoutElement* detEl = m_MuonGeoMgr->getMMReadoutElement(layerID);
-			if( !detEl ){
+			const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(layerID);
+			if( !detectorReadoutElement ){
 				ATH_MSG_WARNING( "Failed to retrieve detector element for: isSmall "
 									<< isSmall
 									<< " eta "
@@ -781,7 +781,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 
 			// Surface
-			const Trk::PlaneSurface& surf = detEl->surface(layerID);
+			const Trk::PlaneSurface& surf = detectorReadoutElement->surface(layerID);
 
 			// Calculate The Inclination Angle
 			// Angle
@@ -868,7 +868,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				continue;
 			}
 
-			int stripNumber = detEl->stripNumber(posOnSurf,layerID);
+			int stripNumber = detectorReadoutElement->stripNumber(posOnSurf,layerID);
 			Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
 
 			if( stripNumber == -1 ){
@@ -883,7 +883,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 								<< " eDep: "
 								<< hit.depositEnergy()
 								<< " unprojectedStrip: "
-								<< detEl->stripNumber(posOnSurfUnProjected, layerID)
+								<< detectorReadoutElement->stripNumber(posOnSurfUnProjected, layerID)
 								);
 				m_exitcode = 2;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -904,7 +904,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// contain (name, eta, phi, multiPlet)
 			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
 
-			const MuonGM::MuonChannelDesign* mmChannelDes = detEl->getDesign(digitID);
+			const MuonGM::MuonChannelDesign* mmChannelDes = detectorReadoutElement->getDesign(digitID);
 			double distToChannel_withStripID = mmChannelDes->distanceToChannel(posOnSurf, stripNumber);
 			double distToChannel = mmChannelDes->distanceToChannel(posOnSurf);
 			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
@@ -949,7 +949,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 													distToChannel,
 													inAngle_XZ,
 													localMagneticField,
-													detEl->numberOfStrips(layerID),
+													detectorReadoutElement->numberOfStrips(layerID),
 													m_idHelper->gasGap(layerID),
 													eventTime+globalHitTime
 													);
@@ -973,7 +973,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 					ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
 				} else {
 					Amg::Vector2D cr_strip_pos(0., 0.);
-					if ( !detEl->stripPosition(cr_id,cr_strip_pos) ) {
+					if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
 						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0.");
 					}
 				}
