@@ -220,7 +220,7 @@ StatusCode ThinGeantTruthAlg::execute()
 
       for (auto egTruthParticle : *egammaTruthParticles) {
 
-	static const SG::AuxElement::Accessor<int> accType("truthType");
+	static const SG::AuxElement::ConstAccessor<int> accType("truthType");
 	if(!accType.isAvailable(*egTruthParticle) || 
 	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron){
 	  continue;
