@@ -1668,7 +1668,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for TotalNumber_of_MDT_hits_per_event without a cut on ADC 
     sc = bookMDTHisto_overview(mdteventsLumi, "TotalNumber_of_MDT_hits_per_event", "[counts]", "Number of Events",
-        500, 0., 10000., mg->mongroup_overview_shiftLumi);
+	500, 0., 20000., mg->mongroup_overview_shiftLumi);
     
      
     ////////////////////////////////////////////////////////////////////////////////////// 
