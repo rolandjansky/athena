@@ -81,8 +81,6 @@ private:
 	enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
 
 	const AtlasDetectorID * m_idHelper;
-	StatusCode Retrieve_TRT_RDOs(); // NOTE: will be removed
-	StatusCode Retrieve_TRT_Tracks(); // NOTE: will be removed
 
 	StatusCode bookTRTRDOs(bool isNewLumiBlock, bool isNewRun);
 	StatusCode bookTRTTracks(bool isNewLumiBlock, bool isNewRun);

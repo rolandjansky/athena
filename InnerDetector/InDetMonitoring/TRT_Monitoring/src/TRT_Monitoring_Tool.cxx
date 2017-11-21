@@ -1820,33 +1820,6 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 	return StatusCode::SUCCESS;
 }
 
-// Will be removed as m_rdoContainer will be changed to ReadHandle
-// Get TRT Raw Data Objects (all TRT Hits)
-//----------------------------------------------------------------------------------//
-StatusCode TRT_Monitoring_Tool::Retrieve_TRT_RDOs() {
-//----------------------------------------------------------------------------------//
-	ATH_MSG_VERBOSE("Retrieving RDO Container from StoreGate");
-	StatusCode sc = StatusCode::SUCCESS;
-
-	if (evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
-		sc = evtStore()->retrieve(m_rdoContainer, m_rawDataObjectName);
-
-		if (sc.isFailure() || !m_rdoContainer) {
-			ATH_MSG_FATAL("Could not find the data object");
-			return StatusCode::FAILURE;
-		} else {
-			ATH_MSG_DEBUG("Data Object " << m_rawDataObjectName << " found");
-		}
-	} else {
-		ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in storegate");
-		return StatusCode::FAILURE;
-	}
-
-	ATH_MSG_VERBOSE("Leaving Retrieve_TRT_RDOs()");
-	return sc;
-}//Retrieve_TRT_RDOs()
-
-
 //Check for EventBurst: Counts highlevelhits and returns m_passEventBurst flag true if the count is less than m_m_passEventBurstCut,returns allways succes
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::checkEventBurst(const TRT_RDO_Container& rdoContainer) {
@@ -2438,40 +2411,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 	}
 
 	ATH_MSG_VERBOSE("Leaving Fill TRT RDO Histograms");
-	return StatusCode::SUCCESS;
-}
-
-// Will be removed later
-//Get the TRT Track Collections from store gate
-//----------------------------------------------------------------------------------//
-StatusCode TRT_Monitoring_Tool::Retrieve_TRT_Tracks() {
-//----------------------------------------------------------------------------------//
-	ATH_MSG_VERBOSE("Retrieving TRT Tracks Container from StoreGate");
-
-	if (evtStore()->contains<TrackCollection>(m_tracksObjectName)) {
-		if (evtStore()->retrieve(m_trkCollection, m_tracksObjectName).isFailure()) {
-			ATH_MSG_ERROR("Could not find Tracks Collection");
-			return StatusCode::FAILURE;
-		} else {
-			ATH_MSG_VERBOSE("Tracks retrieved from StoreGate");
-		}
-	} else {
-		ATH_MSG_WARNING("No TrackCollection by the name of " << m_tracksObjectName << " in storegate");
-		return StatusCode::FAILURE;
-	}
-
-	if (evtStore()->contains<ComTime>(m_comTimeObjectName)) {
-		if (evtStore()->retrieve(m_theComTime, m_comTimeObjectName).isFailure()) {
-			ATH_MSG_DEBUG("ComTime object not found with name " << m_comTimeObjectName << ".");
-			m_theComTime = 0; // protection for later on
-		} else {
-			ATH_MSG_DEBUG("ComTime object found successfully");
-		}
-	} else {
-		ATH_MSG_DEBUG("No ComTime object found in storegate.");
-		m_theComTime = 0;
-	}
-
 	return StatusCode::SUCCESS;
 }
 
