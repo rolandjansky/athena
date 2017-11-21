@@ -83,10 +83,10 @@ class MuFastSteering : public HLT::FexAlgo,
   /** this function can be called from both execute() and hltExecute() **/
   StatusCode findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roi, 
 			       const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
-                               xAOD::L2StandAloneMuonContainer* 		outputTracks,
-			       TrigRoiDescriptorCollection*	 		outputID,
-			       TrigRoiDescriptorCollection*	 		outputMS,
-			       xAOD::TrigCompositeContainer*			outputComposite);
+                               DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
+			       TrigRoiDescriptorCollection&	 		outputID,
+			       TrigRoiDescriptorCollection&	 		outputMS,
+			       DataVector<xAOD::TrigComposite>&			outputComposite);
 
   int L2MuonAlgoMap(const std::string& name);
   
@@ -116,9 +116,9 @@ class MuFastSteering : public HLT::FexAlgo,
 		    const TrigL2MuonSA::MdtHits&             mdtHits,
 		    const TrigL2MuonSA::CscHits&             cscHits,
 		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
-                    xAOD::L2StandAloneMuonContainer*         outputTracks,
-		    TrigRoiDescriptorCollection*  	     outoutID,
-		    TrigRoiDescriptorCollection*	     outputMS);
+                    DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
+		    TrigRoiDescriptorCollection&  	     outoutID,
+		    TrigRoiDescriptorCollection&	     outputMS);
   /**
      Update monitoring variables
   */
@@ -217,7 +217,7 @@ class MuFastSteering : public HLT::FexAlgo,
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey;
 
   // Monitor system
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle< GenericMonitoringTool > m_monTool;
 
   unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI

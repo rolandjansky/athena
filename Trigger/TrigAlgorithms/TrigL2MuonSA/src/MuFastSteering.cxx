@@ -49,7 +49,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
     m_jobOptionsSvc(0) 
-    //m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
@@ -103,6 +102,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("MuFastComposite",m_muCompositeContainerKey = std::string("xAOD::TrigCompositeContainer"),"xAOD::TrigCompositeContainer to record");	
   declareProperty("MuFastForID",m_muIdContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for ID to record");
   declareProperty("MuFastForMS",m_muMsContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for MS to record");
+  declareProperty("MonTool", m_monTool = std::string(""), "Monitoring Tool");
 }
 
 // --------------------------------------------------------------------------------
@@ -270,28 +270,28 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 
   //adding a part of DataHandle for AThenaMT
   if (m_roiCollectionKey.initialize().isFailure() ) { 
-    ATH_MSG_ERROR("ReadHandleKey for MURoIs initialize Failure!");
+    ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
   }
   if (m_recRoiCollectionKey.initialize().isFailure() ) { 
-    ATH_MSG_ERROR("ReadHandleKey for RecMuonRoI initialize Failure!");
+    ATH_MSG_ERROR("ReadHandleKey for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
   }
   if (m_muFastContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for xAOD::L2StandAloneMuonContainer initialize Failure!");
+    ATH_MSG_ERROR("WriteHandleKey for xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   } 
   if (m_muCompositeContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer initialize Failure!");
+    ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_muCompositeContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   } 
   if (m_muIdContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection for ID initialize Failure!");
+    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
 
   if (m_muMsContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection for MS initialize Failure!");
+    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
   if (not m_monTool.name().empty()) {
@@ -357,14 +357,14 @@ StatusCode MuFastSteering::execute()
   auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey );
   const TrigRoiDescriptorCollection *roiCollection = roiCollectionHandle.cptr();
   if (!roiCollectionHandle.isValid()){
-    ATH_MSG_ERROR("ReadHandle for MURoIs isn't Valid");
+    ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key() << " isn't Valid");
     return StatusCode::FAILURE;
   } 
 
   auto recRoiCollectionHandle = SG::makeHandle( m_recRoiCollectionKey );
   const DataVector<LVL1::RecMuonRoI> *recRoiCollection = recRoiCollectionHandle.cptr();
   if (!recRoiCollectionHandle.isValid()){
-    ATH_MSG_ERROR("ReadHandle for RecMuonRoI isn't Valid");
+    ATH_MSG_ERROR("ReadHandle for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " isn't Valid");
     return StatusCode::FAILURE;
   }  
 
@@ -375,12 +375,12 @@ StatusCode MuFastSteering::execute()
 
   for(; p_roids != p_roidsEn; ++p_roids ) {
     internalRoI->push_back(*p_roids);    
-    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
-  ATH_MSG_DEBUG("REGTEST: MURoIs size = " << internalRoI->size());
-  ATH_MSG_DEBUG("REGTEST: MURoIs DONE");
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " DONE");
 
   DataVector<LVL1::RecMuonRoI>::const_iterator p_roi = recRoiCollection->begin();
   DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
@@ -388,75 +388,54 @@ StatusCode MuFastSteering::execute()
   // make RecMURoIs maching with MURoIs
   DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
   recRoIVector->clear();
-  for (size_t size=0; size<recRoiCollection->size(); size++){
+  for (size_t size=0; size<roiCollection->size(); size++){
     const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
     CHECK( recRoI != nullptr );
     recRoIVector->push_back(recRoI);
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << recRoIVector->size());
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector->size());
   }
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs DONE");
-
-  // define objects to record output data
-  // for xAOD::L2StandAloneMuonContainer
-  xAOD::L2StandAloneMuonContainer *outputTracks = new xAOD::L2StandAloneMuonContainer();
-  xAOD::L2StandAloneMuonAuxContainer aux;
-  outputTracks->clear();
-  outputTracks->setStore( &aux );
-
-  // for xAOD::TrigCompositeContainer
-  xAOD::TrigCompositeContainer* outputComposite = new xAOD::TrigCompositeContainer();
-  outputComposite->clear();
-  xAOD::TrigCompositeAuxContainer auxComp;
-  outputComposite->setStore( &auxComp );
-
-  // for TrigRoiDescriptor for ID
-  TrigRoiDescriptorCollection *outputID = new TrigRoiDescriptorCollection();
-  outputID->clear();
-
-  // for TrigRoiDescriptor for MS
-  TrigRoiDescriptorCollection *outputMS = new TrigRoiDescriptorCollection();
-  outputMS->clear();
-  
-  // to StatusCode findMuonSignature()
-  ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
-			      outputTracks, outputID, outputMS, outputComposite));	
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " DONE");
 
   // record data objects with WriteHandle
   SG::WriteHandle<xAOD::L2StandAloneMuonContainer> muFastContainer (m_muFastContainerKey);
-  ATH_CHECK(muFastContainer.record(std::make_unique<xAOD::L2StandAloneMuonContainer>(*outputTracks)));
+  ATH_CHECK(muFastContainer.record(std::make_unique<xAOD::L2StandAloneMuonContainer>(), std::make_unique<xAOD::L2StandAloneMuonAuxContainer>()));
 
   SG::WriteHandle<xAOD::TrigCompositeContainer> muCompositeContainer (m_muCompositeContainerKey);
-  ATH_CHECK(muCompositeContainer.record(std::make_unique<xAOD::TrigCompositeContainer>(*outputComposite)));
+  ATH_CHECK(muCompositeContainer.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()));
 
   SG::WriteHandle<TrigRoiDescriptorCollection> muIdContainer (m_muIdContainerKey);
-  ATH_CHECK(muIdContainer.record(std::make_unique<TrigRoiDescriptorCollection>(*outputID)));
+  ATH_CHECK(muIdContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
 
   SG::WriteHandle<TrigRoiDescriptorCollection> muMsContainer(m_muMsContainerKey);
-  ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>(*outputMS)));
+  ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
+
+  // to StatusCode findMuonSignature()
+  ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
+			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer));	  
 
   // DEBUG TEST: Recorded data objects
   ATH_MSG_DEBUG("Recorded data objects"); 
-  ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer size = " << muFastContainer->size());
+  ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " size = " << muFastContainer->size());
   xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*muFastContainer).begin();
   xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*muFastContainer).end();
   for (;p_muon != p_muonEn; ++p_muon) {
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer pt = " << (*p_muon)->pt());
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt());
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
   }
 
-  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection for ID size = " << muIdContainer->size());
+  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " size = " << muIdContainer->size());
   TrigRoiDescriptorCollection::const_iterator p_muonID = muIdContainer->begin();
   TrigRoiDescriptorCollection::const_iterator p_muonIDEn = muIdContainer->end();
   for(; p_muonID != p_muonIDEn; ++p_muonID ) {
-    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection for ID eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
   }  
 
-  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection for MS size = " << muMsContainer->size());
+  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " size = " << muMsContainer->size());
   TrigRoiDescriptorCollection::const_iterator p_muonMS = muMsContainer->begin();
   TrigRoiDescriptorCollection::const_iterator p_muonMSEn = muMsContainer->end();
   for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
-    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection for MS eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
   }
 
   ATH_MSG_DEBUG("REGTEST: Recorded data objects DONE");
@@ -489,20 +468,19 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   bool ActiveState = outputTE->getActiveState();
 
   DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
-  ATH_MSG_DEBUG("REGTEST: MURoIs size: " << roids.size());
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size: " << roids.size());
 
   DataVector<const LVL1::RecMuonRoI> *internalRecRoI = new DataVector<const LVL1::RecMuonRoI>;
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << muonRoIs.size());
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size());
 
   p_roi = muonRoIs.begin();
   for ( p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
     internalRoI->push_back(*p_roids);
-    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
-
-    internalRecRoI->push_back(*p_roi);
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
+     internalRecRoI->push_back(*p_roi);
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
 
     p_roi++;
   }
@@ -510,13 +488,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
 
   // define objects to record output data
   // for xAOD::L2StandAloneMuonContainer
-  xAOD::L2StandAloneMuonContainer *outputTracks = new xAOD::L2StandAloneMuonContainer();
+  DataVector<xAOD::L2StandAloneMuon> *outputTracks = new DataVector<xAOD::L2StandAloneMuon>();
   outputTracks->clear();
   xAOD::L2StandAloneMuonAuxContainer aux;
   outputTracks->setStore( &aux );
   
   // for xAOD::TrigCompositeContainer
-  xAOD::TrigCompositeContainer* outputComposite = new xAOD::TrigCompositeContainer();
+  DataVector<xAOD::TrigComposite> *outputComposite = new DataVector<xAOD::TrigComposite>();
   outputComposite->clear();
   xAOD::TrigCompositeAuxContainer auxComp;
   outputComposite->setStore( &auxComp );
@@ -531,7 +509,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   
   // to StatusCode findMuonSignature()
   StatusCode sc = findMuonSignature(*internalRoI, *internalRecRoI, 
-				    outputTracks, outputID, outputMS, outputComposite);	
+				    *outputTracks, *outputID, *outputMS, *outputComposite);	
   
   HLT::ErrorCode code = HLT::OK;
   // in case of findMuonSignature failed
@@ -574,13 +552,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       ActiveState = false;
       return false;
     }
-    ATH_MSG_DEBUG("Recorded a xAOD::L2StandAloneMuonContainer");
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer size = " << outputTracks->size());
+    ATH_MSG_DEBUG("Recorded xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer key:" << m_muFastContainerKey.key() << " size = " << outputTracks->size());
     xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*outputTracks).begin();
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*outputTracks).end();
     for (;p_muon != p_muonEn; ++p_muon) {
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer pt = " << (*p_muon)->pt());
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer  eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt());
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
     }
   }
 
@@ -598,7 +576,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       ActiveState = false;
       return false;
     }
-    ATH_MSG_DEBUG("Recorded an RoiDescriptor for ID");
+    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " size = " << outputID->size());
+    TrigRoiDescriptorCollection::const_iterator p_muonID = outputID->begin();
+    TrigRoiDescriptorCollection::const_iterator p_muonIDEn = outputID->end();
+    for(; p_muonID != p_muonIDEn; ++p_muonID ) {
+      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
+    }  
   }
 
   if (outputMS->empty()) {
@@ -615,7 +599,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       ActiveState = false;
       return false;
     }
-    ATH_MSG_DEBUG("Recorded an RoiDescriptor for MS");
+    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " size = " << outputMS->size());
+    TrigRoiDescriptorCollection::const_iterator p_muonMS = outputMS->begin();
+    TrigRoiDescriptorCollection::const_iterator p_muonMSEn = outputMS->end();
+    for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
+      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
+    }  
   }
 
   if (outputComposite->empty()) {
@@ -639,10 +629,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
 
 StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roids,
                                              const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
-				             xAOD::L2StandAloneMuonContainer* 		outputTracks,
-					     TrigRoiDescriptorCollection* 		outputID,
-					     TrigRoiDescriptorCollection* 		outputMS,
-					     xAOD::TrigCompositeContainer*            	outputComposite)
+				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
+					     TrigRoiDescriptorCollection& 		outputID,
+					     TrigRoiDescriptorCollection&		outputMS,
+					     DataVector<xAOD::TrigComposite>&          	outputComposite)
 
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
@@ -656,8 +646,8 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     }
   }
 
-  ATH_MSG_DEBUG("REGTEST: MURoIs size = " << roids.size() << " (argument)"); 
-  ATH_MSG_DEBUG("REGTEST: RecMURoIs size = " << muonRoIs.size() << " (argument)"); 
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << roids.size() << " (argument)"); 
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size() << " (argument)"); 
 
   if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
   if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
@@ -674,14 +664,14 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     double roiEta = (*p_roids)->eta();
     double roiPhi = (*p_roids)->phi();
     double roiZed = (*p_roids)->zed();
-    ATH_MSG_DEBUG("REGTEST: MURoIs eta = " << "(" << (*p_roids)->etaMinus() << ")" << roiEta << "(" << (*p_roids)->etaPlus() << ")" << " (argument)");
-    ATH_MSG_DEBUG("REGTEST: MURoIs phi = " << "(" << (*p_roids)->phiMinus() << ")" << roiPhi << "(" << (*p_roids)->phiPlus() << ")" << " (argument)");
-    ATH_MSG_DEBUG("REGTEST: MURoIs zed = " << "(" << (*p_roids)->zedMinus() << ")" << roiZed << "(" << (*p_roids)->zedPlus() << ")" << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << roiEta << "(" << (*p_roids)->etaPlus() << ")" << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << roiPhi << "(" << (*p_roids)->phiPlus() << ")" << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << roiZed << "(" << (*p_roids)->zedPlus() << ")" << " (argument)");
 
     double recroiEta = (*p_roi)->eta();
     double recroiPhi = (*p_roi)->phi();
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs eta/phi = " << recroiEta << "/" << recroiPhi << " (argument)");
-    ATH_MSG_DEBUG("REGTEST: RecMURoIs ID = " << (*p_roi)->sectorID() << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << recroiEta << "/" << recroiPhi << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " ID = " << (*p_roi)->sectorID() << " (argument)");
     ATH_MSG_DEBUG("REGTEST: DONE");
 
     std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
@@ -934,9 +924,9 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 
 	  // add the trigcomposite object to the container
 	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-	  outputComposite->push_back(tc);
+	  outputComposite.push_back(tc);
 
-	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << outputComposite->size() );
+	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << outputComposite.size() );
 	  	  
 	  // set the detail of the trigcomposite object
 	  //	  xAOD::TrigComposite* tc = m_trigCompositeContainer->at(0);
@@ -991,9 +981,9 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
                                   const TrigL2MuonSA::MdtHits&             mdtHits,
                                   const TrigL2MuonSA::CscHits&             cscHits,
                                   std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
-				  xAOD::L2StandAloneMuonContainer*	   outputTracks,
-				  TrigRoiDescriptorCollection*	  	   outputID,
-				  TrigRoiDescriptorCollection*	   	   outputMS)
+				  DataVector<xAOD::L2StandAloneMuon>&	   outputTracks,
+				  TrigRoiDescriptorCollection&  	   outputID,
+				  TrigRoiDescriptorCollection&   	   outputMS)
 {
   const float ZERO_LIMIT = 1.e-5;
 
@@ -1355,7 +1345,7 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
 
     }
 
-    outputTracks->push_back(muonSA);
+    outputTracks.push_back(muonSA);
 //-----------------------------------------------------------------------------------------------------------------------------------------
     // -------
     // store TrigRoiDescriptor
@@ -1417,8 +1407,8 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
 		      << " phi=" << IDroiDescriptor->phi()
 		      << ",  eta=" << IDroiDescriptor->eta());
 
-      outputID->push_back(IDroiDescriptor);
-      outputMS->push_back(MSroiDescriptor);
+      outputID.push_back(IDroiDescriptor);
+      outputMS.push_back(MSroiDescriptor);
  
    } else { // pt = 0.
       
@@ -1439,16 +1429,16 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
 		       << ", eta min=" << IDroiDescriptor->etaMinus()
 		       << ", eta max=" << IDroiDescriptor->etaPlus());
 
-      outputID->push_back(IDroiDescriptor);
+      outputID.push_back(IDroiDescriptor);
     }
   }
 
-  if (outputTracks != 0 && outputTracks->size() > 0) {
-    ATH_MSG_DEBUG ("will Record a xAOD::L2StandAloneMuonContainer");
+  if (outputTracks.size() > 0) {
+    ATH_MSG_DEBUG ("will Record xAOD::L2StandAloneMuonContainer");
 
-    ATH_MSG_DEBUG("At findMuonSignature outputTracks size = " << outputTracks->size());
-    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOut = outputTracks->begin();
-    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOutEn = outputTracks->end();
+    ATH_MSG_DEBUG("At findMuonSignature outputTracks size = " << outputTracks.size());
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOut = outputTracks.begin();
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOutEn = outputTracks.end();
     for (; p_muonOut != p_muonOutEn ; ++p_muonOut ){
       ATH_MSG_DEBUG("At findMuonSignature outputTracks pt = " << (*p_muonOut)->pt());
       ATH_MSG_DEBUG("At findMuonSignature outputTracks eta/phi = " << (*p_muonOut)->eta() << "/" << (*p_muonOut)->phi());

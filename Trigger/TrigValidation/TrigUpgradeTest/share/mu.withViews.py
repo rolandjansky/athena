@@ -23,7 +23,7 @@ ServiceMgr.StoreGateSvc=Service("StoreGateSvc")
 ServiceMgr.StoreGateSvc.Dump=True 
  
 # for Control Flow
-from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
  
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
@@ -89,7 +89,7 @@ if TriggerFlags.doMuon:
   # set up MuFastSteering
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
   from TrigL2MuonSA.TrigL2MuonSAConfig import MuFastSteering
-  muFastAlg = MuFastSteering("muFastAlg")
+  muFastAlg = MuFastSteering()
   muFastAlg.OutputLevel = DEBUG
 
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
@@ -109,32 +109,34 @@ if TriggerFlags.doMuon:
 
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MUFastDecisions"
-    muFastAlg.MuFastComposite = "MUFastComposite"
-    muFastAlg.MuFastForID = "MURoIIDDecisions"
-    muFastAlg.MuFastForMS = "MURoIMSDecisions"
+    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
+    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
+    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
+    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
+
+    #muFastAlg.MonTool = "Validation"
 
   else:
     muFastAlg.MuRoIs = "MURoIs"
     muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MUFastDecisions"
-    muFastAlg.MuFastComposite = "MUFastComposite"
-    muFastAlg.MuFastForID = "MURoIIDDecisions"
-    muFastAlg.MuFastForMS = "MURoIMSDecisions"
+    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
+    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
+    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
+    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
 
   # set up MuFastHypo
   if viewTest:
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
-    muFastHypo = TrigMufastHypoAlg("muFastHypo")
-    muFastHypo.OutputLevel = DEBUG
+    trigMufastHypo = TrigMufastHypoAlg()
+    trigMufastHypo.OutputLevel = DEBUG
 
-    muFastHypo.ViewRoIs = l2MuViewsMaker.Views
-    muFastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
-    muFastHypo.Decisions = "L2MuonFastDecisions"
-    muFastHypo.L1Decisions = "MURoIDecisions"
+    trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
+    trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
+    trigMufastHypo.Decisions = "L2MuonFastDecisions"
+    trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
 
-    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = muFastHypo.Decisions )
-    muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, muFastHypo, muFastDecisionsDumper])
+    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
+    muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, trigMufastHypo, muFastDecisionsDumper])
 
     # run only muFastAlg
     muFastTestStep = stepSeq("muFastTestStep", filterL1RoIsAlg, l2MuViewsMaker)
@@ -144,10 +146,23 @@ if TriggerFlags.doMuon:
 
   # CF construction
   if viewTest:
-    topSequence += muFastStep
-    # run only muFastAlg
-    #topSequence += muFastTestStep
+    step0 = parOR("step0", [ muFastStep ] )
 
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.L1Decision = "HLTChains" 
+    summary.FinalDecisions = ["L2MuonFastDecisions"]
+    summary.OutputLevel = DEBUG 
+    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.L1Decision = "HLTChains" 
+    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+    topSequence += hltTop   
   else:
-    topSequence += filterL1RoIsAlg
     topSequence += muFastAlg
+

@@ -103,9 +103,9 @@ StatusCode TrigMufastHypoTool::decide(const xAOD::L2StandAloneMuonContainer* vec
    auto x_at_beam	= MonitoredScalar::declare("XatBe", -9999.);
    auto z_at_beam	= MonitoredScalar::declare("ZatBe", -9999.);
 
-//   auto monitorIt	= MonitoredScope::declare(m_monTool, fex_pt, fex_eta, fex_phi, 
-//					       x_at_station, y_at_station, z_at_station, 
-//					       x_at_beam, z_at_beam);
+   auto monitorIt	= MonitoredScope::declare(m_monTool, fex_pt, fex_eta, fex_phi, 
+   					          x_at_station, y_at_station, z_at_station, 
+					          x_at_beam, z_at_beam);
    // if accept All flag is on, just pass it
    if(m_acceptAll) {
       pass = true;
