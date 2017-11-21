@@ -149,78 +149,28 @@ namespace Muon {
   StatusCode DCMathSegmentMaker::initialize()
   {
     
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
     // retrieve MuonDetectorManager
-    if(detStore()->retrieve(m_detMgr,"Muon").isFailure()) {
-      ATH_MSG_ERROR("Could not find the MuonGeoModel Manager! ");
-      return StatusCode::FAILURE;
-    }
-
-    if( m_intersectSvc.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_intersectSvc); 
-      return StatusCode::FAILURE;
-    }
-    
-    if( m_mdtCreator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_mdtCreator); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_mdtCreatorT0.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_mdtCreatorT0); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_compClusterCreator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_compClusterCreator); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_idHelperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_printer.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_printer); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_helper.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_helper); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_segmentFinder.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_segmentFinder); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_segmentSelectionTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_segmentSelectionTool); 
-      return StatusCode::FAILURE;
-    }    
+    ATH_CHECK( detStore()->retrieve(m_detMgr,"Muon") );
+    ATH_CHECK( m_intersectSvc.retrieve() );
+    ATH_CHECK( m_mdtCreator.retrieve() );
+    ATH_CHECK( m_mdtCreatorT0.retrieve() );
+    ATH_CHECK( m_compClusterCreator.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_segmentFinder.retrieve() );
+    ATH_CHECK( m_segmentSelectionTool.retrieve() );
     
     if( !m_tofTool.empty() ){
-      if(  m_tofTool.retrieve().isFailure() ){
-	ATH_MSG_ERROR("Could not get " << m_tofTool); 
-	return StatusCode::FAILURE;
-      }    
+      ATH_CHECK( m_tofTool.retrieve() );
     }
 
     if( m_refitParameters ){
-      if( m_segmentFitter.retrieve().isFailure() ){
-	ATH_MSG_ERROR("Could not get " << m_segmentFitter); 
-	return StatusCode::FAILURE;
-      }    
+      ATH_CHECK( m_segmentFitter.retrieve() );
     }
 
     if( !m_dcslFitProvider.empty() ){
-      if( m_dcslFitProvider.retrieve().isFailure() ){
-	ATH_MSG_WARNING(" failed to retrieve " << m_dcslFitProvider);
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_dcslFitProvider.retrieve() );
       m_dcslFitter = m_dcslFitProvider->getFitter();
       ATH_MSG_INFO(" Using " << m_dcslFitProvider);
     }
