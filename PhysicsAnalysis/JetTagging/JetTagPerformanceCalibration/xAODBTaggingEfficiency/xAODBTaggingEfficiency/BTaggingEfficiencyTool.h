@@ -270,30 +270,16 @@ private:
   std::string m_SFFile;
   /// name of the optional MC efficiency file (may be changed by the @c PathResolver)
   std::string m_EffFile;
-  /// name of the data/MC scale factor calibration for b jets
-  std::string m_SFBName;
-  /// name of the data/MC scale factor calibration for charm jets
-  std::string m_SFCName;
-  /// name of the data/MC scale factor calibration for tau jets
-  std::string m_SFTName;
-  /// name of the data/MC scale factor calibration for light-flavour jets
-  std::string m_SFLightName;
-  /// specification of the eigenvector reduction strategy for b jets (if eigenvectors are used)
-  std::string m_EVReductionB;
-  /// specification of the eigenvector reduction strategy for c jets (if eigenvectors are used)
-  std::string m_EVReductionC;
-  /// specification of the eigenvector reduction strategy for light-flavour jets (if eigenvectors are used)
-  std::string m_EVReductionLight;
-  /// semicolon-separated list of MC efficiency parametrisation names for b jets
-  std::string m_EffBName;
-  /// semicolon-separated list of MC efficiency parametrisation names for charm jets
-  std::string m_EffCName;
-  /// semicolon-separated list of MC efficiency parametrisation names for tau jets
-  std::string m_EffTName;
-  /// semicolon-separated list of MC efficiency parametrisation names for light-flavour jets
-  std::string m_EffLightName;
-  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure
+  /// names of the data/MC scale factor calibrations
+  std::map<std::string, std::string> m_SFNames;
+  /// specification of the eigenvector reduction strategy (if eigenvectors are used)
+  std::map<std::string, std::string> m_EVReduction;
+  /// semicolon-separated lists of MC efficiency parametrisation names
+  std::map<std::string, std::string> m_EffNames;
+  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure for all flavours
   std::string m_excludeFromEV;
+  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure for b, c, and light-flavour jets
+  std::map<std::string, std::string> m_excludeFlvFromEV;
   /// tagger name
   std::string m_taggerName;
   /// operating point
@@ -306,6 +292,8 @@ private:
   bool m_useDevFile;
   /// if true, use cone-based labelling (as opposed to ghost association)
   bool m_coneFlavourLabel;
+  /// if true, use an 'extended' labelling (allowing for multiple HF hadrons -or perhaps partons- in the jet)
+  bool m_extFlavourLabel;
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;
