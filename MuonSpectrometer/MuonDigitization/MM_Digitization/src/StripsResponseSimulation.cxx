@@ -6,7 +6,7 @@
 #include "MM_Digitization/StripsResponseSimulation.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
-#include "MM_Digitization/MM_StripResponse.h"
+#include "MM_Digitization/StripResponse.h"
 #include "PathResolver/PathResolver.h"
 
 #include<map>
@@ -253,21 +253,21 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse StripResponse(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
-	StripResponse.timeOrderElectrons();
-	StripResponse.calculateTimeSeries(thetaDegrees, digiInput.gasgap());
-	StripResponse.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
-	StripResponse.calculateSummaries( m_qThreshold );
+	StripResponse stripResponseObject(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	stripResponseObject.timeOrderElectrons();
+	stripResponseObject.calculateTimeSeries(thetaDegrees, digiInput.gasgap());
+	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
+	stripResponseObject.calculateSummaries( m_qThreshold );
 
 	//Connect the output with the rest of the existing code
-	finalNumberofStrip = StripResponse.getStripVec();
-	finalqStrip = StripResponse.getTotalChargeVec();
-	finaltStrip = StripResponse.getTimeThresholdVec();
-	tStripElectronicsAbThr = StripResponse.getTimeMaxChargeVec();
-	qStripElectronics = StripResponse.getMaxChargeVec();
+	finalNumberofStrip     = stripResponseObject.getStripVec();
+	finalqStrip            = stripResponseObject.getTotalChargeVec();
+	finaltStrip            = stripResponseObject.getTimeThresholdVec();
+	tStripElectronicsAbThr = stripResponseObject.getTimeMaxChargeVec();
+	qStripElectronics      = stripResponseObject.getMaxChargeVec();
 
 	m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
-	m_mapOfHistograms["nElectrons"]->Fill( StripResponse.getNElectrons() );
+	m_mapOfHistograms["nElectrons"]->Fill( stripResponseObject.getNElectrons() );
 	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
 
 } // end of whichStrips()

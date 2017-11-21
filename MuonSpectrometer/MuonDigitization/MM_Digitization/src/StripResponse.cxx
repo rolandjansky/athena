@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MM_Digitization/MM_StripResponse.h"
+#include "MM_Digitization/StripResponse.h"
 
 using namespace std;
 
-MM_StripResponse::MM_StripResponse() {}
+StripResponse::StripResponse() {}
 
-MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID) : timeResolution(_timeResolution), stripPitch(_stripPitch), stripID(_stripID), maxstripID(_maxstripID) {
+StripResponse::StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID) : timeResolution(_timeResolution), stripPitch(_stripPitch), stripID(_stripID), maxstripID(_maxstripID) {
 
 	for (auto& IonizationCluster : IonizationClusters)
 		for (auto& Electron : IonizationCluster.getElectrons())
@@ -16,17 +16,17 @@ MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationC
 
 }
 
-int MM_StripResponse::getNElectrons(){
+int StripResponse::getNElectrons(){
 	return Electrons.size();
 }
 
-void MM_StripResponse::timeOrderElectrons() {
+void StripResponse::timeOrderElectrons() {
 
 	std::sort(Electrons.begin(), Electrons.end(), [](const MM_Electron* a, const MM_Electron* b) -> bool { return a->getTime() < b->getTime(); });
 
 }
 
-void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
+void StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 
 	for (auto& Electron : Electrons) {
 		int timeBin = (int) (Electron->getTime()/timeResolution);
@@ -50,7 +50,7 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 }
 
 
-void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
+void StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 	// Unfortunately get stuck in the loop if you edit the map in the loop
 	//     So make a copy!
@@ -80,7 +80,7 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 	}
 }
 
-void MM_StripResponse::calculateSummaries(float chargeThreshold) {
+void StripResponse::calculateSummaries(float chargeThreshold) {
 
 	for (auto& Electron : Electrons) {
 //    int stripVal      = Electron->getX() < 0 ? stripID + Electron->getX()/stripPitch - 1 : stripID + Electron->getX()/stripPitch;
@@ -121,13 +121,13 @@ if(!found){ // 	// strip not in vector, add new entry
 
 
 // accessors
-std::map<int, int> MM_StripResponse::getTimeThreshold() const { return stripTimeThreshold; }
-std::map<int, float> MM_StripResponse::getTotalCharge() const { return stripTotalCharge; }
-std::map<int, float> MM_StripResponse::getMaxCharge() const { return stripMaxCharge; }
-std::map<int, int> MM_StripResponse::getTimeMaxCharge() const { return stripTimeMaxCharge; }
+std::map<int, int> StripResponse::getTimeThreshold() const { return stripTimeThreshold; }
+std::map<int, float> StripResponse::getTotalCharge() const { return stripTotalCharge; }
+std::map<int, float> StripResponse::getMaxCharge() const { return stripMaxCharge; }
+std::map<int, int> StripResponse::getTimeMaxCharge() const { return stripTimeMaxCharge; }
 
-std::vector<int> MM_StripResponse::getStripVec() const { return v_strip; }
-std::vector< std::vector < float > > MM_StripResponse::getTimeThresholdVec() const { return v_stripTimeThreshold; }
-std::vector< std::vector < float > >  MM_StripResponse::getTotalChargeVec() const { return v_stripTotalCharge; }
-std::vector<float> MM_StripResponse::getMaxChargeVec() const { return v_stripMaxCharge; }
-std::vector<float> MM_StripResponse::getTimeMaxChargeVec() const { return v_stripTimeMaxCharge; }
+std::vector<int> StripResponse::getStripVec() const { return v_strip; }
+std::vector< std::vector < float > > StripResponse::getTimeThresholdVec() const { return v_stripTimeThreshold; }
+std::vector< std::vector < float > >  StripResponse::getTotalChargeVec() const { return v_stripTotalCharge; }
+std::vector<float> StripResponse::getMaxChargeVec() const { return v_stripMaxCharge; }
+std::vector<float> StripResponse::getTimeMaxChargeVec() const { return v_stripTimeMaxCharge; }

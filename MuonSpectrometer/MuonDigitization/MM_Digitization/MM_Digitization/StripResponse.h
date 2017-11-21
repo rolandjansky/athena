@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <memory>
 
-class MM_StripResponse {
+class StripResponse {
 
   float timeResolution;
   float stripPitch;
@@ -44,8 +44,8 @@ class MM_StripResponse {
 
  public:
 
-  MM_StripResponse();
-  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
+  StripResponse();
+  StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();

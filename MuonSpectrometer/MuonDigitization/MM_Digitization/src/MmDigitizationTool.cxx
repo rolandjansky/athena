@@ -132,9 +132,6 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	m_timeWindowUpperOffset(0),
 	m_DiffMagSecondMuonHit (0),
 
-	// m_ns2TDC(0),
-	// m_resTDC(0),
-
 	// Strip Response
 	m_StripsResponseSimulation(0),
 	m_qThreshold(0),							// Strips Charge Threshold
@@ -206,11 +203,6 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
 	declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
 
-	// electronics
-	// declareProperty("ns2TDC",              m_ns2TDC = 0.78125, "Conversion factor TDC/ns");
-	// declareProperty("ResolutionTDC",       m_resTDC = 0.5, "TDC resolution");
-
-
 	// Constants vars for the StripsResponseSimulation class
 	// qThreshold=2e, we accept a good strip if the charge is >=2e
 	declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
@@ -246,8 +238,6 @@ StatusCode MmDigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDOName       );
 	ATH_MSG_DEBUG ( "UseTimeWindow          " << m_useTimeWindow       );
 	ATH_MSG_DEBUG ( "CheckSimHits           " << m_checkMMSimHits      );
-	// ATH_MSG_DEBUG ( "ns2TDC                 " << m_ns2TDC              );
-	// ATH_MSG_DEBUG ( "ResolutionTDC          " << m_resTDC              );
 	ATH_MSG_DEBUG ( "Threshold              " << m_qThreshold          );
 	ATH_MSG_DEBUG ( "DiffusSigma            " << m_transverseDiffusionSigma		);
 	ATH_MSG_DEBUG ( "LogitundinalDiffusSigma" << m_longitudinalDiffusionSigma 	);
@@ -256,43 +246,11 @@ StatusCode MmDigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     			);
 	ATH_MSG_DEBUG ( "EnergyThreshold        " << m_energyThreshold     			);
 
-	// initialize random number generators
-	// then initialize the CSC identifier helper
-	// This method must be called before looping over the hits
-	// to digitize them using the method digitize_hit below
-
-	// initialize random number generators
-	//  double average_int = 30;  // average interactions per cm
-	//  m_FlatDist = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
-	//  m_GaussDist = CLHEP::RandGauss::shoot(m_rndmEngine,0.0,1.0);
-	//  m_GammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polya), 1.0);
-	//  m_PoissonDist = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int);
-
-
-	// check the input object name
-	if (m_inputObjectName=="") {
-		ATH_MSG_FATAL ( "Property InputObjectName not set !" );
-		return StatusCode::FAILURE;
-	}
-	else {
-		ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
-	}
-
-	// check the output object name
-	if (m_outputObjectName=="") {
-		ATH_MSG_FATAL ( "Property OutputObjectName not set !" );
-		return StatusCode::FAILURE;
-	}
-	else {
-		ATH_MSG_DEBUG ( "Output digits: '" << m_outputObjectName << "'" );
-	}
-
-
-	// initialize transient event store
+	// Initialize transient event store
 	ATH_CHECK(m_storeGateService.retrieve());
 	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
 
-	// initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
+	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	StoreGateSvc* detStore=0;
 	m_MuonGeoMgr=0;
 	ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
@@ -305,9 +263,20 @@ StatusCode MmDigitizationTool::initialize() {
 
 	// Magnetic field service
 	ATH_CHECK( m_magFieldSvc.retrieve() );
+
+	// Digit tools
 	ATH_CHECK( m_digitTool.retrieve() );
+
+	// Random Service
 	ATH_CHECK( m_rndmSvc.retrieve() );
 
+	// Random Engine from Random Service
+	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+	if (m_rndmEngine==0) {
+		ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
+		return StatusCode::FAILURE;
+	}
 
 	//initialize the digit container
 	m_digitContainer = new MmDigitContainer(m_idHelper->detectorElement_hash_max());
@@ -316,14 +285,7 @@ StatusCode MmDigitizationTool::initialize() {
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
 
-	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-	if (m_rndmEngine==0) {
-		ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
-		return StatusCode::FAILURE;
-	}
-
-	//locate the PileUpMergeSvc and initialize our local ptr
+	// Locate the PileUpMergeSvc and initialize our local ptr
 	ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
 
 	// Validation File Output
@@ -360,8 +322,6 @@ StatusCode MmDigitizationTool::initialize() {
 		m_ntuple->Branch("globalHitTime",&globalHitTime);
 		m_ntuple->Branch("eventTime",&eventTime);
 	}
-
-
 
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = new StripsResponseSimulation();
@@ -862,7 +822,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Amg::Vector3D localDirectionTime(0., 0., 0.);
 
 			// drift direction in backwards-chamber should be opposite to the incident direction.
-			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1) // was previously if it ==1
+			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1)
 				localDirectionTime  = localDirection;
 			else
 				localDirectionTime  = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),
