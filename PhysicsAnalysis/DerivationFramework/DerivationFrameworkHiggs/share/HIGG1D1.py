@@ -1,4 +1,4 @@
-#====================================================================
+#==================================================================== 
 # HIGG1D1.py
 # This requires the reductionConf flag HIGG1D1 in Reco_tf.py   
 #====================================================================
@@ -228,7 +228,7 @@ scheduleMETAssocAlg(HIGG1D1Seq)
 
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 addOriginCorrection("AntiKt4EMTopo", HIGG1D1Seq, "jetaug_HggVtx", "Hgg")
-
+addOriginCorrection("AntiKt4EMPFlow", HIGG1D1Seq, "Pflowjetaug_HggVtx", "Hgg")
 
 # Before any custom jet reconstruction, it's good to set up the output list
 OutputJets["HIGG1D1Jets"] = []
@@ -298,7 +298,7 @@ HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex",
-                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.JetOriginConstitScaleMomentum_eta.JetOriginConstitScaleMomentum_m.JetOriginConstitScaleMomentum_phi.JetOriginConstitScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.Jvt.JVFCorr.JvtRpt.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex_.OriginVertex_m_persIndex.OriginVertex_m_persKey.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.btaggingLink_.btaggingLink_m_persIndex.btaggingLink_m_persKey.CentroidR.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DetectorEta.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HadronConeExclTruthLabelID.HECFrac.HECQuality.HighestJVFVtx_.HighestJVFVtx_m_persIndex.HighestJVFVtx_m_persKey.ConstituentScale",
+                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.JetOriginConstitScaleMomentum_eta.JetOriginConstitScaleMomentum_m.JetOriginConstitScaleMomentum_phi.JetOriginConstitScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.Jvt.JVFCorr.JvtRpt.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex_.OriginVertex_m_persIndex.OriginVertex_m_persKey.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.btaggingLink_.btaggingLink_m_persIndex.btaggingLink_m_persKey.CentroidR.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DetectorEta.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HadronConeExclTruthLabelID.HECFrac.HECQuality.HighestJVFVtx_.HighestJVFVtx_m_persIndex.HighestJVFVtx_m_persKey.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex",
                                         "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched",
                                         "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix", 

@@ -99,7 +99,7 @@ if not SkipTriggerRequirement:
                                "HLT_g140_loose", #single photon
                                "HLT_g300_etcut"  #single photon
                               ]
-   elif year == 2015: 
+   elif year ==15: 
      #2015
      TriggerMerged          = ["HLT_g35_loose_g25_loose","HLT_e20_lhmedium_g35_loose"]
      TriggerExp             = [ 
