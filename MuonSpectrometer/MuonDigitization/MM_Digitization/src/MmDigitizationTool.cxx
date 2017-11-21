@@ -334,7 +334,7 @@ StatusCode MmDigitizationTool::initialize() {
 	m_StripsResponseSimulation->setCrossTalk2(m_crossTalk2);
 	m_StripsResponseSimulation->initialize();
 
-	// ElectronicsResponseSimulation
+	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = new ElectronicsResponseSimulation();
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
@@ -357,7 +357,7 @@ StatusCode MmDigitizationTool::initialize() {
 StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 
 	ATH_MSG_DEBUG("MmDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
-	//m_digitContainer->cleanup();
+
 	m_MMHitCollList.clear();
 
 	if(!m_timedHitCollection_MM) {
@@ -367,7 +367,6 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 		return StatusCode::FAILURE;
 	}
 
-	//m_MMHitCollList.push_back(NULL);
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
@@ -379,12 +378,12 @@ StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 
 	SubEventIterator iEvt = bSubEvents;
 
-	//loop on event and sub-events for the current bunch Xing
+	// Loop on event and sub-events for the current bunch Xing
 	for (; iEvt!=eSubEvents; ++iEvt) {
 
 		StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
 
-		ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
+		ATH_MSG_DEBUG( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
 			<< " bunch crossing : " << bunchXing );
 
 		PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
@@ -572,10 +571,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 		return StatusCode::FAILURE;
 	}
 
-	// T.Saito
-	std::vector<MmElectronicsToolInput> v_StripdigitOutput;
-	v_StripdigitOutput.clear();
-	// T.Saito
+	std::vector<MmElectronicsToolInput> v_stripDigitOutput;
+	v_stripDigitOutput.clear();
 
 	//iterate over hits and fill id-keyed drift time map
 	TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;
@@ -807,13 +804,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 							<< CLHEP::degree
 							);
 
-			// compute hit position within the detector element/surfaces
-			// Amg::Transform3D globalToLocal = detEl->absTransform().inverse();
-			// Amg::Vector3D globalHitPosition(hit.globalPosition().x(),
-			// 								hit.globalPosition().y(),
-			// 								hit.globalPosition().z()
-			// 								);
-			// Amg::Vector3D lpos = globalToLocal*hpos;
+
 			// compute the hit position on the readout plane (same as in MuonFastDigitization)
 			Amg::Vector3D stripLayerPosition = surf.transform().inverse()*globalHitPosition;
 			Amg::Vector2D posOnSurfUnProjected(stripLayerPosition.x(),stripLayerPosition.y());
@@ -924,8 +915,11 @@ StatusCode MmDigitizationTool::doDigitization() {
 			if( (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1) == -1 )
 				bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() );
 
-			//store local hit position + sign
-			// ATH_MSG_DEBUG( " MmDigitToolInput create... " );
+
+			////////////////////////////////////////////////////////////////////
+			//
+			// Strip Response Simulation For This Hit
+			//
 
 			const MmDigitToolInput stripDigitInput( stripNumber,
 													distToChannel,
@@ -935,17 +929,6 @@ StatusCode MmDigitizationTool::doDigitization() {
 													m_idHelper->gasGap(layerID),
 													eventTime+globalHitTime
 													);
-			// m_AngleDistr->Fill(inAngle_XZ);
-			// m_AbsAngleDistr->Fill(fabs(inAngle_XZ));
-
-
-			// fill the SDO collection in StoreGate
-			// create here deposit for MuonSimData, link and tof
-			//
-			// Since we have output based on channel, instead of hit, the SDO and digit ID are No longer meaningless. 2016/06/27 T.Saito
-			//
-			// digitize input for strip response
-			// m_StripsResponseSimulation->setStripWidth(mmChannelDes->channelWidth(posOnSurf));
 
 			m_n_hitStripID=stripNumber;
 			m_n_hitDistToChannel=distToChannel;
@@ -954,37 +937,35 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_hitOnSurface_x=posOnSurf.x();
 			m_n_hitOnSurface_y = posOnSurf.y();
 
-			MmStripToolOutput tmp_StripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
-			MmElectronicsToolInput StripdigitOutput( tmp_StripOutput.NumberOfStripsPos(), tmp_StripOutput.chipCharge(), tmp_StripOutput.chipTime(), digitID , hit.kineticEnergy());
+			MmStripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
+			MmElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
 
-			//----------
-			for(size_t i = 0; i<tmp_StripOutput.NumberOfStripsPos().size(); i++){
-				int stripid = tmp_StripOutput.NumberOfStripsPos().at(i);
+			// This block is purely validation
+			for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
+				int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
 				bool isValid;
-				Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layerID), m_idHelper->stationPhi(layerID), m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), stripid, true, &isValid);
+				Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layerID), m_idHelper->stationPhi(layerID), m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), tmpStripID, true, &isValid);
 				if (!isValid) {
-					ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << stripid << "; associated positions will be set to 0.0." );
+					ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
 				} else {
-
 					Amg::Vector2D cr_strip_pos(0., 0.);
 					if ( !detEl->stripPosition(cr_id,cr_strip_pos) ) {
-						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << stripid
-							<< "; associated positions will be set to 0.0.");
+						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0.");
 					}
-			// asking the detector element to transform this local to the global position
-
-
-					Amg::Vector3D cr_strip_gpos(0., 0., 0.);
-					detEl->surface(cr_id).localToGlobal(cr_strip_pos, Amg::Vector3D(0., 0., 0.), cr_strip_gpos);
 				}
 			}
-			//----------
-			v_StripdigitOutput.push_back(StripdigitOutput);
+
+
+			v_stripDigitOutput.push_back(stripDigitOutput);
+
+			//
+			////////////////////////////////////////////////////////////////////
 
 			previousHit = &hit;
-		}//while(i != e)
 
-		if(v_StripdigitOutput.size()==0){
+		} //while(i != e)
+
+		if(v_stripDigitOutput.size()==0){
 			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no strip response." );
 			continue;
 		}
@@ -992,7 +973,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//---
 		// To get Information combined in all hits
 		//---
-		MmElectronicsToolInput stripdigitOutputAllHits = combinedStripResponseAllHits(v_StripdigitOutput);
+		MmElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
 
 		//-----------------------------------------------------------
 		// Create Electronics Output with peak finding algorithm
