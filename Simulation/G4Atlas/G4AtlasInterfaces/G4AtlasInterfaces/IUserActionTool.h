@@ -40,7 +40,8 @@ namespace G4UA
   /// @class IUserActionTool
   /// @brief Abstract interface for tools that construct G4 user actions.
   ///
-  /// @todo add more details.
+  /// This interface declares a single method for concrete tools to implement
+  /// in order to plug user actions into Geant4 and the UserActionSvc.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
