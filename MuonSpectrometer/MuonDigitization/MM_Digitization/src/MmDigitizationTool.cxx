@@ -1034,6 +1034,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//
 		MmElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
 
+
+
 		// Create Electronics Output with peak finding setting
 		//
 		MmDigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
@@ -1046,7 +1048,10 @@ StatusCode MmDigitizationTool::doDigitization() {
 		if(!electronicsThresholdOutput.isValid())
 			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
 
+
+
 		// Choose which of the above outputs is used for readout
+		//
 		MmDigitToolOutput * electronicsOutputForReadout(0);
 		if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = & electronicsPeakOutput;
 		else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = & electronicsThresholdOutput;
@@ -1054,11 +1059,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// but this should be impossible from initialization checks
 
 		// Choose which of the above outputs is used for triggering
+		//
 		MmDigitToolOutput * electronicsOutputForTriggerPath(0);
 		if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = & electronicsPeakOutput;
 		else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = & electronicsThresholdOutput;
 		else ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
 		// but this should be impossible from initialization checks
+
 
 
 		// Apply Dead-time for strip
@@ -1072,12 +1079,15 @@ StatusCode MmDigitizationTool::doDigitization() {
 		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsOutputForTriggerPathWStripDeadTime, chMax, stationEta));
 
 		// Apply Dead-time in ART
+		//
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(electronicsTriggerOutput));
 
 		// To apply an arbitrary time-smearing of VMM signals
+		//
 		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
 		MmElectronicsToolTriggerOutput finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
+
 
 		//
 		// VMM Simulation
