@@ -253,6 +253,29 @@ class doTGCs(JobProperty):
     def _undo_action(self):
         muonRecFlags.sync_DetFlags("TGC")
 
+## Use sTGCs in reconstruction
+class dosTGCs(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+    def _do_action(self):
+        muonRecFlags.sync_DetFlags("sTGC")
+
+    def _undo_action(self):
+        muonRecFlags.sync_DetFlags("sTGC")
+
+## Use MMs in reconstruction
+class doMicromegas(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+    def _do_action(self):
+        muonRecFlags.sync_DetFlags("Micromegas")
+
+    def _undo_action(self):
+        muonRecFlags.sync_DetFlags("Micromegas")
 
 ## @brief Use TGC measurements from Prior and Next Bunch Crossings.
 #
