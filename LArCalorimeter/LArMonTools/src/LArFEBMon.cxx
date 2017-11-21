@@ -568,15 +568,17 @@ StatusCode LArFEBMon::fillHistograms() {
     }
     else{ // Event in error but not corrupted
       m_rejectedYieldLB->Fill(lumi_block,0);
+      m_rejectedYieldLBout->Fill(lumi_block,0);
       if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
     }
 
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) m_rejectedHisto->Fill(4);
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) m_rejectedHisto->Fill(5);
   }
-  else{
+  else{ // The event is NOT in error. Fill per LB TProfile
     m_rejectedHisto->Fill(6);
     m_rejectedYieldLB->Fill(lumi_block,0);
+    m_rejectedYieldLBout->Fill(lumi_block,0);
     if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
   }
   m_rejectedHisto->Fill(7);
