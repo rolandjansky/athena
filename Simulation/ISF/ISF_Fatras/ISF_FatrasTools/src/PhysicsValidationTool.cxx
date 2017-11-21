@@ -49,7 +49,10 @@ iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::PhysicsValidationTool::~PhysicsValidationTool()
-{}
+{
+  m_interactions = 0;
+  delete(m_interactions);
+}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
