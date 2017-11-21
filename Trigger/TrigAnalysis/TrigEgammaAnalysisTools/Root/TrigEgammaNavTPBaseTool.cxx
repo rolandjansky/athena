@@ -46,26 +46,28 @@ TrigEgammaNavTPBaseTool( const std::string& myname )
   declareProperty("ForceProbePid", m_forceProbePid=false); // new
   declareProperty("OppositeCharge",m_oppositeCharge=true);
   declareProperty("OfflineTagMinEt",m_tagMinEt=25);
+  declareProperty("OfflineProbeMinEt",m_probeMinEt=4);
   declareProperty("TagTriggerList", m_tagTrigList);
   declareProperty("TriggerList",m_trigInputList);
   declareProperty("CategoryList",m_categories);
   declareProperty("RemoveCrack", m_rmCrack=true); //new
   declareProperty("OfflineProbeIsolation", m_offProbeIsolation="Loose");
   declareProperty("ForceProbeIsolation", m_forceProbeIsolation=false);
+  declareProperty("ApplyMinimalTrigger", m_applyMinimalTrigger=true);
 
-  // Obsolete, not used... // Maps should be static
-  // Obsolete, not used... m_PidToolMap["Tight"]=0;
-  // Obsolete, not used... m_PidToolMap["Medium"]=1;
-  // Obsolete, not used... m_PidToolMap["Loose"]=2;
-  // Obsolete, not used... m_PidToolMap["VLoose"]=3;
+  // Maps should be static
+  m_PidToolMap["Tight"]=0;
+  m_PidToolMap["Medium"]=1;
+  m_PidToolMap["Loose"]=2;
+  m_PidToolMap["VLoose"]=3;
 
   m_offElectrons=nullptr;
   m_jets=nullptr;
   m_eventInfo=nullptr;
   m_truthContainer=nullptr;
+  m_METContainer=nullptr;
   m_applyJetNearProbeSelection=true; 
-  m_skipTrigger=false; 
-  
+  m_skipTrigger=false;  
 }
 
 //**********************************************************************
@@ -103,9 +105,11 @@ TrigEgammaNavTPBaseTool::childInitialize() {
 
     return StatusCode::SUCCESS;
 }
+
 StatusCode TrigEgammaNavTPBaseTool::childBook() {
     return StatusCode::SUCCESS;
 }
+
 bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
 
     ATH_MSG_DEBUG("Apply EventWise selection");
@@ -121,7 +125,6 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
     m_offElectrons = 0;
     m_jets = 0;
     m_truthContainer=0;
-
     
     if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
         ATH_MSG_WARNING("Failed to retrieve eventInfo ");
@@ -134,6 +137,17 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
         return false;
       }
     }// protection
+
+    if(m_storeGate->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4EMTopo")){
+      if(m_storeGate->retrieve(m_METContainer,"MET_Reference_AntiKt4EMTopo").isFailure()){
+        ATH_MSG_WARNING("Could not retrieve xAOD::MissingETContainer 'MET_Reference_AntiKt4EMTopo'");
+        return false;
+      }
+    }// protection
+
+
+
+
 
     if (m_eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
         ATH_MSG_DEBUG("Event not passing LAr");
@@ -172,7 +186,8 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
 
     // missing more selections
     // check Minimal Trigger Requirements
-    if ( !MinimalTriggerRequirement() ) return false;
+    if(m_applyMinimalTrigger)    
+      if ( !MinimalTriggerRequirement() ) return false;
     hist1(m_anatype+"_CutCounter")->Fill("PassTrigger",1);
 
     
@@ -184,26 +199,27 @@ bool TrigEgammaNavTPBaseTool::MinimalTriggerRequirement(){
     
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList.at(ilist);
-	ATH_MSG_DEBUG("Checking if accpeted by  "<<tag<< "...");
-
-        if ( tdt()->isPassed(tag) ){
-	    ATH_MSG_DEBUG(tag<< " is passed!");
+        if ( tdt()->isPassed(tag) )
             return true;
-	}
     }
-    ATH_MSG_DEBUG("Trigger selection failed!");
     return false; // nothing passed
 }
 
 
 void TrigEgammaNavTPBaseTool::executeTandP(){
     
+    // clear all Z index pairs
+    m_Z.clear();
+    unsigned itag=0;
+
     clearProbeList(); // Clear Probes after each trigger
-    ATH_MSG_DEBUG("executeTandP()  m_offElectrons->size() =  " << m_offElectrons->size());
+    ATH_MSG_DEBUG("Execute TandP BaseTool " << m_offElectrons->size());
     for(const auto& elTag : *m_offElectrons){
+        itag++;
         if( ! isTagElectron(elTag) ) continue;
+        unsigned iprobe=0;
         for(const auto& elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
-	    ATH_MSG_DEBUG("checking probe electron " << elProbe);
+            iprobe++;
             hist1(m_anatype+"_ProbeCutCounter")->Fill("Electrons",1);
             if(elProbe==elTag) continue;
             hist1(m_anatype+"_ProbeCutCounter")->Fill("NotTag",1);
@@ -214,7 +230,6 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
             hist1(m_anatype+"_ProbeCutCounter")->Fill("SS",1);
             ATH_MSG_DEBUG("Execute TandP BaseTool OS"); 
             if(m_doJpsiee){
-		ATH_MSG_DEBUG("Doing J/Psi..."); 
 
               float  Jpsieelifetime = GetPseudoLifetime(elTag,elProbe);
 
@@ -229,7 +244,6 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
                 continue;
               }
 
-	      ATH_MSG_DEBUG("OK, passes Jpsi lifetime window"); 
             }
             //Must be an easy way with IParticle
             TLorentzVector el1;
@@ -238,43 +252,48 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
             el2.SetPtEtaPhiE(elProbe->pt(), elProbe->trackParticle()->eta(), elProbe->trackParticle()->phi(), elProbe->e());
             float tpPairMass = (el1 + el2).M();
             if( !((tpPairMass > m_ZeeMassMin*1.e3) && (tpPairMass < m_ZeeMassMax*1.e3))){
-                ATH_MSG_DEBUG("tag and probe pair with mass " << tpPairMass << " not in mass window " << m_ZeeMassMin << ", " << m_ZeeMassMax);
+                ATH_MSG_DEBUG("tag and probe pair not in Z mass window");
                 continue;
             } else {
                 hist1(m_anatype+"_ProbeCutCounter")->Fill("ZMass",1);
-                ATH_MSG_DEBUG("tag and probe pair with mass = " << tpPairMass << " is within  mass window " << m_ZeeMassMin << " , " << m_ZeeMassMax );
+                ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
                 if(!isGoodProbeElectron(elProbe)) continue;
                 hist1(m_anatype+"_ProbeCutCounter")->Fill("GoodProbe",1);
                 xAOD::Electron *selProbe = new xAOD::Electron(*elProbe);              
                 DressPid(selProbe);
                 m_probeElectrons.push_back(selProbe);
+                m_Z.push_back( std::pair<unsigned,unsigned>(itag-1,iprobe-1) );
                 hist1(m_anatype+"_Mee")->Fill(tpPairMass/1.e3);
             }
         } // end of for in Probe
     } // end of for in Tags
 }
 
+
 void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
-    ATH_MSG_DEBUG("matchObjects("<< probeTrigItem << ") on " << m_probeElectrons.size() << " probe electrons...");
 
     clearPairList();
+    bool isEmulation = getTrigInfo(probeTrigItem).trigIsEmulation;
+
+
     for(unsigned int i=0;i<m_probeElectrons.size();i++){
         const HLT::TriggerElement *finalFC;
-
-        // Use matching tool and create pair of offline probe and TE
-        bool m_IsMatched = match()->match(m_probeElectrons[i], probeTrigItem, finalFC);
-	ATH_MSG_DEBUG("matching probe " << i << " to " << probeTrigItem << " resulted in " << (int) m_IsMatched);
-        if ( m_IsMatched){
-	    ATH_MSG_DEBUG("Probe " << i << " Matched to " << probeTrigItem << "!");
-            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
-            m_pairObj.push_back(pairProbe);
-        } // end of check Probe
-        else {
-	    ATH_MSG_DEBUG("Probe " << i << " Failed to match  " << probeTrigItem << " Putting a nul pointer on probes list!");
-            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
-            m_pairObj.push_back(pairProbe);
-        } // still include the probe
+        if(isEmulation && getEmulation()){  // Collect from  support match
+          emulation()->match( m_probeElectrons[i], finalFC );
+          std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
+          m_pairObj.push_back(pairProbe);
+        }else{
+          // Use matching tool and create pair of offline probe and TE
+          if ( match()->match(m_probeElectrons[i], probeTrigItem, finalFC)){
+              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
+              m_pairObj.push_back(pairProbe);
+          } // end of check Probe
+          else {
+              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
+              m_pairObj.push_back(pairProbe);
+          } // still include the probe
+        }
     }
 }
 
@@ -303,14 +322,14 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     //Check constituents
     const xAOD::TrackParticle *trk = el->trackParticle();
     if(!el->trackParticle()){
-        ATH_MSG_DEBUG("Bad tag: No track Particle");
+        ATH_MSG_DEBUG("No track Particle");
         return false;
     }
     hist1(m_anatype+"_TagCutCounter")->Fill("HasTrack",1);
     ATH_MSG_DEBUG("Track pt " << trk->pt());
     const xAOD::CaloCluster *clus = el->caloCluster();
     if(!el->caloCluster()){
-        ATH_MSG_DEBUG("Bad tag: No caloCluster");
+        ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
     hist1(m_anatype+"_TagCutCounter")->Fill("HasCluster",1);
@@ -348,32 +367,19 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     // The statement below is more general
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-      std::string tag; // Here I'll put the tag electron chain after interpreting TnP chain
-      std::string TnP = m_tagTrigList.at(ilist);
-      if(tdt()->isPassed(TnP)){ 
-	  ATH_MSG_DEBUG("TnP trigger   "<< TnP << " passed!");
+      std::string tag = m_tagTrigList.at(ilist);
+      if(tdt()->isPassed(tag)){ 
         if(m_tp){
-	  ATH_MSG_DEBUG("Interpretting  "<< TnP << " as a Tag and probe trigger...");
           std::string p1trigger;
           std::string p2trigger;
-          if(splitTriggerName(TnP,p1trigger,p2trigger)){
-	    ATH_MSG_DEBUG("Split trigger name for "<< TnP << " in " << p1trigger << " and "  << p2trigger);
+          if(splitTriggerName(tag,p1trigger,p2trigger)){
             if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
             if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
-          } else{
-	      ATH_MSG_DEBUG("Failed to split trigger " << tag);
-	  }
-	  ATH_MSG_DEBUG("Trying to match tag to  "<< tag );
-          if( match()->match(el,tag) ){
-	    ATH_MSG_DEBUG("Succeeded to match to   "<< tag );
+          }
+          if( match()->match(el,tag) )
             tagPassed=true;
-	  } else {
-	    ATH_MSG_DEBUG("Failed to match to   "<< tag );
-	  }
-	  
         }
         else{
-	  ATH_MSG_DEBUG("m_tp flag set to False... using tagPassed=true");
           tagPassed=true; 
         }
       }
@@ -382,7 +388,6 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;
     }
-    ATH_MSG_DEBUG("tag trigger passed "); 
     hist1(m_anatype+"_TagCutCounter")->Fill("PassTrigger",1);
     ATH_MSG_DEBUG("Matching Tag Electron FC");
     bool tagMatched=false;
@@ -416,36 +421,29 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
 }
 
 bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
-    ATH_MSG_DEBUG("ApplyElectronPid(" << eg << " , " << pidname << ")");
     
     if (pidname == "Tight"){
         const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else if (pidname == "Medium"){
         const Root::TAccept& accept=m_electronIsEMTool[1]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else if (pidname == "Loose"){
         const Root::TAccept& accept=m_electronIsEMTool[2]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHTight"){
         const Root::TAccept& accept=m_electronLHTool[0]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHMedium"){
         const Root::TAccept& accept=m_electronLHTool[1]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHLoose"){
         const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
-	ATH_MSG_DEBUG("Pass " << pidname << " -> " << accept );
         return static_cast<bool>(accept);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
@@ -453,17 +451,16 @@ bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const s
 }
 
 bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
-    ATH_MSG_DEBUG("isGoodProbeElectron()");
 
     double GeV = 1000.;
     //Check constituents
     if(!el->trackParticle()){
-        ATH_MSG_DEBUG("Bad probe: No track Particle");
+        ATH_MSG_DEBUG("No track Particle");
         return false;
     }
     hist1(m_anatype+"_ProbeCutCounter")->Fill("HasTrack",1);
     if(!el->caloCluster()){
-        ATH_MSG_DEBUG("Bad probe: No caloCluster");
+        ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
     hist1(m_anatype+"_ProbeCutCounter")->Fill("HasCluster",1);
@@ -471,7 +468,6 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
     if(m_rmCrack){
         float absEta = fabs(el->caloCluster()->etaBE(2));
         if ((absEta > 1.37 && absEta < 1.52) || absEta > 2.47) {
-        ATH_MSG_DEBUG("Bad probe: Outside eta");
             return false; 
         }
     }
@@ -497,12 +493,11 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         }
         //reject if more than 1 jet close to the probe electron
         if ( jetsAroundProbeElectron >= 2 ) {
-            ATH_MSG_DEBUG("Bad probe: too many jets around object");
+            //ATH_MSG_DEBUG("too many jets around object");
             return false; 
         }
     }
     hist1(m_anatype+"_ProbeCutCounter")->Fill("NearbyJet",1);
-    ATH_MSG_DEBUG("Is a good probe!");
     return true; // Good probe electron
 }
 
@@ -562,3 +557,33 @@ double TrigEgammaNavTPBaseTool::simple_lxy(int flag,   double d1,  double d2, do
   else
     return (a+b)/c;
 }
+
+
+
+float TrigEgammaNavTPBaseTool::getWTransverseMass( const xAOD::Electron *el ){
+  float transverseMass=0.0;
+  if(m_METContainer){
+    TLorentzVector MET_4vec = TLorentzVector(getMET()->mpx(), getMET()->mpy(), 0, getMET()->met());
+    TLorentzVector electron;
+    electron.SetPtEtaPhiE(el->pt(), 0, el->phi(), el->pt());
+    transverseMass = (MET_4vec + electron).M();
+  }
+  return transverseMass;
+
+}
+
+bool TrigEgammaNavTPBaseTool::passesEventCleaning()
+{
+  ATH_MSG_DEBUG("Appling Event Cleaning...");
+  //if(m_ismc) return true;
+  bool failsLAr  = (m_eventInfo->errorState(xAOD::EventInfo::LAr)  == xAOD::EventInfo::Error );
+  bool failsTile = (m_eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error );
+  bool failsSCT  = (m_eventInfo->errorState(xAOD::EventInfo::SCT)  == xAOD::EventInfo::Error );
+  bool failsTTC  = (m_eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18)); // timing, trigger, control failed => some eventinfo missing
+  bool pass =  !(failsLAr || failsTile || failsSCT || failsTTC);
+  if(!pass)
+    ATH_MSG_DEBUG("Event not clear! ");
+  return pass;
+}
+
+

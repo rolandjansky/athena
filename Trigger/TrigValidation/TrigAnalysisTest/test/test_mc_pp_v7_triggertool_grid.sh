@@ -24,6 +24,6 @@ export TEST="TrigAnalysisTest"
 export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v7_chain/AOD.pool.root"]'
 
 athena.py -c "RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=${DS}" -b TrigAnalysisTest/testAthenaTrigAOD_TrigDecTool.py | tee ${JOB_LOG}
-echo "art-result: ${PIPESTATUS[0]}"
+echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
 
 source exec_art_triggertest_post.sh
