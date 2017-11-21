@@ -99,7 +99,6 @@ EXOT18PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(name      
                                                                       ThinningService         = "EXOT18ThinningSvc",
                                                                       SGKey                   = "Photons",
                                                                       CaloClCollectionSGKey   = "egammaClusters",
-                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                       SelectionString         = "Photons.pt > 100*GeV",
                                                                       ConeSize                = 0)
 ToolSvc += EXOT18PhotonCCThinningTool
@@ -109,9 +108,7 @@ thinningTools += EXOT18PhotonCCThinningTool
 EXOT18AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT18Ak10CCThinningTool",
                                                                         ThinningService       = "EXOT18ThinningSvc",
                                                                         SGKey                 = "AntiKt10LCTopoJets",
-                                                                        TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                        SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
+                                                                        SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8")
 ToolSvc += EXOT18AKt10CCThinningTool
 thinningTools += EXOT18AKt10CCThinningTool
 

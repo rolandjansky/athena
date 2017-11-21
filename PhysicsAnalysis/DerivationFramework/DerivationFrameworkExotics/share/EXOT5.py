@@ -122,7 +122,6 @@ EXOT5ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
     SGKey                   = 'Electrons',
     CaloClCollectionSGKey   = 'egammaClusters',
-    TopoClCollectionSGKey   = 'CaloCalTopoClusters',
     ConeSize                = 0.4)
 ToolSvc += EXOT5ElectronCCThinningTool
 thinningTools.append(EXOT5ElectronCCThinningTool)
@@ -133,7 +132,6 @@ EXOT5PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
     SGKey                   = 'Photons',
     CaloClCollectionSGKey   = 'egammaClusters',
-    TopoClCollectionSGKey   = 'CaloCalTopoClusters',
     ConeSize                = 0.4)
 ToolSvc += EXOT5PhotonCCThinningTool
 thinningTools.append(EXOT5PhotonCCThinningTool)
