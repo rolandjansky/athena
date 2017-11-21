@@ -69,12 +69,12 @@
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGamma.h"
-#include "CLHEP/Random/RandPoisson.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-#include "CLHEP/Random/RandExponential.h"
+// #include "CLHEP/Random/RandGauss.h"
+// #include "CLHEP/Random/RandFlat.h"
+// #include "CLHEP/Random/RandGamma.h"
+// #include "CLHEP/Random/RandPoisson.h"
+// #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+// #include "CLHEP/Random/RandExponential.h"
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -83,7 +83,7 @@
 #include "MM_Digitization/MMStripVmmMappingTool.h"
 
 //ROOT
-#include "TH1.h"
+// #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
 
@@ -721,7 +721,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				ATH_MSG_WARNING("MM id has wrong technology type! ");
 				m_exitcode = 9;
 				if(m_writeOutputFile) m_ntuple->Fill();
-				continue
+				continue;
 			}
 
 			if( m_idHelper->stationPhi(layerID) == 0 ){
@@ -823,7 +823,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			// compute the hit position on the readout plane (same as in MuonFastDigitization)
 			Amg::Vector3D stripLayerPosition = surf.transform().inverse()*globalHitPosition;
-			Amg::Vector2D posOnSurfUnProjected(stripLayerPosition.x(),stripLayerPosition.y());
+			Amg::Vector2D positionOnSurfaceUnprojected(stripLayerPosition.x(),stripLayerPosition.y());
 
 			Amg::Vector3D localDirection = surf.transform().inverse().linear()*globalHitDirection;
 			Amg::Vector3D localDirectionTime(0., 0., 0.);
@@ -845,7 +845,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			double scale = -stripLayerPosition.z()/localDirection.z();
 
 			Amg::Vector3D hitOnSurface = stripLayerPosition + scale*localDirection;
-			Amg::Vector2D posOnSurf (hitOnSurface.x(), hitOnSurface.y());
+			Amg::Vector2D positionOnSurface (hitOnSurface.x(), hitOnSurface.y());
 
 			// Account For Time Offset
 			double shiftTimeOffset = (globalHitTime - tofCorrection)* m_driftVelocity;
@@ -862,7 +862,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			}
 
 			// Perform Bound Check
-			if( !surf.insideBounds(posOnSurf) ){
+			if( !surf.insideBounds(positionOnSurface) ){
 				m_exitcode = 1;
 				if(m_writeOutputFile) m_ntuple->Fill();
 				ATH_MSG_DEBUG( "m_exitcode = 1 : shiftTimeOffset = "
@@ -877,14 +877,14 @@ StatusCode MmDigitizationTool::doDigitization() {
 				continue;
 			}
 
-			int stripNumber = detectorReadoutElement->stripNumber(posOnSurf,layerID);
+			int stripNumber = detectorReadoutElement->stripNumber(positionOnSurface,layerID);
 			Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
 
 			if( stripNumber == -1 ){
 				ATH_MSG_WARNING("!!! Failed to obtain strip number "
 								<< m_idHelper->print_to_string(layerID)
 								<<  "\n\t\t with pos "
-								<< posOnSurf
+								<< positionOnSurface
 								<< " z "
 								<< stripLayerPosition.z()
 								<< " eKin: "
@@ -892,7 +892,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 								<< " eDep: "
 								<< hit.depositEnergy()
 								<< " unprojectedStrip: "
-								<< detectorReadoutElement->stripNumber(posOnSurfUnProjected, layerID)
+								<< detectorReadoutElement->stripNumber(positionOnSurfaceUnprojected, layerID)
 								);
 				m_exitcode = 2;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -913,9 +913,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// contain (name, eta, phi, multiPlet)
 			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
 
-			const MuonGM::MuonChannelDesign* mmChannelDes = detectorReadoutElement->getDesign(digitID);
-			double distToChannel_withStripID = mmChannelDes->distanceToChannel(posOnSurf, stripNumber);
-			double distToChannel = mmChannelDes->distanceToChannel(posOnSurf);
+			const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
+			double distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
+			double distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
 			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
 							<< (int)detectorElementHash
 							<< " "
@@ -924,8 +924,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 							<< m_idHelper->print_to_string(digitID)
 							);
 
-			if ( fabs(distToChannel_withStripID - distToChannel) > mmChannelDes->channelWidth(posOnSurf)) {
-				ATH_MSG_WARNING( "Found: distToChannel_withStripID: " << distToChannel_withStripID << " != distToChannel: " << distToChannel  );
+			if ( fabs(distToChannelWithStripID - distToChannel) > mmChannelDesign->channelWidth(positionOnSurface)) {
+				ATH_MSG_WARNING( "Found: distToChannelWithStripID: " << distToChannelWithStripID << " != distToChannel: " << distToChannel  );
 				m_exitcode = 12;
 				if(m_writeOutputFile) m_ntuple->Fill();
 				continue;
@@ -967,8 +967,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_hitDistToChannel=distToChannel;
 			m_n_hitIncomingAngle=inAngle_XZ;
 			m_n_hitIncomingAngleRads = inAngle_XZ * CLHEP::degree;
-			m_n_hitOnSurface_x=posOnSurf.x();
-			m_n_hitOnSurface_y = posOnSurf.y();
+			m_n_hitOnSurface_x=positionOnSurface.x();
+			m_n_hitOnSurface_y = positionOnSurface.y();
 
 			MmStripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
 			MmElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
@@ -1021,14 +1021,14 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//-----------------------------------------------------------
 		// Create Electronics Output with peak finding algorithm
 		//-----------------------------------------------------------
-		MmDigitToolOutput electronicsOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripdigitOutputAllHits) );
+		MmDigitToolOutput electronicsOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
 		if(!electronicsOutput.isValid()) {
 			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response even though there is a strip response." );
 		}
 		//-----------------------------------------------------------
 		// Create Electronics Output with threshold
 		//-----------------------------------------------------------
-		MmDigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripdigitOutputAllHits) );
+		MmDigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
 		if(!electronicsThresholdOutput.isValid())
 			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response for TRIGGER even though there is a strip response." );
 
@@ -1060,7 +1060,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// (VMM-Level) Output Of Digitization
 		//
 
-		MmDigit*  newDigit = new MmDigit(   stripdigitOutputAllHits.digitID(),
+		MmDigit*  newDigit = new MmDigit(   stripDigitOutputAllHits.digitID(),
 											// --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
 											electronicsOutput.stripTime(),
 											electronicsOutput.stripPos(),
@@ -1079,7 +1079,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity.
 		// IdentifierHash detIdhash ;
 		// set RE hash id
-		const Identifier elemId = m_idHelper->elementID( stripdigitOutputAllHits.digitID() );
+		const Identifier elemId = m_idHelper->elementID( stripDigitOutputAllHits.digitID() );
 		m_idHelper->get_detectorElement_hash( elemId, detectorElementHash );
 
 		MmDigitCollection* digitCollection = 0;
@@ -1105,7 +1105,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 
 
-		v_StripdigitOutput.clear();
+		v_stripDigitOutput.clear();
 
 	}
 
