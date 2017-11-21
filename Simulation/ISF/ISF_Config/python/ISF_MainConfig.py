@@ -413,7 +413,7 @@ def getKernel_G4HS_FastPileup(name="ISF_Kernel_G4HS_FastPileup", **kwargs):
                                                        'ISF_FullGeant4Selector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasPileupSelector',
                                                        'ISF_EtaGreater5PileupParticleKillerSimSelector',
-                                                       'ISF_FastCaloSimPileupSelector',
+                                                       'ISF_FastCaloSimPileupOTSelector',
                                                        'ISF_FullGeant4Selector' ]       )
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_FatrasPileupSelector', 'ISF_FullGeant4Selector']            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]    )
