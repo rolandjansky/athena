@@ -31,14 +31,13 @@ iGeant4::G4AtlasRunManager::G4AtlasRunManager()
   , m_physListTool("PhysicsListToolBase")
   , m_userActionSvc("", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
-{
-}
+{  }
 
 //________________________________________________________________________
 iGeant4::G4AtlasRunManager* iGeant4::G4AtlasRunManager::GetG4AtlasRunManager()
 {
-  static G4AtlasRunManager* thisManager=0;
-  if (!thisManager) thisManager=new G4AtlasRunManager;
+  static G4AtlasRunManager *thisManager = nullptr;
+  if (!thisManager) { thisManager = new G4AtlasRunManager; } // Leaked
   return thisManager;
 }
 
@@ -68,63 +67,53 @@ void iGeant4::G4AtlasRunManager::Initialize()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::InitializeGeometry()
 {
-  ATH_MSG_DEBUG( "iGeant4::G4AtlasRunManager::InitializeGeometry()" );
-  if (m_detGeoSvc.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
-      G4ExceptionDescription description;
-      description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
-      G4Exception("G4AtlasRunManager", "CouldNotRetrieveDetGeoSvc", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
+  ATH_MSG_DEBUG( "InitializeGeometry()" );
+  if (m_detGeoSvc.retrieve().isFailure()) {
+    ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
+    G4ExceptionDescription description;
+    description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
+    G4Exception("G4AtlasRunManager", "CouldNotRetrieveDetGeoSvc", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
 
-  G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-  ATH_MSG_INFO( "found lvs-size()==" << lvs->size() );
-  G4LogicalVolumeStore::iterator volIt    = lvs->begin();
-  G4LogicalVolumeStore::iterator volItEnd = lvs->end();
-  for ( ; volIt!=volItEnd; ++volIt)
-    {
-      const G4String &volName = (*volIt)->GetName();
-
-      if ( volName == "Muon::MuonSys" )
-        {
-          (*volIt)->SetSmartless( 0.1 );
-          ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
-        }
-      else if ( volName == "LArMgr::LAr::EMB::STAC")
-        {
-          (*volIt)->SetSmartless( 0.5 );
-          ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
-        }
+  // Set smartlessness
+  G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+  const G4String muonSys("Muon::MuonSys");
+  const G4String embSTAC("LArMgr::LAr::EMB::STAC");
+  for (auto* ilv : *logicalVolumeStore ) {
+    if ( ilv->GetName() == muonSys ) {
+      ilv->SetSmartless( 0.1 );
+      ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
     }
+    else if ( ilv->GetName() == embSTAC ) {
+      ilv->SetSmartless( 0.5 );
+      ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
+    }
+  }
 
   // Create/assign detector construction
   G4RunManager::SetUserInitialization(m_detGeoSvc->GetDetectorConstruction());
-  if (userDetector)
-    {
-      G4RunManager::InitializeGeometry();
-    }
-  else
-    {
-      ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
-    }
+  if (userDetector) {
+    G4RunManager::InitializeGeometry();
+  }
+  else {
+    ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
+  }
 
   // Geometry has been initialized.  Now get services to add some stuff to the geometry.
-  if (m_senDetTool.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
-      G4ExceptionDescription description;
-      description << "InitializeGeometry: Failed to retrieve ISensitiveDetectorMasterTool.";
-      G4Exception("G4AtlasRunManager", "CouldNotRetrieveSDMaster", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-  if(m_senDetTool->initializeSDs().isFailure())
-    {
-      G4ExceptionDescription description;
-      description << "InitializeGeometry: Call to ISensitiveDetectorMasterTool::initializeSDs failed.";
-      G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
+  if (m_senDetTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
+    G4ExceptionDescription description;
+    description << "InitializeGeometry: Failed to retrieve ISensitiveDetectorMasterTool.";
+    G4Exception("G4AtlasRunManager", "CouldNotRetrieveSDMaster", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
+  if(m_senDetTool->initializeSDs().isFailure()) {
+    G4ExceptionDescription description;
+    description << "InitializeGeometry: Call to ISensitiveDetectorMasterTool::initializeSDs failed.";
+    G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
   return;
 }
 
@@ -151,53 +140,51 @@ void iGeant4::G4AtlasRunManager::EndEvent()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::InitializePhysics()
 {
-  ATH_MSG_INFO( "iGeant4::G4AtlasRunManager::InitializePhysics()" );
+  ATH_MSG_INFO( "InitializePhysics()" );
   kernel->InitializePhysics();
   physicsInitialized = true;
 
   // Grab the physics list tool and set the extra options
-  if (m_physListTool.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR ( "Could not retrieve the physics list tool" );
-      G4ExceptionDescription description;
-      description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
-      G4Exception("G4AtlasRunManager", "CouldNotRetrievePLTool", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
+  if (m_physListTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR ( "Could not retrieve the physics list tool" );
+    G4ExceptionDescription description;
+    description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+    G4Exception("G4AtlasRunManager", "CouldNotRetrievePLTool", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
   m_physListTool->SetPhysicsOptions();
 
   // Fast simulations last
-  if (m_fastSimTool.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR ( "Could not retrieve the FastSim master tool" );
-      G4ExceptionDescription description;
-      description << "InitializePhysics: Failed to retrieve IFastSimulationMasterTool.";
-      G4Exception("G4AtlasRunManager", "CouldNotRetrieveFastSimMaster", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-  if(m_fastSimTool->initializeFastSims().isFailure())
-    {
-      G4ExceptionDescription description;
-      description << "InitializePhysics: Call to IFastSimulationMasterTool::initializeFastSims failed.";
-      G4Exception("G4AtlasRunManager", "FailedToInitializeFastSims", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
+  if (m_fastSimTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR ( "Could not retrieve the FastSim master tool" );
+    G4ExceptionDescription description;
+    description << "InitializePhysics: Failed to retrieve IFastSimulationMasterTool.";
+    G4Exception("G4AtlasRunManager", "CouldNotRetrieveFastSimMaster", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
+  if(m_fastSimTool->initializeFastSims().isFailure()) {
+    G4ExceptionDescription description;
+    description << "InitializePhysics: Call to IFastSimulationMasterTool::initializeFastSims failed.";
+    G4Exception("G4AtlasRunManager", "FailedToInitializeFastSims", FatalException, description);
+    abort(); // to keep Coverity happy
+  }
 
   if (m_recordFlux) {
     this->InitializeFluxRecording();
-  } // Do flux recording
+  }
 
   return;
 }
 
 //________________________________________________________________________
-void iGeant4::G4AtlasRunManager::InitializeFluxRecording() {
+void iGeant4::G4AtlasRunManager::InitializeFluxRecording()
+{
   G4UImanager *ui = G4UImanager::GetUIpointer();
   ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
 
   G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
 
-  if(!ScM) return;
+  if(!ScM) { return; }
 
   ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
   //                        R  Z(-24 to 24)
@@ -225,43 +212,41 @@ void iGeant4::G4AtlasRunManager::InitializeFluxRecording() {
 
   G4int nPar = ScM->GetNumberOfMesh();
 
-  if(nPar<1) return;
+  if(nPar<1) { return; }
 
   G4ParticleTable::G4PTblDicIterator* particleIterator
     = G4ParticleTable::GetParticleTable()->GetIterator();
 
-  for(G4int iw=0;iw<nPar;iw++)
-    {
-      G4VScoringMesh* mesh = ScM->GetMesh(iw);
-      G4VPhysicalVolume* pWorld
-        = G4TransportationManager::GetTransportationManager()
-        ->IsWorldExisting(ScM->GetWorldName(iw));
-      if(!pWorld)
-        {
-          pWorld = G4TransportationManager::GetTransportationManager()
-            ->GetParallelWorld(ScM->GetWorldName(iw));
-          pWorld->SetName(ScM->GetWorldName(iw));
+  for(G4int iw=0;iw<nPar;iw++) {
+    G4VScoringMesh* mesh = ScM->GetMesh(iw);
+    G4VPhysicalVolume* pWorld
+      = G4TransportationManager::GetTransportationManager()
+      ->IsWorldExisting(ScM->GetWorldName(iw));
+      if(!pWorld) {
+        pWorld = G4TransportationManager::GetTransportationManager()
+          ->GetParallelWorld(ScM->GetWorldName(iw));
+        pWorld->SetName(ScM->GetWorldName(iw));
 
-          G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
-            = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
-          theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
+        G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
+          = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
+        theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
 
-          particleIterator->reset();
-          while( (*particleIterator)() ){
-            G4ParticleDefinition* particle = particleIterator->value();
-            G4ProcessManager* pmanager = particle->GetProcessManager();
-            if(pmanager)
-              {
-                pmanager->AddProcess(theParallelWorldScoringProcess);
-                pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
-                pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
-                pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
-              }
+        particleIterator->reset();
+        while( (*particleIterator)() ) {
+          G4ParticleDefinition* particle = particleIterator->value();
+          G4ProcessManager* pmanager = particle->GetProcessManager();
+          if(pmanager) {
+            pmanager->AddProcess(theParallelWorldScoringProcess);
+            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
+            pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
+            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
           }
         }
+      }
 
       mesh->Construct(pWorld);
-    }
+  }
+  return;
 }
 
 //________________________________________________________________________
@@ -274,26 +259,24 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   currentEvent = event;
 
   eventManager->ProcessOneEvent(currentEvent);
-  if (currentEvent->IsAborted())
-    {
-      ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Detector Simulation level" );
-      currentEvent = nullptr;
-      return true;
-    }
-
-  if (m_recordFlux) {
-    this->RecordFlux();
+  if (currentEvent->IsAborted()) {
+    ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Detector Simulation level" );
+    currentEvent = nullptr;
+    return true;
   }
 
+  if (m_recordFlux) { this->RecordFlux(); }
+
   this->StackPreviousEvent(currentEvent);
-  bool abort=currentEvent->IsAborted();
+  bool abort = currentEvent->IsAborted();
   currentEvent = nullptr;
 
   return abort;
 }
 
 //________________________________________________________________________
-void iGeant4::G4AtlasRunManager::RecordFlux() {
+void iGeant4::G4AtlasRunManager::RecordFlux()
+{
   G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
   if(ScM) {
     G4int nPar = ScM->GetNumberOfMesh();
@@ -302,7 +285,7 @@ void iGeant4::G4AtlasRunManager::RecordFlux() {
       G4int nColl = HCE->GetCapacity();
       for(G4int i=0;i<nColl;i++) {
         G4VHitsCollection* HC = HCE->GetHC(i);
-        if(HC) ScM->Accumulate(HC);
+        if(HC) { ScM->Accumulate(HC); }
       }
     }
   }
@@ -312,30 +295,32 @@ void iGeant4::G4AtlasRunManager::RecordFlux() {
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::RunTermination()
 {
-  // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
+  ATH_MSG_DEBUG( " G4AtlasRunManager::RunTermination() " );
   if (m_recordFlux) {
     this->WriteFluxInformation();
   }
 
-#if G4VERSION_NUMBER < 1010
-  for (size_t itr=0;itr<previousEvents->size();itr++) { delete (*previousEvents)[itr]; }
-#else
   this->CleanUpPreviousEvents();
-#endif
   previousEvents->clear();
 
-  if (userRunAction) { userRunAction->EndOfRunAction(currentRun); }
+  if (userRunAction) {
+    userRunAction->EndOfRunAction(currentRun);
+  }
 
   delete currentRun;
   currentRun = nullptr;
   runIDCounter++;
 
+  ATH_MSG_VERBOSE( "Changing the state..." );
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_Idle);
 
+  ATH_MSG_VERBOSE( "Opening the geometry back up" );
   G4GeometryManager::GetInstance()->OpenGeometry();
 
+  ATH_MSG_VERBOSE( "Terminating the run...  State is " << stateManager->GetStateString( stateManager->GetCurrentState() ) );
   kernel->RunTermination();
+  ATH_MSG_VERBOSE( "All done..." );
 
   userRunAction = nullptr;
   userEventAction = nullptr;
@@ -345,11 +330,12 @@ void iGeant4::G4AtlasRunManager::RunTermination()
   userDetector = nullptr;
   userPrimaryGeneratorAction = nullptr;
 
-
+  return;
 }
 
 //________________________________________________________________________
-void iGeant4::G4AtlasRunManager::WriteFluxInformation() {
+void iGeant4::G4AtlasRunManager::WriteFluxInformation()
+{
   G4UImanager *ui=G4UImanager::GetUIpointer();
   ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
   ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");

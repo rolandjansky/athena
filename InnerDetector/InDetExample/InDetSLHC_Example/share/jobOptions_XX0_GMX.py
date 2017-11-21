@@ -72,6 +72,8 @@ simFlags.UserActionConfig.addConfig('XX0_Tool','ZMax',  3490. * mm)
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # start run after the interactive mode 
 
