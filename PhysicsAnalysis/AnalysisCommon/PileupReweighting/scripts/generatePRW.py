@@ -9,9 +9,11 @@ Example: generatePRW.py --outDS=user.will.myPRW  --inDsTxt=datasets.txt
 
 """
 
+import os
+import argparse
+
 
 def main():
-    import argparse
     from argparse import RawTextHelpFormatter
     
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)
@@ -73,9 +75,9 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
+
     try:
-      sys.exit(main())
+      os._exit(main())
     except:
       print "There was an error ... please ensure you have done the following before running the script:"
       print "lsetup pyAMI panda"
