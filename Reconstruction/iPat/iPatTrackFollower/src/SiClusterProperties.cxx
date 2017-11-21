@@ -54,7 +54,7 @@ SiClusterProperties::SiClusterProperties(const std::string&	type,
 	m_rotBroad		(nullptr),
 	m_rotPrecise		(nullptr),
 	m_sqrt12		(sqrt(12.)),
-	m_status		(),
+	m_status		(pending),
 	m_trackCotTheta		(0.),
 	m_trackRadius		(0.)	
 {
