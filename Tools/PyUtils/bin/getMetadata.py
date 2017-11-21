@@ -288,6 +288,9 @@ def main():
 
     datasetsToQuery = ",".join(dataset_values.keys())
 
+    hasMC15 = any(s.startswith("mc15_") for s in dataset_values.keys())
+    hasMC16 = any(s.startswith("mc16_") for s in dataset_values.keys())
+
     #if using inDsTxt, retain any comment or blank lines in structure of output
     complete_values = OrderedDict()
     if args.inDsTxt != "":
@@ -317,11 +320,14 @@ def main():
 
     logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.timestamp))
 
+    scopeString = "--scope=mc15"
+    if not hasMC15 and hasMC16: scopeString="--scope=mc16"
+
     #do as one query, to be efficient
     if(args.timestamp==current_time):
-        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp], format='dom_object')
+        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,scopeString], format='dom_object')
     else:
-        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,"--history=true"], format='dom_object')
+        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,scopeString,"--history=true"], format='dom_object')
 
     #organize results by dataset
     parameterQueryResults = dict()
@@ -330,15 +336,38 @@ def main():
             parameterQueryResults[r[u'logicalDatasetName']] = []
         parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
 
+    #decide if we need to add mc16 (if were querying mc15 and mc16)
+    if hasMC15 and hasMC16:
+        scopeString = "--scope=mc16"
+        if(args.timestamp==current_time):
+            res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,scopeString], format='dom_object')
+        else:
+            res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,scopeString,"--history=true"], format='dom_object')
+        for r in res.get_rows():
+            if r[u'logicalDatasetName'] not in parameterQueryResults.keys():
+                parameterQueryResults[r[u'logicalDatasetName']] = []
+            parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
+
 
     if args.oldTimestamp!="" :
         logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.oldTimestamp))
-        res2 = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.oldTimestamp,"--history=true"], format='dom_object')
+        scopeString = "--scope=mc15"
+        if not hasMC15 and hasMC16: scopeString="--scope=mc16"
+
+        res2 = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.oldTimestamp,scopeString,"--history=true"], format='dom_object')
         old_parameterQueryResults = dict()
         for r in res2.get_rows():
             if r[u'logicalDatasetName'] not in old_parameterQueryResults.keys():
                 old_parameterQueryResults[r[u'logicalDatasetName']] = []
             old_parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
+
+        if hasMC15 and hasMC16:
+            scopeString = "--scope=mc16"
+            res2 = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.oldTimestamp,scopeString,"--history=true"], format='dom_object')
+            for r in res2.get_rows():
+                if r[u'logicalDatasetName'] not in parameterQueryResults.keys():
+                    parameterQueryResults[r[u'logicalDatasetName']] = []
+                parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
 
     headerString = ""
     doneHeader=False
@@ -377,7 +406,10 @@ def main():
             groupsWithVals = dict() #held for helpful output
             #need to keep explanations for requested fields
             explainInfo = dict()
-            for i in args.explainFields: explainInfo[i] = dict()
+            old_explainInfo = dict() #explanation info for old timestamps
+            for i in args.explainFields: 
+                explainInfo[i] = dict()
+                old_explainInfo[i] = dict()
 
             for param in paramFields:
                 groupsWithVals[param] = []
@@ -414,6 +446,14 @@ def main():
                         paramVals2[param] = str(r[u'paramValue'])
                         if param=="crossSection_pb": paramVals2[param] = str(float(paramVals2[param])*1000.0)
                         bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
+                        #keep the explanation info for the requested fields
+                        if param in explainInfo.keys():
+                            for e in args.explainInfo: 
+                                if unicode(e) in r:
+                                    old_explainInfo[param][e]=str(r[unicode(e)])
+                            #add end_time
+                            if unicode("end_time") in r: old_explainInfo[param]["end_time"]=str(r[unicode("end_time")])
+
             #at this stage, parameters reside in paramVals dict or dataset_values[ds] dict
             #print them in the requested order .. if any is "None" then stop, because it doesn't have a default value and didn't find a value for it either 
             rowString = ""
@@ -446,10 +486,16 @@ def main():
                         if not firstPrint: print("%s:" % ds)
                         firstPrint=True
                         print("  %s : %s  --->  %s" % (param,str(val2),str(val)))
-                        print("        insert_time  : %s" % explainInfo[param]['insert_time'])
-                        print("        explanation  : %s" % explainInfo[param]['explanation'])
-                        print("        createdby    : %s" % explainInfo[param]['createdby'])
-                        print("        physicsGroup : %s" % explainInfo[param]['physicsGroup'])
+                        if('insert_time' not in explainInfo[param]):
+                            #must have been a terminated parameter ... gone back to default ...
+                            print("        end_time     : %s" % old_explainInfo[param]['end_time'])
+                            print("        explanation  : %s" % old_explainInfo[param]['explanation'])
+                            print("        physicsGroup : %s" % old_explainInfo[param]['physicsGroup'])
+                        else:
+                            print("        insert_time  : %s" % explainInfo[param]['insert_time'])
+                            print("        explanation  : %s" % explainInfo[param]['explanation'])
+                            print("        createdby    : %s" % explainInfo[param]['createdby'])
+                            print("        physicsGroup : %s" % explainInfo[param]['physicsGroup'])
                     continue
                                                                   
                 rowList += [str(val)]
