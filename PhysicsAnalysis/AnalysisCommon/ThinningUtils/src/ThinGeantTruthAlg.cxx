@@ -36,6 +36,9 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
+//Standard includes
+#include <cstdlib>
+
 ///////////////////////////////////////////////////////////////////
 // Public methods:
 ///////////////////////////////////////////////////////////////////
@@ -222,7 +225,8 @@ StatusCode ThinGeantTruthAlg::execute()
 
 	static const SG::AuxElement::ConstAccessor<int> accType("truthType");
 	if(!accType.isAvailable(*egTruthParticle) || 
-	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron){
+	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
+	   std::abs(egTruthParticle->eta()) > 2.6){
 	  continue;
 	}
 	
