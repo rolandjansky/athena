@@ -4,11 +4,10 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-#include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
+//#include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
 #include "DataModel/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"//may be obsolete, TRT_ID includes this
@@ -16,7 +15,6 @@
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
@@ -89,14 +87,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_TRTCalDbSvc("TRT_CalDbSvc", name),
 	m_pTRTHelper(0),
 	m_mgr(0),
-	m_TrackSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
-	m_drifttool("TRT_DriftFunctionTool"),
-	//	m_rdoContainer(0),
-	//	m_trkCollection(0),
-	//	m_TRT_BCIDColl(0),
-	//	m_theComTime(0),
-	//	eventInfo(0),
-	//	m_comTimeObjectName("ComTime"),
 	m_rbins(40),
 	m_rmin(0.0),
 	m_rmax(2.0),
@@ -162,14 +152,12 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_isCosmics(false),
 	m_minTRThits(10),
 	m_minP(0),
-	m_trt_hole_finder("TRTTrackHoleSearchTool"),
 	m_track_pt(0),
 	m_track_eta(0),
 	m_track_phi(0),
 	m_track_d0(0),
 	m_track_z0(0),
-	m_min_tracks_straw(10),
-	m_lumiTool("LuminosityTool")
+	m_min_tracks_straw(10)
 //-----------------------------------------------------------------------------------------------//
 // NOTE: check up on obsolete properties
 {
@@ -179,11 +167,9 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("InDetTRT_DCS_ConditionsSvc", m_DCSSvc);
 	declareProperty("TRT_ByteStream_ConditionsSvc", m_BSSvc);
 	declareProperty("TRT_StrawNeighbourSvc",   m_TRTStrawNeighbourSvc);
-	declareProperty("DriftFunctionTool",        m_drifttool);
 	declareProperty("DoTRT_DCS",                m_doDCS);
 	declareProperty("DoRDOsMon",                m_doRDOsMon           = true);
 	declareProperty("DoGeoMon",                 m_doGeoMon            = false);//obsolete
-	//	declareProperty("TRTRawDataObjectName",     m_rawDataObjectName   = "TRT_RDOs");
 	declareProperty("NumberOfEvents",           m_usedEvents             = -1);
 	declareProperty("DoTracksMon",              m_doTracksMon         = true);
 	declareProperty("TRTTracksObjectName",      m_tracksObjectName    = "Tracks");
@@ -196,8 +182,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("doMaskStraws",             m_doMaskStraws          = true);
 	declareProperty("doShift",                  m_doShift               = true);
 	declareProperty("doDiagnostic",             m_doDiagnostic          = false);//obsolete	
-	//	declareProperty("ComTimeObjectName",        m_comTimeObjectName   = "TRT_Phase");
-	declareProperty("TrkSummaryTool",           m_TrackSummaryTool);
 	declareProperty("DistanceToStraw",          m_DistToStraw         = 0.4);
 	declareProperty("Geo_Summary_Provider",     m_geo_summary_provider);//probably obsolete
 	declareProperty("Map_Path",                 m_mapPath); // obsolete
@@ -226,9 +210,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("LumiBlocksToResetOcc",     m_lumiBlocksToResetOcc = 20);
 	declareProperty("IsCosmics",                m_isCosmics           = false);
 	declareProperty("MinTRTHitCut",             m_minTRThits          = 10);
-	declareProperty("trt_hole_finder",          m_trt_hole_finder);
 	declareProperty("useHoleFinder",            m_useHoleFinder = true);
-	//	declareProperty("track_collection_hole_finder", m_track_collection_hole_finder = "CombinedInDetTracks");
 	declareProperty("max_abs_d0",               m_max_abs_d0          = 10 * CLHEP::mm);
 	declareProperty("max_abs_z0",               m_max_abs_z0          = 300 * CLHEP::mm);
 	declareProperty("max_abs_eta",              m_max_abs_eta         = 2.5);
@@ -242,7 +224,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("every_xth_track",          m_every_xth_track     = 25);
 	declareProperty("whatdatatype",             m_datatype);//obsolete
 	declareProperty("doArgonXenonSeparation",   m_ArgonXenonSplitter  = true); // Argon Histograms won't be created if this is set to false.
-	declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
 	m_flagforscale = 1; //Added for a fix
 	m_totalEvents = 0;
 	m_hSummary = 0;
@@ -1370,7 +1351,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 				if (m_doRDOsMon && m_usedEvents > 0) {
 					if (ibe == 0) {
 						//fix for leading edge in time window probability vs straw number(Barrel) histograms
-						m_initScaleVectors();
+						initScaleVectors();
 						vector<float> scalevector;
 						vector<float> scalevector_Ar;
 
@@ -1942,7 +1923,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 			if (m_doStraws) {
 				if (ibe == 0) {
-					m_initScaleVectors();
+					initScaleVectors();
 					vector<float> scalevector;
 					vector<float> scalevector_Ar;
 
@@ -2348,7 +2329,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 			if (m_doStraws && m_doShift && m_totalEvents > 0) {
 				if (ibe == 0) {
-					m_initScaleVectors();
+					initScaleVectors();
 					vector<float> scalevector;
 					vector<float> scalevector_Ar;
 
@@ -4558,7 +4539,7 @@ TH2F_LW *TRT_Monitoring_Tool::bookTH2F_LW(MonGroup &mongroup, const std::string 
 
 
 //----------------------------------------------------------------------------------//
-int TRT_Monitoring_Tool::m_initScaleVectors() {
+int TRT_Monitoring_Tool::initScaleVectors() {
 //----------------------------------------------------------------------------------//
 	if (m_flagforscale == 0 ) return 0;
 

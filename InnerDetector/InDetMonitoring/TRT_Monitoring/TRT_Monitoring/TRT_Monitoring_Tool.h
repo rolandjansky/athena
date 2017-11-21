@@ -7,19 +7,25 @@
 #define TRT_MONITORING_TOOL_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "InDetRawData/InDetTimeCollection.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "LumiBlockComps/ILuminosityTool.h"
-
+// Data handles
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "CommissionEvent/ComTime.h"
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "InDetRawData/InDetTimeCollection.h"
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
+// Tool interfaces
+#include "LumiBlockComps/ILuminosityTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
+
+// STDLIB
 #include <string>
 #include <vector>
 #include <set>
@@ -32,10 +38,10 @@ class TH1D_LW;
 class LWHist1D;
 
 namespace Trk {
-	class ITrackHoleSearchTool;
+	//	class ITrackHoleSearchTool;
 	class Track;
 	class TrackStateOnSurface;
-	class ITrackSummaryTool;
+	//	class ITrackSummaryTool;
 }
 
 namespace InDetDD {
@@ -54,7 +60,7 @@ class ITRT_DAQ_ConditionsSvc;
 class ITRT_ByteStream_ConditionsSvc;
 class ITRT_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
-class ITRT_DriftFunctionTool;
+//class ITRT_DriftFunctionTool;
 
 class TRT_Monitoring_Tool : public ManagedMonitorToolBase {
 public:
@@ -139,6 +145,7 @@ private:
 	static const int s_numberOfStacks[2];
 	static const int s_moduleNum[2];
 
+	// Services
 	ServiceHandle<IToolSvc> p_toolSvc;
 	ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc;
 	ServiceHandle<ITRT_DCS_ConditionsSvc> m_DCSSvc;
@@ -148,6 +155,7 @@ private:
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 	ServiceHandle<ITRT_CalDbSvc> m_TRTCalDbSvc;
 
+	// Data handles
 	SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
 	SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTrackObjectName", "Tracks", "Name of tracks container"};
 	// NOTE: this property is not used anywhere, is it ok to change its name?
@@ -158,24 +166,15 @@ private:
 	SG::ReadHandleKey<ComTime> m_comTimeObjectKey{this, "ComTimeObjectName", "TRT_Phase", "Name of ComTime object"};
 	SG::ReadHandleKey<xAOD::TrigDecision> m_trigDecisionKey{this, "TrigDecisionObjectName", "xTrigDecision", "Name of trigger decision object"};
 
+	// Tools
+	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrkSummaryTool", "Trk::TrackSummaryTool/InDetTrackSummaryTool", "Track summary tool name"};
+	ToolHandle<ITRT_DriftFunctionTool> m_drifttool{this, "DriftFunctionTool", "TRT_DriftFunctionTool", "Drift function tool name"};
+	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder{this, "trt_hole_search", "TRTTrackHoleSearchTool", "Track hole search tool name"};
+	ToolHandle<ILuminosityTool> m_lumiTool{this, "LuminosityTool", "LuminosityTool", "Luminosity tool name"};
+
 	const TRT_ID* m_pTRTHelper;
 	const InDetDD::TRT_DetectorManager *m_mgr;
 
-	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool;
-	ToolHandle<ITRT_DriftFunctionTool> m_drifttool;
-
-	const TRT_RDO_Container* m_rdoContainer;
-	std::string m_rawDataObjectName;
-
-	const DataVector<Trk::Track> *m_trkCollection;
-	std::string m_tracksObjectName;
-
-	const InDetTimeCollection *m_TRT_BCIDColl;
-
-	const ComTime *m_theComTime;
-	const EventInfo* m_eventInfo;
-
-	std::string m_comTimeObjectName;
 	std::string m_geo_summary_provider;//obsolete
 	std::string m_mapPath;
 
@@ -603,12 +602,11 @@ private:
 	float m_minP;
 	void scale_LWHist(LWHist1D* hist, float scale);
 	void scale_LWHistWithScaleVector(LWHist1D* hist, const std::vector<float>& scale);
-	int m_initScaleVectors();
+	int initScaleVectors();
 	int m_flagforscale;
 	void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
 
 	///// Additional stuff for efficiency measurements, online only for now
-	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
 	std::string m_track_collection_hole_finder;
 	float m_max_abs_d0;
 	float m_max_abs_z0;
@@ -630,7 +628,6 @@ private:
 	int m_every_xth_track;
 	std::string m_datatype;
 
-	ToolHandle<ILuminosityTool>   m_lumiTool;
 
 
 	TProfile_LW* m_hefficiency_eta;
