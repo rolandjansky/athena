@@ -142,6 +142,7 @@ def main():
     parser.add_argument('--explainInfo',nargs='+',default=['explanation','insert_time'],help="Properties of the parameter you want to show in the explanation. Can list from: explanation, insert_time, physicsGroup, createdby. Default is: explanation,insert_time")
     parser.add_argument('--outFile',default=sys.stdout,type=argparse.FileType('w'),help="Where to print the output to. Leave blank to print to stdout")
     parser.add_argument('--delim',default="",help="The delimiter character. Defaults to spaces leading to nice formatting table")
+    parser.add_argument('--latex',action='store_true',help="If specified, will output in latex format, ready for copy-paste into notes")
     parser.add_argument('-v',action='store_true',help="Verbose output for debugging")
 
     args = parser.parse_args()
@@ -504,7 +505,7 @@ def main():
                 #inspect the type of str(val) to build up the header
                 if not doneHeader:
                     headerString += param
-                    if args.outFile != sys.stdout:
+                    if args.outFile != sys.stdout and not args.latex:
                         if type(fieldDefaults[param])==bool: headerString += "/O:"
                         elif type(fieldDefaults[param])==int: headerString += "/I:"
                         elif type(fieldDefaults[param])==float: headerString += "/D:"
@@ -514,8 +515,12 @@ def main():
                     else:
                         v = param
                         if param in paramUnits: 
-                            headerString += " [%s]" % paramUnits[param]
-                            v += " [%s]" % paramUnits[param]
+                            if args.latex:
+                                headerString += " (%s)" % paramUnits[param]
+                                v += " (%s)" % paramUnits[param]
+                            else:
+                                headerString += " [%s]" % paramUnits[param]
+                                v += " [%s]" % paramUnits[param]
                         tableHeaders += [v]
                         headerString += "  "
             if args.oldTimestamp!="": continue #print nothing more for diff mode
@@ -557,19 +562,33 @@ def main():
                 if len(r[i])>columnWidths[i]: columnWidths[i]=len(r[i])
         lineout = ""
         for i in range(0,len(tableHeaders)):
-            lineout += tableHeaders[i].ljust(columnWidths[i]) + "  "
+            lineout += tableHeaders[i].ljust(columnWidths[i])
+            if args.latex: 
+                if i==len(tableHeaders)-1: lineout += " \\\\ " 
+                else: lineout += " & "
+            else: lineout +=  "  "
         print(lineout)
+        if args.latex: print("\\hline",file=args.outFile)
         for r in outputTable:
             lineout = ""
             if len(r)>0 and r[0]=="COMMENT": lineout = r[1]
             else:
                 for i in range(0,len(r)):
-                    lineout += r[i].ljust(columnWidths[i]) + "  "
+                    lineout += r[i].ljust(columnWidths[i])
+                    if args.latex:
+                        if i==len(r)-1: lineout += " \\\\ "
+                        else: lineout += " & "
+                    else: lineout += "  "
             print(lineout,file=args.outFile)
 
     #print the footer, which is the command to reproduce this output
     import os
-    if args.outFile != sys.stdout:
+
+    if args.latex:
+        print("\\hline",file=args.outFile)
+        print("\\multicolumn{%d}{r}{Timestamp = %s}\\\\" % (len(tableHeaders),args.timestamp),file=args.outFile)
+        print("\\hline",file=args.outFile)
+    elif args.outFile != sys.stdout:
         #remove comment from dataset_values
         datasetss = [x for x in dataset_values.keys() if not x.startswith("comment")]
         
