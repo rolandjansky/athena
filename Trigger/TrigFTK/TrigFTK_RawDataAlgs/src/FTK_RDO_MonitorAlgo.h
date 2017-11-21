@@ -47,6 +47,10 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
+
+
+ private:
+
   void Hist_Init(std::vector<TH1D*> *histograms);
 
   void fillMaps(const FTK_RawTrackContainer* rawTracks, std::vector<std::vector<unsigned int>*>& pixList, std::vector<std::vector<unsigned int>*>& sctList);
@@ -62,9 +66,16 @@ public:
   void compareTracks(const FTK_RawTrack* ftkTrack, 
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
-
- private:
   
+  typedef std::vector<std::vector<int>> sectormap;
+  sectormap* readSectorDefinition (unsigned int tower, const char *name);
+
+    
+  unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
+
+  
+  bool findHash(unsigned int hash, unsigned int& tower, unsigned int& sector, unsigned int& plane);
+
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
 
@@ -123,6 +134,19 @@ public:
   double m_maxphi;
   unsigned int m_minMatches;
   bool m_reverseIBLlocx;
+
+  size_t m_max_plane;
+  size_t m_max_tower;
+
+  std::vector<sectormap*> m_moduleFromSector;
+
+  std::string m_ConstantsDir;
+  std::string m_PatternsVersion;
+  unsigned int m_Nlayers;
+  bool m_getHashFromTrack;
+  bool m_getHashFromConstants;
+
+
 };
 
 #endif // FTK_RDO_MonitorAlgo_h
