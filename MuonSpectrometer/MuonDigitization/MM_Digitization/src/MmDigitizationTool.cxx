@@ -792,10 +792,19 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Trk::LocalDirection localHitDirection;
 			surf.globalToLocalDirection(globalHitDirection, localHitDirection);
 
-			float inAngle_XZ =  localHitDirection.angleXZ() / CLHEP::degree;
-			if(inAngle_XZ < 0.0) inAngle_XZ += 180;
-			inAngle_XZ = 90. - inAngle_XZ ;
-			inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+			// inAngle_XZ is not an incident angle yet. It's atan(z/x),
+			// ... so it's the complement of the angle w.r.t. a vector normal to the detector surface
+			float inAngleCompliment_XZ =  localHitDirection.angleXZ() / CLHEP::degree;
+
+			// This is basically to handle the atan ambiguity
+			if(inAngleCompliment_XZ < 0.0) inAngleCompliment_XZ += 180;
+
+			// This gets the actual incidence angle.
+			float inAngle_XZ = 90. - inAngleCompliment_XZ;
+
+			// How can this be the right thing? Should this be readoutSide?
+			// inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+			inAngle_XZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
 
 			ATH_MSG_DEBUG(  "At eta "
 							<< m_idHelper->stationEta(layerID)
@@ -852,7 +861,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				continue;
 			}
 
-			// perform bound check
+			// Perform Bound Check
 			if( !surf.insideBounds(posOnSurf) ){
 				m_exitcode = 1;
 				if(m_writeOutputFile) m_ntuple->Fill();
