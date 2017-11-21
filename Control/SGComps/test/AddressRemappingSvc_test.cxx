@@ -19,6 +19,7 @@
 #include "SGTools/StringPool.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IAddressProvider.h"
@@ -31,11 +32,11 @@
 
 
 namespace AddressRemappingSvc_test {
-  class Foo {};
+  class xAODFoo {};
 }
-CLASS_DEF (AddressRemappingSvc_test::Foo, 874546632, 0)
+CLASS_DEF (AddressRemappingSvc_test::xAODFoo, 874546632, 0)
 
-using AddressRemappingSvc_test::Foo;
+using AddressRemappingSvc_test::xAODFoo;
 
 
 class TestAlgorithm
@@ -92,7 +93,7 @@ StatusCode TestAlgResourcePool::initialize()
   m_algs.push_back (std::make_unique<TestAlgorithm>("alg1", &*serviceLocator()));
   m_algs.push_back (std::make_unique<TestAlgorithm>("alg2", &*serviceLocator()));
 
-  CLID fooclid = ClassID_traits<Foo>::ID();
+  CLID fooclid = ClassID_traits<xAODFoo>::ID();
   m_algs[0]->addOutputDataObj (DataObjID (fooclid, "StoreGateSvc+fee1"));
   m_algs[1]->addOutputDataObj (DataObjID (fooclid, "xstore+foo1"));
   return StatusCode::SUCCESS;
@@ -149,7 +150,7 @@ struct Addrs
 void fillTADList (IAddressProvider::tadList& tads,
                   Addrs& addrs)
 {
-  CLID fooclid = ClassID_traits<Foo>::ID();
+  CLID fooclid = ClassID_traits<xAODFoo>::ID();
 
   {
     auto tad = std::make_unique<SG::TransientAddress>
@@ -183,7 +184,8 @@ void fillTADList (IAddressProvider::tadList& tads,
 
   {
     auto tad = std::make_unique<SG::TransientAddress>
-      (432, "fee1Aux.", &addrs.addr5, false);
+      (ClassID_traits<SG::IConstAuxStore>::ID(),
+       "fee1Aux.", &addrs.addr5, false);
     tads.push_back (tad.release());
   }
 }
@@ -196,7 +198,7 @@ void fillTADList (IAddressProvider::tadList& tads,
 void checkTADList (const IAddressProvider::tadList& tads,
                    const Addrs& addrs)
 {
-  CLID fooclid = ClassID_traits<Foo>::ID();
+  CLID fooclid = ClassID_traits<xAODFoo>::ID();
 
   assert (tads.size() == 3);
   size_t i = 0;
@@ -262,7 +264,7 @@ void test1 (Athena::IInputRename& svc,
     (*svc.inputRenameMap());
   assert (r->size() == 5);
 
-  CLID fooclid = ClassID_traits<Foo>::ID();
+  CLID fooclid = ClassID_traits<xAODFoo>::ID();
   SG::StringPool sp;
   Athena::IInputRename::InputRenameMap_t::const_iterator it;
 
