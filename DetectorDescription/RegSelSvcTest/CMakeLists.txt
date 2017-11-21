@@ -38,7 +38,7 @@ atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh
 	      )		
 
 atlas_add_test( RegSel_mt SCRIPT test/test_RegSel_mt.sh
-		PROPERTIES TIMEOUT 500
+		PROPERTIES TIMEOUT 1200
 	      )		
 
 # Install files from the package:
