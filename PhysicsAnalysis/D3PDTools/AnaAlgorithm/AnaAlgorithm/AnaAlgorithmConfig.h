@@ -103,6 +103,16 @@ namespace EL
     setProperty (const std::string& name, const T& value);
 
 
+    /// \brief set a given property from a string value
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    void setPropertyFromString (const std::string& name,
+                                const std::string& value);
+
+
     /// \brief make an algorithm with the given configuration
     /// \par Guarantee
     ///   strong
