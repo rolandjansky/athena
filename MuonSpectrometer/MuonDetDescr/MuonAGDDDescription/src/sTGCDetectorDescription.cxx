@@ -44,10 +44,11 @@ void sTGCDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 		p->ID.detectorAddress=stringone.str();
 }
 
-sTGC_Technology* sTGCDetectorDescription::GetTechnology()
+MuonGM::sTGC_Technology* sTGCDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();   
-   sTGC_Technology* t = dynamic_cast<sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
+   MuonGM::sTGC_Technology* t =
+     dynamic_cast<MuonGM::sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
 
    return t;
 }

@@ -13,8 +13,6 @@
 
 class GeoMaterial;
 
-using MuonGM::sTGC_Technology;
-
 struct sTGCReadoutParameters {
     double sPadWidth;
     double lPadWidth;
@@ -82,7 +80,7 @@ public:
 
 	static sTGCDetectorDescription* GetCurrent() {return s_current;}
 	
-	sTGC_Technology* GetTechnology();
+	MuonGM::sTGC_Technology* GetTechnology();
 
 protected:
 
