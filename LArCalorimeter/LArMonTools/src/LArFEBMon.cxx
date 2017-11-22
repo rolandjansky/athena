@@ -556,6 +556,9 @@ StatusCode LArFEBMon::fillHistograms() {
     m_oneErrorYieldLB->Fill(lumi_block,100);
     if (m_febInErrorTree.size()>=4) m_rejectedHisto->Fill(2);
   }
+  else{
+    m_oneErrorYieldLB->Fill(lumi_block,0);
+  }
 
   if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){ // Event in error (whatever is the cause)
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)){ // Event corrupted (>=1/4 FEBs in error)
