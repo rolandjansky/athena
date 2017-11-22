@@ -8,8 +8,8 @@
 
 StgcRdoToStgcPrepData::StgcRdoToStgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_decoderTool ("Muon::StgcRdoToStgcPrepDataTool/StgcRdoToStgcPrepDataTool"),
 m_seededDecoding(false),
+m_decoderTool ("Muon::StgcRdoToStgcPrepDataTool/StgcRdoToStgcPrepDataTool"),
 m_roiCollectionKey("OutputRoIs"),
 m_regionSelector("RegSelSvc",name),
 m_prdContainer("sTGC_Measurements")
