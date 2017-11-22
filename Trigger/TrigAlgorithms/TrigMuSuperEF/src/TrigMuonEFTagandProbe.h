@@ -42,8 +42,17 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   std::vector<const xAOD::Muon*> m_good_muons;
   std::vector<float> m_dimuon_invmass;
   std::vector<float> m_delta_r;
+  std::vector<float> m_delta_z;
+  std::vector<float> m_eta_tag;
+  std::vector<float> m_eta_probe;
+  std::vector<float> m_phi_tag;
+  std::vector<float> m_phi_probe;
+  std::vector<float> m_pt_tag;
+  std::vector<float> m_pt_probe;
 
   const DataVector<LVL1::RecMuonRoI>* m_l1_muon_RoIs; //To access Storegate need to use DataVector pointer which always assumes pointer elements
+
+  //  std::vector<pair <const xAOD::Muon*,const xAOD::Muon*> > TaP;
 
   //std::vector<const LVL1::RecMuonRoI*> m_l1_muon_RoIs; //Keep in case we need a container of good RoIs
   
