@@ -65,7 +65,7 @@ m_nParticlesThinned(0),
 m_nVerticesThinned(0)
 {
    
-    declareProperty("ThinningSvc",          m_thinningSvc,
+    declareProperty("ThinningSvc", m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
     
     declareProperty("ThinGeantTruth", m_doThinning,
@@ -298,10 +298,8 @@ StatusCode ThinGeantTruthAlg::execute()
             }
         }
 
-        // Retain particles and their descendants/ancestors associated with the egamma Truth Particles
+        // Retain particles and their descendants  associated with the egamma Truth Particles
         if ( std::find(egammaTruthIndices.begin(), egammaTruthIndices.end(), i) != recoParticleTruthIndices.end() ) { 
-	  ancestors(particle,particleMask,encounteredBarcodes);
-	  encounteredBarcodes.clear();
 	  descendants(particle,particleMask,encounteredBarcodes);
 	  encounteredBarcodes.clear();
         }
