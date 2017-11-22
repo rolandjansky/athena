@@ -383,9 +383,9 @@ conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring
 
 sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
 from AthenaCommon.AlgSequence import AthSequencer
-condSequence = AthSequencer("AthCondSeq")
+condSeq = AthSequencer("AthCondSeq")
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-condSequence += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg", ReadKey = sctDerivedMonitoringFolder)
+condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg", ReadKey = sctDerivedMonitoringFolder)
 
 
 # GeoModel & MagneticFieldSvc
@@ -421,9 +421,22 @@ include( "InDetRecExample/InDetRecConditionsAccess.py" )
 # add access to both folders, since we don't know beforehand which DB we'll be used? A.G, 2014-12-03
 year=int(projectName[4:6])
 if (year > 13):
-    conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
+    conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
 else:
-    conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+    conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
+
+#--- For Conditions algorithm for Athena MT (start)
+from IOVSvc.IOVSvcConf import CondSvc
+ServiceMgr += CondSvc()
+#from AthenaCommon.AlgSequence import AthSequencer
+#condSeq = AthSequencer("AthCondSeq")
+from IOVSvc.IOVSvcConf import CondInputLoader
+condSeq += CondInputLoader("CondInputLoader")
+import StoreGate.StoreGateConf as StoreGateConf
+ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
+condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg")
+#--- For Conditions algorithm for Athena MT (end)
 
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
