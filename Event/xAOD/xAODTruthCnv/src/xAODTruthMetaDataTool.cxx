@@ -31,17 +31,21 @@ namespace xAODMaker {
       std::vector<std::string> keys;
       inputMetaStore()->keys<xAOD::TruthMetaDataContainer>(keys);
       for (const auto &key : keys) {
-         ATH_MSG_VERBOSE("Attempting to copy xAOD::TruthMetaDataContainer: " << key);
-         const xAOD::TruthMetaDataContainer* truthMD_in = 0;
-         if (!inputMetaStore()->retrieve(truthMD_in, key).isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve object for xAOD::TruthMetaDataContainer");
-            return StatusCode::FAILURE;
-         }
-         xAOD::TruthMetaDataContainer* truthMD_out = 0;
          if (!outputMetaStore()->contains<xAOD::TruthMetaDataContainer>(key)) {
-            truthMD_out = new xAOD::TruthMetaDataContainer();
-            xAOD::TruthMetaDataAuxContainer* truthAuxMD_out = new xAOD::TruthMetaDataAuxContainer();
-            truthMD_out->setStore(truthAuxMD_out);
+            ATH_MSG_VERBOSE("Attempting to copy xAOD::TruthMetaDataContainer: " << key);
+            const xAOD::TruthMetaDataContainer* truthMD_in = 0;
+            if (!inputMetaStore()->retrieve(truthMD_in, key).isSuccess()) {
+               ATH_MSG_ERROR("Could not retrieve object for xAOD::TruthMetaDataContainer");
+               return StatusCode::FAILURE;
+            }
+            const xAOD::TruthMetaDataAuxContainer* truthAuxMD_in = 0;
+            if (!inputMetaStore()->retrieve(truthAuxMD_in, key + "Aux.").isSuccess()) {
+               ATH_MSG_ERROR("Could not retrieve object for xAOD::TruthMetaDataAuxContainer");
+               return StatusCode::FAILURE;
+            }
+            xAOD::TruthMetaDataContainer* truthMD_out = new xAOD::TruthMetaDataContainer(*truthMD_in);
+            xAOD::TruthMetaDataAuxContainer* truthAuxMD_out = new xAOD::TruthMetaDataAuxContainer(*truthAuxMD_in);
+            //truthMD_out->setStore(truthAuxMD_out);
             if (!outputMetaStore()->record(truthMD_out, key).isSuccess()) {
                ATH_MSG_ERROR("Could not record xAOD::TruthMetaDataContainer:  " << key);
                return StatusCode::FAILURE;
@@ -50,15 +54,6 @@ namespace xAODMaker {
                ATH_MSG_ERROR("Could not record xAOD::TruthMetaDataAuxContainer: " << key << "Aux.");
                return StatusCode::FAILURE;
             }
-         } else {
-            if (!outputMetaStore()->retrieve(truthMD_out, key).isSuccess()) {
-               ATH_MSG_ERROR("Could not find xAOD::TruthMetaDataAuxContainer in output: " << key);
-               return StatusCode::FAILURE;
-            }
-         }
-         for (const auto& input : *truthMD_in) {
-            xAOD::TruthMetaData* copy = new xAOD::TruthMetaData(*input);
-            truthMD_out->push_back(copy);
          }
       }
 
