@@ -56,14 +56,8 @@ ToolSvc += EXOT2SkimmingTool
 print EXOT2SkimmingTool
 
 #=======================================
-# JETS
+# THINNING
 #=======================================
-
-# using now TauTruthCommon, so we use a central Python setup and it is not imported twice
-# Tau truth common is a part of the standard truth tools
-#if DerivationFrameworkIsMonteCarlo:
-#    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-#    addStandardTruthContents()
 
 #Truth Thinning: want to keep some parton info so we can
 #study BSM decays
@@ -101,6 +95,9 @@ EXOT2TruthTool2 = DerivationFramework__GenericTruthThinning(name                
 ToolSvc += EXOT2TruthTool2
 thinningTools.append(EXOT2TruthTool2)
 
+#=======================================
+# JETS
+#=======================================
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
