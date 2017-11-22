@@ -51,44 +51,25 @@ void BookkeeperDumper::handle(const Incident& inc)
 
   // Need to get input file name for event comparison
   if (inc.type()=="BeginInputFile") {
-    //const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
     ServiceHandle<StoreGateSvc> mdstore("StoreGateSvc/InputMetaDataStore", name());
     if (mdstore.retrieve().isSuccess()) {
       const DataHandle<xAOD::CutBookkeeperContainer> compBook(NULL);
       if (mdstore->retrieve(compBook, "CutBookkeepers").isSuccess()) {
         ATH_MSG_INFO("CBK size = " << compBook->size());
         for (auto it = compBook->begin(); it != compBook->end(); ++it) {
-          ATH_MSG_INFO("CBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
+          ATH_MSG_INFO("CBK name= " << (*it)->name() << " cycle=" << (*it)->cycle() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights() << " nc=" << (*it)->nChildren());
         }
       } else {
         ATH_MSG_INFO("CBK No CutBookkeepers " << mdstore->dump());
-      }
-      const DataHandle<xAOD::CutBookkeeperContainer> fileBook(NULL);
-      if (mdstore->retrieve(fileBook, "FileBookkeepers").isSuccess()) {
-        ATH_MSG_INFO("FBK size = " << fileBook->size());
-        for (auto it = fileBook->begin(); it != fileBook->end(); ++it) {
-          ATH_MSG_INFO("FBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
-        }
-      } else {
-        ATH_MSG_INFO("FBK No FileBookkeepers " << mdstore->dump());
       }
       const DataHandle<xAOD::CutBookkeeperContainer> incompBook(NULL);
       if (mdstore->retrieve(incompBook, "IncompleteCutBookkeepers").isSuccess()) {
         ATH_MSG_INFO("ICBK size = " << incompBook->size());
         for (auto it = incompBook->begin(); it != incompBook->end(); ++it) {
-          ATH_MSG_INFO("ICBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
+          ATH_MSG_INFO("ICBK name= " << (*it)->name() << " cycle=" << (*it)->cycle() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights() << " nc=" << (*it)->nChildren());
         }
       } else {
         ATH_MSG_INFO("ICBK No CutBookkeepers " << mdstore->dump());
-      }
-      const DataHandle<xAOD::CutBookkeeperContainer> infileBook(NULL);
-      if (mdstore->retrieve(infileBook, "IncompleteFileBookkeepers").isSuccess()) {
-        ATH_MSG_INFO("IFBK size = " << infileBook->size());
-        for (auto it = infileBook->begin(); it != infileBook->end(); ++it) {
-          ATH_MSG_INFO("IFBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
-        }
-      } else {
-        ATH_MSG_INFO("IFBK No FileBookkeepers " << mdstore->dump());
       }
     }
   }
