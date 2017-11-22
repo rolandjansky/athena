@@ -37,8 +37,10 @@ namespace G4UA{
 
   namespace iGeant4{
 
-    MCTruthUserAction::MCTruthUserAction(const Config& config):
-      m_config(config){
+    MCTruthUserAction::MCTruthUserAction(const Config& config)
+      : m_config(config)
+      , m_truthRecordSvcQuick(nullptr)
+    {
 
       if(4<m_config.verboseLevel)
         {
