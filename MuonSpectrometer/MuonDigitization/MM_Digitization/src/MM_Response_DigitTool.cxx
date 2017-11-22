@@ -20,7 +20,7 @@
 
 using namespace MuonGM;
 using namespace std;
-/*******************************************************************************/ 
+/*******************************************************************************/
 MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
                                               const std::string& name,
                                               const IInterface* parent )
@@ -31,19 +31,19 @@ MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
   , m_rndmEngineName("MuonDigitization")
   , m_rndmSvc("AtRndmGenSvc", name )
 {
-  declareInterface<IMM_DigitizationTool>(this); 	
+  declareInterface<IMM_DigitizationTool>(this);
   declareProperty("RndmSvc",    m_rndmSvc,         "Random Number Service used in Muon digitization" );
   declareProperty("RndmEngine", m_rndmEngineName,  "Random engine name");
 }
 /*******************************************************************************/
 MmDigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& input*/ )
-{	
+{
   vector<float> a, b;
-  vector<int> c;  
+  vector<int> c;
   MmDigitToolOutput output(false, c, b, a, 1, 1);
   return output;
 }
-/*******************************************************************************/ 
+/*******************************************************************************/
 StatusCode MM_Response_DigitTool::initialize()
 {
   StoreGateSvc* detStore=0;
@@ -70,8 +70,8 @@ StatusCode MM_Response_DigitTool::initialize()
     {
       ATH_MSG_FATAL(" Could not initialize Random Number Service");
       return StatusCode::FAILURE;
-    }     
-	   
+    }
+
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
@@ -79,15 +79,15 @@ StatusCode MM_Response_DigitTool::initialize()
     ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE;
   }
-	
-  
+
+
   initializeStrip();
-	
+
   return StatusCode::SUCCESS;
 }
-/*******************************************************************************/	
-bool MM_Response_DigitTool::initializeStrip(){	  
+/*******************************************************************************/
+bool MM_Response_DigitTool::initializeStrip(){
   return true;
 }
 /*******************************************************************************/
- 
+

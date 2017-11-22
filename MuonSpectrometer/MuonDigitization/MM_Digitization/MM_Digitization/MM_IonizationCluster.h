@@ -47,7 +47,7 @@ class MM_NelectronProb {
     NelectronProb.SetBinContent(21,0.0490);
     NelectronProb.SetBinContent(22,0.0450);
     NelectronProb.SetBinContent(23,0.0440);
-    
+
     for (uint Nelectron = 24; Nelectron <= 300; Nelectron++)
       NelectronProb.SetBinContent(Nelectron, 21.6/((Nelectron)*(Nelectron)));
   }
@@ -71,9 +71,9 @@ class MM_IonizationCluster {
   MM_IonizationCluster ();
   MM_IonizationCluster (float _HitX, float _IonizationX, float _IonizationY);
   MM_IonizationCluster (const MM_IonizationCluster& _MM_IonizationCluster);
-  void createElectrons(TRandom3* rndm);    
+  void createElectrons(TRandom3* rndm);
   void diffuseElectrons(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);
-  void propagateElectrons(float driftVelx, float driftVely, float driftVel);
+  void propagateElectrons(float lorentzAngle, float driftVel);
   void avalancheElectrons(float gain, TRandom3* rndm);
   std::vector<MM_Electron*> getElectrons() const;
   float getHitX() const { return HitX; }

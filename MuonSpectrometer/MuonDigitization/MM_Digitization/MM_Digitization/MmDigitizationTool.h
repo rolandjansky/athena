@@ -1,5 +1,3 @@
-/* -*- C++ -*- */
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -54,8 +52,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-#include "MM_Digitization/StripsResponse.h"
-#include "MM_Digitization/ElectronicsResponse.h"
+#include "MM_Digitization/StripsResponseSimulation.h"
+#include "MM_Digitization/ElectronicsResponseSimulation.h"
 #include "MM_Digitization/MMStripVmmMappingTool.h"
 
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
@@ -133,156 +131,114 @@ public:
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
   CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used
 
-  void setAmplification(const double amplification) {
-    m_amplification = amplification;
-  }
-
-  void set (const double bunchTime);
-
 
 
 private:
 
-  ServiceHandle<StoreGateSvc> m_sgSvc;
-  ActiveStoreSvc*             m_activeStore;
-
-  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
-
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
-
-  MmDigitContainer*      m_digitContainer;
-  MuonSimDataCollection* m_sdoContainer;
-  MmSortedHitVector      m_hits;
-
-  const MmIdHelper*       m_idHelper;
-  MicromegasHitIdHelper*  muonHelper;
-
-  const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
-
-  ToolHandle <IMM_DigitizationTool> m_digitTool;
-  std::list<GenericMuonSimHitCollection*> m_MMHitCollList;
-  bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const;
-
-  //CONFIGURATION
-  bool m_validationSetup;
-  double m_energyThreshold;
-  bool m_saveInternalHistos;
-  bool m_checkMMSimHits;
-  bool m_useTof;
-  bool m_useAttenuation;
-  bool m_useProp;
-
-  //pile-up
-  TimedHitCollection<GenericMuonSimHit>* m_thpcMM; // the hits
-
-  ///////////////////////////////////////////////////////////////////
-  // Access to the event methods:
-  ///////////////////////////////////////////////////////////////////
-  // Get next event and extract collection of hit collections:
   StatusCode getNextEvent();
   StatusCode doDigitization();
 
-  void  fillMaps(const GenericMuonSimHit * mmHit, const Identifier digitId, const double driftR);
+  bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const;
   int   digitizeTime(double time) const;
-  bool outsideWindow(double time) const; // default +-50...
-
   MmElectronicsToolInput CombinedStripResponseAllhits(const std::vector< MmElectronicsToolInput > & v_StripdigitOutput);
+
+
+  // Services
+  ServiceHandle<StoreGateSvc> m_sgSvc;
+  ActiveStoreSvc*             m_activeStore;
+  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
+  PileUpMergeSvc *m_mergeSvc; // Pile up service
+  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
+  CLHEP::HepRandomEngine *m_rndmEngine;    // Random nu
+  std::string m_rndmEngineName;// name of random enginember engine used - not init in SiDigitization
+
+  // Containers
+  MmDigitContainer*      m_digitContainer;
+  MuonSimDataCollection* m_sdoContainer;
+
+  // Tools
+  ToolHandle <IMM_DigitizationTool> m_digitTool;
+  TFile *m_file;
+  TTree *m_ntuple;
+
+  const MmIdHelper*       m_idHelper;
+  MicromegasHitIdHelper*  muonHelper;
+  const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
+  std::list<GenericMuonSimHitCollection*> m_MMHitCollList;
+
+  // Settings
+  double m_energyThreshold;
+  int m_maskMultiplet;
+  bool m_writeOutputFile;
+  TimedHitCollection<GenericMuonSimHit>* m_timedHitCollection_MM; // the pileup hits
+
+  std::string m_inputObjectName; // name of the input objects
+  std::string m_outputObjectName; // name of the output digits
+  std::string m_outputSDOName; // name of the output SDOs
+
+  bool m_checkMMSimHits;
+
+
   //TIMING SCHEME
   bool   m_useTimeWindow;
-  double m_inv_c_light;
+
+  double m_timeWindowLowerOffset;
+  double m_timeWindowUpperOffset;
   double m_DiffMagSecondMuonHit;
 
   //TDC ELECTRONICS
   double m_ns2TDC;
   double m_resTDC;
 
-  // RandomGenerators
-  //  double m_FlatDist;
-  //  double m_GaussDist;
-  //  double m_PoissonDist;
-  //  double m_GammaDist;
-  double m_Polya;
-  double m_timeWindowLowerOffset;
-  double m_timeWindowUpperOffset;
-  double m_bunchTime;
-  double * m_sprob;
-  double m_amplification;
-
   // StripsResponse stuff...
-  StripsResponse *m_StripsResponse;
-  float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
-  float m_qThresholdForTrigger;
-  std::string m_gasFileName;
+  StripsResponseSimulation *m_StripsResponseSimulation;
+  float m_qThreshold;
+  float m_transverseDiffusionSigma;
+  float m_longitudinalDiffusionSigma;
+  float m_driftGapWidth;
+  float m_driftVelocity;
+  float m_crossTalk1;
+  float m_crossTalk2;
 
   // ElectronicsResponse stuff...
-  ElectronicsResponse *m_ElectronicsResponse;
+  ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
   float m_alpha;// power of responce function
-  // float m_RC ;// time constant of responce function
   float m_peakTime; // VMM setting
   float m_electronicsThreshold; // threshold "Voltage" for histoBNL
   float m_stripdeadtime; // dead-time for strip
   float m_ARTdeadtime; // dead-time for ART
-  TFile *m_file;
-  TTree *m_ntuple;
-  TH1I *m_AngleDistr, *m_AbsAngleDistr, *m_ClusterLength2D, *m_ClusterLength, *m_gasGap,  *m_gasGapDir ;
 
-  int m_n_Station_side, m_n_Station_eta, m_n_Station_phi, m_n_Station_multilayer, m_n_Station_layer, m_n_hitStripID, m_n_StrRespTrg_ID, m_n_strip_multiplicity, m_n_strip_multiplicity_2;
-  int exitcode, m_n_hitPDGId;
-  double m_n_hitOnSurface_x, m_n_hitOnSurface_y, m_n_hitDistToChannel, m_n_hitIncomingAngle,m_n_StrRespTrg_Time, m_n_hitIncomingAngleRads, m_n_hitKineticEnergy, m_n_hitDepositEnergy;
-  float  tofCorrection, bunchTime, globalHitTime, eventTime;
+  int m_n_Station_side;
+  int m_n_Station_eta;
+  int m_n_Station_phi;
+  int m_n_Station_multilayer;
+  int m_n_Station_layer;
+  int m_n_hitStripID;
+  int m_n_StrRespTrg_ID;
+  int m_n_strip_multiplicity;
+  int m_n_strip_multiplicity_2;
+  int m_n_hitPDGId;
+
+  double m_n_hitOnSurface_x;
+  double m_n_hitOnSurface_y;
+  double m_n_hitDistToChannel;
+  double m_n_hitIncomingAngle,m_n_StrRespTrg_Time;
+  double m_n_hitIncomingAngleRads;
+  double m_n_hitKineticEnergy;
+  double m_n_hitDepositEnergy;
+
+  int m_exitcode;
+
+  float  tofCorrection;
+  float bunchTime;
+  float globalHitTime;
+  float eventTime;
   std::vector<int> m_n_StrRespID;
-  std::vector<float> m_n_StrRespCharge, m_n_StrRespTime;
-
-  // vector <TH1F*> m_histoBNL;
-
-  // private methods need to compute the induce charge on the strip
-  double qStrip        (const int & nElectrons, const double & gammaDist) const;
-  double qStripR       (const double x) const;
-  double qStripR       (const double x, const std::string stationType) const;
-  double qStripPhi     (const double x, const std::string stationType) const;
-  double fparamPhi     (const double x, const int N, const double * p) const;
-  //	  double getDriftTime(const MMReadoutElement* descriptor, const Amg::Vector3D& pos) const;
-
-
-protected:
-
-  PileUpMergeSvc *m_mergeSvc; // Pile up service
-  std::string m_inputObjectName; // name of the input objects
-  std::string m_outputObjectName; // name of the output digits
-  std::string m_outputSDOName; // name of the output SDOs
-
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
-  int m_maskMultiplet;
+  std::vector<float> m_n_StrRespCharge;
+  std::vector<float> m_n_StrRespTime;
 
 };
-/*******************************************************************************/
-inline bool MmDigitizationTool::outsideWindow(double driftTime) const {
-  double time = driftTime; //m_bunchTime is included already....updated one..
-  //  double time = driftTime+m_bunchTime;
-  return time < m_timeWindowLowerOffset || time > m_timeWindowUpperOffset;
-}
-/*******************************************************************************/
-inline double MmDigitizationTool::qStrip (const int & nElectrons, const double& gammaDist) const {
-
-  // find the charge on the wire
-
-  //  double amplification = 0.58e5;
-  double amplification = m_amplification;
-  double stripCharge = 0.0;
-
-  for (int i=0; i<nElectrons; i++) {
-    double RNDpol = 0.0;
-    if (m_Polya > -1.0) {
-      RNDpol = gammaDist/(1.0+m_Polya);
-    }
-    stripCharge += amplification*RNDpol;
-  }
-  return stripCharge;
-}
-/*******************************************************************************/
-inline void MmDigitizationTool::set (const double bunchTime) {m_bunchTime = bunchTime;}
 
 #endif // MmDigitizationTool
