@@ -8,27 +8,36 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 exot2Seq = CfgMgr.AthSequencer("EXOT2Sequence")
 
 #====================================================================
 # SET UP STREAM   
 #====================================================================
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+
 streamName = derivationFlags.WriteDAOD_EXOT2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT2Stream )
 EXOT2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT2Stream.AcceptAlgs(["EXOT2Kernel"])
 
+# SPECIAL LINES FOR THINNING
+# Thinning service name must match the one passed to the thinning tools
+#augStream = MSMgr.GetStream( streamName )
+#evtStream = augStream.GetEventStream()
+#svcMgr += createThinningSvc( svcName="EXOT2ThinningSvc", outStreams=[evtStream] )
+
 #=====================
 # TRIGGER NAV THINNING
 #=====================
+
 #Establish the thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT2ThinningHelper = ThinningHelper( "EXOT2ThinningHelper" )
 #trigger navigation content
 EXOT2ThinningHelper.TriggerChains = 'HLT_j.*|HLT_noalg_L1J.*'
 EXOT2ThinningHelper.AppendToStream( EXOT2Stream )
-
 
 #=======================================
 # SKIMMING TOOL   
@@ -50,6 +59,49 @@ print EXOT2SkimmingTool
 # JETS
 #=======================================
 
+# using now TauTruthCommon, so we use a central Python setup and it is not imported twice
+# Tau truth common is a part of the standard truth tools
+#if DerivationFrameworkIsMonteCarlo:
+#    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+#    addStandardTruthContents()
+
+#Truth Thinning: want to keep some parton info so we can
+#study BSM decays
+thinningTools = []
+EXOT2MCThinningTool = DerivationFramework__MenuTruthThinning(name                = "EXOT2MCThinningTool",
+                                                              ThinningService     = EXOT2ThinningHelper.ThinningSvc(),
+                                                              WriteEverything     = False,
+                                                              WritePartons        = True,
+                                                              WriteHadrons        = True,
+                                                              WriteBHadrons       = True,
+                                                              WriteGeant          = False,
+                                                              WriteTauHad         = False,
+                                                              WriteBSM            = True,
+                                                              WriteBosons         = True,
+                                                              WriteBosonProducts  = True,
+                                                              WriteBSMProducts    = True,
+                                                              WriteTopAndDecays   = False,
+                                                              WriteAllLeptons     = False,
+                                                              WriteStatus3        = False,
+                                                              WriteFirstN         = -1)
+
+ToolSvc += EXOT2MCThinningTool
+thinningTools += EXOT2MCThinningTool
+
+# Further truth slimming to ensure useful parton info
+truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+EXOT2TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT2TruthTool2",
+                                                              ThinningService              = EXOT2ThinningHelper.ThinningSvc(),
+                                                              ParticleSelectionString      = truth_cond_jets,
+                                                              PreserveDescendants          = False,
+                                                              PreserveGeneratorDescendants = True,
+                                                              PreserveAncestors            = True)
+
+ToolSvc += EXOT2TruthTool2
+thinningTools.append(EXOT2TruthTool2)
+
+
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT2"] = []
@@ -64,7 +116,8 @@ replaceAODReducedJets(reducedJetList,exot2Seq,"EXOT2")
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot2Seq
 exot2Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT2Kernel",
-                                                         SkimmingTools = [EXOT2SkimmingTool])
+                                                         SkimmingTools = [EXOT2SkimmingTool],
+                                                         ThinningTools = thinningTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -78,8 +131,9 @@ EXOT2SlimmingHelper.SmartCollections = ["PrimaryVertices",
                                     "BTagging_AntiKt4LCTopo",
                                        ]
 TrigJetCleaningVars = '.ECPSFraction.N90Constituents.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.Timing.GhostTruthAssociationFraction'
+TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
 EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m",
-                                      "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TrigJetCleaningVars,
+                                      "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,
                                       "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
                                      ]
 EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
@@ -89,6 +143,7 @@ EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     #"BTagging_AntiKt4EMTopo",
                                     #"BTagging_AntiKt4LCTopo",
                                     #"MuonSegments",
+                                    "TruthParticles",
                                     "LVL1JetRoIs",
                                     "HLT_xAOD__JetContainer_a4tcemsubFS",
                                     "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
