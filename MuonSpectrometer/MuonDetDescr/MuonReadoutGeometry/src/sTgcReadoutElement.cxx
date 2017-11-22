@@ -265,8 +265,6 @@ namespace MuonGM {
       activeB = lWidth - 2 * xFrame;
     else activeB = lWidth - 2 * (1./cos(halfphi) * xFrame + tan(halfphi)*ylFrame);
 
-    double firstStripPitch[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
-
     // This block here was moved from another place in code in order to reduce repetitions 
     m_halfX=std::vector<double>(m_nlayers);
     m_minHalfY=std::vector<double>(m_nlayers);
@@ -286,7 +284,7 @@ namespace MuonGM {
       m_etaDesign[il].type=0;
 
       m_etaDesign[il].yCutout=yCutout;
-      m_etaDesign[il].firstPitch=firstStripPitch[il];
+      m_etaDesign[il].firstPitch=roParam.firstStripWidth[il];
 
       m_etaDesign[il].xSize    = length - ysFrame - ylFrame;
       m_etaDesign[il].xLength  = length;
@@ -349,14 +347,18 @@ namespace MuonGM {
       m_phiDesign[il].inputWidth = 0.015; // parameterBagTech->wireWidth;
       m_phiDesign[il].thickness = stgc->Tck();
       	
-      // m_phiDesign[il].firstPos = -0.5*m_phiDesign[il].maxYSize + 0.5*(parameterBagTech->wirePitch);
-      m_phiDesign[il].firstPos = -0.5*m_phiDesign[il].maxYSize + 0.5*(1.8);
+      m_phiDesign[il].firstPos = roParam.firstWire[il]; // Position of 1st wire, accounts for staggering
+      m_phiDesign[il].firstPitch = roParam.firstWireGroup[il]; // Number of Wires in 1st group, group staggering
+      m_phiDesign[il].groupWidth = roParam.wireGroupWidth; // Number of Wires normal group
+      m_phiDesign[il].nGroups = roParam.nWireGroups[il]; // Number of Wire Groups
+      m_phiDesign[il].wireCutout = roParam.wireCutout[il]; // Size of "active" wire region for digits
+
       m_phiDesign[il].sAngle = 0.;            // handled by surface rotation
       m_phiDesign[il].signY  = 1 ;
       	     
       m_phiDesign[il].nch = roParam.nWires[il];
 
-      m_nWires.push_back(m_phiDesign[il].nch);
+      m_nWires.push_back(m_phiDesign[il].nGroups); // number of nWireGroups
 
       reLog()<<MSG::INFO 
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", wireGang pitch " << m_phiDesign[il].inputPitch << ", nWireGangs "<< m_phiDesign[il].nch << endmsg;
