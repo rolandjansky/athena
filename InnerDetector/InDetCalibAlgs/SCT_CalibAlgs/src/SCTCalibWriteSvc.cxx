@@ -60,7 +60,7 @@ static bool becUnderscoreFormat(false);
 SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLocator ) :
   AthService(name, pSvcLocator),
   m_detStore(0),
-  
+  m_eventInfoKey(std::string("ByteStreamEventInfo")),
   m_attrListColl(0),
   m_attrListColl_deadStrip(0),
   m_attrListColl_deadChip(0),
@@ -82,7 +82,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
   
-  m_evt(0),
+  //m_evt(0),
   m_regSvc(0),
   //m_streamer(0),
   m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
@@ -132,6 +132,8 @@ StatusCode SCTCalibWriteSvc::initialize(){
   StatusCode sc = service("DetectorStore", m_detStore);
   if ( !sc.isSuccess() || 0 == m_detStore) return msg(MSG:: ERROR) << "Could not find DetStore" << endmsg, StatusCode::FAILURE;
   if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG:: ERROR) << "SCT mgr failed to retrieve" << endmsg, StatusCode::FAILURE;
+  
+  ATH_CHECK(m_eventInfoKey.initialize());
   
   // ------------------------------------------------------------
   // The following is required for writing out something to COOL
@@ -670,7 +672,13 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
       unsigned int beginRun;
       unsigned int endRun;
       if ( !m_manualiov ) {
-        StoreGateSvc* pStoreGate;
+
+        SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
+        if (not evt.isValid()) {
+           msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
+           return StatusCode::FAILURE;
+        }
+/*        StoreGateSvc* pStoreGate;
         if (service("StoreGateSvc",pStoreGate).isFailure()) {
           msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
           return StatusCode::FAILURE;
@@ -679,8 +687,10 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
           msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
           return StatusCode::FAILURE;
         }
-        beginRun = m_evt->event_ID()->run_number();
+*/	
+        beginRun = evt->event_ID()->run_number();
         endRun = beginRun;
+
       } else {
         beginRun = m_beginRun;
         if ( m_endRun != -1 )    endRun = m_endRun;
