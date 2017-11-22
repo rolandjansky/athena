@@ -23,8 +23,8 @@ void AGDDMuonStation::CreateSolid()
 	if (!p)
 	{
 		std::cout<<" creating solid with dimensions "<<
-		_small_x<<" "<<_large_x<<" "<<_y<<" "<<_z<<std::endl;
-		GeoShape* solid=new GeoTrd(_small_x/2.,_large_x/2.,_y/2.,_y/2.,_z/2.);
+		m_small_x<<" "<<m_large_x<<" "<<m_y<<" "<<m_z<<std::endl;
+		GeoShape* solid=new GeoTrd(m_small_x/2.,m_large_x/2.,m_y/2.,m_y/2.,m_z/2.);
 		SetSolid(solid);
 	}
 }
