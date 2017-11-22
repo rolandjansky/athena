@@ -257,7 +257,7 @@ class doTGCs(JobProperty):
 class dosTGCs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False # Off by default until it can be autoconfigured
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("sTGC")
@@ -269,7 +269,7 @@ class dosTGCs(JobProperty):
 class doMicromegas(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False # Off by default until it can be autoconfigured
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("Micromegas")
