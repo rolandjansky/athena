@@ -69,12 +69,6 @@
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-// #include "CLHEP/Random/RandGauss.h"
-// #include "CLHEP/Random/RandFlat.h"
-// #include "CLHEP/Random/RandGamma.h"
-// #include "CLHEP/Random/RandPoisson.h"
-// #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-// #include "CLHEP/Random/RandExponential.h"
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -221,10 +215,10 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
 
 	// Constants vars for the ElectronicsResponseSimulation
-	declareProperty("peakTime",                m_peakTime = 50.);            // The VMM peak time setting.
+	declareProperty("peakTime",                m_peakTime = 50.);                 // The VMM peak time setting.
 	declareProperty("electronicsThreshold",    m_electronicsThreshold = 6000.0);  // 2*(Intrinsic noise ~3k e)
-	declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);  // default value ?
-	declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);  // default value ?
+	declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
+	declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
 
 }
 
@@ -360,12 +354,14 @@ StatusCode MmDigitizationTool::initialize() {
 	if(      TString(m_vmmReadoutMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmReadoutMode = "peak";
 	else if( TString(m_vmmReadoutMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmReadoutMode = "threshold";
 	else {
-		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmReadoutMode);
+		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
+						<< m_vmmReadoutMode);
 	}
 	if(      TString(m_vmmARTMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmARTMode = "peak";
 	else if( TString(m_vmmARTMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmARTMode = "threshold";
 	else {
-		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmARTMode);
+		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
+						<< m_vmmARTMode);
 	}
 
 	return StatusCode::SUCCESS;
@@ -620,7 +616,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
 				Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-				ATH_MSG_DEBUG("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() << " diff " << diff );
+				ATH_MSG_DEBUG("Second hit from a muon: prev "
+								<<     previousHit->localPosition()
+								<< " current "
+								<<     hit.localPrePosition()
+								<< " diff "
+								<<     diff
+								);
 				if( diff.mag() < m_DiffMagSecondMuonHit ) continue;
 			}
 			m_n_hitPDGId = hit.particleEncoding();
@@ -666,27 +668,27 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 			// Read the information about the Micro Megas hit
 			ATH_MSG_DEBUG ( "> hitID  "
-							<< hitID
+							<<     hitID
 							<< " Hit bunch time  "
-							<< bunchTime
+							<<     bunchTime
 							<< " tot "
-							<< globalHitTime
+							<<     globalHitTime
 							<< " tof/G4 time "
-							<< hit.globalTime()
+							<<     hit.globalTime()
 							<< " globalHitPosition "
-							<< globalHitPosition
+							<<     globalHitPosition
 							<< "hit: r "
-							<< globalHitPosition.perp()
+							<<     globalHitPosition.perp()
 							<< " z "
-							<< globalHitPosition.z()
+							<<     globalHitPosition.z()
 							<< " mclink "
-							<< hit.particleLink()
+							<<     hit.particleLink()
 							<< " station eta "
-							<< m_idHelper->stationEta(layerID)
+							<<     m_idHelper->stationEta(layerID)
 							<< " station phi "
-							<< m_idHelper->stationPhi(layerID)
+							<<     m_idHelper->stationPhi(layerID)
 							<< " multiplet "
-							<< m_idHelper->multilayer(layerID)
+							<<     m_idHelper->multilayer(layerID)
 							);
 
 			// For collection of inputs to throw back in SG
@@ -725,7 +727,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 
 			if( !m_idHelper->is_mm(layerID) ){
-				ATH_MSG_WARNING("layerID does not represent a valid MM layer: " << m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
+				ATH_MSG_WARNING("layerID does not represent a valid MM layer: "
+								<< m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
 				continue;
 			}
 
@@ -755,13 +758,13 @@ StatusCode MmDigitizationTool::doDigitization() {
 			const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(layerID);
 			if( !detectorReadoutElement ){
 				ATH_MSG_WARNING( "Failed to retrieve detector element for: isSmall "
-									<< isSmall
+									<<     isSmall
 									<< " eta "
-									<< m_idHelper->stationEta(layerID)
+									<<     m_idHelper->stationEta(layerID)
 									<< " phi "
-									<< m_idHelper->stationPhi(layerID)
+									<<     m_idHelper->stationPhi(layerID)
 									<< " ml "
-									<< m_idHelper->multilayer(layerID)
+									<<     m_idHelper->multilayer(layerID)
 									);
 				m_exitcode = 10;
 				if(m_writeOutputFile) m_ntuple->Fill();
@@ -815,25 +818,32 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// This is not an incident angle yet. It's atan(z/x),
 			// ... so it's the complement of the angle w.r.t. a vector normal to the detector surface
 			float inAngleCompliment_XZ =  localHitDirection.angleXZ() / CLHEP::degree;
+			float inAngleCompliment_YZ =  localHitDirection.angleYZ() / CLHEP::degree;
 
 			// This is basically to handle the atan ambiguity
 			if(inAngleCompliment_XZ < 0.0) inAngleCompliment_XZ += 180;
+			if(inAngleCompliment_YZ < 0.0) inAngleCompliment_YZ += 180;
 
 			// This gets the actual incidence angle from its complement.
 			float inAngle_XZ = 90. - inAngleCompliment_XZ;
+			float inAngle_YZ = 90. - inAngleCompliment_YZ;
 
-			// How can this be the right thing? Should this be readoutSide?
-			// inAngle_XZ = (roParam.stereoAngel).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+			// Flipping angles for flipped boards... Need to check this.
 			inAngle_XZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
+			inAngle_YZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_YZ ;
 
-			ATH_MSG_WARNING(  "At eta "
-							<< m_idHelper->stationEta(layerID)
-							<< " phi "
-							<< m_idHelper->stationPhi(layerID)
-							<<  "\n IncomingAngle: "
-							<<  localHitDirection.angleXZ() / CLHEP::degree
-							<< "\n inAngle_XZ (degrees): "
-							<< inAngle_XZ
+			ATH_MSG_DEBUG(  "At eta: "
+							<<     m_idHelper->stationEta(layerID)
+							<< " phi: "
+							<<     m_idHelper->stationPhi(layerID)
+							<< " Readout Side: "
+							<<     (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)
+							<< " Layer: "
+							<<     m_muonHelper->GetLayer(simId)
+							<< "\n\t\t\t inAngle_XZ (degrees): "
+							<<     inAngle_XZ
+							<< " inAngle_YZ (degrees): "
+							<<     inAngle_YZ
 							);
 
 
@@ -868,7 +878,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
 			Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
 
-			if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
+			if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
 
 			// Don't consider electron hits below m_energyThreshold
 			if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
@@ -973,6 +983,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			const MmDigitToolInput stripDigitInput( stripNumber,
 													distToChannel,
 													inAngle_XZ,
+													inAngle_YZ,
 													localMagneticField,
 													detectorReadoutElement->numberOfStrips(layerID),
 													m_idHelper->gasGap(layerID),
@@ -999,7 +1010,10 @@ StatusCode MmDigitizationTool::doDigitization() {
 				} else {
 					Amg::Vector2D cr_strip_pos(0., 0.);
 					if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
-						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0.");
+						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
+										<< tmpStripID
+										<< "; associated positions will be set to 0.0."
+										);
 					}
 				}
 			}
@@ -1100,11 +1114,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 		//
 
 		MmDigit*  newDigit = new MmDigit(   stripDigitOutputAllHits.digitID(),
-											// --- We had ElectronicsPeakOutput here, instead of StripResponse Output because but it's no longer useful
 											electronicsOutputForReadout->stripTime(),
 											electronicsOutputForReadout->stripPos(),
 											electronicsOutputForReadout->stripCharge(),
-											// ---------------------
 											electronicsOutputForReadout->stripTime(),
 											electronicsOutputForReadout->stripPos(),
 											electronicsOutputForReadout->stripCharge(),

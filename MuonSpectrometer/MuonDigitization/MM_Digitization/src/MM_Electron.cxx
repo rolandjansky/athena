@@ -10,18 +10,9 @@ MM_Electron::MM_Electron() : time(-99999), charge(-99999) {}
 
 MM_Electron::MM_Electron(float _x, float _y) : initialPosition(_x,_y), time(-99999), charge(-99999) {
 
-  //  PolyaFunction = unique_ptr<TF1>(new TF1("polya","(1./[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x,[0])*TMath::Exp(-([0]+1)*x)", 0., 4.));
-  // The typical widths are 0.036 and 0.019, so [-1, 1] should be a safe interval.
-  //  LongitudinalDiffusionFunction = unique_ptr<TF1>(new TF1("longdiff","gaus", -1., 10.));
-  //  TransverseDiffusionFunction = unique_ptr<TF1>(new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.));
-
 }
 
 MM_Electron::MM_Electron(const MM_Electron& /* _MM_Electron */) : time(-99999), charge(-99999) {
-
-  //  PolyaFunction = unique_ptr<TF1>((TF1*) _MM_Electron.PolyaFunction->Clone());
-  //  LongitudinalDiffusionFunction = unique_ptr<TF1>((TF1*) _MM_Electron.LongitudinalDiffusionFunction->Clone());
-  //  TransverseDiffusionFunction = unique_ptr<TF1>((TF1*) _MM_Electron.TransverseDiffusionFunction->Clone());
 
 }
 
@@ -67,5 +58,6 @@ void MM_Electron::setCharge(float Charge) {charge = Charge;}
 float MM_Electron::getCharge() const { return charge; }
 float MM_Electron::getTime() const { return time; }
 float MM_Electron::getX() const { return offsetPosition.X() + initialPosition.X(); }
+float MM_Electron::getY() const { return offsetPosition.Y() + initialPosition.Y(); }
 float MM_Electron::getInitialX() const { return initialPosition.X(); }
 float MM_Electron::getInitialY() const { return initialPosition.Y(); }

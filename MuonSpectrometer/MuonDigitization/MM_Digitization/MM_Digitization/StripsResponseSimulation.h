@@ -40,6 +40,7 @@ Comments to be added here...
 #include <TRandom3.h>
 #include <TCanvas.h>
 #include <TMath.h>
+#include <TGraph.h>
 
 /// Projects
 #include "MM_Digitization/MmDigitToolInput.h"
@@ -132,7 +133,7 @@ public :
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & thetaDegrees, const int & stripMaxID, const MmDigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMaxID, const MmDigitToolInput & digiInput);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };

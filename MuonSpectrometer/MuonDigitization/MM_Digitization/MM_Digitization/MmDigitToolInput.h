@@ -14,7 +14,7 @@ Created March 2013 by Nektarios Chr. Benekos
 Class to store input needed for the MM_Digitization tools:
 - G4 driftradius
 - position along tube
-- magnetic field strength at hit position   <-- ToDo: get the lorentz angle from the mag field
+- magnetic field strength at hit position
 - local temperature
 - electric charge
 - gamma factor
@@ -25,12 +25,13 @@ Class to store input needed for the MM_Digitization tools:
 class MmDigitToolInput {
  public:
 
- MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, const Amg::Vector3D& field, int stripMaxId, int gasgap, float eventTime)
+ MmDigitToolInput(int stripIdLocal, double posx, double incomingAngleXZ, double incomingAngleYZ, const Amg::Vector3D& magneticField, int stripMaxId, int gasgap, float eventTime)
 
    :  m_stripIDLocal(stripIdLocal),
       m_xpos(posx),
-      m_incomingAngle(incomingAngle),
-      m_field(field),
+      m_incomingAngleXZ(incomingAngleXZ),
+      m_incomingAngleYZ(incomingAngleYZ),
+      m_magneticField(magneticField),
       m_stripMaxId(stripMaxId),
       m_gasgap(gasgap),
       m_eventTime(eventTime)
@@ -41,8 +42,9 @@ class MmDigitToolInput {
 
       int    stripIDLocal()        const { return m_stripIDLocal; }
       double positionWithinStrip() const { return m_xpos; }
-      double incomingAngle()       const { return m_incomingAngle; }
-      const Amg::Vector3D& magneticField()       const { return m_field; }// kT unit, local cordinate
+      double incomingAngleXZ()       const { return m_incomingAngleXZ; }
+      double incomingAngleYZ()       const { return m_incomingAngleYZ; }
+      const Amg::Vector3D& magneticField()       const { return m_magneticField; } // kT unit, local cordinate
       int    stripMaxID()          const { return m_stripMaxId; }
       int    gasgap()              const { return m_gasgap; }
       Identifier getHitID()        const { return m_hitID; }
@@ -51,8 +53,9 @@ class MmDigitToolInput {
  private:
       int    m_stripIDLocal;
       double m_xpos;
-      double m_incomingAngle;
-      Amg::Vector3D m_field;
+      double m_incomingAngleXZ;
+      double m_incomingAngleYZ;
+      Amg::Vector3D m_magneticField;
       int    m_stripMaxId;
       int    m_gasgap;
       Identifier m_hitID;

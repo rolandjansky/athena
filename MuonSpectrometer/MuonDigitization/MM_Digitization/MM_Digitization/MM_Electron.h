@@ -44,6 +44,7 @@ class MM_Electron {
   float getCharge() const;
   float getTime() const;
   float getX() const;
+  float getY() const;
   float getInitialX() const;
   float getInitialY() const;
 

@@ -20,6 +20,10 @@ int StripResponse::getNElectrons(){
 	return Electrons.size();
 }
 
+std::vector<MM_Electron*> StripResponse::getElectrons(){
+	return Electrons;
+}
+
 void StripResponse::timeOrderElectrons() {
 
 	std::sort(Electrons.begin(), Electrons.end(), [](const MM_Electron* a, const MM_Electron* b) -> bool { return a->getTime() < b->getTime(); });

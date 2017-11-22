@@ -63,6 +63,7 @@ class StripResponse {
   std::vector<float> getTimeMaxChargeVec() const;
 
   int getNElectrons();
+  std::vector<MM_Electron*> getElectrons();
 
 };
 
