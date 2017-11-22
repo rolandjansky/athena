@@ -52,7 +52,7 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
     m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC15cRecommendation_PFlow_Aug2016.config"),
     m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC"),
 
-    //
+    //PFlow has the same recommendation in data as in MC 
     m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC15cRecommendation_PFlow_Aug2016.config"),
     m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC")
      {
