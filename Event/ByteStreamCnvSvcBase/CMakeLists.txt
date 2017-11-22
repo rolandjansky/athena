@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           GaudiKernel
                           PRIVATE
-                          Control/SGTools )
+                          Control/SGTools
+			  AtlasTest/TestTools )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat eformat_write )
