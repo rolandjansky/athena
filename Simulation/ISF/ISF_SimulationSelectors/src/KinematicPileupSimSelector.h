@@ -24,7 +24,7 @@ namespace ISF {
       @author Elmar.Ritsch -at- cern.ch
       @author Artem.Basalaev -at- cern.ch
      */
-  class KinematicPileupSimSelector : public BaseSimulationSelector, public KinematicParticleCuts {
+  class KinematicPileupSimSelector final : public BaseSimulationSelector, public KinematicParticleCuts {
 
     public:
      /** Constructor with parameters */
@@ -35,8 +35,8 @@ namespace ISF {
 
 
     // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
     inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;

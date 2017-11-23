@@ -31,47 +31,41 @@ class BaseSimulationSelector : public extends<AthAlgTool, ISimulationSelector> {
     /** Constructor with parameters */
     BaseSimulationSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-    /// Creates the InterfaceID and interfaceID() method
-//    DeclareInterfaceID(ISimulationSelector, 1, 0);
-
-    /** Gaudi sysInitialize() method */
-    StatusCode sysInitialize();
-
     /** virtual destructor */
     virtual ~BaseSimulationSelector();
 
+    /** Gaudi sysInitialize() method */
+    virtual StatusCode sysInitialize() override;
+
     /** return a handle on the simulator */
-    virtual ServiceHandle<ISimulationSvc>* simulator();
+    virtual ServiceHandle<ISimulationSvc>* simulator() override;
 
     /** return if is this a static or dynamic SimulationSelector
         (is used by fully dynamic particle routers) */
-    virtual bool isDynamic();
+    virtual bool isDynamic() override;
 
     /** return the simulation service ID */
-    virtual SimSvcID simSvcID();
+    virtual SimSvcID simSvcID() override;
 
     /** return the simulation flavor */
-    virtual ISF::SimulationFlavor simFlavor();
+    virtual ISF::SimulationFlavor simFlavor() override;
 
     /** initialize Selector */
-    virtual void initializeSelector();
+    virtual void initializeSelector() override;
 
     /** called at the beginning of each athena event
         (can be used for eg. resetting dynamic selectors) */
-    virtual void beginEvent();
+    virtual void beginEvent() override;
 
     /** called at the end of each athena event
         (can be used for eg. resetting dynamic selectors) */
-    virtual void endEvent();
+    virtual void endEvent() override;
 
     /** update internal event representation */
-    virtual void update(const ISFParticle& );
+    virtual void update(const ISFParticle& ) override;
 
     /** make the routing decision */
-    virtual bool selfSelect(const ISFParticle& particle);
-
-    /** check whether given particle passes all cuts -> will be used for routing decision*/
-    bool passSelectorCuts(const ISFParticle& particle) const = 0;
+    virtual bool selfSelect(const ISFParticle& particle) override;
 
   private:
     ServiceHandle<ISimulationSvc>       m_simulator;  //!< simulation service assigned to a single advisor

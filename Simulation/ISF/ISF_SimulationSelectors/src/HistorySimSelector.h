@@ -29,7 +29,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class HistorySimSelector : public BaseSimulationSelector
+  class HistorySimSelector final : public BaseSimulationSelector
   {
 
   public:
@@ -40,14 +40,14 @@ namespace ISF
     ~HistorySimSelector();
 
     // Athena algtool's Hooks
-    virtual StatusCode  initialize() override final;
-    virtual StatusCode  finalize() override final;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
     /** called at the beginning of each athena event */
-    virtual void beginEvent() override final;
+    virtual void beginEvent() override;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
 
   private:
     /** will check given particles if they were previously simulated by
