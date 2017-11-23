@@ -293,7 +293,7 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
 // What about the tracking algo ID???
   m_trigVertexColl->push_back(trigVertex);
 
-  string key;
+  std::string key;
 
   if (m_c->m_instance == "_EF" || m_c->m_instance == "_HLT") key = "EFHistoPrmVtx";
 
