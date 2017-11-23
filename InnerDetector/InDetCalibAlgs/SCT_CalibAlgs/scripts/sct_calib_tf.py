@@ -142,7 +142,7 @@ def getTransform():
 
     exeSet = set()
 #    exeSet.add(SCTCalibExecutor('/afs/cern.ch/work/c/csander/sct/testarea/AtlasProduction-20.7.9.3//InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
-    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/m/mdyndal/testarea/master_latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 
     trf = transform(executor=exeSet) 
 
@@ -286,7 +286,7 @@ class SCTCalibExecutor( athenaExecutor ):
     def __init__(self, skeleton):
         athenaExecutor.__init__(self,
                                 name = 'sctcalib',
-                                skeletonFile='/afs/cern.ch/user/m/mdyndal/testarea/master_latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
+                                skeletonFile='/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 #                                skeletonFile='/afs/cern.ch/work/c/csander/sct/testarea/AtlasProduction-20.7.9.3/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 
 
