@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthIsolationTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHISOLATIONTOOL_H
 #define DERIVATIONFRAMEWORK_TRUTHISOLATIONTOOL_H
 

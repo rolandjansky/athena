@@ -34,7 +34,7 @@ namespace xAOD {
       electron = 0,
       ambiguousTrackEoverPBetterThanVertexEoverP=1,
       ambiguousTrackLowPt=2,
-      ambiguousTrackLowEoverP=3,
+      ambiguousTrackHighEoverP=3,
       ambiguousTrackNoPixel =4,
       ambiguousVertexEoverPBetterThanTrackEoverP=5,
       photon=6,
@@ -73,7 +73,7 @@ public:
   virtual unsigned int ambiguityResolve(const xAOD::Egamma& egamma) const = 0;
 
   /** Accept or reject egamma object based on ambiguity resolution */
-  virtual bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true) const = 0;
+  virtual bool accept( const xAOD::Egamma& egamma) const = 0;
   
 }; // End: class definition
 

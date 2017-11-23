@@ -17,7 +17,7 @@ formatList = [#'PHYSVAL',
               'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY13', 'SUSY14', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
-              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22',
+              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
@@ -32,14 +32,14 @@ truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
               ["JETM10","BPHY10","EGAM4","EXOT10","STDM5","MUON2"], # 0.1-0.15%
               ["SUSY13","HIGG1D2","HIGG3D2","EXOT12","EGAM9"], # 0.16-0.2%
-              ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17"], # 0.2-0.3%
+              ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17","SUSY9"], # 0.2-0.3%
               ["JETM7","BPHY5","MUON3","EXOT6","EGAM2","HIGG4D6","BPHY8"], # 0.3-0.4%
               ["BPHY4","BPHY7","HIGG4D5","EXOT15","EXOT9","BPHY1","EGAM7"], # 0.4-0.5%
               ["SUSY16","EXOT20","HIGG1D1","STDM3","TOPQ2"], # 0.5-0.6%
               ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
               ["HIGG4D3","EXOT18","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
-              ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1"], # 1-1.3%
-              ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21"], # 1.3-1.6%
+              ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1","EXOT7"], # 1-1.3%
+              ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21","EXOT22"], # 1.3-1.6%
               ["STDM9","HIGG5D3","BPHY9","HIGG5D1","BPHY6"], # 1.6-1.8%
               ["EGAM5","JETM11","SUSY8","HIGG2D2","SUSY10"], # 1.9-2.1%
               ["HIGG3D3","EXOT4","TAUP1","EXOT13","EXOT2","HIGG4D2"], # 2.1-2.7%
@@ -52,10 +52,15 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
 mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
-#mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
+delayedStreamLabel = "data16DELAYED"
+blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
+mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
+dataFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.09788089._000056.pool.root.1"
+dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
+dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
 mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "
@@ -102,15 +107,26 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
-         if formatName=="BPHY3":
+         if formatName=="EXOT23":
+            generateText(formatName,dataLabel,dataFileEXOT23,False,False,"-1")
+         elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
-         else: generateText(formatName,dataLabel,dataFile,False,False,"8000")
+         elif formatName in ['BPHY7','BPHY8']:
+            generateText(formatName,dataLabel,dataFile,False,False,"-1")
+            generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         elif formatName=='BPHY10':
+            generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
-         if formatName=="BPHY3":
+         if formatName=="EXOT23":
+            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
+         elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
-         if formatName=="BPHY8":
-            generateText(formatName,mcLabel,mcFileBPHY8,False,True,"10000")
-         else: generateText(formatName,mcLabel,mcFile,False,True,"10000")
+         elif formatName=="BPHY8":
+            generateText(formatName,mcLabel,mcFileBPHY8,False,True,"-1")
+         else: generateText(formatName,mcLabel,mcFile,False,True,"-1")
 
 if (makeTruthDAODs):
    for formatName in truthFormatList:

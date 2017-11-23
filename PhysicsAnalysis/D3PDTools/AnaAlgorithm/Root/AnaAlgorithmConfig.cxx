@@ -115,9 +115,19 @@ namespace EL
     }
  
     ANA_MSG_DEBUG ("Creating tool of type " << m_type);
+
+    // Load the ROOT dictionary, this is needed to be able to
+    // instantiate the algorithm below, i.e. the code below won't load
+    // dictionaries not already loaded
+    TClass* algorithmClass = TClass::GetClass (m_type.c_str());
+    if (!algorithmClass)
+    {
+      ATH_MSG_ERROR ("Unable to load class dictionary for type " << m_type);
+      return StatusCode::FAILURE;
+    }
+
     EL::AnaAlgorithm *alg = (EL::AnaAlgorithm*)
       (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + m_type + " (\"" + m_name + "\", nullptr))").c_str()));
-      // (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + m_type + " (\"" + m_name + "\", (ISvcLocator*) nullptr))").c_str()));
     if (alg == nullptr)
     {
       ANA_MSG_ERROR ("failed to create algorithm of type " << m_type);

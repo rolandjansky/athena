@@ -1503,7 +1503,11 @@ Float_t CP::TPileupReweighting::GetPeriodWeight(Int_t periodNumber, Int_t channe
       Error("GetPeriodWeight","Unrecognised periodNumber: %d",periodNumber);
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
-   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) {
+    channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
+    Warning("GetPeriodWeight","You're using a default config file ... you're gonna have a bad time!!");
+    Warning("GetPeriodWeight","Please generate proper config files!");
+   }
 
    double n_a = p->sumOfWeights[channelNumber];
    double n = m_periods[-1]->sumOfWeights[channelNumber];

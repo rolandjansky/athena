@@ -78,13 +78,13 @@ if( XAOD_STANDALONE )
    atlas_add_test( gt_AsgTool
       SOURCES test/gt_AsgTool.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AsgTools
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 
    atlas_add_test( gt_MessageCheck
       SOURCES test/gt_MessageCheck.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AsgTools
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 
    atlas_add_test( gt_TProperty
@@ -99,8 +99,11 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 
-   atlas_add_test( ut_MessageCheck
-      SOURCES test/ut_MessageCheck.cxx
-      LINK_LIBRARIES AsgTools )
-
 endif()
+
+
+atlas_add_test( gt_AnaCheck
+   SOURCES test/gt_AnaCheck.cxx
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
+   EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )

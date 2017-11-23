@@ -619,10 +619,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
         }
-        else{
-          allFound = false; 
-          notFoundList += "deltaPoverP ";
-        }
       
       }
     else
@@ -701,17 +697,17 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
     ip = mu;
   }
 
-  std::string printVarStr = Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
-				 eta, et, f3, Rhad, Rhad1, Reta,
-				 w2, f1, Eratio,
-				 deltaEta, d0,
-				 d0sigma, 
-				 Rphi, dpOverp, deltaPhiRescaled2,
-				 TRT_PID, trans_TRT_PID,
-				 ip );
+  ATH_MSG_VERBOSE( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
+			eta, et, f3, Rhad, Rhad1, Reta,
+			w2, f1, Eratio,
+			deltaEta, d0,
+			d0sigma, 
+			Rphi, dpOverp, deltaPhiRescaled2,
+			TRT_PID, trans_TRT_PID,
+			ip ));
 
   if (!allFound) {
-    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << printVarStr);
+    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
     return m_resultDummy;
   }
 

@@ -205,13 +205,11 @@ STDM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM3Kernel",
                                                               ThinningTools = thinningTools)
 
 # JET REBUILDING
-reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList, STDM3Sequence, "STDM3Jets")
 
 # FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-
-JetTagConfig.ConfigureAntiKt4PV0TrackJets(STDM3Sequence, "STDM3Jets")
 STDM3Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 # ADD SEQUENCE TO JOB

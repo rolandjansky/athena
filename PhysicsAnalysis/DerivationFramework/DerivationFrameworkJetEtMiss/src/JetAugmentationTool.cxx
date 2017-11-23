@@ -32,15 +32,15 @@ namespace DerivationFramework {
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
     m_decoratetracksum(false),
-    m_jetPtAssociationTool(""),
-    m_decorateptassociation(false),
     m_jetOriginCorrectionTool(""),
     m_decorateorigincorrection(false),
+    dec_origincorrection(0),
     dec_originpt(0),
     dec_origineta(0),
     dec_originphi(0),
     dec_originm(0),
-    dec_origincorrection(0)
+    m_jetPtAssociationTool(""),
+    m_decorateptassociation(false)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");

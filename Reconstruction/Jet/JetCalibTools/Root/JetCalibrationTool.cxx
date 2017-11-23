@@ -19,8 +19,8 @@
 
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), 
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
+    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
 { 
 
@@ -32,6 +32,8 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
   declareProperty( "DEVmode", m_devMode = false);
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+  declareProperty( "CalibArea", m_calibAreaTag = "00-04-81");
 
 }
 
@@ -83,13 +85,14 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-79/"); // Hard-coding the CalibArea tag
+  // The calibration area tag is a property of the tool
+  const std::string calibPath = "CalibArea-" + m_calibAreaTag + "/";
   if(m_devMode){
     ATH_MSG_WARNING("Dev Mode is ON!!!");
     ATH_MSG_WARNING("Dev Mode is NOT RECOMMENDED!!!");
     dir = "JetCalibTools/";
   }
-  else{dir.insert(14,m_calibAreaTag);} // Obtaining the path of the configuration file
+  else{dir.insert(14,calibPath);} // Obtaining the path of the configuration file
   std::string configPath=dir+m_config; // Full path
   TString fn =  PathResolverFindCalibFile(configPath);
 
@@ -189,14 +192,15 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 //Method for initializing the requested calibration derived classes
 StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString calibration) {
   TString jetAlgo = m_jetAlgo;
-  TString calibAreaTag = m_calibAreaTag;
+  const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
   std::string suffix = "";
   //ATH_MSG_INFO("Initializing sub tools.");
   if ( calibration.EqualTo("JetArea") ) {
     ATH_MSG_INFO("Initializing pileup correction.");
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
-    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_doResidual,m_doOrigin,m_isData,m_devMode);
+    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_doResidual,m_doOrigin,m_isData,m_devMode);
+    ATH_CHECK( m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str()) );
     m_jetPileupCorr->msg().setLevel( this->msg().level() );
     if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
       ATH_MSG_FATAL("Couldn't initialize the pileup correction. Aborting"); 
@@ -209,7 +213,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing JES correction.");
     suffix="_EtaJES";
     if(m_devMode) suffix+="_DEV";
-    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,false,m_devMode);
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,false,m_devMode);
     m_etaJESCorr->msg().setLevel( this->msg().level() );
     if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting"); 
@@ -222,7 +226,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing JES correction.");
     suffix="_EtaMassJES";
     if(m_devMode) suffix+="_DEV";
-    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,true,m_devMode);
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,true,m_devMode);
     m_etaJESCorr->msg().setLevel( this->msg().level() );
     if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting");
@@ -235,7 +239,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing GSC correction.");
     suffix="_GSC";
     if(m_devMode) suffix+="_DEV";
-    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
+    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
     m_globalSequentialCorr->msg().setLevel( this->msg().level() );
     if ( m_globalSequentialCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting"); 
@@ -248,7 +252,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing JMS correction.");
     suffix="_JMS";
     if(m_devMode) suffix+="_DEV";
-    m_jetMassCorr = new JMSCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
+    m_jetMassCorr = new JMSCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
     m_jetMassCorr->msg().setLevel( this->msg().level() );
     if ( m_jetMassCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the JMS Calibration. Aborting");
@@ -262,7 +266,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       ATH_MSG_INFO("Initializing Insitu correction.");
       suffix="_Insitu";
       if(m_devMode) suffix+="_DEV";
-      m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
+      m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
       m_insituDataCorr->msg().setLevel( this->msg().level() );
       if ( m_insituDataCorr->initializeTool(name+suffix).isFailure() ) {
         ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
@@ -276,7 +280,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
         suffix="_Insitu"; suffix += "_"; suffix += std::to_string(i);
         if(m_devMode) suffix+="_DEV";
-        InsituDataCorrection *insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibAreaTag,m_devMode);
+        InsituDataCorrection *insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibPath,m_devMode);
         insituTimeDependentCorr_Tmp->msg().setLevel( this->msg().level() );
         if ( insituTimeDependentCorr_Tmp->initializeTool(name+suffix).isFailure() ) {
           ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 

@@ -55,22 +55,37 @@ def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
-    btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
-                                                Verbose=True,
-                                                options={"name"         : "btagging_antikt2track",
-                                                         "BTagName"     : "BTagging_AntiKt2Track",
-                                                         "BTagJFVtxName": "JFVtx",
-                                                         "BTagSVName"   : "SecVtx",
-                                                         },
-                                                SetupScheme = "",
-                                                TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
-                                                )
-    jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
+    if not "akt2track" in jtm.modifiersMap.keys():
+        from AthenaCommon.AppMgr import ToolSvc
+        btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
+                                                    Verbose=True,
+                                                    options={"name"         : "btagging_antikt2track",
+                                                             "BTagName"     : "BTagging_AntiKt2Track",
+                                                             "BTagJFVtxName": "JFVtx",
+                                                             "BTagSVName"   : "SecVtx",
+                                                             },
+                                                    SetupScheme = "",
+                                                    TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                    )
+        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4PV0TrackJets(sequence, outputlist):
-    addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
+    if not "akt4track" in jtm.modifiersMap.keys():
+        from AthenaCommon.AppMgr import ToolSvc
+        btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
+                                                    Verbose=True,
+                                                    options={"name"         : "btagging_antikt4track",
+                                                             "BTagName"     : "BTagging_AntiKt4Track",
+                                                             "BTagJFVtxName": "JFVtx",
+                                                             "BTagSVName"   : "SecVtx",
+                                                             },
+                                                    SetupScheme = "",
+                                                    TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                    )
+        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt4trk]
+    addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="akt4track", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
@@ -389,3 +404,21 @@ applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
 
+##################################################################
+# Helpter to add origin corrected clusters
+##################################################################
+def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
+
+    slimhelper.ExtraVariables.append('CaloCalTopoClusters.calE.calEta.calPhi.calM')
+
+    if writeLC:
+        if not slimhelper.AppendToDictionary.has_key("LCOriginTopoClusters"):
+            slimhelper.AppendToDictionary["LCOriginTopoClusters"]='xAOD::CaloClusterContainer'
+            slimhelper.AppendToDictionary["LCOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
+            slimhelper.ExtraVariables.append('LCOriginTopoClusters.calEta.calPhi')
+
+    if writeEM:
+        if not slimhelper.AppendToDictionary.has_key("EMOriginTopoClusters"):
+            slimhelper.AppendToDictionary["EMOriginTopoClusters"]='xAOD::CaloClusterContainer'
+            slimhelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
+            slimhelper.ExtraVariables.append('EMOriginTopoClusters.calE.calEta.calPhi')

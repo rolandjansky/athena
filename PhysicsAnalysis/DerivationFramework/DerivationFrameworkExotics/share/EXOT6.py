@@ -15,7 +15,7 @@ exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
 augTools = []
 
 # using now TauTruthCommon, so we use a central Python setup and it is not imported twice
-from DerivationFrameworkTau.TauTruthCommon import *
+# Tau truth common is a part of the standard truth tools
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
@@ -62,20 +62,20 @@ EXOT6PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name      
                                                                                      ThinningService         = "EXOT6ThinningSvc",
                                                                                      SGKey                   = "Photons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
-                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                                      #SelectionString         = "Photons.pt > 30*GeV",
                                                                                      #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
                                                                                      ConeSize                = 0.6)
 ToolSvc += EXOT6PhotonCCThinningTool
 
-# Calo Clusters associated with Taus
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-EXOT6CaloClusterThinning  = DerivationFramework__CaloClusterThinning (  name                      = "EXOT6ClusterThinning",
-                                                                        ThinningService           = "EXOT6ThinningSvc",
-                                                                        SGKey                     = "TauJets",
-                                                                        TopoClCollectionSGKey     = "CaloCalTopoClusters",
-                                                                      )
-ToolSvc  += EXOT6CaloClusterThinning
+# Calo Clusters associated with Electrons
+EXOT6ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "EXOT6ElectronCCThinningTool",
+                                                                       ThinningService         = "EXOT6ThinningSvc",
+                                                                       SGKey                   = "Electrons",
+                                                                       CaloClCollectionSGKey   = "egammaClusters",
+                                                                       #SelectionString         = "Electrons.pt > 15*GeV",
+                                                                       #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
+                                                                       ConeSize                = 0)
+ToolSvc += EXOT6ElectronCCThinningTool
 
 #====================================================================
 # SKIMMING TOOL 
@@ -98,17 +98,6 @@ EXOT6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
                                                                     )
 ToolSvc += EXOT6_MaxCellDecoratorTool
 augTools.append(EXOT6_MaxCellDecoratorTool)
-
-# Calo Clusters associated with Electrons
-EXOT6ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "EXOT6ElectronCCThinningTool",
-                                                                       ThinningService         = "EXOT6ThinningSvc",
-                                                                       SGKey                   = "Electrons",
-                                                                       CaloClCollectionSGKey   = "egammaClusters",
-                                                                       TopoClCollectionSGKey   = "",
-                                                                       #SelectionString         = "Electrons.pt > 15*GeV",
-                                                                       #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
-                                                                       ConeSize                = 0)
-ToolSvc += EXOT6ElectronCCThinningTool
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

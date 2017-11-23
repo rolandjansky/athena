@@ -155,6 +155,8 @@ namespace CP {
       std::map<int, bool> m_doneConfigs;
 
       bool m_noWeightsMode;
+      
+      bool m_varyRunNumber;
 
       ///< Default weight tool in standalone mode
       std::unique_ptr< IWeightTool > m_defaultWeightTool;

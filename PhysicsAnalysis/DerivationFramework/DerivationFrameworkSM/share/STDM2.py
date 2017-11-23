@@ -208,6 +208,12 @@ STDM2SlimmingHelper.SmartCollections = ["Electrons",
 STDM2SlimmingHelper.IncludeEGammaTriggerContent = True
 
 STDM2SlimmingHelper.ExtraVariables = ExtraContentElectrons+ExtraContentPhotons+ExtraContentBtag+ExtraContentVtx+ExtraContentTrk+ExtraContentJets+["Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]+["Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]+["PrimaryVertices.STDM2_sumPt.STDM2_sumPt2.STDM2_pt.STDM2_eta.STDM2_phi"]+ExtraVariablesEventShape
+STDM2SlimmingHelper.ExtraVariables += [
+  "Photons.neflowisol20.neflowisol30.neflowisol40.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection",
+  "NeutralParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma.Density.DensityArea.DensitySigma",
+  "NeutralParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma.Density.DensityArea.DensitySigma",
+  "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
+  "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"]
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 

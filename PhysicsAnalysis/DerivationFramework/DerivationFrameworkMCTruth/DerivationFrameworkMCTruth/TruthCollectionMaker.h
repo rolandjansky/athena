@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthCollectionMaker.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHCOLLECTIONMAKER_H
 #define DERIVATIONFRAMEWORK_TRUTHCOLLECTIONMAKER_H
 
@@ -14,7 +10,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+// Forward declarations
+class StoreGateSvc;
 namespace ExpressionParsing {
   class ExpressionParser;
 }
@@ -39,6 +38,7 @@ namespace DerivationFramework {
       std::string m_partString;
       bool m_do_compress, m_do_sherpa;
       bool m_keep_navigation_info;
+      ServiceHandle<StoreGateSvc> m_metaStore; //!< Handle on the metadata store for init
   }; 
 }
 

@@ -25,12 +25,7 @@ class AODFix_r210(AODFix_base):
         metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys()) 
                         if ("_" in item and "__" not in item)]
 
-        return "-".join(metadataList)
-
-    @staticmethod
-    def excludeFromMetadata():
-        """Which item should be excluded from metadata written, so will always rerun"""
-        return ["btagging"]
+        return metadataList
 
 
     def postSystemRec(self):

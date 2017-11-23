@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthDecayCollectionMaker.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHDECAYCOLLECTIONMAKER_H
 #define DERIVATIONFRAMEWORK_TRUTHDECAYCOLLECTIONMAKER_H
 
@@ -32,6 +28,7 @@ namespace DerivationFramework {
       std::vector<int> m_pdgIdsToKeep; //!< List of PDG IDs to build this collection from
       bool m_keepBHadrons; //!< Option to keep all b-hadrons (better than giving PDG IDs)
       bool m_keepCHadrons; //!< Option to keep all c-hadrons (better than giving PDG IDs)
+      bool m_keepBSM; //!< Option to keep all BSM particles (better than giving PDG IDs)
       std::string m_particlesKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
       int m_generations; //!< Number of generations after the particle in question to keep

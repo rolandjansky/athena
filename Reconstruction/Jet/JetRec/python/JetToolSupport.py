@@ -207,14 +207,16 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
-        tname = mod + "_" + salg + srad
-        if not tname in self.tools:
-          from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
-          self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
-        outmods += [self.tools[tname]]
+        else:
+          tname = mod + "_" + salg + srad
+          if not tname in self.tools:
+            from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
+            self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
+          outmods += [self.tools[tname]]
       # trackassoc - Does track jet association replacing the input name with "Track"
       elif mod == "trackassoc":
         sinp = getters[0].Label.split("Origin")[0]
@@ -225,7 +227,8 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if not cname in self.jetcons and not IsInInputFile("xAOD::JetContainer",cname):
           jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
@@ -494,6 +497,40 @@ class JetToolManager:
     groomer = JetPruner(output + "Groomer")
     groomer.RCut = rcut
     groomer.ZCut = zcut
+    if doArea:
+      groomer.JetBuilder = self.jetBuilderWithArea
+    else:
+      groomer.JetBuilder = self.jetBuilderWithoutArea
+    self += groomer
+    jetrec = JetRecTool(output)
+    jetrec.JetGroomer = groomer
+    jetrec.InputContainer = input
+    jetrec.OutputContainer = output
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
+    jetrec.Trigger = isTrigger or useTriggerStore
+    jetrec.Timer = jetFlags.timeJetRecTool()
+    self += jetrec
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
+    self.jetcons += [output]
+    return jetrec
+
+  # Create a SoftDrop and rectool.
+  #   output = name for output container (and JetRecTool)
+  #   beta = Beta used in SoftDrop
+  #   zcut = ZCut used in SoftDrop
+  #   input = name of the input jet container
+  #   modifiersin = list of modifier tools (or name of such in modifiersMap)
+  def addJetSoftDrop(self, output, beta, zcut, input, modifiersin ="groomed",
+                     isTrigger =False, useTriggerStore =False, doArea =True):
+    from JetRec.JetRecConf import JetSoftDrop
+    from JetRec.JetRecConf import JetRecTool
+
+    groomer = JetSoftDrop(output + "Groomer")
+    groomer.ZCut = zcut
+    groomer.Beta = beta
     if doArea:
       groomer.JetBuilder = self.jetBuilderWithArea
     else:

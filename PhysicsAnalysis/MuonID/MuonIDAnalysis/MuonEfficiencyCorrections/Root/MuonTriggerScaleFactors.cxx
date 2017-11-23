@@ -30,7 +30,7 @@
 #include <iostream>
 #include <functional>
 #include <string>
-
+#include <cmath>
 
 namespace CP {
     //static const double commonSystMTSG = 0.01;
@@ -383,7 +383,8 @@ namespace CP {
 
         TH1_Ptr eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them
-            unsigned int run = getRunNumber();
+            
+            unsigned int run = getRunNumber();            
             EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(getYear(run), getDataPeriod(run)), encodeHistoName(getDataPeriod(run), trigger, configuration.isData, "repl", isBarrel));
             std::map<EffiHistoIdent, std::vector<TH1_Ptr> >::const_iterator cit = m_efficiencyMapReplicaArray.find(Ident);
             if (cit == m_efficiencyMapReplicaArray.end()) {
@@ -691,9 +692,9 @@ namespace CP {
             return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
-            return getFallBackRunNumber() ;
+            return getFallBackRunNumber();
         }
-        return acc_rnd(*info);
+        return std::min(acc_rnd(*info), getFallBackRunNumber());
     }
 
     // ==================================================================================

@@ -100,7 +100,7 @@ SUSY2ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name    
                                                                                      SGKey                   = "Electrons",
                                                                                      #CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                                     SelectionString         = "Electrons.pt > 9.0*GeV",
+                                                                                     #SelectionString         = "Electrons.pt > 9.0*GeV",
                                                                                      ConeSize                = 0.4)
 
 ToolSvc += SUSY2ElectronCCThinningTool
@@ -124,7 +124,7 @@ SUSY2MuonCCThinningTool = DerivationFramework__CaloClusterThinning( name        
                                                                    SGKey                   = "Muons",
                                                                    #CaloClCollectionSGKey   = "MuonClusterCollection",
                                                                    TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                   SelectionString         = "Muons.pt > 9.0*GeV",
+                                                                   #SelectionString         = "Muons.pt > 9.0*GeV",
                                                                    ConeSize                = 0.4)
 
 ToolSvc += SUSY2MuonCCThinningTool
@@ -260,6 +260,19 @@ SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel(
 	ThinningTools = thinningTools,
 )
 
+#====================================================================
+# Prompt Lepton Tagger
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY2, "SUSY2")
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY2, "SUSY2")
+
+# add decoration
+SeqSUSY2 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY2 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 #====================================================================
 # CONTENT LIST
@@ -291,6 +304,14 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+
+# Saves BDT and input variables for light lepton algorithms. 
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+# Saves BDT and input variables tau algorithm
+SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+
+
 SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY2SlimmingHelper.IncludeBPhysTriggerContent = True
