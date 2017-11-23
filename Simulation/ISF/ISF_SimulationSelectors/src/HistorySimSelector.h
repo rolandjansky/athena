@@ -13,7 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 #include "ISF_Event/SimSvcID.h"
 
 namespace ISF
@@ -29,7 +29,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class HistorySimSelector : public ISimulationSelector
+  class HistorySimSelector : public BaseSimulationSelector
   {
 
   public:

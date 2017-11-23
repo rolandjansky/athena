@@ -10,7 +10,7 @@
 #define ISF_TOOLS_DEFAULTSIMFILTER_H 1
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 namespace ISF
 {
@@ -22,7 +22,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class DefaultSimSelector : public ISimulationSelector
+  class DefaultSimSelector : public BaseSimulationSelector
   {
 
   public:
