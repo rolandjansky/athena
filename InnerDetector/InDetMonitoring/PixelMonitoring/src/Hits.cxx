@@ -633,10 +633,9 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
     if (nActiveChannels_layer[i] > 0) avgocc_active_mod[i] = nhits_mod[i] / nActiveChannels_layer[i];
   }
 
-
   for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
-    if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[getPixLayerIDWithDBM(i)]);
-    if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[getPixLayerIDWithDBM(i)]);
+    if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
+    if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[i]);
   }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
