@@ -27,8 +27,9 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
-
 // STL includes
 #include <algorithm> 
 
@@ -211,7 +212,6 @@ StatusCode ThinGeantTruthAlg::execute()
     }
 
     //Set up the indices for the egamma Truth Particles to keep
-    std::vector<int> egammaTruthIndices{};
     const xAOD::TruthParticleContainer* egammaTruthParticles(0);
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_egammaTruthKey)) {
       CHECK( evtStore()->retrieve( egammaTruthParticles , m_egammaTruthKey ) );
@@ -219,17 +219,21 @@ StatusCode ThinGeantTruthAlg::execute()
       ATH_MSG_WARNING("No e-gamma truth container with key "+m_egammaTruthKey+" found.");
     }
 
+    std::vector<int> egammaTruthIndices{};
     if (egammaTruthParticles!=nullptr) {
 
       for (auto egTruthParticle : *egammaTruthParticles) {
 
 	static const SG::AuxElement::ConstAccessor<int> accType("truthType");
+
 	if(!accType.isAvailable(*egTruthParticle) || 
 	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
-	   std::abs(egTruthParticle->eta()) > 2.6){
+	   std::abs(egTruthParticle->eta()) > 2.525){
 	  continue;
 	}
-	
+
+
+	//Only central isolated true electrons	
 	typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
 	static SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
 	if (!linkToTruth.isAvailable(*egTruthParticle)) {
@@ -242,10 +246,8 @@ StatusCode ThinGeantTruthAlg::execute()
 	} 
 
 	egammaTruthIndices.push_back( (*truthegamma)->index());
-      }
-    } 
-
-     
+	}
+    }     
     // Set up masks
     std::vector<bool> particleMask, vertexMask;
     int nTruthParticles = truthParticles->size();
@@ -299,7 +301,7 @@ StatusCode ThinGeantTruthAlg::execute()
         }
 
         // Retain particles and their descendants  associated with the egamma Truth Particles
-        if ( std::find(egammaTruthIndices.begin(), egammaTruthIndices.end(), i) != recoParticleTruthIndices.end() ) { 
+        if ( std::find(egammaTruthIndices.begin(), egammaTruthIndices.end(), i) != egammaTruthIndices.end() ) { 
 	  descendants(particle,particleMask,encounteredBarcodes);
 	  encounteredBarcodes.clear();
         }
