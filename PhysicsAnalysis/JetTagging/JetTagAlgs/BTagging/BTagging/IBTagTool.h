@@ -18,6 +18,9 @@
 #include "xAODJet/Jet.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODTracking/VertexFwd.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Analysis
 {
@@ -43,6 +46,7 @@ class IBTagTool : virtual public IAlgTool
 
        virtual StatusCode initialize() = 0;
        virtual StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) = 0;
+       virtual StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) = 0;
        virtual StatusCode finalize() = 0;
        virtual void finalizeHistos() = 0;
 

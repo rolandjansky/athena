@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "BTagging/IBTagTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <string>
 #include <vector>
@@ -74,6 +75,7 @@ namespace Analysis
       /** Main routines specific to an ATHENA algorithm */
       StatusCode initialize();
       StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
+      StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer);
       StatusCode finalize();
       void finalizeHistos();
 
@@ -87,6 +89,8 @@ namespace Analysis
       std::string m_BaselineTagger; //!< whose result is stored in the combinedlikelihhod datamember of the jet
 
       std::string m_vxPrimaryName;           //!< Name of primary vertex container
+      SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Primary vertex Collection"};
+
 
       std::string m_runModus;                //!< the run modus of the btagger (reference or analysis)
 

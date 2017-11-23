@@ -1413,6 +1413,7 @@ class Configuration:
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool
       options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
       options.setdefault('BTagLabelingTool', None)
+      options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       btagtool = toolMainBTaggingTool(**options)
       if BTaggingFlags.OutputLevel < 3:
           print self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol

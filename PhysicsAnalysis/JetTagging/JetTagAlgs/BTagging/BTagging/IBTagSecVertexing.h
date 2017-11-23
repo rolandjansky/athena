@@ -8,10 +8,12 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "VxVertex/RecVertex.h"            // Reconstructed vertex RecVertex
 #include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
 namespace Analysis
 {
@@ -35,6 +37,7 @@ namespace Analysis
        virtual StatusCode initialize() = 0;
        virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*, const xAOD::Vertex* vtx=0) const = 0;
        virtual StatusCode BTagSecVtx_exec(jetcollection_t* theJets, btagcollection_t*) const = 0;
+       virtual StatusCode BTagSecVtx_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const = 0;
        virtual StatusCode finalize() = 0;
       
 

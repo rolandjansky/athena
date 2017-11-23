@@ -5,6 +5,7 @@
 #include "BTagging/JetBTaggerTool.h"
 
 #include "xAODCore/ShallowCopy.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagging.h"
@@ -56,6 +57,8 @@ StatusCode JetBTaggerTool::initialize() {
   // by job configuration.
   ATH_CHECK( m_JetCollectionName.initialize() );
   ATH_CHECK( m_BTaggingCollectionName.initialize() );
+  m_jetBTaggingLinkName = m_JetCollectionName.key()+".btaggingLink";
+  ATH_CHECK( m_jetBTaggingLinkName.initialize() );
 
   /// retrieve the track association tool
   if ( !m_BTagTrackAssocTool.empty() ) {
@@ -104,11 +107,98 @@ StatusCode JetBTaggerTool::initialize() {
 }
 
 
-int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
+StatusCode JetBTaggerTool::execute() {
+  //retrieve the Jet container
+  SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName);
+  if (!h_JetCollectionName.isValid()) {
+    ATH_MSG_ERROR( " cannot retrieve jet container with key " << m_JetCollectionName.key()  );
+    return StatusCode::FAILURE;
+  }
+
+  if (h_JetCollectionName->size() == 0) {
+    ATH_MSG_DEBUG("#BTAG# Empty JetContainer !!");
+  }
+  else {
+    ATH_MSG_VERBOSE("#BTAG#  Nb jets in JetContainer: "<< h_JetCollectionName->size());
+    ATH_MSG_INFO("#BTAG#  Nb jets in JetContainer: "<< h_JetCollectionName->size());
+  }
+
+  //Decor Jet with element link to the BTagging
+  SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName);
+
+  //Create a xAOD::BTaggingContainer in any case (must be done) 
+  std::string bTaggingContName = m_BTaggingCollectionName.key();
+  ATH_MSG_INFO("#BTAG#  Container name: "<< bTaggingContName);
+
+  /* Record the BTagging  output container */
+  SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
+  ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
+  					std::make_unique<xAOD::BTaggingAuxContainer>()) ); 
+
+  if (!m_magFieldSvc->solenoidOn()) {
+    for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
+      const xAOD::Jet * jet = h_JetCollectionName->at(jetIndex); 
+      ElementLink< xAOD::BTaggingContainer> linkBTagger;
+      h_jetBTaggingLinkName(*jet) = linkBTagger;
+    }
+    return StatusCode::SUCCESS;
+  }
+  else { //Solenoid ON
+    for (unsigned int i = 0; i < h_JetCollectionName->size(); i++) {
+      xAOD::BTagging * newBTagMT  = new xAOD::BTagging();
+      h_BTaggingCollectionName->push_back(newBTagMT);
+    }
+  }
+
+     
+  StatusCode jetIsAssociated;
+  if (!m_BTagTrackAssocTool.empty()) {
+    ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
+    ATH_MSG_INFO("#BTAG# Track association tool is not empty");
+    //jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jets, h_BTaggingCollectionName.ptr());
+    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(h_JetCollectionName.ptr(), h_BTaggingCollectionName.ptr());
+    if ( jetIsAssociated.isFailure() ) {
+      ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    ATH_MSG_WARNING("#BTAG# Empty track association tool ");
+  }
+
+
+  // Secondary vertex reconstruction.
+  StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(h_JetCollectionName.ptr(), h_BTaggingCollectionName.ptr());
+  if (SV.isFailure()) {
+    ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
+  } 
+  for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
+    xAOD::Jet&  jetToTag = const_cast<xAOD::Jet&>(*h_JetCollectionName->at(jetIndex));
+    xAOD::BTagging * itBTag = h_BTaggingCollectionName->at(jetIndex);
+    StatusCode sc = m_bTagTool->tagJet( jetToTag, itBTag );
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+    }
+    ElementLink< xAOD::BTaggingContainer> linkBTagger;
+    linkBTagger.toContainedElement(*h_BTaggingCollectionName.ptr(), itBTag);
+    h_jetBTaggingLinkName(jetToTag) = linkBTagger;
+  }
+    
+  return StatusCode::SUCCESS;
+
+}
+
+
+int JetBTaggerTool::modify(xAOD::JetContainer& jetsOriginal) const{
 
   // The procedure is slightly complicated: first the BTagging objects need to be created and ElementLinks
   // to them stored in the Jets, then the association can be done, and then finally the b-tagging proper
   // can be done
+
+
+  //Force the jet container to be const to emulate ReadHandle
+  xAOD::JetContainer const& jets = jetsOriginal;
+
 
   if (jets.size() == 0) {
     ATH_MSG_DEBUG("#BTAG# Empty JetContainer !!");
@@ -117,6 +207,8 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     ATH_MSG_VERBOSE("#BTAG#  Nb jets in JetContainer: "<< jets.size());
     ATH_MSG_INFO("#BTAG#  Nb jets in JetContainer: "<< jets.size());
   }
+
+  SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName);
 
   //Create a xAOD::BTaggingContainer in any case (must be done) 
   std::string bTaggingContName = m_BTaggingCollectionName.key();
@@ -127,7 +219,6 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
   					std::make_unique<xAOD::BTaggingAuxContainer>()) ); 
  
-  std::vector<xAOD::BTagging *> btagsList;
   //xAOD::BTaggingContainer * bTaggingContainer(0);
 
   // Keep track (on an event by event basis; not sure whether this is really necessary) of whether Flavour
@@ -238,44 +329,46 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   }
 */
    
-  ATH_MSG_INFO("MANU before creating BTagging object");
-  std::vector<xAOD::Jet*> jetsList;
-  xAOD::JetContainer::iterator itB = jets.begin();
-  xAOD::JetContainer::iterator itE = jets.end();
+  //ATH_MSG_INFO("MANU before creating BTagging object");
+  //std::vector<xAOD::Jet*> jetsList;
+  xAOD::JetContainer::const_iterator itB = jets.begin();
+  xAOD::JetContainer::const_iterator itE = jets.end();
   if (m_magFieldSvc->solenoidOn()) {
     // In case of augmentation, fill the btagsList vector here (so as not to complicate the downstream logic)
     /*if (m_augment) {
       for (auto bt : *bTaggingContainer) btagsList.push_back(bt);
     }*/
     //unsigned int ibtag = 0;
-    for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
-      xAOD::Jet& jetToTag = ( **it );
-      jetsList.push_back(&jetToTag);
+    for (xAOD::JetContainer::const_iterator it = itB ; it != itE; ++it) {
+      //xAOD::Jet& jetToTag = ( **it );
+      //jetsList.push_back(&jetToTag);
       // In case of augmentation, the BTagging object has been copied and added to btagsList already.
       /*xAOD::BTagging* newBTag = 0;
       if (m_augment) {
 	newBTag = btagsList[ibtag++];
       } else {*/
-        std::unique_ptr<xAOD::BTagging> newBTagMT  = std::make_unique<xAOD::BTagging>();
-        h_BTaggingCollectionName->push_back(std::move(newBTagMT));
+        xAOD::BTagging * newBTagMT  = new xAOD::BTagging();
+        h_BTaggingCollectionName->push_back(newBTagMT);
+        //std::unique_ptr<xAOD::BTagging> newBTagMT  = std::make_unique<xAOD::BTagging>();
+        //h_BTaggingCollectionName->push_back(std::move(newBTagMT));
 	//newBTag = new xAOD::BTagging();
         //bTaggingContainer = new xAOD::BTaggingContainer();
 	//bTaggingContainer->push_back(newBTag);
-	xAOD::BTagging * mylastBTag = h_BTaggingCollectionName->back();
+	//xAOD::BTagging * mylastBTag = h_BTaggingCollectionName->back();
         //ATH_MSG_INFO("MANU before test SetV0");
         //double sv0_significance3D = gRandom->Gaus(0.,1);
         //mylastBTag->setSV0_significance3D(sv0_significance3D);
         //newBTagMT->setSV0_significance3D(sv0_significance3D);
         //ATH_MSG_INFO("MANU before test DL1");
         //mylastBTag->setVariable<double>("DL1","pu",1.1);
-        ATH_MSG_INFO("MANU before test int");
-        mylastBTag->auxdata<int >("TestINT") =1;
-        ATH_MSG_INFO("MANU after test int");
+        //ATH_MSG_INFO("MANU before test int");
+        //mylastBTag->auxdata<int >("TestINT") =1;
+        //ATH_MSG_INFO("MANU after test int");
 
 	//newBTag = new xAOD::BTagging();
 	//Push the BTagging object in the container and in the temporary vector
 	//bTaggingContainer->push_back(newBTag);
-	btagsList.push_back(mylastBTag);
+	//btagsList.push_back(mylastBTag);
       //}
       /*if (!retag) {
         //Create an element link to be passed to the tagged Jet.
@@ -287,11 +380,12 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     } //end loop JetContainer
   }
   else { //Solenoid OFF
-    for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
-      xAOD::Jet& jetToTag = ( **it );
+    for (xAOD::JetContainer::const_iterator it = itB ; it != itE; ++it) {
+      const xAOD::Jet& jetToTag = ( **it );
       if (!retag) {
 	ElementLink< xAOD::BTaggingContainer> linkBTagger;
-        jetToTag.setBTaggingLink(linkBTagger);
+        h_jetBTaggingLinkName(jetToTag) = linkBTagger;
+        //jetToTag.setBTaggingLink(linkBTagger);
       }
     } //end loop JetContainer
   } //end test Solenoid status
@@ -301,7 +395,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   // We use this to create a shallow copy of the JetContainer, for the case of track-jet collections.
   // This allows us to rescale the jet pt values used in the Flavour Tagging algorithms without affecting the input jets.
   
-  xAOD::ShallowAuxContainer* jetShallowAuxContainer(0);
+/*  xAOD::ShallowAuxContainer* jetShallowAuxContainer(0);
   xAOD::JetContainer* jetShallowContainer(0);
   if (m_magFieldSvc->solenoidOn()) {
     if (m_PtRescale) {
@@ -323,7 +417,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       }
     } 
   } 
-  
+  */
   
   // if (!m_augment) {
   // We don't want to redo the track-jet association in case of augmentation; however, since
@@ -334,7 +428,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   if (!m_BTagTrackAssocTool.empty()) {
     ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
     ATH_MSG_INFO("#BTAG# Track association tool is not empty");
-    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, &btagsList);
+    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jets, h_BTaggingCollectionName.ptr());
     if ( jetIsAssociated.isFailure() ) {
       ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
       return StatusCode::FAILURE;
@@ -347,12 +441,28 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 
   // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
   //if (! (reuse_SVContainer || m_augment)) {
-  StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(&jetsList, &btagsList);
+  StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(&jets, h_BTaggingCollectionName.ptr());
   if (SV.isFailure()) {
     ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
   } 
- 
-  std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
+
+  //Tag the jets
+  SV = m_bTagTool->tagJet( &jets, h_BTaggingCollectionName.ptr());
+  if (SV.isFailure()) {
+    ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+  } 
+
+  //Create the element link from the jet to the btagging
+  for (size_t jetIndex=0; jetIndex < jets.size() ; ++jetIndex) {
+    xAOD::Jet&  jetToTag = const_cast<xAOD::Jet&>(*jets.at(jetIndex)); 
+    xAOD::BTagging * itBTag = h_BTaggingCollectionName->at(jetIndex);
+    ElementLink< xAOD::BTaggingContainer> linkBTagger;
+    linkBTagger.toContainedElement(*h_BTaggingCollectionName.ptr(), itBTag);
+    h_jetBTaggingLinkName(jetToTag) = linkBTagger;
+    //jetToTag.setBTaggingLink(linkBTagger);
+  }
+
+/*  std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
   std::vector<xAOD::Jet *>::iterator itJetB = jetsList.begin();
   std::vector<xAOD::Jet *>::iterator itJetE = jetsList.end();
   for (std::vector<xAOD::Jet *>::iterator it = itJetB ; it != itJetE; ++it,++itBTag) {
@@ -361,9 +471,17 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (sc.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
-    ATH_MSG_INFO("#BTAG# Track association tool is not empty 3");
+    ElementLink< xAOD::BTaggingContainer> linkBTagger;
+    linkBTagger.toContainedElement(h_BTaggingCollectionName.ptr(), itBTag);
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+    }
+    ElementLink< xAOD::BTaggingContainer> linkBTagger;
+    linkBTagger.toContainedElement(h_BTaggingCollectionName.ptr(), itBTag);
+    jetToTag.setBTaggingLink(linkBTagger);
+    jetToTag.setBTaggingLink(linkBTagger);
   }
-
+*/
 /*   if (reuse_SVContainer) { //is a shallow copy
      delete bTagSecVertexContainer;
      delete bTagSVShallowAuxContainer;
@@ -374,10 +492,10 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
      delete bTagJFVShallowAuxContainer;
    }
 */
-   if (m_PtRescale) { // is a shallow copy
+   /*if (m_PtRescale) { // is a shallow copy
      delete jetShallowAuxContainer;
      delete jetShallowContainer;
-   }
+   }*/
    
   /// testme
   /*for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {

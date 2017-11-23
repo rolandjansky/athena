@@ -17,6 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -35,6 +36,7 @@ class  JetBTaggerTool:
   public:
   
   virtual StatusCode initialize();
+  StatusCode execute();
 
   JetBTaggerTool(const std::string & n);
   //JetBTaggerTool(const std::string&, const IInterface*, const std::string&);
@@ -45,6 +47,7 @@ class  JetBTaggerTool:
  private:
 
   SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName { this, "JetCollectionName", "", ""};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","",""};
   SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", ""} ;
 
   //std::string m_BTagName;

@@ -53,6 +53,10 @@ namespace Analysis {
   BTagTool::~BTagTool() {}
 
   StatusCode BTagTool::initialize() {
+    
+    // This will check that the properties were initialized properly
+    // by job configuration.
+    ATH_CHECK( m_VertexCollectionName.initialize() );
    
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
@@ -185,6 +189,85 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode BTagTool::tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) {
+
+    /* ----------------------------------------------------------------------------------- */
+    /*               RETRIEVE PRIMARY VERTEX CONTAINER FROM STOREGATE                      */
+    /* ----------------------------------------------------------------------------------- */
+    SG::ReadHandle<xAOD::VertexContainer> h_VertexCollectionName (m_VertexCollectionName);
+    if (!h_VertexCollectionName.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VertexCollectionName.key()  );
+        return StatusCode::FAILURE;
+    }
+    unsigned int nVertexes = h_VertexCollectionName->size();
+    if (nVertexes == 0) {
+      ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
+      return StatusCode::SUCCESS;
+    }
+
+    const xAOD::Vertex* primaryVertex(0);
+    for (xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin(); fz != h_VertexCollectionName->end(); ++fz) {
+      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
+	primaryVertex = *fz;
+	break;
+      }
+    }
+
+
+    if (! primaryVertex) {
+      ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
+      xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin();
+      primaryVertex = *fz;
+        if (primaryVertex->nTrackParticles() == 0) {
+	  ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
+          m_nBeamSpotPvx++;
+      }
+    }
+
+    xAOD::BTaggingContainer::iterator btagIter=btaggingContainer->begin();
+    for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter) {
+      //temporary const_cast
+      xAOD::Jet& jetToTag = const_cast<xAOD::Jet&>( **jetIter );
+      ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
+		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
+      m_nAllJets++;
+
+      /* ----------------------------------------------------------------------------------- */
+      /*               Truth Labeling                  				           */
+      /* ----------------------------------------------------------------------------------- */
+
+      StatusCode jetIsLabeled( StatusCode::SUCCESS );
+      if (!m_BTagLabelingTool.empty()) {
+        jetIsLabeled = m_BTagLabelingTool->BTagLabeling_exec( jetToTag);
+      }
+      if ( jetIsLabeled.isFailure() ) {
+        ATH_MSG_ERROR("#BTAG# Failed to do truth labeling");
+        continue;
+        //return StatusCode::FAILURE;
+      } 
+
+      /* ----------------------------------------------------------------------------------- */
+      /*               Call all the tag tools specified in m_bTagToolHandleArray             */
+      /* ----------------------------------------------------------------------------------- */
+
+      ToolHandleArray< ITagTool >::iterator itTagTools = m_bTagToolHandleArray.begin();
+      ToolHandleArray< ITagTool >::iterator itTagToolsEnd = m_bTagToolHandleArray.end();
+      for (  ; itTagTools != itTagToolsEnd; ++itTagTools ) {
+        (*itTagTools)->setOrigin(primaryVertex);
+        StatusCode sc = (*itTagTools)->tagJet(jetToTag, *btagIter);
+        if (sc.isFailure()) {
+          ATH_MSG_WARNING("#BTAG# failed tagger: " << (*itTagTools).typeAndName() );
+        }
+
+      }
+
+      // ----------------------------------------------------------------------------------
+
+      ATH_MSG_VERBOSE("#BTAG#  tagJet(...) end.");
+    }
+
+    return StatusCode::SUCCESS;
+  }
   
   StatusCode BTagTool::finalize() {
     ATH_MSG_INFO("#BTAG# number of jets with Primary Vertex set to BeamSpot " << m_nBeamSpotPvx << " Total number of jets seen " << m_nAllJets);
