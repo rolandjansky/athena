@@ -5,8 +5,7 @@
 #include "PhysValPFO.h"
 #include "xAODPFlow/PFOContainer.h"
 
-PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_vertexContainerReadHandle("PrimaryVertices"),m_retrievePFOTool("RetrievePFOTool",this), m_useLCScale(false), m_useNeutralPFO(false) {
-  declareProperty("RetrievePFOTool",m_retrievePFOTool,"Name of PFO getter");
+PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_useLCScale(false), m_useNeutralPFO(false) {
   declareProperty("useLCScale",m_useLCScale, " Select which PFO setup to use - LC or EM ");
   declareProperty("useNeutralPFO", m_useNeutralPFO, "Select whether to use neutral or charged PFO");
 }
@@ -15,7 +14,10 @@ PhysValPFO::~PhysValPFO() {}
 
 StatusCode PhysValPFO::initialize(){
   ATH_CHECK(ManagedMonitorToolBase::initialize());
-  ATH_CHECK(m_retrievePFOTool.retrieve());
+
+  ATH_CHECK(m_vertexContainerReadHandleKey.initialize());
+  ATH_CHECK(m_PFOContainerHandleKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -57,15 +59,16 @@ StatusCode PhysValPFO::bookHistograms(){
 StatusCode PhysValPFO::fillHistograms(){
 
   const xAOD::Vertex* theVertex = nullptr;
-
+  
   if (!m_useNeutralPFO){
-    if(!m_vertexContainerReadHandle.isValid()){
-      ATH_MSG_WARNING("Invalid ReadHandle for xAOD::VertexContainer with key: " << m_vertexContainerReadHandle.key());
+    SG::ReadHandle<xAOD::VertexContainer> vertexContainerReadHandle(m_vertexContainerReadHandleKey);
+    if(!vertexContainerReadHandle.isValid()){
+      ATH_MSG_WARNING("Invalid ReadHandle for xAOD::VertexContainer with key: " << vertexContainerReadHandle.key());
     }
     else {
       //Vertex finding logic based on logic in JetRecTools/PFlowPseudoJetGetter tool
       //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
-      for (auto vertex : (*m_vertexContainerReadHandle.ptr())) {
+      for (auto vertex : *vertexContainerReadHandle) {
 	if (xAOD::VxType::PriVtx == vertex->vertexType() ) {
 	theVertex = vertex;
 	break;
@@ -77,29 +80,31 @@ StatusCode PhysValPFO::fillHistograms(){
     }//if valid read handle
   }
 
+  StatusCode sc = StatusCode::SUCCESS;
+  if (m_useNeutralPFO) {    
+    if (m_useLCScale) sc = m_PFOContainerHandleKey.assign("JetETMiss_LCNeutralParticleFlowObjects");
+    else sc = m_PFOContainerHandleKey.assign("JetETMissNeutralParticleFlowObjects");
+  }
+    
+  if (StatusCode::SUCCESS != sc) {
+    ATH_MSG_ERROR("Could not assign PFO Container key name");
+    return sc;
+  }
+    
+  SG::ReadHandle<xAOD::PFOContainer> PFOContainerReadHandle(m_PFOContainerHandleKey);
+  if(!PFOContainerReadHandle.isValid()){
+     ATH_MSG_WARNING("Invalid ReadHandle for xAOD::PFOContainer with key: " << PFOContainerReadHandle.key());
+     return StatusCode::SUCCESS;
+  }
   
-  const xAOD::PFOContainer* thePFOContainer = nullptr;
-
-  if (!m_useNeutralPFO) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
-  else{
-    if (!m_useLCScale) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::neutral);
-    else thePFOContainer = m_retrievePFOTool->retrievePFO(CP::LC,CP::neutral);
-  }
-
-  if (!thePFOContainer){
-    ATH_MSG_WARNING(" Have NULL pointer to xAOD::PFOContainer");
-    return StatusCode::SUCCESS;
+  for (auto thePFO : *PFOContainerReadHandle){
+    if(thePFO){
+       if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);
+       else if (m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
+    }
+    else ATH_MSG_WARNING("Invalid pointer to xAOD::PFO");
   }
   
-  xAOD::PFOContainer::const_iterator firstPFO = thePFOContainer->begin();
-  xAOD::PFOContainer::const_iterator lastPFO = thePFOContainer->end();
-
-  for (; firstPFO != lastPFO; ++firstPFO) {
-    const xAOD::PFO* thePFO = *firstPFO;
-    if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);
-    else if (m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
-  }
-
   return StatusCode::SUCCESS;
 
 }
