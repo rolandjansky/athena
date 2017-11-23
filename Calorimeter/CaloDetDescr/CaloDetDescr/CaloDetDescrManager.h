@@ -13,7 +13,7 @@
 #ifndef CALODETDESCR_CALODETDESCRMANAGER_H
 #define CALODETDESCR_CALODETDESCRMANAGER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "boost/range/iterator_range.hpp"
 
