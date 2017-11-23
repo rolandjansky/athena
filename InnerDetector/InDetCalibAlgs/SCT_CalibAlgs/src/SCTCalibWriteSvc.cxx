@@ -82,7 +82,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
   
-  //m_evt(0),
+
   m_regSvc(0),
   //m_streamer(0),
   m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
@@ -678,16 +678,7 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
            msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
            return StatusCode::FAILURE;
         }
-/*        StoreGateSvc* pStoreGate;
-        if (service("StoreGateSvc",pStoreGate).isFailure()) {
-          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
-          return StatusCode::FAILURE;
-        }
-        if (pStoreGate->retrieve(m_evt).isFailure()) {
-          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
-          return StatusCode::FAILURE;
-        }
-*/	
+	
         beginRun = evt->event_ID()->run_number();
         endRun = beginRun;
 

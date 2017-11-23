@@ -165,9 +165,6 @@ else :
 if runArgs.InputType is not 'RAW':
     ServiceMgr.EventSelector.RunNumber         = runArgs.RunNumber
     ServiceMgr.EventSelector.InitialTimeStamp  = int(SORTime)
-#    ServiceMgr.EventSelector.TimeStampInterval = 180
-    print "RunNo " + str(runArgs.RunNumber)
-    print "SORTime " + str(SORTime)
 
 
 #--------------------------------------------------------------
@@ -430,8 +427,8 @@ from IOVSvc.IOVSvcConf import CondSvc
 ServiceMgr += CondSvc()
 #from AthenaCommon.AlgSequence import AthSequencer
 #condSeq = AthSequencer("AthCondSeq")
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader("CondInputLoader")
+#from IOVSvc.IOVSvcConf import CondInputLoader
+#condSeq += CondInputLoader("CondInputLoader")
 import StoreGate.StoreGateConf as StoreGateConf
 ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg

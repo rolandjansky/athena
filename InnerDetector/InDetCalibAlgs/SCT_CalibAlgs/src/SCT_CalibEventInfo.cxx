@@ -24,8 +24,6 @@ const long long oneBillion(1000000000LL);
 }
 
 SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc):AthService(name,svc),
-   //m_storegateSvc ( "StoreGateSvc", name ),
-   //m_evt(nullptr),
    m_eventInfoKey(std::string("ByteStreamEventInfo")),
    m_incidentSvc ( "IncidentSvc", name ),
    m_timeStampBegin(INTMAX),
@@ -128,14 +126,6 @@ SCT_CalibEventInfo::handle(const Incident &inc) {
       m_timeStamp=timeStamp;
 
    } else if ( m_source == "HIST" ) {
-      
-      //SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
-      
-      //const EventInfo m_evt = *evt;
-      
-      //EventInfo* eventInfo = const_cast<EventInfo*>( &m_evt );
-      //eventInfo->event_ID()->set_run_number( m_runNumber );
-      //eventInfo->event_ID()->set_time_stamp( m_timeStampBegin ); 
 
       msg( MSG::INFO ) << "RunNumber, TimeStamp (Begin, End): " << m_runNumber << ", " << m_timeStampBegin << ", " << m_timeStampEnd<< endmsg;
 

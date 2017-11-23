@@ -12,7 +12,7 @@
 #define SCT_CalibEventInfo_h
 #include "AthenaBaseComps/AthService.h"    //baseclass
 #include "GaudiKernel/ServiceHandle.h"     //member
-//#include "StoreGate/StoreGateSvc.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/IIncidentSvc.h"      //template parameter, so not fwd declared
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
@@ -68,10 +68,10 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       //@}
 
    private:
-      //ServiceHandle<StoreGateSvc> m_storegateSvc;
+
       SG::ReadHandleKey<EventInfo> m_eventInfoKey;
       ServiceHandle<IIncidentSvc> m_incidentSvc;
-      //const EventInfo* m_evt;
+
       int  m_timeStampBegin;
       std::string m_tsBeginString;
       std::string m_tsEndString;

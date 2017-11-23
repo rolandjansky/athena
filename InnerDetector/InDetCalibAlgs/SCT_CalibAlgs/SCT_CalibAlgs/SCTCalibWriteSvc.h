@@ -210,7 +210,7 @@ private:
   std::string                  m_tagID4BSErrors;
   std::string                  m_tagID4LorentzAngle;
 
-  //const EventInfo*             m_evt;
+
   IIOVRegistrationSvc*         m_regSvc;
   //IAthenaOutputStreamTool*     m_streamer;
   ToolHandle<IAthenaOutputStreamTool> m_streamer;
