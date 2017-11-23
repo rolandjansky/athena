@@ -197,7 +197,12 @@ StatusCode RegSelTestAlg::mt() const {
 
 
 
-  bool status = ParallelCallTest::launchTests( 100, tests );
+#ifdef NDEBUG
+  int nrepeat = 100;
+#else
+  int nrepeat = 10;
+#endif
+  bool status = ParallelCallTest::launchTests( nrepeat, tests );
   
   for ( auto t: tests ) 
     delete t;
