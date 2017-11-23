@@ -4,23 +4,32 @@
 
 TH1* get_cumul(TH1* hist);
 void run_epara_validation();
+void check();
 
+void ATLAS_LABEL(double x,double y) ;
+
+//Instructions:
 //.x init_epara_validation.C+
 //.x run_epara_validation.C
+
 
 void run_epara_validation()
 {
  	
  	//parametrization input files:
  	
-  string sample="pions";
+  //string samplename="pions";
+  //string samplename="photons";
   //string samplename="pions_s2864";
-  //string samplename="pions_s2865";
-    
+  //string samplename="s2865";
+  //string samplename="photons0809";
+  //string samplename="pionplus0809";
+  string samplename="pionminus0809";
+  
  	string dirname ="/afs/cern.ch/user/s/schaarsc/public/fastcalo/epara_storage";
   
   system("mkdir eparavalidation");
-  system(("mkdir eparavalidation/"+sample).c_str());
+  system(("mkdir eparavalidation/"+samplename).c_str());
   /*
   int setbin=-1;
   cout<<"PCA bin (-1 if random)? "<<endl;
@@ -28,7 +37,7 @@ void run_epara_validation()
   */
   //Prepare the Histograms
   cout<<"Preparing validation histograms"<<endl;
-  TFile* file1=TFile::Open(Form("%s/%s/firstPCA.root",dirname.c_str(),sample.c_str()));
+  TFile* file1=TFile::Open(Form("%s/%s/firstPCA.root",dirname.c_str(),samplename.c_str()));
   TH2I* h_layer=(TH2I*)file1->Get("h_layer");
   int pcabins=h_layer->GetNbinsX();
   vector<int> layerNr;
@@ -69,6 +78,11 @@ void run_epara_validation()
   h_output[layer.size()]  =new TH1D("h_output_sumfractions_elmag","h_output_sumfractions_elmag",nbins,-1,2);
   h_input[layer.size()+1] =new TH1D("h_input_sumfractions_had","h_input_sumfractions_had",nbins,-1,2);
   h_output[layer.size()+1]=new TH1D("h_output_sumfractions_had","h_output_sumfractions_had",nbins,-1,2);
+  //correlation
+  TH2D* h_input_layer1_layer2;
+  TH2D* h_output_layer1_layer2;
+  h_input_layer1_layer2=new TH2D("h_input_layer1_layer2","h_input_layer1_layer2",100,0,1,100,0,1);
+  h_output_layer1_layer2=new TH2D("h_output_layer1_layer2","h_output_layer1_layer2",100,0,1,100,0,1);
   
   //Fill the Input Histograms:
   vector<int> elmag; //0-8
@@ -103,14 +117,17 @@ void run_epara_validation()
    }
    h_input[layerNr.size()+1]->Fill(sum_fraction_elmag);
    h_input[layerNr.size()+2]->Fill(sum_fraction_had);
-   //}
-  }
+   h_input_layer1_layer2->Fill(read_inputTree->GetVariable("energy_layer1"),read_inputTree->GetVariable("energy_layer2"));
+  } //loop over g4
   
   TH1D* h_randombin=new TH1D("h_randombin","h_randombin",pcabins,-0.5,pcabins-0.5);
   
    
   TFCSPCAEnergyParametrization etest("etest","etest");
-  TFile* file2 = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/FCSParams.root");
+  //TFile* file2 = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/FCSParams.root");
+
+  TFile* file2 = TFile::Open(Form("%s/%s/secondPCA.root",dirname.c_str(),samplename.c_str()));
+
   cout<<"pca bins before load "<<etest.n_pcabins()<<endl;
   etest.loadInputs(file2);
   cout<<"number of pca bins after load "<<etest.n_pcabins()<<" , number from firstPCA file: "<<pcabins<<endl;
@@ -118,15 +135,16 @@ void run_epara_validation()
   delete file2;
 
   //Run the loop:
-  int ntoys=1000;
+  int ntoys=2000;
   TRandom3* Random=new TRandom3();
   Random->SetSeed(0);
   const TFCSTruthState* truth=new TFCSTruthState();
   const TFCSExtrapolationState* extrapol=new TFCSExtrapolationState();
+
+  TFCSSimulationState simulstate;
   for(int i=0;i<ntoys;i++)
   {
-   //if(i%100==0) 
-   	cout<<"Now run simulation for Toy "<<i<<endl;
+   if(i%100==0) cout<<"Now run simulation for Toy "<<i<<endl;
    
    int randombin=0;
    double uniform=Random->Uniform(1);
@@ -137,7 +155,6 @@ void run_epara_validation()
    }
    h_randombin->Fill(randombin);
          
-   TFCSSimulationState simulstate;
    simulstate.set_Ebin(randombin);
    
    etest.simulate(simulstate, truth, extrapol);
@@ -146,6 +163,7 @@ void run_epara_validation()
    double sum_fraction_elmag=0.0;
    double sum_fraction_had=0.0;
    
+   /*
    for(int s=0;s<30;s++) //30 is a dummy number, sth big
    {
    	int is_elmag,is_had;
@@ -167,9 +185,47 @@ void run_epara_validation()
    h_output[layerNr.size()]->Fill(simulstate.E());
    h_output[layerNr.size()+1]->Fill(sum_fraction_elmag);
    h_output[layerNr.size()+2]->Fill(sum_fraction_had);
+   */
+   
+   for(unsigned int l=0;l<layerNr.size();l++)
+   {
+    h_output[l]->Fill(simulstate.Efrac(layerNr[l]));
+   }
+   h_output[layerNr.size()]->Fill(simulstate.E());
+   
+   //correlation plots:
+   h_output_layer1_layer2->Fill(simulstate.Efrac(1),simulstate.Efrac(2));
+   
+   if(simulstate.Efrac(1)>0.8)
+   {
+   	cout<<"in toy nr "<<i<<" efrac1 "<<simulstate.Efrac(1)<<" efrac2 "<<simulstate.Efrac(2)<<endl;
+   	int enter; cin>>enter;
+   }
    
   } //loop over toys
   
+  //save the histograms in an output file
+  TFile* outfile=new TFile(Form("eparavalidation/%s/validation.root",samplename.c_str()),"RECREATE");
+  cout<<"writing output to file "<<outfile->GetName()<<endl;
+  for(unsigned int l=0;l<layer.size();l++)
+  {
+   cout<<"l "<<l<<" layer[l] "<<layer[l]<<endl;
+   outfile->Add(h_output[l]);
+   outfile->Add(h_input[l]);
+   double min,max,rmin,rmax;
+   EnergyParametrizationValidation::autozoom(h_input[l],min,max,rmin,rmax);
+   TH1D* h_output_zoom=EnergyParametrizationValidation::refill(h_output[l],min,max,rmin,rmax);
+   h_output_zoom->SetName(Form("h_output_zoom_%s",layer[l].c_str()));
+   TH1D* h_input_zoom=EnergyParametrizationValidation::refill(h_input[l],min,max,rmin,rmax);
+   h_input_zoom->SetName(Form("h_input_zoom_%s",layer[l].c_str()));
+   outfile->Add(h_output_zoom);
+   outfile->Add(h_input_zoom);
+  }
+  outfile->Add(h_input_layer1_layer2);
+  outfile->Add(h_output_layer1_layer2);
+  outfile->Write();
+  
+  /*
   
   cout<<"Now making validation plots"<<endl;
   
@@ -189,13 +245,9 @@ void run_epara_validation()
   
   for(unsigned int l=0;l<layer.size()+2;l++)
   {
-   //TCanvas* can=new TCanvas(Form("can_%i",l),Form("can_%i",l),0,0,1600,600);
-   TCanvas* can=new TCanvas("can","can",0,0,1600,600);
-   can->Divide(3,1);
-   can->cd(1); //linear scale
-   double min,max,rmin,rmax;
-
    int use_autozoom=1;
+   int one_canvas=0;
+   double min,max,rmin,rmax;
    TH1D* h_output_lin;
    TH1D* h_input_lin;
    if(use_autozoom)
@@ -206,82 +258,133 @@ void run_epara_validation()
    }
    else
    {
-   	h_output_lin=(TH1D*)h_output[l]->Clone("h_output_lin");
-   	h_input_lin=(TH1D*)h_input[l]->Clone("h_input_lin");
+    h_output_lin=(TH1D*)h_output[l]->Clone("h_output_lin");
+    h_input_lin=(TH1D*)h_input[l]->Clone("h_input_lin");
    }
    
+   //linear:
    double kolmo=h_input[l]->KolmogorovTest(h_output[l]);
    double chi2=h_input[l]->Chi2Test(h_output[l],"UW");
-
    h_input_lin->SetMarkerSize(1.0);
    h_input_lin->SetLineWidth(1);
    h_output_lin->SetLineWidth(1);
    h_output_lin->SetFillColor(7);
-   
    h_output_lin->Scale(h_input[l]->Integral()/h_output_lin->Integral());
-   h_input_lin->Draw("e");
    h_input_lin->GetXaxis()->SetNdivisions(504,kFALSE);
    double ymax=h_input_lin->GetBinContent(h_input_lin->GetMaximumBin());
    h_input_lin->GetYaxis()->SetRangeUser(0,ymax*1.4);
    h_input_lin->GetYaxis()->SetTitle("Linear");
    h_input_lin->GetXaxis()->SetTitle(title[l].c_str());
-   h_output_lin->Draw("histsame");
-   h_input_lin->Draw("esame");
    
-   TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
-   leg->SetBorderSize(0);
-   leg->SetFillStyle(0);
-   leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
-   leg->AddEntry(h_output_lin,"Parametrisation","f");
-   leg->AddEntry(h_input_lin,"G4 Input","lpe");
-   leg->Draw();
-  
-   can->cd(2);
+   //log:
    TH1D* h_output_log=(TH1D*)h_output_lin->Clone("h_output_log");
    TH1D* h_input_log=(TH1D*)h_input_lin->Clone("h_input_log");
-   h_input_log->Draw("e");
    h_input_log->GetYaxis()->SetRangeUser(0.1,ymax*5.0);
    h_input_log->GetYaxis()->SetTitle("Log");
-   h_output_log->Draw("histsame");
-   h_input_log->Draw("esame");
-   can->cd(2)->SetLogy();
-   TLegend* leg2=new TLegend(0.65,0.82,0.99,0.93);
-   leg2->SetBorderSize(0);
-   leg2->SetFillStyle(0);
-   leg2->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
-   leg2->AddEntry(h_output_lin,"Parametrisation","f");
-   leg2->AddEntry(h_input_lin,"G4 Input","lpe");
-   leg2->Draw();
-   
-   can->cd(3);
+      
+   //cumulative:
    TH1D* h_output_cumul=(TH1D*)get_cumul(h_output_lin); h_output_cumul->SetName("h_output_cumul");
    TH1D* h_input_cumul =(TH1D*)get_cumul(h_input_lin);  h_input_cumul->SetName("h_input_cumul");
    double sf=h_input_cumul->GetBinContent(h_input_cumul->GetNbinsX());
    h_output_cumul->Scale(1.0/sf);
    h_input_cumul->Scale(1.0/sf);
-   h_input_cumul->Draw("e");
    h_input_cumul->GetYaxis()->SetRangeUser(0,1.2);
    h_input_cumul->GetYaxis()->SetTitle("Cumulative");
-   h_output_cumul->Draw("histsame");
-   h_input_cumul->Draw("esame");
-   TLegend* leg3=new TLegend(0.19,0.82,0.53,0.93);
-   leg3->SetBorderSize(0);
-   leg3->SetFillStyle(0);
-   leg3->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
-   leg3->AddEntry(h_output_lin,"Parametrisation","f");
-   leg3->AddEntry(h_input_lin,"G4 Input","lpe");
-   leg3->Draw();
    
-   can->cd(1)->RedrawAxis();
-   can->cd(2)->RedrawAxis();
-   can->cd(3)->RedrawAxis();
-   
-   can->Print(Form("eparavalidation/%s/%s.pdf",sample.c_str(),name[l].c_str()));
-   
-   delete can;
+   if(one_canvas)
+   {
+    TCanvas* can=new TCanvas("can","can",0,0,1600,600);
+    can->Divide(3,1);
+    can->cd(1);
+    h_input_lin->Draw("e");
+    h_output_lin->Draw("histsame");
+    h_input_lin->Draw("esame");
+    
+    TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+    leg->SetBorderSize(0);
+    leg->SetFillStyle(0);
+    leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+    leg->AddEntry(h_output_lin,"Parametrisation","f");
+    leg->AddEntry(h_input_lin,"G4 Input","lpe");
+    leg->Draw();
+    
+    can->cd(2);
+    h_input_log->Draw("e");
+    h_output_log->Draw("histsame");
+    h_input_log->Draw("esame");
+    can->cd(2)->SetLogy();
+
+    can->cd(3);
+    h_input_cumul->Draw("e");
+    h_output_cumul->Draw("histsame");
+    h_input_cumul->Draw("esame");
+    
+    can->cd(1)->RedrawAxis();
+    can->cd(2)->RedrawAxis();
+    can->cd(3)->RedrawAxis();
+    can->Print(Form("eparavalidation/%s/%s.pdf",samplename.c_str(),name[l].c_str()));
+    delete can;
+   } //one_canvas
+   else
+   {
+   	TCanvas* can_lin=new TCanvas("can_lin","can_lin",0,0,800,600);
+    h_input_lin ->Draw("e");
+    h_output_lin->Draw("histsame");
+    h_input_lin ->Draw("esame");
+    {
+     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+     leg->SetBorderSize(0);
+     leg->SetFillStyle(0);
+     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+     leg->AddEntry(h_output_lin,"Parametrisation","f");
+     leg->AddEntry(h_input_lin,"G4 Input","lpe");
+     leg->Draw();
+     TLatex* la=new TLatex(0.2,0.5,"#splitline{Photons 50 GeV}{0.2 < |#eta| < 0.25}");
+     la->SetNDC();
+     la->Draw();
+     ATLAS_LABEL(0.2,0.9);
+    }
+   	can_lin->RedrawAxis();
+    can_lin->Print(Form("eparavalidation/%s/%s_lin.pdf",samplename.c_str(),name[l].c_str()));
+
+   	TCanvas* can_log=new TCanvas("can_log","can_log",0,0,800,600);
+    h_input_log ->Draw("e");
+    h_output_log->Draw("histsame");
+    h_input_log ->Draw("esame");
+    can_log->SetLogy();
+    {
+     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+     leg->SetBorderSize(0);
+     leg->SetFillStyle(0);
+     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+     leg->AddEntry(h_output_lin,"Parametrisation","f");
+     leg->AddEntry(h_input_lin,"G4 Input","lpe");
+     leg->Draw();
+    }
+   	can_log->RedrawAxis();
+    can_log->Print(Form("eparavalidation/%s/%s_log.pdf",samplename.c_str(),name[l].c_str()));
+   	
+    TCanvas* can_cum=new TCanvas("can_cum","can_cum",0,0,800,600);
+    h_input_cumul ->Draw("e");
+    h_output_cumul->Draw("histsame");
+    h_input_cumul ->Draw("esame");
+    {
+     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+     leg->SetBorderSize(0);
+     leg->SetFillStyle(0);
+     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+     leg->AddEntry(h_output_lin,"Parametrisation","f");
+     leg->AddEntry(h_input_lin,"G4 Input","lpe");
+     leg->Draw();
+    }
+   	can_cum->RedrawAxis();
+    //can_cum->Print(Form("eparavalidation/%s/%s_cum.pdf",samplename.c_str(),name[l].c_str()));
+   	
+   } //separate canvases
    
   } //for layer
   
+  */
   
 }
 
@@ -298,4 +401,31 @@ TH1* get_cumul(TH1* hist)
   return h_cumul; 
 }
 
+void ATLAS_LABEL(double x,double y) 
+{
+  TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
+  l.SetNDC();
+  l.SetTextFont(72);
+  l.SetTextColor(1);
+  l.DrawLatex(x,y,"#bf{ATLAS} Simulation");
+  l.DrawLatex(x,y-10,"Preliminary");
+}
+
+void check()
+{
+ 
+ //plot the TFCS1DFunctionHistogram
+ 
+ //TFile* file=TFile::Open("/afs/cern.ch/user/s/schaarsc/public/fastcalo/epara_storage/photons/secondPCA.root");
+ //TFCS1DFunctionHistogram* hf=(TFCS1DFunctionHistogram*)file->Get("bin3/layer2/TFCS1DFunctionHistogram");
+ 
+ TFile* file=TFile::Open("/afs/cern.ch/user/s/schaarsc/public/fastcalo/athena/Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimParametrization/tools/FCSParams.root");
+ TFCS1DFunctionHistogram* hf=(TFCS1DFunctionHistogram*)file->Get("EnergyParams/pdgid_22/EN_50000/eta_0_20/bin3/layer2/TFCS1DFunctionHistogram");
+
+ cout<<"hf "<<hf<<endl;
+ 
+ TH1D* hist=(TH1D*)(hf->vector_to_histo());
+ hist->Draw();
+ 
+}
 

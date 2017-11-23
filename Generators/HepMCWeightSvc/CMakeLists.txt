@@ -13,7 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/IOVDbDataModel
                           Database/IOVDbMetaDataTools
-                          Event/EventInfo )
+                          Event/EventInfo
+                          Generators/GenInterfaces )
 
 # Component(s) in the package:
 atlas_add_component( HepMCWeightSvc

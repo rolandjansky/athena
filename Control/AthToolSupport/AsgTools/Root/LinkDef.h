@@ -1,5 +1,5 @@
 /// Dear emacs, this is -*- c++ -*-
-/// $Id: LinkDef.h 743773 2016-04-28 21:21:41Z krumnack $
+/// $Id: LinkDef.h 804869 2017-05-15 20:14:34Z krumnack $
 ///
 /// @file LinkDef.h
 /// @brief CINT dictionary description for standalone compilation
@@ -15,6 +15,7 @@
 // Local include(s):
 #include "AsgTools/MsgLevel.h"
 #include "AsgTools/MsgStream.h"
+#include "AsgTools/INamedInterface.h"
 
 #ifdef __CINT__
 
@@ -28,6 +29,7 @@
 #pragma link C++ enum MSG::Level+;
 #pragma link C++ function MSG::name+;
 #pragma link C++ class MsgStream+;
+#pragma link C++ class INamedInterface+;
 
 #endif // __CINT__
 #endif // not ASGTOOLS_LINKDEF_H

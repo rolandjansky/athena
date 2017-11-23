@@ -9,6 +9,7 @@ atlas_subdir( ReweightTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          Generators/GenInterfaces
                           PRIVATE
                           Control/DataModel
                           Control/StoreGate

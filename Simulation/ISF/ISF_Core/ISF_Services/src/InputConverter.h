@@ -41,6 +41,7 @@ namespace ISF {
   class IGenParticleFilter;
 }
 
+class G4ParticleDefinition;
 class G4PrimaryParticle;
 class G4VSolid;
 
@@ -52,7 +53,7 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class InputConverter final: public AthService, public IInputConverter {
+  class InputConverter final: public extends<AthService, IInputConverter> {
 
     // allow test to access private data
     friend ISFTesting::InputConverter_test;
@@ -65,9 +66,6 @@ namespace ISF {
     virtual StatusCode  initialize() override final;
     virtual StatusCode  finalize() override final;
 
-    /** ReturnGaudi InterfaceID */
-    static const InterfaceID& interfaceID() { return IID_IInputConverter; }
-
     /** Convert selected particles from the given McEventCollection into ISFParticles
         and push them into the given ISFParticleContainer */
     virtual StatusCode convert(const McEventCollection& inputGenEvents,
@@ -79,19 +77,18 @@ namespace ISF {
                                              G4Event*& outputG4Event,
                                              bool isPileup) const override final;
 
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-
     /** Converts vector of ISF::ISFParticles to G4Event */
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;
 
   private:
 
-    G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
+    const G4ParticleDefinition* getG4ParticleDefinition(int pdgcode) const;
 
-    G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const HepMC::GenParticle& gp) const;
 
-    void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp) const;
+
+    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
     /** Tests whether the given ISFParticle is within the Geant4 world volume */
     bool isInsideG4WorldVolume(const ISF::ISFParticle& isp) const;
@@ -116,12 +113,12 @@ namespace ISF {
 
     ToolHandleArray<IGenParticleFilter>   m_genParticleFilters;       //!< HepMC::GenParticle filters
 
-    mutable G4VSolid                             *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
+    mutable G4VSolid                     *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
 
-    bool   m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
+    bool                                  m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
 
-    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
-    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
+    ServiceHandle<Barcode::IBarcodeSvc>   m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode              m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
 
   };
 

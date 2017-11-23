@@ -461,7 +461,7 @@ class logscanExecutor(transformExecutor):
         self._logFileName = None
 
     def preExecute(self, input = set(), output = set()):
-        self.estPreExeStart()
+        self.setPreExeStart()
         msg.info('Preexecute for %s' % self._name)
         if 'logfile' in self.conf.argdict:
             self._logFileName = self.conf.argdict['logfile'].value
@@ -1040,7 +1040,7 @@ class athenaExecutor(scriptExecutor):
             skipFileChecks=False
             if 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value:
                 skipFileChecks=True
-            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks)
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks, self.conf.argdict)
             for dataType in self._output:
                 if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
                     self._smartMerge(self.conf.dataDictionary[dataType])
@@ -1078,8 +1078,9 @@ class athenaExecutor(scriptExecutor):
             ignorePatterns = trfValidation.ignorePatterns(files = athenaExecutor._defaultIgnorePatternFile, extraSearch=igPat)
         
         # Now actually scan my logfile
-        msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
-        self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
+        msg.info('Scanning logfile {0} for errors in substep {1}'.format(self._logFileName, self._substep))
+        self._logScan = trfValidation.athenaLogFileReport(logfile=self._logFileName, substepName=self._substep,
+                                                          ignoreList=ignorePatterns)
         worstError = self._logScan.worstError()
         self._dbMonitor = self._logScan.dbMonitor()
         
@@ -1871,11 +1872,9 @@ class tagMergeExecutor(scriptExecutor):
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
-    def __init__(self, name = 'Archiver', exe = 'zip'):
-        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False)
-
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']
@@ -1892,6 +1891,8 @@ class archiveExecutor(scriptExecutor):
                     pass
         elif self._exe == 'zip':
             self._cmd = [self._exe]
+            if 'compressionLevel' in self.conf.argdict:
+                self._cmd.append(self.conf.argdict['compressionLevel'])
             self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
             if '.' not in self.conf.argdict['outputArchFile'].value[0]:
                 errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '

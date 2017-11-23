@@ -17,9 +17,6 @@ rec.doFileMetaData        = False
 # the aruments are: stream name, file name, TTree name in file
 
 myPath = "/afs/cern.ch/atlas/project/PAT/xAODs/r5534/valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534/AOD.01482225._000107.pool.root.1"
-from InDetBeamSpotExample import DiskUtils
-inFileList = DiskUtils.filelist( myPath, "" )
-#jp.AthenaCommonFlags.FilesInput = inFileList
 jp.AthenaCommonFlags.FilesInput = [myPath]
 
 #from AthenaCommon.AlgSequence import AlgSequence

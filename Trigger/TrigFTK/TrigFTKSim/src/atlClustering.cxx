@@ -53,16 +53,6 @@ const bool DEBUG_INPUT    = 0; // detail check input
 const bool DEBUG_DECODER  = 0; // check decoder output
 const bool DEBUG_CENTROID = 0; // check centroid calc.
 
-/*
-  Keisuke implemented 20170714
-  This is the test version for IBL 3D centroid calc.
-  Default value is "false".
-  If this boolean is "true", you can get the same IBL 3D centorid as the FTK_IM FW.
-
-  20170722 changed to the job option.
-*/
-//const bool IBL3D_REALISTIC = false;
-
 const unsigned int MOD_ID_PHI_VAL  = 1;
 const unsigned int MOD_ID_PHI_MASK = 100;
 const unsigned int MOD_ID_ETA_VAL  = MOD_ID_PHI_MASK;
@@ -80,7 +70,7 @@ bool SAVE_CLUSTER_CONTENT;
 bool DIAG_CLUSTERING;
 bool SCT_CLUSTERING;
 int PIXEL_CLUSTERING_MODE;
-bool IBL3D_REALISTIC;
+bool IBL3D_REALISTIC; //If this boolean is "true", you can get the same IBL 3D centorid as the FTK_IM FW.
 bool DUPLICATE_GANGED;
 bool GANGED_PATTERN_RECOGNITION;
 bool SPLIT_BLAYER_MODULES;
@@ -1008,7 +998,7 @@ void averageCluster(cluster &clu) {
     // always count IBL as layer0 and BLayer as layer1
     int layer = first->getLayer();
     bool isIBLmodule  = hitOnIBLmodule(*first);
-    bool isIBL_Planar = false; //Keisuke 20170712
+    bool isIBL_Planar = false;
     bool isPixelmodule = !isIBLmodule;
     if (FTKSetup::getFTKSetup().getIBLMode()==0)
         layer++; 
@@ -1035,11 +1025,11 @@ void averageCluster(cluster &clu) {
         pixYScaleFactor = ftk::clustering::yScaleFactorIbl; ///<multiply by 10 to count in unit of 25um
         pixXScaleFactor = ftk::clustering::xScaleFactorIbl;
         etaModule = first->getEtaModule()-8;
-	isIBL_Planar = (first->getEtaModule() >= -6 && first->getEtaModule() <= 5 ? true : false); //Keisuke 20170712
-	if(!isIBL_Planar && IBL3D_REALISTIC){ //for 3D
-	  float sensorThickness = 230*ftk::micrometer; // 3D sensors
-	  moduleActiveLength = 80*250;  // 3D sesors
-	  numberOfEtaPixelsInModule = 80; // 3D sesors
+	isIBL_Planar = (first->getEtaModule() >= -6 && first->getEtaModule() <= 5 ? true : false);
+	if(!isIBL_Planar && IBL3D_REALISTIC){ // 3D
+	  sensorThickness = 230*ftk::micrometer; // 3D
+	  moduleActiveLength = 80*250; // 3D
+	  numberOfEtaPixelsInModule = 80; // 3D
 	}
     }
     bool hasGanged = false;

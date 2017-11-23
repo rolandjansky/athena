@@ -1,4 +1,4 @@
-// $Id: MsgStream.cxx 687011 2015-08-03 09:25:07Z krasznaa $
+// $Id: MsgStream.cxx 803209 2017-04-19 21:18:32Z krumnack $
 
 // System include(s):
 #include <string>
@@ -7,9 +7,8 @@
 
 // Local include(s):
 #include "AsgTools/MsgStream.h"
-
-// Initialise the source name width to a default:
-size_t MsgStream::s_sourceWidth = 25;
+#include "AsgTools/IMessagePrinter.h"
+#include "AsgTools/MessagePrinterOverlay.h"
 
 MsgStream::MsgStream( const asg::IAsgTool* tool )
    : m_tool( tool ), m_name( "" ),
@@ -71,29 +70,8 @@ MsgStream& MsgStream::doOutput() {
 
    // Check if anything needs to be printed:
    if( m_reqlvl >= m_lvl ) {
-
-      // Get the name of the parent tool:
-      std::string sname = name();
-      // Get the string representation of the message level:
-      const std::string& sreqlvl = MSG::name( m_reqlvl );
-
-      // A stream to construct the printed message in. In order not to have to
-      // manipulate std::cout directly.
-      std::ostringstream output;
-
-      // Maximise the width of the message source string:
-      if( sname.size() > s_sourceWidth ) {
-         sname = sname.substr( 0, s_sourceWidth - 3 );
-         sname += "...";
-      }
-
-      // Construct the message to be printed:
-      output << std::setiosflags( std::ios::left )
-             << std::setw( s_sourceWidth ) << sname << " " << std::setw( 7 )
-             << sreqlvl << " " << this->str();
-
-      // Print the message payload:
-      std::cout << output.str() << std::endl;
+      asg::MessagePrinterOverlay::current()
+         .print (m_reqlvl, name(), this->str());
    }
 
    // Reset the stream buffer:

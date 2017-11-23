@@ -30,5 +30,7 @@ addService("ISF_Services.ISF_ServicesConfig.getMC15aPlusLLPTruthService", "ISF_M
 addService("ISF_Services.ISF_ServicesConfig.getMC15TruthService", "ISF_MC15TruthService")
 addService("ISF_Services.ISF_ServicesConfig.getMC16TruthService", "ISF_MC16TruthService")
 addService("ISF_Services.ISF_ServicesConfig.getMC16LLPTruthService", "ISF_MC16LLPTruthService")
+addService("ISF_Services.ISF_ServicesConfig.getMC18TruthService", "ISF_MC18TruthService")
+addService("ISF_Services.ISF_ServicesConfig.getMC18LLPTruthService", "ISF_MC18LLPTruthService")
 addService("ISF_Services.ISF_ServicesConfig.getValidationTruthService", "ISF_ValidationTruthService")
 addService("ISF_Services.ISF_ServicesConfig.getParticleKillerSvc", "ISF_ParticleKillerSvc")

@@ -71,8 +71,6 @@ namespace MagField {
 
     int m_magnet;
 
-    int m_refCounter;
-
     void InitMagData();
 
     std::vector<std::vector<std::string> > m_magnets;

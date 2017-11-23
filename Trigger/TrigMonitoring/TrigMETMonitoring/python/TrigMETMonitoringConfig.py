@@ -75,12 +75,15 @@ met_alt_algorithms = [
 def HLTMETMonitoringTool():
 	from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
 	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # access to central tool
+	print "shifter list " 
+	print hltmonList.monitoring_met_shifter
 	HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
                                   histoPathBase = "/Trigger/HLT", 
                                   MonPathBase   = "/HLT/METMon",
                                   comp_names   = compNames_all,
                                   bit_names    = bitNames_allHLT,
-                                  monitoring_met         = hltmonList.monitoring_met,
+				  monitoring_met_shifter         = hltmonList.monitoring_met_shifter,
+				  monitoring_met_expert          = [],
                                   monitoring_alg         = met_alt_algorithms,
 				  muon_base              = "HLT_mu26",
                                   muon_pt_thresh         = 18,

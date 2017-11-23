@@ -48,7 +48,7 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
   if(m_perFebMG) offsetMap.resize(2); else offsetMap.resize(3);
   std::ifstream rein(m_fileName.c_str(),std::ifstream::in);
   if (!rein.good()) {
-    msg(MSG::ERROR) << "Failed to open file " << m_fileName << endreq;
+    ATH_MSG_ERROR( "Failed to open file " << m_fileName );
     return StatusCode::SUCCESS;
   }
   
@@ -78,11 +78,11 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
   CHECK(newCont->initialize());
   StatusCode sc=detStore()->record(newCont,m_outputContainer);
   if(sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Failed to register container with key " << m_outputContainer << " to StoreGate" << endreq;
+    ATH_MSG_ERROR( "Failed to register container with key " << m_outputContainer << " to StoreGate" );
   }
 
   for (int gain=0;gain<3;++gain) {
-    msg(MSG::INFO) << "Working on gain " << gain << endreq;
+    ATH_MSG_INFO( "Working on gain " << gain );
     LArPhysCaliTdiffComplete::ConstConditionsMapIterator it=oldCont->begin(gain);
     LArPhysCaliTdiffComplete::ConstConditionsMapIterator it_e=oldCont->end(gain);
     for (;it!=it_e;++it) {
@@ -124,7 +124,7 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
 
       sc=ntupleSvc()->writeRecord(m_nt);
       if (sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) << "writeRecord failed" << endreq;
+	ATH_MSG_ERROR( "writeRecord failed" );
 	return StatusCode::FAILURE;
       }
 

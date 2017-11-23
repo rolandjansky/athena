@@ -8,7 +8,6 @@
 TGCSensitiveDetectorTool::TGCSensitiveDetectorTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase( type , name , parent )
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* TGCSensitiveDetectorTool::makeSD()

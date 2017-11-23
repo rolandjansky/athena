@@ -39,15 +39,19 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   , m_dqStatus(0)
   , m_globalErrCount{}
   , m_global{}
-  , m_mismatchedL1TriggerType{}
+  , m_mismatchedL1TriggerType{nullptr}
   , m_badChannelJump2D{}
   , m_badChannelNeg2D{}
   , m_badChannelJump2DNotMasked{}
   , m_badChannelNeg2DNotMasked{}
   , m_errors{{}}
   , m_errorsLB{{}}
+  , m_badPulseQuality{nullptr}
+  , m_noAllDigitsInDrawer(nullptr)
   , m_isFirstEvent(true)
   , m_nLumiblocks(3000)
+  , m_qualityCut(254.0)
+  , m_nEventsWithAllDigits(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -65,6 +69,7 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   declareProperty("CheckDCS", m_checkDCS = false);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+  declareProperty("QualityCut", m_qualityCut = 254.0);
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -81,9 +86,12 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   m_errorsLabels.push_back("DOUBLE_STB");         // Error: 9
   m_errorsLabels.push_back("SINGLE_STB");         // Error: 10
   m_errorsLabels.push_back("GLOBAL_CRC");         // Error: 11
-  m_errorsLabels.push_back("MASKED");             // Error: 12
-  m_errorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 13
-  m_errorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 14
+  m_errorsLabels.push_back("DUMMY_FRAG");         // Error: 12
+  m_errorsLabels.push_back("NO_RECO_FFAG");       // Error: 13
+  m_errorsLabels.push_back("MASKED");             // Error: 14
+  m_errorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 15
+  m_errorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 16
+  assert( m_errorsLabels.size() == NERROR );
   // corrupted data
   m_errorsLabels.push_back("0 -> 1023");          // Error: NERROR - 1 + 1
   m_errorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
@@ -98,6 +106,7 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   m_errorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
   m_errorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
   m_errorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
+  assert( m_errorsLabels.size() == (NERROR+NCORRUPTED) );
   
   m_partitionsLabels.push_back("LBA");
   m_partitionsLabels.push_back("LBC");
@@ -189,20 +198,31 @@ void TileDQFragLWMonTool::bookFirstEventHistograms() {
   m_global[1]->GetXaxis()->SetTitle("Drawer");
 
   // The Global Histogram with mismatched trigger types
-  m_mismatchedL1TriggerType[0] = book2ILW("", "TileMismatchedL1TriggerTypeTop",
-                                          "Run " + runNumStr + ": Mismatched L1 Trigger Type Top[1,32] (entries = events)", 
-                                          32, 0.5, 32.5, 4, 1., 5.);
+  std::vector<std::string> partitionsLabels{"LBA", "LBC", "EBA", "EBC"};
+  m_mismatchedL1TriggerType = book2ILW("", "TileMismatchedL1TriggerType",
+                                       "Run " + runNumStr + ": Mismatched L1 Trigger Type (entries = events)", 
+                                       64, 0.5, 64.5, 4, 1., 5.);
 
-  m_mismatchedL1TriggerType[0]->GetXaxis()->SetTitle("Drawer");
-  SetBinLabel(m_mismatchedL1TriggerType[0]->GetYaxis(), m_partitionsLabels);
+  m_mismatchedL1TriggerType->GetXaxis()->SetTitle("Module");
+  SetBinLabel(m_mismatchedL1TriggerType->GetYaxis(), partitionsLabels);
 
-  m_mismatchedL1TriggerType[1] = book2ILW("", "TileMismatchedL1TriggerTypeBottom", 
-                                          "Run " + runNumStr + ": Mismatched L1 Trigger Type Bottom[33,64] (entries = events)", 
-                                          32, 32.5, 64.5, 4, 1., 5.);
+  // The Global Histogram with incomplete set of digits in a drawer
+  m_noAllDigitsInDrawer = book2ILW("", "TileNoAllDigits",
+                                   "Run " + runNumStr + ": No all digits in event with Trigger Type = 0x82 (entries = events)", 
+                                   64, 0.5, 64.5, 4, 1., 5.);
+ 
+  m_noAllDigitsInDrawer->GetXaxis()->SetTitle("Module");
+  SetBinLabel(m_noAllDigitsInDrawer->GetYaxis(), partitionsLabels);
 
-  m_mismatchedL1TriggerType[1]->GetXaxis()->SetTitle("Drawer");
-  SetBinLabel(m_mismatchedL1TriggerType[1]->GetYaxis(), m_partitionsLabels);
-
+  for (unsigned int module = 1; module < TileCalibUtils::MAX_DRAWER; ++module) {
+    if (module % 2 != 0) {
+      std::string moduleName = (module < 10) ? "0" : "";
+      moduleName += std::to_string(module);
+      m_mismatchedL1TriggerType->GetXaxis()->SetBinLabel(module, moduleName.c_str());
+      m_noAllDigitsInDrawer->GetXaxis()->SetBinLabel(module, moduleName.c_str());
+    };
+  }
+  
   // Histograms of bad drawers
   std::string badDrawersDir = "BadDrawers";
 
@@ -219,6 +239,14 @@ void TileDQFragLWMonTool::bookFirstEventHistograms() {
                                                "# Not Masked Negative Amp in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_badChannelNeg2DNotMasked[p]->GetXaxis(), m_moduleLabel[p]);
       SetBinLabel(m_badChannelNeg2DNotMasked[p]->GetYaxis(), m_cellchLabel[p]);
+
+      m_badPulseQuality[p] = book2ILW(badDrawersDir, "TileBadPulseQuality" + m_PartNames[p],
+                                      "Run " + runNumStr + ": " + m_PartNames[p] +
+                                      " Bad pulse shape or #chi^{2} from Optimal filtering algorithm",
+                                      64, 0.5, 64.5, 48, -0.5, 47.5);
+      SetBinLabel(m_badPulseQuality[p]->GetXaxis(), m_moduleLabel[p]);
+      SetBinLabel(m_badPulseQuality[p]->GetYaxis(), m_cellchLabel[p]);
+
     }
   } else {
 
@@ -322,6 +350,10 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
     m_isFirstEvent = false;
   }
 
+  if (getL1info() == 0x82) {
+    ++m_nEventsWithAllDigits;
+  }
+
   fillBadDrawer();
   for (unsigned int ros = 0; ros < 4; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer){
@@ -333,8 +365,8 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
   m_global[0]->SetEntries(m_nEvents);
   m_global[1]->SetEntries(m_nEvents);
 
-  m_mismatchedL1TriggerType[0]->SetEntries(m_nEvents);
-  m_mismatchedL1TriggerType[1]->SetEntries(m_nEvents);
+  m_mismatchedL1TriggerType->SetEntries(m_nEvents);
+  m_noAllDigitsInDrawer->SetEntries(m_nEventsWithAllDigits);
 
   return StatusCode::SUCCESS;
 }
@@ -395,6 +427,17 @@ void TileDQFragLWMonTool::fillBadDrawer() {
             int channel = m_tileHWID->channel(adcId);
             int gain = m_tileHWID->adc(adcId);
 
+            float pedestal = rawChannel->pedestal(); // errors are saved in ped as 100000 + 10000*error
+            float quality = rawChannel->quality(); //
+
+            if ((pedestal > 80000. || quality > m_qualityCut)
+                && !(m_tileBadChanTool->getAdcStatus(adcId).isBad()
+                     || (m_checkDCS && m_tileDCSSvc->statusIsBad(ROS, drawer, channel)))) {
+
+              m_badPulseQuality[partition]->Fill(module, channel);
+
+            }
+
             if (findChannelErrors(rawChannel, gain) > 0) {
               ++nBadCh[gain];
 
@@ -403,8 +446,7 @@ void TileDQFragLWMonTool::fillBadDrawer() {
                 ++nBadChNM[gain];
                 m_badChannelNeg2DNotMasked[partition]->Fill(module, channel);
 
-                float ped = rawChannel->pedestal(); // errors are saved in ped as 100000 + 10000*error
-                if (ped > 100000. && digitsContainer) {
+                if (pedestal > 100000. && digitsContainer) {
                   while (((*digitsCollectionIt)->identify() != fragId) && (digitsCollectionIt != lastDigitsCollectionIt)) {
                     ++digitsCollectionIt;
                   }
@@ -431,7 +473,7 @@ void TileDQFragLWMonTool::fillBadDrawer() {
                           msg(MSG::INFO) << vdigits[i] << " ";
                         }
 
-                        msg(MSG::INFO) << "  error = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
+                        msg(MSG::INFO) << "  error = " << TileRawChannelBuilder::BadPatternName(pedestal) << endmsg;
                       }
                     }
                   }
@@ -470,11 +512,29 @@ void TileDQFragLWMonTool::fillBadDrawer() {
         int partition = m_ros2partition[ROS]; // range 0-3
 
         if (getL1info() != digitsCollection->getLvl1Type()) {
-          if (drawer < 32) {
-            m_mismatchedL1TriggerType[0]->Fill(module, ROS, 1.0);
-          } else {
-            m_mismatchedL1TriggerType[1]->Fill(module, ROS, 1.0);
+          m_mismatchedL1TriggerType->Fill(module, ROS, 1.0);
+        }
+
+        if (getL1info() == 0x82) {
+
+          unsigned int nBadOrDisconnectedChannels(0);
+          unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ROS, drawer);
+          for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+            if (m_tileBadChanTool->getChannelStatus(drawerIdx, channel).isBad()
+                || (isDisconnected(ROS, drawer, channel)) ) {
+              ++nBadOrDisconnectedChannels;
+            }
           }
+
+          unsigned int nRequiredChannels(TileCalibUtils::MAX_CHAN - nBadOrDisconnectedChannels);
+          if (digitsCollection->size() < nRequiredChannels) {
+            m_noAllDigitsInDrawer->Fill(module, ROS, 1.0);
+            ATH_MSG_VERBOSE("No All channels with digits (Trigger Type: 0x82) in module " 
+                            << TileCalibUtils::getDrawerString(ROS, drawer) 
+                            << ", present channels: " << digitsCollection->size()
+                            << ", required channels: " << nRequiredChannels);
+          }
+
         }
 
         int error;
@@ -486,7 +546,10 @@ void TileDQFragLWMonTool::fillBadDrawer() {
           int channel = m_tileHWID->channel(adcId);
           int gain = m_tileHWID->adc(adcId);
 
-          if ((error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax)) > 0) {
+          error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax);
+
+          if ( (error > 0) &&
+              !(isDisconnected(ROS, drawer, channel) || m_tileBadChanTool->getAdcStatus(adcId).isBad()) ) {
             ++nBadCh;
             if (msgLvl(MSG::DEBUG)) {
               msg(MSG::DEBUG) << "LB " << getLumiBlock()
@@ -544,7 +607,6 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
 /*---------------------------------------------------------*/
 
 
-  bool hasErr = false;
   int n_error_nonmask_DMU = 0;
   unsigned int cur_lb = getLumiBlock();
 
@@ -554,9 +616,17 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
 
     m_errorsLB[ros][drawer]->Fill(cur_lb, -1.);
 
-    for (int idmu = 0; idmu < NDMU; ++idmu) fillOneError(ros, drawer, idmu, 13);
+    for (int idmu = 0; idmu < NDMU; ++idmu) fillOneError(ros, drawer, idmu, DCSERROR);
 
   } else {
+    int status = m_dqStatus->checkGlobalErr(ros + 1, drawer, 0);
+    int err = 0;
+    if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
+      err = 12;
+    } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
+      err = 13;
+    }
+
     for (int idmu = 0; idmu < NDMU; idmu++) { // loop over dmus
       int ichn = 3 * idmu;
 
@@ -572,15 +642,17 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::NoHV)
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::WrongHV)))) {
         
-        fillOneError(ros, drawer, idmu, 14);      
+        fillOneError(ros, drawer, idmu, HVERROR);
       }
 
       if (m_dqStatus->isChanDQgood(ros + 1, drawer, ichn)) {
         fillOneError(ros, drawer, idmu, 0);
       } else {
-        hasErr |= checkHasErrors(ros, drawer, idmu);
         if (checkHasErrors(ros, drawer, idmu)) n_error_nonmask_DMU++;
-        if (m_dqStatus->checkHeaderFormatErr(ros + 1, drawer, idmu, 0) != 0) { // in case of format errors, we only fill this one
+
+        if (err) {
+          fillOneError(ros, drawer, idmu, err);
+        } else if (m_dqStatus->checkHeaderFormatErr(ros + 1, drawer, idmu, 0) != 0) { // in case of format errors, we only fill this one
           fillOneError(ros, drawer, idmu, 1);
         } else {
           if (m_dqStatus->checkHeaderParityErr(ros + 1, drawer, idmu, 0) != 0) {
@@ -683,19 +755,19 @@ void TileDQFragLWMonTool::fillMasking() {
           sp_EB = false;
 
         if (status0.isBad() && status1.isBad() && status2.isBad()) {
-          m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros > 1) && ((ch == 18 && !sp_EB) || ch == 33)) { //disconnected channels for EBs
-          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros < 2) && (ch == 30)) { //disconnected channels for LBs
-          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros < 2) && (ch == 42)) { //disconnected channels for LBs
-          if (status0.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          if (status0.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros > 1) && (ch == 24 || ch == 27 || ch == 42 || ch == 45)) { // void DMUs for EBs
-          m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if (sp_EB && (ch == 0)) { // void DMU 0 for EBA15, EBC18
-          m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if (sp_EB && (ch == 3)) { // disconnected PMT of DMU 1 for EBA15, EBC18
-          if (status1.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
+          if (status1.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         }
       } //chan loop
     } // drawer loop
@@ -710,10 +782,10 @@ bool TileDQFragLWMonTool::checkHasErrors(unsigned int ros, unsigned int drawer, 
 /*---------------------------------------------------------*/
 
   if (ros < 2) {
-    if (m_errors[ros][drawer]->GetBinContent(dmu + 1, 13) > 0) return false;
+    if (m_errors[ros][drawer]->GetBinContent(dmu + 1, MASKEDERROR + 1) > 0) return false;
   } else {
     if ((dmu == 8) || (dmu == 9) || (dmu == 14) || (dmu == 15)
-        || (m_errors[ros][drawer]->GetBinContent(dmu + 1, 13) > 0))
+        || (m_errors[ros][drawer]->GetBinContent(dmu + 1, MASKEDERROR + 1) > 0))
       return false;
     else if (((drawer == 14) && (ros == 2)) || ((drawer == 17) && (ros == 3))) {
       if (dmu == 0) return false;
@@ -834,6 +906,4 @@ int TileDQFragLWMonTool::findChannelErrors(const TileRawChannel *rch, int & gain
   return error;
 }
 /*---------------------------------------------------------*/
-
-
 

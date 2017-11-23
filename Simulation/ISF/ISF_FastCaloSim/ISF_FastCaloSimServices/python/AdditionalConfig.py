@@ -13,7 +13,6 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
 
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
 
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
@@ -675,7 +674,7 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
     kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1 ]    )
     kwargs.setdefault("EnergyFactor"            , [      1.,      1.,      1.,      1.,      1. ]    )
-    kwargs.setdefault("BarcodeSvc"              , ISF_Flags.BarcodeService()                         )
+    kwargs.setdefault("BarcodeSvc"              , simFlags.TruthStrategy.BarcodeServiceName()        )
     kwargs.setdefault("EnvelopeDefSvc"          , getService('AtlasGeometry_EnvelopeDefSvc')         )
     kwargs.setdefault("BeamPipeRadius"          , 500.                                               )
 
@@ -704,6 +703,13 @@ def getNITimedExtrapolator(name="ISF_NITimedExtrapolator", **kwargs):
     from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
     return TimedExtrapolator(name, **kwargs )
 
+def getTimedExtrapolator(name="TimedExtrapolator", **kwargs):
+    kwargs.setdefault("MaterialEffectsUpdators" , [ 'ISF_NIMatEffUpdator' ])
+    kwargs.setdefault("ApplyMaterialEffects"    , False )
+    kwargs.setdefault("STEP_Propagator"    , 'ISF_NIPropagator' )
+
+    from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
+    return TimedExtrapolator(name, **kwargs )
 ## FastShowerCellBuilderTool
 
 def getDefaultFastShowerCellBuilderTool(name, **kwargs):
@@ -835,7 +841,7 @@ def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
     kwargs.setdefault('fcalHitContainername', FCAL_hits_collection_name)
     kwargs.setdefault('hecHitContainername', HEC_hits_collection_name)
     kwargs.setdefault('tileHitContainername', tile_hits_collection_name)
-
+    
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
 

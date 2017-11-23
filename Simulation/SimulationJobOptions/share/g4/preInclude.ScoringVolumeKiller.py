@@ -13,10 +13,4 @@ from G4AtlasApps.SimFlags import simFlags
 simFlags.NeutronTimeCut = int(2**31 - 1) #probably not required.
 simFlags.NeutronTimeCut.set_Off()
 
-from AthenaCommon.CfgGetter import getPublicTool,getService
-getService('DetectorGeometrySvc').RegionCreators += [getPublicTool('MuonPhysicsRegionTool')]
-#FIXME need to add this to the list of RegionCreators, but
-#currently initializing the DetectorGeometrySvc too early causes
-#problems with the GeoModelSvc configuration.
-
-simFlags.OptionalUserActionList.addAction('G4UA::ScoringVolumeTrackKillerTool',['EndOfEvent', 'Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::ScoringVolumeTrackKillerTool',['Event', 'Step'])

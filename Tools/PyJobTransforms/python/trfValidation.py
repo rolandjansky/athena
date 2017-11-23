@@ -213,8 +213,9 @@ class logFileReport(object):
 class athenaLogFileReport(logFileReport):
     ## @brief Class constructor
     #  @param logfile Logfile (or list of logfiles) to scan
+    #  @param substepName Name of the substep executor, that has requested this log scan
     #  @param msgLimit The number of messages in each category on which a
-    def __init__(self, logfile, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR'], ignoreList=None):
+    def __init__(self, logfile, substepName=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR'], ignoreList=None):
         if ignoreList:
             self._ignoreList = ignoreList
         else:
@@ -225,10 +226,11 @@ class athenaLogFileReport(logFileReport):
         # takes the next group of non-whitespace characters as the service, then
         # then matches from the list of known levels, then finally, ignores any last
         # pieces of whitespace prefix and takes the rest of the line as the message
-        self._regExp = re.compile(r'(?P<service>[^\s]+)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
+        self._regExp = re.compile(r'(?P<service>[^\s]+\w)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
 
         self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
+        self._substepName = substepName
         self._msgLimit = msgLimit
 
         self.resetReport()
@@ -261,7 +263,6 @@ class athenaLogFileReport(logFileReport):
         self._dbbytes = 0
         self._dbtime  = 0.0
 
-
     def scanLogFile(self, resetReport=False):
         if resetReport:
             self.resetReport()
@@ -270,7 +271,7 @@ class athenaLogFileReport(logFileReport):
             msg.debug('Now scanning logfile {0}'.format(log))
             # N.B. Use the generator so that lines can be grabbed by subroutines, e.g., core dump svc reporter
             try:
-                myGen = trfUtils.lineByLine(log)
+                myGen = trfUtils.lineByLine(log, substepName=self._substepName)
             except IOError, e:
                 msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
                 # Return this as a small report
@@ -382,6 +383,7 @@ class athenaLogFileReport(logFileReport):
                     self._dbbytes += int(a.group('bytes'))
                     self._dbtime  += float(a.group('time'))
 
+
     ## Return data volume and time spend to retrieve information from the database
     def dbMonitor(self):
         return {'bytes' : self._dbbytes, 'time' : self._dbtime} if self._dbbytes > 0 or self._dbtime > 0 else None
@@ -408,7 +410,7 @@ class athenaLogFileReport(logFileReport):
         firstLevel = stdLogLevels[floor]
         firstName = floor
         for lvl, count in self._levelCounter.iteritems():
-            if (count > 0 and stdLogLevels.get(lvl, 0) >= floor and
+            if (count > 0 and stdLogLevels.get(lvl, 0) >= stdLogLevels[floor] and
                 (firstError == None or self._errorDetails[lvl][0]['firstLine'] < firstLine)):
                 firstLine = self._errorDetails[lvl][0]['firstLine']
                 firstLevel = stdLogLevels[lvl]

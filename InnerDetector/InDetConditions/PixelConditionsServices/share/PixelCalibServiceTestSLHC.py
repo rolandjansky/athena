@@ -65,7 +65,7 @@ ServiceMgr +=PixelCalibSvc()
 PixelCalibSvc = ServiceMgr.PixelCalibSvc
 
 #if not (globalflags.DataSource() == 'geant4'):
-#  PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_May08.dat"
+#  PixelCablingSvc.MappingFile = "PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
 #  conddb.addFolder("PIXEL","/PIXEL/ReadoutSpeed")
 #else:
 #  conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")

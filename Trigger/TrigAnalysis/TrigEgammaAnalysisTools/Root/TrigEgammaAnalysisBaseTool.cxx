@@ -66,6 +66,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("TPTrigger",m_tp=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateTP,this);
     declareProperty("isEMResultNames",m_isemname,"isEM");
     declareProperty("LHResultNames",m_lhname,"LH");
+    declareProperty("ForceTrigAttachment", m_forceTrigAttachment=false);
 
     m_storeGate = nullptr;
     m_histsvc = nullptr;
@@ -87,6 +88,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_onlmu=0.;
     m_sgContainsRnn=false;
     m_sgContainsTrigPhoton=false;
+    m_forceTrigEmulation=false;
 }
 
 void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
@@ -353,8 +355,10 @@ void TrigEgammaAnalysisBaseTool::setTrigInfo(const std::string trigger){
 
     if(isL1) etthr=l1thr; // Should be handled elsewhere 
 
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr};
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,m_forceTrigEmulation};
     m_trigInfo[trigger] = info;
+    
+    m_forceTrigEmulation=false; //hack disable
 }
 
 // return the TrigInfo from trigger name
@@ -448,7 +452,13 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
   boost::split(strs,hltinfo,boost::is_any_of("_"));
 
   if((strs.at(0))[0]=='2'){
-    ((p1trigger+=((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_")+=strs.at(1);
+    ((p1trigger+=("HLT_"+((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_"));
+
+    for(unsigned int i=1; i<strs.size();i++){
+      if(strs.at(i)=="Jpsiee") continue;
+      (p1trigger+="_")+=strs.at(i); 
+    }
+
     p2trigger=p1trigger;
     return true;
   }
@@ -458,11 +468,25 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
       return false;
     }
 
-    ((p1trigger+=strs.at(0))+="_")+=strs.at(1);
-    ((p2trigger+=strs.at(2))+="_")+=strs.at(3);
+    int index=-1;
+    p1trigger+=("HLT_"+strs.at(0));
+    
+    for(int i=1; index<0;i++)
+      {
+        (p1trigger+="_")+=strs.at(i); 
+        
+        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
+      } 
+    
+    p2trigger+=("HLT_"+strs.at(index));
+    
+    for(unsigned int i=index+1; i< strs.size();i++){
+      if(strs.at(i)=="Jpsiee") continue;
+      (p2trigger+="_")+=strs.at(i); 
+    }
     return true;
   }
-
+  
 
 }
 
@@ -974,41 +998,54 @@ bool TrigEgammaAnalysisBaseTool::getTrigCaloRings( const xAOD::TrigEMCluster *em
   return false;
 }
 
-bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * /*el*/, std::vector<float> & /*ringsE*/ ){
+bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * el, std::vector<float> &ringsE ){
 
-  /*
+  
   if(!el) return false;
   ringsE.clear();
-    
-  auto m_ringsELReader = xAOD::getCaloRingsReader();
 
+  auto m_ringsELReader = xAOD::getCaloRingsReader();
   // First, check if we can retrieve decoration: 
   const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try { 
+    ATH_MSG_DEBUG("getCaloRingsReader->operator()(*el)");
     caloRingsLinks = &(m_ringsELReader->operator()(*el)); 
   } catch ( const std::exception &e) { 
     ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
     return false;
   } 
 
-  if ( caloRingsLinks->empty() ){ 
-    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
+  if( caloRingsLinks ){
+    if ( caloRingsLinks->empty() ){ 
+      ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
+      return false;
+    }
+
+    const xAOD::CaloRings *clrings=nullptr;
+    try {
+      // For now, we are using only the first cluster 
+      clrings = *(caloRingsLinks->at(0));
+    } catch(const std::exception &e){
+      ATH_MSG_WARNING("Couldn't retrieve CaloRings. Reason: " << e.what()); 
+      return false;
+    }
+    // For now, we are using only the first cluster 
+    if(clrings) {
+      ATH_MSG_DEBUG("exportRingsTo...");
+      clrings->exportRingsTo(ringsE);
+    }else{
+      ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
+      return false;
+    }
+
+  }else{
+    ATH_MSG_WARNING("CaloRingsLinks in a nullptr...");
     return false;
   }
 
-
-  // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
-  // For now, we are using only the first cluster 
-  
-  if(clrings) clrings->exportRingsTo(ringsE);
-  else{
-    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
-    return false;
-  }
-  */  
   return true;
 }
+
 
 
 void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){

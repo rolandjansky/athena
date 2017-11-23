@@ -32,10 +32,10 @@ class ALFAHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1* h_E_full_sum_h[8];
-   TH1* h_E_layer_sum_h[8];
-   TH1* h_hit_layer[8];
-   TH1* h_hit_fiber[8];
+   TH1* m_h_E_full_sum_h[8];
+   TH1* m_h_E_layer_sum_h[8];
+   TH1* m_h_hit_layer[8];
+   TH1* m_h_hit_fiber[8];
    
    std::vector<int>* m_station;
    std::vector<int>* m_plate;

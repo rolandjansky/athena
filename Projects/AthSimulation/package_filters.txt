@@ -44,7 +44,6 @@
 + Control/DataModelRoot
 + Control/GaudiSequencer
 + Control/IOVSvc
-+ Control/MinimalRunTime
 + Control/Navigation
 + Control/PerformanceMonitoring/PerfMonAna
 + Control/PerformanceMonitoring/PerfMonComps
@@ -134,8 +133,6 @@
 + Event/EventBookkeeperAthenaPool
 + Event/EventBookkeeperMetaData
 + Event/EventBookkeeperTPCnv
-+ Event/EventCommonAthenaPool
-+ Event/EventCommonTPCnv
 + Event/EventContainers
 + Event/EventInfo
 + Event/EventInfoMgt
@@ -143,8 +140,7 @@
 + Event/EventPTCnv
 + Event/EventPrimitives
 + Event/EventTPCnv
-+ Event/FourMom
-+ Event/NavFourMom
++ Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
 + Event/xAOD/xAODCore
@@ -160,8 +156,8 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/AtlasPyFwdBwdPorts
-+ External/CheckerGccPlugins
 + External/pyAMI
++ Generators/GenInterfaces
 + Generators/GeneratorObjects
 + Generators/GeneratorObjectsAthenaPool
 + Generators/GeneratorObjectsTPCnv
@@ -169,7 +165,6 @@
 + Generators/McEventSelector
 + Generators/TruthUtils
 + InnerDetector/InDetConditions/InDetBeamSpotService
-+ InnerDetector/InDetConditions/InDetByteStreamErrors
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool
@@ -272,12 +267,6 @@
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
-+ Simulation/G4Atlas/G4AtlasUtilities
-+ Simulation/G4Sim/FADS/FadsKinematics
-+ Simulation/G4Sim/FADS/FadsMaterial
-+ Simulation/G4Sim/FADS/FadsPackageLoader
-+ Simulation/G4Sim/FADS/FadsUtilities
-+ Simulation/G4Sim/FADS/FadsXMLParser
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
 + Simulation/G4Sim/SimHelpers
@@ -289,7 +278,6 @@
 + Simulation/G4Utilities/G4PhysicsLists
 + Simulation/G4Utilities/G4ProfilingTools
 + Simulation/G4Utilities/G4StepLimitation
-+ Simulation/G4Utilities/G4TruthStrategies
 + Simulation/G4Utilities/G4UserActions
 + Simulation/G4Utilities/Geo2G4
 + Simulation/G4Utilities/GeoMaterial2G4
@@ -309,7 +297,6 @@
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Services
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-+ Simulation/ISF/ISF_HepMC/ISF_HepMC_Services
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
@@ -326,6 +313,7 @@
 + TileCalorimeter/TileG4/TileAncillary/DeadMaterial
 + TileCalorimeter/TileG4/TileAncillary/MinBiasScintillator
 + TileCalorimeter/TileG4/TileAncillary/TileG4DetDescr
++ TileCalorimeter/TileG4/TileG4Interfaces
 + TileCalorimeter/TileG4/TileGeoG4Calib
 + TileCalorimeter/TileG4/TileGeoG4SD
 + TileCalorimeter/TileGeoModel
@@ -335,6 +323,7 @@
 + TileCalorimeter/TileSvc/TileIdCnv
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
++ Tools/ART
 + Tools/AtlasDoxygen
 + Tools/CodeCheck
 + Tools/JobTransforms
@@ -352,9 +341,7 @@
 + Tracking/TrkDetDescr/TrkSurfaces
 + Tracking/TrkEvent/TrkEventPrimitives
 + Tracking/TrkEvent/TrkNeutralParameters
-+ Tracking/TrkEvent/TrkParameters
 + Tracking/TrkEvent/TrkParametersBase
-+ Tracking/TrkEvent/TrkTrackLink
 
 
 # Ignore everything else

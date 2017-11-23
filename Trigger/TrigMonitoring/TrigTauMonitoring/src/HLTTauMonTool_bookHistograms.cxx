@@ -783,14 +783,8 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         const int nbin_eta = 9;
         double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
 
-<<<<<<< HEAD
-        const int nbin_mu = 33;
-        float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62};
-
-=======
         const int nbin_mu = 34;
         float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62., 72};
->>>>>>> upstream/21.0
 	for(unsigned int i=0;i<m_trigItemsHighPt.size();++i)
           {
           addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/dijetFakeTausEff/"+m_trigItemsHighPt[i],run) );

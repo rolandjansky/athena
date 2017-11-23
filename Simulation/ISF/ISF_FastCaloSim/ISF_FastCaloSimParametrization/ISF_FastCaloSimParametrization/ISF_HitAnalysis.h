@@ -34,7 +34,7 @@ namespace Trk
   class TrackingVolume;
 }
 
-#include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 class ICaloSurfaceHelper;
 
@@ -82,8 +82,8 @@ class ISF_HitAnalysis : public AthAlgorithm {
    //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
    bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
    bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
-   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);  
-   
+   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);
+
    IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
  private:
@@ -100,7 +100,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const TileID * m_tileID;
    const TileDetDescrManager * m_tileMgr;
    const DataHandle<ILArfSampl>   m_dd_fSampl;
-      
+
    /** Simple variables by Ketevi */
    std::vector<float>* m_hit_x;
    std::vector<float>* m_hit_y;
@@ -139,11 +139,11 @@ class ISF_HitAnalysis : public AthAlgorithm {
    //std::vector<zh_matchedcell>* m_matched_cells;
 
    TTree * m_tree;
-   std::string m_ntupleFileName; 
-   std::string m_ntupleDirName; 
-   std::string m_ntupleTreeName; 
-   std::string m_metadataTreeName; 
-   std::string m_geoFileName; 
+   std::string m_ntupleFileName;
+   std::string m_ntupleDirName;
+   std::string m_ntupleTreeName;
+   std::string m_metadataTreeName;
+   std::string m_geoFileName;
    int m_NtruthParticles;
    ITHistSvc * m_thistSvc;
    const CaloDetDescrManager* m_calo_dd_man;
@@ -159,42 +159,31 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_ptruth_pt;
    double m_ptruth_p;
    int m_pdgid;
-   
-   std::vector<std::vector<double> >* m_TTC_entrance_eta;
-   std::vector<std::vector<double> >* m_TTC_entrance_phi;
-   std::vector<std::vector<double> >* m_TTC_entrance_r;
-   std::vector<std::vector<double> >* m_TTC_entrance_z;
-   std::vector<std::vector<double> >* m_TTC_back_eta;
-   std::vector<std::vector<double> >* m_TTC_back_phi;
-   std::vector<std::vector<double> >* m_TTC_back_r;
-   std::vector<std::vector<double> >* m_TTC_back_z;
-   std::vector<double>* m_TTC_IDCaloBoundary_eta;
-   std::vector<double>* m_TTC_IDCaloBoundary_phi;
-   std::vector<double>* m_TTC_IDCaloBoundary_r;
-   std::vector<double>* m_TTC_IDCaloBoundary_z;
-   std::vector<double>* m_TTC_Angle3D;
-   std::vector<double>* m_TTC_AngleEta;
-   
-   std::vector<std::vector<double> >* m_newTTC_entrance_eta;
-   std::vector<std::vector<double> >* m_newTTC_entrance_phi;
-   std::vector<std::vector<double> >* m_newTTC_entrance_r;
-   std::vector<std::vector<double> >* m_newTTC_entrance_z;
-   std::vector<std::vector<double> >* m_newTTC_back_eta;
-   std::vector<std::vector<double> >* m_newTTC_back_phi;
-   std::vector<std::vector<double> >* m_newTTC_back_r;
-   std::vector<std::vector<double> >* m_newTTC_back_z;
-   std::vector<double>* m_newTTC_IDCaloBoundary_eta;
-   std::vector<double>* m_newTTC_IDCaloBoundary_phi;
-   std::vector<double>* m_newTTC_IDCaloBoundary_r;
-   std::vector<double>* m_newTTC_IDCaloBoundary_z;
-   std::vector<double>* m_newTTC_Angle3D;
-   std::vector<double>* m_newTTC_AngleEta;
-   
+
+   std::vector<std::vector<float> >* m_newTTC_entrance_eta;
+   std::vector<std::vector<float> >* m_newTTC_entrance_phi;
+   std::vector<std::vector<float> >* m_newTTC_entrance_r;
+   std::vector<std::vector<float> >* m_newTTC_entrance_z;
+   std::vector<std::vector<float> >* m_newTTC_back_eta;
+   std::vector<std::vector<float> >* m_newTTC_back_phi;
+   std::vector<std::vector<float> >* m_newTTC_back_r;
+   std::vector<std::vector<float> >* m_newTTC_back_z;
+   std::vector<std::vector<float> >* m_newTTC_mid_eta;
+   std::vector<std::vector<float> >* m_newTTC_mid_phi;
+   std::vector<std::vector<float> >* m_newTTC_mid_r;
+   std::vector<std::vector<float> >* m_newTTC_mid_z;
+   std::vector<float>* m_newTTC_IDCaloBoundary_eta;
+   std::vector<float>* m_newTTC_IDCaloBoundary_phi;
+   std::vector<float>* m_newTTC_IDCaloBoundary_r;
+   std::vector<float>* m_newTTC_IDCaloBoundary_z;
+   std::vector<float>* m_newTTC_Angle3D;
+   std::vector<float>* m_newTTC_AngleEta;
+
    /** The new Extrapolator setup */
-   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
-   ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
-   mutable const Trk::TrackingVolume*  m_caloEntrance;
-   std::string                         m_caloEntranceName; 
+   ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
+   ToolHandle<ICaloSurfaceHelper>       m_caloSurfaceHelper;
+   mutable const Trk::TrackingVolume*   m_caloEntrance;
+   std::string                          m_caloEntranceName;
    // extrapolation through Calo
    std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
    Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
@@ -212,18 +201,18 @@ class ISF_HitAnalysis : public AthAlgorithm {
    //std::string                    m_extrapolatorInstanceName;
    //std::string                    m_calosurf_InstanceName;
    //std::string                    m_calosurf_entrance_InstanceName;
-   
+
    CaloCell_ID_FCS::CaloSample    m_sample_calo_surf;
    std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
-   
+
    //CaloGeometryFromCaloDDM* m_CaloGeometry;
-   
+
    /** The FastCaloSimGeometryHelper tool */
    ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
 
    /** The FastCaloSimCaloExtrapolation tool */
    ToolHandle<IFastCaloSimCaloExtrapolation> m_FastCaloSimCaloExtrapolation;
- 
+
    bool   isCaloBarrel(int sample) const;
    double deta(int sample,double eta) const;
    void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -239,7 +228,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
    double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
    double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   
+
    bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
    double m_letaCalo[CaloCell_ID_FCS::MaxSample][3];
    double m_lphiCalo[CaloCell_ID_FCS::MaxSample][3];
@@ -247,24 +236,23 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_lzCalo[CaloCell_ID_FCS::MaxSample][3];
    double m_dCalo[CaloCell_ID_FCS::MaxSample][3];
    double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
-   
-   
+
+
    void extrapolate(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
    void extrapolate_to_ID(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
-   
+
    HepPDT::ParticleDataTable*     m_particleDataTable;
-   
+
    double m_CaloBoundaryR;
    double m_CaloBoundaryZ;
    double m_calomargin;
-   
-   std::string m_MC_DIGI_PARAM; 
+
+   std::string m_MC_DIGI_PARAM;
    std::string m_MC_SIM_PARAM;
 
    //###################################################################
- 	  
+
 
 };
 
 #endif // ISF_HIT_ANALYSIS_H
-

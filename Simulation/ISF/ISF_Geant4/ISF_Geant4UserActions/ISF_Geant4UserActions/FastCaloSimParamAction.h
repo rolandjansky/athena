@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
+#include "StoreGate/WriteHandle.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
 // CLHEP include for Hep3Vector
@@ -52,11 +53,9 @@ class Hep3Vector;
  *
  */
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 
 
 #include "StoreGate/StoreGateSvc.h"
@@ -67,7 +66,7 @@ namespace G4UA{
 
 
   class FastCaloSimParamAction:
-    public IBeginRunAction,  public IEndRunAction,  public IBeginEventAction,  public IEndEventAction,  public ISteppingAction
+    public G4UserRunAction, public G4UserEventAction, public G4UserSteppingAction
   {
 
   public:
@@ -76,6 +75,7 @@ namespace G4UA{
     {
       bool shift_lar_subhit=true;
       bool shorten_lar_step=false;
+      std::string stepInfoCollName="EventSteps";
       // calculators
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_pos=ServiceHandle<ILArCalculatorSvc>("EMECPosInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC positive inner wheel calculator
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_neg=ServiceHandle<ILArCalculatorSvc>("EMECNegInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC negative inner wheel calculator
@@ -99,27 +99,42 @@ namespace G4UA{
       DoubleProperty            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
       DoubleProperty            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
       DoubleProperty            m_maxRadiusTile=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
- 
+
       DoubleProperty            m_maxTime=25.;
       DoubleProperty            m_maxTimeLAr=25.;
       DoubleProperty            m_maxTimeHEC=25.;
       DoubleProperty            m_maxTimeFCAL=25.;
       DoubleProperty            m_maxTimeTile=25.;
 
+      // Optimised merging scheme
+      DoubleProperty            m_maxEtaPS=1.;
+      DoubleProperty            m_maxPhiPS=5.;
+      DoubleProperty            m_maxrPS=0.;
+
+      DoubleProperty            m_maxEtaEM1=1.;
+      DoubleProperty            m_maxPhiEM1=5.;
+      DoubleProperty            m_maxrEM1=15.;
+
+      DoubleProperty            m_maxEtaEM2=1.;
+      DoubleProperty            m_maxPhiEM2=5.;
+      DoubleProperty            m_maxrEM2=60.;
+
+      DoubleProperty            m_maxEtaEM3=1.;
+      DoubleProperty            m_maxPhiEM3=5.;
+      DoubleProperty            m_maxrEM3=8.;
+
     };
 
     FastCaloSimParamAction(const Config& config);
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
     Config m_config;
 
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
     /// Pointer to StoreGate (detector store by default)
     mutable StoreGateSvc_t m_detStore;
 
@@ -141,7 +156,7 @@ namespace G4UA{
     void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
     std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 
-    ISF_FCS_Parametrization::FCS_StepInfoCollection *m_eventSteps;    //!< collection of StepInfo
+    SG::WriteHandle<ISF_FCS_Parametrization::FCS_StepInfoCollection> m_eventSteps;    //!< collection of StepInfo
     std::map<std::string,int> m_detectormap;
     std::set<std::string> m_unuseddetector;
     int m_ndetectors;

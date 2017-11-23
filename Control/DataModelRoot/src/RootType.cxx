@@ -740,7 +740,14 @@ size_t TScopeAdapter::BaseSize() const
 //____________________________________________________________________________
 size_t TScopeAdapter::SizeOf() const
 {
-   return fClass.GetClass()? fClass.GetClass()->Size() : 0;
+   if (fClass.GetClass()) {
+      return fClass.GetClass()->Size();
+   } else {
+      const TDataType* fundType = gROOT->GetType(fName.c_str());
+      if ( fundType )
+         return fundType->Size();
+   }
+   return 0;
 }
 
 //____________________________________________________________________________

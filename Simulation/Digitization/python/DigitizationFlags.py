@@ -470,11 +470,18 @@ class RunAndLumiOverrideList(JobProperty):
     def __setattr__(self, name, n_value):
         KeysRequired=('run','lb','starttstamp','evts','mu','force_new')
         if name=='StoredValue' and not(self._locked):
+            def noEventsInLumiBlock(element):
+                return element['evts'] == 0
+
             for element in n_value:
                 if not type(element) == dict :
                     raise ValueError( ' %s is not the expected type (dict) for an element of RunAndLumiOverrideList' % (element.__str__()) )
                 if not set(element) >= set(KeysRequired):
                     raise ValueError( 'Not all required keys for RunAndLumiOverrideList (%s) were found in %s' % (KeysRequired.__repr__(), element.__repr__()) )
+                if noEventsInLumiBlock(element):
+                    logDigitizationFlags.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (%s)' % (element.__str__()) )
+            from itertools import ifilterfalse
+            n_value[:] = ifilterfalse(noEventsInLumiBlock, n_value)
         JobProperty.__setattr__(self, name, n_value)
     def getEvtsMax(self): #todo -- check if locked first?
         """Get the total number of events requested by this fragment of the task"""
@@ -738,6 +745,14 @@ class TRTRangeCut(JobProperty):
     StoredValue=0.05
 
 #
+class PileUpPremixing(JobProperty):
+    """ Run pile-up premixing
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
 # Defines the container for the digitization flags
 class Digitization(JobPropertyContainer):
     """ The global Digitization flag/job property container.
@@ -808,7 +823,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPremixing]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

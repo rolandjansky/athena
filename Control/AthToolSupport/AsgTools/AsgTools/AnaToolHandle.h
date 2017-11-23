@@ -17,19 +17,342 @@
 #include <AsgTools/AsgTool.h>
 #include <AsgTools/Deprecated.h>
 #include <AsgTools/ToolHandle.h>
+#include <atomic>
+#include <list>
 #include <map>
+#include <mutex>
 
 namespace asg
 {
 #ifdef ROOTCORE
-   typedef asg::AsgTool parentType_t;
+   typedef INamedInterface parentType_t;
+   typedef IAsgTool interfaceType_t;
 #else
    typedef INamedInterface parentType_t;
    typedef IAlgTool interfaceType_t;
 #endif
 
-
   template<class T> class AnaToolHandle;
+
+  namespace detail
+  {
+    class AnaToolShare;
+
+    /// \brief a class maintaining a list of cleanups to be performed
+    /// when releasing a tool.
+
+    class AnaToolCleanup
+    {
+      //
+      // public interface
+      //
+
+      /// \brief standard swap
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      void swap (AnaToolCleanup& that);
+
+
+      /// \brief add a cleanup to perform
+      ///
+      /// Normally this is added to the end of the list of cleanups,
+      /// but by passing post as false, you can also add it at the
+      /// beginning.
+      ///
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   out of memory II
+    public:
+      void addCleanup (AnaToolCleanup val_cleanup, bool post = true);
+
+      /// \copydoc addCleanup
+    public:
+      void addCleanup (const std::shared_ptr<void>& val_cleanup,
+		       bool post = true);
+
+
+
+      //
+      // private interface
+      //
+
+    private:
+      std::list<std::shared_ptr<void> > m_cleanup;
+    };
+
+
+
+    /// \brief the base class for classes holding property values for
+    /// AnaToolHandle
+
+    class AnaToolProperty
+    {
+      //
+      // public interface
+      //
+
+      /// \brief standard default constructor for base class
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      virtual ~AnaToolProperty () noexcept = default;
+
+#ifdef ROOTCORE
+      /// \brief apply the property to the given tool in RootCore
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   unknown property\n
+      ///   invalid property type/value\n
+      ///   out of memory II
+    public:
+      virtual StatusCode
+      applyPropertyRootCore (AsgTool& tool, const std::string& name,
+			     AnaToolCleanup& cleanup)
+	const = 0;
+#endif
+
+#ifndef ROOTCORE
+      /// \brief store the property in the configuration service in
+      /// Athena
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   out of memory II
+    public:
+      virtual StatusCode
+      applyPropertyAthena (const std::string& toolName,
+			   const std::string& name,
+			   AnaToolCleanup& cleanup)
+	const = 0;
+#endif
+    };
+
+
+
+    /// \brief the complete configuration for a tool
+    ///
+    /// This is very much a-kin to the python configurables used
+    /// inside Athena (thanks Steve Farrell for the analogy).
+    /// However, so far this is mostly an internal helper class for
+    /// the \ref AnaToolHandle implementation.
+
+    class AnaToolConfig
+    {
+      //
+      // public interface
+      //
+
+      /// \brief standard swap
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      void swap (AnaToolConfig& that) noexcept;
+
+
+      /// \brief whether we contain no properties
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      bool empty () const noexcept;
+
+
+      /// \brief the type of the tool to create
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      const std::string& type () const noexcept;
+
+      /// \brief set the value of \ref type
+      /// \par Guarantee
+      ///   no-fail
+    public:
+      void setType (std::string type) noexcept;
+
+#ifdef ROOTCORE
+      /// \brief register the new of the given type as factory
+      ///
+      /// If this is set, it is used instead of \ref type to allocate
+      /// the tool.  This is mostly meant as a stop-gap solution for
+      /// tools which either do not have a dictionary, or which have a
+      /// class structure incompatible with instantiation via the
+      /// dictionary.
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   out of memory I
+    public:
+      template<typename Type>
+      void registerNew ();
+#endif
+
+
+      /// \brief set the property with the given name in the same
+      /// fashion as \ref AnaToolHandle::setProperty
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   out of memory II\n
+      ///   no way to handle value
+    public:
+      template<typename Type> StatusCode
+      setProperty (const std::string& val_name, const Type& val_value);
+
+      /// \copydoc setProperty
+    public:
+      template<typename Type> StatusCode
+      setProperty (const std::string& val_name,
+		   const AnaToolHandle<Type>& val_value);
+
+#ifndef ROOTCORE
+      /// \copydoc setProperty
+    public:
+      template<typename Type> StatusCode
+      setProperty (const std::string& val_name,
+		   const ToolHandle<Type>& val_value);
+
+      /// \copydoc setProperty
+    public:
+      template<typename Type> StatusCode
+      setProperty (const std::string& val_name,
+		   const ToolHandleArray<Type>& val_value);
+#endif
+
+
+      /// \copydoc setProperty
+    public:
+      StatusCode
+      setProperty (const std::string& val_name,
+		   const char *val_value);
+
+
+      /// \brief add/set the property with the given name
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   out of memory II
+    public:
+      void addProperty (const std::string& name,
+			const std::shared_ptr<AnaToolProperty>& property);
+
+
+      /// \brief make a configured and initialized tool
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   tool creation failures
+    public:
+      template<typename ToolType> StatusCode
+      makeTool (const std::string& name,
+                parentType_t *parent,
+		ToolHandle<ToolType>& th,
+		AnaToolCleanup& cleanup) const;
+
+
+      /// \brief make a configured and initialized tool of the basic type
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   tool creation failures
+    public:
+      StatusCode
+      makeBaseTool (const std::string& name,
+                    parentType_t *parent,
+                    ToolHandle<interfaceType_t>& th,
+                    AnaToolCleanup& cleanup) const;
+
+
+#ifndef ROOTCORE
+      /// \brief store the properties in the configuration service in
+      /// Athena
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   out of memory II
+    public:
+      StatusCode
+      applyPropertiesAthena (const std::string& toolName,
+			     AnaToolCleanup& cleanup) const;
+#endif
+
+
+
+      //
+      // private interface
+      //
+
+      /// \brief the value of \ref type
+    private:
+      std::string m_type;
+
+      /// \brief the factory to use, if we have one
+    private:
+      std::function<StatusCode (AsgTool*&, const std::string&)> m_factory;
+
+      /// \brief the list of all properties stored
+    private:
+      std::map<std::string,std::shared_ptr<AnaToolProperty> > m_properties;
+
+
+#ifdef ROOTCORE
+      /// \brief create, configure and initialize the tool (in
+      /// RootCore)
+      /// \par Guarantee
+      ///   strong
+      /// \par Failures
+      ///   tool creation/initialization failures
+    private:
+      StatusCode
+      makeToolRootCore (const std::string& toolName, IAsgTool*& toolPtr,
+			detail::AnaToolCleanup& cleanup) const;
+#endif
+
+
+#ifdef ROOTCORE
+      /// \brief allocate the tool
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   tool allocation failures
+    private:
+      StatusCode
+      allocateTool (AsgTool*& toolPtr, const std::string& toolName) const;
+#endif
+    };
+
+
+
+    /// \brief the mode with which an \ref AnaToolHandle object is
+    /// initialized
+
+    enum class AnaToolHandleMode
+    {
+      /// do not create a tool
+      ///
+      /// this can be either explicitly an empty tool handle set by
+      /// the user, or an AnaToolHandle that was never configured in
+      /// the first place.
+      EMPTY,
+
+      /// create a private tool normally
+      CREATE_PRIVATE,
+
+      /// create a shared tool normally
+      CREATE_SHARED,
+
+      /// retrieve a shared tool
+      RETRIEVE_SHARED,
+
+      /// retrieve a tool from the user tool handle
+      ///
+      /// this can still refer to a tool handle that is empty, though
+      /// usually it will point to an actual tool
+      USER
+    };
+  }
+
 
 
   /// \brief standard output operator
@@ -71,26 +394,27 @@ namespace asg
   /// off by the complexity of Athena configuration.
   ///
   ///
-  /// Conceptually this tools tries to model an std::unique_ptr or
-  /// std::shared_ptr, for which calls to new, setProperty and
-  /// initialize have been wrapped to make them dual-use as well as
-  /// safer to use.  If a parent tool is specified, the tool is
-  /// private (and this tool handle is modeled after unique_ptr).  If
-  /// no parent tool is specified, the tool is public/shared (and this
-  /// tool handle is modeled after shared_ptr).
+  /// The basic interface is a mix between the ToolHandle interface
+  /// for accessing the tool, and the AsgTool interface for
+  /// configuring/initializing the tools.  In addition it allows to
+  /// set this ToolHandle as a property on another configurable, to
+  /// allow configuring it via the standard configuration mechanisms.
   ///
-  /// In public/shared mode, if you create and initialize one tool it
-  /// is then available for use by other tool handles registered with
-  /// the same name and type.  The subsequent tool handles with that
-  /// name will then automatically pick up the tool in the
-  /// configuration set by the first tool handle.  The user still has
-  /// to call initialize() on the tool handle before using the tool.
-  /// While it is allowed to call setProperty* method on those tool
-  /// handles these calls will be effectively ignored.  The net effect
-  /// of that is that as a user of a handle for a shared tool you
-  /// don't have to worry about whether you are the one creating the
-  /// tool or just using it, you just initialize the tool handle in
-  /// the same way.
+  /// If a parent tool is specified, the tool is private (and this
+  /// tool handle is modeled after unique_ptr).  If no parent tool is
+  /// specified, the tool is public/shared (and this tool handle is
+  /// modeled after shared_ptr).  In public/shared mode, if you create
+  /// and initialize one tool it is then available for use by other
+  /// tool handles registered with the same name and type.  The
+  /// subsequent tool handles with that name will then automatically
+  /// pick up the tool in the configuration set by the first tool
+  /// handle.  The user still has to call initialize() on the tool
+  /// handle before using the tool.  While it is allowed to call the
+  /// setProperty method on those tool handles these calls will be
+  /// effectively ignored.  The net effect of that is that as a user
+  /// of a handle for a shared tool you don't have to worry about
+  /// whether you are the one creating the tool or just using it, you
+  /// just initialize the tool handle in the same way.
   ///
   /// The tool handle can also be declared as a property on the parent
   /// tool by using the ToolHandle provided via its handle member
@@ -104,6 +428,24 @@ namespace asg
   /// you can just write your code as if the user didn't configure
   /// your tool handle and if the user does, the tool handle will
   /// automatically switch over.
+  ///
+  ///
+  /// There are a number of ways of how a tool can be created/accessed
+  /// through an AnaToolHandle (in *increasing* order of precedence):
+  /// - normally an AnaToolHandle will create its tool based on the
+  ///   configured type and properties under the configured name.
+  /// - if an AnaToolHandle has been created without a parent (i.e. as
+  ///   a public tool) and another AnaToolHandle already has created a
+  ///   public tool with the same name it will use and share that
+  ///   already configured tool.
+  /// - each AnaToolHandle can be declared as a property on the parent
+  ///   tool, allowing to configure the AnaToolHandle that way.  if
+  ///   the user configures the AnaToolHandle that way, it will take
+  ///   precedence over any properties set on the AnaToolHandle.
+  /// - for the future it is foreseen to provide a second property on
+  ///   the parent tool to allow the user picking a particular
+  ///   creation or access pattern, overriding the auto-detected
+  ///   default
 
   template<class T>
   class AnaToolHandle final
@@ -138,21 +480,42 @@ namespace asg
     /// \par Guarantee
     ///   no-fail
   public:
-    AnaToolHandle (AnaToolHandle<T>&& that) noexcept;
+    AnaToolHandle (AnaToolHandle<T>&& that);
+
+
+    /// \brief copy constructor
+    ///
+    /// This will copy the configuration if the argument has not been
+    /// initialized yet, and it will create a shared tool handle if it
+    /// has.
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    AnaToolHandle (const AnaToolHandle<T>& that);
 
 
     /// \brief standard destructor
     /// \par Guarantee
     ///   no-fail
   public:
-    ~AnaToolHandle ();
+    ~AnaToolHandle () noexcept;
 
 
-    /// \brief standard swap
+    /// \brief assignment operator
+    ///
+    /// This will copy the configuration if the argument has not been
+    /// initialized yet, and it will create a shared tool handle if it
+    /// has.
+    ///
     /// \par Guarantee
-    ///   no-fail
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
   public:
-    void swap (AnaToolHandle<T>& that);
+    AnaToolHandle& operator = (const AnaToolHandle<T>& that);
 
 
     /// \brief standard move assignment operator
@@ -162,43 +525,55 @@ namespace asg
     AnaToolHandle<T>& operator = (AnaToolHandle<T>&& that);
 
 
-    /// \brief make a new tool of the type specified in the
-    /// constructor
+    /// \brief standard swap
     /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   tool creation failures\n
-    ///   no tool type specified
-    /// \pre tool has not yet been created
+    ///   no-fail
   public:
-    StatusCode make ();
+    void swap (AnaToolHandle<T>& that) noexcept;
 
-    /// \brief make a new tool of the given type
+
+    /// \brief whether this ToolHandle is completely empty, i.e. it
+    /// has been default constructed and was never assigned any
+    /// content by the user
     ///
-    /// The type name can either be just the type itself or be of the
-    /// form type/name, in which case name indicates the name of the
-    /// tool to be created.
     /// \par Guarantee
     ///   strong
     /// \par Failures
-    ///   tool creation failures
-    /// \pre tool has not yet been created
+    ///   out of memory II
   public:
-    StatusCode make (const std::string& typeName);
+    bool empty () const;
 
-    /// \brief make a new tool of the given type
+    /// \brief whether this is a public tool (or tool handle)
     /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   tool creation failures
-    /// \pre tool has not yet been created
-    /// \warn this is only for legacy support and even then should
-    ///   only be called via the \ref ASG_MAKE_ANA_TOOL macro
+    ///   no-fail
   public:
-#ifdef ROOTCORE
-    template<class T2>
-    StatusCode makeNew (std::string val_type);
-#endif
+    bool isPublic () const noexcept;
+
+    /// \brief whether initialize has been called successfully,
+    ///   i.e. whether the tool is ready to be used
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool isInitialized () const noexcept;
+
+
+    /// \brief declare as property on the given tool
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II\n
+    ///   property declaration failures\n
+    ///   tool already made
+  public:
+    template<typename T2> void
+    declarePropertyFor (T2 *tool, const std::string& name,
+			const std::string& description = "");
+
+    /// \brief the tool handle we wrap
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    const ToolHandle<T>& getHandle () const noexcept;
 
 
     /// \brief set the given property of the tool.
@@ -216,125 +591,157 @@ namespace asg
     ///   basic
     /// \par Failures
     ///   property setting failures
-    /// \pre tool has not yet been initialized
+    /// \pre !isInitialized()
   public:
     template <class T2> StatusCode
     setProperty (const std::string& property, const T2& value);
-
-    /// \copydoc setProperty
-  public:
-    template <class T2> StatusCode
-    setProperty (const std::string& property, const ToolHandle<T2>& tool);
-
-    /// \copydoc setProperty
-  public:
-    template <class T2> StatusCode
-    setProperty (const std::string& property, const AnaToolHandle<T2>& tool);
-
-
-#ifndef ROOTCORE //implementation for cmt releases only so far, I think rootcore releases will already work ~ok
-    /// \copydoc setProperty
-  public:
-    template <class T2> StatusCode
-    setProperty (const std::string& property, const ToolHandleArray<T2>& tool);
-#endif
-
-
-    /// \brief initialize the tool
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   tool initialization failures
-    /// \pre tool has not yet initialized
-  public:
-    StatusCode initialize ();
-
-    /// \brief retrieve (i.e. initialize) the tool
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   tool initialization failures
-    /// \pre tool has not yet initialized
-  public:
-    StatusCode retrieve ();
-
-
-    /// \brief access the tool
-    /// \par Guarantee
-    ///   no-fail
-    /// \pre isInitialized()
-    /// \post result != nullptr
-  public:
-    T *operator -> () const noexcept;
-
-    /// \brief access the tool
-    /// \par Guarantee
-    ///   no-fail
-    /// \pre isInitialized()
-  public:
-    T& operator * () const noexcept;
-
-    /// \brief access the tool
-    /// \par Guarantee
-    ///   no-fail
-    /// \pre isInitialized()
-    /// \post result != nullptr
-  public:
-    T *get () const noexcept;
-
-
-    /// \brief declare as property on the given tool
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II\n
-    ///   property declaration failures\n
-    ///   tool already made
-  public:
-    template<typename T2> void
-    declarePropertyFor (T2 *tool, const std::string& name,
-			const std::string& description = "");
 
 
     /// \brief the type configured for this AnaToolHandle
     /// \par Guarantee
     ///   no-fail
   public:
-#ifdef ROOTCORE
     const std::string& type () const noexcept;
-#else
-    std::string type () const;
+
+    /// \brief set the value of \ref type
+    /// \par Guarantee
+    ///   no-fail
+    /// \pre !isInitialized()
+  public:
+    void setType (std::string val_type) noexcept;
+
+#ifdef ROOTCORE
+    /// \brief set the value of \ref type and a factory based on the
+    /// standard tool constructor
+    ///
+    /// This is mainly for use with RootCore where we occasionally
+    /// have trouble instantiating tools via their dictionaries.  Even
+    /// in that case you shouldn't call this directly, but use the
+    /// \ref ASG_MAKE_ANA_TOOL macro.
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I
+  public:
+    template<class T2>
+    void setTypeRegisterNew (std::string val_type);
 #endif
+
 
     /// \brief the name configured for this AnaToolHandle
     /// \par Guarantee
     ///   no-fail
   public:
-#ifdef ROOTCORE
     const std::string& name () const noexcept;
-#else
-    std::string name () const;
-#endif
 
-
-    /// \brief the tool handle we wrap
+    /// \brief set the value of \ref name
     /// \par Guarantee
     ///   no-fail
+    /// \pre !isInitialized()
   public:
-    const ToolHandle<T>& getHandle () const noexcept;
+    void setName (std::string val_name) noexcept;
+
+    /// \brief the full name of the tool to be used during tool
+    /// initialization
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string fullName () const;
 
 
-    /// \brief the tool handle we can expose to the configuration
-    /// mechanism
-    ///
-    /// This allows to register this AnaToolHandle like a regular
-    /// ToolHandle via declareProperty().  If it is set during
-    /// configuration it will then replace anything provided by
-    /// calling \ref make or \ref setProperty on this AnaToolHandle.
+    /// \brief the value of \ref type and \ref name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string typeAndName () const;
+
+    /// \brief set the value of \ref type and \ref name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+    /// \pre !isInitialized()
+  public:
+    void setTypeAndName (const std::string& val_typeAndName);
+
+    /// \brief set the value of \ref type and \ref name
     /// \par Guarantee
     ///   no-fail
+    /// \pre !isInitialized()
   public:
-    ToolHandle<T>& handle ();
+    void setTypeAndName (std::string val_type, std::string val_name) noexcept;
+
+
+    /// \brief initialize the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool initialization failures
+    /// \pre !isInitialized()
+  public:
+    StatusCode initialize ();
+
+    /// \copydoc initialize
+  public:
+    StatusCode retrieve ();
+
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+    /// \post result != nullptr
+  public:
+    T *operator -> ();
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+    /// \post result != nullptr
+  public:
+    const T *operator -> () const;
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+  public:
+    T& operator * ();
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+  public:
+    const T& operator * () const;
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+    /// \post result != nullptr
+  public:
+    T *get ();
+
+    /// \brief access the tool
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
+    /// \post result != nullptr
+  public:
+    const T *get () const;
 
 
     /// \brief whether this tool handle has been configured by the
@@ -349,47 +756,113 @@ namespace asg
     bool isUserConfigured () const noexcept;
 
 
-    /// \brief whether the tool can be configured by us
+    /// \brief the \ref detail::AnaToolHandleMode for this handle
     ///
-    /// if this refers to a shared tool or has been configured via the
-    /// ToolHandle, then we can't configure the tool ourselves.  we
-    /// can still call the setProperty methods, they just won't do
-    /// anything.
+    /// This is mostly meant for internal use by the setProperty
+    /// method, not for use by the end-user
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    detail::AnaToolHandleMode mode () const;
+
+
+    /// \brief the \ref detail::AnaToolConfig for this handle
+    ///
+    /// This is mostly meant for internal use by the setProperty
+    /// method, not for use by the end-user
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    const detail::AnaToolConfig& config () const;
+
+
+    /// \brief whether the user is allowed to configure this with an
+    /// empty tool handle
+    ///
+    /// This normally defaults to whether the developer initialized
+    /// this to a valid ToolHandle to begin with, but depending on the
+    /// situation it can be overridden.
+    ///
     /// \par Guarantee
     ///   no-fail
+  public:
+    bool allowEmpty () const noexcept;
+
+
+
+    /// \brief set the value of \ref allowEmpty
+    /// \par Guarantee
+    ///   no-fail
+    /// \pre !isInitialized()
+  public:
+    void setAllowEmpty (bool val_allowEmpty = true) noexcept;
+
+
+
+    //
+    // deprecated interface
+    //
+
+    /// \brief whether the tool can be configured by us, i.e. whether
+    /// properties set via \ref setProperty will be used for something
+    ///
+    /// For the most part this is the reverse of \ref isUserConfigured
+    /// except some shared tools may register as not user configured
+    /// and not configurable either.  if the properties set are used
+    /// to generate debugging output even a user configured tool may
+    /// register as configurable.
+    ///
+    /// \par Guarantee
+    ///   no-fail
+    /// \warn this may go away at some point as we may be using the
+    /// properties for more and more things (e.g. info printouts)
   public:
     bool isConfigurable () const;
 
-
-    /// \brief whether initialize has been called successfully,
-    ///   i.e. whether the tool is ready to be used
-    /// \par Guarantee
-    ///   no-fail
   public:
-    bool isInitialized () const noexcept;
+    ASG_DEPRECATED ("please use isInitialized() instead")
+    bool inPremakeState () const noexcept {
+      return !isInitialized();}
 
-
-    /// \brief whether we are in the state before calling make
-    ///
-    /// Normally users don't need to check this, but sometimes this
-    /// can be worthwhile to check for debugging purposes.
-    /// \par Guarantee
-    ///   no-fail
   public:
-    bool inPremakeState () const noexcept;
+    ASG_DEPRECATED ("please use isInitialized() instead")
+    bool inBrokenState () const noexcept {
+      return false;};
 
-
-    /// \brief whether we are in a broken state
-    ///
-    /// Normally users don't need to check this, but sometimes this
-    /// can be worthwhile to check for debugging purposes.  Normally
-    /// tools get into a broken state either because one of the
-    /// configuration functions failed, or because the content of this
-    /// object was moved to another tool handle.
-    /// \par Guarantee
-    ///   no-fail
   public:
-    bool inBrokenState () const noexcept;
+    ASG_DEPRECATED ("no longer need to call make()")
+    StatusCode make () {
+      return StatusCode::SUCCESS;};
+
+  public:
+    ASG_DEPRECATED ("please use setType() or setTypeAndName() instead")
+    StatusCode make (std::string val_type) noexcept {
+      if (!val_type.empty()) {
+	if (val_type.find ('/') != std::string::npos)
+	  setTypeAndName (val_type);
+	else
+	  setType (val_type); }
+      return StatusCode::SUCCESS; };
+
+  // public:
+  //   ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
+  //   ToolHandle<T>& handle () {
+  //     return *m_handleUser;};
+
+#ifdef ROOTCORE
+  public:
+    template<class T2>
+    ASG_DEPRECATED ("please use setTypeRegisterNew() instead")
+    StatusCode makeNew (std::string val_type) {
+      setTypeRegisterNew<T2> (std::move (val_type));
+      return StatusCode::SUCCESS;}
+#endif
 
 
 
@@ -397,64 +870,38 @@ namespace asg
     // private interface
     //
 
-    /// \brief the different states of the tool handle
-  private:
-    enum class State
-    {
-      /// \brief the beginning state
-      BEGIN,
-
-      /// \brief we are using a pre-initialized tool, i.e. we ignore
-      /// all setProperty() requests and initialize() essentially just
-      /// unlocks it
-      PREINITIALIZED,
-
-      /// \brief the tool has been made, but not initialized
-      CREATED,
-
-      /// \brief the tool has been initialized and can be used
-      INITIALIZED,
-
-      /// \brief we encountered an error in setProperty
-      ///
-      /// This is to emulate the Athena behavior in RootCore,
-      /// i.e. that setProperty failures only show up when actually
-      /// initializing the tool, not when setting properties on it.
-      BAD_PROPERTY,
-
-      /// \brief an error has occurred in the tool creation process
-      BROKEN
-    };
-
-    /// \brief the current \ref State of the tool handle
-  private:
-    State m_state = State::BEGIN;
-
-
-    /// \brief the \ref ToolHandle we wrap our tool handle around
+    /// \brief any stuff we need to release as part of cleanup
     ///
-    /// This serves as a backend for a lot of our functions, and we
-    /// rely on its properties as much as possible instead of trying
-    /// to implement our own.  As such we purposely limit write access
-    /// by the user to this handle.  It can be declared as a property
-    /// on the parent tool and set during the configuration stage, but
-    /// otherwise it is off-limits to the user.
+    /// This is protected by \ref m_isInitialized and should not be
+    /// accessed until \ref m_isInitialized is true.
+  private:
+    detail::AnaToolCleanup m_cleanup;
+
+    /// \brief the configuration for this tool
+  private:
+    detail::AnaToolConfig m_config;
+
+    /// \brief the value of \ref name
+  private:
+    std::string m_name;
+
+    /// \brief the pointer to the parent
+  private:
+    parentType_t *m_parentPtr = nullptr;
+
+
+    /// \brief the \ref ToolHandle exposed to the user
+    ///
+    /// This primarily serves to allow the user to set this like a
+    /// regular ToolHandle property.  During initialize it is then
+    /// updated to refer to the actually used tool.
     ///
     /// This is done as a shared pointer, so that the include
     /// dependency is only pulled in for the source file that actually
     /// uses the AnaToolHandle.  That in turn reduces the number of
     /// public dependencies an Athena package has to expose.
   private:
-    std::shared_ptr<ToolHandle<T>> m_handle;
-
-
-    /// \brief the parent of the tool
-    ///
-    /// in RootCore we can not ask the ToolHandle for the pointer to
-    /// the parent, so instead we cache it here and just check in
-    /// Athena that it is the same as in the ToolHandle
-  private:
-    parentType_t *m_parent = nullptr;
+    std::shared_ptr<ToolHandle<T>> m_handleUser;
 
     /// \brief the typeAndName at time of creation
     ///
@@ -463,152 +910,88 @@ namespace asg
   private:
     std::string m_originalTypeAndName;
 
+    /// \brief the value of \ref isInitialized
+  private:
+    std::atomic<bool> m_isInitialized {false};
+
     /// \brief the pointer to the tool we use
     ///
     /// This is used for actually accessing the tool, independent of
-    /// how we created it.
+    /// who created it or how.  Mostly this is a performance
+    /// optimization to avoid going back to the ToolHandle every
+    /// single time.
+    ///
+    /// This is protected by \ref m_isInitialized and should not be
+    /// accessed until \ref m_isInitialized is true.
   private:
     T *m_toolPtr = nullptr;
 
-    /// \brief the value of \ref isUserConfigured cached when we make
-    /// the tool
-  private:
-    bool m_isUserConfigured = false;
-
-
-    /// \brief do all the checks that need to be done before running
-    /// any version of make
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   tool creation failures\n
-    ///   pre-condition failures
-  private:
-    StatusCode
-    preMake (const std::string& val_type);
-
-    /// \brief actually make the tool, if we make our own
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   tool creation failures\n
-    ///   pre-condition failures
-  private:
-    StatusCode
-    doMake ();
-
-
-    /// \brief do all the checks that need to be done before running
-    /// any version of setProperty
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   tool creation failures\n
-    ///   pre-condition failures
-  private:
-    StatusCode preSetProperty (const std::string& property);
-
-
-
-    //
-    // private interface for RootCore
-    //
-
-#ifdef ROOTCORE
-    /// \brief the pointer to the tool used for configuration
-  private:
-    asg::AsgTool *m_toolConfig = nullptr;
-
-    /// \brief the smart pointer to the tool, if we created it
-    /// ourselves
+    /// \brief the value of \ref getMode cached when we initialize the
+    /// tool
     ///
-    /// If we create the tool ourselves, we are responsible for
-    /// cleaning it up.  Originally this was a unique_ptr, but I
-    /// changed it to a shared pointer, so that it users don't have to
-    /// include all the possible tool classes in their code.  Also,
-    /// this allows to share a tool between multiple \ref
-    /// AnaToolHandle objects.
+    /// This is protected by \ref m_isInitialized and should not be
+    /// accessed until \ref m_isInitialized is true.
   private:
-    std::shared_ptr<T> m_toolOwn;
+    detail::AnaToolHandleMode m_mode = detail::AnaToolHandleMode::EMPTY;
 
-    /// \brief the weak pointer referencing shared tools
+    /// \brief get the mode with which this ToolHandle will be initialized
+    ///
+    /// This exists in two modes, one passing back a shared tool
+    /// pointer and one without it.  as a rule of thumb, the version
+    /// passing back the shared tool should be used by initialize,
+    /// whereas all the places just wanting to check that will happen
+    /// can/should call the version without.
+    ///
     /// \par Guarantee
     ///   strong
     /// \par Failures
     ///   out of memory II
-    /// \brief !m_name.empty()
   private:
-    std::weak_ptr<T>& sharedToolPointer () const;
-#endif
+    detail::AnaToolHandleMode
+    getMode (std::shared_ptr<detail::AnaToolShare>& sharedTool) const;
 
-
-
-    //
-    // private interface for Athena
-    //
-
-#ifndef ROOTCORE
+    /// \copydoc getMode
   private:
-    std::vector<std::string> m_addedProperties;
+    detail::AnaToolHandleMode
+    getMode () const;
 
-    // \brief this contains a release function we use, so that we can
-    // break down on include dependencies
+
+    /// \brief the value of \ref allowEmpty
   private:
-    std::function<void (ToolHandle<T> *)> m_releaseFunction;
-
-  private:
-    std::string fullName () const;
-#endif
+    bool m_allowEmpty = false;
 
 
-
-    //
-    // legacy interface
-    //
-
-    // prevent copying
-    AnaToolHandle (const AnaToolHandle<T>&) = delete;
-    AnaToolHandle<T>& operator = (const AnaToolHandle<T>&) = delete;
-
-
-    /// \brief whether this ToolHandle is completely empty
+    /// \brief make a tool by retrieving the ToolHandle
     /// \par Guarantee
-    ///   no-fail
-  public:
-    bool empty() const noexcept;
-
-
+    ///   strong
+    /// \par Failures
+    ///   tool creation failures
   private:
-    void setType (std::string val_type) {
-      setTypeAndName (std::move (val_type), name());}
+    StatusCode makeToolRetrieve
+      (T*& toolPtr, ToolHandle<T>& toolHandle) const;
 
-  private:
-    void setName (std::string val_name) {
-      setTypeAndName (type(), std::move (val_name));}
 
+    /// \brief a mutex to ensure that we don't call initialize twice
+    /// concurrently
+    ///
+    /// This is a recursive mutex so that we can lock both in \ref
+    /// initialize and \ref get without conflict.
   private:
-    void setTypeAndName (std::string val_type,
-			 std::string val_name) {
-      if (val_type.empty())
-	m_handle->setTypeAndName (std::move (val_type));
-      else if (val_name.empty())
-	m_handle->setTypeAndName (std::move (val_name));
-      else
-	m_handle->setTypeAndName (val_type + "/" + val_name);}
-
-  private:
-    void setTypeAndName (std::string val_typeAndName) {
-      m_handle->setTypeAndName (std::move (val_typeAndName));}
+    std::recursive_mutex m_initializeMutex;
   };
 }
 
 /// \brief create the tool in the given tool handle
+#define ASG_MAKE_ANA_TOOL(handle,type)	\
+  (ASG_SET_ANA_TOOL_TYPE(handle,type), StatusCode (StatusCode::SUCCESS))
+
+/// \brief set the tool type on the tool handle, using new in rootcore
 #ifdef ROOTCORE
-#define ASG_MAKE_ANA_TOOL(handle,type)	\
-  (handle).template makeNew<type> (#type)
+#define ASG_SET_ANA_TOOL_TYPE(handle,type)	\
+  (handle).template setTypeRegisterNew<type> (#type)
 #else
-#define ASG_MAKE_ANA_TOOL(handle,type)	\
-  (handle).make (#type)
+#define ASG_SET_ANA_TOOL_TYPE(handle,type)	\
+  (handle).setType (#type)
 #endif
 
 #include <AsgTools/AnaToolHandle.icc>
