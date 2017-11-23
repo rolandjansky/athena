@@ -14,7 +14,7 @@
 #include <set>
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 // HepMC includes
 #include "HepMC/IteratorRange.h"
@@ -30,7 +30,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class TruthAssocSimSelector : public ISimulationSelector
+  class TruthAssocSimSelector : public BaseSimulationSelector
   {
 
   public:

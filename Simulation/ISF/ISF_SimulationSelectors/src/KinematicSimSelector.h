@@ -11,7 +11,7 @@
 
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 namespace ISF
 {
@@ -22,7 +22,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class KinematicSimSelector : public ISimulationSelector, public KinematicParticleCuts
+  class KinematicSimSelector : public BaseSimulationSelector, public KinematicParticleCuts
   {
 
   public:

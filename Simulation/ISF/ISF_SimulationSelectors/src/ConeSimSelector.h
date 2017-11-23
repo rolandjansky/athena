@@ -11,7 +11,7 @@
 
 // ISF includes
 #include "ISF_Event/ConeParticleCuts.h"
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 #include "ISF_Event/HepMCHelper.h"
 
 // Framework
@@ -33,7 +33,7 @@ namespace ISF
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class ConeSimSelector : public ISimulationSelector, public ConeParticleCuts
+  class ConeSimSelector : public BaseSimulationSelector, public ConeParticleCuts
   {
 
   public:

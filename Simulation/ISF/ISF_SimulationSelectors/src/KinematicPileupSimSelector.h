@@ -10,7 +10,7 @@
 
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 // Barcode interpretation
 #include "BarcodeServices/BitCalculator.h"
@@ -18,15 +18,15 @@
 namespace ISF {
 
   /** @class KinematicPileupSimSelector
-  
+
       Simplistic pileup filter with cuts on energy and pseudorapidity.
-  
+
       @author Elmar.Ritsch -at- cern.ch
       @author Artem.Basalaev -at- cern.ch
      */
-  class KinematicPileupSimSelector : public ISimulationSelector, public KinematicParticleCuts {
-      
-    public: 
+  class KinematicPileupSimSelector : public BaseSimulationSelector, public KinematicParticleCuts {
+
+    public:
      /** Constructor with parameters */
      KinematicPileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 

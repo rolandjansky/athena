@@ -10,7 +10,7 @@
 #define ISF_TOOLS_RANDOMSIMFILTER_H 1
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 class TRandom;
 
@@ -24,7 +24,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class RandomSimSelector : public ISimulationSelector
+  class RandomSimSelector : public BaseSimulationSelector
   {
 
   public:
