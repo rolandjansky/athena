@@ -193,7 +193,6 @@ EXOT15SlimmingHelper = SlimmingHelper("EXOT15SlimmingHelper")
 EXOT15SlimmingHelper.SmartCollections = EXOT15SmartContent
 EXOT15SlimmingHelper.AllVariables = EXOT15AllVariablesContent
 EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y']
-#EXOT15SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 EXOT15SlimmingHelper.IncludeJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeBJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeTauTriggerContent = True
