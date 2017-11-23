@@ -44,7 +44,7 @@ class TrigEgammaEFElectronSelectorTool:
   private:
 
     bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname, double avgmu);
-    bool ApplyIsolation(const xAOD::Electron *, bool);
+    bool ApplyIsolation(const xAOD::Electron *, const Trig::Info &);
 
     // ToolHandles
     /*! Offline isEM Selectors */
@@ -58,20 +58,9 @@ class TrigEgammaEFElectronSelectorTool:
    
     // Likelihood extra info 
     std::string m_lhinfo;
+    // Isolation
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_isolationTool;
 
-    //Isolation
-    bool m_applyIsolation; 
-    unsigned int m_EtConeSizes;
-    unsigned int m_PtConeSizes;
-    bool m_useClusETforCaloIso;
-    bool m_useClusETforTrackIso;
-    std::vector<float> m_RelEtConeCut;
-    std::vector<float> m_EtConeCut;
-    std::vector<float> m_RelPtConeCut;
-    std::vector<float> m_RelPtConeCut_var;
-    std::vector<float> m_PtConeCut;
-    std::map<int, std::string> m_mapEtCone,m_mapPtCone;
-    std::map<int, std::string> m_mapRelEtCone,m_mapRelPtCone;
 
 };
 

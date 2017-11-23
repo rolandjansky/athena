@@ -182,6 +182,19 @@ if doAuditors:
     ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 
 # ------------------------------------------------------------
+# Create additional collections
+# ------------------------------------------------------------
+if InDetFlags.doSplitReco() :
+  from McParticleAlgs.JobOptCfg import createTruthParticlesBuilder,PileUpClassification
+  builder =  createTruthParticlesBuilder(name = "McAodBuilderPU",
+                                         inMcEvtCollection   = "GEN_EVENT_PU",
+                                         outTruthParticles   = "SpclMCPU"
+  )
+  builder.DoFiltering = False
+  topSequence += builder
+  print builder
+
+# ------------------------------------------------------------
 # write BS 
 # ------------------------------------------------------------
 
@@ -206,6 +219,10 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     if InDetFlags.doTruth():
       truthList = [ 'xAOD::TruthEventContainer#TruthEvents',
                     'xAOD::TruthEventAuxContainer#TruthEventsAux.',
+                    'xAOD::TruthEventContainer#TruthEvents_PU',
+                    'xAOD::TruthEventAuxContainer#TruthEvents_PUAux.',
+                    'xAOD::TruthEventContainer#SpclMCPU',
+                    'xAOD::TruthEventAuxContainer#SpclMCPUAux.',
                     'xAOD::TruthPileupEventContainer#TruthPileupEvents',
                     'xAOD::TruthPileupEventAuxContainer#TruthPileupEventsAux.',
                     'xAOD::TruthParticleContainer#TruthParticles',
