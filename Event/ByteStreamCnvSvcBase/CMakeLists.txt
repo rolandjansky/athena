@@ -33,6 +33,10 @@ atlas_add_component( ByteStreamCnvSvcBase
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamData ByteStreamData_test GaudiKernel SGTools ByteStreamCnvSvcBaseLib )
 
+atlas_add_test( ROBDataProviderSvcMT		 
+		SCRIPT test/test_ROBDataProviderSvcMT.sh		
+		TIMEOUT 1200 )
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
