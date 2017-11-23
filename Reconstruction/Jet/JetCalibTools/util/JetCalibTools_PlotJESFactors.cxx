@@ -146,10 +146,11 @@ int main (int argc, char* argv[])
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
 	    } else {
-	      const double E = sqrt((pt*pt)-(massForScan*massForScan))/cosh(eta);
-              jet->setJetP4(xAOD::JetFourMom_t(E,eta,0,massForScan));
+              const double E = pt; // pt is actually E if vsE
+	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+              jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
               detectorEta(*jet) = eta;
-              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(E,eta,0,massForScan));
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
 	    }
 
             // Jet kinematics set, now apply calibration
@@ -203,6 +204,7 @@ int main (int argc, char* argv[])
 	  TFile *fout = new TFile(outFile.Data(),"RECREATE");
 	  hist_pt_eta->Write();
 	  fout->Close();
+	  delete fout;
 	}
 
     }
