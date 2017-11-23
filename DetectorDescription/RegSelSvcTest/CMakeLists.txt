@@ -34,7 +34,7 @@ atlas_add_component( RegSelSvcTest
                      LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent RegionSelectorLib RegSelSvcTestLib )
 
 atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh
-		PROPERTIES TIMEOUT 500
+		PROPERTIES TIMEOUT 1200
 	      )		
 
 atlas_add_test( RegSel_mt SCRIPT test/test_RegSel_mt.sh
