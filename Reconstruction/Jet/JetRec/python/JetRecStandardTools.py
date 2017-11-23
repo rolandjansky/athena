@@ -33,6 +33,7 @@ from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
 from JetRecTools.JetRecToolsConf import CorrectPFOTool
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
+from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
@@ -374,7 +375,7 @@ jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
                                       modList = ['correctPFO', 'chsPFO'] )
 
 # EM-scale pflow.
-jtm += PseudoJetGetter(
+jtm += PFlowPseudoJetGetter(
   "empflowget",
   Label = "EMPFlow",
   InputContainer = "CHSParticleFlowObjects",
