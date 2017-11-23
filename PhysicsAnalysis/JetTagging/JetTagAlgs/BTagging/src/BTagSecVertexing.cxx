@@ -193,6 +193,30 @@ namespace Analysis {
 
       if(tracksInJet.size()==0){
 	ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet");
+        if("SV1" == basename){
+          std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
+          newBTag->setSV1_TrackParticleLinks(TrkList);
+          std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
+          newBTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
+      	  newBTag->setDynTPELName(basename, "badTracksIP");
+          std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
+          newBTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
+          newBTag->setDynVxELName(basename, "vertices");		
+        }
+	else if("MSV" == basename){ 
+          std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
+          newBTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
+      	  newBTag->setDynTPELName(basename, "badTracksIP");
+          std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
+          newBTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
+          newBTag->setDynVxELName(basename, "vertices");
+	}
+	else if("JetFitter" == basename) {
+          std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
+          newBTag->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
+          newBTag->setDynTPELName(basename, "tracksAtPVlinks");
+	}	
+        
 	return StatusCode::SUCCESS;
       }    
 	
