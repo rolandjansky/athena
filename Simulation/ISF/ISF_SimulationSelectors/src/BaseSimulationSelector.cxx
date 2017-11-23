@@ -25,17 +25,8 @@ ISF::BaseSimulationSelector::BaseSimulationSelector(const std::string& type, con
 /** Gaudi sysInitialize() method */
 StatusCode ISF::BaseSimulationSelector::sysInitialize()
 {
-  if ( AthAlgTool::sysInitialize().isFailure() ) {
-      ATH_MSG_FATAL( " Cannot initialize AthService! Abort.");
-      return StatusCode::FAILURE;
-  }
-
-  if ( m_simulator.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( m_simulator.propertyName() << ": Failed to retrieve service " << m_simulator.type());
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( m_simulator.propertyName()  << ": Retrieved service " << m_simulator.type());
-  }
+  ATH_CHECK( AthAlgTool::sysInitialize() );
+  ATH_CHECK( m_simulator.retrieve() );
 
   return StatusCode::SUCCESS;
 }
