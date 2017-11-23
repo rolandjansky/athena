@@ -111,10 +111,14 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,dataFileEXOT23,False,False,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
-         elif formatName in ['BPHY7','BPHY8']:
+         elif formatName in ['BPHY7']:
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
-            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"500")
+         elif formatName in ['BPHY8']:
+            generateText(formatName,dataLabel,dataFile,False,False,"-1")
+            generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"1000") 
          elif formatName=='BPHY10':
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
