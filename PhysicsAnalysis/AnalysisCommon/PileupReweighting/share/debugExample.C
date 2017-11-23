@@ -5,10 +5,8 @@
 
 //execute with: root debugExample.C
 
-#define GAUDI_V20_COMPAT
-#include "GaudiKernel/ToolHandle.h"
-
 void debugExample() {
+  AAH::AAH(); //start macros with this line to ensure Gaudi features like ToolHandles can be used - AAH = AthAnalysisHelper
   
   POOL::TEvent evt(POOL::TEvent::kClassAccess);
 
@@ -26,7 +24,7 @@ void debugExample() {
 
   evt.getEntry(0); //update to go to the problematic event;
 
-  const xAOD::EventInfo_v1* ei = 0;
+  const xAOD::EventInfo* ei = 0;
   evt.retrieve( ei );
 
   prw->getCombinedWeight( *ei ); //change this to reproduce your problem
