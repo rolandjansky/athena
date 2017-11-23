@@ -6,8 +6,10 @@ __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import fnmatch
 import inspect
+import json
 import logging
 import os
+import re
 import yaml
 
 try:
@@ -88,21 +90,16 @@ class ArtBase(object):
             for fname in files:
                 test_name = os.path.join(directory, fname)
                 if self.is_included(test_name, nightly_release, project, platform):
-                    log.info("%s %s", test_name, ArtHeader(test_name).get('art-include'))
+                    log.info("%s %s", test_name, ArtHeader(test_name).get(ArtHeader.ART_INCLUDE))
         return 0
 
     def download(self, input_file):
         """TBD."""
         return self.get_input(input_file)
 
-    #
-    # Default implementations
-    #
-    def compare_ref(self, file_name, ref_file, entries=-1):
+    def diff_pool(self, file_name, ref_file):
         """TBD."""
         import PyUtils.PoolFile as PF
-
-        log = logging.getLogger(MODULE)
 
         # diff-pool
         df = PF.DiffFiles(refFileName=ref_file, chkFileName=file_name, ignoreList=['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings'])
@@ -110,6 +107,12 @@ class ArtBase(object):
         stat = df.status()
         print stat
         del df
+
+        return stat
+
+    def diff_root(self, file_name, ref_file, entries=-1):
+        """TBD."""
+        log = logging.getLogger(MODULE)
 
         # diff-root
         (code, out, err) = run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
@@ -121,8 +124,43 @@ class ArtBase(object):
         return code
 
     #
+    # Default implementations
+    #
+    def compare_ref(self, file_name, ref_file, entries=-1):
+        """TBD."""
+        result = 0
+        result |= self.diff_pool(file_name, ref_file)
+
+        result |= self.diff_root(file_name, ref_file, entries)
+        return result
+
+    #
     # Protected Methods
     #
+    def get_art_results(self, output):
+        """
+        Extract art-results.
+
+        find all
+        'art-result: x' or 'art-result: x name' or 'art-result: [x]'
+        and append them to result list
+        """
+        result = []
+        for line in output.splitlines():
+            match = re.search(r"art-result: (\d+)\s*(.*)", line)
+            if match:
+                item = json.loads(match.group(1))
+                name = match.group(2)
+                result.append({'name': name, 'result': item})
+            else:
+                match = re.search(r"art-result: (\[.*\])", line)
+                if match:
+                    array = json.loads(match.group(1))
+                    for item in array:
+                        result.append({'name': '', 'result': item})
+
+        return result
+
     def get_config(self):
         """Retrieve dictionary of ART configuration file, or None if file does not exist."""
         try:
@@ -155,7 +193,7 @@ class ArtBase(object):
                 test_name = os.path.join(directory, fname)
 
                 # is not of correct type
-                if job_type is not None and ArtHeader(test_name).get('art-type') != job_type:
+                if job_type is not None and ArtHeader(test_name).get(ArtHeader.ART_TYPE) != job_type:
                     continue
 
                 # is not included in nightly_release, project, platform
@@ -163,11 +201,11 @@ class ArtBase(object):
                     continue
 
                 # batch and does specify art-input
-                if index_type == "batch" and ArtHeader(test_name).get('art-input') is not None:
+                if index_type == "batch" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None:
                     continue
 
                 # single and does not specify art-input
-                if index_type == "single" and ArtHeader(test_name).get('art-input') is None:
+                if index_type == "single" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is None:
                     continue
 
                 result.append(fname)
@@ -176,7 +214,7 @@ class ArtBase(object):
 
     def get_type(self, directory, test_name):
         """Return the 'job_type' of a test."""
-        return ArtHeader(os.path.join(directory, test_name)).get('art-type')
+        return ArtHeader(os.path.join(directory, test_name)).get(ArtHeader.ART_TYPE)
 
     def get_test_directories(self, directory):
         """
@@ -199,7 +237,7 @@ class ArtBase(object):
 
     def is_included(self, test_name, nightly_release, project, platform):
         """Return true if a match is found for test_name in nightly_release, project, platform."""
-        patterns = ArtHeader(test_name).get('art-include')
+        patterns = ArtHeader(test_name).get(ArtHeader.ART_INCLUDE)
 
         for pattern in patterns:
             nightly_release_pattern = "*"
