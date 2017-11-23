@@ -20,7 +20,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/BaseInfo.h"
-#include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/IRegisterTransient.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
 #include <vector>
