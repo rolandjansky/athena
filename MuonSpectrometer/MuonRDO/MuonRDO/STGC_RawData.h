@@ -19,7 +19,7 @@ class STGC_RawData {
 
  public:
    STGC_RawData (const Identifier id);
-   STGC_RawData (); //!< TODO remove this. Currently have problems with convertor if I do though.
+   STGC_RawData () {} //!< TODO remove this. Currently have problems with convertor if I do though.
    virtual ~STGC_RawData() {}
    const Identifier& identify() const { return m_id; }
 };
