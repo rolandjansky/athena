@@ -7,7 +7,6 @@
 
 
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
-#include "JetRecTools/CaloClusterConstituentsWeight.h"
 #include "JetRecTools/ClusterAtEMScaleTool.h"
 #include "JetRecTools/ConstituentSubtractorTool.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
