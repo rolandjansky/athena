@@ -53,6 +53,7 @@ namespace Muon {
     declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
     declareProperty("MuonTruthParticlesKey", m_MuonTruthParticlesKey);
     declareProperty("MuonTruthSegmentsKey", m_MuonTruthSegmentsKey);
+    declareProperty("AddSectors", m_addSectors = true);
   }
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
@@ -530,8 +531,22 @@ namespace Muon {
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
       extendSeed( road, m_houghDataPerSectorVec[sector-1] );
 
+      // look for maxima in the overlap regions of sectors
+      int sectorN            = sector-1;
+      if(sectorN<1)  sectorN = 16;
+      int sectorP            = sector+1;
+      if(sectorP>16) sectorP = 1;
+
       // associate the road with phi maxima
       associatePhiMaxima( road, m_houghDataPerSectorVec[sector-1].phiMaxVec[region] );
+      //
+      if(m_addSectors) {
+        extendSeed( road, m_houghDataPerSectorVec[sectorN-1] );
+        associatePhiMaxima( road, m_houghDataPerSectorVec[sectorN-1].phiMaxVec[region] );
+        extendSeed( road, m_houghDataPerSectorVec[sectorP-1] );
+        associatePhiMaxima( road, m_houghDataPerSectorVec[sectorP-1].phiMaxVec[region] );
+      }
+
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown ) {
         associatePhiMaxima( road, m_houghDataPerSectorVec[sector-1].phiMaxVec[road.neighbouringRegion] );
       }
@@ -1028,6 +1043,7 @@ namespace Muon {
             // calculate the position of the first maximum in the reference frame of the other sector
             double rcor = maximumN.hough->m_descriptor.referencePosition*m_sectorMapping.transformRToNeighboringSector( maximum.pos,sector,sectorN)/maximum.hough->m_descriptor.referencePosition;
             double dist = rcor - maximumN.pos;
+            ATH_MSG_DEBUG(" maximumN.hough " << maximumN.hough->m_descriptor.referencePosition << " maximum.hough " << maximum.hough->m_descriptor.referencePosition << " maximumN.pos " << maximumN.pos << " maximum.pos " << maximum.pos << rcor << " distance " << dist );
             if( fabs(dist) > 100 ) continue;
             houghData.maxAssociationMap[&maximum].push_back(&maximumN);
             houghDataN.associatedToOtherSector.insert(&maximumN);
