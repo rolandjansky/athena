@@ -94,7 +94,7 @@ protected:
     uint32_t eventStatus = 0;    
     uint32_t currentLvl1ID = 0;    
     ROBMAP robmap;
-    bool maskL2EFModuleID = false;    
+ 
   };
   SG::SlotSpecificObj<EventCache> m_eventsCache;
 
@@ -115,7 +115,7 @@ protected:
 
    /// Filter out empty ROB fragments which are send by the ROS
    BooleanProperty m_filterEmptyROB;
-
+   bool m_maskL2EFModuleID = false;    
 
 
 

@@ -188,13 +188,14 @@ void ROBDataProviderSvc::addROBData(const EventContext& context, const std::vect
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
-	 if ( !cache->maskL2EFModuleID ) {
+	 // TB if it is inconsistent we should not continue like this?
+	 if ( !m_maskL2EFModuleID ) {
 	   ATH_MSG_ERROR("Inconsistent flag for masking L2/EF module IDs");
-	   cache->maskL2EFModuleID=true;
+	   m_maskL2EFModuleID=true;
 	 }
       } else if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) && 
 		  (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_EVENT_FILTER) &&
-		  ( cache->maskL2EFModuleID ) ) {
+		  ( m_maskL2EFModuleID ) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
       ROBMAP& robmap( cache->robmap );
@@ -254,7 +255,7 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
    // set the LVL1 id
    cache->currentLvl1ID = re->lvl1_id();
    // set flag for masking L2/EF module ID, this is only necessary for the separate L2 and EF systems from Run 1 
-   cache->maskL2EFModuleID = (re->nlvl2_trigger_info() != 0);
+   m_maskL2EFModuleID = (re->nlvl2_trigger_info() != 0);
 
    // get all the ROBFragments
    const size_t MAX_ROBFRAGMENTS = 2048;
@@ -274,13 +275,13 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
-	 if (!cache->maskL2EFModuleID) {
+	 if (!m_maskL2EFModuleID) {
 	   ATH_MSG_ERROR("Inconsistent flag for masking L2/EF module IDs");
-	   cache->maskL2EFModuleID=true;
+	   m_maskL2EFModuleID=true;
 	 }
       } else if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) && 
 		  (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_EVENT_FILTER) &&
-		  (cache->maskL2EFModuleID) ) {
+		  (m_maskL2EFModuleID) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
       if ((rob->rod_ndata() == 0) && (m_filterEmptyROB)) {
@@ -331,13 +332,13 @@ void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vect
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
-	 if (!cache->maskL2EFModuleID) {
+	 if (!m_maskL2EFModuleID) {
 	   ATH_MSG_ERROR("Inconsistent flag for masking L2/EF module IDs");
-	   cache->maskL2EFModuleID=true;
+	   m_maskL2EFModuleID=true;
 	 }
       } else if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) && 
 		  (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_EVENT_FILTER) &&
-		  (cache->maskL2EFModuleID) ) {
+		  (m_maskL2EFModuleID) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
       ROBMAP::iterator map_it = cache->robmap.find(id);
