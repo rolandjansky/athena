@@ -30,9 +30,9 @@ InDetGlobalMotherTrigMonTool::InDetGlobalMotherTrigMonTool(
     const std::string & name,
     const IInterface* parent)
   : InDetGlobalMotherMonTool(type, name, parent),
-    doTrigger(true)
+    m_doTrigger(true)
 {
-  declareProperty("doTrigger",doTrigger);
+  declareProperty("doTrigger",m_doTrigger);
 }
 
 StatusCode InDetGlobalMotherTrigMonTool::initialize(){
