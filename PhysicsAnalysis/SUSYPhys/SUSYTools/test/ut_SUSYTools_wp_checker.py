@@ -186,7 +186,7 @@ class TestSUSYTools(unittest.TestCase):
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root'
 
     #Working points
-    EL_ID_WP  = ['MediumLLH_Rel20p7','TightLLH_Rel20p7'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
+    EL_ID_WP  = [ 'LooseAndBLayerLLH', 'MediumLLH_Rel20p7', 'MediumLLH', 'TightLLH_Rel20p7', 'TightLLH'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
     EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
     MU_ID_WP  = ['1'] 
     MU_ISO_WP = ['GradientLoose']

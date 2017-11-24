@@ -209,6 +209,9 @@ namespace ST {
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;
 
+    // autoconfiguration of pileup-reweighting tool
+    virtual StatusCode autoconfigurePileupRWTool() = 0;
+
     // Apply the correction on a modifyable object
     virtual StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) = 0;
     virtual StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, const bool isFat = false) = 0;
