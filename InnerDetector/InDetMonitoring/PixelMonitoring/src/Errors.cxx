@@ -462,9 +462,9 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         }  // End of if(error_type)
 
         if (getErrorState(bit, is_fei4) != 99) {
-          if (is_fei4) {
+          if (kLayer == PixLayerDBM::kIBL) {
             num_errors_per_stateIBL[getErrorState(bit, is_fei4) - kNumErrorStates]++;
-          } else {
+          } else if (kLayer <= PixLayerDBM::kB2) {
             num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
           }
           if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
