@@ -29,10 +29,12 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     declareProperty("TracksInConeTool", m_tracksInConeTool);
 #endif // XAOD_ANALYSIS
-    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
-    declareProperty("SimpleIsolation",  m_simpleIsolation = false);
-    declareProperty("OverlapCone",      m_overlapCone2 = 0.1); // will be squared later
-    declareProperty("TrackSelectionTool", m_trkselTool );
+    declareProperty("TrackParticleLocation",      m_indetTrackParticleLocation = "InDetTrackParticles");
+    declareProperty("SimpleIsolation",            m_simpleIsolation = false);
+    declareProperty("UseTTVAtool",                m_useTTVAtool = false);
+    declareProperty("OverlapCone",                m_overlapCone2 = 0.1); // will be squared later
+    declareProperty("TrackSelectionTool",         m_trkselTool );
+    declareProperty("TrackVertexAssociationTool", m_ttvaTool );
   }
 
   TrackIsolationTool::~TrackIsolationTool()
@@ -47,6 +49,10 @@ namespace xAOD {
 
     if(m_trkselTool.retrieve().isFailure()){
       ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
+      return 0.;
+    }
+    if(m_useTTVAtool && m_ttvaTool.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve TrackVertexAssociationTool");    
       return 0.;
     }
 
@@ -264,11 +270,11 @@ namespace xAOD {
 #endif
     
     for( const auto& tp : tps ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
 	continue;
-      } else 
-	ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      }
+      ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
       add( input,*tp, result );
 
     }
@@ -285,7 +291,7 @@ namespace xAOD {
 
     // loop over all track particles
     for( const auto& tp : *indetTrackParticles ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());
 	continue;
       }

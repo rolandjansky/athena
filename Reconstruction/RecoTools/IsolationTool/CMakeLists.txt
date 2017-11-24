@@ -37,6 +37,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODPrimitives
    Event/xAOD/xAODTracking
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
+   InnerDetector/InDetRecTools/TrackVertexAssociationTool
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    Reconstruction/RecoTools/RecoToolInterfaces
    ${extra_deps}
@@ -56,6 +57,7 @@ atlas_add_library( IsolationToolLib
    LINK_LIBRARIES AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma
    xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking
    InDetTrackSelectionToolLib
+   TrackVertexAssociationToolLib
    IsolationCorrectionsLib
    RecoToolInterfaces	
    ${extra_lib}
