@@ -70,8 +70,8 @@ StatusCode TRT_PrepDataToxAOD::initialize()
 
   //Initialize VarHandleKeys
   ATH_CHECK(m_driftcirclecontainer.initialize());
-  ATH_CHECK(m_multiTruth.initialize(m_useTruthInfo));
-  ATH_CHECK(m_SDOcontainer.initialize(m_writeSDOs));
+  ATH_CHECK(m_multiTruth.initialize(m_useTruthInfo && (not m_multiTruth.key().empty()) ));
+  ATH_CHECK(m_SDOcontainer.initialize(m_writeSDOs && (not m_SDOcontainer.key().empty()) ));
   ATH_CHECK(m_xAodContainer.initialize());
   ATH_CHECK(m_xAodOffset.initialize());
 
@@ -110,7 +110,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   // On ESD 
 
   const PRD_MultiTruthCollection* prdmtColl = 0; // to be used in the loop later
-  if (m_useTruthInfo) {
+  if (m_useTruthInfo && (!m_multiTruth.key().empty())  ) {
     SG::ReadHandle<PRD_MultiTruthCollection> m_prdmtColl(m_multiTruth);
     if (not m_prdmtColl.isValid()){
       ATH_MSG_ERROR("ERROR in retrieving PRD MultiTruth collection (" << m_multiTruth.key() << ").");
@@ -124,7 +124,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   // On RDO
 
   const InDetSimDataCollection* sdoCollection = 0; // to be used in the loop later
-  if (m_writeSDOs && m_useTruthInfo) {
+  if (m_writeSDOs && m_useTruthInfo && (!m_SDOcontainer.key().empty()) ) {
     SG::ReadHandle<InDetSimDataCollection> m_sdoCollection(m_SDOcontainer);
     if (not m_sdoCollection.isValid()) {
       ATH_MSG_ERROR("ERROR in retrieving SDO container Collection = " << m_SDOcontainer.key());
