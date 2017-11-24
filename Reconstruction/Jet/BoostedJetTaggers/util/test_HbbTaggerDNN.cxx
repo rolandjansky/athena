@@ -152,7 +152,7 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setTypeAndName("HbbTaggerDNN","HbbTaggerDNN");
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "Network.json");
+  m_Tagger.setProperty( "NeuralNetworkFile",   "BoostedJetTaggers/HbbTaggerDNN/November2017/Network.json");
   m_Tagger.setProperty( "VariableMapFile", "BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json");
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
@@ -185,14 +185,13 @@ int main( int argc, char* argv[] ) {
     // Loop over jet container
     for(const xAOD::Jet* jet : * myJets ){
 
-      if(verbose) std::cout<<"Testing Hbb Tagger, ";
-      double score = m_Tagger->getScore(*jet);
-      if (verbose) std::cout << " Score: " << score << std::endl;
-      bool res = m_Tagger->keep( *jet );
-
-      pass = res;
-
-      Tree->Fill();
+      if (m_Tagger->n_subjets(*jet) >= 2 && jet->pt() > 250e3) {
+        double score = m_Tagger->getScore(*jet);
+        if (verbose) std::cout << " Score: " << score << std::endl;
+        bool res = m_Tagger->keep( *jet );
+        pass = res;
+        Tree->Fill();
+      }
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );

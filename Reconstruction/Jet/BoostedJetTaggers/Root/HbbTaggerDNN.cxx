@@ -31,6 +31,7 @@ public:
                   const std::map<std::string, double>& dummies);
   typedef std::map<std::string, std::map<std::string, double> > VMap;
   VMap get_map(const xAOD::Jet&) const;
+  size_t n_subjets(const xAOD::Jet&) const;
 private:
   typedef ElementLink<xAOD::JetContainer> JetLink;
   SG::AuxElement::ConstAccessor<JetLink> m_acc_parent;
@@ -60,7 +61,7 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_decoration_name(""),
   m_decorator("")
 {
-  declareProperty( "ConfigFile",   m_configFile);
+  declareProperty( "NeuralNetworkFile",   m_configFile);
   declareProperty( "VariableMapFile",   m_variableMapFile);
   declareProperty( "ScoreCut", m_tag_threshold);
   declareProperty( "Decoration", m_decoration_name);
@@ -148,14 +149,18 @@ int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
 double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
 
   // build the jet properties into a map
+  if (m_input_builder->n_subjets(jet) < 2) return -INFINITY;
   InputMapBuilder::VMap inputs = m_input_builder->get_map(jet);
-  if (!inputs.count("subjet2_mask")) return -INFINITY;
   auto nn_output = m_lwnn->compute(inputs);
   return nn_output.at(m_output_value_name);
 }
 
 void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
   m_decorator(jet) = getScore(jet);
+}
+
+size_t HbbTaggerDNN::n_subjets(const xAOD::Jet& jet) const {
+  return m_input_builder->n_subjets(jet);
 }
 
 // Input map builder implementation
@@ -232,3 +237,9 @@ InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) const {
   return {{"input_node", nn_inputs}};
 }
 
+size_t InputMapBuilder::n_subjets(const xAOD::Jet& jet) const {
+  const xAOD::Jet* parent_jet = *m_acc_parent(jet);
+  if (!parent_jet) throw std::logic_error("no valid parent");
+  auto subjet_links = m_acc_subjets(*parent_jet);
+  return subjet_links.size();
+}

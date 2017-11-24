@@ -28,6 +28,7 @@ public:
   virtual int keep(const xAOD::Jet& jet) const;
   double getScore(const xAOD::Jet& jet) const;
   void decorate(const xAOD::Jet& jet) const;
+  size_t n_subjets(const xAOD::Jet& jet) const;
 
 protected:
    // the location where CVMFS files live
