@@ -50,11 +50,7 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   m_trtman(0),
   m_firstEventWarnings(true)
 { 
-  // --- Steering and configuration flags
   
-  // --- Configuration keys
-  declareProperty("DriftCircleContainer",  m_driftcirclecontainerW="TRT_DriftCircles");
-
   // --- Services and Tools
   declareProperty("TRTDriftFunctionTool",  m_driftFunctionTool);
   declareProperty("TRTCalDbSvc",           m_trtcaldbSvc);
@@ -76,6 +72,8 @@ StatusCode TRT_PrepDataToxAOD::initialize()
   ATH_CHECK(m_driftcirclecontainer.initialize());
   ATH_CHECK(m_multiTruth.initialize(m_useTruthInfo));
   ATH_CHECK(m_SDOcontainer.initialize(m_writeSDOs));
+  ATH_CHECK(m_xAodContainer.initialize());
+  ATH_CHECK(m_xAodOffset.initialize());
 
   // --- Retrieve services and tools
   CHECK ( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
@@ -115,7 +113,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   if (m_useTruthInfo) {
     SG::ReadHandle<PRD_MultiTruthCollection> m_prdmtColl(m_multiTruth);
     if (not m_prdmtColl.isValid()){
-      ATH_MSG_ERROR("ERROR in retrieving PRD MultiTruth collection although available (" << m_multiTruth.key() << ").");
+      ATH_MSG_ERROR("ERROR in retrieving PRD MultiTruth collection (" << m_multiTruth.key() << ").");
       return StatusCode::FAILURE;
     } else {
       prdmtColl = m_prdmtColl.cptr();
@@ -138,14 +136,11 @@ StatusCode TRT_PrepDataToxAOD::execute()
 
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
-  CHECK( evtStore()->record( xaod, m_driftcirclecontainerW ) );
-  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
-  CHECK( evtStore()->record( aux, m_driftcirclecontainerW + "Aux." ) );
-  xaod->setStore( aux );
-  
-  std::vector<unsigned int>* offsets = new std::vector<unsigned int>( m_TRTHelper->straw_layer_hash_max() , 0 );
-  CHECK( evtStore()->record( offsets, m_driftcirclecontainerW + "Offsets" ) );
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_xAodContainer);
+  ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>() ) );
+
+  SG::WriteHandle<std::vector<unsigned int>> offsets(m_xAodOffset);
+  ATH_CHECK(offsets.record(std::make_unique<std::vector<unsigned int>>(m_TRTHelper->straw_layer_hash_max() , 0)  ));
   
   InDet::TRT_DriftCircleContainer::const_iterator it = m_trtPrds->begin();
   InDet::TRT_DriftCircleContainer::const_iterator it_end = m_trtPrds->end();
@@ -323,21 +318,6 @@ StatusCode TRT_PrepDataToxAOD::execute()
 
   // Code to test that something was added to SG:
   StatusCode sc = StatusCode::SUCCESS;
-  /*if (msgLvl(MSG::DEBUG)){
-    const xAOD::TrackMeasurementValidationContainer* xaod2;
-    sc = evtStore()->retrieve(xaod2, m_driftcirclecontainer);
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG("Failed to retrieve " << m_driftcirclecontainer);
-    }
-    else   ATH_MSG_DEBUG("xAOD info retreived " << m_driftcirclecontainer << "\t" << xaod2->size());
- 
-    const xAOD::TrackMeasurementValidationAuxContainer* aux2;
-    sc = evtStore()->retrieve(aux2, (m_driftcirclecontainer+ "Aux.")); 
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG("Failed to retrieve " << m_driftcirclecontainer<< "Aux.");
-    }
-    else   ATH_MSG_DEBUG("xAOD info retrieved " << m_driftcirclecontainer << "Aux. \t");
-    }*/
 
   // --- end of event. Disable one-time warnings
   m_firstEventWarnings = false;
