@@ -65,7 +65,7 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
     (*output)[TRT::Track::qOverPT]=0.0;
 //    (*output)[TRT::Track::t0] = gTrkToTrkT0Map[aTrack]  ;
     (*output)[TRT::Track::t0] = 0.0  ;
-  } 
+  }
   (*output)[TRT::Track::chiSquare]=aTrack->fitQuality()->chiSquared();
   (*output)[TRT::Track::degreesOfFreedom]=aTrack->fitQuality()->numberDoF();
 

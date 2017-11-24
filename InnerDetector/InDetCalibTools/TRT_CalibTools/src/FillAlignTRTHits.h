@@ -58,17 +58,16 @@ public:
   virtual StatusCode finalize();
 
   //virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const;
-	virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
-	                  const ComTime* theComTime, const xAOD::EventInfo& eventInfo,
-	                  const xAOD::VertexContainer& vertices);
+  virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
+                    const ComTime* theComTime, const xAOD::EventInfo& eventInfo,
+                    const xAOD::VertexContainer& vertices);
 
 private:
   const AtlasDetectorID* m_DetID;
   const TRT_ID* m_TRTID;
 
-	ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool{this, "TRTDriftFunctionTool", "TRT_DriftFunctionTool", "Drift function tool name"};
-	//	ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;
-	ToolHandle<Trk::IUpdator> m_updatorHandle{this, "UpdatorTool", "Trk::KalmanUpdator/TrkKalmanUpdator", "Measurement updator to calculate unbiased track states"};
+  ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool{this, "TRTDriftFunctionTool", "TRT_DriftFunctionTool", "Drift function tool name"};
+  ToolHandle<Trk::IUpdator> m_updatorHandle{this, "UpdatorTool", "Trk::KalmanUpdator/TrkKalmanUpdator", "Measurement updator to calculate unbiased track states"};
  // ToolHandle<ITRTCalDbTool> m_trtcaldbtool ;
  // ToolHandle<ITRTStrawNeighbourTool> m_neighbourtool;
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
