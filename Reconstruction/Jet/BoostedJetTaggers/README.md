@@ -111,6 +111,9 @@ creating one:
    `BoostedJetTaggersDict.h`. Both of these files are in
    `BoostedJetTaggers/BoostedJetTaggers/`.
 
+ - You'll also have to add your tagger under
+   `src/components/BoostedJetTaggers_entries.cxx`.
+
  - If you have large configuration files that need to be read by your
    tagger (BDT or NN weights, for example), you should store them in
    [cvmfs][2]. To create these files you'll have to file a JIRA ticket
