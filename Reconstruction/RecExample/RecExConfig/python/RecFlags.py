@@ -993,7 +993,7 @@ class doDigiTruth(JobProperty):
     """ Switch for TrackParticle cell association  """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
 #
 # Defines a sub-container for the algorithm switches

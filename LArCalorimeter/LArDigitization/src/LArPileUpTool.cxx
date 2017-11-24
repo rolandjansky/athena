@@ -72,7 +72,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_SubDetectors      = "LAr_All";
   m_DigitContainerName    = "LArDigitContainer_MC";
   m_DigitContainerName_DigiHSTruth    = "LArDigitContainer_DigiHSTruth";
-  m_doDigiTruth = true;
+  m_doDigiTruth = false;
   m_EmBarrelHitContainerName.push_back("LArHitEMB");
   m_EmEndCapHitContainerName.push_back("LArHitEMEC");
   m_HecHitContainerName.push_back("LArHitHEC");
@@ -205,6 +205,7 @@ LArPileUpTool::~LArPileUpTool()
 
 StatusCode LArPileUpTool::initialize()
 {
+	
    ATH_MSG_INFO(" initialize LArPileUpTool : digit container name " << m_DigitContainerName);
   //
   // ........ print random event overlay flag
@@ -516,7 +517,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
     if (!m_useMBTime) m_energySum.resize(m_hitmap->GetNbCells(),0.);
   }
-  if( !m_hitmap_DigiHSTruth->initialized() && m_doDigiTruth){
+  if( m_doDigiTruth && !m_hitmap_DigiHSTruth->initialized()){
     ATH_MSG_DEBUG(" Start LArHitEMap_DigiHSTruth.Initialize");
     if ( ! m_hitmap_DigiHSTruth->Initialize(m_SubDetFlag,m_Windows, false) ){
       ATH_MSG_ERROR(" Making of the DigiHSTruth noise cell table failed");
@@ -620,6 +621,10 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
       ATH_MSG_ERROR("Could not record new LArDigitContainer in TDS : " << m_DigitContainerName_DigiHSTruth);
       return StatusCode::FAILURE;
     }
+		else{
+
+      ATH_MSG_INFO("Did record new LArDigitContainer in TDS : " << m_DigitContainerName_DigiHSTruth);
+		}
   }
 
 
@@ -2075,7 +2080,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
    if (igain != initialGain ){
 
      for (i=0;i<m_NSamples;i++) {
-       m_Samples_DigiHSTruth[i] = 0.;
+       if(m_doDigiTruth) m_Samples_DigiHSTruth[i] = 0.;
        if (m_RndmEvtOverlay) m_Samples[i]= rndm_energy_samples[i] ;
        else m_Samples[i] = 0.;
      }

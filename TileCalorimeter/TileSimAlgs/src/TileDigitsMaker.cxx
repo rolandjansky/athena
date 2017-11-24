@@ -876,8 +876,10 @@ StatusCode TileDigitsMaker::execute() {
 
       double * pDigitSamplesHi = m_drawerBufferHi[ich];
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
-      double * pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
-      double * pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
+      double * pDigitSamplesHi_DigiHSTruth;
+      double * pDigitSamplesLo_DigiHSTruth;
+			if(m_doDigiTruth) pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
+			if(m_doDigiTruth) pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
 
       ATH_MSG_DEBUG(" Channel " << ros << '/' << drawer << '/' << ich 
                      << " sampHi=" << pDigitSamplesHi[m_iTrig]

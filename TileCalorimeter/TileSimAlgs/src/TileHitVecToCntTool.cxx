@@ -936,7 +936,8 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     for (; iHit != lastHit; ++iHit) {
       TileHit *pHit = (*iHit);
-      TileHit *pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
+      TileHit *pHit_DigiHSTruth;
+      if(m_doDigiTruth) pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
       if (pHit->size() > 1 || pHit->energy() != 0.0) {       // hit exists
         m_hits->push_back(pHit);   // store hit in container
         if(m_doDigiTruth){
@@ -991,17 +992,22 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   TileHitContainer::const_iterator collIt = m_hits->begin();
   TileHitContainer::const_iterator endcoll = m_hits->end();
 
-  TileHitContainer::const_iterator collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
-  TileHitContainer::const_iterator endColl_DigiHSTruth = m_hits_DigiHSTruth->end();
+  TileHitContainer::const_iterator collIt_DigiHSTruth; 
+  TileHitContainer::const_iterator endColl_DigiHSTruth;
+	if(m_doDigiTruth) collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
+	if(m_doDigiTruth) endColl_DigiHSTruth = m_hits_DigiHSTruth->end();
 
   for (; collIt != endcoll; ++collIt) {
     TileHitCollection* coll = (*collIt).getDataPtr();
     TileHitCollection::iterator hitItr = coll->begin();
     TileHitCollection::iterator hitEnd = coll->end();
 
-    TileHitCollection* coll_DigiHSTruth = (*collIt_DigiHSTruth).getDataPtr();
-    TileHitCollection::iterator hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
-    TileHitCollection::iterator hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
+    TileHitCollection* coll_DigiHSTruth;
+    TileHitCollection::iterator hitItr_DigiHSTruth;
+    TileHitCollection::iterator hitEnd_DigiHSTruth;
+		if(m_doDigiTruth) coll_DigiHSTruth = (*collIt_DigiHSTruth).getDataPtr();
+		if(m_doDigiTruth) hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
+		if(m_doDigiTruth) hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
 
     for (; hitItr != hitEnd; hitItr++) {
 
