@@ -3,7 +3,7 @@
         "prefix": "jets_"
     },
     "subjet": {
-        "collection": "GhostAntiKt2TrackJet",
+        "collection": "GhostVR30Rmax4Rmin02TrackJet",
         "number": 2,
         "prefix": "subjet"
     },

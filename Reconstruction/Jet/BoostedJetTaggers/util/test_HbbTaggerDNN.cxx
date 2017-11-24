@@ -153,7 +153,7 @@ int main( int argc, char* argv[] ) {
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   m_Tagger.setProperty( "ConfigFile",   "Network.json");
-  m_Tagger.setProperty( "VariableMapFile", "Config.json");
+  m_Tagger.setProperty( "VariableMapFile", "BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json");
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;
