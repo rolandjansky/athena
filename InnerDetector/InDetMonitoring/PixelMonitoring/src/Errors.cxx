@@ -363,9 +363,9 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
     const uint64_t kErrorWord = m_ErrorSvc->getModuleErrors(id_hash);
 
-    bool is_ibl = false;
-    if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_ibl = true;
-    if (m_ErrorSvc->isActive(id_hash) && (m_pixelid->barrel_ec(WaferID) == 4 || m_pixelid->barrel_ec(WaferID) == -4) && m_doIBL) is_ibl = true;
+    bool is_fei4 = false;
+    if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_fei4 = true;
+    if (m_ErrorSvc->isActive(id_hash) && (m_pixelid->barrel_ec(WaferID) == 4 || m_pixelid->barrel_ec(WaferID) == -4) && m_doIBL) is_fei4 = true;
 
     // Determine layer; functions return '99' for non-sensible IDs.
     const int kLayer = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
@@ -379,7 +379,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     for (unsigned int bit = 0; bit < kNumErrorBits; bit++) {
       if ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0) {
         // For non-IBL, We deal with FE/MCC errors separately, so ignore them here!
-        if (!is_ibl && bit >= 4 && bit <= 16) continue;
+        if (!is_fei4 && bit >= 4 && bit <= 16) continue;
 
         num_errors[kLayer]++;
         num_errors_per_bit[kLayer][bit]++;
@@ -391,7 +391,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         int error_type = 0;
         int error_cat = 0;
 
-        if (!is_ibl) {
+        if (!is_fei4) {
           // if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
           if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
           // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
@@ -461,13 +461,13 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           }
         }  // End of if(error_type)
 
-        if (getErrorState(bit, is_ibl) != 99) {
-          if (is_ibl) {
-            num_errors_per_stateIBL[getErrorState(bit, is_ibl) - kNumErrorStates]++;
+        if (getErrorState(bit, is_fei4) != 99) {
+          if (is_fei4) {
+            num_errors_per_stateIBL[getErrorState(bit, is_fei4) - kNumErrorStates]++;
           } else {
-            num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+            num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
           }
-          if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
+          if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
         }
 
         if (kLayer == PixLayerDBM::kIBL) {
@@ -481,7 +481,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     unsigned int num_femcc_errwords = 0;
 
     // Do the same bit-shifting again, this time for FE/MCC error words.
-    if (!is_ibl && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+    if (!is_fei4 && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
       // Collection of: FE ID, associated error word
       std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
       if (fe_errorword_map.size() > 0) {
@@ -537,9 +537,9 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               }
             }
 
-            if (getErrorState(bit, is_ibl) != 99) {
-              num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
-              if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
+            if (getErrorState(bit, is_fei4) != 99) {
+              num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
+              if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
             }
           }  // end bit shifting
         }    // end for loop over bits
