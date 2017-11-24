@@ -196,7 +196,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_bdtTagger->AddVariable( "fjet_D2", &m_D2  );
     m_bdtTagger->AddVariable( "fjet_Tau2_wta", &m_Tau2_wta );
     m_bdtTagger->AddVariable( "fjet_e3", &m_e3 );
-    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split23  );
+    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split12  );
     m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt);
     m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta  );
 
