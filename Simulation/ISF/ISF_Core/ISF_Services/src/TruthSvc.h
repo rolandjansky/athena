@@ -89,7 +89,7 @@ namespace ISF {
     void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
 
     /** Delete child vertex */
-    void deleteChildVertex(HepMC::GenVertex*);
+    void deleteChildVertex(unsigned int i, std::vector<HepMC::GenVertex*>& verticesToDelete) const;
 
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 
@@ -116,8 +116,6 @@ namespace ISF {
 
     Barcode::ParticleBarcode                  m_secondaryParticleBcOffset;
     Barcode::VertexBarcode                    m_myLowestVertexBC;
-
-    std::vector<HepMC::GenVertex*>            verticesToDelete;
 
   };
 }
