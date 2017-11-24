@@ -572,7 +572,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
     if (m_errhist_expert_IBL_LB[j]) {
-      m_errhist_expert_IBL_LB[j]->Fill(kLumiBlock, (float)num_errors_per_stateIBL[j] / m_nActive_mod[PixLayerIBL2D3D::kIBL]);
+      m_errhist_expert_IBL_LB[j]->Fill(kLumiBlock, (float)num_errors_per_stateIBL[j] / m_nActive_mod[PixLayerIBL2D3DDBM::kIBL]);
     }
   }
 
