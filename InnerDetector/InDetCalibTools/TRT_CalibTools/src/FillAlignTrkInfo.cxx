@@ -40,7 +40,9 @@ StatusCode FillAlignTrkInfo::initialize()
 
 //extern std::map<const Trk::Track*, double> gTrkToTrkT0Map ;
 
-bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
+bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
+                            const ComTime* /* theComTime */, const xAOD::EventInfo& /* eventInfo */,
+                            const xAOD::VertexContainer& /* vertices */) {
 //bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const {
   // track parameters
   const Trk::Perigee* mesp=(aTrack->perigeeParameters());

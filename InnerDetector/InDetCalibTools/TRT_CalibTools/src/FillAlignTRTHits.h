@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -5,15 +6,15 @@
 #ifndef TRT_CALIBTOOLS__FILLALIGNTRTHITS_H
 #define TRT_CALIBTOOLS__FILLALIGNTRTHITS_H
 /********************************************************************
- 
+
 NAME:     FillAlignTRTHits
 PACKAGE:  TRT_AlignTOOLS
- 
+
 AUTHORS:  Jorgen Beck Hansen
 CREATED:  December 2005
- 
+
 PURPOSE:  Tool to fill Hit info into the TRT::Hit messenger class
- 
+
 ********************************************************************/
 
 // INCLUDES:
@@ -32,20 +33,12 @@ PURPOSE:  Tool to fill Hit info into the TRT::Hit messenger class
 #include <TFile.h>
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
-#include "EventInfo/EventInfo.h"
-// Include Event Info 
-#include "EventInfo/EventID.h"
-
-
 class ITRT_StrawSummarySvc;
-class EventInfo;
 class AtlasDetectorID;
 class TRT_ID;
-class ITRT_CalDbSvc ;
-class ITRT_DriftFunctionTool;
+class ITRT_CalDbSvc;
 
 namespace Trk {
-  class IUpdator;
   class IPropagator;
   class RIO_OnTrack;
   class Track;
@@ -65,19 +58,24 @@ public:
   virtual StatusCode finalize();
 
   //virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const;
-  virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output);
+	virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
+	                  const ComTime* theComTime, const xAOD::EventInfo& eventInfo,
+	                  const xAOD::VertexContainer& vertices);
 
 private:
   const AtlasDetectorID* m_DetID;
-  const TRT_ID* m_TRTID; 
-  ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
+  const TRT_ID* m_TRTID;
+
+	ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool{this, "TRTDriftFunctionTool", "TRT_DriftFunctionTool", "Drift function tool name"};
+	//	ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;
+	ToolHandle<Trk::IUpdator> m_updatorHandle{this, "UpdatorTool", "Trk::KalmanUpdator/TrkKalmanUpdator", "Measurement updator to calculate unbiased track states"};
  // ToolHandle<ITRTCalDbTool> m_trtcaldbtool ;
- // ToolHandle<ITRTStrawNeighbourTool> m_neighbourtool;  
+ // ToolHandle<ITRTStrawNeighbourTool> m_neighbourtool;
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
 
-  const EventInfo *  m_eventInfo ;
+  Trk::IUpdator* m_updator; //!< updator for unbiased states
 
   float m_maxDistance ;
   float m_maxTimeResidual ;
@@ -86,13 +84,8 @@ private:
   unsigned int m_numOfHitsTotal ;
   unsigned int m_numOfHitsAccepted ;
   unsigned int m_numOfProcessedTracks ;
-  std::string m_comTimeName;
   float m_DoMCCosmicTimeShift;
 //  StoreGateSvc     * m_store_gate;
-
-  ToolHandle<Trk::IUpdator>                   m_updatorHandle;
-  Trk::IUpdator*                              m_updator;                  //!< updator for unbiased states
-  
 
   TFile* m_f;
   TNtuple* m_ntuple;

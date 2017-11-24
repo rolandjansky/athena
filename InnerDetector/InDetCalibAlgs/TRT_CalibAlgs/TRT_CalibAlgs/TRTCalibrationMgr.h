@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -16,6 +17,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "CommissionEvent/ComTime.h"
 //#include "TrkTrack/Track.h"
 //#include "TRT_ConditionsTools/TRTCalDbTool.h"
 
@@ -86,9 +88,10 @@ private:
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for xAOD::EventInfo"};
+	SG::ReadHandleKeyArray<TrackCollection> m_TrkCollections{this,"TrkCollections",{"Tracks", "ConvertedIParTracks"},"RHKs for track collections"};
+	SG::ReadHandleKey<ComTime> m_comTimeKey{this, "ComTimeKey", "TRT_Phase", "Name of TRT Com time object"};
   ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
-  SG::ReadHandleKeyArray<TrackCollection> m_TrkCollections{this,"TrkCollections",{},"RHKs for track collections"};
   unsigned int m_max_ntrk;
 };
 

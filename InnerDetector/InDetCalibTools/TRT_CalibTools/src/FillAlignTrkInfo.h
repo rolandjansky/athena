@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -32,7 +33,9 @@ class FillAlignTrkInfo :  virtual public IFillAlignTrkInfo, public AthAlgTool {
   
   virtual ~FillAlignTrkInfo() {}
   
-  virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) ;
+	virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
+	                  const ComTime* theComTime, const xAOD::EventInfo& eventInfo,
+	                  const xAOD::VertexContainer& vertices);
   //virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const;
 //  virtual double mygetEventPhase(const Trk::Track *aTrack);
 
