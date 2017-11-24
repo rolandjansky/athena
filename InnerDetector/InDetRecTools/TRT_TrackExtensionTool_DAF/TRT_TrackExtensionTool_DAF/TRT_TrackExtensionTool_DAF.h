@@ -100,12 +100,12 @@ protected:
     ///////////////////////////////////////////////////////////////////
 
     const TRT_DriftCircleContainer*  m_trtcontainer; //!< container of TRT RIOs
-    std::string                      mjo_trtcontainername; //!< jobOption: name of container with TRT RIOs
-    double                           mjo_roadwidth; //!< jobOption: Max width of the road
-    bool                             mjo_simpleExtension; //!< jobOption: do the simple TRT extension by putting all RIOs of one detector element within the road into one Trk::CompetingRIOsOnTrack
+    std::string                      m_jo_trtcontainername; //!< jobOption: name of container with TRT RIOs
+    double                           m_jo_roadwidth; //!< jobOption: Max width of the road
+    bool                             m_jo_simpleExtension; //!< jobOption: do the simple TRT extension by putting all RIOs of one detector element within the road into one Trk::CompetingRIOsOnTrack
     
-    double                           mjo_maxGroupDistance; //!< jobOption: Max distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
-    double                           mjo_minGroupDistance; //!< jobOption: Min distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
+    double                           m_jo_maxGroupDistance; //!< jobOption: Max distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
+    double                           m_jo_minGroupDistance; //!< jobOption: Min distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
 
 //    static const int                    maxTrackGlobalPositions = 200; //!< array size for global track positions
 //    static const int                    maxDetElements = 200; //!< array size for the detElements road
@@ -121,7 +121,7 @@ protected:
     // the different tools and their jobOptions
     ///////////////////////////////////////////
     ToolHandle< InDet::ICompetingTRT_DriftCirclesOnTrackCreator >   m_compROTcreator;       //!< the instance of the CompetingTRT_DriftCirclesOnTrackCreator tool
-    double                                                          mjo_annealingFactor;    //!< jobOption: The annealing factor used for Trk::CompetingRIOsOnTrack creation
+    double                                                          m_jo_annealingFactor;    //!< jobOption: The annealing factor used for Trk::CompetingRIOsOnTrack creation
 
     ToolHandle< InDet::ITRT_DetElementsRoadMaker >                  m_roadtool;             //!<  instance of the TRT road maker tool
 

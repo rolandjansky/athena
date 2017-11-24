@@ -144,7 +144,8 @@ namespace Trk {
     m_residuals{},
     m_updatescat{},
     m_useCaloTG(false),
-    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool") {
+    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
+    m_rejectLargeNScat(false){
     // tools and services
     declareProperty("ExtrapolationTool", m_extrapolator);
     declareProperty("MeasurementUpdateTool", m_updator);
@@ -205,6 +206,7 @@ namespace Trk {
     m_hitcount = 0;
     m_energybalance=0;
     declareProperty("FixBrem", m_fixbrem = -1);
+    declareProperty("RejectLargeNScat", m_rejectLargeNScat=false);
 
     declareInterface<IGlobalTrackFitter>(this);
     // m_miniter=1;
@@ -1267,7 +1269,6 @@ namespace Trk {
          else secondpseudostate=trajectory.trackStates().back();
          }*/
     }
-
     Track *track = myfit(trajectory, *startPar, false,
                          (m_fieldService->toroidOn() || m_fieldService->solenoidOn()) ? muon : nonInteracting);
     if (startPar != lastidpar && startPar != indettrack->perigeeParameters()) {
@@ -1479,7 +1480,7 @@ namespace Trk {
       if (rot && m_DetID->is_mdt(rot->identify()) && triggersurf1) {
         seenmdt = true;
       }
-      if (rot && (m_DetID->is_tgc(rot->identify()) || m_DetID->is_rpc(rot->identify()))) {
+      if (rot && (m_DetID->is_tgc(rot->identify()) || m_DetID->is_rpc(rot->identify()) || m_DetID->is_stgc(rot->identify())   )) {
         bool measphi = true;
         Amg::Vector3D measdir = surf->transform().rotation().col(0);
         double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
@@ -1708,7 +1709,6 @@ namespace Trk {
       trajectory.reset();
       trajectory.setPrefit(0);
       trajectory.setNumberOfPerigeeParameters(5);
-
       track = myfit(trajectory, *firstidpar, false, muon);
       m_matfilled = false;
     }
@@ -1942,7 +1942,6 @@ namespace Trk {
     }
 
     ATH_MSG_DEBUG("call myfit(GXFTrajectory,TP,,)");
-
     Track *track = myfit(trajectory, *minpar, runOutlier, matEffects);
     if (deleteminpar) {
       delete minpar;
@@ -2501,6 +2500,16 @@ namespace Trk {
               string2 = "CSC hit";
             }
             hittype = TrackState::CSC;
+          }else if (m_DetID->is_mm(hitid)) {
+            if (msgLvl(MSG::DEBUG)) {
+              string2 = "MM hit";
+            }
+            hittype = TrackState::MM;
+          }else if (m_DetID->is_stgc(hitid)) {
+            if (msgLvl(MSG::DEBUG)) {
+              string2 = "STGC hit";
+            }
+            hittype = TrackState::STGC;
           }
         }
         if (rotated) {
@@ -2536,7 +2545,7 @@ namespace Trk {
             errors[1] = sqrt(covmat(1, 1));
           }
         }
-        if (hittype == TrackState::RPC || hittype == TrackState::TGC || hittype == TrackState::CSC) {
+        if (hittype == TrackState::RPC || hittype == TrackState::TGC || hittype == TrackState::CSC || hittype == TrackState::STGC) {
           const Surface *surf = &measbase2->associatedSurface();
           Amg::Vector3D measdir = surf->transform().rotation().col(0);
           double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
@@ -3309,7 +3318,7 @@ public:
           }
         }
         if (meastype == TrackState::RPC || meastype == TrackState::CSC || meastype == TrackState::TGC ||
-            meastype == TrackState::MDT) {
+            meastype == TrackState::MDT || meastype == TrackState::MM || meastype == TrackState::STGC) {
           if (!firstmuonhit) {
             firstmuonhit = states[i]->measurement();
             // index_firstmuonhit=i;
@@ -3731,6 +3740,10 @@ public:
                                                               *states.back()->surface(), alongMomentum, false,
                                                               Trk::nonInteractingMuon);
         matvec = m_matvecmuondownstream;
+	if(matvec->size()>1000 && m_rejectLargeNScat){
+	  ATH_MSG_DEBUG("too many scatterers: "<<matvec->size());
+	  return;
+	}
         if (matvec && !matvec->empty()) {
           for (int j = 0; j < (int) matvec->size(); j++) {
             const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
@@ -3857,6 +3870,7 @@ public:
       bool addlayer = true;
       while (addlayer && layerno < (int) matstates.size()) {
         addlayer = false;
+	//std::cout<<"add "<<matstates.size()<<" states"<<std::endl;
         const TrackParameters *layerpar = matstates[layerno]->trackParameters();
 
 
@@ -3890,7 +3904,7 @@ public:
           GXFMaterialEffects *meff = matstates[layerno]->materialEffects();
           if (meff->sigmaDeltaPhi() > .4 || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
             if (meff->sigmaDeltaPhi() > .4) {
-              msg(MSG::WARNING) << "Material state with excessive scattering, skipping it" << endmsg;
+              msg(MSG::DEBUG) << "Material state with excessive scattering, skipping it" << endmsg;
             }
             if (meff->sigmaDeltaPhi() == 0) {
               msg(MSG::WARNING) << "Material state with zero scattering, skipping it" << endmsg;
@@ -3919,6 +3933,7 @@ public:
             const MaterialProperties *matprop = lay ? lay->fullUpdateMaterialProperties(*layerpar) : 0;
             meff->setMaterialProperties(matprop);
           }
+	  /*
           if (msgLvl(MSG::DEBUG)) {
             msg(MSG::DEBUG) << "X0: " << meff->x0();
             if (layerpar) {
@@ -3928,6 +3943,7 @@ public:
             msg(MSG::DEBUG) << " eloss: " << meff->deltaE() << " sigma eloss: " << meff->sigmaDeltaE();
             msg(MSG::DEBUG) << endmsg;
           }
+	  */
           layerno++;
         }
       }

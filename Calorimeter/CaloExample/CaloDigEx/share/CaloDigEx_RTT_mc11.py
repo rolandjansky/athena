@@ -8,7 +8,7 @@ jobproperties.AthenaCommonFlags.EvtMax=20
 
 #jobproperties.AthenaCommonFlags.PoolHitsInput.set_Value_and_Lock(['Sim_mc11.pool.root'])
 
-jobproperties.AthenaCommonFlags.PoolHitsInput.set_Value_and_Lock(['root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11b/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1354_s1360/HITS.580376._000962.pool.root.1'])
+jobproperties.AthenaCommonFlags.PoolHitsInput.set_Value_and_Lock(['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11b/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1354_s1360/HITS.580376._000962.pool.root.1'])
 jobproperties.AthenaCommonFlags.PoolRDOOutput.set_Value_and_Lock('CaloDigEx_mc11b.pool.root')
 
 #--------------------------------------------------------------

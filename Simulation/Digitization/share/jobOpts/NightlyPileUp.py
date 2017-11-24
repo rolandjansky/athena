@@ -10,7 +10,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax = 3
 athenaCommonFlags.SkipEvents=10
 
-athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1"]
+athenaCommonFlags.PoolHitsInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1"]
 athenaCommonFlags.PoolRDOOutput="PileUpDigiTest.root"
 
 #--------------------------------------------------------------
@@ -24,8 +24,8 @@ digitizationFlags.doHighPtMinBias=True
 digitizationFlags.numberOfHighPtMinBias=0.0
 digitizationFlags.doLowPtMinBias=True
 digitizationFlags.numberOfLowPtMinBias=2.3
-digitizationFlags.LowPtMinBiasInputCols=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1",
-"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1"]
+digitizationFlags.LowPtMinBiasInputCols=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1",
+"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1"]
 
 #time structure
 #for now use old flags...

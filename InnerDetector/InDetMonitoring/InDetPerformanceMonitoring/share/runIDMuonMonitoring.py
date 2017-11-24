@@ -14,11 +14,11 @@
 #
 
 
-#PoolInput = [ "root://eosatlas//eos/atlas/user/s/stahlman/ZmumuESD/data11_7TeV.00180710.physics_Muons.recon.DESD_ZMUMU.f371_m716_f371/data11_7TeV.00180710.physics_Muons.recon.DESD_ZMUMU.f371_m716_f371._0013.1" ]
+#PoolInput = [ "root://eosatlas.cern.ch//eos/atlas/user/s/stahlman/ZmumuESD/data11_7TeV.00180710.physics_Muons.recon.DESD_ZMUMU.f371_m716_f371/data11_7TeV.00180710.physics_Muons.recon.DESD_ZMUMU.f371_m716_f371._0013.1" ]
 #PoolInput = ["/afs/cern.ch/user/p/pbutti/spacework/MC_MSstudies/mc12_8TeV.107231.ParticleGenerator_mu_Pt50.recon.ESD.e1717_s1609_s1611_r4076_tid01148449_00/ESD.01148449._004032.pool.root.2"]
 
 #mc10b sample
-#PoolInput = [ "root://eosatlas//eos/atlas/user/s/stahlman/ZmumuESD/mc10_7TeV.106047.PythiaZmumu_no_filter.recon.ESD.e574_s933_s946_r2175/ESD.289298._000009.pool.root.1" ]
+#PoolInput = [ "root://eosatlas.cern.ch//eos/atlas/user/s/stahlman/ZmumuESD/mc10_7TeV.106047.PythiaZmumu_no_filter.recon.ESD.e574_s933_s946_r2175/ESD.289298._000009.pool.root.1" ]
 #mc14 sample
 #PoolInput = [ "/afs/cern.ch/user/s/sthenkel/work/QUALTASK/MC/mc14_valid.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e2658_s1967_s2008_r5787_tid04304891_00/AOD.04304891._000359.pool.root.1" ]
 #PoolInput = [ "/afs/cern.ch/user/s/sthenkel/work/QUALTASK/MC/mc14_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.AOD.e1852_s1896_s1912_r5591_tid01495119_00/AOD.01495119._005006.pool.root.1" ]

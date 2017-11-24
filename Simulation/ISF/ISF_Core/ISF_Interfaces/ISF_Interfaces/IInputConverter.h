@@ -21,34 +21,48 @@
 
 // forward declarations
 class McEventCollection;
+class G4Event;
+namespace HepMC {
+  class GenEvent;
+}
 
 namespace ISF {
 
   class ISFParticle;
 
   /**
-   @class IInputConverter
+     @class IInputConverter
 
-   Interface to Athena service that converts an input McEventCollection
-   into a container of ISFParticles.
+     Interface to Athena service that converts an input McEventCollection
+     into a container of ISFParticles.
 
-   @author Elmar.Ritsch -at- cern.ch
-   */
+     @author Elmar.Ritsch -at- cern.ch
+  */
 
   class IInputConverter : virtual public IInterface {
-     public:
+  public:
 
-       /** Virtual destructor */
-       virtual ~IInputConverter(){}
+    /** Virtual destructor */
+    virtual ~IInputConverter(){}
 
-       /** Tell Gaudi which InterfaceID we have */
-       DeclareInterfaceID( ISF::IInputConverter, 1, 0 );
+    /** Tell Gaudi which InterfaceID we have */
+    DeclareInterfaceID( ISF::IInputConverter, 1, 0 );
 
-      /** Convert selected particles from the given McEventCollection into ISFParticles
-          and push them into the given ISFParticleContainer */
-       virtual StatusCode convert(const McEventCollection& inputGenEvents,
-                                  ISFParticleContainer& simParticles,
-                                  bool isPileup) const = 0;
+    /** Convert selected particles from the given McEventCollection into ISFParticles
+        and push them into the given ISFParticleContainer */
+    virtual StatusCode convert(const McEventCollection& inputGenEvents,
+                               ISFParticleContainer& simParticles,
+                               bool isPileup) const = 0;
+
+    /** Convert selected particles from the given McEventCollection into G4PrimaryParticles
+        and push them into the given G4Event */
+    virtual StatusCode convertHepMCToG4Event(McEventCollection& inputGenEvents,
+                                             G4Event*& outputG4Event,
+                                             bool isPileup) const = 0;
+
+    /** Converts vector of ISF::ISFParticles to G4Event */
+    virtual G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const = 0;
+
   };
 
 } // end of ISF namespace

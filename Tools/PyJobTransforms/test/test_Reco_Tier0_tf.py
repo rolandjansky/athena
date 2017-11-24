@@ -21,7 +21,7 @@ import unittest
 from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfReports import pyJobReportToFileDict
 
-sourceFile = 'root://eosatlas//eos/atlas/user/g/graemes/data12_8TeV.00211620.physics_ZeroBias.merge.RAW/data12_8TeV.00211620.physics_ZeroBias.merge.RAW._lb0916._SFO-ALL._0001.1'
+sourceFile = 'root://eosatlas.cern.ch//eos/atlas/user/g/graemes/data12_8TeV.00211620.physics_ZeroBias.merge.RAW/data12_8TeV.00211620.physics_ZeroBias.merge.RAW._lb0916._SFO-ALL._0001.1'
 
 class RecoTier0test(unittest.TestCase):
     

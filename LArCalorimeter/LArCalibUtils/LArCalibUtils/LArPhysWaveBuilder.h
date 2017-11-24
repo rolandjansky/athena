@@ -73,7 +73,7 @@ class LArPhysWaveBuilder : public AthAlgorithm
 private:
   /// === Private methods
   /// Make the wave container from the accumulated waves.
-  StatusCode make_container (LArPhysWaveContainer*& larPhysWaveContainer);
+  StatusCode make_container (std::unique_ptr<LArPhysWaveContainer>& larPhysWaveContainer);
 
   /// Dump the accumulated waves to a root file.
   StatusCode write_root (LArPhysWaveContainer* larPhysWaveContainer);

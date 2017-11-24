@@ -13,7 +13,7 @@ print "today is ",today
 yesterday = (today + 6) % 7
 s_nightly_aod_yesterday = "/afs/cern.ch/atlas/software/builds/nightlies/20.7.X-VAL/AtlasAnalysis/rel_%s/NICOS_area/NICOS_atntest207XVAL64BS6G49AnlOpt/triganalysistest_testconfiguration_work/TrigHLT_Run1BStoxAOD/myAOD.pool.root" % yesterday
 print "the path for AOD from yesterday's ATN is: ", s_nightly_aod_yesterday
-s_ref_file = 'root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root'
+s_ref_file = 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root'
 print "check if the ATN output file exists..."
 s_file = "";
 

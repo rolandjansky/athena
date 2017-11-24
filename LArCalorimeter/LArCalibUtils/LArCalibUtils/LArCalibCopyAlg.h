@@ -76,19 +76,6 @@ private:
   typedef typename CONDITIONSCONTAINER::ConstConditionsMapIterator CONTIT;
   typedef typename CONDITIONSCONTAINER::LArCondObj LArCondObj;
   typedef typename CONDITIONSCONTAINER::ConstCorrectionIt CORRIT;
-
-  //Generic case
-  //StatusCode setSymlink(const CONDITIONSCONTAINER*  ) const {return StatusCode::SUCCESS;}
-  StatusCode setSymlink(const LArPhysWaveContainer* ) const {return StatusCode::SUCCESS;}
-  
-  //Specialized methods to set symlinks for the different types
-  StatusCode setSymlink(const LArRampComplete* ramp) const;
-  StatusCode setSymlink(const LArPedestalComplete* ramp) const;
-  StatusCode setSymlink(const LArOFCComplete* ofc) const;
-  StatusCode setSymlink(const LArMphysOverMcalComplete* mpmc) const;
-  StatusCode setSymlink(const LArDAC2uAMC* ramp) const;
-  StatusCode setSymlink(const LArTdriftComplete* obj) const;
-
   
   
   std::string m_inputName;

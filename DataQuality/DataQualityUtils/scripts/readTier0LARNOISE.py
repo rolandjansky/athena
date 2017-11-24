@@ -46,7 +46,7 @@ tree = TChain("CollectionTree")
 print listOfFiles
 for fileNames in listOfFiles:
   print "Adding %s"%(fileNames)
-  tree.AddFile("root://eosatlas/%s"%(fileNames))
+  tree.AddFile("root://eosatlas.cern.ch/%s"%(fileNames))
 
 entries = tree.GetEntries()
 if entries != 0:

@@ -55,6 +55,12 @@ public:
   MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
                                          ISF::ISFParticleContainer&,
                                          bool));
+  MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
+                                                       G4Event*&,
+                                                       bool));
+  MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                              HepMC::GenEvent*));
+
 }; // MockInputConverter class
 
 DECLARE_SERVICE_FACTORY( MockInputConverter )

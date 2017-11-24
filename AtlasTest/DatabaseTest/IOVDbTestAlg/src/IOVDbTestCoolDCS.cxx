@@ -16,8 +16,8 @@ IOVDbTestCoolDCS::IOVDbTestCoolDCS(const std::string& name,
 				   ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("AttrListFolders",par_atrlist);
-  declareProperty("AttrListCollFolders",par_atrcollist);
+  declareProperty("AttrListFolders",m_par_atrlist);
+  declareProperty("AttrListCollFolders",m_par_atrcollist);
 }
 
 IOVDbTestCoolDCS::~IOVDbTestCoolDCS()
@@ -26,11 +26,11 @@ IOVDbTestCoolDCS::~IOVDbTestCoolDCS()
 StatusCode IOVDbTestCoolDCS::initialize() {
 
   ATH_MSG_INFO("DCS conditions data folders to be read as AthenaAttributeList (single channel)");
-  for (std::vector<std::string>::const_iterator itr=par_atrlist.begin();
-       itr!=par_atrlist.end();++itr) ATH_MSG_INFO(*itr);
+  for (std::vector<std::string>::const_iterator itr=m_par_atrlist.begin();
+       itr!=m_par_atrlist.end();++itr) ATH_MSG_INFO(*itr);
   ATH_MSG_INFO("DCS conditions data folders to be read as CondAttrListCollection (multichannel)");
-  for (std::vector<std::string>::const_iterator itr=par_atrcollist.begin();
-       itr!=par_atrcollist.end();++itr) ATH_MSG_INFO(*itr);
+  for (std::vector<std::string>::const_iterator itr=m_par_atrcollist.begin();
+       itr!=m_par_atrcollist.end();++itr) ATH_MSG_INFO(*itr);
 
   return StatusCode::SUCCESS;
 }
@@ -51,8 +51,8 @@ StatusCode IOVDbTestCoolDCS::execute() {
 
   // print all the AthenaAttributeList
   const AthenaAttributeList* atrlist;
-  for (std::vector<std::string>::const_iterator itr=par_atrlist.begin();
-       itr!=par_atrlist.end();++itr) {
+  for (std::vector<std::string>::const_iterator itr=m_par_atrlist.begin();
+       itr!=m_par_atrlist.end();++itr) {
     if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,*itr)) {
       // the following code dumps the attribute list into a string for printing
       // to access individual elements by name, use e.g.
@@ -69,8 +69,8 @@ StatusCode IOVDbTestCoolDCS::execute() {
    
   // print all CondAttrListCollection
   const CondAttrListCollection* atrlistcol;
-  for (std::vector<std::string>::const_iterator itr=par_atrcollist.begin();
-       itr!=par_atrcollist.end();++itr) {
+  for (std::vector<std::string>::const_iterator itr=m_par_atrcollist.begin();
+       itr!=m_par_atrcollist.end();++itr) {
     if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,*itr)) {
       // loop over collection
       for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();

@@ -232,6 +232,29 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       if(passIsolatedTracklet==false)
 	continue;
       
+      if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9){
+	passIsolatedTracklet = false;
+	continue;
+      }
+      
+      if(TMath::Prob(Tracklet->chiSquared(), Tracklet->numberDoF()) < 0.1){
+	passIsolatedTracklet = false;
+	continue;
+      }
+
+      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<4){
+	passIsolatedTracklet = false;
+	continue;
+      }
+      
+      if(Tracklet->auxdata<UChar_t>("numberOfPixelSpoiltHits")>0){
+	passIsolatedTracklet = false;
+	continue;
+      }
+      
+      if(passIsolatedTracklet==false)
+	continue;
+      
       if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9)
 	continue;
       

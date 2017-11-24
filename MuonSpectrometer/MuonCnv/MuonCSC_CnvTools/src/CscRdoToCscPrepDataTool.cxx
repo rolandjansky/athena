@@ -42,8 +42,6 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : AthAlgTool(type, name, parent),
     m_muonMgr(0),
     m_cscHelper(0),
-    m_outputCollection("CSC_Measurements"),
-    m_rdoContainer("CSCRDO"),
     m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
     m_cscCalibTool( "CscCalibTool/CscCalibTool"),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder"),
@@ -52,14 +50,15 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
 
   declareInterface<IMuonRdoToPrepDataTool>(this);
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
-  declareProperty("OutputCollection",    m_outputCollection );
-  declareProperty("RDOContainer",        m_rdoContainer );
   declareProperty("DecodeData",          m_decodeData = true ); 
   declareProperty("useBStoRdoTool",      m_useBStoRdoTool = false ); 
   // tools 
   declareProperty("RawDataProviderTool", m_rawDataProviderTool);
   declareProperty("CscCalibTool",        m_cscCalibTool );
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
+  // DataHandle
+  declareProperty("RDOContainer",        m_rdoContainerKey = std::string("CSCRDO"),"CscRawDataContainer to retrieve");
+  declareProperty("OutputCollection", 	 m_outputCollectionKey = std::string("CSC_Measurements"),"Muon::CscStripPrepDataContainer to record");
 }  
 
 // destructor 
@@ -114,6 +113,11 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
     return StatusCode::FAILURE;
   }
 
+  // check if initializing of DataHandle objects success
+  ATH_CHECK( m_rdoContainerKey.initialize() );
+ 
+  ATH_CHECK( m_outputCollectionKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -126,10 +130,16 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // clear output vector of selected data collections containing data
   decodedIdhs.clear();
 
-  if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollection.key())) {
-    
+  if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionKey.key())) {    
     /// record the container in storeGate
-    m_outputCollection = std::unique_ptr<Muon::CscStripPrepDataContainer>(new CscStripPrepDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())); 
+    SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
+    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+
+    if (status.isFailure() || !outputHandle.isValid() )       {
+      ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
+      return StatusCode::FAILURE;
+    } 
+    m_outputCollection = outputHandle.ptr();
 
     if (sizeVectorRequested == 0) {
       m_fullEventDone=true;
@@ -175,14 +185,15 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // or 
   // will activate the TP converter for reading from pool root the RDO container and recording it in SG
 
-  if (!m_rdoContainer.isValid()) {
+  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
+  if (!rdoContainerHandle.isValid()) {
     ATH_MSG_WARNING ( "No CSC RDO container in StoreGate!" );
     return StatusCode::SUCCESS;
   }	
-  const CscRawDataContainer* rdoContainer = m_rdoContainer.cptr();
+  const CscRawDataContainer* rdoContainer = rdoContainerHandle.cptr();
 
   ATH_MSG_DEBUG ( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
-  // here the RDO container is in SG and its pointer m_rdoContainer is initialised 
+  // here the RDO container is in SG and its pointer rdoContainer is initialised 
   // decoding 
   if (sizeVectorRequested)  {
     // seeded decoding
