@@ -68,13 +68,13 @@ public:
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
   
   typedef std::vector<std::vector<int>> sectormap;
-  sectormap* readSectorDefinition (unsigned int tower, const char *name);
 
+  int readModuleIds(unsigned int itower, sectormap& hashID);
     
   unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
 
   
-  bool findHash(unsigned int hash, unsigned int& tower, unsigned int& sector, unsigned int& plane);
+  bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
 
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
@@ -135,7 +135,6 @@ public:
   unsigned int m_minMatches;
   bool m_reverseIBLlocx;
 
-  size_t m_max_plane;
   size_t m_max_tower;
 
   std::vector<sectormap*> m_moduleFromSector;
