@@ -215,6 +215,7 @@ int main (int argc, char* argv[])
         canvas->Print(Form("%u-fixMass-%s",counter++,outFile.Data()));
     }
 
+    delete hist_pt_eta;
 
     return 0;
 }
