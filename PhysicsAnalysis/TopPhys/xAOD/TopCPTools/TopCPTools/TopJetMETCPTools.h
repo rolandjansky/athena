@@ -51,6 +51,9 @@ class JetMETCPTools final : public asg::AsgTool {
   std::string m_jetAntiKt4_Data_ConfigFile;
   std::string m_jetAntiKt4_Data_CalibSequence;
 
+  std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
+  std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+
   std::string m_jetAntiKt4_MCFS_ConfigFile;
   std::string m_jetAntiKt4_MCFS_CalibSequence;
 
