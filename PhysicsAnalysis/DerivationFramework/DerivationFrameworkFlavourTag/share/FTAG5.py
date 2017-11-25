@@ -67,9 +67,7 @@ DerivationFrameworkJob += FTAG5Seq
 #====================================================================
 
 #put custom jet names here
-OutputJets["FTAG5"] = ["AntiKt4EMTopoJets",
-                       "AntiKtVR30Rmax4Rmin02TrackJets",
-                       "AntiKt4EMPFlowJets"]
+OutputJets["FTAG5"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -96,8 +94,8 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
-                                 'AntiKt4EMTopoJets'], Sequencer = FTAG5Seq)
+# FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
+#                                  'AntiKt4EMTopoJets'], Sequencer = FTAG5Seq)
 
 #==================================================================
 # Augment tracks in jets with additional information
@@ -105,17 +103,17 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
 # NOTE: this is commented out until we figure out why the tool can't
 # find jet collections.
 #
-#FTAG5Seq += CfgMgr.BTagVertexAugmenter()
-#for jc in OutputJets["FTAG5"]:
-#    if 'Truth' in jc:
-#        continue
-#    FTAG5Seq += CfgMgr.BTagTrackAugmenter(
-#        "BTagTrackAugmenter_" + jc,
-#        OutputLevel=INFO,
-#        JetCollectionName = jc,
-#        TrackToVertexIPEstimator = FTAG5IPETool,
-#        SaveTrackVectors = True,
-#    )
+FTAG5Seq += CfgMgr.BTagVertexAugmenter()
+for jc in OutputJets["FTAG5"]:
+   if 'Truth' in jc:
+       continue
+   FTAG5Seq += CfgMgr.BTagTrackAugmenter(
+       "BTagTrackAugmenter_" + jc,
+       OutputLevel=INFO,
+       JetCollectionName = jc,
+       TrackToVertexIPEstimator = FTAG5IPETool,
+       SaveTrackVectors = True,
+   )
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -146,30 +144,20 @@ FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo 
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG5SlimmingHelper.SmartCollections = ["Electrons","Muons",
-                                        "InDetTrackParticles",
-                                        "AntiKt4EMTopoJets","BTagging_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMPFlowJets",
-                                        "MET_Reference_AntiKt4EMPFlow"]
+                                        "InDetTrackParticles"]
 
-FTAG5SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
-                                    "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                    "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-                                    "BTagging_AntiKt4EMTopo",
-                                    "BTagging_AntiKt4EMTopoJFVtx",
-                                    "BTagging_AntiKt4EMPFlow",
-                                    "BTagging_AntiKt4EMPFlowJFVtx",
-                                    "BTagging_AntiKt2Track",
-                                    "BTagging_AntiKt2TrackJFVtx", 
-                                    "PrimaryVertices",
-                                    "TruthEvents",
-                                    "TruthParticles",
-                                    "TruthVertices",
-                                    "MET_Truth",
-                                    "MET_TruthRegions"]
+FTAG5SlimmingHelper.AllVariables = [
+    "BTagging_AntiKtVR30Rmax4Rmin02Track",
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+    "PrimaryVertices",
+    "TruthEvents",
+    "TruthParticles",
+    "TruthVertices",
+    "MET_Truth",
+    "MET_TruthRegions"]
 
-for FT5_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
-    FTAG5SlimmingHelper.AllVariables.append(FT5_bjetTriggerVtx)
+# for FT5_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
+#     FTAG5SlimmingHelper.AllVariables.append(FT5_bjetTriggerVtx)
 
 FTAG5SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
                                        "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
@@ -182,13 +170,8 @@ FTAG5SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
                                        "InDetForwardTrackParticles.phi.qOverP.theta",
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
-                                       "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
-                                       "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
-                                       "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
 
 addJetOutputs(FTAG5SlimmingHelper,["FTAG5"],[],[])
@@ -219,15 +202,15 @@ FTAG5SlimmingHelper.AppendToDictionary = {
 
 addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
 
-FTAG5SlimmingHelper.IncludeMuonTriggerContent = True
-FTAG5SlimmingHelper.IncludeEGammaTriggerContent = True
-FTAG5SlimmingHelper.IncludeJetTriggerContent = True
-FTAG5SlimmingHelper.IncludeEtMissTriggerContent = True
-FTAG5SlimmingHelper.IncludeBJetTriggerContent = True
+# FTAG5SlimmingHelper.IncludeMuonTriggerContent = True
+# FTAG5SlimmingHelper.IncludeEGammaTriggerContent = True
+# FTAG5SlimmingHelper.IncludeJetTriggerContent = True
+# FTAG5SlimmingHelper.IncludeEtMissTriggerContent = True
+# FTAG5SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG5 TrigNav Thinning
-FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
-FTAG5ThinningHelper.TriggerChains = 'HLT_.*b.*perf.*|HLT_mu.*|HLT_e.*'
-FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
+# FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
+# FTAG5ThinningHelper.TriggerChains = 'HLT_.*b.*perf.*|HLT_mu.*|HLT_e.*'
+# FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)
