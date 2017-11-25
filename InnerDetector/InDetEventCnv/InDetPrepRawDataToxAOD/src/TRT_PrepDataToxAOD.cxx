@@ -114,7 +114,6 @@ StatusCode TRT_PrepDataToxAOD::execute()
     SG::ReadHandle<PRD_MultiTruthCollection> m_prdmtColl(m_multiTruth);
     if (not m_prdmtColl.isValid()){
       ATH_MSG_ERROR("ERROR in retrieving PRD MultiTruth collection (" << m_multiTruth.key() << ").");
-      return StatusCode::FAILURE;
     } else {
       prdmtColl = m_prdmtColl.cptr();
     }
@@ -128,7 +127,6 @@ StatusCode TRT_PrepDataToxAOD::execute()
     SG::ReadHandle<InDetSimDataCollection> m_sdoCollection(m_SDOcontainer);
     if (not m_sdoCollection.isValid()) {
       ATH_MSG_ERROR("ERROR in retrieving SDO container Collection = " << m_SDOcontainer.key());
-      return StatusCode::FAILURE;
     } else{
       sdoCollection = m_sdoCollection.cptr();
     }
