@@ -19,14 +19,14 @@ ToolSvc.auto.WeightTool = ToolSvc.MyWeights
 
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-algseq += CfgMgr.CP__PileupReweightingProvider(ConfigOutputStream="METADATA",Tool=ToolSvc.auto)                           #adds an instance of your alg to it
+algseq += CfgMgr.CP__PileupReweightingProvider(ConfigOutputStream="NTUP_PILEUP",Tool=ToolSvc.auto)                           #adds an instance of your alg to it
 
 include("AthAnalysisBaseComps/SuppressLogging.py")       #Optional include to suppress as much athena output as possible
 
 outputFile = vars().get("outputPRWFile","my.prw.root")
 
 svcMgr += CfgMgr.THistSvc()
-svcMgr.THistSvc.Output += ["METADATA DATAFILE='" + outputFile + "' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["NTUP_PILEUP DATAFILE='" + outputFile + "' OPT='RECREATE'"]
 
 #use on the grid like this:
 #pathena PileupReweighting/generatePRW_jobOptions.py --inDS="etc/,etc/,etc/" --outDS="user.whatever.myprw/" --extOutFile="auto.prw.root"
