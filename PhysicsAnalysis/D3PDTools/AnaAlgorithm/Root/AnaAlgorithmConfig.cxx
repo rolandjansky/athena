@@ -95,6 +95,16 @@ namespace EL
 
 
 
+  void AnaAlgorithmConfig ::
+  setPropertyFromString (const std::string& name,
+                         const std::string& value)
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_propertyValues[name] = value;
+  }
+
+
+
   ::StatusCode AnaAlgorithmConfig ::
   makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
   {
