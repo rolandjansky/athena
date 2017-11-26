@@ -4,26 +4,33 @@
 #====================================================================
 
 # Set up common services and job object.
-# This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-from DerivationFrameworkExotics.JetDefinitions import *
-from JetRec.JetRecStandard import jtm
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+
+# Framework core
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkJob, buildFileName)
+from DerivationFrameworkCore.ThinningHelper import (
+    ThinningHelper)
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-from DerivationFrameworkFlavourTag.HbbCommon import *
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-from DerivationFrameworkFlavourTag.FlavourTagAllVariables import FTAllVars_bjetTriggerVtx
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackToVertexWrapper
-from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+    DerivationFramework__DerivationKernel)
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
+    DerivationFramework__xAODStringSkimmingTool)
+
+# JetEtMiss
+from DerivationFrameworkJetEtMiss.JetCommon import (
+    OutputJets, addJetOutputs)
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addDefaultTrimmedJets, replaceAODReducedJets)
+from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import (
+    AntiKt4EMTopoJetsCPContent)
+
+# tracking
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
+    Trk__TrackToVertexIPEstimator)
+
+# flavor tagging
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 #====================================================================
 # SKIMMING TOOLS
@@ -202,15 +209,15 @@ FTAG5SlimmingHelper.AppendToDictionary = {
 
 addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
 
-# FTAG5SlimmingHelper.IncludeMuonTriggerContent = True
-# FTAG5SlimmingHelper.IncludeEGammaTriggerContent = True
-# FTAG5SlimmingHelper.IncludeJetTriggerContent = True
-# FTAG5SlimmingHelper.IncludeEtMissTriggerContent = True
-# FTAG5SlimmingHelper.IncludeBJetTriggerContent = True
+FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
+FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
+FTAG5SlimmingHelper.IncludeJetTriggerContent = False
+FTAG5SlimmingHelper.IncludeEtMissTriggerContent = False
+FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
 
 #FTAG5 TrigNav Thinning
-# FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
-# FTAG5ThinningHelper.TriggerChains = 'HLT_.*b.*perf.*|HLT_mu.*|HLT_e.*'
-# FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
+FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
+FTAG5ThinningHelper.TriggerChains = ''
+FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)
