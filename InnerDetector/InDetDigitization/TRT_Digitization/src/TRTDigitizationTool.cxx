@@ -592,6 +592,18 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   ATH_MSG_DEBUG ( "TRTDigitization::execute()" );
 
+  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName);
+  ATH_CHECK(m_trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
+  ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
+  
+  if (not m_trtrdo_container.isValid()) {
+    ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
+    return StatusCode::FAILURE;
+  }else {
+    ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
+  }
+
+
   m_vDigits.clear();
 
   //Set of all hitid's with simhits (used for noise simulation).
@@ -690,6 +702,16 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   ATH_MSG_DEBUG ( "TRTDigitization::execute()"  );
 
+  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName);
+  ATH_CHECK(m_trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
+  ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
+  if (not m_trtrdo_container.isValid()) {
+    ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
+    return StatusCode::FAILURE;
+  }else {
+    ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
+  }
+
 
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
@@ -748,17 +770,6 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 StatusCode TRTDigitizationTool::createAndStoreRDOs()
 {
 
-  SG::WriteHandle<TRT_RDO_Container> trtrdo_container(m_outputRDOCollName); 
-  ATH_CHECK(trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
-  ATH_MSG_DEBUG ( " TRT_RDO_Container created " ); 
-
-  if (not trtrdo_container.isValid()) {
-    ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
-    return StatusCode::FAILURE;
-  }else {                                                                                                                         
-    ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );  
-  }
-
   std::vector<TRTDigit>::const_iterator TRTDigitIter(m_vDigits.begin());
   std::vector<TRTDigit>::const_iterator endOfTRTDigits(m_vDigits.end());
 
@@ -798,7 +809,7 @@ StatusCode TRTDigitizationTool::createAndStoreRDOs()
       RDOColl->setIdentifier(layer_id);
 
       // Add to the container
-      if (trtrdo_container->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
+      if (m_trtrdo_container->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
 	ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
 	return StatusCode::FAILURE;
       } else {

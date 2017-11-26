@@ -29,7 +29,7 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "StoreGate/WriteHandleKey.h"
-
+#include "StoreGate/WriteHandle.h"
 
 class PileUpMergeSvc;
 class ITRT_PAITool;
@@ -117,6 +117,7 @@ private:
   std::string m_dataObjectName; /**< Name of the hits collections */
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */ 
+  SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
 
   bool m_printOverrideableSettings;
   bool m_printUsedDigSettings;
