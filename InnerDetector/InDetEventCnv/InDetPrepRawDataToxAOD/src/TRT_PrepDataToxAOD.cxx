@@ -113,7 +113,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   if (m_useTruthInfo && (!m_multiTruth.key().empty())  ) {
     SG::ReadHandle<PRD_MultiTruthCollection> m_prdmtColl(m_multiTruth);
     if (not m_prdmtColl.isValid()){
-      ATH_MSG_ERROR("ERROR in retrieving PRD MultiTruth collection (" << m_multiTruth.key() << ").");
+      ATH_MSG_WARNING("PRD MultiTruth collection not available (" << m_multiTruth.key() << "). Skipping this info although requested.");
     } else {
       prdmtColl = m_prdmtColl.cptr();
     }
@@ -126,7 +126,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
   if (m_writeSDOs && m_useTruthInfo && (!m_SDOcontainer.key().empty()) ) {
     SG::ReadHandle<InDetSimDataCollection> m_sdoCollection(m_SDOcontainer);
     if (not m_sdoCollection.isValid()) {
-      ATH_MSG_ERROR("ERROR in retrieving SDO container Collection = " << m_SDOcontainer.key());
+      ATH_MSG_WARNING("SDO Collection not available (" << m_SDOcontainer.key() << "). Skipping this info although requested.");
     } else{
       sdoCollection = m_sdoCollection.cptr();
     }
