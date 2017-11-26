@@ -111,7 +111,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
-  ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:
