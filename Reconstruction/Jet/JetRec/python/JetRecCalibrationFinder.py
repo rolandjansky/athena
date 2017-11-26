@@ -46,11 +46,12 @@ class JetRecCalibrationFinder:
     
   # Dictionary for calibration configurations.
   configDict = {
-    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
+    # Note that these are not available in the most recent calibration area
+    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
@@ -116,8 +117,11 @@ class JetRecCalibrationFinder:
         raise KeyError
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
+      # Fix the calibration area tag to that used for T0 reconstruction for consistency
+      T0CalibArea = "00-04-77"
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, RhoKey=evskey,
+                                CalibSequence=fullseq, CalibArea=T0CalibArea)
 
     return jtm.tools[tname]
 
