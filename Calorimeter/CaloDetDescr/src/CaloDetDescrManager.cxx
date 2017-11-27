@@ -24,7 +24,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "boost/foreach.hpp"
 #include <cmath>
 
 CaloDetDescrManager_Base::CaloDetDescrManager_Base():
@@ -1684,13 +1683,11 @@ CaloSuperCellDetDescrManager::~CaloSuperCellDetDescrManager()
   // But for the supercell case, we do.
   // So delete them here.
 
-  BOOST_FOREACH (const CaloDetDescriptor* d, tile_descriptors_range()) {
+  for (const CaloDetDescriptor* d : tile_descriptors_range()) {
     delete d;
   }
 
-  BOOST_FOREACH (const CaloDetDescrElement* d,
-                 element_range (CaloCell_ID::TILE))
-  {
+  for (const CaloDetDescrElement* d : element_range (CaloCell_ID::TILE)) {
     delete d;
   }
 }
