@@ -147,7 +147,6 @@ def GetReleaseSetup(isCImode=False):
     platform=os.environ['Athena_PLATFORM']
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
-    print(builds_dir_searchStr)
     # finds all directories matching above search pattern, and sorts by modification time
     # suggest to use latest opt over dbg
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
@@ -164,7 +163,6 @@ def GetReleaseSetup(isCImode=False):
 
     logging.info("Your tags will be tested in environment "+setup)
 
-    sys.exit(0)
     return setup
 
 ###############################
