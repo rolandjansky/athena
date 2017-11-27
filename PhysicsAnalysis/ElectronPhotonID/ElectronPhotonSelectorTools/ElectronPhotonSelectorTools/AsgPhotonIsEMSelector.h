@@ -58,35 +58,15 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
-
-  /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
-    return accept(&part);
-  }
   
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
-
-  /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
-    return accept(&part);
-  }
 
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
-    return accept(&part);
-  }
-
-  /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const{
-    return accept(&part);
-  }
 
   /** The value of the isem **/
   virtual unsigned int IsemValue() const ;
