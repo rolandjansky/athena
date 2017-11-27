@@ -6,7 +6,9 @@
 #define TRIGMUFASTHYPO_TRIGMUFASTHYPOTOOL_H 1
 
 #include <string>
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
+#include "DecisionHandling/HLTIdentifier.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
@@ -26,22 +28,40 @@ enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class TrigMufastHypoTool: virtual public ::AthAlgTool {	
-  enum { MaxNumberTools = 20 };  
+class TrigMufastHypoTool: public ::AthAlgTool {	
+  enum { MaxNumberTools = 20 }; 
   public:
 
     TrigMufastHypoTool(const std::string& type, 
 		       const std::string & name,
-		       ISvcLocator* pSvcLocator);
-    ~TrigMufastHypoTool();
-    
-    StatusCode initialize();    
-    StatusCode decide(const xAOD::L2StandAloneMuonContainer* vectorOfMuons,
-		      bool& pass);
+		       const IInterface* parent );
+
+    virtual ~TrigMufastHypoTool();
+
+    struct MuonClusterInfo {
+    MuonClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::L2StandAloneMuon* c,
+  		     const TrigCompositeUtils::Decision* previousDecision )
+    : decision( d ), 
+      roi( r ), 
+      cluster( c ),
+      previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
+			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+      {}
+      
+      TrigCompositeUtils::Decision* decision;
+      const TrigRoiDescriptor* roi;
+      const xAOD::L2StandAloneMuon* cluster;
+      const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+    };
+
+    virtual StatusCode initialize() override;    
+
+    virtual StatusCode decide(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
+    virtual StatusCode decide(TrigMufastHypoTool::MuonClusterInfo& input) const;
     
   private:
 
-    //HLT::Identifier m_decisionId;
+    HLT::Identifier m_decisionId;
     
     float getLocalPhi(float, float, float) const;
     TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
@@ -60,8 +80,8 @@ class TrigMufastHypoTool: virtual public ::AthAlgTool {
     // Other members:   
     std::vector<float>::size_type m_bins;
 
-    ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };  
+    ToolHandle< GenericMonitoringTool > m_monTool;  
 };
 
-//DECLARE_ALGORITHM_FACTORY( TrigMufastHypoTool )
+DECLARE_TOOL_FACTORY( TrigMufastHypoTool )
 #endif

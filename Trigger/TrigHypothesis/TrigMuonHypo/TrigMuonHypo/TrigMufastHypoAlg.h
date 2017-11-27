@@ -32,9 +32,9 @@ class TrigMufastHypoAlg
 
    virtual ~TrigMufastHypoAlg();
 
-   StatusCode  initialize() override;
-   StatusCode  execute_r( const EventContext& context ) const override;
-   StatusCode  finalize() override;
+   virtual StatusCode  initialize() override;
+   virtual StatusCode  execute_r( const EventContext& context ) const override;
+   virtual StatusCode  finalize() override;
     
   private:
  
@@ -43,8 +43,9 @@ class TrigMufastHypoAlg
 
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey;
 
-    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsCollectionKey;
-    SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastCollectionKey;
+    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsKey;
+    SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey;
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiKey;
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_previousDecisionsKey;
 };
 

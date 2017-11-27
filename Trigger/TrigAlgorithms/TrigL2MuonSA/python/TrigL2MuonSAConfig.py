@@ -129,7 +129,7 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
         # adding Geometry Services
-        
+
         # Histograms for monitored variables
         validation = TrigL2MuonSAValidationMonitoring()
         online     = TrigL2MuonSAOnlineMonitoring()
@@ -138,6 +138,9 @@ class TrigL2MuonSAConfig(MuFastSteering):
         time       = TrigTimeHistToolConfig('TimeHisto')
 
         self.AthenaMonTools = [ validation, online, cosmic, time ]
+
+	# Setup MonTool for monitored variables in AthenaMonitoring package
+        self.monTool = TrigL2MuonSAMonitoring_Multi() 
 
         def setDefaults(cls,handle):
             if hasattr(handle,'BackExtrapolator'):

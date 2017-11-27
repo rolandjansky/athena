@@ -85,11 +85,14 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
   filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
- 
+
+  # set up Monitoring of MuFastSteering
+  #TriggerFlags.enableMonitoring=[ "Validation" ]
+
   # set up MuFastSteering
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-  from TrigL2MuonSA.TrigL2MuonSAConfig import MuFastSteering
-  muFastAlg = MuFastSteering()
+  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
+  muFastAlg = TrigL2MuonSAConfig("Muon")
   muFastAlg.OutputLevel = DEBUG
 
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
@@ -114,8 +117,6 @@ if TriggerFlags.doMuon:
     muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
     muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
 
-    #muFastAlg.MonTool = "Validation"
-
   else:
     muFastAlg.MuRoIs = "MURoIs"
     muFastAlg.RecMuonRoI = "RecMURoIs"
@@ -126,14 +127,20 @@ if TriggerFlags.doMuon:
 
   # set up MuFastHypo
   if viewTest:
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
-    trigMufastHypo = TrigMufastHypoAlg()
+    #from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
+    #trigMufastHypo = TrigMufastHypoAlg()
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
+    trigMufastHypo = TrigMufastHypoConfig("L2MufastHypo", "6GeV")
     trigMufastHypo.OutputLevel = DEBUG
 
     trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
     trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
+    trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
     trigMufastHypo.Decisions = "L2MuonFastDecisions"
     trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
+
+
+    #trigMufastHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
 
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, trigMufastHypo, muFastDecisionsDumper])
