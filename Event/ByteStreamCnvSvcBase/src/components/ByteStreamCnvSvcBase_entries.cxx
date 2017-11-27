@@ -1,7 +1,7 @@
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddressProviderSvc.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "..//ROBDataProviderMTTest.h"
+#include "../ROBDataProviderMTTest.h"
 
 DECLARE_COMPONENT( ByteStreamCnvSvcBase )
 DECLARE_COMPONENT( ByteStreamAddressProviderSvc )
