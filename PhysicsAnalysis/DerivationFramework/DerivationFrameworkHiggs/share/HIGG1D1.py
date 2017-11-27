@@ -228,7 +228,6 @@ scheduleMETAssocAlg(HIGG1D1Seq)
 
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 addOriginCorrection("AntiKt4EMTopo", HIGG1D1Seq, "jetaug_HggVtx", "Hgg")
-addOriginCorrection("AntiKt4EMPFlow", HIGG1D1Seq, "Pflowjetaug_HggVtx", "Hgg")
 
 # Before any custom jet reconstruction, it's good to set up the output list
 OutputJets["HIGG1D1Jets"] = []
