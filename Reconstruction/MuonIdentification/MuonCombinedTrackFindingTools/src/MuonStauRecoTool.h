@@ -155,6 +155,10 @@ namespace MuonCombined {
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
     virtual void extend( const InDetCandidateCollection& inDetCandidates ) override;
 
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
+				const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs,
+				const Muon::MMPrepDataContainer* mmPRDs) override;
+
   private:
     /** handle a single candidate */
     void handleCandidate( const InDetCandidate& inDetCandidate );
