@@ -1015,7 +1015,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
          float vmmStartTime = (*(it_REID->second.begin())).time();
 
          sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
-         theVMM->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+         theVMM->setMessageLevel(msgLevel());
          theVMM->initialReport();
 
          bool vmmControl = true;
