@@ -993,19 +993,20 @@ namespace met {
 	ATH_MSG_VERBOSE("Mu total eloss " << total_eloss);
 
 	MissingETBase::Types::constvec_t mu_calovec;
-	// borrowed from overlapCalVec
+	// borrowed from overlapCalVec	
 	for(size_t iKey = 0; iKey < assoc->sizeCal(); iKey++) {
 	  bool selector = (muons_selflags & assoc->calkey()[iKey]);
 	  ATH_MSG_VERBOSE("This key: " << assoc->calkey()[iKey] << ", selector: " << selector
 			  << " this calvec E: " << assoc->calVec(iKey).ce());
 	  if(selector) mu_calovec += assoc->calVec(iKey);
 	}
-	if(m_muEloss) mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
-	opx += mu_calovec.cpx();
-	opy += mu_calovec.cpy();
-	osumpt += mu_calovec.sumpt();
+	if(m_muEloss){
+	  mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
+	  opx += mu_calovec.cpx();
+	  opy += mu_calovec.cpy();
+	  osumpt += mu_calovec.sumpt();
+	}
 	ATH_MSG_VERBOSE("Mu cluster sumpt " << mu_calovec.sumpt());
-
 
 	ATH_MSG_VERBOSE( "Misc cluster px, py, sumpt = " << opx << ", " << opy << ", " << osumpt );
 	metSoftClus->add(opx,opy,osumpt);
