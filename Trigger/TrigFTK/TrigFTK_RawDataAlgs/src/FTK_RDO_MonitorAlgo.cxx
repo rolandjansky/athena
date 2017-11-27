@@ -1192,7 +1192,7 @@ int FTK_RDO_MonitorAlgo::readModuleIds(unsigned int itower, sectormap& hashID) {
 
 
    std::stringstream ssPat, ssCon;
-   ssPat << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_"<<m_Nlayers<< "L_reg"<<itower<<".patt.bz2";
+   ssPat << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".patt.bz2";
    
    std::string pattfilename=ssPat.str();
    ATH_MSG_DEBUG("Sectors file: "<<pattfilename);
@@ -1203,7 +1203,7 @@ int FTK_RDO_MonitorAlgo::readModuleIds(unsigned int itower, sectormap& hashID) {
 		     <<" for reading, skipping");
      return ERROR_PATTFILE;
    }
-   ssCon << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_"<<m_Nlayers<< "L_reg"<<itower<<".conn";
+   ssCon << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".conn";
    std::string connfilename=ssCon.str();
    ATH_MSG_DEBUG("Connections file: "<<connfilename);
    const char * charconnfilename = connfilename.c_str();
