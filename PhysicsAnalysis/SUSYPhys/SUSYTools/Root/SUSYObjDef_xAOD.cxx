@@ -532,11 +532,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //load supported WPs (by tightness order)
   el_id_support.push_back("VeryLooseLLH_Rel20p7");
+  el_id_support.push_back("VeryLooseLLH");
   el_id_support.push_back("LooseLLH_Rel20p7");
+  el_id_support.push_back("LooseLLH");
   el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("LooseAndBLayerLLH");
   el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH");
   el_id_support.push_back("TightLLH_Rel20p7");
-  
+  el_id_support.push_back("TightLLH");
+
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
   ph_id_support.push_back("Tight");
@@ -721,7 +726,6 @@ std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
   //@ElectronPhotonSelectorTools/EGSelectorConfigurationMapping.h
   return TString(wp).Copy().ReplaceAll("AndBLayer","BL").ReplaceAll("LLH","LHElectron").Data();
 }
-
 
 std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
   
