@@ -102,6 +102,7 @@ AthFilterAlgorithm::setFilterPassed( bool state ) const
   AthAlgorithm::setFilterPassed(state);
 
   if (state) {
+/*
     double evtWeight=1.0;
 
     const xAOD::EventInfo* evtInfo = 0;
@@ -116,6 +117,8 @@ AthFilterAlgorithm::setFilterPassed( bool state ) const
       }
     }
     m_cutFlowSvc->addEvent(m_cutID,evtWeight);
+*/
+    m_cutFlowSvc->addEvent(m_cutID);
   }
 }
 
