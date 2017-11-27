@@ -10,7 +10,6 @@ import json
 import logging
 import multiprocessing
 import os
-import re
 
 from art_misc import run_command, mkdir_p
 from art_base import ArtBase
@@ -59,7 +58,7 @@ class ArtBuild(ArtBase):
 
         status = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict()))
 
-        for package, root in test_directories.items():
+        for package, directory in test_directories.items():
             test_directory = os.path.abspath(test_directories[package])
             job_results = self.task(package, job_type, sequence_tag)
             for job_result in job_results:
@@ -71,12 +70,10 @@ class ArtBuild(ArtBase):
 
                 # gather results
                 result = []
+                log.debug("Looking for results for test %s", test_name)
                 with open(os.path.join(sequence_tag, package, os.path.splitext(test_name)[0], 'stdout.txt'), 'r') as f:
-                    for line in f:
-                        match = re.search(r"art-result: (.*)", line)
-                        if match:
-                            result = json.loads(match.group(1))
-                            break
+                    output = f.read()
+                    result = self.get_art_results(output)
 
                 status[package][job_result[0]]['result'] = result
 
@@ -90,16 +87,18 @@ class ArtBuild(ArtBase):
         """TBD."""
         log = logging.getLogger(MODULE)
         log.debug("task %s %s %s", package, job_type, sequence_tag)
-        test_names = self.get_list(self.script_directory, package, job_type, "all")
+        test_directories = self.get_test_directories(self.script_directory)
+        test_directory = os.path.abspath(test_directories[package])
+        test_names = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)
         scheduler = ParallelScheduler(self.max_jobs + 1)
 
         index = 0
         for test_name in test_names:
             schedule_test = False
-            fname = os.path.join(self.get_test_directories(self.script_directory)[package], test_name)
+            fname = os.path.join(test_directory, test_name)
             if self.ci:
                 branch_name = os.environ['AtlasBuildBranch']
-                cis = ArtHeader(fname).get('art-ci')
+                cis = ArtHeader(fname).get(ArtHeader.ART_CI)
                 for ci in cis:
                     if fnmatch.fnmatch(branch_name, ci):
                         schedule_test = True
@@ -124,7 +123,7 @@ class ArtBuild(ArtBase):
         log.debug("job %s %s %s %d %s", package, job_type, sequence_tag, index, out)
         test_directories = self.get_test_directories(self.script_directory)
         test_directory = os.path.abspath(test_directories[package])
-        test_name = self.get_files(test_directory, job_type)[int(index)]
+        test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)[int(index)]
 
         work_directory = os.path.join(sequence_tag, package, os.path.splitext(test_name)[0])
         mkdir_p(work_directory)
