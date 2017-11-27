@@ -85,12 +85,17 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
 
     CleanDirName="clean_run_"+q+"_"+UniqID
 
-    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+    cmd = ( " mkdir -p "+ CleanRunHeadDir +" ;" + 
+            " cd "      + CleanRunHeadDir +" ;" + 
+            " mkdir -p "+ CleanDirName    +" ;" + 
+            " cd "      + CleanDirName    +" ;" + 
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
+            " Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1" )
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
+def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", nosetup=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -103,16 +108,21 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
-
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
 
-    if 'WorkDir_DIR' in os.environ:
+    cmd = " cd "+pwd+" ;"
+    if nosetup:
+        pass
+    elif 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
-        subprocess.call(cmd,shell=True)
+        cmd += ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
+                 " source "+cmake_build_dir+"/setup.sh ;" )
     else :
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
-        subprocess.call(cmd,shell=True)
+        cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
+    cmd += " mkdir -p run_"+q+"; cd run_"+q+";"
+    cmd += " Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1" 
+    
+    subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched \"Reco_tf.py --AMI "+q+"\"")
     pass
@@ -122,26 +132,30 @@ def pwd():
     Out = (Proc.communicate()[0])[:-1]     
     return Out
     
-def GetReleaseSetup():
-    
+def GetReleaseSetup(isCImode=False):
+
+    if isCImode:
+        logging.info("")    
+        logging.info("No release information is extracted in CI-mode.")    
+        logging.info("")    
+        setup = ""
+        return setup
+
     current_nightly = os.environ['AtlasBuildStamp']
     release_base=os.environ['AtlasBuildBranch']
     release_head=os.environ['Athena_VERSION']
     platform=os.environ['Athena_PLATFORM']
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    print(builds_dir_searchStr)
     # finds all directories matching above search pattern, and sorts by modification time
-    ### OLD
-    #latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
-    ###
-    ### NEW - suggest to use latest opt over dbg
+    # suggest to use latest opt over dbg
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
     latest_nightly = ''
     for folder in reversed(sorted_list):
         if not glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log') : continue
         latest_nightly = folder.split('/')[-3]
         break
-    ### NEW
 
     if current_nightly != latest_nightly:
         logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
@@ -150,11 +164,19 @@ def GetReleaseSetup():
 
     logging.info("Your tags will be tested in environment "+setup)
 
+    sys.exit(0)
     return setup
 
 ###############################
 ########### List patch packages
-def list_patch_packages():
+def list_patch_packages(isCImode=False):
+
+    if isCImode:
+        logging.info("")    
+        logging.info("No patch information is extracted in CI-mode.")    
+        logging.info("")    
+        return
+
     if 'WorkDir_DIR' in os.environ :                 
         logging.info("Patch packages in your build to be tested:\n")
         myfilepath = os.environ['WorkDir_DIR']                                                                                  
@@ -511,8 +533,9 @@ def main():
     if ciMode:
         logging.info("")
         logging.info("You're running with no-setup. This is suggested to be used only in CI tests.")
-        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests.")
+        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests only.")
         logging.info("Then results are checked against reference results.")
+        logging.info("If you don't know what this mode does, you shouldn't use it.")
         logging.info("")
         RunPatchedOnly = True   
  
@@ -535,8 +558,8 @@ def main():
             logging.info("You are running in patched only mode whereby only q-tests against your build are being run.")
             logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
             logging.info("/afs/cern.ch/work/g/gencomm/public/referenceFiles")
-            logging.info("")
             if not os.path.exists('/afs/cern.ch/work/g/gencomm/public/referenceFiles'):
+                logging.info("")
                 logging.error("Exit. Patched only mode can only be run on nodes with access to /afs/cern.ch/work/g/gencomm/public/referenceFiles")
                 sys.exit(0)            
         else:
@@ -552,11 +575,11 @@ def main():
 
 
 ########### Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ and not ciMode:
+    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ and 'AtlasVersion' not in os.environ:
         logging.error("Exit. Please setup the an ATLAS release")
         sys.exit(0)
     else:
-        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ and not ciMode:
+        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ and 'AtlasVersion' not in os.environ:
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
@@ -580,7 +603,7 @@ def main():
         
 ########### Get release info
         if not (options.ref and options.val):
-            mysetup = GetReleaseSetup()
+            mysetup = GetReleaseSetup(ciMode)
             cleanSetup = mysetup
         mypwd   = pwd()
 
@@ -591,7 +614,7 @@ def main():
             logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
-            list_patch_packages()
+            list_patch_packages(ciMode)
 
 ########### Get unique name for the clean run directory
         UniqName = str(uuid.uuid4())
@@ -636,9 +659,9 @@ def main():
 
                 def mypatchedqtest():
                     if RunSim:
-                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,ciMode)
+                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
