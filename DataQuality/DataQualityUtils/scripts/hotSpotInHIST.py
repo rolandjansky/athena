@@ -609,3 +609,5 @@ if defectQuery:
         print "%s: %d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.user,iDef.comment)
       else:
         print "%s: %d->%d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.until.lumi-1,iDef.user,iDef.comment)
+
+raw_input("I am done...")
