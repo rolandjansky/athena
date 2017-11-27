@@ -3,6 +3,7 @@
 // Local include(s):
 #include "../xAODTruthCnvAlg.h"
 #include "../xAODTruthMetaDataTool.h"
+#include "xAODTruthCnv/xAODTruthMetaDataTool.h"
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
 
