@@ -18,6 +18,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 
 // RandomNumber generator
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include <cmath>
 
@@ -30,7 +31,7 @@ namespace Simulation
                                                       const IInterface* p )
     : base_class(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
-      m_rndGenSvc("AtRndmGenSvc", n),
+      m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX")
   {
@@ -55,7 +56,7 @@ namespace Simulation
     ATH_CHECK(m_beamCondSvc.retrieve());
     // retrieve the random number service
     ATH_CHECK(m_rndGenSvc.retrieve());
-    m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
+    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
       return StatusCode::FAILURE;
@@ -75,17 +76,16 @@ namespace Simulation
   /** computes the vertex displacement */
   CLHEP::HepLorentzVector *VertexBeamCondPositioner::generate() const
   {
-    if (!m_randomEngine) {
-      ATH_MSG_ERROR("No random number engine! Abort.");
-      return nullptr;
-    }
+    // Prepare the random engine
+    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
+    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
 
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.
-    float vertexX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(0);
-    float vertexY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(1);
-    float vertexZ = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(2);
+    float vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(0);
+    float vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(1);
+    float vertexZ = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(2);
     // calculate the vertexSmearing
     CLHEP::HepLorentzVector *vertexSmearing =
       new CLHEP::HepLorentzVector( vertexX, vertexY, vertexZ, 0. );
@@ -146,7 +146,7 @@ namespace Simulation
 
       // Time should be set in units of distance, which is a little funny
       double time_offset = CLHEP::RandGaussZiggurat::shoot(
-          m_randomEngine, vertexSmearing->z()/Gaudi::Units::c_light,
+          randomEngine, vertexSmearing->z()/Gaudi::Units::c_light,
           bunch_length_z/Gaudi::Units::c_light );
 
       vertexSmearing->setT( vertexSmearing->t() + time_offset*Gaudi::Units::c_light );

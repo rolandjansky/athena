@@ -10,6 +10,7 @@
 #include "GenEventBeamEffectBooster.h"
 
 // Athena includes
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
 // CLHEP includes
@@ -28,7 +29,7 @@ namespace Simulation
                                                         const IInterface* p )
     : base_class(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
-      m_rndGenSvc("AtRndmGenSvc", n),
+      m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("BEAM"),
       m_applyBoost(true),
@@ -80,7 +81,7 @@ namespace Simulation
     ATH_CHECK(m_beamCondSvc.retrieve());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
-    m_randomEngine = m_rndGenSvc->GetEngine(m_randomEngineName);
+    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
       return StatusCode::FAILURE;
@@ -124,6 +125,9 @@ namespace Simulation
   {
     // Reset the transformation
     transform = CLHEP::HepLorentzRotation(); //TODO drop this
+
+    // Prepare the random engine
+    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
 
     // Create beam 1 and 2 momenta, including divergence and crossing-angle effects
     CLHEP::RandGaussZiggurat gauss(*m_randomEngine);

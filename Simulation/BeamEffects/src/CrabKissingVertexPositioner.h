@@ -18,15 +18,18 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 
 // InDetBeamSpotService
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Forward declarations
+namespace ATHRNG {
+  class RNGWrapper;
+}
 namespace CLHEP {
-    class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 namespace Simulation
@@ -60,11 +63,12 @@ namespace Simulation
     private:
 
       inline double heaviside(double val) const {return (val >= 0.0) ? 1.0 : 0.0;};
-      double getDisplacement(double bunchSize, double angle1, double angle2) const;
+      double getDisplacement(double bunchSize, double angle1, double angle2,
+                             CLHEP::HepRandomEngine* rng) const;
       double beamspotFunction(double displacement, double angle1, double angle2) const;
       ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
-      ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
-      CLHEP::HepRandomEngine*         m_randomEngine;
+      ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
+      ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
       std::string                     m_randomEngineName;         //!< Name of the random number stream
 
       StringProperty m_bunchShapeProp;
