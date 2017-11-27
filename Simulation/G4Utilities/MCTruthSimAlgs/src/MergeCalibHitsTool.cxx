@@ -13,6 +13,7 @@ MergeCalibHitsTool::MergeCalibHitsTool(const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent) :
   PileUpToolBase(type, name, parent),
+  m_firstSubEvent(true),
   m_pMergeSvc("PileUpMergeSvc", name),
   m_oldFormat(false)
 {
