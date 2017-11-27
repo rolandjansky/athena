@@ -40,26 +40,15 @@ public:
   /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
-  /// accept with reference to  IParticle  
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
   /// accept with pointer to Egamma object 
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
 
-  ///Accept with reference to Egamma objects
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
-
   /// accept with Photon pointer
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
 
-  /// accept with Photon reference
-  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
-
   /// accept with Electron reference
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /// accept with Electron reference 
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
   ///Add a legacy execute method 
   virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
