@@ -17,6 +17,10 @@ if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
 #
 # --- Load PixelConditionsServices
 #
@@ -146,10 +150,8 @@ if DetFlags.haveRIO.pixel_on():
     else :
         if not conddb.folderRequested('/PIXEL/Pixreco'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco",className='DetCondCFloat')
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
             from PixelCalibAlgs.PixelCalibAlgsConf import PixelCalibCondAlg
-            condSequence += PixelCalibCondAlg( "PixelCalibCondAlg" )
+            condSeq += PixelCalibCondAlg( "PixelCalibCondAlg" )
         ToolSvc.PixelRecoDbTool.InputSource = 2
 
     if not athenaCommonFlags.isOnline():
@@ -202,12 +204,17 @@ if DetFlags.haveRIO.SCT_on():
     SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
     SCTMurConfigurationPath=SCTConfigurationFolderPath+'MUR'
     if not conddb.folderRequested(SCTChipConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTChipConfigurationPath,SCTChipConfigurationPath)
+        conddb.addFolderSplitMC("SCT", SCTChipConfigurationPath, SCTChipConfigurationPath, className="CondAttrListVec")
     if not conddb.folderRequested(SCTModuleConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTModuleConfigurationPath,SCTModuleConfigurationPath)
-
+        conddb.addFolderSplitMC("SCT", SCTModuleConfigurationPath, SCTModuleConfigurationPath, className="CondAttrListVec")
     if not conddb.folderRequested(SCTMurConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTMurConfigurationPath,SCTMurConfigurationPath)
+        conddb.addFolderSplitMC("SCT", SCTMurConfigurationPath, SCTMurConfigurationPath, className="CondAttrListVec")
+    if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
+                                            ReadKeyChannel = SCTChipConfigurationPath,
+                                            ReadKeyModule = SCTModuleConfigurationPath,
+                                            ReadKeyMur = SCTMurConfigurationPath)
 
     if not conddb.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
         conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NPtGainDefects","/SCT/DAQ/Calibration/NPtGainDefects")
@@ -218,11 +225,10 @@ if DetFlags.haveRIO.SCT_on():
         sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
         if not conddb.folderRequested(sctDerivedMonitoringFolder):
             conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-            condSequence += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
-                                                         ReadKey = sctDerivedMonitoringFolder)
+            if not hasattr(condSeq, "SCT_MonitorConditionsCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
+                condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
+                                                        ReadKey = sctDerivedMonitoringFolder)
     
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
@@ -287,21 +293,19 @@ if DetFlags.haveRIO.SCT_on():
             conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
         if not conddb.folderRequested(sctDCSHVFolder):
             conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
+        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                       ReadKey = sctDCSHVFolder)
-        if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
+            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                  ReadKey = sctDCSHVFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                         ReadKeyHV = sctDCSHVFolder,
-                                                         ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
+            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                    ReadKeyHV = sctDCSHVFolder,
+                                                    ReadKeyState = sctDCSStateFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                         ReadKey = sctDCSTempFolder)
+            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                    ReadKey = sctDCSTempFolder)
         
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
@@ -320,12 +324,11 @@ if DetFlags.haveRIO.SCT_on():
         # Load TdaqEnabled service
         if not conddb.folderRequested(tdaqFolder):
             conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-            condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
-                                                   ReadKey = tdaqFolder,
-                                                   EventInfoKey = eventInfoKey)
+            if not hasattr(condSeq, "SCT_TdaqEnabledCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+                condSeq += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
+                                                  ReadKey = tdaqFolder,
+                                                  EventInfoKey = eventInfoKey)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",

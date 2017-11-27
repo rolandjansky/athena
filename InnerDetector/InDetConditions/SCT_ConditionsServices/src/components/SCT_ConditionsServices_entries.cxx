@@ -12,7 +12,9 @@
 #include "../SCT_DCSConditionsTestAlg.h"
 
 #include "../SCT_ByteStreamErrorsSvc.h"
+
 #include "../SCT_ConfigurationConditionsSvc.h"
+#include "../SCT_ConfigurationCondAlg.h"
 #include "../SCT_ConfigurationConditionsTestAlg.h"
 
 #include "../SCT_MonitorConditionsSvc.h"
@@ -80,6 +82,7 @@ DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_LinkMaskingTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
+DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )

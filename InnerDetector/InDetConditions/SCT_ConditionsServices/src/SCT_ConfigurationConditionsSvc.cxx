@@ -17,13 +17,11 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-//#include "AthenaKernel/IIOVDbSvc.h"
+#include "SCT_Cabling/SCT_SerialNumber.h"
 
 // Local includes
 #include "SCT_ReadoutTool.h"
 #include "SCT_Chip.h"
-#include "SCT_Cabling/SCT_SerialNumber.h"
 
 // Static folder names 
 static const std::string coolChannelFolderName("/SCT/DAQ/Configuration/Chip");
