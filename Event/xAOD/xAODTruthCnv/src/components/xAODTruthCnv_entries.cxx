@@ -1,6 +1,6 @@
 #include "../xAODTruthCnvAlg.h"
 #include "../RedoTruthLinksAlg.h"
-#include "../xAODTruthMetaDataTool.h"
+#include "xAODTruthCnv/xAODTruthMetaDataTool.h"
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
 
