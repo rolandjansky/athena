@@ -20,7 +20,7 @@ SUSY8ExtraVariables = [
 	"AntiKt4TruthJets.pt",
 	"AntiKt4TruthJets.ConeTruthLabelID",
 	"AntiKt4TruthJets.HadronConeExclTruthLabelID",
-	"AntiKt4TruthJets.PartonTruthLabelID"
+	"AntiKt4TruthJets.PartonTruthLabelID",
 	"AntiKt4TruthJets.TruthLabelDeltaR_B",
 	"AntiKt4TruthJets.TruthLabelDeltaR_C",
 	"AntiKt4TruthJets.TruthLabelDeltaR_T",
