@@ -531,9 +531,9 @@ def main():
     if ciMode:
         logging.info("")
         logging.info("You're running with no-setup. This is suggested to be used only in CI tests.")
-        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests only.")
-        logging.info("Then results are checked against reference results.")
-        logging.info("If you don't know what this mode does, you shouldn't use it.")
+        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests.")
+        logging.info("Then results are checked against reference files and no performance test is run.")
+        logging.info("If you don't know what this mode does, you shouldn't be using it.")
         logging.info("")
         RunPatchedOnly = True   
  
