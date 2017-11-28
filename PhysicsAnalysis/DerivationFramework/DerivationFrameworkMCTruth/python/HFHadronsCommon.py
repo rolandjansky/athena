@@ -139,7 +139,26 @@ DSIDList=[
   410281,
   410282,
   410283,
-]
+  364345,
+  364346,
+  364347,
+  364348,
+  410424,
+  410425,
+  410426,
+  410427,
+  410441,
+  410442,
+  410470,
+  410471,
+  410472,
+  410480,
+  410481,
+  410482,
+  410452,
+  410557,
+  410558,
+  ]
 
 import PyUtils.AthFile as af
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
