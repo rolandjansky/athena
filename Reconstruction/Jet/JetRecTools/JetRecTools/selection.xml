@@ -1,6 +1,5 @@
 <lcgdict>
 <class name="CaloClusterConstituentsOrigin"/>
-<class name="CaloClusterConstituentsWeight"/>
 <class name="ClusterAtEMScaleTool"/>
 <class name="ConstituentSubtractorTool"/>
 <class name="JetConstituentModifierBase"/>
