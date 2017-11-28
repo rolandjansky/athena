@@ -187,7 +187,7 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Creating xAOD::Muons from: " << numIdCan << " indet candidates and " << numMuCan << " muon candidates ");
     
     // Add RPC timing information to all MS tracks
-    if( m_fillTimingInformation  ) 
+    if( m_fillTimingInformation && muonCandidates ) 
       for (auto candidate : *muonCandidates) 
 	if(candidate->muonSpectrometerTrackLink().isValid())
 	  addRpcTiming(**(candidate->muonSpectrometerTrackLink()));    
@@ -201,7 +201,7 @@ namespace MuonCombined {
     else selectStaus(inDetCandidates, resolvedInDetCandidates);    
 
     if( inDetCandidates ) ATH_MSG_DEBUG("InDetCandidates : overlap removal " << inDetCandidates->size() << " in, " <<resolvedInDetCandidates.size() <<" out");
-    if( muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
+    if( !m_buildStauContainer && muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
 
     // Create a container for resolved candidates (always of type VIEW_ELEMENTS)
     for( auto can : resolvedInDetCandidates ) {

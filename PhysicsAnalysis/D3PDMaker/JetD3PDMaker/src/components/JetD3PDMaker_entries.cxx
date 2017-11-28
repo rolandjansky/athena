@@ -1,7 +1,6 @@
 #include "../JetBTagWeightFillerTool.h"
 #include "../JetFlavorTagComponentsFillerTool.h"
 #include "../JetVtxFillerTool.h"
-#include "../JetVertexFractionFillerTool.h"
 #include "../JetEMFractionFillerTool.h"
 #include "../JetSamplingsFillerTool.h"
 #include "../JetSignalStateFillerTool.h"
@@ -26,7 +25,6 @@ DECLARE_COMPONENT( D3PD::JetBTagWeightFillerTool )
 DECLARE_COMPONENT( D3PD::JetFlavorTagComponentsFillerTool )
 DECLARE_COMPONENT( D3PD::JetTrueTagFillerTool )
 DECLARE_COMPONENT( D3PD::JetVtxFillerTool )
-DECLARE_COMPONENT( D3PD::JetVertexFractionFillerTool )
 DECLARE_COMPONENT( D3PD::JetEMFractionFillerTool )
 DECLARE_COMPONENT( D3PD::JetSamplingsFillerTool )
 DECLARE_COMPONENT( D3PD::JetSignalStateFillerTool )

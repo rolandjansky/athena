@@ -5,7 +5,6 @@
 #include "MuonCreatorAlg.h"
 #include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 
-#include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
@@ -28,8 +27,6 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("CombinedLocation", m_combinedCollectionName = "CombinedMuon" );
   declareProperty("ExtrapolatedLocation", m_extrapolatedCollectionName = "ExtrapolatedMuon" );
   declareProperty("MSOnlyExtrapolatedLocation", m_msOnlyExtrapolatedCollectionName = "MSOnlyExtrapolatedMuon" );
-  declareProperty("InDetCandidateLocation",m_indetCandidateCollectionName = "InDetCandidates" );
-  declareProperty("MuonCandidateLocation", m_muonCandidateCollectionName = "MuonCandidates" );
   declareProperty("SegmentContainerName", m_segContainerName = "MuonSegments" );
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("ClusterContainerName",m_clusterContainerName="MuonClusterCollection");
@@ -41,6 +38,7 @@ StatusCode MuonCreatorAlg::initialize()
 {
   ATH_CHECK(m_muonCreatorTool.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
+  ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
 
   return StatusCode::SUCCESS; 
 }
@@ -54,15 +52,6 @@ StatusCode MuonCreatorAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  MuonCandidateCollection* muonCandidateCollection = 0;
-  if(evtStore()->contains<MuonCandidateCollection>(m_muonCandidateCollectionName)) {
-    if(evtStore()->retrieve(muonCandidateCollection,m_muonCandidateCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_muonCandidateCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  
   // Create the xAOD container and its auxiliary store:
   xAOD::MuonContainer* xaod = new xAOD::MuonContainer();
   ATH_CHECK( evtStore()->record( xaod, m_muonCollectionName ) );
@@ -73,17 +62,6 @@ StatusCode MuonCreatorAlg::execute()
   ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName );    
 
   MuonCombined::IMuonCreatorTool::OutputData output(*xaod);
-
-  if (m_buildSlowMuon){
-    // Create the xAOD slow muon container and its auxiliary store:
-    output.slowMuonContainer = new xAOD::SlowMuonContainer();
-    ATH_CHECK( evtStore()->record( output.slowMuonContainer, m_slowMuonCollectionName ) );
-    
-    xAOD::SlowMuonAuxContainer* auxSlowMuon = new xAOD::SlowMuonAuxContainer();
-    ATH_CHECK( evtStore()->record( auxSlowMuon, m_slowMuonCollectionName + "Aux." ) );
-    output.slowMuonContainer->setStore( auxSlowMuon );
-    ATH_MSG_DEBUG( "Recorded Slow Muons with key: " << m_slowMuonCollectionName );   
-  }
 
   // combined tracks
   ATH_CHECK(createAndRecord(output.combinedTrackParticleContainer,output.combinedTrackCollection,m_combinedCollectionName));
@@ -100,12 +78,31 @@ StatusCode MuonCreatorAlg::execute()
   // calo clusters
   if( m_clusterContainerName != "" ) ATH_CHECK(retrieveOrCreateAndRecord(output.clusterContainer));
   
-  // build muons
-  if(!muonCandidateCollection){
-    ATH_MSG_WARNING("candidate collection missing, skip muon creation");
+  if (m_buildSlowMuon){
+    // Create the xAOD slow muon container and its auxiliary store:
+    output.slowMuonContainer = new xAOD::SlowMuonContainer();
+    ATH_CHECK( evtStore()->record( output.slowMuonContainer, m_slowMuonCollectionName ) );
+    
+    xAOD::SlowMuonAuxContainer* auxSlowMuon = new xAOD::SlowMuonAuxContainer();
+    ATH_CHECK( evtStore()->record( auxSlowMuon, m_slowMuonCollectionName + "Aux." ) );
+    output.slowMuonContainer->setStore( auxSlowMuon );
+    ATH_MSG_DEBUG( "Recorded Slow Muons with key: " << m_slowMuonCollectionName );
+    const MuonCandidateCollection* noMuons=0;
+    m_muonCreatorTool->create(noMuons, indetCandidateCollection.cptr() ,output);
   }
+  else{
+    SG::ReadHandle<MuonCandidateCollection> muonCandidateCollection(m_muonCandidateCollectionName);
+    if(!muonCandidateCollection.isValid()){
+      ATH_MSG_ERROR("Could not read "<< m_muonCandidateCollectionName);
+      return StatusCode::FAILURE;
+    }
 
-  else m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection.cptr() ,output);
+    // build muons
+    if(!(muonCandidateCollection.cptr())){
+      ATH_MSG_WARNING("candidate collection missing, skip muon creation");
+    }
+    else m_muonCreatorTool->create(muonCandidateCollection.cptr(), indetCandidateCollection.cptr() ,output);
+  }
 
   return StatusCode::SUCCESS;
 }

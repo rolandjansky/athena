@@ -9,28 +9,31 @@
 #ifndef ISF_GEANT4TOOLS_TRANSPORTTOOL_H
 #define ISF_GEANT4TOOLS_TRANSPORTTOOL_H
 
-// Athena Base
+// Base class headers
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
-#include "BarcodeEvent/Barcode.h"
-
 #include "ISF_Geant4Interfaces/ITransportTool.h"
-#include "ISF_Geant4Tools/IG4RunManagerHelper.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
 
-#include "G4AtlasInterfaces/IUserActionSvc.h"
-
+// STL headers
 #include <string>
 
-class G4Event;
-class G4PrimaryParticle;
+// Gaudi headers
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-namespace Barcode {
-  class IBarcodeSvc;
-}
+// Athena headers
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "G4AtlasInterfaces/IG4AtlasSvc.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/IPhysicsListTool.h"
+
+// ISF includes
+#include "ISF_Interfaces/IInputConverter.h"
+#include "ISF_Geant4Tools/IG4RunManagerHelper.h"
+
+class G4Event;
 
 namespace ISF {
   class ISFParticle;
@@ -38,7 +41,6 @@ namespace ISF {
 
 namespace HepMC {
   class GenEvent;
-  class GenParticle;
 }
 
 namespace iGeant4
@@ -65,70 +67,64 @@ namespace iGeant4
     virtual ~G4TransportTool ();
 
     /** AlgTool initialize method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override final;
+
+    /// G4 initialization called only by the first tool instance.
+    /// This is done (for now) because we get multiple tool instances in hive.
+    void initializeOnce();
+
     /** AlgTool finalize method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override final;
+
+    /// G4 finalization called only by the first tool instance.
+    /// This is done (for now) because we get multiple tool instances in hive.
+    void finalizeOnce();
 
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    StatusCode process(const ISF::ISFParticle& isp);
+    virtual StatusCode process(const ISF::ISFParticle& isp) override final;
 
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles);
-
-    /** Converts ISF::ISFParticle to G4Event */
-    G4Event* ISF_to_G4Event(const ISF::ISFParticle& isp);
-
-    /** Converts vector of ISF::ISFParticles to G4Event */
-    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp);
+    virtual StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles) override final;
 
   private:
 
-    G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
-
-    G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
-
-    void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
-
-    /** Tests whether the given ISFParticle is within the Geant4 world volume */
-    bool isInsideG4WorldVolume(const ISF::ISFParticle& isp);
-
     HepMC::GenEvent* genEvent() const;
 
-    G4AtlasRunManager    * m_pRunMgr;
-
-    /// Activate multi-threading configuration
-    bool m_useMT;
-    /// user action service 
-    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
-
-    // Random number service
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
-    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
-
-    ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
-    ToolHandle<IPhysicsListTool> m_physListTool;
-    //  ToolHandle<IUserAction> m_physicsValidationUserAction;
-    //  ToolHandle<IUserAction> m_trackProcessorUserAction;
-    //  ToolHandle<IUserAction> m_mcTruthUserAction;
-
+    /// @name Configurable Properties
+    /// @{
     std::string m_libList;
     std::string m_physList;
     std::string m_fieldMap;
     std::string m_rndmGen;
-
-    std::string m_mcEventCollectionName;
-
     bool   m_releaseGeoModel;
     bool   m_recordFlux;
-    bool   m_quasiStableParticlesIncluded; //<! will quasi-stable
-                                           //particles be included in
-                                           //simulation
-
-    G4VSolid *m_worldSolid;                // the Geant4 world volume solid
-
+    std::string m_mcEventCollectionName;
     /// Commands to send to the G4 UI
     std::vector<std::string> m_g4commands;
+    /// Activate multi-threading configuration
+    bool m_useMT;
+    // Random number service
+    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    /// G4AtlasSvc
+    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
+    /// user action service
+    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+    /// Detector Geometry Service (builds G4 Geometry)
+    ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+    /// Service to convert ISF_Particles into a G4Event
+    ServiceHandle<ISF::IInputConverter> m_inputConverter;
+    /// Helper Tool to provide G4RunManager
+    ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
+    /// Physics List Tool
+    ToolHandle<IPhysicsListTool> m_physListTool;
+    /// Sensitive Detector Master Tool
+    ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+    /// Fast Simulation Master Tool
+    ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+    /// @}
+
+    G4AtlasRunManager    *m_pRunMgr;
+
   };
 
 

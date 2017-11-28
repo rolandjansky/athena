@@ -155,7 +155,9 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
 
   // check geoID assigned to the TruthIncident
   if ( !validAtlasRegion(geoID) ) {
-    ATH_MSG_ERROR("Unable to register truth incident with unknown SimGeoID="<< geoID);
+    const auto& position = ti.position();
+    ATH_MSG_ERROR("Unable to register truth incident with unknown SimGeoID="<< geoID
+                  << " at position z=" << position.z() << " r=" << position.perp());
     return;
   }
 
@@ -186,7 +188,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
   }
 
   if (pass) {
-    // at least one truth stategy returend true
+    // at least one truth strategy returned true
     //  -> record incident
     recordIncidentToMCTruth( ti);
 
