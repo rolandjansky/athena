@@ -18,8 +18,8 @@ class PuppiWeightTool: public JetConstituentModifierBase {
 
   PuppiWeightTool(const std::string& name);
   StatusCode initialize();
-  StatusCode process(xAOD::IParticleContainer* cont) const;
-  StatusCode process(xAOD::PFOContainer* cont) const; 
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const;
+  StatusCode process_impl(xAOD::PFOContainer* cont) const; 
 
  private:
 

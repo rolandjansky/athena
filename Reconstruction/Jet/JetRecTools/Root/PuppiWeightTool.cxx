@@ -45,7 +45,9 @@ StatusCode PuppiWeightTool::initialize() {
 
 //------------------------------------------------------------------------------
 
-StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
+StatusCode PuppiWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
+  // Type-checking happens in the JetConstituentModifierBase class
+  // so it is safe just to static_cast
   xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
   if(pfoCont) return process(pfoCont);
   else{
@@ -56,7 +58,7 @@ StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
 
 //------------------------------------------------------------------------------
 
-StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
+StatusCode PuppiWeightTool::process_impl(xAOD::PFOContainer* cont) const{
 
   const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
