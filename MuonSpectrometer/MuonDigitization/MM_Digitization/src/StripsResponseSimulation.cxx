@@ -61,16 +61,20 @@ void StripsResponseSimulation::initHistos()
 		if(m_outputFile) m_outputFile->cd();
 	}
 
-	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",100,0,100);
+	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",200,0,200);
 	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
 	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
-	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,2e5);
+	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
+	m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
 
 	m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
 	m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
 
 	m_mapOf2DHistograms["lorentzAngleVsTheta"] = new TH2F("lorentzAngleVsTheta","lorentzAngleVsTheta",  100,-3,3,  100,-3,3);
-	m_mapOf2DHistograms["lorentzAngleVsBy"] = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
+	m_mapOf2DHistograms["lorentzAngleVsBy"]    = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
+
+	m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]    = new TH2F("deltaLorentzAngleVsByForPosTheta","deltaLorentzAngleVsByForPosTheta",  100,-3,3,  100,-2.,2.);
+	m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]    = new TH2F("deltaLorentzAngleVsByForNegTheta","deltaLorentzAngleVsByForNegTheta",  100,-3,3,  100,-2.,2.);
 
 
 }
@@ -79,13 +83,10 @@ void StripsResponseSimulation::writeHistos()
 {
 
 	if(m_outputFile){
-
 		m_outputFile->cd();
-		// for (auto & tmpHist : m_mapOfHistograms){
-		// 	tmpHist.second->Write();
-		// }
 		m_outputFile->Write();
 	}
+
 }
 /*******************************************************************************/
 void StripsResponseSimulation::initFunctions()
@@ -215,6 +216,9 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 	m_mapOf2DHistograms["pathLengthVsTheta"]->Fill(pathLength, theta);
 	m_mapOf2DHistograms["pathLengthVsAlpha"]->Fill(pathLength, alpha);
 
+	if (theta>0) m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]->Fill(  lorentzAngle-theta , b.y() );
+	else         m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]->Fill(  lorentzAngle-theta , b.y() );
+
 	while (pathLengthTraveled < pathLength){
 
 		// N.B. Needs correction from alpha angle still...
@@ -252,7 +256,9 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 
 		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity );
 
-		//---
+
+		int tmpEffectiveNElectrons = 0;
+
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
 			float effectiveCharge = m_polyaFunction->GetRandom();
@@ -269,7 +275,11 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 
 			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
 
+			tmpEffectiveNElectrons+= effectiveCharge;
 		}
+
+		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons*1e-4 );
+
 		//---
 		IonizationClusters.push_back(IonizationCluster);
 
@@ -307,19 +317,19 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
 
 	if(m_outputFile) m_outputFile->cd();
-	TGraph * grIonizationXZ = new TGraph( IonizationClusters.size() );
+	TGraph grIonizationXZ( IonizationClusters.size() );
 	for (int iIonization=0; iIonization <  (int) IonizationClusters.size(); iIonization++) {
 		TVector2 ionizationPosition( IonizationClusters.at(iIonization).getIonizationStart() );
-		grIonizationXZ->SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
+		grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
 	}
-	grIonizationXZ->Write("ionizationXZ");
+	grIonizationXZ.Write("ionizationXZ");
 
-	TGraph * grElectronsXZ = new TGraph( stripResponseObject.getNElectrons() );
+	TGraph grElectronsXZ( stripResponseObject.getNElectrons() );
 	std::vector<MM_Electron*> tmpElectrons = stripResponseObject.getElectrons();
 	for (int iElectron=0; iElectron < (int) tmpElectrons.size(); iElectron++){
-		grElectronsXZ->SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
+		grElectronsXZ.SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
 	}
-	grElectronsXZ->Write("electronsXZ");
+	grElectronsXZ.Write("electronsXZ");
 
 
 } // end of whichStrips()
@@ -332,5 +342,19 @@ StripsResponseSimulation::~StripsResponseSimulation()
 		delete m_outputFile;
 	}
 	clearValues();
+
+	for (auto & tmpHist : m_mapOfHistograms){
+		delete tmpHist.second;
+	}
+	for (auto & tmpHist : m_mapOf2DHistograms){
+		delete tmpHist.second;
+	}
+
+	delete m_interactionDensityFunction;
+	delete m_polyaFunction;
+	delete m_lorentzAngleFunction;
+	delete m_longitudinalDiffusionFunction;
+	delete m_transverseDiffusionFunction;
+	delete m_random;
 }
 /*******************************************************************************/

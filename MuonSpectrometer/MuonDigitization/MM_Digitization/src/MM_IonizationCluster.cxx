@@ -26,8 +26,7 @@ void MM_IonizationCluster::createElectrons(TRandom3* rndm) {
   int Nelectron = MM_IonizationCluster::NelectronProb.FindBin(MM_IonizationCluster::NelectronProb.GetRandom());
   Electrons.reserve(Nelectron);
   for (int iElectron = 0; iElectron<Nelectron; iElectron++)
-    Electrons.push_back(new MM_Electron(HitX+IonizationStart.X(), IonizationStart.Y()));
-  // I'm not sure why HitX should be added, but x pos is not used later.
+    Electrons.push_back(new MM_Electron(IonizationStart.X(), IonizationStart.Y()));
 }
 
 void MM_IonizationCluster::diffuseElectrons(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm) {
