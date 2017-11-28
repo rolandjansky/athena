@@ -151,19 +151,28 @@ namespace Egamma{
       weta2vseta->Fill(shweta2, egamma.eta());
     }
     
-    float emax(0),emin(0),emax2(0);
+    float emax(0),emin(0),emax2(0),Eratio(0),DeltaE(0);
     if(egamma.showerShapeValue(emax, xAOD::EgammaParameters::emaxs1 )&&
        egamma.showerShapeValue(emin, xAOD::EgammaParameters::emins1 )&&
-       egamma.showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1 )){
+       egamma.showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1 )&&
+	egamma.showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio )&&
+	egamma.showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE )){
 
-      float deltemax1 = fabs (emax + emax2) > 0. ? (emax - emax2) / (emax + emax2) : 0.; 
+      // float deltemax1 = fabs (emax + emax2) > 0. ? (emax - emax2) / (emax + emax2) : 0.; 
+      
+	float deltemax1=Eratio;
+
       demax1->Fill(deltemax1);
       demax2->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001); // use more official GeV
-      de->Fill( (emax2 - emin) * 0.001); // use more official GeV
-    
+      //de->Fill( (emax2 - emin) * 0.001); // use more official GeV
+      de->Fill(DeltaE*0.001);
+
+
+      
       demax1vset->Fill(deltemax1, egamma.pt()*0.001);
       demax2vset->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001, egamma.pt()*0.001); // use more official GeV
-      devset->Fill( (emax2 - emin) * 0.001, egamma.pt()*0.001); // use more official GeV
+//      devset->Fill( (emax2 - emin) * 0.001, egamma.pt()*0.001); // use more official GeV
+	devset->Fill(DeltaE,egamma.pt()*0.001);
       demax1vseta->Fill(deltemax1, egamma.eta());
       demax2vseta->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001, egamma.eta()); // use more official GeV
       devseta->Fill( (emax2 - emin) * 0.001, egamma.eta()); // use more official GeV
