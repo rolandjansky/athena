@@ -1,0 +1,8 @@
+# Version(s) of the various externals to get/build before starting the build of
+# this project, when doing a full stack nightly build.
+#
+# Remember that when specifying the name of a branch, you *must* put
+# an "origin/" prefix before it. For tags however this is explicitly
+# forbidden.
+
+AtlasExternalsVersion = 1.0.17
