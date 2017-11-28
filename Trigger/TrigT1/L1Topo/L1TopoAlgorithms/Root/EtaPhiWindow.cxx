@@ -78,9 +78,9 @@ TCS::EtaPhiWindow::processBitCorrect(const std::vector<TCS::TOBArray const *> &i
             const std::ptrdiff_t iTob = distance( input[0]->begin(), tob1);
             if(nLeading!=0 and iTob>=nLeading) continue;
                 if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
-                if( parType_t((*tob1)->eta()) <= p_EtaMin ) continue;
+                if( parType_t((*tob1)->eta()) <  p_EtaMin ) continue;
                 if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue;
-                if( parType_t(abs((*tob1)->phi())) <= p_PhiMin ) continue;
+                if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
                 if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
                 accept = true;
                 output[0]->push_back(TCS::CompositeTOB(*tob1));
@@ -112,9 +112,9 @@ TCS::EtaPhiWindow::process(const std::vector<TCS::TOBArray const *> &input,
             const std::ptrdiff_t iTob = distance( input[0]->begin(), tob1);
             if(nLeading!=0 and iTob>=nLeading) continue;
             if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
-            if( parType_t((*tob1)->eta()) <= p_EtaMin ) continue;
+            if( parType_t((*tob1)->eta()) <  p_EtaMin ) continue;
             if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue;
-            if( parType_t(abs((*tob1)->phi())) <= p_PhiMin ) continue;
+            if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
             if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
             accept = true;
             output[0]->push_back(TCS::CompositeTOB(*tob1));
