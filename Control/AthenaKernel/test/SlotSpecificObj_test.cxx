@@ -88,6 +88,19 @@ void test1()
     EventContext ctx (0, i);
     assert (o.get(ctx)->x == (i+2)*20);
   }
+
+  size_t i = 0;
+  for (Payload& p : o) {
+    assert (p.x == (i+2)*20);
+    p.x = (i+2)*30;
+    ++i;
+  }
+
+  i = 0;
+  for (const Payload& p : co) {
+    assert (p.x == (i+2)*30);
+    ++i;
+  }
 }
 
 

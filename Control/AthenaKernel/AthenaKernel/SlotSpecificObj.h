@@ -145,6 +145,40 @@ public:
    */
   const T* operator-> () const;
 
+
+  //**********************************************************************
+  // Allow iterating over slots.
+  // Remember that any needed locking of the payload objects
+  // is the responsibility of the caller.
+
+  typedef typename std::vector<T>::iterator iterator;
+  typedef typename std::vector<T>::const_iterator const_iterator;
+  typedef typename std::vector<T>::value_type value_type;
+
+
+  /**
+   * @brief Begin iterator.
+   */
+  iterator begin();
+
+
+  /**
+   * @brief Const begin iterator.
+   */
+  const_iterator begin() const;
+
+
+  /**
+   * @brief End iterator.
+   */
+  iterator end();
+
+
+  /**
+   * @brief Const end iterator.
+   */
+  const_iterator end() const;
+
   
 private:
   /// Set of per-slot objects.
