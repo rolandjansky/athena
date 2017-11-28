@@ -82,7 +82,8 @@ public:
    * Get BCID
    * @return BCID
    */
-  inline uint32_t getFragBCID() const { return m_FragBCID; }
+  inline uint32_t getFragBCID() const { return (m_FragBCID & 0xFFFF); }
+  inline uint32_t getFragStatus() const { return (m_FragBCID >> 16); }
 
   /**
    * Set chip header words for this collection

@@ -471,6 +471,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
   m_triggerBits.reset();
   m_overflowBits.reset();
   m_topoSimResult.reset();
+  m_topoSimOverfl.reset();
   m_topoCtpResult.reset();
   m_triggerBitsDaqRob.reset();
   m_overflowBitsDaqRob.reset();

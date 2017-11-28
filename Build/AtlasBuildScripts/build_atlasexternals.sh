@@ -86,7 +86,7 @@ fi
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-    ${EXTRACONF} \
+    -DLCG_VERSION_NUMBER:STRING=87 ${EXTRACONF} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++)) 

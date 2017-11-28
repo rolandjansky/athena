@@ -1,30 +1,34 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/ 
+*/
 
 #include "TrigRoiUpdater.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "RoiDescriptor/RoiDescriptor.h"
-#include "IRegionSelector/RoiUtil.h"
-#include "IRegionSelector/IRoiDescriptor.h"
+#include "IRegionSelector/IRegSelSvc.h"
 
 namespace PESA
 {
 
   TrigRoiUpdater::TrigRoiUpdater(const std::string &name, 
-				 ISvcLocator *pSvcLocator)
+					   ISvcLocator *pSvcLocator)
     : HLT::FexAlgo (name, pSvcLocator),
       m_etaHalfWidth(0.),
       m_phiHalfWidth(0.),
       m_zHalfWidth(0.),
+      m_regionSelector("RegSelSvc", name),
+      m_requestPIXRobs(true),
+      m_requestSCTRobs(true),
       m_monitorDuplicateRoIs(true),
       m_invocations(0),
       m_duplicateRoIs(0)
   {
     declareProperty("EtaHalfWidth",           m_etaHalfWidth);
     declareProperty("PhiHalfWidth",           m_phiHalfWidth);
+    declareProperty("RegionSelectorTool",     m_regionSelector);
+    declareProperty("RequestPIXRobs",         m_requestPIXRobs);
+    declareProperty("RequestSCTRobs",         m_requestSCTRobs);
     declareProperty("MonitorDuplicateRoIs",   m_monitorDuplicateRoIs);
 
     m_inpPhiMinus = m_inpPhiPlus = m_inpPhiSize = 0.;
@@ -74,6 +78,14 @@ namespace PESA
       return StatusCode::FAILURE;
     }
 
+    // Retrieving Region Selector Tool:
+    if ( (m_requestPIXRobs || m_requestSCTRobs) && m_regionSelector.retrieve().isFailure() ) {
+      ATH_MSG_FATAL( m_regionSelector.propertyName()
+		     << " : Unable to retrieve RegionSelector tool "  
+		     << m_regionSelector.type() );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
     return HLT::OK;
   }
 
@@ -82,7 +94,7 @@ namespace PESA
     if (inc.type() == "BeginEvent") {
       //cleanup stored RoIs
       m_rois.clear();
-    }
+    }  
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -92,14 +104,14 @@ namespace PESA
  
     ATH_MSG_DEBUG("execHLTAlgorithm()");
 
-    const TrigRoiDescriptor *roi = 0;
-    bool forIDfound=false;
-    bool updateNeeded=true;
-    
     m_inpPhiMinus = m_inpPhiPlus = m_inpPhiSize = -10.;
     m_inpEtaMinus = m_inpEtaPlus = m_inpEtaSize = -10.;
     m_PhiMinus = m_PhiPlus = m_PhiSize = -10.;
     m_EtaMinus = m_EtaPlus = m_EtaSize = -10.;
+
+    const TrigRoiDescriptor *roi = 0;
+    bool forIDfound=false;
+    bool updateNeeded=true;
 
     std::vector<std::string> roiNames = {"forID3","forID2","forID1", "forID", ""};
     std::string roiName= "";
@@ -114,10 +126,15 @@ namespace PESA
 	break;
       }
     }
-    
-    if (roi->composite()) {
+
+
+    if (roi->composite()){
+      if (m_requestPIXRobs || m_requestSCTRobs){
+	registerROBs(roi);
+      }
+
       ATH_MSG_DEBUG("Not touching a composite RoI");
-      updateNeeded = false;
+      return HLT::OK;
     }
 
     //signature specific modifications
@@ -132,18 +149,23 @@ namespace PESA
       ATH_MSG_DEBUG("don't use fixed RoI halfwidths for bjets");
       updateNeeded = false;
     }
-    
+
+
+
     TrigRoiDescriptor *outroi = 0;
 
     if (updateNeeded) {
       m_inpPhiMinus= roi->phiMinus(); m_inpPhiPlus = roi->phiPlus();  m_inpPhiSize= m_inpPhiPlus - m_inpPhiMinus;
       m_inpEtaMinus= roi->etaMinus(); m_inpEtaPlus = roi->etaPlus();  m_inpEtaSize= m_inpEtaPlus - m_inpEtaMinus;
       
+      
+      
       float eta = roi->eta();
       float phi = roi->phi();
       
       float oldEtaW = m_inpEtaPlus - m_inpEtaMinus;
       float oldPhiW = m_inpPhiPlus - m_inpPhiMinus;
+      
       
       if (  m_inpPhiPlus < m_inpPhiMinus ) oldPhiW += 2*M_PI;
       
@@ -181,11 +203,21 @@ namespace PESA
       ATH_MSG_DEBUG("REGTEST: attached RoI " << roiName << *outroi);
     }
 
+    if (m_requestPIXRobs || m_requestSCTRobs){
+      registerROBs(outroi);
+    }
+
+
     //check whether we are attaching the same RoI again (this execution could be cache)
     if (m_monitorDuplicateRoIs){
       for (auto it = m_rois.begin(); it != m_rois.end(); it++) {
 	TrigRoiDescriptor r = (*it);
-	if (r == *outroi) {
+	if (fabs(r.etaMinus()-outroi->etaMinus())<0.001 &&
+	    fabs(r.etaPlus()-outroi->etaPlus())<0.001 &&
+	    fabs(r.zedMinus()-outroi->zedMinus())<0.1 &&
+	    fabs(r.zedPlus()-outroi->zedPlus())<0.1 &&
+	    fabs(r.phiMinus()-outroi->phiMinus())<0.001 &&
+	    fabs(r.phiPlus()-outroi->phiPlus())<0.001){
 	  ATH_MSG_DEBUG("This RoI was already processed by the same instance of ID tracking");
 	  ATH_MSG_DEBUG(*outroi);
 	  ATH_MSG_DEBUG(r);
@@ -194,12 +226,9 @@ namespace PESA
       }
 
       if (!thesameroi){
-	outroi->manageConstituents(false);
 	m_rois.push_back(*outroi);
-	//	m_rois.back().manageConstituents(false);
-	ATH_MSG_DEBUG("Registering RoI " << m_rois.back());
-      } 
-      else {
+	ATH_MSG_DEBUG("Registering RoI " << *outroi);
+      } else {
 	m_duplicateRoIs++;
       }
     }
@@ -207,11 +236,10 @@ namespace PESA
     m_invocations++;
     return HLT::OK;
   }
-
-  //////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
   // Finalize
   ///////////////////////////////////////////////////////////////////
-      
+  
   HLT::ErrorCode TrigRoiUpdater::hltFinalize() {
 
     ATH_MSG_DEBUG("finalize() success");
@@ -223,13 +251,46 @@ namespace PESA
   //          endRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigRoiUpdater::hltEndRun() {
-                                 
+   
     ATH_MSG_DEBUG("TrigRoiUpdater::endRun()");
-                                        
+   
+    return HLT::OK;
+  }
+  //---------------------------------------------------------------------------
+
+  HLT::ErrorCode TrigRoiUpdater::registerROBs(const TrigRoiDescriptor *roi){
+
+    if (roi == 0) {
+      ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor " );
+      return HLT::NAV_ERROR;
+    }
+
+    ATH_MSG_DEBUG( "REGTEST registerROBs" << *roi );
+
+    std::vector<unsigned int> uIntListOfRobs;
+
+    if (m_requestPIXRobs) {
+      m_regionSelector->DetROBIDListUint( PIXEL, *roi, uIntListOfRobs );
+
+      ATH_MSG_DEBUG( "list of ROBs ID in PIX: " );
+      for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
+	ATH_MSG_DEBUG( "0x" << std::hex << uIntListOfRobs.at(i_lid) << std::dec );
+
+      config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
+      uIntListOfRobs.clear();
+    }
+
+    if (m_requestSCTRobs){
+      m_regionSelector->DetROBIDListUint( SCT, *roi, uIntListOfRobs );
+
+      ATH_MSG_DEBUG( "list of ROBs ID in SCT: " );
+      for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
+	ATH_MSG_DEBUG( "0x" << std::hex << uIntListOfRobs.at(i_lid) << std::dec );
+
+      config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
+    }
+
     return HLT::OK;
   }
 
-  //---------------------------------------------------------------------------
 } // end namespace
-
-

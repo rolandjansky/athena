@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
+from collections import Counter
 log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 
 monStreams = ['monitoring_random',
@@ -67,6 +68,14 @@ expressStreams = ['express']
 
 
 def getAllStreams():
+
+    allStreams = monStreams + physicsStreams + calibStreams + dataScoutingStreams + expressStreams
+
+    duplicates = [stream for stream,count in Counter(allStreams).items() if count>1]
+
+    if duplicates:
+        log.error('Stream %s is duplicated' % duplicates)
+
 
     return monStreams + physicsStreams + calibStreams + dataScoutingStreams + expressStreams
 

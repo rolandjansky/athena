@@ -130,6 +130,7 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     subtr.Modulator=mod_tool
     subtr.MomentName='JetSubtractedScale%sMomentum' % moment_name
     subtr.SetMomentOnly=momentOnly
+    subtr.ApplyOriginCorrection=HIJetFlags.ApplyOriginCorrection()
     subtr.Subtractor=GetSubtractorTool(**kwargs)
     jtm.add(subtr)
     return subtr
@@ -201,6 +202,7 @@ def ApplySubtractionToClusters(**kwargs) :
     jtm.jetrecs += [theAlg]
     jtm.HIJetRecs+=[theAlg]
 
+
 def AddIteration(seed_container,shape_name, **kwargs) :
 
     out_shape_name=shape_name
@@ -231,6 +233,7 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.ModulationScheme=HIJetFlags.ModulationScheme()
     iter_tool.RemodulateUE=HIJetFlags.Remodulate()
     iter_tool.Modulator=mod_tool
+    iter_tool.ShallowCopy=False
     iter_tool.ModulationEventShapeKey=mod_shape_key
     if 'track_jet_seeds' in kwargs.keys() : 
         iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
@@ -345,3 +348,12 @@ def GetSubtractorTool(**kwargs) :
         return jtm.HIJetCellSubtractor
 
     
+def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]) :
+    if coll_name not in jtm.HICalibMap.keys() :
+        print 'Calibration for R=%d not available using default R=0.4 calibration'
+        coll_name='AntiKt4HIJets'
+    mod_list=prepend_tools
+    mod_list+=[jtm.HICalibMap[coll_name]]
+    mod_list+=jtm.modifiersMap['HI']
+    mod_list+=append_tools
+    return mod_list

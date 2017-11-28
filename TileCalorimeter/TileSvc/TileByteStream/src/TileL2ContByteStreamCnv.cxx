@@ -63,9 +63,9 @@ StatusCode TileL2ContByteStreamCnv::initialize() {
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_tool.retrieve() );
-
   CHECK( m_decoder.retrieve() );
+
+  CHECK( m_tool.retrieve() );
 
   CHECK( m_robSvc.retrieve() );
   

@@ -461,6 +461,8 @@ namespace TrigCostRootAnalysis {
     // Get access to main node
     XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
 
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
+
     assert(_xml->GetNodeName(_mainNode) == std::string("HLT_MENU"));
     XMLNodePointer_t _listNode = _xml->GetChild(_mainNode);
     m_menuName = _xml->GetAttr(_mainNode, "menu_name");
@@ -493,6 +495,8 @@ namespace TrigCostRootAnalysis {
           m_hasExpressPrescaleInfo = kTRUE;
         }
         ++_chainsRead;
+
+        if (ignorePSGreaterThanOne && m_chainPS[_chainName] > 1.) m_chainPS[_chainName] = -1;
 
         if (Config::config().debug()) {
           Info("TrigXMLService::parseMenuXML", "Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%f, RerunPS:%f, Express:%f",
@@ -528,6 +532,8 @@ namespace TrigCostRootAnalysis {
   void TrigXMLService::parseL1MenuXML(TXMLEngine* _xml, XMLDocPointer_t _xmlDoc) {
     // Get access to main node
     XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
 
     assert(_xml->GetNodeName(_mainNode) == std::string("LVL1Config"));
     XMLNodePointer_t _listNode = _xml->GetChild(_mainNode);
@@ -568,6 +574,9 @@ namespace TrigCostRootAnalysis {
           }
           m_chainCounter[_L1Name] = _ctpid;
           m_chainPS[_L1Name] = _prescale;
+
+          if (ignorePSGreaterThanOne && m_chainPS[_L1Name] > 1.) m_chainPS[_L1Name] = -1;
+
           ++_chainsRead;
           if (Config::config().debug()) {
             Info("TrigXMLService::parseL1MenuXML", "Step 2: L1 %s = PS %f", _L1Name.c_str(), _prescale);
@@ -593,6 +602,8 @@ namespace TrigCostRootAnalysis {
   void TrigXMLService::parsePrescaleXML(TXMLEngine* _xml, XMLDocPointer_t _xmlDoc) {
     // Get access to main node
     XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
 
     assert(_xml->GetNodeName(_mainNode) == std::string("trigger"));
     XMLNodePointer_t _listNode = _xml->GetChild(_mainNode);
@@ -686,6 +697,8 @@ namespace TrigCostRootAnalysis {
                                                     "will have been lost.", m_chainPS[_chainName], _chainName.c_str());
         }
 
+        if (ignorePSGreaterThanOne && m_chainPS[_chainName] > 1.) m_chainPS[_chainName] = -1;
+
         if (Config::config().debug()) {
           Info("TrigXMLService::parsePrescaleXML", "Parsed Chain:%s, "
                                                    "Counter:%i, "
@@ -744,7 +757,10 @@ namespace TrigCostRootAnalysis {
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
-      _path = PathResolverFindDataFile(_file);
+      _path = PathResolverFindDataFile(_file); // Get from CALIB area
+      if (_path == Config::config().getStr(kBlankString)) { // One more place we can look
+        _path = std::string(Config::config().getStr(kAFSDataDir) + "/" + _file);
+      }
 #endif // not ROOTCORE
     }
 

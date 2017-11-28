@@ -23,7 +23,7 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-//class TrigRoiDescriptor;
+class IRegSelSvc;
 
 namespace PESA
 
@@ -42,9 +42,17 @@ namespace PESA
 
   private:
     
+    HLT::ErrorCode registerROBs(const TrigRoiDescriptor *roi);
+
     float m_etaHalfWidth;
     float m_phiHalfWidth;
     float m_zHalfWidth;
+
+    //ROB prefetching
+    ServiceHandle<IRegSelSvc>     m_regionSelector;     
+    //!< region selector service
+    bool  m_requestPIXRobs;
+    bool  m_requestSCTRobs;
 
     //monitoring
     float m_inpPhiMinus,m_inpPhiPlus, m_inpPhiSize;

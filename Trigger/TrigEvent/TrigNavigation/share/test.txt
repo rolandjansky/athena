@@ -12,6 +12,7 @@ StoreGateSvc.ActivateHistory = false;
 //ClassIDSvc.OutputLevel = 1;
 //MessageSvc.OutputLevel = 1;
 MessageSvc.useColors        = false;
+MessageSvc.setDebug = {"NavigationCore"};
 
 //StoreGateSvc.FolderNameList = { "MyFolder", "YourFolder" };
 //MyFolder.ItemList = {"Foo#Bla", "Bar#*"};
@@ -33,4 +34,4 @@ ToolSvc.Navigation.ClassesToPreregister = {"TestA#EverEmptyButPresent", "TestA#A
 
 ToolSvc.Navigation.OutputLevel=1;
 Holder_test.OutputLevel=1;
-RoICache_test.OutputLevel=3;
+RoICache_test.OutputLevel=1;

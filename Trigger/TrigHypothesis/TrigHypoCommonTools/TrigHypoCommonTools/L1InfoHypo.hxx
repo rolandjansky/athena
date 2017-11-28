@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 

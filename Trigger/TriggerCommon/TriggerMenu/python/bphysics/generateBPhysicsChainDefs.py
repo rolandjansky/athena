@@ -94,8 +94,10 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
         theChainDef = bBmumuxTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
     elif ('Trkloose' in topoAlgs):
         theChainDef = bMuTrack(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom)
+    elif ('TrkPEBmon' in topoAlgs):
+        theChainDef = bMuTrackPEB(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, False)
     elif ('TrkPEB' in topoAlgs):
-        theChainDef = bMuTrackPEB(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom)
+        theChainDef = bMuTrackPEB(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, True)
     elif (ntopos ==1) & (topoAlgs[0] in SameConfigTopos):
         theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
     else:
@@ -1059,7 +1061,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
 
 ###################################################################################
 ###################################################################################
-def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
+def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doPEB):
 
     topoAlgs = chainDict["topo"]
 
@@ -1115,15 +1117,15 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
     theChainDef.addSequence([L2Fex, L2Hypo], L2outTEsprec , L2TEname+"MultiTrk")
     theChainDef.addSignatureL2([L2TEname+"MultiTrk"])
 
-    
-    #---- 3 : last step - setup PEB
-    from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
-    bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
+    if doPEB:
+        #---- 3 : last step - setup PEB
+        from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
+        bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
 
-    EFTEname = "EF_" + chainDict['chainName']+"_1"
-    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-    theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
+        EFTEname = "EF_" + chainDict['chainName']+"_1"
+        inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+        theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
 
     return theChainDef
 

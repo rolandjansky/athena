@@ -88,7 +88,7 @@ class TileBeamElemContByteStreamCnv
     std::vector<uint32_t> m_ROBID;
 
     /** Pointer to TileHid2RESrcID */
-    const TileHid2RESrcID * m_hid2re; 
+    const TileHid2RESrcID* m_hid2re;
 
     /** Pointer to TileBeamElemContainer */
     TileBeamElemContainer* m_container ; 

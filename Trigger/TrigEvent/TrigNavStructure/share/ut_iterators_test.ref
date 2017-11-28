@@ -1,0 +1,36 @@
+INFO       LINE:99   
+INFO       LINE:99   Test testPlainIteratorSymmetric
+DEBUG      LINE:108  Test progressing
+INFO       LINE:81   Combination 0 of TEs seeded of 1101 1102
+INFO       LINE:81   Combination 1 of TEs seeded of 1101 1103
+INFO       LINE:81   Combination 2 of TEs seeded of 1101 1104
+INFO       LINE:81   Combination 3 of TEs seeded of 1102 1103
+INFO       LINE:81   Combination 4 of TEs seeded of 1102 1104
+INFO       LINE:81   Combination 5 of TEs seeded of 1103 1104
+INFO       LINE:113  Plain iterator test passed ok on symmetric test
+INFO       LINE:119  
+INFO       LINE:119  Test testPlainIteratorAsymmetric
+INFO       LINE:81   Combination 0 of TEs seeded of 1101 3301
+INFO       LINE:81   Combination 1 of TEs seeded of 1101 3302
+INFO       LINE:81   Combination 2 of TEs seeded of 1101 3303
+INFO       LINE:81   Combination 3 of TEs seeded of 1102 3301
+INFO       LINE:81   Combination 4 of TEs seeded of 1102 3302
+INFO       LINE:81   Combination 5 of TEs seeded of 1102 3303
+INFO       LINE:81   Combination 6 of TEs seeded of 1103 3301
+INFO       LINE:81   Combination 7 of TEs seeded of 1103 3302
+INFO       LINE:81   Combination 8 of TEs seeded of 1103 3303
+INFO       LINE:81   Combination 9 of TEs seeded of 1104 3301
+INFO       LINE:81   Combination 10 of TEs seeded of 1104 3302
+INFO       LINE:81   Combination 11 of TEs seeded of 1104 3303
+INFO       LINE:141  
+INFO       LINE:141  Test testTopoIterator
+DEBUG      LINE:149  Test progressing
+INFO       LINE:81   Combination 0 of TEs seeded of 1101 1102
+INFO       LINE:81   Combination 1 of TEs seeded of 1101 1103
+DEBUG      LINE:158  Test progressing
+INFO       LINE:81   Combination 0 of TEs seeded of 3301 3303
+DEBUG      LINE:167  Test progressing
+DEBUG      LINE:176  Test progressing
+INFO       LINE:81   Combination 0 of TEs seeded of 3301 1101
+INFO       LINE:81   Combination 1 of TEs seeded of 3302 1101
+OK         LINE:201  Test passed

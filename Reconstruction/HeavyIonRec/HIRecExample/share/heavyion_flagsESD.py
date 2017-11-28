@@ -31,7 +31,8 @@ if not jobproperties.HIRecExampleFlags.ppMode :
 
       from CaloRec.CaloRecFlags import jobproperties
       #need this eventually, but for now it breaks egamma isolation
-      jobproperties.CaloRecFlags.doCaloTopoCluster = False
+      #needed for now in rel. 21 for egamma reco
+      #jobproperties.CaloRecFlags.doCaloTopoCluster = False
       jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
       jobproperties.CaloRecFlags.doCaloTopoTower = False
       # 2015 data, no pileup
