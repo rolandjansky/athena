@@ -12,7 +12,8 @@
 #  -s ARG4, --stream ARG4
 #                        Stream without prefix:
 #                        express/CosmicCalo/Main/ZeroBias/MinBias
-#  -t ARG5, --tag ARG5   DAQ tag: data16_13TeV, data16_cos...
+#  -t ARG5, --tag ARG5   DAQ tag: data16_13TeV, data16_cos...By default
+#                        retrieve it via atlasdqm
 #  -a ARG6, --amiTag ARG6
 #                        First letter of AMI tag: x->express / f->bulk
 #  -x ARG7, --globalX ARG7
@@ -67,7 +68,7 @@ parser.add_argument('-r','--run',type=int,dest='arg1',default='267599',help="Run
 parser.add_argument('-ll','--lowerlb',type=int,dest='arg2',default='0',help="Lower lb",action='store')
 parser.add_argument('-ul','--upperlb',type=int,dest='arg3',default='999999',help="Upper lb",action='store')
 parser.add_argument('-s','--stream',dest='arg4',default='Main',help="Stream without prefix: express/CosmicCalo/Main/ZeroBias/MinBias",action='store')
-parser.add_argument('-t','--tag',dest='arg5',default='data17_13TeV',help="DAQ tag: data16_13TeV, data16_cos...",action='store')
+parser.add_argument('-t','--tag',dest='arg5',default='',help="DAQ tag: data16_13TeV, data16_cos...By default retrieve it via atlasdqm",action='store')
 parser.add_argument('-a','--amiTag',dest='arg6',default='f',help="First letter of AMI tag: x->express / f->bulk",action='store')
 parser.add_argument('-x','--globalX',type=float,dest='arg7',default='-999.',help='X region common to all histos',action='store')
 parser.add_argument('-y','--globalY',type=float,dest='arg8',default='-999.',help='Y region common to all histos',action='store')
@@ -84,7 +85,25 @@ runNumber = args.arg1
 lowerLumiBlock = args.arg2
 upperLumiBlock = args.arg3
 stream = args.arg4
-tag = args.arg5
+if args.arg5 != "":
+  tag = args.arg5
+else: # Try to retrieve the data project tag via atlasdqm
+  if (not os.path.isfile("atlasdqmpass.txt")):
+    print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
+    print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
+    print "You can also define by hand the data project tag wit hthe option -t"
+    sys.exit()
+  passfile = open("atlasdqmpass.txt")
+  passwd = passfile.read().strip(); passfile.close()
+  passurl = 'https://%s@atlasdqm.cern.ch'%passwd
+  s = xmlrpclib.ServerProxy(passurl)
+  run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
+  run_info= s.get_run_information(run_spec)
+  if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
+    print "Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option"
+    sys.exit()
+  tag = run_info['%d'%runNumber][1]
+
 amiTag = args.arg6
 globalX = args.arg7
 globalY = args.arg8
