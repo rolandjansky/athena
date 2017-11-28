@@ -5,7 +5,6 @@
 #include "xAODTruthCnv/TruthMetaDataTool.h"
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
-#include "xAODTruthCnv/TruthMetaDataTool.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, xAODTruthCnvAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, xAODTruthReader )
