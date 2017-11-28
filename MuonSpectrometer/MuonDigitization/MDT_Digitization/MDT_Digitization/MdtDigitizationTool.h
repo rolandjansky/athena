@@ -148,7 +148,7 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   CLHEP::HepRandomEngine  *getTwinRndmEngine() const { return m_twinRndmEngine; } // Random number engine used 
   
  private:
-  int                       digitizeTime(double time) const;
+  int                       digitizeTime(double time, bool isHPTDC) const;
   double                    minimumTof(Identifier DigitId) const;
   
   bool                      insideMatchingWindow(double time) const;
@@ -178,7 +178,8 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   //TDC ELECTRONICS  
   double             m_offsetTDC;
   double             m_signalSpeed;
-  double             m_ns2TDC;
+  double             m_ns2TDCAMT;
+  double             m_ns2TDCHPTDC;
   double             m_resTDC;
   
   //CONFIGURATION
@@ -241,6 +242,9 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
   //pile-up
   TimedHitCollection<MDTSimHit>* m_thpcMDT; // the hits
+
+  bool m_BMGpresent;
+  int m_BMGid;
 
   ///////////////////////////////////////////////////////////////////
   // Access to the event methods:
