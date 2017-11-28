@@ -122,6 +122,7 @@ class ItemDef:
         if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_2EM13VH'        ).setLogic( EM13VH.x(2)          & physcond).setTriggerType( TT.calo )  # noqa: F821              
            LVL1MenuItem('L1_2EM18VH'        ).setLogic( EM18VH.x(2)          & physcond).setTriggerType( TT.calo )  # noqa: F821
+        LVL1MenuItem('L1_2EM12'          ).setLogic( EM12.x(2)            & physcond).setTriggerType( TT.calo )     # noqa: F821
         LVL1MenuItem('L1_2EM15'          ).setLogic( EM15.x(2)            & physcond).setTriggerType( TT.calo )     # noqa: F821
         LVL1MenuItem('L1_2EM15VH'        ).setLogic( EM15VH.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
@@ -164,7 +165,8 @@ class ItemDef:
         LVL1MenuItem('L1_J30.0ETA49'  ).setLogic( J300ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J25.0ETA23_2J15.31ETA49'  ).setLogic( J250ETA23 & J1531ETA49.x(2) & physcond).setTriggerType(TT.calo)    # noqa: F821
        
-        LVL1MenuItem('L1_2EM3_VTE70').setLogic( EM3.x(2) & Not(TE70) & physcond).setTriggerType(TT.calo) # noqa: F821        
+        LVL1MenuItem('L1_2EM3_VTE70').setLogic( EM3.x(2) & Not(TE70) & physcond).setTriggerType(TT.calo) # noqa: F821
+        LVL1MenuItem('L1_2EM3_VTE50').setLogic( EM3.x(2) & Not(TE50) & physcond).setTriggerType(TT.calo) # noqa: F821        
  
         # HI
         LVL1MenuItem('L1_EM3_NZ'         ).setLogic( EM3      & Not(ZDC_AND) & physcond).setTriggerType( TT.calo )    # noqa: F821
@@ -253,6 +255,8 @@ class ItemDef:
 
 
         LVL1MenuItem('L1_MU4_TE10' ).setLogic( MU4      & TE10 & physcond).setTriggerType(TT.muon)     # noqa: F821
+        LVL1MenuItem('L1_MU4_TE20' ).setLogic( MU4      & TE20 & physcond).setTriggerType(TT.muon)     # noqa: F821
+        LVL1MenuItem('L1_MU4_TE30' ).setLogic( MU4      & TE30 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE40' ).setLogic( MU4      & TE40 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE50' ).setLogic( MU4      & TE50 & physcond).setTriggerType(TT.muon)     # noqa: F821
         LVL1MenuItem('L1_MU4_TE70' ).setLogic( MU4      & TE70 & physcond).setTriggerType(TT.muon)     # noqa: F821
@@ -525,6 +529,7 @@ class ItemDef:
         LVL1MenuItem('L1_J12_FIRSTEMPTY').setLogic( J12 & firstempty ).setTriggerType(TT.calo)        # noqa: F821
         LVL1MenuItem('L1_J12_ABORTGAPNOTCALIB').setLogic( J12 & abortgap ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J12_UNPAIREDB1').setLogic( J12 & bgrp13cond  ).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_J12_UNPAIREDB2').setLogic( J12 & bgrp14cond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_J50_UNPAIRED_ISO'   ).setLogic( J50 & unpaired_isocond   ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J50_UNPAIRED_NONISO').setLogic( J50 & unpaired_nonisocond).setTriggerType(TT.calo)    # noqa: F821
@@ -1032,6 +1037,7 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( BCM_Wide & calibcond).setTriggerType(TT.minb)    # noqa: F821        
 
         LVL1MenuItem('L1_BCM_AC_UNPAIREDB1'  ).setLogic( BCM_AtoC & bgrp13cond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)    # noqa: F821
 
 
 
@@ -1120,6 +1126,8 @@ class ItemDef:
 
         # LUT 24 (9 Outputs)
         ALFA_ANY          = ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L | ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L # 0      # noqa: F821
+        ALFA_B1          = ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L  # 0      # noqa: F821
+        ALFA_B2          = ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L # 0      # noqa: F821
         #NOT_ALFA_ANY_A    = Not(ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L)  #  1-4     # noqa: F821
         #NOT_ALFA_ANY_C    = Not(ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L)  #  5-8     # noqa: F821
 
@@ -1340,6 +1348,8 @@ class ItemDef:
         
         LVL1MenuItem('L1_ALFA_BGT' ).setLogic(RNDM3 & physcond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_BGT_UNPAIRED_ISO' ).setLogic(RNDM3 & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_BGT_BGRP1').setLogic(RNDM3 & physcond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_BGT_BGRP4').setLogic(RNDM3 & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_BGT_BGRP10').setLogic(RNDM3 & alfacalib).setTriggerType(TT.alfa)    # noqa: F821
 
         LVL1MenuItem('L1_ALFA_SHOWSYST5').setLogic( (ALFA_ANY_A & ALFA_ANY_C) & physcond).setTriggerType(TT.alfa)    # noqa: F821
@@ -1352,7 +1362,8 @@ class ItemDef:
         LVL1MenuItem('L1_ALFA_SYST18').setLogic( ALFA_LL & ALFA_RL & physcond).setTriggerType(TT.alfa)    # noqa: F821
        
         LVL1MenuItem('L1_ALFA_ANY').setLogic(ALFA_ANY & physcond).setTriggerType(TT.alfa)    # noqa: F821
-        
+        LVL1MenuItem('L1_ALFA_B1_EMPTY').setLogic(ALFA_B1 & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_ALFA_B2_EMPTY').setLogic(ALFA_B2 & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821        
         LVL1MenuItem('L1_ALFA_ANY_EMPTY').setLogic(ALFA_ANY & cosmiccond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_ANY_FIRSTEMPTY').setLogic(ALFA_ANY & firstempty).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_ALFA_ANY_UNPAIRED_ISO').setLogic(ALFA_ANY & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
@@ -1769,10 +1780,8 @@ class ItemDef:
         # Partition 2
         LVL1MenuItem.currentPartition = 2
 
-        LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)    # noqa: F821
-				#UNPAIREDB2 is BGRP14, needs to go in partition 2
-        LVL1MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)    # noqa: F821
-        LVL1MenuItem('L1_J12_UNPAIREDB2').setLogic( J12 & bgrp14cond).setTriggerType(TT.calo)    # noqa: F821
+        #Removed after ATR-17056 since we need L1_BCM_CA_UNPAIREDB2 in partition 1
+        #LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)    # noqa: F821
 
 
         # Partition 3

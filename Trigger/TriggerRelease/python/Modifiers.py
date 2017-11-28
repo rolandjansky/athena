@@ -116,30 +116,6 @@ class BunchSpacing50ns(_modifier):
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         InDetTrigFlags.InDet25nsec.set_Value_and_Lock(False)
 
-class TRTCalibFromDB(_modifier):
-    """
-    setup TRT calibration from DB 
-    """
-    def preSetup(self):
-        if TriggerFlags.doID():
-            from AthenaCommon.AppMgr import ToolSvc
-            from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
-            TRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "TRT_DriftFunctionTool")
-            ToolSvc += TRT_DriftFunctionTool
-
-            from IOVDbSvc.CondDB import conddb
-            from AthenaCommon.GlobalFlags import globalflags
-            if globalflags.DetGeo=='commis':
-                conddb.addFolder("TRT","/TRT/Calib/RT<tag>TrtCalibRt-bootstrap-01</tag>" )
-                conddb.addFolder("TRT","/TRT/Calib/T0<tag>TrtCalibT0-bootstrap-01</tag>" )
-                conddb.addOverride("/TRT/Calib/RT","TrtCalibRt-bootstrap-01")
-                conddb.addOverride("/TRT/Calib/T0","TrtCalibT0-bootstrap-01")
-            else:
-                if not conddb.folderRequested("/TRT/Calib/RT"):
-                    conddb.addFolder("TRT","/TRT/Calib/RT" )
-                if not conddb.folderRequested("/TRT/Calib/T0"):
-                    conddb.addFolder("TRT","/TRT/Calib/T0" )   
-
 class disableTRTActiveFraction(_modifier):
     """
     remove TRT ActiveFractionSvc from the configuration 
@@ -581,17 +557,6 @@ class enableHotIDMasking(_modifier):
         if hasattr(ToolSvc,"OnlineSpacePointProviderTool"):
             ToolSvc.OnlineSpacePointProviderTool.UsePixelClusterThreshold=True
             ToolSvc.OnlineSpacePointProviderTool.UseSctClusterThreshold=True
-
-class softTRTsettings(_modifier):
-    """
-    Lower cuts for standalone TRT tracking in cosmic chains
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if hasattr(ToolSvc,"InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics"):
-            ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics.MinimalNumberOfTRTHits = 15
-        if hasattr(ToolSvc,"InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics_NoField"):
-            ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics_NoField.MinimalNumberOfTRTHits = 15
 
 class disableCaloAllSamples(_modifier):
     """
@@ -1329,11 +1294,6 @@ class detailedTiming(_modifier):
         svcMgr.TrigTimerSvc.IncludeName=".+"
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_L2'):
-            for instance in ['muFast_Muon','muFast_900GeV']:
-                muFast = topSequence.TrigSteer_L2.allConfigurables.get(instance)
-                if muFast:
-                    muFast.Timing=True
         if hasattr(topSequence,'TrigSteer_HLT'):
             for instance in ['muFast_Muon','muFast_900GeV']:
                 muFast = topSequence.TrigSteer_HLT.allConfigurables.get(instance)
@@ -1595,19 +1555,6 @@ class doEnhancedBiasWeights(_modifier):
         except:
             print 'TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.' 
         
-class ForceMCSCTMapping(_modifier):
-    """
-    Hardcoded SCT cable map to use the full MC ones
-    MC cabling map is not the default setting anymore
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if not hasattr(svcMgr,"SCT_CablingSvc"):
-            from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-            svcMgr+=SCT_CablingSvc()
-        svcMgr.SCT_CablingSvc.DataSource = "SCT_MC_FullCabling_svc.dat"
-
-
 class BeamspotFromSqlite(_modifier):
     """
     Read beamspot from sqlite file (./beampos.db)
@@ -1658,7 +1605,28 @@ class useDynamicAlignFolders(_modifier):
         from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;
         GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
-    
+
+class PixelOnlyZFinder(_modifier):
+    """
+    use only Pixel information in the ZFinder
+    it affects the operation of the beamspot
+    it should not be used in special runs:
+    evaluation of the beamspot w/o stable beams for example
+    """
+    def postSetup(self):
+        try:
+            from AthenaCommon.AppMgr import ToolSvc
+            zf = ToolSvc.TrigZFinder
+            zf.NumberOfPeaks = 4
+            zf.TripletMode = 1
+            zf.TripletDZ = 1
+            zf.PhiBinSize = 0.1
+            zf.MaxLayer = 3
+            zf.MinVtxSignificance = 10
+            zf.Percentile = 0.95
+        except:
+            log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
+
 ###############################################################
 # Modifiers believed to be obsolete.
 ###############################################################
