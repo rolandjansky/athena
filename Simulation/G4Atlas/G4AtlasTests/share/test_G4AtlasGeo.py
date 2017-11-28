@@ -46,21 +46,8 @@ include("G4AtlasApps/fragment.SimCopyWeights.py")
 simFlags.EventFilter.set_On()
 
 ## Set up the geometry test
-try:
-    from G4AtlasApps.callbacks import do_recursive_geometry_test
-    do_recursive_geometry_test()
-except:
-    ## Use the G4 UI commands via a callback function at level 1
-    def setup_g4geo():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng._ctrl.G4Command("/run/initialize")
-        AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursion_start 0")
-        AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursion_depth 2")
-        AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursive_test")
-        ## Turn off processes other than transport
-        # TODO! Do this using the UI commands
-        print "WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only"
-    simFlags.InitFunctions.add_function("preInitG4", setup_g4geo)
+from G4AtlasApps.callbacks import do_recursive_geometry_test
+do_recursive_geometry_test()
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
