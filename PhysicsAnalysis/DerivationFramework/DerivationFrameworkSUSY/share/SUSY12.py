@@ -137,7 +137,7 @@ SUSY12aKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
                                                                       SGKey                   = "AntiKt4EMTopoJets",
                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                       SelectionString         = "AntiKt4EMTopoJets.pt > 0*GeV",
-                                                                      ConeSize                = 0.4)
+                                                                      AdditionalClustersKey   = ["EMOriginTopoClusters"])
 ToolSvc += SUSY12aKt4CCThinningTool
 thinningTools.append(SUSY12aKt4CCThinningTool)
 

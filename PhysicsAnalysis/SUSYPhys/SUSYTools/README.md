@@ -19,14 +19,14 @@ Because these two releases are becoming more similar, most of the instructions a
 ```bash
 setupATLAS
 lsetup git
-asetup AnalysisBase,21.2.8
+asetup AnalysisBase,21.2.10
 ```
 
 Or the latest AthAnalysis release::
 
 ```bash
 setupATLAS
-asetup AthAnalysis,21.2.8
+asetup AthAnalysis,21.2.10
 ```
 
 For working with code, a sparse checkout is pretty straightforward.  

@@ -532,11 +532,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //load supported WPs (by tightness order)
   el_id_support.push_back("VeryLooseLLH_Rel20p7");
+  el_id_support.push_back("VeryLooseLLH");
   el_id_support.push_back("LooseLLH_Rel20p7");
+  el_id_support.push_back("LooseLLH");
   el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("LooseAndBLayerLLH");
   el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH");
   el_id_support.push_back("TightLLH_Rel20p7");
-  
+  el_id_support.push_back("TightLLH");
+
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
   ph_id_support.push_back("Tight");
@@ -626,7 +631,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   if (m_dataSource < 0) {
     ATH_MSG_FATAL( "Data source incorrectly configured!!" );
     ATH_MSG_FATAL("You must set the DataSource property to Data, FullSim or AtlfastII !!");
-    if (autoconf) ATH_MSG_FATAL("Auto-configuration seems to have failed!");
+    if (autoconf) ATH_MSG_FATAL("Autoconfiguration seems to have failed!");
     // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( " UseLeptonTrigger not set");
     ATH_MSG_FATAL( "Exiting... " );
     return StatusCode::FAILURE;
@@ -662,7 +667,40 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
+StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
+  // autoconfigure PRW tool using run number and DSID
+  // based on: https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ConditionsRun1RunNumbers
+  if ( !m_prwTool.empty() && !isData() ) {
+    const xAOD::EventInfo* evtInfo = 0;
+    ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+    uint32_t runNum = evtInfo->runNumber();
+    uint32_t dsid = evtInfo->mcChannelNumber();
+    TString prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
+    prwConfigFile += "pileup_mc16";
+    switch(runNum) {
+      case 284500 : prwConfigFile+="a_"; 
+	break;
+      case 300000 : prwConfigFile+="c_"; 
+	break;
+	//  case XXXXXX : prwConfigFile+="d_";
+	//    break;
+      default : ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized MC run number, " << runNum << "! Impossible to autocongigure PRW. Aborting." );
+	return StatusCode::FAILURE;
+	break;
+    }
+    prwConfigFile += "dsid" + std::to_string(dsid) + ".root";
+    TFile testF(prwConfigFile,"read");
+    if(testF.IsZombie()) {
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile );
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_prwTool.setProperty("ConfigFiles", prwConfigFile) );
+    ATH_MSG_INFO( "autoconfigurePileupRWTool(): configured PRW tool with using " << prwConfigFile );
+  }
+  // Return gracefully
+  return StatusCode::SUCCESS;
+}
+  
 void SUSYObjDef_xAOD::setDataSource(int source) {
   if (source == 0) m_dataSource = Data;
   else if (source == 1) m_dataSource = FullSim;
@@ -688,7 +726,6 @@ std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
   //@ElectronPhotonSelectorTools/EGSelectorConfigurationMapping.h
   return TString(wp).Copy().ReplaceAll("AndBLayer","BL").ReplaceAll("LLH","LHElectron").Data();
 }
-
 
 std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
   

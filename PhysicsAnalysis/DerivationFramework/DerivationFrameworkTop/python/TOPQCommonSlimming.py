@@ -15,6 +15,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from DerivationFrameworkTop.TOPQCommonExtraContent import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addOriginCorrectedClusters
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
@@ -53,6 +54,10 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
   #  TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo"]
   TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calPt.calEta.calPhi.calM.calE.CENTER_MAG"]
+
+  # Also write the origin-corrected clusters for both EMTopo (small-R-jets) and
+  # LCTopo (large-R-jets).
+  addOriginCorrectedClusters(TOPQSlimmingHelper, writeLC=True, writeEM=True)
 
   if DFisMC:
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesPhotonsTruth
