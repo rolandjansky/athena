@@ -157,7 +157,7 @@ private:
 
 	// Data handles
 	SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
-	SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTrackObjectName", "Tracks", "Name of tracks container"};
+	SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
 	// NOTE: this property is not used anywhere, is it ok to change its name?
 	SG::ReadHandleKey<TrackCollection> m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
 	SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo", "Name of EventInfo object"};
