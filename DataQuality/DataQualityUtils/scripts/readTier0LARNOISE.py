@@ -18,7 +18,6 @@ import pathExtract
 
 from ROOT import *
 
-#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
   
