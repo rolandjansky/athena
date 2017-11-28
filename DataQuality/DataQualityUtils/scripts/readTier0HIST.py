@@ -37,7 +37,7 @@ parser.print_help()
 
 args = parser.parse_args()
 
-run = args.runNumber
+runNumber = args.runNumber
 LB = args.lumiblock
 stream = args.stream
 if args.tag != "":
@@ -65,9 +65,9 @@ amiTag = args.amiTag
 path = []
 
 if args.lumiblock == 0:
-   path.append("root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(args.runNumber,args.stream,args.amiTag,args.tag)).rstrip())
+   path.append("root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(args.runNumber,args.stream,args.amiTag,tag)).rstrip())
 else:
-   allUnmerged = pathExtract.returnEosHistPathLB(run,LB,LB,stream,amiTag,tag)
+   allUnmerged = pathExtract.returnEosHistPathLB(runNumber,LB,LB,stream,amiTag,tag)
    for iFile in allUnmerged:
       path.append("root://eosatlas.cern.ch/%s"%(iFile).rstrip())
 #   path.add("root://eosatlas.cern.ch/%s"%(.rstrip())

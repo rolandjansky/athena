@@ -35,7 +35,7 @@ parser.print_help()
 
 args = parser.parse_args()
 
-run = args.runNumber
+runNumber = args.runNumber
 stream = args.stream
 if args.tag != "":
   tag = args.tag
@@ -58,7 +58,7 @@ else: # Try to retrieve the data project tag via atlasdqm
 
 amiTag = args.amiTag
 
-listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
+listOfFiles = pathExtract.returnEosTagPath(runNumber,stream,amiTag,tag)
 
 tree = TChain("POOLCollectionTree")
 
