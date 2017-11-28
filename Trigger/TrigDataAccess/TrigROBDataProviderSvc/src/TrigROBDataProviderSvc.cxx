@@ -505,7 +505,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
     robmonitor::ROBDataMonitorStruct* p_robMonStruct(0);
     if ( p_robMonCollection ) { 
       // initialize new ROBDataMonitorStruct
-      p_robMonStruct = new robmonitor::ROBDataMonitorStruct(m_currentLvl1ID, robIdsUnique, m_callerName);
+      p_robMonStruct = new robmonitor::ROBDataMonitorStruct(lvl1_id(), robIdsUnique, m_callerName);
     }
 
     // for online running the requested ROBs should be not found in cache
@@ -623,7 +623,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 		    << "      or input ROB Id list was empty, \n" 
 		    << "      or all requested ROBs were not retrieved due to the veto list.\n" 
 		    << "      Number of requested ROB Ids = " << robIdsUnique.size() << "\n"
-		    << "      Lvl1 id                     = " << m_currentLvl1ID 
+		    << "      Lvl1 id                     = " << lvl1_id() 
 		    << endmsg;
       // Set ROB request time also in the case when no DataCollector request is necessary 
       // to allow correlation with RoI request times
@@ -668,7 +668,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 
 	  logStream() << MSG::DEBUG 
 		      << " ---> addROBData for "<<m_callerName<<": A ROB/ROS mapping is available the following ROB Ids are scheduled for retrieval in getROBData: \n"
-		      << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
+		      << "      Lvl1 id                     = " << lvl1_id() << "\n"
 		      << ost.str()
 		      << endmsg;
 	}
@@ -682,15 +682,20 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
   return;
 }
 
+uint32_t TrigROBDataProviderSvc::lvl1_id() {
+  return getEvent()->lvl1_id();
+}
+
 /** - in online add the LVL1/LVL2 result
     - rebuild the map
     - set flag for online running
 */
+
 void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result) 
 { 
   // clear the ROB map
   m_online_robmap.clear(); 
-  m_currentLvl1ID = 0;
+  //m_currentLvl1ID = 0;
 
   // clear the maps used for prefetching
   m_Det_Robs_for_retrieval.clear();
@@ -709,27 +714,28 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
   }
 
   // set the LVL1 id
-  m_currentLvl1ID = result[0].rod_lvl1_id();
+  uint32_t currentLvl1ID = result[0].rod_lvl1_id();
 
   // add fragments to map
   std::vector<ROBF>::const_iterator it_robf     = result.begin();
   std::vector<ROBF>::const_iterator it_robf_end = result.end();
+
   for(; it_robf!=it_robf_end; ++it_robf) {
     uint32_t id = it_robf->source_id() ;
     // check current L1 ID against CTP fragment when possible
     if ( (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_CTP) &&
-	 (it_robf->rod_lvl1_id() != m_currentLvl1ID) ) {
+	 ( it_robf->rod_lvl1_id() != currentLvl1ID ) ) {
       logStream() << MSG::ERROR << " ---> Lvl1 ID mismatch for CTP fragment with SourceId = 0x" << MSG::hex << id << MSG::dec
 		  << " and L1 Id = " << it_robf->rod_lvl1_id()  
-		  << " to currently used L1 Id = " << m_currentLvl1ID 
+		  << " to currently used L1 Id = " << currentLvl1ID 
 		  << " -> Use CTP version from now on."<< endmsg;
-      m_currentLvl1ID = it_robf->rod_lvl1_id() ;
+      //      currentLvl1ID = it_robf->rod_lvl1_id(); // TB is this ERROR real or some past history
     }
     // remove empty ROB fragments or ones with bad status, if requested
     if ((it_robf->rod_ndata() == 0) && (m_removeEmptyROB)) { 
       if(logLevel() <= MSG::DEBUG) { 
 	logStream() << MSG::DEBUG << " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-		    << " removed for L1 Id = " << m_currentLvl1ID << endmsg;
+		    << " removed for L1 Id = " << currentLvl1ID << endmsg;
       }  
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&*it_robf) ) {
       if ((logLevel() <= MSG::DEBUG) && (it_robf->nstatus() > 0)) {
@@ -741,7 +747,7 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
 		    << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
 		    << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
 		    << MSG::dec
-		    << " removed for L1 Id = " << m_currentLvl1ID << endmsg;
+		    << " removed for L1 Id = " << currentLvl1ID << endmsg;
       }
     } else {
       // mask off the module ID for L2 and EF result for Run 1 data
@@ -789,7 +795,7 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
   if(logLevel() <= MSG::DEBUG) {
     logStream()<<MSG::DEBUG<< " ---> setNextEvent online for "<< name()<<endmsg; 
     logStream()<<MSG::DEBUG<< "      online running    = " << m_onlineRunning <<endmsg;
-    logStream()<<MSG::DEBUG<< "      current LVL1 id   = " << m_currentLvl1ID <<endmsg;
+    logStream()<<MSG::DEBUG<< "      current LVL1 id   = " << currentLvl1ID <<endmsg;
     logStream()<<MSG::DEBUG<< "      # LVL1 ROBs       = " << result.size() <<endmsg;
     logStream()<<MSG::DEBUG<< "      size of ROB cache = " << m_online_robmap.size() <<endmsg;
     logStream()<<MSG::DEBUG<< dumpROBcache() <<endmsg; 
@@ -933,7 +939,7 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
       robmonitor::ROBDataMonitorStruct* p_robMonStruct(0);
       if ( p_robMonCollection ) {
 	// initialize new ROBDataMonitorStruct
-	p_robMonStruct = new robmonitor::ROBDataMonitorStruct(m_currentLvl1ID, robIdsForRetrieval,  m_callerName);
+	p_robMonStruct = new robmonitor::ROBDataMonitorStruct(lvl1_id(), robIdsForRetrieval,  m_callerName);
       }
 
       // update internal ROB cache 
@@ -1093,10 +1099,12 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
   struct timeval time_stop;
   if ( m_doMonitoring || m_doDetailedROBMonitoring.value() ) gettimeofday(&time_start, 0);
 
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  const ROBMAP& robmap = m_eventsCache.get(context)->robmap;
 
   // Get ROB Fragments to complete event from offline ROBDataProviderSvc
-  for(ROBDataProviderSvc::ROBMAP::const_iterator offline_rob_map_it=ROBDataProviderSvc::m_robmap.begin();
-      offline_rob_map_it != ROBDataProviderSvc::m_robmap.end(); ++offline_rob_map_it) {
+  for(ROBDataProviderSvc::ROBMAP::const_iterator offline_rob_map_it=robmap.begin();
+      offline_rob_map_it != robmap.end(); ++offline_rob_map_it) {
     uint32_t id = (*offline_rob_map_it).first; 
     ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id); 
     if (map_it == m_online_robmap.end()) robIdsForRetrieval.push_back(id); 
@@ -1131,7 +1139,7 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
   robmonitor::ROBDataMonitorStruct* p_robMonStruct(0);
   if ( p_robMonCollection ) {
     // initialize new ROBDataMonitorStruct
-    p_robMonStruct = new robmonitor::ROBDataMonitorStruct(m_currentLvl1ID, robIdsForRetrieval,  m_callerName);
+    p_robMonStruct = new robmonitor::ROBDataMonitorStruct( lvl1_id(), robIdsForRetrieval,  m_callerName);
   }
 
   if ( m_doMonitoring || p_robMonStruct ) {
@@ -1175,7 +1183,7 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
   if (logLevel() <= MSG::DEBUG) {
     logStream() << MSG::DEBUG
         << " ---> collectCompleteEventData: The following ROB Ids were received from DataCollector : \n"
-        << "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
+		<< "      Lvl1 id                                             = " << lvl1_id() << "\n"
         << "      Number of actually received ROB Ids                 = " << retrievedRobIds.size()
         << endmsg;
   }
@@ -1384,7 +1392,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 
   if(logLevel() <= MSG::DEBUG)
     logStream() << MSG::DEBUG << " ---> addROBDataToCache for "<<m_callerName<<": Number of ROB Ids requested for retrieval : " << robIdsForRetrieval.size() 
-		<< ", Lvl1 id = " << m_currentLvl1ID << endmsg;
+		<< ", Lvl1 id = " << lvl1_id() << endmsg;
 
   // return if no ROBs are requested
   if (robIdsForRetrieval.size() == 0) return;
@@ -1464,7 +1472,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << (*rob_it) << std::dec << "\n" ; 
     logStream() << MSG::DEBUG 
 		<< " ---> addROBDataToCache for "<<m_callerName<<": The following ROB Ids were received from DataCollector : \n"
-		<< "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
+		<< "      Lvl1 id                                             = " << lvl1_id() << "\n"
                 << "      Number of detector ROB Ids requested for retrieval  = " << vRobIds.size() << "\n"
                 << "      Number of MET ROB Ids requested for retrieval       = " << vMETRobIds.size() << "\n"
                 << "      Number of actually received ROB Ids                 = " << retrievedRobIds.size() << "\n"
@@ -1524,7 +1532,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
     if (((*it_robf)->rod_ndata() == 0) && (m_removeEmptyROB)) { 
       if(logLevel() <= MSG::DEBUG) { 
 	logStream() << MSG::DEBUG << " ---> addROBDataToCache for "<<m_callerName<<": Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-		    << " removed for L1 Id = " << m_currentLvl1ID << endmsg;
+		    << " removed for L1 Id = " << lvl1_id() << endmsg;
       }
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&*(*it_robf)) ) {
       if ((logLevel() <= MSG::DEBUG) && ((*it_robf)->nstatus() > 0)) {
@@ -1536,7 +1544,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 		    << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
 		    << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
 		    << MSG::dec
-		    << " removed for L1 Id = " << m_currentLvl1ID << endmsg;
+		    << " removed for L1 Id = " <<lvl1_id() << endmsg;
       }
     } else {
       // mask off the module ID for L2 and EF result for Run 1 data
