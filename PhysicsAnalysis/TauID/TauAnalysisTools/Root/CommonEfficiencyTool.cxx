@@ -12,6 +12,7 @@
 
 // ROOT include(s)
 #include "TH2F.h"
+#include "TH3D.h"
 
 using namespace TauAnalysisTools;
 
@@ -495,6 +496,13 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
       (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
     ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
   }
+  else if (cClass->InheritsFrom("TH3D"))
+  {
+    TH1F* oObject = (TH1F*)kKey->ReadObj();
+    oObject->SetDirectory(0);
+    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH3D);
+    ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
+  }
   else if (cClass->InheritsFrom("TF1"))
   {
     TObject* oObject = kKey->ReadObj();
@@ -603,9 +611,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
   double dPt = m_fX(xTau);
   double dEta = m_fY(xTau);
 
+  double dVars[2] = {dPt, dEta};
+
   // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the
   // function pointer stored in the tuple from the scale factor map
-  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dPt, dEta);
+  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dVars);
 }
 
 /*
@@ -615,10 +625,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+    double& dEfficiencyScaleFactor, double dVars[])
 {
+  double dPt = dVars[0];
+  double dEta = dVars[1];
+
   const TH2F* hHist = dynamic_cast<const TH2F*>(oObject);
 
   if (!hHist)
@@ -647,10 +658,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+    double& dEfficiencyScaleFactor, double dVars[])
 {
+  double dPt = dVars[0];
+  double dEta = dVars[1];
+
   const TH2D* hHist = dynamic_cast<const TH2D*>(oObject);
 
   if (!hHist)
@@ -673,15 +685,51 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
 }
 
 /*
+  find the particular value in TH3D depending on x, y, z
+  Note: In case values are outside of bin ranges, the closest bin value is used
+*/
+//______________________________________________________________________________
+CP::CorrectionCode CommonEfficiencyTool::getValueTH3D(const TObject* oObject,
+    double& dEfficiencyScaleFactor, double dVars[])
+{
+  double dX = dVars[0];
+  double dY = dVars[1];
+  double dZ = dVars[2];
+
+  const TH3D* hHist = dynamic_cast<const TH3D*>(oObject);
+
+  if (!hHist)
+  {
+    // ATH_MSG_ERROR("Problem with casting TObject of type "<<oObject->ClassName()<<" to TH2D");
+    return CP::CorrectionCode::Error;
+  }
+
+  // protect values from underflow bins
+  dX = std::max(dX,hHist->GetXaxis()->GetXmin());
+  dY = std::max(dY,hHist->GetYaxis()->GetXmin());
+  dZ = std::max(dZ,hHist->GetZaxis()->GetXmin());
+  // protect values from overflow bins (times .999 to keep it inside last bin)
+  dX = std::min(dX,hHist->GetXaxis()->GetXmax() * .999);
+  dY = std::min(dY,hHist->GetYaxis()->GetXmax() * .999);
+  dZ = std::min(dZ,hHist->GetZaxis()->GetXmax() * .999);
+
+  // get bin from TH2 depending on x and y values; finally set the scale factor
+  int iBin = hHist->FindFixBin(dX,dY,dZ);
+  dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
+  return CP::CorrectionCode::Ok;
+}
+
+/*
   Find the particular value in TF1 depending on pt and eta (or the corresponding
   value in case of configuration)
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
-    double& dEfficiencyScaleFactor,
-    double dPt,
-    double dEta)
+    double& dEfficiencyScaleFactor, double dVars[])
 {
+  double dPt = dVars[0];
+  double dEta = dVars[1];
+
   const TF1* fFunc = static_cast<const TF1*>(oObject);
 
   if (!fFunc)
