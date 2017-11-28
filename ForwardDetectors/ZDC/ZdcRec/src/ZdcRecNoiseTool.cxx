@@ -89,7 +89,7 @@ int ZdcRecNoiseTool::readPedestals()
 	infile.open(str.data(), std::ifstream::in);
 	if (infile.fail()) {
 		msg(MSG::ERROR) << "ZDC ---> No pedestal file available - aborting ";
-		return StatusCode::FAILURE;
+		return 0;
 	}
 	else {
 		infile >> nsamples;
@@ -140,7 +140,7 @@ int ZdcRecNoiseTool::writePedestals()
 	outfile.open(str.data(), std::ofstream::out);
 		if (outfile.fail()) {
 			msg(MSG::ERROR) << "ZDC ---> Cannot create Pedestal File - aborting ";
-			return StatusCode::FAILURE;
+			return 0;
 		}
 		else {
 			std::vector<int> fadc00(nsamples);

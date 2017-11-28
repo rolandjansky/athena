@@ -944,7 +944,7 @@ int AthenaHiveEventLoopMgr::size()
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       fatal() << "Can not create the event selector Context."
               << endmsg;
-      return StatusCode::FAILURE;
+      return -1;
     }
   }
 

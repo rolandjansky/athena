@@ -670,7 +670,7 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
    std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, dbName);
    if (dbH == nullptr) {
       ATH_MSG_DEBUG("getFileSize: Failed to get Session/DatabaseHandle to get POOL FileSize property.");
-      return(StatusCode::FAILURE);
+      return 0; // failure
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
       if (contextId == IPoolSvc::kOutputStream) {
