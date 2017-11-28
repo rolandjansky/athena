@@ -48,6 +48,7 @@ find_package( lwtnn )
 
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
+  BoostedJetTaggers/*.h
   Root/BoostedXbbTagger.cxx
   Root/HbbTaggerDNN.cxx
   Root/HEPTopTagger.cxx
