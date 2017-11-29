@@ -17,7 +17,8 @@ import argparse
 import pathExtract         
 import xmlrpclib
 
-from ROOT import *
+from ROOT import TFile,TBrowser
+from ROOT import gStyle
 
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")

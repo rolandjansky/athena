@@ -41,8 +41,10 @@ import xmlrpclib
 
 import pathExtract         
 
-import ROOT
-from ROOT import *
+from ROOT import TFile,TCanvas,TBox,TPaveText,TColor
+from ROOT import TH1,TH2,TH1I,TH1D,TH2D
+from ROOT import kBlue,kGreen,kRed
+from ROOT import gStyle
 
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")

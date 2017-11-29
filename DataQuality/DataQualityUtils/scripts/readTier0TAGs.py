@@ -17,7 +17,9 @@ import argparse
 import pathExtract         
 import xmlrpclib
 
-from ROOT import *
+from ROOT import TFile,TChain
+from ROOT import gStyle
+
 
 #gROOT.Reset()
 gStyle.SetPalette(1)

@@ -20,7 +20,8 @@ import xmlrpclib
 
 import pathExtract         
 
-from ROOT import *
+from ROOT import TFile,TBrowser
+from ROOT import gStyle
 
 # Main ================================================================
 gStyle.SetPalette(1)
