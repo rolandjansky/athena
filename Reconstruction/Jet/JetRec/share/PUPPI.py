@@ -57,7 +57,9 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
 ToolSvc += correctPFOTool
 
 from JetRecTools.JetRecToolsConf import PuppiWeightTool
-puppiWeightTool = PuppiWeightTool("PUPPIWeightTool")
+puppiWeightTool = PuppiWeightTool("PUPPIWeightTool",
+                                  InputType = 3
+                                  )
 ToolSvc += puppiWeightTool
 
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
@@ -68,7 +70,7 @@ from JetRecTools.JetRecToolsConf import  JetConstituentModSequence
 PUPPISequence = JetConstituentModSequence("PUPPISequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PUPPI",
-                                          InputType = "ParticleFlow",
+                                          InputType = 3,
                                           Modifiers = [correctPFOTool,puppiWeightTool,CHSTool],
                                           SaveAsShallow = False,
                                           )
@@ -99,3 +101,4 @@ xAODStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowPUPPIJets")
 xAODStream.AddItem(       "xAOD::PFOContainer#*ParticleFlowObjects*")
 xAODStream.AddItem(    "xAOD::PFOAuxContainer#*ParticleFlowObjects*")
 xAODStream.AddItem("xAOD::ShallowAuxContainer#*ParticleFlowObjects*")
+
