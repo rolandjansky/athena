@@ -164,7 +164,7 @@ if 'use_new_tm' in dir() and use_new_tm:
   if 'triggerMenuVersion' in dir():
     TriggerFlags.triggerMenuSetup = triggerMenuVersion
   else:
-    TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
+    TriggerFlags.triggerMenuSetup = 'Physics_pp_v7'
   TriggerFlags.doHLT=True
   from TriggerMenu.menu.GenerateMenu import GenerateMenu
 else:
