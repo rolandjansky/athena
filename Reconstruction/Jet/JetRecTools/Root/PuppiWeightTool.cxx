@@ -21,10 +21,10 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
   declareProperty("R0", m_R0 = 0.3);
   declareProperty("Rmin", m_Rmin = 0.001);
   declareProperty("Beta", m_beta = 1);
-  declareProperty("CentralPTCutOffset", m_centralPTCutOffset = 0);
-  declareProperty("CentralPTCutSlope", m_centralPTCutSlope = 0);
-  declareProperty("ForwardPTCutOffset", m_forwardPTCutOffset = 0);
-  declareProperty("ForwardPTCutSlope", m_forwardPTCutSlope = 0);
+  declareProperty("CentralPTCutOffset", m_centralPTCutOffset = 200);
+  declareProperty("CentralPTCutSlope", m_centralPTCutSlope = 14);
+  declareProperty("ForwardPTCutOffset", m_forwardPTCutOffset = 200);
+  declareProperty("ForwardPTCutSlope", m_forwardPTCutSlope = 14);
   declareProperty("EtaBoundary",m_etaBoundary = 2.5);
 
   declareProperty("ApplyWeight",m_applyWeight=true);
@@ -49,7 +49,7 @@ StatusCode PuppiWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
   // Type-checking happens in the JetConstituentModifierBase class
   // so it is safe just to static_cast
   xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
+  if(pfoCont) return process_impl(pfoCont);
   else{
     ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
     return StatusCode::FAILURE;
@@ -59,8 +59,7 @@ StatusCode PuppiWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
 //------------------------------------------------------------------------------
 
 StatusCode PuppiWeightTool::process_impl(xAOD::PFOContainer* cont) const{
-
-  const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
   const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
   const static SG::AuxElement::Accessor<double> weightAcc("PUPPI_weight");
 
