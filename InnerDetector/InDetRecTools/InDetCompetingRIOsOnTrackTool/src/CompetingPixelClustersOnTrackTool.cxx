@@ -49,8 +49,8 @@ InDet::CompetingPixelClustersOnTrackTool::CompetingPixelClustersOnTrackTool(
     declareInterface<ICompetingPixelClustersOnTrackCreator>(this);
     declareProperty("ToolForPixelClusterOnTrackCreation",   m_Pixel_ROTCreator,         "PixelClusterOnTrackCreator needed for the creation of CompetingPixelClustersOnTrack");
     declareProperty("ToolForWeightCalculation",             m_WeightCalculator,         "Tool for weight (assignment probability) calculation");
-    declareProperty("WeightCutValueBarrel",                 mjo_BarrelCutValue=13.81551,"lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
-    declareProperty("WeightCutValueEndCap",                 mjo_EndCapCutValue=13.81551,"lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
+    declareProperty("WeightCutValueBarrel",                 m_jo_BarrelCutValue=13.81551,"lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
+    declareProperty("WeightCutValueEndCap",                 m_jo_EndCapCutValue=13.81551,"lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
     declareProperty("Extrapolator",                         m_extrapolator,             "Extrapolator tool");
 }
 
@@ -69,8 +69,8 @@ StatusCode InDet::CompetingPixelClustersOnTrackTool::initialize() {
 
     ATH_MSG_INFO("Pixel ROTCreation by : " << m_Pixel_ROTCreator.name() );
     ATH_MSG_INFO("weight calculation by: " << m_WeightCalculator.name() );
-    ATH_MSG_INFO("WeightCutValues are  : " << mjo_BarrelCutValue<< " (barrel) and "
-         << mjo_EndCapCutValue<< " (end-cap)");
+    ATH_MSG_INFO("WeightCutValues are  : " << m_jo_BarrelCutValue<< " (barrel) and "
+         << m_jo_EndCapCutValue<< " (end-cap)");
 
     // Get the correction tool to create PixelClusters on Track
     sc = m_Pixel_ROTCreator.retrieve();
@@ -250,10 +250,10 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
     // call normalize()
     if (isBarrel) {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
     } else {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
     }
     delete baseROTvector;
 
@@ -373,10 +373,10 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
         ATH_MSG_VERBOSE("normalize the assignment probabilities");
         if(compROT->rioOnTrack(0).detectorElement()->isBarrel()) {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
         } else {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
         }
         delete baseROTvector;
     } else {

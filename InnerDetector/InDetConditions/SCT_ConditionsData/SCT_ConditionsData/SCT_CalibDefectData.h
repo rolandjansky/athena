@@ -11,7 +11,7 @@
 #ifndef SCT_CALIBDEFECTDATA_H
 #define SCT_CALIBDEFECTDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 #include <vector>
 #include <string>

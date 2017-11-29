@@ -52,13 +52,6 @@ StatusCode SCTRawDataProviderTool::initialize()
     ATH_MSG_DEBUG("Retrieved service " << m_bsErrSvc);
   }
 
-  IIncidentSvc* incsvc;
-  sc = service("IncidentSvc", incsvc);
-  int priority{100};
-  if (sc.isSuccess()) {
-    incsvc->addListener(this, "BeginEvent", priority);
-  }
-
   ATH_CHECK(m_xevtInfoKey.initialize());
   ATH_CHECK(m_evtInfoKey.initialize());
 
@@ -66,26 +59,15 @@ StatusCode SCTRawDataProviderTool::initialize()
 }
 
 /// -------------------------------------------------------
-/// finalize
-
-StatusCode SCTRawDataProviderTool::finalize()
-{
-  StatusCode sc{AlgTool::finalize()}; 
-  return sc;
-}
-
-/// -------------------------------------------------------
 /// convert method
 
-void SCTRawDataProviderTool::handle(const Incident& inc) {
-  if (inc.type() == "BeginEvent") {
-    /** reset list of known robIds */
-    m_robIdSet.clear(); 
-  }  
+void SCTRawDataProviderTool::BeginNewEvent() {
+   /** reset list of known robIds */
+   m_robIdSet.clear(); 
 }
 
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
-                                           SCT_RDO_Container& rdoIdc,
+                                           ISCT_RDO_Container& rdoIdc,
                                            InDetBSErrContainer* errs)
 {
   if(vecRobs.empty()) return StatusCode::SUCCESS;

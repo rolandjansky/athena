@@ -11,6 +11,7 @@
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p2.h"
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p3.h"
+#include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p4.h"
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::TGCSimHitCollection_p3  TGCSimHitCollection_PERS;
@@ -37,6 +38,7 @@ private:
     TGCSimHitCollectionCnv_p1    m_TPConverter_p1;
     TGCSimHitCollectionCnv_p2    m_TPConverter_p2;
     TGCSimHitCollectionCnv_p3    m_TPConverter_p3;
+    TGCSimHitCollectionCnv_p4    m_TPConverter_p4;
 };
 
 #endif

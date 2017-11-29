@@ -38,26 +38,26 @@ while getopts ":t:b:hcmipaN" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-	c)
-	    EXE_CMAKE="1"
-	    ;;
-	m)
-	    EXE_MAKE="1"
-	    ;;
-	i)
-	    EXE_INSTALL="1"
-	    ;;
-	p)
-	    EXE_CPACK="1"
-	    ;;
-	a)
-	    NIGHTLY=false
-	    ;;
-	N)
-	    BUILDTOOL="ninja -k 0"
-	    BUILDTOOLTYPE="-GNinja"
-	    INSTALLRULE="install"
-	    ;;
+        c)
+            EXE_CMAKE="1"
+            ;;
+        m)
+            EXE_MAKE="1"
+            ;;
+        i)
+            EXE_INSTALL="1"
+            ;;
+        p)
+            EXE_CPACK="1"
+            ;;
+        a)
+            NIGHTLY=false
+            ;;
+        N)
+            BUILDTOOL="ninja -k 0"
+            BUILDTOOLTYPE="-GNinja"
+            INSTALLRULE="install"
+            ;;
         h)
             usage
             exit 0
@@ -90,6 +90,14 @@ set -e
 # consider a pipe failed if ANY of the commands fails
 set -o pipefail
 
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test -x $scriptsdir_nightly_status/status_on_exit.sh  && trap $scriptsdir_nightly_status/status_on_exit.sh EXIT
+ }
+}
+
 # Source in our environment
 AthenaSrcDir=$(dirname ${BASH_SOURCE[0]})
 
@@ -115,16 +123,14 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    { time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-        ${AthenaSrcDir}  2>&1 | tee cmake_config.log
+        ${AthenaSrcDir}; } 2>&1 | tee cmake_config.log
 fi
 
 #log analyzer never affects return status in the parent shell:
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
-    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
-    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status
     branch=$(basename $(cd ${BUILDDIR}/.. ; pwd)) #FIXME: should be taken from env.
     timestamp_tmp=` basename ${BUILDDIR}/.@@__* 2>/dev/null | sed 's,^\.,,' `
     if test "X$timestamp_tmp" = "X" ; then
@@ -145,7 +151,13 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time ${BUILDTOOL} 2>&1 | tee cmake_build.log
+    # Forcibly remove the merged CLID file from the previous build, to
+    # avoid issues with some library possibly changing the name/CLID
+    # of something during the build. Note that ${platform} is coming from
+    # the build_env.sh script.
+    rm -f ${platform}/share/clid.db
+    # Build the project.
+    { time ${BUILDTOOL}; } 2>&1 | tee cmake_build.log
 fi
 
 {
@@ -158,14 +170,14 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE} \
+    { time DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE}; } \
 	 2>&1 | tee cmake_install.log
 fi
 #^^^ do we need to analyze local install logs?
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack 2>&1 | tee cmake_cpack.log
+    { time cpack; } 2>&1 | tee cmake_cpack.log
     cp Athena*.rpm ${BUILDDIR}/
 fi
 

@@ -18,7 +18,7 @@ import pathExtract
 
 from ROOT import *
 
-gROOT.Reset()
+#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
   
@@ -46,7 +46,7 @@ tree = TChain("POOLCollectionTree")
 file = {}
 for fileNames in listOfFiles:
   print "Adding %s"%(fileNames)
-  tree.AddFile("root://eosatlas/%s"%(fileNames))
+  tree.AddFile("root://eosatlas.cern.ch/%s"%(fileNames))
 
 entries = tree.GetEntries()
 if entries != 0:

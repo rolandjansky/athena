@@ -21,13 +21,13 @@ void run_epara()
  vector<string> input;
  
  label="pions";
- input.push_back("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/NTUP_090315/ISF_HitAnalysis_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.standard.matched.pool.root");
+ input.push_back("root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/NTUP_090315/ISF_HitAnalysis_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.standard.matched.pool.root");
   
  //label="s2864";
- //input.push_back("root://eosatlas//eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/*.root");
+ //input.push_back("root://eosatlas.cern.ch//eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/*.root");
  
  //label="s2865";
- //input.push_back("root://eosatlas//eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2865_r7736.w0_162706_matched_output.root/*.root");
+ //input.push_back("root://eosatlas.cern.ch//eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2865_r7736.w0_162706_matched_output.root/*.root");
  
  cout<<"*** Preparing to run on "<<label<<" ***"<<endl;
  TChain* mychain= new TChain("FCS_ParametrizationInput");

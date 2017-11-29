@@ -34,7 +34,10 @@ namespace MuonGM {
     double signY;
     //Amg::Vector2D firstChannelPos;
     double firstPos;
-    double firstPitch; // Pitch of 1st strip
+    double firstPitch; // Pitch of 1st strip or number of wires in 1st group
+    double groupWidth; // Number of Wires per group
+    double nGroups; // Number of Wire groups
+    double wireCutout;
     double xSize;
     double xLength;
     double ysFrame;
@@ -58,6 +61,10 @@ namespace MuonGM {
     /** calculate local channel number, range 1=nstrips like identifiers. Returns -1 if out of range */
     int channelNumber( const Amg::Vector2D& pos ) const;
     //int stripNumber( double locX ) const;
+
+    /** calculate local wire group number, range 1=64 like identifiers. Returns -1 if out of range */
+    int wireGroupNumber( const Amg::Vector2D& pos ) const;
+
 
     /** calculate local channel position for a given channel number */
     bool  channelPosition( int channel, Amg::Vector2D& pos  ) const;
@@ -129,12 +136,20 @@ namespace MuonGM {
 
       double xMfirst = firstPos;
       double xMid;
+      int chNum;
       // sTGC strips no longer use the "eta" orientation in their local geometry.
       // Its coordinates are "rotated". sTGC strip pitch == 3.2mm is a way to check if sTGC only
-      if (inputPitch == 3.2) xMid = pos.y() - pos.x()*tan(sAngle);
-      else xMid = pos.x() - pos.y()*tan(sAngle);
-      //double xMid = pos.x() - pos.y()*tan(sAngle);
-      int chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
+      if (inputPitch == 3.2){ // if sTGC strip
+        xMid = pos.y() - pos.x()*tan(sAngle);
+       if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
+       else if (xMid > xMfirst) // position higher than first Pos
+          chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+2 );
+        else chNum = -1;
+      }
+      else {
+        xMid = pos.x() - pos.y()*tan(sAngle);
+        chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
+      }
       if (chNum<1) return -1;
       if (chNum>nch) return -1;     // used also for calculation of the number of strips
       return chNum;
@@ -142,6 +157,8 @@ namespace MuonGM {
     } else if (type==MuonChannelDesign::phiStrip) {   // "phi" orientation, local coordinates rotated
 
       // find transverse pannel size for a given locX 
+      if (inputPitch == 1.8 && groupWidth == 20) // if sTGC wires
+        return wireGroupNumber(pos);
       int chNum = int( (pos.x()-firstPos)/inputPitch +1.5 ) ;
       if (chNum<1) return -1;
       if (chNum>nch) return -1;  
@@ -155,6 +172,32 @@ namespace MuonGM {
 
   }
 
+  inline int MuonChannelDesign::wireGroupNumber( const Amg::Vector2D& pos) const {
+    // As of 2017-10-12, this is incomplete.
+    // The wires in the 1st gas volume of QL1, QS1 can not be read for digits
+    // We now hand-modified the xml file to include a new value.
+    if (type==MuonChannelDesign::phiStrip && inputPitch == 1.8 && groupWidth == 20) {   // sTGC Wires
+      //First, find the wire number associated to the position
+      int wireNumber;
+      if (pos.x() > -0.5*maxYSize && pos.x() < firstPos) // Before first wire
+        wireNumber = 1;
+      else wireNumber = (pos.x() - firstPos)/inputPitch + 2;
+      //find wire group associated to wire number
+      int grNumber;
+      if (wireNumber <= firstPitch) grNumber = 1; // firstPitch in this case is number of wires in 1st group
+      else grNumber = (wireNumber - firstPitch)/groupWidth +2; // 20 wires per group
+      // If hit is in inactive wire region of QL1/QS1, return 63.
+      if (wireCutout != 0 && pos.y() < 0.5*xSize - wireCutout) return 63;
+      if (grNumber<1) return -1;
+      if (grNumber>nGroups) return -1;
+      return grNumber;
+    } else {
+      //Only implemented for sTGC wires
+      return -1;
+    }
+    return -1;
+
+  }
 
   inline bool MuonChannelDesign::channelPosition( int st, Amg::Vector2D& pos  ) const {
     if( st < 1 ) return false;
@@ -163,6 +206,20 @@ namespace MuonGM {
     double dY = 0.5*(maxYSize-minYSize-2.*deadS);
 
     if ( type==MuonChannelDesign::phiStrip ) {   // swap coordinates on return
+
+      if (inputPitch == 1.8 && groupWidth == 20) { // sTGC Wires: returns center of wire group
+        if (st > nGroups) return false;
+        double firstX = firstPos + firstPitch*inputPitch; // Position of the end of the first wire group (accounts for staggering)
+        double locX;
+        if (st == 1) locX = 0.5 * (-0.5*maxYSize + firstX);
+        else if (st == nGroups) // account for staggering
+          locX = 0.5 * (0.5*maxYSize - (nch - firstPitch - (nGroups-2)*groupWidth)*inputPitch);
+        else locX = firstX + groupWidth*inputPitch*(st-1.5);
+        pos[0] = locX;
+        pos[1] = 0.5*xSize; // This is so that if you get the wiregrp number from a position, followed by getting the position from that channel to again obtain the wiregroup, you get the same results.
+
+        return true;
+      }
 
       double locY = firstPos+ (st-1)*inputPitch;
 

@@ -2,16 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoEllipticalTube_h
-#define GeoEllipticalTube_h 1
+#ifndef GEOMODELKERNEL_GEOELLIPTICALTUBE_H
+#define GEOMODELKERNEL_GEOELLIPTICALTUBE_H
+
+/**
+ * @class: GeoEllipticalTube
+ *  
+ * @brief This is a tube with elliptical cross section
+ * The equation of the surface in x/y is 1.0 = (x/dx)**2 + (y/dy)**2
+ */
 
 #include "GeoModelKernel/GeoShape.h"
-
-// Class: GeoEllipticalTube
-//  
-// This is a tube with elliptical cross section
-// The equation of the surface in x/y is 1.0 = (x/dx)**2 + (y/dy)**2
-//
 
 class GeoEllipticalTube : public GeoShape
 {

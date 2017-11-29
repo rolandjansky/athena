@@ -1,7 +1,0 @@
-package TrkTruthTrackInterfaces
-
-author Andreas Salzburger <Andreas.Salzburger@cern.ch>
-
-use AtlasPolicy         AtlasPolicy-*
-use GaudiInterface      GaudiInterface-*      External
-use TrkSegment          TrkSegment-*          Tracking/TrkEvent

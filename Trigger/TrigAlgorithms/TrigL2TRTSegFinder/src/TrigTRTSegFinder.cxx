@@ -7,7 +7,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ListItem.h"
 
 #include "TrigL2TRTSegFinder/TrigTRTSegFinder.h"

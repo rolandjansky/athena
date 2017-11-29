@@ -8,9 +8,9 @@
 const std::string GeoGenericTrap::s_classType = "GenericTrap";
 const ShapeType GeoGenericTrap::s_classTypeID = 0x23;
 
-GeoGenericTrap::GeoGenericTrap(double ZHalfLength, const GeoGenericTrapVertices& Vertices):
-  m_zHalfLength(ZHalfLength),
-  m_vertices(Vertices)
+GeoGenericTrap::GeoGenericTrap(double ZHalfLength, const GeoGenericTrapVertices& Vertices)
+  : m_zHalfLength(ZHalfLength)
+  , m_vertices(Vertices)
 {
 }
 

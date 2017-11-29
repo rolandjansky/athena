@@ -25,7 +25,7 @@ inline
 StatusCode IBlockFillerTool::againok (StatusCode sc)
 {
   if (sc == AGAIN || sc == EMPTY)
-    sc.setCode (StatusCode::SUCCESS);
+    sc = StatusCode::SUCCESS;
   return sc;
 }
 
@@ -45,11 +45,11 @@ inline
 StatusCode IBlockFillerTool::againok (StatusCode sc, StatusCode& scout)
 {
   if (sc == AGAIN) {
-    sc.setCode (StatusCode::SUCCESS);
-    scout.setCode (AGAIN);
+    sc = StatusCode::SUCCESS;
+    scout = StatusCode(AGAIN);
   }
   if (sc == EMPTY)
-    sc.setCode (StatusCode::SUCCESS);
+    sc = StatusCode::SUCCESS;
   else
     scout = sc;
   return sc;

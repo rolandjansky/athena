@@ -114,14 +114,6 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   // Noise level for isGood::Side
   float m_noiseLevel;
   BooleanProperty m_printCalibDataMaps; //!< Print the calib data maps?
-
-  // Static members
-  static const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> s_nPtGainDbParameterNames;
-  static const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> s_nPtGainParameterNames;
-  static const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> s_noiseOccDbParameterNames;
-  static const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> s_noiseOccParameterNames;
-  static const std::string s_nPtGainFolder;
-  static const std::string s_noiseOccFolder;
 };
 
 //---------------------------------------------------------------------- 

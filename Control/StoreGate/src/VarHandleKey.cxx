@@ -48,6 +48,8 @@ VarHandleKey::VarHandleKey (CLID clid,
     m_storeHandle (storeName, "VarHandleKey")
 {
   parseKey (sgkey, storeName);
+  m_isEventStore =  (storeName == StoreID::storeName(StoreID::EVENT_STORE) ||
+                     storeName == StoreID::storeName(StoreID::PILEUP_STORE));
 }
 
 
@@ -117,7 +119,15 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
       << "Cannot initialize a Read/Write/Update handle with a null key.";
     return StatusCode::FAILURE;
   }
-  CHECK( m_storeHandle.retrieve() );
+  // Don't do retrieve() here.  That unconditionally fetches the pointer
+  // from the service manager, even if it's still valid, which it might
+  // be if this is a handle that was just created from a key.
+  if (!m_storeHandle.isValid()) {
+    REPORT_ERROR (StatusCode::FAILURE)
+      << "Cannot locate store: " << m_storeHandle.typeAndName();
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -138,15 +148,6 @@ const std::string& VarHandleKey::key() const
 {
   return m_sgKey;
 }
-
-/**
- * @brief Return handle to the referenced store.
- */
-ServiceHandle<IProxyDict> VarHandleKey::storeHandle() const
-{
-  return m_storeHandle;
-}
-
 
 /**
  * @brief Prevent this method from being called.
@@ -264,8 +265,11 @@ void VarHandleKey::updateHandle (const std::string& name)
 {
   // Don't invalidate a stored pointer if the handle is already pointing
   // at the desired service.
-  if (m_storeHandle.name() != name)
+  if (m_storeHandle.name() != name) {
     m_storeHandle = ServiceHandle<IProxyDict>(name, "VarHandleKey");
+    m_isEventStore =  (name == StoreID::storeName(StoreID::EVENT_STORE) ||
+                       name == StoreID::storeName(StoreID::PILEUP_STORE));
+  }
 }
 
 } // namespace SG

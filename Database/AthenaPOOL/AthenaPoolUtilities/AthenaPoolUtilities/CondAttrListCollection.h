@@ -23,7 +23,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 
 #include "AthenaKernel/IOVRange.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 
 #include <vector>

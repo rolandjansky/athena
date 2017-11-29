@@ -113,7 +113,7 @@ CutFlowSvc::finalize()
   ATH_MSG_DEBUG( "Finalizing " << name() << " - package version " << PACKAGE_VERSION );
   return StatusCode::SUCCESS;
 }
-
+/*
 
 
 StatusCode
@@ -129,6 +129,7 @@ CutFlowSvc::queryInterface( const InterfaceID& riid, void** ppvi )
   // Interface is not directly availible: try out a base class
   return AthService::queryInterface( riid, ppvi );
 }
+*/
 
 
 CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
@@ -536,7 +537,6 @@ CutFlowSvc::recordCollection( xAOD::CutBookkeeperContainer * coll,
 }
 
 
-
 xAOD::CutBookkeeper*
 CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
   xAOD::CutBookkeeperContainer::iterator it = m_completeBook->begin();
@@ -546,5 +546,24 @@ CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
     ++it;
   }
   return 0;
+}
+
+
+StatusCode
+CutFlowSvc::queryInterface( const InterfaceID& riid, void** ppvi )
+{
+  // valid placeholder?
+  if ( 0 == ppvi ) { return StatusCode::FAILURE ; }  // RETURN
+  if ( ICutFlowSvc::interfaceID() == riid ) {
+    *ppvi = static_cast<ICutFlowSvc*>(this);
+    addRef(); // NB! : inrement the reference count!
+    return StatusCode::SUCCESS;                     // RETURN
+  } else if ( IIncidentListener::interfaceID() == riid ) {
+    *ppvi = static_cast<IIncidentListener*>(this);
+    addRef(); // NB! : inrement the reference count!
+    return StatusCode::SUCCESS;                     // RETURN
+  }
+  // Interface is not directly availible: try out a base class
+  return AthService::queryInterface( riid, ppvi );
 }
 

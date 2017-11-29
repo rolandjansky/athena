@@ -1,7 +1,7 @@
 ############################
 if not 'INPUT' in dir():
     INPUT=[
-        'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
         '/AllBasicSamples.ESD.pool.root'
         ]
     pass

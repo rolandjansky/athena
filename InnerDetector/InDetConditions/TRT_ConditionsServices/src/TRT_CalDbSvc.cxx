@@ -27,11 +27,11 @@ unsigned int TRT_CalDbSvc::s_numberOfInstances = 0;
 
 TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
-    par_rtcontainerkey("/TRT/Calib/RT"),
-    par_errcontainerkey("/TRT/Calib/errors2d"),
-    par_slopecontainerkey("/TRT/Calib/slopes"),
-    par_t0containerkey("/TRT/Calib/T0"),
-    par_caltextfile(""),
+    m_par_rtcontainerkey("/TRT/Calib/RT"),
+    m_par_errcontainerkey("/TRT/Calib/errors2d"),
+    m_par_slopecontainerkey("/TRT/Calib/slopes"),
+    m_par_t0containerkey("/TRT/Calib/T0"),
+    m_par_caltextfile(""),
     m_trtid(0),
     m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
     m_detstore("DetectorStore",name),
@@ -43,12 +43,12 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
     m_useCachedPtr(false)
 {
   declareProperty("StreamTool",m_streamer);
-  declareProperty("calibTextFile",par_caltextfile);
+  declareProperty("calibTextFile",m_par_caltextfile);
   declareProperty("DetectorStore",m_detstore);
-  declareProperty("RtFolderName",par_rtcontainerkey);
-  declareProperty("T0FolderName",par_t0containerkey);
-  declareProperty("ErrorSlopeFolderName",par_slopecontainerkey);
-  declareProperty("ErrorFolderName",par_errcontainerkey);
+  declareProperty("RtFolderName",m_par_rtcontainerkey);
+  declareProperty("T0FolderName",m_par_t0containerkey);
+  declareProperty("ErrorSlopeFolderName",m_par_slopecontainerkey);
+  declareProperty("ErrorFolderName",m_par_errcontainerkey);
 
   ++s_numberOfInstances;
 }
@@ -605,10 +605,10 @@ StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
   }
   
   IAthenaOutputStreamTool::TypeKeyPairs typeKeys;
-  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(StrawT0Container::classname(),par_t0containerkey)) ;
-  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_rtcontainerkey)) ;
-  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_errcontainerkey)) ;
-  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_slopecontainerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(StrawT0Container::classname(),m_par_t0containerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),m_par_rtcontainerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),m_par_errcontainerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),m_par_slopecontainerkey)) ;
   //getRtContainer()->crunch() ;
   //getT0Container()->crunch() ;
   
@@ -643,28 +643,28 @@ StatusCode TRT_CalDbSvc::registerCalibObjects(std::string tag, unsigned int run1
   }
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
-					       par_rtcontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_rtcontainerkey << endmsg ;
+					       m_par_rtcontainerkey,tag,run1,run2,event1,event2))
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << m_par_rtcontainerkey << endmsg ;
   else 
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_rtcontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << m_par_rtcontainerkey << endmsg ;
 
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
-					       par_errcontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_errcontainerkey << endmsg ;
+					       m_par_errcontainerkey,tag,run1,run2,event1,event2))
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << m_par_errcontainerkey << endmsg ;
   else 
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_errcontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << m_par_errcontainerkey << endmsg ;
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
-                                               par_slopecontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_slopecontainerkey << endmsg ;
+                                               m_par_slopecontainerkey,tag,run1,run2,event1,event2))
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << m_par_slopecontainerkey << endmsg ;
   else
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_slopecontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << m_par_slopecontainerkey << endmsg ;
 
   if (StatusCode::SUCCESS==regsvc->registerIOV(StrawT0Container::classname(),
-					       par_t0containerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered StrawT0Container object with key " << par_t0containerkey << endmsg ;
+					       m_par_t0containerkey,tag,run1,run2,event1,event2))
+    msg(MSG::INFO) << "Registered StrawT0Container object with key " << m_par_t0containerkey << endmsg ;
   else 
-    msg(MSG::ERROR) << "Could not register StrawT0Container object with key " << par_t0containerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register StrawT0Container object with key " << m_par_t0containerkey << endmsg ;
   
   return( StatusCode::SUCCESS);
 }

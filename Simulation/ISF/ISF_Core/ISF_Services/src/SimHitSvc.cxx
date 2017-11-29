@@ -16,7 +16,8 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc)
 }
 
 
-ISF::SimHitSvc::~SimHitSvc() {
+ISF::SimHitSvc::~SimHitSvc()
+{
 }
 
 /** Initialize event */
@@ -24,10 +25,9 @@ StatusCode ISF::SimHitSvc::initializeEvent() {
   ATH_MSG_DEBUG("initializing hit collections");
 
   //FIXME Lazy initialization to be removed after FADS migration
-  if(!m_senDetTool)
-    {
-      ATH_CHECK(m_senDetTool.retrieve());
-    }
+  if(!m_senDetTool) {
+    ATH_CHECK(m_senDetTool.retrieve());
+  }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   return StatusCode::SUCCESS;

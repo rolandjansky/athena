@@ -28,7 +28,7 @@ void compare (const sTgcDigit& p1,
 {
   assert (p1.identify() == p2.identify());
   assert (p1.bcTag() == p2.bcTag());
-  assert (p2.time() == 0); // not saved
+  assert (p1.time() == p2.time());
   assert (p1.charge() == p2.charge());
 }
 
@@ -82,7 +82,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
                                                         1, 2, 1, 2+i);
       auto dig = CxxUtils::make_unique<sTgcDigit>
         (id,
-         123+offs, 4.5+offs, 6.5+offs);
+         123+offs, 4.5+offs, 6.5+offs, false, false);
       coll->push_back (std::move (dig));
     }
     trans1.addCollection (coll.release(), hash, true);

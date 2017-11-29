@@ -98,14 +98,14 @@ namespace InDetDD {
       TRT_BarrelDescriptor(const TRT_BarrelDescriptor &right);
       const TRT_BarrelDescriptor & operator=(const TRT_BarrelDescriptor &right);
       
-      std::vector<double> _x;
-      std::vector<double> _y;
-      double              _length;
-      double              _zDead;
-      double              _zPos;
+      std::vector<double> m_x;
+      std::vector<double> m_y;
+      double              m_length;
+      double              m_zDead;
+      double              m_zPos;
       double              m_innerTubeRadius; 
-      const GeoXF::Function *_f;
-      size_t                 _o;
+      const GeoXF::Function *m_f;
+      size_t                 m_o;
 
       mutable Trk::CylinderBounds * m_bounds;
 

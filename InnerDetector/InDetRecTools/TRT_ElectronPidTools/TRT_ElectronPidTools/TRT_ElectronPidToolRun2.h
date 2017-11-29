@@ -141,14 +141,10 @@ namespace InDet
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
-    //Some constants about the Bitpattern:
-    static const unsigned int LTbits=0x3FDFEFF;
-    static const unsigned int HTbits=0x4020100;
-
     public:
      class HTcalculator;
     private:
-     HTcalculator & HTcalc;
+     HTcalculator & m_HTcalc;
 
     public:
      class StorePIDinfo;

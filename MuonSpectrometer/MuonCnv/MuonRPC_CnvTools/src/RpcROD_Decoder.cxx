@@ -19,7 +19,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ListItem.h"
 //#include "GaudiKernel/IIncidentSvc.h"
 

@@ -735,6 +735,10 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   }
 
   // "Modified" module (using Rx redundancy) case
+  // Information of modified modules are found in
+  // modified0 and modified1 functions of SCT_ReadoutTool.cxx and
+  // Table 3.8 of CERN-THESIS-2008-001 https://cds.cern.ch/record/1078223
+  // However, there are two exceptions of the exceptions.
   unsigned long long fullSerialNumber(m_cabling->getSerialNumberFromHash(hashId).to_ulonglong());
   if(// Readout through link-0
      fullSerialNumber==20220170200183 or // hash=4662 bec=0 layer=2 eta= 6 phi=39
@@ -743,6 +747,11 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
      ) {
     if(type!=1) ATH_MSG_WARNING("Link-0 is broken but modified module readingout link-0, inconsistent");
     type = 3;
+
+    // An exception:
+    // fullSerialNumber=20220170200941, hash=3560 bec=0 layer=1 eta=-6 phi=34
+    // This module is a modified one. However, it is not using modified configuration.
+    // Readout sequence is 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11.
   }
   if(// Readout through link-1
      fullSerialNumber==20220170200653 or // hash=2786 bec=0 layer=1 eta= 4 phi= 1
@@ -754,6 +763,11 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
      ) {
     if(type!=2) ATH_MSG_WARNING("Link-1 is broken but modified module readingout link-1, inconsistent");
     type = 4;
+
+    // Another exception:
+    // fullSerialNumber=20220170200113, hash=3428 bec=0 layer=1 eta= 1 phi=28
+    // This module is a modified one. However, it is not using modified configuration.
+    // Readout sequence is 6, 7, 8, 9, 10, 11, 1, 2, 3, 4, 5.
   }
 
   static const int chipOrder[5][12] = {

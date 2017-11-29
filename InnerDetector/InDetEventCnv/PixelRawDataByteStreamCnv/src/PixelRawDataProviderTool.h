@@ -32,14 +32,14 @@ class PixelRawDataProviderTool : virtual public IPixelRawDataProviderTool, publi
   ~PixelRawDataProviderTool() ;
 
   //! initialize
-  StatusCode initialize();
+  StatusCode initialize() override;
 
   //! finalize
-  StatusCode finalize();
+  StatusCode finalize() override;
   
   //! this is the main decoding method
   StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      PixelRDO_Container*               rdoIdc );
+		      IPixelRDO_Container*               rdoIdc ) final;
 
 
 private: 
@@ -52,7 +52,8 @@ private:
 
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCIDCollection;
-
+  int m_DecodeErrCount;
+  uint32_t m_LastLvl1ID;
 };
 
 #endif

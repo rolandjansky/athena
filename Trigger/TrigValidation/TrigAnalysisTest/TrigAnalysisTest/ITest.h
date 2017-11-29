@@ -7,8 +7,8 @@
 //
 //  Abstract object that represents a trigger analysis test.
 //
-#ifndef __ITest__
-#define __ITest__
+#ifndef TRIGANALYSISTEST_ITEST_H
+#define TRIGANALYSISTEST_ITEST_H
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigAnalysisTest/EventPtrDef.h"

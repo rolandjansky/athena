@@ -28,7 +28,7 @@
                 <doc>This transform calculates where the gluinos stop in the first step then simulates them starting from those positions in the second step.</doc>
                 <jobTransformJobName>StoppedGluinoSim</jobTransformJobName>
                 <jobTransformCmd>
-                    StoppedParticleG4_tf.py --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 50 --outputHITSFile test.HITS.pool.root --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/StoppedGluino.EVNT.pool.root --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --enableLooperKiller SPGenerator:False SPSim:True --randomSeed SPGenerator:9375655 SPSim:847433
+                    StoppedParticleG4_tf.py --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 50 --outputHITSFile test.HITS.pool.root --inputEVNTFile root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/StoppedGluino.EVNT.pool.root --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --enableLooperKiller SPGenerator:False SPSim:True --randomSeed SPGenerator:9375655 SPSim:847433
                 </jobTransformCmd>
                 <group>ExoticGenJobTransforms</group>
                 <queue>long</queue>

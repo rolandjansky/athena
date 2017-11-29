@@ -23,8 +23,8 @@ EOF
 # Ordering sensitivities
 PP="Skipping"
 PP="$PP|using release"
-PP="$PP|Debug endTransaction:"
-PP="$PP|Deaccess DbContainer|RootDatabase.close Debug I/O|Database being retired"
+PP="$PP|DEBUG endTransaction:"
+PP="$PP|Deaccess DbContainer|RootDatabase.close +DEBUG I/O|Database being retired"
 PP="$PP|^CoreDumpSvc          INFO Handling signals"
 PP="$PP|File version:"
 PP="$PP|ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = "

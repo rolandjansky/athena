@@ -23,9 +23,7 @@ PURPOSE:  Access and manipulate an indexed storage
 #include <string>
 #include <iostream>
 #include "Identifier/Identifier.h"
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** class FloatArrayStore
 Access and manipulate an indexed storage of float vectors

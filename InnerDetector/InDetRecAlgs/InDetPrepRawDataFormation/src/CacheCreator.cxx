@@ -3,7 +3,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "InDetPrepRawDataFormation/CacheCreator.h"
+#include "CacheCreator.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -23,6 +23,7 @@ namespace InDet{
     m_PIXclusterContainerCacheKey(""),
     m_PIXSpacePointCacheKey(""),
     m_SCTSpacePointCacheKey(""),
+    m_SCTRDOCacheKey(""), m_PixRDOCacheKey(""),
     m_disableTRT(false), m_condKey("SCT_MonitorConditionsCondData"),
     m_condKey2("SCT_TdaqEnabledCondData")
     {
@@ -31,9 +32,11 @@ namespace InDet{
         declareProperty("Pixel_ClusterKey"  , m_PIXclusterContainerCacheKey);
         declareProperty("SpacePointCachePix"  , m_PIXSpacePointCacheKey);
         declareProperty("SpacePointCacheSCT"  , m_SCTSpacePointCacheKey);
+        declareProperty("SCTRDOCacheKey", m_SCTRDOCacheKey);
         declareProperty("disableTRT"  , m_disableTRT);
         declareProperty("Condkey", m_condKey);
         declareProperty("Condkey2", m_condKey2);
+        declareProperty("PixRDOCacheKey", m_PixRDOCacheKey);
     }
 
 
@@ -43,6 +46,8 @@ namespace InDet{
         ATH_CHECK( m_PIXclusterContainerCacheKey.initialize(!m_PIXclusterContainerCacheKey.key().empty()) );
         ATH_CHECK( m_PIXSpacePointCacheKey.initialize(!m_PIXSpacePointCacheKey.key().empty()) );
         ATH_CHECK( m_SCTSpacePointCacheKey.initialize(!m_SCTSpacePointCacheKey.key().empty()) );
+        ATH_CHECK( m_SCTRDOCacheKey.initialize(!m_SCTRDOCacheKey.key().empty()) );
+        ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
         ATH_CHECK( m_condKey.initialize() );
         ATH_CHECK( m_condKey2.initialize() );
         if(!m_disableTRT) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
@@ -65,6 +70,10 @@ namespace InDet{
         ATH_CHECK(CreateContainer(m_PIXSpacePointCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
         ATH_CHECK(CreateContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+
+        ATH_CHECK(CreateContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+
+        ATH_CHECK(CreateContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
         return StatusCode::SUCCESS;
     }

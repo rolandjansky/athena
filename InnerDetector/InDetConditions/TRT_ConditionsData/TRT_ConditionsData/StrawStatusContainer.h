@@ -15,7 +15,7 @@
 #define TRT_CONDITIONSDATA_STRAWSTATUSCONTAINER_H
 
 #include <string>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TRT_ConditionsData/NestedContainer.h"
 #include "TRT_ConditionsData/StrawStatus.h"
 

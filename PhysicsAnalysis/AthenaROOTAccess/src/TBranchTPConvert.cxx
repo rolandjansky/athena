@@ -913,38 +913,4 @@ bool TBranchTPConvert::sawErr() const
 }
 
 
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TBranchTPConvert::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("AthenaROOTAccess::TBranchTPConvert");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TBranchTPConvert::ShowMembers (TMemberInspector& R__insp)
-{
-  TBranchObject::ShowMembers (R__insp);
-}
-#endif
-
-
-void TBranchTPConvert::Streamer (TBuffer& b)
-{
-  TBranchObject::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TBranchTPConvert::fgIsA;
-#else
-TClass* TBranchTPConvert::fgIsA = 0;
-#endif
-
-
 } // namespace AthenaROOTAccess

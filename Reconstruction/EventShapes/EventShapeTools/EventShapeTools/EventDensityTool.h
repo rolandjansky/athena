@@ -35,6 +35,7 @@
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IPseudoJetGetter.h"
 #include "EventShapeInterface/IEventShapeTool.h"
+#include "xAODEventShape/EventShape.h"
 
 class EventDensityTool :
   public asg::AsgTool,  
@@ -62,6 +63,9 @@ protected:
   StatusCode fillEventShape(xAOD::EventShape *es , const PseudoJetVector& input  ) const ;
   
 private: 
+  // DataHandles
+  SG::ReadHandleKey<xAOD::EventShape>       m_outconIn;
+  SG::WriteHandleKey<xAOD::EventShape>      m_outcon;
 
   // Properties
   std::string m_jetalg;                     // JetAlg
@@ -71,7 +75,6 @@ private:
   float m_rapmax;                           // RapidityMax
   std::string m_areadef;                    // AreaDefinition
   float m_vrfact;                           // VoronoiRfact
-  std::string m_outcon;                     // OutputContainer
 
   // Derived data
   fastjet::JetDefinition m_fjjetdef;

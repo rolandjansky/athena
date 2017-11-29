@@ -2,19 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CellBinning_h
-#define CellBinning_h 1
-/**
- *   @brief A simple class to specify a range, and a number of bins.
- */
+#ifndef GEOMODELKERNEL_CELLBINNING_H
+#define GEOMODELKERNEL_CELLBINNING_H
 
-/** 
+/**
+ * @class CellBinning
+ *
+ *  @brief A simple class to specify a range, and a number of bins.
  *  The binning is specified as one would specify bins of a histogram.
  *  In addition to the usual start-of-range, end-of-range, and number
  *  of divisions this class also has an index for the first bin number.
  *  In this package the cell binning is used to set up regions of homogenous
  *  granularity (or just "regions").  
  */ 
+
 class CellBinning 
 {
 

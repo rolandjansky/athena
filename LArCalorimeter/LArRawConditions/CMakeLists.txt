@@ -48,3 +48,8 @@ atlas_add_dictionary( LArRawConditions2Dict
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( LArConditionsContainerDB_test
+   SOURCES test/LArConditionsContainerDB_test.cxx
+   LINK_LIBRARIES LArRawConditions )
+

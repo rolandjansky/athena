@@ -112,7 +112,9 @@ objectType = args.objectType
 minInLB = args.minInLB
 tagDirectory = args.fileDirectory
 
-gROOT.Reset()
+# Line below commented to work with release 21. 
+# Not sure what was its purpose...
+#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
 
@@ -128,7 +130,7 @@ if tagDirectory=="": # TAG files stored on EOS
   listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
   if len(listOfFiles)>0:
     for files in listOfFiles:
-      tree.AddFile("root://eosatlas/%s"%(files))
+      tree.AddFile("root://eosatlas.cern.ch/%s"%(files))
       print "I chained the file %s"%(files)
   else:
     print "No file found on EOS.Exiting..."

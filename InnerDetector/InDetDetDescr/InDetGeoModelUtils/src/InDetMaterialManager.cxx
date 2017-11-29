@@ -95,7 +95,7 @@ const AbsMaterialManager *
 InDetMaterialManager::retrieveManager(StoreGateSvc* detStore)
 {
    
-  const StoredMaterialManager * theGeoMaterialManager;
+  const StoredMaterialManager * theGeoMaterialManager = nullptr;
   
   if (StatusCode::SUCCESS != detStore->retrieve(theGeoMaterialManager, "MATERIALS")) {
     msg(MSG::FATAL) << "Cannot locate Materials";

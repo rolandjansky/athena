@@ -12,7 +12,6 @@
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
 #define INDETRAWDATABYTESTREAM_SCT_RODDECODER_H
 //STL
-#include <map>
 #include <string>
 #include <stdint.h> //puts definitions in global namespace, should use Boost/cstdint.hpp
                     //but what the heck.
@@ -38,6 +37,12 @@ namespace InDetDD{
  **/
 class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
 {
+
+  struct CacheHelper{//temp object to help with trigger caching
+    IdentifierHash skipHash, lastHash;
+    std::vector<IdentifierHash>* vecHash;
+  };
+
  public: 
   //@name Usual AlgTool methods
   //@{
@@ -57,7 +62,7 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
    *  with the RDO built by the makeRDO(..) method
    **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                    SCT_RDO_Container& rdoIdc,
+                                    ISCT_RDO_Container& rdoIdc,
                                     InDetBSErrContainer* errs,
                                     std::vector<IdentifierHash>* vecHash = 0)
     override;
@@ -67,9 +72,8 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
   /// method that builds the RawData RDO and add it to the collection 
   int makeRDO(int strip, int groupSize, int tbin, 
               uint32_t onlineId, int ERRORS,
-              SCT_RDO_Container& rdoIdc,
-              std::vector<IdentifierHash>* vecHash, 
-              IdentifierHash& skipHash, IdentifierHash& lastHash,
+              ISCT_RDO_Container& rdoIdc,
+              CacheHelper&,
               const std::vector<int>& errorHit);
 
   /// add an error for each wafer in a problematic ROD.

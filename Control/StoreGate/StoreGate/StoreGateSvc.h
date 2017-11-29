@@ -126,7 +126,7 @@ namespace PerfMon { class StorePayloadMon; }
 class StoreGateSvc :
   public Service, 
   public IProxyDict, 
-  public IHiveStore,
+  virtual public IHiveStore,
   public IHiveStoreMgr,
   public IIncidentListener
 {
@@ -883,6 +883,7 @@ public:
 
 
 private:
+  static thread_local SG::HiveEventSlot* s_pSlot;
 
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property
@@ -895,8 +896,6 @@ private:
   friend class SG::HiveMgrSvc;
   ///returns pointer to the current SGImplSvc
   SGImplSvc* currentStore() const;
-  ///is the current store an event store being managed by an IHiveWhiteboard?
-  bool isHiveStore() const;
 
 
   ///access proxyRange()
@@ -1014,6 +1013,10 @@ private:
   ///get the IOVSvc "just in time" (breaks recursion at initialize)
   IIOVSvc* getIIOVSvc();
   IIOVSvc* m_pIOVSvc;
+
+  /// Cache store type in the facade class.
+  StoreID::type m_storeID;
+  
 
 public:
   ///////////////////////////////////////////////////////////////////////

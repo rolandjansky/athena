@@ -29,8 +29,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"    
 #include "StoreGate/WriteHandleKey.h"   
-#include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/MuonFeatureDetails.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -41,6 +39,7 @@
 class IRegSelSvc;
 class IJobOptionsSvc;
 class Incident;
+class MsgStream;
 
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
@@ -74,12 +73,20 @@ class MuFastSteering : public HLT::FexAlgo,
   /** hltFinalize() */
   HLT::ErrorCode hltFinalize();
   /** hltExecute(), main code of the algorithm */
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, 
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* /*inputTE*/, 
 			    HLT::TriggerElement* outputTE);
 
-  //adding a part of DataHandle for AthenaMT
   /** execute(), main code of the algorithm for AthenaMT*/
   StatusCode execute();
+
+  /** findMuonSignature(), includes reconstract algorithms **/
+  /** this function can be called from both execute() and hltExecute() **/
+  StatusCode findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roi, 
+			       const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
+                               xAOD::L2StandAloneMuonContainer* 		outputTracks,
+			       TrigRoiDescriptorCollection*	 		outputID,
+			       TrigRoiDescriptorCollection*	 		outputMS,
+			       xAOD::TrigCompositeContainer*			outputComposite);
 
   int L2MuonAlgoMap(const std::string& name);
   
@@ -98,20 +105,20 @@ class MuFastSteering : public HLT::FexAlgo,
      Called at the end of the algorithm processing to set the steering
      navigation properly
   */
-  bool updateOutputTE(HLT::TriggerElement*                     outputTE,
-		      const HLT::TriggerElement*               inputTE,
-		      const LVL1::RecMuonRoI*                  roi,
-		      const TrigRoiDescriptor*                 roids,
-		      const TrigL2MuonSA::MuonRoad&            muonRoad,
-		      const TrigL2MuonSA::MdtRegion&           mdtRegion,
-		      const TrigL2MuonSA::RpcHits&             rpcHits,
-		      const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
-		      const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
-		      const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
-		      const TrigL2MuonSA::MdtHits&             mdtHits,
-		      const TrigL2MuonSA::CscHits&             cscHits,
-		      std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns);
-
+  bool updateOutput(const LVL1::RecMuonRoI*                  roi,
+		    const TrigRoiDescriptor*                 roids,
+		    const TrigL2MuonSA::MuonRoad&            muonRoad,
+		    const TrigL2MuonSA::MdtRegion&           mdtRegion,
+		    const TrigL2MuonSA::RpcHits&             rpcHits,
+		    const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
+		    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
+		    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
+		    const TrigL2MuonSA::MdtHits&             mdtHits,
+		    const TrigL2MuonSA::CscHits&             cscHits,
+		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
+                    xAOD::L2StandAloneMuonContainer*         outputTracks,
+		    TrigRoiDescriptorCollection*  	     outoutID,
+		    TrigRoiDescriptorCollection*	     outputMS);
   /**
      Update monitoring variables
   */
@@ -191,22 +198,28 @@ class MuFastSteering : public HLT::FexAlgo,
   DoubleProperty m_winPt;
 
   //adding a part of DataHandle for AthenaMT
-  //ReadHandle L1MURoIs
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;    
-  SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;		
+  //ReadHandle MURoIs
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
 
-  //WriteHandle MuonFeature 
-  SG::WriteHandleKey<MuonFeature> m_muFeContainerKey;			
-  SG::WriteHandle<MuonFeature> m_muFeContainer;  			
+  //ReadHandle RecMuonRoIs
+  SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey;
 
-  //WriteHandle MuonFeatureDetails
-  SG::WriteHandleKey<MuonFeatureDetails> m_muFeDeContainerKey;		
-  SG::WriteHandle<MuonFeatureDetails> m_muFeDeContainer;  		
+  //WriteHandle <xAOD::L2StandAloneMuonContainer>
+  SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey;
 
-  //Test Value to confirm to record with WriteHandle
-  MuonFeatureDetails m_muFeDeTestValue;
+  //WriteHandle <xAOD::L2StandAloneMuonContainer>
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_muCompositeContainerKey;
 
-  //Monitored variables
+  //WriteHandle <TrigRoiDescriptor> for ID
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muIdContainerKey;
+
+  //WriteHandle <TrigRoiDescriptor> for MS
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey;
+
+  unsigned int m_countTotalRoI;
+  int m_currentStage;  // The last stage reached during the processing of a given RoI
+
+  // Cuts and settings
   float m_inner_mdt_hits;
   float m_middle_mdt_hits;
   float m_outer_mdt_hits;  
@@ -233,10 +246,6 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty m_allowOksConfig; 
   StringProperty  m_calBufferName;
   int m_calBufferSize;
-  xAOD::TrigCompositeContainer* m_trigCompositeContainer;
-  xAOD::TrigCompositeAuxContainer m_trigCompositeAuxContainer;
-
-
  
 };
 

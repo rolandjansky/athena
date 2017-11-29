@@ -17,8 +17,8 @@
 
 #include "DataModelRoot/RootType.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/ClassName.h"
 #include "SGTools/StorableConversions.h"
 
 //__________________________________________________________________________

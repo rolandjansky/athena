@@ -7,11 +7,9 @@ atlas_subdir( PersistentDataModel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/SGTools
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaKernel )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

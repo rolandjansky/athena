@@ -14,7 +14,7 @@
 #ifndef TRT_CONDITIONSDATA_RTRELATIONCONTAINER_H
 #define TRT_CONDITIONSDATA_RTRELATIONCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TRT_ConditionsData/NestedContainer.h"
 #include "TRT_ConditionsData/RtRelation.h"
 

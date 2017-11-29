@@ -7,7 +7,6 @@ atlas_subdir( DetDescrConditions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
 			  Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier

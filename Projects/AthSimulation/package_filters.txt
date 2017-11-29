@@ -164,7 +164,6 @@
 + Generators/McEventSelector
 + Generators/TruthUtils
 + InnerDetector/InDetConditions/InDetBeamSpotService
-+ InnerDetector/InDetConditions/InDetByteStreamErrors
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool
@@ -267,12 +266,6 @@
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
-+ Simulation/G4Atlas/G4AtlasUtilities
-+ Simulation/G4Sim/FADS/FadsKinematics
-+ Simulation/G4Sim/FADS/FadsMaterial
-+ Simulation/G4Sim/FADS/FadsPackageLoader
-+ Simulation/G4Sim/FADS/FadsUtilities
-+ Simulation/G4Sim/FADS/FadsXMLParser
 + Simulation/G4Sim/G4HiveEx
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
@@ -285,7 +278,6 @@
 + Simulation/G4Utilities/G4PhysicsLists
 + Simulation/G4Utilities/G4ProfilingTools
 + Simulation/G4Utilities/G4StepLimitation
-+ Simulation/G4Utilities/G4TruthStrategies
 + Simulation/G4Utilities/G4UserActions
 + Simulation/G4Utilities/Geo2G4
 + Simulation/G4Utilities/GeoMaterial2G4

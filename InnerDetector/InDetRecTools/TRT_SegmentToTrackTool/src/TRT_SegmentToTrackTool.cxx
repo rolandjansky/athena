@@ -34,7 +34,12 @@ namespace InDet {
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
     m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
-    m_magFieldSvc("AtlasFieldSvc", name)
+    m_magFieldSvc("AtlasFieldSvc", name),
+    m_trtId(nullptr),
+    m_finalTracks(nullptr),
+    m_nTrkScoreZero(0),
+    m_nTrkSegUsed(0),
+    m_nTRTTrk(0)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
 

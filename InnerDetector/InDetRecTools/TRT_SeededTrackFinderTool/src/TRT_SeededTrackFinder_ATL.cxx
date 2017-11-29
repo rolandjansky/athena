@@ -76,11 +76,14 @@ using namespace std;
 InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
+    m_nprint(0),
     m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
+    m_fieldService(nullptr),
+    m_roadmaker("InDet::SiDetElementsRoadMaker_xk"),
     m_proptool("Trk::RungeKuttaPropagator/InDetPropagator"),
     m_updatorTool("Trk::KalmanUpdator_xk/InDetPatternUpdator"),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_trtId(nullptr)
 {
   m_fieldmode    = "MapSolenoid"    ;   //Field Mode
   m_xi2max       = 15.              ;   //Maximum chi2 per DOF to accept track candidate

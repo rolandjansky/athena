@@ -32,8 +32,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-/** STL */
-#include <string>
 
 /** forward declarations */
 class ISCTRawDataProviderTool;
@@ -52,15 +50,12 @@ class SCTRawDataProvider : public AthAlgorithm
   }
 
   //! Initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
-  //! Finalize
-  virtual StatusCode finalize() {
-    return StatusCode::SUCCESS;
-  }
+  //! Finalize empty, no need to override
 
  private:
 
@@ -75,7 +70,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
   SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
   SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey;
-
+  SG::UpdateHandleKey<SCT_RDO_Cache> m_rdoContainerCacheKey;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H

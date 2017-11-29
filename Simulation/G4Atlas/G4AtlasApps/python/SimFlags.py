@@ -317,11 +317,10 @@ class SimLayout(JobProperty):
                      'ATLAS-R1-2012-02-00-00', # Used in MC14a
                      'ATLAS-R2-2015-01-01-00', # Used in MC14a
                      'ATLAS-R1-2012-03-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-01-00', # Used in MC15a
                      'ATLAS-R2-2015-03-00-00', # Used in MC15a
                      'ATLAS-R2-2015-03-01-00', # Used in MC15a
                      'ATLAS-R2-2016-00-00-00', # Testing for MC16
+                     'ATLAS-R2-2016-01-00-01', # Final (?) MC16
                      'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',

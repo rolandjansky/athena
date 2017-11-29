@@ -89,9 +89,9 @@ class TRT_StrawAlignDbSvc: public AthService, virtual public ITRT_StrawAlignDbSv
  private:
 
   ServiceHandle<StoreGateSvc> m_detStore;
-  std::string par_dxcontainerkey ;    //!> folder name
-  std::string par_strawtextfile;      //!> input text file
-  bool par_forcecallback;             //!> force callback to manager
+  std::string m_par_dxcontainerkey;   //!> folder name
+  std::string m_par_strawtextfile;    //!> input text file
+  bool m_par_forcecallback;           //!> force callback to manager
   const TRT_ID* m_trtid;              //!> id helper
   const InDetDD::TRT_DetectorManager* m_trtman; //!> detector manager
   

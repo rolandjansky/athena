@@ -10,6 +10,7 @@
 
 // Local include(s):
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 #include "AsgAnalysisInterfaces/IObservableTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"

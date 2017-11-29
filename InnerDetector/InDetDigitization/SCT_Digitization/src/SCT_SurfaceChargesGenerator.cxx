@@ -289,10 +289,10 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
     float denominator = m_depletionVoltage + m_biasVoltage - (2.0 * zhit * m_depletionVoltage / m_thickness);
     if (denominator <= 0.0) {
         if (m_biasVoltage >= m_depletionVoltage) { // Should not happen
-	  if(!m_isOverlay) {
+          if(!m_isOverlay) {
             ATH_MSG_ERROR("DriftTime: negative argument X for log(X) " << zhit);
-	  }
-	  return -1.0;
+          }
+          return -1.0;
         }
         else { // (m_biasVoltage<m_depletionVoltage) can happen with
                // underdepleted sensors, lose charges in that volume

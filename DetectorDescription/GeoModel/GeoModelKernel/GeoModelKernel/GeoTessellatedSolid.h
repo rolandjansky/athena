@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoTessellatedSolid_h
-#define GeoTessellatedSolid_h 1
+#ifndef GEOMODELKERNEL_GEOTESSELLATEDSOLID_H
+#define GEOMODELKERNEL_GEOTESSELLATEDSOLID_H
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoFacet.h"

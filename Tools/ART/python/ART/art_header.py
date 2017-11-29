@@ -4,11 +4,14 @@
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
+import logging
 import re
 
-from copy import copy
+from types import IntType
 from types import ListType
 from types import StringType
+
+MODULE = "art.header"
 
 
 class ArtHeader(object):
@@ -16,59 +19,89 @@ class ArtHeader(object):
 
     def __init__(self, filename):
         """TBD."""
-        self.header = re.compile(r'#\s(art-[\w-]+):\s+(.+)$')
+        self.header_format = re.compile(r'#\s(art-[\w-]+):\s+(.+)$')
         self.header_format_error1 = re.compile(r'#(art-[\w-]+):\s*(.+)$')
         self.header_format_error2 = re.compile(r'#\s\s+(art-[\w-]+):\s*(.+)$')
         self.header_format_error3 = re.compile(r'#\s(art-[\w-]+):\S(.*)$')
 
         self.filename = filename
 
-        self.type = {}
-        self.defaultValue = {}
-        self.constraint = {}
-        self.value = {}
+        self.header = {}
 
+        # general
         self.add('art-description', StringType, '')
         self.add('art-type', StringType, None, ['build', 'grid'])
+
+        # "build" type only
         self.add('art-ci', ListType, [])
+
+        # "grid" type only
+        self.add('art-include', ListType, ['*'])
         self.add('art-output', ListType, [])
+        self.add('art-input', StringType, None)
+        self.add('art-input-nfiles', IntType, 1)
+        self.add('art-input-split', IntType, 0)
 
         self.read(filename)
 
-    def add(self, key, type, defaultValue=None, constraint=None):
+    def add(self, key, value_type, default_value=None, constraint=None):
         """TBD."""
-        self.type[key] = type
-        self.defaultValue[key] = defaultValue
-        self.constraint[key] = constraint
-        self.value[key] = copy(defaultValue)
+        self.header[key] = {}
+        self.header[key]['type'] = value_type
+        self.header[key]['default'] = default_value
+        self.header[key]['constraint'] = constraint
+        self.header[key]['value'] = None    # e.g. the value was never set
 
     def is_list(self, key):
         """TBD."""
-        return self.type[key] is ListType if key in self.type else False
+        return self.header[key]['type'] is ListType if key in self.header else False
 
     def read(self, filename):
         """Read all headers from file."""
+        log = logging.getLogger(MODULE)
         for line in open(filename, "r"):
-            line_match = self.header.match(line)
+            line_match = self.header_format.match(line)
             if line_match:
-                key = line_match.group(1)
-                value = line_match.group(2)
-                if self.type[key] == StringType:
-                    value = value.strip()
+                try:
+                    key = line_match.group(1)
+                    value = line_match.group(2)
+                    if key in self.header:
+                        if self.header[key]['type'] == StringType:
+                            value = value.strip()
+                        elif self.header[key]['type'] == IntType:
+                            value = int(value)
 
-                if self.is_list(key):
-                    self.value[key].append(value)
-                else:
-                    self.value[key] = value
+                    if self.is_list(key):
+                        # handle list types
+                        if self.header[key]['value'] is None:
+                            self.header[key]['value'] = []
+                        self.header[key]['value'].append(value)
+                    else:
+                        # handle values
+                        if key not in self.header:
+                            log.warning("Unknown art-header %s: %s in file %s", key, value, filename)
+                            self.header[key] = {}
+                        self.header[key]['value'] = value
+                except ValueError:
+                    log.error("Invalid value in art-header %s: %s in file %s", key, value, filename)
 
     def get(self, key):
         """TBD."""
-        return self.value[key] if key in self.value else None
+        log = logging.getLogger(MODULE)
+        if key not in self.header:
+            log.warning("Art seems to look for a header key %s which is not in the list of defined headers.", key)
+            return None
+
+        if self.header[key]['value'] is None:
+            return self.header[key]['default']
+
+        return self.header[key]['value']
 
     def print_it(self):
         """TBD."""
-        for key in self.type:
-            print key, self.type[key], self.defaultValue[key], self.value[key], self.constraint[key]
+        log = logging.getLogger(MODULE)
+        for key in self.header:
+            log.info("%s: %s %s %s %s", key, self.header[key]['type'], self.header[key]['default'], self.header[key]['value'], self.header[key]['constraint'])
 
     def validate(self):
         """
@@ -78,37 +111,38 @@ class ArtHeader(object):
         - a header is spaced correctly (e.g. '#art-header: value')
         - a value in a header is not spaced correctly (e.g. '# art-header:value')
         - a key is found which is not defined
-        - a value is found of the wrong type
+        - a value is found of the wrong value_type
         - a value is found outside the constraint
         """
+        log = logging.getLogger(MODULE)
         for line in open(self.filename, "r"):
             if self.header_format_error1.match(line):
-                print "LINE: ", line.rstrip()
-                print "ERROR: Header Validation - invalid header format, use space between '# and art-xxx' in file", self.filename
-                print
+                log.error("LINE: %s", line.rstrip())
+                log.error("Header Validation - invalid header format, use space between '# and art-xxx' in file %s", self.filename)
+                log.error("")
             if self.header_format_error2.match(line):
-                print "LINE: ", line.rstrip()
-                print "ERROR: Header Validation - invalid header format, too many spaces between '# and art-xxx' in file", self.filename
-                print
+                log.error("LINE: %s", line.rstrip())
+                log.error("Header Validation - invalid header format, too many spaces between '# and art-xxx' in file %s", self.filename)
+                log.error("")
             if self.header_format_error3.match(line):
-                print "LINE: ", line.rstrip()
-                print "ERROR: Header Validation - invalid header format, use at least one space between ': and value' in file", self.filename
-                print
+                log.error("LINE: %s", line.rstrip())
+                log.error("Header Validation - invalid header format, use at least one space between ': and value' in file %s", self.filename)
+                log.error("")
 
-        for key in self.value:
-            if key not in self.type:
-                print "ERROR: Header Validation - Invalid key: '" + key + "' in file", self.filename
-                print
+        for key in self.header:
+            if 'type' not in self.header[key]:
+                log.error("Header Validation - Invalid key: %s in file %s", key, self.filename)
+                log.error("")
                 continue
-            if type(self.value[key]) != self.type[key]:
-                if not isinstance(self.value[key], type(None)):
-                    print "ERROR: Header Validation - type:", type(self.value[key]), "not valid for key:", key, "expected type:", self.type[key], "in file", self.filename
-                    print
-            if self.constraint[key] is not None and self.value[key] not in self.constraint[key]:
-                if self.value[key] is None:
-                    print "ERROR: Header Validation - missing key: '" + key + "' in file", self.filename
+            if type(self.header[key]['value']) != self.header[key]['type']:
+                if not isinstance(self.header[key]['value'], type(None)):
+                    log.error("Header Validation - value_type: %s not valid for key: %s, expected value_type: %s in file %s", type(self.header[key]['value']), key, self.header[key]['type'], self.filename)
+                    log.error("")
+            if self.header[key]['constraint'] is not None and self.header[key]['value'] not in self.header[key]['constraint']:
+                if self.header[key]['value'] is None:
+                    log.error("Header Validation - missing key: %s in file %s", key, self.filename)
                 else:
-                    print "ERROR: Header Validation - value: '" + self.value[key] + "' for key: '" + key + "' not in constraints:", self.constraint[key], "in file", self.filename
-                print
+                    log.error("Header Validation - value: %s for key: %s not in constraints: %s in file %s", self.header[key]['value'], key, self.header[key]['constraint'], self.filename)
+                log.error("")
 
         return 0

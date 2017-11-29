@@ -26,7 +26,6 @@ atlas_add_component( RDBAccessSvc
                      src/RDBQuery.cxx
                      src/SourceCompAlg.cxx
                      src/components/RDBAccessSvc_entries.cxx
-                     src/components/RDBAccessSvc_load.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
 

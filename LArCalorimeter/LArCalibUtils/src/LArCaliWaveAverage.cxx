@@ -84,12 +84,12 @@ StatusCode LArCaliWaveAverage::stop() {
   }
   
   // create correction LArCaliWaveContainer
-  LArCaliWaveContainer* larCaliWaveContainerCorr = new LArCaliWaveContainer();
+  auto larCaliWaveContainerCorr = std::make_unique<LArCaliWaveContainer>();
   ATH_CHECK( larCaliWaveContainerCorr->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larCaliWaveContainerCorr->initialize() );
   
   // create symmetric waves LArCaliWaveContainer
-  LArCaliWaveContainer* larCaliWaveContainerSymm = new LArCaliWaveContainer();
+  auto larCaliWaveContainerSymm = std::make_unique<LArCaliWaveContainer>();
   ATH_CHECK( larCaliWaveContainerSymm->setGroupingType(m_groupingType,msg()) );
 
   if (larCaliWaveContainerSymm->initialize()) {
@@ -191,8 +191,8 @@ StatusCode LArCaliWaveAverage::stop() {
   } // end of loop over selected channels
   
   // Record average LArCaliWaveContainer to DetectorStore
-  ATH_CHECK( detStore()->record(larCaliWaveContainerCorr,m_keyOutputCorr) );
-  ATH_CHECK( detStore()->record(larCaliWaveContainerSymm,m_keyOutputSymm) );
+  ATH_CHECK( detStore()->record(std::move(larCaliWaveContainerCorr),m_keyOutputCorr) );
+  ATH_CHECK( detStore()->record(std::move(larCaliWaveContainerSymm),m_keyOutputSymm) );
   return StatusCode::SUCCESS;
 }
 

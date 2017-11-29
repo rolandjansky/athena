@@ -36,7 +36,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_HardScatterSplittingSkipper(false),
   m_rndmEngineName("PixelDigitization"),
   m_onlyHitElements(false),
-  m_processorTool(nullptr),
   m_chargeTool(nullptr),
   m_fesimTool(nullptr),
   m_energyDepositionTool(nullptr),
@@ -50,7 +49,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_inputObjectName(""),
   m_createNoiseSDO(false)
 {
-  declareProperty("PixelProcessorTools", m_processorTool, "List of processor tools");
   declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
   declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
   declareProperty("EnergyDepositionTool",   m_energyDepositionTool,       "Energy deposition tool");
@@ -102,8 +100,6 @@ StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("Pixel ID helper retrieved");
 
   // Initialize tools
-  CHECK(m_processorTool.retrieve());
-
   CHECK(m_chargeTool.retrieve());
 
   CHECK(m_fesimTool.retrieve());
@@ -201,26 +197,19 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
         // Apply charge collection tools
         ATH_MSG_DEBUG("Running sensor simulation.");
-	
-	//Deposit energy in sensor
-	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
-	
-	//Create signal in sensor, loop over collection of loaded sensorTools
-	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
+
+        //Deposit energy in sensor
+        CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
+
+        //Create signal in sensor, loop over collection of loaded sensorTools
+        for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
           if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
         }
-	initialConditions.clear();
-	trfHitRecord.clear();
+        initialConditions.clear();
+        trfHitRecord.clear();
         ATH_MSG_DEBUG("charges filled!");
       }
-    }
-
-    // Apply processor tools
-    ATH_MSG_DEBUG("Apply processor tools");
-    for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
-      ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
-      m_processorTool[itool]->process(*chargedDiodes);
     }
 
     ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes->identify()));
@@ -234,19 +223,16 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     ///////////////////////////////////////////////////////////
     // ***       Create and store RDO and SDO   ****
     ///////////////////////////////////////////////////////////
-    if (!chargedDiodes->empty()) {
-
-      PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
-      RDOColl->setIdentifier(chargedDiodes->identify());
-      for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
-        ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-        m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
-      }
-      CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
- 
-      ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-      addSDO(chargedDiodes);
+    PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
+    RDOColl->setIdentifier(chargedDiodes->identify());
+    for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
+      ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
+      m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
     }
+    CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
+
+    ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
+    addSDO(chargedDiodes);
     chargedDiodes->clear();
   }
   delete m_timedHits;
@@ -270,26 +256,17 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
           chargedDiodes->setDetectorElement(element);
           ATH_MSG_DEBUG("Digitize non hit element");
 
-          // Apply processor tools
-          ATH_MSG_DEBUG("Apply processor tools");
-          for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
-            ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
-            m_processorTool[itool]->process(*chargedDiodes);
-          }
-
           // Create and store RDO and SDO
-          if (!chargedDiodes->empty()) {
-            PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
-            RDOColl->setIdentifier(chargedDiodes->identify());
-            for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
-              ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-              m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
-            }
-            CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
-
-            ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-            addSDO(chargedDiodes);
+          PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
+          RDOColl->setIdentifier(chargedDiodes->identify());
+          for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
+            ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
+            m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
           }
+          CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
+
+          ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
+          addSDO(chargedDiodes);
           chargedDiodes->clear();
         }
       }

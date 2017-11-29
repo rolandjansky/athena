@@ -1,8 +1,0 @@
-PACKAGE          = CalibrationDataInterface
-PACKAGE_CXXFLAGS = 
-PACKAGE_LDFLAGS  = 
-PACKAGE_PRELOAD  = Matrix Hist RIO
-
-PACKAGE_PEDANTIC = 1
-
-include $(ROOTCOREDIR)/Makefile-common

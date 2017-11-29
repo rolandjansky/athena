@@ -47,8 +47,8 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::CompetingTRT_DriftCirclesOnTrackToo
     declareInterface<ICompetingRIOsOnTrackTool>(this);
     declareProperty("ToolForTRT_DriftCircleOnTrackCreation",m_TRT_ROTCreator,           "TRT_DriftCircleOnTrackCreator needed for the creation of CompetingPixelClustersOnTrack");
     declareProperty("ToolForWeightCalculation",             m_weightCalculator,         "Tool for weight (assignment probability) calculation");
-    declareProperty("WeightCutValueBarrel",                 mjo_BarrelCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
-    declareProperty("WeightCutValueEndCap",                 mjo_EndCapCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
+    declareProperty("WeightCutValueBarrel",                 m_jo_BarrelCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
+    declareProperty("WeightCutValueEndCap",                 m_jo_EndCapCutValue=6.66,    "lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
     declareProperty("Extrapolator",                         m_extrapolator,             "Extrapolator tool");
 }
 
@@ -65,10 +65,10 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::~CompetingTRT_DriftCirclesOnTrackTo
 StatusCode InDet::CompetingTRT_DriftCirclesOnTrackTool::initialize() {
     StatusCode sc = AlgTool::initialize();
 
-    //ATH_MSG_DEBUG("ToolForTRT_DriftCircleOnTrackCreation: " << mjo_ToolForROTCreation);
-    //ATH_MSG_DEBUG("ToolForWeightCalculation: " << mjo_ToolForWeightCalc);
-    ATH_MSG_DEBUG("WeightCutValueBarrel: " << mjo_BarrelCutValue);
-    ATH_MSG_DEBUG("WeightCutValueEndCap: " << mjo_EndCapCutValue);
+    //ATH_MSG_DEBUG("ToolForTRT_DriftCircleOnTrackCreation: " << m_jo_ToolForROTCreation);
+    //ATH_MSG_DEBUG("ToolForWeightCalculation: " << m_jo_ToolForWeightCalc);
+    ATH_MSG_DEBUG("WeightCutValueBarrel: " << m_jo_BarrelCutValue);
+    ATH_MSG_DEBUG("WeightCutValueEndCap: " << m_jo_EndCapCutValue);
 
     // Get the correction tool to create TRT_DriftCircles on Track
     sc = m_TRT_ROTCreator.retrieve();
@@ -310,10 +310,10 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     // call normalize()
     if(TRTtype == InDetDD::TRT_BaseElement::BARREL) {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-        m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+        m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
     } else {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-        m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+        m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
     }
     delete baseROTvector;
     baseROTvector=0;
@@ -605,10 +605,10 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         ATH_MSG_VERBOSE("normalize the assignment probabilities");
         if(compROT->rioOnTrack(0).detectorElement()->type() == InDetDD::TRT_BaseElement::BARREL) {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-            m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+            m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
         } else {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-            m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+            m_weightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
         }
         delete baseROTvector;
     } else {
@@ -802,7 +802,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
 
   // --- call normalize()
   double thisWeightCut = (fabs(trkPars.position().z())>800.0 ? 
-                          mjo_EndCapCutValue : mjo_BarrelCutValue );
+                          m_jo_EndCapCutValue : m_jo_BarrelCutValue );
   m_weightCalculator->normalize(*assgnProbVector, ROTvector, beta, thisWeightCut);
 
   double meanWeight = assgnProbVector->at(0) /sqrt( ROTvector->at(0)->localCovariance()(Trk::locX,Trk::locX));

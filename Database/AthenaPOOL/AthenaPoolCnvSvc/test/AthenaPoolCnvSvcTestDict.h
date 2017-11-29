@@ -22,7 +22,7 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 

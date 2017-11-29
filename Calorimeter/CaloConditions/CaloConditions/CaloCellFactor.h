@@ -16,7 +16,7 @@
 #define CALOREC_CALOCELLSCALE_H
 
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include <vector>
 
 namespace CaloRec {

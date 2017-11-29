@@ -192,14 +192,14 @@ public:
   mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;
   
   //moved from static to member variable
-  static constexpr int nbinphi=9;
-  static constexpr int nbineta=6;
-  double calphi[nbinphi];
-  double caleta[nbineta][3];
-  double calerrphi[nbinphi][3];
-  double calerreta[nbineta][3];
-  double phix[nbinphi+1];
-  double etax[nbineta+1];
+  static constexpr int NBINPHI=9;
+  static constexpr int NBINETA=6;
+  double m_calphi[NBINPHI];
+  double m_caleta[NBINETA][3];
+  double m_calerrphi[NBINPHI][3];
+  double m_calerreta[NBINETA][3];
+  double m_phix[NBINPHI+1];
+  double m_etax[NBINETA+1];
 };
 
 //} // end of namespace FTK

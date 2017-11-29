@@ -40,11 +40,11 @@ public:
   // needed to resolve ambiguity when assigning instance to SmartIF
   static const InterfaceID& interfaceID() { return IID_IInputConverter; }
 
-  StatusCode  initialize() override { return StatusCode::SUCCESS;}
-  StatusCode  finalize() override { return StatusCode::SUCCESS;}
+  StatusCode  initialize() { return StatusCode::SUCCESS;}
+  StatusCode  finalize() { return StatusCode::SUCCESS;}
 
   // needed to make this AthService implementation work with Athena
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override {
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) {
       if (IID_IInputConverter != riid) {
         // Interface is not directly available: try out a base class
         return AthService::queryInterface(riid, ppvInterface);
@@ -57,6 +57,12 @@ public:
   MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
                                          ISF::ISFParticleContainer&,
                                          bool));
+  MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
+                                                       G4Event*&,
+                                                       bool));
+  MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                              HepMC::GenEvent*));
+
 }; // MockInputConverter class
 
 DECLARE_SERVICE_FACTORY( MockInputConverter )

@@ -26,8 +26,6 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
-#include "GaudiKernel/IssueSeverity.h"
-
 //---------------------------------------------------------------------------------
 
 TrigLLPInnerDetectorHypo::TrigLLPInnerDetectorHypo(const std::string& name, ISvcLocator* pSvcLocator)

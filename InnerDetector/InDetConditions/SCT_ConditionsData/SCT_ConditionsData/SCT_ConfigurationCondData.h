@@ -15,7 +15,7 @@
 #include <map>
 
 // Include Athena stuff
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 
 class SCT_ConfigurationCondData {

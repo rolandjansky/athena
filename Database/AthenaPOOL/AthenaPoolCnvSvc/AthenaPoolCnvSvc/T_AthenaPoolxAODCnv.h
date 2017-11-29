@@ -21,7 +21,7 @@
 #include "AthenaPoolCnvSvc/TPCnvList.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
 #include "AthContainers/AuxVectorBase.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 
 /**

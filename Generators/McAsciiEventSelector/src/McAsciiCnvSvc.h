@@ -20,17 +20,19 @@
 
 // Forward declaration
 class IIOHepMcTool;
-template <class SvcType> class SvcFactory;
 
 class McAsciiCnvSvc : public ConversionSvc
 { 
-  /// Allow the factory class access to the guts of the service
-  friend class SvcFactory<McAsciiCnvSvc>;
-
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
+  
+  /// Constructor with parameters: 
+  McAsciiCnvSvc( const std::string& name, ISvcLocator* svcLoc );
+
+  /// Destructor: 
+  virtual ~McAsciiCnvSvc(); 
 
   //@{
   /// Initialize the service.
@@ -62,12 +64,6 @@ class McAsciiCnvSvc : public ConversionSvc
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-
-  /// Constructor with parameters: 
-  McAsciiCnvSvc( const std::string& name, ISvcLocator* svcLoc );
-
-  /// Destructor: 
-  virtual ~McAsciiCnvSvc(); 
 
   /// configure the underlying converter tool
   void setupCnvTool();

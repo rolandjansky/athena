@@ -26,8 +26,8 @@ namespace InDetDD
 class SiChargedDiodeCollectionFiller {
  public:
   SiChargedDiodeCollectionFiller(const SCT_ID*, 
-				 const InDetDD::SiDetectorManager*, 
-				 ToolHandle<ISCT_SurfaceChargesGenerator>&);
+                                 const InDetDD::SiDetectorManager*,
+                                 ToolHandle<ISCT_SurfaceChargesGenerator>&);
   
   void operator() (const std::pair<const IdentifierHash, std::vector<HitIndexAndTime>>&);
 
@@ -37,5 +37,5 @@ class SiChargedDiodeCollectionFiller {
   
  private:
   HitToDiodeConverter m_hitToDiodeConverter;
-};		      
+};
 #endif // SCT_DIGITIZATION_SICHARGEDDIODECOLLECTIONFILLER_H

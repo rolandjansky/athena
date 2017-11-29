@@ -3,7 +3,6 @@
 #include "../PhotonTruthAlg.h"
 #include "../ElectronRedoOQAlg.h"
 #include "../PhotonRedoOQAlg.h"
-#include "../egammaCalcOQAlg.h"
 #include "../egammaTruthAlg.h"
 #include "../TileGapSelectionAlg.h"
 #include "../TileGapSumAlg.h"
@@ -22,7 +21,6 @@ DECLARE_COMPONENT( D3PD::egammaShowerDepthAlg )
 DECLARE_COMPONENT( D3PD::PhotonTruthAlg )
 DECLARE_COMPONENT( D3PD::ElectronRedoOQAlg )
 DECLARE_COMPONENT( D3PD::PhotonRedoOQAlg )
-DECLARE_COMPONENT( D3PD::egammaCalcOQAlg )
 DECLARE_COMPONENT( D3PD::egammaTruthAlg )
 DECLARE_COMPONENT( D3PD::TileGapSelectionAlg )
 DECLARE_COMPONENT( D3PD::TileGapSumAlg )

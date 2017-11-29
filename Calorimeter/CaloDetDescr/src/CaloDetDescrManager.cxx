@@ -728,6 +728,13 @@ void CaloDetDescrManager_Base::add_tile(CaloDetDescriptor* descr)
   m_tile_descr_vec.push_back(descr);
 }
 
+CaloDetDescrElement* CaloDetDescrManager_Base::release_element (IdentifierHash hash)
+{
+  CaloDetDescrElement* old = m_element_vec[hash];
+  m_element_vec[hash] = nullptr;
+  return old;
+}
+
 void CaloDetDescrManager_Base::set_helper(const CaloCell_Base_ID*  idHelper)
 {
     m_cell_id = idHelper;

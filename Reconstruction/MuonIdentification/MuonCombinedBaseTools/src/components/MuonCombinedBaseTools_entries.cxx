@@ -1,5 +1,4 @@
 #include "../MuonCandidateTool.h"
-#include "../InDetCandidateTool.h"
 #include "../MuonCombinedTool.h"
 #include "../MuonCombinedDebuggerTool.h"
 #include "../MuonCreatorTool.h"
@@ -14,7 +13,6 @@
 using namespace MuonCombined;
 using namespace Muon;
 DECLARE_COMPONENT( MuonCandidateTool )
-DECLARE_COMPONENT( InDetCandidateTool )
 DECLARE_COMPONENT( MuonCombinedTool )
 DECLARE_COMPONENT( MuonCombinedDebuggerTool )
 DECLARE_COMPONENT( MuonCreatorTool )
@@ -25,4 +23,3 @@ DECLARE_COMPONENT( MuonSegmentTagTool )
 DECLARE_COMPONENT( MuGirlTagTool )
 DECLARE_COMPONENT( MuonCaloTagTool )
 DECLARE_COMPONENT( TrackSegmentAssociationTool )
-
