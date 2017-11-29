@@ -72,9 +72,18 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
         return StatusCode::FAILURE;
     }
     // Check that it has a hard scatter process defined
-    if (importedTruthEvents->at(0)->signalProcessVertex()==nullptr){
-        ATH_MSG_ERROR("TruthEvent collection with name " << m_eventsKey << " has a null signal process vertex!");
-        return StatusCode::FAILURE;
+    const xAOD::TruthVertex* my_tv = importedTruthEvents->at(0)->signalProcessVertex();
+    if (my_tv==nullptr){
+        static bool warn_once=false;
+        if (!warn_once){
+            ATH_MSG_WARNING("TruthEvent collection with name " << m_eventsKey << " has a null signal process vertex!");
+            warn_once=true;
+        }
+        my_tv = importedTruthEvents->at(0)->truthVertex(0);
+        if (my_tv==nullptr){
+            ATH_MSG_ERROR("TruthEvent collection had no vertices at all? Something is wrong with your truth record!");
+            return StatusCode::FAILURE;
+        }
     }
 
     // Create the new particle containers
@@ -94,7 +103,6 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
 
     // Get the signal process vertex.  Get the incoming particles and outgoing particles and 
     // make a mini truth collection based on those
-    const xAOD::TruthVertex* my_tv = importedTruthEvents->at(0)->signalProcessVertex();
     std::vector<int> seen_particles; // Loop protection
     // Let's assume a reasonable case...
     addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
