@@ -69,17 +69,21 @@ namespace top{
     // 4) create an instance of the likelihood for ttbar->l+jets channel using jet angles channel and customize it according to your needs
     KLFitter::LikelihoodTopLeptonJets_JetAngles * myLikelihood_JetAngles = new KLFitter::LikelihoodTopLeptonJets_JetAngles{};
 
+    // 4) create an instance of the likelihood for ttZ -> trilepton channel and customize it according to your needs
+    KLFitter::LikelihoodTTZTrilepton * myLikelihood_TTZ  = new KLFitter::LikelihoodTTZTrilepton{};
 
     // 4.a) SetleptonType
     if (m_leptonType == "kElectron") {
       m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron;
       m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron;
       m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron;
+      m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron;
     }
     else if (m_leptonType == "kMuon") {
       m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon;
       m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon;
       m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
+      m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon;
     } 
     else {
       ATH_MSG_ERROR(" Please supply a valid LeptonType : kElectron or kMuon");
@@ -89,6 +93,7 @@ namespace top{
     myLikelihood     -> SetLeptonType( m_leptonTypeKLFitterEnum ); 
     myLikelihood_TTH -> SetLeptonType( m_leptonTypeKLFitterEnum_TTH );
     myLikelihood_JetAngles -> SetLeptonType( m_leptonTypeKLFitterEnum_JetAngles );
+    myLikelihood_TTZ -> SetLeptonType( m_leptonTypeKLFitterEnum_TTZ );
 
     // 4.b) Jet Selection Mode
     if (m_config->KLFitterJetSelectionMode() == "kLeadingFour" ){
@@ -155,14 +160,28 @@ namespace top{
     myLikelihood           -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     myLikelihood_TTH       -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     myLikelihood_JetAngles -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    myLikelihood_TTZ       -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     // 4.d) SetTopMass
     myLikelihood           -> PhysicsConstants()->SetMassTop( m_massTop ); 
     myLikelihood_TTH       -> PhysicsConstants()->SetMassTop( m_massTop );
     myLikelihood_JetAngles -> PhysicsConstants()->SetMassTop( m_massTop );
+    myLikelihood_TTZ       -> PhysicsConstants()->SetMassTop( m_massTop );
     // 4.e) TopMassFixed
     myLikelihood           -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
     myLikelihood_TTH       -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     myLikelihood_JetAngles -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    myLikelihood_TTZ       -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+
+    // 4.f) Z-specific settings
+    if (m_config->KLFitterTTZInvMassCutoff() < 0) {
+      ATH_MSG_ERROR("Please provide a valid cut-off value for the mass distribution");
+    }
+    if (m_config->KLFitterTTZOnShellFraction() < 0 || m_config->KLFitterTTZOnShellFraction() > 1) {
+      ATH_MSG_ERROR("Please provide a sensible on-shell fraction between 0 and 1");
+    }
+    myLikelihood_TTZ->SetInvMassCutoff( m_config->KLFitterTTZInvMassCutoff() );
+    myLikelihood_TTZ->SetOnShellFraction( m_config->KLFitterTTZOnShellFraction() );
+
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
       m_myFitter->SetLikelihood(myLikelihood);  
@@ -170,6 +189,8 @@ namespace top{
       m_myFitter->SetLikelihood(myLikelihood_TTH);
     else if (m_LHType == "ttbar_JetAngles")
       m_myFitter->SetLikelihood(myLikelihood_JetAngles);
+    else if (m_LHType == "TTZTrilepton")
+      m_myFitter->SetLikelihood(myLikelihood_TTZ);
 
     else{
 
@@ -196,6 +217,10 @@ namespace top{
     ATH_MSG_INFO("  Using JetSelectionMode \t" << m_config->KLFitterJetSelectionMode());
     ATH_MSG_INFO("  Using BTaggingMethod \t"   << m_config->KLFitterBTaggingMethod());
     ATH_MSG_INFO("  Using TopMassFixed \t"     << m_config->KLFitterTopMassFixed());
+    if (m_LHType == "TTZTrilepton") {
+      ATH_MSG_INFO("  Using Z boson lower cut-off \t"<<m_config->KLFitterTTZInvMassCutoff());
+      ATH_MSG_INFO("  Using Z boson on-shell fraction \t"<<m_config->KLFitterTTZOnShellFraction());
+    }
     
     if (m_config->KLFitterSaveAllPermutations()) 
         ATH_MSG_INFO("  Saving All permutations");
@@ -267,6 +292,33 @@ namespace top{
 	TLorentzVector mu;
 	mu.SetPtEtaPhiE( event.m_muons.at(0)->pt()/1.e3 ,  event.m_muons.at(0)->eta() , event.m_muons.at(0)->phi(),  event.m_muons.at(0)->e() / 1.e3);
 	myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon);
+      }
+    }
+
+    if (m_LHType == "TTZTrilepton") {
+      if (m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron) {
+        if (event.m_electrons.size() < 3) {
+          ATH_MSG_ERROR( "KLFitter: kDedicated requires three electrons..." );
+          return StatusCode::FAILURE;
+        }
+        TLorentzVector el;
+        for (unsigned int i = 0; i < 3; ++i) {
+          const auto& electron = event.m_electrons.at(i);
+          el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
+          myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+        }
+      }
+      if (m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon) {
+        if (event.m_muons.size() < 3) {
+          ATH_MSG_ERROR( "KLFitter: kDedicated requires three muons..." );
+          return StatusCode::FAILURE;
+        }
+        TLorentzVector mu;
+        for (unsigned int i = 0; i < 3; ++i) {
+          const auto& muon = event.m_muons.at(i);
+          mu.SetPtEtaPhiE(muon->pt() / 1.e3, muon->eta(), muon->phi(), muon->e() / 1.e3);
+          myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon, "", i);
+        }
       }
     }
     // set the jets, depending on the Jet Selection Mode
@@ -366,20 +418,54 @@ namespace top{
       
       if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron || 
           m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron ||
+          m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron ||
           m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
         result->setModel_lep_pt( myModelParticles->Electron(0)->Pt() );
         result->setModel_lep_eta( myModelParticles->Electron(0)->Eta() );
         result->setModel_lep_phi( myModelParticles->Electron(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Electron(0)->E() );
+
+        if (m_LHType == "TTZTrilepton") {
+          result->setModel_lep_index( (*myPermutedParticles)->ElectronIndex(0) );
+
+          result->setModel_lepZ1_pt( myModelParticles->Electron(1)->Pt() );
+          result->setModel_lepZ1_eta( myModelParticles->Electron(1)->Eta() );
+          result->setModel_lepZ1_phi( myModelParticles->Electron(1)->Phi() );
+          result->setModel_lepZ1_E( myModelParticles->Electron(1)->E() );
+          result->setModel_lepZ1_index( (*myPermutedParticles)->ElectronIndex(1) );
+
+          result->setModel_lepZ2_pt( myModelParticles->Electron(2)->Pt() );
+          result->setModel_lepZ2_eta( myModelParticles->Electron(2)->Eta() );
+          result->setModel_lepZ2_phi( myModelParticles->Electron(2)->Phi() );
+          result->setModel_lepZ2_E( myModelParticles->Electron(2)->E() );
+          result->setModel_lepZ2_index( (*myPermutedParticles)->ElectronIndex(2) );
+        }
       }
       
       if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon || 
           m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon || 
+          m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon ||
           m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
         result->setModel_lep_pt( myModelParticles->Muon(0)->Pt() );
         result->setModel_lep_eta( myModelParticles->Muon(0)->Eta() );
         result->setModel_lep_phi( myModelParticles->Muon(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Muon(0)->E() );
+
+        if (m_LHType == "TTZTrilepton") {
+          result->setModel_lep_index( (*myPermutedParticles)->MuonIndex(0) );
+
+          result->setModel_lepZ1_pt( myModelParticles->Muon(1)->Pt() );
+          result->setModel_lepZ1_eta( myModelParticles->Muon(1)->Eta() );
+          result->setModel_lepZ1_phi( myModelParticles->Muon(1)->Phi() );
+          result->setModel_lepZ1_E( myModelParticles->Muon(1)->E() );
+          result->setModel_lepZ1_index( (*myPermutedParticles)->MuonIndex(1) );
+
+          result->setModel_lepZ2_pt( myModelParticles->Muon(2)->Pt() );
+          result->setModel_lepZ2_eta( myModelParticles->Muon(2)->Eta() );
+          result->setModel_lepZ2_phi( myModelParticles->Muon(2)->Phi() );
+          result->setModel_lepZ2_E( myModelParticles->Muon(2)->E() );
+          result->setModel_lepZ2_index( (*myPermutedParticles)->MuonIndex(2) );
+        }
       }
 
       result->setModel_nu_pt( myModelParticles->Neutrino(0)->Pt() );

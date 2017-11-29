@@ -16,6 +16,7 @@
 #include "KLFitter/LikelihoodTopLeptonJets.h"
 #include "KLFitter/LikelihoodTTHLeptonJets.h"
 #include "KLFitter/LikelihoodTopLeptonJets_JetAngles.h"
+#include "KLFitter/LikelihoodTTZTrilepton.h"
 #include "KLFitter/PhysicsConstants.h"
 #include "KLFitter/LikelihoodBase.h"
 #include "KLFitter/DetectorAtlas_8TeV.h"
@@ -104,6 +105,7 @@ namespace top{
       KLFitter::LikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum;      
       KLFitter::LikelihoodTTHLeptonJets::LeptonType m_leptonTypeKLFitterEnum_TTH;
       KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType m_leptonTypeKLFitterEnum_JetAngles;
+      KLFitter::LikelihoodTTZTrilepton::LeptonType m_leptonTypeKLFitterEnum_TTZ;
 
       top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;     
       KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;
