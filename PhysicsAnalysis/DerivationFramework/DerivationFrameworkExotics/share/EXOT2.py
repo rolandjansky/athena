@@ -8,7 +8,6 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 exot2Seq = CfgMgr.AthSequencer("EXOT2Sequence")
 
@@ -22,17 +21,11 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT2Stream )
 EXOT2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT2Stream.AcceptAlgs(["EXOT2Kernel"])
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT2ThinningSvc", outStreams=[evtStream] )
-
 #=====================
 # TRIGGER NAV THINNING
 #=====================
 
-#Establish the thinning helper
+#establish the thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT2ThinningHelper = ThinningHelper( "EXOT2ThinningHelper" )
 #trigger navigation content
@@ -59,41 +52,44 @@ print EXOT2SkimmingTool
 # THINNING
 #=======================================
 
-#Truth Thinning: want to keep some parton info so we can
-#study BSM decays
 thinningTools = []
-EXOT2MCThinningTool = DerivationFramework__MenuTruthThinning(name                = "EXOT2MCThinningTool",
-                                                              ThinningService     = EXOT2ThinningHelper.ThinningSvc(),
-                                                              WriteEverything     = False,
-                                                              WritePartons        = True,
-                                                              WriteHadrons        = True,
-                                                              WriteBHadrons       = True,
-                                                              WriteGeant          = False,
-                                                              WriteTauHad         = False,
-                                                              WriteBSM            = True,
-                                                              WriteBosons         = True,
-                                                              WriteBosonProducts  = True,
-                                                              WriteBSMProducts    = True,
-                                                              WriteTopAndDecays   = False,
-                                                              WriteAllLeptons     = False,
-                                                              WriteStatus3        = False,
-                                                              WriteFirstN         = -1)
 
-ToolSvc += EXOT2MCThinningTool
-thinningTools += EXOT2MCThinningTool
+#truth thinning: want to keep some parton info so we can study BSM decays
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+    EXOT2MCThinningTool = DerivationFramework__MenuTruthThinning(name                = "EXOT2MCThinningTool",
+                                                                 ThinningService     = EXOT2ThinningHelper.ThinningSvc(),
+                                                                 WriteEverything     = False,
+                                                                 WritePartons        = True,
+                                                                 WriteHadrons        = True,
+                                                                 WriteBHadrons       = True,
+                                                                 WriteGeant          = False,
+                                                                 WriteTauHad         = False,
+                                                                 WriteBSM            = True,
+                                                                 WriteBosons         = True,
+                                                                 WriteBosonProducts  = True,
+                                                                 WriteBSMProducts    = True,
+                                                                 WriteTopAndDecays   = False,
+                                                                 WriteAllLeptons     = False,
+                                                                 WriteStatus3        = False,
+                                                                 WriteFirstN         = -1)
 
-# Further truth slimming to ensure useful parton info
-truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-EXOT2TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT2TruthTool2",
-                                                              ThinningService              = EXOT2ThinningHelper.ThinningSvc(),
-                                                              ParticleSelectionString      = truth_cond_jets,
-                                                              PreserveDescendants          = False,
-                                                              PreserveGeneratorDescendants = True,
-                                                              PreserveAncestors            = True)
+    ToolSvc += EXOT2MCThinningTool
+    thinningTools += EXOT2MCThinningTool
 
-ToolSvc += EXOT2TruthTool2
-thinningTools.append(EXOT2TruthTool2)
+#further truth thinning to ensure useful parton info
+if DerivationFrameworkIsMonteCarlo:
+    truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+    EXOT2TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT2TruthTool2",
+                                                                ThinningService              = EXOT2ThinningHelper.ThinningSvc(),
+                                                                ParticleSelectionString      = truth_cond_jets,
+                                                                PreserveDescendants          = False,
+                                                                PreserveGeneratorDescendants = True,
+                                                                PreserveAncestors            = True)
+
+    ToolSvc += EXOT2TruthTool2
+    thinningTools.append(EXOT2TruthTool2)
 
 #=======================================
 # JETS
