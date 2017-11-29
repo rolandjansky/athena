@@ -94,6 +94,20 @@ namespace xAOD{
       std::vector<float> model_lep_eta;
       std::vector<float> model_lep_phi;
       std::vector<float> model_lep_E;            
+      std::vector<unsigned int>   model_lep_index;
+
+      // model particles for the TTZ trilepton channel
+      std::vector<float> model_lepZ1_pt;
+      std::vector<float> model_lepZ1_eta;
+      std::vector<float> model_lepZ1_phi;
+      std::vector<float> model_lepZ1_E;
+      std::vector<unsigned int>   model_lepZ1_index;
+
+      std::vector<float> model_lepZ2_pt;
+      std::vector<float> model_lepZ2_eta;
+      std::vector<float> model_lepZ2_phi;
+      std::vector<float> model_lepZ2_E;
+      std::vector<unsigned int>   model_lepZ2_index;
 
       std::vector<float> model_nu_pt;
       std::vector<float> model_nu_eta;
@@ -332,6 +346,60 @@ namespace xAOD{
       /// set model_lep_E
       void setModel_lep_E(float);
 
+      /// get model_lep_index
+      unsigned int model_lep_index() const;
+      /// set model_lep_index
+      void setModel_lep_index(unsigned int);
+
+      /// get model_lep_pt
+      float model_lepZ1_pt() const;
+      /// set model_lepZ1_pt
+      void setModel_lepZ1_pt(float);
+
+      /// get model_lepZ1_eta
+      float model_lepZ1_eta() const;
+      /// set model_lepZ1_eta
+      void setModel_lepZ1_eta(float);
+
+      /// get model_lepZ1_phi
+      float model_lepZ1_phi() const;
+      /// set model_lepZ1_phi
+      void setModel_lepZ1_phi(float);
+
+      /// get model_lepZ1_E
+      float model_lepZ1_E() const;
+      /// set model_lepZ1_E
+      void setModel_lepZ1_E(float);
+
+      /// get model_lepZ1_index
+      unsigned int model_lepZ1_index() const;
+      /// set model_lepZ1_index
+      void setModel_lepZ1_index(unsigned int);
+
+      /// get model_lepZ2_pt
+      float model_lepZ2_pt() const;
+      /// set model_lepZ2_pt
+      void setModel_lepZ2_pt(float);
+
+      /// get model_lepZ2_eta
+      float model_lepZ2_eta() const;
+      /// set model_lepZ2_eta
+      void setModel_lepZ2_eta(float);
+
+      /// get model_lepZ2_phi
+      float model_lepZ2_phi() const;
+      /// set model_lepZ2_phi
+      void setModel_lepZ2_phi(float);
+
+      /// get model_lepZ2_E
+      float model_lepZ2_E() const;
+      /// set model_lepZ2_E
+      void setModel_lepZ2_E(float);
+
+      /// get model_lepZ2_index
+      unsigned int model_lepZ2_index() const;
+      /// set model_lepZ2_index
+      void setModel_lepZ2_index(unsigned int);
       
       /// get model_nu_pt                                                                                                                                           
       float model_nu_pt() const;
