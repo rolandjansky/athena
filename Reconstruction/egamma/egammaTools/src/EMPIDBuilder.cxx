@@ -84,10 +84,15 @@ StatusCode EMPIDBuilder::initialize()
   if (m_UselumiBlockMuTool) {
     // retrieve the lumi tool
     if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+      ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
+      return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }
+  } else {
+    // Switch to using disable when supported by Gaudi version
+    m_lumiBlockMuTool = nullptr;
+    // m_lumiBlockMuTool.disable();
   }
   return StatusCode::SUCCESS;
 }
@@ -141,7 +146,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
     //negative mu means the default behaviour --> retrieve the one in xAOD 
     double mu = -99.;
     double avg_mu = -99.;
-    if(m_UselumiBlockMuTool && m_lumiBlockMuTool){ //
+    if(m_UselumiBlockMuTool){ //
       mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
       avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
       ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);

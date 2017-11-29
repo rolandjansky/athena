@@ -72,7 +72,7 @@ protected:
       "photonIsEMselectorResultNames", {}, "The selector result names"};
  
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool {this,
-      "LuminosityTool", "", "Luminosity Tool"};
+      "LuminosityTool", "LumiBlockMuTool/LumiBlockMuTool", "Luminosity Tool"};
 
   Gaudi::Property<std::string> m_LHValueName {this, 
       "LHValueName", "LHValue", "The LH Value name"};
