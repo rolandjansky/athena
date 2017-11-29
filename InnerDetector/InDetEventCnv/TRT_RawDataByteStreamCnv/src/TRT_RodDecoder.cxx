@@ -303,7 +303,7 @@ TRT_RodDecoder::handle(const Incident& inc) {
    **/
 
   if ( inc.type() == "BeginRun" ) {
-    const EventInfo* currentEvent;
+    const EventInfo* currentEvent = nullptr;
     StatusCode sc = evtStore()->retrieve(currentEvent);
     if ( sc.isFailure() ) 
        ATH_MSG_ERROR( "Could not get current event" );
