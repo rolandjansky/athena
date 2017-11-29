@@ -290,6 +290,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
+    registerParameter("KLFitterTTZInvMassCutoff","Decide where to apply a cut-off for the 1/E^2 distribution (GeV)","5");
+    registerParameter("KLFitterTTZOnShellFraction","Decide the fraction of on-shell Z bosons to be expected","0.869");
 
     registerParameter("DynamicKeys", "Additional dynamic key list seperated by ,", "");
 

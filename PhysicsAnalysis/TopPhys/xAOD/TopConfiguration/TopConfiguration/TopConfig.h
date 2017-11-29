@@ -257,6 +257,8 @@ class TopConfig final {
 
   inline bool KLFitterTopMassFixed() const {return m_KLFitterTopMassFixed;}
   inline bool KLFitterSaveAllPermutations() const {return m_KLFitterSaveAllPermutations;}
+  inline double KLFitterTTZInvMassCutoff() const {return m_KLFitterTTZInvMassCutoff;}
+  inline double KLFitterTTZOnShellFraction() const {return m_KLFitterTTZOnShellFraction;}
 
   // PseudoTop
   inline bool doPseudoTop() const {return m_doPseudoTop;}
@@ -982,6 +984,8 @@ class TopConfig final {
   std::string m_KLFitterLH;
   bool m_KLFitterTopMassFixed;
   bool m_KLFitterSaveAllPermutations;
+  double m_KLFitterTTZInvMassCutoff;
+  double m_KLFitterTTZOnShellFraction;
 
   // PseudoTop
   bool m_doPseudoTop;

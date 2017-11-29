@@ -112,6 +112,8 @@ namespace top{
     m_KLFitterLH("SetMe"),
     m_KLFitterTopMassFixed(true),
     m_KLFitterSaveAllPermutations(false),
+    m_KLFitterTTZInvMassCutoff(5.),
+    m_KLFitterTTZOnShellFraction(.869),
 
     // PseudoTop
     m_doPseudoTop(false),
@@ -950,6 +952,8 @@ namespace top{
         m_KLFitterSaveAllPermutations = true;
     if (settings->value( "KLFitterSaveAllPermutations" ) == "False")
         m_KLFitterSaveAllPermutations = false;
+    m_KLFitterTTZInvMassCutoff = std::stof( settings->value( "KLFitterTTZInvMassCutoff" ) );
+    m_KLFitterTTZOnShellFraction = std::stof( settings->value( "KLFitterTTZOnShellFraction" ) );
 
     
 
