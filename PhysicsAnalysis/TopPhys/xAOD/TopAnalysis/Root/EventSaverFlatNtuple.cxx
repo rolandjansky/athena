@@ -813,6 +813,22 @@ namespace top {
                   systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
                   systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
 
+                  if(m_config->KLFitterLH() == "ttZ"){
+                    systematicTree->makeOutputVariable(m_klfitter_model_lep_index,"klfitter_model_lep_index");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_pt,"klfitter_model_lepZ1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_eta,"klfitter_model_lepZ1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_phi,"klfitter_model_lepZ1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_E,"klfitter_model_lepZ1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_index,"klfitter_model_lepZ1_index");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_pt,"klfitter_model_lepZ2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_eta,"klfitter_model_lepZ2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_phi,"klfitter_model_lepZ2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_E,"klfitter_model_lepZ2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_index,"klfitter_model_lepZ2_index");
+                  }
+
                   if(m_config->KLFitterLH() == "ttH"){
 
                     systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_pt,"klfitter_model_Higgs_b1_pt");
@@ -2149,6 +2165,19 @@ namespace top {
             m_klfitter_model_lep_eta.resize(nPermutations);
             m_klfitter_model_lep_phi.resize(nPermutations);
             m_klfitter_model_lep_E.resize(nPermutations);
+            m_klfitter_model_lep_index.resize(nPermutations);
+
+            m_klfitter_model_lepZ1_pt.resize(nPermutations);
+            m_klfitter_model_lepZ1_eta.resize(nPermutations);
+            m_klfitter_model_lepZ1_phi.resize(nPermutations);
+            m_klfitter_model_lepZ1_E.resize(nPermutations);
+            m_klfitter_model_lepZ1_index.resize(nPermutations);
+
+            m_klfitter_model_lepZ2_pt.resize(nPermutations);
+            m_klfitter_model_lepZ2_eta.resize(nPermutations);
+            m_klfitter_model_lepZ2_phi.resize(nPermutations);
+            m_klfitter_model_lepZ2_E.resize(nPermutations);
+            m_klfitter_model_lepZ2_index.resize(nPermutations);
 
             m_klfitter_model_nu_pt.resize(nPermutations);
             m_klfitter_model_nu_eta.resize(nPermutations);
@@ -2217,6 +2246,19 @@ namespace top {
                     m_klfitter_model_lep_eta[iPerm] = klPtr->model_lep_eta();
                     m_klfitter_model_lep_phi[iPerm] = klPtr->model_lep_phi();
                     m_klfitter_model_lep_E[iPerm] = klPtr->model_lep_E();
+                    m_klfitter_model_lep_index[iPerm] = klPtr->model_lep_index();
+
+                    m_klfitter_model_lepZ1_pt[iPerm] = klPtr->model_lepZ1_pt();
+                    m_klfitter_model_lepZ1_eta[iPerm] = klPtr->model_lepZ1_eta();
+                    m_klfitter_model_lepZ1_phi[iPerm] = klPtr->model_lepZ1_phi();
+                    m_klfitter_model_lepZ1_E[iPerm] = klPtr->model_lepZ1_E();
+                    m_klfitter_model_lepZ1_index[iPerm] = klPtr->model_lepZ1_index();
+
+                    m_klfitter_model_lepZ2_pt[iPerm] = klPtr->model_lepZ2_pt();
+                    m_klfitter_model_lepZ2_eta[iPerm] = klPtr->model_lepZ2_eta();
+                    m_klfitter_model_lepZ2_phi[iPerm] = klPtr->model_lepZ2_phi();
+                    m_klfitter_model_lepZ2_E[iPerm] = klPtr->model_lepZ2_E();
+                    m_klfitter_model_lepZ2_index[iPerm] = klPtr->model_lepZ2_index();
 
                     m_klfitter_model_nu_pt[iPerm] = klPtr->model_nu_pt();
                     m_klfitter_model_nu_eta[iPerm] = klPtr->model_nu_eta();
