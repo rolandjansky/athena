@@ -15,7 +15,7 @@
 
 TaggerType: TopQuarkContained
 
-DecorationName: BDTTaggerWBoson50
+DecorationName: BDTTaggerTopQuark80
 
 CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
 #CalibArea: Local
