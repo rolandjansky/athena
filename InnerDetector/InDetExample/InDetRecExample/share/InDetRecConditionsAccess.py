@@ -216,10 +216,12 @@ if DetFlags.haveRIO.SCT_on():
                                             ReadKeyModule = SCTModuleConfigurationPath,
                                             ReadKeyMur = SCTMurConfigurationPath)
 
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NPtGainDefects","/SCT/DAQ/Calibration/NPtGainDefects")
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/NoiseOccupancyDefects'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
+    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
+    if not conddb.folderRequested(sctGainDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
+    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
+    if not conddb.folderRequested(sctNoiseDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
 
     if not athenaCommonFlags.isOnline():
         sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
@@ -245,6 +247,11 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConfigurationConditionsSvc
 
     # Load calibration conditions service
+    if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
+                                            ReadKeyGain = sctGainDefectFolder,
+                                            ReadKeyNoise = sctNoiseDefectFolder)
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
     InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
     ServiceMgr += InDetSCT_ReadCalibDataSvc
