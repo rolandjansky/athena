@@ -2,9 +2,9 @@
 
 // Local include(s):
 #include "../xAODTruthCnvAlg.h"
+#include "xAODTruthCnv/TruthMetaDataTool.h"
 #include "../xAODTruthReader.h"
 #include "../HepMCTruthReader.h"
-#include "xAODTruthCnv/TruthMetaDataTool.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, xAODTruthCnvAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, xAODTruthReader )
@@ -17,4 +17,3 @@ DECLARE_FACTORY_ENTRIES( xAODTruthCnv ) {
    DECLARE_ALGORITHM( HepMCTruthReader )
    DECLARE_NAMESPACE_TOOL( xAODMaker, TruthMetaDataTool )
 }
-
