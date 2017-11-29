@@ -1406,7 +1406,7 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(*el);
+    return m_elecSelLHTool->accept(el);
   }
 
   bool PhysValMET::Accept(const xAOD::Photon* ph)
