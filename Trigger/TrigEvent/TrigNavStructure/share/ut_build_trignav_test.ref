@@ -1,20 +1,24 @@
-INFO       LINE:24   Test empty
-DEBUG      LINE:31   Test progressing
-DEBUG      LINE:37   Test progressing
-OK         LINE:42   Empty nav test passed
-INFO       LINE:48   Test singleTE
-DEBUG      LINE:56   Test progressing
-DEBUG      LINE:64   Test progressing
-OK         LINE:70   One TE navigation serialization
-INFO       LINE:75   Test realTEs
-DEBUG      LINE:91   Test progressing
-DEBUG      LINE:98   Test progressing
-DEBUG      LINE:110  Test progressing
-OK         LINE:119  One TE navigation serialization
-INFO       LINE:125  Test truncate
-DEBUG      LINE:132  Test progressing
-DEBUG      LINE:140  Test progressing
-DEBUG      LINE:143  Test progressing
-size of the navigation payload smaller than the one required to save TEs17 < 18
-DEBUG      LINE:148  Test progressing
-OK         LINE:167  Test passed
+INFO       LINE:28   
+INFO       LINE:28   Test empty
+DEBUG      LINE:35   Test progressing
+DEBUG      LINE:41   Test progressing
+OK         LINE:46   Empty nav test passed
+INFO       LINE:52   
+INFO       LINE:52   Test singleTE
+DEBUG      LINE:60   Test progressing
+DEBUG      LINE:68   Test progressing
+OK         LINE:74   One TE navigation serialization
+INFO       LINE:79   
+INFO       LINE:79   Test realTEs
+DEBUG      LINE:95   Test progressing
+DEBUG      LINE:102  Test progressing
+DEBUG      LINE:114  Test progressing
+OK         LINE:123  One TE navigation serialization
+INFO       LINE:129  
+INFO       LINE:129  Test truncate
+DEBUG      LINE:136  Test progressing
+DEBUG      LINE:144  Test progressing
+DEBUG      LINE:147  Test progressing
+size of the navigation payload smaller then reported size used to save TEs. 17 < 18
+DEBUG      LINE:152  Test progressing
+OK         LINE:171  Test passed
