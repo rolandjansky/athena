@@ -469,14 +469,21 @@ class SCT_ConditionsServicesSetup:
 
       self.summarySvc.ConditionsServices+=[instanceName]
 
-      if not self.condDB.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
-        self.condDB.addFolderSplitMC("SCT",
-                                     "/SCT/DAQ/Calibration/NPtGainDefects",
-                                     "/SCT/DAQ/Calibration/NPtGainDefects")
-      if not self.condDB.folderRequested('/SCT/DAQ/Calibration/NoiseOccupancyDefects'):
-        self.condDB.addFolderSplitMC("SCT",
-                                     "/SCT/DAQ/Calibration/NoiseOccupancyDefects",
-                                     "/SCT/DAQ/Calibration/NoiseOccupancyDefects")
+      sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
+      if not self.condDB.folderRequested(sctGainDefectFolder):
+        self.condDB.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
+      sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
+      if not self.condDB.folderRequested(sctNoiseDefectFolder):
+        self.condDB.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
+      
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
+                                            ReadKeyGain = sctGainDefectFolder,
+                                            ReadKeyNoise = sctNoiseDefectFolder)
+
       return  calibSvc
     else:
       return None
