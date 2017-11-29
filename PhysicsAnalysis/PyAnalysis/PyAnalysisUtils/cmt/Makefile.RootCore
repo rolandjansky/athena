@@ -1,5 +1,0 @@
-PACKAGE          = PyAnalysisUtils
-PACKAGE_PEDANTIC = 1
-PACKAGE_NOCC     = 1
-
-include $(ROOTCOREDIR)/Makefile-common

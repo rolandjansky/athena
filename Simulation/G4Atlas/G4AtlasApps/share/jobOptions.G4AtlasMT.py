@@ -66,6 +66,8 @@ simFlags.MagneticField.set_On()
 # Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 # Setup the algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
@@ -83,8 +85,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 # Add the (python) G4 simulation service.
 # This will kickstart a lot of simulation setup.
-from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-svcMgr += PyG4AtlasSvc()
+topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
 
 # Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
 # This is done like this because currently our VarHandles do not live in the

@@ -40,7 +40,9 @@ StatusCode FillAlignTrkInfo::initialize()
 
 //extern std::map<const Trk::Track*, double> gTrkToTrkT0Map ;
 
-bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
+bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
+                            const ComTime* /* theComTime */, const xAOD::EventInfo& /* eventInfo */,
+                            const xAOD::VertexContainer& /* vertices */) {
 //bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const {
   // track parameters
   const Trk::Perigee* mesp=(aTrack->perigeeParameters());
@@ -63,7 +65,7 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
     (*output)[TRT::Track::qOverPT]=0.0;
 //    (*output)[TRT::Track::t0] = gTrkToTrkT0Map[aTrack]  ;
     (*output)[TRT::Track::t0] = 0.0  ;
-  } 
+  }
   (*output)[TRT::Track::chiSquare]=aTrack->fitQuality()->chiSquared();
   (*output)[TRT::Track::degreesOfFreedom]=aTrack->fitQuality()->numberDoF();
 

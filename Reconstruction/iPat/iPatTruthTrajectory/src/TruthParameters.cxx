@@ -25,7 +25,9 @@ TruthParameters::TruthParameters (const std::string&	type,
   :	AthAlgTool		(type, name, parent),
 	m_intersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
 	m_particleDataTable	(0),
-	m_truthSelector		("TruthSelector/TruthSelector")
+	m_truthSelector		("TruthSelector/TruthSelector"),
+	m_intersection		(nullptr),
+	m_qOverP		(0.)
 {
     declareInterface<ITruthParameters>(this);
     declareProperty("Intersector",	m_intersector);

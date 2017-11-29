@@ -1,9 +1,0 @@
-PACKAGE          = JetResolution
-PACKAGE_CXXFLAGS = -DJETRES_STANDALONE
-PACKAGE_LDFLAGS  =
-PACKAGE_DEP      = AsgTools PATInterfaces xAODJet xAODEventInfo PathResolver
-PACKAGE_PRELOAD  = Hist Tree Physics TreePlayer
-PACKAGE_REFLEX	 = 1
-PACKAGE_PEDANTIC = 1
-
-include $(ROOTCOREDIR)/Makefile-common

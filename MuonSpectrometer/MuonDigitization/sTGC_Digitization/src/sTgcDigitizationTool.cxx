@@ -129,6 +129,10 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
 	m_produceDeadDigits(0),
     m_deadtimeStrip(50.),
     m_deadtimePad(5.),
+    m_deadtimeWire(5.),
+    m_readtimeStrip(6.25),
+    m_readtimePad(6.25),
+    m_readtimeWire(6.25),
     m_timeWindowOffsetPad(0),
     m_timeWindowOffsetStrip(0),
     m_timeWindowPad(30.),
@@ -924,6 +928,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
               int stripNumber = m_idHelper->channel(it_VMM->first);
               
               bool isValid = false;
+              // Alexandre Laurier 2017-11-17: This block can create issues.
+              // We need to make sure we dont try to add out of range neighbors to the most extreme strips, ie first and last
+              // Currently, we only check to not add strip # 0
               Identifier neighborPlusId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
               if(isValid && it_DETEL->second.count(neighborPlusId) == 1) //The neighbor strip exists and has had a vmm made for it
               {
@@ -931,12 +938,14 @@ StatusCode sTgcDigitizationTool::doDigitization() {
                   it_DETEL->second[neighborPlusId].second->neighborTrigger();
                   
               }
-              Identifier neighborMinusId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
-              if(isValid && it_DETEL->second.count(neighborMinusId) == 1) //The neighbor strip exists and has had a vmm made for it
-              {
-                  ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborMinusId.getString() << "]");
-                  it_DETEL->second[neighborMinusId].second->neighborTrigger();
+              if (stripNumber!=1){
+                Identifier neighborMinusId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
+                if(isValid && it_DETEL->second.count(neighborMinusId) == 1) //The neighbor strip exists and has had a vmm made for it
+                {
+                    ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborMinusId.getString() << "]");
+                    it_DETEL->second[neighborMinusId].second->neighborTrigger();
                   
+                }
               }
           }
        }
@@ -956,8 +965,86 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    /**********************************
     * WIRE DIGIT CODE SHOULD GO HERE *
     *********************************/
+   /*** Comment by Chav Chhiv Chau, October 25 2017
+    * First implementation of wire response is simple.
+    * - When a wire is fired, a digit is recorded for the corresponding
+    *   wiregroup. The response implemented is similar to that for pad.
+    * TODO: a wiregroup digit should be the sum of currents read by wires
+    *       part of that wiregroup
+    */
    
-   
+   int nWGDigits = 0;
+   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
+     // loop on digits of same wiregroup
+     for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {
+         sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+
+         /*************************
+         * Merge wiregroup Digits *
+         *************************/
+         // No merging is done, just removing subsequent digits close in time
+         // to the first digit. TODO: Have to be updated
+
+         std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
+         std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+         e--;  //decrement e to be the last element and not the beyond the last element iterator
+
+         while( i!=e ) {
+             sTgcDigit digit1 = (*i);
+             sTgcDigit digit2 = (*(i+1));
+             if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
+                 ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
+                 ATH_MSG_VERBOSE("digit1: " << digit1.time() << ", " << digit1.charge());
+                 ATH_MSG_VERBOSE("digit2: " << digit2.time() << ", " << digit2.charge());
+                 bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
+                 i->set_isPileup(mergedIsPileup);
+                 it_REID->second.erase (i+1); //remove the later time digit
+                 e = it_REID->second.end();  //update the end iterator
+                 e--; //decrement e to be the last element and not the beyond the last element iterator
+                 ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
+             }
+             else ++i; //There was not a hit to merge: move onto the next one
+         }
+         ATH_MSG_VERBOSE("Merging complete for Wiregroup REID[" << it_REID->first.getString() << "]");
+         ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+         /*******************************
+         * Calculate wiregroup deadtime *
+         *******************************/
+         ATH_MSG_VERBOSE("Calculating deadtime for wiregroup REID[" << it_REID->first.getString() << "]");
+
+         float vmmStartTime = (*(it_REID->second.begin())).time();
+
+         sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+         theVMM->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+         theVMM->initialReport();
+
+         bool vmmControl = true;
+
+
+         while(vmmControl)
+         {
+             ATH_MSG_VERBOSE("Tick on wiregroup REID[" << it_REID->first.getString() << "]");
+             vmmControl = theVMM->tick(); //advance the clock.  returns false if no more digits in
+             ATH_MSG_VERBOSE("Tick returned " << vmmControl);
+             if(vmmControl) {
+                 ATH_MSG_VERBOSE("Tock on wiregroup REID[" << it_REID->first.getString() << "]");
+                 theVMM->tock(); //update readout status
+                 sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
+                 if(flushedDigit) {
+                     outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+                     nWGDigits++;
+                     ATH_MSG_VERBOSE("Flushed wiregroup digit") ;
+                     ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
+                     ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
+                     ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
+
+                  }
+                 else ATH_MSG_VERBOSE("No digit for this timestep on wiregroup REID[" << it_REID->first.getString() << "]");
+             }
+         }
+     }
+   }
+   ATH_MSG_VERBOSE("There are " << nWGDigits << " flushed wiregroup digits in this event.");
    
    /*************************************************
     * Output the digits to the StoreGate collection *
@@ -1054,6 +1141,11 @@ void sTgcDigitizationTool::readDeadtimeConfig()
 	  		  ATH_MSG_INFO("m_deadtimePad = " << value);
 	  		  continue;
 	  	  }
+		  if(var.compare("deadtimeWire") == 0){
+			  m_deadtimeWire = value;
+			  ATH_MSG_INFO("m_deadtimeWire = " << value);
+			  continue;
+		  }
           if(var.compare("readtimePad") == 0){
 	  		  m_readtimePad = value;
 	  		  ATH_MSG_INFO("m_readtimePad = " << value);
@@ -1064,6 +1156,11 @@ void sTgcDigitizationTool::readDeadtimeConfig()
 	  		  ATH_MSG_INFO("m_readtimeStrip = " << value);
 	  		  continue;
 	  	  }
+	  if(var.compare("readtimeWire") == 0){
+			  m_readtimeWire = value;
+			  ATH_MSG_INFO("m_readtimeWire = " << value);
+			  continue;
+		  }
 	  	  ATH_MSG_WARNING("Unknown value encountered reading deadtime.config");
   }
 

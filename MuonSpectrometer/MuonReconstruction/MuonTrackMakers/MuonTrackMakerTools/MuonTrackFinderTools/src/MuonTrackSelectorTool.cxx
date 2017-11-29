@@ -69,29 +69,10 @@ namespace Muon {
 
   StatusCode MuonTrackSelectorTool::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_helperTool ); 
-      return  StatusCode::FAILURE;
-    }
-   
-    if(m_printer.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_printer ); 
-      return  StatusCode::FAILURE;
-    }
-    
-    if (m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_idHelperTool ); 
-      return  StatusCode::FAILURE;
-    }    
-
-    if ( m_trackSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_trackSummaryTool);
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -127,7 +108,6 @@ namespace Muon {
 		   << std::setw(30) << " Max hole Cut                  " << failedMaxHoleCutFraction );
     }
 
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 

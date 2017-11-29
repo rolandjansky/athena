@@ -12,7 +12,9 @@
 #include "../SCT_DCSConditionsTestAlg.h"
 
 #include "../SCT_ByteStreamErrorsSvc.h"
+
 #include "../SCT_ConfigurationConditionsSvc.h"
+#include "../SCT_ConfigurationCondAlg.h"
 #include "../SCT_ConfigurationConditionsTestAlg.h"
 
 #include "../SCT_MonitorConditionsSvc.h"
@@ -23,8 +25,11 @@
 
 #include "../SCT_ReadCalibDataSvc.h"
 #include "../SCT_ReadCalibDataTestAlg.h"
+
 #include "../SCT_ReadCalibChipDataSvc.h"
 #include "../SCT_ReadCalibChipDataTestAlg.h"
+#include "../SCT_ReadCalibChipGainCondAlg.h"
+#include "../SCT_ReadCalibChipNoiseCondAlg.h"
 
 #include "../SCT_SiliconConditionsSvc.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
@@ -76,10 +81,13 @@ DECLARE_COMPONENT( SCT_MonitorConditionsCondAlg )
 DECLARE_COMPONENT( SCT_MonitorConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataTestAlg )
+DECLARE_COMPONENT( SCT_ReadCalibChipGainCondAlg )
+DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_LinkMaskingTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
+DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
