@@ -14,7 +14,7 @@
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MdtDriftCircleOnTrack_p2.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MM_ClusterOnTrack_p1.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/STGC_ClusterOnTrack_p1.h"
-#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrackCnv_p2.h"
+#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack_p1.h"
 #include <vector>
 
 // ------------
