@@ -62,10 +62,6 @@ topSequence += desdAlignmentTriggerMuonSequence
 
 from PrimaryDPDMaker.LogicalFilterCombiner import LogicalFilterCombiner
 from PrimaryDPDMaker.PrimaryDPDMakerConf   import PrimaryDPDPrescaler
-        
-# Define the some lists
-commandstring = ""
-algsToBookkeep = []
 
 from RecExConfig.ObjKeyStore import objKeyStore
 muonDPDStream_msg.debug("Items in objKeyStore[transient]: %s" %  objKeyStore['transient'].list() )
@@ -96,6 +92,7 @@ MuonNoAlgTrig_PrescaleSkimmingTool = DerivationFramework__PrescaleTool ( name = 
 
 ToolSvc += MuonNoAlgTrig_PrescaleSkimmingTool
 print MuonNoAlgTrig_PrescaleSkimmingTool
+
 
 MuonNoAlgTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonNoAlgTrig_EventSkimmingTool",FilterList=[MuonNoAlgTrig_TriggerSkimmingTool, MuonNoAlgTrig_PrescaleSkimmingTool])
 ToolSvc += MuonNoAlgTrig_EventSkimmingTool
@@ -140,6 +137,7 @@ ToolSvc += OrthoTrig_LowpTMuonPrescaleSkimmingTool
 print OrthoTrig_LowpTMuonPrescaleSkimmingTool
 
 OrthoTrig_LowpTMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="OrthoTrig_LowpTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventStringSkimmingTool, OrthoTrig_LowpTMuonPrescaleSkimmingTool])
+
 ToolSvc += OrthoTrig_LowpTMuonEventSkimmingTool
 print OrthoTrig_LowpTMuonEventSkimmingTool
 
@@ -148,6 +146,7 @@ print OrthoTrig_LowpTMuonEventSkimmingTool
 
 OrthoTrig_MidpTMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "OrthoTrig_MidpTMuonEventStringSkimmingTool",
                                                                                          expression = "(count(Muons.muonType == 0 && Muons.pt >= 15*GeV) > 0)")
+
 ToolSvc += OrthoTrig_MidpTMuonEventStringSkimmingTool
 print OrthoTrig_MidpTMuonEventStringSkimmingTool
 
@@ -167,11 +166,12 @@ print OrthoTrig_MidpTMuonEventSkimmingTool
 # && [orthogonal trigger] event
 
 OrthoTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="OrthoTrig_pTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventSkimmingTool, OrthoTrig_MidpTMuonEventSkimmingTool])
-ToolSvc+=OrthoTrig_pTMuonEventSkimmingTool
+ToolSvc += OrthoTrig_pTMuonEventSkimmingTool
 print OrthoTrig_pTMuonEventSkimmingTool
 
 OrthoTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="OrthoTrig_EventSkimmingTool",FilterList=[OrthoTrig_pTMuonEventSkimmingTool, OrthoTrig_TriggerSkimmingTool])
-ToolSvc+=OrthoTrig_EventSkimmingTool
+
+ToolSvc += OrthoTrig_EventSkimmingTool
 print OrthoTrig_EventSkimmingTool
 
 # ------------------------------------------------
@@ -194,6 +194,7 @@ print JPsiTrig_PrescaleSkimmingTool
 # Jpsi trig events accepted if there is:
 # Jpsi trigger (+ prescale)
 JpsiTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="JpsiTrig_EventSkimmingTool",FilterList=[JPsiTrig_PrescaleSkimmingTool, JPsiTrig_TriggerSkimmingTool])
+
 ToolSvc += JpsiTrig_EventSkimmingTool
 print JpsiTrig_EventSkimmingTool
 
@@ -221,7 +222,7 @@ print MuonHLTTrig_DiMuonEventPrescaleSkimmingTool
 
 MuonHLTTrig_DiMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_DiMuonEventSkimmingTool",FilterList=[MuonHLTTrig_DiMuonEventStringSkimmingTool,\
                                                                                                                                            MuonHLTTrig_DiMuonEventPrescaleSkimmingTool])
-ToolSvc+=MuonHLTTrig_DiMuonEventSkimmingTool
+ToolSvc += MuonHLTTrig_DiMuonEventSkimmingTool
 print MuonHLTTrig_DiMuonEventSkimmingTool
 
 # ------------------------------------------------
@@ -237,18 +238,18 @@ ToolSvc += MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
 print MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
 
 MuonHLTTrig_MidpTMuonEventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_MidpTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTEventStringSkimmingTool, MuonHLTTrig_MidpTMuonPrescaleSkimmingTool])
-ToolSvc+=MuonHLTTrig_MidpTMuonEventSkimmingTool
+ToolSvc += MuonHLTTrig_MidpTMuonEventSkimmingTool
 print MuonHLTTrig_MidpTMuonEventSkimmingTool
 
 # ------------------------------------------------
 # Muon HLT selection with combined logic
 
 MuonHLTTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="MuonHLTTrig_pTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTMuonEventSkimmingTool, MuonHLTTrig_DiMuonEventSkimmingTool])
-ToolSvc+=MuonHLTTrig_pTMuonEventSkimmingTool
+ToolSvc += MuonHLTTrig_pTMuonEventSkimmingTool
 print MuonHLTTrig_pTMuonEventSkimmingTool
 
 MuonHLTTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_EventSkimmingTool",FilterList=[MuonHLTTrig_pTMuonEventSkimmingTool, MuonHLTTrig_TriggerSkimmingTool])
-ToolSvc+=MuonHLTTrig_EventSkimmingTool
+ToolSvc += MuonHLTTrig_EventSkimmingTool
 print MuonHLTTrig_EventSkimmingTool
 
 # ================================================
@@ -268,7 +269,6 @@ if primDPDAlignTrigMu.doAlignmentFormat():
 else:
     EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
     ToolSvc+=EventFilterTool
-    print EventFilterTool
     desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[EventFilterTool])
 
 # ------------------------
@@ -295,8 +295,6 @@ if primDPD.WriteDESDM_MSPerfStream.isVirtual or primDPD.isVirtual() :
     pass
 else:
     AlignmentTriggerMuonStream = MSMgr.NewPoolStream( streamName, fileName )
-    # Add the per-event bookkeeping 
-    AlignmentTriggerMuonStream.AddOtherAlgsToBookkeep( algsToBookkeep )
     pass
 
 if primDPDAlignTrigMu.ApplyThinning():
@@ -363,8 +361,11 @@ AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCo
 AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleContainer#MuonTruthParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux."])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"+trackParticleAuxExclusions]) #Really want to skim/slim this guy
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+trackParticleAuxExclusions]) #Really want to skim/slim this guy
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"]) #Really want to skim/slim this guy //for ID Alignment
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]) #Really want to skim/slim this guy
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles"])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux."])
+
 AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileMuonReceiverContainer#TileMuRcvCnt"])

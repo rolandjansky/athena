@@ -21,8 +21,7 @@
 #include "xAODCore/AuxContainerBase.h"
 
 // local includes
-#include "xAODForward/AFPSiHitsCluster.h"
-
+#include "xAODForward/versions/AFPSiHitsCluster_v1.h"
 
 namespace xAOD {
 
@@ -47,7 +46,7 @@ namespace xAOD {
     std::vector< float > zLocalErr;
     std::vector< float > depositedCharge;
     std::vector< int > nHits;
-    std::vector< std::vector<AFPSiHitsCluster::AFPHitLink_t> > hitsLinks;
+    std::vector< std::vector<AFPSiHitsCluster_v1::AFPHitLink_t> > hitsLinks;
     std::vector< int > clusterAlgID;
 
   }; // class AFPSiHitsClusterAuxContainer_v1

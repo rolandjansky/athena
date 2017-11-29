@@ -30,6 +30,17 @@ public:
   inline float MinEnergyForMoments() const {return m_E_min_moment;};
   inline float MinEnergySigForMoments() const {return m_E_sig_moment;};
   inline bool usesCells() const {return m_useCells;};
+
+
+  inline const xAOD::HIEventShapeContainer* getShape() const {return m_shape;};
+  inline const HIEventShapeIndex* getIndex() const {return m_index;};
+  inline const IHIUEModulatorTool* getModulator() const {return m_modulator;};
+  inline void setShape(const xAOD::HIEventShapeContainer* s) {m_shape=s;};
+  inline void setIndex(const HIEventShapeIndex* ind) {m_index=ind;};
+  inline void setModulator(const IHIUEModulatorTool* mod) {m_modulator=mod;};
+
+  virtual StatusCode configureEvent(const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const IHIUEModulatorTool* modulator);
+
 private:
 
   /// %% FIX needs some cleanup
@@ -37,6 +48,10 @@ private:
   float m_E_sig_moment;
   bool m_update_clusters;
   bool m_useCells;
+
+  const xAOD::HIEventShapeContainer* m_shape;
+  const HIEventShapeIndex* m_index;
+  const IHIUEModulatorTool* m_modulator;
 
 protected:
   inline void SetMinEnergyForMoment(float min_E) {m_E_min_moment=min_E;};
@@ -49,6 +64,8 @@ protected:
   
 
   inline void setUseCells(bool v) {m_useCells=v;};
+
+
 
 };
 

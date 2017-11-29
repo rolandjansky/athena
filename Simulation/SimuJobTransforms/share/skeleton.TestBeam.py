@@ -1,3 +1,8 @@
+## Get the logger
+from AthenaCommon.Logging import *
+atlasG4log = logging.getLogger('TestBeam')
+atlasG4log.info('****************** STARTING ATLASG4 Test Beam ******************')
+
 ## Include common skeleton
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
@@ -8,20 +13,15 @@ svcMgr.MessageSvc.useColors = False
 if hasattr(runArgs, 'useISF') and runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=True, please use Sim_tf.py!")
 
-## Get the logger
-from AthenaCommon.Logging import *
-testBeamlog = logging.getLogger('TestBeam')
-testBeamlog.info('****************** STARTING ATLASG4 Test Beam ******************')
-
 ## Simulation flags need to be imported first
 from G4AtlasApps.SimFlags import simFlags
 
 ## Set simulation geometry tag
 if hasattr(runArgs, 'geometryVersion'):
     simFlags.SimLayout.set_Value_and_Lock(runArgs.geometryVersion)
-    testBeamlog.debug('SimLayout set to %s' % simFlags.SimLayout)
+    atlasG4log.debug('SimLayout set to %s' % simFlags.SimLayout)
 else:
-    testBeamlog.info('no geometryVersion specified, so assuming tb_Tile2000_2003_5B')
+    atlasG4log.info('no geometryVersion specified, so assuming tb_Tile2000_2003_5B')
     simFlags.SimLayout.set_Value_and_Lock('tb_Tile2000_2003_5B')
 
 ## Load the test beam flags
@@ -33,7 +33,7 @@ if hasattr(runArgs, 'testBeamConfig'):
     else:
         raise RuntimeError("testBeamConfig %s is unknown." % runArgs.testBeamConfig)
 else:
-    testBeamlog.info('no testBeamConfig specified, so assuming tbtile')
+    atlasG4log.info('no testBeamConfig specified, so assuming tbtile')
     simFlags.load_tbtile_flags()
 
 ## AthenaCommon flags
@@ -54,7 +54,7 @@ if hasattr(runArgs, "inputEvgenFile"):
     # We don't expect both inputFile and inputEvgenFile to be specified
     athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputEvgenFile )
 else:
-    testBeamlog.info('No inputEvgenFile provided. Assuming that you are running a generator on the fly.')
+    atlasG4log.info('No inputEvgenFile provided. Assuming that you are running a generator on the fly.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
 
 ## Output hits file config
@@ -63,14 +63,14 @@ if hasattr(runArgs, "outputHITSFile"):
 elif hasattr(runArgs, "outputHitsFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHitsFile )
 else:
-    testBeamlog.info('No outputHitsFile provided. This simulation job will not write out any HITS file.')
+    atlasG4log.info('No outputHitsFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
 
 ## Write out runArgs configuration
-testBeamlog.info( '**** Transformation run arguments' )
-testBeamlog.info( str(runArgs) )
+atlasG4log.info( '**** Transformation run arguments' )
+atlasG4log.info( str(runArgs) )
 
 
 #==============================================================
@@ -78,9 +78,9 @@ testBeamlog.info( str(runArgs) )
 #==============================================================
 ## Pre-exec
 if hasattr(runArgs, "preExec"):
-    testBeamlog.info("transform pre-exec")
+    atlasG4log.info("transform pre-exec")
     for cmd in runArgs.preExec:
-        testBeamlog.info(cmd)
+        atlasG4log.info(cmd)
         exec(cmd)
 
 ## Pre-include
@@ -118,27 +118,27 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    testBeamlog.warning('randomSeed not set')
+    atlasG4log.warning('randomSeed not set')
 
 if hasattr(runArgs,"Eta") and ( hasattr(runArgs,"Theta") or hasattr(runArgs,"Z") ):
     raise RuntimeError("Eta cannot be specified at the same time as Theta and Z.")
 
 if hasattr(runArgs,"Eta"):
-    testBeamlog.info('Overriding simFlags.Eta from command-line. simFlags.Eta = %s', runArgs.Eta)
+    atlasG4log.info('Overriding simFlags.Eta from command-line. simFlags.Eta = %s', runArgs.Eta)
     simFlags.Eta = runArgs.Eta
 
 if hasattr(runArgs,"Theta") or hasattr(runArgs,"Z"):
     if hasattr(runArgs,"Theta"):
-        testBeamlog.info('Overriding simFlags.Theta from command-line. simFlags.Theta = %s', runArgs.Theta)
+        atlasG4log.info('Overriding simFlags.Theta from command-line. simFlags.Theta = %s', runArgs.Theta)
         simFlags.Theta = runArgs.Theta
     else:
-        testBeamlog.info('Z specified on the commmand-line without Theta, so will use simFlags.Theta = 90')
+        atlasG4log.info('Z specified on the commmand-line without Theta, so will use simFlags.Theta = 90')
         simFlags.Theta=90
     if hasattr(runArgs,"Z"):
-        testBeamlog.info('Overriding simFlags.Z from command-line. simFlags.Z = %s', runArgs.Z)
+        atlasG4log.info('Overriding simFlags.Z from command-line. simFlags.Z = %s', runArgs.Z)
         simFlags.Z = runArgs.Z
     else:
-        testBeamlog.info('Theta specified on the commmand-line without Z, so will use simFlags.Z = 2550.0')
+        atlasG4log.info('Theta specified on the commmand-line without Z, so will use simFlags.Z = 2550.0')
         simFlags.Z = 2550.0
 
 if hasattr(runArgs,"Phi"):
@@ -149,13 +149,13 @@ if hasattr(runArgs,"Y"):
 ## Set the Run Number (if required)
 if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
-        testBeamlog.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
+        atlasG4log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
-        testBeamlog.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
+        atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
-        testBeamlog.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+        atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
 
 # uncomment and modify any of options below to have non-standard simulation
 from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
@@ -231,11 +231,15 @@ try:
     from RecAlgs.RecAlgsConf import TimingAlg
     topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
 except:
-    testBeamlog.warning('Could not add TimingAlg, no timing info will be written out.')
+    atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
+
+include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
 ## Add G4 alg to alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+#from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg #HACK
+#topSeq += PyG4AtlasAlg() #HACK
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 print topSeq
 
@@ -259,9 +263,9 @@ if hasattr(runArgs, "postInclude"):
 
 ## Post-exec
 if hasattr(runArgs, "postExec"):
-    testBeamlog.info("transform post-exec")
+    atlasG4log.info("transform post-exec")
     for cmd in runArgs.postExec:
-        testBeamlog.info(cmd)
+        atlasG4log.info(cmd)
         exec(cmd)
 
 
@@ -279,4 +283,4 @@ if hasattr(runArgs, "enableLooperKiller") and runArgs.enableLooperKiller:
     except AttributeError:
         atlasG4log.warning("Could not add the MT-version of the LooperKiller")
 else:
-    testBeamlog.warning("The looper killer will NOT be run in this job.")
+    atlasG4log.warning("The looper killer will NOT be run in this job.")

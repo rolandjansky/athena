@@ -41,8 +41,6 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   TVectorD*    LowerBounds   =m_LowerBounds[pcabin-1];
   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
 
-  if(verbose) std::cout<<"Gauss_means "<<Gauss_means<<std::endl;
-
   /*
     for(unsigned int i=0;i<CaloCell_ID_FCS::MaxSample;++i)
     simulstate.add_E(i,truth->Ekin()/CaloCell_ID_FCS::MaxSample);
@@ -65,13 +63,6 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   double* vals_gauss_means=(double*)Gauss_means->GetMatrixArray();
   double* vals_gauss_rms  =Gauss_rms->GetMatrixArray();
   double* vals_lowerBounds=LowerBounds->GetMatrixArray();
-
-  if(verbose)
-    {
-      std::cout<<"vals_gauss_means "<<vals_gauss_means<<" size "<<sizeof(vals_gauss_means)<<std::endl;
-      std::cout<<"vals_gauss_rms   "<<vals_gauss_rms<<std::endl;
-      std::cout<<"vals_lowerBounds "<<vals_lowerBounds<<std::endl;
-    }
 
   double *output_data = new double[layer.size()] ;
   double *input_data = new double[layer.size()]  ;
@@ -104,13 +95,19 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
 
       simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform[l]);
 
+      if(verbose)
+        std::cout<<"l "<<l<<" input_data[l] "<<input_data[l]<<" output_data[l] "<<output_data[l]<<" simdata_uniform[l] "<<simdata_uniform[l]<<" simdata[l] "<<simdata[l]<<std::endl;
+
       if(simdata[l]<0) simdata[l]=0;
       if(layer[l]!="totalE" && simdata[l]>1) simdata[l]=1;
       if(layer[l]!="totalE") sum_fraction+=simdata[l];
+
     }
 
   //RECSCALE SO THAT THE SUM GIVES 1
   double scale=1.0/sum_fraction;
+
+  if(verbose) std::cout<<" scale factor: "<<scale<<" sum_fraction "<<sum_fraction<<std::endl;
 
   sum_fraction=0.0;
 
@@ -141,16 +138,6 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
         }
       simulstate.set_Efrac(s,energyfrac);
       simulstate.set_E(s,energyfrac*total_energy);
-    }
-
-
-  if(verbose)
-    {
-      std::cout<<"Result:"<<std::endl;
-      for(unsigned int l=0;l<layerNr.size();l++)
-        std::cout<<"  Energy fraction deposited in Layer "<<layerNr[l]<<" = "<<simdata_scaled[l]<<std::endl;
-      std::cout<<"  Sum of energy fractions = "<<sum_fraction<<std::endl;
-      std::cout<<"  Total Energy = "<<simulstate.E()<<" MeV "<<std::endl;
     }
 
   delete Random3;

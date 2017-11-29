@@ -442,7 +442,7 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -452,7 +452,10 @@ else:
       if (not 'InDetNewTrackingCutsLargeD0' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsLargeD0 not set before - import them now"      
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
+        if InDetFlags.doLowPtLargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        else:
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
       InDetNewTrackingCutsLargeD0.printInfo()
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
       # ----- Include (in the case of ESD processing) the standard tracks

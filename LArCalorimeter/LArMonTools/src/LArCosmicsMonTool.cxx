@@ -106,19 +106,19 @@ LArCosmicsMonTool::~LArCosmicsMonTool()
 StatusCode 
 LArCosmicsMonTool::initialize()
 {
-  msg(MSG::INFO) << "Initialize LArCosmicsMonTool" << endmsg;
+  ATH_MSG_INFO( "Initialize LArCosmicsMonTool" );
   StatusCode sc;
   
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
+    ATH_MSG_FATAL( "Could not get LArOnlineIDHelper" );
     return sc;
   }
   
   // Retrieve ID helpers
   sc =  detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endmsg;
+    ATH_MSG_FATAL( "Could not get CaloIdMgr" );
     return sc;
   }
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
@@ -128,7 +128,7 @@ LArCosmicsMonTool::initialize()
   // CaloDetDescrMgr gives "detector description", including real positions of cells
   sc = detStore()->retrieve(m_CaloDetDescrMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endmsg;
+    ATH_MSG_FATAL( "Could not get CaloDetDescrMgr ");
     return sc;
   }
   
@@ -136,19 +136,19 @@ LArCosmicsMonTool::initialize()
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
+    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
     return StatusCode::FAILURE;
   }
   
   // initialize monitoring bookkeeping info
   sc = this->initMonInfo();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not initialize monitoring bookkeeping info" << endmsg;
+    ATH_MSG_ERROR( "Could not initialize monitoring bookkeeping info" );
   }
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
-  msg(MSG::DEBUG) << "Successful Initialize LArCosmicsMonTool " << endmsg;
+  ATH_MSG_DEBUG( "Successful Initialize LArCosmicsMonTool " );
   return StatusCode::SUCCESS;
 }
 
@@ -156,7 +156,7 @@ LArCosmicsMonTool::initialize()
 StatusCode 
 LArCosmicsMonTool::bookHistograms() {
 
-  msg(MSG::DEBUG) << "in bookHists()" << endmsg;
+  ATH_MSG_DEBUG( "in bookHists()" );
   
   //  if(isNewRun ){// Commented by B.Trocme to comply with new ManagedMonitorToolBase
     m_newrun=true;
@@ -248,7 +248,7 @@ LArCosmicsMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 StatusCode 
 LArCosmicsMonTool::fillHistograms() {
-  msg(MSG::DEBUG) << "in fillHists()" << endmsg;
+  ATH_MSG_DEBUG( "in fillHists()" );
   StatusCode sc;
   
   // Increment event counter
@@ -265,8 +265,8 @@ LArCosmicsMonTool::fillHistograms() {
   const LArDigitContainer* pLArDigitContainer;
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endmsg;
+    ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
+		      << m_LArDigitContainerKey );
     return StatusCode::SUCCESS;
   }
   
@@ -274,7 +274,7 @@ LArCosmicsMonTool::fillHistograms() {
   if(m_newrun) {
     sc=detStore()->retrieve(m_larPedestal,m_larPedestalKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot retrieve pedestal(s) from Conditions Store!" << endmsg;
+      ATH_MSG_ERROR( "Cannot retrieve pedestal(s) from Conditions Store!" );
     }  
     m_newrun=false;
   }
@@ -295,7 +295,7 @@ LArCosmicsMonTool::fillHistograms() {
     float eta = 0; float phi = 0;
     sc = returnEtaPhiCoord(offlineID, eta, phi);
     if(sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates" << endmsg;
+      ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates" );
       continue;
     } 
     
@@ -426,20 +426,20 @@ LArCosmicsMonTool::fillHistograms() {
 StatusCode LArCosmicsMonTool::procHistograms()
 {
     
-  msg(MSG::DEBUG) << "End of procHistograms " << endmsg;
+  ATH_MSG_DEBUG( "End of procHistograms " );
   return StatusCode::SUCCESS;
 }
 /*---------------------------------------------------------*/
 StatusCode LArCosmicsMonTool::initMonInfo()  
 {
-  msg(MSG::DEBUG) << "in initMonInfo()" << endmsg;
+  ATH_MSG_DEBUG( "in initMonInfo()" );
   
   std::vector<CaloGain::CaloGain> gains;
   gains.push_back(CaloGain::LARHIGHGAIN);
   gains.push_back(CaloGain::LARMEDIUMGAIN);
   gains.push_back(CaloGain::LARLOWGAIN); 
   
-  msg(MSG::DEBUG) << "Init Monitoring ended successfully " << endmsg;
+  ATH_MSG_DEBUG( "Init Monitoring ended successfully " );
   return StatusCode::SUCCESS;
 }
 

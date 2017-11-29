@@ -30,27 +30,27 @@ StatusCode LArAutoCorr2Ntuple::stop() {
  NTuple::Item<long> gain, cellIndex;
  sc=m_nt->addItem("gain",gain,0,3);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+   ATH_MSG_ERROR( "addItem 'gain' failed" );
    return StatusCode::FAILURE;
  }
 
  sc=m_nt->addItem("cellIndex",cellIndex,0,200000);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'cellIndex' failed" << endreq;
+   ATH_MSG_ERROR( "addItem 'cellIndex' failed" );
    return StatusCode::FAILURE;
  }
 
  sc=m_nt->addItem("covr",m_nsamples-1,cov);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'covr' failed" << endreq;
+   ATH_MSG_ERROR( "addItem 'covr' failed" );
    return StatusCode::FAILURE;
  }
 
  const ILArAutoCorr* larAutoCorr;
  sc=m_detStore->retrieve(larAutoCorr,m_objKey);
  if (sc!=StatusCode::SUCCESS){
-   (*m_log) << MSG::ERROR << "Unable to retrieve ILArAutoCorr with key " 
-       << m_objKey << " from DetectorStore" << endreq;
+   ATH_MSG_ERROR( "Unable to retrieve ILArAutoCorr with key " 
+       << m_objKey << " from DetectorStore" );
    return StatusCode::FAILURE;
  } 
 
@@ -73,7 +73,7 @@ StatusCode LArAutoCorr2Ntuple::stop() {
 
        sc = ntupleSvc()->writeRecord(m_nt);
        if (sc!=StatusCode::SUCCESS) {
-	 (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	 ATH_MSG_ERROR( "writeRecord failed" );
 	 return StatusCode::FAILURE;
        }
        cellCounter++;
@@ -81,7 +81,7 @@ StatusCode LArAutoCorr2Ntuple::stop() {
    }//end if loop over cells
  }//end if loop over gains
  
- (*m_log) << MSG::INFO << "LArAutoCorr2Ntuple has finished, " << cellCounter << "records written, " << cellZeroCounter << " zero length vectors" << endreq;
+ ATH_MSG_INFO( "LArAutoCorr2Ntuple has finished, " << cellCounter << "records written, " << cellZeroCounter << " zero length vectors" );
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

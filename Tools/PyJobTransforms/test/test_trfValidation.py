@@ -178,7 +178,7 @@ class eventCheckTests(unittest.TestCase):
                                          'maxEvents': None,
                                          'evAccEff': 0.99})
         self.assertRaises(trfExceptions.TransformValidationException, evmatch.decide)
-        
+
     def test_inputGlobWithFail(self):
         evmatch = eventMatch(executor=None)
         evmatch.configureCheck(override={'inEventDict': {'NTUP_ZEE': 100},
@@ -209,6 +209,17 @@ class athenaLogFileReportTests(unittest.TestCase):
         testErrorExcerpt = '''
 09:36:22 Py:Athena            INFO including file "eflowRec/eflowRecESDList.py"
 09:36:22 Py:Athena            ERROR too many floobles'''
+
+        testLogExcerptMP = '''
+10:43:11 Thu Mar 30 10:43:11 CEST 2017
+10:47:28 2017-03-30 10:46:30,037 AthMpEvtLoopMgr.SharedEvtQueueProvider            INFO Logs redirected in the AthenaMP event event counter PID=18296
+10:47:29 2017-03-30 10:47:03,885 ToolSvc.InDetImpactPoint3dEstimator               WARNING  DeltaR and MomentumDir are not orthogonal'''
+
+        testErrorExcerptMP = '''
+10:43:11 Thu Mar 30 10:43:11 CEST 2017
+10:47:28 2017-03-30 10:46:30,037 AthMpEvtLoopMgr.SharedEvtQueueProvider            INFO Logs redirected in the AthenaMP event event counter PID=18296
+10:47:29 2017-03-30 10:47:03,885 ToolSvc.InDetImpactPoint3dEstimator               WARNING  DeltaR and MomentumDir are not orthogonal
+10:47:28 2017-03-30 10:47:14,698 DRAW_TOPSLMUKernel                                ERROR Incompatible vectors - different length'''
 
         testBadAlloc = '''
 22:41:12 EventCounter                                         INFO EventCounter:EventCounter::execute - seen events: 9800
@@ -513,6 +524,9 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f8, testMissedBadAlloc
         with open('file9', 'w') as f9:
             print >> f9, testDbMonitor
+        with open('file10', 'w') as f10:
+            print >> f10, testLogExcerptMP
+            print >> f10, testErrorExcerptMP
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -523,9 +537,11 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport7 = athenaLogFileReport('file7')
         self.myFileReport8 = athenaLogFileReport('file8')
         self.myFileReport9 = athenaLogFileReport('file9')
+        self.myFileReport10 = athenaLogFileReport('file10')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10',\
+                 'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)
             except OSError:
@@ -548,6 +564,49 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.assertEqual(self.myFileReport3.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR, 
                                                            'firstError': {'count': 1, 'firstLine': 15,
                                                                           'message': 'Py:Athena            ERROR too many floobles'},})
+
+    def test_logscanErrorMP(self):
+        self.assertEqual(self.myFileReport10.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR,
+                                                           'firstError': {'count': 1, 'firstLine': 9,
+                                                                          'message': 'DRAW_TOPSLMUKernel                                ERROR Incompatible vectors - different length'},})
+
+    def test_logscanErrorWithSubstepNameSerial(self):
+        testLogERRORwithSubstepNameSerial = '''
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   INFO    ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   WARNING Frag has unexpected size ignoring 6 words to end of ROD frag
+RAWtoALL 22:21:40 ToolSvc.TileROD_Decoder   ERROR   ROB 540007 ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 AlgErrorAuditor           ERROR   Illegal Return Code: Algorithm ManagedAthenaTileMon reported an \
+ERROR, but returned a StatusCode "SUCCESS"'''
+
+        logFileName = 'logWithSubstepNameSerial'
+        with open(logFileName, 'w') as logFile:
+            print >> logFile, testLogERRORwithSubstepNameSerial
+
+        logFileReportSerial = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
+        expectedError = dict(level='ERROR', nLevel=logging.ERROR,
+                             firstError=dict(count=1, firstLine=4, message='ToolSvc.TileROD_Decoder   ERROR   ROB 54'
+                                                                           '0007 ROD 540007 has unexpected data size'))
+        self.assertEqual(logFileReportSerial.worstError(), expectedError)
+
+    def test_logscanErrorWithSubstepNameMP(self):
+        testLogERRORwithSubstepNameMP = '''
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   INFO    ROD 540007 has unexpected data size
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   WARNING Frag 0x40f has unexpected size ignoring \
+6 words till the end of ROD frag
+RAWtoALL 22:21:40 2017-07-13 19:23:38,171 ToolSvc.TileROD_Decoder   ERROR   ROB 540007 ROD 540007 has unexpected \
+data size
+RAWtoALL 22:21:40 2017-07-13 19:23:38,184 AlgErrorAuditor           ERROR   Illegal Return Code: Algorithm \
+ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
+
+        logFileName = 'logWithSubstepNameMP'
+        with open(logFileName, 'w') as logFile:
+            print >> logFile, testLogERRORwithSubstepNameMP
+
+        logFileReportMP = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
+        expectedError = dict(level='ERROR', nLevel=logging.ERROR,
+                             firstError=dict(count=1, firstLine=4, message='ToolSvc.TileROD_Decoder   ERROR   ROB '
+                                                                           '540007 ROD 540007 has unexpected data size'))
+        self.assertEqual(logFileReportMP.worstError(), expectedError)
 
     def test_badAlloc(self):
         self.assertEqual(self.myFileReport4.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],

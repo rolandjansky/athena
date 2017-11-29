@@ -3,7 +3,6 @@
 */
 
 #include "G4UserActions/HIPLArVolumeAccept.h"
-#include <iostream>
 
 #include "G4Event.hh"
 #include "G4Step.hh"
@@ -23,9 +22,8 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void HIPLArVolumeAccept::processStep(const G4Step* aStep){
-
-
+  void HIPLArVolumeAccept::processStep(const G4Step* aStep)
+  {
     int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 
     // check if PDG code compatible with HIP (Monopole:411xxx0 or Qball:100xxxx0)
@@ -55,12 +53,12 @@ namespace G4UA
 
   //---------------------------------------------------------------------------
   void HIPLArVolumeAccept::beginOfEvent(const G4Event*){
-    m_HIPacc=false;
+    m_HIPacc = false;
   }
 
   //---------------------------------------------------------------------------
-  void HIPLArVolumeAccept::endOfEvent(const G4Event*){
-
+  void HIPLArVolumeAccept::endOfEvent(const G4Event*)
+  {
     m_report.HIPevts++;
     if(!m_HIPacc)
       {
@@ -70,7 +68,6 @@ namespace G4UA
         m_report.HIPevts_failed++;
         ATH_MSG_INFO("HIPLArVolumeAccept: no HIP reach the LAr detector volumes. Event aborted.");
       }
-
   }
 
 } // namespace G4UA

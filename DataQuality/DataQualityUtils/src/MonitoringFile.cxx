@@ -855,7 +855,7 @@ mergeFiles( std::string outFileName, std::string listFileName )
 {
   typedef std::vector< std::string >  FileList_t;
   
-  const unsigned int nFilesAtOnce = 10;
+  const unsigned int nFilesAtOnce = 50;
   
   FileList_t allFiles;
   bool success = setListFromFile( allFiles, listFileName );
@@ -869,8 +869,8 @@ mergeFiles( std::string outFileName, std::string listFileName )
     return;
   }
   
-  FileList_t procFiles;
-  
+  FileList_t procFiles, tmpIntermediateFiles;
+
   
   FileList_t::const_iterator filesEnd = allFiles.end();
   FileList_t::const_iterator fi       = allFiles.begin();
@@ -879,8 +879,20 @@ mergeFiles( std::string outFileName, std::string listFileName )
   std::string tmpInputFile("");
   std::string tmpOutputFile("");
   
+  // new logic: merge intermediately, then merge intermediate files
   while( fi != filesEnd ) {
     
+    procFiles.push_back(*fi);
+    ++counter; ++fi;
+    if ( counter % nFilesAtOnce == 0 || fi == filesEnd ) {
+      std::ostringstream nameStream;
+      nameStream << "tmp_merge_" << counter << ".root";
+      tmpOutputFile = nameStream.str();
+      tmpIntermediateFiles.push_back(tmpOutputFile);
+      mergeFiles( tmpOutputFile, procFiles );
+      procFiles.clear();
+      }
+    /*    
     if( counter == 0 ) {
       tmpOutputFile = *fi;
     }
@@ -904,16 +916,21 @@ mergeFiles( std::string outFileName, std::string listFileName )
     if( fi != filesEnd ) {
       procFiles.push_back( *fi );
     }
-    
+    */ 
   }
-  
+
+  /*  
   if( std::rename(tmpOutputFile.c_str(),outFileName.c_str()) == 0 ) {
     std::cout << "Renaming " << tmpOutputFile << " as " << outFileName << "\n";
   }
   else {
     std::cerr << "Cannot rename " << tmpOutputFile << " as " << outFileName << "\n";
   }
-  
+  */
+  mergeFiles(outFileName, tmpIntermediateFiles);
+  for (const auto& tmpFile : tmpIntermediateFiles) {
+    std::remove(tmpFile.c_str());
+    }
 }
 
 

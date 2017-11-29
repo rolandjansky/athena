@@ -11,7 +11,8 @@ DRAW_BCID1_Seq = CfgMgr.AthSequencer("DRAW_BCID1_Seq")
 
 from PrimaryDPDMaker.PrimaryDPDMakerConf import BCIDFilterTool
 bcidFilterTool = BCIDFilterTool( name        = "BCID1Filter",
-                                 AcceptBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID1.AcceptBCIDs
+                                 AcceptBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID1.AcceptBCIDs,
+                                 RejectBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID1.RejectBCIDs
                                  )
 
 bcidFilterTool.OutputLevel = 3 # INFO

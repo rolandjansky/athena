@@ -233,8 +233,8 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   StatusCode sc = StatusCode::SUCCESS ;
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToConfFile);
-    m_rootTool->isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToMask);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::PhotonCutPointToConfFile);
+    m_rootTool->isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::PhotonCutPointToMask);
   }
 
   if(!m_configFile.empty()){

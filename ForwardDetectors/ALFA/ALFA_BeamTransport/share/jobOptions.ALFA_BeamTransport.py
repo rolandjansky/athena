@@ -15,5 +15,7 @@ SimFlags.MagneticField.set_Off()
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 include("ALFA_BeamTransport/ALFA_BeamTransportConfig.py")

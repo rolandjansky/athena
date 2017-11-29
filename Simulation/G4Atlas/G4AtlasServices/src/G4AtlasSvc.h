@@ -32,7 +32,7 @@ class G4AtlasSvc : public AthService , public virtual IG4AtlasSvc {
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
   ToolHandle<IPhysicsListTool> m_physicsListTool;
-
+  bool m_isMT;
   bool m_activateParallelGeometries;
 };
 

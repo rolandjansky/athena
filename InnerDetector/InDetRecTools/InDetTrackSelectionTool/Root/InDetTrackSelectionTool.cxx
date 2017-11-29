@@ -89,8 +89,8 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 		  "Eta cutoff for strict silicon hits cut");
   declareProperty("minNSiHitsAboveEtaCutoff", m_minNSiHitsAboveEtaCutoff,
 		  "Minimum silicon hits at large pseudorapidity");
-  declareProperty("maxOneSharedModule", m_maxOneSharedModule,
-		  "Allow only 1 shared pixel hit or 2 shared SCT hits, not both");
+  declareProperty("maxNSiSharedModules", m_maxNSiSharedModules,
+		  "Maximum (pixel + SCT/2) shared hits");
   declareProperty("useEtaDependentMaxChiSq", m_useEtaDependentMaxChiSq,
 		  "Whether or not to use the eta-dependent chi squared per degree of freedom cut");
   declareProperty("minNSiHitsPhysical", m_minNSiHitsPhysical,
@@ -140,6 +140,11 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
   declareProperty("vecEtaCutoffsForSiHitsCut", m_vecEtaCutoffsForSiHitsCut,
 		  "Minimum eta cutoffs for each Silicon hit cut");
   declareProperty("vecMinNSiHitsAboveEta", m_vecMinNSiHitsAboveEta, "Minimum Silicon hits above each eta cutoff");
+  declareProperty("vecEtaCutoffsForPtCut", m_vecEtaCutoffsForPtCut,
+                  "Minimum eta cutoffs for each pT cut");
+  declareProperty("vecMinPtAboveEta", m_vecMinPtAboveEta, "Minimum transverse momentum above each eta cutoff");
+
+
   declareProperty("vecPtCutoffsForSctHitsCut", m_vecPtCutoffsForSctHitsCut,
 		  "Minimum pt cutoffs for each SCT hits");
   declareProperty("vecMinNSctHitsAbovePt", m_vecMinNSctHitsAbovePt, "Minimum SCT hits above each pt cutoff");
@@ -411,13 +416,12 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     maxSiSharedHits->addSummaryType( xAOD::numberOfSCTSharedHits );
     m_trackCuts["SiHits"].push_back(std::move(maxSiSharedHits));
   }
-  if (m_maxOneSharedModule) {
-    ATH_MSG_INFO( "  No more than one shared module:" );
-    ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
-    ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
+  if (maxIntIsSet(m_maxNSiSharedModules)) {
+    ATH_MSG_INFO( "  No more than " << m_maxNSiSharedModules << " shared Si module(s)" );
+    ATH_MSG_INFO( "    (where a \"shared module\" is 1 shared pixel hit or 2 shared SCT hits)" );
     auto oneSharedModule = make_unique< FuncSummaryValueCut<2> >
       (this, std::array<xAOD::SummaryType, 2>({xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}) );
-    oneSharedModule->setFunction( [=] (const std::array<uint8_t, 2> vals) {return vals[0] + vals[1]/2 <= 1;} );
+    oneSharedModule->setFunction( [=] (const std::array<uint8_t, 2> vals) {return vals[0] + vals[1]/2 <= m_maxNSiSharedModules;} );
     m_trackCuts["SiHits"].push_back(std::move(oneSharedModule));
   }
   if (m_minNSiHitsIfSiSharedHits > 0) {
@@ -593,13 +597,31 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
       ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForSiHitsCut.at(i_cut)
 		    << " < eta < " << m_vecEtaCutoffsForSiHitsCut.at(i_cut+1)
-		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
+		    << " ,Silicon hits  >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
     }
     ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForSiHitsCut.at(cutSize-1)
 		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
     auto siHitCut = make_unique<EtaDependentSiliconHitsCut>
       (this, m_vecEtaCutoffsForSiHitsCut, m_vecMinNSiHitsAboveEta);
     m_trackCuts["SiHits"].push_back(std::move(siHitCut));
+  }
+
+  if (!m_vecEtaCutoffsForPtCut.empty() || !m_vecMinPtAboveEta.empty()) {
+    auto cutSize = m_vecEtaCutoffsForPtCut.size();
+    if (cutSize != m_vecMinPtAboveEta.size()) {
+      ATH_MSG_ERROR( "Eta cutoffs and pT cuts must be vectors of the same length." );
+      return StatusCode::FAILURE;
+    }
+    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+      ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForPtCut.at(i_cut)
+                    << " < eta < " << m_vecEtaCutoffsForPtCut.at(i_cut+1)
+                    << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(i_cut) );
+    }
+    ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForPtCut.at(cutSize-1)
+		  << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(cutSize-1) );
+    auto ptCut = make_unique<EtaDependentPtCut>
+      (this, m_vecEtaCutoffsForPtCut, m_vecMinPtAboveEta);
+    m_trackCuts["Pt"].push_back(std::move(ptCut));
   }
 
 
@@ -936,7 +958,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
       m_maxNSiHoles = LOCAL_MAX_INT;
       m_minEtaForStrictNSiHitsCut = LOCAL_MAX_DOUBLE;
       m_minNSiHitsAboveEtaCutoff = -1;
-      m_maxOneSharedModule = false;
+      m_maxNSiSharedModules = LOCAL_MAX_INT;
       m_maxTrtEtaAcceptance = LOCAL_MAX_DOUBLE;
       m_maxEtaForTrtHitCuts = -1.; // this is really a minimum eta above which cuts are not applied
       m_minNTrtHits = -1;
@@ -963,7 +985,8 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
 #endif
       m_vecEtaCutoffsForSiHitsCut.clear();
       m_vecMinNSiHitsAboveEta.clear();
-     
+      m_vecEtaCutoffsForPtCut.clear();
+      m_vecMinPtAboveEta.clear();
       m_vecPtCutoffsForSctHitsCut.clear();
       m_vecMinNSctHitsAbovePt.clear();
     }
@@ -973,7 +996,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     // change the cuts if a hard overwrite is asked for or if the cuts are unset
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
-    m_maxOneSharedModule = true;
+    if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 1;
     if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
     if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 1;
     break;
@@ -981,7 +1004,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
-    m_maxOneSharedModule = true;
+    if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 1;
     if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
     if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 1;
     if (overwrite || m_minNSiHitsIfSiSharedHits < 0) m_minNSiHitsIfSiSharedHits = 10;
@@ -990,7 +1013,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     setCutLevelPrivate(CutLevel::NoCut, overwrite);
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 9;
-    m_maxOneSharedModule = true;
+    if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 1;
     if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
     if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 0;
     if (overwrite || m_minEtaForStrictNSiHitsCut >= LOCAL_MAX_DOUBLE) m_minEtaForStrictNSiHitsCut = 1.65;

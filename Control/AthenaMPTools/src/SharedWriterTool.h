@@ -38,6 +38,10 @@ class SharedWriterTool : public AthenaMPToolBase
   SharedWriterTool(const SharedWriterTool&);
   SharedWriterTool& operator= (const SharedWriterTool&);
 
+  int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1)
+  int  m_writer;          // Number of writer stream servers
+
+  AthenaInterprocess::SharedQueue*  m_sharedRankQueue;
   IConversionSvc*             m_cnvSvc;
 
 };

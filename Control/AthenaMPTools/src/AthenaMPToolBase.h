@@ -57,6 +57,15 @@ class AthenaMPToolBase : public AthAlgTool
   virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func() = 0;
 
  protected:
+  enum ESRange_Status {
+    ESRANGE_SUCCESS
+    , ESRANGE_NOTFOUND
+    , ESRANGE_SEEKFAILED
+    , ESRANGE_PROCFAILED
+    , ESRANGE_FILENOTMADE
+    , ESRANGE_BADINPFILE
+  };
+
   enum Func_Flag {
     FUNC_BOOTSTRAP
     , FUNC_EXEC

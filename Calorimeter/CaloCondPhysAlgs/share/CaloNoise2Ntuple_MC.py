@@ -6,9 +6,14 @@
 
 # configuration for MC, get noise from CaloNoiseTool
 
-RunNumber = 99999
-Geometry = 'ATLAS-GEO-01-00-00'
-GlobalTag = 'OFLCOND-CSC-01-00-00'
+if 'RunNumber' not in dir():
+   RunNumber = 999999
+if 'Geometry' not in dir():   
+   Geometry = 'ATLAS-R2-2016-00-00-00'
+if 'GlobalTag' not in dir():   
+   GlobalTag = 'OFLCOND-RUN12-SDR-33'
+if 'outputNtuple' not in dir():
+   outputNtuple="cellnoise_MC.root"
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
@@ -73,6 +78,12 @@ theCaloNoise2Ntuple = CaloNoise2Ntuple("CaloNoise2Ntuple")
 theCaloNoise2Ntuple.noiseTool = theCaloNoiseTool
 topSequence += theCaloNoise2Ntuple
 
+if "dbNoise" in dir():
+   conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>"+dbNoise+"</db>")
+
+if "folderTag" in dir():
+   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
+
 #--------------------------------------------------------------
 #--- Dummy event loop parameters
 #--------------------------------------------------------------
@@ -94,7 +105,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_MC.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='"+outputNtuple+"' OPT='RECREATE'"];
 
 
 #--------------------------------------------------------------

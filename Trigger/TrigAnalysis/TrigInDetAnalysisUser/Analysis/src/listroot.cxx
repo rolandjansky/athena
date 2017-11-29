@@ -224,7 +224,7 @@ protected:
     bool accept = true;
 
 
-    //    std::cout << "FUCK " << _dir->GetName() << "\tdepth " << depth << " " <<  __depth << "\tsize " << directories.size() << " " << directories << std::endl;
+    //    std::cout << "GOLLY! " << _dir->GetName() << "\tdepth " << depth << " " <<  __depth << "\tsize " << directories.size() << " " << directories << std::endl;
 
 
     if ( directories.size()>size_t(0) ) {
@@ -553,7 +553,7 @@ int main(int argc, char** argv) {
 
     std::cout << "closing" << std::endl;
 
-    std::cout << "***REMOVED***, why is it taking so long to close this file?" << std::endl;
+    //    std::cout << "root is extremely annoying, why is it taking so long to close this file?" << std::endl;
 
     //    f->Close();
 

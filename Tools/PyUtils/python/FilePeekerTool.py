@@ -357,8 +357,10 @@ class FilePeekerTool():
                 peeked_data['stream_tags'] = stream_tags
 
         # AtlasRelease - reproduce AthFile behavior
-        project = os.environ ['AtlasProject']
-        version = os.environ ['AtlasVersion']
+        from AthenaCommon.AppMgr import release_metadata
+        rel_metadata = release_metadata()
+        project = rel_metadata['project name']
+        version = rel_metadata['release']
         release = project + '-' + version
 
         ## -- taginfo

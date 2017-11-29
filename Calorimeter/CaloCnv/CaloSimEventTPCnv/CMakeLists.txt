@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Event/EventCommonTPCnv
                           GaudiKernel )
 
 # External dependencies:
@@ -25,50 +24,50 @@ atlas_add_tpcnv_library( CaloSimEventTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS CaloSimEventTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel )
 
 atlas_add_dictionary( CaloSimEventTPCnvDict
                       CaloSimEventTPCnv/CaloSimEventTPCnvDict.h
                       CaloSimEventTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv )
 
 atlas_add_dictionary( OLD_CaloSimEventTPCnvDict
                       CaloSimEventTPCnv/CaloSimEventTPCnvDict.h
                       CaloSimEventTPCnv/OLD_selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv )
 
 atlas_add_test( CaloCalibrationHitCnv_p1_test
                 SOURCES
                 test/CaloCalibrationHitCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv )
 
 atlas_add_test( CaloCalibrationHitCnv_p2_test
                 SOURCES
                 test/CaloCalibrationHitCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p1_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv
+                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
                 EXTRA_PATTERNS "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p2_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv
+                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
                 EXTRA_PATTERNS "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p3_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p3_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel EventCommonTPCnv GaudiKernel CaloSimEventTPCnv
+                LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
                 EXTRA_PATTERNS "Athena::getMessageSvc" )
 
