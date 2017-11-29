@@ -53,8 +53,8 @@ namespace top{
     ATH_MSG_INFO(" Directory for efficiencies: "+m_dir );
     if (std::find(m_config->bTagWP_available().begin(), m_config->bTagWP_available().end(), "MV2c10_FixedCutBEff_77") == m_config->bTagWP_available().end()) {
       ATH_MSG_ERROR(" top::TopFakesMMWeightCalculator initialize" );
-      std::cout<<"B-tagging WP  MV2c10_FixedCutBEff_77 is needed to parametrise efficiencies."<<std::endl;
-      std::cout<<"Please set it up by writing \"BTaggingWP MV2c10:FixedCutBEff_77\" in your configuration file."<<std::endl;
+      ATH_MSG_INFO("B-tagging WP  MV2c10_FixedCutBEff_77 is needed to parametrise efficiencies.");
+      ATH_MSG_INFO("Please set it up by writing \"BTaggingWP MV2c10:FixedCutBEff_77\" in your configuration file.");
       return StatusCode::FAILURE;
     }
     
