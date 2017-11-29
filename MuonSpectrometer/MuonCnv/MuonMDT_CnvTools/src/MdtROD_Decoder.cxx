@@ -391,7 +391,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         // RDO's
         while (!( (StationName == m_BMGid ? m_hptdcReadOut->is_EOT() : m_amtReadOut->is_EOT())
                || (StationName == m_BMGid ? m_hptdcReadOut->is_BOT() : m_amtReadOut->is_BOT())
-               || (StationName == m_BMGid ? 0 : m_amtReadOut->is_TWC())
+               || (StationName == m_BMGid ? m_csmReadOut->is_TWC() : m_amtReadOut->is_TWC())
                ) ) {
 
           StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
@@ -481,6 +481,8 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 
           StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
                                  : m_amtReadOut->decodeWord(vint[wordPos]);
+
+          if ( StationName == m_BMGid ) m_csmReadOut->decodeWord(vint[wordPos]);
 
         } // End of loop on AMTs
 
