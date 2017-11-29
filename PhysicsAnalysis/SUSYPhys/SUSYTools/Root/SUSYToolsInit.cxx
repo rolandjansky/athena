@@ -159,7 +159,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName); 
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16Recommendation_Nov2017.config");
+    std::string JES_config_file("JES_MC16Recommendation_28Nov2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -193,7 +193,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-      JES_config_file = "JES_MC16Recommendation_PFlow_Nov2017.config"; 
+      JES_config_file = "JES_MC16Recommendation_PFlow_28Nov2017.config"; 
 
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
