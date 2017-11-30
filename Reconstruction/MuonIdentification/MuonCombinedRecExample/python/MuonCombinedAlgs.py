@@ -34,6 +34,7 @@ def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("usePRDs",True)
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
