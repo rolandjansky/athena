@@ -28,6 +28,9 @@
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+// STL includes
+#include <array>
+
 
 // forward declarations
 namespace ISFTesting {
@@ -82,7 +85,7 @@ private:
   ServiceHandle<IInputConverter> m_inputConverter;
 
   /// The simulation selectors defining the "routing chain"
-  ToolHandleArray<ISimulationSelector> m_simSelectors[AtlasDetDescr::fNumAtlasRegions];
+  std::array<ToolHandleArray<ISimulationSelector>, AtlasDetDescr::fNumAtlasRegions> m_simSelectors;
 
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
   ServiceHandle<ISimulationSvc> m_particleKillerSimulationSvc;

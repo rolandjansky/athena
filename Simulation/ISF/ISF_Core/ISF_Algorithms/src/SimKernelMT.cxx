@@ -58,8 +58,8 @@ ISF::SimKernelMT::~SimKernelMT() {
 StatusCode ISF::SimKernelMT::initialize() {
 
   // retrieve simulation selectors (i.e. the "routing chain")
-  for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
-    ATH_CHECK( m_simSelectors[geoID].retrieve() );
+  for ( auto& selectorsToolHandleArray: m_simSelectors ) {
+    ATH_CHECK( selectorsToolHandleArray.retrieve() );
   }
 
   // info screen output
