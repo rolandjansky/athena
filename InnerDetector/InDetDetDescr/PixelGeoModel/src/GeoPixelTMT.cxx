@@ -108,17 +108,22 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     } 
   }
 
+  if(lastShape==0) {
+     std::cout << "There is no shape for GeoPixelTMT" << std::endl;
+    return 0; 
+  } else {
   const GeoShape * tmtShape = lastShape;
-  // don't trust boolean volume
-  // double totVolume = tmtShape->volume();
-  //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
-  std::string matName = m_gmt_mgr->getMaterialName("TMT", m_gmt_mgr->GetLD());
-  const GeoMaterial* trapMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
-  GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
+    // don't trust boolean volume
+    // double totVolume = tmtShape->volume();
+    //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
+    std::string matName = m_gmt_mgr->getMaterialName("TMT", m_gmt_mgr->GetLD());
+    const GeoMaterial* trapMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
+    GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
 
-  // No need to set m_transform as default transform is OK.
+    // No need to set m_transform as default transform is OK.
 
-  return new GeoPhysVol(theTMT);
+     return new GeoPhysVol(theTMT);
+  }
 }
 
 const GeoShape * 

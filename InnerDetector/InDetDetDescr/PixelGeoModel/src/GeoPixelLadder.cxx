@@ -106,9 +106,13 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
       m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;      
     }
 
+  if(ladderShape==0)
+  { 
+     m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;
+  } else {
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   m_theLadder = new GeoLogVol("Ladder",ladderShape,air);
-
+  }
   m_thickness = 2*std::max(m_thicknessN,m_thicknessP);
 }
 
