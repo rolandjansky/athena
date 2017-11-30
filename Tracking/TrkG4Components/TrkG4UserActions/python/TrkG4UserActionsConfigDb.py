@@ -2,4 +2,5 @@
 
 from AthenaCommon.CfgGetter import addTool
 addTool("TrkG4UserActions.TrkG4UserActionsConfig.getMaterialStepRecorderTool", "G4UA::MaterialStepRecorderTool")
+addTool("TrkG4UserActions.TrkG4UserActionsConfig.getEnergyLossRecorderTool", "G4UA::EnergyLossRecorderTool")
 
