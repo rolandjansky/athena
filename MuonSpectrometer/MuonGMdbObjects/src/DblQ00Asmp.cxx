@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Asmp.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 //#include <stdio>
 
@@ -30,7 +29,7 @@
 namespace MuonGM
 {
 
-DblQ00Asmp::DblQ00Asmp(IRDBQuery* asmp)
+DblQ00Asmp::DblQ00Asmp(std::unique_ptr<IRDBQuery>&& asmp)
  : m_nObj(0)
 {
   if(asmp) {

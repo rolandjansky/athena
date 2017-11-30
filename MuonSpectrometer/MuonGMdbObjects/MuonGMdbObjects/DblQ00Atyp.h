@@ -13,7 +13,8 @@
 #ifndef DBLQ00_ATYP_H
 #define DBLQ00_ATYP_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -23,7 +24,7 @@ class DblQ00Atyp {
 public:
     DblQ00Atyp(){};
     ~DblQ00Atyp();
-    DblQ00Atyp(IRDBQuery*);
+    DblQ00Atyp(std::unique_ptr<IRDBQuery>&&);
     
     // data members for DblQ00/ATYP fields
     struct ATYP {
