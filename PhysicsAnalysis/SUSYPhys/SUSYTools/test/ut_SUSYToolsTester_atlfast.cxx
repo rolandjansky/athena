@@ -5,14 +5,16 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <AsgTools/MessageCheck.h>
+
 int main()
 {
-  std::cout << "Unit test for SUSYTools on MC" << std::endl;
-  std::cout << std::endl;
+  using namespace asg::msgUserCode;
+
+  ATH_MSG_INFO ("Unit test for SUSYTools on MC");
 
   // Full `env` makes log file diffs useless.  Check if the input file changed, though - points us quickly to an issue.
-  std::cout << std::endl;
-  std::cout << "Test files" << std::endl;
+  ATH_MSG_INFO ("Test files");
   system("env | grep ASG_TEST_FILE_ | sort");
 
   std::string cmd("SUSYToolsTester $ASG_TEST_FILE_MC_AFII maxEvents=100 isData=0 isAtlfast=1 Debug=0 NoSyst=0");
@@ -22,14 +24,14 @@ int main()
 
   cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root,/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
 
-  std::cout << "Will now run this command: " << cmd << std::endl;
+  ATH_MSG_INFO ("Will now run this command: " << cmd);
   int ret = system(cmd.c_str());
 
   if (ret != 0) {
-    std::cout << "Test failed (return code was " << ret << ")" << std::endl;
+    ATH_MSG_INFO ("Test failed (return code was " << ret << ")");
     return 1;
   }
 
-  std::cout << "Finished (return code was " << ret << ")" << std::endl;
+  ATH_MSG_INFO ("Finished (return code was " << ret << ")");
   return 0;
 }

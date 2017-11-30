@@ -11,6 +11,8 @@
 #include "SampleHandler/ToolsMeta.h"
 #include "SampleHandler/ScanDir.h"
 
+#include <AsgTools/MessageCheck.h>
+
 #include <TSystem.h>
 #include <iostream>
 #include <string>
@@ -18,18 +20,18 @@
 int main( int /*argc*/, char** /*argv[]*/ ) {
 
   SH::SampleHandler sh;
-  
+  using namespace asg::msgUserCode;
+
   try {
     readSusyMetaDir(sh, "$ROOTCOREBIN/data/SUSYTools/mc15_13TeV");
     readSusyMetaDir(sh, "$ROOTCOREBIN/data/SUSYTools/mc15_8TeV");
   }
   catch (std::exception e) {
-    std::cout << "A problem was encountered when reading the xsec files: "
-	      << e.what() << std::endl;
-    std::cout << "Will exit and return 1 to fail unit test check" << std::endl;
+    ATH_MSG_INFO ("A problem was encountered when reading the xsec files: "<< e.what());
+    ATH_MSG_INFO ("Will exit and return 1 to fail unit test check");
     return 1;
   }
-  std::cout << "ALL GOOD!" << std::endl;
+  ATH_MSG_INFO("ALL GOOD!");
   return 0;
 }
 
