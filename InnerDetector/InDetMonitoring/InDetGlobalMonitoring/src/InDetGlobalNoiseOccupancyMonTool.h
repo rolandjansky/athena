@@ -237,7 +237,8 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
    * each time
    * Added by m
    */  
-  vector<struct noise> NO;
+
+  vector<struct noise> m_NO;
 };
 
 #endif
