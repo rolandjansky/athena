@@ -102,7 +102,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("MuFastComposite",m_muCompositeContainerKey = std::string("xAOD::TrigCompositeContainer"),"xAOD::TrigCompositeContainer to record");	
   declareProperty("MuFastForID",m_muIdContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for ID to record");
   declareProperty("MuFastForMS",m_muMsContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for MS to record");
-  declareProperty("MonTool", m_monTool = std::string(""), "Monitoring Tool");
 }
 
 // --------------------------------------------------------------------------------
@@ -295,7 +294,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::BAD_JOB_SETUP;
   }
   if (not m_monTool.name().empty()) {
-    if (m_monTool.retrieve() ) {
+    if ( !m_monTool.retrieve() ) {
       ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
       return HLT::BAD_JOB_SETUP;
     }
@@ -420,7 +419,7 @@ StatusCode MuFastSteering::execute()
   xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*muFastContainer).begin();
   xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*muFastContainer).end();
   for (;p_muon != p_muonEn; ++p_muon) {
-    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt());
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
   }
 
@@ -557,7 +556,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
     xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*outputTracks).begin();
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*outputTracks).end();
     for (;p_muon != p_muonEn; ++p_muon) {
-      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt());
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
     }
   }
@@ -657,7 +656,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
   DataVector<const TrigRoiDescriptor>::const_iterator p_roids;
   DataVector<const LVL1::RecMuonRoI>::const_iterator p_roi;
 
-  // muonRoIs = RecMURoIs, roids = MURoIs from L1Decoderi
+  // muonRoIs = RecMURoIs, roids = MURoIs 
   p_roids = roids.begin();
   for (p_roi=(muonRoIs).begin(); p_roi!=(muonRoIs).end(); ++p_roi) {
 
@@ -1440,7 +1439,7 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonOut = outputTracks.begin();
     xAOD::L2StandAloneMuonContainer::const_iterator p_muonOutEn = outputTracks.end();
     for (; p_muonOut != p_muonOutEn ; ++p_muonOut ){
-      ATH_MSG_DEBUG("At findMuonSignature outputTracks pt = " << (*p_muonOut)->pt());
+      ATH_MSG_DEBUG("At findMuonSignature outputTracks pt = " << (*p_muonOut)->pt() << " GeV");
       ATH_MSG_DEBUG("At findMuonSignature outputTracks eta/phi = " << (*p_muonOut)->eta() << "/" << (*p_muonOut)->phi());
     }
   }

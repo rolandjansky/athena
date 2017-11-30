@@ -42,7 +42,6 @@ TrigMufastHypoTool::TrigMufastHypoTool(const std::string& type,
    declareProperty("PtThresholdForECWeakBRegionA", m_ptThresholdForECWeakBRegionA=3.);
    declareProperty("PtThresholdForECWeakBRegionB", m_ptThresholdForECWeakBRegionB=3.);
 
-   declareProperty("monTool", m_monTool = std::string(""), "Monitoring Tool");
    m_bins = 0;
 }
 
@@ -54,15 +53,15 @@ TrigMufastHypoTool::~TrigMufastHypoTool(){
 
 StatusCode TrigMufastHypoTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
   if(m_acceptAll) {
-     ATH_MSG_INFO("Accepting all the events with not cut!");
+     ATH_MSG_DEBUG("Accepting all the events with not cut!");
   }
   else {
      m_bins = m_ptBins.size() - 1;
      if (m_bins != m_ptThresholds.size()) {
-	ATH_MSG_INFO("bad thresholds setup .... exiting!");
+	ATH_MSG_DEBUG("bad thresholds setup .... exiting!");
 	return StatusCode::SUCCESS;
      }
 
@@ -71,13 +70,13 @@ StatusCode TrigMufastHypoTool::initialize()
 	 char buf2[256];
 	 sprintf(buf1,"%f5.2",m_ptBins[i]);
 	 sprintf(buf2,"%f5.2",m_ptBins[i+1]);
-	 ATH_MSG_INFO("EtaBin " << buf1 << " - " <<  buf2
+	 ATH_MSG_DEBUG("EtaBin " << buf1 << " - " <<  buf2
 	              << ": with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV 
 	              << " GeV");
       }
       
-      ATH_MSG_INFO("Endcap WeakBField A: pT threshold of " << m_ptThresholdForECWeakBRegionA / CLHEP::GeV << " GeV");
-      ATH_MSG_INFO("Endcap WeakBField B: pT threshold of " << m_ptThresholdForECWeakBRegionB / CLHEP::GeV << " GeV");
+      ATH_MSG_DEBUG("Endcap WeakBField A: pT threshold of " << m_ptThresholdForECWeakBRegionA / CLHEP::GeV << " GeV");
+      ATH_MSG_DEBUG("Endcap WeakBField B: pT threshold of " << m_ptThresholdForECWeakBRegionB / CLHEP::GeV << " GeV");
   }
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
@@ -87,7 +86,7 @@ StatusCode TrigMufastHypoTool::initialize()
      ATH_MSG_DEBUG("MonTool name: " << m_monTool);
   }
 
-  ATH_MSG_INFO("Initialization completed successfully");
+  ATH_MSG_DEBUG("Initialization completed successfully");
 
   return StatusCode::SUCCESS;
 }
@@ -98,8 +97,6 @@ StatusCode TrigMufastHypoTool::initialize()
 StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input) const
 {
    using namespace Monitored;
-
-   ATH_MSG_DEBUG("TrigMufastHypoTool decide() start");
 
    auto fex_pt 		= MonitoredScalar::declare("Pt", -9999.);
    auto fex_eta 	= MonitoredScalar::declare("Eta", -9999.);
@@ -123,12 +120,10 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
    } else {
       result = false;
       ATH_MSG_DEBUG("Accept property not set: applying selection!");
-      return StatusCode::SUCCESS;
    }
 
-   // Get RoI and xAOD::L2StandAloneMuon:
+   // Get xAOD::L2StandAloneMuon:
    auto pMuon = input.cluster;
-   //auto pRoi = input.roi;
  
    if(!pMuon){
       ATH_MSG_ERROR("Retrieval of L2StandAloneMuon from vector failed");
@@ -139,9 +134,6 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
    fex_pt  = (pMuon->pt())?  pMuon->pt()  : -9999.;
    fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999.;
    fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999.;
-
-   ATH_MSG_DEBUG("REGTEST: pT = " << fex_pt);
-   ATH_MSG_DEBUG("REGTEST: eta/phi = " << fex_eta << "/" << fex_phi);
 
    if( pMuon->etaMS() ) {
       float localPhi = getLocalPhi(pMuon->etaMS(),pMuon->phiMS(),pMuon->rMS());
@@ -181,7 +173,7 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
       threshold = m_ptThresholdForECWeakBRegionB;
    }
 
-   ATH_MSG_DEBUG("threshold value is set as:" << threshold/CLHEP::GeV << " GeV");
+   ATH_MSG_DEBUG("threshold value is set as: " << threshold/CLHEP::GeV << " GeV");
 
    // Check pt threshold for hypothesis, 
    // convert units since Muonfeature is in GeV
@@ -195,7 +187,7 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
       }
    }
 
-   ATH_MSG_DEBUG(" REGTEST muon pt is " << pMuon->pt() << " GeV" 
+   ATH_MSG_DEBUG("REGTEST muon pt is " << pMuon->pt() << " GeV" 
                  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
                  << " so hypothesis is " << (result?"true":"false"));
   
@@ -269,12 +261,18 @@ float TrigMufastHypoTool::getLocalPhi(float eta, float phi, float rad) const
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMufastHypoTool::decide(std::vector<MuonClusterInfo>& toolInput) const {
+
+   ATH_MSG_DEBUG("Applying selection of single << " << m_decisionId.numeric());
+
    for ( auto& i: toolInput) {
      if (TrigCompositeUtils::passed(m_decisionId.numeric(), i.previousDecisionIDs)) {
-       if (decide(i)) {
+       if ( decide(i) ) {
+         ATH_MSG_DEBUG("hypothesis is true, so object passed selection");
          TrigCompositeUtils::addDecisionID(m_decisionId, i.decision);
-       }
-     }
-   }
+       } else {
+         ATH_MSG_DEBUG("hypothesis is false, so no objest passed selection");
+       } // End of TrigMufastHypoTool decide()
+     } 
+   } // End of MuonClusterInfo loops 
    return StatusCode::SUCCESS;
 }

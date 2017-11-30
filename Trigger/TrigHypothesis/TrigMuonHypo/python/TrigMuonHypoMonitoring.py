@@ -3,11 +3,11 @@
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-class MufastHypoMonitoring_Multi(GenericMonitoringTool):
-    def __init__ (self, name="MufastHypoMonitoring_Multi"):
+class TrigMufastHypoMonitoring(GenericMonitoringTool):
+    def __init__ (self, name="TrigMufastHypoMonitoring"):
+        super(TrigMufastHypoMonitoring, self).__init__(name)
 
-        self = GenericMonitoringTool("MonTool"+name)
-
+        self.HistPath = name  
         self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (GeV)", xbins=200, xmin=-100, xmax=100),
                             defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15),
                             defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #muFast; Eta",xbins=100, xmin=-3.2, xmax=3.2),
@@ -17,7 +17,6 @@ class MufastHypoMonitoring_Multi(GenericMonitoringTool):
                             defineHistogram('ZatBe', type='TH1F', title="DCA along Z; Z (cm)",xbins=100, xmin=-2100, xmax=2100),
                             defineHistogram('XatBe', type='TH1F', title="DCA along X; X (cm)",xbins=100, xmin=-1000, xmax=1000) ]
 
-        self.HistPath = "L2MufastHypo/"+name  
 
 class MufastHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MufastHypoValidationMonitoring"):

@@ -15,7 +15,6 @@ theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
 ptFromAlphaBeta      = TrigL2MuonSA__PtFromAlphaBeta()
 
-
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
 ToolSvc += theStationFitter
@@ -130,17 +129,22 @@ class TrigL2MuonSAConfig(MuFastSteering):
 
         # adding Geometry Services
 
+        # Monitoring system used by Run-2
         # Histograms for monitored variables
-        validation = TrigL2MuonSAValidationMonitoring()
-        online     = TrigL2MuonSAOnlineMonitoring()
-        cosmic     = TrigL2MuonSACosmicMonitoring()
+        #validation = TrigL2MuonSAValidationMonitoring()
+        #online     = TrigL2MuonSAOnlineMonitoring()
+        #cosmic     = TrigL2MuonSACosmicMonitoring()
+        #time       = TrigTimeHistToolConfig('TimeHisto')
 
-        time       = TrigTimeHistToolConfig('TimeHisto')
+        #self.AthenaMonTools = [ validation, online, cosmic, time ]
 
-        self.AthenaMonTools = [ validation, online, cosmic, time ]
-
-	# Setup MonTool for monitored variables in AthenaMonitoring package
-        self.monTool = TrigL2MuonSAMonitoring_Multi() 
+	# Setup MonTool for monitored variables in AthenaMonitoring package 
+        # defined which histogram are created at TrigL2MuonSAMonitoring.py
+        try:
+            self.MonTool = TrigL2MuonSAMonitoring()
+        except AttributeError:
+            self.MonTool = ""
+            print name, ' Monitoring Tool failed'
 
         def setDefaults(cls,handle):
             if hasattr(handle,'BackExtrapolator'):

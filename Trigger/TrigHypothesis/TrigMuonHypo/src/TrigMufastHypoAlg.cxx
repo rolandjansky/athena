@@ -145,7 +145,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
         return StatusCode::FAILURE;
       } else {
         d->setObjectLink( "feature", element );
-        ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*element)->pt());
+        ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*element)->pt() << " GeV");
         ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
       }
     }
@@ -155,6 +155,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
   // to TrigMufastHypoTool
   StatusCode sc = StatusCode::SUCCESS;
   for ( auto& tool: m_hypoTools ) {
+    ATH_MSG_DEBUG("Go to " << tool );
     sc = tool->decide(toolInput);
     if (!sc.isSuccess()) {
       ATH_MSG_ERROR("MuonHypoTool is failed");

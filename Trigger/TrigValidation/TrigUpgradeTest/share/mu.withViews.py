@@ -11,7 +11,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 if viewTest:
   allViewAlgorithms = topSequence.allViewAlgorithms
- 
+
 # provide a minimal menu information
 topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
 topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
@@ -86,9 +86,6 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
 
-  # set up Monitoring of MuFastSteering
-  #TriggerFlags.enableMonitoring=[ "Validation" ]
-
   # set up MuFastSteering
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
@@ -127,10 +124,8 @@ if TriggerFlags.doMuon:
 
   # set up MuFastHypo
   if viewTest:
-    #from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
-    #trigMufastHypo = TrigMufastHypoAlg()
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
-    trigMufastHypo = TrigMufastHypoConfig("L2MufastHypo", "6GeV")
+    trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
 
     trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
@@ -139,14 +134,10 @@ if TriggerFlags.doMuon:
     trigMufastHypo.Decisions = "L2MuonFastDecisions"
     trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
 
-
-    #trigMufastHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
+    trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, trigMufastHypo, muFastDecisionsDumper])
-
-    # run only muFastAlg
-    muFastTestStep = stepSeq("muFastTestStep", filterL1RoIsAlg, l2MuViewsMaker)
 
   else:
     pass 

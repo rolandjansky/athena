@@ -386,7 +386,6 @@ class MufastHypoConfig(MufastHypo) :
     __slots__ = []
     
     def __new__( cls, *args, **kwargs ):
-        print "MufastHypoConfig's number of args in __new__ = ", args
         if len(args) == 2:
             newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
         if len(args) == 4:
@@ -396,7 +395,6 @@ class MufastHypoConfig(MufastHypo) :
     def __init__( self, name, *args, **kwargs ):
         super( MufastHypoConfig, self ).__init__( name )
 
-        print "MufastHypoConfig's number of args in __init__ = ", args
         threshold = args[1]
 
         try:
@@ -447,31 +445,47 @@ class MufastHypoConfig(MufastHypo) :
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
 
-#========================================================================================================================
-#========================================================================================================================
 
 class TrigMufastHypoConfig(TrigMufastHypoAlg) :
 
     __slots__ = []
 
-    def __new__( cls, *args, **kwargs ):
-        print "TrigMufastHypoConfig's number of args in __new__ = ", args
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( TrigMufastHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+    def TrigMufastHypoToolFromName( self, name, nath ):	# nath: name threshold, for example HLT_mu6 etc
 
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMufastHypoConfig, self ).__init__(name)
-        print "TrigMufastHypoConfig's number of args in __init__ = ", args
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMufastHypoTool( nath )  
+        tool.OutputLevel = DEBUG
+        bname = nath.split('_') 
 
-        from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoTool
-        tool = TrigMufastHypoTool(name)  
- 
-        threshold = args[1]
-
+        if len(bname) == 2: 
+            th = re.findall(r'[0-9]+', bname[1])           
+            threshold = str(th[0]) + 'GeV'
+            TrigMufastHypoConfig().ConfigrationHypoTool( nath, threshold )
+        #if len(bname) == 3:
+        #    th = re.findall(r'[0-9]+', bname[1])           
+        #    threshold = str(th[0]) + 'GeV_' + str(bname[2])
+        #    TrigMufastHypoConfig().ConfigrationHypoTool( nath, threshold )
+        else:
+            print """ Configration ERROR: Can't configure threshold at TrigMufastHypoTool """
+            return tool
+    
+        # Setup MonTool for monitored variables in AthenaMonitoring package
         try:
+            tool.MonTool = TrigMufastHypoMonitoring() 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += tool
+        return tool
+    
+    def ConfigrationHypoTool( self, nath, threshold ): 
+        
+        tool = TrigMufastHypoTool( nath )  
+    
+        try:
+            tool.AcceptAll = False
             values = muFastThresholds[threshold]
             tool.PtBins = values[0]
             tool.PtThresholds = [ x * GeV for x in values[1] ]
@@ -497,13 +511,8 @@ class TrigMufastHypoConfig(TrigMufastHypoAlg) :
                 tool.PtThresholds = [ -1. * GeV ]
             else:
                 raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
+        return threshold
 
-	# Setup MonTool for monitored variables in AthenaMonitoring package
-        #tool.monTool = MufastHypoMonitoring_Multi() 
-        #tool += tool.monTool
-
-#========================================================================================================================
-#========================================================================================================================
 
 class MufastStauHypoConfig(MufastStauHypo) :
 

@@ -80,7 +80,7 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     // Other members:   
     std::vector<float>::size_type m_bins;
 
-    ToolHandle< GenericMonitoringTool > m_monTool;  
+    ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };   
 };
 
 DECLARE_TOOL_FACTORY( TrigMufastHypoTool )
