@@ -144,7 +144,7 @@ namespace MuonGM {
         xMid = pos.y() - pos.x()*tan(sAngle);
        if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
        else if (xMid > xMfirst) // position higher than first Pos
-          chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+2 );
+          chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch ) + 2;
         else chNum = -1;
       }
       else {
@@ -209,15 +209,16 @@ namespace MuonGM {
     if ( type==MuonChannelDesign::phiStrip ) {   // swap coordinates on return
 
       if (inputPitch == 1.8 && groupWidth == 20) { // sTGC Wires: returns center of wire group
-        if (st > nGroups) return false;
-        double firstX = firstPos + firstPitch*inputPitch; // Position of the end of the first wire group (accounts for staggering)
+        if (st > nGroups || st ==63) return false; // 63 is because we defined 63 as a unactive digit
+        double firstX = firstPos + (firstPitch-1)*inputPitch; // Position of the end of the first wire group (accounts for staggering)
         double locX;
         if (st == 1) locX = 0.5 * (-0.5*maxYSize + firstX);
-        else if (st == nGroups) // account for staggering
-          locX = 0.5 * (0.5*maxYSize - (nch - firstPitch - (nGroups-2)*groupWidth)*inputPitch);
-        else locX = firstX + groupWidth*inputPitch*(st-1.5);
+        else if (st < nGroups) locX = firstX + groupWidth*inputPitch*(st-1.5);
+        else if (st == nGroups) // accounts for staggering by averaging last wire group and last wire
+          locX = 0.5 * (0.5*maxYSize + firstX + (nGroups-2)*groupWidth*inputPitch);
+        else return false;
         pos[0] = locX;
-        pos[1] = 0.5*xSize; // This is so that if you get the wiregrp number from a position, followed by getting the position from that channel to again obtain the wiregroup, you get the same results.
+        pos[1] = 0;
 
         return true;
       }
@@ -245,10 +246,15 @@ namespace MuonGM {
 
 	double x = firstPos + inputPitch*(st-1);
         if (inputPitch == 3.2) { // check if sTGC, preferably 2 unique values
-          if (st == nch) { // Strip Staggering: either first strip or last strip is only half-width
-            if (firstPitch == 3.2) // if 1st strip is not staggered
-              x = x - inputPitch*0.5; // stagger first strip
-          }
+          // Alexandre Laurier 2017-11-22 :
+          // Now we make it so that the strip position returns in the center
+          // However, this should probably return in the center of the strip width
+          // and not the full strip pitch, ie center of actualy strip instead of center of 3.2mm
+          double xFirst = firstPos - 0.5 * firstPitch; // strip pos is at center of strip.
+          if (st == 1) x = xFirst;
+          else if (st <= nch) x = xFirst + (st-1) * inputPitch;
+          else return false;
+          if (st == nch && firstPitch == 3.2) x = x - firstPitch/4; // accounts for staggering
           // Here we "rotate" the coordinates. We changed the local geometry from a RotatedTrapezoid to a Trapezoid
           pos[0] = 0;
           pos[1] = x;
