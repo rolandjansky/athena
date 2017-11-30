@@ -42,10 +42,6 @@ class  StandAloneJetBTaggerAlg:
 
     ToolHandle< IJetBTaggerTool > m_JetBTaggerTool; 
 
-    // Utility function to be used in case of container overwriting.
-    // Note that it do not need to be defined here, as it can only be called from code in StandAloneJetBTaggerAlg.cxx.
-    template< class CONTAINER, class AUXSTORE >
-      StatusCode overwrite(const std::string& key) const;
 };
 
 }
