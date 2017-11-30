@@ -423,6 +423,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
 
 void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr, const std::string pidword, const xAOD::Egamma *eg, bool fill2D)
 {
+    ATH_MSG_DEBUG("fillEfficiency():: cd(" << dir <<" ) ");
     cd(dir);
     float et=0.;
     bool pid=true;
@@ -444,6 +445,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
     ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 
     ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
     if(pid){
+	ATH_MSG_DEBUG("PID pass! Filling efficiencies");
         hist1("et")->Fill(et);
         hist1("pt")->Fill(pt);
         hist1("highet")->Fill(et);
@@ -458,6 +460,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
             if(m_detailedHists)  hist1("npvtx")->Fill(npvtx);
         }
         if(isPassed) {
+	    ATH_MSG_DEBUG("Trigger isPassed");
             hist1("match_et")->Fill(et);
             hist1("match_pt")->Fill(pt);
             hist1("match_highet")->Fill(et);
@@ -487,6 +490,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
             }
         } // Passes Trigger selection
         else {
+	    ATH_MSG_DEBUG("Trigger is NOT passed");
             hist1("eff_et")->Fill(et,0);
             hist1("eff_pt")->Fill(pt,0);
             hist1("eff_highet")->Fill(et,0);
@@ -521,13 +525,17 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
     const std::string pidword = info.trigPidDecorator;
     const std::string pid = info.trigPidDecorator.substr(2);
     
-    ATH_MSG_DEBUG("Efficiency for " << info.trigName << " " <<pidword);
+    ATH_MSG_DEBUG("Efficiency for " << info.trigName << " pidword = " <<pidword << " pid = " << pid << " pairs =  " << pairObjs.size());
     for(const auto pairObj : pairObjs){
+	ATH_MSG_DEBUG("Checking pair " << pairObj << " ... " );
         // Final cuts done here
         if(pairObj.first->type()==xAOD::Type::Electron){
             const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
             float et = getEt(el)/1e3;
-            if(et < info.trigThrHLT-5.0) continue; // return StatusCode::SUCCESS;
+            if(et < info.trigThrHLT-5.0){
+		ATH_MSG_DEBUG("Skipping because et = " << et << " < info.trigThrHLT-5.0 =  " << info.trigThrHLT  << " - 5 " );
+	       	continue; // return StatusCode::SUCCESS;
+	    }
 
         } // Offline object Electron
         else if(pairObj.first->type()==xAOD::Type::Photon){

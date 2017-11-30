@@ -166,6 +166,10 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_back_phi(0)
    , m_newTTC_back_r(0)
    , m_newTTC_back_z(0)
+   , m_newTTC_mid_eta(0)
+   , m_newTTC_mid_phi(0)
+   , m_newTTC_mid_r(0)
+   , m_newTTC_mid_z(0)
    , m_newTTC_IDCaloBoundary_eta(0)
    , m_newTTC_IDCaloBoundary_phi(0)
    , m_newTTC_IDCaloBoundary_r(0)
@@ -556,6 +560,10 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("newTTC_entrance_phi",&m_newTTC_entrance_phi);
   m_tree->Branch("newTTC_entrance_r",&m_newTTC_entrance_r);
   m_tree->Branch("newTTC_entrance_z",&m_newTTC_entrance_z);
+  m_tree->Branch("newTTC_mid_eta",&m_newTTC_mid_eta);
+  m_tree->Branch("newTTC_mid_phi",&m_newTTC_mid_phi);
+  m_tree->Branch("newTTC_mid_r",&m_newTTC_mid_r);
+  m_tree->Branch("newTTC_mid_z",&m_newTTC_mid_z);
   m_tree->Branch("newTTC_IDCaloBoundary_eta",&m_newTTC_IDCaloBoundary_eta);
   m_tree->Branch("newTTC_IDCaloBoundary_phi",&m_newTTC_IDCaloBoundary_phi);
   m_tree->Branch("newTTC_IDCaloBoundary_r",&m_newTTC_IDCaloBoundary_r);
@@ -582,7 +590,7 @@ StatusCode ISF_HitAnalysis::initialize()
          return StatusCode::FAILURE;
   }
   */
-  if (!m_newTTC_back_eta || !m_newTTC_back_phi || !m_newTTC_back_r || !m_newTTC_back_z || !m_newTTC_entrance_eta || !m_newTTC_entrance_phi || !m_newTTC_entrance_r || !m_newTTC_entrance_z || !m_newTTC_IDCaloBoundary_eta || !m_newTTC_IDCaloBoundary_phi || !m_newTTC_IDCaloBoundary_r || !m_newTTC_IDCaloBoundary_z || !m_newTTC_Angle3D || !m_newTTC_AngleEta)
+  if (!m_newTTC_back_eta || !m_newTTC_back_phi || !m_newTTC_back_r || !m_newTTC_back_z || !m_newTTC_entrance_eta || !m_newTTC_entrance_phi || !m_newTTC_entrance_r || !m_newTTC_entrance_z || !m_newTTC_mid_eta || !m_newTTC_mid_phi || !m_newTTC_mid_r || !m_newTTC_mid_z || !m_newTTC_IDCaloBoundary_eta || !m_newTTC_IDCaloBoundary_phi || !m_newTTC_IDCaloBoundary_r || !m_newTTC_IDCaloBoundary_z || !m_newTTC_Angle3D || !m_newTTC_AngleEta)
   {
          ATH_MSG_ERROR("Unable to create TTree branch correctly (newTTC variables)");
          return StatusCode::FAILURE;
@@ -769,6 +777,10 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_entrance_phi->clear();
  m_newTTC_entrance_r->clear();
  m_newTTC_entrance_z->clear();
+ m_newTTC_mid_eta->clear();
+ m_newTTC_mid_phi->clear();
+ m_newTTC_mid_r->clear();
+ m_newTTC_mid_z->clear();
  m_newTTC_IDCaloBoundary_eta->clear();
  m_newTTC_IDCaloBoundary_phi->clear();
  m_newTTC_IDCaloBoundary_r->clear();
@@ -936,6 +948,13 @@ StatusCode ISF_HitAnalysis::execute()
                  std::vector<float> r_vec_EXT;
                  std::vector<float> z_vec_EXT;
 
+     std::vector<float> eta_vec_MID;
+                 std::vector<float> phi_vec_MID;
+                 std::vector<float> r_vec_MID;
+                 std::vector<float> z_vec_MID;
+
+     float phi_MID;
+
      for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample)
                  {
                         ATH_MSG_DEBUG("sample "<<sample);
@@ -945,12 +964,21 @@ StatusCode ISF_HitAnalysis::execute()
                         ATH_MSG_DEBUG(" z   ENT "<<result.z(sample,1)  <<" z   EXT "<<result.z(sample,2)  );
                         eta_vec_ENT.push_back(float(result.eta(sample,1)));
                         eta_vec_EXT.push_back(float(result.eta(sample,2)));
+                        eta_vec_MID.push_back(float((result.eta(sample,1)+result.eta(sample,2))/2));
                         phi_vec_ENT.push_back(float(result.phi(sample,1)));
                         phi_vec_EXT.push_back(float(result.phi(sample,2)));
+                        phi_MID = (result.phi(sample,1)+result.phi(sample,2))/2;
+                        if (result.phi(sample,1) * result.phi(sample,2) < 0){
+                          if(phi_MID < 0) phi_MID = fabs(phi_MID)-M_PI;
+                          else phi_MID = M_PI - phi_MID;
+                        }
+                        phi_vec_MID.push_back(float(phi_MID));
                         r_vec_ENT.push_back(float(result.r(sample,1)));
                         r_vec_EXT.push_back(float(result.r(sample,2)));
+                        r_vec_MID.push_back(float((result.r(sample,1)+result.r(sample,2))/2));
                         z_vec_ENT.push_back(float(result.z(sample,1)));
                         z_vec_EXT.push_back(float(result.z(sample,2)));
+                        z_vec_MID.push_back(float((result.z(sample,1)+result.z(sample,2))/2));
      }
 
      m_newTTC_back_eta->push_back(eta_vec_EXT);
@@ -961,6 +989,10 @@ StatusCode ISF_HitAnalysis::execute()
                  m_newTTC_entrance_phi->push_back(phi_vec_ENT);
                  m_newTTC_entrance_r  ->push_back(r_vec_ENT);
                  m_newTTC_entrance_z  ->push_back(z_vec_ENT);
+                 m_newTTC_mid_eta->push_back(eta_vec_MID);
+                 m_newTTC_mid_phi->push_back(phi_vec_MID);
+                 m_newTTC_mid_r  ->push_back(r_vec_MID);
+                 m_newTTC_mid_z  ->push_back(z_vec_MID);
 
      //*******************************************************************************************************************************
 

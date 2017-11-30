@@ -168,6 +168,10 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<std::vector<float> >* m_newTTC_back_phi;
    std::vector<std::vector<float> >* m_newTTC_back_r;
    std::vector<std::vector<float> >* m_newTTC_back_z;
+   std::vector<std::vector<float> >* m_newTTC_mid_eta;
+   std::vector<std::vector<float> >* m_newTTC_mid_phi;
+   std::vector<std::vector<float> >* m_newTTC_mid_r;
+   std::vector<std::vector<float> >* m_newTTC_mid_z;
    std::vector<float>* m_newTTC_IDCaloBoundary_eta;
    std::vector<float>* m_newTTC_IDCaloBoundary_phi;
    std::vector<float>* m_newTTC_IDCaloBoundary_r;

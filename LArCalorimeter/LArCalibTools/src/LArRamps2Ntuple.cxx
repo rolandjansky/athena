@@ -79,14 +79,14 @@ StatusCode LArRamps2Ntuple::stop() {
        LArRawRampContainer* rawRampContainer=NULL;
        sc=m_detStore->retrieve(rawRampContainer,*key_it);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         (*m_log) << MSG::WARNING << "Unable to retrieve LArRawRampContainer with key " << *key_it << endreq;
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
        } 
        else {
-         (*m_log) << MSG::DEBUG << "Got LArRawRampContainer with key " << *key_it << endreq;
+         ATH_MSG_DEBUG( "Got LArRawRampContainer with key " << *key_it );
          hasRawRampContainer = true;
        }
    }
-   if (!hasRawRampContainer) (*m_log) << MSG::WARNING << " No LArRawRampContainer found. Only fitted ramp in ntuple " << endreq;
+   if (!hasRawRampContainer) ATH_MSG_WARNING( " No LArRawRampContainer found. Only fitted ramp in ntuple " );
 
  } 
  //end-if m_rawRamp
@@ -94,11 +94,11 @@ StatusCode LArRamps2Ntuple::stop() {
  const ILArRamp* ramp=NULL;
  sc=m_detStore->retrieve(ramp,m_rampKey);
  if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::WARNING << "Unable to retrieve ILArRamp with key: "<<m_rampKey << " from DetectorStore" << endreq;
+      ATH_MSG_WARNING( "Unable to retrieve ILArRamp with key: "<<m_rampKey << " from DetectorStore" );
  }
 
  if (!ramp && !hasRawRampContainer) {
-   (*m_log) << MSG::ERROR << "Have neither Raw Ramp nor Fitted Ramp. No Ntuple produced." << endreq;
+   ATH_MSG_ERROR( "Have neither Raw Ramp nor Fitted Ramp. No Ntuple produced." );
    return StatusCode::FAILURE;
  }
 
@@ -108,7 +108,7 @@ StatusCode LArRamps2Ntuple::stop() {
     if(dynamic_cast<const LArRampComplete*>(ramp)) {
         sc=m_detStore->retrieve(rampComplete,m_rampKey);
         if (sc!=StatusCode::SUCCESS) {
-           (*m_log) << MSG::WARNING << "Unable to retrieve LArRampComplete with key: "<<m_rampKey << " from DetectorStore" << endreq;
+           ATH_MSG_WARNING( "Unable to retrieve LArRampComplete with key: "<<m_rampKey << " from DetectorStore" );
         }
        
        myramp=(LArConditionsContainer<LArRampP1>*) rampComplete;
@@ -117,10 +117,10 @@ StatusCode LArRamps2Ntuple::stop() {
       if(!myramp->correctionsApplied()) { 
         sc = myramp->applyCorrections();
         if (sc!=StatusCode::SUCCESS) {
-          (*m_log) << MSG::ERROR << "Applying corrections failed" << endreq;
+          ATH_MSG_ERROR( "Applying corrections failed" );
         }
       } else {
-       (*m_log) << MSG::WARNING << "Corrections already applied. Can't apply twice!" << endreq;
+       ATH_MSG_WARNING( "Corrections already applied. Can't apply twice!" );
       }
     }
  }
@@ -128,20 +128,20 @@ StatusCode LArRamps2Ntuple::stop() {
  
  sc=m_nt->addItem("cellIndex",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
+   ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
    return StatusCode::FAILURE;
  }
 
  sc=m_nt->addItem("gain",gain,0,3);
  if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+   ATH_MSG_ERROR( "addItem 'gain' failed" );
    return StatusCode::FAILURE;
  }
 
  if (m_addCorrUndo) {
    sc=m_nt->addItem("corrUndo",corrUndo,0,1);
    if (sc!=StatusCode::SUCCESS) {
-     (*m_log) << MSG::ERROR << "addItem 'corrUndo' failed" << endreq;
+     ATH_MSG_ERROR( "addItem 'corrUndo' failed" );
      return StatusCode::FAILURE;
    }
  }
@@ -150,109 +150,109 @@ StatusCode LArRamps2Ntuple::stop() {
    {
      sc=m_nt->addItem("DACIndex",DACIndex,0,800);
      if (sc!=StatusCode::SUCCESS) {
-       (*m_log) << MSG::ERROR << "addItem 'DACIndex' failed" << endreq;
+       ATH_MSG_ERROR( "addItem 'DACIndex' failed" );
        return StatusCode::FAILURE;
      }
      
      sc=m_nt->addItem("SampleMax",DACIndex,SampleMax);
      if (sc!=StatusCode::SUCCESS)
-       {(*m_log) << MSG::ERROR << "addItem 'SampleMax' failed" << endreq;
+       {ATH_MSG_ERROR( "addItem 'SampleMax' failed" );
         return StatusCode::FAILURE;
        }
       
      sc=m_nt->addItem("TimeMax",DACIndex,TimeMax);
      if (sc!=StatusCode::SUCCESS)
-       {(*m_log) << MSG::ERROR << "addItem 'TimeMax' failed" << endreq;
+       {ATH_MSG_ERROR( "addItem 'TimeMax' failed" );
         return StatusCode::FAILURE;
        }
      sc=m_nt->addItem("ADC",DACIndex,ADC);
      if (sc!=StatusCode::SUCCESS)
-       {(*m_log) << MSG::ERROR << "addItem 'ADC' failed" << endreq;
+       {ATH_MSG_ERROR( "addItem 'ADC' failed" );
         return StatusCode::FAILURE;
        }
       
      sc=m_nt->addItem("DAC",DACIndex,DAC);
      if (sc!=StatusCode::SUCCESS)
-       {(*m_log) << MSG::ERROR << "addItem 'DAC' failed" << endreq;
+       {ATH_MSG_ERROR( "addItem 'DAC' failed" );
         return StatusCode::FAILURE;
        }
       
      sc=m_nt->addItem("NTriggers",DACIndex,NTriggers);
      if (sc!=StatusCode::SUCCESS) {
-       (*m_log) << MSG::ERROR << "addItem 'NTriggers' failed" << endreq;
+       ATH_MSG_ERROR( "addItem 'NTriggers' failed" );
        return StatusCode::FAILURE;
      }
 
      if(m_saveAllSamples){
        sc=m_nt->addItem("Sample0",DACIndex,Sample0);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample0' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample0' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample1",DACIndex,Sample1);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample1' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample1' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample2",DACIndex,Sample2);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample2' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample2' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample3",DACIndex,Sample3);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample3' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample3' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample4",DACIndex,Sample4);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample4' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample4' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample5",DACIndex,Sample5);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample5' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample5' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("Sample6",DACIndex,Sample6);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'Sample6' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'Sample6' failed" );
 	  return StatusCode::FAILURE;
 	 }
        
        sc=m_nt->addItem("RMS0",DACIndex,RMS0);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS0' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS0' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS1",DACIndex,RMS1);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS1' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS1' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS2",DACIndex,RMS2);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS2' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS2' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS3",DACIndex,RMS3);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS3' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS3' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS4",DACIndex,RMS4);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS4' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS4' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS5",DACIndex,RMS5);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS5' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS5' failed" );
 	  return StatusCode::FAILURE;
 	 }
        sc=m_nt->addItem("RMS6",DACIndex,RMS6);
        if (sc!=StatusCode::SUCCESS)
-	 {(*m_log) << MSG::ERROR << "addItem 'RMS6' failed" << endreq;
+	 {ATH_MSG_ERROR( "addItem 'RMS6' failed" );
 	  return StatusCode::FAILURE;
 	 }
      }// end-if Save all samples
@@ -262,20 +262,20 @@ StatusCode LArRamps2Ntuple::stop() {
  if (ramp) {
    sc=m_nt->addItem("Xi",coeffIndex,0,7);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'coeffIndex' failed" << endreq;
+     {ATH_MSG_ERROR( "addItem 'coeffIndex' failed" );
       return StatusCode::FAILURE;
      }
    
    sc=m_nt->addItem("X",coeffIndex,coeffs);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'coeff' failed" << endreq;
+     {ATH_MSG_ERROR( "addItem 'coeff' failed" );
       return StatusCode::FAILURE;
      }
 
    if (hasRawRampContainer) { //== RampComplete && RawRamp
      sc=m_nt->addItem("RampRMS",RampRMS,-1000,1000);
      if (sc!=StatusCode::SUCCESS)
-       {(*m_log) << MSG::ERROR << "addItem 'RampRMS' failed" << endreq;
+       {ATH_MSG_ERROR( "addItem 'RampRMS' failed" );
         return StatusCode::FAILURE;
        }
    }
@@ -293,7 +293,7 @@ StatusCode LArRamps2Ntuple::stop() {
        LArRawRampContainer* rawRampContainer=NULL;
        sc=m_detStore->retrieve(rawRampContainer,*key_it);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         (*m_log) << MSG::WARNING << "Unable to retrieve LArRawRampContainer with key " << *key_it << endreq;
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
          continue;
        }
        LArRawRampContainer::const_iterator cont_it=rawRampContainer->begin();
@@ -312,7 +312,7 @@ StatusCode LArRamps2Ntuple::stop() {
            if(m_saveAllSamples){
 	     
 	     if ( !singleRamp[DACIndex].Samples.size() || !singleRamp[DACIndex].RMS.size() ) {     
-	       (*m_log) << MSG::WARNING << "Cannot save all samples, vector empty" << endreq;
+	       ATH_MSG_WARNING( "Cannot save all samples, vector empty" );
 	     } else {
 	       
 	       Sample0[DACIndex]=singleRamp[DACIndex].Samples[0];
@@ -348,8 +348,8 @@ StatusCode LArRamps2Ntuple::stop() {
           unsigned nCoeff=0;
           const ILArRamp::RampRef_t  rampcoeff = ramp->ADC2DAC(chid,igain);
           if (rampcoeff.size()==0) {
-             (*m_log) << MSG::WARNING << "Can't get fitted Ramp slot=" << static_cast<long>(m_slot) << 
-                          " channel=" << static_cast<long>(m_channel) << " gain=" << igain << endreq;
+             ATH_MSG_WARNING( "Can't get fitted Ramp slot=" << static_cast<long>(m_slot) << 
+                          " channel=" << static_cast<long>(m_channel) << " gain=" << igain );
           }
           for (coeffIndex=0;coeffIndex<rampcoeff.size();coeffIndex++) coeffs[coeffIndex]=rampcoeff[coeffIndex];
           nDAC = singleRamp.size();
@@ -371,7 +371,7 @@ StatusCode LArRamps2Ntuple::stop() {
 
 	sc=ntupleSvc()->writeRecord(m_nt);
 	if (sc!=StatusCode::SUCCESS) {
-	  (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	  ATH_MSG_ERROR( "writeRecord failed" );
 	  return StatusCode::FAILURE;
 	}
 
@@ -402,7 +402,7 @@ StatusCode LArRamps2Ntuple::stop() {
 	 sc=ntupleSvc()->writeRecord(m_nt);
 
 	 if (sc!=StatusCode::SUCCESS) {
-	   (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	   ATH_MSG_ERROR( "writeRecord failed" );
 	   return StatusCode::FAILURE;
 	 }
        }// end if isConnected
@@ -435,13 +435,12 @@ StatusCode LArRamps2Ntuple::stop() {
           cellIndex  = cellCounter;
           fillFromIdentifier(chid);
  
-          for (coeffIndex=0;coeffIndex<rampcoeff.size();coeffIndex++)
-            coeffs[coeffIndex]=rampcoeff[coeffIndex];
+          for (coeffIndex=0;coeffIndex<rampcoeff.size();coeffIndex++) coeffs[coeffIndex]=rampcoeff[coeffIndex];
         
             sc=ntupleSvc()->writeRecord(m_nt);
  
             if (sc!=StatusCode::SUCCESS) {
-              (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+              ATH_MSG_ERROR( "writeRecord failed" );
               return StatusCode::FAILURE;
             }
        }//end loop over cells
@@ -452,12 +451,12 @@ StatusCode LArRamps2Ntuple::stop() {
  if(m_applyCorr && myramp) {
     sc = myramp->undoCorrections();
     if (sc!=StatusCode::SUCCESS) {
-	   (*m_log) << MSG::ERROR << "Undo corrections failed" << endreq;
+	   ATH_MSG_ERROR( "Undo corrections failed" );
     }
  }
 
 
- (*m_log) << MSG::INFO << "LArRamps2Ntuple has finished." << endreq;
+ ATH_MSG_INFO( "LArRamps2Ntuple has finished." );
  return StatusCode::SUCCESS;
 
 } // end finalize-method.

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # WriteCalibToCool.py
 # Sanya Solodkov 2014-08-29
 # change Yuri Smirnov 2014-12-24
@@ -24,8 +27,8 @@ def usage():
     print "-a, --all       if present, means that all drawers are saved, otherwise only those which were updated"
     print "-z, --zero      if present, means that zero-sized blob is written for missing drawers"
     print "-Z, --allzero   if present, means that zero-sized blob is created for all drawers which are not present in input file"
-    print "-C, --nchannel= specify number of channels to store to DB, default is 48"
-    print "-G, --ngain=    specify number of gains to store to DB, default is 2"
+    print "-C, --nchannel= specify number of channels to store to DB, default is 0 - means the same as in input DB"
+    print "-G, --ngain=    specify number of gains to store to DB, default is 0 - means the same as in input DB"
     print "-n, --nval=     specify number of values to store to DB, default is 0 - means all"
     print "-v, --version=  specify blob version, by default version from input DB is used" 
     print "-x, --txtfile=  specify the text file with the new constants for reading"
@@ -42,7 +45,7 @@ keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outsch
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
@@ -64,8 +67,8 @@ rosmin = 1
 all=False
 zero=False
 allzero=False
-nchan = 48
-ngain = 2
+nchan = 0
+ngain = 0
 nval = 0
 blobVersion = -1
 txtFile= ""
@@ -146,14 +149,7 @@ elif tag=='UPD5' and outfolderPath!=folderPath:
 if outtag is None:
     outtag = tag
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
@@ -215,12 +211,10 @@ if flt:
     mval=flt.getObjSizeUint32()
     log.info( "Blob type: %d  version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (blobT,blobV,mchan,mgain,mval) )
     if blobVersion<0: blobVersion = blobV 
-    if nchan<1: nchan=mchan
-    if ngain<1: ngain=mgain
 else:
     mval=-1
-    if nchan<1: nchan=TileCalibUtils.max_chan()
-    if ngain<1: ngain=TileCalibUtils.max_gain()
+nchanDef=nchan
+ngainDef=ngain
 
 log.info("Comment: %s" % blobReader.getComment((run,lumi)))
 log.info( "\n" )
@@ -235,11 +229,11 @@ else:
 
 if len(txtFile)>0:
     #=== create default: one number per ADC
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     for n in xrange(nval):
         default.push_back(0.)
 
-    defConst = PyCintex.gbl.std.vector('std::vector<float>')()
+    defConst = cppyy.gbl.std.vector('std::vector<float>')()
     for ng in xrange(ngain):
         defConst.push_back(default) # low/high gain
 
@@ -280,6 +274,8 @@ if len(txtFile)>0:
                 modSpec = modName
             newDrawer=True
             flt1 = blobReader.getDrawer(ros, mod, since, False, False)
+            nchan = nchanDef if nchanDef>0 else (flt1.getNChans() if flt1 else TileCalibUtils.max_chan())
+            ngain = ngainDef if ngainDef>0 else (flt1.getNGains() if flt1 else TileCalibUtils.max_gain())
             for chn in xrange(nchan):
                 #=== loop over gains
                 for adc in xrange(ngain):

@@ -390,11 +390,17 @@ if simdict.has_key("DECAYS"):
     addLineToPhysicsConfiguration("HadronLifeTime", "0.000001")
 
   def rhad_applycalomctruthstrategy():
-    from G4AtlasApps import AtlasG4Eng
-    myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-    myDecay.add_Volumes('CALO::CALO', 1)
-    AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
-    AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
+    print "ERROR rhad_applycalomctruthstrategy is obsolete"
+    print "Please request replacment configuration."
+    import sys
+    sys.exit(1)
+    ## from G4AtlasApps import AtlasG4Eng
+    ## myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
+    ## myDecay.add_Volumes('CALO::CALO', 1)
+    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
+    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
+
+
   simFlags.InitFunctions.add_function("preInitMCTruth", rhad_applycalomctruthstrategy)
 
   from AthenaCommon.AlgSequence import AlgSequence

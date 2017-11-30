@@ -63,7 +63,7 @@ namespace G4UA{
 
   }
 
-  void FastCaloSimParamAction::beginOfRun(const G4Run*){
+  void FastCaloSimParamAction::BeginOfRunAction(const G4Run*){
 
     //G4cout << "############################################" << G4endl
     // << "##    FastCaloSimParamAction - BeginOfRun ##" << G4endl
@@ -88,7 +88,7 @@ namespace G4UA{
     return;
   }
 
-  void FastCaloSimParamAction::endOfRun(const G4Run*){
+  void FastCaloSimParamAction::EndOfRunAction(const G4Run*){
 
 
     G4cout << "############################################" << G4endl
@@ -117,7 +117,7 @@ namespace G4UA{
     return;
   }
 
-  void FastCaloSimParamAction::beginOfEvent(const G4Event*)
+  void FastCaloSimParamAction::BeginOfEventAction(const G4Event*)
   {
 
     //G4cout << "############################################" << G4endl
@@ -136,7 +136,7 @@ namespace G4UA{
     return;
   }
 
-  void FastCaloSimParamAction::endOfEvent(const G4Event*){
+  void FastCaloSimParamAction::EndOfEventAction(const G4Event*){
 
     //G4cout << "############################################" << G4endl
     //     << "##    FastCaloSimParamAction - EndOfEvent ##" << G4endl
@@ -173,7 +173,7 @@ namespace G4UA{
     return;
   }
 
-  void FastCaloSimParamAction::processStep(const G4Step* aStep)
+  void FastCaloSimParamAction::UserSteppingAction(const G4Step* aStep)
 {
 
     //G4cout <<"FastCaloSimParamAction - SteppingAction"<<G4endl;
@@ -606,7 +606,10 @@ namespace G4UA{
         if (steps.size()>1)
           {
             //only when doing substeps, don't want to delete the original a4step
-            while(!steps.empty()) delete steps.back(), steps.pop_back();
+            for (std::vector<const G4Step*>::iterator it = steps.begin(); it!=steps.end(); ++it) {
+              delete *it;
+            }
+            steps.clear();
           }
       }
       ////////////////////////

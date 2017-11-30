@@ -639,6 +639,14 @@ class ParticleID(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class RecordStepInfo(JobProperty):
+    """
+    Should FCS_StepInfoCollections be recorded
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class RecordFlux(JobProperty):
     """
     Record flux through the entirety of the detector
@@ -664,7 +672,7 @@ class OptionalUserActionList(JobProperty):
     statusOn = True
     allowedTypes = ['dict']
     # not allowing stacking actions to be modified this way
-    StoredValue = {'BeginOfRun':[], 'BeginOfEvent':[], 'PreTracking':[], 'Step':['G4UA::LooperKillerTool'], 'PostTracking':[], 'EndOfRun':[], 'EndOfEvent':[]}
+    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':['G4UA::LooperKillerTool']}
     def addAction(self,actionTool,roles=[]):
         #Add the action to the end of the list of actions for each role.
         for role in roles:
@@ -673,7 +681,7 @@ class OptionalUserActionList(JobProperty):
             except KeyError:
                 print "WARNING Attempt to assign to action",actionTool,"a role ",role,"which is not allowed"
 
-    def removeAction(self,actionTool,roles=['BeginOfRun','BeginOfEvent', 'PreTracking', 'Step', 'PostTracking', 'EndOfRun', 'EndOfEvent']):
+    def removeAction(self, actionTool, roles=['Run', 'Event', 'Tracking', 'Step']):
          #Remove the action from the lists of actions for each role (remove from all by default) - no error if it isn't in the list.
         for role in roles:
             try:

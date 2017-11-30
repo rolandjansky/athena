@@ -33,37 +33,42 @@ def run_command(cmd, dir=None, shell=False, env=None):
     return exit_code, str(output), str(err)
 
 
-def check((exitcode, out, err)):
+def exit_on_failure((exit_code, out, err)):
     """Check exitcode and print statement and exit if needed."""
-    if exitcode == 0:
+    if exit_code == 0:
         print err
         return out
 
-    print "Error:", exitcode
+    print "Error:", exit_code
     print "StdOut:", out
     print "StdErr:", err
 
     print 'art-status: error'
 
-    exit(exitcode)
+    exit(exit_code)
 
 
-def verify((exitcode, out, err)):
+def code_tbr((exit_code, out, err)):
     """Check exitcode and print statement."""
-    if exitcode == 0:
+    if exit_code == 0:
         print out
-        return exitcode
+        return exit_code
 
-    print "Error:", exitcode
+    print "Error:", exit_code
     print "StdOut:", out
     print "StdErr:", err
 
-    return exitcode
+    return exit_code
 
 
-def redirect((exitcode, out, err)):
+def redirect_tbr((exitcode, out, err)):
     """Check exitcode."""
     return exitcode
+
+
+def is_exe(fpath):
+    """Return True if fpath is executable."""
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 
 def make_executable(path):

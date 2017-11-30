@@ -34,20 +34,20 @@ class LucidHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some histograms**/
-   TH1* h_hit_x;
-   TH1* h_hit_y;
-   TH1* h_hit_z;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hit_post_x;
-   TH1* h_hit_post_y;
-   TH1* h_hit_post_z;
-   TH1* h_hit_edep;
-   TH1* h_hit_pdgid;
-   TH1* h_hit_pretime;
-   TH1* h_hit_posttime;
-   TH1* h_genvolume;
-   TH1* h_wavelength;
+   TH1* m_h_hit_x;
+   TH1* m_h_hit_y;
+   TH1* m_h_hit_z;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hit_post_x;
+   TH1* m_h_hit_post_y;
+   TH1* m_h_hit_post_z;
+   TH1* m_h_hit_edep;
+   TH1* m_h_hit_pdgid;
+   TH1* m_h_hit_pretime;
+   TH1* m_h_hit_posttime;
+   TH1* m_h_genvolume;
+   TH1* m_h_wavelength;
 
    std::vector<float>* m_hit_x;
    std::vector<float>* m_hit_y;

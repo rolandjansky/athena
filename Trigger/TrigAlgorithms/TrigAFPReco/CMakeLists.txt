@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           ForwardDetectors/AFP/AFP_ByteStream2RawCnv
 			  ForwardDetectors/AFP/AFP_DigiEv
+			  ForwardDetectors/AFP/AFP_RawEv
                           ForwardDetectors/AFP/AFP_Raw2Digi
                           ForwardDetectors/AFP/AFP_Reconstruction/AFP_LocRecoInterfaces
 			  Event/EventInfo
@@ -33,8 +34,8 @@ find_package( ROOT COMPONENTS pthread  Core Tree Hist HepMC CLHEP)
 atlas_add_component( TrigAFPReco
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-					 LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthContainers xAODForward AFP_ByteStream2RawCnvLib GaudiKernel TrigParticle TrigInterfaces)
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} AFP_RawEv
+		     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AFP_RawEv AthContainers xAODForward AFP_ByteStream2RawCnvLib GaudiKernel TrigParticle TrigInterfaces)
 
 # Install files from the package:
 atlas_install_headers( TrigAFPReco )

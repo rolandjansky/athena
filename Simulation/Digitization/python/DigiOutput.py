@@ -131,8 +131,9 @@ def getStreamRDO_ItemList(log):
     # Calorimeter Output
     if DetFlags.digitize.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():
-            StreamRDO_ItemList+=["LArRawChannelContainer#*"]
-            if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["LArRawChannelContainer#*"]
+            if 'AddCaloDigi' in digitizationFlags.experimentalDigi() or digitizationFlags.PileUpPremixing:
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
             else:
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
@@ -142,10 +143,9 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["LArHitContainer#HGTDDigitContainer_MC"]
     if DetFlags.digitize.Tile_on():
         if DetFlags.writeRDOPool.Tile_on():
-            StreamRDO_ItemList+=["TileRawChannelContainer#*"]
-            StreamRDO_ItemList+=["TileDigitsContainer#*"]
-            StreamRDO_ItemList+=["TileHitContainer#*"]
-            if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["TileRawChannelContainer#*"]
+            if 'AddCaloDigi' in digitizationFlags.experimentalDigi() or digitizationFlags.PileUpPremixing:
                 StreamRDO_ItemList+=["TileDigitsContainer#*"]
             else:
                 StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsFlt"]

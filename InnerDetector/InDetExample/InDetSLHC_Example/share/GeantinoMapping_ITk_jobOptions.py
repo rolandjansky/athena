@@ -104,7 +104,7 @@ ServiceMgr += myAtRndmGenSvc
 
 ## Add an action
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['Run','Event','Step'])
 
 ############### The Material hit collection ##################
 
@@ -123,6 +123,8 @@ MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------

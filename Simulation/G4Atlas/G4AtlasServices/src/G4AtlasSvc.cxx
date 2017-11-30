@@ -8,15 +8,21 @@
 // header files from Geant4
 #include "G4VUserPhysicsList.hh"
 #include "G4VModularPhysicsList.hh"
-#if G4VERSION_NUMBER >= 1010
 #include "G4ParallelWorldPhysics.hh"
-#endif
+#include "G4RunManager.hh"
 
 G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthService(name,pSvcLocator),m_detGeoSvc("DetectorGeometrySvc","G4AtlasSvc")
+  : AthService(name,pSvcLocator)
+  , m_detGeoSvc("DetectorGeometrySvc",name)
+  , m_physicsListTool("PhysicsListToolBase")
+  , m_isMT(false)
+  , m_activateParallelGeometries(false)
 {
   ATH_MSG_INFO( "G4AtlasSvc being created!" );
   declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
+  declareProperty("DetectorGeometrySvc", m_detGeoSvc );
+  declareProperty("PhysicsListTool", m_physicsListTool);
+  declareProperty("isMT", m_isMT);
 }
 
 G4AtlasSvc::~G4AtlasSvc()
@@ -26,8 +32,18 @@ G4AtlasSvc::~G4AtlasSvc()
 StatusCode G4AtlasSvc::initialize(){
   // go through all tools and retrieve them
   //  This fires initialize() for each of those tools
-  
+
   ATH_MSG_INFO( "this is G4AtlasSvc::initialize() " );
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    ATH_MSG_ERROR("Run manager retrieval has failed");
+    return StatusCode::FAILURE;
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_isMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
 
   ATH_MSG_INFO( "retireving the Detector Geometry Service" );
   CHECK(m_detGeoSvc.retrieve());

@@ -225,6 +225,7 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rnpixh_pt = new Resplot( "npixh_pt", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
   mres.push_back(  rnscth_pt = new Resplot( "nscth_pt", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
 
+
   mres.push_back(  rnpix_pt_bad = new Resplot( "npix_pt_bad", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
   mres.push_back(  rnsct_pt_bad = new Resplot( "nsct_pt_bad", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
   mres.push_back(  rntrt_pt_bad = new Resplot( "ntrt_pt_bad", ptnbins, ptbinlims, 100, -0.5, 99.5 ) );
@@ -254,6 +255,38 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rChi2prob_bad = new Resplot( "Chi2prob_bad", ptnbins, ptbinlims,  20, 0,   1 ) );
   mres.push_back(  rChi2_bad     = new Resplot( "Chi2_bad",     ptnbins, ptbinlims, 200, 0, 100 ) );
   mres.push_back(  rChi2dof_bad  = new Resplot( "Chi2dof_bad",  ptnbins, ptbinlims, 100, 0,  10 ) );
+
+  /// additional resplots for additional si hit and hold monitoring
+
+  double d0bins[40] = { -5.0,  -4.0,  -3.0,  -2.5,
+                        -2.0,  -1.8,  -1.6,  -1.4,  -1.2,
+                        -1.05, -0.95, -0.85, -0.75, -0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05,
+                         0.05,  0.15,  0.25,  0.35,  0.45,  0.55,  0.65,  0.75,  0.85,  0.95,  1.05,
+                         1.2,   1.4,   1.6,   1.8,   2.0,
+                         2.5,   3.0,   4.0,   5.0 };
+
+
+
+  mres.push_back(  rnpix_d0 = new Resplot( "npix_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsct_d0 = new Resplot( "nsct_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rntrt_d0 = new Resplot( "ntrt_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+
+  mres.push_back(  rnpixh_d0 = new Resplot( "npixh_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnscth_d0 = new Resplot( "nscth_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+
+  mres.push_back(   rnsi_pt = new Resplot(  "nsi_pt", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsih_pt = new Resplot( "nsih_pt", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
+
+  mres.push_back(   rnsi_d0 = new Resplot(  "nsi_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsih_d0 = new Resplot( "nsih_d0", 39, d0bins,  22, -0.5, 21.5 ) );
+
+  mres.push_back(   rnsi_eta = new Resplot(  "nsi_eta", etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsih_eta = new Resplot( "nsih_eta", etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+
+  mres.push_back(   rnbl_d0 = new Resplot(  "nbl_d0", 39, d0bins,  5, -0.5, 4.5 ) );
+  mres.push_back(  rnblh_d0 = new Resplot( "nblh_d0", 39, d0bins,  5, -0.5, 4.5 ) );
+
+
 
   //  int Nptbins = 7;
   //  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
@@ -462,23 +495,23 @@ void ConfAnalysis::initialiseInternal() {
   rd0res.push_back(  new Resplot("rd0_vs_ipt",  iptnbins, iptbinlims, factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
 
 
-  retares.push_back( new Resplot("reta_vs_pt", ptnbins, ptbinlims, 2*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
+  retares.push_back( new Resplot("reta_vs_pt", ptnbins, ptbinlims, 8*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_pt", ptnbins, ptbinlims, 8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
-  rzedres.push_back( new Resplot("rzed_vs_pt", ptnbins, ptbinlims, 8*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
+  rzedres.push_back( new Resplot("rzed_vs_pt", ptnbins, ptbinlims, 24*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_pt", ptnbins, ptbinlims, 4*zfactor*zresBins,   -2*zwidthfactor*zresMax,      2*zwidthfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_pt", ptnbins, ptbinlims, 16*pTResBins,  -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_pt",  ptnbins, ptbinlims, 8*pTResBins,   -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
-  rd0res.push_back(  new Resplot("rd0_vs_pt",  ptnbins, ptbinlims, factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
+  rd0res.push_back(  new Resplot("rd0_vs_pt",  ptnbins, ptbinlims, factor*24*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
 
 
   //  retares.push_back( new Resplot("reta_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*etaResBins,  -tmp_absResEta, tmp_absResEta ) );
   retares.push_back( new Resplot("reta_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
-  rzedres.push_back( new Resplot("rzed_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*zfactor*zresBins,   -2*zfactor*zresMax,  2*zfactor*zresMax       ) );
+  rzedres.push_back( new Resplot("rzed_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  12*zfactor*zresBins,   -2*zfactor*zresMax,  2*zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*zfactor*zresBins,   -2*zwidthfactor*zresMax,  2*zwidthfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  16*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta,  8*pTResBins,   -tmp_absResPt, tmp_absResPt  ) ); 
-  rd0res.push_back(  new Resplot("rd0_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta,  factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
+  rd0res.push_back(  new Resplot("rd0_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta,  factor*24*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
 
 
   //  rphivsDd0res = new Resplot( "rphi_vs_Dd0", 10, 0, 0.1, int(2*M_PI/0.02), -0.2*int(M_PI/0.02), 0.2*int(M_PI/0.02) );
@@ -905,8 +938,11 @@ void ConfAnalysis::finalise() {
 
   std::cout << "ConfAnalysis::finalise() " << name() << std::endl;
 
+  std::string spstr[5] = { "npix", "nsct", "nsi", "ntrt", "nbl" };
   for ( int i=mres.size() ; i-- ; ) { 
-    mres[i]->Finalise(Resplot::FitNull95); 
+    TF1* (*resfit)(TH1D* s, double a, double b) = Resplot::FitNull95;    
+    for ( int ir=0 ; ir<5 ; ir++ ) if ( mres[i]->Name().find(spstr[ir])!=std::string::npos ) { resfit = Resplot::FitNull; break; }
+    mres[i]->Finalise( resfit ); 
     mres[i]->Write();
   }
 
@@ -1237,10 +1273,14 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
     double nsctt = reftracks[i]->sctHits(); 
     double npixt = reftracks[i]->pixelHits(); 
-    double nsit = reftracks[i]->pixelHits() * 0.5 + reftracks[i]->sctHits(); 
+    double nsit  = reftracks[i]->pixelHits() * 0.5 + reftracks[i]->sctHits(); 
 
     double nsctht = reftracks[i]->sctHoles(); 
     double npixht = reftracks[i]->pixelHoles(); 
+    double nsiht  = reftracks[i]->pixelHoles() + reftracks[i]->sctHoles(); 
+
+    double nbl    = reftracks[i]->bLayerHits();
+    double nblh   = ( ( reftracks[i]->expectBL() && reftracks[i]->bLayerHits()<1 ) ? 1 : 0 ); 
 
     //    double ntrtt   = reftracks[i]->trHits(); 
     double nstrawt = reftracks[i]->strawHits(); 
@@ -1285,6 +1325,27 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnpix_pt->Fill( std::fabs(pTt), npixt*0.5 );
     rnsct_pt->Fill( std::fabs(pTt), nsctt*1.0 );
     rntrt_pt->Fill( std::fabs(pTt), nstrawt*1.0 );
+
+
+    rnpix_d0->Fill( a0t, npixt*0.5 );
+    rnsct_d0->Fill( a0t, nsctt*1.0 );
+    rntrt_d0->Fill( a0t, nstrawt*1.0 );
+
+    rnpixh_d0->Fill( a0t, npixht );
+    rnscth_d0->Fill( a0t, nsctht );
+
+    rnsi_pt->Fill( std::fabs(pTt), nsit );
+    rnsih_pt->Fill( std::fabs(pTt), nsiht );
+
+    rnsi_d0->Fill( a0t, nsit );
+    rnsih_d0->Fill( a0t, nsiht );
+
+    rnsi_eta->Fill( etat, nsit );
+    rnsih_eta->Fill(etat, nsiht );
+
+    rnbl_d0->Fill(  a0t, nbl  );
+    rnblh_d0->Fill( a0t, nblh );
+
     
     rnpixh_pt->Fill( std::fabs(pTt), npixht );
     rnscth_pt->Fill( std::fabs(pTt), nsctht );

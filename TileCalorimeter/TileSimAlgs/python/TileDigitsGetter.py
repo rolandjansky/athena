@@ -62,13 +62,16 @@ class TileDigitsGetter ( Configured )  :
         # Check TileDigitization_jobOptions.py for full configurability
         theTileDigitsMaker.TileHitContainer="TileHitCnt"
         theTileDigitsMaker.TileInfoName="TileInfo"
-        theTileDigitsMaker.IntegerDigits=True; # save integer numbers in digits vector
+
         theTileDigitsMaker.CalibrationRun=False
 
         # Random number engine
         from Digitization.DigitizationFlags import digitizationFlags
         theTileDigitsMaker.RndmSvc=digitizationFlags.rndmSvc()
         digitizationFlags.rndmSeedList.addSeed("Tile_DigitsMaker", 4789899, 989240512)
+
+        # Save integer numbers in digits vector if not pile-up premixing
+        theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPremixing() 
 
         # sets output key  
         theTileDigitsMaker.TileDigitsContainer=self.outputKey()        

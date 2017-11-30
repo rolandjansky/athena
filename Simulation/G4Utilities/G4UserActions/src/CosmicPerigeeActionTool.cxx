@@ -16,52 +16,20 @@ namespace G4UA
                                                    const IInterface* parent)
     : ActionToolBase<CosmicPerigeeAction>(type, name, parent)
   {
-    declareProperty("AllowMods", m_config.AllowMods);
-    declareProperty("pMinPrimary",m_config.pMinPrimary);
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
+    declareProperty("pMinPrimary", m_config.pMinPrimary);
   }
-  
 
   //---------------------------------------------------------------------------
   // Create the action on request
   //---------------------------------------------------------------------------
-  std::unique_ptr<CosmicPerigeeAction>
-  CosmicPerigeeActionTool::makeAction()
+  std::unique_ptr<CosmicPerigeeAction> CosmicPerigeeActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<CosmicPerigeeAction>(m_config);
     return std::move(action);
   }
 
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode CosmicPerigeeActionTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IPreTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPreTrackingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    return ActionToolBase<CosmicPerigeeAction>::queryInterface(riid, ppvIf);
-  }
-  
 }

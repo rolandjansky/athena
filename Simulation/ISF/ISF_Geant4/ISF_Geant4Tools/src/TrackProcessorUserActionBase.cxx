@@ -55,21 +55,21 @@ TrackProcessorUserActionBase::TrackProcessorUserActionBase():
 {;
 }
 
-void TrackProcessorUserActionBase::beginOfEvent(const G4Event*)
+void TrackProcessorUserActionBase::BeginOfEventAction(const G4Event*)
 {
   m_curBaseISP = nullptr;
   m_eventInfo = ::iGeant4::ISFG4Helper::getEventInformation();
   return;
 }
 
-void TrackProcessorUserActionBase::endOfEvent(const G4Event*)
+void TrackProcessorUserActionBase::EndOfEventAction(const G4Event*)
 {
   m_curBaseISP = nullptr;
   m_eventInfo = nullptr;
   return;
 }
 
-void TrackProcessorUserActionBase::processStep(const G4Step* aStep)
+void TrackProcessorUserActionBase::UserSteppingAction(const G4Step* aStep)
 {
   // get geoID from parent
   //TODO ELLI AtlasDetDescr::AtlasRegion curGeoID = m_curBaseISP->nextGeoID();
@@ -105,7 +105,7 @@ void TrackProcessorUserActionBase::processStep(const G4Step* aStep)
   return;
 }
 
-void TrackProcessorUserActionBase::preTracking(const G4Track* aTrack)
+void TrackProcessorUserActionBase::PreUserTrackingAction(const G4Track* aTrack)
 {
   bool isPrimary = ! aTrack->GetParentID();
   if (isPrimary) {
@@ -234,7 +234,7 @@ TrackClassification TrackProcessorUserActionBase::classify(const HepMC::GenParti
 
 
 
-void TrackProcessorUserActionBase::postTracking(const G4Track*)
+void TrackProcessorUserActionBase::PostUserTrackingAction(const G4Track*)
 {
   m_curBaseISP = nullptr;
   return;

@@ -26,7 +26,7 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void HIPKiller::processStep(const G4Step* aStep)
+  void HIPKiller::UserSteppingAction(const G4Step* aStep)
   {
     int PDGcode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 

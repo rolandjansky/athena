@@ -13,7 +13,7 @@ def getFastCaloSimParamActionTool(name='G4UA::FastCaloSimParamActionTool', **kwa
 
 def addFastCaloSimParamActionTool(name='G4UA::FastCaloSimParamActionTool',system=False):
     from G4AtlasServices import G4AtlasServicesConfig
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Event','Step'],system)
 
 
 def getTestBoundariesUserActionTool(name='G4UA::iGeant4::TestBoundariesUserActionTool', **kwargs):

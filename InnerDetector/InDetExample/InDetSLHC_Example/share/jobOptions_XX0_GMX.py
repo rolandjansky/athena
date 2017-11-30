@@ -50,7 +50,7 @@ theApp.initialize()
 
 ## TODO Something like this should work with the appropriate CfgGetter method:
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('XX0_Tool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+simFlags.OptionalUserActionList.addAction('XX0_Tool',['Event','Run','Step'])
 simFlags.UserActionConfig.addConfig('XX0_Tool','volumePartsFile', "VolumeNameParts.txt")
 simFlags.UserActionConfig.addConfig('XX0_Tool','DoIntLength', False)
 simFlags.UserActionConfig.addConfig('XX0_Tool','DoEta', True)
@@ -72,6 +72,8 @@ simFlags.UserActionConfig.addConfig('XX0_Tool','ZMax',  3490. * mm)
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # start run after the interactive mode 
 
