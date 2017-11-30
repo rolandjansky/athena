@@ -172,16 +172,6 @@ namespace top{
     myLikelihood_JetAngles -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     myLikelihood_TTZ       -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
 
-    // 4.f) Z-specific settings
-    if (m_config->KLFitterTTZInvMassCutoff() < 0) {
-      ATH_MSG_ERROR("Please provide a valid cut-off value for the mass distribution");
-    }
-    if (m_config->KLFitterTTZOnShellFraction() < 0 || m_config->KLFitterTTZOnShellFraction() > 1) {
-      ATH_MSG_ERROR("Please provide a sensible on-shell fraction between 0 and 1");
-    }
-    myLikelihood_TTZ->SetInvMassCutoff( m_config->KLFitterTTZInvMassCutoff() );
-    myLikelihood_TTZ->SetOnShellFraction( m_config->KLFitterTTZOnShellFraction() );
-
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
       m_myFitter->SetLikelihood(myLikelihood);  
@@ -217,10 +207,6 @@ namespace top{
     ATH_MSG_INFO("  Using JetSelectionMode \t" << m_config->KLFitterJetSelectionMode());
     ATH_MSG_INFO("  Using BTaggingMethod \t"   << m_config->KLFitterBTaggingMethod());
     ATH_MSG_INFO("  Using TopMassFixed \t"     << m_config->KLFitterTopMassFixed());
-    if (m_LHType == "ttZTrilepton") {
-      ATH_MSG_INFO("  Using Z boson lower cut-off \t"<<m_config->KLFitterTTZInvMassCutoff());
-      ATH_MSG_INFO("  Using Z boson on-shell fraction \t"<<m_config->KLFitterTTZOnShellFraction());
-    }
     
     if (m_config->KLFitterSaveAllPermutations()) 
         ATH_MSG_INFO("  Saving All permutations");
