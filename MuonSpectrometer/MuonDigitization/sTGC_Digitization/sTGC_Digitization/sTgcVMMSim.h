@@ -35,18 +35,18 @@ class sTgcVMMSim
 public:
     // functions
     sTgcVMMSim()
-        : deadtimeStart(-9999)
-        , readtimeStart(-9999)
-        , currentState(READY)
-        , vmmTime(0)
-        , readtimeWindow(0)
-        , deadtimeWindow(0)
-        , produceDeadDigits(false)
-        , channelType(0)
-        , readoutTick(1)
-        , mode_neighborOn(false)
-        , mainThreshold(1)
-        , neighborThreshold(1)
+        : m_deadtimeStart(-9999)
+        , m_readtimeStart(-9999)
+        , m_currentState(READY)
+        , m_vmmTime(0)
+        , m_readtimeWindow(0)
+        , m_deadtimeWindow(0)
+        , m_produceDeadDigits(false)
+        , m_channelType(0)
+        , m_readoutTick(1)
+        , m_mode_neighborOn(false)
+        , m_mainThreshold(1)
+        , m_neighborThreshold(1)
     {
         readVMMConfig();
     }
@@ -58,43 +58,43 @@ public:
         float readWindow,
         bool readDeadDigits,
         int typeOfChannel)
-        : deadtimeStart(-9999)
-        , readtimeStart(-9999)
-        , digitsIn(inputDigits)
-        , currentState(READY)
-        , vmmTime(time)
-        , readtimeWindow(readWindow)
-        , deadtimeWindow(deadWindow)
-        , produceDeadDigits(readDeadDigits)
-        , channelType(typeOfChannel)
-        , readoutTick(1)
-        , mode_neighborOn(false)
-        , mainThreshold(1)
-        , neighborThreshold(1)
+        : m_deadtimeStart(-9999)
+        , m_readtimeStart(-9999)
+        , m_digitsIn(inputDigits)
+        , m_currentState(READY)
+        , m_vmmTime(time)
+        , m_readtimeWindow(readWindow)
+        , m_deadtimeWindow(deadWindow)
+        , m_produceDeadDigits(readDeadDigits)
+        , m_channelType(typeOfChannel)
+        , m_readoutTick(1)
+        , m_mode_neighborOn(false)
+        , m_mainThreshold(1)
+        , m_neighborThreshold(1)
     {
         readVMMConfig();
         
     }
     // //**********************************************************************
 
-    bool tick() // advance the vmmTime, buffer digits, return live signal
+    bool tick() // advance the m_vmmTime, buffer digits, return live signal
     {
-        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): currentState = " << currentState);
-        if(digitBuffer.size() > 0) {
-            digitBuffer.clear(); // clear the buffer from the last tick
+        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): currentState = " << m_currentState);
+        if(m_digitBuffer.size() > 0) {
+            m_digitBuffer.clear(); // clear the buffer from the last tick
             ATH_MSG_VERBOSE("Buffer cleared");
         }
 
-        vmmTime += readoutTick;                              // Advance the vmmTime by the readout clock tick
-        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): advance vmmTime " << (vmmTime - readoutTick) << " to " << vmmTime);
-        if((vmmTime - readoutTick) > digitsIn.back().time()) // This tick could not contain any digits
-            return false;                                    // No more digits exist beyond this vmmTime: kill this VMM
+        m_vmmTime += m_readoutTick;                              // Advance the m_vmmTime by the readout clock tick
+        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): advance vmmTime " << (m_vmmTime - m_readoutTick) << " to " << m_vmmTime);
+        if((m_vmmTime - m_readoutTick) > m_digitsIn.back().time()) // This tick could not contain any digits
+            return false;                                    // No more digits exist beyond this m_vmmTime: kill this VMM
         else {
-            for(std::vector<sTgcDigit>::iterator it_digit = digitsIn.begin(); it_digit != digitsIn.end(); ++it_digit) {
-                ATH_MSG_VERBOSE("Digit time difference : " << (it_digit->time() - vmmTime) );
-                if((abs((it_digit->time() - vmmTime)) <= readoutTick) && (it_digit->time() <= vmmTime) && (it_digit->charge() >= neighborThreshold || channelType != 1)) {
+            for(std::vector<sTgcDigit>::iterator it_digit = m_digitsIn.begin(); it_digit != m_digitsIn.end(); ++it_digit) {
+                ATH_MSG_VERBOSE("Digit time difference : " << (it_digit->time() - m_vmmTime) );
+                if((abs((it_digit->time() - m_vmmTime)) <= m_readoutTick) && (it_digit->time() <= m_vmmTime) && (it_digit->charge() >= m_neighborThreshold || m_channelType != 1)) {
                     ATH_MSG_VERBOSE("Buffering Digit at time : " << it_digit->time() << " charge: " << it_digit->charge());
-                    digitBuffer.push_back(
+                    m_digitBuffer.push_back(
                         *it_digit); // buffer digits if they fall inside the tick window and would pass
                                     // the lowest threshold
                 }
@@ -105,28 +105,28 @@ public:
     //**********************************************************************
     bool tock() // Check Deadtime and Update Readout States.  Returns true if a Threshold crossind digit is present
     {
-        ATH_MSG_VERBOSE("sTgcVMMSim::tock(): currentState = " << currentState << " vmmTime = " << vmmTime);
+        ATH_MSG_VERBOSE("sTgcVMMSim::tock(): currentState = " << m_currentState << " vmmTime = " << m_vmmTime);
         bool thresh_trig = false;
-        if(currentState == DEAD && vmmTime > (deadtimeStart + deadtimeWindow)) { // VMM is dead and ready for reset
-            currentState = READY;
+        if(m_currentState == DEAD && m_vmmTime > (m_deadtimeStart + m_deadtimeWindow)) { // VMM is dead and ready for reset
+            m_currentState = READY;
         }
-        if(currentState == READY) { // VMM is live and looking for an over Threshold digit
-            for(std::vector<sTgcDigit>::iterator it_digit = digitBuffer.begin(); it_digit != digitBuffer.end();
+        if(m_currentState == READY) { // VMM is live and looking for an over Threshold digit
+            for(std::vector<sTgcDigit>::iterator it_digit = m_digitBuffer.begin(); it_digit != m_digitBuffer.end();
                 ++it_digit) {
                 ATH_MSG_VERBOSE("Examining Digit at time : " << it_digit->time() << " charge: " << it_digit->charge());
-                if(it_digit->charge() >= mainThreshold || channelType != 1) {
+                if(it_digit->charge() >= m_mainThreshold || m_channelType != 1) {
                     ATH_MSG_VERBOSE("Begin VMM READ at time : " << it_digit->time() << " charge: " << it_digit->charge());
-                    beginRead(vmmTime); // If a digit crosses threshold, begin readout window at the beginning of the tick
+                    beginRead(m_vmmTime); // If a digit crosses threshold, begin readout window at the beginning of the tick
                     thresh_trig = true;
                 }
             }
         }
-        if(currentState == READ) { // VMM is in read state either from over threshold digit or NeighborOn signal
-            if(vmmTime - readtimeStart >= readtimeWindow) { // If the readout window has elapsed, send the channel dead.
+        if(m_currentState == READ) { // VMM is in read state either from over threshold digit or NeighborOn signal
+            if(m_vmmTime - m_readtimeStart >= m_readtimeWindow) { // If the readout window has elapsed, send the channel dead.
                                                             // This should nominally only happen to NeighborOn triggered
                                                             // channels
-                currentState = DEAD;
-                deadtimeStart = vmmTime;
+                m_currentState = DEAD;
+                m_deadtimeStart = m_vmmTime;
             }
         }
         return thresh_trig;
@@ -134,23 +134,23 @@ public:
     //**********************************************************************
     sTgcDigit* flush() // Flush digit in this tick from buffer if it is in a READ state
     {
-        ATH_MSG_VERBOSE("sTgcVMMSim::flush(): currentState = " << currentState);
-        if(currentState == READ && digitBuffer.size() > 0) {
-            digitOut = &digitBuffer[0];
-            currentState = DEAD;
-            deadtimeStart = digitOut->time();
-            return digitOut;
-        } else if(currentState == DEAD && produceDeadDigits && digitBuffer.size() > 0) {
-            digitOut = &digitBuffer[0];
-            digitOut->set_isDead(true);
-            return digitOut;
+        ATH_MSG_VERBOSE("sTgcVMMSim::flush(): currentState = " << m_currentState);
+        if(m_currentState == READ && m_digitBuffer.size() > 0) {
+            m_digitOut = &m_digitBuffer[0];
+            m_currentState = DEAD;
+            m_deadtimeStart = m_digitOut->time();
+            return m_digitOut;
+        } else if(m_currentState == DEAD && m_produceDeadDigits && m_digitBuffer.size() > 0) {
+            m_digitOut = &m_digitBuffer[0];
+            m_digitOut->set_isDead(true);
+            return m_digitOut;
         } else
             return nullptr;
     }
     //**********************************************************************
     int getState() // Getter for the VMM State
     {
-        return currentState;
+        return m_currentState;
     }
 
     //**********************************************************************
@@ -158,7 +158,7 @@ public:
     void neighborTrigger() // Trigger this channel from a neighbor.  tock() returning true should cause this to be
                            // called from the main program
     {
-        if(mode_neighborOn)
+        if(m_mode_neighborOn)
             setState(READ);
         else
             ATH_MSG_VERBOSE("Neighbor trigger failed: neighborON mode is turned off");
@@ -180,16 +180,16 @@ public:
         return;
     }
     void initialReport() {
-        ATH_MSG_VERBOSE(digitsIn.size() << " digits pased to the VMM");
-        for(int i = 0; i<digitsIn.size(); i++){
+        ATH_MSG_VERBOSE(m_digitsIn.size() << " digits pased to the VMM");
+        for(unsigned int i = 0; i<m_digitsIn.size(); i++){
             ATH_MSG_VERBOSE("Digit In: " << i+1 );
-            ATH_MSG_VERBOSE(" digitTime = " << digitsIn[i].time()) ;
-            ATH_MSG_VERBOSE(" charge = "    << digitsIn[i].charge()) ;
+            ATH_MSG_VERBOSE(" digitTime = " << m_digitsIn[i].time()) ;
+            ATH_MSG_VERBOSE(" charge = "    << m_digitsIn[i].charge()) ;
         }
-        ATH_MSG_VERBOSE(mainThreshold << " mainThreshold");
-        ATH_MSG_VERBOSE("VMMTime initalized to " << vmmTime);
+        ATH_MSG_VERBOSE(m_mainThreshold << " mainThreshold");
+        ATH_MSG_VERBOSE("VMMTime initalized to " << m_vmmTime);
         ATH_MSG_VERBOSE("Backing up VMM clock by one Half Readout Tick to ensure captureof first digit.");
-        setTime(vmmTime - (readoutTick/2.0));
+        setTime(m_vmmTime - (m_readoutTick/2.0));
         
         return;
     }
@@ -198,49 +198,49 @@ public:
 
 private: // data
     // internal variables
-    float deadtimeStart;
-    float readtimeStart;
-    std::vector<sTgcDigit> digitsIn;
-    std::vector<sTgcDigit> digitBuffer;
-    sTgcDigit* digitOut;
-    vmmState currentState;
+    float m_deadtimeStart;
+    float m_readtimeStart;
+    std::vector<sTgcDigit> m_digitsIn;
+    std::vector<sTgcDigit> m_digitBuffer;
+    sTgcDigit* m_digitOut;
+    vmmState m_currentState;
 
     // parameters given in constructor
-    float vmmTime;
-    float readtimeWindow;
-    float deadtimeWindow;
-    bool produceDeadDigits;
-    int channelType;
+    float m_vmmTime;
+    float m_readtimeWindow;
+    float m_deadtimeWindow;
+    bool m_produceDeadDigits;
+    int m_channelType;
 
     // parameters read from config
-    float readoutTick;
-    bool mode_neighborOn;
-    float mainThreshold;
-    float neighborThreshold;
+    float m_readoutTick;
+    bool m_mode_neighborOn;
+    float m_mainThreshold;
+    float m_neighborThreshold;
     
     //**********************************************************************
     // Functions
 
     bool beginRead(float triggerTime) // Trigger the beginning of the read window
     {
-        if(currentState == DEAD || currentState == READ) // read window will not start
+        if(m_currentState == DEAD || m_currentState == READ) // read window will not start
             return false;
         else // Read window will start
         {
-            currentState = READ;           // A digit in the buffer triggers a readout
-            readtimeStart = (triggerTime); // Set the readout window going at the beginning of this tick
+            m_currentState = READ;           // A digit in the buffer triggers a readout
+            m_readtimeStart = (triggerTime); // Set the readout window going at the beginning of this tick
             return true;
         }
     }
     //**********************************************************************
-    void setState(vmmState _state) // Setter for the VMM State
+    void setState(vmmState state) // Setter for the VMM State
     {
-        currentState = _state;
+        m_currentState = state;
     }
     //**********************************************************************
-    void setTime(float _time) // Setter for the VMM Time
+    void setTime(float time) // Setter for the VMM Time
     {
-        vmmTime = _time;
+        m_vmmTime = time;
     }
     //**********************************************************************
     void readVMMConfig() // Read config parameters in from the VMM config file
@@ -269,22 +269,22 @@ private: // data
         while(ifs.good()) {
             ifs >> var >> value;
             if(var.compare("neighborON") == 0) {
-                mode_neighborOn = (bool)value;
+                m_mode_neighborOn = (bool)value;
                 ATH_MSG_DEBUG("m_deadtimeON = " << (bool)value);
                 continue;
             }
             if(var.compare("mainThreshold") == 0) {
-                mainThreshold = value;
+                m_mainThreshold = value;
                 ATH_MSG_DEBUG("mainThreshold = " << value);
                 continue;
             }
             if(var.compare("neighborThreshold") == 0) {
-                neighborThreshold = value;
+                m_neighborThreshold = value;
                 ATH_MSG_DEBUG("neighborThreshold = " << value);
                 continue;
             }
             if(var.compare("readoutTick") == 0) {
-                readoutTick = value;
+                m_readoutTick = value;
                 ATH_MSG_DEBUG("readoutTick = " << value);
                 continue;
             }
