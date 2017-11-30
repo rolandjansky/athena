@@ -11,22 +11,17 @@
 #ifndef DETCONDKEYTRANSCNV_H
 #define DETCONDKEYTRANSCNV_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 #include "DetDescrConditions/DetCondKeyTrans.h"
-#include "DetDescrCondTPCnv/DetCondKeyTrans_p1.h"
+#include "DetDescrCondTPCnv/DetCondKeyTransCnv_p1.h"
 
-// the latest persistent representation type of DetCondKeyTrans
-typedef  DetCondKeyTrans_p1  DetCondKeyTrans_PERS;
-typedef  T_AthenaPoolCustomCnv<DetCondKeyTrans, DetCondKeyTrans_PERS >   DetCondKeyTransCnvBase;
 
-class DetCondKeyTransCnv : public DetCondKeyTransCnvBase {
-    friend class CnvFactory<DetCondKeyTransCnv >;
+typedef T_AthenaPoolTPCnvCnv<DetCondKeyTrans,
+                             DetCondKeyTransCnv_p1,
+                             T_TPCnvNull<DetCondKeyTrans> >
+  DetCondKeyTransCnv;
 
-protected:
-    DetCondKeyTransCnv (ISvcLocator* svcloc);
-    virtual DetCondKeyTrans_PERS*   createPersistent (DetCondKeyTrans* transObj);
-    virtual DetCondKeyTrans*        createTransient ();
-};
 
 #endif
 
