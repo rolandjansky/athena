@@ -531,8 +531,8 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
 
-    gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
-    gsc_jetTrackTE        = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
+    gsc_jetTrackTEPreCut  = "HLT_noAllTE_precut_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
+    gsc_jetTrackTE        = "HLT_noAllTE_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
 
 
     if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
