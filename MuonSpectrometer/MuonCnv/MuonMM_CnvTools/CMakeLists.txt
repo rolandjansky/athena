@@ -1,5 +1,5 @@
 ################################################################################
-# Package: MuonMDT_CnvTools
+# Package: MuonMM_CnvTools
 ################################################################################
 
 # Declare the package name:
@@ -17,9 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
                           Event/ByteStreamCnvSvcBase
-                          MuonSpectrometer/MuonCablings/MuonMDT_Cabling
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibSvc
-                          MuonSpectrometer/MuonCalib/MuonCalibEvent
                           MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
                           MuonSpectrometer/MuonCnv/MuonContainerManager
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -36,8 +33,8 @@ atlas_add_component( MuonMM_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData )
 
 # Install files from the package:
-atlas_install_headers( MuonMDT_CnvTools )
+atlas_install_headers( MuonMM_CnvTools )
 
