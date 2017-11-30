@@ -35,6 +35,7 @@
 + Generators/HepMCWeightSvc
 + Generators/McAsciiEventSelector
 + Generators/TruthUtils
++ Generators/GenInterfaces
 - Generators/.*
 - InnerDetector/InDetDigitization/.*
 - InnerDetector/InDetG4/.*
