@@ -189,7 +189,7 @@ namespace top{
       m_myFitter->SetLikelihood(myLikelihood_TTH);
     else if (m_LHType == "ttbar_JetAngles")
       m_myFitter->SetLikelihood(myLikelihood_JetAngles);
-    else if (m_LHType == "TTZTrilepton")
+    else if (m_LHType == "ttZTrilepton")
       m_myFitter->SetLikelihood(myLikelihood_TTZ);
 
     else{
@@ -217,7 +217,7 @@ namespace top{
     ATH_MSG_INFO("  Using JetSelectionMode \t" << m_config->KLFitterJetSelectionMode());
     ATH_MSG_INFO("  Using BTaggingMethod \t"   << m_config->KLFitterBTaggingMethod());
     ATH_MSG_INFO("  Using TopMassFixed \t"     << m_config->KLFitterTopMassFixed());
-    if (m_LHType == "TTZTrilepton") {
+    if (m_LHType == "ttZTrilepton") {
       ATH_MSG_INFO("  Using Z boson lower cut-off \t"<<m_config->KLFitterTTZInvMassCutoff());
       ATH_MSG_INFO("  Using Z boson on-shell fraction \t"<<m_config->KLFitterTTZOnShellFraction());
     }
@@ -295,7 +295,7 @@ namespace top{
       }
     }
 
-    if (m_LHType == "TTZTrilepton") {
+    if (m_LHType == "ttZTrilepton") {
       if (m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron) {
         if (event.m_electrons.size() < 3) {
           ATH_MSG_ERROR( "KLFitter: kDedicated requires three electrons..." );
@@ -425,7 +425,7 @@ namespace top{
         result->setModel_lep_phi( myModelParticles->Electron(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Electron(0)->E() );
 
-        if (m_LHType == "TTZTrilepton") {
+        if (m_LHType == "ttZTrilepton") {
           result->setModel_lep_index( (*myPermutedParticles)->ElectronIndex(0) );
 
           result->setModel_lepZ1_pt( myModelParticles->Electron(1)->Pt() );
@@ -451,7 +451,7 @@ namespace top{
         result->setModel_lep_phi( myModelParticles->Muon(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Muon(0)->E() );
 
-        if (m_LHType == "TTZTrilepton") {
+        if (m_LHType == "ttZTrilepton") {
           result->setModel_lep_index( (*myPermutedParticles)->MuonIndex(0) );
 
           result->setModel_lepZ1_pt( myModelParticles->Muon(1)->Pt() );

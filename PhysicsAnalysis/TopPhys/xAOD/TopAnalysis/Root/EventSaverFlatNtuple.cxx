@@ -813,7 +813,7 @@ namespace top {
                   systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
                   systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
 
-                  if(m_config->KLFitterLH() == "ttZ"){
+                  if(m_config->KLFitterLH() == "ttZTrilepton"){
                     systematicTree->makeOutputVariable(m_klfitter_model_lep_index,"klfitter_model_lep_index");
 
                     systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_pt,"klfitter_model_lepZ1_pt");
