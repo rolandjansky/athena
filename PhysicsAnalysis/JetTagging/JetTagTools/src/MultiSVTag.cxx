@@ -236,7 +236,6 @@ namespace Analysis
 
 	if (tree) {
 	  bdt = new MVAUtils:: BDT(tree);
-	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
 	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
