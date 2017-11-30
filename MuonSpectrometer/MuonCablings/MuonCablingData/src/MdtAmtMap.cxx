@@ -109,7 +109,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
         else {
           layer = 4-chan%4 ;
         }
-        if ( tubeZero == 1) {
+        if ( (tubeZero-1)%6 == 0) {
           tube = tubeZero + int ( chan/4 );
         }
         else {
@@ -123,7 +123,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
         else {
           layer = 4-chan%4 ;
         }
-        if ( tubeZero == 1) {
+        if ( (tubeZero-1)%6 == 0) {
           tube = tubeZero + int ( chan/4 );
         }
         else {
