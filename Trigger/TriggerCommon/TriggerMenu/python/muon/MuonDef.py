@@ -421,6 +421,10 @@ class L2EFChain_mu(L2EFChainDef):
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarMedium")
       elif self.chainPart['isoInfo'] == "ivarmedium":
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarTightWide")
+      elif self.chainPart['isoInfo'] == "ivartight":
+        theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarTighterWide")
+      elif self.chainPart['isoInfo'] == "ivarverytight":
+        theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarVeryTightWide")
       elif self.chainPart['isoInfo'] == "icalo":
         theTrigMuonEFCaloIsolationHypoConfig = TrigMuonEFCaloIsolationHypoConfig("Muon", "Rel")
       elif self.chainPart['isoInfo'] == "iloosecalo":
@@ -460,7 +464,7 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsequenceList += [[['EF_mu_step4'],
                                  [theTrigMuonEFTrackIsolationHypoConfig],
                                  'EF_mu_hypo3']]
-      elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+      elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
         self.EFsequenceList += [[['EF_mu_step3'],
                                  [TrigMuonEFTrackIsolationVarConfig("TrigMuonEFTrackIsolationVar")],
                                  'EF_mu_step4']]
