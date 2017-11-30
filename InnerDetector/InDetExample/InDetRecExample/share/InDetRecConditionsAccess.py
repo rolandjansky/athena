@@ -284,6 +284,7 @@ if DetFlags.haveRIO.SCT_on():
     # Load bytestream errors service (use default instance without "InDet")
     # @TODO find a better to solution to get the correct service for the current job.
     if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
+        include( 'InDetRecExample/InDetRecCabling.py' )
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
         SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
         ServiceMgr += SCT_ByteStreamErrorsSvc
