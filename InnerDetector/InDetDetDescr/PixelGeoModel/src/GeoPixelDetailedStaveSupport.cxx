@@ -1003,11 +1003,11 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
     std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(1,"doglegA");
     scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
   }
-  else if(bFlexConstantThickness){
-    std::ostringstream tmp;
-    tmp<<"CableFlex_IBL";
-    scaledFlexMaterial= m_mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(ModuleNumber_flex/2+1), tmp.str());
-  }
+  //else if(bFlexConstantThickness){
+  //  std::ostringstream tmp;
+  //  tmp<<"CableFlex_IBL";
+  //  scaledFlexMaterial= m_mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(ModuleNumber_flex/2+1), tmp.str());
+  //}
   else{
     scaledFlexMaterial= m_mat_mgr->getMaterial("pix::CableFlex_IBL");
   }
