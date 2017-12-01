@@ -12,6 +12,8 @@
 
 #include "SCT_ReadCalibChipUtilities.h"
 
+#include <limits>
+
 using namespace SCT_ConditionsServices;
 using namespace SCT_ReadCalibChipUtilities;
 
@@ -84,6 +86,16 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
   
   // Construct the output Cond Object and fill it in
   SCT_NoiseCalibData* writeCdo{new SCT_NoiseCalibData()};
+
+  // Initialization
+  const float errVal{std::numeric_limits<float>::quiet_NaN()};
+  for (unsigned int m{0}; m!=NUMBER_OF_MODULES; ++m) {
+    for (unsigned int p{0}; p!=N_NOISEOCC; ++p) {
+      for (unsigned int c{0}; c!=CHIPS_PER_MODULE; ++c) {
+        (*writeCdo)[m][p][c]=errVal;
+      }
+    }
+  }
 
   // loop over collection
   CondAttrListCollection::const_iterator itLoop{readCdo->begin()};
