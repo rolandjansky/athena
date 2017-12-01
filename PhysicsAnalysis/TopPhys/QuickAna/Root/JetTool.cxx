@@ -57,7 +57,7 @@ namespace
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
 //  const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
-  const char *jesFile = "JES_MC16Recommendation_Aug2017.config";
+  const char *jesFile = "JES_MC16Recommendation_28Nov2017.config";
   const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #endif
 }
@@ -128,11 +128,13 @@ namespace ana
     const std::string calibSeq = m_isData ? "JetArea_Residual_Origin_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_Origin_EtaJES_GSC";
 #else
-    const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
-                                          : "JetArea_Residual_EtaJES_GSC";
-    std::string rhoKey = jetCollection.find("LCTopo")!=std::string::npos ? "Kt4LCTopoOriginEventShape"
-                                                                         : "Kt4EMTopoOriginEventShape";
-    ATH_CHECK( m_calibration_tool.setProperty("RhoKey", rhoKey) );
+    //const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
+    //                                      : "JetArea_Residual_EtaJES_GSC";
+    const std::string calibSeq = "JetArea_Residual_EtaJES_GSC";
+    //std::string rhoKey = jetCollection.find("LCTopo")!=std::string::npos ? "Kt4LCTopoOriginEventShape"
+    //                                                                     : "Kt4EMTopoOriginEventShape";
+    //ATH_CHECK( m_calibration_tool.setProperty("RhoKey", rhoKey) );
+    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
 #endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
