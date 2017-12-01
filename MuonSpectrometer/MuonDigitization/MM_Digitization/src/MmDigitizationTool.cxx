@@ -1086,26 +1086,16 @@ StatusCode MmDigitizationTool::doDigitization() {
     // Apply Dead-time in ART
     //
 
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTimeART(ElectronicsTriggerOutput));    
-    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));    
-
-    //go to MM_DigitContainer
-
-
-=======
->>>>>>> 4298bb4... MM_Digitization: Writing out info to debug stream
-
-    // To apply an arbitrary time-smearing of digits
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTimeART(ElectronicsTriggerOutput));
     MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
-
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicOutput charge length: " << ElectronicOutput.stripCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.stripCharge().size() );
-    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.stripCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime  charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime .chipCharge().size() );
-    ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTTiming  charge length: " << ElectronicsTriggerOutputAppliedARTTiming .chipCharge().size() );
-    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.chipCharge().size() );
-    // ATH_MSG_WARNING ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.chipCharge().size() );
+    ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicOutput charge length: " << ElectronicOutput.stripCharge().size() );
+    ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.stripCharge().size() );
+    // ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.stripCharge().size() );
+    ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime  charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime .chipCharge().size() );
+    ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTTiming  charge length: " << ElectronicsTriggerOutputAppliedARTTiming .chipCharge().size() );
+    // ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicThresholdOutput charge length: " << ElectronicThresholdOutput.chipCharge().size() );
+    // ATH_MSG_DEBUG ( "MmDigitizationTool: ElectronicsTriggerOutputAppliedARTDeadTime charge length: " << ElectronicsTriggerOutputAppliedARTDeadTime.chipCharge().size() );
 
 
     MmDigit*  newDigit = new MmDigit(StripdigitOutputAllhits.DigitId(),
@@ -1123,35 +1113,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 				     ElectronicsTriggerOutputAppliedARTTiming.VMMid(),
 				     ElectronicsTriggerOutputAppliedARTTiming.MMFEVMMid());
     // The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity.
-<<<<<<< HEAD
-      IdentifierHash detIdhash ;
-      // set RE hash id
-      const Identifier elemId = m_idHelper -> elementID(StripdigitOutputAllhits.DigitId());
-      int gethash_code = m_idHelper->get_detectorElement_hash(elemId, detIdhash);
-      if (gethash_code != 0) {
-	ATH_MSG_ERROR ( "MmDigitizationTool --  collection hash Id NOT computed for id = " << m_idHelper->show_to_string(elemId) );
-	// continue;
-      }
 
-      MmDigitCollection* digitCollection = 0;
-      // put new collection in storegate
-      // Get the messaging service, print where you are
-      m_activeStore->setStore( &*m_sgSvc );
-      MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(detIdhash);
-      if (m_digitContainer->end() ==  it_coll) {
-	digitCollection = new MmDigitCollection(elemId, detIdhash);
-	digitCollection->push_back(newDigit);
-	m_activeStore->setStore( &*m_sgSvc );
-	StatusCode status = m_digitContainer->addCollection(digitCollection, detIdhash);
-	if (status.isFailure()) {
-	  ATH_MSG_ERROR ( "Couldn't record MicroMegas DigitCollection with key=" << detIdhash  << " in StoreGate!" );
-	}
-      }
-      else {
-	digitCollection = const_cast<MmDigitCollection*>( *it_coll );
-	digitCollection->push_back(newDigit);
-      }
-=======
     IdentifierHash detIdhash ;
     // set RE hash id
     const Identifier elemId = m_idHelper -> elementID(StripdigitOutputAllhits.DigitId());
@@ -1160,7 +1122,6 @@ StatusCode MmDigitizationTool::doDigitization() {
     	ATH_MSG_ERROR ( "MmDigitizationTool --  collection hash Id NOT computed for id = " << m_idHelper->show_to_string(elemId) );
     	// continue;
     }
->>>>>>> 4298bb4... MM_Digitization: Writing out info to debug stream
 
     MmDigitCollection* digitCollection = 0;
     // put new collection in storegate
